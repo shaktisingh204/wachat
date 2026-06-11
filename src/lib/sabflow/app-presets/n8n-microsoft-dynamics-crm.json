@@ -4,8 +4,8 @@
   "description": "Consume Microsoft Dynamics CRM API",
   "category": "crm",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 8,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -16,14 +16,228 @@
       "credentialType": "oauth2"
     }
   },
-  "baseUrl": "",
+  "baseUrl": "https://{subdomain}.{region}/api/data/v9.2",
   "endpoints": [
     {
-      "id": "account_default",
-      "label": "List Account",
+      "id": "account_create",
+      "label": "Create Account",
+      "method": "POST",
+      "path": "/accounts",
+      "fields": [
+        {
+          "id": "region",
+          "label": "Region",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Region of your Microsoft Dynamics CRM account (host token in the API base URL)"
+        },
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your Microsoft Dynamics CRM account (host token in the API base URL)"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "Company or business name"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: accountcategorycode, accountratingcode, addresses, businesstypecode, customersizecode, customertypecode, description, emailaddress1, emailaddress2, emailaddress3, fax, ftpsiteurl, industrycode, name, creditlimit, numberofemployees, paymenttermscode, preferredappointmentdaycode, preferredappointmenttimecode, preferredcontactmethodcode, primarysatoriid, primarytwitterid, revenue, sharesoutstanding, shippingmethodcode, sic, stageid, stockexchange, telephone1, telephone2)"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: returnFields)"
+        }
+      ],
+      "group": "Account",
+      "description": "Create an account"
+    },
+    {
+      "id": "account_delete",
+      "label": "Delete Account",
+      "method": "DELETE",
+      "path": "/accounts({accountId}",
+      "fields": [
+        {
+          "id": "region",
+          "label": "Region",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Region of your Microsoft Dynamics CRM account (host token in the API base URL)"
+        },
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your Microsoft Dynamics CRM account (host token in the API base URL)"
+        },
+        {
+          "id": "accountId",
+          "label": "Account ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Account",
+      "description": "Delete an account"
+    },
+    {
+      "id": "account_get",
+      "label": "Get Account",
       "method": "GET",
-      "path": "/account",
-      "fields": []
+      "path": "/accounts({accountId}",
+      "fields": [
+        {
+          "id": "region",
+          "label": "Region",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Region of your Microsoft Dynamics CRM account (host token in the API base URL)"
+        },
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your Microsoft Dynamics CRM account (host token in the API base URL)"
+        },
+        {
+          "id": "accountId",
+          "label": "Account ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: returnFields, expandFields)"
+        }
+      ],
+      "group": "Account",
+      "description": "Get an account"
+    },
+    {
+      "id": "account_get_all",
+      "label": "Get Many Account",
+      "method": "GET",
+      "path": "/accounts",
+      "fields": [
+        {
+          "id": "region",
+          "label": "Region",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Region of your Microsoft Dynamics CRM account (host token in the API base URL)"
+        },
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your Microsoft Dynamics CRM account (host token in the API base URL)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 5
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: returnFields, expandFields)"
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: query)"
+        }
+      ],
+      "group": "Account",
+      "description": "Get many accounts"
+    },
+    {
+      "id": "account_update",
+      "label": "Update Account",
+      "method": "PATCH",
+      "path": "/accounts({accountId}",
+      "fields": [
+        {
+          "id": "region",
+          "label": "Region",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Region of your Microsoft Dynamics CRM account (host token in the API base URL)"
+        },
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your Microsoft Dynamics CRM account (host token in the API base URL)"
+        },
+        {
+          "id": "accountId",
+          "label": "Account ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: accountcategorycode, accountratingcode, addresses, businesstypecode, customersizecode, customertypecode, description, emailaddress1, emailaddress2, emailaddress3, fax, ftpsiteurl, industrycode, name, creditlimit, numberofemployees, paymenttermscode, preferredappointmentdaycode, preferredappointmenttimecode, preferredcontactmethodcode, primarysatoriid, primarytwitterid, revenue, sharesoutstanding, shippingmethodcode, sic, stageid, stockexchange, telephone1, telephone2)"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: returnFields)"
+        }
+      ],
+      "group": "Account",
+      "description": "Update an account"
     }
   ]
 }

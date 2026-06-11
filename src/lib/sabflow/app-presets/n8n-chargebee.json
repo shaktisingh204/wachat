@@ -4,42 +4,58 @@
   "description": "Retrieve data from Chargebee API",
   "category": "finance",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 2,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://{accountName}.chargebee.com/api/v2",
   "endpoints": [
     {
       "id": "customer_create",
       "label": "Create Customer",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/customers",
       "fields": [
+        {
+          "id": "accountName",
+          "label": "Account Name",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Account Name of your Chargebee account (host token in the API base URL)"
+        },
         {
           "id": "properties",
           "label": "Properties",
           "type": "json",
-          "in": "query",
           "placeholder": "Add Property",
-          "description": "Properties to set on the new user"
+          "description": "Properties to set on the new user (JSON object; supported keys: id, first_name, last_name, email, phone, company, customProperties)"
         }
-      ]
+      ],
+      "group": "Customer",
+      "description": "Create a customer"
     },
     {
       "id": "invoice_list",
       "label": "List Invoice",
       "method": "GET",
-      "path": "/",
+      "path": "/invoices",
       "fields": [
+        {
+          "id": "accountName",
+          "label": "Account Name",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Account Name of your Chargebee account (host token in the API base URL)"
+        },
         {
           "id": "maxResults",
           "label": "Max Results",
           "type": "number",
-          "in": "query",
           "description": "Max. amount of results to return(< 100).",
           "defaultValue": 10
         },
@@ -47,39 +63,56 @@
           "id": "filters",
           "label": "Filters",
           "type": "json",
-          "in": "query",
           "placeholder": "Add Filter",
-          "description": "Filter for invoices"
+          "description": "Filter for invoices (JSON object; supported keys: date, date.operation, date.value, total, total.operation, total.value)"
         }
-      ]
+      ],
+      "group": "Invoice",
+      "description": "Return the invoices"
     },
     {
       "id": "invoice_pdf_url",
       "label": "PDF Invoice URL Invoice",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/invoices/{invoiceId_trim__}/pdf",
       "fields": [
+        {
+          "id": "accountName",
+          "label": "Account Name",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Account Name of your Chargebee account (host token in the API base URL)"
+        },
         {
           "id": "invoiceId",
           "label": "Invoice ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "The ID of the invoice to get"
         }
-      ]
+      ],
+      "group": "Invoice",
+      "description": "[unverified path] Get URL for the invoice PDF"
     },
     {
       "id": "subscription_cancel",
       "label": "Cancel Subscription",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/subscriptions/{subscriptionId_trim__}/cancel",
       "fields": [
+        {
+          "id": "accountName",
+          "label": "Account Name",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Account Name of your Chargebee account (host token in the API base URL)"
+        },
         {
           "id": "subscriptionId",
           "label": "Subscription ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "The ID of the subscription to cancel"
         },
@@ -87,27 +120,37 @@
           "id": "endOfTerm",
           "label": "Schedule End of Term",
           "type": "toggle",
-          "in": "query",
           "description": "Whether it will not cancel it directly in will instead schedule the cancelation for the end of the term",
           "defaultValue": false
         }
-      ]
+      ],
+      "group": "Subscription",
+      "description": "[unverified path] Cancel a subscription"
     },
     {
       "id": "subscription_delete",
       "label": "Delete Subscription",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/subscriptions/{subscriptionId_trim__}/delete",
       "fields": [
+        {
+          "id": "accountName",
+          "label": "Account Name",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Account Name of your Chargebee account (host token in the API base URL)"
+        },
         {
           "id": "subscriptionId",
           "label": "Subscription ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "The ID of the subscription to delete"
         }
-      ]
+      ],
+      "group": "Subscription",
+      "description": "[unverified path] Delete a subscription"
     }
   ]
 }

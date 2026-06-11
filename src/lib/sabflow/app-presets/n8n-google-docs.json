@@ -4,8 +4,8 @@
   "description": "Consume Google Docs API.",
   "category": "productivity",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -16,49 +16,100 @@
       "credentialType": "http_header_auth"
     }
   },
-  "baseUrl": "",
+  "baseUrl": "https://oauth2.googleapis.com/token",
   "endpoints": [
     {
-      "id": "document_default",
-      "label": "List Document",
-      "method": "GET",
+      "id": "document_create",
+      "label": "Create Document",
+      "method": "POST",
       "path": "/document",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
+          "id": "driveId",
+          "label": "Drive Name or ID",
           "type": "select",
-          "in": "query",
-          "defaultValue": "serviceAccount",
-          "options": [
-            {
-              "value": "serviceAccount",
-              "label": "Service Account"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "defaultValue": "myDrive"
         },
         {
-          "id": "authentication",
-          "label": "Authentication",
+          "id": "folderId",
+          "label": "Folder Name or ID",
           "type": "select",
-          "in": "query",
-          "defaultValue": "oAuth2",
-          "options": [
-            {
-              "value": "oAuth2",
-              "label": "OAuth2 (recommended)"
-            },
-            {
-              "value": "serviceAccount",
-              "label": "Service Account"
-            }
-          ]
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "title",
+          "label": "Title",
+          "type": "text",
+          "required": true
         }
-      ]
+      ],
+      "group": "Document",
+      "description": "[unverified path] Create a document"
+    },
+    {
+      "id": "document_get",
+      "label": "Get Document",
+      "method": "GET",
+      "path": "/documents/{documentId}",
+      "fields": [
+        {
+          "id": "documentURL",
+          "label": "Doc ID or URL",
+          "type": "text",
+          "required": true,
+          "description": "The ID in the document URL (or just paste the whole URL)"
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        }
+      ],
+      "group": "Document",
+      "description": "Get a document"
+    },
+    {
+      "id": "document_update",
+      "label": "Update Document",
+      "method": "POST",
+      "path": "/documents/{documentId}:batchUpdate",
+      "fields": [
+        {
+          "id": "documentURL",
+          "label": "Doc ID or URL",
+          "type": "text",
+          "required": true,
+          "description": "The ID in the document URL (or just paste the whole URL)"
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        },
+        {
+          "id": "actionsUi",
+          "label": "Actions",
+          "type": "json",
+          "placeholder": "Add Action",
+          "description": "Actions applied to update the document (JSON object; supported keys: actionFields, actionFields.object, actionFields.action, actionFields.insertSegment, actionFields.segmentId, actionFields.index, actionFields.name, actionFields.startIndex, actionFields.endIndex, actionFields.bulletPreset, actionFields.footerId, actionFields.headerId, actionFields.namedRangeReference, actionFields.value, actionFields.objectId, actionFields.locationChoice, actionFields.rows, actionFields.columns, actionFields.text, actionFields.replaceText, actionFields.matchCase, actionFields.insertPosition, actionFields.rowIndex, actionFields.columnIndex)"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: writeControlObject, writeControlObject.control, writeControlObject.value)"
+        }
+      ],
+      "group": "Document",
+      "description": "Update a document"
     }
   ]
 }

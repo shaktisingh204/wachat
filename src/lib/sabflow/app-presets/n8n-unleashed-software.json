@@ -4,28 +4,92 @@
   "description": "Consume Unleashed Software API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.unleashedsoftware.com",
   "endpoints": [
     {
-      "id": "sales_order_default",
-      "label": "List SalesOrder",
+      "id": "sales_order_get_all",
+      "label": "Get Many Sales Order",
       "method": "GET",
-      "path": "/salesOrder",
-      "fields": []
+      "path": "/SalesOrders",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: customerId, customerCode, endDate, modifiedSince, orderNumber, orderStatus, startDate)"
+        }
+      ],
+      "group": "Sales Order",
+      "description": "Get many sales orders"
     },
     {
-      "id": "stock_on_hand_default",
-      "label": "List StockOnHand",
+      "id": "stock_on_hand_get",
+      "label": "Get Stock On Hand",
       "method": "GET",
-      "path": "/stockOnHand",
-      "fields": []
+      "path": "/StockOnHand/{productId}",
+      "fields": [
+        {
+          "id": "productId",
+          "label": "Product ID",
+          "type": "text",
+          "in": "path"
+        }
+      ],
+      "group": "Stock On Hand",
+      "description": "Get a stock on hand"
+    },
+    {
+      "id": "stock_on_hand_get_all",
+      "label": "Get Many Stock On Hand",
+      "method": "GET",
+      "path": "/StockOnHand",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: asAtDate, IsAssembled, modifiedSince, orderBy, productId, warehouseCode, warehouseName)"
+        }
+      ],
+      "group": "Stock On Hand",
+      "description": "Get many stocks on hand"
     }
   ]
 }

@@ -4,26 +4,33 @@
   "description": "Consume Gotify API",
   "category": "communication",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 4,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://{host}",
   "endpoints": [
     {
       "id": "message_create",
       "label": "Create Message",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/message",
       "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Gotify server, e.g. app.example.com (no https:// prefix)"
+        },
         {
           "id": "message",
           "label": "Message",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "The message to send, If using Markdown add the Content Type option"
         },
@@ -31,44 +38,63 @@
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: priority, title)"
         },
         {
           "id": "options",
           "label": "Options",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add option"
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: contentType)"
         }
-      ]
+      ],
+      "group": "Message",
+      "description": "Create a message"
     },
     {
       "id": "message_delete",
       "label": "Delete Message",
-      "method": "GET",
-      "path": "/",
+      "method": "DELETE",
+      "path": "/message/{messageId}",
       "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Gotify server, e.g. app.example.com (no https:// prefix)"
+        },
         {
           "id": "messageId",
           "label": "Message ID",
           "type": "text",
-          "in": "query",
-          "required": true
+          "required": true,
+          "in": "path"
         }
-      ]
+      ],
+      "group": "Message",
+      "description": "Delete a message"
     },
     {
       "id": "message_get_all",
       "label": "Get Many Message",
       "method": "GET",
-      "path": "/",
+      "path": "/message",
       "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Gotify server, e.g. app.example.com (no https:// prefix)"
+        },
         {
           "id": "returnAll",
           "label": "Return All",
           "type": "toggle",
-          "in": "query",
           "description": "Whether to return all results or only up to a given limit",
           "defaultValue": false
         },
@@ -76,11 +102,12 @@
           "id": "limit",
           "label": "Limit",
           "type": "number",
-          "in": "query",
           "description": "Max number of results to return",
           "defaultValue": 20
         }
-      ]
+      ],
+      "group": "Message",
+      "description": "Get many messages"
     }
   ]
 }

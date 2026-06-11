@@ -4,35 +4,260 @@
   "description": "Consume Iterable API",
   "category": "marketing",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 9,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.iterable.com/api",
   "endpoints": [
     {
-      "id": "event_default",
-      "label": "List Event",
-      "method": "GET",
-      "path": "/event",
-      "fields": []
+      "id": "event_track",
+      "label": "Track Event",
+      "method": "POST",
+      "path": "/events/trackBulk",
+      "fields": [
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "The name of the event to track"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: campaignId, createdAt, dataFieldsUi, email, id, templateId, userId)"
+        }
+      ],
+      "group": "Event",
+      "description": "Record the actions a user perform"
     },
     {
-      "id": "user_default",
-      "label": "List User",
-      "method": "GET",
-      "path": "/user",
-      "fields": []
+      "id": "user_upsert",
+      "label": "Create or Update User",
+      "method": "POST",
+      "path": "/users/update",
+      "fields": [
+        {
+          "id": "identifier",
+          "label": "Identifier",
+          "type": "select",
+          "required": true,
+          "description": "Identifier to be used",
+          "options": [
+            {
+              "value": "email",
+              "label": "Email"
+            },
+            {
+              "value": "userId",
+              "label": "User ID"
+            }
+          ]
+        },
+        {
+          "id": "value",
+          "label": "Value",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "preferUserId",
+          "label": "Create If Doesn't Exist",
+          "type": "toggle",
+          "required": true,
+          "description": "Whether to create a new user if the idetifier does not exist",
+          "defaultValue": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: dataFieldsUi, mergeNestedObjects)"
+        }
+      ],
+      "group": "User",
+      "description": "Create a new user, or update the current one if it already exists (upsert)"
     },
     {
-      "id": "user_list_default",
-      "label": "List UserList",
+      "id": "user_delete",
+      "label": "Delete User",
+      "method": "DELETE",
+      "path": "/users/{email}",
+      "fields": [
+        {
+          "id": "by",
+          "label": "By",
+          "type": "select",
+          "required": true,
+          "description": "Identifier to be used",
+          "defaultValue": "email",
+          "options": [
+            {
+              "value": "email",
+              "label": "Email"
+            },
+            {
+              "value": "userId",
+              "label": "User ID"
+            }
+          ]
+        },
+        {
+          "id": "userId",
+          "label": "User ID",
+          "type": "text",
+          "required": true,
+          "description": "Unique identifier for a particular user"
+        },
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "required": true,
+          "placeholder": "name@email.com",
+          "description": "Email for a particular user",
+          "in": "path"
+        }
+      ],
+      "group": "User",
+      "description": "Delete a user"
+    },
+    {
+      "id": "user_get",
+      "label": "Get User",
       "method": "GET",
-      "path": "/userList",
-      "fields": []
+      "path": "/users/getByEmail",
+      "fields": [
+        {
+          "id": "by",
+          "label": "By",
+          "type": "select",
+          "required": true,
+          "description": "Identifier to be used",
+          "defaultValue": "email",
+          "options": [
+            {
+              "value": "email",
+              "label": "Email"
+            },
+            {
+              "value": "userId",
+              "label": "User ID"
+            }
+          ]
+        },
+        {
+          "id": "userId",
+          "label": "User ID",
+          "type": "text",
+          "required": true,
+          "description": "Unique identifier for a particular user"
+        },
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "required": true,
+          "placeholder": "name@email.com",
+          "description": "Email for a particular user"
+        }
+      ],
+      "group": "User",
+      "description": "Get a user"
+    },
+    {
+      "id": "user_list_add",
+      "label": "Add User List",
+      "method": "POST",
+      "path": "/lists/subscribe",
+      "fields": [
+        {
+          "id": "listId",
+          "label": "List Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Identifier to be used. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "identifier",
+          "label": "Identifier",
+          "type": "select",
+          "required": true,
+          "description": "Identifier to be used",
+          "options": [
+            {
+              "value": "email",
+              "label": "Email"
+            },
+            {
+              "value": "userId",
+              "label": "User ID"
+            }
+          ]
+        },
+        {
+          "id": "value",
+          "label": "Value",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "group": "User List",
+      "description": "Add user to list"
+    },
+    {
+      "id": "user_list_remove",
+      "label": "Remove User List",
+      "method": "POST",
+      "path": "/lists/unsubscribe",
+      "fields": [
+        {
+          "id": "listId",
+          "label": "List Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Identifier to be used. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "identifier",
+          "label": "Identifier",
+          "type": "select",
+          "required": true,
+          "description": "Identifier to be used",
+          "options": [
+            {
+              "value": "email",
+              "label": "Email"
+            },
+            {
+              "value": "userId",
+              "label": "User ID"
+            }
+          ]
+        },
+        {
+          "id": "value",
+          "label": "Value",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: campaignId, channelUnsubscribe)"
+        }
+      ],
+      "group": "User List",
+      "description": "Remove a user from a list"
     }
   ]
 }

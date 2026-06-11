@@ -4,12 +4,398 @@
   "description": "Consume the Lemlist API",
   "category": "marketing",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
-    "type": "none"
+    "type": "bearer",
+    "credentialType": "lemlist"
   },
-  "baseUrl": "",
-  "endpoints": []
+  "baseUrl": "https://api.lemlist.com/api",
+  "endpoints": [
+    {
+      "id": "activity_get_all",
+      "label": "Get Many Activity",
+      "method": "GET",
+      "path": "/activities",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 5
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: campaignId, isFirst, leadId, type, version)"
+        }
+      ],
+      "group": "Activity",
+      "description": "Get many activities"
+    },
+    {
+      "id": "campaign_get_all",
+      "label": "Get Many Campaign",
+      "method": "GET",
+      "path": "/campaigns",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 5
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: version)"
+        }
+      ],
+      "group": "Campaign",
+      "description": "Get many campaigns"
+    },
+    {
+      "id": "campaign_get_stats",
+      "label": "Get Stats Campaign",
+      "method": "GET",
+      "path": "/campaigns/{campaignId}/stats",
+      "fields": [
+        {
+          "id": "campaignId",
+          "label": "Campaign Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of the campaign to get stats for. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "startDate",
+          "label": "Start Date",
+          "type": "text",
+          "required": true,
+          "placeholder": "e.g. 2024-09-03 00:00:00Z",
+          "description": "(ISO 8601 date-time)"
+        },
+        {
+          "id": "endDate",
+          "label": "End Date",
+          "type": "text",
+          "required": true,
+          "placeholder": "e.g. 2024-09-03 00:00:00Z",
+          "description": "(ISO 8601 date-time)"
+        },
+        {
+          "id": "timezone",
+          "label": "Timezone",
+          "type": "text",
+          "required": true,
+          "placeholder": "e.g. Europe/Paris"
+        }
+      ],
+      "group": "Campaign",
+      "description": "Get campaign stats"
+    },
+    {
+      "id": "enrich_get",
+      "label": "Get Enrichment",
+      "method": "GET",
+      "path": "/enrich/{enrichId}",
+      "fields": [
+        {
+          "id": "enrichId",
+          "label": "Enrichment ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the enrichment to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Enrichment",
+      "description": "Fetches a previously completed enrichment"
+    },
+    {
+      "id": "enrich_enrich_lead",
+      "label": "Enrich Lead Enrichment",
+      "method": "POST",
+      "path": "/leads/{leadId}/enrich/",
+      "fields": [
+        {
+          "id": "leadId",
+          "label": "Lead ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "findEmail",
+          "label": "Find Email",
+          "type": "toggle",
+          "defaultValue": false
+        },
+        {
+          "id": "verifyEmail",
+          "label": "Verify Email",
+          "type": "toggle",
+          "defaultValue": false
+        },
+        {
+          "id": "linkedinEnrichment",
+          "label": "LinkedIn Enrichment",
+          "type": "toggle",
+          "defaultValue": false
+        },
+        {
+          "id": "findPhone",
+          "label": "Find Phone",
+          "type": "toggle",
+          "defaultValue": false
+        }
+      ],
+      "group": "Enrichment",
+      "description": "Enrich a lead using an email or LinkedIn URL"
+    },
+    {
+      "id": "enrich_enrich_person",
+      "label": "Enrich Person Enrichment",
+      "method": "POST",
+      "path": "/enrich/",
+      "fields": [
+        {
+          "id": "findEmail",
+          "label": "Find Email",
+          "type": "toggle",
+          "defaultValue": false
+        },
+        {
+          "id": "verifyEmail",
+          "label": "Verify Email",
+          "type": "toggle",
+          "defaultValue": false
+        },
+        {
+          "id": "linkedinEnrichment",
+          "label": "LinkedIn Enrichment",
+          "type": "toggle",
+          "defaultValue": false
+        },
+        {
+          "id": "findPhone",
+          "label": "Find Phone",
+          "type": "toggle",
+          "defaultValue": false
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: email, firstName, lastName, linkedinUrl, companyName, companyDomain)"
+        }
+      ],
+      "group": "Enrichment",
+      "description": "Enrich a person using an email or LinkedIn URL"
+    },
+    {
+      "id": "lead_create",
+      "label": "Create Lead",
+      "method": "POST",
+      "path": "/campaigns/{campaignId}/leads/{email}",
+      "fields": [
+        {
+          "id": "campaignId",
+          "label": "Campaign Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of the campaign to create the lead under. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "placeholder": "name@email.com",
+          "description": "Email of the lead to create",
+          "in": "path"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: companyName, companyDomain, deduplicate, findEmail, findPhone, firstName, icebreaker, jobTitle, lastName, linkedinEnrichment, linkedinUrl, phone, picture, verifyEmail)"
+        }
+      ],
+      "group": "Lead",
+      "description": "Create a lead"
+    },
+    {
+      "id": "lead_delete",
+      "label": "Delete Lead",
+      "method": "DELETE",
+      "path": "/campaigns/{campaignId}/leads/{email}",
+      "fields": [
+        {
+          "id": "campaignId",
+          "label": "Campaign Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of the campaign to remove the lead from. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "placeholder": "name@email.com",
+          "description": "Email of the lead to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Lead",
+      "description": "Delete a lead"
+    },
+    {
+      "id": "lead_get",
+      "label": "Get Lead",
+      "method": "GET",
+      "path": "/leads/{email}",
+      "fields": [
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "placeholder": "name@email.com",
+          "description": "Email of the lead to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Lead",
+      "description": "Get a lead"
+    },
+    {
+      "id": "lead_unsubscribe",
+      "label": "Unsubscribe Lead",
+      "method": "DELETE",
+      "path": "/campaigns/{campaignId}/leads/{email}",
+      "fields": [
+        {
+          "id": "campaignId",
+          "label": "Campaign Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of the campaign to unsubscribe the lead from. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "placeholder": "name@email.com",
+          "description": "Email of the lead to unsubscribe",
+          "in": "path"
+        }
+      ],
+      "group": "Lead",
+      "description": "Unsubscribe a lead"
+    },
+    {
+      "id": "team_get",
+      "label": "Get Team",
+      "method": "GET",
+      "path": "/team",
+      "fields": [],
+      "group": "Team",
+      "description": "Get a team"
+    },
+    {
+      "id": "team_get_credits",
+      "label": "Get Credits Team",
+      "method": "GET",
+      "path": "/team/credits",
+      "fields": [],
+      "group": "Team",
+      "description": "Get team credits"
+    },
+    {
+      "id": "unsubscribe_add",
+      "label": "Add Unsubscribe",
+      "method": "POST",
+      "path": "/unsubscribes/{email}",
+      "fields": [
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "placeholder": "name@email.com",
+          "description": "Email to add to the unsubscribes",
+          "in": "path"
+        }
+      ],
+      "group": "Unsubscribe",
+      "description": "Add an email to an unsubscribe list"
+    },
+    {
+      "id": "unsubscribe_delete",
+      "label": "Delete Unsubscribe",
+      "method": "DELETE",
+      "path": "/unsubscribes/{email}",
+      "fields": [
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "placeholder": "name@email.com",
+          "description": "Email to delete from the unsubscribes",
+          "in": "path"
+        }
+      ],
+      "group": "Unsubscribe",
+      "description": "Delete an email from an unsubscribe list"
+    },
+    {
+      "id": "unsubscribe_get_all",
+      "label": "Get Many Unsubscribe",
+      "method": "GET",
+      "path": "/unsubscribes",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 5
+        }
+      ],
+      "group": "Unsubscribe",
+      "description": "Get many unsubscribed emails"
+    }
+  ]
 }

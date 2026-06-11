@@ -4,8 +4,8 @@
   "description": "Access public song data via the Spotify API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -16,64 +16,72 @@
       "credentialType": "oauth2"
     }
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.spotify.com/v1",
   "endpoints": [
     {
       "id": "player_add_song_to_queue",
       "label": "Add Song to Queue Player",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/me/player/queue",
       "fields": [
         {
           "id": "id",
           "label": "Track ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "spotify:track:0xE4LEFzSNGsz1F6kvXsHU",
           "description": "Enter a track URI or ID"
         }
-      ]
+      ],
+      "group": "Player",
+      "description": "Add a song to your queue"
     },
     {
       "id": "player_currently_playing",
       "label": "Currently Playing Player",
       "method": "GET",
-      "path": "/",
-      "fields": []
+      "path": "/me/player/currently-playing",
+      "fields": [],
+      "group": "Player",
+      "description": "Get your currently playing track"
     },
     {
       "id": "player_next_song",
       "label": "Next Song Player",
-      "method": "GET",
-      "path": "/",
-      "fields": []
+      "method": "POST",
+      "path": "/me/player/next",
+      "fields": [],
+      "group": "Player",
+      "description": "Skip to your next track"
     },
     {
       "id": "player_pause",
       "label": "Pause Player",
-      "method": "GET",
-      "path": "/",
-      "fields": []
+      "method": "PUT",
+      "path": "/me/player/pause",
+      "fields": [],
+      "group": "Player",
+      "description": "Pause your music"
     },
     {
       "id": "player_previous_song",
       "label": "Previous Song Player",
-      "method": "GET",
-      "path": "/",
-      "fields": []
+      "method": "POST",
+      "path": "/me/player/previous",
+      "fields": [],
+      "group": "Player",
+      "description": "Skip to your previous song"
     },
     {
       "id": "player_recently_played",
       "label": "Recently Played Player",
       "method": "GET",
-      "path": "/",
+      "path": "/me/player/recently-played",
       "fields": [
         {
           "id": "returnAll",
           "label": "Return All",
           "type": "toggle",
-          "in": "query",
           "required": true,
           "description": "Whether to return all results or only up to a given limit",
           "defaultValue": false
@@ -82,82 +90,88 @@
           "id": "limit",
           "label": "Limit",
           "type": "number",
-          "in": "query",
           "required": true,
           "description": "Max number of results to return",
           "defaultValue": 50
         }
-      ]
+      ],
+      "group": "Player",
+      "description": "Get your recently played tracks"
     },
     {
       "id": "player_resume",
       "label": "Resume Player",
-      "method": "GET",
-      "path": "/",
-      "fields": []
+      "method": "PUT",
+      "path": "/me/player/play",
+      "fields": [],
+      "group": "Player",
+      "description": "Resume playback on the current active device"
     },
     {
       "id": "player_volume",
       "label": "Set Volume Player",
-      "method": "GET",
-      "path": "/",
+      "method": "PUT",
+      "path": "/me/player/volume",
       "fields": [
         {
           "id": "volumePercent",
           "label": "Volume",
           "type": "number",
-          "in": "query",
           "required": true,
           "description": "The volume percentage to set",
           "defaultValue": 50
         }
-      ]
+      ],
+      "group": "Player",
+      "description": "Set volume on the current active device"
     },
     {
       "id": "player_start_music",
       "label": "Start Music Player",
-      "method": "GET",
-      "path": "/",
+      "method": "PUT",
+      "path": "/me/player/play",
       "fields": [
         {
           "id": "id",
           "label": "Resource ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "spotify:album:1YZ3k65Mqw3G8FzYlW1mmp",
           "description": "Enter a playlist, artist, or album URI or ID"
         }
-      ]
+      ],
+      "group": "Player",
+      "description": "Start playing a playlist, artist, or album"
     },
     {
       "id": "album_get",
       "label": "Get Album",
       "method": "GET",
-      "path": "/",
+      "path": "/albums/{id}",
       "fields": [
         {
           "id": "id",
           "label": "Album ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "spotify:album:1YZ3k65Mqw3G8FzYlW1mmp",
-          "description": "The album's Spotify URI or ID"
+          "description": "The album's Spotify URI or ID",
+          "in": "path"
         }
-      ]
+      ],
+      "group": "Album",
+      "description": "Get an album by URI or ID"
     },
     {
       "id": "album_get_new_releases",
       "label": "Get New Releases Album",
       "method": "GET",
-      "path": "/",
+      "path": "/browse/new-releases",
       "fields": [
         {
           "id": "returnAll",
           "label": "Return All",
           "type": "toggle",
-          "in": "query",
           "required": true,
           "description": "Whether to return all results or only up to a given limit",
           "defaultValue": false
@@ -166,7 +180,6 @@
           "id": "limit",
           "label": "Limit",
           "type": "number",
-          "in": "query",
           "required": true,
           "description": "Max number of results to return",
           "defaultValue": 50
@@ -175,31 +188,32 @@
           "id": "filters",
           "label": "Filters",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Filter"
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: country)"
         }
-      ]
+      ],
+      "group": "Album",
+      "description": "Get a list of new album releases"
     },
     {
       "id": "album_get_tracks",
       "label": "Get Tracks Album",
       "method": "GET",
-      "path": "/",
+      "path": "/albums/{id}/tracks",
       "fields": [
         {
           "id": "id",
           "label": "Album ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "spotify:album:1YZ3k65Mqw3G8FzYlW1mmp",
-          "description": "The album's Spotify URI or ID"
+          "description": "The album's Spotify URI or ID",
+          "in": "path"
         },
         {
           "id": "returnAll",
           "label": "Return All",
           "type": "toggle",
-          "in": "query",
           "required": true,
           "description": "Whether to return all results or only up to a given limit",
           "defaultValue": false
@@ -208,24 +222,24 @@
           "id": "limit",
           "label": "Limit",
           "type": "number",
-          "in": "query",
           "required": true,
           "description": "Max number of results to return",
           "defaultValue": 50
         }
-      ]
+      ],
+      "group": "Album",
+      "description": "Get an album's tracks by URI or ID"
     },
     {
       "id": "album_search",
       "label": "Search Album",
       "method": "GET",
-      "path": "/",
+      "path": "/search",
       "fields": [
         {
           "id": "query",
           "label": "Search Keyword",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "The keyword term to search for"
         },
@@ -233,7 +247,6 @@
           "id": "returnAll",
           "label": "Return All",
           "type": "toggle",
-          "in": "query",
           "required": true,
           "description": "Whether to return all results or only up to a given limit",
           "defaultValue": false
@@ -242,7 +255,6 @@
           "id": "limit",
           "label": "Limit",
           "type": "number",
-          "in": "query",
           "required": true,
           "description": "Max number of results to return",
           "defaultValue": 50
@@ -251,48 +263,51 @@
           "id": "filters",
           "label": "Filters",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Filter"
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: market)"
         }
-      ]
+      ],
+      "group": "Album",
+      "description": "Search albums by keyword"
     },
     {
       "id": "artist_get",
       "label": "Get Artist",
       "method": "GET",
-      "path": "/",
+      "path": "/artists/{id}",
       "fields": [
         {
           "id": "id",
           "label": "Artist ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "spotify:artist:4LLpKhyESsyAXpc4laK94U",
-          "description": "The artist's Spotify URI or ID"
+          "description": "The artist's Spotify URI or ID",
+          "in": "path"
         }
-      ]
+      ],
+      "group": "Artist",
+      "description": "Get an artist by URI or ID"
     },
     {
       "id": "artist_get_albums",
       "label": "Get Albums Artist",
       "method": "GET",
-      "path": "/",
+      "path": "/artists/{id}/albums",
       "fields": [
         {
           "id": "id",
           "label": "Artist ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "spotify:artist:4LLpKhyESsyAXpc4laK94U",
-          "description": "The artist's Spotify URI or ID"
+          "description": "The artist's Spotify URI or ID",
+          "in": "path"
         },
         {
           "id": "returnAll",
           "label": "Return All",
           "type": "toggle",
-          "in": "query",
           "required": true,
           "description": "Whether to return all results or only up to a given limit",
           "defaultValue": false
@@ -301,77 +316,71 @@
           "id": "limit",
           "label": "Limit",
           "type": "number",
-          "in": "query",
           "required": true,
           "description": "Max number of results to return",
           "defaultValue": 50
         }
-      ]
+      ],
+      "group": "Artist",
+      "description": "Get an artist's albums by URI or ID"
     },
     {
       "id": "artist_get_related_artists",
       "label": "Get Related Artists Artist",
       "method": "GET",
-      "path": "/",
+      "path": "/artists/{id}/related-artists",
       "fields": [
         {
           "id": "id",
           "label": "Artist ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "spotify:artist:4LLpKhyESsyAXpc4laK94U",
-          "description": "The artist's Spotify URI or ID"
+          "description": "The artist's Spotify URI or ID",
+          "in": "path"
         }
-      ]
+      ],
+      "group": "Artist",
+      "description": "Get an artist's related artists by URI or ID"
     },
     {
       "id": "artist_get_top_tracks",
       "label": "Get Top Tracks Artist",
       "method": "GET",
-      "path": "/",
+      "path": "/artists/{id}/top-tracks",
       "fields": [
         {
           "id": "id",
           "label": "Artist ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "spotify:artist:4LLpKhyESsyAXpc4laK94U",
-          "description": "The artist's Spotify URI or ID"
+          "description": "The artist's Spotify URI or ID",
+          "in": "path"
         },
         {
           "id": "country",
           "label": "Country",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "US",
           "description": "Top tracks in which country? Enter the postal abbreviation",
           "defaultValue": "US"
         }
-      ]
+      ],
+      "group": "Artist",
+      "description": "Get an artist's top tracks by URI or ID"
     },
     {
       "id": "artist_search",
       "label": "Search Artist",
       "method": "GET",
-      "path": "/",
+      "path": "/search",
       "fields": [
-        {
-          "id": "id",
-          "label": "Artist ID",
-          "type": "text",
-          "in": "query",
-          "required": true,
-          "placeholder": "spotify:artist:4LLpKhyESsyAXpc4laK94U",
-          "description": "The artist's Spotify URI or ID"
-        },
         {
           "id": "query",
           "label": "Search Keyword",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "The keyword term to search for"
         },
@@ -379,7 +388,6 @@
           "id": "returnAll",
           "label": "Return All",
           "type": "toggle",
-          "in": "query",
           "required": true,
           "description": "Whether to return all results or only up to a given limit",
           "defaultValue": false
@@ -388,7 +396,6 @@
           "id": "limit",
           "label": "Limit",
           "type": "number",
-          "in": "query",
           "required": true,
           "description": "Max number of results to return",
           "defaultValue": 50
@@ -397,31 +404,32 @@
           "id": "filters",
           "label": "Filters",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Filter"
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: market)"
         }
-      ]
+      ],
+      "group": "Artist",
+      "description": "Search artists by keyword"
     },
     {
       "id": "playlist_add",
       "label": "Add an Item Playlist",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/playlists/{id}/tracks",
       "fields": [
         {
           "id": "id",
           "label": "Playlist ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "spotify:playlist:37i9dQZF1DWUhI3iC1khPH",
-          "description": "The playlist's Spotify URI or its ID"
+          "description": "The playlist's Spotify URI or its ID",
+          "in": "path"
         },
         {
           "id": "trackID",
           "label": "Track ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "spotify:track:0xE4LEFzSNGsz1F6kvXsHU",
           "description": "The track's Spotify URI or its ID. The track to add/delete from the playlist."
@@ -430,22 +438,23 @@
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: position)"
         }
-      ]
+      ],
+      "group": "Playlist",
+      "description": "Add tracks to a playlist by track and playlist URI or ID"
     },
     {
       "id": "playlist_create",
       "label": "Create a Playlist Playlist",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/me/playlists",
       "fields": [
         {
           "id": "name",
           "label": "Name",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "Favorite Songs",
           "description": "Name of the playlist to create"
@@ -454,39 +463,42 @@
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: description, public)"
         }
-      ]
+      ],
+      "group": "Playlist",
+      "description": "Create a new playlist"
     },
     {
       "id": "playlist_get",
       "label": "Get Playlist",
       "method": "GET",
-      "path": "/",
+      "path": "/playlists/{id}",
       "fields": [
         {
           "id": "id",
           "label": "Playlist ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "spotify:playlist:37i9dQZF1DWUhI3iC1khPH",
-          "description": "The playlist's Spotify URI or its ID"
+          "description": "The playlist's Spotify URI or its ID",
+          "in": "path"
         }
-      ]
+      ],
+      "group": "Playlist",
+      "description": "Get a playlist by URI or ID"
     },
     {
       "id": "playlist_get_user_playlists",
       "label": "Get the User's Playlists Playlist",
       "method": "GET",
-      "path": "/",
+      "path": "/me/playlists",
       "fields": [
         {
           "id": "returnAll",
           "label": "Return All",
           "type": "toggle",
-          "in": "query",
           "required": true,
           "description": "Whether to return all results or only up to a given limit",
           "defaultValue": false
@@ -495,33 +507,33 @@
           "id": "limit",
           "label": "Limit",
           "type": "number",
-          "in": "query",
           "required": true,
           "description": "Max number of results to return",
           "defaultValue": 50
         }
-      ]
+      ],
+      "group": "Playlist",
+      "description": "Get a user's playlists"
     },
     {
       "id": "playlist_get_tracks",
       "label": "Get Tracks Playlist",
       "method": "GET",
-      "path": "/",
+      "path": "/playlists/{id}/tracks",
       "fields": [
         {
           "id": "id",
           "label": "Playlist ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "spotify:playlist:37i9dQZF1DWUhI3iC1khPH",
-          "description": "The playlist's Spotify URI or its ID"
+          "description": "The playlist's Spotify URI or its ID",
+          "in": "path"
         },
         {
           "id": "returnAll",
           "label": "Return All",
           "type": "toggle",
-          "in": "query",
           "required": true,
           "description": "Whether to return all results or only up to a given limit",
           "defaultValue": false
@@ -530,50 +542,51 @@
           "id": "limit",
           "label": "Limit",
           "type": "number",
-          "in": "query",
           "required": true,
           "description": "Max number of results to return",
           "defaultValue": 50
         }
-      ]
+      ],
+      "group": "Playlist",
+      "description": "Get a playlist's tracks by URI or ID"
     },
     {
       "id": "playlist_delete",
       "label": "Remove an Item Playlist",
-      "method": "GET",
-      "path": "/",
+      "method": "DELETE",
+      "path": "/playlists/{id}/tracks",
       "fields": [
         {
           "id": "id",
           "label": "Playlist ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "spotify:playlist:37i9dQZF1DWUhI3iC1khPH",
-          "description": "The playlist's Spotify URI or its ID"
+          "description": "The playlist's Spotify URI or its ID",
+          "in": "path"
         },
         {
           "id": "trackID",
           "label": "Track ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "spotify:track:0xE4LEFzSNGsz1F6kvXsHU",
           "description": "The track's Spotify URI or its ID. The track to add/delete from the playlist."
         }
-      ]
+      ],
+      "group": "Playlist",
+      "description": "Remove tracks from a playlist by track and playlist URI or ID"
     },
     {
       "id": "playlist_search",
       "label": "Search Playlist",
       "method": "GET",
-      "path": "/",
+      "path": "/search",
       "fields": [
         {
           "id": "query",
           "label": "Search Keyword",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "The keyword term to search for"
         },
@@ -581,7 +594,6 @@
           "id": "returnAll",
           "label": "Return All",
           "type": "toggle",
-          "in": "query",
           "required": true,
           "description": "Whether to return all results or only up to a given limit",
           "defaultValue": false
@@ -590,7 +602,6 @@
           "id": "limit",
           "label": "Limit",
           "type": "number",
-          "in": "query",
           "required": true,
           "description": "Max number of results to return",
           "defaultValue": 50
@@ -599,65 +610,61 @@
           "id": "filters",
           "label": "Filters",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Filter"
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: market)"
         }
-      ]
+      ],
+      "group": "Playlist",
+      "description": "Search playlists by keyword"
     },
     {
       "id": "track_get",
       "label": "Get Track",
       "method": "GET",
-      "path": "/",
+      "path": "/tracks/{id}",
       "fields": [
         {
           "id": "id",
           "label": "Track ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "spotify:track:0xE4LEFzSNGsz1F6kvXsHU",
-          "description": "The track's Spotify URI or ID"
+          "description": "The track's Spotify URI or ID",
+          "in": "path"
         }
-      ]
+      ],
+      "group": "Track",
+      "description": "Get a track by its URI or ID"
     },
     {
       "id": "track_get_audio_features",
       "label": "Get Audio Features Track",
       "method": "GET",
-      "path": "/",
+      "path": "/audio-features/{id}",
       "fields": [
         {
           "id": "id",
           "label": "Track ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "spotify:track:0xE4LEFzSNGsz1F6kvXsHU",
-          "description": "The track's Spotify URI or ID"
+          "description": "The track's Spotify URI or ID",
+          "in": "path"
         }
-      ]
+      ],
+      "group": "Track",
+      "description": "Get audio features for a track by URI or ID"
     },
     {
       "id": "track_search",
       "label": "Search Track",
       "method": "GET",
-      "path": "/",
+      "path": "/search",
       "fields": [
-        {
-          "id": "id",
-          "label": "Track ID",
-          "type": "text",
-          "in": "query",
-          "required": true,
-          "placeholder": "spotify:track:0xE4LEFzSNGsz1F6kvXsHU",
-          "description": "The track's Spotify URI or ID"
-        },
         {
           "id": "query",
           "label": "Search Keyword",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "The keyword term to search for"
         },
@@ -665,7 +672,6 @@
           "id": "returnAll",
           "label": "Return All",
           "type": "toggle",
-          "in": "query",
           "required": true,
           "description": "Whether to return all results or only up to a given limit",
           "defaultValue": false
@@ -674,7 +680,6 @@
           "id": "limit",
           "label": "Limit",
           "type": "number",
-          "in": "query",
           "required": true,
           "description": "Max number of results to return",
           "defaultValue": 50
@@ -683,22 +688,23 @@
           "id": "filters",
           "label": "Filters",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Filter"
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: market)"
         }
-      ]
+      ],
+      "group": "Track",
+      "description": "Search tracks by keyword"
     },
     {
       "id": "library_get_liked_tracks",
       "label": "Get Liked Tracks Library",
       "method": "GET",
-      "path": "/",
+      "path": "/me/tracks",
       "fields": [
         {
           "id": "returnAll",
           "label": "Return All",
           "type": "toggle",
-          "in": "query",
           "required": true,
           "description": "Whether to return all results or only up to a given limit",
           "defaultValue": false
@@ -707,24 +713,24 @@
           "id": "limit",
           "label": "Limit",
           "type": "number",
-          "in": "query",
           "required": true,
           "description": "Max number of results to return",
           "defaultValue": 50
         }
-      ]
+      ],
+      "group": "Library",
+      "description": "Get the user's liked tracks"
     },
     {
       "id": "my_data_get_following_artists",
-      "label": "Get Following Artists MyData",
+      "label": "Get Following Artists My Data",
       "method": "GET",
-      "path": "/",
+      "path": "/me/following",
       "fields": [
         {
           "id": "returnAll",
           "label": "Return All",
           "type": "toggle",
-          "in": "query",
           "required": true,
           "description": "Whether to return all results or only up to a given limit",
           "defaultValue": false
@@ -733,12 +739,13 @@
           "id": "limit",
           "label": "Limit",
           "type": "number",
-          "in": "query",
           "required": true,
           "description": "Max number of results to return",
           "defaultValue": 50
         }
-      ]
+      ],
+      "group": "My Data",
+      "description": "Get your followed artists"
     }
   ]
 }

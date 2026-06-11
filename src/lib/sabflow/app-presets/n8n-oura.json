@@ -4,28 +4,116 @@
   "description": "Consume Oura API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.ouraring.com/v2",
   "endpoints": [
     {
-      "id": "profile_default",
-      "label": "List Profile",
+      "id": "profile_get",
+      "label": "Get Profile",
       "method": "GET",
-      "path": "/profile",
-      "fields": []
+      "path": "/usercollection/personal_info",
+      "fields": [],
+      "group": "Profile",
+      "description": "Get the user's personal information"
     },
     {
-      "id": "summary_default",
-      "label": "List Summary",
+      "id": "summary_get_activity",
+      "label": "Get Activity Summary Summary",
       "method": "GET",
-      "path": "/summary",
-      "fields": []
+      "path": "/usercollection/daily_activity",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 5
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: end, start)"
+        }
+      ],
+      "group": "Summary",
+      "description": "Get the user's activity summary"
+    },
+    {
+      "id": "summary_get_readiness",
+      "label": "Get Readiness Summary Summary",
+      "method": "GET",
+      "path": "/usercollection/daily_readiness",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 5
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: end, start)"
+        }
+      ],
+      "group": "Summary",
+      "description": "Get the user's readiness summary"
+    },
+    {
+      "id": "summary_get_sleep",
+      "label": "Get Sleep Periods Summary",
+      "method": "GET",
+      "path": "/usercollection/daily_sleep",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 5
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: end, start)"
+        }
+      ],
+      "group": "Summary",
+      "description": "Get the user's sleep summary"
     }
   ]
 }

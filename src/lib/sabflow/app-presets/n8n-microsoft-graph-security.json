@@ -4,8 +4,8 @@
   "description": "Consume the Microsoft Graph Security API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 10,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -16,21 +16,145 @@
       "credentialType": "oauth2"
     }
   },
-  "baseUrl": "",
+  "baseUrl": "https://graph.microsoft.com",
   "endpoints": [
     {
-      "id": "secure_score_default",
-      "label": "List SecureScore",
+      "id": "secure_score_get",
+      "label": "Get Secure Score",
       "method": "GET",
-      "path": "/secureScore",
-      "fields": []
+      "path": "/secureScores/{secureScoreId}",
+      "fields": [
+        {
+          "id": "secureScoreId",
+          "label": "Secure Score ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the secure score to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Secure Score",
+      "description": "Get a secure score"
     },
     {
-      "id": "secure_score_control_profile_default",
-      "label": "List SecureScoreControlProfile",
+      "id": "secure_score_get_all",
+      "label": "Get Many Secure Score",
       "method": "GET",
-      "path": "/secureScoreControlProfile",
-      "fields": []
+      "path": "/secure-score",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: filter, includeControlScores)"
+        }
+      ],
+      "group": "Secure Score",
+      "description": "[unverified path] Get many secure scores"
+    },
+    {
+      "id": "secure_score_control_profile_get",
+      "label": "Get Secure Score Control Profile",
+      "method": "GET",
+      "path": "/secureScoreControlProfiles/{secureScoreControlProfileId}",
+      "fields": [
+        {
+          "id": "secureScoreControlProfileId",
+          "label": "Secure Score Control Profile ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the secure score control profile to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Secure Score Control Profile",
+      "description": "Get a secure score control profile"
+    },
+    {
+      "id": "secure_score_control_profile_get_all",
+      "label": "Get Many Secure Score Control Profile",
+      "method": "GET",
+      "path": "/secure-score-control-profile",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: filter)"
+        }
+      ],
+      "group": "Secure Score Control Profile",
+      "description": "[unverified path] Get many secure score control profiles"
+    },
+    {
+      "id": "secure_score_control_profile_update",
+      "label": "Update Secure Score Control Profile",
+      "method": "PATCH",
+      "path": "/secureScoreControlProfiles/{id}",
+      "fields": [
+        {
+          "id": "secureScoreControlProfileId",
+          "label": "Secure Score Control Profile ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the secure score control profile to update"
+        },
+        {
+          "id": "provider",
+          "label": "Provider",
+          "type": "text",
+          "required": true,
+          "placeholder": "SecureScore",
+          "description": "Name of the provider of the security product or service"
+        },
+        {
+          "id": "vendor",
+          "label": "Vendor",
+          "type": "text",
+          "required": true,
+          "placeholder": "Microsoft",
+          "description": "Name of the vendor of the security product or service"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: state)"
+        }
+      ],
+      "group": "Secure Score Control Profile",
+      "description": "Update a secure score control profile"
     }
   ]
 }

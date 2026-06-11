@@ -4,56 +4,438 @@
   "description": "Consume the Wise API",
   "category": "finance",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 10,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.transferwise.com",
   "endpoints": [
     {
-      "id": "account_default",
-      "label": "List Account",
+      "id": "account_get_balances",
+      "label": "Get Balances Account",
       "method": "GET",
-      "path": "/account",
-      "fields": []
+      "path": "/v1/borderless-accounts",
+      "fields": [
+        {
+          "id": "profileId",
+          "label": "Profile Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of the user profile to retrieve the balance of. Choose from the list, or specify an ID using an expression."
+        }
+      ],
+      "group": "Account",
+      "description": "Retrieve balances for all account currencies of this user"
     },
     {
-      "id": "exchange_rate_default",
-      "label": "List ExchangeRate",
+      "id": "account_get_currencies",
+      "label": "Get Currencies Account",
       "method": "GET",
-      "path": "/exchangeRate",
-      "fields": []
+      "path": "/v1/borderless-accounts/balance-currencies",
+      "fields": [],
+      "group": "Account",
+      "description": "Retrieve currencies in the borderless account of this user"
     },
     {
-      "id": "profile_default",
-      "label": "List Profile",
+      "id": "account_get_statement",
+      "label": "Get Statement Account",
       "method": "GET",
-      "path": "/profile",
-      "fields": []
+      "path": "/v3/profiles/{profileId}/borderless-accounts/{borderlessAccountId}/statement.{format}",
+      "fields": [
+        {
+          "id": "profileId",
+          "label": "Profile Name or ID",
+          "type": "select",
+          "description": "ID of the user profile whose account to retrieve the statement of. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "borderlessAccountId",
+          "label": "Borderless Account Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of the borderless account to retrieve the statement of. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "currency",
+          "label": "Currency",
+          "type": "text",
+          "description": "Code of the currency of the borderless account to retrieve the statement of"
+        },
+        {
+          "id": "format",
+          "label": "Format",
+          "type": "select",
+          "description": "File format to retrieve the statement in",
+          "defaultValue": "json",
+          "options": [
+            {
+              "value": "json",
+              "label": "JSON"
+            },
+            {
+              "value": "csv",
+              "label": "CSV"
+            },
+            {
+              "value": "pdf",
+              "label": "PDF"
+            },
+            {
+              "value": "xml",
+              "label": "XML (CAMT.053)"
+            }
+          ],
+          "in": "path"
+        },
+        {
+          "id": "binaryProperty",
+          "label": "Put Output File in Field",
+          "type": "text",
+          "required": true,
+          "defaultValue": "data"
+        },
+        {
+          "id": "fileName",
+          "label": "File Name",
+          "type": "text",
+          "required": true,
+          "placeholder": "data.pdf",
+          "description": "Name of the file that will be downloaded"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: lineStyle, range)"
+        }
+      ],
+      "group": "Account",
+      "description": "Retrieve the statement for the borderless account of this user"
     },
     {
-      "id": "quote_default",
-      "label": "List Quote",
+      "id": "exchange_rate_get",
+      "label": "Get Exchange Rate",
       "method": "GET",
-      "path": "/quote",
-      "fields": []
+      "path": "/v1/rates",
+      "fields": [
+        {
+          "id": "source",
+          "label": "Source Currency",
+          "type": "text",
+          "description": "Code of the source currency to retrieve the exchange rate for"
+        },
+        {
+          "id": "target",
+          "label": "Target Currency",
+          "type": "text",
+          "description": "Code of the target currency to retrieve the exchange rate for"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: interval, range, time)"
+        }
+      ],
+      "group": "Exchange Rate",
+      "description": "Get an exchange rate"
     },
     {
-      "id": "recipient_default",
-      "label": "List Recipient",
+      "id": "profile_get",
+      "label": "Get Profile",
       "method": "GET",
-      "path": "/recipient",
-      "fields": []
+      "path": "/v1/profiles/{profileId}",
+      "fields": [
+        {
+          "id": "profileId",
+          "label": "Profile Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of the user profile to retrieve. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        }
+      ],
+      "group": "Profile",
+      "description": "Get a profile"
     },
     {
-      "id": "transfer_default",
-      "label": "List Transfer",
+      "id": "profile_get_all",
+      "label": "Get Many Profile",
       "method": "GET",
-      "path": "/transfer",
-      "fields": []
+      "path": "/v1/profiles",
+      "fields": [],
+      "group": "Profile",
+      "description": "Get many profiles"
+    },
+    {
+      "id": "quote_create",
+      "label": "Create Quote",
+      "method": "POST",
+      "path": "/v2/quotes",
+      "fields": [
+        {
+          "id": "profileId",
+          "label": "Profile Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of the user profile to create the quote under. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "targetAccountId",
+          "label": "Target Account Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of the account that will receive the funds. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "amountType",
+          "label": "Amount Type",
+          "type": "select",
+          "description": "Whether the amount is to be sent or received",
+          "defaultValue": "source",
+          "options": [
+            {
+              "value": "source",
+              "label": "Source"
+            },
+            {
+              "value": "target",
+              "label": "Target"
+            }
+          ]
+        },
+        {
+          "id": "amount",
+          "label": "Amount",
+          "type": "number",
+          "description": "Amount of funds for the quote to create",
+          "defaultValue": 1
+        },
+        {
+          "id": "sourceCurrency",
+          "label": "Source Currency",
+          "type": "text",
+          "description": "Code of the currency to send for the quote to create"
+        },
+        {
+          "id": "targetCurrency",
+          "label": "Target Currency",
+          "type": "text",
+          "description": "Code of the currency to receive for the quote to create"
+        }
+      ],
+      "group": "Quote",
+      "description": "Create a quote"
+    },
+    {
+      "id": "quote_get",
+      "label": "Get Quote",
+      "method": "GET",
+      "path": "/v2/quotes/{quoteId}",
+      "fields": [
+        {
+          "id": "quoteId",
+          "label": "Quote ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the quote to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Quote",
+      "description": "Get a quote"
+    },
+    {
+      "id": "recipient_get_all",
+      "label": "Get Many Recipient",
+      "method": "GET",
+      "path": "/v1/accounts",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 5
+        }
+      ],
+      "group": "Recipient",
+      "description": "Get many recipients"
+    },
+    {
+      "id": "transfer_create",
+      "label": "Create Transfer",
+      "method": "POST",
+      "path": "/v1/transfers",
+      "fields": [
+        {
+          "id": "profileId",
+          "label": "Profile Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of the user profile to retrieve the balance of. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "quoteId",
+          "label": "Quote ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the quote based on which to create the transfer"
+        },
+        {
+          "id": "targetAccountId",
+          "label": "Target Account Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of the account that will receive the funds. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: reference)"
+        }
+      ],
+      "group": "Transfer",
+      "description": "Create a transfer"
+    },
+    {
+      "id": "transfer_delete",
+      "label": "Delete Transfer",
+      "method": "PUT",
+      "path": "/v1/transfers/{transferId}/cancel",
+      "fields": [
+        {
+          "id": "transferId",
+          "label": "Transfer ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the transfer to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Transfer",
+      "description": "Delete a transfer"
+    },
+    {
+      "id": "transfer_execute",
+      "label": "Execute Transfer",
+      "method": "POST",
+      "path": "/v3/profiles/{profileId}/transfers/{transferId}/payments",
+      "fields": [
+        {
+          "id": "profileId",
+          "label": "Profile Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of the user profile to execute the transfer under. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "transferId",
+          "label": "Transfer ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the transfer to execute",
+          "in": "path"
+        }
+      ],
+      "group": "Transfer",
+      "description": "Execute a transfer"
+    },
+    {
+      "id": "transfer_get",
+      "label": "Get Transfer",
+      "method": "GET",
+      "path": "/v1/transfers/{transferId}/receipt.pdf",
+      "fields": [
+        {
+          "id": "transferId",
+          "label": "Transfer ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the transfer to retrieve",
+          "in": "path"
+        },
+        {
+          "id": "downloadReceipt",
+          "label": "Download Receipt",
+          "type": "toggle",
+          "required": true,
+          "description": "Whether to download the transfer receipt as a PDF file. Only for executed transfers, having status 'Outgoing Payment Sent'.",
+          "defaultValue": false
+        },
+        {
+          "id": "binaryProperty",
+          "label": "Put Output File in Field",
+          "type": "text",
+          "required": true,
+          "defaultValue": "data"
+        },
+        {
+          "id": "fileName",
+          "label": "File Name",
+          "type": "text",
+          "required": true,
+          "placeholder": "data.pdf",
+          "description": "Name of the file that will be downloaded"
+        }
+      ],
+      "group": "Transfer",
+      "description": "Get a transfer"
+    },
+    {
+      "id": "transfer_get_all",
+      "label": "Get Many Transfer",
+      "method": "GET",
+      "path": "/v1/transfers",
+      "fields": [
+        {
+          "id": "profileId",
+          "label": "Profile Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of the user profile to retrieve. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 5
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: range, sourceCurrency, status, targetCurrency)"
+        }
+      ],
+      "group": "Transfer",
+      "description": "Get many transfers"
     }
   ]
 }

@@ -4,30 +4,31 @@
   "description": "Consume Mailcheck API",
   "category": "marketing",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.mailcheck.co/v1",
   "endpoints": [
     {
       "id": "email_check",
       "label": "Check Email",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/singleEmail:check",
       "fields": [
         {
           "id": "email",
           "label": "Email",
           "type": "text",
-          "in": "query",
           "placeholder": "name@email.com",
           "description": "Email address to check"
         }
-      ]
+      ],
+      "group": "Email",
+      "description": "Check an email"
     }
   ]
 }

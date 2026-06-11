@@ -4,8 +4,8 @@
   "description": "Consume Microsoft Teams API",
   "category": "communication",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 10,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -15,6 +15,151 @@
       "type": "none"
     }
   },
-  "baseUrl": "",
-  "endpoints": []
+  "baseUrl": "https://graph.microsoft.com",
+  "endpoints": [
+    {
+      "id": "channel_create",
+      "label": "Create Channel",
+      "method": "POST",
+      "path": "/v1.0/teams/{teamId}/channels",
+      "fields": [],
+      "group": "Channel",
+      "description": "Create a channel"
+    },
+    {
+      "id": "channel_delete_channel",
+      "label": "Delete Channel",
+      "method": "DELETE",
+      "path": "/v1.0/teams/{teamId}/channels/{channelId}",
+      "fields": [],
+      "group": "Channel",
+      "description": "Delete a channel"
+    },
+    {
+      "id": "channel_get",
+      "label": "Get Channel",
+      "method": "GET",
+      "path": "/v1.0/teams/{teamId}/channels/{channelId}",
+      "fields": [],
+      "group": "Channel",
+      "description": "Get a channel"
+    },
+    {
+      "id": "channel_get_all",
+      "label": "Get Many Channel",
+      "method": "GET",
+      "path": "/v1.0/teams/{teamId}/channels",
+      "fields": [],
+      "group": "Channel",
+      "description": "Get many channels"
+    },
+    {
+      "id": "channel_update",
+      "label": "Update Channel",
+      "method": "PATCH",
+      "path": "/v1.0/teams/{teamId}/channels/{channelId}",
+      "fields": [],
+      "group": "Channel",
+      "description": "Update a channel"
+    },
+    {
+      "id": "channel_message_create",
+      "label": "Create Channel Message",
+      "method": "POST",
+      "path": "/beta/teams/{teamId}/channels/{channelId}/messages/{replyToId}/replies",
+      "fields": [],
+      "group": "Channel Message",
+      "description": "Create a message in a channel"
+    },
+    {
+      "id": "channel_message_get_all",
+      "label": "Get Many Channel Message",
+      "method": "GET",
+      "path": "/beta/teams/{teamId}/channels/{channelId}/messages",
+      "fields": [],
+      "group": "Channel Message",
+      "description": "Get many messages from a channel"
+    },
+    {
+      "id": "chat_message_create",
+      "label": "Create Chat Message",
+      "method": "POST",
+      "path": "/v1.0/chats/{chatId}/messages",
+      "fields": [],
+      "group": "Chat Message",
+      "description": "Create a message in a chat"
+    },
+    {
+      "id": "chat_message_get",
+      "label": "Get Chat Message",
+      "method": "GET",
+      "path": "/v1.0/chats/{chatId}/messages/{messageId}",
+      "fields": [],
+      "group": "Chat Message",
+      "description": "Get a message from a chat"
+    },
+    {
+      "id": "chat_message_get_all",
+      "label": "Get Many Chat Message",
+      "method": "GET",
+      "path": "/v1.0/chats/{chatId}/messages",
+      "fields": [],
+      "group": "Chat Message",
+      "description": "Get many messages from a chat"
+    },
+    {
+      "id": "chat_message_send_and_wait_operation",
+      "label": "Send and Wait for Response Chat Message",
+      "method": "POST",
+      "path": "/chat-message",
+      "fields": [],
+      "group": "Chat Message",
+      "description": "[unverified path] Send a message and wait for response"
+    },
+    {
+      "id": "task_create",
+      "label": "Create Task",
+      "method": "POST",
+      "path": "/v1.0/planner/tasks",
+      "fields": [],
+      "group": "Task",
+      "description": "Create a task"
+    },
+    {
+      "id": "task_delete_task",
+      "label": "Delete Task",
+      "method": "DELETE",
+      "path": "/v1.0/planner/tasks/{taskId}",
+      "fields": [],
+      "group": "Task",
+      "description": "Delete a task"
+    },
+    {
+      "id": "task_get",
+      "label": "Get Task",
+      "method": "GET",
+      "path": "/v1.0/planner/tasks/{taskId}",
+      "fields": [],
+      "group": "Task",
+      "description": "Get a task"
+    },
+    {
+      "id": "task_get_all",
+      "label": "Get Many Task",
+      "method": "GET",
+      "path": "/v1.0/me",
+      "fields": [],
+      "group": "Task",
+      "description": "Get many tasks"
+    },
+    {
+      "id": "task_update",
+      "label": "Update Task",
+      "method": "PATCH",
+      "path": "/v1.0/planner/tasks/{taskId}",
+      "fields": [],
+      "group": "Task",
+      "description": "Update a task"
+    }
+  ]
 }

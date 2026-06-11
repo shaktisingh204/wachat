@@ -4,42 +4,525 @@
   "description": "Consume the Grafana API",
   "category": "analytics",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 4,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://{host}/api",
   "endpoints": [
     {
-      "id": "dashboard_default",
-      "label": "List Dashboard",
-      "method": "GET",
-      "path": "/dashboard",
-      "fields": []
+      "id": "dashboard_create",
+      "label": "Create Dashboard",
+      "method": "POST",
+      "path": "/dashboards/db",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Grafana server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "title",
+          "label": "Title",
+          "type": "text",
+          "required": true,
+          "description": "Title of the dashboard to create"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: folderId)"
+        }
+      ],
+      "group": "Dashboard",
+      "description": "Create a dashboard"
     },
     {
-      "id": "team_default",
-      "label": "List Team",
-      "method": "GET",
-      "path": "/team",
-      "fields": []
+      "id": "dashboard_delete",
+      "label": "Delete Dashboard",
+      "method": "DELETE",
+      "path": "/dashboards/uid/{uid}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Grafana server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "dashboardUidOrUrl",
+          "label": "Dashboard UID or URL",
+          "type": "text",
+          "required": true,
+          "placeholder": "cIBgcSjkk",
+          "description": "Unique alphabetic identifier or URL of the dashboard to delete"
+        }
+      ],
+      "group": "Dashboard",
+      "description": "Delete a dashboard"
     },
     {
-      "id": "team_member_default",
-      "label": "List TeamMember",
+      "id": "dashboard_get",
+      "label": "Get Dashboard",
       "method": "GET",
-      "path": "/teamMember",
-      "fields": []
+      "path": "/dashboards/uid/{uid}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Grafana server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "dashboardUidOrUrl",
+          "label": "Dashboard UID or URL",
+          "type": "text",
+          "required": true,
+          "placeholder": "cIBgcSjkk",
+          "description": "Unique alphabetic identifier or URL of the dashboard to retrieve"
+        }
+      ],
+      "group": "Dashboard",
+      "description": "Get a dashboard"
     },
     {
-      "id": "user_default",
-      "label": "List User",
+      "id": "dashboard_get_all",
+      "label": "Get Many Dashboard",
       "method": "GET",
-      "path": "/user",
-      "fields": []
+      "path": "/search",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Grafana server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: query)"
+        }
+      ],
+      "group": "Dashboard",
+      "description": "Get many dashboards"
+    },
+    {
+      "id": "dashboard_update",
+      "label": "Update Dashboard",
+      "method": "POST",
+      "path": "/dashboards/db",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Grafana server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "dashboardUidOrUrl",
+          "label": "Dashboard UID or URL",
+          "type": "text",
+          "required": true,
+          "placeholder": "cIBgcSjkk",
+          "description": "Unique alphabetic identifier or URL of the dashboard to update"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: folderId, title)"
+        }
+      ],
+      "group": "Dashboard",
+      "description": "Update a dashboard"
+    },
+    {
+      "id": "team_create",
+      "label": "Create Team",
+      "method": "POST",
+      "path": "/teams",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Grafana server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "placeholder": "Engineering",
+          "description": "Name of the team to create"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: email)"
+        }
+      ],
+      "group": "Team",
+      "description": "Create a team"
+    },
+    {
+      "id": "team_delete",
+      "label": "Delete Team",
+      "method": "DELETE",
+      "path": "/teams/{teamId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Grafana server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "teamId",
+          "label": "Team ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the team to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Team",
+      "description": "Delete a team"
+    },
+    {
+      "id": "team_get",
+      "label": "Get Team",
+      "method": "GET",
+      "path": "/teams/{teamId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Grafana server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "teamId",
+          "label": "Team ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the team to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Team",
+      "description": "Get a team"
+    },
+    {
+      "id": "team_get_all",
+      "label": "Get Many Team",
+      "method": "GET",
+      "path": "/teams/search",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Grafana server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: name)"
+        }
+      ],
+      "group": "Team",
+      "description": "Retrieve many teams"
+    },
+    {
+      "id": "team_update",
+      "label": "Update Team",
+      "method": "PUT",
+      "path": "/teams/{teamId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Grafana server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "teamId",
+          "label": "Team ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the team to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: email, name)"
+        }
+      ],
+      "group": "Team",
+      "description": "Update a team"
+    },
+    {
+      "id": "team_member_add",
+      "label": "Add Team Member",
+      "method": "POST",
+      "path": "/teams/{teamId}/members",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Grafana server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "userId",
+          "label": "User Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "User to add to a team. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "teamId",
+          "label": "Team Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Team to add the user to. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        }
+      ],
+      "group": "Team Member",
+      "description": "Add a member to a team"
+    },
+    {
+      "id": "team_member_get_all",
+      "label": "Get Many Team Member",
+      "method": "GET",
+      "path": "/teams/{teamId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Grafana server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "teamId",
+          "label": "Team Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Team to retrieve all members from. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Team Member",
+      "description": "Retrieve many team members"
+    },
+    {
+      "id": "team_member_remove",
+      "label": "Remove Team Member",
+      "method": "DELETE",
+      "path": "/teams/{teamId}/members/{memberId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Grafana server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "memberId",
+          "label": "User Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "User to remove from the team. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "teamId",
+          "label": "Team Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Team to remove the user from. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        }
+      ],
+      "group": "Team Member",
+      "description": "Remove a member from a team"
+    },
+    {
+      "id": "user_delete",
+      "label": "Delete User",
+      "method": "DELETE",
+      "path": "/org/users/{userId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Grafana server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "userId",
+          "label": "User ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the user to delete",
+          "in": "path"
+        }
+      ],
+      "group": "User",
+      "description": "Delete a user from the current organization"
+    },
+    {
+      "id": "user_get_all",
+      "label": "Get Many User",
+      "method": "GET",
+      "path": "/org/users",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Grafana server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "User",
+      "description": "Retrieve many users in the current organization"
+    },
+    {
+      "id": "user_update",
+      "label": "Update User",
+      "method": "PATCH",
+      "path": "/org/users/{userId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Grafana server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "userId",
+          "label": "User ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the user to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: role)"
+        }
+      ],
+      "group": "User",
+      "description": "Update a user in the current organization"
     }
   ]
 }

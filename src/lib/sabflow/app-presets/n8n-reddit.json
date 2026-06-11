@@ -4,8 +4,8 @@
   "description": "Consume the Reddit API",
   "category": "communication",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 10,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -16,42 +16,521 @@
       "credentialType": "oauth2"
     }
   },
-  "baseUrl": "",
+  "baseUrl": "https://oauth.reddit.com",
   "endpoints": [
     {
-      "id": "post_default",
-      "label": "List Post",
-      "method": "GET",
-      "path": "/post",
-      "fields": []
+      "id": "post_comment_create",
+      "label": "Create Post Comment",
+      "method": "POST",
+      "path": "/api/comment",
+      "fields": [
+        {
+          "id": "postId",
+          "label": "Post ID",
+          "type": "text",
+          "required": true,
+          "placeholder": "l0me7x",
+          "description": "ID of the post to write the comment to. Found in the post URL: /r/[subreddit_name]/comments/[post_id]/[post_title]"
+        },
+        {
+          "id": "commentText",
+          "label": "Comment Text",
+          "type": "text",
+          "required": true,
+          "description": "Text of the comment. Markdown supported."
+        }
+      ],
+      "group": "Post Comment",
+      "description": "Create a top-level comment in a post"
     },
     {
-      "id": "post_comment_default",
-      "label": "List PostComment",
+      "id": "post_comment_get_all",
+      "label": "Get Many Post Comment",
       "method": "GET",
-      "path": "/postComment",
-      "fields": []
+      "path": "/r/{subreddit}/comments/{postId}.json",
+      "fields": [
+        {
+          "id": "subreddit",
+          "label": "Subreddit",
+          "type": "text",
+          "required": true,
+          "description": "The name of subreddit where the post is",
+          "in": "path"
+        },
+        {
+          "id": "postId",
+          "label": "Post ID",
+          "type": "text",
+          "required": true,
+          "placeholder": "l0me7x",
+          "description": "ID of the post to get all comments from. Found in the post URL: /r/[subreddit_name]/comments/[post_id]/[post_title]",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        }
+      ],
+      "group": "Post Comment",
+      "description": "Retrieve many comments in a post"
     },
     {
-      "id": "profile_default",
-      "label": "List Profile",
-      "method": "GET",
-      "path": "/profile",
-      "fields": []
+      "id": "post_comment_delete",
+      "label": "Delete Post Comment",
+      "method": "POST",
+      "path": "/api/del",
+      "fields": [
+        {
+          "id": "commentId",
+          "label": "Comment ID",
+          "type": "text",
+          "required": true,
+          "placeholder": "gla7fmt",
+          "description": "ID of the comment to remove. Found in the comment URL:/r/[subreddit_name]/comments/[post_id]/[post_title]/[comment_id]"
+        }
+      ],
+      "group": "Post Comment",
+      "description": "Remove a comment from a post"
     },
     {
-      "id": "subreddit_default",
-      "label": "List Subreddit",
-      "method": "GET",
-      "path": "/subreddit",
-      "fields": []
+      "id": "post_comment_reply",
+      "label": "Reply Post Comment",
+      "method": "POST",
+      "path": "/api/comment",
+      "fields": [
+        {
+          "id": "commentId",
+          "label": "Comment ID",
+          "type": "text",
+          "required": true,
+          "placeholder": "gl9iroa",
+          "description": "ID of the comment to reply to. To be found in the comment URL: www.reddit.com/r/[subreddit_name]/comments/[post_id]/[post_title]/[comment_id]"
+        },
+        {
+          "id": "replyText",
+          "label": "Reply Text",
+          "type": "text",
+          "required": true,
+          "description": "Text of the reply. Markdown supported."
+        }
+      ],
+      "group": "Post Comment",
+      "description": "Write a reply to a comment in a post"
     },
     {
-      "id": "user_default",
-      "label": "List User",
+      "id": "profile_get",
+      "label": "Get Profile",
       "method": "GET",
-      "path": "/user",
-      "fields": []
+      "path": "/api/v1/me",
+      "fields": [
+        {
+          "id": "details",
+          "label": "Details",
+          "type": "select",
+          "required": true,
+          "description": "Details of my account to retrieve",
+          "defaultValue": "identity",
+          "options": [
+            {
+              "value": "blockedUsers",
+              "label": "Blocked Users"
+            },
+            {
+              "value": "friends",
+              "label": "Friends"
+            },
+            {
+              "value": "identity",
+              "label": "Identity"
+            },
+            {
+              "value": "karma",
+              "label": "Karma"
+            },
+            {
+              "value": "prefs",
+              "label": "Preferences"
+            },
+            {
+              "value": "saved",
+              "label": "Saved"
+            },
+            {
+              "value": "trophies",
+              "label": "Trophies"
+            }
+          ]
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        }
+      ],
+      "group": "Profile",
+      "description": "Get a profile"
+    },
+    {
+      "id": "subreddit_get",
+      "label": "Get Subreddit",
+      "method": "GET",
+      "path": "/r/{subreddit}/about/{content}.json",
+      "fields": [
+        {
+          "id": "content",
+          "label": "Content",
+          "type": "select",
+          "required": true,
+          "description": "Subreddit content to retrieve",
+          "defaultValue": "about",
+          "options": [
+            {
+              "value": "about",
+              "label": "About"
+            },
+            {
+              "value": "rules",
+              "label": "Rules"
+            }
+          ],
+          "in": "path"
+        },
+        {
+          "id": "subreddit",
+          "label": "Subreddit",
+          "type": "text",
+          "required": true,
+          "description": "The name of subreddit to retrieve the content from",
+          "in": "path"
+        }
+      ],
+      "group": "Subreddit",
+      "description": "Retrieve background information about a subreddit"
+    },
+    {
+      "id": "subreddit_get_all",
+      "label": "Get Many Subreddit",
+      "method": "GET",
+      "path": "/api/trending_subreddits.json",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: keyword, trending)"
+        }
+      ],
+      "group": "Subreddit",
+      "description": "Retrieve information about many subreddits"
+    },
+    {
+      "id": "post_create",
+      "label": "Create Post",
+      "method": "POST",
+      "path": "/api/submit",
+      "fields": [
+        {
+          "id": "subreddit",
+          "label": "Subreddit",
+          "type": "text",
+          "required": true,
+          "description": "Subreddit to create the post in"
+        },
+        {
+          "id": "kind",
+          "label": "Kind",
+          "type": "select",
+          "description": "The kind of the post to create",
+          "defaultValue": "self",
+          "options": [
+            {
+              "value": "self",
+              "label": "Text Post"
+            },
+            {
+              "value": "link",
+              "label": "Link Post"
+            },
+            {
+              "value": "image",
+              "label": "Image Post"
+            }
+          ]
+        },
+        {
+          "id": "title",
+          "label": "Title",
+          "type": "text",
+          "required": true,
+          "description": "Title of the post, up to 300 characters long"
+        },
+        {
+          "id": "url",
+          "label": "URL",
+          "type": "text",
+          "required": true,
+          "description": "URL of the post"
+        },
+        {
+          "id": "text",
+          "label": "Text",
+          "type": "text",
+          "required": true,
+          "description": "Text of the post. Markdown supported."
+        },
+        {
+          "id": "resubmit",
+          "label": "Resubmit",
+          "type": "toggle",
+          "description": "Whether the URL will be posted even if it was already posted to the subreddit before. Otherwise, the re-posting will trigger an error.",
+          "defaultValue": false
+        }
+      ],
+      "group": "Post",
+      "description": "Submit a post to a subreddit"
+    },
+    {
+      "id": "post_delete",
+      "label": "Delete Post",
+      "method": "POST",
+      "path": "/api/del",
+      "fields": [
+        {
+          "id": "postId",
+          "label": "Post ID",
+          "type": "text",
+          "required": true,
+          "placeholder": "gla7fmt",
+          "description": "ID of the post to delete. Found in the post URL: /r/[subreddit_name]/comments/[post_id]/[post_title]"
+        }
+      ],
+      "group": "Post",
+      "description": "Delete a post from a subreddit"
+    },
+    {
+      "id": "post_get",
+      "label": "Get Post",
+      "method": "GET",
+      "path": "/r/{subreddit}/comments/{postId}.json",
+      "fields": [
+        {
+          "id": "subreddit",
+          "label": "Subreddit",
+          "type": "text",
+          "required": true,
+          "description": "The name of subreddit to retrieve the post from",
+          "in": "path"
+        },
+        {
+          "id": "postId",
+          "label": "Post ID",
+          "type": "text",
+          "required": true,
+          "placeholder": "l0me7x",
+          "description": "ID of the post to retrieve. Found in the post URL: /r/[subreddit_name]/comments/[post_id]/[post_title]",
+          "in": "path"
+        }
+      ],
+      "group": "Post",
+      "description": "Get a post from a subreddit"
+    },
+    {
+      "id": "post_get_all",
+      "label": "Get Many Post",
+      "method": "GET",
+      "path": "/r/{subreddit}.json",
+      "fields": [
+        {
+          "id": "subreddit",
+          "label": "Subreddit",
+          "type": "text",
+          "required": true,
+          "description": "The name of subreddit to retrieve the posts from",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: category)"
+        }
+      ],
+      "group": "Post",
+      "description": "Get many posts from a subreddit"
+    },
+    {
+      "id": "post_search",
+      "label": "Search Post",
+      "method": "GET",
+      "path": "/search.json",
+      "fields": [
+        {
+          "id": "location",
+          "label": "Location",
+          "type": "select",
+          "description": "Location where to search for posts",
+          "defaultValue": "subreddit",
+          "options": [
+            {
+              "value": "allReddit",
+              "label": "All Reddit"
+            },
+            {
+              "value": "subreddit",
+              "label": "Subreddit"
+            }
+          ]
+        },
+        {
+          "id": "subreddit",
+          "label": "Subreddit",
+          "type": "text",
+          "required": true,
+          "description": "The name of subreddit to search in"
+        },
+        {
+          "id": "keyword",
+          "label": "Keyword",
+          "type": "text",
+          "required": true,
+          "description": "The keyword for the search"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: sort)"
+        }
+      ],
+      "group": "Post",
+      "description": "Search posts in a subreddit or in all of Reddit"
+    },
+    {
+      "id": "user_get",
+      "label": "Get User",
+      "method": "GET",
+      "path": "/user/{username}/{details}.json",
+      "fields": [
+        {
+          "id": "username",
+          "label": "Username",
+          "type": "text",
+          "required": true,
+          "description": "Reddit ID of the user to retrieve",
+          "in": "path"
+        },
+        {
+          "id": "details",
+          "label": "Details",
+          "type": "select",
+          "required": true,
+          "description": "Details of the user to retrieve",
+          "defaultValue": "about",
+          "options": [
+            {
+              "value": "about",
+              "label": "About"
+            },
+            {
+              "value": "comments",
+              "label": "Comments"
+            },
+            {
+              "value": "gilded",
+              "label": "Gilded"
+            },
+            {
+              "value": "overview",
+              "label": "Overview"
+            },
+            {
+              "value": "submitted",
+              "label": "Submitted"
+            }
+          ],
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        }
+      ],
+      "group": "User",
+      "description": "Get a user"
     }
   ]
 }

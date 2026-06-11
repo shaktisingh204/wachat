@@ -4,8 +4,8 @@
   "description": "Consume Notion API",
   "category": "productivity",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 13,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -15,6 +15,639 @@
       "type": "none"
     }
   },
-  "baseUrl": "",
-  "endpoints": []
+  "baseUrl": "https://api.notion.com/v1",
+  "endpoints": [
+    {
+      "id": "block_append",
+      "label": "Append After Block",
+      "method": "PATCH",
+      "path": "/blocks/{blockId}/children",
+      "fields": [
+        {
+          "id": "Credentials",
+          "label": "Credentials",
+          "type": "text"
+        },
+        {
+          "id": "blockId",
+          "label": "Block",
+          "type": "text",
+          "required": true,
+          "description": "The Notion Block to append blocks to (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "blockUi",
+          "label": "Blocks",
+          "type": "json",
+          "placeholder": "Add Block",
+          "description": "(JSON object; supported keys: blockValues, blockValues.type, blockValues.richText, blockValues.textContent, blockValues.text, blockValues.checked, blockValues.title, blockValues.url)"
+        }
+      ],
+      "group": "Block",
+      "description": "Append a block"
+    },
+    {
+      "id": "block_get_all",
+      "label": "Get Child Blocks Block",
+      "method": "GET",
+      "path": "/blocks/{blockId}/children",
+      "fields": [
+        {
+          "id": "Credentials",
+          "label": "Credentials",
+          "type": "text"
+        },
+        {
+          "id": "blockId",
+          "label": "Block",
+          "type": "text",
+          "required": true,
+          "description": "The Notion Block to get all children from (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "fetchNestedBlocks",
+          "label": "Also Fetch Nested Blocks",
+          "type": "toggle",
+          "defaultValue": false
+        },
+        {
+          "id": "simplifyOutput",
+          "label": "Simplify Output",
+          "type": "toggle",
+          "defaultValue": true
+        }
+      ],
+      "group": "Block",
+      "description": "Get many child blocks"
+    },
+    {
+      "id": "database_get",
+      "label": "Get Database",
+      "method": "GET",
+      "path": "/databases/{databaseId}",
+      "fields": [
+        {
+          "id": "Credentials",
+          "label": "Credentials",
+          "type": "text"
+        },
+        {
+          "id": "databaseId",
+          "label": "Database",
+          "type": "text",
+          "required": true,
+          "description": "The Notion Database to get (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        }
+      ],
+      "group": "Database",
+      "description": "Get a database"
+    },
+    {
+      "id": "database_get_all",
+      "label": "Get Many Database",
+      "method": "POST",
+      "path": "/search",
+      "fields": [
+        {
+          "id": "Credentials",
+          "label": "Credentials",
+          "type": "text"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        }
+      ],
+      "group": "Database",
+      "description": "Get many databases"
+    },
+    {
+      "id": "database_search",
+      "label": "Search Database",
+      "method": "POST",
+      "path": "/search",
+      "fields": [
+        {
+          "id": "Credentials",
+          "label": "Credentials",
+          "type": "text"
+        },
+        {
+          "id": "text",
+          "label": "Search Text",
+          "type": "text",
+          "description": "The text to search for"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: sort)"
+        }
+      ],
+      "group": "Database",
+      "description": "Search databases using text search"
+    },
+    {
+      "id": "database_page_create",
+      "label": "Create Database Page",
+      "method": "POST",
+      "path": "/pages",
+      "fields": [
+        {
+          "id": "Credentials",
+          "label": "Credentials",
+          "type": "text"
+        },
+        {
+          "id": "databaseId",
+          "label": "Database",
+          "type": "text",
+          "required": true,
+          "description": "The Notion Database to operate on (provide the ID)"
+        },
+        {
+          "id": "title",
+          "label": "Title",
+          "type": "text",
+          "description": "Page title. Appears at the top of the page and can be found via Quick Find."
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        },
+        {
+          "id": "propertiesUi",
+          "label": "Properties",
+          "type": "json",
+          "placeholder": "Add Property",
+          "description": "(JSON object; supported keys: propertyValues, propertyValues.key, propertyValues.type, propertyValues.title, propertyValues.richText, propertyValues.textContent, propertyValues.text, propertyValues.phoneValue, propertyValues.multiSelectValue, propertyValues.selectValue, propertyValues.statusValue, propertyValues.emailValue, propertyValues.ignoreIfEmpty, propertyValues.urlValue, propertyValues.peopleValue, propertyValues.relationValue, propertyValues.checkboxValue, propertyValues.numberValue, propertyValues.range, propertyValues.includeTime, propertyValues.date, propertyValues.dateStart, propertyValues.dateEnd, propertyValues.timezone, propertyValues.fileUrls)"
+        },
+        {
+          "id": "blockUi",
+          "label": "Blocks",
+          "type": "json",
+          "placeholder": "Add Block",
+          "description": "(JSON object; supported keys: blockValues, blockValues.type, blockValues.richText, blockValues.textContent, blockValues.text, blockValues.checked, blockValues.title, blockValues.url)"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: iconType, icon)"
+        }
+      ],
+      "group": "Database Page",
+      "description": "Create a page in a database"
+    },
+    {
+      "id": "database_page_get",
+      "label": "Get Database Page",
+      "method": "GET",
+      "path": "/pages/{pageId}",
+      "fields": [
+        {
+          "id": "Credentials",
+          "label": "Credentials",
+          "type": "text"
+        },
+        {
+          "id": "pageId",
+          "label": "Database Page",
+          "type": "text",
+          "required": true,
+          "description": "The Notion Database Page to get (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        }
+      ],
+      "group": "Database Page",
+      "description": "Get a page in a database"
+    },
+    {
+      "id": "database_page_get_all",
+      "label": "Get Many Database Page",
+      "method": "POST",
+      "path": "/databases/{databaseId}/query",
+      "fields": [
+        {
+          "id": "Credentials",
+          "label": "Credentials",
+          "type": "text"
+        },
+        {
+          "id": "databaseId",
+          "label": "Database",
+          "type": "text",
+          "required": true,
+          "description": "The Notion Database to operate on (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        },
+        {
+          "id": "filterType",
+          "label": "Filter",
+          "type": "select",
+          "defaultValue": "none",
+          "options": [
+            {
+              "value": "none",
+              "label": "None"
+            },
+            {
+              "value": "manual",
+              "label": "Build Manually"
+            },
+            {
+              "value": "json",
+              "label": "JSON"
+            }
+          ]
+        },
+        {
+          "id": "matchType",
+          "label": "Must Match",
+          "type": "select",
+          "defaultValue": "anyFilter",
+          "options": [
+            {
+              "value": "anyFilter",
+              "label": "Any filter"
+            },
+            {
+              "value": "allFilters",
+              "label": "All Filters"
+            }
+          ]
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Condition",
+          "description": "(JSON object; supported keys: conditions, conditions.key, conditions.type, conditions.condition, conditions.returnType, conditions.titleValue, conditions.richTextValue, conditions.phoneNumberValue, conditions.multiSelectValue, conditions.selectValue, conditions.statusValue, conditions.emailValue, conditions.urlValue, conditions.peopleValue, conditions.createdByValue, conditions.lastEditedByValue, conditions.relationValue, conditions.checkboxValue, conditions.numberValue, conditions.date, conditions.createdTimeValue, conditions.lastEditedTime, conditions.textValue, conditions.dateValue)"
+        },
+        {
+          "id": "filterJson",
+          "label": "Filters (JSON)",
+          "type": "text"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: downloadFiles, filter, sort)"
+        }
+      ],
+      "group": "Database Page",
+      "description": "Get many pages in a database"
+    },
+    {
+      "id": "database_page_update",
+      "label": "Update Database Page",
+      "method": "PATCH",
+      "path": "/pages/{pageId}",
+      "fields": [
+        {
+          "id": "Credentials",
+          "label": "Credentials",
+          "type": "text"
+        },
+        {
+          "id": "pageId",
+          "label": "Database Page",
+          "type": "text",
+          "required": true,
+          "description": "The Notion Database Page to update (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        },
+        {
+          "id": "propertiesUi",
+          "label": "Properties",
+          "type": "json",
+          "placeholder": "Add Property",
+          "description": "(JSON object; supported keys: propertyValues, propertyValues.key, propertyValues.type, propertyValues.title, propertyValues.richText, propertyValues.textContent, propertyValues.text, propertyValues.phoneValue, propertyValues.multiSelectValue, propertyValues.selectValue, propertyValues.statusValue, propertyValues.emailValue, propertyValues.ignoreIfEmpty, propertyValues.urlValue, propertyValues.peopleValue, propertyValues.relationValue, propertyValues.checkboxValue, propertyValues.numberValue, propertyValues.range, propertyValues.includeTime, propertyValues.date, propertyValues.dateStart, propertyValues.dateEnd, propertyValues.timezone, propertyValues.fileUrls)"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: iconType, icon)"
+        }
+      ],
+      "group": "Database Page",
+      "description": "Update pages in a database"
+    },
+    {
+      "id": "page_create",
+      "label": "Create Page",
+      "method": "POST",
+      "path": "/pages",
+      "fields": [
+        {
+          "id": "Credentials",
+          "label": "Credentials",
+          "type": "text"
+        },
+        {
+          "id": "pageId",
+          "label": "Parent Page",
+          "type": "text",
+          "required": true,
+          "description": "The Notion Database Page to create a child page for (provide the ID)"
+        },
+        {
+          "id": "title",
+          "label": "Title",
+          "type": "text",
+          "required": true,
+          "description": "Page title. Appears at the top of the page and can be found via Quick Find."
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        },
+        {
+          "id": "blockUi",
+          "label": "Blocks",
+          "type": "json",
+          "placeholder": "Add Block",
+          "description": "(JSON object; supported keys: blockValues, blockValues.type, blockValues.richText, blockValues.textContent, blockValues.text, blockValues.checked, blockValues.title, blockValues.url)"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: iconType, icon)"
+        }
+      ],
+      "group": "Page",
+      "description": "Create a page"
+    },
+    {
+      "id": "page_get",
+      "label": "Get Page",
+      "method": "GET",
+      "path": "/page",
+      "fields": [
+        {
+          "id": "Credentials",
+          "label": "Credentials",
+          "type": "text"
+        },
+        {
+          "id": "pageId",
+          "label": "Page Link or ID",
+          "type": "text",
+          "required": true,
+          "description": "The Page URL from Notion's 'copy link' functionality (or just the ID contained within the URL)"
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        }
+      ],
+      "group": "Page",
+      "description": "[unverified path] Get a page"
+    },
+    {
+      "id": "page_search",
+      "label": "Search Page",
+      "method": "POST",
+      "path": "/search",
+      "fields": [
+        {
+          "id": "Credentials",
+          "label": "Credentials",
+          "type": "text"
+        },
+        {
+          "id": "text",
+          "label": "Search Text",
+          "type": "text",
+          "description": "The text to search for"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: filter, sort)"
+        }
+      ],
+      "group": "Page",
+      "description": "Text search of pages"
+    },
+    {
+      "id": "page_archive",
+      "label": "Archive Page",
+      "method": "PATCH",
+      "path": "/pages/{pageId}",
+      "fields": [
+        {
+          "id": "Credentials",
+          "label": "Credentials",
+          "type": "text"
+        },
+        {
+          "id": "pageId",
+          "label": "Page",
+          "type": "text",
+          "required": true,
+          "description": "The Notion Page to archive (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        }
+      ],
+      "group": "Page",
+      "description": "Archive a page"
+    },
+    {
+      "id": "user_get",
+      "label": "Get User",
+      "method": "GET",
+      "path": "/users/{userId}",
+      "fields": [
+        {
+          "id": "Credentials",
+          "label": "Credentials",
+          "type": "text"
+        },
+        {
+          "id": "userId",
+          "label": "User ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "User",
+      "description": "Get a user"
+    },
+    {
+      "id": "user_get_all",
+      "label": "Get Many User",
+      "method": "GET",
+      "path": "/users",
+      "fields": [
+        {
+          "id": "Credentials",
+          "label": "Credentials",
+          "type": "text"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "User",
+      "description": "Get many users"
+    }
+  ]
 }

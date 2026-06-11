@@ -4,8 +4,8 @@
   "description": "Consume Slack API",
   "category": "communication",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 13,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -15,6 +15,1308 @@
       "type": "none"
     }
   },
-  "baseUrl": "",
-  "endpoints": []
+  "baseUrl": "https://slack.com/api",
+  "endpoints": [
+    {
+      "id": "channel_archive",
+      "label": "Archive Channel",
+      "method": "POST",
+      "path": "/conversations.archive",
+      "fields": [
+        {
+          "id": "channelId",
+          "label": "Channel",
+          "type": "text",
+          "placeholder": "Select a channel...",
+          "description": "The Slack channel to archive (provide the ID)"
+        }
+      ],
+      "group": "Channel",
+      "description": "Archives a conversation"
+    },
+    {
+      "id": "channel_close",
+      "label": "Close Channel",
+      "method": "POST",
+      "path": "/conversations.close",
+      "fields": [
+        {
+          "id": "channelId",
+          "label": "Channel",
+          "type": "text",
+          "required": true,
+          "placeholder": "Select a channel...",
+          "description": "The Slack channel to close (provide the ID)"
+        }
+      ],
+      "group": "Channel",
+      "description": "Closes a direct message or multi-person direct message"
+    },
+    {
+      "id": "channel_create",
+      "label": "Create Channel",
+      "method": "POST",
+      "path": "/conversations.create",
+      "fields": [
+        {
+          "id": "channelId",
+          "label": "Channel",
+          "type": "text",
+          "required": true,
+          "placeholder": "Channel name"
+        },
+        {
+          "id": "channelVisibility",
+          "label": "Channel Visibility",
+          "type": "select",
+          "required": true,
+          "description": "Whether to create a Public or a Private Slack channel. More info.",
+          "defaultValue": "public",
+          "options": [
+            {
+              "value": "public",
+              "label": "Public Channel"
+            },
+            {
+              "value": "private",
+              "label": "Private Channel"
+            }
+          ]
+        }
+      ],
+      "group": "Channel",
+      "description": "Initiates a public or private channel-based conversation"
+    },
+    {
+      "id": "channel_get",
+      "label": "Get Channel",
+      "method": "POST",
+      "path": "/conversations.info",
+      "fields": [
+        {
+          "id": "channelId",
+          "label": "Channel",
+          "type": "text",
+          "required": true,
+          "placeholder": "Select a channel...",
+          "description": "The Slack channel to get (provide the ID)"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: includeNumMembers)"
+        }
+      ],
+      "group": "Channel",
+      "description": "Get information about a channel"
+    },
+    {
+      "id": "channel_get_all",
+      "label": "Get Many Channel",
+      "method": "GET",
+      "path": "/conversations.list",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: excludeArchived, types)"
+        }
+      ],
+      "group": "Channel",
+      "description": "Get many channels in a Slack team"
+    },
+    {
+      "id": "channel_history",
+      "label": "History Channel",
+      "method": "POST",
+      "path": "/conversations.history",
+      "fields": [
+        {
+          "id": "channelId",
+          "label": "Channel",
+          "type": "text",
+          "required": true,
+          "placeholder": "Select a channel...",
+          "description": "The Slack channel to get the history from (provide the ID)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: inclusive, latest, oldest)"
+        }
+      ],
+      "group": "Channel",
+      "description": "Get a conversation's history of messages and events"
+    },
+    {
+      "id": "channel_invite",
+      "label": "Invite Channel",
+      "method": "POST",
+      "path": "/conversations.invite",
+      "fields": [
+        {
+          "id": "channelId",
+          "label": "Channel",
+          "type": "text",
+          "required": true,
+          "placeholder": "Select a channel...",
+          "description": "The Slack channel to invite to (provide the ID)"
+        },
+        {
+          "id": "userIds",
+          "label": "User Names or IDs",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the user to invite into channel. Choose from the list, or specify IDs using an expression. (multiple values: comma-separated)"
+        }
+      ],
+      "group": "Channel",
+      "description": "Invite a user to a channel"
+    },
+    {
+      "id": "channel_join",
+      "label": "Join Channel",
+      "method": "POST",
+      "path": "/conversations.join",
+      "fields": [
+        {
+          "id": "channelId",
+          "label": "Channel",
+          "type": "text",
+          "required": true,
+          "placeholder": "Select a channel...",
+          "description": "The Slack channel to join (provide the ID)"
+        }
+      ],
+      "group": "Channel",
+      "description": "Joins an existing conversation"
+    },
+    {
+      "id": "channel_kick",
+      "label": "Kick Channel",
+      "method": "POST",
+      "path": "/conversations.kick",
+      "fields": [
+        {
+          "id": "channelId",
+          "label": "Channel",
+          "type": "text",
+          "required": true,
+          "placeholder": "Select a channel...",
+          "description": "The Slack channel to kick the user from (provide the ID)"
+        },
+        {
+          "id": "userId",
+          "label": "User Name or ID",
+          "type": "select",
+          "description": "Choose from the list, or specify an ID using an expression"
+        }
+      ],
+      "group": "Channel",
+      "description": "Removes a user from a channel"
+    },
+    {
+      "id": "channel_leave",
+      "label": "Leave Channel",
+      "method": "POST",
+      "path": "/conversations.leave",
+      "fields": [
+        {
+          "id": "channelId",
+          "label": "Channel",
+          "type": "text",
+          "required": true,
+          "placeholder": "Select a channel...",
+          "description": "The Slack channel to leave from (provide the ID)"
+        }
+      ],
+      "group": "Channel",
+      "description": "Leaves a conversation"
+    },
+    {
+      "id": "channel_member",
+      "label": "Member Channel",
+      "method": "POST",
+      "path": "/conversations.members",
+      "fields": [
+        {
+          "id": "channelId",
+          "label": "Channel",
+          "type": "text",
+          "required": true,
+          "placeholder": "Select a channel...",
+          "description": "The Slack channel to get the members from (provide the ID)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "placeholder": "Limit",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "resolveData",
+          "label": "Resolve Data",
+          "type": "toggle",
+          "description": "Whether to resolve the data automatically. By default the response only contain the ID to resource.",
+          "defaultValue": false
+        }
+      ],
+      "group": "Channel",
+      "description": "List members of a conversation"
+    },
+    {
+      "id": "channel_open",
+      "label": "Open Channel",
+      "method": "POST",
+      "path": "/conversations.open",
+      "fields": [
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: channelId, returnIm, users)"
+        }
+      ],
+      "group": "Channel",
+      "description": "Opens or resumes a direct message or multi-person direct message"
+    },
+    {
+      "id": "channel_rename",
+      "label": "Rename Channel",
+      "method": "POST",
+      "path": "/conversations.rename",
+      "fields": [
+        {
+          "id": "channelId",
+          "label": "Channel",
+          "type": "text",
+          "required": true,
+          "placeholder": "Select a channel...",
+          "description": "The Slack channel to rename (provide the ID)"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "New name for conversation"
+        }
+      ],
+      "group": "Channel",
+      "description": "Renames a conversation"
+    },
+    {
+      "id": "channel_replies",
+      "label": "Replies Channel",
+      "method": "POST",
+      "path": "/conversations.replies",
+      "fields": [
+        {
+          "id": "channelId",
+          "label": "Channel",
+          "type": "text",
+          "required": true,
+          "placeholder": "Select a channel...",
+          "description": "The Slack channel to replies to (provide the ID)"
+        },
+        {
+          "id": "ts",
+          "label": "Message Timestamp",
+          "type": "number",
+          "required": true,
+          "placeholder": "1663233118.856619",
+          "description": "Timestamp of the message to reply"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: inclusive, latest, oldest)"
+        }
+      ],
+      "group": "Channel",
+      "description": "Get a thread of messages posted to a channel"
+    },
+    {
+      "id": "channel_set_purpose",
+      "label": "Set Purpose Channel",
+      "method": "POST",
+      "path": "/conversations.setPurpose",
+      "fields": [
+        {
+          "id": "channelId",
+          "label": "Channel",
+          "type": "text",
+          "required": true,
+          "placeholder": "Select a channel...",
+          "description": "The Slack channel to set the purpose of (provide the ID)"
+        },
+        {
+          "id": "purpose",
+          "label": "Purpose",
+          "type": "text",
+          "required": true,
+          "description": "A new, specialer purpose"
+        }
+      ],
+      "group": "Channel",
+      "description": "Sets the purpose for a conversation"
+    },
+    {
+      "id": "channel_set_topic",
+      "label": "Set Topic Channel",
+      "method": "POST",
+      "path": "/conversations.setTopic",
+      "fields": [
+        {
+          "id": "channelId",
+          "label": "Channel",
+          "type": "text",
+          "required": true,
+          "placeholder": "Select a channel...",
+          "description": "The Slack channel to set the topic of (provide the ID)"
+        },
+        {
+          "id": "topic",
+          "label": "Topic",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "group": "Channel",
+      "description": "Sets the topic for a conversation"
+    },
+    {
+      "id": "channel_unarchive",
+      "label": "Unarchive Channel",
+      "method": "POST",
+      "path": "/conversations.unarchive",
+      "fields": [
+        {
+          "id": "channelId",
+          "label": "Channel",
+          "type": "text",
+          "required": true,
+          "placeholder": "Select a channel...",
+          "description": "The Slack channel to unarchive (provide the ID)"
+        }
+      ],
+      "group": "Channel",
+      "description": "Unarchives a conversation"
+    },
+    {
+      "id": "message_delete",
+      "label": "Delete Message",
+      "method": "POST",
+      "path": "/chat.delete",
+      "fields": [
+        {
+          "id": "select",
+          "label": "Delete Message From",
+          "type": "select",
+          "required": true,
+          "placeholder": "Select...",
+          "options": [
+            {
+              "value": "channel",
+              "label": "Channel"
+            },
+            {
+              "value": "user",
+              "label": "User"
+            }
+          ]
+        },
+        {
+          "id": "channelId",
+          "label": "Channel",
+          "type": "text",
+          "required": true,
+          "placeholder": "Select a channel...",
+          "description": "The Slack channel to delete the message from (provide the ID)"
+        },
+        {
+          "id": "user",
+          "label": "User",
+          "type": "text",
+          "placeholder": "Select a user...",
+          "description": "(provide the ID)"
+        },
+        {
+          "id": "timestamp",
+          "label": "Message Timestamp",
+          "type": "number",
+          "required": true,
+          "placeholder": "1663233118.856619",
+          "description": "Timestamp of the message to delete"
+        }
+      ],
+      "group": "Message",
+      "description": "Delete a message"
+    },
+    {
+      "id": "message_get_permalink",
+      "label": "Get Permalink Message",
+      "method": "GET",
+      "path": "/chat.getPermalink",
+      "fields": [
+        {
+          "id": "channelId",
+          "label": "Channel",
+          "type": "text",
+          "placeholder": "Select a channel...",
+          "description": "The Slack channel to get the message permalink from (provide the ID)"
+        },
+        {
+          "id": "timestamp",
+          "label": "Message Timestamp",
+          "type": "number",
+          "required": true,
+          "placeholder": "1663233118.856619",
+          "description": "Timestamp of the message to message"
+        }
+      ],
+      "group": "Message",
+      "description": "Get a message permalink"
+    },
+    {
+      "id": "message_search",
+      "label": "Search Message",
+      "method": "GET",
+      "path": "/search.messages",
+      "fields": [
+        {
+          "id": "query",
+          "label": "Search Query",
+          "type": "text",
+          "required": true,
+          "description": "The text to search for within messages"
+        },
+        {
+          "id": "sort",
+          "label": "Sort By",
+          "type": "select",
+          "description": "How search results should be sorted. You can sort by.",
+          "defaultValue": "desc",
+          "options": [
+            {
+              "value": "desc",
+              "label": "Newest"
+            },
+            {
+              "value": "asc",
+              "label": "Oldest"
+            },
+            {
+              "value": "relevance",
+              "label": "Relevance Score"
+            }
+          ]
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 25
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: searchChannel)"
+        }
+      ],
+      "group": "Message",
+      "description": "Search for messages"
+    },
+    {
+      "id": "message_post",
+      "label": "Send Message",
+      "method": "POST",
+      "path": "/chat.{action}",
+      "fields": [
+        {
+          "id": "select",
+          "label": "Send Message To",
+          "type": "select",
+          "required": true,
+          "placeholder": "Select...",
+          "options": [
+            {
+              "value": "channel",
+              "label": "Channel"
+            },
+            {
+              "value": "user",
+              "label": "User"
+            }
+          ]
+        },
+        {
+          "id": "channelId",
+          "label": "Channel",
+          "type": "text",
+          "required": true,
+          "placeholder": "Select a channel...",
+          "description": "The Slack channel to send to (provide the ID)"
+        },
+        {
+          "id": "user",
+          "label": "User",
+          "type": "text",
+          "placeholder": "Select a user...",
+          "description": "(provide the ID)"
+        },
+        {
+          "id": "messageType",
+          "label": "Message Type",
+          "type": "select",
+          "description": "Whether to send a simple text message, or use Slack’s Blocks UI builder for more sophisticated messages that include form fields, sections and more",
+          "defaultValue": "text",
+          "options": [
+            {
+              "value": "text",
+              "label": "Simple Text Message"
+            },
+            {
+              "value": "block",
+              "label": "Blocks"
+            },
+            {
+              "value": "attachment",
+              "label": "Attachments"
+            }
+          ]
+        },
+        {
+          "id": "text",
+          "label": "Message Text",
+          "type": "text",
+          "required": true,
+          "description": "The message text to post. Supports markdown by default - this can be disabled in \"Options\"."
+        },
+        {
+          "id": "blocksUi",
+          "label": "Blocks",
+          "type": "textarea",
+          "required": true,
+          "description": "Enter the JSON output from Slack's visual Block Kit Builder here. You can then use expressions to add variable content to your blocks. To create blocks, use Slack's Block Kit Builder"
+        },
+        {
+          "id": "attachments",
+          "label": "Attachments",
+          "type": "json",
+          "placeholder": "Add attachment item",
+          "description": "(JSON object; supported keys: fallback, text, title, title_link, color, pretext, author_name, author_link, author_icon, image_url, thumb_url, footer, footer_icon, ts, fields)"
+        },
+        {
+          "id": "otherOptions",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "Other options to set (JSON object; supported keys: includeLinkToWorkflow, botProfile, link_names, thread_ts, mrkdwn, unfurl_links, unfurl_media, ephemeral, sendAsUser)"
+        }
+      ],
+      "group": "Message",
+      "description": "Send a message"
+    },
+    {
+      "id": "message_send_and_wait_operation",
+      "label": "Send and Wait for Response Message",
+      "method": "POST",
+      "path": "/message",
+      "fields": [],
+      "group": "Message",
+      "description": "[unverified path] Send message and wait for response"
+    },
+    {
+      "id": "message_update",
+      "label": "Update Message",
+      "method": "POST",
+      "path": "/chat.update",
+      "fields": [
+        {
+          "id": "channelId",
+          "label": "Channel",
+          "type": "text",
+          "required": true,
+          "placeholder": "Select a channel...",
+          "description": "The Slack channel to update the message from (provide the ID)"
+        },
+        {
+          "id": "ts",
+          "label": "Message Timestamp",
+          "type": "number",
+          "required": true,
+          "placeholder": "1663233118.856619",
+          "description": "Timestamp of the message to update"
+        },
+        {
+          "id": "messageType",
+          "label": "Message Type",
+          "type": "select",
+          "description": "Whether to send a simple text message, or use Slack’s Blocks UI builder for more sophisticated messages that include form fields, sections and more",
+          "defaultValue": "text",
+          "options": [
+            {
+              "value": "text",
+              "label": "Simple Text Message"
+            },
+            {
+              "value": "block",
+              "label": "Blocks"
+            },
+            {
+              "value": "attachment",
+              "label": "Attachments"
+            }
+          ]
+        },
+        {
+          "id": "blocksUi",
+          "label": "Blocks",
+          "type": "textarea",
+          "required": true,
+          "description": "Enter the JSON output from Slack's visual Block Kit Builder here. You can then use expressions to add variable content to your blocks. To create blocks, use Slack's Block Kit Builder"
+        },
+        {
+          "id": "text",
+          "label": "Notification Text",
+          "type": "text",
+          "description": "Fallback text to display in slack notifications. Supports markdown by default - this can be disabled in \"Options\"."
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: link_names, parse)"
+        },
+        {
+          "id": "otherOptions",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "Other options to set (JSON object; supported keys: includeLinkToWorkflow)"
+        }
+      ],
+      "group": "Message",
+      "description": "Update a message"
+    },
+    {
+      "id": "star_add",
+      "label": "Add Star",
+      "method": "POST",
+      "path": "/stars.add",
+      "fields": [
+        {
+          "id": "target",
+          "label": "Item to Add Star",
+          "type": "select",
+          "required": true,
+          "placeholder": "Select...",
+          "description": "Choose whether to add a star to a message or a file",
+          "options": [
+            {
+              "value": "message",
+              "label": "Message"
+            },
+            {
+              "value": "file",
+              "label": "File"
+            }
+          ]
+        },
+        {
+          "id": "channelId",
+          "label": "Channel",
+          "type": "text",
+          "placeholder": "Select a channel...",
+          "description": "The Slack channel to add a star to (provide the ID)"
+        },
+        {
+          "id": "fileId",
+          "label": "File ID",
+          "type": "text",
+          "description": "File to add star to"
+        },
+        {
+          "id": "timestamp",
+          "label": "Message Timestamp",
+          "type": "number",
+          "placeholder": "1663233118.856619",
+          "description": "Timestamp of the message to add"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "Options to set (JSON object; supported keys: fileComment)"
+        }
+      ],
+      "group": "Star",
+      "description": "Add a star to an item"
+    },
+    {
+      "id": "star_delete",
+      "label": "Delete Star",
+      "method": "POST",
+      "path": "/stars.remove",
+      "fields": [
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "Options to set (JSON object; supported keys: channelId, fileId, fileComment, timestamp)"
+        }
+      ],
+      "group": "Star",
+      "description": "Delete a star from an item"
+    },
+    {
+      "id": "star_get_all",
+      "label": "Get Many Star",
+      "method": "GET",
+      "path": "/stars.list",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Star",
+      "description": "Get many stars of autenticated user"
+    },
+    {
+      "id": "file_get",
+      "label": "Get File",
+      "method": "GET",
+      "path": "/files.info",
+      "fields": [
+        {
+          "id": "fileId",
+          "label": "File ID",
+          "type": "text"
+        }
+      ],
+      "group": "File",
+      "description": "Get a file"
+    },
+    {
+      "id": "file_get_all",
+      "label": "Get Many File",
+      "method": "GET",
+      "path": "/files.list",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: channelId, showFilesHidden, tsFrom, tsTo, types, userId)"
+        }
+      ],
+      "group": "File",
+      "description": "Get & filters team files"
+    },
+    {
+      "id": "file_upload",
+      "label": "Upload File",
+      "method": "POST",
+      "path": "/files.upload",
+      "fields": [
+        {
+          "id": "binaryData",
+          "label": "Binary File",
+          "type": "toggle",
+          "description": "Whether the data to upload should be taken from binary field",
+          "defaultValue": false
+        },
+        {
+          "id": "fileContent",
+          "label": "File Content",
+          "type": "text"
+        },
+        {
+          "id": "binaryPropertyName",
+          "label": "File Property",
+          "type": "text",
+          "required": true,
+          "description": "Name of the binary property which contains the data for the file to be uploaded",
+          "defaultValue": "data"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "Other options to set (JSON object; supported keys: channelIds, channelId, fileName, initialComment, threadTs, title)"
+        }
+      ],
+      "group": "File",
+      "description": "Create or upload an existing file"
+    },
+    {
+      "id": "reaction_add",
+      "label": "Add Reaction",
+      "method": "POST",
+      "path": "/reactions.add",
+      "fields": [
+        {
+          "id": "channelId",
+          "label": "Channel",
+          "type": "text",
+          "required": true,
+          "placeholder": "Select a channel...",
+          "description": "The Slack channel to get the reactions from (provide the ID)"
+        },
+        {
+          "id": "timestamp",
+          "label": "Message Timestamp",
+          "type": "number",
+          "required": true,
+          "placeholder": "1663233118.856619",
+          "description": "Timestamp of the message to add, get or remove"
+        },
+        {
+          "id": "name",
+          "label": "Emoji Code",
+          "type": "text",
+          "required": true,
+          "placeholder": "+1",
+          "description": "Emoji code to use for the message reaction. Use emoji codes like +1, not an actual emoji like 👍. List of common emoji codes"
+        }
+      ],
+      "group": "Reaction",
+      "description": "Adds a reaction to a message"
+    },
+    {
+      "id": "reaction_get",
+      "label": "Get Reaction",
+      "method": "GET",
+      "path": "/reactions.get",
+      "fields": [
+        {
+          "id": "channelId",
+          "label": "Channel",
+          "type": "text",
+          "required": true,
+          "placeholder": "Select a channel...",
+          "description": "The Slack channel to get the reactions from (provide the ID)"
+        },
+        {
+          "id": "timestamp",
+          "label": "Message Timestamp",
+          "type": "number",
+          "required": true,
+          "placeholder": "1663233118.856619",
+          "description": "Timestamp of the message to add, get or remove"
+        }
+      ],
+      "group": "Reaction",
+      "description": "Get the reactions of a message"
+    },
+    {
+      "id": "reaction_remove",
+      "label": "Remove Reaction",
+      "method": "POST",
+      "path": "/reactions.remove",
+      "fields": [
+        {
+          "id": "channelId",
+          "label": "Channel",
+          "type": "text",
+          "required": true,
+          "placeholder": "Select a channel...",
+          "description": "The Slack channel to get the reactions from (provide the ID)"
+        },
+        {
+          "id": "timestamp",
+          "label": "Message Timestamp",
+          "type": "number",
+          "required": true,
+          "placeholder": "1663233118.856619",
+          "description": "Timestamp of the message to add, get or remove"
+        },
+        {
+          "id": "name",
+          "label": "Emoji Code",
+          "type": "text",
+          "required": true,
+          "placeholder": "+1",
+          "description": "Emoji code to use for the message reaction. Use emoji codes like +1, not an actual emoji like 👍. List of common emoji codes"
+        }
+      ],
+      "group": "Reaction",
+      "description": "Remove a reaction of a message"
+    },
+    {
+      "id": "user_info",
+      "label": "Get User",
+      "method": "POST",
+      "path": "/users.info",
+      "fields": [
+        {
+          "id": "user",
+          "label": "User",
+          "type": "text",
+          "placeholder": "Select a user...",
+          "description": "The ID of the user to get information about (provide the ID)"
+        }
+      ],
+      "group": "User",
+      "description": "Get information about a user"
+    },
+    {
+      "id": "user_get_all",
+      "label": "Get Many User",
+      "method": "GET",
+      "path": "/users.list",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "User",
+      "description": "Get a list of many users"
+    },
+    {
+      "id": "user_get_profile",
+      "label": "Get User's Profile User",
+      "method": "GET",
+      "path": "/users.profile.get",
+      "fields": [
+        {
+          "id": "user",
+          "label": "User",
+          "type": "text",
+          "placeholder": "Select a user...",
+          "description": "The ID of the user to get information about (provide the ID)"
+        }
+      ],
+      "group": "User",
+      "description": "Get a user's profile"
+    },
+    {
+      "id": "user_get_presence",
+      "label": "Get User's Status User",
+      "method": "GET",
+      "path": "/users.getPresence",
+      "fields": [
+        {
+          "id": "user",
+          "label": "User",
+          "type": "text",
+          "placeholder": "Select a user...",
+          "description": "The ID of the user to get the online status of (provide the ID)"
+        }
+      ],
+      "group": "User",
+      "description": "Get online status of a user"
+    },
+    {
+      "id": "user_update_profile",
+      "label": "Update User's Profile User",
+      "method": "POST",
+      "path": "/users.profile.set",
+      "fields": [
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: customFieldUi, email, first_name, last_name, status, user)"
+        }
+      ],
+      "group": "User",
+      "description": "Update a user's profile"
+    },
+    {
+      "id": "user_group_update_users",
+      "label": "Add Users User Group",
+      "method": "POST",
+      "path": "/usergroups.users.update",
+      "fields": [
+        {
+          "id": "userGroupId",
+          "label": "User Group ID",
+          "type": "text",
+          "required": true,
+          "description": "The encoded ID of the User Group to update"
+        },
+        {
+          "id": "users",
+          "label": "User Names or IDs",
+          "type": "select",
+          "required": true,
+          "description": "Users to add to the User Group. Existing users will be preserved. Choose from the list, or specify IDs using an expression. (multiple values: comma-separated)"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: include_count)"
+        }
+      ],
+      "group": "User Group",
+      "description": "Add users to a user group"
+    },
+    {
+      "id": "user_group_create",
+      "label": "Create User Group",
+      "method": "POST",
+      "path": "/usergroups.create",
+      "fields": [
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "A name for the User Group. Must be unique among User Groups."
+        },
+        {
+          "id": "Options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: channelIds, description, handle, include_count)"
+        }
+      ],
+      "group": "User Group",
+      "description": "Create a user group"
+    },
+    {
+      "id": "user_group_disable",
+      "label": "Disable User Group",
+      "method": "POST",
+      "path": "/usergroups.disable",
+      "fields": [
+        {
+          "id": "userGroupId",
+          "label": "User Group ID",
+          "type": "text",
+          "required": true,
+          "description": "The encoded ID of the User Group to update"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: include_count)"
+        }
+      ],
+      "group": "User Group",
+      "description": "Disable a user group"
+    },
+    {
+      "id": "user_group_enable",
+      "label": "Enable User Group",
+      "method": "POST",
+      "path": "/usergroups.enable",
+      "fields": [
+        {
+          "id": "userGroupId",
+          "label": "User Group ID",
+          "type": "text",
+          "required": true,
+          "description": "The encoded ID of the User Group to update"
+        },
+        {
+          "id": "option",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: include_count)"
+        }
+      ],
+      "group": "User Group",
+      "description": "Enable a user group"
+    },
+    {
+      "id": "user_group_get_all",
+      "label": "Get Many User Group",
+      "method": "GET",
+      "path": "/usergroups.list",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: include_count, include_disabled, include_users)"
+        }
+      ],
+      "group": "User Group",
+      "description": "Get many user groups"
+    },
+    {
+      "id": "user_group_get_users",
+      "label": "Get Users User Group",
+      "method": "GET",
+      "path": "/usergroups.list",
+      "fields": [
+        {
+          "id": "userGroupId",
+          "label": "User Group ID",
+          "type": "text",
+          "required": true,
+          "description": "The encoded ID of the User Group"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: resolveData)"
+        }
+      ],
+      "group": "User Group",
+      "description": "Get users from a user group"
+    },
+    {
+      "id": "user_group_update",
+      "label": "Update User Group",
+      "method": "POST",
+      "path": "/usergroups.update",
+      "fields": [
+        {
+          "id": "userGroupId",
+          "label": "User Group ID",
+          "type": "text",
+          "required": true,
+          "description": "The encoded ID of the User Group to update"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: channels, description, handle, include_count, name)"
+        }
+      ],
+      "group": "User Group",
+      "description": "Update a user group"
+    }
+  ]
 }

@@ -4,8 +4,8 @@
   "description": "Consume Microsoft To Do API.",
   "category": "productivity",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 10,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -16,28 +16,442 @@
       "credentialType": "oauth2"
     }
   },
-  "baseUrl": "",
+  "baseUrl": "https://graph.microsoft.com",
   "endpoints": [
     {
-      "id": "linked_resource_default",
-      "label": "List LinkedResource",
-      "method": "GET",
-      "path": "/linkedResource",
-      "fields": []
+      "id": "linked_resource_create",
+      "label": "Create Linked Resource",
+      "method": "POST",
+      "path": "/todo/lists/{taskListId}/tasks/{taskId}/linkedResources",
+      "fields": [
+        {
+          "id": "taskListId",
+          "label": "Task List Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        },
+        {
+          "id": "taskId",
+          "label": "Task ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "displayName",
+          "label": "Name",
+          "type": "text",
+          "description": "Field indicating title of the linked entity"
+        },
+        {
+          "id": "applicationName",
+          "label": "Application Name",
+          "type": "text",
+          "required": true,
+          "description": "App name of the source that is sending the linked entity"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: externalId, webUrl)"
+        }
+      ],
+      "group": "Linked Resource",
+      "description": "Create a linked resource"
     },
     {
-      "id": "list_default",
-      "label": "List List",
-      "method": "GET",
-      "path": "/list",
-      "fields": []
+      "id": "linked_resource_delete",
+      "label": "Delete Linked Resource",
+      "method": "DELETE",
+      "path": "/todo/lists/{taskListId}/tasks/{taskId}/linkedResources/{linkedResourceId}",
+      "fields": [
+        {
+          "id": "taskListId",
+          "label": "Task List Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        },
+        {
+          "id": "taskId",
+          "label": "Task ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "linkedResourceId",
+          "label": "Linked Resource ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Linked Resource",
+      "description": "Delete a linked resource"
     },
     {
-      "id": "task_default",
-      "label": "List Task",
+      "id": "linked_resource_get",
+      "label": "Get Linked Resource",
       "method": "GET",
-      "path": "/task",
-      "fields": []
+      "path": "/todo/lists/{taskListId}/tasks/{taskId}/linkedResources/{linkedResourceId}",
+      "fields": [
+        {
+          "id": "taskListId",
+          "label": "Task List Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        },
+        {
+          "id": "taskId",
+          "label": "Task ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "linkedResourceId",
+          "label": "Linked Resource ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Linked Resource",
+      "description": "Get a linked resource"
+    },
+    {
+      "id": "linked_resource_get_all",
+      "label": "Get Many Linked Resource",
+      "method": "GET",
+      "path": "/todo/lists/{taskListId}/tasks/{taskId}/linkedResources",
+      "fields": [
+        {
+          "id": "taskListId",
+          "label": "Task List Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        },
+        {
+          "id": "taskId",
+          "label": "Task ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Linked Resource",
+      "description": "Get many linked resources"
+    },
+    {
+      "id": "linked_resource_update",
+      "label": "Update Linked Resource",
+      "method": "PATCH",
+      "path": "/todo/lists/{taskListId}/tasks/{taskId}/linkedResources/{linkedResourceId}",
+      "fields": [
+        {
+          "id": "taskListId",
+          "label": "Task List Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        },
+        {
+          "id": "taskId",
+          "label": "Task ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "linkedResourceId",
+          "label": "Linked Resource ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: applicationName, displayName, externalId, webUrl)"
+        }
+      ],
+      "group": "Linked Resource",
+      "description": "Update a linked resource"
+    },
+    {
+      "id": "task_create",
+      "label": "Create Task",
+      "method": "POST",
+      "path": "/todo/lists/{taskListId}/tasks",
+      "fields": [
+        {
+          "id": "taskListId",
+          "label": "List Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The identifier of the list, unique in the user's mailbox. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "title",
+          "label": "Subject",
+          "type": "text",
+          "required": true,
+          "description": "A brief description of the task"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: content, dueDateTime, reminderDateTime, importance, status)"
+        }
+      ],
+      "group": "Task",
+      "description": "Create a task"
+    },
+    {
+      "id": "task_delete",
+      "label": "Delete Task",
+      "method": "DELETE",
+      "path": "/todo/lists/{taskListId}/tasks/{taskId}",
+      "fields": [
+        {
+          "id": "taskListId",
+          "label": "List Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The identifier of the list, unique in the user's mailbox. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "taskId",
+          "label": "Task ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Task",
+      "description": "Delete a task"
+    },
+    {
+      "id": "task_get",
+      "label": "Get Task",
+      "method": "GET",
+      "path": "/todo/lists/{taskListId}/tasks/{taskId}",
+      "fields": [
+        {
+          "id": "taskListId",
+          "label": "List Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The identifier of the list, unique in the user's mailbox. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "taskId",
+          "label": "Task ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Task",
+      "description": "Get a task"
+    },
+    {
+      "id": "task_get_all",
+      "label": "Get Many Task",
+      "method": "GET",
+      "path": "/todo/lists/{taskListId}/tasks/",
+      "fields": [
+        {
+          "id": "taskListId",
+          "label": "List Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The identifier of the list, unique in the user's mailbox. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Task",
+      "description": "Get many tasks"
+    },
+    {
+      "id": "task_update",
+      "label": "Update Task",
+      "method": "PATCH",
+      "path": "/todo/lists/{taskListId}/tasks/{taskId}",
+      "fields": [
+        {
+          "id": "taskListId",
+          "label": "List Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The identifier of the list, unique in the user's mailbox. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "taskId",
+          "label": "Task ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: content, dueDateTime, reminderDateTime, importance, status, title)"
+        }
+      ],
+      "group": "Task",
+      "description": "Update a task"
+    },
+    {
+      "id": "list_create",
+      "label": "Create List",
+      "method": "POST",
+      "path": "/todo/lists/",
+      "fields": [
+        {
+          "id": "displayName",
+          "label": "List Name",
+          "type": "text",
+          "required": true,
+          "description": "List display name"
+        }
+      ],
+      "group": "List",
+      "description": "Create a list"
+    },
+    {
+      "id": "list_delete",
+      "label": "Delete List",
+      "method": "DELETE",
+      "path": "/todo/lists/{listId}",
+      "fields": [
+        {
+          "id": "listId",
+          "label": "List ID",
+          "type": "text",
+          "required": true,
+          "description": "The identifier of the list, unique in the user's mailbox",
+          "in": "path"
+        }
+      ],
+      "group": "List",
+      "description": "Delete a list"
+    },
+    {
+      "id": "list_get",
+      "label": "Get List",
+      "method": "GET",
+      "path": "/todo/lists/{listId}",
+      "fields": [
+        {
+          "id": "listId",
+          "label": "List ID",
+          "type": "text",
+          "required": true,
+          "description": "The identifier of the list, unique in the user's mailbox",
+          "in": "path"
+        }
+      ],
+      "group": "List",
+      "description": "Get a list"
+    },
+    {
+      "id": "list_get_all",
+      "label": "Get Many List",
+      "method": "GET",
+      "path": "/todo/lists",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "List",
+      "description": "Get many lists"
+    },
+    {
+      "id": "list_update",
+      "label": "Update List",
+      "method": "PATCH",
+      "path": "/todo/lists/{listId}",
+      "fields": [
+        {
+          "id": "listId",
+          "label": "List ID",
+          "type": "text",
+          "required": true,
+          "description": "The identifier of the list, unique in the user's mailbox",
+          "in": "path"
+        },
+        {
+          "id": "displayName",
+          "label": "New List Name",
+          "type": "text",
+          "required": true,
+          "description": "List display name"
+        }
+      ],
+      "group": "List",
+      "description": "Update a list"
     }
   ]
 }

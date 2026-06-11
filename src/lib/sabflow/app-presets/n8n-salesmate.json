@@ -4,35 +4,563 @@
   "description": "Consume Salesmate API",
   "category": "crm",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://apis.salesmate.io",
   "endpoints": [
     {
-      "id": "activity_default",
-      "label": "List Activity",
-      "method": "GET",
-      "path": "/activity",
-      "fields": []
+      "id": "company_create",
+      "label": "Create Company",
+      "method": "POST",
+      "path": "/v1/companies",
+      "fields": [
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "owner",
+          "label": "Owner Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "rawData",
+          "label": "RAW Data",
+          "type": "toggle",
+          "description": "Whether the data should include the fields details",
+          "defaultValue": false
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: website, phone, otherPhone, facebookHandle, googlePlusHandle, linkedInHandle, skypeId, twitterHandle, currency, billingAddressLine1, billingAddressLine2, billingCity, billingZipCode, billingState, description, tags)"
+        }
+      ],
+      "group": "Company",
+      "description": "Create a company"
     },
     {
-      "id": "company_default",
-      "label": "List Company",
-      "method": "GET",
-      "path": "/company",
-      "fields": []
+      "id": "company_delete",
+      "label": "Delete Company",
+      "method": "DELETE",
+      "path": "/v1/companies/{companyId}",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Company ID",
+          "type": "text",
+          "required": true,
+          "description": "If more than one company add them separated by ,"
+        }
+      ],
+      "group": "Company",
+      "description": "Delete a company"
     },
     {
-      "id": "deal_default",
-      "label": "List Deal",
+      "id": "company_get",
+      "label": "Get Company",
       "method": "GET",
-      "path": "/deal",
-      "fields": []
+      "path": "/v1/companies/{companyId}",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Company ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "rawData",
+          "label": "RAW Data",
+          "type": "toggle",
+          "description": "Whether the data should include the fields details",
+          "defaultValue": false
+        }
+      ],
+      "group": "Company",
+      "description": "Get a company"
+    },
+    {
+      "id": "company_get_all",
+      "label": "Get Many Company",
+      "method": "POST",
+      "path": "/v2/companies/search",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 10
+        },
+        {
+          "id": "jsonParameters",
+          "label": "JSON Parameters",
+          "type": "toggle",
+          "defaultValue": false
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: fields, sortBy, sortOrder)"
+        },
+        {
+          "id": "filtersJson",
+          "label": "Filters",
+          "type": "json"
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add filter",
+          "description": "(JSON object; supported keys: filtersUi, filtersUi.operator, filtersUi.conditions)"
+        }
+      ],
+      "group": "Company",
+      "description": "Get many companies"
+    },
+    {
+      "id": "company_update",
+      "label": "Update Company",
+      "method": "PUT",
+      "path": "/v1/companies/{companyId}",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Company ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "rawData",
+          "label": "RAW Data",
+          "type": "toggle",
+          "description": "Whether the data should include the fields details",
+          "defaultValue": false
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: name, owner, website, phone, otherPhone, facebookHandle, googlePlusHandle, linkedInHandle, skypeId, twitterHandle, currency, billingAddressLine1, billingAddressLine2, billingCity, billingZipCode, billingState, description, tags)"
+        }
+      ],
+      "group": "Company",
+      "description": "Update a company"
+    },
+    {
+      "id": "activity_create",
+      "label": "Create Activity",
+      "method": "POST",
+      "path": "/v1/activities",
+      "fields": [
+        {
+          "id": "title",
+          "label": "Title",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "owner",
+          "label": "Owner Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "type",
+          "label": "Type",
+          "type": "text",
+          "required": true,
+          "description": "This field displays activity type such as call, meeting etc"
+        },
+        {
+          "id": "rawData",
+          "label": "RAW Data",
+          "type": "toggle",
+          "description": "Whether the data should include the fields details",
+          "defaultValue": false
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: description, tags, dueDate, duration, isCalendarInvite, isCompleted)"
+        }
+      ],
+      "group": "Activity",
+      "description": "Create an activity"
+    },
+    {
+      "id": "activity_delete",
+      "label": "Delete Activity",
+      "method": "DELETE",
+      "path": "/v1/activities/{activityId}",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Activity ID",
+          "type": "text",
+          "required": true,
+          "description": "If more than one activity add them separated by ,"
+        }
+      ],
+      "group": "Activity",
+      "description": "Delete an activity"
+    },
+    {
+      "id": "activity_get",
+      "label": "Get Activity",
+      "method": "GET",
+      "path": "/v1/activities/{activityId}",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Activity ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "rawData",
+          "label": "RAW Data",
+          "type": "toggle",
+          "description": "Whether the data should include the fields details",
+          "defaultValue": false
+        }
+      ],
+      "group": "Activity",
+      "description": "Get an activity"
+    },
+    {
+      "id": "activity_get_all",
+      "label": "Get Many Activity",
+      "method": "POST",
+      "path": "/v2/activities/search",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 10
+        },
+        {
+          "id": "jsonParameters",
+          "label": "JSON Parameters",
+          "type": "toggle",
+          "defaultValue": false
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: fields, sortBy, sortOrder)"
+        },
+        {
+          "id": "filtersJson",
+          "label": "Filters",
+          "type": "json"
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add filter",
+          "description": "(JSON object; supported keys: filtersUi, filtersUi.operator, filtersUi.conditions)"
+        }
+      ],
+      "group": "Activity",
+      "description": "Get many companies"
+    },
+    {
+      "id": "activity_update",
+      "label": "Update Activity",
+      "method": "PUT",
+      "path": "/v1/activities/{activityId}",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Activity ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "rawData",
+          "label": "RAW Data",
+          "type": "toggle",
+          "description": "Whether the data should include the fields details",
+          "defaultValue": false
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: title, type, owner, description, tags, dueDate, duration, isCalendarInvite, isCompleted)"
+        }
+      ],
+      "group": "Activity",
+      "description": "Update an activity"
+    },
+    {
+      "id": "deal_create",
+      "label": "Create Deal",
+      "method": "POST",
+      "path": "/v1/deals",
+      "fields": [
+        {
+          "id": "title",
+          "label": "Title",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "owner",
+          "label": "Owner Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "primaryContact",
+          "label": "Primary Contact Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Primary contact for the deal. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "pipeline",
+          "label": "Pipeline",
+          "type": "select",
+          "required": true,
+          "options": [
+            {
+              "value": "Sales",
+              "label": "Sales"
+            }
+          ]
+        },
+        {
+          "id": "status",
+          "label": "Status",
+          "type": "select",
+          "required": true,
+          "defaultValue": "Open",
+          "options": [
+            {
+              "value": "Open",
+              "label": "Open"
+            },
+            {
+              "value": "Close",
+              "label": "Close"
+            },
+            {
+              "value": "Lost",
+              "label": "Lost"
+            }
+          ]
+        },
+        {
+          "id": "stage",
+          "label": "Stage",
+          "type": "select",
+          "required": true,
+          "options": [
+            {
+              "value": "New (Untouched)",
+              "label": "New (Untouched)"
+            },
+            {
+              "value": "Contacted",
+              "label": "Contacted"
+            },
+            {
+              "value": "Qualified",
+              "label": "Qualified"
+            },
+            {
+              "value": "In Negotiation",
+              "label": "In Negotiation"
+            },
+            {
+              "value": "Proposal Presented",
+              "label": "Proposal Presented"
+            }
+          ]
+        },
+        {
+          "id": "currency",
+          "label": "Currency",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "rawData",
+          "label": "RAW Data",
+          "type": "toggle",
+          "description": "Whether the data should include the fields details",
+          "defaultValue": false
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: description, tags, primaryCompany, source, estimatedCloseDate, dealValue, priority)"
+        }
+      ],
+      "group": "Deal",
+      "description": "Create a deal"
+    },
+    {
+      "id": "deal_delete",
+      "label": "Delete Deal",
+      "method": "DELETE",
+      "path": "/v1/deals/{dealId}",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Deal ID",
+          "type": "text",
+          "required": true,
+          "description": "If more than one deal add them separated by ,"
+        }
+      ],
+      "group": "Deal",
+      "description": "Delete a deal"
+    },
+    {
+      "id": "deal_get",
+      "label": "Get Deal",
+      "method": "GET",
+      "path": "/v1/deals/{dealId}",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Deal ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "rawData",
+          "label": "RAW Data",
+          "type": "toggle",
+          "description": "Whether the data should include the fields details",
+          "defaultValue": false
+        }
+      ],
+      "group": "Deal",
+      "description": "Get a deal"
+    },
+    {
+      "id": "deal_get_all",
+      "label": "Get Many Deal",
+      "method": "POST",
+      "path": "/v2/deals/search",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 10
+        },
+        {
+          "id": "jsonParameters",
+          "label": "JSON Parameters",
+          "type": "toggle",
+          "defaultValue": false
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: fields, sortBy, sortOrder)"
+        },
+        {
+          "id": "filtersJson",
+          "label": "Filters",
+          "type": "json"
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add filter",
+          "description": "(JSON object; supported keys: filtersUi, filtersUi.operator, filtersUi.conditions)"
+        }
+      ],
+      "group": "Deal",
+      "description": "Get many deals"
+    },
+    {
+      "id": "deal_update",
+      "label": "Update Deal",
+      "method": "PUT",
+      "path": "/v1/deals/{dealId}",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Deal ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "rawData",
+          "label": "RAW Data",
+          "type": "toggle",
+          "description": "Whether the data should include the fields details",
+          "defaultValue": false
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: title, owner, primaryContact, pipeline, status, stage, currency, description, tags, primaryCompany, source, estimatedCloseDate, dealValue, priority)"
+        }
+      ],
+      "group": "Deal",
+      "description": "Update a deal"
     }
   ]
 }

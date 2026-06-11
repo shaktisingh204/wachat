@@ -4,344 +4,1629 @@
   "description": "Access data on Harvest",
   "category": "finance",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.harvestapp.com/v2",
   "endpoints": [
     {
-      "id": "client_default",
-      "label": "List Client",
+      "id": "client_create",
+      "label": "Create Client",
+      "method": "POST",
+      "path": "/clients",
+      "fields": [
+        {
+          "id": "accountId",
+          "label": "Account Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "The name of the client"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: address, currency, is_active)"
+        }
+      ],
+      "group": "Client",
+      "description": "Create a client"
+    },
+    {
+      "id": "client_delete",
+      "label": "Delete Client",
+      "method": "DELETE",
+      "path": "/clients/{id}",
+      "fields": [
+        {
+          "id": "accountId",
+          "label": "Account Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "id",
+          "label": "Client ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the client you want to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Client",
+      "description": "Delete a client"
+    },
+    {
+      "id": "client_get",
+      "label": "Get Client",
+      "method": "GET",
+      "path": "/clients/{id}",
+      "fields": [
+        {
+          "id": "accountId",
+          "label": "Account Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "id",
+          "label": "Client ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the client you are retrieving",
+          "in": "path"
+        }
+      ],
+      "group": "Client",
+      "description": "Get data of a client"
+    },
+    {
+      "id": "client_get_all",
+      "label": "Get Many Client",
       "method": "GET",
       "path": "/client",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
+          "id": "accountId",
+          "label": "Account Name or ID",
           "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
         },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: is_active, updated_since)"
+        }
+      ],
+      "group": "Client",
+      "description": "[unverified path] Get data of many clients"
+    },
+    {
+      "id": "client_update",
+      "label": "Update Client",
+      "method": "PATCH",
+      "path": "/clients/{id}",
+      "fields": [
         {
           "id": "accountId",
           "label": "Account Name or ID",
           "type": "select",
-          "in": "query",
           "required": true,
-          "description": "Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>"
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "id",
+          "label": "Client ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the client want to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: address, currency, is_active, name)"
         }
-      ]
+      ],
+      "group": "Client",
+      "description": "Update a client"
     },
     {
-      "id": "company_default",
-      "label": "List Company",
+      "id": "company_get",
+      "label": "Get Company",
       "method": "GET",
       "path": "/company",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
+          "id": "accountId",
+          "label": "Account Name or ID",
           "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        }
+      ],
+      "group": "Company",
+      "description": "Retrieves the company for the currently authenticated user"
+    },
+    {
+      "id": "contact_create",
+      "label": "Create Contact",
+      "method": "POST",
+      "path": "/contacts",
+      "fields": [
         {
           "id": "accountId",
           "label": "Account Name or ID",
           "type": "select",
-          "in": "query",
           "required": true,
-          "description": "Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>"
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "firstName",
+          "label": "First Name",
+          "type": "text",
+          "required": true,
+          "description": "The first name of the contact"
+        },
+        {
+          "id": "clientId",
+          "label": "Client ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the client associated with this contact"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: email, fax, last_name, phone_mobile, phone_office, title)"
         }
-      ]
+      ],
+      "group": "Contact",
+      "description": "Create a contact"
     },
     {
-      "id": "contact_default",
-      "label": "List Contact",
+      "id": "contact_delete",
+      "label": "Delete Contact",
+      "method": "DELETE",
+      "path": "/contacts/{id}",
+      "fields": [
+        {
+          "id": "accountId",
+          "label": "Account Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "id",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the contact you want to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Contact",
+      "description": "Delete a contact"
+    },
+    {
+      "id": "contact_get",
+      "label": "Get Contact",
+      "method": "GET",
+      "path": "/contacts/{id}",
+      "fields": [
+        {
+          "id": "accountId",
+          "label": "Account Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "id",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the contact you are retrieving",
+          "in": "path"
+        }
+      ],
+      "group": "Contact",
+      "description": "Get data of a contact"
+    },
+    {
+      "id": "contact_get_all",
+      "label": "Get Many Contact",
       "method": "GET",
       "path": "/contact",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
+          "id": "accountId",
+          "label": "Account Name or ID",
           "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
         },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: is_active, updated_since)"
+        }
+      ],
+      "group": "Contact",
+      "description": "[unverified path] Get data of many contacts"
+    },
+    {
+      "id": "contact_update",
+      "label": "Update Contact",
+      "method": "PATCH",
+      "path": "/contacts/{id}",
+      "fields": [
         {
           "id": "accountId",
           "label": "Account Name or ID",
           "type": "select",
-          "in": "query",
           "required": true,
-          "description": "Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>"
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "id",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the contact want to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: client_id, email, fax, first_name, last_name, phone_mobile, phone_office, title)"
         }
-      ]
+      ],
+      "group": "Contact",
+      "description": "Update a contact"
     },
     {
-      "id": "estimate_default",
-      "label": "List Estimate",
+      "id": "estimate_create",
+      "label": "Create Estimate",
+      "method": "POST",
+      "path": "/estimates",
+      "fields": [
+        {
+          "id": "accountId",
+          "label": "Account Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "clientId",
+          "label": "Client ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the client this estimate belongs to"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: currency, over_budget_notification_percentage, issue_date, notes, number, purchase_order, subject, tax, tax2)"
+        }
+      ],
+      "group": "Estimate",
+      "description": "Create an estimate"
+    },
+    {
+      "id": "estimate_delete",
+      "label": "Delete Estimate",
+      "method": "DELETE",
+      "path": "/estimates/{id}",
+      "fields": [
+        {
+          "id": "accountId",
+          "label": "Account Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "id",
+          "label": "Estimate ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the estimate want to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Estimate",
+      "description": "Delete an estimate"
+    },
+    {
+      "id": "estimate_get",
+      "label": "Get Estimate",
+      "method": "GET",
+      "path": "/estimates/{id}",
+      "fields": [
+        {
+          "id": "accountId",
+          "label": "Account Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "id",
+          "label": "Estimate ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the estimate you are retrieving",
+          "in": "path"
+        }
+      ],
+      "group": "Estimate",
+      "description": "Get data of an estimate"
+    },
+    {
+      "id": "estimate_get_all",
+      "label": "Get Many Estimate",
       "method": "GET",
       "path": "/estimate",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
+          "id": "accountId",
+          "label": "Account Name or ID",
           "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
         },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: client_id, from, state, to, updated_since, page)"
+        }
+      ],
+      "group": "Estimate",
+      "description": "[unverified path] Get data of many estimates"
+    },
+    {
+      "id": "estimate_update",
+      "label": "Update Estimate",
+      "method": "PATCH",
+      "path": "/estimates/{id}",
+      "fields": [
         {
           "id": "accountId",
           "label": "Account Name or ID",
           "type": "select",
-          "in": "query",
           "required": true,
-          "description": "Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>"
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "id",
+          "label": "Invoice ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the invoice want to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: client_id, currency, over_budget_notification_percentage, issue_date, number, notes, purchase_order, subject, tax, tax2)"
         }
-      ]
+      ],
+      "group": "Estimate",
+      "description": "Update an estimate"
     },
     {
-      "id": "expense_default",
-      "label": "List Expense",
+      "id": "expense_create",
+      "label": "Create Expense",
+      "method": "POST",
+      "path": "/expenses",
+      "fields": [
+        {
+          "id": "accountId",
+          "label": "Account Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "projectId",
+          "label": "Project ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the project associated with this expense"
+        },
+        {
+          "id": "expenseCategoryId",
+          "label": "Expense Category ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the expense category this expense is being tracked against"
+        },
+        {
+          "id": "spentDate",
+          "label": "Spent Date",
+          "type": "text",
+          "required": true,
+          "placeholder": "2024-01-01T00:00:00Z",
+          "description": "Date the expense occurred (ISO 8601 date-time)"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: billable, notes, total_cost, units, user_id)"
+        }
+      ],
+      "group": "Expense",
+      "description": "Create an expense"
+    },
+    {
+      "id": "expense_delete",
+      "label": "Delete Expense",
+      "method": "DELETE",
+      "path": "/expenses/{id}",
+      "fields": [
+        {
+          "id": "accountId",
+          "label": "Account Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "id",
+          "label": "Expense ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the expense you want to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Expense",
+      "description": "Delete an expense"
+    },
+    {
+      "id": "expense_get",
+      "label": "Get Expense",
+      "method": "GET",
+      "path": "/expenses/{id}",
+      "fields": [
+        {
+          "id": "accountId",
+          "label": "Account Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "id",
+          "label": "Expense ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the expense you are retrieving",
+          "in": "path"
+        }
+      ],
+      "group": "Expense",
+      "description": "Get data of an expense"
+    },
+    {
+      "id": "expense_get_all",
+      "label": "Get Many Expense",
       "method": "GET",
       "path": "/expense",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
+          "id": "accountId",
+          "label": "Account Name or ID",
           "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
         },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: client_id, from, is_billed, page, project_id, to, updated_since, user_id)"
+        }
+      ],
+      "group": "Expense",
+      "description": "[unverified path] Get data of many expenses"
+    },
+    {
+      "id": "expense_update",
+      "label": "Update Expense",
+      "method": "PATCH",
+      "path": "/expenses/{id}",
+      "fields": [
         {
           "id": "accountId",
           "label": "Account Name or ID",
           "type": "select",
-          "in": "query",
           "required": true,
-          "description": "Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>"
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "id",
+          "label": "Invoice ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the invoice want to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: billable, expense_category_id, notes, project_id, spent_date, total_cost, units, user_id)"
         }
-      ]
+      ],
+      "group": "Expense",
+      "description": "Update an expense"
     },
     {
-      "id": "invoice_default",
-      "label": "List Invoice",
+      "id": "invoice_create",
+      "label": "Create Invoice",
+      "method": "POST",
+      "path": "/invoices",
+      "fields": [
+        {
+          "id": "accountId",
+          "label": "Account Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "clientId",
+          "label": "Client ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the retainer associated with this invoice"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: currency, over_budget_notification_percentage, ends_on, estimate_id, issue_date, notes, number, payment_term, purchase_order, retainer_id, subject, tax, tax2)"
+        }
+      ],
+      "group": "Invoice",
+      "description": "Create an invoice"
+    },
+    {
+      "id": "invoice_delete",
+      "label": "Delete Invoice",
+      "method": "DELETE",
+      "path": "/invoices/{id}",
+      "fields": [
+        {
+          "id": "accountId",
+          "label": "Account Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "id",
+          "label": "Invoice ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the invoice want to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Invoice",
+      "description": "Delete an invoice"
+    },
+    {
+      "id": "invoice_get",
+      "label": "Get Invoice",
+      "method": "GET",
+      "path": "/invoices/{id}",
+      "fields": [
+        {
+          "id": "accountId",
+          "label": "Account Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "id",
+          "label": "Invoice ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the invoice you are retrieving",
+          "in": "path"
+        }
+      ],
+      "group": "Invoice",
+      "description": "Get data of an invoice"
+    },
+    {
+      "id": "invoice_get_all",
+      "label": "Get Many Invoice",
       "method": "GET",
       "path": "/invoice",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
+          "id": "accountId",
+          "label": "Account Name or ID",
           "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
         },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: client_id, from, page, project_id, state, to, updated_since)"
+        }
+      ],
+      "group": "Invoice",
+      "description": "[unverified path] Get data of many invoices"
+    },
+    {
+      "id": "invoice_update",
+      "label": "Update Invoice",
+      "method": "PATCH",
+      "path": "/invoices/{id}",
+      "fields": [
         {
           "id": "accountId",
           "label": "Account Name or ID",
           "type": "select",
-          "in": "query",
           "required": true,
-          "description": "Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>"
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "id",
+          "label": "Invoice ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the invoice want to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: client_id, currency, over_budget_notification_percentage, ends_on, estimate_id, issue_date, notes, number, payment_term, purchase_order, retainer_id, subject, tax, tax2)"
         }
-      ]
+      ],
+      "group": "Invoice",
+      "description": "Update an invoice"
     },
     {
-      "id": "project_default",
-      "label": "List Project",
+      "id": "project_create",
+      "label": "Create Project",
+      "method": "POST",
+      "path": "/projects",
+      "fields": [
+        {
+          "id": "accountId",
+          "label": "Account Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "The name of the project"
+        },
+        {
+          "id": "clientId",
+          "label": "Client ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the client to associate this project with"
+        },
+        {
+          "id": "isBillable",
+          "label": "Is Billable",
+          "type": "toggle",
+          "required": true,
+          "description": "Whether the project is billable or not",
+          "defaultValue": true
+        },
+        {
+          "id": "billBy",
+          "label": "Bill By",
+          "type": "select",
+          "required": true,
+          "description": "The method by which the project is invoiced",
+          "defaultValue": "none",
+          "options": [
+            {
+              "value": "none",
+              "label": "None"
+            },
+            {
+              "value": "People",
+              "label": "People"
+            },
+            {
+              "value": "Project",
+              "label": "Project"
+            },
+            {
+              "value": "Tasks",
+              "label": "Tasks"
+            }
+          ]
+        },
+        {
+          "id": "budgetBy",
+          "label": "Budget By",
+          "type": "text",
+          "required": true,
+          "description": "The email of the user or \"none\"",
+          "defaultValue": "none"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: budget, budget_is_monthly, cost_budget, cost_budget_include_expenses, ends_on, fee, hourly_rate, is_active, is_fixed_fee, notes, notify_when_over_budget, over_budget_notification_percentage, show_budget_to_all, starts_on)"
+        }
+      ],
+      "group": "Project",
+      "description": "Create a project"
+    },
+    {
+      "id": "project_delete",
+      "label": "Delete Project",
+      "method": "DELETE",
+      "path": "/projects/{id}",
+      "fields": [
+        {
+          "id": "accountId",
+          "label": "Account Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "id",
+          "label": "Project ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the project want to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Project",
+      "description": "Delete a project"
+    },
+    {
+      "id": "project_get",
+      "label": "Get Project",
+      "method": "GET",
+      "path": "/projects/{id}",
+      "fields": [
+        {
+          "id": "accountId",
+          "label": "Account Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "id",
+          "label": "Project ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the project you are retrieving",
+          "in": "path"
+        }
+      ],
+      "group": "Project",
+      "description": "Get data of a project"
+    },
+    {
+      "id": "project_get_all",
+      "label": "Get Many Project",
       "method": "GET",
       "path": "/project",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
+          "id": "accountId",
+          "label": "Account Name or ID",
           "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
         },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: client_id, is_active, page, updated_since)"
+        }
+      ],
+      "group": "Project",
+      "description": "[unverified path] Get data of many projects"
+    },
+    {
+      "id": "project_update",
+      "label": "Update Project",
+      "method": "PATCH",
+      "path": "/projects/{id}",
+      "fields": [
         {
           "id": "accountId",
           "label": "Account Name or ID",
           "type": "select",
-          "in": "query",
           "required": true,
-          "description": "Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>"
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "id",
+          "label": "Project ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the project want to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: bill_by, budget, budget_by, budget_is_monthly, client_id, cost_budget, cost_budget_include_expenses, ends_on, fee, hourly_rate, is_active, is_billable, is_fixed_fee, name, notes, notify_when_over_budget, over_budget_notification_percentage, show_budget_to_all, starts_on)"
         }
-      ]
+      ],
+      "group": "Project",
+      "description": "Update a project"
     },
     {
-      "id": "task_default",
-      "label": "List Task",
+      "id": "task_create",
+      "label": "Create Task",
+      "method": "POST",
+      "path": "/tasks",
+      "fields": [
+        {
+          "id": "accountId",
+          "label": "Account Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "The name of the task"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: billable_by_default, default_hourly_rate, is_active, is_default)"
+        }
+      ],
+      "group": "Task",
+      "description": "Create a task"
+    },
+    {
+      "id": "task_delete",
+      "label": "Delete Task",
+      "method": "DELETE",
+      "path": "/tasks/{id}",
+      "fields": [
+        {
+          "id": "accountId",
+          "label": "Account Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "id",
+          "label": "Task ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the task you want to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Task",
+      "description": "Delete a task"
+    },
+    {
+      "id": "task_get",
+      "label": "Get Task",
+      "method": "GET",
+      "path": "/tasks/{id}",
+      "fields": [
+        {
+          "id": "accountId",
+          "label": "Account Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "id",
+          "label": "Task ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the task you are retrieving",
+          "in": "path"
+        }
+      ],
+      "group": "Task",
+      "description": "Get data of a task"
+    },
+    {
+      "id": "task_get_all",
+      "label": "Get Many Task",
       "method": "GET",
       "path": "/task",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
-        {
           "id": "accountId",
           "label": "Account Name or ID",
           "type": "select",
-          "in": "query",
           "required": true,
-          "description": "Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>"
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: is_active, page, updated_since)"
         }
-      ]
+      ],
+      "group": "Task",
+      "description": "[unverified path] Get data of many tasks"
     },
     {
-      "id": "time_entry_default",
-      "label": "List TimeEntry",
-      "method": "GET",
-      "path": "/timeEntry",
+      "id": "task_update",
+      "label": "Update Task",
+      "method": "PATCH",
+      "path": "/tasks/{id}",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
+          "id": "accountId",
+          "label": "Account Name or ID",
           "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
         },
+        {
+          "id": "id",
+          "label": "Task ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the task you want to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Update Field",
+          "description": "(JSON object; supported keys: billable_by_default, default_hourly_rate, is_active, is_default, name)"
+        }
+      ],
+      "group": "Task",
+      "description": "Update a task"
+    },
+    {
+      "id": "time_entry_create_by_duration",
+      "label": "Create via Duration Time Entry",
+      "method": "POST",
+      "path": "/time_entries",
+      "fields": [
         {
           "id": "accountId",
           "label": "Account Name or ID",
           "type": "select",
-          "in": "query",
           "required": true,
-          "description": "Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>"
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "projectId",
+          "label": "Project ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the project to associate with the time entry"
+        },
+        {
+          "id": "taskId",
+          "label": "Task ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the task to associate with the time entry"
+        },
+        {
+          "id": "spentDate",
+          "label": "Spent Date",
+          "type": "text",
+          "required": true,
+          "placeholder": "2024-01-01T00:00:00Z",
+          "description": "The ISO 8601 formatted date the time entry was spent (ISO 8601 date-time)"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: hours, notes, user_id)"
         }
-      ]
+      ],
+      "group": "Time Entry",
+      "description": "Create a time entry via duration"
     },
     {
-      "id": "user_default",
-      "label": "List User",
+      "id": "time_entry_create_by_start_end",
+      "label": "Create via Start and End Time Time Entry",
+      "method": "POST",
+      "path": "/time_entries",
+      "fields": [
+        {
+          "id": "accountId",
+          "label": "Account Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "projectId",
+          "label": "Project ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the project to associate with the time entry"
+        },
+        {
+          "id": "taskId",
+          "label": "Task ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the task to associate with the time entry"
+        },
+        {
+          "id": "spentDate",
+          "label": "Spent Date",
+          "type": "text",
+          "required": true,
+          "placeholder": "2024-01-01T00:00:00Z",
+          "description": "The ISO 8601 formatted date the time entry was spent (ISO 8601 date-time)"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: ended_time, notes, started_time, user_id)"
+        }
+      ],
+      "group": "Time Entry",
+      "description": "Create a time entry via start and end time"
+    },
+    {
+      "id": "time_entry_delete",
+      "label": "Delete Time Entry",
+      "method": "DELETE",
+      "path": "/time_entries/{id}",
+      "fields": [
+        {
+          "id": "accountId",
+          "label": "Account Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "id",
+          "label": "Time Entry ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the time entry you are deleting",
+          "in": "path"
+        }
+      ],
+      "group": "Time Entry",
+      "description": "Delete a time entry"
+    },
+    {
+      "id": "time_entry_delete_external",
+      "label": "Delete External Reference Time Entry",
+      "method": "DELETE",
+      "path": "/time_entries/{id}/external_reference",
+      "fields": [
+        {
+          "id": "accountId",
+          "label": "Account Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "id",
+          "label": "Time Entry ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the time entry whose external reference you are deleting",
+          "in": "path"
+        }
+      ],
+      "group": "Time Entry",
+      "description": "Delete a time entry’s external reference"
+    },
+    {
+      "id": "time_entry_get",
+      "label": "Get Time Entry",
+      "method": "GET",
+      "path": "/time_entries/{id}",
+      "fields": [
+        {
+          "id": "accountId",
+          "label": "Account Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "id",
+          "label": "Time Entry ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the time entry you are retrieving",
+          "in": "path"
+        }
+      ],
+      "group": "Time Entry",
+      "description": "Get data of a time entry"
+    },
+    {
+      "id": "time_entry_get_all",
+      "label": "Get Many Time Entry",
+      "method": "GET",
+      "path": "/time-entry",
+      "fields": [
+        {
+          "id": "accountId",
+          "label": "Account Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: client_id, from, is_billed, is_running, page, to, updated_since, user_id)"
+        }
+      ],
+      "group": "Time Entry",
+      "description": "[unverified path] Get data of many time entries"
+    },
+    {
+      "id": "time_entry_restart_time",
+      "label": "Restart Time Entry",
+      "method": "PATCH",
+      "path": "/time_entries/{id}/restart",
+      "fields": [
+        {
+          "id": "accountId",
+          "label": "Account Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "id",
+          "label": "Time Entry ID",
+          "type": "text",
+          "required": true,
+          "description": "Restart a stopped time entry. Restarting a time entry is only possible if it isn’t currently running.",
+          "in": "path"
+        }
+      ],
+      "group": "Time Entry",
+      "description": "Restart a time entry"
+    },
+    {
+      "id": "time_entry_stop_time",
+      "label": "Stop Time Entry",
+      "method": "PATCH",
+      "path": "/time_entries/{id}/stop",
+      "fields": [
+        {
+          "id": "accountId",
+          "label": "Account Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "id",
+          "label": "Time Entry ID",
+          "type": "text",
+          "required": true,
+          "description": "Stop a running time entry. Stopping a time entry is only possible if it’s currently running.",
+          "in": "path"
+        }
+      ],
+      "group": "Time Entry",
+      "description": "Stop a time entry"
+    },
+    {
+      "id": "time_entry_update",
+      "label": "Update Time Entry",
+      "method": "PATCH",
+      "path": "/time_entries/{id}",
+      "fields": [
+        {
+          "id": "accountId",
+          "label": "Account Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "id",
+          "label": "Time Entry ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the time entry to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: ended_time, hours, notes, started_time)"
+        }
+      ],
+      "group": "Time Entry",
+      "description": "Update a time entry"
+    },
+    {
+      "id": "user_create",
+      "label": "Create User",
+      "method": "POST",
+      "path": "/users",
+      "fields": [
+        {
+          "id": "accountId",
+          "label": "Account Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "firstName",
+          "label": "First Name",
+          "type": "text",
+          "required": true,
+          "description": "The first name of the user"
+        },
+        {
+          "id": "lastName",
+          "label": "Last Name",
+          "type": "text",
+          "required": true,
+          "description": "The last name of the user"
+        },
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "required": true,
+          "placeholder": "name@email.com",
+          "description": "The email of the user"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: can_create_invoices, can_create_projects, can_see_rates, cost_rate, default_hourly_rate, has_access_to_all_future_projects, is_active, is_admin, is_contractor, is_project_manager, roles, timezone, weekly_capacity)"
+        }
+      ],
+      "group": "User",
+      "description": "Create a user"
+    },
+    {
+      "id": "user_delete",
+      "label": "Delete User",
+      "method": "DELETE",
+      "path": "/users/{id}",
+      "fields": [
+        {
+          "id": "accountId",
+          "label": "Account Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "id",
+          "label": "User ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the user you want to delete",
+          "in": "path"
+        }
+      ],
+      "group": "User",
+      "description": "Delete a user"
+    },
+    {
+      "id": "user_get",
+      "label": "Get User",
+      "method": "GET",
+      "path": "/users/{id}",
+      "fields": [
+        {
+          "id": "accountId",
+          "label": "Account Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "id",
+          "label": "User ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the user you are retrieving",
+          "in": "path"
+        }
+      ],
+      "group": "User",
+      "description": "Get data of a user"
+    },
+    {
+      "id": "user_get_all",
+      "label": "Get Many User",
       "method": "GET",
       "path": "/user",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
+          "id": "accountId",
+          "label": "Account Name or ID",
           "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
         },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: is_active, updated_since, page)"
+        }
+      ],
+      "group": "User",
+      "description": "[unverified path] Get data of many users"
+    },
+    {
+      "id": "user_me",
+      "label": "Me User",
+      "method": "GET",
+      "path": "/users/me",
+      "fields": [
         {
           "id": "accountId",
           "label": "Account Name or ID",
           "type": "select",
-          "in": "query",
           "required": true,
-          "description": "Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>"
+          "description": "Choose from the list, or specify an ID using an expression"
         }
-      ]
+      ],
+      "group": "User",
+      "description": "Get data of authenticated user"
+    },
+    {
+      "id": "user_update",
+      "label": "Update User",
+      "method": "PATCH",
+      "path": "/users/{id}",
+      "fields": [
+        {
+          "id": "accountId",
+          "label": "Account Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "id",
+          "label": "Time Entry ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the time entry to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: can_create_invoices, can_create_projects, can_see_rates, cost_rate, default_hourly_rate, email, first_name, has_access_to_all_future_projects, is_active, is_admin, is_contractor, is_project_manager, last_name, roles, timezone, weekly_capacity)"
+        }
+      ],
+      "group": "User",
+      "description": "Update a user"
     }
   ]
 }

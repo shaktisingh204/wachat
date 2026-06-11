@@ -4,8 +4,8 @@
   "description": "Translate data using Google Translate",
   "category": "ai",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -16,53 +16,18 @@
       "credentialType": "http_header_auth"
     }
   },
-  "baseUrl": "",
+  "baseUrl": "https://translation.googleapis.com",
   "endpoints": [
     {
       "id": "language_translate",
       "label": "Translate Language",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/language/translate/v2",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "serviceAccount",
-          "options": [
-            {
-              "value": "serviceAccount",
-              "label": "Service Account"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "oAuth2",
-          "options": [
-            {
-              "value": "oAuth2",
-              "label": "OAuth2 (recommended)"
-            },
-            {
-              "value": "serviceAccount",
-              "label": "Service Account"
-            }
-          ]
-        },
         {
           "id": "text",
           "label": "Text",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "The input text to translate"
         },
@@ -70,11 +35,12 @@
           "id": "translateTo",
           "label": "Translate To",
           "type": "select",
-          "in": "query",
           "required": true,
-          "description": "The language to use for translation of the input text, set to one of the language codes listed in <a href=\"https://cloud.google.com/translate/docs/languages\">Language Support</a>. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>."
+          "description": "The language to use for translation of the input text, set to one of the language codes listed in Language Support. Choose from the list, or specify an ID using an expression."
         }
-      ]
+      ],
+      "group": "Language",
+      "description": "Translate data"
     }
   ]
 }

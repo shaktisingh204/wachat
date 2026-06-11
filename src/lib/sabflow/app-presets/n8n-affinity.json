@@ -4,42 +4,445 @@
   "description": "Consume Affinity API",
   "category": "crm",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.affinity.co",
   "endpoints": [
     {
-      "id": "list_default",
-      "label": "List List",
+      "id": "list_get",
+      "label": "Get List",
       "method": "GET",
-      "path": "/list",
-      "fields": []
+      "path": "/lists/{listId}",
+      "fields": [
+        {
+          "id": "listId",
+          "label": "List ID",
+          "type": "text",
+          "required": true,
+          "description": "The unique ID of the list object to be retrieved",
+          "in": "path"
+        }
+      ],
+      "group": "List",
+      "description": "Get a list"
     },
     {
-      "id": "list_entry_default",
-      "label": "List ListEntry",
+      "id": "list_get_all",
+      "label": "Get Many List",
       "method": "GET",
-      "path": "/listEntry",
-      "fields": []
+      "path": "/lists",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 5
+        }
+      ],
+      "group": "List",
+      "description": "Get many lists"
     },
     {
-      "id": "organization_default",
-      "label": "List Organization",
-      "method": "GET",
-      "path": "/organization",
-      "fields": []
+      "id": "list_entry_create",
+      "label": "Create List Entry",
+      "method": "POST",
+      "path": "/lists/{listId}/list-entries",
+      "fields": [
+        {
+          "id": "listId",
+          "label": "List Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The unique ID of the list whose list entries are to be retrieved. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "entityId",
+          "label": "Entity ID",
+          "type": "text",
+          "required": true,
+          "description": "The unique ID of the entity (person, organization, or opportunity) to add to this list"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: creator_id)"
+        }
+      ],
+      "group": "List Entry",
+      "description": "Create a list entry"
     },
     {
-      "id": "person_default",
-      "label": "List Person",
+      "id": "list_entry_delete",
+      "label": "Delete List Entry",
+      "method": "DELETE",
+      "path": "/lists/{listId}/list-entries/{listEntryId}",
+      "fields": [
+        {
+          "id": "listId",
+          "label": "List Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The unique ID of the list that contains the specified list_entry_id. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "listEntryId",
+          "label": "List Entry ID",
+          "type": "text",
+          "required": true,
+          "description": "The unique ID of the list entry object to be deleted",
+          "in": "path"
+        }
+      ],
+      "group": "List Entry",
+      "description": "Delete a list entry"
+    },
+    {
+      "id": "list_entry_get",
+      "label": "Get List Entry",
       "method": "GET",
-      "path": "/person",
-      "fields": []
+      "path": "/lists/{listId}/list-entries/{listEntryId}",
+      "fields": [
+        {
+          "id": "listId",
+          "label": "List Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The unique ID of the list that contains the specified list_entry_id. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "listEntryId",
+          "label": "List Entry ID",
+          "type": "text",
+          "required": true,
+          "description": "The unique ID of the list entry object to be retrieved",
+          "in": "path"
+        }
+      ],
+      "group": "List Entry",
+      "description": "Get a list entry"
+    },
+    {
+      "id": "list_entry_get_all",
+      "label": "Get Many List Entry",
+      "method": "GET",
+      "path": "/lists/{listId}/list-entries",
+      "fields": [
+        {
+          "id": "listId",
+          "label": "List Name or ID",
+          "type": "select",
+          "description": "The unique ID of the list whose list entries are to be retrieved. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 5
+        }
+      ],
+      "group": "List Entry",
+      "description": "Get many list entries"
+    },
+    {
+      "id": "organization_create",
+      "label": "Create Organization",
+      "method": "POST",
+      "path": "/organizations",
+      "fields": [
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "The name of the organization"
+        },
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "description": "The domain name of the organization"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: persons)"
+        }
+      ],
+      "group": "Organization",
+      "description": "Create an organization"
+    },
+    {
+      "id": "organization_delete",
+      "label": "Delete Organization",
+      "method": "DELETE",
+      "path": "/organizations/{organizationId}",
+      "fields": [
+        {
+          "id": "organizationId",
+          "label": "Organization ID",
+          "type": "text",
+          "required": true,
+          "description": "Unique identifier for the organization",
+          "in": "path"
+        }
+      ],
+      "group": "Organization",
+      "description": "Delete an organization"
+    },
+    {
+      "id": "organization_get",
+      "label": "Get Organization",
+      "method": "GET",
+      "path": "/organizations/{organizationId}",
+      "fields": [
+        {
+          "id": "organizationId",
+          "label": "Organization ID",
+          "type": "text",
+          "required": true,
+          "description": "Unique identifier for the organization",
+          "in": "path"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: withInteractionDates)"
+        }
+      ],
+      "group": "Organization",
+      "description": "Get an organization"
+    },
+    {
+      "id": "organization_get_all",
+      "label": "Get Many Organization",
+      "method": "GET",
+      "path": "/organizations",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 5
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: term, withInteractionDates)"
+        }
+      ],
+      "group": "Organization",
+      "description": "Get many organizations"
+    },
+    {
+      "id": "organization_update",
+      "label": "Update Organization",
+      "method": "PUT",
+      "path": "/organizations/{organizationId}",
+      "fields": [
+        {
+          "id": "organizationId",
+          "label": "Organization ID",
+          "type": "text",
+          "required": true,
+          "description": "Unique identifier for the organization",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: domain, name, persons)"
+        }
+      ],
+      "group": "Organization",
+      "description": "Update an organization"
+    },
+    {
+      "id": "person_create",
+      "label": "Create Person",
+      "method": "POST",
+      "path": "/persons",
+      "fields": [
+        {
+          "id": "firstName",
+          "label": "First Name",
+          "type": "text",
+          "required": true,
+          "description": "The first name of the person"
+        },
+        {
+          "id": "lastName",
+          "label": "Last Name",
+          "type": "text",
+          "required": true,
+          "description": "The last name of the person"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: organizations)"
+        },
+        {
+          "id": "emails",
+          "label": "Emails",
+          "type": "text",
+          "placeholder": "info@example.com",
+          "description": "The email addresses of the person"
+        }
+      ],
+      "group": "Person",
+      "description": "Create a person"
+    },
+    {
+      "id": "person_delete",
+      "label": "Delete Person",
+      "method": "DELETE",
+      "path": "/persons/{personId}",
+      "fields": [
+        {
+          "id": "personId",
+          "label": "Person ID",
+          "type": "text",
+          "required": true,
+          "description": "Unique identifier for the person",
+          "in": "path"
+        }
+      ],
+      "group": "Person",
+      "description": "Delete a person"
+    },
+    {
+      "id": "person_get",
+      "label": "Get Person",
+      "method": "GET",
+      "path": "/persons/{personId}",
+      "fields": [
+        {
+          "id": "personId",
+          "label": "Person ID",
+          "type": "text",
+          "required": true,
+          "description": "Unique identifier for the person",
+          "in": "path"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: withInteractionDates)"
+        }
+      ],
+      "group": "Person",
+      "description": "Get a person"
+    },
+    {
+      "id": "person_get_all",
+      "label": "Get Many Person",
+      "method": "GET",
+      "path": "/persons",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 5
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: term, withInteractionDates)"
+        }
+      ],
+      "group": "Person",
+      "description": "Get many persons"
+    },
+    {
+      "id": "person_update",
+      "label": "Update Person",
+      "method": "PUT",
+      "path": "/persons/{personId}",
+      "fields": [
+        {
+          "id": "personId",
+          "label": "Person ID",
+          "type": "text",
+          "required": true,
+          "description": "Unique identifier for the person",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: firstName, lastName, organizations)"
+        },
+        {
+          "id": "emails",
+          "label": "Emails",
+          "type": "text",
+          "placeholder": "info@example.com",
+          "description": "The email addresses of the person"
+        }
+      ],
+      "group": "Person",
+      "description": "Update a person"
     }
   ]
 }

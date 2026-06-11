@@ -4,21 +4,209 @@
   "description": "Consume the Bubble Data API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 8,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://{appName}.bubbleapps.io",
   "endpoints": [
     {
-      "id": "object_default",
-      "label": "List Object",
+      "id": "object_create",
+      "label": "Create Object",
+      "method": "POST",
+      "path": "/obj/{typeName}",
+      "fields": [
+        {
+          "id": "appName",
+          "label": "App Name",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "App Name of your Bubble account (host token in the API base URL)"
+        },
+        {
+          "id": "typeName",
+          "label": "Type Name",
+          "type": "text",
+          "required": true,
+          "description": "Name of data type of the object to create",
+          "in": "path"
+        },
+        {
+          "id": "properties",
+          "label": "Properties",
+          "type": "json",
+          "placeholder": "Add Property",
+          "description": "(JSON object; supported keys: property, property.key, property.value)"
+        }
+      ],
+      "group": "Object",
+      "description": "Create an object"
+    },
+    {
+      "id": "object_delete",
+      "label": "Delete Object",
+      "method": "DELETE",
+      "path": "/obj/{typeName}/{objectId}",
+      "fields": [
+        {
+          "id": "appName",
+          "label": "App Name",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "App Name of your Bubble account (host token in the API base URL)"
+        },
+        {
+          "id": "typeName",
+          "label": "Type Name",
+          "type": "text",
+          "required": true,
+          "description": "Name of data type of the object to retrieve",
+          "in": "path"
+        },
+        {
+          "id": "objectId",
+          "label": "Object ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the object to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Object",
+      "description": "Delete an object"
+    },
+    {
+      "id": "object_get",
+      "label": "Get Object",
       "method": "GET",
-      "path": "/object",
-      "fields": []
+      "path": "/obj/{typeName}/{objectId}",
+      "fields": [
+        {
+          "id": "appName",
+          "label": "App Name",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "App Name of your Bubble account (host token in the API base URL)"
+        },
+        {
+          "id": "typeName",
+          "label": "Type Name",
+          "type": "text",
+          "required": true,
+          "description": "Name of data type of the object to retrieve",
+          "in": "path"
+        },
+        {
+          "id": "objectId",
+          "label": "Object ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the object to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Object",
+      "description": "Get an object"
+    },
+    {
+      "id": "object_get_all",
+      "label": "Get Many Object",
+      "method": "GET",
+      "path": "/obj/{typeName}",
+      "fields": [
+        {
+          "id": "appName",
+          "label": "App Name",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "App Name of your Bubble account (host token in the API base URL)"
+        },
+        {
+          "id": "typeName",
+          "label": "Type Name",
+          "type": "text",
+          "required": true,
+          "description": "Name of data type of the object to create",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "jsonParameters",
+          "label": "JSON Parameters",
+          "type": "toggle",
+          "defaultValue": false
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: filters, filtersJson, sort)"
+        }
+      ],
+      "group": "Object",
+      "description": "Get many objects"
+    },
+    {
+      "id": "object_update",
+      "label": "Update Object",
+      "method": "PATCH",
+      "path": "/obj/{typeName}/{objectId}",
+      "fields": [
+        {
+          "id": "appName",
+          "label": "App Name",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "App Name of your Bubble account (host token in the API base URL)"
+        },
+        {
+          "id": "typeName",
+          "label": "Type Name",
+          "type": "text",
+          "required": true,
+          "description": "Name of data type of the object to update",
+          "in": "path"
+        },
+        {
+          "id": "objectId",
+          "label": "Object ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the object to update",
+          "in": "path"
+        },
+        {
+          "id": "properties",
+          "label": "Properties",
+          "type": "json",
+          "placeholder": "Add Property",
+          "description": "(JSON object; supported keys: property, property.key, property.value)"
+        }
+      ],
+      "group": "Object",
+      "description": "Update an object"
     }
   ]
 }

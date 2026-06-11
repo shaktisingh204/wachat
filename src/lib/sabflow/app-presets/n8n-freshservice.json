@@ -4,119 +4,2454 @@
   "description": "Consume the Freshservice API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 8,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://{domain}.freshservice.com/api/v2",
   "endpoints": [
     {
-      "id": "agent_default",
-      "label": "List Agent",
+      "id": "agent_create",
+      "label": "Create Agent",
+      "method": "POST",
+      "path": "/agents",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "required": true,
+          "placeholder": "name@email.com"
+        },
+        {
+          "id": "firstName",
+          "label": "First Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "roles",
+          "label": "Roles",
+          "type": "json",
+          "required": true,
+          "placeholder": "Add Role",
+          "description": "Role to assign to the agent (JSON object; supported keys: roleProperties, roleProperties.role, roleProperties.assignment_scope, roleProperties.groups)"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: address, background_information, department_ids, job_title, language, last_name, location_id, member_of, mobile_phone_number, observer_of, scoreboard_level_id, time_format, work_phone_number)"
+        }
+      ],
+      "group": "Agent",
+      "description": "Create an agent"
+    },
+    {
+      "id": "agent_delete",
+      "label": "Delete Agent",
+      "method": "DELETE",
+      "path": "/agents/{agentId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "agentId",
+          "label": "Agent ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the agent to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Agent",
+      "description": "Delete an agent"
+    },
+    {
+      "id": "agent_get",
+      "label": "Get Agent",
+      "method": "GET",
+      "path": "/agents/{agentId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "agentId",
+          "label": "Agent ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the agent to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Agent",
+      "description": "Retrieve an agent"
+    },
+    {
+      "id": "agent_get_all",
+      "label": "Get Many Agent",
       "method": "GET",
       "path": "/agent",
-      "fields": []
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: department_id, email, first_name, job_title, language, last_name, location_id, mobile_phone_number, work_phone_number)"
+        }
+      ],
+      "group": "Agent",
+      "description": "[unverified path] Retrieve many agents"
     },
     {
-      "id": "agent_group_default",
-      "label": "List AgentGroup",
+      "id": "agent_update",
+      "label": "Update Agent",
+      "method": "PUT",
+      "path": "/agents/{agentId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "agentId",
+          "label": "Agent ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the agent to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: address, background_information, department_ids, email, first_name, job_title, language, last_name, location_id, member_of, mobile_phone_number, observer_of, scoreboard_level_id, time_format, work_phone_number)"
+        }
+      ],
+      "group": "Agent",
+      "description": "Update an agent"
+    },
+    {
+      "id": "agent_group_create",
+      "label": "Create Agent Group",
+      "method": "POST",
+      "path": "/groups",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: description, escalate_to, members, observers, unassigned_for)"
+        }
+      ],
+      "group": "Agent Group",
+      "description": "Create an agent group"
+    },
+    {
+      "id": "agent_group_delete",
+      "label": "Delete Agent Group",
+      "method": "DELETE",
+      "path": "/groups/{agentGroupId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "agentGroupId",
+          "label": "Agent Group ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the agent group to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Agent Group",
+      "description": "Delete an agent group"
+    },
+    {
+      "id": "agent_group_get",
+      "label": "Get Agent Group",
       "method": "GET",
-      "path": "/agentGroup",
-      "fields": []
+      "path": "/groups/{agentGroupId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "agentGroupId",
+          "label": "Agent Group ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the agent group to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Agent Group",
+      "description": "Retrieve an agent group"
     },
     {
-      "id": "agent_role_default",
-      "label": "List AgentRole",
+      "id": "agent_group_get_all",
+      "label": "Get Many Agent Group",
       "method": "GET",
-      "path": "/agentRole",
-      "fields": []
+      "path": "/agent-group",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Agent Group",
+      "description": "[unverified path] Retrieve many agent groups"
     },
     {
-      "id": "announcement_default",
-      "label": "List Announcement",
+      "id": "agent_group_update",
+      "label": "Update Agent Group",
+      "method": "PUT",
+      "path": "/groups/{agentGroupId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "agentGroupId",
+          "label": "Agent Group ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the agent group to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: description, escalate_to, members, name, observers, unassigned_for)"
+        }
+      ],
+      "group": "Agent Group",
+      "description": "Update an agent group"
+    },
+    {
+      "id": "agent_role_get",
+      "label": "Get Agent Role",
+      "method": "GET",
+      "path": "/roles/{agentRoleId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "agentRoleId",
+          "label": "Agent Role ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the agent role to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Agent Role",
+      "description": "Retrieve an agent role"
+    },
+    {
+      "id": "agent_role_get_all",
+      "label": "Get Many Agent Role",
+      "method": "GET",
+      "path": "/agent-role",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Agent Role",
+      "description": "[unverified path] Retrieve many agent roles"
+    },
+    {
+      "id": "announcement_create",
+      "label": "Create Announcement",
+      "method": "POST",
+      "path": "/announcements",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "title",
+          "label": "Title",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "bodyHtml",
+          "label": "Body",
+          "type": "text",
+          "required": true,
+          "description": "HTML supported"
+        },
+        {
+          "id": "visibility",
+          "label": "Visibility",
+          "type": "select",
+          "required": true,
+          "defaultValue": "everyone",
+          "options": [
+            {
+              "value": "agents_only",
+              "label": "Agents Only"
+            },
+            {
+              "value": "grouped_visibility",
+              "label": "Agents and Groups"
+            },
+            {
+              "value": "everyone",
+              "label": "Everyone"
+            }
+          ]
+        },
+        {
+          "id": "visibleFrom",
+          "label": "Visible From",
+          "type": "text",
+          "required": true,
+          "placeholder": "2024-01-01T00:00:00Z",
+          "description": "Timestamp at which announcement becomes active (ISO 8601 date-time)"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: additional_emails, departments, visible_from, visible_till)"
+        }
+      ],
+      "group": "Announcement",
+      "description": "Create an announcement"
+    },
+    {
+      "id": "announcement_delete",
+      "label": "Delete Announcement",
+      "method": "DELETE",
+      "path": "/announcements/{announcementId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "announcementId",
+          "label": "Announcement ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the announcement to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Announcement",
+      "description": "Delete an announcement"
+    },
+    {
+      "id": "announcement_get",
+      "label": "Get Announcement",
+      "method": "GET",
+      "path": "/announcements/{announcementId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "announcementId",
+          "label": "Announcement ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the announcement to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Announcement",
+      "description": "Retrieve an announcement"
+    },
+    {
+      "id": "announcement_get_all",
+      "label": "Get Many Announcement",
       "method": "GET",
       "path": "/announcement",
-      "fields": []
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Announcement",
+      "description": "[unverified path] Retrieve many announcements"
     },
     {
-      "id": "asset_type_default",
-      "label": "List AssetType",
+      "id": "announcement_update",
+      "label": "Update Announcement",
+      "method": "PUT",
+      "path": "/announcements/{announcementId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "announcementId",
+          "label": "Announcement ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the announcement to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: additional_emails, body_html, departments, title, visibility)"
+        }
+      ],
+      "group": "Announcement",
+      "description": "Update an announcement"
+    },
+    {
+      "id": "asset_type_create",
+      "label": "Create Asset Type",
+      "method": "POST",
+      "path": "/asset_types",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: description, parent_asset_type_id)"
+        }
+      ],
+      "group": "Asset Type",
+      "description": "Create an asset type"
+    },
+    {
+      "id": "asset_type_delete",
+      "label": "Delete Asset Type",
+      "method": "DELETE",
+      "path": "/asset_types/{assetTypeId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "assetTypeId",
+          "label": "Asset Type ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the asset type to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Asset Type",
+      "description": "Delete an asset type"
+    },
+    {
+      "id": "asset_type_get",
+      "label": "Get Asset Type",
       "method": "GET",
-      "path": "/assetType",
-      "fields": []
+      "path": "/asset_types/{assetTypeId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "assetTypeId",
+          "label": "Asset Type ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the asset type to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Asset Type",
+      "description": "Retrieve an asset type"
     },
     {
-      "id": "change_default",
-      "label": "List Change",
+      "id": "asset_type_get_all",
+      "label": "Get Many Asset Type",
+      "method": "GET",
+      "path": "/asset-type",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Asset Type",
+      "description": "[unverified path] Retrieve many asset types"
+    },
+    {
+      "id": "asset_type_update",
+      "label": "Update Asset Type",
+      "method": "PUT",
+      "path": "/asset_types/{assetTypeId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "assetTypeId",
+          "label": "Asset Type ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the asset type to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: description, name)"
+        }
+      ],
+      "group": "Asset Type",
+      "description": "Update an asset type"
+    },
+    {
+      "id": "change_create",
+      "label": "Create Change",
+      "method": "POST",
+      "path": "/changes",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "requesterId",
+          "label": "Requester Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of the requester of the change. Choose from the list or specify an ID. You can also specify the ID using an expression."
+        },
+        {
+          "id": "subject",
+          "label": "Subject",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "plannedStartDate",
+          "label": "Planned Start Date",
+          "type": "text",
+          "required": true,
+          "placeholder": "2024-01-01T00:00:00Z",
+          "description": "(ISO 8601 date-time)"
+        },
+        {
+          "id": "plannedEndDate",
+          "label": "Planned End Date",
+          "type": "text",
+          "required": true,
+          "placeholder": "2024-01-01T00:00:00Z",
+          "description": "(ISO 8601 date-time)"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: agent_id, change_type, department_id, description, group_id, impact, priority, risk, status, subject)"
+        }
+      ],
+      "group": "Change",
+      "description": "Create a change"
+    },
+    {
+      "id": "change_delete",
+      "label": "Delete Change",
+      "method": "DELETE",
+      "path": "/changes/{changeId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "changeId",
+          "label": "Change ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the change to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Change",
+      "description": "Delete a change"
+    },
+    {
+      "id": "change_get",
+      "label": "Get Change",
+      "method": "GET",
+      "path": "/changes/{changeId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "changeId",
+          "label": "Change ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the change to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Change",
+      "description": "Retrieve a change"
+    },
+    {
+      "id": "change_get_all",
+      "label": "Get Many Change",
       "method": "GET",
       "path": "/change",
-      "fields": []
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: filter, sort_by, updated_since)"
+        }
+      ],
+      "group": "Change",
+      "description": "[unverified path] Retrieve many changes"
     },
     {
-      "id": "department_default",
-      "label": "List Department",
+      "id": "change_update",
+      "label": "Update Change",
+      "method": "PUT",
+      "path": "/changes/{changeId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "changeId",
+          "label": "Change ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the change to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: agent_id, change_type, department_id, description, group_id, impact, priority, requester_id, risk, status, subject)"
+        }
+      ],
+      "group": "Change",
+      "description": "Update a change"
+    },
+    {
+      "id": "department_create",
+      "label": "Create Department",
+      "method": "POST",
+      "path": "/departments",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: description, domains)"
+        }
+      ],
+      "group": "Department",
+      "description": "Create a department"
+    },
+    {
+      "id": "department_delete",
+      "label": "Delete Department",
+      "method": "DELETE",
+      "path": "/departments/{departmentId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "departmentId",
+          "label": "Department ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the department to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Department",
+      "description": "Delete a department"
+    },
+    {
+      "id": "department_get",
+      "label": "Get Department",
+      "method": "GET",
+      "path": "/departments/{departmentId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "departmentId",
+          "label": "Department ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the department to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Department",
+      "description": "Retrieve a department"
+    },
+    {
+      "id": "department_get_all",
+      "label": "Get Many Department",
       "method": "GET",
       "path": "/department",
-      "fields": []
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: name)"
+        }
+      ],
+      "group": "Department",
+      "description": "[unverified path] Retrieve many departments"
     },
     {
-      "id": "location_default",
-      "label": "List Location",
+      "id": "department_update",
+      "label": "Update Department",
+      "method": "PUT",
+      "path": "/departments/{departmentId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "departmentId",
+          "label": "Department ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the department to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: description, domains, name)"
+        }
+      ],
+      "group": "Department",
+      "description": "Update a department"
+    },
+    {
+      "id": "location_create",
+      "label": "Create Location",
+      "method": "POST",
+      "path": "/locations",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "Name of the location"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: address)"
+        }
+      ],
+      "group": "Location",
+      "description": "Create a location"
+    },
+    {
+      "id": "location_delete",
+      "label": "Delete Location",
+      "method": "DELETE",
+      "path": "/locations/{locationId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "locationId",
+          "label": "Location ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the location to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Location",
+      "description": "Delete a location"
+    },
+    {
+      "id": "location_get",
+      "label": "Get Location",
+      "method": "GET",
+      "path": "/locations/{locationId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "locationId",
+          "label": "Location ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the location to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Location",
+      "description": "Retrieve a location"
+    },
+    {
+      "id": "location_get_all",
+      "label": "Get Many Location",
       "method": "GET",
       "path": "/location",
-      "fields": []
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Location",
+      "description": "[unverified path] Retrieve many locations"
     },
     {
-      "id": "problem_default",
-      "label": "List Problem",
+      "id": "location_update",
+      "label": "Update Location",
+      "method": "PUT",
+      "path": "/locations/{locationId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "locationId",
+          "label": "Location ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the location to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: name, address)"
+        }
+      ],
+      "group": "Location",
+      "description": "Update a location"
+    },
+    {
+      "id": "problem_create",
+      "label": "Create Problem",
+      "method": "POST",
+      "path": "/problems",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "subject",
+          "label": "Subject",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "requesterId",
+          "label": "Requester Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of the initiator of the problem. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "dueBy",
+          "label": "Due By",
+          "type": "text",
+          "placeholder": "2024-01-01T00:00:00Z",
+          "description": "Date when the problem is due to be solved (ISO 8601 date-time)"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: agent_id, department_id, description, group_id, impact, priority, status)"
+        }
+      ],
+      "group": "Problem",
+      "description": "Create a problem"
+    },
+    {
+      "id": "problem_delete",
+      "label": "Delete Problem",
+      "method": "DELETE",
+      "path": "/problems/{problemId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "problemId",
+          "label": "Problem ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the problem to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Problem",
+      "description": "Delete a problem"
+    },
+    {
+      "id": "problem_get",
+      "label": "Get Problem",
+      "method": "GET",
+      "path": "/problems/{problemId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "problemId",
+          "label": "Problem ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the problem to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Problem",
+      "description": "Retrieve a problem"
+    },
+    {
+      "id": "problem_get_all",
+      "label": "Get Many Problem",
       "method": "GET",
       "path": "/problem",
-      "fields": []
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Problem",
+      "description": "[unverified path] Retrieve many problems"
     },
     {
-      "id": "product_default",
-      "label": "List Product",
+      "id": "problem_update",
+      "label": "Update Problem",
+      "method": "PUT",
+      "path": "/problems/{problemId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "problemId",
+          "label": "Problem ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the problem to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: agent_id, department_id, description, due_by, group_id, impact, priority, requester_id, status, subject)"
+        }
+      ],
+      "group": "Problem",
+      "description": "Update a problem"
+    },
+    {
+      "id": "product_create",
+      "label": "Create Product",
+      "method": "POST",
+      "path": "/products",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "assetTypeId",
+          "label": "Asset Type Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: description, manufacturer, mode_of_procurement, status)"
+        }
+      ],
+      "group": "Product",
+      "description": "Create a product"
+    },
+    {
+      "id": "product_delete",
+      "label": "Delete Product",
+      "method": "DELETE",
+      "path": "/products/{productId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "productId",
+          "label": "Product ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the product to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Product",
+      "description": "Delete a product"
+    },
+    {
+      "id": "product_get",
+      "label": "Get Product",
+      "method": "GET",
+      "path": "/products/{productId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "productId",
+          "label": "Product ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the product to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Product",
+      "description": "Retrieve a product"
+    },
+    {
+      "id": "product_get_all",
+      "label": "Get Many Product",
       "method": "GET",
       "path": "/product",
-      "fields": []
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Product",
+      "description": "[unverified path] Retrieve many products"
     },
     {
-      "id": "release_default",
-      "label": "List Release",
+      "id": "product_update",
+      "label": "Update Product",
+      "method": "PUT",
+      "path": "/products/{productId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "productId",
+          "label": "Product ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the product to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: asset_type_id, description, manufacturer, mode_of_procurement, name, status)"
+        }
+      ],
+      "group": "Product",
+      "description": "Update a product"
+    },
+    {
+      "id": "release_create",
+      "label": "Create Release",
+      "method": "POST",
+      "path": "/releases",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "subject",
+          "label": "Subject",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "releaseType",
+          "label": "Release Type",
+          "type": "select",
+          "defaultValue": 1,
+          "options": [
+            {
+              "value": "1",
+              "label": "Minor"
+            },
+            {
+              "value": "2",
+              "label": "Standard"
+            },
+            {
+              "value": "3",
+              "label": "Major"
+            },
+            {
+              "value": "4",
+              "label": "Emergency"
+            }
+          ]
+        },
+        {
+          "id": "priority",
+          "label": "Priority",
+          "type": "select",
+          "defaultValue": 1,
+          "options": [
+            {
+              "value": "1",
+              "label": "Low"
+            },
+            {
+              "value": "2",
+              "label": "Medium"
+            },
+            {
+              "value": "3",
+              "label": "High"
+            },
+            {
+              "value": "4",
+              "label": "Urgent"
+            }
+          ]
+        },
+        {
+          "id": "status",
+          "label": "Status",
+          "type": "select",
+          "defaultValue": 1,
+          "options": [
+            {
+              "value": "1",
+              "label": "Open"
+            },
+            {
+              "value": "2",
+              "label": "On Hold"
+            },
+            {
+              "value": "3",
+              "label": "In Progress"
+            },
+            {
+              "value": "4",
+              "label": "Incomplete"
+            },
+            {
+              "value": "5",
+              "label": "Completed"
+            }
+          ]
+        },
+        {
+          "id": "plannedStartDate",
+          "label": "Planned Start Date",
+          "type": "text",
+          "required": true,
+          "placeholder": "2024-01-01T00:00:00Z",
+          "description": "(ISO 8601 date-time)"
+        },
+        {
+          "id": "plannedEndDate",
+          "label": "Planned End Date",
+          "type": "text",
+          "required": true,
+          "placeholder": "2024-01-01T00:00:00Z",
+          "description": "(ISO 8601 date-time)"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: department_id, description, group_id)"
+        }
+      ],
+      "group": "Release",
+      "description": "Create a release"
+    },
+    {
+      "id": "release_delete",
+      "label": "Delete Release",
+      "method": "DELETE",
+      "path": "/releases/{releaseId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "releaseId",
+          "label": "Release ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the release to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Release",
+      "description": "Delete a release"
+    },
+    {
+      "id": "release_get",
+      "label": "Get Release",
+      "method": "GET",
+      "path": "/releases/{releaseId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "releaseId",
+          "label": "Release ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the release to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Release",
+      "description": "Retrieve a release"
+    },
+    {
+      "id": "release_get_all",
+      "label": "Get Many Release",
       "method": "GET",
       "path": "/release",
-      "fields": []
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Release",
+      "description": "[unverified path] Retrieve many releases"
     },
     {
-      "id": "requester_default",
-      "label": "List Requester",
+      "id": "release_update",
+      "label": "Update Release",
+      "method": "PUT",
+      "path": "/releases/{releaseId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "releaseId",
+          "label": "Release ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the release to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: department_id, description, group_id, priority, release_type, status, subject)"
+        }
+      ],
+      "group": "Release",
+      "description": "Update a release"
+    },
+    {
+      "id": "requester_create",
+      "label": "Create Requester",
+      "method": "POST",
+      "path": "/requesters",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "firstName",
+          "label": "First Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "primaryEmail",
+          "label": "Primary Email",
+          "type": "text"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: address, background_information, department_ids, job_title, language, last_name, location_id, mobile_phone_number, secondary_emails, time_format, work_phone_number)"
+        }
+      ],
+      "group": "Requester",
+      "description": "Create a requester"
+    },
+    {
+      "id": "requester_delete",
+      "label": "Delete Requester",
+      "method": "DELETE",
+      "path": "/requesters/{requesterId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "requesterId",
+          "label": "Requester ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the requester to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Requester",
+      "description": "Delete a requester"
+    },
+    {
+      "id": "requester_get",
+      "label": "Get Requester",
+      "method": "GET",
+      "path": "/requesters/{requesterId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "requesterId",
+          "label": "Requester ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the requester to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Requester",
+      "description": "Retrieve a requester"
+    },
+    {
+      "id": "requester_get_all",
+      "label": "Get Many Requester",
       "method": "GET",
       "path": "/requester",
-      "fields": []
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: department_id, first_name, job_title, language, last_name, location_id, mobile_phone_number, primary_email, work_phone_number)"
+        }
+      ],
+      "group": "Requester",
+      "description": "[unverified path] Retrieve many requesters"
     },
     {
-      "id": "requester_group_default",
-      "label": "List RequesterGroup",
+      "id": "requester_update",
+      "label": "Update Requester",
+      "method": "PUT",
+      "path": "/requesters/{requesterId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "requesterId",
+          "label": "Requester ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the requester to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: address, background_information, department_ids, first_name, job_title, language, last_name, location_id, mobile_phone_number, primary_email, secondary_emails, time_format, work_phone_number)"
+        }
+      ],
+      "group": "Requester",
+      "description": "Update a requester"
+    },
+    {
+      "id": "requester_group_create",
+      "label": "Create Requester Group",
+      "method": "POST",
+      "path": "/requester_groups",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: description)"
+        }
+      ],
+      "group": "Requester Group",
+      "description": "Create a requester group"
+    },
+    {
+      "id": "requester_group_delete",
+      "label": "Delete Requester Group",
+      "method": "DELETE",
+      "path": "/requester_groups/{requesterGroupId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "requesterGroupId",
+          "label": "Requester Group ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the requester group to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Requester Group",
+      "description": "Delete a requester group"
+    },
+    {
+      "id": "requester_group_get",
+      "label": "Get Requester Group",
       "method": "GET",
-      "path": "/requesterGroup",
-      "fields": []
+      "path": "/requester_groups/{requesterGroupId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "requesterGroupId",
+          "label": "Requester Group ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the requester group to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Requester Group",
+      "description": "Retrieve a requester group"
     },
     {
-      "id": "software_default",
-      "label": "List Software",
+      "id": "requester_group_get_all",
+      "label": "Get Many Requester Group",
+      "method": "GET",
+      "path": "/requester-group",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Requester Group",
+      "description": "[unverified path] Retrieve many requester groups"
+    },
+    {
+      "id": "requester_group_update",
+      "label": "Update Requester Group",
+      "method": "PUT",
+      "path": "/requester_groups/{requesterGroupId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "requesterGroupId",
+          "label": "Requester Group ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the requester group to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: description, name)"
+        }
+      ],
+      "group": "Requester Group",
+      "description": "Update a requester group"
+    },
+    {
+      "id": "software_create",
+      "label": "Create Software",
+      "method": "POST",
+      "path": "/applications",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "applicationType",
+          "label": "Application Type",
+          "type": "select",
+          "required": true,
+          "defaultValue": "desktop",
+          "options": [
+            {
+              "value": "desktop",
+              "label": "Desktop"
+            },
+            {
+              "value": "mobile",
+              "label": "Mobile"
+            },
+            {
+              "value": "saas",
+              "label": "SaaS"
+            }
+          ]
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: description, notes, status)"
+        }
+      ],
+      "group": "Software",
+      "description": "Create a software application"
+    },
+    {
+      "id": "software_delete",
+      "label": "Delete Software",
+      "method": "DELETE",
+      "path": "/applications/{softwareId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "softwareId",
+          "label": "Software ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the software application to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Software",
+      "description": "Delete a software application"
+    },
+    {
+      "id": "software_get",
+      "label": "Get Software",
+      "method": "GET",
+      "path": "/applications/{softwareId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "softwareId",
+          "label": "Software ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the software application to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Software",
+      "description": "Retrieve a software application"
+    },
+    {
+      "id": "software_get_all",
+      "label": "Get Many Software",
       "method": "GET",
       "path": "/software",
-      "fields": []
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Software",
+      "description": "[unverified path] Retrieve many software applications"
     },
     {
-      "id": "ticket_default",
-      "label": "List Ticket",
+      "id": "software_update",
+      "label": "Update Software",
+      "method": "PUT",
+      "path": "/applications/{softwareId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "softwareId",
+          "label": "Software ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the software application to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: application_type, description, name, notes, status)"
+        }
+      ],
+      "group": "Software",
+      "description": "Update a software application"
+    },
+    {
+      "id": "ticket_create",
+      "label": "Create Ticket",
+      "method": "POST",
+      "path": "/tickets",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "required": true,
+          "placeholder": "name@email.com",
+          "description": "Email address of the ticket author"
+        },
+        {
+          "id": "subject",
+          "label": "Subject",
+          "type": "text"
+        },
+        {
+          "id": "description",
+          "label": "Description",
+          "type": "text",
+          "description": "HTML supported"
+        },
+        {
+          "id": "priority",
+          "label": "Priority",
+          "type": "select",
+          "defaultValue": 1,
+          "options": [
+            {
+              "value": "1",
+              "label": "Low"
+            },
+            {
+              "value": "2",
+              "label": "Medium"
+            },
+            {
+              "value": "3",
+              "label": "High"
+            },
+            {
+              "value": "4",
+              "label": "Urgent"
+            }
+          ]
+        },
+        {
+          "id": "status",
+          "label": "Status",
+          "type": "select",
+          "defaultValue": 2,
+          "options": [
+            {
+              "value": "2",
+              "label": "Open"
+            },
+            {
+              "value": "3",
+              "label": "Pending"
+            },
+            {
+              "value": "4",
+              "label": "Resolved"
+            },
+            {
+              "value": "5",
+              "label": "Closed"
+            }
+          ]
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: cc_emails, department_id, group_id, impact, name, requester_id)"
+        }
+      ],
+      "group": "Ticket",
+      "description": "Create a ticket"
+    },
+    {
+      "id": "ticket_delete",
+      "label": "Delete Ticket",
+      "method": "DELETE",
+      "path": "/tickets/{ticketId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "ticketId",
+          "label": "Ticket ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the ticket to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Ticket",
+      "description": "Delete a ticket"
+    },
+    {
+      "id": "ticket_get",
+      "label": "Get Ticket",
       "method": "GET",
-      "path": "/ticket",
-      "fields": []
+      "path": "/tickets/{ticketId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "ticketId",
+          "label": "Ticket ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the ticket to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Ticket",
+      "description": "Retrieve a ticket"
+    },
+    {
+      "id": "ticket_get_all",
+      "label": "Get Many Ticket",
+      "method": "GET",
+      "path": "/tickets/filter",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: agent_id, group_id, impact, priority, status, created_at, due_by)"
+        }
+      ],
+      "group": "Ticket",
+      "description": "Retrieve many tickets"
+    },
+    {
+      "id": "ticket_update",
+      "label": "Update Ticket",
+      "method": "PUT",
+      "path": "/tickets/{ticketId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshservice account (host token in the API base URL)"
+        },
+        {
+          "id": "ticketId",
+          "label": "Ticket ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the ticket to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: department_id, description, email, group_id, impact, name, phone, priority, status, subject)"
+        }
+      ],
+      "group": "Ticket",
+      "description": "Update a ticket"
     }
   ]
 }

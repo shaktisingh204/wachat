@@ -4,13 +4,333 @@
   "description": "Consume Contentful API",
   "category": "productivity",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 2,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
-  "endpoints": []
+  "baseUrl": "https://cdn.contentful.com",
+  "endpoints": [
+    {
+      "id": "space_get",
+      "label": "Get Space",
+      "method": "GET",
+      "path": "/spaces/{credentials__spaceId}",
+      "fields": [
+        {
+          "id": "source",
+          "label": "Source",
+          "type": "select",
+          "description": "Pick where your data comes from, delivery or preview API",
+          "defaultValue": "deliveryApi",
+          "options": [
+            {
+              "value": "deliveryApi",
+              "label": "Delivery API"
+            },
+            {
+              "value": "previewApi",
+              "label": "Preview API"
+            }
+          ]
+        }
+      ],
+      "group": "Space",
+      "description": "[unverified path]"
+    },
+    {
+      "id": "content_type_get",
+      "label": "Get Content Type",
+      "method": "GET",
+      "path": "/spaces/{credentials__spaceId}/environments/{env}/content_types/{id}",
+      "fields": [
+        {
+          "id": "source",
+          "label": "Source",
+          "type": "select",
+          "description": "Pick where your data comes from, delivery or preview API",
+          "defaultValue": "deliveryApi",
+          "options": [
+            {
+              "value": "deliveryApi",
+              "label": "Delivery API"
+            },
+            {
+              "value": "previewApi",
+              "label": "Preview API"
+            }
+          ]
+        },
+        {
+          "id": "environmentId",
+          "label": "Environment ID",
+          "type": "text",
+          "description": "The ID for the Contentful environment (e.g. master, staging, etc.). Depending on your plan, you might not have environments. In that case use \"master\".",
+          "defaultValue": "master"
+        },
+        {
+          "id": "contentTypeId",
+          "label": "Content Type ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: rawData)"
+        }
+      ],
+      "group": "Content Type",
+      "description": "[unverified path]"
+    },
+    {
+      "id": "entry_get",
+      "label": "Get Entry",
+      "method": "GET",
+      "path": "/spaces/{credentials__spaceId}/environments/{env}/entries/{id}",
+      "fields": [
+        {
+          "id": "source",
+          "label": "Source",
+          "type": "select",
+          "description": "Pick where your data comes from, delivery or preview API",
+          "defaultValue": "deliveryApi",
+          "options": [
+            {
+              "value": "deliveryApi",
+              "label": "Delivery API"
+            },
+            {
+              "value": "previewApi",
+              "label": "Preview API"
+            }
+          ]
+        },
+        {
+          "id": "environmentId",
+          "label": "Environment ID",
+          "type": "text",
+          "description": "The ID for the Contentful environment (e.g. master, staging, etc.). Depending on your plan, you might not have environments. In that case use \"master\".",
+          "defaultValue": "master"
+        },
+        {
+          "id": "entryId",
+          "label": "Entry ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: rawData)"
+        }
+      ],
+      "group": "Entry",
+      "description": "[unverified path]"
+    },
+    {
+      "id": "entry_get_all",
+      "label": "Get Many Entry",
+      "method": "GET",
+      "path": "/spaces/{credentials__spaceId}/environments/{env}/entries",
+      "fields": [
+        {
+          "id": "source",
+          "label": "Source",
+          "type": "select",
+          "description": "Pick where your data comes from, delivery or preview API",
+          "defaultValue": "deliveryApi",
+          "options": [
+            {
+              "value": "deliveryApi",
+              "label": "Delivery API"
+            },
+            {
+              "value": "previewApi",
+              "label": "Preview API"
+            }
+          ]
+        },
+        {
+          "id": "environmentId",
+          "label": "Environment ID",
+          "type": "text",
+          "description": "The ID for the Contentful environment (e.g. master, staging, etc.). Depending on your plan, you might not have environments. In that case use \"master\".",
+          "defaultValue": "master"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: content_type, equal, exclude, exist, select, include, notEqual, order, query, rawData)"
+        }
+      ],
+      "group": "Entry",
+      "description": "[unverified path]"
+    },
+    {
+      "id": "asset_get",
+      "label": "Get Asset",
+      "method": "GET",
+      "path": "/spaces/{credentials__spaceId}/environments/{env}/assets/{id}",
+      "fields": [
+        {
+          "id": "source",
+          "label": "Source",
+          "type": "select",
+          "description": "Pick where your data comes from, delivery or preview API",
+          "defaultValue": "deliveryApi",
+          "options": [
+            {
+              "value": "deliveryApi",
+              "label": "Delivery API"
+            },
+            {
+              "value": "previewApi",
+              "label": "Preview API"
+            }
+          ]
+        },
+        {
+          "id": "environmentId",
+          "label": "Environment ID",
+          "type": "text",
+          "description": "The ID for the Contentful environment (e.g. master, staging, etc.). Depending on your plan, you might not have environments. In that case use \"master\".",
+          "defaultValue": "master"
+        },
+        {
+          "id": "assetId",
+          "label": "Asset ID",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "group": "Asset",
+      "description": "[unverified path]"
+    },
+    {
+      "id": "asset_get_all",
+      "label": "Get Many Asset",
+      "method": "GET",
+      "path": "/spaces/{credentials__spaceId}/environments/{env}/assets",
+      "fields": [
+        {
+          "id": "source",
+          "label": "Source",
+          "type": "select",
+          "description": "Pick where your data comes from, delivery or preview API",
+          "defaultValue": "deliveryApi",
+          "options": [
+            {
+              "value": "deliveryApi",
+              "label": "Delivery API"
+            },
+            {
+              "value": "previewApi",
+              "label": "Preview API"
+            }
+          ]
+        },
+        {
+          "id": "environmentId",
+          "label": "Environment ID",
+          "type": "text",
+          "description": "The ID for the Contentful environment (e.g. master, staging, etc.). Depending on your plan, you might not have environments. In that case use \"master\".",
+          "defaultValue": "master"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: equal, exclude, exist, select, include, notEqual, order, query, rawData)"
+        }
+      ],
+      "group": "Asset",
+      "description": "[unverified path]"
+    },
+    {
+      "id": "locale_get_all",
+      "label": "Get Many Locale",
+      "method": "GET",
+      "path": "/spaces/{credentials__spaceId}/environments/{env}/locales",
+      "fields": [
+        {
+          "id": "source",
+          "label": "Source",
+          "type": "select",
+          "description": "Pick where your data comes from, delivery or preview API",
+          "defaultValue": "deliveryApi",
+          "options": [
+            {
+              "value": "deliveryApi",
+              "label": "Delivery API"
+            },
+            {
+              "value": "previewApi",
+              "label": "Preview API"
+            }
+          ]
+        },
+        {
+          "id": "environmentId",
+          "label": "Environment ID",
+          "type": "text",
+          "description": "The ID for the Contentful environment (e.g. master, staging, etc.). Depending on your plan, you might not have environments. In that case use \"master\".",
+          "defaultValue": "master"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        }
+      ],
+      "group": "Locale",
+      "description": "[unverified path]"
+    }
+  ]
 }

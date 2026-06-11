@@ -4,28 +4,136 @@
   "description": "Consume the Demio API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://my.demio.com/api/v1",
   "endpoints": [
     {
-      "id": "event_default",
-      "label": "List Event",
+      "id": "event_get",
+      "label": "Get Event",
       "method": "GET",
-      "path": "/event",
-      "fields": []
+      "path": "/event/{id}/date/{additionalFields_date_id}",
+      "fields": [
+        {
+          "id": "eventId",
+          "label": "Event ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: active, date_id)"
+        }
+      ],
+      "group": "Event",
+      "description": "[unverified path] Get an event"
     },
     {
-      "id": "report_default",
-      "label": "List Report",
+      "id": "event_get_all",
+      "label": "Get Many Event",
       "method": "GET",
-      "path": "/report",
-      "fields": []
+      "path": "/events",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: type)"
+        }
+      ],
+      "group": "Event",
+      "description": "Get many events"
+    },
+    {
+      "id": "event_register",
+      "label": "Register Event",
+      "method": "PUT",
+      "path": "/event/register",
+      "fields": [
+        {
+          "id": "eventId",
+          "label": "Event Name or ID",
+          "type": "select",
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "firstName",
+          "label": "First Name",
+          "type": "text",
+          "required": true,
+          "description": "The registrant's first name"
+        },
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "required": true,
+          "placeholder": "name@email.com",
+          "description": "The registrant's email address"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: company, customFieldsUi, ref_url, gdpr, last_name, phone_number, date_id, website)"
+        }
+      ],
+      "group": "Event",
+      "description": "Register someone to an event"
+    },
+    {
+      "id": "report_get",
+      "label": "Get Report",
+      "method": "GET",
+      "path": "/report/{sessionId}/participants",
+      "fields": [
+        {
+          "id": "eventId",
+          "label": "Event Name or ID",
+          "type": "select",
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "dateId",
+          "label": "Session Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of the session. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: status)"
+        }
+      ],
+      "group": "Report",
+      "description": "Get an event report"
     }
   ]
 }

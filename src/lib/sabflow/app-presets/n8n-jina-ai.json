@@ -4,35 +4,34 @@
   "description": "Interact with Jina AI API",
   "category": "ai",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://s.jina.ai",
   "endpoints": [
     {
       "id": "reader_read",
       "label": "Read Reader",
       "method": "GET",
-      "path": "/=https://r.jina.ai/{{ $parameter[\"url\"] }}",
+      "path": "/https:/r.jina.ai/{{ {url} }}",
       "fields": [
         {
           "id": "url",
           "label": "URL",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "https://jina.ai/",
-          "description": "The URL to fetch content from"
+          "description": "The URL to fetch content from",
+          "in": "path"
         },
         {
           "id": "simplify",
           "label": "Simplify",
           "type": "toggle",
-          "in": "query",
           "description": "Whether to return a simplified version of the response instead of the raw data",
           "defaultValue": true
         },
@@ -40,22 +39,23 @@
           "id": "options",
           "label": "Options",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Option"
+          "placeholder": "Add Option",
+          "description": "(JSON object; supported keys: outputFormat, targetSelector, excludeSelector, enableImageCaptioning, waitForSelector)"
         }
-      ]
+      ],
+      "group": "Reader",
+      "description": "[unverified path] Fetches content from a URL and converts it to clean, LLM-friendly formats"
     },
     {
       "id": "reader_search",
       "label": "Search Reader",
       "method": "GET",
-      "path": "/https://s.jina.ai/",
+      "path": "/https:/s.jina.ai/",
       "fields": [
         {
           "id": "searchQuery",
           "label": "Search Query",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "e.g. Jina AI"
         },
@@ -63,7 +63,6 @@
           "id": "simplify",
           "label": "Simplify",
           "type": "toggle",
-          "in": "query",
           "description": "Whether to return a simplified version of the response instead of the raw data",
           "defaultValue": true
         },
@@ -71,22 +70,23 @@
           "id": "options",
           "label": "Options",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Option"
+          "placeholder": "Add Option",
+          "description": "(JSON object; supported keys: outputFormat, siteFilter, pageNumber)"
         }
-      ]
+      ],
+      "group": "Reader",
+      "description": "Performs a web search via Jina AI and returns top results as clean, LLM-friendly formats"
     },
     {
       "id": "research_deep_research",
       "label": "Deep Research Research",
       "method": "POST",
-      "path": "/https://deepsearch.jina.ai/v1/chat/completions",
+      "path": "/https:/deepsearch.jina.ai/v1/chat/completions",
       "fields": [
         {
           "id": "researchQuery",
           "label": "Research Query",
-          "type": "text",
-          "in": "body",
+          "type": "textarea",
           "required": true,
           "placeholder": "e.g. Analyze the impact of renewable energy sources on climate change mitigation",
           "description": "The topic or question for the AI to research"
@@ -95,7 +95,6 @@
           "id": "simplify",
           "label": "Simplify",
           "type": "toggle",
-          "in": "body",
           "description": "Whether to return a simplified version of the response instead of the raw data",
           "defaultValue": true
         },
@@ -103,10 +102,12 @@
           "id": "options",
           "label": "Options",
           "type": "json",
-          "in": "body",
-          "placeholder": "Add Option"
+          "placeholder": "Add Option",
+          "description": "(JSON object; supported keys: maxReturnedSources, prioritizeSources, excludeSources, siteFilter)"
         }
-      ]
+      ],
+      "group": "Research",
+      "description": "Research a topic and generate a structured research report"
     }
   ]
 }

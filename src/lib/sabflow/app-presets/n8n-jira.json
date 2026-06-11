@@ -4,8 +4,8 @@
   "description": "Consume Jira Software API",
   "category": "dev",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -16,11 +16,161 @@
       "credentialType": "http_header_auth"
     }
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.atlassian.com",
   "endpoints": [
     {
-      "id": "issue_default",
-      "label": "List Issue",
+      "id": "issue_changelog",
+      "label": "Changelog Issue",
+      "method": "PATCH",
+      "path": "/issue",
+      "fields": [
+        {
+          "id": "jiraVersion",
+          "label": "Jira Version",
+          "type": "select",
+          "defaultValue": "cloud",
+          "options": [
+            {
+              "value": "cloud",
+              "label": "Cloud"
+            },
+            {
+              "value": "server",
+              "label": "Server (Self Hosted)"
+            },
+            {
+              "value": "serverPat",
+              "label": "Server Pat (Self Hosted)"
+            }
+          ]
+        },
+        {
+          "id": "issueKey",
+          "label": "Issue Key",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Issue",
+      "description": "[unverified path] Get issue changelog"
+    },
+    {
+      "id": "issue_create",
+      "label": "Create Issue",
+      "method": "POST",
+      "path": "/issue",
+      "fields": [
+        {
+          "id": "jiraVersion",
+          "label": "Jira Version",
+          "type": "select",
+          "defaultValue": "cloud",
+          "options": [
+            {
+              "value": "cloud",
+              "label": "Cloud"
+            },
+            {
+              "value": "server",
+              "label": "Server (Self Hosted)"
+            },
+            {
+              "value": "serverPat",
+              "label": "Server Pat (Self Hosted)"
+            }
+          ]
+        },
+        {
+          "id": "project",
+          "label": "Project",
+          "type": "text",
+          "required": true,
+          "description": "(provide the ID)"
+        },
+        {
+          "id": "issueType",
+          "label": "Issue Type",
+          "type": "text",
+          "required": true,
+          "description": "(provide the ID)"
+        },
+        {
+          "id": "summary",
+          "label": "Summary",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: assignee, description, componentIds, customFieldsUi, labels, serverLabels, parentIssueKey, priority, reporter, updateHistory)"
+        }
+      ],
+      "group": "Issue",
+      "description": "[unverified path] Create a new issue"
+    },
+    {
+      "id": "issue_delete",
+      "label": "Delete Issue",
+      "method": "DELETE",
+      "path": "/issue",
+      "fields": [
+        {
+          "id": "jiraVersion",
+          "label": "Jira Version",
+          "type": "select",
+          "defaultValue": "cloud",
+          "options": [
+            {
+              "value": "cloud",
+              "label": "Cloud"
+            },
+            {
+              "value": "server",
+              "label": "Server (Self Hosted)"
+            },
+            {
+              "value": "serverPat",
+              "label": "Server Pat (Self Hosted)"
+            }
+          ]
+        },
+        {
+          "id": "issueKey",
+          "label": "Issue Key",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "deleteSubtasks",
+          "label": "Delete Subtasks",
+          "type": "toggle",
+          "required": true,
+          "defaultValue": false
+        }
+      ],
+      "group": "Issue",
+      "description": "[unverified path] Delete an issue"
+    },
+    {
+      "id": "issue_get",
+      "label": "Get Issue",
       "method": "GET",
       "path": "/issue",
       "fields": [
@@ -28,7 +178,6 @@
           "id": "jiraVersion",
           "label": "Jira Version",
           "type": "select",
-          "in": "query",
           "defaultValue": "cloud",
           "options": [
             {
@@ -44,20 +193,41 @@
               "label": "Server Pat (Self Hosted)"
             }
           ]
+        },
+        {
+          "id": "issueKey",
+          "label": "Issue Key",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "simplifyOutput",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": false
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: expand, fields, fieldsByKey, properties, updateHistory)"
         }
-      ]
+      ],
+      "group": "Issue",
+      "description": "[unverified path] Get an issue"
     },
     {
-      "id": "issue_attachment_default",
-      "label": "List IssueAttachment",
+      "id": "issue_get_all",
+      "label": "Get Many Issue",
       "method": "GET",
-      "path": "/issueAttachment",
+      "path": "/issue",
       "fields": [
         {
           "id": "jiraVersion",
           "label": "Jira Version",
           "type": "select",
-          "in": "query",
           "defaultValue": "cloud",
           "options": [
             {
@@ -73,20 +243,42 @@
               "label": "Server Pat (Self Hosted)"
             }
           ]
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: expand, fields, fieldsByKey, jql)"
         }
-      ]
+      ],
+      "group": "Issue",
+      "description": "[unverified path] Get many issues"
     },
     {
-      "id": "issue_comment_default",
-      "label": "List IssueComment",
-      "method": "GET",
-      "path": "/issueComment",
+      "id": "issue_notify",
+      "label": "Notify Issue",
+      "method": "POST",
+      "path": "/issue",
       "fields": [
         {
           "id": "jiraVersion",
           "label": "Jira Version",
           "type": "select",
-          "in": "query",
           "defaultValue": "cloud",
           "options": [
             {
@@ -102,12 +294,715 @@
               "label": "Server Pat (Self Hosted)"
             }
           ]
+        },
+        {
+          "id": "issueKey",
+          "label": "Issue Key",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "jsonParameters",
+          "label": "JSON Parameters",
+          "type": "toggle",
+          "defaultValue": false
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: htmlBody, subject, textBody)"
+        },
+        {
+          "id": "notificationRecipientsUi",
+          "label": "Notification Recipients",
+          "type": "json",
+          "placeholder": "Add Recipients",
+          "description": "The recipients of the email notification for the issue (JSON object; supported keys: notificationRecipientsValues, notificationRecipientsValues.reporter, notificationRecipientsValues.assignee, notificationRecipientsValues.watchers, notificationRecipientsValues.voters, notificationRecipientsValues.users, notificationRecipientsValues.groups)"
+        },
+        {
+          "id": "notificationRecipientsJson",
+          "label": "Notification Recipients",
+          "type": "json",
+          "description": "The recipients of the email notification for the issue"
+        },
+        {
+          "id": "notificationRecipientsRestrictionsUi",
+          "label": "Notification Recipients Restrictions",
+          "type": "json",
+          "placeholder": "Add Recipients Restriction",
+          "description": "Restricts the notifications to users with the specified permissions (JSON object; supported keys: notificationRecipientsRestrictionsValues, notificationRecipientsRestrictionsValues.users, notificationRecipientsRestrictionsValues.groups)"
+        },
+        {
+          "id": "notificationRecipientsRestrictionsJson",
+          "label": "Notification Recipients Restrictions",
+          "type": "json",
+          "description": "Restricts the notifications to users with the specified permissions"
         }
-      ]
+      ],
+      "group": "Issue",
+      "description": "[unverified path] Create an email notification for an issue and add it to the mail queue"
     },
     {
-      "id": "user_default",
-      "label": "List User",
+      "id": "issue_transitions",
+      "label": "Status Issue",
+      "method": "POST",
+      "path": "/issue",
+      "fields": [
+        {
+          "id": "jiraVersion",
+          "label": "Jira Version",
+          "type": "select",
+          "defaultValue": "cloud",
+          "options": [
+            {
+              "value": "cloud",
+              "label": "Cloud"
+            },
+            {
+              "value": "server",
+              "label": "Server (Self Hosted)"
+            },
+            {
+              "value": "serverPat",
+              "label": "Server Pat (Self Hosted)"
+            }
+          ]
+        },
+        {
+          "id": "issueKey",
+          "label": "Issue Key",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: expand, transitionId, skipRemoteOnlyCondition)"
+        }
+      ],
+      "group": "Issue",
+      "description": "[unverified path] Return either all transitions or a transition that can be performed by the user on an issue, based on the issue's status"
+    },
+    {
+      "id": "issue_update",
+      "label": "Update Issue",
+      "method": "PATCH",
+      "path": "/issue",
+      "fields": [
+        {
+          "id": "jiraVersion",
+          "label": "Jira Version",
+          "type": "select",
+          "defaultValue": "cloud",
+          "options": [
+            {
+              "value": "cloud",
+              "label": "Cloud"
+            },
+            {
+              "value": "server",
+              "label": "Server (Self Hosted)"
+            },
+            {
+              "value": "serverPat",
+              "label": "Server Pat (Self Hosted)"
+            }
+          ]
+        },
+        {
+          "id": "issueKey",
+          "label": "Issue Key",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: assignee, description, customFieldsUi, issueType, labels, serverLabels, parentIssueKey, priority, reporter, summary, statusId)"
+        }
+      ],
+      "group": "Issue",
+      "description": "[unverified path] Update an issue"
+    },
+    {
+      "id": "issue_attachment_add",
+      "label": "Add Issue Attachment",
+      "method": "POST",
+      "path": "/issue-attachment",
+      "fields": [
+        {
+          "id": "jiraVersion",
+          "label": "Jira Version",
+          "type": "select",
+          "defaultValue": "cloud",
+          "options": [
+            {
+              "value": "cloud",
+              "label": "Cloud"
+            },
+            {
+              "value": "server",
+              "label": "Server (Self Hosted)"
+            },
+            {
+              "value": "serverPat",
+              "label": "Server Pat (Self Hosted)"
+            }
+          ]
+        },
+        {
+          "id": "issueKey",
+          "label": "Issue Key",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "binaryPropertyName",
+          "label": "Input Binary Field",
+          "type": "text",
+          "required": true,
+          "defaultValue": "data"
+        }
+      ],
+      "group": "Issue Attachment",
+      "description": "[unverified path] Add attachment to issue"
+    },
+    {
+      "id": "issue_attachment_get",
+      "label": "Get Issue Attachment",
+      "method": "GET",
+      "path": "/issue-attachment",
+      "fields": [
+        {
+          "id": "jiraVersion",
+          "label": "Jira Version",
+          "type": "select",
+          "defaultValue": "cloud",
+          "options": [
+            {
+              "value": "cloud",
+              "label": "Cloud"
+            },
+            {
+              "value": "server",
+              "label": "Server (Self Hosted)"
+            },
+            {
+              "value": "serverPat",
+              "label": "Server Pat (Self Hosted)"
+            }
+          ]
+        },
+        {
+          "id": "attachmentId",
+          "label": "Attachment ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the attachment"
+        },
+        {
+          "id": "download",
+          "label": "Download",
+          "type": "toggle",
+          "required": true,
+          "defaultValue": false
+        },
+        {
+          "id": "binaryProperty",
+          "label": "Put Output File in Field",
+          "type": "text",
+          "required": true,
+          "defaultValue": "data"
+        }
+      ],
+      "group": "Issue Attachment",
+      "description": "[unverified path] Get an attachment"
+    },
+    {
+      "id": "issue_attachment_get_all",
+      "label": "Get Many Issue Attachment",
+      "method": "GET",
+      "path": "/issue-attachment",
+      "fields": [
+        {
+          "id": "jiraVersion",
+          "label": "Jira Version",
+          "type": "select",
+          "defaultValue": "cloud",
+          "options": [
+            {
+              "value": "cloud",
+              "label": "Cloud"
+            },
+            {
+              "value": "server",
+              "label": "Server (Self Hosted)"
+            },
+            {
+              "value": "serverPat",
+              "label": "Server Pat (Self Hosted)"
+            }
+          ]
+        },
+        {
+          "id": "issueKey",
+          "label": "Issue Key",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "download",
+          "label": "Download",
+          "type": "toggle",
+          "required": true,
+          "defaultValue": false
+        },
+        {
+          "id": "binaryProperty",
+          "label": "Put Output File in Field",
+          "type": "text",
+          "required": true,
+          "defaultValue": "data"
+        }
+      ],
+      "group": "Issue Attachment",
+      "description": "[unverified path] Get many attachments"
+    },
+    {
+      "id": "issue_attachment_remove",
+      "label": "Remove Issue Attachment",
+      "method": "DELETE",
+      "path": "/issue-attachment",
+      "fields": [
+        {
+          "id": "jiraVersion",
+          "label": "Jira Version",
+          "type": "select",
+          "defaultValue": "cloud",
+          "options": [
+            {
+              "value": "cloud",
+              "label": "Cloud"
+            },
+            {
+              "value": "server",
+              "label": "Server (Self Hosted)"
+            },
+            {
+              "value": "serverPat",
+              "label": "Server Pat (Self Hosted)"
+            }
+          ]
+        },
+        {
+          "id": "attachmentId",
+          "label": "Attachment ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the attachment"
+        }
+      ],
+      "group": "Issue Attachment",
+      "description": "[unverified path] Remove an attachment"
+    },
+    {
+      "id": "issue_comment_add",
+      "label": "Add Issue Comment",
+      "method": "POST",
+      "path": "/issue-comment",
+      "fields": [
+        {
+          "id": "jiraVersion",
+          "label": "Jira Version",
+          "type": "select",
+          "defaultValue": "cloud",
+          "options": [
+            {
+              "value": "cloud",
+              "label": "Cloud"
+            },
+            {
+              "value": "server",
+              "label": "Server (Self Hosted)"
+            },
+            {
+              "value": "serverPat",
+              "label": "Server Pat (Self Hosted)"
+            }
+          ]
+        },
+        {
+          "id": "issueKey",
+          "label": "Issue Key",
+          "type": "text",
+          "required": true,
+          "description": "issueComment Key"
+        },
+        {
+          "id": "jsonParameters",
+          "label": "JSON Parameters",
+          "type": "toggle",
+          "defaultValue": false
+        },
+        {
+          "id": "comment",
+          "label": "Comment",
+          "type": "text",
+          "description": "Comment's text"
+        },
+        {
+          "id": "commentJson",
+          "label": "Document Format (JSON)",
+          "type": "json",
+          "description": "The Atlassian Document Format (ADF). Online builder can be found here."
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: expand, wikiMarkup)"
+        }
+      ],
+      "group": "Issue Comment",
+      "description": "[unverified path] Add comment to issue"
+    },
+    {
+      "id": "issue_comment_get",
+      "label": "Get Issue Comment",
+      "method": "GET",
+      "path": "/issue-comment",
+      "fields": [
+        {
+          "id": "jiraVersion",
+          "label": "Jira Version",
+          "type": "select",
+          "defaultValue": "cloud",
+          "options": [
+            {
+              "value": "cloud",
+              "label": "Cloud"
+            },
+            {
+              "value": "server",
+              "label": "Server (Self Hosted)"
+            },
+            {
+              "value": "serverPat",
+              "label": "Server Pat (Self Hosted)"
+            }
+          ]
+        },
+        {
+          "id": "issueKey",
+          "label": "Issue Key",
+          "type": "text",
+          "required": true,
+          "description": "The ID or key of the issue"
+        },
+        {
+          "id": "commentId",
+          "label": "Comment ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the comment"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: expand)"
+        }
+      ],
+      "group": "Issue Comment",
+      "description": "[unverified path] Get a comment"
+    },
+    {
+      "id": "issue_comment_get_all",
+      "label": "Get Many Issue Comment",
+      "method": "GET",
+      "path": "/issue-comment",
+      "fields": [
+        {
+          "id": "jiraVersion",
+          "label": "Jira Version",
+          "type": "select",
+          "defaultValue": "cloud",
+          "options": [
+            {
+              "value": "cloud",
+              "label": "Cloud"
+            },
+            {
+              "value": "server",
+              "label": "Server (Self Hosted)"
+            },
+            {
+              "value": "serverPat",
+              "label": "Server Pat (Self Hosted)"
+            }
+          ]
+        },
+        {
+          "id": "issueKey",
+          "label": "Issue Key",
+          "type": "text",
+          "required": true,
+          "description": "The ID or key of the issue"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: expand, orderBy)"
+        }
+      ],
+      "group": "Issue Comment",
+      "description": "[unverified path] Get many comments"
+    },
+    {
+      "id": "issue_comment_remove",
+      "label": "Remove Issue Comment",
+      "method": "DELETE",
+      "path": "/issue-comment",
+      "fields": [
+        {
+          "id": "jiraVersion",
+          "label": "Jira Version",
+          "type": "select",
+          "defaultValue": "cloud",
+          "options": [
+            {
+              "value": "cloud",
+              "label": "Cloud"
+            },
+            {
+              "value": "server",
+              "label": "Server (Self Hosted)"
+            },
+            {
+              "value": "serverPat",
+              "label": "Server Pat (Self Hosted)"
+            }
+          ]
+        },
+        {
+          "id": "issueKey",
+          "label": "Issue Key",
+          "type": "text",
+          "required": true,
+          "description": "The ID or key of the issue"
+        },
+        {
+          "id": "commentId",
+          "label": "Comment ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the comment"
+        }
+      ],
+      "group": "Issue Comment",
+      "description": "[unverified path] Remove a comment"
+    },
+    {
+      "id": "issue_comment_update",
+      "label": "Update Issue Comment",
+      "method": "PATCH",
+      "path": "/issue-comment",
+      "fields": [
+        {
+          "id": "jiraVersion",
+          "label": "Jira Version",
+          "type": "select",
+          "defaultValue": "cloud",
+          "options": [
+            {
+              "value": "cloud",
+              "label": "Cloud"
+            },
+            {
+              "value": "server",
+              "label": "Server (Self Hosted)"
+            },
+            {
+              "value": "serverPat",
+              "label": "Server Pat (Self Hosted)"
+            }
+          ]
+        },
+        {
+          "id": "issueKey",
+          "label": "Issue Key",
+          "type": "text",
+          "required": true,
+          "description": "The Issue Comment key"
+        },
+        {
+          "id": "commentId",
+          "label": "Comment ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the comment"
+        },
+        {
+          "id": "jsonParameters",
+          "label": "JSON Parameters",
+          "type": "toggle",
+          "defaultValue": false
+        },
+        {
+          "id": "comment",
+          "label": "Comment",
+          "type": "text",
+          "description": "Comment's text"
+        },
+        {
+          "id": "commentJson",
+          "label": "Document Format (JSON)",
+          "type": "json",
+          "description": "The Atlassian Document Format (ADF). Online builder can be found here."
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: expand, wikiMarkup)"
+        }
+      ],
+      "group": "Issue Comment",
+      "description": "[unverified path] Update a comment"
+    },
+    {
+      "id": "user_create",
+      "label": "Create User",
+      "method": "POST",
+      "path": "/user",
+      "fields": [
+        {
+          "id": "jiraVersion",
+          "label": "Jira Version",
+          "type": "select",
+          "defaultValue": "cloud",
+          "options": [
+            {
+              "value": "cloud",
+              "label": "Cloud"
+            },
+            {
+              "value": "server",
+              "label": "Server (Self Hosted)"
+            },
+            {
+              "value": "serverPat",
+              "label": "Server Pat (Self Hosted)"
+            }
+          ]
+        },
+        {
+          "id": "username",
+          "label": "Username",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "emailAddress",
+          "label": "Email Address",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "displayName",
+          "label": "Display Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: password, notification)"
+        }
+      ],
+      "group": "User",
+      "description": "[unverified path] Create a new user"
+    },
+    {
+      "id": "user_delete",
+      "label": "Delete User",
+      "method": "DELETE",
+      "path": "/user",
+      "fields": [
+        {
+          "id": "jiraVersion",
+          "label": "Jira Version",
+          "type": "select",
+          "defaultValue": "cloud",
+          "options": [
+            {
+              "value": "cloud",
+              "label": "Cloud"
+            },
+            {
+              "value": "server",
+              "label": "Server (Self Hosted)"
+            },
+            {
+              "value": "serverPat",
+              "label": "Server Pat (Self Hosted)"
+            }
+          ]
+        },
+        {
+          "id": "accountId",
+          "label": "Account ID",
+          "type": "text",
+          "description": "Account ID of the user to delete"
+        }
+      ],
+      "group": "User",
+      "description": "[unverified path] Delete a user"
+    },
+    {
+      "id": "user_get",
+      "label": "Get User",
       "method": "GET",
       "path": "/user",
       "fields": [
@@ -115,7 +1010,6 @@
           "id": "jiraVersion",
           "label": "Jira Version",
           "type": "select",
-          "in": "query",
           "defaultValue": "cloud",
           "options": [
             {
@@ -131,8 +1025,23 @@
               "label": "Server Pat (Self Hosted)"
             }
           ]
+        },
+        {
+          "id": "accountId",
+          "label": "Account ID",
+          "type": "text",
+          "description": "Account ID of the user to retrieve"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: expand)"
         }
-      ]
+      ],
+      "group": "User",
+      "description": "[unverified path] Retrieve a user"
     }
   ]
 }

@@ -4,35 +4,88 @@
   "description": "Consume Marketstack API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 9,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "http://api.marketstack.com/v1",
   "endpoints": [
     {
-      "id": "end_of_day_data_default",
-      "label": "List EndOfDayData",
+      "id": "end_of_day_data_get_all",
+      "label": "Get Many End-of-Day Data",
       "method": "GET",
-      "path": "/endOfDayData",
-      "fields": []
+      "path": "/eod/latest",
+      "fields": [
+        {
+          "id": "symbols",
+          "label": "Ticker",
+          "type": "text",
+          "required": true,
+          "description": "One or multiple comma-separated stock symbols (tickers) to retrieve, e.g. AAPL or AAPL,MSFT"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: exchange, latest, sort, specificDate, dateFrom, dateTo)"
+        }
+      ],
+      "group": "End-of-Day Data",
+      "description": "Get many EoD data"
     },
     {
-      "id": "exchange_default",
-      "label": "List Exchange",
+      "id": "exchange_get",
+      "label": "Get Exchange",
       "method": "GET",
-      "path": "/exchange",
-      "fields": []
+      "path": "/exchanges/{exchange}",
+      "fields": [
+        {
+          "id": "exchange",
+          "label": "Exchange",
+          "type": "text",
+          "required": true,
+          "description": "Stock exchange to retrieve, specified by Market Identifier Code, e.g. XNAS",
+          "in": "path"
+        }
+      ],
+      "group": "Exchange",
+      "description": "Get an exchange"
     },
     {
-      "id": "ticker_default",
-      "label": "List Ticker",
+      "id": "ticker_get",
+      "label": "Get Ticker",
       "method": "GET",
-      "path": "/ticker",
-      "fields": []
+      "path": "/tickers/{symbol}",
+      "fields": [
+        {
+          "id": "symbol",
+          "label": "Ticker",
+          "type": "text",
+          "required": true,
+          "description": "Stock symbol (ticker) to retrieve, e.g. AAPL",
+          "in": "path"
+        }
+      ],
+      "group": "Ticker",
+      "description": "Get a ticker"
     }
   ]
 }

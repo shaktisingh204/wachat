@@ -4,188 +4,778 @@
   "description": "Consume Sentry.io API",
   "category": "analytics",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
     "credentialType": "oauth2"
   },
-  "baseUrl": "",
+  "baseUrl": "https://sentry.io",
   "endpoints": [
     {
-      "id": "event_default",
-      "label": "List Event",
+      "id": "event_get",
+      "label": "Get Event",
       "method": "GET",
-      "path": "/event",
+      "path": "/api/0/projects/{organizationSlug}/{projectSlug}/events/{eventId}/",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
+          "id": "organizationSlug",
+          "label": "Organization Slug Name or ID",
           "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token (Cloud)"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2 (Cloud)"
-            },
-            {
-              "value": "accessTokenServer",
-              "label": "Access Token (Self Hosted)"
-            }
-          ]
+          "required": true,
+          "description": "The slug of the organization the events belong to. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "projectSlug",
+          "label": "Project Slug Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The slug of the project the events belong to. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "eventId",
+          "label": "Event ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the event to retrieve (either the numeric primary-key or the hexadecimal ID as reported by the raven client)",
+          "in": "path"
         }
-      ]
+      ],
+      "group": "Event",
+      "description": "Get event by ID"
     },
     {
-      "id": "issue_default",
-      "label": "List Issue",
+      "id": "event_get_all",
+      "label": "Get Many Event",
       "method": "GET",
-      "path": "/issue",
+      "path": "/api/0/projects/{organizationSlug}/{projectSlug}/events/",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
+          "id": "organizationSlug",
+          "label": "Organization Slug Name or ID",
           "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token (Cloud)"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2 (Cloud)"
-            },
-            {
-              "value": "accessTokenServer",
-              "label": "Access Token (Self Hosted)"
-            }
-          ]
+          "required": true,
+          "description": "The slug of the organization the events belong to. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "projectSlug",
+          "label": "Project Slug Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The slug of the project the events belong to. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "full",
+          "label": "Full",
+          "type": "toggle",
+          "description": "Whether the event payload will include the full event body, including the stack trace",
+          "defaultValue": true
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
         }
-      ]
+      ],
+      "group": "Event",
+      "description": "Get many events"
     },
     {
-      "id": "organization_default",
-      "label": "List Organization",
-      "method": "GET",
-      "path": "/organization",
+      "id": "issue_delete",
+      "label": "Delete Issue",
+      "method": "DELETE",
+      "path": "/api/0/issues/{issueId}/",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token (Cloud)"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2 (Cloud)"
-            },
-            {
-              "value": "accessTokenServer",
-              "label": "Access Token (Self Hosted)"
-            }
-          ]
+          "id": "issueId",
+          "label": "Issue ID",
+          "type": "text",
+          "required": true,
+          "placeholder": "1234",
+          "description": "ID of issue to get",
+          "in": "path"
         }
-      ]
+      ],
+      "group": "Issue",
+      "description": "Delete an issue"
     },
     {
-      "id": "project_default",
-      "label": "List Project",
+      "id": "issue_get",
+      "label": "Get Issue",
       "method": "GET",
-      "path": "/project",
+      "path": "/api/0/issues/{issueId}/",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token (Cloud)"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2 (Cloud)"
-            },
-            {
-              "value": "accessTokenServer",
-              "label": "Access Token (Self Hosted)"
-            }
-          ]
+          "id": "issueId",
+          "label": "Issue ID",
+          "type": "text",
+          "required": true,
+          "placeholder": "1234",
+          "description": "ID of issue to get",
+          "in": "path"
         }
-      ]
+      ],
+      "group": "Issue",
+      "description": "Get issue by ID"
     },
     {
-      "id": "release_default",
-      "label": "List Release",
+      "id": "issue_get_all",
+      "label": "Get Many Issue",
       "method": "GET",
-      "path": "/release",
+      "path": "/api/0/projects/{organizationSlug}/{projectSlug}/issues/",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
+          "id": "organizationSlug",
+          "label": "Organization Slug Name or ID",
           "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token (Cloud)"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2 (Cloud)"
-            },
-            {
-              "value": "accessTokenServer",
-              "label": "Access Token (Self Hosted)"
-            }
-          ]
+          "required": true,
+          "description": "The slug of the organization the issues belong to. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "projectSlug",
+          "label": "Project Slug Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The slug of the project the issues belong to. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: query, statsPeriod, shortIdLookUp)"
         }
-      ]
+      ],
+      "group": "Issue",
+      "description": "Get many issues"
     },
     {
-      "id": "team_default",
-      "label": "List Team",
-      "method": "GET",
-      "path": "/team",
+      "id": "issue_update",
+      "label": "Update Issue",
+      "method": "PUT",
+      "path": "/api/0/issues/{issueId}/",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token (Cloud)"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2 (Cloud)"
-            },
-            {
-              "value": "accessTokenServer",
-              "label": "Access Token (Self Hosted)"
-            }
-          ]
+          "id": "issueId",
+          "label": "Issue ID",
+          "type": "text",
+          "required": true,
+          "placeholder": "1234",
+          "description": "ID of issue to get",
+          "in": "path"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: assignedTo, hasSeen, isBookmarked, isPublic, isSubscribed, status)"
         }
-      ]
+      ],
+      "group": "Issue",
+      "description": "Update an issue"
+    },
+    {
+      "id": "organization_create",
+      "label": "Create Organization",
+      "method": "POST",
+      "path": "/api/0/organizations/",
+      "fields": [
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "The slug of the organization the team should be created for"
+        },
+        {
+          "id": "agreeTerms",
+          "label": "Agree to Terms",
+          "type": "toggle",
+          "description": "Whether you agree to the applicable terms of service and privacy policy of Sentry.io",
+          "defaultValue": false
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: slug)"
+        }
+      ],
+      "group": "Organization",
+      "description": "Create an organization"
+    },
+    {
+      "id": "organization_get",
+      "label": "Get Organization",
+      "method": "GET",
+      "path": "/api/0/organizations/{organizationSlug}/",
+      "fields": [
+        {
+          "id": "organizationSlug",
+          "label": "Organization Slug Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The slug of the organization the team should be created for. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        }
+      ],
+      "group": "Organization",
+      "description": "Get organization by slug"
+    },
+    {
+      "id": "organization_get_all",
+      "label": "Get Many Organization",
+      "method": "GET",
+      "path": "/api/0/organizations/",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: member, owner)"
+        }
+      ],
+      "group": "Organization",
+      "description": "Get many organizations"
+    },
+    {
+      "id": "organization_update",
+      "label": "Update Organization",
+      "method": "PUT",
+      "path": "/api/0/organizations/{organizationSlug}/",
+      "fields": [
+        {
+          "id": "organization_slug",
+          "label": "Slug Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The slug of the organization to update. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: name, slug)"
+        }
+      ],
+      "group": "Organization",
+      "description": "Update an organization"
+    },
+    {
+      "id": "project_create",
+      "label": "Create Project",
+      "method": "POST",
+      "path": "/api/0/teams/{organizationSlug}/{teamSlug}/projects/",
+      "fields": [
+        {
+          "id": "organizationSlug",
+          "label": "Organization Slug Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The slug of the organization the events belong to. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "teamSlug",
+          "label": "Team Slug Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The slug of the team to create a new project for. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "The name for the new project"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: slug)"
+        }
+      ],
+      "group": "Project",
+      "description": "Create a new project"
+    },
+    {
+      "id": "project_delete",
+      "label": "Delete Project",
+      "method": "DELETE",
+      "path": "/api/0/projects/{organizationSlug}/{projectSlug}/",
+      "fields": [
+        {
+          "id": "organizationSlug",
+          "label": "Organization Slug Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The slug of the organization the project belong to. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "projectSlug",
+          "label": "Project Slug Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The slug of the project to delete. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        }
+      ],
+      "group": "Project",
+      "description": "Delete a project"
+    },
+    {
+      "id": "project_get",
+      "label": "Get Project",
+      "method": "GET",
+      "path": "/api/0/projects/{organizationSlug}/{projectSlug}/",
+      "fields": [
+        {
+          "id": "organizationSlug",
+          "label": "Organization Slug Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The slug of the organization the events belong to. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "projectSlug",
+          "label": "Project Slug Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The slug of the project to retrieve. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        }
+      ],
+      "group": "Project",
+      "description": "Get project by ID"
+    },
+    {
+      "id": "project_get_all",
+      "label": "Get Many Project",
+      "method": "GET",
+      "path": "/api/0/projects/",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        }
+      ],
+      "group": "Project",
+      "description": "Get many projects"
+    },
+    {
+      "id": "project_update",
+      "label": "Update Project",
+      "method": "PUT",
+      "path": "/api/0/projects/{organizationSlug}/{projectSlug}/",
+      "fields": [
+        {
+          "id": "organizationSlug",
+          "label": "Organization Slug Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The slug of the organization the project belong to. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "projectSlug",
+          "label": "Project Slug Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The slug of the project to update. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: isBookmarked, digestsMaxDelay, digestsMinDelay, name, slug, team, platform)"
+        }
+      ],
+      "group": "Project",
+      "description": "Update a project"
+    },
+    {
+      "id": "release_create",
+      "label": "Create Release",
+      "method": "POST",
+      "path": "/api/0/organizations/{organizationSlug}/releases/",
+      "fields": [
+        {
+          "id": "organizationSlug",
+          "label": "Organization Slug Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The slug of the organization the release belongs to. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "version",
+          "label": "Version",
+          "type": "text",
+          "required": true,
+          "description": "A version identifier for this release. Can be a version number, a commit hash etc."
+        },
+        {
+          "id": "url",
+          "label": "URL",
+          "type": "text",
+          "required": true,
+          "description": "A URL that points to the release. This can be the path to an online interface to the sourcecode for instance."
+        },
+        {
+          "id": "projects",
+          "label": "Project Names or IDs",
+          "type": "select",
+          "required": true,
+          "description": "A list of project slugs that are involved in this release. Choose from the list, or specify IDs using an expression. (multiple values: comma-separated)"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: dateReleased, commits, refs)"
+        }
+      ],
+      "group": "Release",
+      "description": "Create a release"
+    },
+    {
+      "id": "release_delete",
+      "label": "Delete Release",
+      "method": "DELETE",
+      "path": "/api/0/organizations/{organizationSlug}/releases/{version}/",
+      "fields": [
+        {
+          "id": "organizationSlug",
+          "label": "Organization Slug Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The slug of the organization the release belongs to. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "version",
+          "label": "Version",
+          "type": "text",
+          "required": true,
+          "description": "The version identifier of the release",
+          "in": "path"
+        }
+      ],
+      "group": "Release",
+      "description": "Delete a release"
+    },
+    {
+      "id": "release_get",
+      "label": "Get Release",
+      "method": "GET",
+      "path": "/api/0/organizations/{organizationSlug}/releases/{version}/",
+      "fields": [
+        {
+          "id": "organizationSlug",
+          "label": "Organization Slug Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The slug of the organization the release belongs to. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "version",
+          "label": "Version",
+          "type": "text",
+          "required": true,
+          "description": "The version identifier of the release",
+          "in": "path"
+        }
+      ],
+      "group": "Release",
+      "description": "Get release by version identifier"
+    },
+    {
+      "id": "release_get_all",
+      "label": "Get Many Release",
+      "method": "GET",
+      "path": "/api/0/organizations/{organizationSlug}/releases/",
+      "fields": [
+        {
+          "id": "organizationSlug",
+          "label": "Organization Slug Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The slug of the organization the releases belong to. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: query)"
+        }
+      ],
+      "group": "Release",
+      "description": "Get many releases"
+    },
+    {
+      "id": "release_update",
+      "label": "Update Release",
+      "method": "PUT",
+      "path": "/api/0/organizations/{organizationSlug}/releases/{version}/",
+      "fields": [
+        {
+          "id": "organizationSlug",
+          "label": "Organization Slug Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The slug of the organization the release belongs to. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "version",
+          "label": "Version",
+          "type": "text",
+          "required": true,
+          "description": "A version identifier for this release. Can be a version number, a commit hash etc.",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: commits, dateReleased, ref, refs, url)"
+        }
+      ],
+      "group": "Release",
+      "description": "Update a release"
+    },
+    {
+      "id": "team_create",
+      "label": "Create Team",
+      "method": "POST",
+      "path": "/api/0/organizations/{organizationSlug}/teams/",
+      "fields": [
+        {
+          "id": "organizationSlug",
+          "label": "Organization Slug Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The slug of the organization the team belongs to. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "The name of the team"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: slug)"
+        }
+      ],
+      "group": "Team",
+      "description": "Create a new team"
+    },
+    {
+      "id": "team_delete",
+      "label": "Delete Team",
+      "method": "DELETE",
+      "path": "/api/0/teams/{organizationSlug}/{teamSlug}/",
+      "fields": [
+        {
+          "id": "organizationSlug",
+          "label": "Organization Slug Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The slug of the organization the team belongs to. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "teamSlug",
+          "label": "Team Slug Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The slug of the team to delete. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        }
+      ],
+      "group": "Team",
+      "description": "Delete a team"
+    },
+    {
+      "id": "team_get",
+      "label": "Get Team",
+      "method": "GET",
+      "path": "/api/0/teams/{organizationSlug}/{teamSlug}/",
+      "fields": [
+        {
+          "id": "organizationSlug",
+          "label": "Organization Slug Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The slug of the organization the team belongs to. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "teamSlug",
+          "label": "Team Slug Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The slug of the team to get. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        }
+      ],
+      "group": "Team",
+      "description": "Get team by slug"
+    },
+    {
+      "id": "team_get_all",
+      "label": "Get Many Team",
+      "method": "GET",
+      "path": "/api/0/organizations/{organizationSlug}/teams/",
+      "fields": [
+        {
+          "id": "organizationSlug",
+          "label": "Organization Slug Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The slug of the organization for which the teams should be listed. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        }
+      ],
+      "group": "Team",
+      "description": "Get many teams"
+    },
+    {
+      "id": "team_update",
+      "label": "Update Team",
+      "method": "PUT",
+      "path": "/api/0/teams/{organizationSlug}/{teamSlug}/",
+      "fields": [
+        {
+          "id": "organizationSlug",
+          "label": "Organization Slug Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The slug of the organization the team belongs to. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "teamSlug",
+          "label": "Team Slug Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The slug of the team to update. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: name, slug)"
+        }
+      ],
+      "group": "Team",
+      "description": "Update a team"
     }
   ]
 }

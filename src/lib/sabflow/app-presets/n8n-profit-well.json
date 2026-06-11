@@ -4,28 +4,72 @@
   "description": "Consume ProfitWell API",
   "category": "finance",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.profitwell.com/v2",
   "endpoints": [
     {
-      "id": "company_default",
-      "label": "List Company",
+      "id": "company_get_setting",
+      "label": "Get Settings Company",
       "method": "GET",
-      "path": "/company",
-      "fields": []
+      "path": "/company/settings/",
+      "fields": [],
+      "group": "Company",
+      "description": "Get your company's ProfitWell account settings"
     },
     {
-      "id": "metric_default",
-      "label": "List Metric",
+      "id": "metric_get",
+      "label": "Get Metric",
       "method": "GET",
-      "path": "/metric",
-      "fields": []
+      "path": "/metrics/{type}",
+      "fields": [
+        {
+          "id": "type",
+          "label": "Type",
+          "type": "select",
+          "required": true,
+          "options": [
+            {
+              "value": "daily",
+              "label": "Daily"
+            },
+            {
+              "value": "monthly",
+              "label": "Monthly"
+            }
+          ],
+          "in": "path"
+        },
+        {
+          "id": "month",
+          "label": "Month",
+          "type": "text",
+          "required": true,
+          "placeholder": "YYYY-MM",
+          "description": "Can only be the current or previous month. Format should be YYYY-MM."
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: plan_id, dailyMetrics, monthlyMetrics)"
+        }
+      ],
+      "group": "Metric",
+      "description": "Retrieve financial metric broken down by day for either the current month or the last"
     }
   ]
 }

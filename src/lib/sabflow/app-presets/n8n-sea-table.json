@@ -1,15 +1,268 @@
 {
   "id": "n8n-sea-table",
   "name": "SeaTable",
-  "description": "Read, update, write and delete data from SeaTable",
+  "description": "Consume the SeaTable API",
   "category": "data",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 10,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
-    "type": "none"
+    "type": "bearer",
+    "credentialType": "sea_table"
   },
-  "baseUrl": "",
-  "endpoints": []
+  "baseUrl": "https://cloud.seatable.io",
+  "endpoints": [
+    {
+      "id": "row_create",
+      "label": "Create Row",
+      "method": "POST",
+      "path": "/api-gateway/api/v2/dtables/{{dtable_uuid}}/add-archived-rows/",
+      "fields": [
+        {
+          "id": "tableName",
+          "label": "Table Name",
+          "type": "select",
+          "required": true,
+          "placeholder": "Select a table",
+          "description": "Choose from the list, or specify an ID using an expression"
+        }
+      ],
+      "group": "Row",
+      "description": "[unverified path] Create a new row"
+    },
+    {
+      "id": "row_remove",
+      "label": "Delete Row",
+      "method": "DELETE",
+      "path": "/api-gateway/api/v2/dtables/{{dtable_uuid}}/rows/",
+      "fields": [
+        {
+          "id": "tableName",
+          "label": "Table Name",
+          "type": "select",
+          "required": true,
+          "placeholder": "Select a table",
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "rowId",
+          "label": "Row ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        }
+      ],
+      "group": "Row",
+      "description": "[unverified path] Delete a row"
+    },
+    {
+      "id": "row_get",
+      "label": "Get Row",
+      "method": "POST",
+      "path": "/api-gateway/api/v2/dtables/{{dtable_uuid}}/sql/",
+      "fields": [
+        {
+          "id": "tableName",
+          "label": "Table Name",
+          "type": "select",
+          "required": true,
+          "placeholder": "Select a table",
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "rowId",
+          "label": "Row ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        }
+      ],
+      "group": "Row",
+      "description": "[unverified path] Get the content of a row"
+    },
+    {
+      "id": "row_list",
+      "label": "Get Many Row",
+      "method": "GET",
+      "path": "/api-gateway/api/v2/dtables/{{dtable_uuid}}/metadata/",
+      "fields": [
+        {
+          "id": "tableName",
+          "label": "Table Name",
+          "type": "select",
+          "required": true,
+          "placeholder": "Select a table",
+          "description": "Choose from the list, or specify an ID using an expression"
+        }
+      ],
+      "group": "Row",
+      "description": "[unverified path] Get many rows from a table or a table view"
+    },
+    {
+      "id": "row_lock",
+      "label": "Lock Row",
+      "method": "PUT",
+      "path": "/api-gateway/api/v2/dtables/{{dtable_uuid}}/lock-rows/",
+      "fields": [
+        {
+          "id": "tableName",
+          "label": "Table Name",
+          "type": "select",
+          "required": true,
+          "placeholder": "Select a table",
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "rowId",
+          "label": "Row ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        }
+      ],
+      "group": "Row",
+      "description": "[unverified path] Lock a row to prevent further changes"
+    },
+    {
+      "id": "row_search",
+      "label": "Search Row",
+      "method": "POST",
+      "path": "/api-gateway/api/v2/dtables/{{dtable_uuid}}/sql",
+      "fields": [
+        {
+          "id": "tableName",
+          "label": "Table Name",
+          "type": "select",
+          "required": true,
+          "placeholder": "Select a table",
+          "description": "Choose from the list, or specify an ID using an expression"
+        }
+      ],
+      "group": "Row",
+      "description": "[unverified path] Search one or multiple rows"
+    },
+    {
+      "id": "row_unlock",
+      "label": "Unlock Row",
+      "method": "PUT",
+      "path": "/api-gateway/api/v2/dtables/{{dtable_uuid}}/unlock-rows/",
+      "fields": [
+        {
+          "id": "tableName",
+          "label": "Table Name",
+          "type": "select",
+          "required": true,
+          "placeholder": "Select a table",
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "rowId",
+          "label": "Row ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        }
+      ],
+      "group": "Row",
+      "description": "[unverified path] Remove the lock from a row"
+    },
+    {
+      "id": "row_update",
+      "label": "Update Row",
+      "method": "PUT",
+      "path": "/api-gateway/api/v2/dtables/{{dtable_uuid}}/rows/",
+      "fields": [
+        {
+          "id": "tableName",
+          "label": "Table Name",
+          "type": "select",
+          "required": true,
+          "placeholder": "Select a table",
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "rowId",
+          "label": "Row ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        }
+      ],
+      "group": "Row",
+      "description": "[unverified path] Update the content of a row"
+    },
+    {
+      "id": "base_snapshot",
+      "label": "Snapshot Base",
+      "method": "POST",
+      "path": "/api-gateway/api/v2/dtables/{{dtable_uuid}}/snapshot/",
+      "fields": [],
+      "group": "Base",
+      "description": "[unverified path] Create a snapshot of the base"
+    },
+    {
+      "id": "base_metadata",
+      "label": "Metadata Base",
+      "method": "POST",
+      "path": "/api-gateway/api/v2/dtables/{{dtable_uuid}}/metadata/",
+      "fields": [],
+      "group": "Base",
+      "description": "[unverified path] Get the complete metadata of the base"
+    },
+    {
+      "id": "base_collaborator",
+      "label": "Collaborator Base",
+      "method": "POST",
+      "path": "/api-gateway/api/v2/dtables/{{dtable_uuid}}/related-users/",
+      "fields": [],
+      "group": "Base",
+      "description": "[unverified path] Get the username from the email or name of a collaborator"
+    },
+    {
+      "id": "link_add",
+      "label": "Add Link",
+      "method": "POST",
+      "path": "/api-gateway/api/v2/dtables/{{dtable_uuid}}/links/",
+      "fields": [],
+      "group": "Link",
+      "description": "[unverified path] Create a link between two rows in a link column"
+    },
+    {
+      "id": "link_list",
+      "label": "List Link",
+      "method": "POST",
+      "path": "/api-gateway/api/v2/dtables/{{dtable_uuid}}/query-links/",
+      "fields": [],
+      "group": "Link",
+      "description": "[unverified path] List all links of a specific row"
+    },
+    {
+      "id": "link_remove",
+      "label": "Remove Link",
+      "method": "DELETE",
+      "path": "/api-gateway/api/v2/dtables/{{dtable_uuid}}/links/",
+      "fields": [],
+      "group": "Link",
+      "description": "[unverified path] Remove a link between two rows from a link column"
+    },
+    {
+      "id": "asset_get_public_url",
+      "label": "Public URL Asset",
+      "method": "GET",
+      "path": "/api/v2.1/dtable/app-download-link/?path={assetPath}",
+      "fields": [],
+      "group": "Asset",
+      "description": "Get the public URL from asset path"
+    },
+    {
+      "id": "asset_upload",
+      "label": "Upload Asset",
+      "method": "POST",
+      "path": "/seafhttp/upload-api/${uploadLink.upload_link.split('seafhttp/upload-api/",
+      "fields": [],
+      "group": "Asset",
+      "description": "Add a file/image to an existing row"
+    }
+  ]
 }

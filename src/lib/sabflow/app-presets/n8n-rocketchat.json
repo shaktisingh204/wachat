@@ -4,26 +4,33 @@
   "description": "Consume RocketChat API",
   "category": "communication",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 4,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://{host}/api/v1",
   "endpoints": [
     {
       "id": "chat_post_message",
       "label": "Post Message Chat",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/postMessage",
       "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your RocketChat server, e.g. app.example.com (no https:// prefix)"
+        },
         {
           "id": "channel",
           "label": "Channel",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "The channel name with the prefix in front of it"
         },
@@ -31,37 +38,36 @@
           "id": "text",
           "label": "Text",
           "type": "text",
-          "in": "query",
           "description": "The text of the message to send, is optional because of attachments"
         },
         {
           "id": "jsonParameters",
           "label": "JSON Parameters",
           "type": "toggle",
-          "in": "query",
           "defaultValue": false
         },
         {
           "id": "options",
           "label": "Options",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add option"
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: alias, avatar, emoji)"
         },
         {
           "id": "attachments",
           "label": "Attachments",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Attachment Item"
+          "placeholder": "Add Attachment Item",
+          "description": "(JSON object; supported keys: color, text, ts, thumbUrl, messageLink, collapsed, authorName, authorLink, authorIcon, title, titleLink, titleLinkDownload, imageUrl, audioUrl, videoUrl, fields)"
         },
         {
           "id": "attachmentsJson",
           "label": "Attachments",
-          "type": "json",
-          "in": "query"
+          "type": "json"
         }
-      ]
+      ],
+      "group": "Chat",
+      "description": "Post a message to a channel or a direct message"
     }
   ]
 }

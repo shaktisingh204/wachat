@@ -4,8 +4,8 @@
   "description": "Consume Strava API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -16,14 +16,525 @@
       "credentialType": "oauth2"
     }
   },
-  "baseUrl": "",
+  "baseUrl": "https://www.strava.com/api/v3",
   "endpoints": [
     {
-      "id": "activity_default",
-      "label": "List Activity",
+      "id": "activity_create",
+      "label": "Create Activity",
+      "method": "POST",
+      "path": "/activities",
+      "fields": [
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "The name of the activity"
+        },
+        {
+          "id": "type",
+          "label": "Type",
+          "type": "text",
+          "required": true,
+          "description": "Type of activity. For example - Run, Ride etc."
+        },
+        {
+          "id": "sport_type",
+          "label": "Sport Type",
+          "type": "select",
+          "description": "Type of sport",
+          "defaultValue": "Run",
+          "options": [
+            {
+              "value": "AlpineSki",
+              "label": "Alpine Ski"
+            },
+            {
+              "value": "BackcountrySki",
+              "label": "Backcountry Ski"
+            },
+            {
+              "value": "Badminton",
+              "label": "Badminton"
+            },
+            {
+              "value": "Canoeing",
+              "label": "Canoeing"
+            },
+            {
+              "value": "Crossfit",
+              "label": "Crossfit"
+            },
+            {
+              "value": "EBikeRide",
+              "label": "EBike Ride"
+            },
+            {
+              "value": "Elliptical",
+              "label": "Elliptical"
+            },
+            {
+              "value": "EMountainBikeRide",
+              "label": "EMountain Bike Ride"
+            },
+            {
+              "value": "Golf",
+              "label": "Golf"
+            },
+            {
+              "value": "GravelRide",
+              "label": "Gravel Ride"
+            },
+            {
+              "value": "Handcycle",
+              "label": "Handcycle"
+            },
+            {
+              "value": "HighIntensityIntervalTraining",
+              "label": "HIIT"
+            },
+            {
+              "value": "Hike",
+              "label": "Hike"
+            },
+            {
+              "value": "IceSkate",
+              "label": "Ice Skate"
+            },
+            {
+              "value": "InlineSkate",
+              "label": "Inline Skate"
+            },
+            {
+              "value": "Kayaking",
+              "label": "Kayaking"
+            },
+            {
+              "value": "Kitesurf",
+              "label": "Kitesurf"
+            },
+            {
+              "value": "MountainBikeRide",
+              "label": "Mountain Bike Ride"
+            },
+            {
+              "value": "NordicSki",
+              "label": "Nordic Ski"
+            },
+            {
+              "value": "Pickleball",
+              "label": "Pickleball"
+            },
+            {
+              "value": "Pilates",
+              "label": "Pilates"
+            },
+            {
+              "value": "Racquetball",
+              "label": "Racquetball"
+            },
+            {
+              "value": "Ride",
+              "label": "Ride"
+            },
+            {
+              "value": "RockClimbing",
+              "label": "Rock Climbing"
+            },
+            {
+              "value": "RollerSki",
+              "label": "Roller Ski"
+            },
+            {
+              "value": "Rowing",
+              "label": "Rowing"
+            },
+            {
+              "value": "Run",
+              "label": "Run"
+            },
+            {
+              "value": "Sail",
+              "label": "Sail"
+            },
+            {
+              "value": "Skateboard",
+              "label": "Skateboard"
+            },
+            {
+              "value": "Snowboard",
+              "label": "Snowboard"
+            },
+            {
+              "value": "Snowshoe",
+              "label": "Snowshoe"
+            },
+            {
+              "value": "Soccer",
+              "label": "Soccer"
+            },
+            {
+              "value": "Squash",
+              "label": "Squash"
+            },
+            {
+              "value": "StairStepper",
+              "label": "Stair Stepper"
+            },
+            {
+              "value": "StandUpPaddling",
+              "label": "Stand Up Paddling"
+            },
+            {
+              "value": "Surfing",
+              "label": "Surfing"
+            },
+            {
+              "value": "Swim",
+              "label": "Swim"
+            },
+            {
+              "value": "TableTennis",
+              "label": "Table Tennis"
+            },
+            {
+              "value": "Tennis",
+              "label": "Tennis"
+            },
+            {
+              "value": "TrailRun",
+              "label": "Trail Run"
+            },
+            {
+              "value": "Velomobile",
+              "label": "Velomobile"
+            },
+            {
+              "value": "VirtualRide",
+              "label": "Virtual Ride"
+            },
+            {
+              "value": "VirtualRow",
+              "label": "Virtual Row"
+            },
+            {
+              "value": "VirtualRun",
+              "label": "Virtual Run"
+            },
+            {
+              "value": "Walk",
+              "label": "Walk"
+            },
+            {
+              "value": "WeightTraining",
+              "label": "Weight Training"
+            },
+            {
+              "value": "Wheelchair",
+              "label": "Wheelchair"
+            },
+            {
+              "value": "Windsurf",
+              "label": "Windsurf"
+            },
+            {
+              "value": "Workout",
+              "label": "Workout"
+            },
+            {
+              "value": "Yoga",
+              "label": "Yoga"
+            }
+          ]
+        },
+        {
+          "id": "startDate",
+          "label": "Start Date",
+          "type": "text",
+          "required": true,
+          "placeholder": "2024-01-01T00:00:00Z",
+          "description": "ISO 8601 formatted date time (ISO 8601 date-time)"
+        },
+        {
+          "id": "elapsedTime",
+          "label": "Elapsed Time (Seconds)",
+          "type": "number",
+          "required": true,
+          "description": "In seconds",
+          "defaultValue": 0
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: commute, description, distance, trainer)"
+        }
+      ],
+      "group": "Activity",
+      "description": "Create a new activity"
+    },
+    {
+      "id": "activity_get",
+      "label": "Get Activity",
+      "method": "GET",
+      "path": "/activities/{activityId}",
+      "fields": [
+        {
+          "id": "activityId",
+          "label": "Activity ID",
+          "type": "text",
+          "required": true,
+          "description": "ID or email of activity",
+          "in": "path"
+        }
+      ],
+      "group": "Activity",
+      "description": "Get an activity"
+    },
+    {
+      "id": "activity_get_comments",
+      "label": "Get Comments Activity",
       "method": "GET",
       "path": "/activity",
-      "fields": []
+      "fields": [
+        {
+          "id": "activityId",
+          "label": "Activity ID",
+          "type": "text",
+          "required": true,
+          "description": "ID or email of activity"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Activity",
+      "description": "[unverified path] Get all activity comments"
+    },
+    {
+      "id": "activity_get_kudos",
+      "label": "Get Kudos Activity",
+      "method": "GET",
+      "path": "/activity",
+      "fields": [
+        {
+          "id": "activityId",
+          "label": "Activity ID",
+          "type": "text",
+          "required": true,
+          "description": "ID or email of activity"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Activity",
+      "description": "[unverified path] Get all activity kudos"
+    },
+    {
+      "id": "activity_get_laps",
+      "label": "Get Laps Activity",
+      "method": "GET",
+      "path": "/activity",
+      "fields": [
+        {
+          "id": "activityId",
+          "label": "Activity ID",
+          "type": "text",
+          "required": true,
+          "description": "ID or email of activity"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Activity",
+      "description": "[unverified path] Get all activity laps"
+    },
+    {
+      "id": "activity_get_all",
+      "label": "Get Many Activity",
+      "method": "GET",
+      "path": "/activities",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Activity",
+      "description": "Get many activities"
+    },
+    {
+      "id": "activity_get_streams",
+      "label": "Get Streams Activity",
+      "method": "GET",
+      "path": "/activities/{activityId}/streams",
+      "fields": [
+        {
+          "id": "activityId",
+          "label": "Activity ID",
+          "type": "text",
+          "required": true,
+          "description": "ID or email of activity",
+          "in": "path"
+        },
+        {
+          "id": "keys",
+          "label": "Keys",
+          "type": "select",
+          "required": true,
+          "description": "Desired stream types to return (multiple values: comma-separated)",
+          "options": [
+            {
+              "value": "altitude",
+              "label": "Altitude"
+            },
+            {
+              "value": "cadence",
+              "label": "Cadence"
+            },
+            {
+              "value": "distance",
+              "label": "Distance"
+            },
+            {
+              "value": "grade_smooth",
+              "label": "Gradient"
+            },
+            {
+              "value": "heartrate",
+              "label": "Heartrate"
+            },
+            {
+              "value": "latlng",
+              "label": "Latitude / Longitude"
+            },
+            {
+              "value": "moving",
+              "label": "Moving"
+            },
+            {
+              "value": "temp",
+              "label": "Temperature"
+            },
+            {
+              "value": "time",
+              "label": "Time"
+            },
+            {
+              "value": "velocity_smooth",
+              "label": "Velocity"
+            },
+            {
+              "value": "watts",
+              "label": "Watts"
+            }
+          ]
+        }
+      ],
+      "group": "Activity",
+      "description": "Get activity streams"
+    },
+    {
+      "id": "activity_get_zones",
+      "label": "Get Zones Activity",
+      "method": "GET",
+      "path": "/activity",
+      "fields": [
+        {
+          "id": "activityId",
+          "label": "Activity ID",
+          "type": "text",
+          "required": true,
+          "description": "ID or email of activity"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Activity",
+      "description": "[unverified path] Get all activity zones"
+    },
+    {
+      "id": "activity_update",
+      "label": "Update Activity",
+      "method": "PUT",
+      "path": "/activities/{activityId}",
+      "fields": [
+        {
+          "id": "activityId",
+          "label": "Activity ID",
+          "type": "text",
+          "required": true,
+          "description": "ID or email of activity",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: commute, description, gear_id, hide_from_home, name, type, sport_type, trainer)"
+        }
+      ],
+      "group": "Activity",
+      "description": "Update an activity"
     }
   ]
 }

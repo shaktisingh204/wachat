@@ -4,28 +4,243 @@
   "description": "Consume Sendy API",
   "category": "marketing",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 4,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://{host}",
   "endpoints": [
     {
-      "id": "campaign_default",
-      "label": "List Campaign",
-      "method": "GET",
-      "path": "/campaign",
-      "fields": []
+      "id": "campaign_create",
+      "label": "Create Campaign",
+      "method": "POST",
+      "path": "/api/campaigns/create.php",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Sendy server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "fromName",
+          "label": "From Name",
+          "type": "text",
+          "description": "The 'From name' of your campaign"
+        },
+        {
+          "id": "fromEmail",
+          "label": "From Email",
+          "type": "text",
+          "description": "The 'From email' of your campaign"
+        },
+        {
+          "id": "replyTo",
+          "label": "Reply To",
+          "type": "text",
+          "description": "The 'Reply to' of your campaign"
+        },
+        {
+          "id": "title",
+          "label": "Title",
+          "type": "text",
+          "description": "The 'Title' of your campaign"
+        },
+        {
+          "id": "subject",
+          "label": "Subject",
+          "type": "text",
+          "description": "The 'Subject' of your campaign"
+        },
+        {
+          "id": "htmlText",
+          "label": "HTML Text",
+          "type": "text",
+          "description": "The 'HTML version' of your campaign"
+        },
+        {
+          "id": "sendCampaign",
+          "label": "Send Campaign",
+          "type": "toggle",
+          "description": "Whether to send the campaign as well and not just create a draft. Default is false.",
+          "defaultValue": false
+        },
+        {
+          "id": "brandId",
+          "label": "Brand ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: excludeListIds, excludeSegmentIds, listIds, plainText, queryString, segmentIds, trackClicks, trackOpens)"
+        }
+      ],
+      "group": "Campaign",
+      "description": "Create a campaign"
     },
     {
-      "id": "subscriber_default",
-      "label": "List Subscriber",
-      "method": "GET",
-      "path": "/subscriber",
-      "fields": []
+      "id": "subscriber_add",
+      "label": "Add Subscriber",
+      "method": "POST",
+      "path": "/subscribe",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Sendy server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "placeholder": "name@email.com",
+          "description": "Email address of the subscriber"
+        },
+        {
+          "id": "listId",
+          "label": "List ID",
+          "type": "text",
+          "description": "The list ID you want to subscribe a user to. This encrypted & hashed ID can be found under View all lists section named ID."
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: country, gdpr, hp, ipaddress, name, referrer, silent)"
+        }
+      ],
+      "group": "Subscriber",
+      "description": "Add a subscriber to a list"
+    },
+    {
+      "id": "subscriber_count",
+      "label": "Count Subscriber",
+      "method": "POST",
+      "path": "/api/subscribers/active-subscriber-count.php",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Sendy server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "listId",
+          "label": "List ID",
+          "type": "text",
+          "description": "The list ID you want to subscribe a user to. This encrypted & hashed ID can be found under View all lists section named ID."
+        }
+      ],
+      "group": "Subscriber",
+      "description": "Count subscribers"
+    },
+    {
+      "id": "subscriber_delete",
+      "label": "Delete Subscriber",
+      "method": "POST",
+      "path": "/api/subscribers/delete.php",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Sendy server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "placeholder": "name@email.com",
+          "description": "Email address of the subscriber"
+        },
+        {
+          "id": "listId",
+          "label": "List ID",
+          "type": "text",
+          "description": "The list ID you want to subscribe a user to. This encrypted & hashed ID can be found under View all lists section named ID."
+        }
+      ],
+      "group": "Subscriber",
+      "description": "Delete a subscriber from a list"
+    },
+    {
+      "id": "subscriber_remove",
+      "label": "Remove Subscriber",
+      "method": "POST",
+      "path": "/unsubscribe",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Sendy server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "placeholder": "name@email.com",
+          "description": "Email address of the subscriber"
+        },
+        {
+          "id": "listId",
+          "label": "List ID",
+          "type": "text",
+          "description": "The list ID you want to subscribe a user to. This encrypted & hashed ID can be found under View all lists section named ID."
+        }
+      ],
+      "group": "Subscriber",
+      "description": "Unsubscribe user from a list"
+    },
+    {
+      "id": "subscriber_status",
+      "label": "Status Subscriber",
+      "method": "POST",
+      "path": "/api/subscribers/subscription-status.php",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Sendy server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "placeholder": "name@email.com",
+          "description": "Email address of the subscriber"
+        },
+        {
+          "id": "listId",
+          "label": "List ID",
+          "type": "text",
+          "description": "The list ID you want to subscribe a user to. This encrypted & hashed ID can be found under View all lists section named ID."
+        }
+      ],
+      "group": "Subscriber",
+      "description": "Get the status of subscriber"
     }
   ]
 }

@@ -4,8 +4,8 @@
   "description": "Retrieve data from GitLab API",
   "category": "dev",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -16,36 +16,18 @@
       "credentialType": "http_header_auth"
     }
   },
-  "baseUrl": "",
+  "baseUrl": "https://gitlab.com/api/v4",
   "endpoints": [
     {
       "id": "issue_create",
       "label": "Create Issue",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/{baseEndpoint}/issues",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "owner",
           "label": "Project Owner",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "n8n-io",
           "description": "User, group or namespace of the project"
@@ -54,7 +36,6 @@
           "id": "repository",
           "label": "Project Name",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "n8n",
           "description": "The name of the project"
@@ -63,66 +44,48 @@
           "id": "title",
           "label": "Title",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "The title of the issue"
         },
         {
           "id": "body",
           "label": "Body",
-          "type": "text",
-          "in": "query",
+          "type": "textarea",
           "description": "The body of the issue"
         },
         {
           "id": "due_date",
           "label": "Due Date",
           "type": "text",
-          "in": "query",
-          "description": "Due Date for issue"
+          "placeholder": "2024-01-01T00:00:00Z",
+          "description": "Due Date for issue (ISO 8601 date-time)"
         },
         {
           "id": "labels",
           "label": "Labels",
           "type": "json",
-          "in": "query"
+          "description": "(JSON object; supported keys: label)"
         },
         {
           "id": "assignee_ids",
           "label": "Assignees",
           "type": "json",
-          "in": "query"
+          "description": "(JSON object; supported keys: assignee)"
         }
-      ]
+      ],
+      "group": "Issue",
+      "description": "Create a new issue"
     },
     {
       "id": "issue_create_comment",
       "label": "Create Comment Issue",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/{baseEndpoint}/issues/{issueNumber}/notes",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "owner",
           "label": "Project Owner",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "n8n-io",
           "description": "User, group or namespace of the project"
@@ -131,7 +94,6 @@
           "id": "repository",
           "label": "Project Name",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "n8n",
           "description": "The name of the project"
@@ -140,48 +102,31 @@
           "id": "issueNumber",
           "label": "Issue Number",
           "type": "number",
-          "in": "query",
           "required": true,
           "description": "The number of the issue on which to create the comment on",
-          "defaultValue": 0
+          "defaultValue": 0,
+          "in": "path"
         },
         {
           "id": "body",
           "label": "Body",
-          "type": "text",
-          "in": "query",
+          "type": "textarea",
           "description": "The body of the comment"
         }
-      ]
+      ],
+      "group": "Issue",
+      "description": "Create a new comment on an issue"
     },
     {
       "id": "issue_edit",
       "label": "Edit Issue",
-      "method": "GET",
-      "path": "/",
+      "method": "PUT",
+      "path": "/{baseEndpoint}/issues/{issueNumber}",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "owner",
           "label": "Project Owner",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "n8n-io",
           "description": "User, group or namespace of the project"
@@ -190,7 +135,6 @@
           "id": "repository",
           "label": "Project Name",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "n8n",
           "description": "The name of the project"
@@ -199,47 +143,31 @@
           "id": "issueNumber",
           "label": "Issue Number",
           "type": "number",
-          "in": "query",
           "required": true,
           "description": "The number of the issue edit",
-          "defaultValue": 0
+          "defaultValue": 0,
+          "in": "path"
         },
         {
           "id": "editFields",
           "label": "Edit Fields",
           "type": "json",
-          "in": "query"
+          "description": "(JSON object; supported keys: title, description, state, labels, assignee_ids, due_date)"
         }
-      ]
+      ],
+      "group": "Issue",
+      "description": "Edit an issue"
     },
     {
       "id": "issue_get",
       "label": "Get Issue",
       "method": "GET",
-      "path": "/",
+      "path": "/{baseEndpoint}/issues/{issueNumber}",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "owner",
           "label": "Project Owner",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "n8n-io",
           "description": "User, group or namespace of the project"
@@ -248,7 +176,6 @@
           "id": "repository",
           "label": "Project Name",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "n8n",
           "description": "The name of the project"
@@ -257,41 +184,25 @@
           "id": "issueNumber",
           "label": "Issue Number",
           "type": "number",
-          "in": "query",
           "required": true,
           "description": "The number of the issue get data of",
-          "defaultValue": 0
+          "defaultValue": 0,
+          "in": "path"
         }
-      ]
+      ],
+      "group": "Issue",
+      "description": "Get the data of a single issue"
     },
     {
       "id": "issue_lock",
       "label": "Lock Issue",
-      "method": "GET",
-      "path": "/",
+      "method": "PUT",
+      "path": "/{baseEndpoint}/issues/{issueNumber}",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "owner",
           "label": "Project Owner",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "n8n-io",
           "description": "User, group or namespace of the project"
@@ -300,7 +211,6 @@
           "id": "repository",
           "label": "Project Name",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "n8n",
           "description": "The name of the project"
@@ -309,16 +219,15 @@
           "id": "issueNumber",
           "label": "Issue Number",
           "type": "number",
-          "in": "query",
           "required": true,
           "description": "The number of the issue to lock",
-          "defaultValue": 0
+          "defaultValue": 0,
+          "in": "path"
         },
         {
           "id": "lockReason",
           "label": "Lock Reason",
           "type": "select",
-          "in": "query",
           "description": "The reason to lock the issue",
           "defaultValue": "resolved",
           "options": [
@@ -340,36 +249,20 @@
             }
           ]
         }
-      ]
+      ],
+      "group": "Issue",
+      "description": "Lock an issue"
     },
     {
       "id": "repository_get",
       "label": "Get Repository",
       "method": "GET",
-      "path": "/",
+      "path": "/{baseEndpoint}",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "owner",
           "label": "Project Owner",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "n8n-io",
           "description": "User, group or namespace of the project"
@@ -378,41 +271,24 @@
           "id": "repository",
           "label": "Project Name",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "n8n",
           "description": "The name of the project"
         }
-      ]
+      ],
+      "group": "Repository",
+      "description": "Get the data of a single repository"
     },
     {
       "id": "repository_get_issues",
       "label": "Get Issues Repository",
       "method": "GET",
-      "path": "/",
+      "path": "/{baseEndpoint}/issues",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "owner",
           "label": "Project Owner",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "n8n-io",
           "description": "User, group or namespace of the project"
@@ -421,7 +297,6 @@
           "id": "repository",
           "label": "Project Name",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "n8n",
           "description": "The name of the project"
@@ -430,7 +305,6 @@
           "id": "returnAll",
           "label": "Return All",
           "type": "toggle",
-          "in": "query",
           "description": "Whether to return all results or only up to a given limit",
           "defaultValue": false
         },
@@ -438,7 +312,6 @@
           "id": "limit",
           "label": "Limit",
           "type": "number",
-          "in": "query",
           "description": "Max number of results to return",
           "defaultValue": 20
         },
@@ -446,81 +319,41 @@
           "id": "getRepositoryIssuesFilters",
           "label": "Filters",
           "type": "json",
-          "in": "query"
+          "description": "(JSON object; supported keys: assignee_username, author_username, search, labels, updated_after, state, order_by, sort)"
         }
-      ]
+      ],
+      "group": "Repository",
+      "description": "Returns issues of a repository"
     },
     {
       "id": "user_get_repositories",
       "label": "Get Repositories User",
       "method": "GET",
-      "path": "/",
+      "path": "/users/{owner}/projects",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "owner",
           "label": "Project Owner",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "n8n-io",
-          "description": "User, group or namespace of the project"
-        },
-        {
-          "id": "repository",
-          "label": "Project Name",
-          "type": "text",
-          "in": "query",
-          "required": true,
-          "placeholder": "n8n",
-          "description": "The name of the project"
+          "description": "User, group or namespace of the project",
+          "in": "path"
         }
-      ]
+      ],
+      "group": "User",
+      "description": "Returns the repositories of a user"
     },
     {
       "id": "release_create",
       "label": "Create Release",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/{baseEndpoint}/releases",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "owner",
           "label": "Project Owner",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "n8n-io",
           "description": "User, group or namespace of the project"
@@ -529,7 +362,6 @@
           "id": "repository",
           "label": "Project Name",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "n8n",
           "description": "The name of the project"
@@ -538,7 +370,6 @@
           "id": "releaseTag",
           "label": "Tag",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "The tag of the release"
         },
@@ -546,38 +377,22 @@
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query"
+          "description": "(JSON object; supported keys: name, description, ref)"
         }
-      ]
+      ],
+      "group": "Release",
+      "description": "Create a new release"
     },
     {
       "id": "release_delete",
       "label": "Delete Release",
-      "method": "GET",
-      "path": "/",
+      "method": "DELETE",
+      "path": "/projects/{id}/releases/{tagName}",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "owner",
           "label": "Project Owner",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "n8n-io",
           "description": "User, group or namespace of the project"
@@ -586,7 +401,6 @@
           "id": "repository",
           "label": "Project Name",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "n8n",
           "description": "The name of the project"
@@ -595,7 +409,6 @@
           "id": "projectId",
           "label": "Project ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "The ID or URL-encoded path of the project"
         },
@@ -603,40 +416,23 @@
           "id": "tag_name",
           "label": "Tag Name",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "The Git tag the release is associated with"
         }
-      ]
+      ],
+      "group": "Release",
+      "description": "Delete a release"
     },
     {
       "id": "release_get",
       "label": "Get Release",
       "method": "GET",
-      "path": "/",
+      "path": "/projects/{id}/releases/{tagName}",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "owner",
           "label": "Project Owner",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "n8n-io",
           "description": "User, group or namespace of the project"
@@ -645,7 +441,6 @@
           "id": "repository",
           "label": "Project Name",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "n8n",
           "description": "The name of the project"
@@ -654,7 +449,6 @@
           "id": "projectId",
           "label": "Project ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "The ID or URL-encoded path of the project"
         },
@@ -662,40 +456,23 @@
           "id": "tag_name",
           "label": "Tag Name",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "The Git tag the release is associated with"
         }
-      ]
+      ],
+      "group": "Release",
+      "description": "Get a release"
     },
     {
       "id": "release_get_all",
       "label": "Get Many Release",
       "method": "GET",
-      "path": "/",
+      "path": "/projects/{id}/releases",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "owner",
           "label": "Project Owner",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "n8n-io",
           "description": "User, group or namespace of the project"
@@ -704,7 +481,6 @@
           "id": "repository",
           "label": "Project Name",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "n8n",
           "description": "The name of the project"
@@ -713,7 +489,6 @@
           "id": "projectId",
           "label": "Project ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "The ID or URL-encoded path of the project"
         },
@@ -721,7 +496,6 @@
           "id": "returnAll",
           "label": "Return All",
           "type": "toggle",
-          "in": "query",
           "description": "Whether to return all results or only up to a given limit",
           "defaultValue": false
         },
@@ -729,7 +503,6 @@
           "id": "limit",
           "label": "Limit",
           "type": "number",
-          "in": "query",
           "description": "Max number of results to return",
           "defaultValue": 20
         },
@@ -737,38 +510,22 @@
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query"
+          "description": "(JSON object; supported keys: order_by, sort)"
         }
-      ]
+      ],
+      "group": "Release",
+      "description": "Get many releases"
     },
     {
       "id": "release_update",
       "label": "Update Release",
-      "method": "GET",
-      "path": "/",
+      "method": "PUT",
+      "path": "/projects/{id}/releases/{tagName}",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "owner",
           "label": "Project Owner",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "n8n-io",
           "description": "User, group or namespace of the project"
@@ -777,7 +534,6 @@
           "id": "repository",
           "label": "Project Name",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "n8n",
           "description": "The name of the project"
@@ -786,7 +542,6 @@
           "id": "projectId",
           "label": "Project ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "The ID or URL-encoded path of the project"
         },
@@ -794,7 +549,6 @@
           "id": "tag_name",
           "label": "Tag Name",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "The Git tag the release is associated with"
         },
@@ -802,38 +556,22 @@
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query"
+          "description": "(JSON object; supported keys: name, description, milestones, released_at)"
         }
-      ]
+      ],
+      "group": "Release",
+      "description": "Update a release"
     },
     {
       "id": "file_create",
       "label": "Create File",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/{baseEndpoint}/repository/files/{encodeURIComponent_filePath_}",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "owner",
           "label": "Project Owner",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "n8n-io",
           "description": "User, group or namespace of the project"
@@ -842,7 +580,6 @@
           "id": "repository",
           "label": "Project Name",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "n8n",
           "description": "The name of the project"
@@ -851,7 +588,6 @@
           "id": "filePath",
           "label": "File Path",
           "type": "text",
-          "in": "query",
           "placeholder": "docs/README.md",
           "description": "The file path of the file. Has to contain the full path or leave it empty for root folder."
         },
@@ -859,7 +595,6 @@
           "id": "binaryData",
           "label": "Binary File",
           "type": "toggle",
-          "in": "query",
           "required": true,
           "description": "Whether the data to upload should be taken from binary field",
           "defaultValue": false
@@ -868,7 +603,6 @@
           "id": "fileContent",
           "label": "File Content",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "The text content of the file"
         },
@@ -876,7 +610,6 @@
           "id": "binaryPropertyName",
           "label": "Input Binary Field",
           "type": "text",
-          "in": "query",
           "required": true,
           "defaultValue": "data"
         },
@@ -884,14 +617,12 @@
           "id": "commitMessage",
           "label": "Commit Message",
           "type": "text",
-          "in": "query",
           "required": true
         },
         {
           "id": "branch",
           "label": "Branch",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Name of the new branch to create. The commit is added to this branch."
         },
@@ -899,40 +630,23 @@
           "id": "additionalParameters",
           "label": "Additional Parameters",
           "type": "json",
-          "in": "query",
           "placeholder": "Add Parameter",
-          "description": "Additional fields to add"
+          "description": "Additional fields to add (JSON object; supported keys: branchStart, branchStart.branchStart, author, author.name, author.email, encoding, encoding.encoding)"
         }
-      ]
+      ],
+      "group": "File",
+      "description": "[unverified path] Create a new file in repository"
     },
     {
       "id": "file_delete",
       "label": "Delete File",
-      "method": "GET",
-      "path": "/",
+      "method": "DELETE",
+      "path": "/{baseEndpoint}/repository/files/{encodeURIComponent_filePath_}",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "owner",
           "label": "Project Owner",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "n8n-io",
           "description": "User, group or namespace of the project"
@@ -941,7 +655,6 @@
           "id": "repository",
           "label": "Project Name",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "n8n",
           "description": "The name of the project"
@@ -950,7 +663,6 @@
           "id": "filePath",
           "label": "File Path",
           "type": "text",
-          "in": "query",
           "placeholder": "docs/README.md",
           "description": "The file path of the file. Has to contain the full path or leave it empty for root folder."
         },
@@ -958,14 +670,12 @@
           "id": "commitMessage",
           "label": "Commit Message",
           "type": "text",
-          "in": "query",
           "required": true
         },
         {
           "id": "branch",
           "label": "Branch",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Name of the new branch to create. The commit is added to this branch."
         },
@@ -973,40 +683,23 @@
           "id": "additionalParameters",
           "label": "Additional Parameters",
           "type": "json",
-          "in": "query",
           "placeholder": "Add Parameter",
-          "description": "Additional fields to add"
+          "description": "Additional fields to add (JSON object; supported keys: branchStart, branchStart.branchStart, author, author.name, author.email, encoding, encoding.encoding)"
         }
-      ]
+      ],
+      "group": "File",
+      "description": "[unverified path] Delete a file in repository"
     },
     {
       "id": "file_edit",
       "label": "Edit File",
-      "method": "GET",
-      "path": "/",
+      "method": "PATCH",
+      "path": "/file",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "owner",
           "label": "Project Owner",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "n8n-io",
           "description": "User, group or namespace of the project"
@@ -1015,7 +708,6 @@
           "id": "repository",
           "label": "Project Name",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "n8n",
           "description": "The name of the project"
@@ -1024,7 +716,6 @@
           "id": "filePath",
           "label": "File Path",
           "type": "text",
-          "in": "query",
           "placeholder": "docs/README.md",
           "description": "The file path of the file. Has to contain the full path or leave it empty for root folder."
         },
@@ -1032,7 +723,6 @@
           "id": "binaryData",
           "label": "Binary File",
           "type": "toggle",
-          "in": "query",
           "required": true,
           "description": "Whether the data to upload should be taken from binary field",
           "defaultValue": false
@@ -1041,7 +731,6 @@
           "id": "fileContent",
           "label": "File Content",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "The text content of the file"
         },
@@ -1049,7 +738,6 @@
           "id": "binaryPropertyName",
           "label": "Input Binary Field",
           "type": "text",
-          "in": "query",
           "required": true,
           "defaultValue": "data"
         },
@@ -1057,14 +745,12 @@
           "id": "commitMessage",
           "label": "Commit Message",
           "type": "text",
-          "in": "query",
           "required": true
         },
         {
           "id": "branch",
           "label": "Branch",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Name of the new branch to create. The commit is added to this branch."
         },
@@ -1072,40 +758,23 @@
           "id": "additionalParameters",
           "label": "Additional Parameters",
           "type": "json",
-          "in": "query",
           "placeholder": "Add Parameter",
-          "description": "Additional fields to add"
+          "description": "Additional fields to add (JSON object; supported keys: branchStart, branchStart.branchStart, author, author.name, author.email, encoding, encoding.encoding)"
         }
-      ]
+      ],
+      "group": "File",
+      "description": "[unverified path] Edit a file in repository"
     },
     {
       "id": "file_get",
       "label": "Get File",
       "method": "GET",
-      "path": "/",
+      "path": "/{baseEndpoint}/repository/files/{encodeURIComponent_filePath_}",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "owner",
           "label": "Project Owner",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "n8n-io",
           "description": "User, group or namespace of the project"
@@ -1114,7 +783,6 @@
           "id": "repository",
           "label": "Project Name",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "n8n",
           "description": "The name of the project"
@@ -1123,7 +791,6 @@
           "id": "filePath",
           "label": "File Path",
           "type": "text",
-          "in": "query",
           "placeholder": "docs/README.md",
           "description": "The file path of the file. Has to contain the full path or leave it empty for root folder."
         },
@@ -1131,7 +798,6 @@
           "id": "asBinaryProperty",
           "label": "As Binary Property",
           "type": "toggle",
-          "in": "query",
           "description": "Whether to set the data of the file as binary property instead of returning the raw API response",
           "defaultValue": true
         },
@@ -1139,7 +805,6 @@
           "id": "binaryPropertyName",
           "label": "Put Output File in Field",
           "type": "text",
-          "in": "query",
           "required": true,
           "defaultValue": "data"
         },
@@ -1147,40 +812,23 @@
           "id": "additionalParameters",
           "label": "Additional Parameters",
           "type": "json",
-          "in": "query",
           "placeholder": "Add Parameter",
-          "description": "Additional fields to add"
+          "description": "Additional fields to add (JSON object; supported keys: reference)"
         }
-      ]
+      ],
+      "group": "File",
+      "description": "[unverified path] Get the data of a single file"
     },
     {
       "id": "file_list",
       "label": "List File",
       "method": "GET",
-      "path": "/",
+      "path": "/{baseEndpoint}/repository/tree",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "owner",
           "label": "Project Owner",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "n8n-io",
           "description": "User, group or namespace of the project"
@@ -1189,7 +837,6 @@
           "id": "repository",
           "label": "Project Name",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "n8n",
           "description": "The name of the project"
@@ -1198,7 +845,6 @@
           "id": "returnAll",
           "label": "Return All",
           "type": "toggle",
-          "in": "query",
           "description": "Whether to return all results or only up to a given limit",
           "defaultValue": false
         },
@@ -1206,23 +852,13 @@
           "id": "limit",
           "label": "Limit",
           "type": "number",
-          "in": "query",
           "description": "Max number of results to return",
           "defaultValue": 20
         },
         {
           "id": "filePath",
-          "label": "File Path",
-          "type": "text",
-          "in": "query",
-          "placeholder": "docs/README.md",
-          "description": "The file path of the file. Has to contain the full path or leave it empty for root folder."
-        },
-        {
-          "id": "filePath",
           "label": "Path",
           "type": "text",
-          "in": "query",
           "placeholder": "docs/",
           "description": "The path of the folder to list"
         },
@@ -1230,7 +866,6 @@
           "id": "page",
           "label": "Page",
           "type": "number",
-          "in": "query",
           "description": "Page of results to display",
           "defaultValue": 1
         },
@@ -1238,11 +873,12 @@
           "id": "additionalParameters",
           "label": "Additional Parameters",
           "type": "json",
-          "in": "query",
           "placeholder": "Add Parameter",
-          "description": "Additional fields to add"
+          "description": "Additional fields to add (JSON object; supported keys: ref, recursive)"
         }
-      ]
+      ],
+      "group": "File",
+      "description": "List contents of a folder"
     }
   ]
 }

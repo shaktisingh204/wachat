@@ -4,21 +4,96 @@
   "description": "Consume Yourls API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 4,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://{host}/yourls-api.php",
   "endpoints": [
     {
-      "id": "url_default",
-      "label": "List Url",
-      "method": "GET",
+      "id": "url_expand",
+      "label": "Expand URL",
+      "method": "POST",
       "path": "/url",
-      "fields": []
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Yourls server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "shortUrl",
+          "label": "Short URL",
+          "type": "text",
+          "required": true,
+          "description": "The short URL to expand"
+        }
+      ],
+      "group": "URL",
+      "description": "[unverified path] Expand a URL"
+    },
+    {
+      "id": "url_shorten",
+      "label": "Shorten URL",
+      "method": "POST",
+      "path": "/url",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Yourls server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "url",
+          "label": "URL",
+          "type": "text",
+          "required": true,
+          "description": "The URL to shorten"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: keyword, title)"
+        }
+      ],
+      "group": "URL",
+      "description": "[unverified path] Shorten a URL"
+    },
+    {
+      "id": "url_stats",
+      "label": "Stats URL",
+      "method": "POST",
+      "path": "/url",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Yourls server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "shortUrl",
+          "label": "Short URL",
+          "type": "text",
+          "required": true,
+          "description": "The short URL for which to get stats"
+        }
+      ],
+      "group": "URL",
+      "description": "[unverified path] Get stats about one short URL"
     }
   ]
 }

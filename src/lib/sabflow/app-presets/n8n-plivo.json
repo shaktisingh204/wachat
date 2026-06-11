@@ -4,35 +4,136 @@
   "description": "Send SMS/MMS messages or make phone calls",
   "category": "communication",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.plivo.com/v1/Account",
   "endpoints": [
     {
-      "id": "call_default",
-      "label": "List Call",
-      "method": "GET",
-      "path": "/call",
-      "fields": []
+      "id": "sms_send",
+      "label": "Send SMS",
+      "method": "POST",
+      "path": "/Message",
+      "fields": [
+        {
+          "id": "from",
+          "label": "From",
+          "type": "text",
+          "required": true,
+          "placeholder": "+14156667777",
+          "description": "Plivo Number to send the SMS from"
+        },
+        {
+          "id": "to",
+          "label": "To",
+          "type": "text",
+          "required": true,
+          "placeholder": "+14156667778",
+          "description": "Phone number to send the message to"
+        },
+        {
+          "id": "message",
+          "label": "Message",
+          "type": "text",
+          "required": true,
+          "description": "Message to send"
+        }
+      ],
+      "group": "SMS",
+      "description": "Send an SMS message"
     },
     {
-      "id": "mms_default",
-      "label": "List Mms",
-      "method": "GET",
-      "path": "/mms",
-      "fields": []
+      "id": "mms_send",
+      "label": "Send MMS",
+      "method": "POST",
+      "path": "/Message",
+      "fields": [
+        {
+          "id": "from",
+          "label": "From",
+          "type": "text",
+          "required": true,
+          "placeholder": "+14156667777",
+          "description": "Plivo Number to send the MMS from"
+        },
+        {
+          "id": "to",
+          "label": "To",
+          "type": "text",
+          "required": true,
+          "placeholder": "+14156667778",
+          "description": "Phone number to send the MMS to"
+        },
+        {
+          "id": "message",
+          "label": "Message",
+          "type": "text",
+          "description": "Message to send"
+        },
+        {
+          "id": "media_urls",
+          "label": "Media URLs",
+          "type": "text",
+          "description": "Comma-separated list of media URLs of the files from your file server"
+        }
+      ],
+      "group": "MMS",
+      "description": "Send an MMS message (US/Canada only)"
     },
     {
-      "id": "sms_default",
-      "label": "List Sms",
-      "method": "GET",
-      "path": "/sms",
-      "fields": []
+      "id": "call_make",
+      "label": "Make Call",
+      "method": "POST",
+      "path": "/Call",
+      "fields": [
+        {
+          "id": "from",
+          "label": "From",
+          "type": "text",
+          "required": true,
+          "placeholder": "+14156667777",
+          "description": "Caller ID for the call to make"
+        },
+        {
+          "id": "to",
+          "label": "To",
+          "type": "text",
+          "required": true,
+          "placeholder": "+14156667778",
+          "description": "Phone number to make the call to"
+        },
+        {
+          "id": "answer_method",
+          "label": "Answer Method",
+          "type": "select",
+          "required": true,
+          "description": "HTTP verb to be used when invoking the Answer URL",
+          "defaultValue": "POST",
+          "options": [
+            {
+              "value": "GET",
+              "label": "GET"
+            },
+            {
+              "value": "POST",
+              "label": "POST"
+            }
+          ]
+        },
+        {
+          "id": "answer_url",
+          "label": "Answer URL",
+          "type": "text",
+          "required": true,
+          "description": "URL to be invoked by Plivo once the call is answered. It should return the XML to handle the call once answered."
+        }
+      ],
+      "group": "Call",
+      "description": "Make a voice call"
     }
   ]
 }

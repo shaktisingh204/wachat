@@ -4,8 +4,8 @@
   "description": "Consume Freshdesk API",
   "category": "support",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 4,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -16,19 +16,26 @@
       "credentialType": "http_header_auth"
     }
   },
-  "baseUrl": "",
+  "baseUrl": "https://{domain}.freshdesk.com/api/v2",
   "endpoints": [
     {
       "id": "ticket_create",
       "label": "Create Ticket",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/tickets",
       "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshdesk account (host token in the API base URL)"
+        },
         {
           "id": "requester",
           "label": "Requester Identification",
           "type": "select",
-          "in": "query",
           "required": true,
           "defaultValue": "requesterId",
           "options": [
@@ -62,7 +69,6 @@
           "id": "requesterIdentificationValue",
           "label": "Value",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Value of the identification selected"
         },
@@ -70,7 +76,6 @@
           "id": "status",
           "label": "Status",
           "type": "select",
-          "in": "query",
           "required": true,
           "defaultValue": "pending",
           "options": [
@@ -96,7 +101,6 @@
           "id": "priority",
           "label": "Priority",
           "type": "select",
-          "in": "query",
           "required": true,
           "defaultValue": "low",
           "options": [
@@ -122,7 +126,6 @@
           "id": "source",
           "label": "Source",
           "type": "select",
-          "in": "query",
           "required": true,
           "description": "The channel through which the ticket was created",
           "defaultValue": "portal",
@@ -161,52 +164,81 @@
           "id": "options",
           "label": "Options",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add option"
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: agent, ccEmails, company, description, dueBy, emailConfigId, frDueBy, group, name, product, subject, tags, type)"
         }
-      ]
+      ],
+      "group": "Ticket",
+      "description": "Create a new ticket"
     },
     {
       "id": "ticket_delete",
       "label": "Delete Ticket",
-      "method": "GET",
-      "path": "/",
+      "method": "DELETE",
+      "path": "/tickets/{ticketId}",
       "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshdesk account (host token in the API base URL)"
+        },
         {
           "id": "ticketId",
           "label": "Ticket ID",
           "type": "text",
-          "in": "query",
-          "required": true
+          "required": true,
+          "in": "path"
         }
-      ]
+      ],
+      "group": "Ticket",
+      "description": "Delete a ticket"
     },
     {
       "id": "ticket_get",
       "label": "Get Ticket",
       "method": "GET",
-      "path": "/",
+      "path": "/tickets/{ticketId}",
       "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshdesk account (host token in the API base URL)"
+        },
         {
           "id": "ticketId",
           "label": "Ticket ID",
           "type": "text",
-          "in": "query",
-          "required": true
+          "required": true,
+          "in": "path"
         }
-      ]
+      ],
+      "group": "Ticket",
+      "description": "Get a ticket"
     },
     {
       "id": "ticket_get_all",
       "label": "Get Many Ticket",
       "method": "GET",
-      "path": "/",
+      "path": "/tickets",
       "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshdesk account (host token in the API base URL)"
+        },
         {
           "id": "returnAll",
           "label": "Return All",
           "type": "toggle",
-          "in": "query",
           "description": "Whether to return all results or only up to a given limit",
           "defaultValue": false
         },
@@ -214,7 +246,6 @@
           "id": "limit",
           "label": "Limit",
           "type": "number",
-          "in": "query",
           "description": "Max number of results to return",
           "defaultValue": 5
         },
@@ -222,32 +253,190 @@
           "id": "options",
           "label": "Options",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add option"
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: companyId, include, order, orderBy, requesterEmail, requesterId, updatedSince)"
         }
-      ]
+      ],
+      "group": "Ticket",
+      "description": "Get many tickets"
     },
     {
       "id": "ticket_update",
       "label": "Update Ticket",
-      "method": "GET",
-      "path": "/",
+      "method": "PUT",
+      "path": "/tickets/{ticketId}",
       "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshdesk account (host token in the API base URL)"
+        },
         {
           "id": "ticketId",
           "label": "Ticket ID",
           "type": "text",
-          "in": "query",
-          "required": true
+          "required": true,
+          "in": "path"
         },
         {
           "id": "updateFields",
           "label": "Update Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: agent, ccEmails, company, dueBy, emailConfigId, frDueBy, group, name, product, priority, requester, requesterIdentificationValue, status, source, tags, type)"
         }
-      ]
+      ],
+      "group": "Ticket",
+      "description": "Update a ticket"
+    },
+    {
+      "id": "contact_create",
+      "label": "Create Contact",
+      "method": "POST",
+      "path": "/contacts",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshdesk account (host token in the API base URL)"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "Name of the contact"
+        },
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "placeholder": "name@email.com",
+          "description": "Primary email address of the contact. If you want to associate additional email(s) with this contact, use the other_emails attribute."
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: address, company_id, customFields, description, email, job_title, language, mobile, name, other_companies, other_emails, phone, tags, time_zone, twitter_id, unique_external_id, view_all_tickets)"
+        }
+      ],
+      "group": "Contact",
+      "description": "Create a new contact"
+    },
+    {
+      "id": "contact_delete",
+      "label": "Delete Contact",
+      "method": "DELETE",
+      "path": "/contacts/{contactId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshdesk account (host token in the API base URL)"
+        },
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Contact",
+      "description": "Delete a contact"
+    },
+    {
+      "id": "contact_get",
+      "label": "Get Contact",
+      "method": "GET",
+      "path": "/contacts/{contactId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshdesk account (host token in the API base URL)"
+        },
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Contact",
+      "description": "Get a contact"
+    },
+    {
+      "id": "contact_get_all",
+      "label": "Get Many Contact",
+      "method": "GET",
+      "path": "/contacts",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshdesk account (host token in the API base URL)"
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: company_id, email, mobile, phone, state, updated_since)"
+        }
+      ],
+      "group": "Contact",
+      "description": "Get many contacts"
+    },
+    {
+      "id": "contact_update",
+      "label": "Update Contact",
+      "method": "PUT",
+      "path": "/contacts/{contactId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshdesk account (host token in the API base URL)"
+        },
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: address, company_id, customFields, description, email, job_title, language, mobile, name, other_companies, other_emails, phone, tags, time_zone, twitter_id, unique_external_id, view_all_tickets)"
+        }
+      ],
+      "group": "Contact",
+      "description": "Update a contact"
     }
   ]
 }

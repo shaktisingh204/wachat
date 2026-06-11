@@ -4,28 +4,171 @@
   "description": "Consume Netlify API",
   "category": "dev",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.netlify.com/api/v1",
   "endpoints": [
     {
-      "id": "deploy_default",
-      "label": "List Deploy",
-      "method": "GET",
-      "path": "/deploy",
-      "fields": []
+      "id": "deploy_cancel",
+      "label": "Cancel Deploy",
+      "method": "POST",
+      "path": "/deploys/{deployId}/cancel",
+      "fields": [
+        {
+          "id": "deployId",
+          "label": "Deploy ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Deploy",
+      "description": "Cancel a deployment"
     },
     {
-      "id": "site_default",
-      "label": "List Site",
+      "id": "deploy_create",
+      "label": "Create Deploy",
+      "method": "POST",
+      "path": "/sites/{siteId}/deploys",
+      "fields": [
+        {
+          "id": "siteId",
+          "label": "Site Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Enter the Site ID. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Fields",
+          "description": "(JSON object; supported keys: branch, title)"
+        }
+      ],
+      "group": "Deploy",
+      "description": "Create a new deployment"
+    },
+    {
+      "id": "deploy_get",
+      "label": "Get Deploy",
       "method": "GET",
-      "path": "/site",
-      "fields": []
+      "path": "/sites/{siteId}/deploys/{deployId}",
+      "fields": [
+        {
+          "id": "siteId",
+          "label": "Site Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Enter the Site ID. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "deployId",
+          "label": "Deploy ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Deploy",
+      "description": "Get a deployment"
+    },
+    {
+      "id": "deploy_get_all",
+      "label": "Get Many Deploy",
+      "method": "GET",
+      "path": "/sites/{siteId}/deploys",
+      "fields": [
+        {
+          "id": "siteId",
+          "label": "Site Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Enter the Site ID. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Deploy",
+      "description": "Get many deployments"
+    },
+    {
+      "id": "site_delete",
+      "label": "Delete Site",
+      "method": "DELETE",
+      "path": "/sites/{siteId}",
+      "fields": [
+        {
+          "id": "siteId",
+          "label": "Site ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Site",
+      "description": "Delete a site"
+    },
+    {
+      "id": "site_get",
+      "label": "Get Site",
+      "method": "GET",
+      "path": "/sites/{siteId}",
+      "fields": [
+        {
+          "id": "siteId",
+          "label": "Site ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Site",
+      "description": "Get a site"
+    },
+    {
+      "id": "site_get_all",
+      "label": "Get Many Site",
+      "method": "GET",
+      "path": "/sites",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Site",
+      "description": "Returns many sites"
     }
   ]
 }

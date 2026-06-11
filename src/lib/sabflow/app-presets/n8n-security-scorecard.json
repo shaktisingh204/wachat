@@ -4,56 +4,782 @@
   "description": "Consume SecurityScorecard API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.securityscorecard.io",
   "endpoints": [
     {
-      "id": "company_default",
-      "label": "List Company",
+      "id": "company_get_factor",
+      "label": "Get Factor Scores Company",
       "method": "GET",
-      "path": "/company",
-      "fields": []
+      "path": "/companies/{scorecardIdentifier}/factors",
+      "fields": [
+        {
+          "id": "scorecardIdentifier",
+          "label": "Scorecard Identifier",
+          "type": "text",
+          "required": true,
+          "description": "Primary identifier of a company or scorecard, i.e. domain.",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: severity, severity_in)"
+        }
+      ],
+      "group": "Company",
+      "description": "Get company factor scores and issue counts"
     },
     {
-      "id": "industry_default",
-      "label": "List Industry",
+      "id": "company_get_factor_historical",
+      "label": "Get Historical Factor Scores Company",
       "method": "GET",
-      "path": "/industry",
-      "fields": []
+      "path": "/companies/{scorecardIdentifier}/history/factors/score",
+      "fields": [
+        {
+          "id": "scorecardIdentifier",
+          "label": "Scorecard Identifier",
+          "type": "text",
+          "required": true,
+          "description": "Primary identifier of a company or scorecard, i.e. domain.",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: date_from, date_to, timing)"
+        }
+      ],
+      "group": "Company",
+      "description": "Get company's historical factor scores"
     },
     {
-      "id": "invite_default",
-      "label": "List Invite",
+      "id": "company_get_historical_score",
+      "label": "Get Historical Scores Company",
       "method": "GET",
-      "path": "/invite",
-      "fields": []
+      "path": "/companies/{scorecardIdentifier}/history/factors/score",
+      "fields": [
+        {
+          "id": "scorecardIdentifier",
+          "label": "Scorecard Identifier",
+          "type": "text",
+          "required": true,
+          "description": "Primary identifier of a company or scorecard, i.e. domain.",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: date_from, date_to, timing)"
+        }
+      ],
+      "group": "Company",
+      "description": "Get company's historical scores"
     },
     {
-      "id": "portfolio_default",
-      "label": "List Portfolio",
+      "id": "company_get_scorecard",
+      "label": "Get Information and Scorecard Company",
       "method": "GET",
-      "path": "/portfolio",
-      "fields": []
+      "path": "/companies/{scorecardIdentifier}",
+      "fields": [
+        {
+          "id": "scorecardIdentifier",
+          "label": "Scorecard Identifier",
+          "type": "text",
+          "required": true,
+          "description": "Primary identifier of a company or scorecard, i.e. domain.",
+          "in": "path"
+        }
+      ],
+      "group": "Company",
+      "description": "Get company information and summary of their scorecard"
     },
     {
-      "id": "portfolio_company_default",
-      "label": "List PortfolioCompany",
+      "id": "company_get_score_plan",
+      "label": "Get Score Plan Company",
       "method": "GET",
-      "path": "/portfolioCompany",
-      "fields": []
+      "path": "/companies/{scorecardIdentifier}/score-plans/by-target/{targetScore}",
+      "fields": [
+        {
+          "id": "scorecardIdentifier",
+          "label": "Scorecard Identifier",
+          "type": "text",
+          "required": true,
+          "description": "Primary identifier of a company or scorecard, i.e. domain.",
+          "in": "path"
+        },
+        {
+          "id": "score",
+          "label": "Score",
+          "type": "number",
+          "required": true,
+          "description": "Score target",
+          "defaultValue": 0
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        }
+      ],
+      "group": "Company",
+      "description": "Get company's score improvement plan"
     },
     {
-      "id": "report_default",
-      "label": "List Report",
+      "id": "industry_get_factor",
+      "label": "Get Factor Scores Industry",
+      "method": "GET",
+      "path": "/industries/{industry}/history/factors",
+      "fields": [
+        {
+          "id": "industry",
+          "label": "Industry",
+          "type": "select",
+          "required": true,
+          "defaultValue": "food",
+          "options": [
+            {
+              "value": "food",
+              "label": "Food"
+            },
+            {
+              "value": "healthcare",
+              "label": "Healthcare"
+            },
+            {
+              "value": "manofacturing",
+              "label": "Manofacturing"
+            },
+            {
+              "value": "retail",
+              "label": "Retail"
+            },
+            {
+              "value": "technology",
+              "label": "Technology"
+            }
+          ],
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        }
+      ],
+      "group": "Industry",
+      "description": "Get factor scores for an industry"
+    },
+    {
+      "id": "industry_get_factor_historical",
+      "label": "Get Historical Factor Scores Industry",
+      "method": "GET",
+      "path": "/industries/{industry}/history/factors",
+      "fields": [
+        {
+          "id": "industry",
+          "label": "Industry",
+          "type": "select",
+          "required": true,
+          "defaultValue": "food",
+          "options": [
+            {
+              "value": "food",
+              "label": "Food"
+            },
+            {
+              "value": "healthcare",
+              "label": "Healthcare"
+            },
+            {
+              "value": "manofacturing",
+              "label": "Manofacturing"
+            },
+            {
+              "value": "retail",
+              "label": "Retail"
+            },
+            {
+              "value": "technology",
+              "label": "Technology"
+            }
+          ],
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: from, to)"
+        }
+      ],
+      "group": "Industry",
+      "description": "Get historical factor scores for an industry"
+    },
+    {
+      "id": "industry_get_score",
+      "label": "Get Score Industry",
+      "method": "GET",
+      "path": "/industries/{industry}/score",
+      "fields": [
+        {
+          "id": "industry",
+          "label": "Industry",
+          "type": "select",
+          "required": true,
+          "defaultValue": "food",
+          "options": [
+            {
+              "value": "food",
+              "label": "Food"
+            },
+            {
+              "value": "healthcare",
+              "label": "Healthcare"
+            },
+            {
+              "value": "manofacturing",
+              "label": "Manofacturing"
+            },
+            {
+              "value": "retail",
+              "label": "Retail"
+            },
+            {
+              "value": "technology",
+              "label": "Technology"
+            }
+          ],
+          "in": "path"
+        }
+      ],
+      "group": "Industry",
+      "description": "Get the score for an industry"
+    },
+    {
+      "id": "invite_create",
+      "label": "Create Invite",
+      "method": "POST",
+      "path": "/invitations",
+      "fields": [
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "required": true,
+          "placeholder": "name@email.com"
+        },
+        {
+          "id": "firstName",
+          "label": "First Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "lastName",
+          "label": "Last Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "message",
+          "label": "Message",
+          "type": "text",
+          "required": true,
+          "description": "Message for the invitee"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: days_to_resolve_issue, domain, grade_to_maintain, is_organization_point_of_contact, issue_desc, issue_title, issue_type, sendme_copy, target_url)"
+        }
+      ],
+      "group": "Invite",
+      "description": "Create an invite for a company/user"
+    },
+    {
+      "id": "portfolio_create",
+      "label": "Create Portfolio",
+      "method": "POST",
+      "path": "/portfolios",
+      "fields": [
+        {
+          "id": "name",
+          "label": "Portfolio Name",
+          "type": "text",
+          "required": true,
+          "description": "Name of the portfolio"
+        },
+        {
+          "id": "description",
+          "label": "Description",
+          "type": "text"
+        },
+        {
+          "id": "privacy",
+          "label": "Privacy",
+          "type": "select",
+          "defaultValue": "shared",
+          "options": [
+            {
+              "value": "private",
+              "label": "Private"
+            },
+            {
+              "value": "shared",
+              "label": "Shared"
+            },
+            {
+              "value": "team",
+              "label": "Team"
+            }
+          ]
+        }
+      ],
+      "group": "Portfolio",
+      "description": "Create a portfolio"
+    },
+    {
+      "id": "portfolio_delete",
+      "label": "Delete Portfolio",
+      "method": "DELETE",
+      "path": "/portfolios/{portfolioId}",
+      "fields": [
+        {
+          "id": "portfolioId",
+          "label": "Portfolio ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Portfolio",
+      "description": "Delete a portfolio"
+    },
+    {
+      "id": "portfolio_get_all",
+      "label": "Get Many Portfolio",
+      "method": "GET",
+      "path": "/portfolios",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        }
+      ],
+      "group": "Portfolio",
+      "description": "Get many portfolios"
+    },
+    {
+      "id": "portfolio_update",
+      "label": "Update Portfolio",
+      "method": "PUT",
+      "path": "/portfolios/{portfolioId}",
+      "fields": [
+        {
+          "id": "portfolioId",
+          "label": "Portfolio ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "name",
+          "label": "Portfolio Name",
+          "type": "text",
+          "required": true,
+          "description": "Name of the portfolio"
+        },
+        {
+          "id": "description",
+          "label": "Description",
+          "type": "text"
+        },
+        {
+          "id": "privacy",
+          "label": "Privacy",
+          "type": "select",
+          "defaultValue": "shared",
+          "options": [
+            {
+              "value": "private",
+              "label": "Private"
+            },
+            {
+              "value": "shared",
+              "label": "Shared"
+            },
+            {
+              "value": "team",
+              "label": "Team"
+            }
+          ]
+        }
+      ],
+      "group": "Portfolio",
+      "description": "Update a portfolio"
+    },
+    {
+      "id": "portfolio_company_add",
+      "label": "Add Portfolio Company",
+      "method": "PUT",
+      "path": "/portfolios/{portfolioId}/companies/{domain}",
+      "fields": [
+        {
+          "id": "portfolioId",
+          "label": "Portfolio ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "description": "Company's domain name",
+          "in": "path"
+        }
+      ],
+      "group": "Portfolio Company",
+      "description": "Add a company to portfolio"
+    },
+    {
+      "id": "portfolio_company_get_all",
+      "label": "Get Many Portfolio Company",
+      "method": "GET",
+      "path": "/portfolios/{portfolioId}/companies",
+      "fields": [
+        {
+          "id": "portfolioId",
+          "label": "Portfolio ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: grade, industry, issueType, status, vulnerability)"
+        }
+      ],
+      "group": "Portfolio Company",
+      "description": "Get many companies in a portfolio"
+    },
+    {
+      "id": "portfolio_company_remove",
+      "label": "Remove Portfolio Company",
+      "method": "DELETE",
+      "path": "/portfolios/{portfolioId}/companies/{domain}",
+      "fields": [
+        {
+          "id": "portfolioId",
+          "label": "Portfolio ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "description": "Company's domain name",
+          "in": "path"
+        }
+      ],
+      "group": "Portfolio Company",
+      "description": "Remove a company from portfolio"
+    },
+    {
+      "id": "report_download",
+      "label": "Download Report",
       "method": "GET",
       "path": "/report",
-      "fields": []
+      "fields": [
+        {
+          "id": "url",
+          "label": "Report URL",
+          "type": "text",
+          "required": true,
+          "description": "URL to a generated report"
+        },
+        {
+          "id": "binaryPropertyName",
+          "label": "Put Output File in Field",
+          "type": "text",
+          "required": true,
+          "defaultValue": "data"
+        }
+      ],
+      "group": "Report",
+      "description": "[unverified path] Download a generated report"
+    },
+    {
+      "id": "report_generate",
+      "label": "Generate Report",
+      "method": "POST",
+      "path": "/reports/{reportType}",
+      "fields": [
+        {
+          "id": "report",
+          "label": "Report",
+          "type": "select",
+          "required": true,
+          "defaultValue": "detailed",
+          "options": [
+            {
+              "value": "detailed",
+              "label": "Company Detailed"
+            },
+            {
+              "value": "events-json",
+              "label": "Company Events"
+            },
+            {
+              "value": "issues",
+              "label": "Company Issues"
+            },
+            {
+              "value": "partnership",
+              "label": "Company Partnership"
+            },
+            {
+              "value": "summary",
+              "label": "Company Summary"
+            },
+            {
+              "value": "full-scorecard-json",
+              "label": "Full Scorecard"
+            },
+            {
+              "value": "portfolio",
+              "label": "Portfolio"
+            },
+            {
+              "value": "scorecard-footprint",
+              "label": "Scorecard Footprint"
+            }
+          ]
+        },
+        {
+          "id": "scorecardIdentifier",
+          "label": "Scorecard Identifier",
+          "type": "text",
+          "required": true,
+          "description": "Primary identifier of a company or scorecard, i.e. domain."
+        },
+        {
+          "id": "portfolioId",
+          "label": "Portfolio ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "branding",
+          "label": "Branding",
+          "type": "select",
+          "defaultValue": "securityscorecard",
+          "options": [
+            {
+              "value": "securityscorecard",
+              "label": "SecurityScorecard"
+            },
+            {
+              "value": "company_and_securityscorecard",
+              "label": "Company and SecurityScorecard"
+            },
+            {
+              "value": "company",
+              "label": "Company"
+            }
+          ]
+        },
+        {
+          "id": "date",
+          "label": "Date",
+          "type": "text",
+          "required": true,
+          "placeholder": "2024-01-01T00:00:00Z",
+          "description": "(ISO 8601 date-time)"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: format)"
+        }
+      ],
+      "group": "Report",
+      "description": "Generate a report"
+    },
+    {
+      "id": "report_get_all",
+      "label": "Get Many Report",
+      "method": "GET",
+      "path": "/reports/recent",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        }
+      ],
+      "group": "Report",
+      "description": "Get list of recently generated report"
     }
   ]
 }

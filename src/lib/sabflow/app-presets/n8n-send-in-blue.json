@@ -4,8 +4,8 @@
   "description": "Consume Brevo API",
   "category": "marketing",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
@@ -14,32 +14,517 @@
   "baseUrl": "https://api.brevo.com",
   "endpoints": [
     {
-      "id": "contact_default",
-      "label": "List Contact",
+      "id": "attribute_create",
+      "label": "Create Contact Attribute",
+      "method": "POST",
+      "path": "/v3/contacts/attributes/{{{attributeCategory}}}/{{encodeURI({attributeName})}}",
+      "fields": [
+        {
+          "id": "attributeCategory",
+          "label": "Category",
+          "type": "select",
+          "required": true,
+          "description": "Category of the attribute",
+          "defaultValue": "normal",
+          "options": [
+            {
+              "value": "calculated",
+              "label": "Calculated"
+            },
+            {
+              "value": "category",
+              "label": "Category"
+            },
+            {
+              "value": "global",
+              "label": "Global"
+            },
+            {
+              "value": "normal",
+              "label": "Normal"
+            },
+            {
+              "value": "transactional",
+              "label": "Transactional"
+            }
+          ],
+          "in": "path"
+        },
+        {
+          "id": "attributeName",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "Name of the attribute",
+          "in": "path"
+        },
+        {
+          "id": "type",
+          "label": "Type",
+          "type": "select",
+          "required": true,
+          "description": "Attribute Type",
+          "options": [
+            {
+              "value": "boolean",
+              "label": "Boolean"
+            },
+            {
+              "value": "date",
+              "label": "Date"
+            },
+            {
+              "value": "float",
+              "label": "Float"
+            },
+            {
+              "value": "text",
+              "label": "Text"
+            }
+          ],
+          "in": "body"
+        },
+        {
+          "id": "value",
+          "label": "Value",
+          "type": "text",
+          "required": true,
+          "description": "Value of the attribute",
+          "in": "body"
+        },
+        {
+          "id": "attributeCategoryList",
+          "label": "Contact Attribute List",
+          "type": "json",
+          "placeholder": "Add Attributes",
+          "description": "(JSON object; supported keys: categoryEnumeration)"
+        }
+      ],
+      "group": "Contact Attribute",
+      "description": "[unverified path] Create an attribute"
+    },
+    {
+      "id": "attribute_update",
+      "label": "Update Contact Attribute",
+      "method": "PUT",
+      "path": "/v3/contacts/attributes/{{{updateAttributeCategory}}}/{{encodeURI({updateAttributeName})}}",
+      "fields": [
+        {
+          "id": "updateAttributeCategory",
+          "label": "Category",
+          "type": "select",
+          "description": "Category of the attribute",
+          "defaultValue": "calculated",
+          "options": [
+            {
+              "value": "calculated",
+              "label": "Calculated"
+            },
+            {
+              "value": "category",
+              "label": "Category"
+            },
+            {
+              "value": "global",
+              "label": "Global"
+            }
+          ],
+          "in": "path"
+        },
+        {
+          "id": "updateAttributeName",
+          "label": "Name",
+          "type": "text",
+          "description": "Name of the existing attribute",
+          "in": "path"
+        },
+        {
+          "id": "value",
+          "label": "Value",
+          "type": "text",
+          "description": "Value of the attribute to update",
+          "in": "body"
+        },
+        {
+          "id": "updateAttributeCategoryList",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "List of the values and labels that the attribute can take (JSON object; supported keys: updateCategoryEnumeration)"
+        }
+      ],
+      "group": "Contact Attribute",
+      "description": "[unverified path] Update an attribute"
+    },
+    {
+      "id": "attribute_delete",
+      "label": "Delete Contact Attribute",
+      "method": "DELETE",
+      "path": "/v3/contacts/attributes/{{{deleteAttributeCategory}}}/{{encodeURI({deleteAttributeName})}}",
+      "fields": [
+        {
+          "id": "deleteAttributeCategory",
+          "label": "Category",
+          "type": "select",
+          "description": "Category of the attribute",
+          "defaultValue": "normal",
+          "options": [
+            {
+              "value": "calculated",
+              "label": "Calculated"
+            },
+            {
+              "value": "category",
+              "label": "Category"
+            },
+            {
+              "value": "global",
+              "label": "Global"
+            },
+            {
+              "value": "normal",
+              "label": "Normal"
+            },
+            {
+              "value": "transactional",
+              "label": "Transactional"
+            }
+          ],
+          "in": "path"
+        },
+        {
+          "id": "deleteAttributeName",
+          "label": "Name",
+          "type": "text",
+          "description": "Name of the attribute",
+          "in": "path"
+        }
+      ],
+      "group": "Contact Attribute",
+      "description": "[unverified path] Delete an attribute"
+    },
+    {
+      "id": "attribute_get_all",
+      "label": "Get Many Contact Attribute",
+      "method": "GET",
+      "path": "/v3/contacts/attributes",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Contact Attribute",
+      "description": "Get many attributes"
+    },
+    {
+      "id": "sender_create",
+      "label": "Create Sender",
+      "method": "POST",
+      "path": "/sender",
+      "fields": [
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "Name of the sender",
+          "in": "body"
+        },
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "required": true,
+          "placeholder": "name@email.com",
+          "description": "Email of the sender",
+          "in": "body"
+        }
+      ],
+      "group": "Sender",
+      "description": "[unverified path] Create a sender"
+    },
+    {
+      "id": "sender_delete",
+      "label": "Delete Sender",
+      "method": "DELETE",
+      "path": "/v3/senders/{{{id}}}",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Sender ID",
+          "type": "text",
+          "description": "ID of the sender to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Sender",
+      "description": "[unverified path] Delete a sender"
+    },
+    {
+      "id": "sender_get_all",
+      "label": "Get Many Sender",
+      "method": "GET",
+      "path": "/v3/senders",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 10
+        }
+      ],
+      "group": "Sender",
+      "description": "Get many senders"
+    },
+    {
+      "id": "contact_create",
+      "label": "Create Contact",
+      "method": "POST",
+      "path": "/v3/contacts",
+      "fields": [
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "placeholder": "name@email.com",
+          "in": "body"
+        },
+        {
+          "id": "createContactAttributes",
+          "label": "Contact Attributes",
+          "type": "json",
+          "placeholder": "Add Attribute",
+          "description": "Array of attributes to be added (JSON object; supported keys: attributesValues, attributesValues.fieldName, attributesValues.fieldValue)"
+        }
+      ],
+      "group": "Contact",
+      "description": "Create a contact"
+    },
+    {
+      "id": "contact_upsert",
+      "label": "Create or Update Contact",
+      "method": "POST",
+      "path": "/v3/contacts",
+      "fields": [
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "required": true,
+          "placeholder": "name@email.com",
+          "description": "Email of the contact",
+          "in": "body"
+        },
+        {
+          "id": "upsertAttributes",
+          "label": "Contact Attributes",
+          "type": "json",
+          "placeholder": "Add Attribute",
+          "description": "Array of attributes to be updated (JSON object; supported keys: upsertAttributesValues, upsertAttributesValues.fieldName, upsertAttributesValues.fieldValue)"
+        }
+      ],
+      "group": "Contact",
+      "description": "Upsert a contact"
+    },
+    {
+      "id": "contact_delete",
+      "label": "Delete Contact",
+      "method": "DELETE",
+      "path": "/contact",
+      "fields": [
+        {
+          "id": "identifier",
+          "label": "Contact Identifier",
+          "type": "text",
+          "description": "Email (urlencoded) OR ID of the contact OR its SMS attribute value"
+        }
+      ],
+      "group": "Contact",
+      "description": "[unverified path] Delete a contact"
+    },
+    {
+      "id": "contact_get",
+      "label": "Get Contact",
       "method": "GET",
       "path": "/contact",
-      "fields": []
+      "fields": [
+        {
+          "id": "identifier",
+          "label": "Contact Identifier",
+          "type": "text",
+          "required": true,
+          "description": "Email (urlencoded) OR ID of the contact OR its SMS attribute value"
+        }
+      ],
+      "group": "Contact",
+      "description": "[unverified path] Get a contact"
     },
     {
-      "id": "attribute_default",
-      "label": "List Attribute",
+      "id": "contact_get_all",
+      "label": "Get Many Contact",
       "method": "GET",
-      "path": "/attribute",
-      "fields": []
+      "path": "/v3/contacts",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50,
+          "in": "query"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: sort)"
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: modifiedSince)"
+        }
+      ],
+      "group": "Contact",
+      "description": "Get many contacts"
     },
     {
-      "id": "email_default",
-      "label": "List Email",
-      "method": "GET",
+      "id": "contact_update",
+      "label": "Update Contact",
+      "method": "PATCH",
+      "path": "/contact",
+      "fields": [
+        {
+          "id": "identifier",
+          "label": "Contact Identifier",
+          "type": "text",
+          "required": true,
+          "description": "Email (urlencoded) OR ID of the contact OR its SMS attribute value"
+        },
+        {
+          "id": "updateAttributes",
+          "label": "Attributes",
+          "type": "json",
+          "placeholder": "Add Attribute",
+          "description": "Array of attributes to be updated (JSON object; supported keys: updateAttributesValues, updateAttributesValues.fieldName, updateAttributesValues.fieldValue)"
+        }
+      ],
+      "group": "Contact",
+      "description": "[unverified path] Update a contact"
+    },
+    {
+      "id": "email_send",
+      "label": "Send Email",
+      "method": "POST",
       "path": "/email",
-      "fields": []
+      "fields": [
+        {
+          "id": "sendHTML",
+          "label": "Send HTML",
+          "type": "toggle",
+          "defaultValue": false
+        },
+        {
+          "id": "subject",
+          "label": "Subject",
+          "type": "text",
+          "description": "Subject of the email",
+          "in": "body"
+        },
+        {
+          "id": "textContent",
+          "label": "Text Content",
+          "type": "text",
+          "description": "Text content of the message",
+          "in": "body"
+        },
+        {
+          "id": "htmlContent",
+          "label": "HTML Content",
+          "type": "text",
+          "description": "HTML content of the message",
+          "in": "body"
+        },
+        {
+          "id": "sender",
+          "label": "Sender",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "receipients",
+          "label": "Receipients",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "Additional fields to add (JSON object; supported keys: emailAttachments, receipientsBCC, receipientsCC, emailTags)"
+        }
+      ],
+      "group": "Email",
+      "description": "[unverified path] Send a transactional email"
     },
     {
-      "id": "sender_default",
-      "label": "List Sender",
-      "method": "GET",
-      "path": "/sender",
-      "fields": []
+      "id": "email_send_template",
+      "label": "Send Template Email",
+      "method": "POST",
+      "path": "/email",
+      "fields": [
+        {
+          "id": "templateId",
+          "label": "Template ID",
+          "type": "select",
+          "in": "body"
+        },
+        {
+          "id": "receipients",
+          "label": "Receipients",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "Additional fields to add (JSON object; supported keys: emailAttachments, emailTags, templateParameters)"
+        }
+      ],
+      "group": "Email",
+      "description": "[unverified path] Send an email with an existing Template"
     }
   ]
 }

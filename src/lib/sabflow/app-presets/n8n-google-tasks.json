@@ -4,8 +4,8 @@
   "description": "Consume Google Tasks API",
   "category": "productivity",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -16,14 +16,154 @@
       "credentialType": "oauth2"
     }
   },
-  "baseUrl": "",
+  "baseUrl": "https://www.googleapis.com",
   "endpoints": [
     {
-      "id": "task_default",
-      "label": "List Task",
+      "id": "task_create",
+      "label": "Create Task",
+      "method": "POST",
+      "path": "/tasks/v1/lists/{taskId}/tasks",
+      "fields": [
+        {
+          "id": "task",
+          "label": "TaskList Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "title",
+          "label": "Title",
+          "type": "text",
+          "description": "Title of the task"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: completed, deleted, dueDate, notes, parent, previous, status)"
+        }
+      ],
+      "group": "Task",
+      "description": "Add a task to tasklist"
+    },
+    {
+      "id": "task_delete",
+      "label": "Delete Task",
+      "method": "DELETE",
+      "path": "/tasks/v1/lists/{taskListId}/tasks/{taskId}",
+      "fields": [
+        {
+          "id": "task",
+          "label": "TaskList Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "taskId",
+          "label": "Task ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Task",
+      "description": "Delete a task"
+    },
+    {
+      "id": "task_get",
+      "label": "Get Task",
       "method": "GET",
-      "path": "/task",
-      "fields": []
+      "path": "/tasks/v1/lists/{taskListId}/tasks/{taskId}",
+      "fields": [
+        {
+          "id": "task",
+          "label": "TaskList Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "taskId",
+          "label": "Task ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Task",
+      "description": "Retrieve a task"
+    },
+    {
+      "id": "task_get_all",
+      "label": "Get Many Task",
+      "method": "GET",
+      "path": "/tasks/v1/lists/{taskListId}/tasks",
+      "fields": [
+        {
+          "id": "task",
+          "label": "TaskList Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 20
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: completedMax, completedMin, dueMin, dueMax, showCompleted, showDeleted, showHidden, updatedMin)"
+        }
+      ],
+      "group": "Task",
+      "description": "Retrieve many tasks from a tasklist"
+    },
+    {
+      "id": "task_update",
+      "label": "Update Task",
+      "method": "PATCH",
+      "path": "/tasks/v1/lists/{taskListId}/tasks/{taskId}",
+      "fields": [
+        {
+          "id": "task",
+          "label": "TaskList Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "taskId",
+          "label": "Task ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Update Field",
+          "description": "(JSON object; supported keys: completed, deleted, dueDate, notes, previous, status, title)"
+        }
+      ],
+      "group": "Task",
+      "description": "Update a task"
     }
   ]
 }

@@ -4,64 +4,126 @@
   "description": "Interact with Gong API",
   "category": "crm",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 9,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.gong.io",
   "endpoints": [
     {
-      "id": "call_default",
-      "label": "List Call",
-      "method": "GET",
-      "path": "/call",
+      "id": "call_get",
+      "label": "Get Call",
+      "method": "POST",
+      "path": "/v2/calls/extensive",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
+          "id": "call",
+          "label": "Call to Get",
+          "type": "text",
+          "required": true,
+          "description": "(provide the ID)",
+          "in": "body"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Option",
+          "description": "(JSON object; supported keys: properties)"
         }
-      ]
+      ],
+      "group": "Call",
+      "description": "Retrieve data for a specific call"
     },
     {
-      "id": "user_default",
-      "label": "List User",
-      "method": "GET",
-      "path": "/user",
+      "id": "call_get_all",
+      "label": "Get Many Call",
+      "method": "POST",
+      "path": "/v2/calls/extensive",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: fromDateTime, toDateTime, workspaceId, callIds, primaryUserIds)"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Option",
+          "description": "(JSON object; supported keys: properties)"
         }
-      ]
+      ],
+      "group": "Call",
+      "description": "Retrieve a list of calls"
+    },
+    {
+      "id": "user_get",
+      "label": "Get User",
+      "method": "POST",
+      "path": "/v2/users/extensive",
+      "fields": [
+        {
+          "id": "user",
+          "label": "User to Get",
+          "type": "text",
+          "required": true,
+          "description": "(provide the ID)",
+          "in": "body"
+        }
+      ],
+      "group": "User",
+      "description": "Retrieve data for a specific user"
+    },
+    {
+      "id": "user_get_all",
+      "label": "Get Many User",
+      "method": "POST",
+      "path": "/v2/users/extensive",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: createdFromDateTime, createdToDateTime, userIds)"
+        }
+      ],
+      "group": "User",
+      "description": "Retrieve a list of users"
     }
   ]
 }

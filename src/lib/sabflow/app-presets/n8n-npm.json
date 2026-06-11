@@ -4,28 +4,135 @@
   "description": "Consume NPM registry API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 9,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://registry.npmjs.org",
   "endpoints": [
     {
-      "id": "package_default",
-      "label": "List Package",
+      "id": "package_get_metadata",
+      "label": "Get Metadata Package",
       "method": "GET",
-      "path": "/package",
-      "fields": []
+      "path": "/{{ encodeURIComponent({packageName}) }}/{{ {packageVersion} }}",
+      "fields": [
+        {
+          "id": "packageName",
+          "label": "Package Name",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "packageVersion",
+          "label": "Package Version",
+          "type": "text",
+          "required": true,
+          "defaultValue": "latest",
+          "in": "path"
+        }
+      ],
+      "group": "Package",
+      "description": "[unverified path] Returns all the metadata for a package at a specific version"
     },
     {
-      "id": "dist_tag_default",
-      "label": "List DistTag",
+      "id": "package_get_versions",
+      "label": "Get Versions Package",
       "method": "GET",
-      "path": "/distTag",
-      "fields": []
+      "path": "/{{ encodeURIComponent({packageName}) }}",
+      "fields": [
+        {
+          "id": "packageName",
+          "label": "Package Name",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Package",
+      "description": "[unverified path] Returns all the versions for a package"
+    },
+    {
+      "id": "package_search",
+      "label": "Search Package",
+      "method": "GET",
+      "path": "/-/v1/search",
+      "fields": [
+        {
+          "id": "query",
+          "label": "Query",
+          "type": "text",
+          "required": true,
+          "description": "The query text used to search for packages"
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 10
+        },
+        {
+          "id": "offset",
+          "label": "Offset",
+          "type": "number",
+          "description": "Offset to return results from",
+          "defaultValue": 0
+        }
+      ],
+      "group": "Package",
+      "description": "Search for packages"
+    },
+    {
+      "id": "dist_tag_get_many",
+      "label": "Get All Distribution Tag",
+      "method": "GET",
+      "path": "/-/package/{{ encodeURIComponent({packageName}) }}/dist-tags",
+      "fields": [
+        {
+          "id": "packageName",
+          "label": "Package Name",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Distribution Tag",
+      "description": "[unverified path] Returns all the dist-tags for a package"
+    },
+    {
+      "id": "dist_tag_update",
+      "label": "Update Distribution Tag",
+      "method": "PUT",
+      "path": "/-/package/{{ encodeURIComponent({packageName}) }}/dist-tags/{{ encodeURIComponent({distTagName}) }}",
+      "fields": [
+        {
+          "id": "packageName",
+          "label": "Package Name",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "packageVersion",
+          "label": "Package Version",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "distTagName",
+          "label": "Distribution Tag Name",
+          "type": "text",
+          "required": true,
+          "defaultValue": "latest",
+          "in": "path"
+        }
+      ],
+      "group": "Distribution Tag",
+      "description": "[unverified path] Update a the dist-tags for a package"
     }
   ]
 }

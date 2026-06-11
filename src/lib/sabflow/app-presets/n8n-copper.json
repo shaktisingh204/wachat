@@ -4,70 +4,762 @@
   "description": "Consume the Copper API",
   "category": "crm",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.copper.com",
   "endpoints": [
     {
-      "id": "company_default",
-      "label": "List Company",
+      "id": "company_create",
+      "label": "Create Company",
+      "method": "POST",
+      "path": "/companies",
+      "fields": [
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "Name of the company to create"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: address, details, email_domain, phone_numbers)"
+        }
+      ],
+      "group": "Company",
+      "description": "Create a company"
+    },
+    {
+      "id": "company_delete",
+      "label": "Delete Company",
+      "method": "DELETE",
+      "path": "/companies/{companyId}",
+      "fields": [
+        {
+          "id": "companyId",
+          "label": "Company ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the company to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Company",
+      "description": "Delete a company"
+    },
+    {
+      "id": "company_get",
+      "label": "Get Company",
+      "method": "GET",
+      "path": "/companies/{companyId}",
+      "fields": [
+        {
+          "id": "companyId",
+          "label": "Company ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the company to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Company",
+      "description": "Get a company"
+    },
+    {
+      "id": "company_get_all",
+      "label": "Get Many Company",
       "method": "GET",
       "path": "/company",
-      "fields": []
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 5
+        },
+        {
+          "id": "filterFields",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: country, name)"
+        }
+      ],
+      "group": "Company",
+      "description": "[unverified path] Get many companies"
     },
     {
-      "id": "customer_source_default",
-      "label": "List CustomerSource",
+      "id": "company_update",
+      "label": "Update Company",
+      "method": "PUT",
+      "path": "/companies/{companyId}",
+      "fields": [
+        {
+          "id": "companyId",
+          "label": "Company ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the company to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: address, details, name, phone_numbers)"
+        }
+      ],
+      "group": "Company",
+      "description": "Update a company"
+    },
+    {
+      "id": "customer_source_get_all",
+      "label": "Get Many Customer Source",
       "method": "GET",
-      "path": "/customerSource",
-      "fields": []
+      "path": "/customer-source",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 5
+        }
+      ],
+      "group": "Customer Source",
+      "description": "[unverified path] Get many customer sources"
     },
     {
-      "id": "lead_default",
-      "label": "List Lead",
+      "id": "lead_create",
+      "label": "Create Lead",
+      "method": "POST",
+      "path": "/leads",
+      "fields": [
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "Name of the lead to create"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: address, email, phone_numbers)"
+        }
+      ],
+      "group": "Lead",
+      "description": "Create a lead"
+    },
+    {
+      "id": "lead_delete",
+      "label": "Delete Lead",
+      "method": "DELETE",
+      "path": "/leads/{leadId}",
+      "fields": [
+        {
+          "id": "leadId",
+          "label": "Lead ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the lead to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Lead",
+      "description": "Delete a lead"
+    },
+    {
+      "id": "lead_get",
+      "label": "Get Lead",
+      "method": "GET",
+      "path": "/leads/{leadId}",
+      "fields": [
+        {
+          "id": "leadId",
+          "label": "Lead ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the lead to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Lead",
+      "description": "Get a lead"
+    },
+    {
+      "id": "lead_get_all",
+      "label": "Get Many Lead",
       "method": "GET",
       "path": "/lead",
-      "fields": []
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 5
+        },
+        {
+          "id": "filterFields",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: country, name)"
+        }
+      ],
+      "group": "Lead",
+      "description": "[unverified path] Get many leads"
     },
     {
-      "id": "opportunity_default",
-      "label": "List Opportunity",
+      "id": "lead_update",
+      "label": "Update Lead",
+      "method": "PUT",
+      "path": "/leads/{leadId}",
+      "fields": [
+        {
+          "id": "leadId",
+          "label": "Lead ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the lead to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: address, details, email, name, phone_numbers)"
+        }
+      ],
+      "group": "Lead",
+      "description": "Update a lead"
+    },
+    {
+      "id": "opportunity_create",
+      "label": "Create Opportunity",
+      "method": "POST",
+      "path": "/opportunities",
+      "fields": [
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "Name of the opportunity to create"
+        },
+        {
+          "id": "customerSourceId",
+          "label": "Customer Source ID",
+          "type": "text",
+          "description": "ID of the customer source that generated this opportunity"
+        },
+        {
+          "id": "primaryContactId",
+          "label": "Primary Contact ID",
+          "type": "text",
+          "description": "ID of the primary company associated with this opportunity"
+        }
+      ],
+      "group": "Opportunity",
+      "description": "Create an opportunity"
+    },
+    {
+      "id": "opportunity_delete",
+      "label": "Delete Opportunity",
+      "method": "DELETE",
+      "path": "/opportunities/{opportunityId}",
+      "fields": [
+        {
+          "id": "opportunityId",
+          "label": "Opportunity ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the opportunity to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Opportunity",
+      "description": "Delete an opportunity"
+    },
+    {
+      "id": "opportunity_get",
+      "label": "Get Opportunity",
+      "method": "GET",
+      "path": "/opportunities/{opportunityId}",
+      "fields": [
+        {
+          "id": "opportunityId",
+          "label": "Opportunity ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the opportunity to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Opportunity",
+      "description": "Get an opportunity"
+    },
+    {
+      "id": "opportunity_get_all",
+      "label": "Get Many Opportunity",
       "method": "GET",
       "path": "/opportunity",
-      "fields": []
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 5
+        },
+        {
+          "id": "filterFields",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: company_ids, customer_source_ids)"
+        }
+      ],
+      "group": "Opportunity",
+      "description": "[unverified path] Get many opportunities"
     },
     {
-      "id": "person_default",
-      "label": "List Person",
+      "id": "opportunity_update",
+      "label": "Update Opportunity",
+      "method": "PUT",
+      "path": "/opportunities/{opportunityId}",
+      "fields": [
+        {
+          "id": "opportunityId",
+          "label": "Opportunity ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the opportunity to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: customer_source_id, name, primary_contact_id)"
+        }
+      ],
+      "group": "Opportunity",
+      "description": "Update an opportunity"
+    },
+    {
+      "id": "person_create",
+      "label": "Create Person",
+      "method": "POST",
+      "path": "/people",
+      "fields": [
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "Name of the person to create"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: address, details, email_domain, emails, phone_numbers)"
+        }
+      ],
+      "group": "Person",
+      "description": "Create a person"
+    },
+    {
+      "id": "person_delete",
+      "label": "Delete Person",
+      "method": "DELETE",
+      "path": "/people/{personId}",
+      "fields": [
+        {
+          "id": "personId",
+          "label": "Person ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the person to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Person",
+      "description": "Delete a person"
+    },
+    {
+      "id": "person_get",
+      "label": "Get Person",
+      "method": "GET",
+      "path": "/people/{personId}",
+      "fields": [
+        {
+          "id": "personId",
+          "label": "Person ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the person to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Person",
+      "description": "Get a person"
+    },
+    {
+      "id": "person_get_all",
+      "label": "Get Many Person",
       "method": "GET",
       "path": "/person",
-      "fields": []
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 5
+        },
+        {
+          "id": "filterFields",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: name)"
+        }
+      ],
+      "group": "Person",
+      "description": "[unverified path] Get many people"
     },
     {
-      "id": "project_default",
-      "label": "List Project",
+      "id": "person_update",
+      "label": "Update Person",
+      "method": "PUT",
+      "path": "/people/{personId}",
+      "fields": [
+        {
+          "id": "personId",
+          "label": "Person ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the person to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: address, details, email_domain, emails, name, phone_numbers)"
+        }
+      ],
+      "group": "Person",
+      "description": "Update a person"
+    },
+    {
+      "id": "project_create",
+      "label": "Create Project",
+      "method": "POST",
+      "path": "/projects",
+      "fields": [
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "Name of the project to create"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: assignee_id, details, status)"
+        }
+      ],
+      "group": "Project",
+      "description": "Create a project"
+    },
+    {
+      "id": "project_delete",
+      "label": "Delete Project",
+      "method": "DELETE",
+      "path": "/projects/{projectId}",
+      "fields": [
+        {
+          "id": "projectId",
+          "label": "Project ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the project to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Project",
+      "description": "Delete a project"
+    },
+    {
+      "id": "project_get",
+      "label": "Get Project",
+      "method": "GET",
+      "path": "/projects/{projectId}",
+      "fields": [
+        {
+          "id": "projectId",
+          "label": "Project ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the project to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Project",
+      "description": "Get a project"
+    },
+    {
+      "id": "project_get_all",
+      "label": "Get Many Project",
       "method": "GET",
       "path": "/project",
-      "fields": []
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 5
+        },
+        {
+          "id": "filterFields",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: name)"
+        }
+      ],
+      "group": "Project",
+      "description": "[unverified path] Get many projects"
     },
     {
-      "id": "task_default",
-      "label": "List Task",
+      "id": "project_update",
+      "label": "Update Project",
+      "method": "PUT",
+      "path": "/projects/{projectId}",
+      "fields": [
+        {
+          "id": "projectId",
+          "label": "Project ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the project to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: assignee_id, details, name, status)"
+        }
+      ],
+      "group": "Project",
+      "description": "Update a project"
+    },
+    {
+      "id": "task_create",
+      "label": "Create Task",
+      "method": "POST",
+      "path": "/tasks",
+      "fields": [
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: assignee_id, details, priority, status)"
+        }
+      ],
+      "group": "Task",
+      "description": "Create a task"
+    },
+    {
+      "id": "task_delete",
+      "label": "Delete Task",
+      "method": "DELETE",
+      "path": "/tasks/{taskId}",
+      "fields": [
+        {
+          "id": "taskId",
+          "label": "Task ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the task to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Task",
+      "description": "Delete a task"
+    },
+    {
+      "id": "task_get",
+      "label": "Get Task",
+      "method": "GET",
+      "path": "/tasks/{taskId}",
+      "fields": [
+        {
+          "id": "taskId",
+          "label": "Task ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the task to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Task",
+      "description": "Get a task"
+    },
+    {
+      "id": "task_get_all",
+      "label": "Get Many Task",
       "method": "GET",
       "path": "/task",
-      "fields": []
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 5
+        },
+        {
+          "id": "filterFields",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: assignee_ids, project_ids)"
+        }
+      ],
+      "group": "Task",
+      "description": "[unverified path] Get many tasks"
     },
     {
-      "id": "user_default",
-      "label": "List User",
+      "id": "task_update",
+      "label": "Update Task",
+      "method": "PUT",
+      "path": "/tasks/{taskId}",
+      "fields": [
+        {
+          "id": "taskId",
+          "label": "Task ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the task to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: assignee_id, details, name, priority, status)"
+        }
+      ],
+      "group": "Task",
+      "description": "Update a task"
+    },
+    {
+      "id": "user_get_all",
+      "label": "Get Many User",
       "method": "GET",
       "path": "/user",
-      "fields": []
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 5
+        }
+      ],
+      "group": "User",
+      "description": "[unverified path] Get many users"
     }
   ]
 }

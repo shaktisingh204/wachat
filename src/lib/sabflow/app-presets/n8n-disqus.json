@@ -4,26 +4,25 @@
   "description": "Access data on Disqus",
   "category": "communication",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://disqus.com/api/3.0",
   "endpoints": [
     {
       "id": "forum_get",
       "label": "Get Forum",
       "method": "GET",
-      "path": "/",
+      "path": "/forums/details.json",
       "fields": [
         {
           "id": "id",
           "label": "Forum Name",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "The short name(aka ID) of the forum to get"
         },
@@ -31,22 +30,23 @@
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: attach, related)"
         }
-      ]
+      ],
+      "group": "Forum",
+      "description": "Return forum details"
     },
     {
       "id": "forum_get_categories",
       "label": "Get All Categories Forum",
       "method": "GET",
-      "path": "/",
+      "path": "/forums/listCategories.json",
       "fields": [
         {
           "id": "id",
           "label": "Forum Name",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "The short name(aka ID) of the forum to get Categories"
         },
@@ -54,7 +54,6 @@
           "id": "returnAll",
           "label": "Return All",
           "type": "toggle",
-          "in": "query",
           "description": "Whether to return all results or only up to a given limit",
           "defaultValue": false
         },
@@ -62,7 +61,6 @@
           "id": "limit",
           "label": "Limit",
           "type": "number",
-          "in": "query",
           "description": "Max number of results to return",
           "defaultValue": 100
         },
@@ -70,22 +68,23 @@
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: order)"
         }
-      ]
+      ],
+      "group": "Forum",
+      "description": "Return a list of categories within a forum"
     },
     {
       "id": "forum_get_threads",
       "label": "Get All Threads Forum",
       "method": "GET",
-      "path": "/",
+      "path": "/forums/listThreads.json",
       "fields": [
         {
           "id": "id",
           "label": "Forum Name",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "The short name(aka ID) of the forum to get Threads"
         },
@@ -93,7 +92,6 @@
           "id": "returnAll",
           "label": "Return All",
           "type": "toggle",
-          "in": "query",
           "description": "Whether to return all results or only up to a given limit",
           "defaultValue": false
         },
@@ -101,7 +99,6 @@
           "id": "limit",
           "label": "Limit",
           "type": "number",
-          "in": "query",
           "description": "Max number of results to return",
           "defaultValue": 100
         },
@@ -109,22 +106,23 @@
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: related, include, order, since, thread)"
         }
-      ]
+      ],
+      "group": "Forum",
+      "description": "Return a list of threads within a forum"
     },
     {
       "id": "forum_get_posts",
       "label": "Get All Posts Forum",
       "method": "GET",
-      "path": "/",
+      "path": "/forums/listPosts.json",
       "fields": [
         {
           "id": "id",
           "label": "Forum Name",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "The short name(aka ID) of the forum to get"
         },
@@ -132,7 +130,6 @@
           "id": "returnAll",
           "label": "Return All",
           "type": "toggle",
-          "in": "query",
           "description": "Whether to return all results or only up to a given limit",
           "defaultValue": false
         },
@@ -140,7 +137,6 @@
           "id": "limit",
           "label": "Limit",
           "type": "number",
-          "in": "query",
           "description": "Max number of results to return",
           "defaultValue": 100
         },
@@ -148,10 +144,12 @@
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: filters, include, order, query, related, since)"
         }
-      ]
+      ],
+      "group": "Forum",
+      "description": "Return a list of posts within a forum"
     }
   ]
 }

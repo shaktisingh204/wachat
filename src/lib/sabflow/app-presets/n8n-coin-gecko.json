@@ -4,27 +4,486 @@
   "description": "Consume CoinGecko API",
   "category": "finance",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "none"
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.coingecko.com/api/v3",
   "endpoints": [
     {
-      "id": "coin_default",
-      "label": "List Coin",
-      "method": "GET",
-      "path": "/coin",
-      "fields": []
+      "id": "coin_candlestick",
+      "label": "Candlestick Coin",
+      "method": "POST",
+      "path": "/coins/{baseCurrency}/ohlc",
+      "fields": [
+        {
+          "id": "baseCurrency",
+          "label": "Base Currency Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The first currency in the pair. For BTC:ETH this is BTC. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "quoteCurrency",
+          "label": "Quote Currency Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The second currency in the pair. For BTC:ETH this is ETH. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "days",
+          "label": "Range (Days)",
+          "type": "select",
+          "required": true,
+          "description": "Return data for this many days in the past from now",
+          "options": [
+            {
+              "value": "1",
+              "label": "1"
+            },
+            {
+              "value": "7",
+              "label": "7"
+            },
+            {
+              "value": "14",
+              "label": "14"
+            },
+            {
+              "value": "30",
+              "label": "30"
+            },
+            {
+              "value": "90",
+              "label": "90"
+            },
+            {
+              "value": "180",
+              "label": "180"
+            },
+            {
+              "value": "365",
+              "label": "365"
+            },
+            {
+              "value": "max",
+              "label": "Max"
+            }
+          ]
+        }
+      ],
+      "group": "Coin",
+      "description": "Get a candlestick open-high-low-close chart for the selected currency"
     },
     {
-      "id": "event_default",
-      "label": "List Event",
+      "id": "coin_get",
+      "label": "Get Coin",
       "method": "GET",
-      "path": "/event",
-      "fields": []
+      "path": "/coins/{coinId}",
+      "fields": [
+        {
+          "id": "searchBy",
+          "label": "Search By",
+          "type": "select",
+          "required": true,
+          "description": "Search by coin ID or contract address",
+          "defaultValue": "coinId",
+          "options": [
+            {
+              "value": "coinId",
+              "label": "Coin ID"
+            },
+            {
+              "value": "contractAddress",
+              "label": "Contract Address"
+            }
+          ]
+        },
+        {
+          "id": "coinId",
+          "label": "Coin Name or ID",
+          "type": "select",
+          "required": true,
+          "placeholder": "bitcoin",
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        },
+        {
+          "id": "platformId",
+          "label": "Platform ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the platform issuing tokens",
+          "defaultValue": "ethereum",
+          "options": [
+            {
+              "value": "ethereum",
+              "label": "Ethereum"
+            }
+          ]
+        },
+        {
+          "id": "contractAddress",
+          "label": "Contract Address",
+          "type": "text",
+          "required": true,
+          "description": "Token's contract address"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: community_data, developer_data, localization, market_data, sparkline, tickers)"
+        }
+      ],
+      "group": "Coin",
+      "description": "Get current data for a coin"
+    },
+    {
+      "id": "coin_get_all",
+      "label": "Get Many Coin",
+      "method": "GET",
+      "path": "/coins/list",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        }
+      ],
+      "group": "Coin",
+      "description": "Get many coins"
+    },
+    {
+      "id": "coin_history",
+      "label": "History Coin",
+      "method": "POST",
+      "path": "/coins/{coinId}/history",
+      "fields": [
+        {
+          "id": "coinId",
+          "label": "Coin Name or ID",
+          "type": "select",
+          "required": true,
+          "placeholder": "bitcoin",
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        },
+        {
+          "id": "date",
+          "label": "Date",
+          "type": "text",
+          "required": true,
+          "placeholder": "2024-01-01T00:00:00Z",
+          "description": "The date of data snapshot (ISO 8601 date-time)"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: localization)"
+        }
+      ],
+      "group": "Coin",
+      "description": "Get historical data (name, price, market, stats) at a given date for a coin"
+    },
+    {
+      "id": "coin_market",
+      "label": "Market Coin",
+      "method": "POST",
+      "path": "/coins/markets",
+      "fields": [
+        {
+          "id": "baseCurrency",
+          "label": "Base Currency Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The first currency in the pair. For BTC:ETH this is BTC. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: ids, category, order, sparkline, price_change_percentage)"
+        }
+      ],
+      "group": "Coin",
+      "description": "Get prices and market related data for all trading pairs that match the selected currency"
+    },
+    {
+      "id": "coin_market_chart",
+      "label": "Market Chart Coin",
+      "method": "POST",
+      "path": "/coins/{coinId}/market_chart",
+      "fields": [
+        {
+          "id": "searchBy",
+          "label": "Search By",
+          "type": "select",
+          "required": true,
+          "description": "Search by coin ID or contract address",
+          "defaultValue": "coinId",
+          "options": [
+            {
+              "value": "coinId",
+              "label": "Coin ID"
+            },
+            {
+              "value": "contractAddress",
+              "label": "Contract Address"
+            }
+          ]
+        },
+        {
+          "id": "platformId",
+          "label": "Platform ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the platform issuing tokens",
+          "defaultValue": "ethereum",
+          "options": [
+            {
+              "value": "ethereum",
+              "label": "Ethereum"
+            }
+          ]
+        },
+        {
+          "id": "contractAddress",
+          "label": "Contract Address",
+          "type": "text",
+          "required": true,
+          "description": "Token's contract address"
+        },
+        {
+          "id": "baseCurrency",
+          "label": "Base Currency Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The first currency in the pair. For BTC:ETH this is BTC. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "quoteCurrency",
+          "label": "Quote Currency Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The second currency in the pair. For BTC:ETH this is ETH. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "days",
+          "label": "Range (Days)",
+          "type": "select",
+          "required": true,
+          "description": "Return data for this many days in the past from now",
+          "options": [
+            {
+              "value": "1",
+              "label": "1"
+            },
+            {
+              "value": "7",
+              "label": "7"
+            },
+            {
+              "value": "14",
+              "label": "14"
+            },
+            {
+              "value": "30",
+              "label": "30"
+            },
+            {
+              "value": "90",
+              "label": "90"
+            },
+            {
+              "value": "180",
+              "label": "180"
+            },
+            {
+              "value": "365",
+              "label": "365"
+            },
+            {
+              "value": "max",
+              "label": "Max"
+            }
+          ]
+        }
+      ],
+      "group": "Coin",
+      "description": "Get historical market data include price, market cap, and 24h volume (granularity auto)"
+    },
+    {
+      "id": "coin_price",
+      "label": "Price Coin",
+      "method": "POST",
+      "path": "/simple/price",
+      "fields": [
+        {
+          "id": "searchBy",
+          "label": "Search By",
+          "type": "select",
+          "required": true,
+          "description": "Search by coin ID or contract address",
+          "defaultValue": "coinId",
+          "options": [
+            {
+              "value": "coinId",
+              "label": "Coin ID"
+            },
+            {
+              "value": "contractAddress",
+              "label": "Contract Address"
+            }
+          ]
+        },
+        {
+          "id": "baseCurrencies",
+          "label": "Base Currency Names or IDs",
+          "type": "select",
+          "required": true,
+          "placeholder": "bitcoin",
+          "description": "The first currency in the pair. For BTC:ETH this is BTC. Choose from the list, or specify IDs using an expression. (multiple values: comma-separated)"
+        },
+        {
+          "id": "platformId",
+          "label": "Platform ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the platform issuing tokens",
+          "defaultValue": "ethereum",
+          "options": [
+            {
+              "value": "ethereum",
+              "label": "Ethereum"
+            }
+          ]
+        },
+        {
+          "id": "contractAddresses",
+          "label": "Contract Addresses",
+          "type": "text",
+          "required": true,
+          "description": "The contract address of tokens, comma-separated"
+        },
+        {
+          "id": "quoteCurrencies",
+          "label": "Quote Currency Names or IDs",
+          "type": "select",
+          "required": true,
+          "description": "The second currency in the pair. For BTC:ETH this is ETH. Choose from the list, or specify IDs using an expression. (multiple values: comma-separated)"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: include_24hr_change, include_24hr_vol, include_last_updated_at, include_market_cap)"
+        }
+      ],
+      "group": "Coin",
+      "description": "Get the current price of any cryptocurrencies in any other supported currencies that you need"
+    },
+    {
+      "id": "coin_ticker",
+      "label": "Ticker Coin",
+      "method": "POST",
+      "path": "/coins/{coinId}/tickers",
+      "fields": [
+        {
+          "id": "coinId",
+          "label": "Coin Name or ID",
+          "type": "select",
+          "required": true,
+          "placeholder": "bitcoin",
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: exchange_ids, include_exchange_logo, order)"
+        }
+      ],
+      "group": "Coin",
+      "description": "Get coin tickers"
+    },
+    {
+      "id": "event_get_all",
+      "label": "Get Many Event",
+      "method": "GET",
+      "path": "/events",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: country_code, from_date, to_date, type, upcoming_events_only)"
+        }
+      ],
+      "group": "Event",
+      "description": "Get many events"
     }
   ]
 }

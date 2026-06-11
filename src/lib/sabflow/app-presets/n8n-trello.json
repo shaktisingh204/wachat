@@ -4,8 +4,8 @@
   "description": "Create, change and delete boards and cards",
   "category": "productivity",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -16,63 +16,1213 @@
       "credentialType": "http_header_auth"
     }
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.trello.com/1",
   "endpoints": [
     {
-      "id": "attachment_default",
-      "label": "List Attachment",
-      "method": "GET",
-      "path": "/attachment",
-      "fields": []
+      "id": "attachment_create",
+      "label": "Create Attachment",
+      "method": "POST",
+      "path": "/cards/{cardId}/attachments",
+      "fields": [
+        {
+          "id": "cardId",
+          "label": "Card ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the card (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "url",
+          "label": "Source URL",
+          "type": "text",
+          "required": true,
+          "description": "The URL of the attachment to add"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: mimeType, name)"
+        }
+      ],
+      "group": "Attachment",
+      "description": "Create a new attachment for a card"
     },
     {
-      "id": "board_default",
-      "label": "List Board",
-      "method": "GET",
-      "path": "/board",
-      "fields": []
+      "id": "attachment_delete",
+      "label": "Delete Attachment",
+      "method": "DELETE",
+      "path": "/cards/{cardId}/attachments/{id}",
+      "fields": [
+        {
+          "id": "cardId",
+          "label": "Card ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the card (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "id",
+          "label": "Attachment ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the attachment to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Attachment",
+      "description": "Delete an attachment"
     },
     {
-      "id": "board_member_default",
-      "label": "List BoardMember",
+      "id": "attachment_get",
+      "label": "Get Attachment",
       "method": "GET",
-      "path": "/boardMember",
-      "fields": []
+      "path": "/cards/{cardId}/attachments/{id}",
+      "fields": [
+        {
+          "id": "cardId",
+          "label": "Card ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the card (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "id",
+          "label": "Attachment ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the attachment to get",
+          "in": "path"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: fields)"
+        }
+      ],
+      "group": "Attachment",
+      "description": "Get the data of an attachment"
     },
     {
-      "id": "card_default",
-      "label": "List Card",
+      "id": "attachment_get_all",
+      "label": "Get Many Attachment",
       "method": "GET",
-      "path": "/card",
-      "fields": []
+      "path": "/cards/{cardId}/attachments",
+      "fields": [
+        {
+          "id": "cardId",
+          "label": "Card ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the card (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: fields)"
+        }
+      ],
+      "group": "Attachment",
+      "description": "Returns many attachments for the card"
     },
     {
-      "id": "card_comment_default",
-      "label": "List CardComment",
-      "method": "GET",
-      "path": "/cardComment",
-      "fields": []
+      "id": "board_create",
+      "label": "Create Board",
+      "method": "POST",
+      "path": "/boards",
+      "fields": [
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "placeholder": "My board",
+          "description": "The name of the board"
+        },
+        {
+          "id": "description",
+          "label": "Description",
+          "type": "text",
+          "description": "The description of the board"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: prefs_cardAging, prefs_background, prefs_comments, prefs_cardCovers, prefs_invitations, keepFromSource, defaultLabels, defaultLists, idOrganization, prefs_permissionLevel, powerUps, prefs_selfJoin, idBoardSource, prefs_voting)"
+        }
+      ],
+      "group": "Board",
+      "description": "Create a new board"
     },
     {
-      "id": "checklist_default",
-      "label": "List Checklist",
-      "method": "GET",
-      "path": "/checklist",
-      "fields": []
+      "id": "board_delete",
+      "label": "Delete Board",
+      "method": "DELETE",
+      "path": "/boards/{id}",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Board",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the board (provide the ID)",
+          "in": "path"
+        }
+      ],
+      "group": "Board",
+      "description": "Delete a board"
     },
     {
-      "id": "label_default",
-      "label": "List Label",
+      "id": "board_get",
+      "label": "Get Board",
       "method": "GET",
-      "path": "/label",
-      "fields": []
+      "path": "/boards/{id}",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Board",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the board (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: fields, pluginData)"
+        }
+      ],
+      "group": "Board",
+      "description": "Get the data of a board"
     },
     {
-      "id": "list_default",
-      "label": "List List",
+      "id": "board_update",
+      "label": "Update Board",
+      "method": "PUT",
+      "path": "/boards/{id}",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Board",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the board (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: closed, desc, name, idOrganization, subscribed)"
+        }
+      ],
+      "group": "Board",
+      "description": "Update a board"
+    },
+    {
+      "id": "board_member_add",
+      "label": "Add Board Member",
+      "method": "PUT",
+      "path": "/boards/{id}/members/{idMember}",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Board ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the board to add member to",
+          "in": "path"
+        },
+        {
+          "id": "idMember",
+          "label": "Member ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the member to add to the board",
+          "in": "path"
+        },
+        {
+          "id": "type",
+          "label": "Type",
+          "type": "select",
+          "required": true,
+          "description": "Determines the type of membership the user being added should have",
+          "defaultValue": "normal",
+          "options": [
+            {
+              "value": "normal",
+              "label": "Normal"
+            },
+            {
+              "value": "admin",
+              "label": "Admin"
+            },
+            {
+              "value": "observer",
+              "label": "Observer"
+            }
+          ]
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: allowBillableGuest)"
+        }
+      ],
+      "group": "Board Member",
+      "description": "Add member to board using member ID"
+    },
+    {
+      "id": "board_member_get_all",
+      "label": "Get Many Board Member",
       "method": "GET",
-      "path": "/list",
-      "fields": []
+      "path": "/boards/{id}/members",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Board ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the board to get members from",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 20
+        }
+      ],
+      "group": "Board Member",
+      "description": "Get many members of a board"
+    },
+    {
+      "id": "board_member_invite",
+      "label": "Invite Board Member",
+      "method": "PUT",
+      "path": "/boards/{id}/members",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Board ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the board to invite member to",
+          "in": "path"
+        },
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "required": true,
+          "placeholder": "name@email.com",
+          "description": "The ID of the board to update"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: type, fullName)"
+        }
+      ],
+      "group": "Board Member",
+      "description": "Invite a new member to a board via email"
+    },
+    {
+      "id": "board_member_remove",
+      "label": "Remove Board Member",
+      "method": "DELETE",
+      "path": "/boards/{id}/members/{idMember}",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Board ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the board to remove member from",
+          "in": "path"
+        },
+        {
+          "id": "idMember",
+          "label": "Member ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the member to remove from the board",
+          "in": "path"
+        }
+      ],
+      "group": "Board Member",
+      "description": "Remove member from board using member ID"
+    },
+    {
+      "id": "card_create",
+      "label": "Create Card",
+      "method": "POST",
+      "path": "/cards",
+      "fields": [
+        {
+          "id": "listId",
+          "label": "List ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the list to create card in"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "placeholder": "My card",
+          "description": "The name of the card"
+        },
+        {
+          "id": "description",
+          "label": "Description",
+          "type": "text",
+          "description": "The description of the card"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: due, dueComplete, pos, idMembers, idLabels, urlSource, idCardSource, keepFromSource)"
+        }
+      ],
+      "group": "Card",
+      "description": "Create a new card"
+    },
+    {
+      "id": "card_delete",
+      "label": "Delete Card",
+      "method": "DELETE",
+      "path": "/cards/{id}",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Card",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the card (provide the ID)",
+          "in": "path"
+        }
+      ],
+      "group": "Card",
+      "description": "Delete a card"
+    },
+    {
+      "id": "card_get",
+      "label": "Get Card",
+      "method": "GET",
+      "path": "/cards/{id}",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Card",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the card (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: fields, board, board_fields, customFieldItems, members, member_fields, pluginData, stickers, sticker_fields)"
+        }
+      ],
+      "group": "Card",
+      "description": "Get the data of a card"
+    },
+    {
+      "id": "card_update",
+      "label": "Update Card",
+      "method": "PUT",
+      "path": "/cards/{id}",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Card",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the card (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: idAttachmentCover, idBoard, closed, desc, due, dueComplete, idLabels, idList, idMembers, name, pos, subscribed)"
+        }
+      ],
+      "group": "Card",
+      "description": "Update a card"
+    },
+    {
+      "id": "card_comment_create",
+      "label": "Create Card Comment",
+      "method": "POST",
+      "path": "/cards/{cardId}/actions/comments",
+      "fields": [
+        {
+          "id": "cardId",
+          "label": "Card",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the card (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "text",
+          "label": "Text",
+          "type": "text",
+          "required": true,
+          "description": "Text of the comment"
+        }
+      ],
+      "group": "Card Comment",
+      "description": "Create a comment on a card"
+    },
+    {
+      "id": "card_comment_delete",
+      "label": "Delete Card Comment",
+      "method": "DELETE",
+      "path": "/cards/{cardId}/actions/{commentId}/comments",
+      "fields": [
+        {
+          "id": "cardId",
+          "label": "Card",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the card (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "commentId",
+          "label": "Comment ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the comment to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Card Comment",
+      "description": "Delete a comment from a card"
+    },
+    {
+      "id": "card_comment_update",
+      "label": "Update Card Comment",
+      "method": "PUT",
+      "path": "/cards/{cardId}/actions/{commentId}/comments",
+      "fields": [
+        {
+          "id": "cardId",
+          "label": "Card",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the card (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "commentId",
+          "label": "Comment ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the comment to delete",
+          "in": "path"
+        },
+        {
+          "id": "text",
+          "label": "Text",
+          "type": "text",
+          "required": true,
+          "description": "Text of the comment"
+        }
+      ],
+      "group": "Card Comment",
+      "description": "Update a comment on a card"
+    },
+    {
+      "id": "checklist_create",
+      "label": "Create Checklist",
+      "method": "POST",
+      "path": "/cards/{cardId}/checklists",
+      "fields": [
+        {
+          "id": "cardId",
+          "label": "Card",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the card (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "The URL of the checklist to add"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: idChecklistSource, pos)"
+        }
+      ],
+      "group": "Checklist",
+      "description": "Create a new checklist"
+    },
+    {
+      "id": "checklist_create_check_item",
+      "label": "Create Checklist Item Checklist",
+      "method": "POST",
+      "path": "/checklists/{checklistId}/checkItems",
+      "fields": [
+        {
+          "id": "checklistId",
+          "label": "Checklist ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the checklist to update",
+          "in": "path"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "The name of the new check item on the checklist"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: checked, pos)"
+        }
+      ],
+      "group": "Checklist",
+      "description": "Create a checklist item"
+    },
+    {
+      "id": "checklist_delete",
+      "label": "Delete Checklist",
+      "method": "DELETE",
+      "path": "/cards/{cardId}/checklists/{id}",
+      "fields": [
+        {
+          "id": "cardId",
+          "label": "Card",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the card (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "id",
+          "label": "Checklist ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the checklist to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Checklist",
+      "description": "Delete a checklist"
+    },
+    {
+      "id": "checklist_delete_check_item",
+      "label": "Delete Checklist Item Checklist",
+      "method": "DELETE",
+      "path": "/cards/{cardId}/checkItem/{checkItemId}",
+      "fields": [
+        {
+          "id": "cardId",
+          "label": "Card",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the card (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "checkItemId",
+          "label": "CheckItem ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the checklist item to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Checklist",
+      "description": "Delete a checklist item"
+    },
+    {
+      "id": "checklist_get",
+      "label": "Get Checklist",
+      "method": "GET",
+      "path": "/checklists/{id}",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Checklist ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the checklist to get",
+          "in": "path"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: fields)"
+        }
+      ],
+      "group": "Checklist",
+      "description": "Get the data of a checklist"
+    },
+    {
+      "id": "checklist_get_check_item",
+      "label": "Get Checklist Items Checklist",
+      "method": "GET",
+      "path": "/cards/{cardId}/checkItem/{checkItemId}",
+      "fields": [
+        {
+          "id": "cardId",
+          "label": "Card",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the card (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "checkItemId",
+          "label": "CheckItem ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the checklist item to get",
+          "in": "path"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: fields)"
+        }
+      ],
+      "group": "Checklist",
+      "description": "Get a specific checklist on a card"
+    },
+    {
+      "id": "checklist_completed_check_items",
+      "label": "Get Completed Checklist Items Checklist",
+      "method": "GET",
+      "path": "/cards/{cardId}/checkItemStates",
+      "fields": [
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: fields)"
+        }
+      ],
+      "group": "Checklist",
+      "description": "Get the completed checklist items on a card"
+    },
+    {
+      "id": "checklist_get_all",
+      "label": "Get Many Checklist",
+      "method": "GET",
+      "path": "/cards/{cardId}/checklists",
+      "fields": [
+        {
+          "id": "cardId",
+          "label": "Card",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the card (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: fields)"
+        }
+      ],
+      "group": "Checklist",
+      "description": "Returns many checklists for the card"
+    },
+    {
+      "id": "checklist_update_check_item",
+      "label": "Update Checklist Item Checklist",
+      "method": "PUT",
+      "path": "/cards/{cardId}/checkItem/{checkItemId}",
+      "fields": [
+        {
+          "id": "cardId",
+          "label": "Card",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the card (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "checkItemId",
+          "label": "CheckItem ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the checklist item to update",
+          "in": "path"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: name, state, checklistId, pos)"
+        }
+      ],
+      "group": "Checklist",
+      "description": "Update an item in a checklist on a card"
+    },
+    {
+      "id": "label_add_label",
+      "label": "Add to Card Label",
+      "method": "POST",
+      "path": "/cards/{cardId}/idLabels",
+      "fields": [
+        {
+          "id": "cardId",
+          "label": "Card ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the card (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "id",
+          "label": "Label ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the label to add"
+        }
+      ],
+      "group": "Label",
+      "description": "Add a label to a card"
+    },
+    {
+      "id": "label_create",
+      "label": "Create Label",
+      "method": "POST",
+      "path": "/labels",
+      "fields": [
+        {
+          "id": "boardId",
+          "label": "Board",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the board (provide the ID)"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "Name for the label"
+        },
+        {
+          "id": "color",
+          "label": "Color",
+          "type": "select",
+          "required": true,
+          "description": "The color for the label",
+          "defaultValue": "null",
+          "options": [
+            {
+              "value": "black",
+              "label": "Black"
+            },
+            {
+              "value": "blue",
+              "label": "Blue"
+            },
+            {
+              "value": "green",
+              "label": "Green"
+            },
+            {
+              "value": "lime",
+              "label": "Lime"
+            },
+            {
+              "value": "null",
+              "label": "Null"
+            },
+            {
+              "value": "orange",
+              "label": "Orange"
+            },
+            {
+              "value": "pink",
+              "label": "Pink"
+            },
+            {
+              "value": "purple",
+              "label": "Purple"
+            },
+            {
+              "value": "red",
+              "label": "Red"
+            },
+            {
+              "value": "sky",
+              "label": "Sky"
+            },
+            {
+              "value": "yellow",
+              "label": "Yellow"
+            }
+          ]
+        }
+      ],
+      "group": "Label",
+      "description": "Create a new label"
+    },
+    {
+      "id": "label_delete",
+      "label": "Delete Label",
+      "method": "DELETE",
+      "path": "/labels/{id}",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Label ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the label to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Label",
+      "description": "Delete a label"
+    },
+    {
+      "id": "label_get",
+      "label": "Get Label",
+      "method": "GET",
+      "path": "/labels/{id}",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Label ID",
+          "type": "text",
+          "required": true,
+          "description": "Get information about a label by ID",
+          "in": "path"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: fields)"
+        }
+      ],
+      "group": "Label",
+      "description": "Get the data of a label"
+    },
+    {
+      "id": "label_get_all",
+      "label": "Get Many Label",
+      "method": "GET",
+      "path": "/board/{idBoard}/labels",
+      "fields": [
+        {
+          "id": "boardId",
+          "label": "Board",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the board (provide the ID)"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: fields)"
+        }
+      ],
+      "group": "Label",
+      "description": "Returns many labels for the board"
+    },
+    {
+      "id": "label_remove_label",
+      "label": "Remove From Card Label",
+      "method": "DELETE",
+      "path": "/cards/{cardId}/idLabels/{id}",
+      "fields": [
+        {
+          "id": "cardId",
+          "label": "Card ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the card (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "id",
+          "label": "Label ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the label to remove",
+          "in": "path"
+        }
+      ],
+      "group": "Label",
+      "description": "Remove a label from a card"
+    },
+    {
+      "id": "label_update",
+      "label": "Update Label",
+      "method": "PUT",
+      "path": "/labels/{id}",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Label ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the label to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: name, color)"
+        }
+      ],
+      "group": "Label",
+      "description": "Update a label"
+    },
+    {
+      "id": "list_archive",
+      "label": "Archive List",
+      "method": "PUT",
+      "path": "/lists/{id}/closed",
+      "fields": [
+        {
+          "id": "id",
+          "label": "List ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the list to archive or unarchive",
+          "in": "path"
+        },
+        {
+          "id": "archive",
+          "label": "Archive",
+          "type": "toggle",
+          "description": "Whether the list should be archived or unarchived",
+          "defaultValue": false
+        }
+      ],
+      "group": "List",
+      "description": "Archive/Unarchive a list"
+    },
+    {
+      "id": "list_create",
+      "label": "Create List",
+      "method": "POST",
+      "path": "/lists",
+      "fields": [
+        {
+          "id": "idBoard",
+          "label": "Board ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the board the list should be created in"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "placeholder": "My list",
+          "description": "The name of the list"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: idListSource, pos)"
+        }
+      ],
+      "group": "List",
+      "description": "Create a new list"
+    },
+    {
+      "id": "list_get",
+      "label": "Get List",
+      "method": "GET",
+      "path": "/lists/{id}",
+      "fields": [
+        {
+          "id": "id",
+          "label": "List ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the list to get",
+          "in": "path"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: fields)"
+        }
+      ],
+      "group": "List",
+      "description": "Get the data of a list"
+    },
+    {
+      "id": "list_get_cards",
+      "label": "Get Cards List",
+      "method": "GET",
+      "path": "/lists/{id}/cards",
+      "fields": [
+        {
+          "id": "id",
+          "label": "List ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the list to get cards",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 20
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: fields)"
+        }
+      ],
+      "group": "List",
+      "description": "Get all the cards in a list"
+    },
+    {
+      "id": "list_get_all",
+      "label": "Get Many List",
+      "method": "GET",
+      "path": "/boards/{id}/lists",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Board ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the board",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 20
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: fields)"
+        }
+      ],
+      "group": "List",
+      "description": "Get many lists"
+    },
+    {
+      "id": "list_update",
+      "label": "Update List",
+      "method": "PUT",
+      "path": "/lists/{id}",
+      "fields": [
+        {
+          "id": "id",
+          "label": "List ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the list to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: idBoard, closed, name, pos, subscribed)"
+        }
+      ],
+      "group": "List",
+      "description": "Update a list"
     }
   ]
 }

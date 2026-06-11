@@ -4,26 +4,25 @@
   "description": "Consume Pushbullet API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
     "credentialType": "oauth2"
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.pushbullet.com/v2",
   "endpoints": [
     {
       "id": "push_create",
       "label": "Create Push",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/upload-request",
       "fields": [
         {
           "id": "type",
           "label": "Type",
           "type": "select",
-          "in": "query",
           "required": true,
           "defaultValue": "note",
           "options": [
@@ -45,7 +44,6 @@
           "id": "title",
           "label": "Title",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Title of the push"
         },
@@ -53,7 +51,6 @@
           "id": "body",
           "label": "Body",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Body of the push"
         },
@@ -61,7 +58,6 @@
           "id": "url",
           "label": "URL",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "URL of the push"
         },
@@ -69,7 +65,6 @@
           "id": "binaryPropertyName",
           "label": "Input Binary Field",
           "type": "text",
-          "in": "query",
           "required": true,
           "defaultValue": "data"
         },
@@ -77,7 +72,6 @@
           "id": "target",
           "label": "Target",
           "type": "select",
-          "in": "query",
           "required": true,
           "description": "Define the medium that will be used to send the push",
           "defaultValue": "default",
@@ -104,46 +98,40 @@
           "id": "value",
           "label": "Value",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "The value to be set depending on the target selected. For example, if the target selected is email then this field would take the email address of the person you are trying to send the push to."
-        },
-        {
-          "id": "value",
-          "label": "Value Name or ID",
-          "type": "select",
-          "in": "query",
-          "required": true,
-          "description": "Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>"
         }
-      ]
+      ],
+      "group": "Push",
+      "description": "Create a push"
     },
     {
       "id": "push_delete",
       "label": "Delete Push",
-      "method": "GET",
-      "path": "/",
+      "method": "DELETE",
+      "path": "/pushes/{pushId}",
       "fields": [
         {
           "id": "pushId",
           "label": "Push ID",
           "type": "text",
-          "in": "query",
-          "required": true
+          "required": true,
+          "in": "path"
         }
-      ]
+      ],
+      "group": "Push",
+      "description": "Delete a push"
     },
     {
       "id": "push_get_all",
       "label": "Get Many Push",
       "method": "GET",
-      "path": "/",
+      "path": "/pushes",
       "fields": [
         {
           "id": "returnAll",
           "label": "Return All",
           "type": "toggle",
-          "in": "query",
           "description": "Whether to return all results or only up to a given limit",
           "defaultValue": false
         },
@@ -151,7 +139,6 @@
           "id": "limit",
           "label": "Limit",
           "type": "number",
-          "in": "query",
           "description": "Max number of results to return",
           "defaultValue": 100
         },
@@ -159,34 +146,37 @@
           "id": "filters",
           "label": "Filters",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Filter"
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: active, modified_after)"
         }
-      ]
+      ],
+      "group": "Push",
+      "description": "Get many pushes"
     },
     {
       "id": "push_update",
       "label": "Update Push",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/pushes/{pushId}",
       "fields": [
         {
           "id": "pushId",
           "label": "Push ID",
           "type": "text",
-          "in": "query",
-          "required": true
+          "required": true,
+          "in": "path"
         },
         {
           "id": "dismissed",
           "label": "Dismissed",
           "type": "toggle",
-          "in": "query",
           "required": true,
           "description": "Whether to mark a push as having been dismissed by the user, will cause any notifications for the push to be hidden if possible",
           "defaultValue": false
         }
-      ]
+      ],
+      "group": "Push",
+      "description": "Update a push"
     }
   ]
 }

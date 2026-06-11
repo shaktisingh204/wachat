@@ -4,8 +4,8 @@
   "description": "Consume the Stripe API",
   "category": "finance",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 13,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -16,63 +16,601 @@
       "credentialType": "http_header_auth"
     }
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.stripe.com/v1",
   "endpoints": [
     {
-      "id": "balance_default",
-      "label": "List Balance",
+      "id": "balance_get",
+      "label": "Get Balance",
       "method": "GET",
       "path": "/balance",
-      "fields": []
+      "fields": [],
+      "group": "Balance",
+      "description": "Get a balance"
     },
     {
-      "id": "charge_default",
-      "label": "List Charge",
+      "id": "customer_card_add",
+      "label": "Add Customer Card",
+      "method": "POST",
+      "path": "/customers/{customerId}/sources",
+      "fields": [
+        {
+          "id": "customerId",
+          "label": "Customer ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the customer to be associated with this card",
+          "in": "path"
+        },
+        {
+          "id": "token",
+          "label": "Card Token",
+          "type": "password",
+          "required": true,
+          "placeholder": "tok_1IMfKdJhRTnqS5TKQVG1LI9o",
+          "description": "Token representing sensitive card information"
+        }
+      ],
+      "group": "Customer Card",
+      "description": "Add a customer card"
+    },
+    {
+      "id": "customer_card_get",
+      "label": "Get Customer Card",
+      "method": "GET",
+      "path": "/customers/{customerId}/sources/{sourceId}",
+      "fields": [
+        {
+          "id": "customerId",
+          "label": "Customer ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the customer whose card to retrieve",
+          "in": "path"
+        },
+        {
+          "id": "sourceId",
+          "label": "Source ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the source to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Customer Card",
+      "description": "Get a customer card"
+    },
+    {
+      "id": "customer_card_remove",
+      "label": "Remove Customer Card",
+      "method": "DELETE",
+      "path": "/customers/{customerId}/sources/{cardId}",
+      "fields": [
+        {
+          "id": "customerId",
+          "label": "Customer ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the customer whose card to remove",
+          "in": "path"
+        },
+        {
+          "id": "cardId",
+          "label": "Card ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the card to remove",
+          "in": "path"
+        }
+      ],
+      "group": "Customer Card",
+      "description": "Remove a customer card"
+    },
+    {
+      "id": "charge_create",
+      "label": "Create Charge",
+      "method": "POST",
+      "path": "/charges",
+      "fields": [
+        {
+          "id": "customerId",
+          "label": "Customer ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the customer to be associated with this charge"
+        },
+        {
+          "id": "amount",
+          "label": "Amount",
+          "type": "number",
+          "required": true,
+          "description": "Amount in cents to be collected for this charge, e.g. enter 100 for $1.00",
+          "defaultValue": 0
+        },
+        {
+          "id": "currency",
+          "label": "Currency Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Three-letter ISO currency code, e.g. USD or EUR. It must be a Stripe-supported currency. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "source",
+          "label": "Source ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the customer's payment source to be charged"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: description, metadata, receipt_email, shipping)"
+        }
+      ],
+      "group": "Charge",
+      "description": "Create a charge"
+    },
+    {
+      "id": "charge_get",
+      "label": "Get Charge",
+      "method": "GET",
+      "path": "/charges/{chargeId}",
+      "fields": [
+        {
+          "id": "chargeId",
+          "label": "Charge ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the charge to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Charge",
+      "description": "Get a charge"
+    },
+    {
+      "id": "charge_get_all",
+      "label": "Get Many Charge",
       "method": "GET",
       "path": "/charge",
-      "fields": []
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Charge",
+      "description": "[unverified path] Get many charges"
     },
     {
-      "id": "coupon_default",
-      "label": "List Coupon",
+      "id": "charge_update",
+      "label": "Update Charge",
+      "method": "POST",
+      "path": "/charges/{chargeId}",
+      "fields": [
+        {
+          "id": "chargeId",
+          "label": "Charge ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the charge to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: description, metadata, receipt_email, shipping)"
+        }
+      ],
+      "group": "Charge",
+      "description": "Update a charge"
+    },
+    {
+      "id": "coupon_create",
+      "label": "Create Coupon",
+      "method": "POST",
+      "path": "/coupons",
+      "fields": [
+        {
+          "id": "duration",
+          "label": "Apply",
+          "type": "select",
+          "required": true,
+          "description": "How long the discount will be in effect",
+          "defaultValue": "once",
+          "options": [
+            {
+              "value": "forever",
+              "label": "Forever"
+            },
+            {
+              "value": "once",
+              "label": "Once"
+            }
+          ]
+        },
+        {
+          "id": "type",
+          "label": "Discount Type",
+          "type": "select",
+          "required": true,
+          "description": "Whether the coupon discount is a percentage or a fixed amount",
+          "defaultValue": "percent",
+          "options": [
+            {
+              "value": "fixedAmount",
+              "label": "Fixed Amount (in Cents)"
+            },
+            {
+              "value": "percent",
+              "label": "Percent"
+            }
+          ]
+        },
+        {
+          "id": "amountOff",
+          "label": "Amount Off",
+          "type": "number",
+          "required": true,
+          "description": "Amount in cents to subtract from an invoice total, e.g. enter 100 for $1.00",
+          "defaultValue": 0
+        },
+        {
+          "id": "currency",
+          "label": "Currency Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Three-letter ISO currency code, e.g. USD or EUR. It must be a Stripe-supported currency. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "percentOff",
+          "label": "Percent Off",
+          "type": "number",
+          "required": true,
+          "description": "Percentage to apply with the coupon",
+          "defaultValue": 1
+        }
+      ],
+      "group": "Coupon",
+      "description": "Create a coupon"
+    },
+    {
+      "id": "coupon_get_all",
+      "label": "Get Many Coupon",
       "method": "GET",
       "path": "/coupon",
-      "fields": []
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Coupon",
+      "description": "[unverified path] Get many coupons"
     },
     {
-      "id": "customer_default",
-      "label": "List Customer",
+      "id": "customer_create",
+      "label": "Create Customer",
+      "method": "POST",
+      "path": "/customers",
+      "fields": [
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "Full name or business name of the customer to create"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: address, description, email, metadata, phone, shipping)"
+        }
+      ],
+      "group": "Customer",
+      "description": "Create a customer"
+    },
+    {
+      "id": "customer_delete",
+      "label": "Delete Customer",
+      "method": "DELETE",
+      "path": "/customers/{customerId}",
+      "fields": [
+        {
+          "id": "customerId",
+          "label": "Customer ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the customer to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Customer",
+      "description": "Delete a customer"
+    },
+    {
+      "id": "customer_get",
+      "label": "Get Customer",
+      "method": "GET",
+      "path": "/customers/{customerId}",
+      "fields": [
+        {
+          "id": "customerId",
+          "label": "Customer ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the customer to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Customer",
+      "description": "Get a customer"
+    },
+    {
+      "id": "customer_get_all",
+      "label": "Get Many Customer",
       "method": "GET",
       "path": "/customer",
-      "fields": []
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: email)"
+        }
+      ],
+      "group": "Customer",
+      "description": "[unverified path] Get many customers"
     },
     {
-      "id": "customer_card_default",
-      "label": "List CustomerCard",
-      "method": "GET",
-      "path": "/customerCard",
-      "fields": []
+      "id": "customer_update",
+      "label": "Update Customer",
+      "method": "POST",
+      "path": "/customers/{customerId}",
+      "fields": [
+        {
+          "id": "customerId",
+          "label": "Customer ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the customer to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: address, description, email, metadata, name, phone, shipping)"
+        }
+      ],
+      "group": "Customer",
+      "description": "Update a customer"
     },
     {
-      "id": "meter_event_default",
-      "label": "List MeterEvent",
-      "method": "GET",
-      "path": "/meterEvent",
-      "fields": []
+      "id": "meter_event_create",
+      "label": "Create Meter Event",
+      "method": "POST",
+      "path": "/billing/meter_events",
+      "fields": [
+        {
+          "id": "eventName",
+          "label": "Event Name",
+          "type": "text",
+          "required": true,
+          "description": "The name of the meter event. Corresponds with the event_name field on a meter."
+        },
+        {
+          "id": "customerId",
+          "label": "Customer ID",
+          "type": "text",
+          "required": true,
+          "description": "The Stripe customer ID associated with this meter event"
+        },
+        {
+          "id": "value",
+          "label": "Value",
+          "type": "number",
+          "required": true,
+          "description": "The value of the meter event. Must be an integer. Can be positive or negative.",
+          "defaultValue": 1
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: identifier, timestamp, customPayload)"
+        }
+      ],
+      "group": "Meter Event",
+      "description": "Create a meter event"
     },
     {
-      "id": "source_default",
-      "label": "List Source",
-      "method": "GET",
-      "path": "/source",
-      "fields": []
+      "id": "source_create",
+      "label": "Create Source",
+      "method": "POST",
+      "path": "/sources",
+      "fields": [
+        {
+          "id": "customerId",
+          "label": "Customer ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the customer to attach the source to"
+        },
+        {
+          "id": "type",
+          "label": "Type",
+          "type": "select",
+          "required": true,
+          "description": "Type of source (payment instrument) to create",
+          "defaultValue": "wechat",
+          "options": [
+            {
+              "value": "wechat",
+              "label": "WeChat"
+            }
+          ]
+        },
+        {
+          "id": "amount",
+          "label": "Amount",
+          "type": "number",
+          "description": "Amount in cents to be collected for this charge, e.g. enter 100 for $1.00",
+          "defaultValue": 0
+        },
+        {
+          "id": "currency",
+          "label": "Currency Name or ID",
+          "type": "select",
+          "description": "Three-letter ISO currency code, e.g. USD or EUR. It must be a Stripe-supported currency. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: metadata, statement_descriptor)"
+        }
+      ],
+      "group": "Source",
+      "description": "Create a source"
     },
     {
-      "id": "token_default",
-      "label": "List Token",
+      "id": "source_delete",
+      "label": "Delete Source",
+      "method": "DELETE",
+      "path": "/customers/{customerId}/sources/{sourceId}",
+      "fields": [
+        {
+          "id": "customerId",
+          "label": "Customer ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the customer whose source to delete",
+          "in": "path"
+        },
+        {
+          "id": "sourceId",
+          "label": "Source ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the source to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Source",
+      "description": "Delete a source"
+    },
+    {
+      "id": "source_get",
+      "label": "Get Source",
       "method": "GET",
-      "path": "/token",
-      "fields": []
+      "path": "/sources/{sourceId}",
+      "fields": [
+        {
+          "id": "sourceId",
+          "label": "Source ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the source to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Source",
+      "description": "Get a source"
+    },
+    {
+      "id": "token_create",
+      "label": "Create Token",
+      "method": "POST",
+      "path": "/tokens",
+      "fields": [
+        {
+          "id": "type",
+          "label": "Type",
+          "type": "select",
+          "required": true,
+          "description": "Type of token to create",
+          "defaultValue": "cardToken",
+          "options": [
+            {
+              "value": "cardToken",
+              "label": "Card Token"
+            }
+          ]
+        },
+        {
+          "id": "number",
+          "label": "Card Number",
+          "type": "text",
+          "placeholder": "4242424242424242"
+        },
+        {
+          "id": "cvc",
+          "label": "CVC",
+          "type": "text",
+          "placeholder": "314",
+          "description": "Security code printed on the back of the card"
+        },
+        {
+          "id": "expirationMonth",
+          "label": "Expiration Month",
+          "type": "text",
+          "placeholder": "10",
+          "description": "Number of the month when the card will expire"
+        },
+        {
+          "id": "expirationYear",
+          "label": "Expiration Year",
+          "type": "text",
+          "placeholder": "2022",
+          "description": "Year when the card will expire"
+        }
+      ],
+      "group": "Token",
+      "description": "Create a token"
     }
   ]
 }

@@ -4,33 +4,31 @@
   "description": "Find B2B emails and enrich contacts",
   "category": "crm",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.dropcontact.io",
   "endpoints": [
     {
       "id": "contact_enrich",
       "label": "Enrich Contact",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/batch",
       "fields": [
         {
           "id": "email",
           "label": "Email",
           "type": "text",
-          "in": "query",
           "placeholder": "name@email.com"
         },
         {
           "id": "simplify",
           "label": "Simplify Output (Faster)",
           "type": "toggle",
-          "in": "query",
           "description": "When off, waits for the contact data before completing. Waiting time can be adjusted with Extend Wait Time option. When on, returns a request_id that can be used later in the Fetch Request operation.",
           "defaultValue": false
         },
@@ -38,32 +36,35 @@
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: num_siren, siret, company, country, first_name, full_name, last_name, linkedin, phone, website)"
         },
         {
           "id": "options",
           "label": "Options",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add option"
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: waitTime, siren, language)"
         }
-      ]
+      ],
+      "group": "Contact",
+      "description": "Find B2B emails and enrich your contact from his name and his website"
     },
     {
       "id": "contact_fetch_request",
       "label": "Fetch Request Contact",
       "method": "GET",
-      "path": "/",
+      "path": "/batch/{requestId}",
       "fields": [
         {
           "id": "requestId",
           "label": "Request ID",
           "type": "text",
-          "in": "query",
-          "required": true
+          "required": true,
+          "in": "path"
         }
-      ]
+      ],
+      "group": "Contact"
     }
   ]
 }

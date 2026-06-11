@@ -4,49 +4,622 @@
   "description": "Consume Discourse API",
   "category": "communication",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 4,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://{host}",
   "endpoints": [
     {
-      "id": "category_default",
-      "label": "List Category",
-      "method": "GET",
-      "path": "/category",
-      "fields": []
+      "id": "category_create",
+      "label": "Create Category",
+      "method": "POST",
+      "path": "/categories.json",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Discourse server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "Name of the category"
+        },
+        {
+          "id": "color",
+          "label": "Color",
+          "type": "text",
+          "required": true,
+          "description": "Color of the category",
+          "defaultValue": "0000FF"
+        },
+        {
+          "id": "textColor",
+          "label": "Text Color",
+          "type": "text",
+          "required": true,
+          "description": "Text color of the category",
+          "defaultValue": "0000FF"
+        }
+      ],
+      "group": "Category",
+      "description": "Create a category"
     },
     {
-      "id": "group_default",
-      "label": "List Group",
+      "id": "category_get_all",
+      "label": "Get Many Category",
       "method": "GET",
-      "path": "/group",
-      "fields": []
+      "path": "/categories.json",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Discourse server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Category",
+      "description": "Get many categories"
     },
     {
-      "id": "post_default",
-      "label": "List Post",
-      "method": "GET",
-      "path": "/post",
-      "fields": []
+      "id": "category_update",
+      "label": "Update Category",
+      "method": "PUT",
+      "path": "/categories/{categoryId}.json",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Discourse server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "categoryId",
+          "label": "Category ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the category",
+          "in": "path"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "New name of the category"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: color, textColor)"
+        }
+      ],
+      "group": "Category",
+      "description": "Update a category"
     },
     {
-      "id": "user_default",
-      "label": "List User",
-      "method": "GET",
-      "path": "/user",
-      "fields": []
+      "id": "group_create",
+      "label": "Create Group",
+      "method": "POST",
+      "path": "/admin/groups.json",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Discourse server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "Name of the group"
+        }
+      ],
+      "group": "Group",
+      "description": "Create a group"
     },
     {
-      "id": "user_group_default",
-      "label": "List UserGroup",
+      "id": "group_get",
+      "label": "Get Group",
       "method": "GET",
-      "path": "/userGroup",
-      "fields": []
+      "path": "/groups/{name}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Discourse server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "Name of the group",
+          "in": "path"
+        }
+      ],
+      "group": "Group",
+      "description": "Get a group"
+    },
+    {
+      "id": "group_get_all",
+      "label": "Get Many Group",
+      "method": "GET",
+      "path": "/groups.json",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Discourse server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Group",
+      "description": "Get many groups"
+    },
+    {
+      "id": "group_update",
+      "label": "Update Group",
+      "method": "PUT",
+      "path": "/groups/{groupId}.json",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Discourse server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "groupId",
+          "label": "Group ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the group to update",
+          "in": "path"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "New name of the group"
+        }
+      ],
+      "group": "Group",
+      "description": "Update a group"
+    },
+    {
+      "id": "post_create",
+      "label": "Create Post",
+      "method": "POST",
+      "path": "/posts.json",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Discourse server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "title",
+          "label": "Title",
+          "type": "text",
+          "description": "Title of the post"
+        },
+        {
+          "id": "content",
+          "label": "Content",
+          "type": "text",
+          "required": true,
+          "description": "Content of the post"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: category, reply_to_post_number, topic_id)"
+        }
+      ],
+      "group": "Post",
+      "description": "Create a post"
+    },
+    {
+      "id": "post_get",
+      "label": "Get Post",
+      "method": "GET",
+      "path": "/posts/{postId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Discourse server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "postId",
+          "label": "Post ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the post",
+          "in": "path"
+        }
+      ],
+      "group": "Post",
+      "description": "Get a post"
+    },
+    {
+      "id": "post_get_all",
+      "label": "Get Many Post",
+      "method": "GET",
+      "path": "/posts.json",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Discourse server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Post",
+      "description": "Get many posts"
+    },
+    {
+      "id": "post_update",
+      "label": "Update Post",
+      "method": "PUT",
+      "path": "/posts/{postId}.json",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Discourse server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "postId",
+          "label": "Post ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the post",
+          "in": "path"
+        },
+        {
+          "id": "content",
+          "label": "Content",
+          "type": "text",
+          "required": true,
+          "description": "Content of the post. HTML is supported."
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: edit_reason, cooked)"
+        }
+      ],
+      "group": "Post",
+      "description": "Update a post"
+    },
+    {
+      "id": "user_create",
+      "label": "Create User",
+      "method": "POST",
+      "path": "/users.json",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Discourse server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "Name of the user to create"
+        },
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "required": true,
+          "placeholder": "name@email.com",
+          "description": "Email of the user to create"
+        },
+        {
+          "id": "username",
+          "label": "Username",
+          "type": "text",
+          "required": true,
+          "description": "The username of the user to create"
+        },
+        {
+          "id": "password",
+          "label": "Password",
+          "type": "password",
+          "required": true,
+          "description": "The password of the user to create"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: active, approved)"
+        }
+      ],
+      "group": "User",
+      "description": "Create a user"
+    },
+    {
+      "id": "user_get",
+      "label": "Get User",
+      "method": "GET",
+      "path": "/users/{username}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Discourse server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "by",
+          "label": "By",
+          "type": "select",
+          "required": true,
+          "description": "What to search by",
+          "defaultValue": "username",
+          "options": [
+            {
+              "value": "username",
+              "label": "Username"
+            },
+            {
+              "value": "externalId",
+              "label": "SSO External ID"
+            }
+          ]
+        },
+        {
+          "id": "username",
+          "label": "Username",
+          "type": "text",
+          "required": true,
+          "description": "The username of the user to return",
+          "in": "path"
+        },
+        {
+          "id": "externalId",
+          "label": "SSO External ID",
+          "type": "text",
+          "required": true,
+          "description": "Discourse SSO external ID"
+        }
+      ],
+      "group": "User",
+      "description": "Get a user"
+    },
+    {
+      "id": "user_get_all",
+      "label": "Get Many User",
+      "method": "GET",
+      "path": "/admin/users/list/{flag}.json",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Discourse server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "flag",
+          "label": "Flag",
+          "type": "select",
+          "description": "User flags to search for",
+          "options": [
+            {
+              "value": "active",
+              "label": "Active"
+            },
+            {
+              "value": "blocked",
+              "label": "Blocked"
+            },
+            {
+              "value": "new",
+              "label": "New"
+            },
+            {
+              "value": "staff",
+              "label": "Staff"
+            },
+            {
+              "value": "suspect",
+              "label": "Suspect"
+            },
+            {
+              "value": "suspended",
+              "label": "Suspended"
+            }
+          ],
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: asc, order, showEmails, stats)"
+        }
+      ],
+      "group": "User",
+      "description": "Get many users"
+    },
+    {
+      "id": "user_group_add",
+      "label": "Add User Group",
+      "method": "PUT",
+      "path": "/groups/{groupId}/members.json",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Discourse server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "usernames",
+          "label": "Usernames",
+          "type": "text",
+          "required": true,
+          "description": "Usernames to add to group. Multiples can be defined separated by comma."
+        },
+        {
+          "id": "groupId",
+          "label": "Group ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the group",
+          "in": "path"
+        }
+      ],
+      "group": "User Group",
+      "description": "Create a user to group"
+    },
+    {
+      "id": "user_group_remove",
+      "label": "Remove User Group",
+      "method": "DELETE",
+      "path": "/groups/{groupId}/members.json",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Discourse server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "usernames",
+          "label": "Usernames",
+          "type": "text",
+          "required": true,
+          "description": "Usernames to remove from group. Multiples can be defined separated by comma."
+        },
+        {
+          "id": "groupId",
+          "label": "Group ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the group to remove",
+          "in": "path"
+        }
+      ],
+      "group": "User Group",
+      "description": "Remove user from group"
     }
   ]
 }

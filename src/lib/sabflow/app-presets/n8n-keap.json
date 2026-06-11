@@ -4,70 +4,868 @@
   "description": "Consume Keap API",
   "category": "crm",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
     "credentialType": "oauth2"
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.infusionsoft.com/crm/rest/v1",
   "endpoints": [
     {
-      "id": "company_default",
-      "label": "List Company",
-      "method": "GET",
-      "path": "/company",
-      "fields": []
+      "id": "company_create",
+      "label": "Create Company",
+      "method": "POST",
+      "path": "/companies",
+      "fields": [
+        {
+          "id": "companyName",
+          "label": "Company Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: emailAddress, notes, optInReason, website)"
+        },
+        {
+          "id": "addressesUi",
+          "label": "Addresses",
+          "type": "json",
+          "placeholder": "Add Address",
+          "description": "(JSON object; supported keys: addressesValues, addressesValues.countryCode, addressesValues.line1, addressesValues.line2, addressesValues.locality, addressesValues.postalCode, addressesValues.region, addressesValues.zipCode, addressesValues.zipFour)"
+        },
+        {
+          "id": "faxesUi",
+          "label": "Faxes",
+          "type": "json",
+          "placeholder": "Add Fax",
+          "description": "(JSON object; supported keys: faxesValues, faxesValues.type, faxesValues.number)"
+        },
+        {
+          "id": "phonesUi",
+          "label": "Phones",
+          "type": "json",
+          "placeholder": "Add Phone",
+          "description": "(JSON object; supported keys: phonesValues, phonesValues.type, phonesValues.number)"
+        }
+      ],
+      "group": "Company",
+      "description": "Create a company"
     },
     {
-      "id": "contact_default",
-      "label": "List Contact",
+      "id": "company_get_all",
+      "label": "Get Many Company",
       "method": "GET",
-      "path": "/contact",
-      "fields": []
+      "path": "/companies",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: companyName, order, orderDirection, fields)"
+        }
+      ],
+      "group": "Company",
+      "description": "Retrieve many companies"
     },
     {
-      "id": "contact_note_default",
-      "label": "List ContactNote",
-      "method": "GET",
-      "path": "/contactNote",
-      "fields": []
+      "id": "contact_upsert",
+      "label": "Create or Update Contact",
+      "method": "PUT",
+      "path": "/contacts",
+      "fields": [
+        {
+          "id": "duplicateOption",
+          "label": "Duplicate Option",
+          "type": "select",
+          "required": true,
+          "description": "Performs duplicate checking by one of the following options: Email, EmailAndName. If a match is found using the option provided, the existing contact will be updated.",
+          "defaultValue": "email",
+          "options": [
+            {
+              "value": "email",
+              "label": "Email"
+            },
+            {
+              "value": "emailAndName",
+              "label": "Email And Name"
+            }
+          ]
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: anniversary, companyId, contactType, familyName, givenName, ipAddress, jobTitle, leadSourceId, middleName, optInReason, ownerId, preferredLocale, preferredName, sourceType, spouseName, timezone, website)"
+        },
+        {
+          "id": "addressesUi",
+          "label": "Addresses",
+          "type": "json",
+          "placeholder": "Add Address",
+          "description": "(JSON object; supported keys: addressesValues, addressesValues.field, addressesValues.countryCode, addressesValues.line1, addressesValues.line2, addressesValues.locality, addressesValues.postalCode, addressesValues.region, addressesValues.zipCode, addressesValues.zipFour)"
+        },
+        {
+          "id": "emailsUi",
+          "label": "Emails",
+          "type": "json",
+          "placeholder": "Add Email",
+          "description": "(JSON object; supported keys: emailsValues, emailsValues.field, emailsValues.email)"
+        },
+        {
+          "id": "faxesUi",
+          "label": "Faxes",
+          "type": "json",
+          "placeholder": "Add Fax",
+          "description": "(JSON object; supported keys: faxesValues, faxesValues.field, faxesValues.number)"
+        },
+        {
+          "id": "phonesUi",
+          "label": "Phones",
+          "type": "json",
+          "placeholder": "Add Phone",
+          "description": "(JSON object; supported keys: phonesValues, phonesValues.field, phonesValues.number)"
+        },
+        {
+          "id": "socialAccountsUi",
+          "label": "Social Accounts",
+          "type": "json",
+          "placeholder": "Add Social Account",
+          "description": "(JSON object; supported keys: socialAccountsValues, socialAccountsValues.type, socialAccountsValues.name)"
+        }
+      ],
+      "group": "Contact",
+      "description": "Create a new contact, or update the current one if it already exists (upsert)"
     },
     {
-      "id": "contact_tag_default",
-      "label": "List ContactTag",
-      "method": "GET",
-      "path": "/contactTag",
-      "fields": []
+      "id": "contact_delete",
+      "label": "Delete Contact",
+      "method": "DELETE",
+      "path": "/contacts/{contactId}",
+      "fields": [
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Contact",
+      "description": "Delete an contact"
     },
     {
-      "id": "ecommerce_order_default",
-      "label": "List EcommerceOrder",
+      "id": "contact_get",
+      "label": "Get Contact",
       "method": "GET",
-      "path": "/ecommerceOrder",
-      "fields": []
+      "path": "/contacts/{contactId}",
+      "fields": [
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: fields)"
+        }
+      ],
+      "group": "Contact",
+      "description": "Retrieve an contact"
     },
     {
-      "id": "ecommerce_product_default",
-      "label": "List EcommerceProduct",
+      "id": "contact_get_all",
+      "label": "Get Many Contact",
       "method": "GET",
-      "path": "/ecommerceProduct",
-      "fields": []
+      "path": "/contacts",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: email, givenName, familyName, order, orderDirection, since, until)"
+        }
+      ],
+      "group": "Contact",
+      "description": "Retrieve many contacts"
     },
     {
-      "id": "email_default",
-      "label": "List Email",
-      "method": "GET",
-      "path": "/email",
-      "fields": []
+      "id": "contact_note_create",
+      "label": "Create Contact Note",
+      "method": "POST",
+      "path": "/notes",
+      "fields": [
+        {
+          "id": "userId",
+          "label": "User Name or ID",
+          "type": "select",
+          "description": "The infusionsoft user to create the note on behalf of. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: body, title, type)"
+        }
+      ],
+      "group": "Contact Note",
+      "description": "Create a note"
     },
     {
-      "id": "file_default",
-      "label": "List File",
+      "id": "contact_note_delete",
+      "label": "Delete Contact Note",
+      "method": "DELETE",
+      "path": "/notes/{noteId}",
+      "fields": [
+        {
+          "id": "noteId",
+          "label": "Note ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Contact Note",
+      "description": "Delete a note"
+    },
+    {
+      "id": "contact_note_get",
+      "label": "Get Contact Note",
       "method": "GET",
-      "path": "/file",
-      "fields": []
+      "path": "/notes/{noteId}",
+      "fields": [
+        {
+          "id": "noteId",
+          "label": "Note ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Contact Note",
+      "description": "Get a notes"
+    },
+    {
+      "id": "contact_note_get_all",
+      "label": "Get Many Contact Note",
+      "method": "GET",
+      "path": "/notes",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: contactId, userId)"
+        }
+      ],
+      "group": "Contact Note",
+      "description": "Retrieve many notes"
+    },
+    {
+      "id": "contact_note_update",
+      "label": "Update Contact Note",
+      "method": "PATCH",
+      "path": "/notes/{noteId}",
+      "fields": [
+        {
+          "id": "noteId",
+          "label": "Note ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: body, contactId, title, type, userId)"
+        }
+      ],
+      "group": "Contact Note",
+      "description": "Update a note"
+    },
+    {
+      "id": "contact_tag_create",
+      "label": "Create Contact Tag",
+      "method": "POST",
+      "path": "/contacts/{contactId}/tags",
+      "fields": [
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "tagIds",
+          "label": "Tag Names or IDs",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify IDs using an expression (multiple values: comma-separated)"
+        }
+      ],
+      "group": "Contact Tag",
+      "description": "Add a list of tags to a contact"
+    },
+    {
+      "id": "contact_tag_delete",
+      "label": "Delete Contact Tag",
+      "method": "DELETE",
+      "path": "/contacts/{contactId}/tags",
+      "fields": [
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "tagIds",
+          "label": "Tag IDs",
+          "type": "text",
+          "required": true,
+          "defaultValue": "Tag IDs, multiple IDs can be set separated by comma."
+        }
+      ],
+      "group": "Contact Tag",
+      "description": "Delete a contact's tag"
+    },
+    {
+      "id": "contact_tag_get_all",
+      "label": "Get Many Contact Tag",
+      "method": "GET",
+      "path": "/contacts/{contactId}/tags",
+      "fields": [
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        }
+      ],
+      "group": "Contact Tag",
+      "description": "Retrieve many contact's tags"
+    },
+    {
+      "id": "ecommerce_order_create",
+      "label": "Create Ecommerce Order",
+      "method": "POST",
+      "path": "/orders",
+      "fields": [
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "orderDate",
+          "label": "Order Date",
+          "type": "text",
+          "required": true,
+          "placeholder": "2024-01-01T00:00:00Z",
+          "description": "(ISO 8601 date-time)"
+        },
+        {
+          "id": "orderTitle",
+          "label": "Order Title",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "orderType",
+          "label": "Order Type",
+          "type": "select",
+          "required": true,
+          "options": [
+            {
+              "value": "offline",
+              "label": "Offline"
+            },
+            {
+              "value": "online",
+              "label": "Online"
+            }
+          ]
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: leadAffiliateId, promoCodes, salesAffiliateId)"
+        },
+        {
+          "id": "addressUi",
+          "label": "Shipping Address",
+          "type": "json",
+          "placeholder": "Add Address",
+          "description": "(JSON object; supported keys: addressValues, addressValues.company, addressValues.countryCode, addressValues.firstName, addressValues.middleName, addressValues.lastName, addressValues.line1, addressValues.line2, addressValues.locality, addressValues.region, addressValues.zipCode, addressValues.zipFour, addressValues.phone)"
+        },
+        {
+          "id": "orderItemsUi",
+          "label": "Order Items",
+          "type": "json",
+          "placeholder": "Add Order Item",
+          "description": "(JSON object; supported keys: orderItemsValues, orderItemsValues.description, orderItemsValues.price, orderItemsValues.product ID, orderItemsValues.quantity)"
+        }
+      ],
+      "group": "Ecommerce Order",
+      "description": "Create an ecommerce order"
+    },
+    {
+      "id": "ecommerce_order_get",
+      "label": "Get Ecommerce Order",
+      "method": "GET",
+      "path": "/orders/{orderId}",
+      "fields": [
+        {
+          "id": "orderId",
+          "label": "Order ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Ecommerce Order",
+      "description": "Get an ecommerce order"
+    },
+    {
+      "id": "ecommerce_order_delete",
+      "label": "Delete Ecommerce Order",
+      "method": "DELETE",
+      "path": "/orders/{orderId}",
+      "fields": [
+        {
+          "id": "orderId",
+          "label": "Order ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Ecommerce Order",
+      "description": "Delete an ecommerce order"
+    },
+    {
+      "id": "ecommerce_order_get_all",
+      "label": "Get Many Ecommerce Order",
+      "method": "GET",
+      "path": "/orders",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: since, until, paid, order, contactId, productId)"
+        }
+      ],
+      "group": "Ecommerce Order",
+      "description": "Retrieve many ecommerce orders"
+    },
+    {
+      "id": "ecommerce_product_create",
+      "label": "Create Ecommerce Product",
+      "method": "POST",
+      "path": "/products",
+      "fields": [
+        {
+          "id": "productName",
+          "label": "Product Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: active, productDesc, productPrice, productShortDesc, sku, subscriptionOnly)"
+        }
+      ],
+      "group": "Ecommerce Product",
+      "description": "Create an ecommerce product"
+    },
+    {
+      "id": "ecommerce_product_delete",
+      "label": "Delete Ecommerce Product",
+      "method": "DELETE",
+      "path": "/products/{productId}",
+      "fields": [
+        {
+          "id": "productId",
+          "label": "Product ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Ecommerce Product",
+      "description": "Delete an ecommerce product"
+    },
+    {
+      "id": "ecommerce_product_get",
+      "label": "Get Ecommerce Product",
+      "method": "GET",
+      "path": "/products/{productId}",
+      "fields": [
+        {
+          "id": "productId",
+          "label": "Product ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Ecommerce Product",
+      "description": "Get an ecommerce product"
+    },
+    {
+      "id": "ecommerce_product_get_all",
+      "label": "Get Many Ecommerce Product",
+      "method": "GET",
+      "path": "/products",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: active)"
+        }
+      ],
+      "group": "Ecommerce Product",
+      "description": "Retrieve many ecommerce products"
+    },
+    {
+      "id": "email_create_record",
+      "label": "Create Record Email",
+      "method": "POST",
+      "path": "/emails",
+      "fields": [
+        {
+          "id": "sentToAddress",
+          "label": "Sent To Address",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "sentFromAddress",
+          "label": "Sent From Address",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: clickedDate, contactId, headers, htmlContent, openedDate, originalProvider, originalProviderId, plainContent, providerSourceId, receivedDate, sentDate, sentFromReplyAddress, sentToBccAddresses, sentToCCAddresses, subject)"
+        }
+      ],
+      "group": "Email",
+      "description": "Create a record of an email sent to a contact"
+    },
+    {
+      "id": "email_get_all",
+      "label": "Get Many Email",
+      "method": "GET",
+      "path": "/emails",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: contactId, email, sinceSentDate, untilSentDate)"
+        }
+      ],
+      "group": "Email",
+      "description": "Retrieve many sent emails"
+    },
+    {
+      "id": "email_send",
+      "label": "Send Email",
+      "method": "POST",
+      "path": "/emails/queue",
+      "fields": [
+        {
+          "id": "userId",
+          "label": "User Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The infusionsoft user to send the email on behalf of. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "contactIds",
+          "label": "Contact IDs",
+          "type": "text",
+          "description": "Contact IDs to receive the email. Multiple can be added seperated by comma."
+        },
+        {
+          "id": "subject",
+          "label": "Subject",
+          "type": "text",
+          "description": "The subject line of the email"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: addressField, htmlContent, plainContent)"
+        },
+        {
+          "id": "attachmentsUi",
+          "label": "Attachments",
+          "type": "json",
+          "placeholder": "Add Attachments",
+          "description": "Attachments to be sent with each copy of the email, maximum of 10 with size of 1MB each (JSON object; supported keys: attachmentsValues, attachmentsValues.fileData, attachmentsValues.fileName, attachmentsBinary, attachmentsBinary.property)"
+        }
+      ],
+      "group": "Email",
+      "description": "Send Email"
+    },
+    {
+      "id": "file_delete",
+      "label": "Delete File",
+      "method": "DELETE",
+      "path": "/files/{fileId}",
+      "fields": [
+        {
+          "id": "fileId",
+          "label": "File ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "File",
+      "description": "Delete a file"
+    },
+    {
+      "id": "file_get_all",
+      "label": "Get Many File",
+      "method": "GET",
+      "path": "/files",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: contactId, name, permission, type, viewable)"
+        }
+      ],
+      "group": "File",
+      "description": "Retrieve many files"
+    },
+    {
+      "id": "file_upload",
+      "label": "Upload File",
+      "method": "POST",
+      "path": "/files",
+      "fields": [
+        {
+          "id": "binaryData",
+          "label": "Binary File",
+          "type": "toggle",
+          "description": "Whether the data to upload should be taken from binary field",
+          "defaultValue": false
+        },
+        {
+          "id": "binaryPropertyName",
+          "label": "Input Binary Field",
+          "type": "text",
+          "required": true,
+          "defaultValue": "data"
+        },
+        {
+          "id": "fileAssociation",
+          "label": "File Association",
+          "type": "select",
+          "required": true,
+          "options": [
+            {
+              "value": "company",
+              "label": "Company"
+            },
+            {
+              "value": "contact",
+              "label": "Contact"
+            },
+            {
+              "value": "user",
+              "label": "User"
+            }
+          ]
+        },
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "fileName",
+          "label": "File Name",
+          "type": "text",
+          "required": true,
+          "description": "The filename of the attached file, including extension"
+        },
+        {
+          "id": "fileData",
+          "label": "File Data",
+          "type": "text",
+          "required": true,
+          "description": "The content of the attachment, encoded in Base64"
+        },
+        {
+          "id": "isPublic",
+          "label": "Is Public",
+          "type": "toggle",
+          "defaultValue": false
+        }
+      ],
+      "group": "File",
+      "description": "Upload a file"
     }
   ]
 }

@@ -4,35 +4,668 @@
   "description": "Consume Agile CRM API",
   "category": "crm",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 8,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://{subdomain}.agilecrm.com/dev",
   "endpoints": [
     {
-      "id": "company_default",
-      "label": "List Company",
-      "method": "GET",
-      "path": "/company",
-      "fields": []
+      "id": "contact_create",
+      "label": "Create Contact",
+      "method": "POST",
+      "path": "/contact",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your Agile CRM account (host token in the API base URL)"
+        },
+        {
+          "id": "jsonParameters",
+          "label": "JSON Parameters",
+          "type": "toggle",
+          "defaultValue": false
+        },
+        {
+          "id": "additionalFieldsJson",
+          "label": "Additional Fields",
+          "type": "json",
+          "description": "Object of values to set as described here"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: addressOptions, company, emailOptions, firstName, lastName, leadScore, starValue, phoneOptions, tags, title, websiteOptions, customProperties)"
+        }
+      ],
+      "group": "Contact",
+      "description": "[unverified path] Create a new contact"
     },
     {
-      "id": "contact_default",
-      "label": "List Contact",
+      "id": "contact_delete",
+      "label": "Delete Contact",
+      "method": "DELETE",
+      "path": "/api/contacts/{contactId}",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your Agile CRM account (host token in the API base URL)"
+        },
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of contact to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Contact",
+      "description": "Delete a contact"
+    },
+    {
+      "id": "contact_get",
+      "label": "Get Contact",
+      "method": "GET",
+      "path": "/api/contacts/{contactId}",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your Agile CRM account (host token in the API base URL)"
+        },
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true,
+          "description": "Unique identifier for a particular contact",
+          "in": "path"
+        }
+      ],
+      "group": "Contact",
+      "description": "Get a contact"
+    },
+    {
+      "id": "contact_get_all",
+      "label": "Get Many Contact",
       "method": "GET",
       "path": "/contact",
-      "fields": []
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your Agile CRM account (host token in the API base URL)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 20
+        },
+        {
+          "id": "filterType",
+          "label": "Filter",
+          "type": "select",
+          "defaultValue": "none",
+          "options": [
+            {
+              "value": "none",
+              "label": "None"
+            },
+            {
+              "value": "manual",
+              "label": "Build Manually"
+            },
+            {
+              "value": "json",
+              "label": "JSON"
+            }
+          ]
+        },
+        {
+          "id": "matchType",
+          "label": "Must Match",
+          "type": "select",
+          "defaultValue": "anyFilter",
+          "options": [
+            {
+              "value": "anyFilter",
+              "label": "Any Filter"
+            },
+            {
+              "value": "allFilters",
+              "label": "All Filters"
+            }
+          ]
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": false
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Condition",
+          "description": "(JSON object; supported keys: conditions, conditions.field, conditions.condition_type, conditions.value, conditions.value2)"
+        },
+        {
+          "id": "filterJson",
+          "label": "Filters (JSON)",
+          "type": "text"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: sort)"
+        }
+      ],
+      "group": "Contact",
+      "description": "[unverified path] Get many contacts"
     },
     {
-      "id": "deal_default",
-      "label": "List Deal",
+      "id": "contact_update",
+      "label": "Update Contact",
+      "method": "PATCH",
+      "path": "/contact",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your Agile CRM account (host token in the API base URL)"
+        },
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true,
+          "description": "Unique identifier for a particular contact"
+        },
+        {
+          "id": "jsonParameters",
+          "label": "JSON Parameters",
+          "type": "toggle",
+          "defaultValue": false
+        },
+        {
+          "id": "additionalFieldsJson",
+          "label": "Additional Fields",
+          "type": "json",
+          "description": "Object of values to set as described here"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: addressOptions, company, emailOptions, firstName, lastName, leadScore, starValue, phoneOptions, tags, title, websiteOptions, customProperties)"
+        }
+      ],
+      "group": "Contact",
+      "description": "[unverified path] Update contact properties"
+    },
+    {
+      "id": "company_create",
+      "label": "Create Company",
+      "method": "POST",
+      "path": "/company",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your Agile CRM account (host token in the API base URL)"
+        },
+        {
+          "id": "jsonParameters",
+          "label": "JSON Parameters",
+          "type": "toggle",
+          "defaultValue": false
+        },
+        {
+          "id": "additionalFieldsJson",
+          "label": "Additional Fields",
+          "type": "json",
+          "description": "Object of values to set as described here"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: addressOptions, email, name, phone, starValue, tags, websiteOptions, customProperties)"
+        }
+      ],
+      "group": "Company",
+      "description": "[unverified path] Create a new company"
+    },
+    {
+      "id": "company_delete",
+      "label": "Delete Company",
+      "method": "DELETE",
+      "path": "/company",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your Agile CRM account (host token in the API base URL)"
+        },
+        {
+          "id": "companyId",
+          "label": "Company ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of company to delete"
+        }
+      ],
+      "group": "Company",
+      "description": "[unverified path] Delete a company"
+    },
+    {
+      "id": "company_get",
+      "label": "Get Company",
       "method": "GET",
-      "path": "/deal",
-      "fields": []
+      "path": "/company",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your Agile CRM account (host token in the API base URL)"
+        },
+        {
+          "id": "companyId",
+          "label": "Company ID",
+          "type": "text",
+          "required": true,
+          "description": "Unique identifier for a particular company"
+        }
+      ],
+      "group": "Company",
+      "description": "[unverified path] Get a company"
+    },
+    {
+      "id": "company_get_all",
+      "label": "Get Many Company",
+      "method": "GET",
+      "path": "/company",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your Agile CRM account (host token in the API base URL)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 20
+        },
+        {
+          "id": "filterType",
+          "label": "Filter",
+          "type": "select",
+          "defaultValue": "none",
+          "options": [
+            {
+              "value": "none",
+              "label": "None"
+            },
+            {
+              "value": "manual",
+              "label": "Build Manually"
+            },
+            {
+              "value": "json",
+              "label": "JSON"
+            }
+          ]
+        },
+        {
+          "id": "matchType",
+          "label": "Must Match",
+          "type": "select",
+          "defaultValue": "anyFilter",
+          "options": [
+            {
+              "value": "anyFilter",
+              "label": "Any Filter"
+            },
+            {
+              "value": "allFilters",
+              "label": "All Filters"
+            }
+          ]
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": false
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Condition",
+          "description": "(JSON object; supported keys: conditions, conditions.field, conditions.condition_type, conditions.value, conditions.value2)"
+        },
+        {
+          "id": "filterJson",
+          "label": "Filters (JSON)",
+          "type": "text"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: sort)"
+        }
+      ],
+      "group": "Company",
+      "description": "[unverified path] Get many companies"
+    },
+    {
+      "id": "company_update",
+      "label": "Update Company",
+      "method": "PATCH",
+      "path": "/company",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your Agile CRM account (host token in the API base URL)"
+        },
+        {
+          "id": "companyId",
+          "label": "Company ID",
+          "type": "text",
+          "required": true,
+          "description": "Unique identifier for a particular company"
+        },
+        {
+          "id": "jsonParameters",
+          "label": "JSON Parameters",
+          "type": "toggle",
+          "defaultValue": false
+        },
+        {
+          "id": "additionalFieldsJson",
+          "label": "Additional Fields",
+          "type": "json",
+          "description": "Object of values to set as described here"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: addressOptions, email, starValue, tags, name, phone, websiteOptions, customProperties)"
+        }
+      ],
+      "group": "Company",
+      "description": "[unverified path] Update company properties"
+    },
+    {
+      "id": "deal_create",
+      "label": "Create Deal",
+      "method": "POST",
+      "path": "/api/opportunity",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your Agile CRM account (host token in the API base URL)"
+        },
+        {
+          "id": "closeDate",
+          "label": "Close Date",
+          "type": "text",
+          "required": true,
+          "placeholder": "2024-01-01T00:00:00Z",
+          "description": "Closing date of deal (ISO 8601 date-time)"
+        },
+        {
+          "id": "expectedValue",
+          "label": "Expected Value",
+          "type": "number",
+          "required": true,
+          "description": "Expected Value of deal",
+          "defaultValue": 1
+        },
+        {
+          "id": "milestone",
+          "label": "Milestone",
+          "type": "text",
+          "required": true,
+          "description": "Milestone of deal"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "Name of deal"
+        },
+        {
+          "id": "probability",
+          "label": "Probability",
+          "type": "number",
+          "required": true,
+          "description": "Expected probability",
+          "defaultValue": 50
+        },
+        {
+          "id": "jsonParameters",
+          "label": "JSON Parameters",
+          "type": "toggle",
+          "defaultValue": false
+        },
+        {
+          "id": "additionalFieldsJson",
+          "label": "Additional Fields",
+          "type": "json",
+          "description": "Object of values to set as described here"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: contactIds, customData)"
+        }
+      ],
+      "group": "Deal",
+      "description": "Create a new deal"
+    },
+    {
+      "id": "deal_delete",
+      "label": "Delete Deal",
+      "method": "DELETE",
+      "path": "/api/opportunity/{contactId}",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your Agile CRM account (host token in the API base URL)"
+        },
+        {
+          "id": "dealId",
+          "label": "Deal ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of deal to delete"
+        }
+      ],
+      "group": "Deal",
+      "description": "Delete a deal"
+    },
+    {
+      "id": "deal_get",
+      "label": "Get Deal",
+      "method": "GET",
+      "path": "/api/opportunity/{dealId}",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your Agile CRM account (host token in the API base URL)"
+        },
+        {
+          "id": "dealId",
+          "label": "Deal ID",
+          "type": "text",
+          "required": true,
+          "description": "Unique identifier for a particular deal",
+          "in": "path"
+        }
+      ],
+      "group": "Deal",
+      "description": "Get a deal"
+    },
+    {
+      "id": "deal_get_all",
+      "label": "Get Many Deal",
+      "method": "GET",
+      "path": "/api/opportunity",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your Agile CRM account (host token in the API base URL)"
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 20
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        }
+      ],
+      "group": "Deal",
+      "description": "Get many deals"
+    },
+    {
+      "id": "deal_update",
+      "label": "Update Deal",
+      "method": "PUT",
+      "path": "/api/opportunity/partial-update",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your Agile CRM account (host token in the API base URL)"
+        },
+        {
+          "id": "dealId",
+          "label": "Deal ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of deal to update"
+        },
+        {
+          "id": "jsonParameters",
+          "label": "JSON Parameters",
+          "type": "toggle",
+          "defaultValue": false
+        },
+        {
+          "id": "additionalFieldsJson",
+          "label": "Additional Fields",
+          "type": "json",
+          "description": "Object of values to set as described here"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: expectedValue, name, probability, contactIds, customData)"
+        }
+      ],
+      "group": "Deal",
+      "description": "Update deal properties"
     }
   ]
 }

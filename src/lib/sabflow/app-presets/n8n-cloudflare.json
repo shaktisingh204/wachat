@@ -4,21 +4,134 @@
   "description": "Consume Cloudflare API",
   "category": "dev",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.cloudflare.com/client/v4",
   "endpoints": [
     {
-      "id": "zone_certificate_default",
-      "label": "List ZoneCertificate",
+      "id": "zone_certificate_delete",
+      "label": "Delete Zone Certificate",
+      "method": "DELETE",
+      "path": "/zones/{zoneId}/origin_tls_client_auth/{certificateId}",
+      "fields": [
+        {
+          "id": "zoneId",
+          "label": "Zone Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        },
+        {
+          "id": "certificateId",
+          "label": "Certificate ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Zone Certificate",
+      "description": "Delete a certificate"
+    },
+    {
+      "id": "zone_certificate_get",
+      "label": "Get Zone Certificate",
       "method": "GET",
-      "path": "/zoneCertificate",
-      "fields": []
+      "path": "/zones/{zoneId}/origin_tls_client_auth/{certificateId}",
+      "fields": [
+        {
+          "id": "zoneId",
+          "label": "Zone Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        },
+        {
+          "id": "certificateId",
+          "label": "Certificate ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Zone Certificate",
+      "description": "Get a certificate"
+    },
+    {
+      "id": "zone_certificate_get_many",
+      "label": "Get Many Zone Certificate",
+      "method": "GET",
+      "path": "/zones/{zoneId}/origin_tls_client_auth",
+      "fields": [
+        {
+          "id": "zoneId",
+          "label": "Zone Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 25
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: status)"
+        }
+      ],
+      "group": "Zone Certificate",
+      "description": "Get many certificates"
+    },
+    {
+      "id": "zone_certificate_upload",
+      "label": "Upload Zone Certificate",
+      "method": "POST",
+      "path": "/zones/{zoneId}/origin_tls_client_auth",
+      "fields": [
+        {
+          "id": "zoneId",
+          "label": "Zone Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        },
+        {
+          "id": "certificate",
+          "label": "Certificate Content",
+          "type": "text",
+          "required": true,
+          "description": "The zone's leaf certificate"
+        },
+        {
+          "id": "privateKey",
+          "label": "Private Key",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "group": "Zone Certificate",
+      "description": "Upload a certificate"
     }
   ]
 }

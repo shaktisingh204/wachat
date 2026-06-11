@@ -4,26 +4,33 @@
   "description": "Consume Ghost API",
   "category": "productivity",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 4,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://{host}/ghost/api",
   "endpoints": [
     {
-      "id": "post_default",
-      "label": "List Post",
+      "id": "post_get",
+      "label": "Get Post",
       "method": "GET",
-      "path": "/post",
+      "path": "/content/posts/slug/{identifier}",
       "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Ghost server, e.g. app.example.com (no https:// prefix)"
+        },
         {
           "id": "source",
           "label": "Source",
           "type": "select",
-          "in": "query",
           "description": "Pick where your data comes from, Content or Admin API",
           "defaultValue": "contentApi",
           "options": [
@@ -36,8 +43,288 @@
               "label": "Content API"
             }
           ]
+        },
+        {
+          "id": "by",
+          "label": "By",
+          "type": "select",
+          "required": true,
+          "description": "Get the post either by slug or ID",
+          "defaultValue": "id",
+          "options": [
+            {
+              "value": "id",
+              "label": "ID"
+            },
+            {
+              "value": "slug",
+              "label": "Slug"
+            }
+          ]
+        },
+        {
+          "id": "identifier",
+          "label": "Identifier",
+          "type": "text",
+          "required": true,
+          "description": "The ID or slug of the post to get",
+          "in": "path"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: fields, formats)"
         }
-      ]
+      ],
+      "group": "Post",
+      "description": "Get a post"
+    },
+    {
+      "id": "post_get_all",
+      "label": "Get Many Post",
+      "method": "GET",
+      "path": "/content/posts",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Ghost server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "source",
+          "label": "Source",
+          "type": "select",
+          "description": "Pick where your data comes from, Content or Admin API",
+          "defaultValue": "contentApi",
+          "options": [
+            {
+              "value": "adminApi",
+              "label": "Admin API"
+            },
+            {
+              "value": "contentApi",
+              "label": "Content API"
+            }
+          ]
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: include, fields, formats)"
+        }
+      ],
+      "group": "Post",
+      "description": "Get many posts"
+    },
+    {
+      "id": "post_create",
+      "label": "Create Post",
+      "method": "POST",
+      "path": "/admin/posts",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Ghost server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "source",
+          "label": "Source",
+          "type": "select",
+          "description": "Pick where your data comes from, Content or Admin API",
+          "defaultValue": "contentApi",
+          "options": [
+            {
+              "value": "adminApi",
+              "label": "Admin API"
+            },
+            {
+              "value": "contentApi",
+              "label": "Content API"
+            }
+          ]
+        },
+        {
+          "id": "title",
+          "label": "Title",
+          "type": "text",
+          "required": true,
+          "description": "Post's title"
+        },
+        {
+          "id": "contentFormat",
+          "label": "Content Format",
+          "type": "select",
+          "description": "The format of the post",
+          "defaultValue": "html",
+          "options": [
+            {
+              "value": "html",
+              "label": "HTML"
+            },
+            {
+              "value": "mobileDoc",
+              "label": "Mobile Doc"
+            },
+            {
+              "value": "lexical",
+              "label": "Lexical"
+            }
+          ]
+        },
+        {
+          "id": "content",
+          "label": "Content",
+          "type": "text",
+          "description": "The content of the post to create"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: authors, canonical_url, codeinjection_foot, codeinjection_head, featured, meta_description, meta_title, og_description, og_image, og_title, published_at, slug, status, tags, twitter_description, twitter_image, twitter_title)"
+        }
+      ],
+      "group": "Post",
+      "description": "Create a post"
+    },
+    {
+      "id": "post_delete",
+      "label": "Delete Post",
+      "method": "DELETE",
+      "path": "/admin/posts/{postId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Ghost server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "source",
+          "label": "Source",
+          "type": "select",
+          "description": "Pick where your data comes from, Content or Admin API",
+          "defaultValue": "contentApi",
+          "options": [
+            {
+              "value": "adminApi",
+              "label": "Admin API"
+            },
+            {
+              "value": "contentApi",
+              "label": "Content API"
+            }
+          ]
+        },
+        {
+          "id": "postId",
+          "label": "Post ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the post to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Post",
+      "description": "Delete a post"
+    },
+    {
+      "id": "post_update",
+      "label": "Update Post",
+      "method": "PUT",
+      "path": "/admin/posts/{postId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Ghost server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "source",
+          "label": "Source",
+          "type": "select",
+          "description": "Pick where your data comes from, Content or Admin API",
+          "defaultValue": "contentApi",
+          "options": [
+            {
+              "value": "adminApi",
+              "label": "Admin API"
+            },
+            {
+              "value": "contentApi",
+              "label": "Content API"
+            }
+          ]
+        },
+        {
+          "id": "postId",
+          "label": "Post ID",
+          "type": "text",
+          "description": "The ID of the post to update",
+          "in": "path"
+        },
+        {
+          "id": "contentFormat",
+          "label": "Content Format",
+          "type": "select",
+          "description": "The format of the post",
+          "defaultValue": "html",
+          "options": [
+            {
+              "value": "html",
+              "label": "HTML"
+            },
+            {
+              "value": "mobileDoc",
+              "label": "Mobile Doc"
+            },
+            {
+              "value": "lexical",
+              "label": "Lexical"
+            }
+          ]
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: authors, canonical_url, codeinjection_foot, codeinjection_head, content, contentJson, featured, meta_description, meta_title, og_description, og_image, og_title, published_at, slug, status, tags, title, twitter_description, twitter_image, twitter_title)"
+        }
+      ],
+      "group": "Post",
+      "description": "Update a post"
     }
   ]
 }

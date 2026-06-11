@@ -4,49 +4,469 @@
   "description": "Consume Paddle API",
   "category": "finance",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 10,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://vendors.paddle.com/api",
   "endpoints": [
     {
-      "id": "coupon_default",
-      "label": "List Coupon",
-      "method": "GET",
-      "path": "/coupon",
-      "fields": []
+      "id": "coupon_create",
+      "label": "Create Coupon",
+      "method": "POST",
+      "path": "/2.1/product/create_coupon",
+      "fields": [
+        {
+          "id": "couponType",
+          "label": "Coupon Type",
+          "type": "select",
+          "description": "Either product (valid for specified products or subscription plans) or checkout (valid for any checkout)",
+          "defaultValue": "checkout",
+          "options": [
+            {
+              "value": "checkout",
+              "label": "Checkout"
+            },
+            {
+              "value": "product",
+              "label": "Product"
+            }
+          ]
+        },
+        {
+          "id": "productIds",
+          "label": "Product Names or IDs",
+          "type": "select",
+          "required": true,
+          "description": "Comma-separated list of product IDs. Required if coupon_type is product. Choose from the list, or specify IDs using an expression. (multiple values: comma-separated)"
+        },
+        {
+          "id": "discountType",
+          "label": "Discount Type",
+          "type": "select",
+          "description": "Either flat or percentage",
+          "defaultValue": "flat",
+          "options": [
+            {
+              "value": "flat",
+              "label": "Flat"
+            },
+            {
+              "value": "percentage",
+              "label": "Percentage"
+            }
+          ]
+        },
+        {
+          "id": "discountAmount",
+          "label": "Discount Amount Currency",
+          "type": "number",
+          "description": "Discount amount in currency",
+          "defaultValue": 1
+        },
+        {
+          "id": "currency",
+          "label": "Currency",
+          "type": "select",
+          "description": "The currency must match the balance currency specified in your account",
+          "defaultValue": "EUR",
+          "options": [
+            {
+              "value": "ARS",
+              "label": "ARS"
+            },
+            {
+              "value": "AUD",
+              "label": "AUD"
+            },
+            {
+              "value": "BRL",
+              "label": "BRL"
+            },
+            {
+              "value": "CAD",
+              "label": "CAD"
+            },
+            {
+              "value": "CHF",
+              "label": "CHF"
+            },
+            {
+              "value": "CNY",
+              "label": "CNY"
+            },
+            {
+              "value": "CZK",
+              "label": "CZK"
+            },
+            {
+              "value": "DKK",
+              "label": "DKK"
+            },
+            {
+              "value": "EUR",
+              "label": "EUR"
+            },
+            {
+              "value": "GBP",
+              "label": "GBP"
+            },
+            {
+              "value": "HKD",
+              "label": "HKD"
+            },
+            {
+              "value": "HUF",
+              "label": "HUF"
+            },
+            {
+              "value": "INR",
+              "label": "INR"
+            },
+            {
+              "value": "JPY",
+              "label": "JPY"
+            },
+            {
+              "value": "KRW",
+              "label": "KRW"
+            },
+            {
+              "value": "MXN",
+              "label": "MXN"
+            },
+            {
+              "value": "NOK",
+              "label": "NOK"
+            },
+            {
+              "value": "NZD",
+              "label": "NZD"
+            },
+            {
+              "value": "PLN",
+              "label": "PLN"
+            },
+            {
+              "value": "RUB",
+              "label": "RUB"
+            },
+            {
+              "value": "SEK",
+              "label": "SEK"
+            },
+            {
+              "value": "SGD",
+              "label": "SGD"
+            },
+            {
+              "value": "THB",
+              "label": "THB"
+            },
+            {
+              "value": "TWD",
+              "label": "TWD"
+            },
+            {
+              "value": "USD",
+              "label": "USD"
+            },
+            {
+              "value": "ZAR",
+              "label": "ZAR"
+            }
+          ]
+        },
+        {
+          "id": "jsonParameters",
+          "label": "JSON Parameters",
+          "type": "toggle",
+          "defaultValue": false
+        },
+        {
+          "id": "additionalFieldsJson",
+          "label": "Additional Fields",
+          "type": "json",
+          "description": "Attributes in JSON form"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: allowedUses, couponCode, couponPrefix, description, expires, group, numberOfCoupons, recurring)"
+        }
+      ],
+      "group": "Coupon",
+      "description": "Create a coupon"
     },
     {
-      "id": "payment_default",
-      "label": "List Payment",
+      "id": "coupon_get_all",
+      "label": "Get Many Coupon",
       "method": "GET",
-      "path": "/payment",
-      "fields": []
+      "path": "/2.0/product/list_coupons",
+      "fields": [
+        {
+          "id": "productId",
+          "label": "Product ID",
+          "type": "text",
+          "required": true,
+          "description": "The specific product/subscription ID"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        }
+      ],
+      "group": "Coupon",
+      "description": "Get many coupons"
     },
     {
-      "id": "plan_default",
-      "label": "List Plan",
-      "method": "GET",
-      "path": "/plan",
-      "fields": []
+      "id": "coupon_update",
+      "label": "Update Coupon",
+      "method": "PATCH",
+      "path": "/2.1/product/update_coupon",
+      "fields": [
+        {
+          "id": "updateBy",
+          "label": "Update By",
+          "type": "select",
+          "description": "Either flat or percentage",
+          "defaultValue": "couponCode",
+          "options": [
+            {
+              "value": "couponCode",
+              "label": "Coupon Code"
+            },
+            {
+              "value": "group",
+              "label": "Group"
+            }
+          ]
+        },
+        {
+          "id": "couponCode",
+          "label": "Coupon Code",
+          "type": "text",
+          "description": "Identify the coupon to update"
+        },
+        {
+          "id": "group",
+          "label": "Group",
+          "type": "text",
+          "description": "The name of the group of coupons you want to update"
+        },
+        {
+          "id": "jsonParameters",
+          "label": "JSON Parameters",
+          "type": "toggle",
+          "defaultValue": false
+        },
+        {
+          "id": "additionalFieldsJson",
+          "label": "Additional Fields",
+          "type": "json",
+          "description": "Attributes in JSON form"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: allowedUses, discount, expires, newCouponCode, newGroup, productIds, recurring)"
+        }
+      ],
+      "group": "Coupon",
+      "description": "Update a coupon"
     },
     {
-      "id": "product_default",
-      "label": "List Product",
+      "id": "payment_get_all",
+      "label": "Get Many Payment",
       "method": "GET",
-      "path": "/product",
-      "fields": []
+      "path": "/2.0/subscription/payments",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "jsonParameters",
+          "label": "JSON Parameters",
+          "type": "toggle",
+          "defaultValue": false
+        },
+        {
+          "id": "additionalFieldsJson",
+          "label": "Additional Fields",
+          "type": "json",
+          "description": "Attributes in JSON form"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: from, to, isPaid, plan, subscriptionId, state, isOneOffCharge)"
+        }
+      ],
+      "group": "Payment",
+      "description": "Get many payments"
     },
     {
-      "id": "user_default",
-      "label": "List User",
+      "id": "payment_reschedule",
+      "label": "Reschedule Payment",
+      "method": "POST",
+      "path": "/2.0/subscription/payments_reschedule",
+      "fields": [
+        {
+          "id": "paymentId",
+          "label": "Payment Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The upcoming subscription payment ID. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "date",
+          "label": "Date",
+          "type": "text",
+          "placeholder": "2024-01-01T00:00:00Z",
+          "description": "Date you want to move the payment to (ISO 8601 date-time)"
+        }
+      ],
+      "group": "Payment",
+      "description": "Reschedule payment"
+    },
+    {
+      "id": "plan_get",
+      "label": "Get Plan",
       "method": "GET",
-      "path": "/user",
-      "fields": []
+      "path": "/2.0/subscription/plans",
+      "fields": [
+        {
+          "id": "planId",
+          "label": "Plan ID",
+          "type": "text",
+          "required": true,
+          "description": "Filter: The subscription plan ID"
+        }
+      ],
+      "group": "Plan",
+      "description": "Get a plan"
+    },
+    {
+      "id": "plan_get_all",
+      "label": "Get Many Plan",
+      "method": "GET",
+      "path": "/2.0/subscription/plans",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        }
+      ],
+      "group": "Plan",
+      "description": "Get many plans"
+    },
+    {
+      "id": "product_get_all",
+      "label": "Get Many Product",
+      "method": "GET",
+      "path": "/2.0/product/get_products",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        }
+      ],
+      "group": "Product",
+      "description": "Get many products"
+    },
+    {
+      "id": "user_get_all",
+      "label": "Get Many User",
+      "method": "GET",
+      "path": "/2.0/subscription/users",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "required": true,
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "jsonParameters",
+          "label": "JSON Parameters",
+          "type": "toggle",
+          "defaultValue": false
+        },
+        {
+          "id": "additionalFieldsJson",
+          "label": "Additional Fields",
+          "type": "json",
+          "description": "Attributes in JSON form"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: planId, subscriptionId, state)"
+        }
+      ],
+      "group": "User",
+      "description": "Get many users"
     }
   ]
 }

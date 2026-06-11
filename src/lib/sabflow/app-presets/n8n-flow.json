@@ -4,21 +4,131 @@
   "description": "Consume Flow API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.getflow.com/v2",
   "endpoints": [
     {
-      "id": "task_default",
-      "label": "List Task",
+      "id": "task_create",
+      "label": "Create Task",
+      "method": "POST",
+      "path": "/tasks",
+      "fields": [
+        {
+          "id": "workspaceId",
+          "label": "Workspace ID",
+          "type": "text",
+          "required": true,
+          "description": "Create resources under the given workspace"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "The title of the task"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: ownerid, listID, startsOn, dueOn, mirrorParentSubscribers, mirrorParentTags, noteContent, noteMimeType, parentId, positionList, positionUpcoming, position, sectionId, tags)"
+        }
+      ],
+      "group": "Task",
+      "description": "Create a new task"
+    },
+    {
+      "id": "task_update",
+      "label": "Update Task",
+      "method": "PUT",
+      "path": "/tasks/{taskId}",
+      "fields": [
+        {
+          "id": "workspaceId",
+          "label": "Workspace ID",
+          "type": "text",
+          "required": true,
+          "description": "Create resources under the given workspace"
+        },
+        {
+          "id": "taskId",
+          "label": "Task ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Update Field",
+          "description": "(JSON object; supported keys: name, completed, ownerid, listID, startsOn, dueOn, mirrorParentSubscribers, mirrorParentTags, noteContent, noteMimeType, parentId, positionList, positionUpcoming, position, sectionId, tags)"
+        }
+      ],
+      "group": "Task",
+      "description": "Update a task"
+    },
+    {
+      "id": "task_get",
+      "label": "Get Task",
       "method": "GET",
-      "path": "/task",
-      "fields": []
+      "path": "/tasks/{taskId}",
+      "fields": [
+        {
+          "id": "taskId",
+          "label": "Task ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: include)"
+        }
+      ],
+      "group": "Task",
+      "description": "Get a task"
+    },
+    {
+      "id": "task_get_all",
+      "label": "Get Many Task",
+      "method": "GET",
+      "path": "/tasks",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: include, order, workspaceId, createdBefore, createdAfter, updateBefore, updateAfter, deleted, cleared)"
+        }
+      ],
+      "group": "Task",
+      "description": "Get many tasks"
     }
   ]
 }

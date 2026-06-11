@@ -1,15 +1,552 @@
 {
   "id": "n8n-high-level",
   "name": "HighLevel",
-  "description": "Consume HighLevel API",
+  "description": "Consume HighLevel API v2",
   "category": "crm",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
-    "type": "none"
+    "type": "oauth2",
+    "credentialType": "high_level"
   },
-  "baseUrl": "",
-  "endpoints": []
+  "baseUrl": "https://services.leadconnectorhq.com",
+  "endpoints": [
+    {
+      "id": "contact_create",
+      "label": "Create or Update Contact",
+      "method": "POST",
+      "path": "/contacts/upsert/",
+      "fields": [
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "placeholder": "name@email.com",
+          "description": "Email or Phone are required to create contact",
+          "in": "body"
+        },
+        {
+          "id": "phone",
+          "label": "Phone",
+          "type": "text",
+          "placeholder": "+491234567890",
+          "description": "Phone or Email are required to create contact. Phone number has to start with a valid country code leading with + sign.",
+          "in": "body"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: address1, city, customFields, dnd, firstName, lastName, name, postalCode, source, state, notes, tags, timezone, website)"
+        }
+      ],
+      "group": "Contact",
+      "description": "Create or update a contact"
+    },
+    {
+      "id": "contact_delete",
+      "label": "Delete Contact",
+      "method": "DELETE",
+      "path": "/contacts/{{{contactId}}}/",
+      "fields": [
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Contact",
+      "description": "[unverified path] Delete a contact"
+    },
+    {
+      "id": "contact_get",
+      "label": "Get Contact",
+      "method": "GET",
+      "path": "/contacts/{{{contactId}}}/",
+      "fields": [
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Contact",
+      "description": "[unverified path] Get a contact"
+    },
+    {
+      "id": "contact_get_all",
+      "label": "Get Many Contact",
+      "method": "GET",
+      "path": "/contacts/",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50,
+          "in": "query"
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: query)"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: order, sortBy)"
+        }
+      ],
+      "group": "Contact",
+      "description": "Get many contacts"
+    },
+    {
+      "id": "contact_update",
+      "label": "Update Contact",
+      "method": "PUT",
+      "path": "/contacts/{{{contactId}}}/",
+      "fields": [
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: address1, city, customFields, dnd, email, firstName, lastName, name, phone, postalCode, state, tags, timezone, website)"
+        }
+      ],
+      "group": "Contact",
+      "description": "[unverified path] Update a contact"
+    },
+    {
+      "id": "opportunity_create",
+      "label": "Create Opportunity",
+      "method": "POST",
+      "path": "/opportunities/",
+      "fields": [
+        {
+          "id": "pipelineId",
+          "label": "Pipeline Name or ID",
+          "type": "select",
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "body"
+        },
+        {
+          "id": "contactId",
+          "label": "Contact Email or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "body"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "in": "body"
+        },
+        {
+          "id": "status",
+          "label": "Status",
+          "type": "select",
+          "required": true,
+          "defaultValue": "open",
+          "options": [
+            {
+              "value": "open",
+              "label": "Open"
+            },
+            {
+              "value": "won",
+              "label": "Won"
+            },
+            {
+              "value": "lost",
+              "label": "Lost"
+            },
+            {
+              "value": "abandoned",
+              "label": "Abandoned"
+            }
+          ],
+          "in": "body"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: assignedTo, companyName, monetaryValue, tags, stageId)"
+        }
+      ],
+      "group": "Opportunity",
+      "description": "Create an opportunity"
+    },
+    {
+      "id": "opportunity_delete",
+      "label": "Delete Opportunity",
+      "method": "DELETE",
+      "path": "/opportunities/{{{opportunityId}}}",
+      "fields": [
+        {
+          "id": "opportunityId",
+          "label": "Opportunity ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Opportunity",
+      "description": "[unverified path] Delete an opportunity"
+    },
+    {
+      "id": "opportunity_get",
+      "label": "Get Opportunity",
+      "method": "GET",
+      "path": "/opportunities/{{{opportunityId}}}",
+      "fields": [
+        {
+          "id": "opportunityId",
+          "label": "Opportunity ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Opportunity",
+      "description": "[unverified path] Get an opportunity"
+    },
+    {
+      "id": "opportunity_get_all",
+      "label": "Get Many Opportunity",
+      "method": "GET",
+      "path": "/opportunities/search",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 20,
+          "in": "query"
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: assignedTo, campaignId, endDate, pipelineId, stageId, startDate, status, query)"
+        }
+      ],
+      "group": "Opportunity",
+      "description": "Get many opportunities"
+    },
+    {
+      "id": "opportunity_update",
+      "label": "Update Opportunity",
+      "method": "PUT",
+      "path": "/opportunities/{{{opportunityId}}}",
+      "fields": [
+        {
+          "id": "opportunityId",
+          "label": "Opportunity ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: assignedTo, monetaryValue, name, pipelineId, stageId, status)"
+        }
+      ],
+      "group": "Opportunity",
+      "description": "[unverified path] Update an opportunity"
+    },
+    {
+      "id": "task_create",
+      "label": "Create Task",
+      "method": "POST",
+      "path": "/contacts/{{{contactId}}}/tasks/",
+      "fields": [
+        {
+          "id": "contactId",
+          "label": "Contact Email or ID",
+          "type": "select",
+          "required": true,
+          "description": "Contact the task belongs to. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "title",
+          "label": "Title",
+          "type": "text",
+          "required": true,
+          "in": "body"
+        },
+        {
+          "id": "dueDate",
+          "label": "Due Date",
+          "type": "text",
+          "required": true,
+          "placeholder": "2024-01-01T00:00:00Z",
+          "description": "(ISO 8601 date-time)",
+          "in": "body"
+        },
+        {
+          "id": "completed",
+          "label": "Completed",
+          "type": "toggle",
+          "required": true,
+          "defaultValue": false,
+          "in": "body"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: assignedTo, body)"
+        }
+      ],
+      "group": "Task",
+      "description": "[unverified path] Create a task"
+    },
+    {
+      "id": "task_delete",
+      "label": "Delete Task",
+      "method": "DELETE",
+      "path": "/contacts/{{{contactId}}}/tasks/{{{taskId}}}/",
+      "fields": [
+        {
+          "id": "contactId",
+          "label": "Contact Email or ID",
+          "type": "select",
+          "required": true,
+          "description": "Contact the task belongs to. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "taskId",
+          "label": "Task ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Task",
+      "description": "[unverified path] Delete a task"
+    },
+    {
+      "id": "task_get",
+      "label": "Get Task",
+      "method": "GET",
+      "path": "/contacts/{{{contactId}}}/tasks/{{{taskId}}}/",
+      "fields": [
+        {
+          "id": "contactId",
+          "label": "Contact Email or ID",
+          "type": "select",
+          "required": true,
+          "description": "Contact the task belongs to. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "taskId",
+          "label": "Task ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Task",
+      "description": "[unverified path] Get a task"
+    },
+    {
+      "id": "task_get_all",
+      "label": "Get Many Task",
+      "method": "GET",
+      "path": "/contacts/{{{contactId}}}/tasks/",
+      "fields": [
+        {
+          "id": "contactId",
+          "label": "Contact Email or ID",
+          "type": "select",
+          "required": true,
+          "description": "Contact the task belongs to. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 20,
+          "in": "query"
+        }
+      ],
+      "group": "Task",
+      "description": "[unverified path] Get many tasks"
+    },
+    {
+      "id": "task_update",
+      "label": "Update Task",
+      "method": "PUT",
+      "path": "/contacts/{{{contactId}}}/tasks/{{{taskId}}}/",
+      "fields": [
+        {
+          "id": "contactId",
+          "label": "Contact Email or ID",
+          "type": "select",
+          "required": true,
+          "description": "Contact the task belongs to. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "taskId",
+          "label": "Task ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: assignedTo, completed, body, dueDate, title)"
+        }
+      ],
+      "group": "Task",
+      "description": "[unverified path] Update a task"
+    },
+    {
+      "id": "calendar_book_appointment",
+      "label": "Book Appointment Calendar",
+      "method": "POST",
+      "path": "/calendars/events/appointments",
+      "fields": [
+        {
+          "id": "calendarId",
+          "label": "Calendar ID",
+          "type": "text",
+          "required": true,
+          "in": "body"
+        },
+        {
+          "id": "locationId",
+          "label": "Location ID",
+          "type": "text",
+          "required": true,
+          "in": "body"
+        },
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true,
+          "in": "body"
+        },
+        {
+          "id": "startTime",
+          "label": "Start Time",
+          "type": "text",
+          "required": true,
+          "description": "Example: 2021-06-23T03:30:00+05:30",
+          "in": "body"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: endTime, title, appointmentStatus, assignedUserId, address, ignoreDateRange, toNotify)"
+        }
+      ],
+      "group": "Calendar",
+      "description": "Book appointment in a calendar"
+    },
+    {
+      "id": "calendar_get_free_slots",
+      "label": "Get Free Slots Calendar",
+      "method": "GET",
+      "path": "/calendars/{{{calendarId}}}/free-slots",
+      "fields": [
+        {
+          "id": "calendarId",
+          "label": "Calendar ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "startDate",
+          "label": "Start Date",
+          "type": "number",
+          "required": true,
+          "description": "The start date for fetching free calendar slots. Example: 1548898600000.",
+          "in": "query"
+        },
+        {
+          "id": "endDate",
+          "label": "End Date",
+          "type": "number",
+          "required": true,
+          "description": "The end date for fetching free calendar slots. Example: 1601490599999.",
+          "in": "query"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: timezone, userId, userIds, enableLookBusy)"
+        }
+      ],
+      "group": "Calendar",
+      "description": "[unverified path] Get free slots of a calendar"
+    }
+  ]
 }

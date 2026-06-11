@@ -4,64 +4,352 @@
   "description": "Interact with Azure Storage API",
   "category": "storage",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 4,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
     "credentialType": "oauth2"
   },
-  "baseUrl": "",
+  "baseUrl": "https://{host}",
   "endpoints": [
     {
-      "id": "blob_default",
-      "label": "List Blob",
-      "method": "GET",
-      "path": "/blob",
+      "id": "blob_create",
+      "label": "Create Blob",
+      "method": "PUT",
+      "path": "/{{ {container} }}/{{ {blobCreate} }}",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Azure Storage server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "container",
+          "label": "Container",
+          "type": "text",
+          "required": true,
+          "description": "Container to create or replace a blob in (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "blobCreate",
+          "label": "Blob Name",
+          "type": "text",
+          "required": true,
+          "placeholder": "e.g. myblob",
+          "description": "The name of the new or existing blob",
+          "in": "path"
+        },
+        {
+          "id": "from",
+          "label": "From",
           "type": "select",
-          "in": "query",
-          "defaultValue": "sharedKey",
+          "required": true,
+          "defaultValue": "binary",
           "options": [
             {
-              "value": "oAuth2",
-              "label": "OAuth2"
+              "value": "binary",
+              "label": "Binary"
             },
             {
-              "value": "sharedKey",
-              "label": "Shared Key"
+              "value": "url",
+              "label": "URL"
             }
           ]
+        },
+        {
+          "id": "binaryPropertyName",
+          "label": "Binary Contents",
+          "type": "text",
+          "required": true,
+          "description": "The name of the input binary field containing the file to be written",
+          "defaultValue": "data"
+        },
+        {
+          "id": "url",
+          "label": "URL",
+          "type": "text",
+          "required": true,
+          "placeholder": "e.g. https://example.com/image.jpg",
+          "description": "URL where to read of the blob contents from"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: accessTier, blobType, cacheControl, contentCrc64, contentEncoding, contentLanguage, contentMd5, contentType, encryptionContext, encryptionScope, expiryOption, expiryTime, filename, immutabilityPolicyUntilDate, immutabilityPolicyMode, leaseId, legalHold, metadata, origin, tags)"
         }
-      ]
+      ],
+      "group": "Blob",
+      "description": "[unverified path] Create a new blob or replace an existing one"
     },
     {
-      "id": "container_default",
-      "label": "List Container",
-      "method": "GET",
-      "path": "/container",
+      "id": "blob_delete",
+      "label": "Delete Blob",
+      "method": "DELETE",
+      "path": "/{{ {container} }}/{{ {blob} }}",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "sharedKey",
-          "options": [
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            },
-            {
-              "value": "sharedKey",
-              "label": "Shared Key"
-            }
-          ]
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Azure Storage server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "container",
+          "label": "Container",
+          "type": "text",
+          "required": true,
+          "description": "Container to delete a blob from (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "blob",
+          "label": "Blob",
+          "type": "text",
+          "required": true,
+          "description": "Blob to be deleted (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: leaseId)"
         }
-      ]
+      ],
+      "group": "Blob",
+      "description": "[unverified path] Delete a blob"
+    },
+    {
+      "id": "blob_get",
+      "label": "Get Blob",
+      "method": "GET",
+      "path": "/{{ {container} }}/{{ {blob} }}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Azure Storage server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "container",
+          "label": "Container",
+          "type": "text",
+          "required": true,
+          "description": "Container to get a blob from (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "blob",
+          "label": "Blob",
+          "type": "text",
+          "required": true,
+          "description": "Blob to get (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: leaseId, origin, simplify, upn)"
+        }
+      ],
+      "group": "Blob",
+      "description": "[unverified path] Retrieve data for a specific blob"
+    },
+    {
+      "id": "blob_get_all",
+      "label": "Get Many Blob",
+      "method": "GET",
+      "path": "/{{ {container} }}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Azure Storage server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "container",
+          "label": "Container",
+          "type": "text",
+          "required": true,
+          "description": "Container to get blobs from (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "maxresults",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50,
+          "in": "query"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: fields, filter, simplify, upn)"
+        }
+      ],
+      "group": "Blob",
+      "description": "[unverified path] Retrieve a list of blobs"
+    },
+    {
+      "id": "container_create",
+      "label": "Create Container",
+      "method": "PUT",
+      "path": "/{{ {containerCreate} }}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Azure Storage server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "containerCreate",
+          "label": "Container Name",
+          "type": "text",
+          "required": true,
+          "placeholder": "e.g. mycontainer",
+          "description": "The name of the new container",
+          "in": "path"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: accessLevel, metadata)"
+        }
+      ],
+      "group": "Container",
+      "description": "[unverified path] Create a container"
+    },
+    {
+      "id": "container_delete",
+      "label": "Delete Container",
+      "method": "DELETE",
+      "path": "/{{ {container} }}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Azure Storage server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "container",
+          "label": "Container",
+          "type": "text",
+          "required": true,
+          "description": "Select the container to delete (provide the ID)",
+          "in": "path"
+        }
+      ],
+      "group": "Container",
+      "description": "[unverified path] Delete a container"
+    },
+    {
+      "id": "container_get",
+      "label": "Get Container",
+      "method": "GET",
+      "path": "/{{ {container} }}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Azure Storage server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "container",
+          "label": "Container",
+          "type": "text",
+          "required": true,
+          "description": "Select the container to get (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: simplify)"
+        }
+      ],
+      "group": "Container",
+      "description": "[unverified path] Retrieve data for a specific container"
+    },
+    {
+      "id": "container_get_all",
+      "label": "Get Many Container",
+      "method": "GET",
+      "path": "/",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Azure Storage server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "maxresults",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50,
+          "in": "query"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: fields, filter)"
+        }
+      ],
+      "group": "Container",
+      "description": "Retrieve a list of containers"
     }
   ]
 }

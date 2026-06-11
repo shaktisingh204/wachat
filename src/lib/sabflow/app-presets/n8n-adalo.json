@@ -4,94 +4,201 @@
   "description": "Consume Adalo API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 6,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "=https://api.adalo.com/v0/apps/{{$credentials.appId}}",
+  "baseUrl": "",
   "endpoints": [
     {
       "id": "collection_create",
       "label": "Create Collection",
       "method": "POST",
-      "path": "/=/collections/{{$parameter[\"collectionId\"]}}",
+      "path": "/collections/{{{collectionId}}}",
       "fields": [
         {
           "id": "collectionId",
           "label": "Collection ID",
           "type": "text",
-          "in": "body",
           "required": true,
-          "description": "Open your Adalo application and click on the three buttons beside the collection name, then select API Documentation"
+          "description": "Open your Adalo application and click on the three buttons beside the collection name, then select API Documentation",
+          "in": "path"
+        },
+        {
+          "id": "dataToSend",
+          "label": "Data to Send",
+          "type": "select",
+          "description": "Whether to insert the input data this node receives in the new row",
+          "defaultValue": "defineBelow",
+          "options": [
+            {
+              "value": "autoMapInputData",
+              "label": "Auto-Map Input Data to Columns"
+            },
+            {
+              "value": "defineBelow",
+              "label": "Define Below for Each Column"
+            }
+          ]
+        },
+        {
+          "id": "inputsToIgnore",
+          "label": "Inputs to Ignore",
+          "type": "text",
+          "placeholder": "Enter properties...",
+          "description": "List of input properties to avoid sending, separated by commas. Leave empty to send all properties."
+        },
+        {
+          "id": "fieldsUi",
+          "label": "Fields to Send",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "Field must be defined in the collection, otherwise it will be ignored. If field defined in the collection is not set here, it will be set to null. (JSON object; supported keys: fieldValues, fieldValues.fieldId, fieldValues.fieldValue)"
         }
-      ]
+      ],
+      "group": "Collection",
+      "description": "[unverified path] Create a row"
     },
     {
       "id": "collection_delete",
       "label": "Delete Collection",
       "method": "DELETE",
-      "path": "/=/collections/{{$parameter[\"collectionId\"]}}/{{$parameter[\"rowId\"]}}",
+      "path": "/collections/{{{collectionId}}}/{{{rowId}}}",
       "fields": [
         {
           "id": "collectionId",
           "label": "Collection ID",
           "type": "text",
-          "in": "query",
           "required": true,
-          "description": "Open your Adalo application and click on the three buttons beside the collection name, then select API Documentation"
+          "description": "Open your Adalo application and click on the three buttons beside the collection name, then select API Documentation",
+          "in": "path"
+        },
+        {
+          "id": "rowId",
+          "label": "Row ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
         }
-      ]
+      ],
+      "group": "Collection",
+      "description": "[unverified path] Delete a row"
     },
     {
       "id": "collection_get",
       "label": "Get Collection",
       "method": "GET",
-      "path": "/=/collections/{{$parameter[\"collectionId\"]}}/{{$parameter[\"rowId\"]}}",
+      "path": "/collections/{{{collectionId}}}/{{{rowId}}}",
       "fields": [
         {
           "id": "collectionId",
           "label": "Collection ID",
           "type": "text",
-          "in": "query",
           "required": true,
-          "description": "Open your Adalo application and click on the three buttons beside the collection name, then select API Documentation"
+          "description": "Open your Adalo application and click on the three buttons beside the collection name, then select API Documentation",
+          "in": "path"
+        },
+        {
+          "id": "rowId",
+          "label": "Row ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
         }
-      ]
+      ],
+      "group": "Collection",
+      "description": "[unverified path] Retrieve a row"
     },
     {
       "id": "collection_get_all",
       "label": "Get Many Collection",
       "method": "GET",
-      "path": "/=/collections/{{$parameter[\"collectionId\"]}}",
+      "path": "/collections/{{{collectionId}}}",
       "fields": [
         {
           "id": "collectionId",
           "label": "Collection ID",
           "type": "text",
-          "in": "query",
           "required": true,
-          "description": "Open your Adalo application and click on the three buttons beside the collection name, then select API Documentation"
+          "description": "Open your Adalo application and click on the three buttons beside the collection name, then select API Documentation",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
         }
-      ]
+      ],
+      "group": "Collection",
+      "description": "[unverified path] Retrieve many rows"
     },
     {
       "id": "collection_update",
       "label": "Update Collection",
       "method": "PUT",
-      "path": "/=/collections/{{$parameter[\"collectionId\"]}}/{{$parameter[\"rowId\"]}}",
+      "path": "/collections/{{{collectionId}}}/{{{rowId}}}",
       "fields": [
         {
           "id": "collectionId",
           "label": "Collection ID",
           "type": "text",
-          "in": "body",
           "required": true,
-          "description": "Open your Adalo application and click on the three buttons beside the collection name, then select API Documentation"
+          "description": "Open your Adalo application and click on the three buttons beside the collection name, then select API Documentation",
+          "in": "path"
+        },
+        {
+          "id": "rowId",
+          "label": "Row ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "dataToSend",
+          "label": "Data to Send",
+          "type": "select",
+          "description": "Whether to insert the input data this node receives in the new row",
+          "defaultValue": "defineBelow",
+          "options": [
+            {
+              "value": "autoMapInputData",
+              "label": "Auto-Map Input Data to Columns"
+            },
+            {
+              "value": "defineBelow",
+              "label": "Define Below for Each Column"
+            }
+          ]
+        },
+        {
+          "id": "inputsToIgnore",
+          "label": "Inputs to Ignore",
+          "type": "text",
+          "placeholder": "Enter properties...",
+          "description": "List of input properties to avoid sending, separated by commas. Leave empty to send all properties."
+        },
+        {
+          "id": "fieldsUi",
+          "label": "Fields to Send",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "Field must be defined in the collection, otherwise it will be ignored. If field defined in the collection is not set here, it will be set to null. (JSON object; supported keys: fieldValues, fieldValues.fieldId, fieldValues.fieldValue)"
         }
-      ]
+      ],
+      "group": "Collection",
+      "description": "[unverified path] Update a row"
     }
   ]
 }

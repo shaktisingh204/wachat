@@ -4,7 +4,7 @@
   "description": "Interact with Google Firebase - Cloud Firestore API",
   "category": "commerce",
   "iconName": "LuPackage",
-  "version": 1,
+  "version": 11,
   "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
@@ -14,54 +14,339 @@
   "baseUrl": "https://firestore.googleapis.com/v1/projects",
   "endpoints": [
     {
-      "id": "document_default",
-      "label": "List Document",
-      "method": "GET",
-      "path": "/document",
+      "id": "document_create",
+      "label": "Create Document",
+      "method": "POST",
+      "path": "/{projectId}/databases/{database}/documents/{collection}",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
+          "id": "projectId",
+          "label": "Project Name or ID",
           "type": "select",
-          "in": "query",
-          "defaultValue": "googleFirebaseCloudFirestoreOAuth2Api",
-          "options": [
-            {
-              "value": "googleFirebaseCloudFirestoreOAuth2Api",
-              "label": "OAuth2 (recommended)"
-            },
-            {
-              "value": "serviceAccount",
-              "label": "Service Account"
-            }
-          ]
+          "required": true,
+          "description": "As displayed in firebase console URL. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "database",
+          "label": "Database",
+          "type": "text",
+          "required": true,
+          "description": "Usually the provided default value will work",
+          "defaultValue": "(default)",
+          "in": "path"
+        },
+        {
+          "id": "collection",
+          "label": "Collection",
+          "type": "text",
+          "required": true,
+          "description": "Collection name",
+          "in": "path"
+        },
+        {
+          "id": "documentId",
+          "label": "Document ID",
+          "type": "text"
+        },
+        {
+          "id": "columns",
+          "label": "Columns / Attributes",
+          "type": "text",
+          "required": true,
+          "placeholder": "productId, modelName, description",
+          "description": "List of attributes to save"
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
         }
-      ]
+      ],
+      "group": "Document",
+      "description": "Create a document"
     },
     {
-      "id": "collection_default",
-      "label": "List Collection",
-      "method": "GET",
-      "path": "/collection",
+      "id": "document_upsert",
+      "label": "Create or Update Document",
+      "method": "POST",
+      "path": "/{projectId}/databases/{database}/documents:batchWrite",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
+          "id": "projectId",
+          "label": "Project Name or ID",
           "type": "select",
-          "in": "query",
-          "defaultValue": "googleFirebaseCloudFirestoreOAuth2Api",
-          "options": [
-            {
-              "value": "googleFirebaseCloudFirestoreOAuth2Api",
-              "label": "OAuth2 (recommended)"
-            },
-            {
-              "value": "serviceAccount",
-              "label": "Service Account"
-            }
-          ]
+          "required": true,
+          "description": "As displayed in firebase console URL. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "database",
+          "label": "Database",
+          "type": "text",
+          "required": true,
+          "description": "Usually the provided default value will work",
+          "defaultValue": "(default)",
+          "in": "path"
+        },
+        {
+          "id": "collection",
+          "label": "Collection",
+          "type": "text",
+          "required": true,
+          "description": "Collection name"
+        },
+        {
+          "id": "updateKey",
+          "label": "Update Key",
+          "type": "text",
+          "required": true,
+          "placeholder": "documentId",
+          "description": "Name of the field in an input item that contains the document ID"
+        },
+        {
+          "id": "columns",
+          "label": "Columns /Attributes",
+          "type": "text",
+          "required": true,
+          "placeholder": "age, city, location",
+          "description": "Columns to insert"
         }
-      ]
+      ],
+      "group": "Document",
+      "description": "Create a new document, or update the current one if it already exists (upsert)"
+    },
+    {
+      "id": "document_delete",
+      "label": "Delete Document",
+      "method": "DELETE",
+      "path": "/{projectId}/databases/{database}/documents/{collection}/{documentId}",
+      "fields": [
+        {
+          "id": "projectId",
+          "label": "Project Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "As displayed in firebase console URL. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "database",
+          "label": "Database",
+          "type": "text",
+          "required": true,
+          "description": "Usually the provided default value will work",
+          "defaultValue": "(default)",
+          "in": "path"
+        },
+        {
+          "id": "collection",
+          "label": "Collection",
+          "type": "text",
+          "required": true,
+          "description": "Collection name",
+          "in": "path"
+        },
+        {
+          "id": "documentId",
+          "label": "Document ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Document",
+      "description": "Delete a document"
+    },
+    {
+      "id": "document_get",
+      "label": "Get Document",
+      "method": "POST",
+      "path": "/{projectId}/databases/{database}/documents:batchGet",
+      "fields": [
+        {
+          "id": "projectId",
+          "label": "Project Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "As displayed in firebase console URL. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "database",
+          "label": "Database",
+          "type": "text",
+          "required": true,
+          "description": "Usually the provided default value will work",
+          "defaultValue": "(default)",
+          "in": "path"
+        },
+        {
+          "id": "collection",
+          "label": "Collection",
+          "type": "text",
+          "required": true,
+          "description": "Collection name"
+        },
+        {
+          "id": "documentId",
+          "label": "Document ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        }
+      ],
+      "group": "Document",
+      "description": "Get a document"
+    },
+    {
+      "id": "document_get_all",
+      "label": "Get Many Document",
+      "method": "GET",
+      "path": "/{projectId}/databases/{database}/documents/{collection}",
+      "fields": [
+        {
+          "id": "projectId",
+          "label": "Project Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "As displayed in firebase console URL. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "database",
+          "label": "Database",
+          "type": "text",
+          "required": true,
+          "description": "Usually the provided default value will work",
+          "defaultValue": "(default)",
+          "in": "path"
+        },
+        {
+          "id": "collection",
+          "label": "Collection",
+          "type": "text",
+          "required": true,
+          "description": "Collection name",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "required": true,
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        }
+      ],
+      "group": "Document",
+      "description": "Get many documents from a collection"
+    },
+    {
+      "id": "document_query",
+      "label": "Query Document",
+      "method": "POST",
+      "path": "/{projectId}/databases/{database}/documents:runQuery",
+      "fields": [
+        {
+          "id": "projectId",
+          "label": "Project Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "As displayed in firebase console URL. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "database",
+          "label": "Database",
+          "type": "text",
+          "required": true,
+          "description": "Usually the provided default value will work",
+          "defaultValue": "(default)",
+          "in": "path"
+        },
+        {
+          "id": "query",
+          "label": "Query JSON",
+          "type": "text",
+          "required": true,
+          "placeholder": "{\"structuredQuery\": {\"where\": {\"fieldFilter\": {\"field\": {\"fieldPath\": \"age\"},\"op\": \"EQUAL\", \"value\": {\"integerValue\": 28}}}, \"from\": [{\"collectionId\": \"users-collection\"}]}}",
+          "description": "JSON query to execute"
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        }
+      ],
+      "group": "Document",
+      "description": "Runs a query against your documents"
+    },
+    {
+      "id": "collection_get_all",
+      "label": "Get Many Collection",
+      "method": "POST",
+      "path": "/{projectId}/databases/{database}/documents:listCollectionIds",
+      "fields": [
+        {
+          "id": "projectId",
+          "label": "Project Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "As displayed in firebase console URL. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "database",
+          "label": "Database",
+          "type": "text",
+          "required": true,
+          "description": "Usually the provided default value will work",
+          "defaultValue": "(default)",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "required": true,
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        }
+      ],
+      "group": "Collection",
+      "description": "Get many root collections"
     }
   ]
 }

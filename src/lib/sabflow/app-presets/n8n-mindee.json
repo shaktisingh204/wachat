@@ -4,53 +4,46 @@
   "description": "Consume Mindee API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 10,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.mindee.net/products",
   "endpoints": [
     {
       "id": "invoice_predict",
       "label": "Predict Invoice",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/invoices/v1/predict",
       "fields": [
         {
           "id": "apiVersion",
           "label": "API Version",
           "type": "select",
-          "in": "query",
           "description": "Which Mindee API Version to use",
           "defaultValue": 1,
-          "options": []
-        },
-        {
-          "id": "apiVersion",
-          "label": "API Version",
-          "type": "select",
-          "in": "query",
-          "description": "Which Mindee API Version to use",
-          "defaultValue": 3,
-          "options": []
-        },
-        {
-          "id": "apiVersion",
-          "label": "API Version",
-          "type": "select",
-          "in": "query",
-          "description": "Which Mindee API Version to use",
-          "defaultValue": 4,
-          "options": []
+          "options": [
+            {
+              "value": "1",
+              "label": "1"
+            },
+            {
+              "value": "3",
+              "label": "3"
+            },
+            {
+              "value": "4",
+              "label": "4"
+            }
+          ]
         },
         {
           "id": "binaryPropertyName",
           "label": "Input Binary Field",
           "type": "text",
-          "in": "query",
           "required": true,
           "defaultValue": "data"
         },
@@ -58,50 +51,43 @@
           "id": "rawData",
           "label": "RAW Data",
           "type": "toggle",
-          "in": "query",
           "description": "Whether to return the data exactly in the way it got received from the API",
           "defaultValue": false
         }
-      ]
+      ],
+      "group": "Invoice"
     },
     {
       "id": "receipt_predict",
       "label": "Predict Receipt",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/expense_receipts/v2/predict",
       "fields": [
         {
           "id": "apiVersion",
           "label": "API Version",
           "type": "select",
-          "in": "query",
           "description": "Which Mindee API Version to use",
           "defaultValue": 1,
-          "options": []
-        },
-        {
-          "id": "apiVersion",
-          "label": "API Version",
-          "type": "select",
-          "in": "query",
-          "description": "Which Mindee API Version to use",
-          "defaultValue": 3,
-          "options": []
-        },
-        {
-          "id": "apiVersion",
-          "label": "API Version",
-          "type": "select",
-          "in": "query",
-          "description": "Which Mindee API Version to use",
-          "defaultValue": 4,
-          "options": []
+          "options": [
+            {
+              "value": "1",
+              "label": "1"
+            },
+            {
+              "value": "3",
+              "label": "3"
+            },
+            {
+              "value": "4",
+              "label": "4"
+            }
+          ]
         },
         {
           "id": "binaryPropertyName",
           "label": "Input Binary Field",
           "type": "text",
-          "in": "query",
           "required": true,
           "defaultValue": "data"
         },
@@ -109,11 +95,11 @@
           "id": "rawData",
           "label": "RAW Data",
           "type": "toggle",
-          "in": "query",
           "description": "Whether to return the data exactly in the way it got received from the API",
           "defaultValue": false
         }
-      ]
+      ],
+      "group": "Receipt"
     }
   ]
 }

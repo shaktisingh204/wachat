@@ -4,42 +4,661 @@
   "description": "Consume Magento API",
   "category": "commerce",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 4,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://{host}",
   "endpoints": [
     {
-      "id": "customer_default",
-      "label": "List Customer",
-      "method": "GET",
-      "path": "/customer",
-      "fields": []
+      "id": "customer_create",
+      "label": "Create Customer",
+      "method": "POST",
+      "path": "/rest/V1/customers",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Magento 2 server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "required": true,
+          "placeholder": "name@email.com",
+          "description": "Email address of the user to create"
+        },
+        {
+          "id": "firstname",
+          "label": "First Name",
+          "type": "text",
+          "required": true,
+          "description": "First name of the user to create"
+        },
+        {
+          "id": "lastname",
+          "label": "Last Name",
+          "type": "text",
+          "required": true,
+          "description": "Last name of the user to create"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: addresses, amazon_id, confirmation, customAttributes, dob, default_billing, default_shipping, gender, group_id, is_subscribed, middlename, password, prefix, store_id, suffix, vertex_customer_code, vertex_customer_country, website_id)"
+        }
+      ],
+      "group": "Customer",
+      "description": "Create a new customer"
     },
     {
-      "id": "invoice_default",
-      "label": "List Invoice",
-      "method": "GET",
-      "path": "/invoice",
-      "fields": []
+      "id": "customer_delete",
+      "label": "Delete Customer",
+      "method": "DELETE",
+      "path": "/rest/default/V1/customers/{customerId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Magento 2 server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "customerId",
+          "label": "Customer ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Customer",
+      "description": "Delete a customer"
     },
     {
-      "id": "order_default",
-      "label": "List Order",
+      "id": "customer_get",
+      "label": "Get Customer",
       "method": "GET",
-      "path": "/order",
-      "fields": []
+      "path": "/rest/default/V1/customers/{customerId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Magento 2 server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "customerId",
+          "label": "Customer ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Customer",
+      "description": "Get a customer"
     },
     {
-      "id": "product_default",
-      "label": "List Product",
+      "id": "customer_get_all",
+      "label": "Get Many Customer",
       "method": "GET",
-      "path": "/product",
-      "fields": []
+      "path": "/rest/default/V1/customers/search",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Magento 2 server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 5
+        },
+        {
+          "id": "filterType",
+          "label": "Filter",
+          "type": "select",
+          "defaultValue": "none",
+          "options": [
+            {
+              "value": "none",
+              "label": "None"
+            },
+            {
+              "value": "manual",
+              "label": "Build Manually"
+            },
+            {
+              "value": "json",
+              "label": "JSON"
+            }
+          ]
+        },
+        {
+          "id": "matchType",
+          "label": "Must Match",
+          "type": "select",
+          "defaultValue": "anyFilter",
+          "options": [
+            {
+              "value": "anyFilter",
+              "label": "Any filter"
+            },
+            {
+              "value": "allFilters",
+              "label": "All Filters"
+            }
+          ]
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Condition",
+          "description": "(JSON object; supported keys: conditions, conditions.field, conditions.condition_type, conditions.value)"
+        },
+        {
+          "id": "filterJson",
+          "label": "Filters (JSON)",
+          "type": "text"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: sort)"
+        }
+      ],
+      "group": "Customer",
+      "description": "Get many customers"
+    },
+    {
+      "id": "customer_update",
+      "label": "Update Customer",
+      "method": "PUT",
+      "path": "/rest/V1/customers/{customerId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Magento 2 server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "customerId",
+          "label": "Customer ID",
+          "type": "text",
+          "description": "ID of the customer to update",
+          "in": "path"
+        },
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "placeholder": "name@email.com"
+        },
+        {
+          "id": "firstName",
+          "label": "First Name",
+          "type": "text"
+        },
+        {
+          "id": "lastName",
+          "label": "Last Name",
+          "type": "text"
+        },
+        {
+          "id": "website_id",
+          "label": "Website Name or ID",
+          "type": "select",
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: addresses, amazon_id, confirmation, customAttributes, dob, default_billing, default_shipping, gender, group_id, is_subscribed, middlename, password, prefix, store_id, suffix, vertex_customer_code, vertex_customer_country, website_id)"
+        }
+      ],
+      "group": "Customer",
+      "description": "Update a customer"
+    },
+    {
+      "id": "invoice_create",
+      "label": "Create Invoice",
+      "method": "POST",
+      "path": "/rest/default/V1/order/{orderId}/invoice",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Magento 2 server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "orderId",
+          "label": "Order ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Invoice",
+      "description": "Create an invoice"
+    },
+    {
+      "id": "order_cancel",
+      "label": "Cancel Order",
+      "method": "POST",
+      "path": "/rest/default/V1/orders/{orderId}/cancel",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Magento 2 server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "orderId",
+          "label": "Order ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Order",
+      "description": "Cancel an order"
+    },
+    {
+      "id": "order_get",
+      "label": "Get Order",
+      "method": "GET",
+      "path": "/rest/default/V1/orders/{orderId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Magento 2 server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "orderId",
+          "label": "Order ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Order",
+      "description": "Get an order"
+    },
+    {
+      "id": "order_get_all",
+      "label": "Get Many Order",
+      "method": "GET",
+      "path": "/rest/default/V1/orders",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Magento 2 server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 5
+        },
+        {
+          "id": "filterType",
+          "label": "Filter",
+          "type": "select",
+          "defaultValue": "none",
+          "options": [
+            {
+              "value": "none",
+              "label": "None"
+            },
+            {
+              "value": "manual",
+              "label": "Build Manually"
+            },
+            {
+              "value": "json",
+              "label": "JSON"
+            }
+          ]
+        },
+        {
+          "id": "matchType",
+          "label": "Must Match",
+          "type": "select",
+          "defaultValue": "anyFilter",
+          "options": [
+            {
+              "value": "anyFilter",
+              "label": "Any filter"
+            },
+            {
+              "value": "allFilters",
+              "label": "All Filters"
+            }
+          ]
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Condition",
+          "description": "(JSON object; supported keys: conditions, conditions.field, conditions.condition_type, conditions.value)"
+        },
+        {
+          "id": "filterJson",
+          "label": "Filters (JSON)",
+          "type": "text"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: sort)"
+        }
+      ],
+      "group": "Order",
+      "description": "Get many orders"
+    },
+    {
+      "id": "order_ship",
+      "label": "Ship Order",
+      "method": "POST",
+      "path": "/rest/default/V1/order/{orderId}/ship",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Magento 2 server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "orderId",
+          "label": "Order ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Order",
+      "description": "Ship an order"
+    },
+    {
+      "id": "product_create",
+      "label": "Create Product",
+      "method": "POST",
+      "path": "/rest/default/V1/products",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Magento 2 server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "sku",
+          "label": "SKU",
+          "type": "text",
+          "required": true,
+          "description": "Stock-keeping unit of the product"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "attributeSetId",
+          "label": "Attribute Set Name or ID",
+          "type": "select",
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "price",
+          "label": "Price",
+          "type": "number",
+          "defaultValue": 0
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: attribute_set_id, name, price, status, type_id, visibility, weight)"
+        }
+      ],
+      "group": "Product",
+      "description": "Create a product"
+    },
+    {
+      "id": "product_delete",
+      "label": "Delete Product",
+      "method": "DELETE",
+      "path": "/rest/default/V1/products/{sku}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Magento 2 server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "sku",
+          "label": "SKU",
+          "type": "text",
+          "required": true,
+          "description": "Stock-keeping unit of the product",
+          "in": "path"
+        }
+      ],
+      "group": "Product",
+      "description": "Delete a product"
+    },
+    {
+      "id": "product_get",
+      "label": "Get Product",
+      "method": "GET",
+      "path": "/rest/default/V1/products/{sku}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Magento 2 server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "sku",
+          "label": "SKU",
+          "type": "text",
+          "required": true,
+          "description": "Stock-keeping unit of the product",
+          "in": "path"
+        }
+      ],
+      "group": "Product",
+      "description": "Get a product"
+    },
+    {
+      "id": "product_get_all",
+      "label": "Get Many Product",
+      "method": "GET",
+      "path": "/rest/default/V1/products",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Magento 2 server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 5
+        },
+        {
+          "id": "filterType",
+          "label": "Filter",
+          "type": "select",
+          "defaultValue": "none",
+          "options": [
+            {
+              "value": "none",
+              "label": "None"
+            },
+            {
+              "value": "manual",
+              "label": "Build Manually"
+            },
+            {
+              "value": "json",
+              "label": "JSON"
+            }
+          ]
+        },
+        {
+          "id": "matchType",
+          "label": "Must Match",
+          "type": "select",
+          "defaultValue": "anyFilter",
+          "options": [
+            {
+              "value": "anyFilter",
+              "label": "Any filter"
+            },
+            {
+              "value": "allFilters",
+              "label": "All Filters"
+            }
+          ]
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Condition",
+          "description": "(JSON object; supported keys: conditions, conditions.field, conditions.condition_type, conditions.value)"
+        },
+        {
+          "id": "filterJson",
+          "label": "Filters (JSON)",
+          "type": "text"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: sort)"
+        }
+      ],
+      "group": "Product",
+      "description": "Get many products"
+    },
+    {
+      "id": "product_update",
+      "label": "Update Product",
+      "method": "PUT",
+      "path": "/rest/default/V1/products/{sku}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Magento 2 server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "sku",
+          "label": "SKU",
+          "type": "text",
+          "required": true,
+          "description": "Stock-keeping unit of the product",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: attribute_set_id, name, price, status, type_id, visibility, weight)"
+        }
+      ],
+      "group": "Product",
+      "description": "Update a product"
     }
   ]
 }

@@ -4,98 +4,3107 @@
   "description": "Create and edit data in ActiveCampaign",
   "category": "marketing",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 4,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://{host}",
   "endpoints": [
     {
-      "id": "account_default",
-      "label": "List Account",
-      "method": "GET",
-      "path": "/account",
-      "fields": []
+      "id": "account_create",
+      "label": "Create Account",
+      "method": "POST",
+      "path": "/api/3/accounts",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your ActiveCampaign server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "Account's name"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: accountUrl, fields)"
+        }
+      ],
+      "group": "Account",
+      "description": "Create an account"
     },
     {
-      "id": "account_contact_default",
-      "label": "List AccountContact",
-      "method": "GET",
-      "path": "/accountContact",
-      "fields": []
+      "id": "account_delete",
+      "label": "Delete Account",
+      "method": "DELETE",
+      "path": "/api/3/accounts/{accountId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your ActiveCampaign server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "accountId",
+          "label": "Account ID",
+          "type": "number",
+          "required": true,
+          "description": "ID of the account to delete",
+          "defaultValue": 0,
+          "in": "path"
+        }
+      ],
+      "group": "Account",
+      "description": "Delete an account"
     },
     {
-      "id": "connection_default",
-      "label": "List Connection",
+      "id": "account_get",
+      "label": "Get Account",
       "method": "GET",
-      "path": "/connection",
-      "fields": []
+      "path": "/api/3/accounts/{accountId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your ActiveCampaign server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "accountId",
+          "label": "Account ID",
+          "type": "number",
+          "required": true,
+          "description": "ID of the account to get",
+          "defaultValue": 0,
+          "in": "path"
+        }
+      ],
+      "group": "Account",
+      "description": "Get data of an account"
     },
     {
-      "id": "contact_default",
-      "label": "List Contact",
+      "id": "account_get_all",
+      "label": "Get Many Account",
       "method": "GET",
-      "path": "/contact",
-      "fields": []
+      "path": "/api/3/accounts",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your ActiveCampaign server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: search)"
+        }
+      ],
+      "group": "Account",
+      "description": "Get data of many accounts"
     },
     {
-      "id": "contact_list_default",
-      "label": "List ContactList",
-      "method": "GET",
-      "path": "/contactList",
-      "fields": []
+      "id": "account_update",
+      "label": "Update Account",
+      "method": "PUT",
+      "path": "/api/3/accounts/{accountId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your ActiveCampaign server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "accountId",
+          "label": "Account ID",
+          "type": "number",
+          "required": true,
+          "description": "ID of the account to update",
+          "defaultValue": 0,
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "The fields to update (JSON object; supported keys: name, accountUrl, fields)"
+        }
+      ],
+      "group": "Account",
+      "description": "Update an account"
     },
     {
-      "id": "contact_tag_default",
-      "label": "List ContactTag",
-      "method": "GET",
-      "path": "/contactTag",
-      "fields": []
+      "id": "contact_create",
+      "label": "Create Contact",
+      "method": "POST",
+      "path": "/api/3/contact/sync",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your ActiveCampaign server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "required": true,
+          "placeholder": "name@email.com",
+          "description": "The email of the contact to create"
+        },
+        {
+          "id": "updateIfExists",
+          "label": "Update if Exists",
+          "type": "toggle",
+          "description": "Whether to update user if it exists already. If not set and user exists it will error instead.",
+          "defaultValue": false
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: fieldValues, firstName, lastName, phone)"
+        }
+      ],
+      "group": "Contact",
+      "description": "Create a contact"
     },
     {
-      "id": "deal_default",
-      "label": "List Deal",
-      "method": "GET",
-      "path": "/deal",
-      "fields": []
+      "id": "contact_delete",
+      "label": "Delete Contact",
+      "method": "DELETE",
+      "path": "/api/3/contacts/{contactId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your ActiveCampaign server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "number",
+          "required": true,
+          "description": "ID of the contact to delete",
+          "defaultValue": 0,
+          "in": "path"
+        }
+      ],
+      "group": "Contact",
+      "description": "Delete a contact"
     },
     {
-      "id": "ecommerce_customer_default",
-      "label": "List EcommerceCustomer",
+      "id": "contact_get",
+      "label": "Get Contact",
       "method": "GET",
-      "path": "/ecommerceCustomer",
-      "fields": []
+      "path": "/api/3/contacts/{contactId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your ActiveCampaign server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "number",
+          "required": true,
+          "description": "ID of the contact to get",
+          "defaultValue": 0,
+          "in": "path"
+        }
+      ],
+      "group": "Contact",
+      "description": "Get data of a contact"
     },
     {
-      "id": "ecommerce_order_default",
-      "label": "List EcommerceOrder",
+      "id": "contact_get_all",
+      "label": "Get Many Contact",
       "method": "GET",
-      "path": "/ecommerceOrder",
-      "fields": []
+      "path": "/api/3/contacts",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your ActiveCampaign server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: datetime, email, email_like, exclude, formid, listid, search, segmentid, seriesid, status, tagid, filters[created_before], filters[created_after], filters[updated_before], filters[updated_after], waitid, orderBy)"
+        }
+      ],
+      "group": "Contact",
+      "description": "Get data of many contacts"
     },
     {
-      "id": "ecommerce_order_products_default",
-      "label": "List EcommerceOrderProducts",
-      "method": "GET",
-      "path": "/ecommerceOrderProducts",
-      "fields": []
+      "id": "contact_update",
+      "label": "Update Contact",
+      "method": "PUT",
+      "path": "/api/3/contacts/{contactId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your ActiveCampaign server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "number",
+          "required": true,
+          "description": "ID of the contact to update",
+          "defaultValue": 0,
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "The fields to update (JSON object; supported keys: fieldValues, email, firstName, lastName, phone)"
+        }
+      ],
+      "group": "Contact",
+      "description": "Update a contact"
     },
     {
-      "id": "list_default",
-      "label": "List List",
-      "method": "GET",
-      "path": "/list",
-      "fields": []
+      "id": "account_contact_create",
+      "label": "Create Account Contact",
+      "method": "POST",
+      "path": "/api/3/accountContacts",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your ActiveCampaign server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "account",
+          "label": "Account ID",
+          "type": "number",
+          "required": true
+        },
+        {
+          "id": "contact",
+          "label": "Contact ID",
+          "type": "number",
+          "required": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: jobTitle)"
+        }
+      ],
+      "group": "Account Contact",
+      "description": "Create an association"
     },
     {
-      "id": "tag_default",
-      "label": "List Tag",
+      "id": "account_contact_delete",
+      "label": "Delete Account Contact",
+      "method": "DELETE",
+      "path": "/api/3/accountContacts/{accountContactId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your ActiveCampaign server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "accountContactId",
+          "label": "Account Contact ID",
+          "type": "number",
+          "required": true,
+          "description": "ID of the account contact to delete",
+          "defaultValue": 0,
+          "in": "path"
+        }
+      ],
+      "group": "Account Contact",
+      "description": "Delete an association"
+    },
+    {
+      "id": "account_contact_update",
+      "label": "Update Account Contact",
+      "method": "PUT",
+      "path": "/api/3/accountContacts/{accountContactId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your ActiveCampaign server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "accountContactId",
+          "label": "Account Contact ID",
+          "type": "number",
+          "required": true,
+          "description": "Account ID",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "The fields to update (JSON object; supported keys: jobTitle)"
+        }
+      ],
+      "group": "Account Contact",
+      "description": "Update an association"
+    },
+    {
+      "id": "contact_list_add",
+      "label": "Add Contact List",
+      "method": "POST",
+      "path": "/api/3/contactLists",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your ActiveCampaign server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "listId",
+          "label": "List ID",
+          "type": "number",
+          "required": true
+        },
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "number",
+          "required": true
+        }
+      ],
+      "group": "Contact List",
+      "description": "Add contact to a list"
+    },
+    {
+      "id": "contact_list_remove",
+      "label": "Remove Contact List",
+      "method": "POST",
+      "path": "/api/3/contactLists",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your ActiveCampaign server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "listId",
+          "label": "List ID",
+          "type": "number",
+          "required": true
+        },
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "number",
+          "required": true
+        }
+      ],
+      "group": "Contact List",
+      "description": "Remove contact from a list"
+    },
+    {
+      "id": "contact_tag_add",
+      "label": "Add Contact Tag",
+      "method": "POST",
+      "path": "/api/3/contactTags",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your ActiveCampaign server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "tagId",
+          "label": "Tag Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "number",
+          "required": true
+        }
+      ],
+      "group": "Contact Tag",
+      "description": "Add a tag to a contact"
+    },
+    {
+      "id": "contact_tag_remove",
+      "label": "Remove Contact Tag",
+      "method": "DELETE",
+      "path": "/api/3/contactTags/{contactTagId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your ActiveCampaign server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "contactTagId",
+          "label": "Contact Tag ID",
+          "type": "number",
+          "required": true,
+          "description": "ID of the contact tag to delete",
+          "defaultValue": 0,
+          "in": "path"
+        }
+      ],
+      "group": "Contact Tag",
+      "description": "Remove a tag from a contact"
+    },
+    {
+      "id": "list_get_all",
+      "label": "Get Many List",
       "method": "GET",
-      "path": "/tag",
-      "fields": []
+      "path": "/api/3/lists",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your ActiveCampaign server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        }
+      ],
+      "group": "List",
+      "description": "Get many lists"
+    },
+    {
+      "id": "tag_create",
+      "label": "Create Tag",
+      "method": "POST",
+      "path": "/api/3/tags",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your ActiveCampaign server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "tagType",
+          "label": "Type",
+          "type": "select",
+          "required": true,
+          "description": "Tag-type of the new tag",
+          "defaultValue": "contact",
+          "options": [
+            {
+              "value": "contact",
+              "label": "Contact"
+            },
+            {
+              "value": "template",
+              "label": "Template"
+            }
+          ]
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "Name of the new tag"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: description)"
+        }
+      ],
+      "group": "Tag",
+      "description": "Create a tag"
+    },
+    {
+      "id": "tag_delete",
+      "label": "Delete Tag",
+      "method": "DELETE",
+      "path": "/api/3/tags/{tagId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your ActiveCampaign server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "tagId",
+          "label": "Tag ID",
+          "type": "number",
+          "required": true,
+          "description": "ID of the tag to delete",
+          "defaultValue": 0,
+          "in": "path"
+        }
+      ],
+      "group": "Tag",
+      "description": "Delete a tag"
+    },
+    {
+      "id": "tag_get",
+      "label": "Get Tag",
+      "method": "GET",
+      "path": "/api/3/tags/{tagId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your ActiveCampaign server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "tagId",
+          "label": "Tag ID",
+          "type": "number",
+          "required": true,
+          "description": "ID of the tag to get",
+          "defaultValue": 0,
+          "in": "path"
+        }
+      ],
+      "group": "Tag",
+      "description": "Get data of a tag"
+    },
+    {
+      "id": "tag_get_all",
+      "label": "Get Many Tag",
+      "method": "GET",
+      "path": "/api/3/tags",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your ActiveCampaign server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        }
+      ],
+      "group": "Tag",
+      "description": "Get data of many tags"
+    },
+    {
+      "id": "tag_update",
+      "label": "Update Tag",
+      "method": "PUT",
+      "path": "/api/3/tags/{tagId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your ActiveCampaign server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "tagId",
+          "label": "Tag ID",
+          "type": "number",
+          "required": true,
+          "description": "ID of the tag to update",
+          "defaultValue": 0,
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "The fields to update (JSON object; supported keys: tag, description)"
+        }
+      ],
+      "group": "Tag",
+      "description": "Update a tag"
+    },
+    {
+      "id": "deal_create",
+      "label": "Create Deal",
+      "method": "POST",
+      "path": "/api/3/deals",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your ActiveCampaign server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "title",
+          "label": "Title",
+          "type": "text",
+          "required": true,
+          "description": "The title of the deal"
+        },
+        {
+          "id": "contact",
+          "label": "Deal's Contact ID",
+          "type": "number",
+          "required": true,
+          "description": "The ID of the deal's contact",
+          "defaultValue": 0
+        },
+        {
+          "id": "value",
+          "label": "Deal Value",
+          "type": "number",
+          "required": true,
+          "description": "The value of the deal in cents",
+          "defaultValue": 0
+        },
+        {
+          "id": "currency",
+          "label": "Currency",
+          "type": "select",
+          "required": true,
+          "description": "The currency of the deal in 3-character ISO format",
+          "defaultValue": "eur",
+          "options": [
+            {
+              "value": "eur",
+              "label": "Euro"
+            },
+            {
+              "value": "usd",
+              "label": "United States Dollar"
+            },
+            {
+              "value": "gbp",
+              "label": "British Pound Sterling"
+            },
+            {
+              "value": "chf",
+              "label": "Swiss Franc"
+            },
+            {
+              "value": "cny",
+              "label": "Renminbi"
+            },
+            {
+              "value": "",
+              "label": "--------"
+            },
+            {
+              "value": "aed",
+              "label": "United Arab Emirates Dirham"
+            },
+            {
+              "value": "afn",
+              "label": "Afghan Afghani"
+            },
+            {
+              "value": "all",
+              "label": "Albanian Lek"
+            },
+            {
+              "value": "amd",
+              "label": "Armenian Dram"
+            },
+            {
+              "value": "ang",
+              "label": "Netherlands Antillean Guilder"
+            },
+            {
+              "value": "aoa",
+              "label": "Angolan Kwanza"
+            },
+            {
+              "value": "ars",
+              "label": "Argentine Peso"
+            },
+            {
+              "value": "aud",
+              "label": "Australian Dollar"
+            },
+            {
+              "value": "awg",
+              "label": "Aruban Florin"
+            },
+            {
+              "value": "azn",
+              "label": "Azerbaijani Manat"
+            },
+            {
+              "value": "bam",
+              "label": "Bosnia-Herzegovina Convertible Mark"
+            },
+            {
+              "value": "bbd",
+              "label": "Barbadian Dollar"
+            },
+            {
+              "value": "bdt",
+              "label": "Bangladeshi Taka"
+            },
+            {
+              "value": "bgn",
+              "label": "Bulgarian Lev"
+            },
+            {
+              "value": "bhd",
+              "label": "Bahraini Dinar"
+            },
+            {
+              "value": "bif",
+              "label": "Burundian Franc"
+            },
+            {
+              "value": "bmd",
+              "label": "Bermudan Dollar"
+            },
+            {
+              "value": "bnd",
+              "label": "Brunei Dollar"
+            },
+            {
+              "value": "bob",
+              "label": "Bolivian Boliviano"
+            },
+            {
+              "value": "brl",
+              "label": "Brazilian Real"
+            },
+            {
+              "value": "bsd",
+              "label": "Bahamian Dollar"
+            },
+            {
+              "value": "btc",
+              "label": "Bitcoin"
+            },
+            {
+              "value": "btn",
+              "label": "Bhutanese Ngultrum"
+            },
+            {
+              "value": "bwp",
+              "label": "Botswanan Pula"
+            },
+            {
+              "value": "byn",
+              "label": "Belarusian Ruble"
+            },
+            {
+              "value": "bzd",
+              "label": "Belize Dollar"
+            },
+            {
+              "value": "cad",
+              "label": "Canadian Dollar"
+            },
+            {
+              "value": "cdf",
+              "label": "Congolese Franc"
+            },
+            {
+              "value": "clf",
+              "label": "Chilean Unit of Account (UF)"
+            },
+            {
+              "value": "clp",
+              "label": "Chilean Peso"
+            },
+            {
+              "value": "cnh",
+              "label": "Chinese Yuan (Offshore)"
+            },
+            {
+              "value": "cop",
+              "label": "Colombian Peso"
+            },
+            {
+              "value": "crc",
+              "label": "Costa Rican Colón"
+            },
+            {
+              "value": "cuc",
+              "label": "Cuban Convertible Peso"
+            },
+            {
+              "value": "cup",
+              "label": "Cuban Peso"
+            },
+            {
+              "value": "cve",
+              "label": "Cape Verdean Escudo"
+            },
+            {
+              "value": "czk",
+              "label": "Czech Republic Koruna"
+            },
+            {
+              "value": "djf",
+              "label": "Djiboutian Franc"
+            },
+            {
+              "value": "dkk",
+              "label": "Danish Krone"
+            },
+            {
+              "value": "dop",
+              "label": "Dominican Peso"
+            },
+            {
+              "value": "dzd",
+              "label": "Algerian Dinar"
+            },
+            {
+              "value": "egp",
+              "label": "Egyptian Pound"
+            },
+            {
+              "value": "ern",
+              "label": "Eritrean Nakfa"
+            },
+            {
+              "value": "etb",
+              "label": "Ethiopian Birr"
+            },
+            {
+              "value": "fjd",
+              "label": "Fijian Dollar"
+            },
+            {
+              "value": "fkp",
+              "label": "Falkland Islands Pound"
+            },
+            {
+              "value": "gel",
+              "label": "Georgian Lari"
+            },
+            {
+              "value": "ggp",
+              "label": "Guernsey Pound"
+            },
+            {
+              "value": "ghs",
+              "label": "Ghanaian Cedi"
+            },
+            {
+              "value": "gip",
+              "label": "Gibraltar Pound"
+            },
+            {
+              "value": "gmd",
+              "label": "Gambian Dalasi"
+            },
+            {
+              "value": "gnf",
+              "label": "Guinean Franc"
+            },
+            {
+              "value": "gtq",
+              "label": "Guatemalan Quetzal"
+            },
+            {
+              "value": "gyd",
+              "label": "Guyanaese Dollar"
+            },
+            {
+              "value": "hkd",
+              "label": "Hong Kong Dollar"
+            },
+            {
+              "value": "hnl",
+              "label": "Honduran Lempira"
+            },
+            {
+              "value": "hrk",
+              "label": "Croatian Kuna"
+            },
+            {
+              "value": "htg",
+              "label": "Haitian Gourde"
+            },
+            {
+              "value": "huf",
+              "label": "Hungarian Forint"
+            },
+            {
+              "value": "idr",
+              "label": "Indonesian Rupiah"
+            },
+            {
+              "value": "ils",
+              "label": "Israeli New Sheqel"
+            },
+            {
+              "value": "imp",
+              "label": "Manx Pound"
+            },
+            {
+              "value": "inr",
+              "label": "Indian Rupee"
+            },
+            {
+              "value": "iqd",
+              "label": "Iraqi Dinar"
+            },
+            {
+              "value": "irr",
+              "label": "Iranian Rial"
+            },
+            {
+              "value": "isk",
+              "label": "Icelandic Króna"
+            },
+            {
+              "value": "jep",
+              "label": "Jersey Pound"
+            },
+            {
+              "value": "jmd",
+              "label": "Jamaican Dollar"
+            },
+            {
+              "value": "jod",
+              "label": "Jordanian Dinar"
+            },
+            {
+              "value": "jpy",
+              "label": "Japanese Yen"
+            },
+            {
+              "value": "kes",
+              "label": "Kenyan Shilling"
+            },
+            {
+              "value": "kgs",
+              "label": "Kyrgystani Som"
+            },
+            {
+              "value": "khr",
+              "label": "Cambodian Riel"
+            },
+            {
+              "value": "kmf",
+              "label": "Comorian Franc"
+            },
+            {
+              "value": "kpw",
+              "label": "North Korean Won"
+            },
+            {
+              "value": "krw",
+              "label": "South Korean Won"
+            },
+            {
+              "value": "kwd",
+              "label": "Kuwaiti Dinar"
+            },
+            {
+              "value": "kyd",
+              "label": "Cayman Islands Dollar"
+            },
+            {
+              "value": "kzt",
+              "label": "Kazakhstani Tenge"
+            },
+            {
+              "value": "lak",
+              "label": "Laotian Kip"
+            },
+            {
+              "value": "lbp",
+              "label": "Lebanese Pound"
+            },
+            {
+              "value": "lkr",
+              "label": "Sri Lankan Rupee"
+            },
+            {
+              "value": "lrd",
+              "label": "Liberian Dollar"
+            },
+            {
+              "value": "lsl",
+              "label": "Lesotho Loti"
+            },
+            {
+              "value": "lyd",
+              "label": "Libyan Dinar"
+            },
+            {
+              "value": "mad",
+              "label": "Moroccan Dirham"
+            },
+            {
+              "value": "mdl",
+              "label": "Moldovan Leu"
+            },
+            {
+              "value": "mga",
+              "label": "Malagasy Ariary"
+            },
+            {
+              "value": "mkd",
+              "label": "Macedonian Denar"
+            },
+            {
+              "value": "mmk",
+              "label": "Myanma Kyat"
+            },
+            {
+              "value": "mnt",
+              "label": "Mongolian Tugrik"
+            },
+            {
+              "value": "mop",
+              "label": "Macanese Pataca"
+            },
+            {
+              "value": "mro",
+              "label": "Mauritanian Ouguiya (Pre-2018)"
+            },
+            {
+              "value": "mru",
+              "label": "Mauritanian Ouguiya"
+            },
+            {
+              "value": "mur",
+              "label": "Mauritian Rupee"
+            },
+            {
+              "value": "mvr",
+              "label": "Maldivian Rufiyaa"
+            },
+            {
+              "value": "mwk",
+              "label": "Malawian Kwacha"
+            },
+            {
+              "value": "mxn",
+              "label": "Mexican Peso"
+            },
+            {
+              "value": "myr",
+              "label": "Malaysian Ringgit"
+            },
+            {
+              "value": "mzn",
+              "label": "Mozambican Metical"
+            },
+            {
+              "value": "nad",
+              "label": "Namibian Dollar"
+            },
+            {
+              "value": "ngn",
+              "label": "Nigerian Naira"
+            },
+            {
+              "value": "nio",
+              "label": "Nicaraguan Córdoba"
+            },
+            {
+              "value": "nok",
+              "label": "Norwegian Krone"
+            },
+            {
+              "value": "npr",
+              "label": "Nepalese Rupee"
+            },
+            {
+              "value": "nzd",
+              "label": "New Zealand Dollar"
+            },
+            {
+              "value": "omr",
+              "label": "Omani Rial"
+            },
+            {
+              "value": "pab",
+              "label": "Panamanian Balboa"
+            },
+            {
+              "value": "pen",
+              "label": "Peruvian Nuevo Sol"
+            },
+            {
+              "value": "pgk",
+              "label": "Papua New Guinean Kina"
+            },
+            {
+              "value": "php",
+              "label": "Philippine Peso"
+            },
+            {
+              "value": "pkr",
+              "label": "Pakistani Rupee"
+            },
+            {
+              "value": "pln",
+              "label": "Polish Zloty"
+            },
+            {
+              "value": "pyg",
+              "label": "Paraguayan Guarani"
+            },
+            {
+              "value": "qar",
+              "label": "Qatari Rial"
+            },
+            {
+              "value": "ron",
+              "label": "Romanian Leu"
+            },
+            {
+              "value": "rsd",
+              "label": "Serbian Dinar"
+            },
+            {
+              "value": "rub",
+              "label": "Russian Ruble"
+            },
+            {
+              "value": "rwf",
+              "label": "Rwandan Franc"
+            },
+            {
+              "value": "sar",
+              "label": "Saudi Riyal"
+            },
+            {
+              "value": "sbd",
+              "label": "Solomon Islands Dollar"
+            },
+            {
+              "value": "scr",
+              "label": "Seychellois Rupee"
+            },
+            {
+              "value": "sdg",
+              "label": "Sudanese Pound"
+            },
+            {
+              "value": "sek",
+              "label": "Swedish Krona"
+            },
+            {
+              "value": "sgd",
+              "label": "Singapore Dollar"
+            },
+            {
+              "value": "shp",
+              "label": "Saint Helena Pound"
+            },
+            {
+              "value": "sll",
+              "label": "Sierra Leonean Leone"
+            },
+            {
+              "value": "sos",
+              "label": "Somali Shilling"
+            },
+            {
+              "value": "srd",
+              "label": "Surinamese Dollar"
+            },
+            {
+              "value": "ssp",
+              "label": "South Sudanese Pound"
+            },
+            {
+              "value": "std",
+              "label": "São Tomé and Príncipe Dobra (Pre-2018)"
+            },
+            {
+              "value": "stn",
+              "label": "São Tomé and Príncipe Dobra"
+            },
+            {
+              "value": "svc",
+              "label": "Salvadoran Colón"
+            },
+            {
+              "value": "syp",
+              "label": "Syrian Pound"
+            },
+            {
+              "value": "szl",
+              "label": "Swazi Lilangeni"
+            },
+            {
+              "value": "thb",
+              "label": "Thai Baht"
+            },
+            {
+              "value": "tjs",
+              "label": "Tajikistani Somoni"
+            },
+            {
+              "value": "tmt",
+              "label": "Turkmenistani Manat"
+            },
+            {
+              "value": "tnd",
+              "label": "Tunisian Dinar"
+            },
+            {
+              "value": "top",
+              "label": "Tongan Pa'anga"
+            },
+            {
+              "value": "try",
+              "label": "Turkish Lira"
+            },
+            {
+              "value": "ttd",
+              "label": "Trinidad and Tobago Dollar"
+            },
+            {
+              "value": "twd",
+              "label": "New Taiwan Dollar"
+            },
+            {
+              "value": "tzs",
+              "label": "Tanzanian Shilling"
+            },
+            {
+              "value": "uah",
+              "label": "Ukrainian Hryvnia"
+            },
+            {
+              "value": "ugx",
+              "label": "Ugandan Shilling"
+            },
+            {
+              "value": "uyu",
+              "label": "Uruguayan Peso"
+            },
+            {
+              "value": "uzs",
+              "label": "Uzbekistan Som"
+            },
+            {
+              "value": "vef",
+              "label": "Venezuelan Bolívar Fuerte"
+            },
+            {
+              "value": "vnd",
+              "label": "Vietnamese Dong"
+            },
+            {
+              "value": "vuv",
+              "label": "Vanuatu Vatu"
+            },
+            {
+              "value": "wst",
+              "label": "Samoan Tala"
+            },
+            {
+              "value": "xaf",
+              "label": "CFA Franc BEAC"
+            },
+            {
+              "value": "xag",
+              "label": "Silver Ounce"
+            },
+            {
+              "value": "xau",
+              "label": "Gold Ounce"
+            },
+            {
+              "value": "xcd",
+              "label": "East Caribbean Dollar"
+            },
+            {
+              "value": "xdr",
+              "label": "Special Drawing Rights"
+            },
+            {
+              "value": "xof",
+              "label": "CFA Franc BCEAO"
+            },
+            {
+              "value": "xpd",
+              "label": "Palladium Ounce"
+            },
+            {
+              "value": "xpf",
+              "label": "CFP Franc"
+            },
+            {
+              "value": "xpt",
+              "label": "Platinum Ounce"
+            },
+            {
+              "value": "yer",
+              "label": "Yemeni Rial"
+            },
+            {
+              "value": "zar",
+              "label": "South African Rand"
+            },
+            {
+              "value": "zmw",
+              "label": "Zambian Kwacha"
+            },
+            {
+              "value": "zwl",
+              "label": "Zimbabwean Dollar"
+            }
+          ]
+        },
+        {
+          "id": "group",
+          "label": "Deal Pipeline ID",
+          "type": "text",
+          "description": "The pipeline ID of the deal"
+        },
+        {
+          "id": "stage",
+          "label": "Deal Stage ID",
+          "type": "text",
+          "description": "The stage ID of the deal"
+        },
+        {
+          "id": "owner",
+          "label": "Deal Owner ID",
+          "type": "text",
+          "description": "The owner ID of the deal"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: description, percent, status)"
+        }
+      ],
+      "group": "Deal",
+      "description": "Create a deal"
+    },
+    {
+      "id": "deal_create_note",
+      "label": "Create Note Deal",
+      "method": "POST",
+      "path": "/api/3/deals/{dealId}/notes",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your ActiveCampaign server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "dealId",
+          "label": "Deal ID",
+          "type": "number",
+          "required": true,
+          "description": "The ID of the deal note",
+          "in": "path"
+        },
+        {
+          "id": "dealNote",
+          "label": "Deal Note",
+          "type": "text",
+          "required": true,
+          "description": "The content of the deal note"
+        }
+      ],
+      "group": "Deal",
+      "description": "Create a deal note"
+    },
+    {
+      "id": "deal_delete",
+      "label": "Delete Deal",
+      "method": "DELETE",
+      "path": "/api/3/deals/{dealId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your ActiveCampaign server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "dealId",
+          "label": "Deal ID",
+          "type": "number",
+          "required": true,
+          "description": "The ID of the deal to delete",
+          "defaultValue": 0,
+          "in": "path"
+        }
+      ],
+      "group": "Deal",
+      "description": "Delete a deal"
+    },
+    {
+      "id": "deal_get",
+      "label": "Get Deal",
+      "method": "GET",
+      "path": "/api/3/deals/{dealId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your ActiveCampaign server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "dealId",
+          "label": "Deal ID",
+          "type": "number",
+          "required": true,
+          "description": "The ID of the deal to get",
+          "defaultValue": 0,
+          "in": "path"
+        }
+      ],
+      "group": "Deal",
+      "description": "Get data of a deal"
+    },
+    {
+      "id": "deal_get_all",
+      "label": "Get Many Deal",
+      "method": "GET",
+      "path": "/api/3/deals",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your ActiveCampaign server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        }
+      ],
+      "group": "Deal",
+      "description": "Get data of many deals"
+    },
+    {
+      "id": "deal_update",
+      "label": "Update Deal",
+      "method": "PUT",
+      "path": "/api/3/deals/{dealId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your ActiveCampaign server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "dealId",
+          "label": "Deal ID",
+          "type": "number",
+          "required": true,
+          "description": "ID of the deal to update",
+          "defaultValue": 0,
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "The fields to update (JSON object; supported keys: title, contact, value, currency, description, group, stage, owner, percent, status)"
+        }
+      ],
+      "group": "Deal",
+      "description": "Update a deal"
+    },
+    {
+      "id": "deal_update_note",
+      "label": "Update Deal Note Deal",
+      "method": "PUT",
+      "path": "/api/3/deals/{dealId}/notes/{dealNoteId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your ActiveCampaign server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "dealId",
+          "label": "Deal ID",
+          "type": "number",
+          "required": true,
+          "description": "The ID of the deal note",
+          "in": "path"
+        },
+        {
+          "id": "dealNoteId",
+          "label": "Deal Note ID",
+          "type": "number",
+          "required": true,
+          "description": "The ID of the deal note",
+          "in": "path"
+        },
+        {
+          "id": "dealNote",
+          "label": "Deal Note",
+          "type": "text",
+          "description": "The content of the deal note"
+        }
+      ],
+      "group": "Deal",
+      "description": "Update a deal note"
+    },
+    {
+      "id": "connection_create",
+      "label": "Create Connection",
+      "method": "POST",
+      "path": "/api/3/connections",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your ActiveCampaign server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "service",
+          "label": "Service",
+          "type": "text",
+          "required": true,
+          "description": "The name of the service"
+        },
+        {
+          "id": "externalid",
+          "label": "External Account ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the account in the external service"
+        },
+        {
+          "id": "name",
+          "label": "Account Name",
+          "type": "text",
+          "required": true,
+          "description": "The name associated with the account in the external service. Often this will be a company name (e.g., \"My Toystore, Inc.\")."
+        },
+        {
+          "id": "logoUrl",
+          "label": "Logo URL",
+          "type": "text",
+          "required": true,
+          "description": "The URL to a logo image for the external service"
+        },
+        {
+          "id": "linkUrl",
+          "label": "Link URL",
+          "type": "text",
+          "required": true,
+          "description": "The URL to a page where the integration with the external service can be managed in the third-party's website"
+        }
+      ],
+      "group": "Connection",
+      "description": "Create a connection"
+    },
+    {
+      "id": "connection_delete",
+      "label": "Delete Connection",
+      "method": "DELETE",
+      "path": "/api/3/connections/{connectionId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your ActiveCampaign server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "connectionId",
+          "label": "Connection ID",
+          "type": "number",
+          "required": true,
+          "description": "ID of the connection to delete",
+          "defaultValue": 0,
+          "in": "path"
+        }
+      ],
+      "group": "Connection",
+      "description": "Delete a connection"
+    },
+    {
+      "id": "connection_get",
+      "label": "Get Connection",
+      "method": "GET",
+      "path": "/api/3/connections/{connectionId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your ActiveCampaign server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "connectionId",
+          "label": "Connection ID",
+          "type": "number",
+          "required": true,
+          "description": "ID of the connection to get",
+          "defaultValue": 0,
+          "in": "path"
+        }
+      ],
+      "group": "Connection",
+      "description": "Get data of a connection"
+    },
+    {
+      "id": "connection_get_all",
+      "label": "Get Many Connection",
+      "method": "GET",
+      "path": "/api/3/connections",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your ActiveCampaign server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        }
+      ],
+      "group": "Connection",
+      "description": "Get data of many connections"
+    },
+    {
+      "id": "connection_update",
+      "label": "Update Connection",
+      "method": "PUT",
+      "path": "/api/3/connections/{connectionId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your ActiveCampaign server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "connectionId",
+          "label": "Connection ID",
+          "type": "number",
+          "required": true,
+          "description": "ID of the connection to update",
+          "defaultValue": 0,
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "The fields to update (JSON object; supported keys: service, externalid, name, logoUrl, linkUrl, status, syncStatus)"
+        }
+      ],
+      "group": "Connection",
+      "description": "Update a connection"
+    },
+    {
+      "id": "ecommerce_order_create",
+      "label": "Create E-Commerce Order",
+      "method": "POST",
+      "path": "/api/3/ecomOrders",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your ActiveCampaign server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "externalid",
+          "label": "External ID",
+          "type": "text",
+          "description": "The ID of the order in the external service. ONLY REQUIRED IF EXTERNALCHECKOUTID NOT INCLUDED."
+        },
+        {
+          "id": "externalcheckoutid",
+          "label": "External Checkout ID",
+          "type": "text",
+          "description": "The ID of the cart in the external service. ONLY REQUIRED IF EXTERNALID IS NOT INCLUDED."
+        },
+        {
+          "id": "source",
+          "label": "Order Source",
+          "type": "number",
+          "required": true,
+          "description": "The order source code (0 - will not trigger automations, 1 - will trigger automations)",
+          "defaultValue": 0
+        },
+        {
+          "id": "email",
+          "label": "Customer Email",
+          "type": "text",
+          "required": true,
+          "placeholder": "name@email.com",
+          "description": "The email address of the customer who placed the order"
+        },
+        {
+          "id": "totalPrice",
+          "label": "Total Price",
+          "type": "number",
+          "required": true,
+          "description": "The total price of the order in cents, including tax and shipping charges. (i.e. $456.78 => 45678). Must be greater than or equal to zero.",
+          "defaultValue": 0
+        },
+        {
+          "id": "currency",
+          "label": "Order Currency",
+          "type": "select",
+          "required": true,
+          "description": "The currency of the order (3-digit ISO code, e.g., \"USD\")",
+          "defaultValue": "eur",
+          "options": [
+            {
+              "value": "eur",
+              "label": "Euro"
+            },
+            {
+              "value": "usd",
+              "label": "United States Dollar"
+            },
+            {
+              "value": "gbp",
+              "label": "British Pound Sterling"
+            },
+            {
+              "value": "chf",
+              "label": "Swiss Franc"
+            },
+            {
+              "value": "cny",
+              "label": "Renminbi"
+            },
+            {
+              "value": "",
+              "label": "--------"
+            },
+            {
+              "value": "aed",
+              "label": "United Arab Emirates Dirham"
+            },
+            {
+              "value": "afn",
+              "label": "Afghan Afghani"
+            },
+            {
+              "value": "all",
+              "label": "Albanian Lek"
+            },
+            {
+              "value": "amd",
+              "label": "Armenian Dram"
+            },
+            {
+              "value": "ang",
+              "label": "Netherlands Antillean Guilder"
+            },
+            {
+              "value": "aoa",
+              "label": "Angolan Kwanza"
+            },
+            {
+              "value": "ars",
+              "label": "Argentine Peso"
+            },
+            {
+              "value": "aud",
+              "label": "Australian Dollar"
+            },
+            {
+              "value": "awg",
+              "label": "Aruban Florin"
+            },
+            {
+              "value": "azn",
+              "label": "Azerbaijani Manat"
+            },
+            {
+              "value": "bam",
+              "label": "Bosnia-Herzegovina Convertible Mark"
+            },
+            {
+              "value": "bbd",
+              "label": "Barbadian Dollar"
+            },
+            {
+              "value": "bdt",
+              "label": "Bangladeshi Taka"
+            },
+            {
+              "value": "bgn",
+              "label": "Bulgarian Lev"
+            },
+            {
+              "value": "bhd",
+              "label": "Bahraini Dinar"
+            },
+            {
+              "value": "bif",
+              "label": "Burundian Franc"
+            },
+            {
+              "value": "bmd",
+              "label": "Bermudan Dollar"
+            },
+            {
+              "value": "bnd",
+              "label": "Brunei Dollar"
+            },
+            {
+              "value": "bob",
+              "label": "Bolivian Boliviano"
+            },
+            {
+              "value": "brl",
+              "label": "Brazilian Real"
+            },
+            {
+              "value": "bsd",
+              "label": "Bahamian Dollar"
+            },
+            {
+              "value": "btc",
+              "label": "Bitcoin"
+            },
+            {
+              "value": "btn",
+              "label": "Bhutanese Ngultrum"
+            },
+            {
+              "value": "bwp",
+              "label": "Botswanan Pula"
+            },
+            {
+              "value": "byn",
+              "label": "Belarusian Ruble"
+            },
+            {
+              "value": "bzd",
+              "label": "Belize Dollar"
+            },
+            {
+              "value": "cad",
+              "label": "Canadian Dollar"
+            },
+            {
+              "value": "cdf",
+              "label": "Congolese Franc"
+            },
+            {
+              "value": "clf",
+              "label": "Chilean Unit of Account (UF)"
+            },
+            {
+              "value": "clp",
+              "label": "Chilean Peso"
+            },
+            {
+              "value": "cnh",
+              "label": "Chinese Yuan (Offshore)"
+            },
+            {
+              "value": "cop",
+              "label": "Colombian Peso"
+            },
+            {
+              "value": "crc",
+              "label": "Costa Rican Colón"
+            },
+            {
+              "value": "cuc",
+              "label": "Cuban Convertible Peso"
+            },
+            {
+              "value": "cup",
+              "label": "Cuban Peso"
+            },
+            {
+              "value": "cve",
+              "label": "Cape Verdean Escudo"
+            },
+            {
+              "value": "czk",
+              "label": "Czech Republic Koruna"
+            },
+            {
+              "value": "djf",
+              "label": "Djiboutian Franc"
+            },
+            {
+              "value": "dkk",
+              "label": "Danish Krone"
+            },
+            {
+              "value": "dop",
+              "label": "Dominican Peso"
+            },
+            {
+              "value": "dzd",
+              "label": "Algerian Dinar"
+            },
+            {
+              "value": "egp",
+              "label": "Egyptian Pound"
+            },
+            {
+              "value": "ern",
+              "label": "Eritrean Nakfa"
+            },
+            {
+              "value": "etb",
+              "label": "Ethiopian Birr"
+            },
+            {
+              "value": "fjd",
+              "label": "Fijian Dollar"
+            },
+            {
+              "value": "fkp",
+              "label": "Falkland Islands Pound"
+            },
+            {
+              "value": "gel",
+              "label": "Georgian Lari"
+            },
+            {
+              "value": "ggp",
+              "label": "Guernsey Pound"
+            },
+            {
+              "value": "ghs",
+              "label": "Ghanaian Cedi"
+            },
+            {
+              "value": "gip",
+              "label": "Gibraltar Pound"
+            },
+            {
+              "value": "gmd",
+              "label": "Gambian Dalasi"
+            },
+            {
+              "value": "gnf",
+              "label": "Guinean Franc"
+            },
+            {
+              "value": "gtq",
+              "label": "Guatemalan Quetzal"
+            },
+            {
+              "value": "gyd",
+              "label": "Guyanaese Dollar"
+            },
+            {
+              "value": "hkd",
+              "label": "Hong Kong Dollar"
+            },
+            {
+              "value": "hnl",
+              "label": "Honduran Lempira"
+            },
+            {
+              "value": "hrk",
+              "label": "Croatian Kuna"
+            },
+            {
+              "value": "htg",
+              "label": "Haitian Gourde"
+            },
+            {
+              "value": "huf",
+              "label": "Hungarian Forint"
+            },
+            {
+              "value": "idr",
+              "label": "Indonesian Rupiah"
+            },
+            {
+              "value": "ils",
+              "label": "Israeli New Sheqel"
+            },
+            {
+              "value": "imp",
+              "label": "Manx Pound"
+            },
+            {
+              "value": "inr",
+              "label": "Indian Rupee"
+            },
+            {
+              "value": "iqd",
+              "label": "Iraqi Dinar"
+            },
+            {
+              "value": "irr",
+              "label": "Iranian Rial"
+            },
+            {
+              "value": "isk",
+              "label": "Icelandic Króna"
+            },
+            {
+              "value": "jep",
+              "label": "Jersey Pound"
+            },
+            {
+              "value": "jmd",
+              "label": "Jamaican Dollar"
+            },
+            {
+              "value": "jod",
+              "label": "Jordanian Dinar"
+            },
+            {
+              "value": "jpy",
+              "label": "Japanese Yen"
+            },
+            {
+              "value": "kes",
+              "label": "Kenyan Shilling"
+            },
+            {
+              "value": "kgs",
+              "label": "Kyrgystani Som"
+            },
+            {
+              "value": "khr",
+              "label": "Cambodian Riel"
+            },
+            {
+              "value": "kmf",
+              "label": "Comorian Franc"
+            },
+            {
+              "value": "kpw",
+              "label": "North Korean Won"
+            },
+            {
+              "value": "krw",
+              "label": "South Korean Won"
+            },
+            {
+              "value": "kwd",
+              "label": "Kuwaiti Dinar"
+            },
+            {
+              "value": "kyd",
+              "label": "Cayman Islands Dollar"
+            },
+            {
+              "value": "kzt",
+              "label": "Kazakhstani Tenge"
+            },
+            {
+              "value": "lak",
+              "label": "Laotian Kip"
+            },
+            {
+              "value": "lbp",
+              "label": "Lebanese Pound"
+            },
+            {
+              "value": "lkr",
+              "label": "Sri Lankan Rupee"
+            },
+            {
+              "value": "lrd",
+              "label": "Liberian Dollar"
+            },
+            {
+              "value": "lsl",
+              "label": "Lesotho Loti"
+            },
+            {
+              "value": "lyd",
+              "label": "Libyan Dinar"
+            },
+            {
+              "value": "mad",
+              "label": "Moroccan Dirham"
+            },
+            {
+              "value": "mdl",
+              "label": "Moldovan Leu"
+            },
+            {
+              "value": "mga",
+              "label": "Malagasy Ariary"
+            },
+            {
+              "value": "mkd",
+              "label": "Macedonian Denar"
+            },
+            {
+              "value": "mmk",
+              "label": "Myanma Kyat"
+            },
+            {
+              "value": "mnt",
+              "label": "Mongolian Tugrik"
+            },
+            {
+              "value": "mop",
+              "label": "Macanese Pataca"
+            },
+            {
+              "value": "mro",
+              "label": "Mauritanian Ouguiya (Pre-2018)"
+            },
+            {
+              "value": "mru",
+              "label": "Mauritanian Ouguiya"
+            },
+            {
+              "value": "mur",
+              "label": "Mauritian Rupee"
+            },
+            {
+              "value": "mvr",
+              "label": "Maldivian Rufiyaa"
+            },
+            {
+              "value": "mwk",
+              "label": "Malawian Kwacha"
+            },
+            {
+              "value": "mxn",
+              "label": "Mexican Peso"
+            },
+            {
+              "value": "myr",
+              "label": "Malaysian Ringgit"
+            },
+            {
+              "value": "mzn",
+              "label": "Mozambican Metical"
+            },
+            {
+              "value": "nad",
+              "label": "Namibian Dollar"
+            },
+            {
+              "value": "ngn",
+              "label": "Nigerian Naira"
+            },
+            {
+              "value": "nio",
+              "label": "Nicaraguan Córdoba"
+            },
+            {
+              "value": "nok",
+              "label": "Norwegian Krone"
+            },
+            {
+              "value": "npr",
+              "label": "Nepalese Rupee"
+            },
+            {
+              "value": "nzd",
+              "label": "New Zealand Dollar"
+            },
+            {
+              "value": "omr",
+              "label": "Omani Rial"
+            },
+            {
+              "value": "pab",
+              "label": "Panamanian Balboa"
+            },
+            {
+              "value": "pen",
+              "label": "Peruvian Nuevo Sol"
+            },
+            {
+              "value": "pgk",
+              "label": "Papua New Guinean Kina"
+            },
+            {
+              "value": "php",
+              "label": "Philippine Peso"
+            },
+            {
+              "value": "pkr",
+              "label": "Pakistani Rupee"
+            },
+            {
+              "value": "pln",
+              "label": "Polish Zloty"
+            },
+            {
+              "value": "pyg",
+              "label": "Paraguayan Guarani"
+            },
+            {
+              "value": "qar",
+              "label": "Qatari Rial"
+            },
+            {
+              "value": "ron",
+              "label": "Romanian Leu"
+            },
+            {
+              "value": "rsd",
+              "label": "Serbian Dinar"
+            },
+            {
+              "value": "rub",
+              "label": "Russian Ruble"
+            },
+            {
+              "value": "rwf",
+              "label": "Rwandan Franc"
+            },
+            {
+              "value": "sar",
+              "label": "Saudi Riyal"
+            },
+            {
+              "value": "sbd",
+              "label": "Solomon Islands Dollar"
+            },
+            {
+              "value": "scr",
+              "label": "Seychellois Rupee"
+            },
+            {
+              "value": "sdg",
+              "label": "Sudanese Pound"
+            },
+            {
+              "value": "sek",
+              "label": "Swedish Krona"
+            },
+            {
+              "value": "sgd",
+              "label": "Singapore Dollar"
+            },
+            {
+              "value": "shp",
+              "label": "Saint Helena Pound"
+            },
+            {
+              "value": "sll",
+              "label": "Sierra Leonean Leone"
+            },
+            {
+              "value": "sos",
+              "label": "Somali Shilling"
+            },
+            {
+              "value": "srd",
+              "label": "Surinamese Dollar"
+            },
+            {
+              "value": "ssp",
+              "label": "South Sudanese Pound"
+            },
+            {
+              "value": "std",
+              "label": "São Tomé and Príncipe Dobra (Pre-2018)"
+            },
+            {
+              "value": "stn",
+              "label": "São Tomé and Príncipe Dobra"
+            },
+            {
+              "value": "svc",
+              "label": "Salvadoran Colón"
+            },
+            {
+              "value": "syp",
+              "label": "Syrian Pound"
+            },
+            {
+              "value": "szl",
+              "label": "Swazi Lilangeni"
+            },
+            {
+              "value": "thb",
+              "label": "Thai Baht"
+            },
+            {
+              "value": "tjs",
+              "label": "Tajikistani Somoni"
+            },
+            {
+              "value": "tmt",
+              "label": "Turkmenistani Manat"
+            },
+            {
+              "value": "tnd",
+              "label": "Tunisian Dinar"
+            },
+            {
+              "value": "top",
+              "label": "Tongan Pa'anga"
+            },
+            {
+              "value": "try",
+              "label": "Turkish Lira"
+            },
+            {
+              "value": "ttd",
+              "label": "Trinidad and Tobago Dollar"
+            },
+            {
+              "value": "twd",
+              "label": "New Taiwan Dollar"
+            },
+            {
+              "value": "tzs",
+              "label": "Tanzanian Shilling"
+            },
+            {
+              "value": "uah",
+              "label": "Ukrainian Hryvnia"
+            },
+            {
+              "value": "ugx",
+              "label": "Ugandan Shilling"
+            },
+            {
+              "value": "uyu",
+              "label": "Uruguayan Peso"
+            },
+            {
+              "value": "uzs",
+              "label": "Uzbekistan Som"
+            },
+            {
+              "value": "vef",
+              "label": "Venezuelan Bolívar Fuerte"
+            },
+            {
+              "value": "vnd",
+              "label": "Vietnamese Dong"
+            },
+            {
+              "value": "vuv",
+              "label": "Vanuatu Vatu"
+            },
+            {
+              "value": "wst",
+              "label": "Samoan Tala"
+            },
+            {
+              "value": "xaf",
+              "label": "CFA Franc BEAC"
+            },
+            {
+              "value": "xag",
+              "label": "Silver Ounce"
+            },
+            {
+              "value": "xau",
+              "label": "Gold Ounce"
+            },
+            {
+              "value": "xcd",
+              "label": "East Caribbean Dollar"
+            },
+            {
+              "value": "xdr",
+              "label": "Special Drawing Rights"
+            },
+            {
+              "value": "xof",
+              "label": "CFA Franc BCEAO"
+            },
+            {
+              "value": "xpd",
+              "label": "Palladium Ounce"
+            },
+            {
+              "value": "xpf",
+              "label": "CFP Franc"
+            },
+            {
+              "value": "xpt",
+              "label": "Platinum Ounce"
+            },
+            {
+              "value": "yer",
+              "label": "Yemeni Rial"
+            },
+            {
+              "value": "zar",
+              "label": "South African Rand"
+            },
+            {
+              "value": "zmw",
+              "label": "Zambian Kwacha"
+            },
+            {
+              "value": "zwl",
+              "label": "Zimbabwean Dollar"
+            }
+          ]
+        },
+        {
+          "id": "connectionid",
+          "label": "Connection ID",
+          "type": "number",
+          "required": true,
+          "description": "The ID of the connection from which this order originated",
+          "defaultValue": 0
+        },
+        {
+          "id": "customerid",
+          "label": "Customer ID",
+          "type": "number",
+          "required": true,
+          "description": "The ID of the customer associated with this order",
+          "defaultValue": 0
+        },
+        {
+          "id": "externalCreatedDate",
+          "label": "Creation Date",
+          "type": "text",
+          "required": true,
+          "placeholder": "2024-01-01T00:00:00Z",
+          "description": "The date the order was placed (ISO 8601 date-time)"
+        },
+        {
+          "id": "abandonedDate",
+          "label": "Abandoning Date",
+          "type": "text",
+          "placeholder": "2024-01-01T00:00:00Z",
+          "description": "The date the cart was abandoned. REQUIRED ONLY IF INCLUDING EXTERNALCHECKOUTID. (ISO 8601 date-time)"
+        },
+        {
+          "id": "orderProducts",
+          "label": "Products",
+          "type": "json",
+          "placeholder": "Add product field",
+          "description": "All ordered products (JSON object; supported keys: name, price, quantity, externalid, category, sku, description, imageUrl, productUrl)"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: shippingAmount, taxAmount, discountAmount, orderUrl, externalUpdatedDate, shippingMethod, orderNumber)"
+        }
+      ],
+      "group": "E-Commerce Order",
+      "description": "Create a order"
+    },
+    {
+      "id": "ecommerce_order_delete",
+      "label": "Delete E-Commerce Order",
+      "method": "DELETE",
+      "path": "/api/3/ecomOrders/{orderId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your ActiveCampaign server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "orderId",
+          "label": "Order ID",
+          "type": "number",
+          "description": "The ID of the e-commerce order",
+          "defaultValue": 0,
+          "in": "path"
+        }
+      ],
+      "group": "E-Commerce Order",
+      "description": "Delete a order"
+    },
+    {
+      "id": "ecommerce_order_get",
+      "label": "Get E-Commerce Order",
+      "method": "GET",
+      "path": "/api/3/ecomOrders/{orderId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your ActiveCampaign server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "orderId",
+          "label": "Order ID",
+          "type": "number",
+          "description": "The ID of the e-commerce order",
+          "defaultValue": 0,
+          "in": "path"
+        }
+      ],
+      "group": "E-Commerce Order",
+      "description": "Get data of a order"
+    },
+    {
+      "id": "ecommerce_order_get_all",
+      "label": "Get Many E-Commerce Order",
+      "method": "GET",
+      "path": "/api/3/ecomOrders",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your ActiveCampaign server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        }
+      ],
+      "group": "E-Commerce Order",
+      "description": "Get data of many orders"
+    },
+    {
+      "id": "ecommerce_order_update",
+      "label": "Update E-Commerce Order",
+      "method": "PUT",
+      "path": "/api/3/ecomOrders/{orderId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your ActiveCampaign server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "orderId",
+          "label": "Order ID",
+          "type": "number",
+          "description": "The ID of the e-commerce order",
+          "defaultValue": 0,
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: externalid, externalcheckoutid, source, email, totalPrice, currency, connectionid, customerid, externalupdatedDate, abandonedDate, shippingAmount, taxAmount, discountAmount, orderUrl, externalUpdatedDate, shippingMethod, orderNumber, orderProducts)"
+        }
+      ],
+      "group": "E-Commerce Order",
+      "description": "Update a order"
+    },
+    {
+      "id": "ecommerce_customer_create",
+      "label": "Create E-Commerce Customer",
+      "method": "POST",
+      "path": "/api/3/ecomCustomers",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your ActiveCampaign server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "connectionid",
+          "label": "Service ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the connection object for the service where the customer originates"
+        },
+        {
+          "id": "externalid",
+          "label": "Customer ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the customer in the external service"
+        },
+        {
+          "id": "email",
+          "label": "Customer Email",
+          "type": "text",
+          "required": true,
+          "placeholder": "name@email.com",
+          "description": "The email address of the customer"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: acceptsMarketing)"
+        }
+      ],
+      "group": "E-Commerce Customer",
+      "description": "Create a E-commerce Customer"
+    },
+    {
+      "id": "ecommerce_customer_delete",
+      "label": "Delete E-Commerce Customer",
+      "method": "DELETE",
+      "path": "/api/3/ecomCustomers/{ecommerceCustomerId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your ActiveCampaign server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "ecommerceCustomerId",
+          "label": "Customer ID",
+          "type": "number",
+          "required": true,
+          "description": "ID of the E-commerce customer to delete",
+          "defaultValue": 0,
+          "in": "path"
+        }
+      ],
+      "group": "E-Commerce Customer",
+      "description": "Delete a E-commerce Customer"
+    },
+    {
+      "id": "ecommerce_customer_get",
+      "label": "Get E-Commerce Customer",
+      "method": "GET",
+      "path": "/api/3/ecomCustomers/{ecommerceCustomerId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your ActiveCampaign server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "ecommerceCustomerId",
+          "label": "Customer ID",
+          "type": "number",
+          "required": true,
+          "description": "ID of the E-commerce customer to get",
+          "defaultValue": 0,
+          "in": "path"
+        }
+      ],
+      "group": "E-Commerce Customer",
+      "description": "Get data of a E-commerce Customer"
+    },
+    {
+      "id": "ecommerce_customer_get_all",
+      "label": "Get Many E-Commerce Customer",
+      "method": "GET",
+      "path": "/api/3/ecomCustomers",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your ActiveCampaign server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        }
+      ],
+      "group": "E-Commerce Customer",
+      "description": "Get data of many E-commerce Customers"
+    },
+    {
+      "id": "ecommerce_customer_update",
+      "label": "Update E-Commerce Customer",
+      "method": "PUT",
+      "path": "/api/3/ecomCustomers/{ecommerceCustomerId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your ActiveCampaign server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "ecommerceCustomerId",
+          "label": "Customer ID",
+          "type": "number",
+          "required": true,
+          "description": "ID of the E-commerce customer to update",
+          "defaultValue": 0,
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "The fields to update (JSON object; supported keys: connectionid, externalid, email, acceptsMarketing)"
+        }
+      ],
+      "group": "E-Commerce Customer",
+      "description": "Update a E-commerce Customer"
+    },
+    {
+      "id": "ecommerce_order_products_get_all",
+      "label": "Get Many E-Commerce Order Product",
+      "method": "GET",
+      "path": "/api/3/ecomOrderProducts",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your ActiveCampaign server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        }
+      ],
+      "group": "E-Commerce Order Product",
+      "description": "Get data of many order products"
+    },
+    {
+      "id": "ecommerce_order_products_get_by_product_id",
+      "label": "Get by Product ID E-Commerce Order Product",
+      "method": "GET",
+      "path": "/api/3/ecomOrderProducts/{procuctId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your ActiveCampaign server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "procuctId",
+          "label": "Product ID",
+          "type": "number",
+          "description": "The ID of the product you'd like returned",
+          "defaultValue": 0,
+          "in": "path"
+        }
+      ],
+      "group": "E-Commerce Order Product",
+      "description": "Get data of a ordered product"
+    },
+    {
+      "id": "ecommerce_order_products_get_by_order_id",
+      "label": "Get by Order ID E-Commerce Order Product",
+      "method": "GET",
+      "path": "/api/3/ecomOrders/{orderId}/orderProducts",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your ActiveCampaign server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "orderId",
+          "label": "Order ID",
+          "type": "number",
+          "description": "The ID of the order whose products you'd like returned",
+          "defaultValue": 0,
+          "in": "path"
+        }
+      ],
+      "group": "E-Commerce Order Product",
+      "description": "Get data of an order's products"
     }
   ]
 }

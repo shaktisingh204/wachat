@@ -4,43 +4,25 @@
   "description": "Consume Beeminder API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://www.beeminder.com/api/v1",
   "endpoints": [
     {
       "id": "charge_create",
       "label": "Create Charge",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/charge",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "apiToken",
-          "options": [
-            {
-              "value": "apiToken",
-              "label": "API Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "amount",
           "label": "Amount",
           "type": "number",
-          "in": "query",
           "required": true,
           "description": "Charge amount in USD",
           "defaultValue": 0
@@ -49,47 +31,30 @@
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: note, dryrun)"
         }
-      ]
+      ],
+      "group": "Charge",
+      "description": "[unverified path] Create a charge"
     },
     {
       "id": "datapoint_create",
       "label": "Create Datapoint",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/datapoint",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "apiToken",
-          "options": [
-            {
-              "value": "apiToken",
-              "label": "API Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "goalName",
           "label": "Goal Name or ID",
           "type": "select",
-          "in": "query",
           "required": true,
-          "description": "The name of the goal. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>."
+          "description": "The name of the goal. Choose from the list, or specify an ID using an expression."
         },
         {
           "id": "value",
           "label": "Value",
           "type": "number",
-          "in": "query",
           "required": true,
           "description": "Datapoint value to send",
           "defaultValue": 1
@@ -98,170 +63,102 @@
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: comment, timestamp, requestid)"
         }
-      ]
+      ],
+      "group": "Datapoint",
+      "description": "[unverified path] Create datapoint for goal"
     },
     {
       "id": "datapoint_create_all",
       "label": "Create All Datapoint",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/datapoint",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "apiToken",
-          "options": [
-            {
-              "value": "apiToken",
-              "label": "API Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "goalName",
           "label": "Goal Name or ID",
           "type": "select",
-          "in": "query",
           "required": true,
-          "description": "The name of the goal. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>."
+          "description": "The name of the goal. Choose from the list, or specify an ID using an expression."
         },
         {
           "id": "datapoints",
           "label": "Datapoints",
           "type": "json",
-          "in": "query",
           "required": true,
           "placeholder": "[{\"value\": 1, \"comment\": \"First datapoint\"}, {\"value\": 2, \"comment\": \"Second datapoint\"}]",
           "description": "Array of datapoint objects to create. Each object should contain value and optionally timestamp, comment, etc.",
           "defaultValue": "[]"
         }
-      ]
+      ],
+      "group": "Datapoint",
+      "description": "[unverified path] Create multiple datapoints at once"
     },
     {
       "id": "datapoint_delete",
       "label": "Delete Datapoint",
-      "method": "GET",
-      "path": "/",
+      "method": "DELETE",
+      "path": "/datapoint",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "apiToken",
-          "options": [
-            {
-              "value": "apiToken",
-              "label": "API Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "goalName",
           "label": "Goal Name or ID",
           "type": "select",
-          "in": "query",
           "required": true,
-          "description": "The name of the goal. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>."
+          "description": "The name of the goal. Choose from the list, or specify an ID using an expression."
         },
         {
           "id": "datapointId",
           "label": "Datapoint ID",
           "type": "text",
-          "in": "query",
           "required": true
         }
-      ]
+      ],
+      "group": "Datapoint",
+      "description": "[unverified path] Delete a datapoint"
     },
     {
       "id": "datapoint_get",
       "label": "Get Datapoint",
       "method": "GET",
-      "path": "/",
+      "path": "/datapoint",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "apiToken",
-          "options": [
-            {
-              "value": "apiToken",
-              "label": "API Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "goalName",
           "label": "Goal Name or ID",
           "type": "select",
-          "in": "query",
           "required": true,
-          "description": "The name of the goal. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>."
+          "description": "The name of the goal. Choose from the list, or specify an ID using an expression."
         },
         {
           "id": "datapointId",
           "label": "Datapoint ID",
           "type": "text",
-          "in": "query",
           "required": true
         }
-      ]
+      ],
+      "group": "Datapoint",
+      "description": "[unverified path] Get a single datapoint"
     },
     {
       "id": "datapoint_get_all",
       "label": "Get Many Datapoint",
       "method": "GET",
-      "path": "/",
+      "path": "/datapoint",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "apiToken",
-          "options": [
-            {
-              "value": "apiToken",
-              "label": "API Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "goalName",
           "label": "Goal Name or ID",
           "type": "select",
-          "in": "query",
           "required": true,
-          "description": "The name of the goal. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>."
+          "description": "The name of the goal. Choose from the list, or specify an ID using an expression."
         },
         {
           "id": "returnAll",
           "label": "Return All",
           "type": "toggle",
-          "in": "query",
           "description": "Whether to return all results or only up to a given limit",
           "defaultValue": false
         },
@@ -269,7 +166,6 @@
           "id": "limit",
           "label": "Limit",
           "type": "number",
-          "in": "query",
           "description": "Max number of results to return",
           "defaultValue": 30
         },
@@ -277,86 +173,53 @@
           "id": "options",
           "label": "Options",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add field"
+          "placeholder": "Add field",
+          "description": "(JSON object; supported keys: sort, page, per)"
         }
-      ]
+      ],
+      "group": "Datapoint",
+      "description": "[unverified path] Get many datapoints for a goal"
     },
     {
       "id": "datapoint_update",
       "label": "Update Datapoint",
-      "method": "GET",
-      "path": "/",
+      "method": "PATCH",
+      "path": "/datapoint",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "apiToken",
-          "options": [
-            {
-              "value": "apiToken",
-              "label": "API Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "goalName",
           "label": "Goal Name or ID",
           "type": "select",
-          "in": "query",
           "required": true,
-          "description": "The name of the goal. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>."
+          "description": "The name of the goal. Choose from the list, or specify an ID using an expression."
         },
         {
           "id": "datapointId",
           "label": "Datapoint ID",
           "type": "text",
-          "in": "query",
           "required": true
         },
         {
           "id": "updateFields",
           "label": "Update Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: value, comment, timestamp)"
         }
-      ]
+      ],
+      "group": "Datapoint",
+      "description": "[unverified path] Update a datapoint"
     },
     {
       "id": "goal_create",
       "label": "Create Goal",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/goal",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "apiToken",
-          "options": [
-            {
-              "value": "apiToken",
-              "label": "API Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "slug",
           "label": "Goal Slug",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Unique identifier for the goal"
         },
@@ -364,7 +227,6 @@
           "id": "title",
           "label": "Goal Title",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Human-readable title for the goal"
         },
@@ -372,9 +234,8 @@
           "id": "goal_type",
           "label": "Goal Type",
           "type": "select",
-          "in": "query",
           "required": true,
-          "description": "Type of goal. <a href=\"https://api.beeminder.com/#attributes-2\">More info here.</a>.",
+          "description": "Type of goal. More info here..",
           "defaultValue": "hustler",
           "options": [
             {
@@ -411,7 +272,6 @@
           "id": "gunits",
           "label": "Goal Units",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Units for the goal (e.g., \"hours\", \"pages\", \"pounds\")"
         },
@@ -419,351 +279,196 @@
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: goaldate, goalval, rate, initval, secret, datapublic, datasource, dryrun, tags)"
         }
-      ]
+      ],
+      "group": "Goal",
+      "description": "[unverified path] Create a new goal"
     },
     {
       "id": "goal_get",
       "label": "Get Goal",
       "method": "GET",
-      "path": "/",
+      "path": "/goal",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "apiToken",
-          "options": [
-            {
-              "value": "apiToken",
-              "label": "API Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "goalName",
           "label": "Goal Name or ID",
           "type": "select",
-          "in": "query",
           "required": true,
-          "description": "The name of the goal. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>."
+          "description": "The name of the goal. Choose from the list, or specify an ID using an expression."
         },
         {
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: datapoints, emaciated)"
         }
-      ]
+      ],
+      "group": "Goal",
+      "description": "[unverified path] Get a specific goal"
     },
     {
       "id": "goal_get_all",
       "label": "Get Many Goal",
       "method": "GET",
-      "path": "/",
+      "path": "/goal",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "apiToken",
-          "options": [
-            {
-              "value": "apiToken",
-              "label": "API Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: emaciated)"
         }
-      ]
+      ],
+      "group": "Goal",
+      "description": "[unverified path] Get many goals"
     },
     {
       "id": "goal_get_archived",
       "label": "Get Archived Goal",
       "method": "GET",
-      "path": "/",
+      "path": "/goal",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "apiToken",
-          "options": [
-            {
-              "value": "apiToken",
-              "label": "API Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: emaciated)"
         }
-      ]
+      ],
+      "group": "Goal",
+      "description": "[unverified path] Get archived goals"
     },
     {
       "id": "goal_update",
       "label": "Update Goal",
-      "method": "GET",
-      "path": "/",
+      "method": "PATCH",
+      "path": "/goal",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "apiToken",
-          "options": [
-            {
-              "value": "apiToken",
-              "label": "API Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "goalName",
           "label": "Goal Name or ID",
           "type": "select",
-          "in": "query",
           "required": true,
-          "description": "The name of the goal. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>."
+          "description": "The name of the goal. Choose from the list, or specify an ID using an expression."
         },
         {
           "id": "updateFields",
           "label": "Update Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: title, yaxis, tmin, tmax, secret, datapublic, roadall, datasource, tags)"
         }
-      ]
+      ],
+      "group": "Goal",
+      "description": "[unverified path] Update a goal"
     },
     {
       "id": "goal_refresh",
       "label": "Refresh Goal",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/goal",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "apiToken",
-          "options": [
-            {
-              "value": "apiToken",
-              "label": "API Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "goalName",
           "label": "Goal Name or ID",
           "type": "select",
-          "in": "query",
           "required": true,
-          "description": "The name of the goal. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>."
+          "description": "The name of the goal. Choose from the list, or specify an ID using an expression."
         }
-      ]
+      ],
+      "group": "Goal",
+      "description": "[unverified path] Refresh goal data"
     },
     {
       "id": "goal_short_circuit",
       "label": "Short Circuit Goal",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/goal",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "apiToken",
-          "options": [
-            {
-              "value": "apiToken",
-              "label": "API Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "goalName",
           "label": "Goal Name or ID",
           "type": "select",
-          "in": "query",
           "required": true,
-          "description": "The name of the goal. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>."
+          "description": "The name of the goal. Choose from the list, or specify an ID using an expression."
         }
-      ]
+      ],
+      "group": "Goal",
+      "description": "[unverified path] Short circuit pledge"
     },
     {
       "id": "goal_step_down",
       "label": "Step Down Goal",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/goal",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "apiToken",
-          "options": [
-            {
-              "value": "apiToken",
-              "label": "API Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "goalName",
           "label": "Goal Name or ID",
           "type": "select",
-          "in": "query",
           "required": true,
-          "description": "The name of the goal. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>."
+          "description": "The name of the goal. Choose from the list, or specify an ID using an expression."
         }
-      ]
+      ],
+      "group": "Goal",
+      "description": "[unverified path] Step down pledge"
     },
     {
       "id": "goal_cancel_step_down",
       "label": "Cancel Step Down Goal",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/goal",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "apiToken",
-          "options": [
-            {
-              "value": "apiToken",
-              "label": "API Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "goalName",
           "label": "Goal Name or ID",
           "type": "select",
-          "in": "query",
           "required": true,
-          "description": "The name of the goal. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>."
+          "description": "The name of the goal. Choose from the list, or specify an ID using an expression."
         }
-      ]
+      ],
+      "group": "Goal",
+      "description": "[unverified path] Cancel step down"
     },
     {
       "id": "goal_uncle",
       "label": "Uncle Goal",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/goal",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "apiToken",
-          "options": [
-            {
-              "value": "apiToken",
-              "label": "API Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "goalName",
           "label": "Goal Name or ID",
           "type": "select",
-          "in": "query",
           "required": true,
-          "description": "The name of the goal to derail. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>."
+          "description": "The name of the goal to derail. Choose from the list, or specify an ID using an expression."
         }
-      ]
+      ],
+      "group": "Goal",
+      "description": "[unverified path] Derail a goal and charge the pledge amount"
     },
     {
       "id": "user_get",
       "label": "Get User",
       "method": "GET",
-      "path": "/",
+      "path": "/user",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "apiToken",
-          "options": [
-            {
-              "value": "apiToken",
-              "label": "API Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: associations, diff_since, skinny, emaciated, datapoints_count)"
         }
-      ]
+      ],
+      "group": "User",
+      "description": "[unverified path] Get user information"
     }
   ]
 }

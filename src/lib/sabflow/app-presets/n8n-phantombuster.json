@@ -4,21 +4,139 @@
   "description": "Consume Phantombuster API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.phantombuster.com/api/v2",
   "endpoints": [
     {
-      "id": "agent_default",
-      "label": "List Agent",
+      "id": "agent_delete",
+      "label": "Delete Agent",
+      "method": "POST",
+      "path": "/agents/delete",
+      "fields": [
+        {
+          "id": "agentId",
+          "label": "Agent Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        }
+      ],
+      "group": "Agent",
+      "description": "Delete an agent by ID"
+    },
+    {
+      "id": "agent_get",
+      "label": "Get Agent",
       "method": "GET",
-      "path": "/agent",
-      "fields": []
+      "path": "/agents/fetch",
+      "fields": [
+        {
+          "id": "agentId",
+          "label": "Agent ID",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "group": "Agent",
+      "description": "Get an agent by ID"
+    },
+    {
+      "id": "agent_get_all",
+      "label": "Get Many Agent",
+      "method": "GET",
+      "path": "/agents/fetch-all",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 25
+        }
+      ],
+      "group": "Agent",
+      "description": "Get many agents of the current user's organization"
+    },
+    {
+      "id": "agent_get_output",
+      "label": "Get Output Agent",
+      "method": "GET",
+      "path": "/agents/fetch-output",
+      "fields": [
+        {
+          "id": "agentId",
+          "label": "Agent Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "resolveData",
+          "label": "Resolve Data",
+          "type": "toggle",
+          "description": "By default the outpout is presented as string. If this option gets activated, it will resolve the data automatically.",
+          "defaultValue": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: prevContainerId, prevStatus, prevRuntimeEventIndex)"
+        }
+      ],
+      "group": "Agent",
+      "description": "Get the output of the most recent container of an agent"
+    },
+    {
+      "id": "agent_launch",
+      "label": "Launch Agent",
+      "method": "POST",
+      "path": "/agents/launch",
+      "fields": [
+        {
+          "id": "agentId",
+          "label": "Agent Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "resolveData",
+          "label": "Resolve Data",
+          "type": "toggle",
+          "description": "By default the launch just include the container ID. If this option gets activated, it will resolve the data automatically.",
+          "defaultValue": true
+        },
+        {
+          "id": "jsonParameters",
+          "label": "JSON Parameters",
+          "type": "toggle",
+          "defaultValue": false
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: argumentsJson, argumentsUi, bonusArgumentUi, bonusArgumentJson, manualLaunch, maxInstanceCount, saveArgument)"
+        }
+      ],
+      "group": "Agent",
+      "description": "Add an agent to the launch queue"
     }
   ]
 }

@@ -4,39 +4,93 @@
   "description": "Consume Bitly API",
   "category": "marketing",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://api-ssl.bitly.com/v4",
   "endpoints": [
     {
-      "id": "link_default",
-      "label": "List Link",
-      "method": "GET",
-      "path": "/link",
+      "id": "link_create",
+      "label": "Create Link",
+      "method": "POST",
+      "path": "/bitlinks",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
+          "id": "longUrl",
+          "label": "Long URL",
+          "type": "text",
+          "required": true,
+          "placeholder": "https://example.com"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: domain, group, tags, title)"
+        },
+        {
+          "id": "deeplink",
+          "label": "Deeplinks",
+          "type": "json",
+          "placeholder": "Add Deep Link",
+          "description": "(JSON object; supported keys: deeplinkUi, deeplinkUi.appId, deeplinkUi.appUriPath, deeplinkUi.installType, deeplinkUi.installUrl)"
         }
-      ]
+      ],
+      "group": "Link",
+      "description": "Create a link"
+    },
+    {
+      "id": "link_get",
+      "label": "Get Link",
+      "method": "GET",
+      "path": "/bitlinks/{linkId}",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Bitlink",
+          "type": "text",
+          "required": true,
+          "placeholder": "bit.ly/22u3ypK"
+        }
+      ],
+      "group": "Link",
+      "description": "Get a link"
+    },
+    {
+      "id": "link_update",
+      "label": "Update Link",
+      "method": "PATCH",
+      "path": "/bitlinks/{linkId}",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Bitlink",
+          "type": "text",
+          "required": true,
+          "placeholder": "bit.ly/22u3ypK"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: archived, group, longUrl, tags, title)"
+        },
+        {
+          "id": "deeplink",
+          "label": "Deeplinks",
+          "type": "json",
+          "placeholder": "Add Deep Link",
+          "description": "(JSON object; supported keys: deeplinkUi, deeplinkUi.appId, deeplinkUi.appUriPath, deeplinkUi.installType, deeplinkUi.installUrl)"
+        }
+      ],
+      "group": "Link",
+      "description": "Update a link"
     }
   ]
 }

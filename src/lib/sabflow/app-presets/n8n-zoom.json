@@ -4,8 +4,8 @@
   "description": "Consume Zoom API",
   "category": "communication",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -16,32 +16,136 @@
       "credentialType": "http_header_auth"
     }
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.zoom.us/v2",
   "endpoints": [
     {
-      "id": "meeting_default",
-      "label": "List Meeting",
-      "method": "GET",
-      "path": "/meeting",
+      "id": "meeting_create",
+      "label": "Create Meeting",
+      "method": "POST",
+      "path": "/users/me/meetings",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
+          "id": "topic",
+          "label": "Topic",
+          "type": "text",
+          "description": "Topic of the meeting"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: agenda, duration, password, scheduleFor, settings, startTime, timeZone, type)"
         }
-      ]
+      ],
+      "group": "Meeting",
+      "description": "Create a meeting"
+    },
+    {
+      "id": "meeting_delete",
+      "label": "Delete Meeting",
+      "method": "DELETE",
+      "path": "/meetings/{meetingId}",
+      "fields": [
+        {
+          "id": "meetingId",
+          "label": "ID",
+          "type": "text",
+          "required": true,
+          "description": "Meeting ID",
+          "in": "path"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: occurrenceId, scheduleForReminder)"
+        }
+      ],
+      "group": "Meeting",
+      "description": "Delete a meeting"
+    },
+    {
+      "id": "meeting_get",
+      "label": "Get Meeting",
+      "method": "GET",
+      "path": "/meetings/{meetingId}",
+      "fields": [
+        {
+          "id": "meetingId",
+          "label": "ID",
+          "type": "text",
+          "required": true,
+          "description": "Meeting ID",
+          "in": "path"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: occurrenceId, showPreviousOccurrences)"
+        }
+      ],
+      "group": "Meeting",
+      "description": "Retrieve a meeting"
+    },
+    {
+      "id": "meeting_get_all",
+      "label": "Get Many Meeting",
+      "method": "GET",
+      "path": "/users/me/meetings",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 30
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: type)"
+        }
+      ],
+      "group": "Meeting",
+      "description": "Retrieve many meetings"
+    },
+    {
+      "id": "meeting_update",
+      "label": "Update Meeting",
+      "method": "PATCH",
+      "path": "/meetings/{meetingId}",
+      "fields": [
+        {
+          "id": "meetingId",
+          "label": "ID",
+          "type": "text",
+          "required": true,
+          "description": "Meeting ID",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: agenda, duration, password, scheduleFor, settings, startTime, timeZone, topic, type)"
+        }
+      ],
+      "group": "Meeting",
+      "description": "Update a meeting"
     }
   ]
 }

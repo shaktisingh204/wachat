@@ -1,0 +1,881 @@
+{
+  "id": "n8n-the-hive-project",
+  "name": "TheHive 5",
+  "description": "Consume TheHive 5 API",
+  "category": "Imported (n8n)",
+  "iconName": "LuPackage",
+  "version": 3,
+  "lastVerified": "2026-06-11",
+  "status": "draft",
+  "auth": {
+    "type": "bearer",
+    "credentialType": "the_hive_project"
+  },
+  "baseUrl": "https://{host}/api",
+  "endpoints": [
+    {
+      "id": "alert_create",
+      "label": "Create Alert",
+      "method": "POST",
+      "path": "/v1/alert",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your TheHive 5 server, e.g. app.example.com (no https:// prefix)"
+        }
+      ],
+      "group": "Alert",
+      "description": "Create an alert"
+    },
+    {
+      "id": "alert_delete_alert",
+      "label": "Delete Alert",
+      "method": "DELETE",
+      "path": "/v1/alert/{alertId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your TheHive 5 server, e.g. app.example.com (no https:// prefix)"
+        }
+      ],
+      "group": "Alert",
+      "description": "Delete an alert"
+    },
+    {
+      "id": "alert_execute_responder",
+      "label": "Execute Responder Alert",
+      "method": "POST",
+      "path": "/connector/cortex/action' as string",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your TheHive 5 server, e.g. app.example.com (no https:// prefix)"
+        }
+      ],
+      "group": "Alert",
+      "description": "Execute responder on an alert"
+    },
+    {
+      "id": "alert_get",
+      "label": "Get Alert",
+      "method": "GET",
+      "path": "/v1/alert/{alertId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your TheHive 5 server, e.g. app.example.com (no https:// prefix)"
+        }
+      ],
+      "group": "Alert",
+      "description": "Get an alert"
+    },
+    {
+      "id": "alert_merge",
+      "label": "Merge Into Case Alert",
+      "method": "POST",
+      "path": "/alert/{alertId}/merge/{caseId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your TheHive 5 server, e.g. app.example.com (no https:// prefix)"
+        }
+      ],
+      "group": "Alert",
+      "description": "Merge an alert into a case"
+    },
+    {
+      "id": "alert_promote",
+      "label": "Promote to Case Alert",
+      "method": "POST",
+      "path": "/v1/caseTemplate",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your TheHive 5 server, e.g. app.example.com (no https:// prefix)"
+        }
+      ],
+      "group": "Alert",
+      "description": "Promote an alert to a case"
+    },
+    {
+      "id": "alert_search",
+      "label": "Search Alert",
+      "method": "GET",
+      "path": "/alert",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your TheHive 5 server, e.g. app.example.com (no https:// prefix)"
+        }
+      ],
+      "group": "Alert",
+      "description": "[unverified path] Search alerts"
+    },
+    {
+      "id": "alert_update",
+      "label": "Update Alert",
+      "method": "PATCH",
+      "path": "/v1/alert/{id}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your TheHive 5 server, e.g. app.example.com (no https:// prefix)"
+        }
+      ],
+      "group": "Alert",
+      "description": "Update an alert"
+    },
+    {
+      "id": "alert_status",
+      "label": "Update Status Alert",
+      "method": "PATCH",
+      "path": "/v1/alert/{alertId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your TheHive 5 server, e.g. app.example.com (no https:// prefix)"
+        }
+      ],
+      "group": "Alert",
+      "description": "Update an alert status"
+    },
+    {
+      "id": "case_add_attachment",
+      "label": "Add Attachment Case",
+      "method": "POST",
+      "path": "/v1/case/{caseId}/attachments",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your TheHive 5 server, e.g. app.example.com (no https:// prefix)"
+        }
+      ],
+      "group": "Case",
+      "description": "Add attachment to a case"
+    },
+    {
+      "id": "case_create",
+      "label": "Create Case",
+      "method": "POST",
+      "path": "/v1/case' as string",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your TheHive 5 server, e.g. app.example.com (no https:// prefix)"
+        }
+      ],
+      "group": "Case",
+      "description": "Create a case"
+    },
+    {
+      "id": "case_delete_attachment",
+      "label": "Delete Attachment Case",
+      "method": "DELETE",
+      "path": "/v1/case/{caseId}/attachment/{attachmentId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your TheHive 5 server, e.g. app.example.com (no https:// prefix)"
+        }
+      ],
+      "group": "Case",
+      "description": "Delete attachment from a case"
+    },
+    {
+      "id": "case_delete_case",
+      "label": "Delete Case Case",
+      "method": "DELETE",
+      "path": "/v1/case/{caseId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your TheHive 5 server, e.g. app.example.com (no https:// prefix)"
+        }
+      ],
+      "group": "Case",
+      "description": "Delete an case"
+    },
+    {
+      "id": "case_execute_responder",
+      "label": "Execute Responder Case",
+      "method": "POST",
+      "path": "/connector/cortex/action' as string",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your TheHive 5 server, e.g. app.example.com (no https:// prefix)"
+        }
+      ],
+      "group": "Case",
+      "description": "Execute responder on a case"
+    },
+    {
+      "id": "case_get",
+      "label": "Get Case",
+      "method": "POST",
+      "path": "/v1/query",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your TheHive 5 server, e.g. app.example.com (no https:// prefix)"
+        }
+      ],
+      "group": "Case",
+      "description": "Get a case"
+    },
+    {
+      "id": "case_get_attachment",
+      "label": "Get Attachment Case",
+      "method": "GET",
+      "path": "/v1/case/{caseId}/attachment/{attachmentId}/download",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your TheHive 5 server, e.g. app.example.com (no https:// prefix)"
+        }
+      ],
+      "group": "Case",
+      "description": "Get attachment from a case"
+    },
+    {
+      "id": "case_get_timeline",
+      "label": "Get Timeline Case",
+      "method": "GET",
+      "path": "/v1/case/{caseId}/timeline",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your TheHive 5 server, e.g. app.example.com (no https:// prefix)"
+        }
+      ],
+      "group": "Case",
+      "description": "Get timeline of a case"
+    },
+    {
+      "id": "case_search",
+      "label": "Search Case",
+      "method": "GET",
+      "path": "/case",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your TheHive 5 server, e.g. app.example.com (no https:// prefix)"
+        }
+      ],
+      "group": "Case",
+      "description": "[unverified path] Search cases"
+    },
+    {
+      "id": "case_update",
+      "label": "Update Case",
+      "method": "PATCH",
+      "path": "/v1/case/{id}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your TheHive 5 server, e.g. app.example.com (no https:// prefix)"
+        }
+      ],
+      "group": "Case",
+      "description": "Update a case"
+    },
+    {
+      "id": "comment_add",
+      "label": "Create Comment",
+      "method": "POST",
+      "path": "/v1/{addTo}/{id}/comment",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your TheHive 5 server, e.g. app.example.com (no https:// prefix)"
+        }
+      ],
+      "group": "Comment",
+      "description": "Create a comment in a case or alert"
+    },
+    {
+      "id": "comment_delete_comment",
+      "label": "Delete Comment",
+      "method": "DELETE",
+      "path": "/v1/comment/{commentId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your TheHive 5 server, e.g. app.example.com (no https:// prefix)"
+        }
+      ],
+      "group": "Comment",
+      "description": "Delete a comment"
+    },
+    {
+      "id": "comment_search",
+      "label": "Search Comment",
+      "method": "GET",
+      "path": "/comment",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your TheHive 5 server, e.g. app.example.com (no https:// prefix)"
+        }
+      ],
+      "group": "Comment",
+      "description": "[unverified path] Search comments"
+    },
+    {
+      "id": "comment_update",
+      "label": "Update Comment",
+      "method": "PATCH",
+      "path": "/v1/comment/{commentId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your TheHive 5 server, e.g. app.example.com (no https:// prefix)"
+        }
+      ],
+      "group": "Comment",
+      "description": "Update a comment"
+    },
+    {
+      "id": "log_add_attachment",
+      "label": "Add Attachment Task Log",
+      "method": "POST",
+      "path": "/v1/log/{logId}/attachments",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your TheHive 5 server, e.g. app.example.com (no https:// prefix)"
+        }
+      ],
+      "group": "Task Log",
+      "description": "Add attachment to a task log"
+    },
+    {
+      "id": "log_create",
+      "label": "Create Task Log",
+      "method": "POST",
+      "path": "/v1/task/{taskId}/log",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your TheHive 5 server, e.g. app.example.com (no https:// prefix)"
+        }
+      ],
+      "group": "Task Log",
+      "description": "Create a task log"
+    },
+    {
+      "id": "log_delete_log",
+      "label": "Delete Task Log",
+      "method": "DELETE",
+      "path": "/v1/log/{logId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your TheHive 5 server, e.g. app.example.com (no https:// prefix)"
+        }
+      ],
+      "group": "Task Log",
+      "description": "Delete task log"
+    },
+    {
+      "id": "log_delete_attachment",
+      "label": "Delete Attachment Task Log",
+      "method": "DELETE",
+      "path": "/v1/log/{logId}/attachments/{attachmentId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your TheHive 5 server, e.g. app.example.com (no https:// prefix)"
+        }
+      ],
+      "group": "Task Log",
+      "description": "Delete attachment from a task log"
+    },
+    {
+      "id": "log_execute_responder",
+      "label": "Execute Responder Task Log",
+      "method": "POST",
+      "path": "/connector/cortex/action' as string",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your TheHive 5 server, e.g. app.example.com (no https:// prefix)"
+        }
+      ],
+      "group": "Task Log",
+      "description": "Execute responder on a task log"
+    },
+    {
+      "id": "log_get",
+      "label": "Get Task Log",
+      "method": "POST",
+      "path": "/v1/query",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your TheHive 5 server, e.g. app.example.com (no https:// prefix)"
+        }
+      ],
+      "group": "Task Log",
+      "description": "Get a task log"
+    },
+    {
+      "id": "log_search",
+      "label": "Search Task Log",
+      "method": "GET",
+      "path": "/log",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your TheHive 5 server, e.g. app.example.com (no https:// prefix)"
+        }
+      ],
+      "group": "Task Log",
+      "description": "[unverified path] Search task logs"
+    },
+    {
+      "id": "observable_create",
+      "label": "Create Observable",
+      "method": "POST",
+      "path": "/v1/{createIn}/{id}/observable",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your TheHive 5 server, e.g. app.example.com (no https:// prefix)"
+        }
+      ],
+      "group": "Observable",
+      "description": "Create an observable"
+    },
+    {
+      "id": "observable_delete_observable",
+      "label": "Delete Observable",
+      "method": "DELETE",
+      "path": "/v1/observable/{observableId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your TheHive 5 server, e.g. app.example.com (no https:// prefix)"
+        }
+      ],
+      "group": "Observable",
+      "description": "Delete an observable"
+    },
+    {
+      "id": "observable_execute_analyzer",
+      "label": "Execute Analyzer Observable",
+      "method": "POST",
+      "path": "/connector/cortex/job' as string",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your TheHive 5 server, e.g. app.example.com (no https:// prefix)"
+        }
+      ],
+      "group": "Observable",
+      "description": "Execute analyzer on an observable"
+    },
+    {
+      "id": "observable_execute_responder",
+      "label": "Execute Responder Observable",
+      "method": "POST",
+      "path": "/connector/cortex/action' as string",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your TheHive 5 server, e.g. app.example.com (no https:// prefix)"
+        }
+      ],
+      "group": "Observable",
+      "description": "Execute responder on an observable"
+    },
+    {
+      "id": "observable_get",
+      "label": "Get Observable",
+      "method": "POST",
+      "path": "/v1/query",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your TheHive 5 server, e.g. app.example.com (no https:// prefix)"
+        }
+      ],
+      "group": "Observable",
+      "description": "Get an observable"
+    },
+    {
+      "id": "observable_search",
+      "label": "Search Observable",
+      "method": "GET",
+      "path": "/observable",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your TheHive 5 server, e.g. app.example.com (no https:// prefix)"
+        }
+      ],
+      "group": "Observable",
+      "description": "[unverified path] Search observables"
+    },
+    {
+      "id": "observable_update",
+      "label": "Update Observable",
+      "method": "PATCH",
+      "path": "/v1/observable/{id}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your TheHive 5 server, e.g. app.example.com (no https:// prefix)"
+        }
+      ],
+      "group": "Observable",
+      "description": "Update an observable"
+    },
+    {
+      "id": "page_create",
+      "label": "Create Page",
+      "method": "POST",
+      "path": "/v1/case/{caseId}/page",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your TheHive 5 server, e.g. app.example.com (no https:// prefix)"
+        }
+      ],
+      "group": "Page",
+      "description": "Create a page"
+    },
+    {
+      "id": "page_delete_page",
+      "label": "Delete Page",
+      "method": "DELETE",
+      "path": "/v1/case/{caseId}/page/{pageId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your TheHive 5 server, e.g. app.example.com (no https:// prefix)"
+        }
+      ],
+      "group": "Page",
+      "description": "Delete a page"
+    },
+    {
+      "id": "page_search",
+      "label": "Search Page",
+      "method": "GET",
+      "path": "/page",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your TheHive 5 server, e.g. app.example.com (no https:// prefix)"
+        }
+      ],
+      "group": "Page",
+      "description": "[unverified path] Search pages"
+    },
+    {
+      "id": "page_update",
+      "label": "Update Page",
+      "method": "PATCH",
+      "path": "/v1/case/{caseId}/page/{pageId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your TheHive 5 server, e.g. app.example.com (no https:// prefix)"
+        }
+      ],
+      "group": "Page",
+      "description": "Update a page"
+    },
+    {
+      "id": "query_execute_query",
+      "label": "Execute Query Query",
+      "method": "POST",
+      "path": "/v1/query",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your TheHive 5 server, e.g. app.example.com (no https:// prefix)"
+        }
+      ],
+      "group": "Query",
+      "description": "Execute a query"
+    },
+    {
+      "id": "task_create",
+      "label": "Create Task",
+      "method": "POST",
+      "path": "/v1/case/{caseId}/task",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your TheHive 5 server, e.g. app.example.com (no https:// prefix)"
+        }
+      ],
+      "group": "Task",
+      "description": "Create a task"
+    },
+    {
+      "id": "task_delete_task",
+      "label": "Delete Task",
+      "method": "DELETE",
+      "path": "/v1/task/{taskId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your TheHive 5 server, e.g. app.example.com (no https:// prefix)"
+        }
+      ],
+      "group": "Task",
+      "description": "Delete an task"
+    },
+    {
+      "id": "task_execute_responder",
+      "label": "Execute Responder Task",
+      "method": "POST",
+      "path": "/connector/cortex/action' as string",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your TheHive 5 server, e.g. app.example.com (no https:// prefix)"
+        }
+      ],
+      "group": "Task",
+      "description": "Execute responder on a task"
+    },
+    {
+      "id": "task_get",
+      "label": "Get Task",
+      "method": "POST",
+      "path": "/v1/query",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your TheHive 5 server, e.g. app.example.com (no https:// prefix)"
+        }
+      ],
+      "group": "Task",
+      "description": "Get a task"
+    },
+    {
+      "id": "task_search",
+      "label": "Search Task",
+      "method": "GET",
+      "path": "/task",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your TheHive 5 server, e.g. app.example.com (no https:// prefix)"
+        }
+      ],
+      "group": "Task",
+      "description": "[unverified path] Search tasks"
+    },
+    {
+      "id": "task_update",
+      "label": "Update Task",
+      "method": "PATCH",
+      "path": "/v1/task/{id}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your TheHive 5 server, e.g. app.example.com (no https:// prefix)"
+        }
+      ],
+      "group": "Task",
+      "description": "Update a task"
+    }
+  ]
+}

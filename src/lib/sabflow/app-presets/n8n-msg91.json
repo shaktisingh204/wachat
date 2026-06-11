@@ -4,26 +4,25 @@
   "description": "Sends transactional SMS via MSG91",
   "category": "communication",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.msg91.com/api",
   "endpoints": [
     {
       "id": "sms_send",
-      "label": "Send Sms",
+      "label": "Send SMS",
       "method": "GET",
-      "path": "/",
+      "path": "/sendhttp.php",
       "fields": [
         {
           "id": "from",
           "label": "Sender ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "4155238886",
           "description": "The number from which to send the message"
@@ -32,7 +31,6 @@
           "id": "to",
           "label": "To",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "+14155238886",
           "description": "The number, with coutry code, to which to send the message"
@@ -41,11 +39,12 @@
           "id": "message",
           "label": "Message",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "The message to send"
         }
-      ]
+      ],
+      "group": "SMS",
+      "description": "Send SMS"
     }
   ]
 }

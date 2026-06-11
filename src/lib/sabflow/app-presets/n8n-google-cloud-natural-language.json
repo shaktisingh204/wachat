@@ -4,7 +4,7 @@
   "description": "Consume Google Cloud Natural Language API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 1,
+  "version": 11,
   "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
@@ -16,14 +16,13 @@
     {
       "id": "document_analyze_sentiment",
       "label": "Analyze Sentiment Document",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/v1/documents:analyzeSentiment",
       "fields": [
         {
           "id": "source",
           "label": "Source",
           "type": "select",
-          "in": "query",
           "required": true,
           "description": "The source of the document: a string containing the content or a Google Cloud Storage URI",
           "defaultValue": "content",
@@ -42,7 +41,6 @@
           "id": "content",
           "label": "Content",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "The content of the input in string format. Cloud audit logging exempt since it is based on user data."
         },
@@ -50,18 +48,19 @@
           "id": "gcsContentUri",
           "label": "Google Cloud Storage URI",
           "type": "text",
-          "in": "query",
           "required": true,
-          "description": "The Google Cloud Storage URI where the file content is located. This URI must be of the form: <code>gs://bucket_name/object_name</code>. For more details, see <a href=\"https://cloud.google.com/storage/docs/reference-uris.\">reference</a>."
+          "description": "The Google Cloud Storage URI where the file content is located. This URI must be of the form: gs://bucket_name/object_name. For more details, see reference."
         },
         {
           "id": "options",
           "label": "Options",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add option"
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: documentType, encodingType, language)"
         }
-      ]
+      ],
+      "group": "Document",
+      "description": "Analyze sentiment"
     }
   ]
 }

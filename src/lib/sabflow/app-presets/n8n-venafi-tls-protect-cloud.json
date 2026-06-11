@@ -4,8 +4,8 @@
   "description": "Consume Venafi TLS Protect Cloud API",
   "category": "dev",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 3,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
@@ -14,18 +14,288 @@
   "baseUrl": "",
   "endpoints": [
     {
-      "id": "certificate_default",
-      "label": "List Certificate",
-      "method": "GET",
-      "path": "/certificate",
-      "fields": []
+      "id": "certificate_delete",
+      "label": "Delete Certificate",
+      "method": "POST",
+      "path": "/outagedetection/v1/certificates/deletion",
+      "fields": [
+        {
+          "id": "certificateId",
+          "label": "Certificate ID",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "group": "Certificate",
+      "description": "Delete a certificate"
     },
     {
-      "id": "certificate_request_default",
-      "label": "List CertificateRequest",
+      "id": "certificate_download",
+      "label": "Download Certificate",
       "method": "GET",
-      "path": "/certificateRequest",
-      "fields": []
+      "path": "/outagedetection/v1/certificates/{certificateId}/contents",
+      "fields": [
+        {
+          "id": "certificateId",
+          "label": "Certificate ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "downloadItem",
+          "label": "Download Item",
+          "type": "select",
+          "defaultValue": "certificate",
+          "options": [
+            {
+              "value": "certificate",
+              "label": "Certificate"
+            },
+            {
+              "value": "keystore",
+              "label": "Keystore"
+            }
+          ]
+        },
+        {
+          "id": "keystoreType",
+          "label": "Keystore Type",
+          "type": "select",
+          "defaultValue": "PEM",
+          "options": [
+            {
+              "value": "JKS",
+              "label": "JKS"
+            },
+            {
+              "value": "PKCS12",
+              "label": "PKCS12"
+            },
+            {
+              "value": "PEM",
+              "label": "PEM"
+            }
+          ]
+        },
+        {
+          "id": "certificateLabel",
+          "label": "Certificate Label",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "privateKeyPassphrase",
+          "label": "Private Key Passphrase",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "keystorePassphrase",
+          "label": "Keystore Passphrase",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "binaryProperty",
+          "label": "Input Data Field Name",
+          "type": "text",
+          "required": true,
+          "description": "The name of the input field containing the binary file data to be uploaded",
+          "defaultValue": "data"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: chainOrder, format)"
+        }
+      ],
+      "group": "Certificate",
+      "description": "Download a certificate"
+    },
+    {
+      "id": "certificate_get",
+      "label": "Get Certificate",
+      "method": "GET",
+      "path": "/outagedetection/v1/certificates/{certificateId}",
+      "fields": [
+        {
+          "id": "certificateId",
+          "label": "Certificate ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Certificate",
+      "description": "Retrieve a certificate"
+    },
+    {
+      "id": "certificate_get_many",
+      "label": "Get Many Certificate",
+      "method": "GET",
+      "path": "/outagedetection/v1/certificates",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: subject)"
+        }
+      ],
+      "group": "Certificate",
+      "description": "Retrieve many certificates"
+    },
+    {
+      "id": "certificate_renew",
+      "label": "Renew Certificate",
+      "method": "POST",
+      "path": "/outagedetection/v1/certificaterequests",
+      "fields": [
+        {
+          "id": "applicationId",
+          "label": "Application Name or ID",
+          "type": "select",
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "existingCertificateId",
+          "label": "Existing Certificate ID",
+          "type": "text"
+        },
+        {
+          "id": "certificateIssuingTemplateId",
+          "label": "Certificate Issuing Template Name or ID",
+          "type": "select",
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "certificateSigningRequest",
+          "label": "Certificate Signing Request",
+          "type": "text"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: validityPeriod)"
+        }
+      ],
+      "group": "Certificate",
+      "description": "Renew a certificate"
+    },
+    {
+      "id": "certificate_request_create",
+      "label": "Create Certificate Request",
+      "method": "POST",
+      "path": "/outagedetection/v1/certificaterequests",
+      "fields": [
+        {
+          "id": "applicationId",
+          "label": "Application Name or ID",
+          "type": "select",
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "certificateIssuingTemplateId",
+          "label": "Certificate Issuing Template Name or ID",
+          "type": "select",
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "generateCsr",
+          "label": "Generate CSR",
+          "type": "toggle",
+          "defaultValue": false
+        },
+        {
+          "id": "commonName",
+          "label": "Common Name",
+          "type": "text",
+          "required": true,
+          "description": "The Common Name field for the certificate Subject (CN)",
+          "defaultValue": "n8n.io"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: keyType, keyCurve, keyLength, organization, organizationalUnits, locality, state, country, SubjectAltNamesUi)"
+        },
+        {
+          "id": "certificateSigningRequest",
+          "label": "Certificate Signing Request",
+          "type": "text"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: validityPeriod)"
+        }
+      ],
+      "group": "Certificate Request",
+      "description": "Create a new certificate request"
+    },
+    {
+      "id": "certificate_request_get",
+      "label": "Get Certificate Request",
+      "method": "GET",
+      "path": "/outagedetection/v1/certificaterequests/{certificateId}",
+      "fields": [
+        {
+          "id": "certificateRequestId",
+          "label": "Certificate Request ID",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "group": "Certificate Request",
+      "description": "Retrieve a certificate request"
+    },
+    {
+      "id": "certificate_request_get_many",
+      "label": "Get Many Certificate Request",
+      "method": "GET",
+      "path": "/outagedetection/v1/certificaterequests",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Certificate Request",
+      "description": "Retrieve many certificate requests"
     }
   ]
 }

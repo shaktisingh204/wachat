@@ -4,8 +4,8 @@
   "description": "Access data on Dropbox",
   "category": "storage",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -16,37 +16,18 @@
       "credentialType": "http_header_auth"
     }
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.dropboxapi.com/2",
   "endpoints": [
     {
       "id": "file_copy",
       "label": "Copy File",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/file",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "description": "Means of authenticating with the service",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "path",
           "label": "From Path",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "/invoices/original.txt",
           "description": "The path of file or folder to copy"
@@ -55,77 +36,42 @@
           "id": "toPath",
           "label": "To Path",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "/invoices/copy.txt",
           "description": "The destination path of file or folder"
         }
-      ]
+      ],
+      "group": "File",
+      "description": "[unverified path] Copy a file"
     },
     {
       "id": "file_delete",
       "label": "Delete File",
-      "method": "GET",
-      "path": "/",
+      "method": "DELETE",
+      "path": "/file",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "description": "Means of authenticating with the service",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "path",
           "label": "Delete Path",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "/invoices/2019/invoice_1.pdf",
           "description": "The path to delete. Can be a single file or a whole folder."
         }
-      ]
+      ],
+      "group": "File",
+      "description": "[unverified path] Delete a file"
     },
     {
       "id": "file_download",
       "label": "Download File",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/https:/content.dropboxapi.com/2/files/download",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "description": "Means of authenticating with the service",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "path",
           "label": "File Path",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "/invoices/2019/invoice_1.pdf",
           "description": "The file path of the file to download. Has to contain the full path."
@@ -134,41 +80,23 @@
           "id": "binaryPropertyName",
           "label": "Put Output File in Field",
           "type": "text",
-          "in": "query",
           "required": true,
           "defaultValue": "data"
         }
-      ]
+      ],
+      "group": "File",
+      "description": "Download a file"
     },
     {
       "id": "file_move",
       "label": "Move File",
-      "method": "GET",
-      "path": "/",
+      "method": "PATCH",
+      "path": "/file",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "description": "Means of authenticating with the service",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "path",
           "label": "From Path",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "/invoices/old_name.txt",
           "description": "The path of file or folder to move"
@@ -177,42 +105,24 @@
           "id": "toPath",
           "label": "To Path",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "/invoices/new_name.txt",
           "description": "The new path of file or folder"
         }
-      ]
+      ],
+      "group": "File",
+      "description": "[unverified path] Move a file"
     },
     {
       "id": "file_upload",
       "label": "Upload File",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/https:/content.dropboxapi.com/2/files/upload",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "description": "Means of authenticating with the service",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "path",
           "label": "File Path",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "/invoices/2019/invoice_1.pdf",
           "description": "The file path of the file to upload. Has to contain the full path. The parent folder has to exist. Existing files get overwritten."
@@ -221,7 +131,6 @@
           "id": "binaryData",
           "label": "Binary File",
           "type": "toggle",
-          "in": "query",
           "description": "Whether the data to upload should be taken from binary field",
           "defaultValue": false
         },
@@ -229,48 +138,29 @@
           "id": "fileContent",
           "label": "File Content",
           "type": "text",
-          "in": "query",
           "description": "The text content of the file to upload"
         },
         {
           "id": "binaryPropertyName",
           "label": "Input Binary Field",
           "type": "text",
-          "in": "query",
           "required": true,
           "defaultValue": "data"
         }
-      ]
+      ],
+      "group": "File",
+      "description": "Upload a file"
     },
     {
       "id": "folder_copy",
       "label": "Copy Folder",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/folder",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "description": "Means of authenticating with the service",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "path",
           "label": "From Path",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "/invoices/original.txt",
           "description": "The path of file or folder to copy"
@@ -279,112 +169,60 @@
           "id": "toPath",
           "label": "To Path",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "/invoices/copy.txt",
           "description": "The destination path of file or folder"
         }
-      ]
+      ],
+      "group": "Folder",
+      "description": "[unverified path] Copy a folder"
     },
     {
       "id": "folder_create",
       "label": "Create Folder",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/https:/api.dropboxapi.com/2/files/create_folder_v2",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "description": "Means of authenticating with the service",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "path",
           "label": "Folder",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "/invoices/2019",
           "description": "The folder to create. The parent folder has to exist."
         }
-      ]
+      ],
+      "group": "Folder",
+      "description": "Create a folder"
     },
     {
       "id": "folder_delete",
       "label": "Delete Folder",
-      "method": "GET",
-      "path": "/",
+      "method": "DELETE",
+      "path": "/folder",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "description": "Means of authenticating with the service",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "path",
           "label": "Delete Path",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "/invoices/2019/invoice_1.pdf",
           "description": "The path to delete. Can be a single file or a whole folder."
         }
-      ]
+      ],
+      "group": "Folder",
+      "description": "[unverified path] Delete a folder"
     },
     {
       "id": "folder_list",
       "label": "List Folder",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/https:/api.dropboxapi.com/2/files/list_folder",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "description": "Means of authenticating with the service",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "path",
           "label": "Folder Path",
           "type": "text",
-          "in": "query",
           "placeholder": "/invoices/2019/",
           "description": "The path of which to list the content"
         },
@@ -392,7 +230,6 @@
           "id": "returnAll",
           "label": "Return All",
           "type": "toggle",
-          "in": "query",
           "description": "Whether to return all results or only up to a given limit",
           "defaultValue": false
         },
@@ -400,7 +237,6 @@
           "id": "limit",
           "label": "Limit",
           "type": "number",
-          "in": "query",
           "description": "Max number of results to return",
           "defaultValue": 100
         },
@@ -408,40 +244,23 @@
           "id": "filters",
           "label": "Filters",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Filter"
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: include_deleted, include_has_explicit_shared_members, include_mounted_folders, include_non_downloadable_files, recursive)"
         }
-      ]
+      ],
+      "group": "Folder",
+      "description": "Return the files and folders in a given folder"
     },
     {
       "id": "folder_move",
       "label": "Move Folder",
-      "method": "GET",
-      "path": "/",
+      "method": "PATCH",
+      "path": "/folder",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "description": "Means of authenticating with the service",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "path",
           "label": "From Path",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "/invoices/old_name.txt",
           "description": "The path of file or folder to move"
@@ -450,42 +269,24 @@
           "id": "toPath",
           "label": "To Path",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "/invoices/new_name.txt",
           "description": "The new path of file or folder"
         }
-      ]
+      ],
+      "group": "Folder",
+      "description": "[unverified path] Move a folder"
     },
     {
       "id": "search_query",
       "label": "Query Search",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/https:/api.dropboxapi.com/2/files/search_v2",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "description": "Means of authenticating with the service",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "query",
           "label": "Query",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "The string to search for. May match across multiple fields based on the request arguments."
         },
@@ -493,7 +294,6 @@
           "id": "fileStatus",
           "label": "File Status",
           "type": "select",
-          "in": "query",
           "description": "The string to search for. May match across multiple fields based on the request arguments.",
           "defaultValue": "active",
           "options": [
@@ -511,7 +311,6 @@
           "id": "returnAll",
           "label": "Return All",
           "type": "toggle",
-          "in": "query",
           "description": "Whether to return all results or only up to a given limit",
           "defaultValue": false
         },
@@ -519,7 +318,6 @@
           "id": "limit",
           "label": "Limit",
           "type": "number",
-          "in": "query",
           "description": "Max number of results to return",
           "defaultValue": 100
         },
@@ -527,7 +325,6 @@
           "id": "simple",
           "label": "Simplify",
           "type": "toggle",
-          "in": "query",
           "description": "Whether to return a simplified version of the response instead of the raw data",
           "defaultValue": true
         },
@@ -535,10 +332,12 @@
           "id": "filters",
           "label": "Filters",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Filter"
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: file_categories, file_extensions, path)"
         }
-      ]
+      ],
+      "group": "Search",
+      "description": "Query"
     }
   ]
 }

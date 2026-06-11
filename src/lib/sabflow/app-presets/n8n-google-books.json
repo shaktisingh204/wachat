@@ -4,8 +4,8 @@
   "description": "Read data from Google Books",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -16,53 +16,18 @@
       "credentialType": "http_header_auth"
     }
   },
-  "baseUrl": "",
+  "baseUrl": "https://www.googleapis.com/books",
   "endpoints": [
     {
       "id": "bookshelf_get",
       "label": "Get Bookshelf",
       "method": "GET",
-      "path": "/",
+      "path": "/v1/users/{userId}/bookshelves/{shelfId}",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "serviceAccount",
-          "options": [
-            {
-              "value": "serviceAccount",
-              "label": "Service Account"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "oAuth2",
-          "options": [
-            {
-              "value": "oAuth2",
-              "label": "OAuth2 (recommended)"
-            },
-            {
-              "value": "serviceAccount",
-              "label": "Service Account"
-            }
-          ]
-        },
         {
           "id": "myLibrary",
           "label": "My Library",
           "type": "toggle",
-          "in": "query",
           "required": true,
           "defaultValue": false
         },
@@ -70,65 +35,32 @@
           "id": "userId",
           "label": "User ID",
           "type": "text",
-          "in": "query",
           "required": true,
-          "description": "ID of user"
+          "description": "ID of user",
+          "in": "path"
         },
         {
           "id": "shelfId",
           "label": "Bookshelf ID",
           "type": "text",
-          "in": "query",
           "required": true,
-          "description": "ID of the bookshelf"
+          "description": "ID of the bookshelf",
+          "in": "path"
         }
-      ]
+      ],
+      "group": "Bookshelf",
+      "description": "Retrieve a specific bookshelf resource for the specified user"
     },
     {
       "id": "bookshelf_get_all",
       "label": "Get Many Bookshelf",
       "method": "GET",
-      "path": "/",
+      "path": "/v1/users/{userId}/bookshelves",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "serviceAccount",
-          "options": [
-            {
-              "value": "serviceAccount",
-              "label": "Service Account"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "oAuth2",
-          "options": [
-            {
-              "value": "oAuth2",
-              "label": "OAuth2 (recommended)"
-            },
-            {
-              "value": "serviceAccount",
-              "label": "Service Account"
-            }
-          ]
-        },
         {
           "id": "myLibrary",
           "label": "My Library",
           "type": "toggle",
-          "in": "query",
           "required": true,
           "defaultValue": false
         },
@@ -136,15 +68,14 @@
           "id": "userId",
           "label": "User ID",
           "type": "text",
-          "in": "query",
           "required": true,
-          "description": "ID of user"
+          "description": "ID of user",
+          "in": "path"
         },
         {
           "id": "returnAll",
           "label": "Return All",
           "type": "toggle",
-          "in": "query",
           "description": "Whether to return all results or only up to a given limit",
           "defaultValue": false
         },
@@ -152,165 +83,66 @@
           "id": "limit",
           "label": "Limit",
           "type": "number",
-          "in": "query",
           "description": "Max number of results to return",
           "defaultValue": 40
         }
-      ]
+      ],
+      "group": "Bookshelf",
+      "description": "Get many public bookshelf resource for the specified user"
     },
     {
       "id": "bookshelf_volume_add",
-      "label": "Add BookshelfVolume",
-      "method": "GET",
-      "path": "/",
+      "label": "Add Bookshelf Volume",
+      "method": "POST",
+      "path": "/v1/mylibrary/bookshelves/{shelfId}/addVolume",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "serviceAccount",
-          "options": [
-            {
-              "value": "serviceAccount",
-              "label": "Service Account"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "oAuth2",
-          "options": [
-            {
-              "value": "oAuth2",
-              "label": "OAuth2 (recommended)"
-            },
-            {
-              "value": "serviceAccount",
-              "label": "Service Account"
-            }
-          ]
-        },
         {
           "id": "shelfId",
           "label": "Bookshelf ID",
           "type": "text",
-          "in": "query",
           "required": true,
-          "description": "ID of the bookshelf"
+          "description": "ID of the bookshelf",
+          "in": "path"
         },
         {
           "id": "volumeId",
           "label": "Volume ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "ID of the volume"
         }
-      ]
+      ],
+      "group": "Bookshelf Volume",
+      "description": "Add a volume to a bookshelf"
     },
     {
       "id": "bookshelf_volume_clear",
-      "label": "Clear BookshelfVolume",
-      "method": "GET",
-      "path": "/",
+      "label": "Clear Bookshelf Volume",
+      "method": "POST",
+      "path": "/v1/mylibrary/bookshelves/{shelfId}/clearVolumes",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "serviceAccount",
-          "options": [
-            {
-              "value": "serviceAccount",
-              "label": "Service Account"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "oAuth2",
-          "options": [
-            {
-              "value": "oAuth2",
-              "label": "OAuth2 (recommended)"
-            },
-            {
-              "value": "serviceAccount",
-              "label": "Service Account"
-            }
-          ]
-        },
         {
           "id": "shelfId",
           "label": "Bookshelf ID",
           "type": "text",
-          "in": "query",
           "required": true,
-          "description": "ID of the bookshelf"
+          "description": "ID of the bookshelf",
+          "in": "path"
         }
-      ]
+      ],
+      "group": "Bookshelf Volume",
+      "description": "Clears all volumes from a bookshelf"
     },
     {
       "id": "bookshelf_volume_get_all",
-      "label": "Get Many BookshelfVolume",
+      "label": "Get Many Bookshelf Volume",
       "method": "GET",
-      "path": "/",
+      "path": "/v1/users/{userId}/bookshelves/{shelfId}/volumes",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "serviceAccount",
-          "options": [
-            {
-              "value": "serviceAccount",
-              "label": "Service Account"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "oAuth2",
-          "options": [
-            {
-              "value": "oAuth2",
-              "label": "OAuth2 (recommended)"
-            },
-            {
-              "value": "serviceAccount",
-              "label": "Service Account"
-            }
-          ]
-        },
         {
           "id": "myLibrary",
           "label": "My Library",
           "type": "toggle",
-          "in": "query",
           "required": true,
           "defaultValue": false
         },
@@ -318,23 +150,22 @@
           "id": "userId",
           "label": "User ID",
           "type": "text",
-          "in": "query",
           "required": true,
-          "description": "ID of user"
+          "description": "ID of user",
+          "in": "path"
         },
         {
           "id": "shelfId",
           "label": "Bookshelf ID",
           "type": "text",
-          "in": "query",
           "required": true,
-          "description": "ID of the bookshelf"
+          "description": "ID of the bookshelf",
+          "in": "path"
         },
         {
           "id": "returnAll",
           "label": "Return All",
           "type": "toggle",
-          "in": "query",
           "description": "Whether to return all results or only up to a given limit",
           "defaultValue": false
         },
@@ -342,65 +173,31 @@
           "id": "limit",
           "label": "Limit",
           "type": "number",
-          "in": "query",
           "description": "Max number of results to return",
           "defaultValue": 40
         }
-      ]
+      ],
+      "group": "Bookshelf Volume",
+      "description": "Get many volumes in a specific bookshelf for the specified user"
     },
     {
       "id": "bookshelf_volume_move",
-      "label": "Move BookshelfVolume",
-      "method": "GET",
-      "path": "/",
+      "label": "Move Bookshelf Volume",
+      "method": "POST",
+      "path": "/v1/mylibrary/bookshelves/{shelfId}/moveVolume",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "serviceAccount",
-          "options": [
-            {
-              "value": "serviceAccount",
-              "label": "Service Account"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "oAuth2",
-          "options": [
-            {
-              "value": "oAuth2",
-              "label": "OAuth2 (recommended)"
-            },
-            {
-              "value": "serviceAccount",
-              "label": "Service Account"
-            }
-          ]
-        },
         {
           "id": "shelfId",
           "label": "Bookshelf ID",
           "type": "text",
-          "in": "query",
           "required": true,
-          "description": "ID of the bookshelf"
+          "description": "ID of the bookshelf",
+          "in": "path"
         },
         {
           "id": "volumeId",
           "label": "Volume ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "ID of the volume"
         },
@@ -408,173 +205,74 @@
           "id": "volumePosition",
           "label": "Volume Position",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Position on shelf to move the item (0 puts the item before the current first item, 1 puts it between the first and the second and so on)"
         }
-      ]
+      ],
+      "group": "Bookshelf Volume",
+      "description": "Moves a volume within a bookshelf"
     },
     {
       "id": "bookshelf_volume_remove",
-      "label": "Remove BookshelfVolume",
-      "method": "GET",
-      "path": "/",
+      "label": "Remove Bookshelf Volume",
+      "method": "POST",
+      "path": "/v1/mylibrary/bookshelves/{shelfId}/removeVolume",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "serviceAccount",
-          "options": [
-            {
-              "value": "serviceAccount",
-              "label": "Service Account"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "oAuth2",
-          "options": [
-            {
-              "value": "oAuth2",
-              "label": "OAuth2 (recommended)"
-            },
-            {
-              "value": "serviceAccount",
-              "label": "Service Account"
-            }
-          ]
-        },
         {
           "id": "shelfId",
           "label": "Bookshelf ID",
           "type": "text",
-          "in": "query",
           "required": true,
-          "description": "ID of the bookshelf"
+          "description": "ID of the bookshelf",
+          "in": "path"
         },
         {
           "id": "volumeId",
           "label": "Volume ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "ID of the volume"
         }
-      ]
+      ],
+      "group": "Bookshelf Volume",
+      "description": "Removes a volume from a bookshelf"
     },
     {
       "id": "volume_get",
       "label": "Get Volume",
       "method": "GET",
-      "path": "/",
+      "path": "/v1/volumes/{volumeId}",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "serviceAccount",
-          "options": [
-            {
-              "value": "serviceAccount",
-              "label": "Service Account"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "oAuth2",
-          "options": [
-            {
-              "value": "oAuth2",
-              "label": "OAuth2 (recommended)"
-            },
-            {
-              "value": "serviceAccount",
-              "label": "Service Account"
-            }
-          ]
-        },
         {
           "id": "volumeId",
           "label": "Volume ID",
           "type": "text",
-          "in": "query",
           "required": true,
-          "description": "ID of the volume"
+          "description": "ID of the volume",
+          "in": "path"
         }
-      ]
+      ],
+      "group": "Volume",
+      "description": "Get a volume resource based on ID"
     },
     {
       "id": "volume_get_all",
       "label": "Get Many Volume",
       "method": "GET",
-      "path": "/",
+      "path": "/v1/volumes?q={searchQuery}",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "serviceAccount",
-          "options": [
-            {
-              "value": "serviceAccount",
-              "label": "Service Account"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "oAuth2",
-          "options": [
-            {
-              "value": "oAuth2",
-              "label": "OAuth2 (recommended)"
-            },
-            {
-              "value": "serviceAccount",
-              "label": "Service Account"
-            }
-          ]
-        },
         {
           "id": "searchQuery",
           "label": "Search Query",
           "type": "text",
-          "in": "query",
           "required": true,
-          "description": "Full-text search query string"
+          "description": "Full-text search query string",
+          "in": "path"
         },
         {
           "id": "returnAll",
           "label": "Return All",
           "type": "toggle",
-          "in": "query",
           "description": "Whether to return all results or only up to a given limit",
           "defaultValue": false
         },
@@ -582,11 +280,12 @@
           "id": "limit",
           "label": "Limit",
           "type": "number",
-          "in": "query",
           "description": "Max number of results to return",
           "defaultValue": 40
         }
-      ]
+      ],
+      "group": "Volume",
+      "description": "Get many volumes filtered by query"
     }
   ]
 }

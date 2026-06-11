@@ -4,26 +4,25 @@
   "description": "Consume Invoice Ninja API",
   "category": "finance",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 10,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://app.invoiceninja.com",
   "endpoints": [
     {
-      "id": "bank_transaction_default",
-      "label": "List Bank Transaction",
-      "method": "GET",
-      "path": "/bank_transaction",
+      "id": "client_create",
+      "label": "Create Client",
+      "method": "POST",
+      "path": "/clients",
       "fields": [
         {
           "id": "apiVersion",
           "label": "API Version",
           "type": "select",
-          "in": "query",
           "defaultValue": "v4",
           "options": [
             {
@@ -37,35 +36,47 @@
           ]
         },
         {
-          "id": "apiVersion",
-          "label": "API Version",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "v5",
-          "options": [
-            {
-              "value": "v4",
-              "label": "Version 4"
-            },
-            {
-              "value": "v5",
-              "label": "Version 5"
-            }
-          ]
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: clientName, idNumber, privateNotes, vatNumber, workPhone, website)"
+        },
+        {
+          "id": "billingAddressUi",
+          "label": "Billing Address",
+          "type": "json",
+          "placeholder": "Add Billing Address",
+          "description": "(JSON object; supported keys: billingAddressValue, billingAddressValue.streetAddress, billingAddressValue.aptSuite, billingAddressValue.city, billingAddressValue.state, billingAddressValue.postalCode, billingAddressValue.countryCode)"
+        },
+        {
+          "id": "contactsUi",
+          "label": "Contacts",
+          "type": "json",
+          "placeholder": "Add Contact",
+          "description": "(JSON object; supported keys: contacstValues, contacstValues.firstName, contacstValues.lastName, contacstValues.email, contacstValues.phone)"
+        },
+        {
+          "id": "shippingAddressUi",
+          "label": "Shipping Address",
+          "type": "json",
+          "placeholder": "Add Shipping Address",
+          "description": "(JSON object; supported keys: shippingAddressValue, shippingAddressValue.streetAddress, shippingAddressValue.aptSuite, shippingAddressValue.city, shippingAddressValue.state, shippingAddressValue.postalCode, shippingAddressValue.countryCode)"
         }
-      ]
+      ],
+      "group": "Client",
+      "description": "Create a new client"
     },
     {
-      "id": "client_default",
-      "label": "List Client",
-      "method": "GET",
-      "path": "/client",
+      "id": "client_delete",
+      "label": "Delete Client",
+      "method": "DELETE",
+      "path": "/clients/{clientId}",
       "fields": [
         {
           "id": "apiVersion",
           "label": "API Version",
           "type": "select",
-          "in": "query",
           "defaultValue": "v4",
           "options": [
             {
@@ -79,35 +90,26 @@
           ]
         },
         {
-          "id": "apiVersion",
-          "label": "API Version",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "v5",
-          "options": [
-            {
-              "value": "v4",
-              "label": "Version 4"
-            },
-            {
-              "value": "v5",
-              "label": "Version 5"
-            }
-          ]
+          "id": "clientId",
+          "label": "Client ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
         }
-      ]
+      ],
+      "group": "Client",
+      "description": "Delete a client"
     },
     {
-      "id": "expense_default",
-      "label": "List Expense",
+      "id": "client_get",
+      "label": "Get Client",
       "method": "GET",
-      "path": "/expense",
+      "path": "/clients/{clientId}",
       "fields": [
         {
           "id": "apiVersion",
           "label": "API Version",
           "type": "select",
-          "in": "query",
           "defaultValue": "v4",
           "options": [
             {
@@ -121,35 +123,33 @@
           ]
         },
         {
-          "id": "apiVersion",
-          "label": "API Version",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "v5",
-          "options": [
-            {
-              "value": "v4",
-              "label": "Version 4"
-            },
-            {
-              "value": "v5",
-              "label": "Version 5"
-            }
-          ]
+          "id": "clientId",
+          "label": "Client ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: include)"
         }
-      ]
+      ],
+      "group": "Client",
+      "description": "Get data of a client"
     },
     {
-      "id": "invoice_default",
-      "label": "List Invoice",
+      "id": "client_get_all",
+      "label": "Get Many Client",
       "method": "GET",
-      "path": "/invoice",
+      "path": "/clients",
       "fields": [
         {
           "id": "apiVersion",
           "label": "API Version",
           "type": "select",
-          "in": "query",
           "defaultValue": "v4",
           "options": [
             {
@@ -163,35 +163,40 @@
           ]
         },
         {
-          "id": "apiVersion",
-          "label": "API Version",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "v5",
-          "options": [
-            {
-              "value": "v4",
-              "label": "Version 4"
-            },
-            {
-              "value": "v5",
-              "label": "Version 5"
-            }
-          ]
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: include, status, createdAt, updatedAt, isDeleted)"
         }
-      ]
+      ],
+      "group": "Client",
+      "description": "Get data of many clients"
     },
     {
-      "id": "payment_default",
-      "label": "List Payment",
-      "method": "GET",
-      "path": "/payment",
+      "id": "invoice_create",
+      "label": "Create Invoice",
+      "method": "POST",
+      "path": "/invoices",
       "fields": [
         {
           "id": "apiVersion",
           "label": "API Version",
           "type": "select",
-          "in": "query",
           "defaultValue": "v4",
           "options": [
             {
@@ -205,11 +210,34 @@
           ]
         },
         {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: client, autoBill, customValue1, customValue2, discount, dueDate, email, emailInvoice, invoiceDate, invoiceNumber, invoiceStatus, isAmountDiscount, markSent, paid, partial, partialDueDate, poNumber, privateNotes, publicNotes, taxName1, taxName2, taxRate1, taxRate2)"
+        },
+        {
+          "id": "invoiceItemsUi",
+          "label": "Invoice Items",
+          "type": "json",
+          "placeholder": "Add Invoice Item",
+          "description": "(JSON object; supported keys: invoiceItemsValues, invoiceItemsValues.cost, invoiceItemsValues.description, invoiceItemsValues.service, invoiceItemsValues.hours, invoiceItemsValues.taxName1, invoiceItemsValues.taxName2, invoiceItemsValues.taxRate1, invoiceItemsValues.taxRate2)"
+        }
+      ],
+      "group": "Invoice",
+      "description": "Create a new invoice"
+    },
+    {
+      "id": "invoice_delete",
+      "label": "Delete Invoice",
+      "method": "DELETE",
+      "path": "/invoices/{invoiceId}",
+      "fields": [
+        {
           "id": "apiVersion",
           "label": "API Version",
           "type": "select",
-          "in": "query",
-          "defaultValue": "v5",
+          "defaultValue": "v4",
           "options": [
             {
               "value": "v4",
@@ -220,12 +248,749 @@
               "label": "Version 5"
             }
           ]
+        },
+        {
+          "id": "invoiceId",
+          "label": "Invoice ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
         }
-      ]
+      ],
+      "group": "Invoice",
+      "description": "Delete a invoice"
     },
     {
-      "id": "quote_default",
-      "label": "List Quote",
+      "id": "invoice_email",
+      "label": "Email Invoice",
+      "method": "POST",
+      "path": "/email_invoice",
+      "fields": [
+        {
+          "id": "apiVersion",
+          "label": "API Version",
+          "type": "select",
+          "defaultValue": "v4",
+          "options": [
+            {
+              "value": "v4",
+              "label": "Version 4"
+            },
+            {
+              "value": "v5",
+              "label": "Version 5"
+            }
+          ]
+        },
+        {
+          "id": "invoiceId",
+          "label": "Invoice ID",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "group": "Invoice",
+      "description": "Email an invoice"
+    },
+    {
+      "id": "invoice_get",
+      "label": "Get Invoice",
+      "method": "GET",
+      "path": "/invoices/{invoiceId}",
+      "fields": [
+        {
+          "id": "apiVersion",
+          "label": "API Version",
+          "type": "select",
+          "defaultValue": "v4",
+          "options": [
+            {
+              "value": "v4",
+              "label": "Version 4"
+            },
+            {
+              "value": "v5",
+              "label": "Version 5"
+            }
+          ]
+        },
+        {
+          "id": "invoiceId",
+          "label": "Invoice ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: include)"
+        }
+      ],
+      "group": "Invoice",
+      "description": "Get data of a invoice"
+    },
+    {
+      "id": "invoice_get_all",
+      "label": "Get Many Invoice",
+      "method": "GET",
+      "path": "/invoices",
+      "fields": [
+        {
+          "id": "apiVersion",
+          "label": "API Version",
+          "type": "select",
+          "defaultValue": "v4",
+          "options": [
+            {
+              "value": "v4",
+              "label": "Version 4"
+            },
+            {
+              "value": "v5",
+              "label": "Version 5"
+            }
+          ]
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: invoiceNumber, include, status, createdAt, updatedAt, isDeleted, clientStatus)"
+        }
+      ],
+      "group": "Invoice",
+      "description": "Get data of many invoices"
+    },
+    {
+      "id": "task_create",
+      "label": "Create Task",
+      "method": "POST",
+      "path": "/tasks",
+      "fields": [
+        {
+          "id": "apiVersion",
+          "label": "API Version",
+          "type": "select",
+          "defaultValue": "v4",
+          "options": [
+            {
+              "value": "v4",
+              "label": "Version 4"
+            },
+            {
+              "value": "v5",
+              "label": "Version 5"
+            }
+          ]
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: client, customValue1, customValue2, description, project)"
+        },
+        {
+          "id": "timeLogsUi",
+          "label": "Time Logs",
+          "type": "json",
+          "placeholder": "Add Time Log",
+          "description": "(JSON object; supported keys: timeLogsValues, timeLogsValues.startDate, timeLogsValues.endDate, timeLogsValues.duration)"
+        }
+      ],
+      "group": "Task",
+      "description": "Create a new task"
+    },
+    {
+      "id": "task_delete",
+      "label": "Delete Task",
+      "method": "DELETE",
+      "path": "/tasks/{taskId}",
+      "fields": [
+        {
+          "id": "apiVersion",
+          "label": "API Version",
+          "type": "select",
+          "defaultValue": "v4",
+          "options": [
+            {
+              "value": "v4",
+              "label": "Version 4"
+            },
+            {
+              "value": "v5",
+              "label": "Version 5"
+            }
+          ]
+        },
+        {
+          "id": "taskId",
+          "label": "Task ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Task",
+      "description": "Delete a task"
+    },
+    {
+      "id": "task_get",
+      "label": "Get Task",
+      "method": "GET",
+      "path": "/tasks/{taskId}",
+      "fields": [
+        {
+          "id": "apiVersion",
+          "label": "API Version",
+          "type": "select",
+          "defaultValue": "v4",
+          "options": [
+            {
+              "value": "v4",
+              "label": "Version 4"
+            },
+            {
+              "value": "v5",
+              "label": "Version 5"
+            }
+          ]
+        },
+        {
+          "id": "taskId",
+          "label": "Task ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: include)"
+        }
+      ],
+      "group": "Task",
+      "description": "Get data of a task"
+    },
+    {
+      "id": "task_get_all",
+      "label": "Get Many Task",
+      "method": "GET",
+      "path": "/tasks",
+      "fields": [
+        {
+          "id": "apiVersion",
+          "label": "API Version",
+          "type": "select",
+          "defaultValue": "v4",
+          "options": [
+            {
+              "value": "v4",
+              "label": "Version 4"
+            },
+            {
+              "value": "v5",
+              "label": "Version 5"
+            }
+          ]
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: include)"
+        }
+      ],
+      "group": "Task",
+      "description": "Get data of many tasks"
+    },
+    {
+      "id": "payment_create",
+      "label": "Create Payment",
+      "method": "POST",
+      "path": "/payments",
+      "fields": [
+        {
+          "id": "apiVersion",
+          "label": "API Version",
+          "type": "select",
+          "defaultValue": "v4",
+          "options": [
+            {
+              "value": "v4",
+              "label": "Version 4"
+            },
+            {
+              "value": "v5",
+              "label": "Version 5"
+            }
+          ]
+        },
+        {
+          "id": "invoice",
+          "label": "Invoice Name or ID",
+          "type": "select",
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "amount",
+          "label": "Amount",
+          "type": "number",
+          "defaultValue": 0
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: paymentType, transferReference, privateNotes)"
+        }
+      ],
+      "group": "Payment",
+      "description": "Create a new payment"
+    },
+    {
+      "id": "payment_delete",
+      "label": "Delete Payment",
+      "method": "DELETE",
+      "path": "/payments/{paymentId}",
+      "fields": [
+        {
+          "id": "apiVersion",
+          "label": "API Version",
+          "type": "select",
+          "defaultValue": "v4",
+          "options": [
+            {
+              "value": "v4",
+              "label": "Version 4"
+            },
+            {
+              "value": "v5",
+              "label": "Version 5"
+            }
+          ]
+        },
+        {
+          "id": "paymentId",
+          "label": "Payment ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Payment",
+      "description": "Delete a payment"
+    },
+    {
+      "id": "payment_get",
+      "label": "Get Payment",
+      "method": "GET",
+      "path": "/payments/{paymentId}",
+      "fields": [
+        {
+          "id": "apiVersion",
+          "label": "API Version",
+          "type": "select",
+          "defaultValue": "v4",
+          "options": [
+            {
+              "value": "v4",
+              "label": "Version 4"
+            },
+            {
+              "value": "v5",
+              "label": "Version 5"
+            }
+          ]
+        },
+        {
+          "id": "paymentId",
+          "label": "Payment ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: include)"
+        }
+      ],
+      "group": "Payment",
+      "description": "Get data of a payment"
+    },
+    {
+      "id": "payment_get_all",
+      "label": "Get Many Payment",
+      "method": "GET",
+      "path": "/payments",
+      "fields": [
+        {
+          "id": "apiVersion",
+          "label": "API Version",
+          "type": "select",
+          "defaultValue": "v4",
+          "options": [
+            {
+              "value": "v4",
+              "label": "Version 4"
+            },
+            {
+              "value": "v5",
+              "label": "Version 5"
+            }
+          ]
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: include, status, createdAt, updatedAt, isDeleted)"
+        }
+      ],
+      "group": "Payment",
+      "description": "Get data of many payments"
+    },
+    {
+      "id": "expense_create",
+      "label": "Create Expense",
+      "method": "POST",
+      "path": "/expenses",
+      "fields": [
+        {
+          "id": "apiVersion",
+          "label": "API Version",
+          "type": "select",
+          "defaultValue": "v4",
+          "options": [
+            {
+              "value": "v4",
+              "label": "Version 4"
+            },
+            {
+              "value": "v5",
+              "label": "Version 5"
+            }
+          ]
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: amount, billable, client, customValue1, customValue2, category, expenseDate, paymentDate, paymentType, privateNotes, publicNotes, taxName1, taxName2, taxRate1, taxRate2, transactionReference, vendor)"
+        }
+      ],
+      "group": "Expense",
+      "description": "Create a new expense"
+    },
+    {
+      "id": "expense_delete",
+      "label": "Delete Expense",
+      "method": "DELETE",
+      "path": "/expenses/{expenseId}",
+      "fields": [
+        {
+          "id": "apiVersion",
+          "label": "API Version",
+          "type": "select",
+          "defaultValue": "v4",
+          "options": [
+            {
+              "value": "v4",
+              "label": "Version 4"
+            },
+            {
+              "value": "v5",
+              "label": "Version 5"
+            }
+          ]
+        },
+        {
+          "id": "expenseId",
+          "label": "Expense ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Expense",
+      "description": "Delete an expense"
+    },
+    {
+      "id": "expense_get",
+      "label": "Get Expense",
+      "method": "GET",
+      "path": "/expenses/{expenseId}",
+      "fields": [
+        {
+          "id": "apiVersion",
+          "label": "API Version",
+          "type": "select",
+          "defaultValue": "v4",
+          "options": [
+            {
+              "value": "v4",
+              "label": "Version 4"
+            },
+            {
+              "value": "v5",
+              "label": "Version 5"
+            }
+          ]
+        },
+        {
+          "id": "expenseId",
+          "label": "Expense ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Expense",
+      "description": "Get data of an expense"
+    },
+    {
+      "id": "expense_get_all",
+      "label": "Get Many Expense",
+      "method": "GET",
+      "path": "/expenses",
+      "fields": [
+        {
+          "id": "apiVersion",
+          "label": "API Version",
+          "type": "select",
+          "defaultValue": "v4",
+          "options": [
+            {
+              "value": "v4",
+              "label": "Version 4"
+            },
+            {
+              "value": "v5",
+              "label": "Version 5"
+            }
+          ]
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Expense",
+      "description": "Get data of many expenses"
+    },
+    {
+      "id": "quote_create",
+      "label": "Create Quote",
+      "method": "POST",
+      "path": "/quote",
+      "fields": [
+        {
+          "id": "apiVersion",
+          "label": "API Version",
+          "type": "select",
+          "defaultValue": "v4",
+          "options": [
+            {
+              "value": "v4",
+              "label": "Version 4"
+            },
+            {
+              "value": "v5",
+              "label": "Version 5"
+            }
+          ]
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: client, autoBill, customValue1, customValue2, discount, dueDate, email, emailQuote, quoteDate, quoteNumber, quoteStatus, isAmountDiscount, paid, partial, partialDueDate, poNumber, privateNotes, publicNotes, taxName1, taxName2, taxRate1, taxRate2)"
+        },
+        {
+          "id": "invoiceItemsUi",
+          "label": "Invoice Items",
+          "type": "json",
+          "placeholder": "Add Invoice Item",
+          "description": "(JSON object; supported keys: invoiceItemsValues, invoiceItemsValues.cost, invoiceItemsValues.description, invoiceItemsValues.service, invoiceItemsValues.hours, invoiceItemsValues.taxName1, invoiceItemsValues.taxName2, invoiceItemsValues.taxRate1, invoiceItemsValues.taxRate2)"
+        }
+      ],
+      "group": "Quote",
+      "description": "[unverified path] Create a new quote"
+    },
+    {
+      "id": "quote_delete",
+      "label": "Delete Quote",
+      "method": "DELETE",
+      "path": "/{resourceEndpoint}/{quoteId}",
+      "fields": [
+        {
+          "id": "apiVersion",
+          "label": "API Version",
+          "type": "select",
+          "defaultValue": "v4",
+          "options": [
+            {
+              "value": "v4",
+              "label": "Version 4"
+            },
+            {
+              "value": "v5",
+              "label": "Version 5"
+            }
+          ]
+        },
+        {
+          "id": "quoteId",
+          "label": "Quote ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Quote",
+      "description": "Delete a quote"
+    },
+    {
+      "id": "quote_email",
+      "label": "Email Quote",
+      "method": "POST",
+      "path": "/email_invoice",
+      "fields": [
+        {
+          "id": "apiVersion",
+          "label": "API Version",
+          "type": "select",
+          "defaultValue": "v4",
+          "options": [
+            {
+              "value": "v4",
+              "label": "Version 4"
+            },
+            {
+              "value": "v5",
+              "label": "Version 5"
+            }
+          ]
+        },
+        {
+          "id": "quoteId",
+          "label": "Quote ID",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "group": "Quote",
+      "description": "Email a quote"
+    },
+    {
+      "id": "quote_get",
+      "label": "Get Quote",
+      "method": "GET",
+      "path": "/{resourceEndpoint}/{quoteId}",
+      "fields": [
+        {
+          "id": "apiVersion",
+          "label": "API Version",
+          "type": "select",
+          "defaultValue": "v4",
+          "options": [
+            {
+              "value": "v4",
+              "label": "Version 4"
+            },
+            {
+              "value": "v5",
+              "label": "Version 5"
+            }
+          ]
+        },
+        {
+          "id": "quoteId",
+          "label": "Quote ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: include)"
+        }
+      ],
+      "group": "Quote",
+      "description": "Get data of a quote"
+    },
+    {
+      "id": "quote_get_all",
+      "label": "Get Many Quote",
       "method": "GET",
       "path": "/quote",
       "fields": [
@@ -233,7 +998,6 @@
           "id": "apiVersion",
           "label": "API Version",
           "type": "select",
-          "in": "query",
           "defaultValue": "v4",
           "options": [
             {
@@ -247,35 +1011,40 @@
           ]
         },
         {
-          "id": "apiVersion",
-          "label": "API Version",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "v5",
-          "options": [
-            {
-              "value": "v4",
-              "label": "Version 4"
-            },
-            {
-              "value": "v5",
-              "label": "Version 5"
-            }
-          ]
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: quoteNumber, include, status, createdAt, updatedAt, isDeleted)"
         }
-      ]
+      ],
+      "group": "Quote",
+      "description": "[unverified path] Get data of many quotes"
     },
     {
-      "id": "task_default",
-      "label": "List Task",
-      "method": "GET",
-      "path": "/task",
+      "id": "bank_transaction_create",
+      "label": "Create Bank Transaction",
+      "method": "POST",
+      "path": "/bank-transaction",
       "fields": [
         {
           "id": "apiVersion",
           "label": "API Version",
           "type": "select",
-          "in": "query",
           "defaultValue": "v4",
           "options": [
             {
@@ -289,11 +1058,27 @@
           ]
         },
         {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: amount, bankIntegrationId, baseType, currencyId, date, description)"
+        }
+      ],
+      "group": "Bank Transaction",
+      "description": "[unverified path] Create a new bank transaction"
+    },
+    {
+      "id": "bank_transaction_delete",
+      "label": "Delete Bank Transaction",
+      "method": "DELETE",
+      "path": "/{resourceEndpoint}/{bankTransactionId}",
+      "fields": [
+        {
           "id": "apiVersion",
           "label": "API Version",
           "type": "select",
-          "in": "query",
-          "defaultValue": "v5",
+          "defaultValue": "v4",
           "options": [
             {
               "value": "v4",
@@ -304,8 +1089,128 @@
               "label": "Version 5"
             }
           ]
+        },
+        {
+          "id": "bankTransactionId",
+          "label": "Bank Transaction ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
         }
-      ]
+      ],
+      "group": "Bank Transaction",
+      "description": "Delete a bank transaction"
+    },
+    {
+      "id": "bank_transaction_get",
+      "label": "Get Bank Transaction",
+      "method": "GET",
+      "path": "/{resourceEndpoint}/{bankTransactionId}",
+      "fields": [
+        {
+          "id": "apiVersion",
+          "label": "API Version",
+          "type": "select",
+          "defaultValue": "v4",
+          "options": [
+            {
+              "value": "v4",
+              "label": "Version 4"
+            },
+            {
+              "value": "v5",
+              "label": "Version 5"
+            }
+          ]
+        },
+        {
+          "id": "bankTransactionId",
+          "label": "Bank Transaction ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Bank Transaction",
+      "description": "Get data of a bank transaction"
+    },
+    {
+      "id": "bank_transaction_get_all",
+      "label": "Get Many Bank Transaction",
+      "method": "GET",
+      "path": "/bank-transaction",
+      "fields": [
+        {
+          "id": "apiVersion",
+          "label": "API Version",
+          "type": "select",
+          "defaultValue": "v4",
+          "options": [
+            {
+              "value": "v4",
+              "label": "Version 4"
+            },
+            {
+              "value": "v5",
+              "label": "Version 5"
+            }
+          ]
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Bank Transaction",
+      "description": "[unverified path] Get data of many bank transactions"
+    },
+    {
+      "id": "bank_transaction_match_payment",
+      "label": "Match Payment Bank Transaction",
+      "method": "POST",
+      "path": "/{resourceEndpoint}/match",
+      "fields": [
+        {
+          "id": "apiVersion",
+          "label": "API Version",
+          "type": "select",
+          "defaultValue": "v4",
+          "options": [
+            {
+              "value": "v4",
+              "label": "Version 4"
+            },
+            {
+              "value": "v5",
+              "label": "Version 5"
+            }
+          ]
+        },
+        {
+          "id": "bankTransactionId",
+          "label": "Bank Transaction ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "paymentId",
+          "label": "Payment Name or ID",
+          "type": "select",
+          "description": "Choose from the list, or specify an ID using an expression"
+        }
+      ],
+      "group": "Bank Transaction",
+      "description": "Match payment to a bank transaction"
     }
   ]
 }

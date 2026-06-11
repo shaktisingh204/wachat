@@ -4,98 +4,1314 @@
   "description": "Consume the Monica CRM API",
   "category": "crm",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://app.monicahq.com",
   "endpoints": [
     {
-      "id": "activity_default",
-      "label": "List Activity",
-      "method": "GET",
-      "path": "/activity",
-      "fields": []
+      "id": "activity_create",
+      "label": "Create Activity",
+      "method": "POST",
+      "path": "/activities",
+      "fields": [
+        {
+          "id": "activityTypeId",
+          "label": "Activity Type Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "contacts",
+          "label": "Contacts",
+          "type": "text",
+          "required": true,
+          "description": "Comma-separated list of IDs of the contacts to associate the activity with"
+        },
+        {
+          "id": "happenedAt",
+          "label": "Happened At",
+          "type": "text",
+          "required": true,
+          "placeholder": "2024-01-01T00:00:00Z",
+          "description": "Date when the activity happened (ISO 8601 date-time)"
+        },
+        {
+          "id": "summary",
+          "label": "Summary",
+          "type": "text",
+          "required": true,
+          "description": "Brief description of the activity - max 255 characters"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: description)"
+        }
+      ],
+      "group": "Activity",
+      "description": "Create an activity"
     },
     {
-      "id": "call_default",
-      "label": "List Call",
-      "method": "GET",
-      "path": "/call",
-      "fields": []
+      "id": "activity_delete",
+      "label": "Delete Activity",
+      "method": "DELETE",
+      "path": "/activities/{activityId}",
+      "fields": [
+        {
+          "id": "activityId",
+          "label": "Activity ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the activity to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Activity",
+      "description": "Delete an activity"
     },
     {
-      "id": "contact_default",
-      "label": "List Contact",
+      "id": "activity_get",
+      "label": "Get Activity",
       "method": "GET",
-      "path": "/contact",
-      "fields": []
+      "path": "/activities/{activityId}",
+      "fields": [
+        {
+          "id": "activityId",
+          "label": "Activity ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the activity to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Activity",
+      "description": "Retrieve an activity"
     },
     {
-      "id": "contact_field_default",
-      "label": "List ContactField",
+      "id": "activity_get_all",
+      "label": "Get Many Activity",
       "method": "GET",
-      "path": "/contactField",
-      "fields": []
+      "path": "/activities",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Activity",
+      "description": "Retrieve many activities"
     },
     {
-      "id": "contact_tag_default",
-      "label": "List ContactTag",
-      "method": "GET",
-      "path": "/contactTag",
-      "fields": []
+      "id": "activity_update",
+      "label": "Update Activity",
+      "method": "PUT",
+      "path": "/activities/{activityId}",
+      "fields": [
+        {
+          "id": "activityId",
+          "label": "Activity ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the activity to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: activity_type_id, contacts, description, happened_at, summary)"
+        }
+      ],
+      "group": "Activity",
+      "description": "Update an activity"
     },
     {
-      "id": "conversation_default",
-      "label": "List Conversation",
-      "method": "GET",
-      "path": "/conversation",
-      "fields": []
+      "id": "call_create",
+      "label": "Create Call",
+      "method": "POST",
+      "path": "/calls",
+      "fields": [
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the contact to associate the call with"
+        },
+        {
+          "id": "calledAt",
+          "label": "Called At",
+          "type": "text",
+          "required": true,
+          "placeholder": "2024-01-01T00:00:00Z",
+          "description": "Date when the call happened (ISO 8601 date-time)"
+        },
+        {
+          "id": "content",
+          "label": "Description",
+          "type": "text",
+          "required": true,
+          "description": "Description of the call - max 100,000 characters"
+        }
+      ],
+      "group": "Call",
+      "description": "Create a call"
     },
     {
-      "id": "conversation_message_default",
-      "label": "List ConversationMessage",
-      "method": "GET",
-      "path": "/conversationMessage",
-      "fields": []
+      "id": "call_delete",
+      "label": "Delete Call",
+      "method": "DELETE",
+      "path": "/calls/{callId}",
+      "fields": [
+        {
+          "id": "callId",
+          "label": "Call ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the call to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Call",
+      "description": "Delete a call"
     },
     {
-      "id": "journal_entry_default",
-      "label": "List JournalEntry",
+      "id": "call_get",
+      "label": "Get Call",
       "method": "GET",
-      "path": "/journalEntry",
-      "fields": []
+      "path": "/calls/{callId}",
+      "fields": [
+        {
+          "id": "callId",
+          "label": "Call ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the call to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Call",
+      "description": "Retrieve a call"
     },
     {
-      "id": "note_default",
-      "label": "List Note",
+      "id": "call_get_all",
+      "label": "Get Many Call",
       "method": "GET",
-      "path": "/note",
-      "fields": []
+      "path": "/calls",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Call",
+      "description": "Retrieve many calls"
     },
     {
-      "id": "reminder_default",
-      "label": "List Reminder",
-      "method": "GET",
-      "path": "/reminder",
-      "fields": []
+      "id": "call_update",
+      "label": "Update Call",
+      "method": "PUT",
+      "path": "/calls/{callId}",
+      "fields": [
+        {
+          "id": "callId",
+          "label": "Call ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the call to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: calledAt, contactId, content)"
+        }
+      ],
+      "group": "Call",
+      "description": "Update a call"
     },
     {
-      "id": "tag_default",
-      "label": "List Tag",
-      "method": "GET",
-      "path": "/tag",
-      "fields": []
+      "id": "contact_create",
+      "label": "Create Contact",
+      "method": "POST",
+      "path": "/contacts",
+      "fields": [
+        {
+          "id": "firstName",
+          "label": "First Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "genderId",
+          "label": "Gender Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: birthdate, deceasedDate, isDeceased, last_name, nickname, is_partial)"
+        }
+      ],
+      "group": "Contact",
+      "description": "Create a contact"
     },
     {
-      "id": "task_default",
-      "label": "List Task",
+      "id": "contact_delete",
+      "label": "Delete Contact",
+      "method": "DELETE",
+      "path": "/contacts/{contactId}",
+      "fields": [
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the contact to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Contact",
+      "description": "Delete a contact"
+    },
+    {
+      "id": "contact_get",
+      "label": "Get Contact",
       "method": "GET",
-      "path": "/task",
-      "fields": []
+      "path": "/contacts/{contactId}",
+      "fields": [
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the contact to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Contact",
+      "description": "Retrieve a contact"
+    },
+    {
+      "id": "contact_get_all",
+      "label": "Get Many Contact",
+      "method": "GET",
+      "path": "/contacts",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: query, sort)"
+        }
+      ],
+      "group": "Contact",
+      "description": "Retrieve many contacts"
+    },
+    {
+      "id": "contact_update",
+      "label": "Update Contact",
+      "method": "PUT",
+      "path": "/contacts/{contactId}",
+      "fields": [
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the contact to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: birthdate, deceased_date, first_name, gender_id, is_deceased, last_name, nickname, is_partial)"
+        }
+      ],
+      "group": "Contact",
+      "description": "Update a contact"
+    },
+    {
+      "id": "contact_field_create",
+      "label": "Create Contact Field",
+      "method": "POST",
+      "path": "/contactfields",
+      "fields": [
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the contact to associate the contact field with"
+        },
+        {
+          "id": "contactFieldTypeId",
+          "label": "Contact Field Type Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "data",
+          "label": "Content",
+          "type": "text",
+          "required": true,
+          "description": "Content of the contact field - max 255 characters"
+        }
+      ],
+      "group": "Contact Field",
+      "description": "Create a contact field"
+    },
+    {
+      "id": "contact_field_delete",
+      "label": "Delete Contact Field",
+      "method": "DELETE",
+      "path": "/contactfields/{contactFieldId}",
+      "fields": [
+        {
+          "id": "contactFieldId",
+          "label": "Contact Field ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the contactField to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Contact Field",
+      "description": "Delete a contact field"
+    },
+    {
+      "id": "contact_field_get",
+      "label": "Get Contact Field",
+      "method": "GET",
+      "path": "/contactfields/{contactFieldId}",
+      "fields": [
+        {
+          "id": "contactFieldId",
+          "label": "Contact Field ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the contact field to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Contact Field",
+      "description": "Retrieve a contact field"
+    },
+    {
+      "id": "contact_field_update",
+      "label": "Update Contact Field",
+      "method": "PUT",
+      "path": "/contactfields/{contactFieldId}",
+      "fields": [
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the contact to associate the contact field with"
+        },
+        {
+          "id": "contactFieldId",
+          "label": "Contact Field ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the contact field to update",
+          "in": "path"
+        },
+        {
+          "id": "contactFieldTypeId",
+          "label": "Contact Field Type Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "data",
+          "label": "Content",
+          "type": "text",
+          "required": true,
+          "description": "Content of the contact field - max 255 characters"
+        }
+      ],
+      "group": "Contact Field",
+      "description": "Update a contact field"
+    },
+    {
+      "id": "contact_tag_add",
+      "label": "Add Contact Tag",
+      "method": "POST",
+      "path": "/contacts/{contactId}/setTags",
+      "fields": [
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the contact to add a tag to",
+          "in": "path"
+        },
+        {
+          "id": "tagsToAdd",
+          "label": "Tag Names or IDs",
+          "type": "select",
+          "required": true,
+          "description": "Tags to add to the contact. Choose from the list, or specify IDs using an expression. (multiple values: comma-separated)"
+        }
+      ],
+      "group": "Contact Tag",
+      "description": "Add a tag to a contact"
+    },
+    {
+      "id": "contact_tag_remove",
+      "label": "Remove Contact Tag",
+      "method": "POST",
+      "path": "/contacts/{contactId}/unsetTag",
+      "fields": [
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the contact to remove the tag from",
+          "in": "path"
+        },
+        {
+          "id": "tagsToRemove",
+          "label": "Tag Names or IDs",
+          "type": "select",
+          "required": true,
+          "description": "Tags to remove from the contact. Choose from the list, or specify IDs using an expression. (multiple values: comma-separated)"
+        }
+      ],
+      "group": "Contact Tag",
+      "description": "Remove a tag from a contact"
+    },
+    {
+      "id": "conversation_create",
+      "label": "Create Conversation",
+      "method": "POST",
+      "path": "/conversations",
+      "fields": [
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the contact to associate the conversation with"
+        },
+        {
+          "id": "contactFieldTypeId",
+          "label": "Contact Field Type Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "happenedAt",
+          "label": "Happened At",
+          "type": "text",
+          "required": true,
+          "placeholder": "2024-01-01T00:00:00Z",
+          "description": "Date when the conversation happened (ISO 8601 date-time)"
+        }
+      ],
+      "group": "Conversation",
+      "description": "Create a conversation"
+    },
+    {
+      "id": "conversation_delete",
+      "label": "Delete Conversation",
+      "method": "DELETE",
+      "path": "/conversations/{conversationId}",
+      "fields": [
+        {
+          "id": "conversationId",
+          "label": "Conversation ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the conversation to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Conversation",
+      "description": "Delete a conversation"
+    },
+    {
+      "id": "conversation_get",
+      "label": "Get Conversation",
+      "method": "GET",
+      "path": "/conversations/{conversationId}",
+      "fields": [
+        {
+          "id": "conversationId",
+          "label": "Conversation ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the conversation to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Conversation",
+      "description": "Retrieve a conversation"
+    },
+    {
+      "id": "conversation_update",
+      "label": "Update Conversation",
+      "method": "PUT",
+      "path": "/conversations/{conversationId}",
+      "fields": [
+        {
+          "id": "conversationId",
+          "label": "Conversation ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the conversation to update",
+          "in": "path"
+        },
+        {
+          "id": "contactFieldTypeId",
+          "label": "Contact Field Type Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "happenedAt",
+          "label": "Happened At",
+          "type": "text",
+          "required": true,
+          "placeholder": "2024-01-01T00:00:00Z",
+          "description": "Date when the conversation happened (ISO 8601 date-time)"
+        }
+      ],
+      "group": "Conversation",
+      "description": "Update a conversation"
+    },
+    {
+      "id": "conversation_message_add",
+      "label": "Add Conversation Message",
+      "method": "POST",
+      "path": "/conversations/{conversationId}/messages",
+      "fields": [
+        {
+          "id": "conversationId",
+          "label": "Conversation ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the contact whose conversation",
+          "in": "path"
+        },
+        {
+          "id": "content",
+          "label": "Content",
+          "type": "text",
+          "required": true,
+          "description": "Content of the message"
+        },
+        {
+          "id": "writtenAt",
+          "label": "Written At",
+          "type": "text",
+          "required": true,
+          "placeholder": "2024-01-01T00:00:00Z",
+          "description": "Date when the message was written (ISO 8601 date-time)"
+        },
+        {
+          "id": "writtenByMe",
+          "label": "Written By",
+          "type": "text",
+          "required": true,
+          "description": "Author of the message",
+          "defaultValue": true
+        }
+      ],
+      "group": "Conversation Message",
+      "description": "Add a message to a conversation"
+    },
+    {
+      "id": "conversation_message_update",
+      "label": "Update Conversation Message",
+      "method": "PUT",
+      "path": "/conversations/{conversationId}/messages/{messageId}",
+      "fields": [
+        {
+          "id": "messageId",
+          "label": "Message ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the message to update",
+          "in": "path"
+        },
+        {
+          "id": "conversationId",
+          "label": "Conversation ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the conversation whose message to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: contact_id, content, written_at, written_by_me)"
+        }
+      ],
+      "group": "Conversation Message",
+      "description": "Update a message in a conversation"
+    },
+    {
+      "id": "journal_entry_create",
+      "label": "Create Journal Entry",
+      "method": "POST",
+      "path": "/journal",
+      "fields": [
+        {
+          "id": "title",
+          "label": "Title",
+          "type": "text",
+          "required": true,
+          "description": "Title of the journal entry - max 250 characters"
+        },
+        {
+          "id": "post",
+          "label": "Content",
+          "type": "text",
+          "required": true,
+          "description": "Content of the journal entry - max 100,000 characters"
+        }
+      ],
+      "group": "Journal Entry",
+      "description": "Create a journal entry"
+    },
+    {
+      "id": "journal_entry_delete",
+      "label": "Delete Journal Entry",
+      "method": "DELETE",
+      "path": "/journal/{journalId}",
+      "fields": [
+        {
+          "id": "journalId",
+          "label": "Journal Entry ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the journal entry to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Journal Entry",
+      "description": "Delete a journal entry"
+    },
+    {
+      "id": "journal_entry_get",
+      "label": "Get Journal Entry",
+      "method": "GET",
+      "path": "/journal/{journalId}",
+      "fields": [
+        {
+          "id": "journalId",
+          "label": "Journal Entry ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the journal entry to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Journal Entry",
+      "description": "Retrieve a journal entry"
+    },
+    {
+      "id": "journal_entry_get_all",
+      "label": "Get Many Journal Entry",
+      "method": "GET",
+      "path": "/journal",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Journal Entry",
+      "description": "Retrieve many journal entries"
+    },
+    {
+      "id": "journal_entry_update",
+      "label": "Update Journal Entry",
+      "method": "PUT",
+      "path": "/journal/{journalId}",
+      "fields": [
+        {
+          "id": "journalId",
+          "label": "Journal Entry ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the journal entry to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: post, title)"
+        }
+      ],
+      "group": "Journal Entry",
+      "description": "Update a journal entry"
+    },
+    {
+      "id": "note_create",
+      "label": "Create Note",
+      "method": "POST",
+      "path": "/notes",
+      "fields": [
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the contact to associate the note with"
+        },
+        {
+          "id": "body",
+          "label": "Body",
+          "type": "text",
+          "required": true,
+          "description": "Body of the note - max 100,000 characters"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: isFavorited)"
+        }
+      ],
+      "group": "Note",
+      "description": "Create a note"
+    },
+    {
+      "id": "note_delete",
+      "label": "Delete Note",
+      "method": "DELETE",
+      "path": "/notes/{noteId}",
+      "fields": [
+        {
+          "id": "noteId",
+          "label": "Note ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the note to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Note",
+      "description": "Delete a note"
+    },
+    {
+      "id": "note_get",
+      "label": "Get Note",
+      "method": "GET",
+      "path": "/notes/{noteId}",
+      "fields": [
+        {
+          "id": "noteId",
+          "label": "Note ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the note to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Note",
+      "description": "Retrieve a note"
+    },
+    {
+      "id": "note_get_all",
+      "label": "Get Many Note",
+      "method": "GET",
+      "path": "/notes",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Note",
+      "description": "Retrieve many notes"
+    },
+    {
+      "id": "note_update",
+      "label": "Update Note",
+      "method": "PUT",
+      "path": "/notes/{noteId}",
+      "fields": [
+        {
+          "id": "noteId",
+          "label": "Note ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the note to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: body, contact_id, is_favorited)"
+        }
+      ],
+      "group": "Note",
+      "description": "Update a note"
+    },
+    {
+      "id": "reminder_create",
+      "label": "Create Reminder",
+      "method": "POST",
+      "path": "/reminders",
+      "fields": [
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "description": "ID of the contact to associate the reminder with"
+        },
+        {
+          "id": "frequencyType",
+          "label": "Frequency Type",
+          "type": "select",
+          "required": true,
+          "description": "Type of frequency of the reminder",
+          "defaultValue": "one_time",
+          "options": [
+            {
+              "value": "one_time",
+              "label": "Once"
+            },
+            {
+              "value": "week",
+              "label": "Weekly"
+            },
+            {
+              "value": "month",
+              "label": "Monthly"
+            },
+            {
+              "value": "year",
+              "label": "Yearly"
+            }
+          ]
+        },
+        {
+          "id": "frequencyNumber",
+          "label": "Recurring Interval",
+          "type": "number",
+          "description": "Interval for the reminder",
+          "defaultValue": 0
+        },
+        {
+          "id": "initialDate",
+          "label": "Initial Date",
+          "type": "text",
+          "required": true,
+          "placeholder": "2024-01-01T00:00:00Z",
+          "description": "Date of the reminder (ISO 8601 date-time)"
+        },
+        {
+          "id": "title",
+          "label": "Title",
+          "type": "text",
+          "required": true,
+          "description": "Title of the reminder - max 100,000 characters"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: description)"
+        }
+      ],
+      "group": "Reminder",
+      "description": "Create a reminder"
+    },
+    {
+      "id": "reminder_delete",
+      "label": "Delete Reminder",
+      "method": "DELETE",
+      "path": "/reminders/{reminderId}",
+      "fields": [
+        {
+          "id": "reminderId",
+          "label": "Reminder ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the reminder to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Reminder",
+      "description": "Delete a reminder"
+    },
+    {
+      "id": "reminder_get",
+      "label": "Get Reminder",
+      "method": "GET",
+      "path": "/reminders/{reminderId}",
+      "fields": [
+        {
+          "id": "reminderId",
+          "label": "Reminder ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the reminder to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Reminder",
+      "description": "Retrieve a reminder"
+    },
+    {
+      "id": "reminder_get_all",
+      "label": "Get Many Reminder",
+      "method": "GET",
+      "path": "/reminders",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Reminder",
+      "description": "Retrieve many reminders"
+    },
+    {
+      "id": "reminder_update",
+      "label": "Update Reminder",
+      "method": "PUT",
+      "path": "/reminders/{reminderId}",
+      "fields": [
+        {
+          "id": "reminderId",
+          "label": "Reminder ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the reminder to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: contact_id, description, frequency_type, initial_data, frequency_number, title)"
+        }
+      ],
+      "group": "Reminder",
+      "description": "Update a reminder"
+    },
+    {
+      "id": "tag_create",
+      "label": "Create Tag",
+      "method": "POST",
+      "path": "/tags",
+      "fields": [
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "Name of the tag - max 250 characters"
+        }
+      ],
+      "group": "Tag",
+      "description": "Create a tag"
+    },
+    {
+      "id": "tag_delete",
+      "label": "Delete Tag",
+      "method": "DELETE",
+      "path": "/tags/{tagId}",
+      "fields": [
+        {
+          "id": "tagId",
+          "label": "Tag ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the tag to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Tag",
+      "description": "Delete a tag"
+    },
+    {
+      "id": "tag_get",
+      "label": "Get Tag",
+      "method": "GET",
+      "path": "/tags/{tagId}",
+      "fields": [
+        {
+          "id": "tagId",
+          "label": "Tag ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the tag to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Tag",
+      "description": "Retrieve a tag"
+    },
+    {
+      "id": "tag_get_all",
+      "label": "Get Many Tag",
+      "method": "GET",
+      "path": "/tags",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Tag",
+      "description": "Retrieve many tags"
+    },
+    {
+      "id": "tag_update",
+      "label": "Update Tag",
+      "method": "PUT",
+      "path": "/tags/{tagId}",
+      "fields": [
+        {
+          "id": "tagId",
+          "label": "Tag ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the tag to update",
+          "in": "path"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "Name of the tag - max 250 characters"
+        }
+      ],
+      "group": "Tag",
+      "description": "Update a tag"
+    },
+    {
+      "id": "task_create",
+      "label": "Create Task",
+      "method": "POST",
+      "path": "/tasks",
+      "fields": [
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the contact to associate the task with"
+        },
+        {
+          "id": "title",
+          "label": "Title",
+          "type": "text",
+          "required": true,
+          "description": "Title of the task entry - max 250 characters"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: description)"
+        }
+      ],
+      "group": "Task",
+      "description": "Create a task"
+    },
+    {
+      "id": "task_delete",
+      "label": "Delete Task",
+      "method": "DELETE",
+      "path": "/tasks/{taskId}",
+      "fields": [
+        {
+          "id": "taskId",
+          "label": "Task ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the task to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Task",
+      "description": "Delete a task"
+    },
+    {
+      "id": "task_get",
+      "label": "Get Task",
+      "method": "GET",
+      "path": "/tasks/{taskId}",
+      "fields": [
+        {
+          "id": "taskId",
+          "label": "Task ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the task to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Task",
+      "description": "Retrieve a task"
+    },
+    {
+      "id": "task_get_all",
+      "label": "Get Many Task",
+      "method": "GET",
+      "path": "/tasks",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Task",
+      "description": "Retrieve many tasks"
+    },
+    {
+      "id": "task_update",
+      "label": "Update Task",
+      "method": "PUT",
+      "path": "/tasks/{taskId}",
+      "fields": [
+        {
+          "id": "taskId",
+          "label": "Task ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the task to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: contactId, completed, description, title)"
+        }
+      ],
+      "group": "Task",
+      "description": "Update a task"
     }
   ]
 }

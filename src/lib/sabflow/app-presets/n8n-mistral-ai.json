@@ -4,21 +4,23 @@
   "description": "Consume Mistral AI API",
   "category": "ai",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.mistral.ai",
   "endpoints": [
     {
-      "id": "document_default",
-      "label": "List Document",
-      "method": "GET",
-      "path": "/document",
-      "fields": []
+      "id": "document_extract_text",
+      "label": "Extract Text Document",
+      "method": "POST",
+      "path": "/v1/files",
+      "fields": [],
+      "group": "Document",
+      "description": "Extract text from document using OCR"
     }
   ]
 }

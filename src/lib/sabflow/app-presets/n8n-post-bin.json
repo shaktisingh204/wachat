@@ -4,8 +4,8 @@
   "description": "Consume PostBin API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "none"
@@ -13,18 +13,114 @@
   "baseUrl": "https://www.postb.in",
   "endpoints": [
     {
-      "id": "bin_default",
-      "label": "List Bin",
-      "method": "GET",
-      "path": "/bin",
-      "fields": []
+      "id": "bin_create",
+      "label": "Create Bin",
+      "method": "POST",
+      "path": "/api/bin",
+      "fields": [],
+      "group": "Bin",
+      "description": "Create bin"
     },
     {
-      "id": "request_default",
-      "label": "List Request",
+      "id": "bin_get",
+      "label": "Get Bin",
       "method": "GET",
+      "path": "/bin",
+      "fields": [
+        {
+          "id": "binId",
+          "label": "Bin ID",
+          "type": "text",
+          "required": true,
+          "description": "Unique identifier for each bin"
+        }
+      ],
+      "group": "Bin",
+      "description": "[unverified path] Get a bin"
+    },
+    {
+      "id": "bin_delete",
+      "label": "Delete Bin",
+      "method": "DELETE",
+      "path": "/bin",
+      "fields": [
+        {
+          "id": "binId",
+          "label": "Bin ID",
+          "type": "text",
+          "required": true,
+          "description": "Unique identifier for each bin"
+        }
+      ],
+      "group": "Bin",
+      "description": "[unverified path] Delete a bin"
+    },
+    {
+      "id": "request_get",
+      "label": "Get Request",
+      "method": "GET",
+      "path": "/api/bin/{{{binId}}}/req/{{{requestId}}}",
+      "fields": [
+        {
+          "id": "binId",
+          "label": "Bin ID",
+          "type": "text",
+          "required": true,
+          "description": "Unique identifier for each bin",
+          "in": "path"
+        },
+        {
+          "id": "requestId",
+          "label": "Request ID",
+          "type": "text",
+          "required": true,
+          "description": "Unique identifier for each request",
+          "in": "path"
+        }
+      ],
+      "group": "Request",
+      "description": "[unverified path] Get a request"
+    },
+    {
+      "id": "request_remove_first",
+      "label": "Remove First Request",
+      "method": "GET",
+      "path": "/api/bin/{{{binId}}}/req/shift",
+      "fields": [
+        {
+          "id": "binId",
+          "label": "Bin ID",
+          "type": "text",
+          "required": true,
+          "description": "Unique identifier for each bin",
+          "in": "path"
+        }
+      ],
+      "group": "Request",
+      "description": "[unverified path] Remove the first request from bin"
+    },
+    {
+      "id": "request_send",
+      "label": "Send Request",
+      "method": "POST",
       "path": "/request",
-      "fields": []
+      "fields": [
+        {
+          "id": "binId",
+          "label": "Bin ID",
+          "type": "text",
+          "required": true,
+          "description": "Unique identifier for each bin"
+        },
+        {
+          "id": "content",
+          "label": "Bin Content",
+          "type": "textarea",
+          "in": "body"
+        }
+      ],
+      "group": "Request",
+      "description": "[unverified path] Send a test request to the bin"
     }
   ]
 }

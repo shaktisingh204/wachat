@@ -4,21 +4,45 @@
   "description": "Translate data using DeepL",
   "category": "ai",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 10,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.deepl.com/v2",
   "endpoints": [
     {
       "id": "language_translate",
       "label": "Translate Language",
-      "method": "GET",
-      "path": "/",
-      "fields": []
+      "method": "POST",
+      "path": "/translate",
+      "fields": [
+        {
+          "id": "text",
+          "label": "Text",
+          "type": "text",
+          "required": true,
+          "description": "Input text to translate"
+        },
+        {
+          "id": "translateTo",
+          "label": "Target Language Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Language to translate to. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: sourceLang, splitSentences, preserveFormatting, formality)"
+        }
+      ],
+      "group": "Language",
+      "description": "Translate data"
     }
   ]
 }

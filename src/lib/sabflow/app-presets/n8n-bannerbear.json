@@ -4,28 +4,90 @@
   "description": "Consume Bannerbear API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.bannerbear.com/v2",
   "endpoints": [
     {
-      "id": "image_default",
-      "label": "List Image",
-      "method": "GET",
-      "path": "/image",
-      "fields": []
+      "id": "image_create",
+      "label": "Create Image",
+      "method": "POST",
+      "path": "/images",
+      "fields": [
+        {
+          "id": "templateId",
+          "label": "Template Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The template ID you want to use. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: metadata, waitForImage, waitForImageMaxTries, webhookUrl)"
+        },
+        {
+          "id": "modificationsUi",
+          "label": "Modifications",
+          "type": "json",
+          "placeholder": "Add Modification",
+          "description": "(JSON object; supported keys: modificationsValues, modificationsValues.name, modificationsValues.text, modificationsValues.color, modificationsValues.background, modificationsValues.imageUrl)"
+        }
+      ],
+      "group": "Image",
+      "description": "Create an image"
     },
     {
-      "id": "template_default",
-      "label": "List Template",
+      "id": "image_get",
+      "label": "Get Image",
       "method": "GET",
-      "path": "/template",
-      "fields": []
+      "path": "/images/{imageId}",
+      "fields": [
+        {
+          "id": "imageId",
+          "label": "Image ID",
+          "type": "text",
+          "required": true,
+          "description": "Unique identifier for the image",
+          "in": "path"
+        }
+      ],
+      "group": "Image",
+      "description": "Get an image"
+    },
+    {
+      "id": "template_get",
+      "label": "Get Template",
+      "method": "GET",
+      "path": "/templates/{templateId}",
+      "fields": [
+        {
+          "id": "templateId",
+          "label": "Template ID",
+          "type": "text",
+          "required": true,
+          "description": "Unique identifier for the template",
+          "in": "path"
+        }
+      ],
+      "group": "Template",
+      "description": "Get a template"
+    },
+    {
+      "id": "template_get_all",
+      "label": "Get Many Template",
+      "method": "GET",
+      "path": "/templates",
+      "fields": [],
+      "group": "Template",
+      "description": "Get many templates"
     }
   ]
 }

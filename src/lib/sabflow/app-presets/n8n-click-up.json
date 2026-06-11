@@ -4,8 +4,8 @@
   "description": "Consume ClickUp API (Beta)",
   "category": "productivity",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -16,357 +16,1887 @@
       "credentialType": "http_header_auth"
     }
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.clickup.com/api/v2",
   "endpoints": [
     {
-      "id": "checklist_default",
-      "label": "List Checklist",
-      "method": "GET",
-      "path": "/checklist",
+      "id": "checklist_create",
+      "label": "Create Checklist",
+      "method": "POST",
+      "path": "/task/{taskId}/checklist",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
+          "id": "task",
+          "label": "Task ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true
         }
-      ]
+      ],
+      "group": "Checklist",
+      "description": "Create a checklist"
     },
     {
-      "id": "checklist_item_default",
-      "label": "List ChecklistItem",
-      "method": "GET",
-      "path": "/checklistItem",
+      "id": "checklist_delete",
+      "label": "Delete Checklist",
+      "method": "DELETE",
+      "path": "/checklist/{checklistId}",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
+          "id": "checklist",
+          "label": "Checklist ID",
+          "type": "text",
+          "required": true
         }
-      ]
+      ],
+      "group": "Checklist",
+      "description": "Delete a checklist"
     },
     {
-      "id": "comment_default",
-      "label": "List Comment",
-      "method": "GET",
-      "path": "/comment",
+      "id": "checklist_update",
+      "label": "Update Checklist",
+      "method": "PUT",
+      "path": "/checklist/{checklistId}",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
+          "id": "checklist",
+          "label": "Checklist ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: name, position)"
         }
-      ]
+      ],
+      "group": "Checklist",
+      "description": "Update a checklist"
     },
     {
-      "id": "folder_default",
-      "label": "List Folder",
-      "method": "GET",
-      "path": "/folder",
+      "id": "checklist_item_create",
+      "label": "Create Checklist Item",
+      "method": "POST",
+      "path": "/checklist/{checklistId}/checklist_item",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
+          "id": "checklist",
+          "label": "Checklist ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: assignee)"
         }
-      ]
+      ],
+      "group": "Checklist Item",
+      "description": "Create a checklist item"
     },
     {
-      "id": "goal_default",
-      "label": "List Goal",
-      "method": "GET",
-      "path": "/goal",
+      "id": "checklist_item_delete",
+      "label": "Delete Checklist Item",
+      "method": "DELETE",
+      "path": "/checklist/{checklistId}/checklist_item/{checklistItemId}",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
+          "id": "checklist",
+          "label": "Checklist ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "checklistItem",
+          "label": "Checklist Item ID",
+          "type": "text",
+          "required": true
         }
-      ]
+      ],
+      "group": "Checklist Item",
+      "description": "Delete a checklist item"
     },
     {
-      "id": "goal_key_result_default",
-      "label": "List GoalKeyResult",
-      "method": "GET",
-      "path": "/goalKeyResult",
+      "id": "checklist_item_update",
+      "label": "Update Checklist Item",
+      "method": "PUT",
+      "path": "/checklist/{checklistId}/checklist_item/{checklistItemId}",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
+          "id": "checklist",
+          "label": "Checklist ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "checklistItem",
+          "label": "Checklist Item ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: assignee, name, parent, resolved)"
         }
-      ]
+      ],
+      "group": "Checklist Item",
+      "description": "Update a checklist item"
     },
     {
-      "id": "list_default",
-      "label": "List List",
-      "method": "GET",
-      "path": "/list",
+      "id": "comment_create",
+      "label": "Create Comment",
+      "method": "POST",
+      "path": "/{commentOn}/{id}/comment",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
+          "id": "commentOn",
+          "label": "Comment On",
           "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
           "options": [
             {
-              "value": "accessToken",
-              "label": "Access Token"
+              "value": "list",
+              "label": "List"
             },
             {
-              "value": "oAuth2",
-              "label": "OAuth2"
+              "value": "task",
+              "label": "Task"
+            },
+            {
+              "value": "view",
+              "label": "View"
             }
-          ]
+          ],
+          "in": "path"
+        },
+        {
+          "id": "id",
+          "label": "ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "commentText",
+          "label": "Comment Text",
+          "type": "text"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: assignee, notifyAll)"
         }
-      ]
+      ],
+      "group": "Comment",
+      "description": "Create a comment"
     },
     {
-      "id": "space_tag_default",
-      "label": "List SpaceTag",
-      "method": "GET",
-      "path": "/spaceTag",
+      "id": "comment_delete",
+      "label": "Delete Comment",
+      "method": "DELETE",
+      "path": "/comment/{commentId}",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
+          "id": "comment",
+          "label": "Comment ID",
+          "type": "text",
+          "required": true
         }
-      ]
+      ],
+      "group": "Comment",
+      "description": "Delete a comment"
     },
     {
-      "id": "task_default",
-      "label": "List Task",
+      "id": "comment_get_all",
+      "label": "Get Many Comment",
       "method": "GET",
-      "path": "/task",
+      "path": "/{commentsOn}/{id}/comment",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
+          "id": "commentsOn",
+          "label": "Comments On",
           "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
           "options": [
             {
-              "value": "accessToken",
-              "label": "Access Token"
+              "value": "list",
+              "label": "List"
             },
             {
-              "value": "oAuth2",
-              "label": "OAuth2"
+              "value": "task",
+              "label": "Task"
+            },
+            {
+              "value": "view",
+              "label": "View"
             }
-          ]
+          ],
+          "in": "path"
+        },
+        {
+          "id": "id",
+          "label": "ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
         }
-      ]
+      ],
+      "group": "Comment",
+      "description": "Get many comments"
     },
     {
-      "id": "task_dependency_default",
-      "label": "List TaskDependency",
-      "method": "GET",
-      "path": "/taskDependency",
+      "id": "comment_update",
+      "label": "Update Comment",
+      "method": "PUT",
+      "path": "/comment/{commentId}",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
+          "id": "comment",
+          "label": "Comment ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: assignee, commentText, resolved)"
         }
-      ]
+      ],
+      "group": "Comment",
+      "description": "Update a comment"
     },
     {
-      "id": "task_list_default",
-      "label": "List TaskList",
-      "method": "GET",
-      "path": "/taskList",
+      "id": "folder_create",
+      "label": "Create Folder",
+      "method": "POST",
+      "path": "/space/{spaceId}/folder",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
+          "id": "team",
+          "label": "Team Name or ID",
           "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "space",
+          "label": "Space Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true
         }
-      ]
+      ],
+      "group": "Folder",
+      "description": "Create a folder"
     },
     {
-      "id": "task_tag_default",
-      "label": "List TaskTag",
-      "method": "GET",
-      "path": "/taskTag",
+      "id": "folder_delete",
+      "label": "Delete Folder",
+      "method": "DELETE",
+      "path": "/folder/{folderId}",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
+          "id": "team",
+          "label": "Team Name or ID",
           "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "space",
+          "label": "Space Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "folder",
+          "label": "Folder Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
         }
-      ]
+      ],
+      "group": "Folder",
+      "description": "Delete a folder"
     },
     {
-      "id": "time_entry_default",
-      "label": "List TimeEntry",
+      "id": "folder_get",
+      "label": "Get Folder",
       "method": "GET",
-      "path": "/timeEntry",
+      "path": "/folder/{folderId}",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
+          "id": "team",
+          "label": "Team Name or ID",
           "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "space",
+          "label": "Space Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "folder",
+          "label": "Folder Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
         }
-      ]
+      ],
+      "group": "Folder",
+      "description": "Get a folder"
     },
     {
-      "id": "time_entry_tag_default",
-      "label": "List TimeEntryTag",
+      "id": "folder_get_all",
+      "label": "Get Many Folder",
       "method": "GET",
-      "path": "/timeEntryTag",
+      "path": "/space/{spaceId}/folder",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
+          "id": "team",
+          "label": "Team Name or ID",
           "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "space",
+          "label": "Space Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: archived)"
+        }
+      ],
+      "group": "Folder",
+      "description": "Get many folders"
+    },
+    {
+      "id": "folder_update",
+      "label": "Update Folder",
+      "method": "PUT",
+      "path": "/folder/{folderId}",
+      "fields": [
+        {
+          "id": "team",
+          "label": "Team Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "space",
+          "label": "Space Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "folder",
+          "label": "Folder Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: name)"
+        }
+      ],
+      "group": "Folder",
+      "description": "Update a folder"
+    },
+    {
+      "id": "goal_create",
+      "label": "Create Goal",
+      "method": "POST",
+      "path": "/team/{teamId}/goal",
+      "fields": [
+        {
+          "id": "team",
+          "label": "Team Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: color, description, dueDate, multipleOwners, owners)"
+        }
+      ],
+      "group": "Goal",
+      "description": "Create a goal"
+    },
+    {
+      "id": "goal_delete",
+      "label": "Delete Goal",
+      "method": "DELETE",
+      "path": "/goal/{goalId}",
+      "fields": [
+        {
+          "id": "goal",
+          "label": "Goal ID",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "group": "Goal",
+      "description": "Delete a goal"
+    },
+    {
+      "id": "goal_get",
+      "label": "Get Goal",
+      "method": "GET",
+      "path": "/goal/{goalId}",
+      "fields": [
+        {
+          "id": "goal",
+          "label": "Goal ID",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "group": "Goal",
+      "description": "Get a goal"
+    },
+    {
+      "id": "goal_get_all",
+      "label": "Get Many Goal",
+      "method": "GET",
+      "path": "/team/{teamId}/goal",
+      "fields": [
+        {
+          "id": "team",
+          "label": "Team Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Goal",
+      "description": "Get many goals"
+    },
+    {
+      "id": "goal_update",
+      "label": "Update Goal",
+      "method": "PUT",
+      "path": "/goal/{goalId}",
+      "fields": [
+        {
+          "id": "goal",
+          "label": "Goal ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: addOwners, color, description, dueDate, name, removeOwners)"
+        }
+      ],
+      "group": "Goal",
+      "description": "Update a goal"
+    },
+    {
+      "id": "goal_key_result_create",
+      "label": "Create Goal Key Result",
+      "method": "POST",
+      "path": "/goal/{goalId}/key_result",
+      "fields": [
+        {
+          "id": "goal",
+          "label": "Goal ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "type",
+          "label": "Type",
+          "type": "select",
+          "required": true,
           "options": [
             {
-              "value": "accessToken",
-              "label": "Access Token"
+              "value": "automatic",
+              "label": "Automatic"
             },
             {
-              "value": "oAuth2",
-              "label": "OAuth2"
+              "value": "boolean",
+              "label": "Boolean"
+            },
+            {
+              "value": "currency",
+              "label": "Currency"
+            },
+            {
+              "value": "number",
+              "label": "Number"
+            },
+            {
+              "value": "percentage",
+              "label": "Percentage"
             }
           ]
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: listIds, owners, stepsStart, stepsEnd, taskIds, unit)"
         }
-      ]
+      ],
+      "group": "Goal Key Result",
+      "description": "Create a key result"
+    },
+    {
+      "id": "goal_key_result_delete",
+      "label": "Delete Goal Key Result",
+      "method": "DELETE",
+      "path": "/key_result/{keyResultId}",
+      "fields": [
+        {
+          "id": "keyResult",
+          "label": "Key Result ID",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "group": "Goal Key Result",
+      "description": "Delete a key result"
+    },
+    {
+      "id": "goal_key_result_update",
+      "label": "Update Goal Key Result",
+      "method": "PUT",
+      "path": "/key_result/{keyResultId}",
+      "fields": [
+        {
+          "id": "keyResult",
+          "label": "Key Result ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: name, note, stepsCurrent, stepsEnd, stepsStart, unit)"
+        }
+      ],
+      "group": "Goal Key Result",
+      "description": "Update a key result"
+    },
+    {
+      "id": "task_tag_add",
+      "label": "Add Task Tag",
+      "method": "POST",
+      "path": "/task/{taskId}/tag/{name}",
+      "fields": [
+        {
+          "id": "taskId",
+          "label": "Task ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "tagName",
+          "label": "Tag Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: custom_task_ids, team_id)"
+        }
+      ],
+      "group": "Task Tag",
+      "description": "Add a tag to a task"
+    },
+    {
+      "id": "task_tag_remove",
+      "label": "Remove Task Tag",
+      "method": "DELETE",
+      "path": "/task/{taskId}/tag/{name}",
+      "fields": [
+        {
+          "id": "taskId",
+          "label": "Task ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "tagName",
+          "label": "Tag Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: custom_task_ids, team_id)"
+        }
+      ],
+      "group": "Task Tag",
+      "description": "Remove a tag from a task"
+    },
+    {
+      "id": "task_list_add",
+      "label": "Add Task List",
+      "method": "POST",
+      "path": "/list/{listId}/task/{taskId}",
+      "fields": [
+        {
+          "id": "taskId",
+          "label": "Task ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "listId",
+          "label": "List ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Task List",
+      "description": "Add a task to a list"
+    },
+    {
+      "id": "task_list_remove",
+      "label": "Remove Task List",
+      "method": "DELETE",
+      "path": "/list/{listId}/task/{taskId}",
+      "fields": [
+        {
+          "id": "taskId",
+          "label": "Task ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "listId",
+          "label": "List ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Task List",
+      "description": "Remove a task from a list"
+    },
+    {
+      "id": "space_tag_create",
+      "label": "Create Space Tag",
+      "method": "POST",
+      "path": "/space/{spaceId}/tag",
+      "fields": [
+        {
+          "id": "space",
+          "label": "Space ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "foregroundColor",
+          "label": "Foreground Color",
+          "type": "text",
+          "required": true,
+          "defaultValue": "#000000"
+        },
+        {
+          "id": "backgroundColor",
+          "label": "Background Color",
+          "type": "text",
+          "required": true,
+          "defaultValue": "#000000"
+        }
+      ],
+      "group": "Space Tag",
+      "description": "Create a space tag"
+    },
+    {
+      "id": "space_tag_delete",
+      "label": "Delete Space Tag",
+      "method": "DELETE",
+      "path": "/space/{spaceId}/tag/{name}",
+      "fields": [
+        {
+          "id": "space",
+          "label": "Space ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "name",
+          "label": "Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        }
+      ],
+      "group": "Space Tag",
+      "description": "Delete a space tag"
+    },
+    {
+      "id": "space_tag_get_all",
+      "label": "Get Many Space Tag",
+      "method": "GET",
+      "path": "/space/{spaceId}/tag",
+      "fields": [
+        {
+          "id": "space",
+          "label": "Space ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": true
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Space Tag",
+      "description": "Get many space tags"
+    },
+    {
+      "id": "space_tag_update",
+      "label": "Update Space Tag",
+      "method": "PUT",
+      "path": "/space/{spaceId}/tag/{tagName}",
+      "fields": [
+        {
+          "id": "space",
+          "label": "Space ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "name",
+          "label": "Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "newName",
+          "label": "New Name",
+          "type": "text",
+          "required": true,
+          "description": "New name to set for the tag"
+        },
+        {
+          "id": "foregroundColor",
+          "label": "Foreground Color",
+          "type": "text",
+          "required": true,
+          "defaultValue": "#000000"
+        },
+        {
+          "id": "backgroundColor",
+          "label": "Background Color",
+          "type": "text",
+          "required": true,
+          "defaultValue": "#000000"
+        }
+      ],
+      "group": "Space Tag",
+      "description": "Update a space tag"
+    },
+    {
+      "id": "task_create",
+      "label": "Create Task",
+      "method": "POST",
+      "path": "/list/{listId}/task",
+      "fields": [
+        {
+          "id": "team",
+          "label": "Team Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "space",
+          "label": "Space Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "folderless",
+          "label": "Folderless List",
+          "type": "toggle",
+          "required": true,
+          "defaultValue": false
+        },
+        {
+          "id": "folder",
+          "label": "Folder Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "list",
+          "label": "List Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "The first name on the task"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: assignees, customFieldsJson, content, dueDate, dueDateTime, markdownContent, notifyAll, parentId, priority, startDate, startDateTime, status, tags, timeEstimate)"
+        }
+      ],
+      "group": "Task",
+      "description": "Create a task"
+    },
+    {
+      "id": "task_delete",
+      "label": "Delete Task",
+      "method": "DELETE",
+      "path": "/task/{taskId}",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Task ID",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "group": "Task",
+      "description": "Delete a task"
+    },
+    {
+      "id": "task_get",
+      "label": "Get Task",
+      "method": "GET",
+      "path": "/task/{taskId}",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Task ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "includeSubtasks",
+          "label": "Include Subtasks",
+          "type": "toggle",
+          "description": "Whether to also fetch and include subtasks for this task",
+          "defaultValue": false
+        },
+        {
+          "id": "includeMarkdownDescription",
+          "label": "Include Markdown Description",
+          "type": "toggle",
+          "description": "Whether to include the markdown_description field in the response. This is important for preserving links in the description.",
+          "defaultValue": false
+        }
+      ],
+      "group": "Task",
+      "description": "Get a task"
+    },
+    {
+      "id": "task_get_all",
+      "label": "Get Many Task",
+      "method": "GET",
+      "path": "/list/{listId}/task",
+      "fields": [
+        {
+          "id": "team",
+          "label": "Team Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "space",
+          "label": "Space Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "folderless",
+          "label": "Folderless List",
+          "type": "toggle",
+          "required": true,
+          "defaultValue": false
+        },
+        {
+          "id": "folder",
+          "label": "Folder Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "list",
+          "label": "List Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": true
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: archived, assignees, customFieldsUi, dateCreatedGt, dateCreatedLt, dateUpdatedGt, dateUpdatedLt, dueDateGt, dueDateLt, includeClosed, orderBy, statuses, subtasks, tags)"
+        }
+      ],
+      "group": "Task",
+      "description": "Get many tasks"
+    },
+    {
+      "id": "task_member",
+      "label": "Member Task",
+      "method": "POST",
+      "path": "/task/{taskId}/member",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Task ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": true
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Task",
+      "description": "Get task members"
+    },
+    {
+      "id": "task_set_custom_field",
+      "label": "Set Custom Field Task",
+      "method": "POST",
+      "path": "/task/{taskId}/field/{fieldId}",
+      "fields": [
+        {
+          "id": "task",
+          "label": "Task ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the task to add custom field to"
+        },
+        {
+          "id": "field",
+          "label": "Field ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the field to add custom field to"
+        },
+        {
+          "id": "jsonParse",
+          "label": "Value Is JSON",
+          "type": "toggle",
+          "description": "The value is JSON and will be parsed as such. Is needed if for example needed for labels which expects the value to be an array.",
+          "defaultValue": false
+        },
+        {
+          "id": "value",
+          "label": "Value",
+          "type": "text",
+          "required": true,
+          "description": "The value to set on custom field"
+        }
+      ],
+      "group": "Task",
+      "description": "Set a custom field"
+    },
+    {
+      "id": "task_update",
+      "label": "Update Task",
+      "method": "PUT",
+      "path": "/task/{taskId}",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Task ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: addAssignees, content, dueDate, dueDateTime, markdownContent, name, notifyAll, parentId, priority, removeAssignees, status, startDate, startDateTime, timeEstimate)"
+        }
+      ],
+      "group": "Task",
+      "description": "Update a task"
+    },
+    {
+      "id": "task_dependency_create",
+      "label": "Create Task Dependency",
+      "method": "POST",
+      "path": "/task/{taskId}/dependency",
+      "fields": [
+        {
+          "id": "task",
+          "label": "Task ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "dependsOnTask",
+          "label": "Depends On Task ID",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "group": "Task Dependency",
+      "description": "Create a task dependency"
+    },
+    {
+      "id": "task_dependency_delete",
+      "label": "Delete Task Dependency",
+      "method": "DELETE",
+      "path": "/task/{taskId}/dependency",
+      "fields": [
+        {
+          "id": "task",
+          "label": "Task ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "dependsOnTask",
+          "label": "Depends On Task ID",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "group": "Task Dependency",
+      "description": "Delete a task dependency"
+    },
+    {
+      "id": "time_entry_create",
+      "label": "Create Time Entry",
+      "method": "POST",
+      "path": "/team/{teamId}/time_entries",
+      "fields": [
+        {
+          "id": "team",
+          "label": "Team Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "space",
+          "label": "Space Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "folderless",
+          "label": "Folderless List",
+          "type": "toggle",
+          "required": true,
+          "defaultValue": false
+        },
+        {
+          "id": "folder",
+          "label": "Folder Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "list",
+          "label": "List Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "start",
+          "label": "Start",
+          "type": "text",
+          "required": true,
+          "placeholder": "2024-01-01T00:00:00Z",
+          "description": "(ISO 8601 date-time)"
+        },
+        {
+          "id": "duration",
+          "label": "Duration (Minutes)",
+          "type": "number",
+          "required": true,
+          "description": "Duration in minutes",
+          "defaultValue": 0
+        },
+        {
+          "id": "task",
+          "label": "Task Name or ID",
+          "type": "select",
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: assignee, billable, description, tags)"
+        }
+      ],
+      "group": "Time Entry",
+      "description": "Create a time entry"
+    },
+    {
+      "id": "time_entry_delete",
+      "label": "Delete Time Entry",
+      "method": "DELETE",
+      "path": "/team/{teamId}/time_entries/{timeEntryId}",
+      "fields": [
+        {
+          "id": "team",
+          "label": "Team Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "timeEntry",
+          "label": "Time Entry ID",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "group": "Time Entry",
+      "description": "Delete a time entry"
+    },
+    {
+      "id": "time_entry_get",
+      "label": "Get Time Entry",
+      "method": "GET",
+      "path": "/team/{teamId}/time_entries/current",
+      "fields": [
+        {
+          "id": "team",
+          "label": "Team Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "running",
+          "label": "Running",
+          "type": "toggle",
+          "description": "Whether to return just the current running time entry",
+          "defaultValue": false
+        },
+        {
+          "id": "timeEntry",
+          "label": "Time Entry ID",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "group": "Time Entry",
+      "description": "Get a time entry"
+    },
+    {
+      "id": "time_entry_get_all",
+      "label": "Get Many Time Entry",
+      "method": "GET",
+      "path": "/team/{teamId}/time_entries",
+      "fields": [
+        {
+          "id": "team",
+          "label": "Team Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 5
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: end_date, start_date)"
+        }
+      ],
+      "group": "Time Entry",
+      "description": "Get many time entries"
+    },
+    {
+      "id": "time_entry_start",
+      "label": "Start Time Entry",
+      "method": "POST",
+      "path": "/team/{teamId}/time_entries/start",
+      "fields": [
+        {
+          "id": "team",
+          "label": "Team Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "task",
+          "label": "Task ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: billable, description)"
+        }
+      ],
+      "group": "Time Entry",
+      "description": "Start a time entry"
+    },
+    {
+      "id": "time_entry_stop",
+      "label": "Stop Time Entry",
+      "method": "POST",
+      "path": "/team/{teamId}/time_entries/stop",
+      "fields": [
+        {
+          "id": "team",
+          "label": "Team Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        }
+      ],
+      "group": "Time Entry",
+      "description": "Stop the current running timer"
+    },
+    {
+      "id": "time_entry_update",
+      "label": "Update Time Entry",
+      "method": "PUT",
+      "path": "/team/{teamId}/time_entries/{timeEntryId}",
+      "fields": [
+        {
+          "id": "team",
+          "label": "Team Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "space",
+          "label": "Space Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "folderless",
+          "label": "Folderless List",
+          "type": "toggle",
+          "required": true,
+          "defaultValue": false
+        },
+        {
+          "id": "folder",
+          "label": "Folder Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "list",
+          "label": "List Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "archived",
+          "label": "Archived",
+          "type": "toggle",
+          "required": true,
+          "defaultValue": false
+        },
+        {
+          "id": "timeEntry",
+          "label": "Time Entry ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: assignee, billable, description, duration, start, tags, task)"
+        }
+      ],
+      "group": "Time Entry",
+      "description": "Update a time Entry"
+    },
+    {
+      "id": "time_entry_tag_add",
+      "label": "Add Time Entry Tag",
+      "method": "POST",
+      "path": "/team/{teamId}/time_entries/tags",
+      "fields": [
+        {
+          "id": "team",
+          "label": "Team Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "timeEntryIds",
+          "label": "Time Entry IDs",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "tagsUi",
+          "label": "Tags",
+          "type": "json",
+          "placeholder": "Add Tag",
+          "description": "(JSON object; supported keys: tagsValues, tagsValues.name, tagsValues.tag_bg, tagsValues.tag_fg)"
+        }
+      ],
+      "group": "Time Entry Tag",
+      "description": "Add tag to time entry"
+    },
+    {
+      "id": "time_entry_tag_get_all",
+      "label": "Get Many Time Entry Tag",
+      "method": "GET",
+      "path": "/team/{teamId}/time_entries/tags",
+      "fields": [
+        {
+          "id": "team",
+          "label": "Team Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 5
+        }
+      ],
+      "group": "Time Entry Tag",
+      "description": "Get many time entry tags"
+    },
+    {
+      "id": "time_entry_tag_remove",
+      "label": "Remove Time Entry Tag",
+      "method": "DELETE",
+      "path": "/team/{teamId}/time_entries/tags",
+      "fields": [
+        {
+          "id": "team",
+          "label": "Team Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "timeEntryIds",
+          "label": "Time Entry IDs",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "tagNames",
+          "label": "Tag Names or IDs",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify IDs using an expression (multiple values: comma-separated)"
+        }
+      ],
+      "group": "Time Entry Tag",
+      "description": "Remove tag from time entry"
+    },
+    {
+      "id": "list_create",
+      "label": "Create List",
+      "method": "POST",
+      "path": "/space/{spaceId}/list",
+      "fields": [
+        {
+          "id": "team",
+          "label": "Team Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "space",
+          "label": "Space Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "folderless",
+          "label": "Folderless List",
+          "type": "toggle",
+          "required": true,
+          "defaultValue": false
+        },
+        {
+          "id": "folder",
+          "label": "Folder Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: assignee, content, dueDate, dueDateTime, priority, status)"
+        }
+      ],
+      "group": "List",
+      "description": "Create a list"
+    },
+    {
+      "id": "list_custom_fields",
+      "label": "Custom Fields List",
+      "method": "POST",
+      "path": "/list/{listId}/field",
+      "fields": [
+        {
+          "id": "team",
+          "label": "Team Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "space",
+          "label": "Space Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "folderless",
+          "label": "Folderless List",
+          "type": "toggle",
+          "required": true,
+          "defaultValue": false
+        },
+        {
+          "id": "folder",
+          "label": "Folder Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "list",
+          "label": "List Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        }
+      ],
+      "group": "List",
+      "description": "Retrieve list's custom fields"
+    },
+    {
+      "id": "list_delete",
+      "label": "Delete List",
+      "method": "DELETE",
+      "path": "/list/{listId}",
+      "fields": [
+        {
+          "id": "team",
+          "label": "Team Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "space",
+          "label": "Space Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "folderless",
+          "label": "Folderless List",
+          "type": "toggle",
+          "required": true,
+          "defaultValue": false
+        },
+        {
+          "id": "folder",
+          "label": "Folder Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "list",
+          "label": "List ID",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "group": "List",
+      "description": "Delete a list"
+    },
+    {
+      "id": "list_get",
+      "label": "Get List",
+      "method": "GET",
+      "path": "/list/{listId}",
+      "fields": [
+        {
+          "id": "team",
+          "label": "Team Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "space",
+          "label": "Space Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "folderless",
+          "label": "Folderless List",
+          "type": "toggle",
+          "required": true,
+          "defaultValue": false
+        },
+        {
+          "id": "folder",
+          "label": "Folder Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "list",
+          "label": "List ID",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "group": "List",
+      "description": "Get a list"
+    },
+    {
+      "id": "list_get_all",
+      "label": "Get Many List",
+      "method": "GET",
+      "path": "/space/{spaceId}/list",
+      "fields": [
+        {
+          "id": "team",
+          "label": "Team Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "space",
+          "label": "Space Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "folderless",
+          "label": "Folderless List",
+          "type": "toggle",
+          "required": true,
+          "defaultValue": false
+        },
+        {
+          "id": "folder",
+          "label": "Folder Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: archived)"
+        }
+      ],
+      "group": "List",
+      "description": "Get many lists"
+    },
+    {
+      "id": "list_member",
+      "label": "Member List",
+      "method": "POST",
+      "path": "/list/{listId}/member",
+      "fields": [
+        {
+          "id": "id",
+          "label": "List ID",
+          "type": "text",
+          "required": true,
+          "description": "Task ID"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": true
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "List",
+      "description": "Get list members"
+    },
+    {
+      "id": "list_update",
+      "label": "Update List",
+      "method": "PUT",
+      "path": "/list/{listId}",
+      "fields": [
+        {
+          "id": "team",
+          "label": "Team Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "space",
+          "label": "Space Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "folderless",
+          "label": "Folderless List",
+          "type": "toggle",
+          "required": true,
+          "defaultValue": false
+        },
+        {
+          "id": "folder",
+          "label": "Folder Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "list",
+          "label": "List ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: assignee, content, dueDate, dueDateTime, name, priority, unsetStatus)"
+        }
+      ],
+      "group": "List",
+      "description": "Update a list"
     }
   ]
 }

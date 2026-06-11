@@ -4,8 +4,8 @@
   "description": "AI-powered answer engine that provides accurate, trusted, and real-time answers to any question. Supports chat completions, agent responses, web search, and embeddings.",
   "category": "ai",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
@@ -14,11 +14,49 @@
   "baseUrl": "https://api.perplexity.ai",
   "endpoints": [
     {
-      "id": "chat_default",
-      "label": "List Chat",
-      "method": "GET",
-      "path": "/chat",
-      "fields": []
+      "id": "agent_create_response",
+      "label": "Create Response Agent",
+      "method": "POST",
+      "path": "/v1/agent",
+      "fields": [],
+      "group": "Agent",
+      "description": "Create a response using the Agent API with third-party models, presets, and tools"
+    },
+    {
+      "id": "chat_complete",
+      "label": "Message a Model Chat",
+      "method": "POST",
+      "path": "/chat/completions",
+      "fields": [],
+      "group": "Chat",
+      "description": "Create one or more completions for a given text"
+    },
+    {
+      "id": "embedding_create_embedding",
+      "label": "Create Embedding Embedding",
+      "method": "POST",
+      "path": "/v1/embeddings",
+      "fields": [],
+      "group": "Embedding",
+      "description": "Generate vector embeddings for text input"
+    },
+    {
+      "id": "embedding_create_contextualized",
+      "label": "Create Contextualized Embedding Embedding",
+      "method": "POST",
+      "path": "/v1/contextualizedembeddings",
+      "fields": [],
+      "group": "Embedding",
+      "description": "Generate context-aware embeddings for document chunks"
+    },
+    {
+      "id": "search_search",
+      "label": "Search Search",
+      "method": "POST",
+      "path": "/search",
+      "fields": [],
+      "group": "Search",
+      "description": "Get raw, ranked web search results with filtering and content extraction"
     }
   ]
 }

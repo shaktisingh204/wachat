@@ -4,42 +4,547 @@
   "description": "Consume HaloPSA API",
   "category": "support",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 10,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://n8n.io",
   "endpoints": [
     {
-      "id": "client_default",
-      "label": "List Client",
+      "id": "client_create",
+      "label": "Create Client",
+      "method": "POST",
+      "path": "/client",
+      "fields": [
+        {
+          "id": "clientName",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "Enter client name"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: inactive, notes, is_vip, website)"
+        }
+      ],
+      "group": "Client",
+      "description": "Create a client"
+    },
+    {
+      "id": "client_delete",
+      "label": "Delete Client",
+      "method": "DELETE",
+      "path": "/client/{clientId}",
+      "fields": [
+        {
+          "id": "clientId",
+          "label": "Client ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Client",
+      "description": "Delete a client"
+    },
+    {
+      "id": "client_get",
+      "label": "Get Client",
+      "method": "GET",
+      "path": "/client/{clientId}",
+      "fields": [
+        {
+          "id": "clientId",
+          "label": "Client ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "simplify",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        }
+      ],
+      "group": "Client",
+      "description": "Get a client"
+    },
+    {
+      "id": "client_get_all",
+      "label": "Get Many Client",
       "method": "GET",
       "path": "/client",
-      "fields": []
+      "fields": [
+        {
+          "id": "simplify",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: activeStatus, search)"
+        }
+      ],
+      "group": "Client",
+      "description": "Get many clients"
     },
     {
-      "id": "site_default",
-      "label": "List Site",
+      "id": "client_update",
+      "label": "Update Client",
+      "method": "POST",
+      "path": "/client",
+      "fields": [
+        {
+          "id": "clientId",
+          "label": "Client ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: inactive, name, notes, is_vip, website)"
+        }
+      ],
+      "group": "Client",
+      "description": "Update a client"
+    },
+    {
+      "id": "ticket_create",
+      "label": "Create Ticket",
+      "method": "POST",
+      "path": "/tickets",
+      "fields": [
+        {
+          "id": "ticketType",
+          "label": "Ticket Type Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "summary",
+          "label": "Summary",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "details",
+          "label": "Details",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: agent_id, startdate, targetdate)"
+        }
+      ],
+      "group": "Ticket",
+      "description": "Create a ticket"
+    },
+    {
+      "id": "ticket_delete",
+      "label": "Delete Ticket",
+      "method": "DELETE",
+      "path": "/tickets/{ticketId}",
+      "fields": [
+        {
+          "id": "ticketId",
+          "label": "Ticket ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Ticket",
+      "description": "Delete a ticket"
+    },
+    {
+      "id": "ticket_get",
+      "label": "Get Ticket",
+      "method": "GET",
+      "path": "/tickets/{ticketId}",
+      "fields": [
+        {
+          "id": "ticketId",
+          "label": "Ticket ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "simplify",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        }
+      ],
+      "group": "Ticket",
+      "description": "Get a ticket"
+    },
+    {
+      "id": "ticket_get_all",
+      "label": "Get Many Ticket",
+      "method": "GET",
+      "path": "/tickets",
+      "fields": [
+        {
+          "id": "simplify",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: activeStatus, search)"
+        }
+      ],
+      "group": "Ticket",
+      "description": "Get many tickets"
+    },
+    {
+      "id": "ticket_update",
+      "label": "Update Ticket",
+      "method": "POST",
+      "path": "/tickets",
+      "fields": [
+        {
+          "id": "ticketId",
+          "label": "Ticket ID",
+          "type": "text"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: agent_id, details, startdate, summary, targetdate)"
+        }
+      ],
+      "group": "Ticket",
+      "description": "Update a ticket"
+    },
+    {
+      "id": "site_create",
+      "label": "Create Site",
+      "method": "POST",
+      "path": "/site",
+      "fields": [
+        {
+          "id": "siteName",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "Enter site name"
+        },
+        {
+          "id": "selectOption",
+          "label": "Select Client by ID",
+          "type": "toggle",
+          "description": "Whether client can be selected by ID",
+          "defaultValue": false
+        },
+        {
+          "id": "clientId",
+          "label": "Client ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: maincontact_name, notes, phonenumber)"
+        }
+      ],
+      "group": "Site",
+      "description": "Create a site"
+    },
+    {
+      "id": "site_delete",
+      "label": "Delete Site",
+      "method": "DELETE",
+      "path": "/site/{siteId}",
+      "fields": [
+        {
+          "id": "siteId",
+          "label": "Site ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Site",
+      "description": "Delete a site"
+    },
+    {
+      "id": "site_get",
+      "label": "Get Site",
+      "method": "GET",
+      "path": "/site/{siteId}",
+      "fields": [
+        {
+          "id": "siteId",
+          "label": "Site ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "simplify",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        }
+      ],
+      "group": "Site",
+      "description": "Get a site"
+    },
+    {
+      "id": "site_get_all",
+      "label": "Get Many Site",
       "method": "GET",
       "path": "/site",
-      "fields": []
+      "fields": [
+        {
+          "id": "simplify",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: activeStatus, search)"
+        }
+      ],
+      "group": "Site",
+      "description": "Get many sites"
     },
     {
-      "id": "ticket_default",
-      "label": "List Ticket",
-      "method": "GET",
-      "path": "/ticket",
-      "fields": []
+      "id": "site_update",
+      "label": "Update Site",
+      "method": "POST",
+      "path": "/site",
+      "fields": [
+        {
+          "id": "siteId",
+          "label": "Site ID",
+          "type": "text"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: client_id, maincontact_name, name, notes, phonenumber)"
+        }
+      ],
+      "group": "Site",
+      "description": "Update a site"
     },
     {
-      "id": "user_default",
-      "label": "List User",
+      "id": "user_create",
+      "label": "Create User",
+      "method": "POST",
+      "path": "/users",
+      "fields": [
+        {
+          "id": "userName",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "Enter user name"
+        },
+        {
+          "id": "siteId",
+          "label": "Site Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: emailaddress, notes, password, surname, inactive)"
+        }
+      ],
+      "group": "User",
+      "description": "Create a user"
+    },
+    {
+      "id": "user_delete",
+      "label": "Delete User",
+      "method": "DELETE",
+      "path": "/users/{userId}",
+      "fields": [
+        {
+          "id": "userId",
+          "label": "User ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "User",
+      "description": "Delete a user"
+    },
+    {
+      "id": "user_get",
+      "label": "Get User",
       "method": "GET",
-      "path": "/user",
-      "fields": []
+      "path": "/users/{userId}",
+      "fields": [
+        {
+          "id": "userId",
+          "label": "User ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "simplify",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        }
+      ],
+      "group": "User",
+      "description": "Get a user"
+    },
+    {
+      "id": "user_get_all",
+      "label": "Get Many User",
+      "method": "GET",
+      "path": "/users",
+      "fields": [
+        {
+          "id": "simplify",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: activeStatus, search)"
+        }
+      ],
+      "group": "User",
+      "description": "Get many users"
+    },
+    {
+      "id": "user_update",
+      "label": "Update User",
+      "method": "POST",
+      "path": "/users",
+      "fields": [
+        {
+          "id": "userId",
+          "label": "User ID",
+          "type": "text"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: emailaddress, name, notes, password, site_id, surname, inactive)"
+        }
+      ],
+      "group": "User",
+      "description": "Update a user"
     }
   ]
 }

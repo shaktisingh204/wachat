@@ -4,8 +4,8 @@
   "description": "Consume Zoho CRM API",
   "category": "crm",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 9,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -16,77 +16,1518 @@
       "credentialType": "oauth2"
     }
   },
-  "baseUrl": "",
+  "baseUrl": "https://www.zohoapis.com/crm/v2",
   "endpoints": [
     {
-      "id": "account_default",
-      "label": "List Account",
+      "id": "account_create",
+      "label": "Create Account",
+      "method": "POST",
+      "path": "/accounts",
+      "fields": [
+        {
+          "id": "accountName",
+          "label": "Account Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: Account_Number, Account_Site, Account_Type, Annual_Revenue, Billing_Address, Contact_Details, Currency, customFields, Description, Employees, Exchange_Rate, Fax, Industry, Phone, Shipping_Address, Ticker_Symbol, Website)"
+        }
+      ],
+      "group": "Account",
+      "description": "Create an account"
+    },
+    {
+      "id": "account_upsert",
+      "label": "Create or Update Account",
+      "method": "POST",
+      "path": "/accounts/upsert",
+      "fields": [
+        {
+          "id": "accountName",
+          "label": "Account Name",
+          "type": "text",
+          "required": true,
+          "description": "Name of the account. If a record with this account name exists it will be updated, otherwise a new one will be created."
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: Account_Number, Account_Site, Account_Type, Annual_Revenue, Billing_Address, Contact_Details, Currency, customFields, Description, Employees, Exchange_Rate, Fax, Industry, Phone, Shipping_Address, Ticker_Symbol, Website)"
+        }
+      ],
+      "group": "Account",
+      "description": "Create a new record, or update the current one if it already exists (upsert)"
+    },
+    {
+      "id": "account_delete",
+      "label": "Delete Account",
+      "method": "DELETE",
+      "path": "/accounts/{accountId}",
+      "fields": [
+        {
+          "id": "accountId",
+          "label": "Account ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the account to delete. Can be found at the end of the URL.",
+          "in": "path"
+        }
+      ],
+      "group": "Account",
+      "description": "Delete an account"
+    },
+    {
+      "id": "account_get",
+      "label": "Get Account",
+      "method": "GET",
+      "path": "/accounts/{accountId}",
+      "fields": [
+        {
+          "id": "accountId",
+          "label": "Account ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the account to retrieve. Can be found at the end of the URL.",
+          "in": "path"
+        }
+      ],
+      "group": "Account",
+      "description": "Get an account"
+    },
+    {
+      "id": "account_get_all",
+      "label": "Get Many Account",
       "method": "GET",
       "path": "/account",
-      "fields": []
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 5
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: approved, converted, fields, include_child, sort_by, sort_order, territory_id)"
+        }
+      ],
+      "group": "Account",
+      "description": "[unverified path] Get many accounts"
     },
     {
-      "id": "contact_default",
-      "label": "List Contact",
+      "id": "account_update",
+      "label": "Update Account",
+      "method": "PUT",
+      "path": "/accounts/{accountId}",
+      "fields": [
+        {
+          "id": "accountId",
+          "label": "Account ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the account to update. Can be found at the end of the URL.",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: Account_Name, Account_Number, Account_Site, Account_Type, Annual_Revenue, Billing_Address, Contact_Details, Currency, customFields, Description, Employees, Exchange_Rate, Fax, Industry, Phone, Shipping_Address, Ticker_Symbol, Website)"
+        }
+      ],
+      "group": "Account",
+      "description": "Update an account"
+    },
+    {
+      "id": "contact_create",
+      "label": "Create Contact",
+      "method": "POST",
+      "path": "/contacts",
+      "fields": [
+        {
+          "id": "lastName",
+          "label": "Last Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: Assistant, customFields, Date_of_Birth, Department, Description, Email, Secondary_Email, Fax, First_Name, Full_Name, Mailing_Address, Mobile, Other_Address, Phone, Asst_Phone, Home_Phone, Other_Phone, Salutation, Skype_ID, Title, Twitter)"
+        }
+      ],
+      "group": "Contact",
+      "description": "Create a contact"
+    },
+    {
+      "id": "contact_upsert",
+      "label": "Create or Update Contact",
+      "method": "POST",
+      "path": "/contacts/upsert",
+      "fields": [
+        {
+          "id": "lastName",
+          "label": "Last Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: Assistant, customFields, Date_of_Birth, Department, Description, Email, Secondary_Email, Fax, First_Name, Full_Name, Mailing_Address, Mobile, Other_Address, Phone, Asst_Phone, Home_Phone, Other_Phone, Salutation, Skype_ID, Title, Twitter)"
+        }
+      ],
+      "group": "Contact",
+      "description": "Create a new record, or update the current one if it already exists (upsert)"
+    },
+    {
+      "id": "contact_delete",
+      "label": "Delete Contact",
+      "method": "DELETE",
+      "path": "/contacts/{contactId}",
+      "fields": [
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the contact to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Contact",
+      "description": "Delete a contact"
+    },
+    {
+      "id": "contact_get",
+      "label": "Get Contact",
+      "method": "GET",
+      "path": "/contacts/{contactId}",
+      "fields": [
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the contact to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Contact",
+      "description": "Get a contact"
+    },
+    {
+      "id": "contact_get_all",
+      "label": "Get Many Contact",
       "method": "GET",
       "path": "/contact",
-      "fields": []
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 5
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: approved, converted, fields, include_child, sort_by, sort_order, territory_id)"
+        }
+      ],
+      "group": "Contact",
+      "description": "[unverified path] Get many contacts"
     },
     {
-      "id": "deal_default",
-      "label": "List Deal",
+      "id": "contact_update",
+      "label": "Update Contact",
+      "method": "PUT",
+      "path": "/contacts/{contactId}",
+      "fields": [
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the contact to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: Assistant, Asst_Phone, Currency, customFields, Date_of_Birth, Department, Description, Email, Secondary_Email, Fax, First_Name, Full_Name, Home_Phone, Last_Name, Mailing_Address, Mobile, Other_Address, Other_Phone, Phone, Salutation, Skype_ID, Title, Twitter)"
+        }
+      ],
+      "group": "Contact",
+      "description": "Update a contact"
+    },
+    {
+      "id": "deal_create",
+      "label": "Create Deal",
+      "method": "POST",
+      "path": "/deals",
+      "fields": [
+        {
+          "id": "dealName",
+          "label": "Deal Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "stage",
+          "label": "Stage Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: Amount, Closing_Date, Currency, customFields, Description, Lead_Conversion_Time, Next_Step, Overall_Sales_Duration, Probability, Sales_Cycle_Duration)"
+        }
+      ],
+      "group": "Deal",
+      "description": "Create a deal"
+    },
+    {
+      "id": "deal_upsert",
+      "label": "Create or Update Deal",
+      "method": "POST",
+      "path": "/deals/upsert",
+      "fields": [
+        {
+          "id": "dealName",
+          "label": "Deal Name",
+          "type": "text",
+          "required": true,
+          "description": "Name of the deal. If a record with this deal name exists it will be updated, otherwise a new one will be created."
+        },
+        {
+          "id": "stage",
+          "label": "Stage Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: Amount, Closing_Date, Currency, customFields, Description, Lead_Conversion_Time, Next_Step, Overall_Sales_Duration, Probability, Sales_Cycle_Duration)"
+        }
+      ],
+      "group": "Deal",
+      "description": "Create a new record, or update the current one if it already exists (upsert)"
+    },
+    {
+      "id": "deal_delete",
+      "label": "Delete Deal",
+      "method": "DELETE",
+      "path": "/deals/{dealId}",
+      "fields": [
+        {
+          "id": "dealId",
+          "label": "Deal ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the deal to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Deal",
+      "description": "Delete a contact"
+    },
+    {
+      "id": "deal_get",
+      "label": "Get Deal",
+      "method": "GET",
+      "path": "/deals/{dealId}",
+      "fields": [
+        {
+          "id": "dealId",
+          "label": "Deal ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the deal to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Deal",
+      "description": "Get a contact"
+    },
+    {
+      "id": "deal_get_all",
+      "label": "Get Many Deal",
       "method": "GET",
       "path": "/deal",
-      "fields": []
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 5
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: approved, converted, fields, include_child, sort_by, sort_order, territory_id)"
+        }
+      ],
+      "group": "Deal",
+      "description": "[unverified path] Get many contacts"
     },
     {
-      "id": "invoice_default",
-      "label": "List Invoice",
+      "id": "deal_update",
+      "label": "Update Deal",
+      "method": "PUT",
+      "path": "/deals/{dealId}",
+      "fields": [
+        {
+          "id": "dealId",
+          "label": "Deal ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the deal to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: Amount, Closing_Date, Currency, customFields, Deal_Name, Description, Lead_Conversion_Time, Next_Step, Overall_Sales_Duration, Probability, Sales_Cycle_Duration, Stage)"
+        }
+      ],
+      "group": "Deal",
+      "description": "Update a contact"
+    },
+    {
+      "id": "invoice_create",
+      "label": "Create Invoice",
+      "method": "POST",
+      "path": "/invoices",
+      "fields": [
+        {
+          "id": "subject",
+          "label": "Subject",
+          "type": "text",
+          "required": true,
+          "description": "Subject or title of the invoice"
+        },
+        {
+          "id": "Product_Details",
+          "label": "Products",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: list_price, id, product_description, quantity, quantity_in_stock, Tax, total, total_after_discount, net_total, unit_price)"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: accountId, Adjustment, Billing_Address, Currency, customFields, Description, Due_Date, Exchange_Rate, Grand_Total, Invoice_Date, Invoice_Number, Sales_Commission, Shipping_Address, Status, Sub_Total, Tax, Terms_and_Conditions)"
+        }
+      ],
+      "group": "Invoice",
+      "description": "Create an invoice"
+    },
+    {
+      "id": "invoice_upsert",
+      "label": "Create or Update Invoice",
+      "method": "POST",
+      "path": "/invoices/upsert",
+      "fields": [
+        {
+          "id": "subject",
+          "label": "Subject",
+          "type": "text",
+          "required": true,
+          "description": "Subject or title of the invoice. If a record with this subject exists it will be updated, otherwise a new one will be created."
+        },
+        {
+          "id": "Product_Details",
+          "label": "Products",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: list_price, id, product_description, quantity, quantity_in_stock, Tax, total, total_after_discount, net_total, unit_price)"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: accountId, Adjustment, Billing_Address, Currency, customFields, Description, Due_Date, Exchange_Rate, Grand_Total, Invoice_Date, Invoice_Number, Sales_Commission, Shipping_Address, Status, Sub_Total, Tax, Terms_and_Conditions)"
+        }
+      ],
+      "group": "Invoice",
+      "description": "Create a new record, or update the current one if it already exists (upsert)"
+    },
+    {
+      "id": "invoice_delete",
+      "label": "Delete Invoice",
+      "method": "DELETE",
+      "path": "/invoices/{invoiceId}",
+      "fields": [
+        {
+          "id": "invoiceId",
+          "label": "Invoice ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the invoice to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Invoice",
+      "description": "Delete an invoice"
+    },
+    {
+      "id": "invoice_get",
+      "label": "Get Invoice",
+      "method": "GET",
+      "path": "/invoices/{invoiceId}",
+      "fields": [
+        {
+          "id": "invoiceId",
+          "label": "Invoice ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the invoice to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Invoice",
+      "description": "Get an invoice"
+    },
+    {
+      "id": "invoice_get_all",
+      "label": "Get Many Invoice",
       "method": "GET",
       "path": "/invoice",
-      "fields": []
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 5
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: approved, converted, fields, include_child, sort_by, sort_order, territory_id)"
+        }
+      ],
+      "group": "Invoice",
+      "description": "[unverified path] Get many invoices"
     },
     {
-      "id": "lead_default",
-      "label": "List Lead",
+      "id": "invoice_update",
+      "label": "Update Invoice",
+      "method": "PUT",
+      "path": "/invoices/{invoiceId}",
+      "fields": [
+        {
+          "id": "invoiceId",
+          "label": "Invoice ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the invoice to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: accountId, Adjustment, Billing_Address, Currency, customFields, Description, Due_Date, Exchange_Rate, Grand_Total, Invoice_Date, Invoice_Number, Product_Details, Sales_Commission, Shipping_Address, Status, Sub_Total, Subject, Tax, Terms_and_Conditions)"
+        }
+      ],
+      "group": "Invoice",
+      "description": "Update an invoice"
+    },
+    {
+      "id": "lead_create",
+      "label": "Create Lead",
+      "method": "POST",
+      "path": "/leads",
+      "fields": [
+        {
+          "id": "Company",
+          "label": "Company",
+          "type": "text",
+          "required": true,
+          "description": "Company at which the lead works"
+        },
+        {
+          "id": "lastName",
+          "label": "Last Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: Address, Annual_Revenue, Currency, customFields, Description, Designation, Email, Email_Opt_Out, Fax, First_Name, Full_Name, Industry, Industry_Type, Lead_Source, Lead_Status, Mobile, No_of_Employees, Phone, Salutation, Secondary_Email, Skype_ID, Twitter, Website)"
+        }
+      ],
+      "group": "Lead",
+      "description": "Create a lead"
+    },
+    {
+      "id": "lead_upsert",
+      "label": "Create or Update Lead",
+      "method": "POST",
+      "path": "/leads/upsert",
+      "fields": [
+        {
+          "id": "Company",
+          "label": "Company",
+          "type": "text",
+          "required": true,
+          "description": "Company at which the lead works"
+        },
+        {
+          "id": "lastName",
+          "label": "Last Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: Address, Annual_Revenue, Currency, customFields, Description, Designation, Email, Email_Opt_Out, Fax, First_Name, Full_Name, Industry, Industry_Type, Lead_Source, Lead_Status, Mobile, No_of_Employees, Phone, Salutation, Secondary_Email, Skype_ID, Twitter, Website)"
+        }
+      ],
+      "group": "Lead",
+      "description": "Create a new record, or update the current one if it already exists (upsert)"
+    },
+    {
+      "id": "lead_delete",
+      "label": "Delete Lead",
+      "method": "DELETE",
+      "path": "/leads/{leadId}",
+      "fields": [
+        {
+          "id": "leadId",
+          "label": "Lead ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the lead to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Lead",
+      "description": "Delete a lead"
+    },
+    {
+      "id": "lead_get",
+      "label": "Get Lead",
+      "method": "GET",
+      "path": "/leads/{leadId}",
+      "fields": [
+        {
+          "id": "leadId",
+          "label": "Lead ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the lead to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Lead",
+      "description": "Get a lead"
+    },
+    {
+      "id": "lead_get_fields",
+      "label": "Get Fields Lead",
+      "method": "GET",
+      "path": "/settings/fields",
+      "fields": [],
+      "group": "Lead",
+      "description": "Get lead fields"
+    },
+    {
+      "id": "lead_get_all",
+      "label": "Get Many Lead",
       "method": "GET",
       "path": "/lead",
-      "fields": []
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 5
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: approved, converted, fields, include_child, sort_by, sort_order, territory_id)"
+        }
+      ],
+      "group": "Lead",
+      "description": "[unverified path] Get many leads"
     },
     {
-      "id": "product_default",
-      "label": "List Product",
+      "id": "lead_update",
+      "label": "Update Lead",
+      "method": "PUT",
+      "path": "/leads/{leadId}",
+      "fields": [
+        {
+          "id": "leadId",
+          "label": "Lead ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the lead to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: Address, Annual_Revenue, Company, Currency, customFields, Description, Designation, Email, Email_Opt_Out, Fax, First_Name, Full_Name, Industry, Industry_Type, Last_Name, Lead_Source, Lead_Status, Mobile, No_of_Employees, Phone, Salutation, Secondary_Email, Skype_ID, Twitter, Website)"
+        }
+      ],
+      "group": "Lead",
+      "description": "Update a lead"
+    },
+    {
+      "id": "product_create",
+      "label": "Create Product",
+      "method": "POST",
+      "path": "/products",
+      "fields": [
+        {
+          "id": "productName",
+          "label": "Product Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: Commission_Rate, customFields, Description, Manufacturer, Product_Active, Product_Category, Qty_in_Demand, Qty_in_Stock, Taxable, Unit_Price)"
+        }
+      ],
+      "group": "Product",
+      "description": "Create a product"
+    },
+    {
+      "id": "product_upsert",
+      "label": "Create or Update Product",
+      "method": "POST",
+      "path": "/products/upsert",
+      "fields": [
+        {
+          "id": "productName",
+          "label": "Product Name",
+          "type": "text",
+          "required": true,
+          "description": "Name of the product. If a record with this product name exists it will be updated, otherwise a new one will be created."
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: Commission_Rate, customFields, Description, Manufacturer, Product_Active, Product_Category, Qty_in_Demand, Qty_in_Stock, Taxable, Unit_Price)"
+        }
+      ],
+      "group": "Product",
+      "description": "Create a new record, or update the current one if it already exists (upsert)"
+    },
+    {
+      "id": "product_delete",
+      "label": "Delete Product",
+      "method": "DELETE",
+      "path": "/products/{productId}",
+      "fields": [
+        {
+          "id": "productId",
+          "label": "Product ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the product to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Product",
+      "description": "Delete a product"
+    },
+    {
+      "id": "product_get",
+      "label": "Get Product",
+      "method": "GET",
+      "path": "/products/{productId}",
+      "fields": [
+        {
+          "id": "productId",
+          "label": "Product ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the product to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Product",
+      "description": "Get a product"
+    },
+    {
+      "id": "product_get_all",
+      "label": "Get Many Product",
       "method": "GET",
       "path": "/product",
-      "fields": []
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 5
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: approved, converted, fields, include_child, sort_by, sort_order, territory_id)"
+        }
+      ],
+      "group": "Product",
+      "description": "[unverified path] Get many products"
     },
     {
-      "id": "purchase_order_default",
-      "label": "List PurchaseOrder",
+      "id": "product_update",
+      "label": "Update Product",
+      "method": "PUT",
+      "path": "/products/{productId}",
+      "fields": [
+        {
+          "id": "productId",
+          "label": "Product ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the product to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: Commission_Rate, customFields, Description, Manufacturer, Product_Active, Product_Category, Qty_in_Demand, Qty_in_Stock, Taxable, Unit_Price)"
+        }
+      ],
+      "group": "Product",
+      "description": "Update a product"
+    },
+    {
+      "id": "purchase_order_create",
+      "label": "Create Purchase Order",
+      "method": "POST",
+      "path": "/purchase_orders",
+      "fields": [
+        {
+          "id": "subject",
+          "label": "Subject",
+          "type": "text",
+          "required": true,
+          "description": "Subject or title of the purchase order"
+        },
+        {
+          "id": "vendorId",
+          "label": "Vendor Name or ID",
+          "type": "select",
+          "description": "ID of the vendor associated with the purchase order. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "Product_Details",
+          "label": "Products",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: list_price, id, product_description, quantity, quantity_in_stock, Tax, total, total_after_discount, net_total, unit_price)"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: Adjustment, Billing_Address, Carrier, Currency, customFields, Description, Discount, Due_Date, Exchange_Rate, Grand_Total, PO_Date, PO_Number, Sales_Commission, Shipping_Address, Status, Sub_Total, Tax, Terms_and_Conditions, Tracking_Number)"
+        }
+      ],
+      "group": "Purchase Order",
+      "description": "Create a purchase order"
+    },
+    {
+      "id": "purchase_order_upsert",
+      "label": "Create or Update Purchase Order",
+      "method": "POST",
+      "path": "/purchase_orders/upsert",
+      "fields": [
+        {
+          "id": "subject",
+          "label": "Subject",
+          "type": "text",
+          "required": true,
+          "description": "Subject or title of the purchase order. If a record with this subject exists it will be updated, otherwise a new one will be created."
+        },
+        {
+          "id": "vendorId",
+          "label": "Vendor Name or ID",
+          "type": "select",
+          "description": "ID of the vendor associated with the purchase order. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "Product_Details",
+          "label": "Products",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: list_price, id, product_description, quantity, quantity_in_stock, Tax, total, total_after_discount, net_total, unit_price)"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: Adjustment, Billing_Address, Carrier, Currency, customFields, Description, Discount, Due_Date, Exchange_Rate, Grand_Total, PO_Date, PO_Number, Sales_Commission, Shipping_Address, Status, Sub_Total, Tax, Terms_and_Conditions, Tracking_Number)"
+        }
+      ],
+      "group": "Purchase Order",
+      "description": "Create a new record, or update the current one if it already exists (upsert)"
+    },
+    {
+      "id": "purchase_order_delete",
+      "label": "Delete Purchase Order",
+      "method": "DELETE",
+      "path": "/purchase_orders/{purchaseOrderId}",
+      "fields": [
+        {
+          "id": "purchaseOrderId",
+          "label": "Purchase Order ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the purchase order to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Purchase Order",
+      "description": "Delete a purchase order"
+    },
+    {
+      "id": "purchase_order_get",
+      "label": "Get Purchase Order",
       "method": "GET",
-      "path": "/purchaseOrder",
-      "fields": []
+      "path": "/purchase_orders/{purchaseOrderId}",
+      "fields": [
+        {
+          "id": "purchaseOrderId",
+          "label": "Purchase Order ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the purchase order to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Purchase Order",
+      "description": "Get a purchase order"
     },
     {
-      "id": "quote_default",
-      "label": "List Quote",
+      "id": "purchase_order_get_all",
+      "label": "Get Many Purchase Order",
+      "method": "GET",
+      "path": "/purchase-order",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 5
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: approved, converted, fields, include_child, sort_by, sort_order, territory_id)"
+        }
+      ],
+      "group": "Purchase Order",
+      "description": "[unverified path] Get many purchase orders"
+    },
+    {
+      "id": "purchase_order_update",
+      "label": "Update Purchase Order",
+      "method": "PUT",
+      "path": "/purchase_orders/{purchaseOrderId}",
+      "fields": [
+        {
+          "id": "purchaseOrderId",
+          "label": "Purchase Order ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the purchase order to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: Adjustment, Billing_Address, Carrier, Currency, customFields, Description, Discount, Due_Date, Exchange_Rate, Grand_Total, PO_Date, PO_Number, Sales_Commission, Shipping_Address, Status, Sub_Total, Subject, Tax, Terms_and_Conditions, Tracking_Number)"
+        }
+      ],
+      "group": "Purchase Order",
+      "description": "Update a purchase order"
+    },
+    {
+      "id": "quote_create",
+      "label": "Create Quote",
+      "method": "POST",
+      "path": "/quotes",
+      "fields": [
+        {
+          "id": "subject",
+          "label": "Subject",
+          "type": "text",
+          "required": true,
+          "description": "Subject or title of the quote"
+        },
+        {
+          "id": "Product_Details",
+          "label": "Products",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: list_price, id, product_description, quantity, quantity_in_stock, Tax, total, total_after_discount, net_total, unit_price)"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: Adjustment, Billing_Address, Carrier, Currency, customFields, Description, Exchange_Rate, Grand_Total, Quote_Stage, Shipping_Address, Sub_Total, Tax, Team, Terms_and_Conditions, Valid_Till)"
+        }
+      ],
+      "group": "Quote",
+      "description": "Create a quote"
+    },
+    {
+      "id": "quote_upsert",
+      "label": "Create or Update Quote",
+      "method": "POST",
+      "path": "/quotes/upsert",
+      "fields": [
+        {
+          "id": "subject",
+          "label": "Subject",
+          "type": "text",
+          "required": true,
+          "description": "Subject or title of the quote. If a record with this subject exists it will be updated, otherwise a new one will be created."
+        },
+        {
+          "id": "Product_Details",
+          "label": "Products",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: list_price, id, product_description, quantity, quantity_in_stock, Tax, total, total_after_discount, net_total, unit_price)"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: Adjustment, Billing_Address, Carrier, Currency, customFields, Description, Exchange_Rate, Grand_Total, Quote_Stage, Shipping_Address, Sub_Total, Tax, Team, Terms_and_Conditions, Valid_Till)"
+        }
+      ],
+      "group": "Quote",
+      "description": "Create a new record, or update the current one if it already exists (upsert)"
+    },
+    {
+      "id": "quote_delete",
+      "label": "Delete Quote",
+      "method": "DELETE",
+      "path": "/quotes/{quoteId}",
+      "fields": [
+        {
+          "id": "quoteId",
+          "label": "Quote ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the quote to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Quote",
+      "description": "Delete a quote"
+    },
+    {
+      "id": "quote_get",
+      "label": "Get Quote",
+      "method": "GET",
+      "path": "/quotes/{quoteId}",
+      "fields": [
+        {
+          "id": "quoteId",
+          "label": "Quote ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the quote to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Quote",
+      "description": "Get a quote"
+    },
+    {
+      "id": "quote_get_all",
+      "label": "Get Many Quote",
       "method": "GET",
       "path": "/quote",
-      "fields": []
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 5
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: approved, converted, fields, include_child, sort_by, sort_order, territory_id)"
+        }
+      ],
+      "group": "Quote",
+      "description": "[unverified path] Get many quotes"
     },
     {
-      "id": "sales_order_default",
-      "label": "List SalesOrder",
+      "id": "quote_update",
+      "label": "Update Quote",
+      "method": "PUT",
+      "path": "/quotes/{quoteId}",
+      "fields": [
+        {
+          "id": "quoteId",
+          "label": "Quote ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the quote to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: Adjustment, Billing_Address, Carrier, Currency, customFields, Description, Exchange_Rate, Grand_Total, Quote_Stage, Shipping_Address, Sub_Total, Subject, Tax, Team, Terms_and_Conditions, Valid_Till)"
+        }
+      ],
+      "group": "Quote",
+      "description": "Update a quote"
+    },
+    {
+      "id": "sales_order_create",
+      "label": "Create Sales Order",
+      "method": "POST",
+      "path": "/sales_orders",
+      "fields": [
+        {
+          "id": "accountId",
+          "label": "Account Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "subject",
+          "label": "Subject",
+          "type": "text",
+          "required": true,
+          "description": "Subject or title of the sales order"
+        },
+        {
+          "id": "Product_Details",
+          "label": "Products",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: list_price, id, product_description, quantity, quantity_in_stock, Tax, total, total_after_discount, net_total, unit_price)"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: Adjustment, Billing_Address, Carrier, contactId, Currency, customFields, dealId, Description, Discount, Due_Date, Exchange_Rate, Grand_Total, SO_Number, Sales_Commission, Shipping_Address, Status, Sub_Total, Tax, Terms_and_Conditions)"
+        }
+      ],
+      "group": "Sales Order",
+      "description": "Create a sales order"
+    },
+    {
+      "id": "sales_order_upsert",
+      "label": "Create or Update Sales Order",
+      "method": "POST",
+      "path": "/sales_orders/upsert",
+      "fields": [
+        {
+          "id": "accountId",
+          "label": "Account Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "subject",
+          "label": "Subject",
+          "type": "text",
+          "required": true,
+          "description": "Subject or title of the sales order. If a record with this subject exists it will be updated, otherwise a new one will be created."
+        },
+        {
+          "id": "Product_Details",
+          "label": "Products",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: list_price, id, product_description, quantity, quantity_in_stock, Tax, total, total_after_discount, net_total, unit_price)"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: Adjustment, Billing_Address, Carrier, contactId, Currency, customFields, dealId, Description, Discount, Due_Date, Exchange_Rate, Grand_Total, SO_Number, Sales_Commission, Shipping_Address, Status, Sub_Total, Tax, Terms_and_Conditions)"
+        }
+      ],
+      "group": "Sales Order",
+      "description": "Create a new record, or update the current one if it already exists (upsert)"
+    },
+    {
+      "id": "sales_order_delete",
+      "label": "Delete Sales Order",
+      "method": "DELETE",
+      "path": "/sales_orders/{salesOrderId}",
+      "fields": [
+        {
+          "id": "salesOrderId",
+          "label": "Sales Order ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the sales order to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Sales Order",
+      "description": "Delete a sales order"
+    },
+    {
+      "id": "sales_order_get",
+      "label": "Get Sales Order",
       "method": "GET",
-      "path": "/salesOrder",
-      "fields": []
+      "path": "/sales_orders/{salesOrderId}",
+      "fields": [
+        {
+          "id": "salesOrderId",
+          "label": "Sales Order ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the sales order to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Sales Order",
+      "description": "Get a sales order"
     },
     {
-      "id": "vendor_default",
-      "label": "List Vendor",
+      "id": "sales_order_get_all",
+      "label": "Get Many Sales Order",
+      "method": "GET",
+      "path": "/sales-order",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 5
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: approved, converted, fields, include_child, sort_by, sort_order, territory_id)"
+        }
+      ],
+      "group": "Sales Order",
+      "description": "[unverified path] Get many sales orders"
+    },
+    {
+      "id": "sales_order_update",
+      "label": "Update Sales Order",
+      "method": "PUT",
+      "path": "/sales_orders/{salesOrderId}",
+      "fields": [
+        {
+          "id": "salesOrderId",
+          "label": "Sales Order ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the sales order to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: accountId, Adjustment, Billing_Address, Carrier, contactId, Currency, customFields, dealId, Description, Discount, Due_Date, Exchange_Rate, Grand_Total, SO_Number, Sales_Commission, Shipping_Address, Status, Sub_Total, Subject, Tax, Terms_and_Conditions)"
+        }
+      ],
+      "group": "Sales Order",
+      "description": "Update a sales order"
+    },
+    {
+      "id": "vendor_create",
+      "label": "Create Vendor",
+      "method": "POST",
+      "path": "/vendors",
+      "fields": [
+        {
+          "id": "vendorName",
+          "label": "Vendor Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: Address, Category, Currency, customFields, Description, Email, Phone, Website)"
+        }
+      ],
+      "group": "Vendor",
+      "description": "Create a vendor"
+    },
+    {
+      "id": "vendor_upsert",
+      "label": "Create or Update Vendor",
+      "method": "POST",
+      "path": "/vendors/upsert",
+      "fields": [
+        {
+          "id": "vendorName",
+          "label": "Vendor Name",
+          "type": "text",
+          "required": true,
+          "description": "Name of the vendor. If a record with this vendor name exists it will be updated, otherwise a new one will be created."
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: Address, Category, Currency, customFields, Description, Email, Phone, Website)"
+        }
+      ],
+      "group": "Vendor",
+      "description": "Create a new record, or update the current one if it already exists (upsert)"
+    },
+    {
+      "id": "vendor_delete",
+      "label": "Delete Vendor",
+      "method": "DELETE",
+      "path": "/vendors/{vendorId}",
+      "fields": [
+        {
+          "id": "vendorId",
+          "label": "Vendor ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the vendor to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Vendor",
+      "description": "Delete a vendor"
+    },
+    {
+      "id": "vendor_get",
+      "label": "Get Vendor",
+      "method": "GET",
+      "path": "/vendors/{vendorId}",
+      "fields": [
+        {
+          "id": "vendorId",
+          "label": "Vendor ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the vendor to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Vendor",
+      "description": "Get a vendor"
+    },
+    {
+      "id": "vendor_get_all",
+      "label": "Get Many Vendor",
       "method": "GET",
       "path": "/vendor",
-      "fields": []
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 5
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: approved, converted, fields, include_child, sort_by, sort_order, territory_id)"
+        }
+      ],
+      "group": "Vendor",
+      "description": "[unverified path] Get many vendors"
+    },
+    {
+      "id": "vendor_update",
+      "label": "Update Vendor",
+      "method": "PUT",
+      "path": "/vendors/{vendorId}",
+      "fields": [
+        {
+          "id": "vendorId",
+          "label": "Vendor ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the vendor to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: Address, Category, Currency, customFields, Description, Email, Phone, Vendor_Name, Website)"
+        }
+      ],
+      "group": "Vendor",
+      "description": "Update a vendor"
     }
   ]
 }

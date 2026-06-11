@@ -4,28 +4,80 @@
   "description": "Consume Clearbit API",
   "category": "crm",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://company.clearbit.com",
   "endpoints": [
     {
-      "id": "company_default",
-      "label": "List Company",
-      "method": "GET",
-      "path": "/company",
-      "fields": []
+      "id": "company_autocomplete",
+      "label": "Autocomplete Company",
+      "method": "POST",
+      "path": "/autocomplete",
+      "fields": [
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "Name is the partial name of the company"
+        }
+      ],
+      "group": "Company",
+      "description": "Auto-complete company names and retrieve logo and domain"
     },
     {
-      "id": "person_default",
-      "label": "List Person",
-      "method": "GET",
-      "path": "/person",
-      "fields": []
+      "id": "company_enrich",
+      "label": "Enrich Company",
+      "method": "POST",
+      "path": "/company-stream",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "description": "The domain to look up"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: companyName, facebook, linkedin, twitter)"
+        }
+      ],
+      "group": "Company",
+      "description": "Look up person and company data based on an email or domain"
+    },
+    {
+      "id": "person_enrich",
+      "label": "Enrich Person",
+      "method": "POST",
+      "path": "/person-stream",
+      "fields": [
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "required": true,
+          "placeholder": "name@email.com",
+          "description": "The email address to look up"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: company, companyDomain, facebook, familyName, givenName, ipAddress, location, linkedIn, twitter)"
+        }
+      ],
+      "group": "Person",
+      "description": "Look up a person and company data based on an email or domain"
     }
   ]
 }

@@ -4,28 +4,194 @@
   "description": "Interact with Azure Cosmos DB API",
   "category": "dev",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "=https://{{ $credentials.account }}.documents.azure.com/dbs/{{ $credentials.database }}",
+  "baseUrl": "https://{account}.documents.azure.com/dbs",
   "endpoints": [
     {
-      "id": "container_default",
-      "label": "List Container",
-      "method": "GET",
-      "path": "/container",
-      "fields": []
+      "id": "container_create",
+      "label": "Create Container",
+      "method": "POST",
+      "path": "/colls",
+      "fields": [
+        {
+          "id": "account",
+          "label": "Account",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Account of your Azure Cosmos DB account (host token in the API base URL)"
+        }
+      ],
+      "group": "Container",
+      "description": "Create a container"
     },
     {
-      "id": "item_default",
-      "label": "List Item",
+      "id": "container_delete",
+      "label": "Delete Container",
+      "method": "DELETE",
+      "path": "/colls/{{ {container} }}",
+      "fields": [
+        {
+          "id": "account",
+          "label": "Account",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Account of your Azure Cosmos DB account (host token in the API base URL)"
+        }
+      ],
+      "group": "Container",
+      "description": "[unverified path] Delete a container"
+    },
+    {
+      "id": "container_get",
+      "label": "Get Container",
       "method": "GET",
-      "path": "/item",
-      "fields": []
+      "path": "/colls/{{ {container} }}",
+      "fields": [
+        {
+          "id": "account",
+          "label": "Account",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Account of your Azure Cosmos DB account (host token in the API base URL)"
+        }
+      ],
+      "group": "Container",
+      "description": "[unverified path] Retrieve a container"
+    },
+    {
+      "id": "container_get_all",
+      "label": "Get Many Container",
+      "method": "GET",
+      "path": "/colls",
+      "fields": [
+        {
+          "id": "account",
+          "label": "Account",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Account of your Azure Cosmos DB account (host token in the API base URL)"
+        }
+      ],
+      "group": "Container",
+      "description": "Retrieve a list of containers"
+    },
+    {
+      "id": "item_create",
+      "label": "Create Item",
+      "method": "POST",
+      "path": "/colls/{{ {container} }}/docs",
+      "fields": [
+        {
+          "id": "account",
+          "label": "Account",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Account of your Azure Cosmos DB account (host token in the API base URL)"
+        }
+      ],
+      "group": "Item",
+      "description": "[unverified path] Create a new item"
+    },
+    {
+      "id": "item_delete",
+      "label": "Delete Item",
+      "method": "DELETE",
+      "path": "/colls/{{ {container} }}/docs/{{ {item} }}",
+      "fields": [
+        {
+          "id": "account",
+          "label": "Account",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Account of your Azure Cosmos DB account (host token in the API base URL)"
+        }
+      ],
+      "group": "Item",
+      "description": "[unverified path] Delete an existing item"
+    },
+    {
+      "id": "item_get",
+      "label": "Get Item",
+      "method": "GET",
+      "path": "/colls/{{ {container}}}/docs/{{{item}}}",
+      "fields": [
+        {
+          "id": "account",
+          "label": "Account",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Account of your Azure Cosmos DB account (host token in the API base URL)"
+        }
+      ],
+      "group": "Item",
+      "description": "[unverified path] Retrieve an item"
+    },
+    {
+      "id": "item_get_all",
+      "label": "Get Many Item",
+      "method": "GET",
+      "path": "/colls/{{ {container} }}/docs",
+      "fields": [
+        {
+          "id": "account",
+          "label": "Account",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Account of your Azure Cosmos DB account (host token in the API base URL)"
+        }
+      ],
+      "group": "Item",
+      "description": "[unverified path] Retrieve a list of items"
+    },
+    {
+      "id": "item_query",
+      "label": "Execute Query Item",
+      "method": "POST",
+      "path": "/colls/{{ {container} }}/docs",
+      "fields": [
+        {
+          "id": "account",
+          "label": "Account",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Account of your Azure Cosmos DB account (host token in the API base URL)"
+        }
+      ],
+      "group": "Item",
+      "description": "[unverified path] Query items"
+    },
+    {
+      "id": "item_update",
+      "label": "Update Item",
+      "method": "PUT",
+      "path": "/colls/{{ {container} }}/docs/{{ {item} }}",
+      "fields": [
+        {
+          "id": "account",
+          "label": "Account",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Account of your Azure Cosmos DB account (host token in the API base URL)"
+        }
+      ],
+      "group": "Item",
+      "description": "[unverified path] Update an existing item"
     }
   ]
 }

@@ -4,26 +4,25 @@
   "description": "Send SMS and voice messages via Mocean",
   "category": "communication",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://rest.moceanapi.com",
   "endpoints": [
     {
       "id": "sms_send",
-      "label": "Send Sms",
-      "method": "GET",
-      "path": "/",
+      "label": "Send SMS",
+      "method": "POST",
+      "path": "/sms",
       "fields": [
         {
           "id": "from",
           "label": "From",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "Sender Number",
           "description": "Number to which to send the message"
@@ -32,7 +31,6 @@
           "id": "to",
           "label": "To",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "Receipient number",
           "description": "Number from which to send the message"
@@ -41,7 +39,6 @@
           "id": "message",
           "label": "Message",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Message to send"
         },
@@ -49,22 +46,23 @@
           "id": "options",
           "label": "Options",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: dlrUrl)"
         }
-      ]
+      ],
+      "group": "SMS",
+      "description": "[unverified path] Send SMS/Voice message"
     },
     {
       "id": "voice_send",
       "label": "Send Voice",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/voice",
       "fields": [
         {
           "id": "from",
           "label": "From",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "Sender Number",
           "description": "Number to which to send the message"
@@ -73,7 +71,6 @@
           "id": "to",
           "label": "To",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "Receipient number",
           "description": "Number from which to send the message"
@@ -82,7 +79,6 @@
           "id": "language",
           "label": "Language",
           "type": "select",
-          "in": "query",
           "defaultValue": "en-US",
           "options": [
             {
@@ -111,11 +107,12 @@
           "id": "message",
           "label": "Message",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Message to send"
         }
-      ]
+      ],
+      "group": "Voice",
+      "description": "[unverified path] Send SMS/Voice message"
     }
   ]
 }

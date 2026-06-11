@@ -4,8 +4,8 @@
   "description": "Consume HubSpot API",
   "category": "crm",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 13,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -15,6 +15,888 @@
       "type": "none"
     }
   },
-  "baseUrl": "",
-  "endpoints": []
+  "baseUrl": "https://api.hubapi.com",
+  "endpoints": [
+    {
+      "id": "contact_upsert",
+      "label": "Create or Update Contact",
+      "method": "POST",
+      "path": "/contacts/v1/contact/createOrUpdate/email/{email}",
+      "fields": [
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "required": true,
+          "placeholder": "name@email.com",
+          "in": "path"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Contact Properties",
+          "type": "json",
+          "placeholder": "Add Property",
+          "description": "(JSON object; supported keys: annualRevenue, associatedCompanyId, buyingRole, city, clickedFacebookAd, closeDate, companyName, companySize, contactOwner, properties, country, countryRegionCode, customPropertiesUi, dateOfBirth, degree, emailCustomerQuarantinedReason, employmentRole, employmentSeniority, employmentSubRole, enrichedEmailBounceDetected, facebookClickId, faxNumber, fieldOfStudy, firstName, gender, googleAdClickId, graduationDate, industry, inferredLanguageCodes, jobFunction)"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: resolveData)"
+        }
+      ],
+      "group": "Contact",
+      "description": "Create a new contact, or update the current one if it already exists (upsert)"
+    },
+    {
+      "id": "contact_delete",
+      "label": "Delete Contact",
+      "method": "DELETE",
+      "path": "/contacts/v1/contact/vid/{contactId}",
+      "fields": [
+        {
+          "id": "contactId",
+          "label": "Contact to Delete",
+          "type": "text",
+          "required": true,
+          "description": "This is not a contact's email but a number like 1485 (provide the ID)",
+          "in": "path"
+        }
+      ],
+      "group": "Contact",
+      "description": "Delete a contact"
+    },
+    {
+      "id": "contact_get",
+      "label": "Get Contact",
+      "method": "GET",
+      "path": "/contacts/v1/contact/vid/{contactId}/profile",
+      "fields": [
+        {
+          "id": "contactId",
+          "label": "Contact to Get",
+          "type": "text",
+          "required": true,
+          "description": "This is not a contact's email but a number like 1485 (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: formSubmissionMode, listMemberships, propertiesCollection)"
+        }
+      ],
+      "group": "Contact",
+      "description": "Get a contact"
+    },
+    {
+      "id": "contact_get_all",
+      "label": "Get Many Contact",
+      "method": "GET",
+      "path": "/contacts/v1/lists/all/contacts/all",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "additionalFields",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: formSubmissionMode, listMemberships, propertiesCollection)"
+        }
+      ],
+      "group": "Contact",
+      "description": "Get many contacts"
+    },
+    {
+      "id": "contact_get_recently_created_updated",
+      "label": "Get Recently Created/Updated Contact",
+      "method": "GET",
+      "path": "/contacts/v1/lists/recently_updated/contacts/recent",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "additionalFields",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: formSubmissionMode, listMemberships, propertiesCollection)"
+        }
+      ],
+      "group": "Contact",
+      "description": "Get recently created/updated contacts"
+    },
+    {
+      "id": "contact_search",
+      "label": "Search Contact",
+      "method": "POST",
+      "path": "/crm/v3/objects/contacts/search",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "filterGroupsUi",
+          "label": "Filter Groups",
+          "type": "json",
+          "placeholder": "Add Filter Group",
+          "description": "When multiple filters are provided within a Filter Group, they will be combined using a logical AND operator. When multiple Filter Groups are provided, they will be combined using a logical OR operator. The system supports a maximum of three Filter Groups with up to three filters each. More info here (JSON object; supported keys: filterGroupsValues, filterGroupsValues.filtersUi)"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: direction, properties, query, sortBy)"
+        }
+      ],
+      "group": "Contact",
+      "description": "Search contacts"
+    },
+    {
+      "id": "contact_list_add",
+      "label": "Add Contact List",
+      "method": "POST",
+      "path": "/contacts/v1/lists/{listId}/add",
+      "fields": [
+        {
+          "id": "by",
+          "label": "By",
+          "type": "select",
+          "required": true,
+          "defaultValue": "email",
+          "options": [
+            {
+              "value": "id",
+              "label": "Contact ID"
+            },
+            {
+              "value": "email",
+              "label": "Email"
+            }
+          ]
+        },
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "required": true,
+          "placeholder": "name@email.com"
+        },
+        {
+          "id": "id",
+          "label": "Contact to Add",
+          "type": "number",
+          "required": true
+        },
+        {
+          "id": "listId",
+          "label": "List to Add To",
+          "type": "number",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Contact List",
+      "description": "Add contact to a list"
+    },
+    {
+      "id": "contact_list_remove",
+      "label": "Remove Contact List",
+      "method": "POST",
+      "path": "/contacts/v1/lists/{listId}/remove",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Contact to Remove",
+          "type": "number",
+          "required": true
+        },
+        {
+          "id": "listId",
+          "label": "List to Remove From",
+          "type": "number",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Contact List",
+      "description": "Remove a contact from a list"
+    },
+    {
+      "id": "company_create",
+      "label": "Create Company",
+      "method": "POST",
+      "path": "/companies/v2/companies",
+      "fields": [
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Company Properties",
+          "type": "json",
+          "placeholder": "Add Property",
+          "description": "(JSON object; supported keys: aboutUs, annualRevenue, city, closeDate, companyDomainName, companyOwner, countryRegion, customPropertiesUi, description, facebookFans, googlePlusPage, industry, isPublic, leadStatus, lifecycleStatus, linkedinBio, linkedInCompanyPage, numberOfEmployees, originalSourceType, phoneNumber, postalCode, stateRegion, streetAddress, streetAddress2, targetAccount, timezone, totalMoneyRaised, twitterBio, twitterFollowers, twitterHandle)"
+        }
+      ],
+      "group": "Company",
+      "description": "Create a company"
+    },
+    {
+      "id": "company_delete",
+      "label": "Delete Company",
+      "method": "DELETE",
+      "path": "/crm/v3/objects/companies/{companyId}",
+      "fields": [
+        {
+          "id": "companyId",
+          "label": "Company to Delete",
+          "type": "text",
+          "required": true,
+          "description": "(provide the ID)",
+          "in": "path"
+        }
+      ],
+      "group": "Company",
+      "description": "Delete a company"
+    },
+    {
+      "id": "company_get",
+      "label": "Get Company",
+      "method": "GET",
+      "path": "/companies/v2/companies/{companyId}",
+      "fields": [
+        {
+          "id": "companyId",
+          "label": "Company to Get",
+          "type": "text",
+          "required": true,
+          "description": "(provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: includeMergeAudits)"
+        }
+      ],
+      "group": "Company",
+      "description": "Get a company"
+    },
+    {
+      "id": "company_get_all",
+      "label": "Get Many Company",
+      "method": "GET",
+      "path": "/companies/v2/companies/paged",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: includeMergeAudits, propertiesCollection)"
+        }
+      ],
+      "group": "Company",
+      "description": "Get many companies"
+    },
+    {
+      "id": "company_get_recently_created_updated",
+      "label": "Get Recently Created/Updated Company",
+      "method": "GET",
+      "path": "/companies/v2/companies/recent/modified",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "additionalFields",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: since, propertiesCollection)"
+        }
+      ],
+      "group": "Company",
+      "description": "Get recently created/updated companies"
+    },
+    {
+      "id": "company_search_by_domain",
+      "label": "Search Company",
+      "method": "POST",
+      "path": "/companies/v2/domains/{domain}/companies",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "description": "The company's website domain to search for, like n8n.io",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: properties)"
+        }
+      ],
+      "group": "Company",
+      "description": "Search companies by their website domain"
+    },
+    {
+      "id": "company_update",
+      "label": "Update Company",
+      "method": "PUT",
+      "path": "/companies/v2/companies/{companyId}",
+      "fields": [
+        {
+          "id": "companyId",
+          "label": "Company to Update",
+          "type": "text",
+          "required": true,
+          "description": "(provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: aboutUs, annualRevenue, city, closeDate, companyDomainName, companyOwner, countryRegion, customPropertiesUi, description, facebookFans, googlePlusPage, industry, isPublic, leadStatus, lifecycleStatus, linkedinBio, linkedInCompanyPage, name, numberOfEmployees, originalSourceType, phoneNumber, postalCode, stateRegion, streetAddress, streetAddress2, targetAccount, timezone, totalMoneyRaised, twitterBio, twitterFollowers)"
+        }
+      ],
+      "group": "Company",
+      "description": "Update a company"
+    },
+    {
+      "id": "deal_create",
+      "label": "Create Deal",
+      "method": "POST",
+      "path": "/deals/v1/deal",
+      "fields": [
+        {
+          "id": "stage",
+          "label": "Deal Stage Name or ID",
+          "type": "text",
+          "required": true,
+          "description": "The deal stage is required when creating a deal. See the CRM Pipelines API for details on managing pipelines and stages. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "additionalFields",
+          "label": "Deal Properties",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: amount, associatedCompany, associatedVids, closeDate, customPropertiesUi, description, dealName, dealOwner, dealType, pipeline)"
+        }
+      ],
+      "group": "Deal",
+      "description": "Create a deal"
+    },
+    {
+      "id": "deal_delete",
+      "label": "Delete Deal",
+      "method": "DELETE",
+      "path": "/deals/v1/deal/{dealId}",
+      "fields": [
+        {
+          "id": "dealId",
+          "label": "Deal to Delete",
+          "type": "text",
+          "required": true,
+          "description": "(provide the ID)",
+          "in": "path"
+        }
+      ],
+      "group": "Deal",
+      "description": "Delete a deal"
+    },
+    {
+      "id": "deal_get",
+      "label": "Get Deal",
+      "method": "GET",
+      "path": "/deals/v1/deal/{dealId}",
+      "fields": [
+        {
+          "id": "dealId",
+          "label": "Deal to Get",
+          "type": "text",
+          "required": true,
+          "description": "(provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: includePropertyVersions, propertiesCollection)"
+        }
+      ],
+      "group": "Deal",
+      "description": "Get a deal"
+    },
+    {
+      "id": "deal_get_all",
+      "label": "Get Many Deal",
+      "method": "GET",
+      "path": "/deals/v1/deal/paged",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "filters",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: includeAssociations, properties, propertiesWithHistory, propertiesCollection)"
+        }
+      ],
+      "group": "Deal",
+      "description": "Get many deals"
+    },
+    {
+      "id": "deal_get_recently_created_updated",
+      "label": "Get Recently Created/Updated Deal",
+      "method": "GET",
+      "path": "/deals/v1/deal/recent/created",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "filters",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: since, includePropertyVersions)"
+        }
+      ],
+      "group": "Deal",
+      "description": "Get recently created/updated deals"
+    },
+    {
+      "id": "deal_search",
+      "label": "Search Deal",
+      "method": "POST",
+      "path": "/crm/v3/objects/deals/search",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "filterGroupsUi",
+          "label": "Filter Groups",
+          "type": "json",
+          "placeholder": "Add Filter Group",
+          "description": "When multiple filters are provided within a Filter Group, they will be combined using a logical AND operator. When multiple Filter Groups are provided, they will be combined using a logical OR operator. The system supports a maximum of three Filter Groups with up to three filters each. More info here (JSON object; supported keys: filterGroupsValues, filterGroupsValues.filtersUi)"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: direction, properties, query, sortBy)"
+        }
+      ],
+      "group": "Deal",
+      "description": "Search deals"
+    },
+    {
+      "id": "deal_update",
+      "label": "Update Deal",
+      "method": "PUT",
+      "path": "/deals/v1/deal/{dealId}",
+      "fields": [
+        {
+          "id": "dealId",
+          "label": "Deal to Update",
+          "type": "text",
+          "required": true,
+          "description": "(provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Update Field",
+          "description": "(JSON object; supported keys: amount, closeDate, customPropertiesUi, description, dealName, dealOwner, stage, dealType, pipeline)"
+        }
+      ],
+      "group": "Deal",
+      "description": "Update a deal"
+    },
+    {
+      "id": "engagement_create",
+      "label": "Create Engagement",
+      "method": "POST",
+      "path": "/engagements/v1/engagements",
+      "fields": [
+        {
+          "id": "type",
+          "label": "Type",
+          "type": "select",
+          "required": true,
+          "options": [
+            {
+              "value": "call",
+              "label": "Call"
+            },
+            {
+              "value": "email",
+              "label": "Email"
+            },
+            {
+              "value": "meeting",
+              "label": "Meeting"
+            },
+            {
+              "value": "task",
+              "label": "Task"
+            }
+          ]
+        },
+        {
+          "id": "dueDate",
+          "label": "Due Date",
+          "type": "text",
+          "required": true,
+          "placeholder": "2024-01-01T00:00:00Z",
+          "description": "The due date for the task (ISO 8601 date-time)"
+        },
+        {
+          "id": "metadata",
+          "label": "Metadata",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: body, forObjectType, status, subject)"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Engagement Properties",
+          "type": "json",
+          "placeholder": "Add Property",
+          "description": "(JSON object; supported keys: associations)"
+        }
+      ],
+      "group": "Engagement",
+      "description": "Create an engagement"
+    },
+    {
+      "id": "engagement_delete",
+      "label": "Delete Engagement",
+      "method": "DELETE",
+      "path": "/engagements/v1/engagements/{engagementId}",
+      "fields": [
+        {
+          "id": "engagementId",
+          "label": "Engagement to Delete",
+          "type": "text",
+          "required": true,
+          "description": "(provide the ID)",
+          "in": "path"
+        }
+      ],
+      "group": "Engagement",
+      "description": "Delete an engagement"
+    },
+    {
+      "id": "engagement_get",
+      "label": "Get Engagement",
+      "method": "GET",
+      "path": "/engagements/v1/engagements/{engagementId}",
+      "fields": [
+        {
+          "id": "engagementId",
+          "label": "Engagement to Get",
+          "type": "text",
+          "required": true,
+          "description": "(provide the ID)",
+          "in": "path"
+        }
+      ],
+      "group": "Engagement",
+      "description": "Get an engagement"
+    },
+    {
+      "id": "engagement_get_all",
+      "label": "Get Many Engagement",
+      "method": "GET",
+      "path": "/engagements/v1/engagements/paged",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        }
+      ],
+      "group": "Engagement",
+      "description": "Get many engagements"
+    },
+    {
+      "id": "ticket_create",
+      "label": "Create Ticket",
+      "method": "POST",
+      "path": "/crm-objects/v1/objects/tickets",
+      "fields": [
+        {
+          "id": "pipelineId",
+          "label": "Pipeline Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the pipeline the ticket is in. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "stageId",
+          "label": "Stage Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The stage ID of the pipeline the ticket is in; depends on Pipeline ID. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "ticketName",
+          "label": "Ticket Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Ticket Properties",
+          "type": "json",
+          "placeholder": "Add Property",
+          "description": "(JSON object; supported keys: associatedCompanyIds, associatedContactIds, category, closeDate, createDate, description, priority, resolution, source, ticketOwnerId)"
+        }
+      ],
+      "group": "Ticket",
+      "description": "Create a ticket"
+    },
+    {
+      "id": "ticket_delete",
+      "label": "Delete Ticket",
+      "method": "DELETE",
+      "path": "/crm-objects/v1/objects/tickets/{ticketId}",
+      "fields": [
+        {
+          "id": "ticketId",
+          "label": "Ticket to Delete",
+          "type": "text",
+          "required": true,
+          "description": "(provide the ID)",
+          "in": "path"
+        }
+      ],
+      "group": "Ticket",
+      "description": "Delete a ticket"
+    },
+    {
+      "id": "ticket_get",
+      "label": "Get Ticket",
+      "method": "GET",
+      "path": "/crm-objects/v1/objects/tickets/{ticketId}",
+      "fields": [
+        {
+          "id": "ticketId",
+          "label": "Ticket to Get",
+          "type": "text",
+          "required": true,
+          "description": "(provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: includeDeleted, properties, propertiesWithHistory)"
+        }
+      ],
+      "group": "Ticket",
+      "description": "Get a ticket"
+    },
+    {
+      "id": "ticket_get_all",
+      "label": "Get Many Ticket",
+      "method": "GET",
+      "path": "/crm-objects/v1/objects/tickets/paged",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "additionalFields",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: properties, propertiesWithHistory)"
+        }
+      ],
+      "group": "Ticket",
+      "description": "Get many tickets"
+    },
+    {
+      "id": "ticket_update",
+      "label": "Update Ticket",
+      "method": "PUT",
+      "path": "/crm-objects/v1/objects/tickets/{ticketId}",
+      "fields": [
+        {
+          "id": "ticketId",
+          "label": "Ticket to Update",
+          "type": "text",
+          "required": true,
+          "description": "(provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: associatedCompanyIds, associatedContactIds, category, closeDate, createDate, description, pipelineId, priority, resolution, source, stageId, ticketName, ticketOwnerId)"
+        }
+      ],
+      "group": "Ticket",
+      "description": "Update a ticket"
+    }
+  ]
 }

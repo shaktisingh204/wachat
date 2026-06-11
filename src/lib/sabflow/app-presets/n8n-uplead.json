@@ -4,28 +4,71 @@
   "description": "Consume Uplead API",
   "category": "crm",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.uplead.com/v2",
   "endpoints": [
     {
-      "id": "company_default",
-      "label": "List Company",
-      "method": "GET",
-      "path": "/company",
-      "fields": []
+      "id": "company_enrich",
+      "label": "Enrich Company",
+      "method": "POST",
+      "path": "/company-search",
+      "fields": [
+        {
+          "id": "company",
+          "label": "Company",
+          "type": "text",
+          "description": "The name of the company (e.g – amazon)"
+        },
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "description": "The domain name (e.g – amazon.com)"
+        }
+      ],
+      "group": "Company",
+      "description": "Enrich a company"
     },
     {
-      "id": "person_default",
-      "label": "List Person",
-      "method": "GET",
-      "path": "/person",
-      "fields": []
+      "id": "person_enrich",
+      "label": "Enrich Person",
+      "method": "POST",
+      "path": "/person-search",
+      "fields": [
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "placeholder": "name@email.com",
+          "description": "Email address (e.g – mbenioff@salesforce.com)"
+        },
+        {
+          "id": "firstname",
+          "label": "First Name",
+          "type": "text",
+          "description": "First name of the person (e.g – Marc)"
+        },
+        {
+          "id": "lastname",
+          "label": "Last Name",
+          "type": "text",
+          "description": "Last name of the person (e.g – Benioff)"
+        },
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "description": "The domain name (e.g – salesforce.com)"
+        }
+      ],
+      "group": "Person",
+      "description": "Enrich a person"
     }
   ]
 }

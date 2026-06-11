@@ -4,56 +4,1136 @@
   "description": "Scrape and control any site with Airtop",
   "category": "data",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.airtop.ai/api/v1",
   "endpoints": [
     {
-      "id": "agent_default",
-      "label": "List Agent",
-      "method": "GET",
+      "id": "agent_run",
+      "label": "Run Agent",
+      "method": "POST",
       "path": "/agent",
-      "fields": []
+      "fields": [
+        {
+          "id": "agentId",
+          "label": "Agent",
+          "type": "text",
+          "required": true,
+          "description": "The Airtop agent to run. Visit Airtop Agents for more information. (provide the ID)"
+        },
+        {
+          "id": "agentParameters",
+          "label": "Agent Parameters",
+          "type": "json",
+          "description": "(JSON)"
+        },
+        {
+          "id": "awaitExecution",
+          "label": "Await Agent",
+          "type": "toggle",
+          "description": "Whether to wait for the agent to complete its execution",
+          "defaultValue": true
+        },
+        {
+          "id": "timeout",
+          "label": "Timeout",
+          "type": "number",
+          "description": "Timeout in seconds to wait for the agent to finish",
+          "defaultValue": 600
+        }
+      ],
+      "group": "Agent",
+      "description": "[unverified path] Run an Airtop agent"
     },
     {
-      "id": "extraction_default",
-      "label": "List Extraction",
+      "id": "session_create",
+      "label": "Create Session Session",
+      "method": "PUT",
+      "path": "/sessions/{sessionId}/save-profile-on-termination/{profileName}",
+      "fields": [
+        {
+          "id": "profileName",
+          "label": "Profile Name",
+          "type": "text",
+          "placeholder": "e.g. my-x-profile",
+          "description": "The name of the Airtop profile to load or create",
+          "in": "path"
+        },
+        {
+          "id": "saveProfileOnTermination",
+          "label": "Save Profile",
+          "type": "toggle",
+          "description": "Whether to automatically save the Airtop profile for this session upon termination",
+          "defaultValue": false
+        },
+        {
+          "id": "record",
+          "label": "Record Session",
+          "type": "toggle",
+          "description": "Whether to record the browser session. More details.",
+          "defaultValue": false
+        },
+        {
+          "id": "timeoutMinutes",
+          "label": "Idle Timeout",
+          "type": "number",
+          "description": "Minutes to wait before the session is terminated due to inactivity",
+          "defaultValue": 10
+        },
+        {
+          "id": "proxy",
+          "label": "Proxy",
+          "type": "select",
+          "description": "Choose how to configure the proxy for this session",
+          "defaultValue": "none",
+          "options": [
+            {
+              "value": "none",
+              "label": "None"
+            },
+            {
+              "value": "integrated",
+              "label": "Integrated"
+            },
+            {
+              "value": "proxyUrl",
+              "label": "Proxy URL"
+            }
+          ]
+        },
+        {
+          "id": "proxyConfig",
+          "label": "Proxy Configuration",
+          "type": "json",
+          "placeholder": "Add Attribute",
+          "description": "The Airtop-provided configuration to use for the proxy (JSON object; supported keys: country, sticky)"
+        },
+        {
+          "id": "proxyUrl",
+          "label": "Proxy URL",
+          "type": "text",
+          "description": "The URL of the proxy to use"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: solveCaptcha, extensionIds)"
+        }
+      ],
+      "group": "Session",
+      "description": "Create an Airtop browser session"
+    },
+    {
+      "id": "session_save",
+      "label": "Save Profile on Termination Session",
+      "method": "PUT",
+      "path": "/sessions/{sessionId}/save-profile-on-termination/{profileName}",
+      "fields": [
+        {
+          "id": "sessionId",
+          "label": "Session ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the Session to use",
+          "in": "path"
+        },
+        {
+          "id": "profileName",
+          "label": "Profile Name",
+          "type": "text",
+          "required": true,
+          "placeholder": "e.g. my-x-profile",
+          "description": "The name of the Profile to save",
+          "in": "path"
+        }
+      ],
+      "group": "Session",
+      "description": "Save in a profile changes made in your browsing session such as cookies and local storage"
+    },
+    {
+      "id": "session_terminate",
+      "label": "Terminate Session Session",
+      "method": "DELETE",
+      "path": "/sessions/{sessionId}",
+      "fields": [
+        {
+          "id": "sessionId",
+          "label": "Session ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the Session to use",
+          "in": "path"
+        }
+      ],
+      "group": "Session",
+      "description": "Terminate a session"
+    },
+    {
+      "id": "session_wait_for_download",
+      "label": "Wait for Download Session",
+      "method": "POST",
+      "path": "/session",
+      "fields": [
+        {
+          "id": "sessionId",
+          "label": "Session ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the Session to use"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: timeout)"
+        }
+      ],
+      "group": "Session",
+      "description": "[unverified path] Wait for a file download to become available"
+    },
+    {
+      "id": "window_close",
+      "label": "Close Window Window",
+      "method": "DELETE",
+      "path": "/sessions/{sessionId}/windows/{windowId}",
+      "fields": [
+        {
+          "id": "sessionId",
+          "label": "Session ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the Session to use",
+          "in": "path"
+        },
+        {
+          "id": "windowId",
+          "label": "Window ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the Window to use",
+          "in": "path"
+        }
+      ],
+      "group": "Window",
+      "description": "Close a window inside a session"
+    },
+    {
+      "id": "window_create",
+      "label": "Create a New Browser Window Window",
+      "method": "POST",
+      "path": "/sessions/{sessionId}/windows",
+      "fields": [
+        {
+          "id": "sessionId",
+          "label": "Session ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the Session to use",
+          "in": "path"
+        },
+        {
+          "id": "url",
+          "label": "URL",
+          "type": "text",
+          "placeholder": "e.g. https://google.com",
+          "description": "Initial URL to load in the window. Defaults to https://www.google.com."
+        },
+        {
+          "id": "getLiveView",
+          "label": "Get Live View",
+          "type": "toggle",
+          "description": "Whether to get the URL of the window's Live View",
+          "defaultValue": false
+        },
+        {
+          "id": "includeNavigationBar",
+          "label": "Include Navigation Bar",
+          "type": "toggle",
+          "description": "Whether to include the navigation bar in the Live View. When enabled, the navigation bar will be visible allowing you to navigate between pages.",
+          "defaultValue": false
+        },
+        {
+          "id": "screenResolution",
+          "label": "Screen Resolution",
+          "type": "text",
+          "placeholder": "e.g. 1280x720",
+          "description": "The screen resolution of the Live View. Setting a resolution will force the window to open at that specific size."
+        },
+        {
+          "id": "disableResize",
+          "label": "Disable Resize",
+          "type": "toggle",
+          "description": "Whether to disable the window from being resized in the Live View",
+          "defaultValue": false
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: waitUntil)"
+        }
+      ],
+      "group": "Window",
+      "description": "Create a new browser window inside a session. Can load a URL when created."
+    },
+    {
+      "id": "window_get_live_view",
+      "label": "Get Live View Window",
+      "method": "GET",
+      "path": "/sessions/{sessionId}/windows/{windowId}",
+      "fields": [
+        {
+          "id": "sessionId",
+          "label": "Session ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the Session to use",
+          "in": "path"
+        },
+        {
+          "id": "windowId",
+          "label": "Window ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the Window to use",
+          "in": "path"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: includeNavigationBar, screenResolution, disableResize)"
+        }
+      ],
+      "group": "Window",
+      "description": "Get information about a browser window, including the live view URL"
+    },
+    {
+      "id": "window_list",
+      "label": "List Windows Window",
+      "method": "GET",
+      "path": "/sessions/{sessionId}/windows",
+      "fields": [
+        {
+          "id": "sessionId",
+          "label": "Session ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the Session to use",
+          "in": "path"
+        }
+      ],
+      "group": "Window",
+      "description": "List all browser windows in a session"
+    },
+    {
+      "id": "window_load",
+      "label": "Load URL Window",
+      "method": "POST",
+      "path": "/sessions/{sessionId}/windows/{windowId}",
+      "fields": [
+        {
+          "id": "sessionId",
+          "label": "Session ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the Session to use",
+          "in": "path"
+        },
+        {
+          "id": "windowId",
+          "label": "Window ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the Window to use",
+          "in": "path"
+        },
+        {
+          "id": "url",
+          "label": "URL",
+          "type": "text",
+          "required": true,
+          "placeholder": "e.g. https://google.com",
+          "description": "URL to load in the window"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: waitUntil)"
+        }
+      ],
+      "group": "Window",
+      "description": "Load a URL in an existing window"
+    },
+    {
+      "id": "window_take_screenshot",
+      "label": "Take Screenshot Window",
+      "method": "POST",
+      "path": "/sessions/{sessionId}/windows/{windowId}/screenshot",
+      "fields": [
+        {
+          "id": "sessionId",
+          "label": "Session ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the Session to use",
+          "in": "path"
+        },
+        {
+          "id": "windowId",
+          "label": "Window ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the Window to use",
+          "in": "path"
+        },
+        {
+          "id": "outputImageAsBinary",
+          "label": "Output Binary Image",
+          "type": "toggle",
+          "description": "Whether to output the image as a binary file instead of a base64 encoded string",
+          "defaultValue": false
+        }
+      ],
+      "group": "Window",
+      "description": "Take a screenshot of the current window"
+    },
+    {
+      "id": "file_delete_file",
+      "label": "Delete File",
+      "method": "DELETE",
+      "path": "/file",
+      "fields": [
+        {
+          "id": "fileId",
+          "label": "File ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the file to delete"
+        }
+      ],
+      "group": "File",
+      "description": "[unverified path] Delete an uploaded file"
+    },
+    {
+      "id": "file_get",
+      "label": "Get File",
+      "method": "GET",
+      "path": "/files/{fileId}",
+      "fields": [
+        {
+          "id": "fileId",
+          "label": "File ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the file to retrieve",
+          "in": "path"
+        },
+        {
+          "id": "outputBinaryFile",
+          "label": "Output Binary File",
+          "type": "toggle",
+          "description": "Whether to output the file in binary format if the file is ready for download",
+          "defaultValue": false
+        }
+      ],
+      "group": "File",
+      "description": "Get a details of an uploaded file"
+    },
+    {
+      "id": "file_get_many",
+      "label": "Get Many File",
+      "method": "GET",
+      "path": "/files",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 10
+        },
+        {
+          "id": "sessionIds",
+          "label": "Session IDs",
+          "type": "text",
+          "placeholder": "e.g. 6aac6f73-bd89-4a76-ab32-5a6c422e8b0b, a13c6f73-bd89-4a76-ab32-5a6c422e8224",
+          "description": "Comma-separated list of Session IDs to filter files by. When empty, all files from all sessions will be returned."
+        },
+        {
+          "id": "outputSingleItem",
+          "label": "Output Files in Single Item",
+          "type": "toggle",
+          "description": "Whether to output one item containing all files or output each file as a separate item",
+          "defaultValue": true
+        }
+      ],
+      "group": "File",
+      "description": "Get details of multiple uploaded files"
+    },
+    {
+      "id": "file_load",
+      "label": "Load File",
+      "method": "POST",
+      "path": "/file",
+      "fields": [
+        {
+          "id": "sessionId",
+          "label": "Session ID",
+          "type": "text",
+          "required": true,
+          "description": "The session ID to load the file into"
+        },
+        {
+          "id": "windowId",
+          "label": "Window ID",
+          "type": "text",
+          "required": true,
+          "description": "The window ID to trigger the file input in"
+        },
+        {
+          "id": "fileId",
+          "label": "File ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the file to load into the session"
+        },
+        {
+          "id": "elementDescription",
+          "label": "Element Description",
+          "type": "text",
+          "placeholder": "e.g. the file upload selection box",
+          "description": "Optional description of the file input to interact with"
+        },
+        {
+          "id": "includeHiddenElements",
+          "label": "Include Hidden Elements",
+          "type": "toggle",
+          "description": "Whether to include hidden elements in the interaction",
+          "defaultValue": true
+        }
+      ],
+      "group": "File",
+      "description": "[unverified path] Load a file into a session"
+    },
+    {
+      "id": "file_upload",
+      "label": "Upload File",
+      "method": "POST",
+      "path": "/file",
+      "fields": [
+        {
+          "id": "sessionId",
+          "label": "Session ID",
+          "type": "text",
+          "required": true,
+          "description": "The session ID to load the file into"
+        },
+        {
+          "id": "windowId",
+          "label": "Window ID",
+          "type": "text",
+          "required": true,
+          "description": "The window ID to trigger the file input in"
+        },
+        {
+          "id": "fileName",
+          "label": "File Name",
+          "type": "text",
+          "required": true,
+          "description": "Name for the file to upload. For a session, all files loaded should have unique names."
+        },
+        {
+          "id": "fileType",
+          "label": "File Type",
+          "type": "select",
+          "description": "Choose the type of file to upload. Defaults to 'Customer Upload'.",
+          "defaultValue": "customer_upload",
+          "options": [
+            {
+              "value": "browser_download",
+              "label": "Browser Download"
+            },
+            {
+              "value": "screenshot",
+              "label": "Screenshot"
+            },
+            {
+              "value": "video",
+              "label": "Video"
+            },
+            {
+              "value": "customer_upload",
+              "label": "Customer Upload"
+            }
+          ]
+        },
+        {
+          "id": "source",
+          "label": "Source",
+          "type": "select",
+          "description": "Source of the file to upload",
+          "defaultValue": "url",
+          "options": [
+            {
+              "value": "url",
+              "label": "URL"
+            },
+            {
+              "value": "binary",
+              "label": "Binary"
+            }
+          ]
+        },
+        {
+          "id": "binaryPropertyName",
+          "label": "Binary Property",
+          "type": "text",
+          "required": true,
+          "description": "Name of the binary property containing the file data",
+          "defaultValue": "data"
+        },
+        {
+          "id": "url",
+          "label": "URL",
+          "type": "text",
+          "required": true,
+          "description": "URL from where to fetch the file to upload"
+        },
+        {
+          "id": "triggerFileInputParameter",
+          "label": "Trigger File Input",
+          "type": "toggle",
+          "description": "Whether to automatically trigger the file input dialog in the current window. If disabled, the file will only be uploaded to the session without opening the file input dialog.",
+          "defaultValue": true
+        },
+        {
+          "id": "elementDescription",
+          "label": "Element Description",
+          "type": "text",
+          "placeholder": "e.g. the file upload selection box",
+          "description": "Optional description of the file input to interact with"
+        },
+        {
+          "id": "includeHiddenElements",
+          "label": "Include Hidden Elements",
+          "type": "toggle",
+          "description": "Whether to include hidden elements in the interaction",
+          "defaultValue": true
+        }
+      ],
+      "group": "File",
+      "description": "[unverified path] Upload a file into a session"
+    },
+    {
+      "id": "extraction_query",
+      "label": "Query Page Extraction",
       "method": "GET",
       "path": "/extraction",
-      "fields": []
+      "fields": [
+        {
+          "id": "sessionMode",
+          "label": "Session Mode",
+          "type": "select",
+          "description": "Choose between creating a new session or using an existing one",
+          "defaultValue": "existing",
+          "options": [
+            {
+              "value": "new",
+              "label": "Automatically Create Session"
+            },
+            {
+              "value": "existing",
+              "label": "Use Existing Session"
+            }
+          ]
+        },
+        {
+          "id": "sessionId",
+          "label": "Session ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the Session to use"
+        },
+        {
+          "id": "windowId",
+          "label": "Window ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the Window to use"
+        },
+        {
+          "id": "url",
+          "label": "URL",
+          "type": "text",
+          "required": true,
+          "placeholder": "e.g. https://google.com",
+          "description": "URL to load in the window"
+        },
+        {
+          "id": "profileName",
+          "label": "Profile Name",
+          "type": "text",
+          "placeholder": "e.g. my-x-profile",
+          "description": "The name of the Airtop profile to load or create"
+        },
+        {
+          "id": "autoTerminateSession",
+          "label": "Auto-Terminate Session",
+          "type": "toggle",
+          "description": "Whether to terminate the session after the operation is complete. When disabled, you must manually terminate the session. By default, idle sessions timeout after 10 minutes",
+          "defaultValue": true
+        },
+        {
+          "id": "prompt",
+          "label": "Prompt",
+          "type": "textarea",
+          "required": true,
+          "placeholder": "e.g. Is there a login form in this page?",
+          "description": "The prompt to query the page content"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: outputSchema, parseJsonOutput, includeVisualAnalysis)"
+        }
+      ],
+      "group": "Extraction",
+      "description": "[unverified path] Query a page to extract data or ask a question given the data on the page"
     },
     {
-      "id": "file_default",
-      "label": "List File",
+      "id": "extraction_get_paginated",
+      "label": "Query Page with Pagination Extraction",
       "method": "GET",
-      "path": "/file",
-      "fields": []
+      "path": "/extraction",
+      "fields": [
+        {
+          "id": "sessionMode",
+          "label": "Session Mode",
+          "type": "select",
+          "description": "Choose between creating a new session or using an existing one",
+          "defaultValue": "existing",
+          "options": [
+            {
+              "value": "new",
+              "label": "Automatically Create Session"
+            },
+            {
+              "value": "existing",
+              "label": "Use Existing Session"
+            }
+          ]
+        },
+        {
+          "id": "sessionId",
+          "label": "Session ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the Session to use"
+        },
+        {
+          "id": "windowId",
+          "label": "Window ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the Window to use"
+        },
+        {
+          "id": "url",
+          "label": "URL",
+          "type": "text",
+          "required": true,
+          "placeholder": "e.g. https://google.com",
+          "description": "URL to load in the window"
+        },
+        {
+          "id": "profileName",
+          "label": "Profile Name",
+          "type": "text",
+          "placeholder": "e.g. my-x-profile",
+          "description": "The name of the Airtop profile to load or create"
+        },
+        {
+          "id": "autoTerminateSession",
+          "label": "Auto-Terminate Session",
+          "type": "toggle",
+          "description": "Whether to terminate the session after the operation is complete. When disabled, you must manually terminate the session. By default, idle sessions timeout after 10 minutes",
+          "defaultValue": true
+        },
+        {
+          "id": "prompt",
+          "label": "Prompt",
+          "type": "textarea",
+          "required": true,
+          "placeholder": "e.g. Extract all the product names and prices",
+          "description": "The prompt to extract data from the pages"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: outputSchema, parseJsonOutput, interactionMode, paginationMode)"
+        }
+      ],
+      "group": "Extraction",
+      "description": "[unverified path] Extract content from paginated or dynamically loaded pages"
     },
     {
-      "id": "interaction_default",
-      "label": "List Interaction",
-      "method": "GET",
-      "path": "/interaction",
-      "fields": []
+      "id": "extraction_scrape",
+      "label": "Smart Scrape Extraction",
+      "method": "POST",
+      "path": "/extraction",
+      "fields": [
+        {
+          "id": "sessionMode",
+          "label": "Session Mode",
+          "type": "select",
+          "description": "Choose between creating a new session or using an existing one",
+          "defaultValue": "existing",
+          "options": [
+            {
+              "value": "new",
+              "label": "Automatically Create Session"
+            },
+            {
+              "value": "existing",
+              "label": "Use Existing Session"
+            }
+          ]
+        },
+        {
+          "id": "sessionId",
+          "label": "Session ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the Session to use"
+        },
+        {
+          "id": "windowId",
+          "label": "Window ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the Window to use"
+        },
+        {
+          "id": "url",
+          "label": "URL",
+          "type": "text",
+          "required": true,
+          "placeholder": "e.g. https://google.com",
+          "description": "URL to load in the window"
+        },
+        {
+          "id": "profileName",
+          "label": "Profile Name",
+          "type": "text",
+          "placeholder": "e.g. my-x-profile",
+          "description": "The name of the Airtop profile to load or create"
+        },
+        {
+          "id": "autoTerminateSession",
+          "label": "Auto-Terminate Session",
+          "type": "toggle",
+          "description": "Whether to terminate the session after the operation is complete. When disabled, you must manually terminate the session. By default, idle sessions timeout after 10 minutes",
+          "defaultValue": true
+        }
+      ],
+      "group": "Extraction",
+      "description": "[unverified path] Scrape a page and return the data as markdown"
     },
     {
-      "id": "session_default",
-      "label": "List Session",
-      "method": "GET",
-      "path": "/session",
-      "fields": []
+      "id": "interaction_click",
+      "label": "Click an Element Interaction",
+      "method": "POST",
+      "path": "/sessions/{sessionId}/windows/{windowId}/click",
+      "fields": [
+        {
+          "id": "sessionId",
+          "label": "Session ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the Session to use",
+          "in": "path"
+        },
+        {
+          "id": "windowId",
+          "label": "Window ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the Window to use",
+          "in": "path"
+        },
+        {
+          "id": "elementDescription",
+          "label": "Element Description",
+          "type": "text",
+          "required": true,
+          "placeholder": "e.g. the green \"save\" button at the top of the page",
+          "description": "A specific description of the element to execute the interaction on"
+        },
+        {
+          "id": "clickType",
+          "label": "Click Type",
+          "type": "select",
+          "description": "The type of click to perform. Defaults to left click.",
+          "defaultValue": "click",
+          "options": [
+            {
+              "value": "click",
+              "label": "Left Click"
+            },
+            {
+              "value": "doubleClick",
+              "label": "Double Click"
+            },
+            {
+              "value": "rightClick",
+              "label": "Right Click"
+            }
+          ]
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: visualScope, waitForNavigation)"
+        }
+      ],
+      "group": "Interaction",
+      "description": "Execute a click on an element given a description"
     },
     {
-      "id": "window_default",
-      "label": "List Window",
-      "method": "GET",
-      "path": "/window",
-      "fields": []
+      "id": "interaction_fill",
+      "label": "Fill Form Interaction",
+      "method": "POST",
+      "path": "/async/sessions/{sessionId}/windows/{windowId}/execute-automation",
+      "fields": [
+        {
+          "id": "sessionId",
+          "label": "Session ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the Session to use",
+          "in": "path"
+        },
+        {
+          "id": "windowId",
+          "label": "Window ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the Window to use",
+          "in": "path"
+        },
+        {
+          "id": "formData",
+          "label": "Form Data",
+          "type": "textarea",
+          "required": true,
+          "placeholder": "e.g. \"Name: John Doe, Email: john.doe@example.com\"",
+          "description": "The information to fill into the form written in natural language"
+        }
+      ],
+      "group": "Interaction",
+      "description": "Fill a form with the provided information"
+    },
+    {
+      "id": "interaction_hover",
+      "label": "Hover on an Element Interaction",
+      "method": "POST",
+      "path": "/sessions/{sessionId}/windows/{windowId}/hover",
+      "fields": [
+        {
+          "id": "sessionId",
+          "label": "Session ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the Session to use",
+          "in": "path"
+        },
+        {
+          "id": "windowId",
+          "label": "Window ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the Window to use",
+          "in": "path"
+        },
+        {
+          "id": "elementDescription",
+          "label": "Element Description",
+          "type": "text",
+          "required": true,
+          "placeholder": "e.g. the rounded user profile image at the top right of the page",
+          "description": "A specific description of the element to execute the interaction on"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: visualScope, waitForNavigation)"
+        }
+      ],
+      "group": "Interaction",
+      "description": "Execute a hover action on an element given a description"
+    },
+    {
+      "id": "interaction_scroll",
+      "label": "Scroll Interaction",
+      "method": "POST",
+      "path": "/sessions/{sessionId}/windows/{windowId}/scroll",
+      "fields": [
+        {
+          "id": "sessionId",
+          "label": "Session ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the Session to use",
+          "in": "path"
+        },
+        {
+          "id": "windowId",
+          "label": "Window ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the Window to use",
+          "in": "path"
+        },
+        {
+          "id": "scrollingMode",
+          "label": "Scroll Mode",
+          "type": "select",
+          "required": true,
+          "description": "Choose the mode of scrolling",
+          "defaultValue": "automatic",
+          "options": [
+            {
+              "value": "automatic",
+              "label": "Automatic"
+            },
+            {
+              "value": "manual",
+              "label": "Manual"
+            }
+          ]
+        },
+        {
+          "id": "scrollToElement",
+          "label": "Element Description",
+          "type": "text",
+          "required": true,
+          "placeholder": "e.g. the page section titled \"Contact Us\"",
+          "description": "A natural language description of the element to scroll to"
+        },
+        {
+          "id": "scrollToEdge",
+          "label": "Scroll To Edge",
+          "type": "json",
+          "placeholder": "Add Edge Direction",
+          "description": "The direction to scroll to. When 'Scroll By' is defined, 'Scroll To Edge' action will be executed first, then 'Scroll By' action. (JSON object; supported keys: edgeValues, edgeValues.yAxis, edgeValues.xAxis)"
+        },
+        {
+          "id": "scrollBy",
+          "label": "Scroll By",
+          "type": "json",
+          "placeholder": "Add Scroll Amount",
+          "description": "The amount to scroll by. When 'Scroll To Edge' is defined, 'Scroll By' action will be executed after 'Scroll To Edge'. (JSON object; supported keys: scrollValues, scrollValues.yAxis, scrollValues.xAxis)"
+        },
+        {
+          "id": "scrollWithin",
+          "label": "Scrollable Area",
+          "type": "text",
+          "placeholder": "e.g. the left sidebar",
+          "description": "Scroll within an element on the page"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: visualScope, waitForNavigation)"
+        }
+      ],
+      "group": "Interaction",
+      "description": "Execute a scroll action on the page"
+    },
+    {
+      "id": "interaction_type",
+      "label": "Type Interaction",
+      "method": "POST",
+      "path": "/sessions/{sessionId}/windows/{windowId}/type",
+      "fields": [
+        {
+          "id": "sessionId",
+          "label": "Session ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the Session to use",
+          "in": "path"
+        },
+        {
+          "id": "windowId",
+          "label": "Window ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the Window to use",
+          "in": "path"
+        },
+        {
+          "id": "text",
+          "label": "Text",
+          "type": "text",
+          "required": true,
+          "placeholder": "e.g. email@example.com",
+          "description": "The text to type into the browser window"
+        },
+        {
+          "id": "pressEnterKey",
+          "label": "Press Enter Key",
+          "type": "toggle",
+          "description": "Whether to press the Enter key after typing the text",
+          "defaultValue": false
+        },
+        {
+          "id": "elementDescription",
+          "label": "Element Description",
+          "type": "text",
+          "placeholder": "e.g. the search box at the top of the page",
+          "description": "A specific description of the element to execute the interaction on"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: visualScope, waitForNavigation)"
+        }
+      ],
+      "group": "Interaction",
+      "description": "Execute a Type action on an element given a description"
     }
   ]
 }

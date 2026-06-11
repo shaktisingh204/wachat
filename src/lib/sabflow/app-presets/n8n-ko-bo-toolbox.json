@@ -4,42 +4,710 @@
   "description": "Work with KoBoToolbox forms and submissions",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 8,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://{allowedDomain}",
   "endpoints": [
     {
-      "id": "file_default",
-      "label": "List File",
-      "method": "GET",
-      "path": "/file",
-      "fields": []
-    },
-    {
-      "id": "form_default",
-      "label": "List Form",
+      "id": "form_get",
+      "label": "Get Form",
       "method": "GET",
       "path": "/form",
-      "fields": []
+      "fields": [
+        {
+          "id": "allowedDomain",
+          "label": "Allowed Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Allowed Domain of your KoBoToolbox account (host token in the API base URL)"
+        },
+        {
+          "id": "formId",
+          "label": "Form Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Form ID (e.g. aSAvYreNzVEkrWg5Gdcvg). Choose from the list, or specify an ID using an expression."
+        }
+      ],
+      "group": "Form",
+      "description": "[unverified path] Get a form"
     },
     {
-      "id": "hook_default",
-      "label": "List Hook",
+      "id": "form_get_all",
+      "label": "Get Many Form",
+      "method": "GET",
+      "path": "/form",
+      "fields": [
+        {
+          "id": "allowedDomain",
+          "label": "Allowed Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Allowed Domain of your KoBoToolbox account (host token in the API base URL)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "required": true,
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 1000
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: sort)"
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: filter)"
+        }
+      ],
+      "group": "Form",
+      "description": "[unverified path] Get many forms"
+    },
+    {
+      "id": "form_redeploy",
+      "label": "Redeploy Form",
+      "method": "POST",
+      "path": "/form",
+      "fields": [
+        {
+          "id": "allowedDomain",
+          "label": "Allowed Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Allowed Domain of your KoBoToolbox account (host token in the API base URL)"
+        },
+        {
+          "id": "formId",
+          "label": "Form Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Form ID (e.g. aSAvYreNzVEkrWg5Gdcvg). Choose from the list, or specify an ID using an expression."
+        }
+      ],
+      "group": "Form",
+      "description": "[unverified path] Redeploy Current Form Version"
+    },
+    {
+      "id": "hook_get",
+      "label": "Get Hook",
       "method": "GET",
       "path": "/hook",
-      "fields": []
+      "fields": [
+        {
+          "id": "allowedDomain",
+          "label": "Allowed Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Allowed Domain of your KoBoToolbox account (host token in the API base URL)"
+        },
+        {
+          "id": "formId",
+          "label": "Form Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Form ID (e.g. aSAvYreNzVEkrWg5Gdcvg). Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "hookId",
+          "label": "Hook ID",
+          "type": "text",
+          "required": true,
+          "description": "Hook ID (starts with h, e.g. hVehywQ2oXPYGHJHKtqth4)"
+        }
+      ],
+      "group": "Hook",
+      "description": "[unverified path] Get a single hook definition"
     },
     {
-      "id": "submission_default",
-      "label": "List Submission",
+      "id": "hook_get_all",
+      "label": "Get Many Hook",
+      "method": "GET",
+      "path": "/hook",
+      "fields": [
+        {
+          "id": "allowedDomain",
+          "label": "Allowed Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Allowed Domain of your KoBoToolbox account (host token in the API base URL)"
+        },
+        {
+          "id": "formId",
+          "label": "Form Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Form ID (e.g. aSAvYreNzVEkrWg5Gdcvg). Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "required": true,
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 1000
+        }
+      ],
+      "group": "Hook",
+      "description": "[unverified path] List many hooks on a form"
+    },
+    {
+      "id": "hook_get_logs",
+      "label": "Logs Hook",
+      "method": "GET",
+      "path": "/hook",
+      "fields": [
+        {
+          "id": "allowedDomain",
+          "label": "Allowed Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Allowed Domain of your KoBoToolbox account (host token in the API base URL)"
+        },
+        {
+          "id": "formId",
+          "label": "Form Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Form ID (e.g. aSAvYreNzVEkrWg5Gdcvg). Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "hookId",
+          "label": "Hook ID",
+          "type": "text",
+          "required": true,
+          "description": "Hook ID (starts with h, e.g. hVehywQ2oXPYGHJHKtqth4)"
+        },
+        {
+          "id": "status",
+          "label": "Log Status",
+          "type": "select",
+          "description": "Only retrieve logs with a specific status",
+          "options": [
+            {
+              "value": "",
+              "label": "All"
+            },
+            {
+              "value": "0",
+              "label": "Failed"
+            },
+            {
+              "value": "1",
+              "label": "Pending"
+            },
+            {
+              "value": "2",
+              "label": "Success"
+            }
+          ]
+        },
+        {
+          "id": "startDate",
+          "label": "Start Date",
+          "type": "text",
+          "placeholder": "2024-01-01T00:00:00Z",
+          "description": "Minimum date for the hook log to retrieve (ISO 8601 date-time)"
+        },
+        {
+          "id": "endDate",
+          "label": "End Date",
+          "type": "text",
+          "placeholder": "2024-01-01T00:00:00Z",
+          "description": "Maximum date for the hook log to retrieve (ISO 8601 date-time)"
+        }
+      ],
+      "group": "Hook",
+      "description": "[unverified path] Get hook logs"
+    },
+    {
+      "id": "hook_retry_all",
+      "label": "Retry All Hook",
+      "method": "POST",
+      "path": "/hook",
+      "fields": [
+        {
+          "id": "allowedDomain",
+          "label": "Allowed Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Allowed Domain of your KoBoToolbox account (host token in the API base URL)"
+        },
+        {
+          "id": "formId",
+          "label": "Form Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Form ID (e.g. aSAvYreNzVEkrWg5Gdcvg). Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "hookId",
+          "label": "Hook ID",
+          "type": "text",
+          "required": true,
+          "description": "Hook ID (starts with h, e.g. hVehywQ2oXPYGHJHKtqth4)"
+        }
+      ],
+      "group": "Hook",
+      "description": "[unverified path] Retry all failed attempts for a given hook"
+    },
+    {
+      "id": "hook_retry_one",
+      "label": "Retry One Hook",
+      "method": "POST",
+      "path": "/hook",
+      "fields": [
+        {
+          "id": "allowedDomain",
+          "label": "Allowed Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Allowed Domain of your KoBoToolbox account (host token in the API base URL)"
+        },
+        {
+          "id": "formId",
+          "label": "Form Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Form ID (e.g. aSAvYreNzVEkrWg5Gdcvg). Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "hookId",
+          "label": "Hook ID",
+          "type": "text",
+          "required": true,
+          "description": "Hook ID (starts with h, e.g. hVehywQ2oXPYGHJHKtqth4)"
+        },
+        {
+          "id": "logId",
+          "label": "Hook Log ID",
+          "type": "text",
+          "required": true,
+          "description": "Hook log ID (starts with hl, e.g. hlSbGKaUKzTVNoWEVMYbLHe)"
+        }
+      ],
+      "group": "Hook",
+      "description": "[unverified path] Retry a specific hook"
+    },
+    {
+      "id": "submission_delete",
+      "label": "Delete Submission",
+      "method": "DELETE",
+      "path": "/submission",
+      "fields": [
+        {
+          "id": "allowedDomain",
+          "label": "Allowed Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Allowed Domain of your KoBoToolbox account (host token in the API base URL)"
+        },
+        {
+          "id": "formId",
+          "label": "Form Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Form ID (e.g. aSAvYreNzVEkrWg5Gdcvg). Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "submissionId",
+          "label": "Submission ID",
+          "type": "text",
+          "required": true,
+          "description": "Submission ID (number, e.g. 245128)"
+        }
+      ],
+      "group": "Submission",
+      "description": "[unverified path] Delete a single submission"
+    },
+    {
+      "id": "submission_get",
+      "label": "Get Submission",
       "method": "GET",
       "path": "/submission",
-      "fields": []
+      "fields": [
+        {
+          "id": "allowedDomain",
+          "label": "Allowed Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Allowed Domain of your KoBoToolbox account (host token in the API base URL)"
+        },
+        {
+          "id": "formId",
+          "label": "Form Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Form ID (e.g. aSAvYreNzVEkrWg5Gdcvg). Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "submissionId",
+          "label": "Submission ID",
+          "type": "text",
+          "required": true,
+          "description": "Submission ID (number, e.g. 245128)"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: download, binaryNamingScheme, dataPropertyAttachmentsPrefixName, fields, version, selectMask, numberMask, reformat, sort)"
+        }
+      ],
+      "group": "Submission",
+      "description": "[unverified path] Get a single submission"
+    },
+    {
+      "id": "submission_get_all",
+      "label": "Get Many Submission",
+      "method": "GET",
+      "path": "/submission",
+      "fields": [
+        {
+          "id": "allowedDomain",
+          "label": "Allowed Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Allowed Domain of your KoBoToolbox account (host token in the API base URL)"
+        },
+        {
+          "id": "formId",
+          "label": "Form Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Form ID (e.g. aSAvYreNzVEkrWg5Gdcvg). Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "required": true,
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "filterType",
+          "label": "Filter",
+          "type": "select",
+          "defaultValue": "none",
+          "options": [
+            {
+              "value": "none",
+              "label": "None"
+            },
+            {
+              "value": "json",
+              "label": "JSON"
+            }
+          ]
+        },
+        {
+          "id": "filterJson",
+          "label": "Filters (JSON)",
+          "type": "text"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: download, binaryNamingScheme, dataPropertyAttachmentsPrefixName, fields, version, selectMask, numberMask, reformat, sort)"
+        }
+      ],
+      "group": "Submission",
+      "description": "[unverified path] Get many submissions"
+    },
+    {
+      "id": "submission_get_validation",
+      "label": "Get Validation Status Submission",
+      "method": "GET",
+      "path": "/submission",
+      "fields": [
+        {
+          "id": "allowedDomain",
+          "label": "Allowed Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Allowed Domain of your KoBoToolbox account (host token in the API base URL)"
+        },
+        {
+          "id": "formId",
+          "label": "Form Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Form ID (e.g. aSAvYreNzVEkrWg5Gdcvg). Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "submissionId",
+          "label": "Submission ID",
+          "type": "text",
+          "required": true,
+          "description": "Submission ID (number, e.g. 245128)"
+        }
+      ],
+      "group": "Submission",
+      "description": "[unverified path] Get the validation status for the submission"
+    },
+    {
+      "id": "submission_set_validation",
+      "label": "Update Validation Status Submission",
+      "method": "PATCH",
+      "path": "/submission",
+      "fields": [
+        {
+          "id": "allowedDomain",
+          "label": "Allowed Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Allowed Domain of your KoBoToolbox account (host token in the API base URL)"
+        },
+        {
+          "id": "formId",
+          "label": "Form Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Form ID (e.g. aSAvYreNzVEkrWg5Gdcvg). Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "submissionId",
+          "label": "Submission ID",
+          "type": "text",
+          "required": true,
+          "description": "Submission ID (number, e.g. 245128)"
+        },
+        {
+          "id": "validationStatus",
+          "label": "Validation Status",
+          "type": "select",
+          "required": true,
+          "description": "Desired Validation Status",
+          "options": [
+            {
+              "value": "validation_status_approved",
+              "label": "Approved"
+            },
+            {
+              "value": "validation_status_not_approved",
+              "label": "Not Approved"
+            },
+            {
+              "value": "validation_status_on_hold",
+              "label": "On Hold"
+            }
+          ]
+        }
+      ],
+      "group": "Submission",
+      "description": "[unverified path] Set the validation status of the submission"
+    },
+    {
+      "id": "file_create",
+      "label": "Create File",
+      "method": "POST",
+      "path": "/file",
+      "fields": [
+        {
+          "id": "allowedDomain",
+          "label": "Allowed Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Allowed Domain of your KoBoToolbox account (host token in the API base URL)"
+        },
+        {
+          "id": "formId",
+          "label": "Form Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Form ID (e.g. aSAvYreNzVEkrWg5Gdcvg). Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "fileMode",
+          "label": "File Upload Mode",
+          "type": "select",
+          "required": true,
+          "defaultValue": "binary",
+          "options": [
+            {
+              "value": "binary",
+              "label": "Binary File"
+            },
+            {
+              "value": "url",
+              "label": "URL"
+            }
+          ]
+        },
+        {
+          "id": "binaryPropertyName",
+          "label": "Property Name",
+          "type": "text",
+          "required": true,
+          "description": "Name of the binary property containing the file to upload. Supported types: image, audio, video, csv, xml, zip.",
+          "defaultValue": "data"
+        },
+        {
+          "id": "fileUrl",
+          "label": "File URL",
+          "type": "text",
+          "required": true,
+          "description": "HTTP(s) link to the file to upload"
+        }
+      ],
+      "group": "File",
+      "description": "[unverified path] Create a file"
+    },
+    {
+      "id": "file_delete",
+      "label": "Delete File",
+      "method": "DELETE",
+      "path": "/file",
+      "fields": [
+        {
+          "id": "allowedDomain",
+          "label": "Allowed Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Allowed Domain of your KoBoToolbox account (host token in the API base URL)"
+        },
+        {
+          "id": "formId",
+          "label": "Form Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Form ID (e.g. aSAvYreNzVEkrWg5Gdcvg). Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "fileId",
+          "label": "File ID",
+          "type": "text",
+          "required": true,
+          "description": "Uid of the file (should start with \"af\" e.g. \"afQoJxA4kmKEXVpkH6SYbhb\""
+        }
+      ],
+      "group": "File",
+      "description": "[unverified path] Delete file"
+    },
+    {
+      "id": "file_get",
+      "label": "Get File",
+      "method": "GET",
+      "path": "/file",
+      "fields": [
+        {
+          "id": "allowedDomain",
+          "label": "Allowed Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Allowed Domain of your KoBoToolbox account (host token in the API base URL)"
+        },
+        {
+          "id": "formId",
+          "label": "Form Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Form ID (e.g. aSAvYreNzVEkrWg5Gdcvg). Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "fileId",
+          "label": "File ID",
+          "type": "text",
+          "required": true,
+          "description": "Uid of the file (should start with \"af\" e.g. \"afQoJxA4kmKEXVpkH6SYbhb\""
+        },
+        {
+          "id": "binaryPropertyName",
+          "label": "Property Name",
+          "type": "text",
+          "required": true,
+          "description": "Name of the binary property to write the file into",
+          "defaultValue": "data"
+        },
+        {
+          "id": "download",
+          "label": "Download File Content",
+          "type": "toggle",
+          "required": true,
+          "description": "Whether to download the file content into a binary property",
+          "defaultValue": false
+        }
+      ],
+      "group": "File",
+      "description": "[unverified path] Get a file content"
+    },
+    {
+      "id": "file_get_all",
+      "label": "Get Many File",
+      "method": "GET",
+      "path": "/file",
+      "fields": [
+        {
+          "id": "allowedDomain",
+          "label": "Allowed Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Allowed Domain of your KoBoToolbox account (host token in the API base URL)"
+        },
+        {
+          "id": "formId",
+          "label": "Form Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Form ID (e.g. aSAvYreNzVEkrWg5Gdcvg). Choose from the list, or specify an ID using an expression."
+        }
+      ],
+      "group": "File",
+      "description": "[unverified path] Get many files"
     }
   ]
 }

@@ -4,114 +4,281 @@
   "description": "Consume PagerDuty API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.pagerduty.com",
   "endpoints": [
     {
-      "id": "incident_default",
-      "label": "List Incident",
-      "method": "GET",
-      "path": "/incident",
+      "id": "incident_create",
+      "label": "Create Incident",
+      "method": "POST",
+      "path": "/incidents",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
+          "id": "title",
+          "label": "Title",
+          "type": "text",
+          "required": true,
+          "description": "A succinct description of the nature, symptoms, cause, or effect of the incident"
+        },
+        {
+          "id": "serviceId",
+          "label": "Service Name or ID",
           "type": "select",
-          "in": "query",
-          "defaultValue": "apiToken",
-          "options": [
-            {
-              "value": "apiToken",
-              "label": "API Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
+          "required": true,
+          "description": "The incident will be created on this service. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "required": true,
+          "placeholder": "name@email.com",
+          "description": "The email address of a valid user associated with the account making the request"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: escalationPolicyId, details, incidentKey, priorityId, urgency)"
+        },
+        {
+          "id": "conferenceBridgeUi",
+          "label": "Conference Bridge",
+          "type": "json",
+          "placeholder": "Add Conference Bridge",
+          "description": "(JSON object; supported keys: conferenceBridgeValues, conferenceBridgeValues.conferenceNumber, conferenceBridgeValues.conferenceUrl)"
         }
-      ]
+      ],
+      "group": "Incident",
+      "description": "Create an incident"
     },
     {
-      "id": "incident_note_default",
-      "label": "List IncidentNote",
+      "id": "incident_get",
+      "label": "Get Incident",
       "method": "GET",
-      "path": "/incidentNote",
+      "path": "/incidents/{incidentId}",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "apiToken",
-          "options": [
-            {
-              "value": "apiToken",
-              "label": "API Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
+          "id": "incidentId",
+          "label": "Incident ID",
+          "type": "text",
+          "required": true,
+          "description": "Unique identifier for the incident",
+          "in": "path"
         }
-      ]
+      ],
+      "group": "Incident",
+      "description": "Get an incident"
     },
     {
-      "id": "log_entry_default",
-      "label": "List LogEntry",
+      "id": "incident_get_all",
+      "label": "Get Many Incident",
       "method": "GET",
-      "path": "/logEntry",
+      "path": "/incidents",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "apiToken",
-          "options": [
-            {
-              "value": "apiToken",
-              "label": "API Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: dateRange, incidentKey, include, serviceIds, since, sortBy, statuses, teamIds, timeZone, until, urgencies, userIds)"
         }
-      ]
+      ],
+      "group": "Incident",
+      "description": "Get many incidents"
     },
     {
-      "id": "user_default",
-      "label": "List User",
-      "method": "GET",
-      "path": "/user",
+      "id": "incident_update",
+      "label": "Update Incident",
+      "method": "PUT",
+      "path": "/incidents/{incidentId}",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "apiToken",
-          "options": [
-            {
-              "value": "apiToken",
-              "label": "API Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
+          "id": "incidentId",
+          "label": "Incident ID",
+          "type": "text",
+          "required": true,
+          "description": "Unique identifier for the incident",
+          "in": "path"
+        },
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "required": true,
+          "placeholder": "name@email.com",
+          "description": "The email address of a valid user associated with the account making the request"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: escalationLevel, escalationPolicyId, priorityId, resolution, status, title, urgency)"
+        },
+        {
+          "id": "conferenceBridgeUi",
+          "label": "Conference Bridge",
+          "type": "json",
+          "placeholder": "Add Conference Bridge",
+          "description": "(JSON object; supported keys: conferenceBridgeValues, conferenceBridgeValues.conferenceNumber, conferenceBridgeValues.conferenceUrl)"
         }
-      ]
+      ],
+      "group": "Incident",
+      "description": "Update an incident"
+    },
+    {
+      "id": "incident_note_create",
+      "label": "Create Incident Note",
+      "method": "POST",
+      "path": "/incidents/{incidentId}/notes",
+      "fields": [
+        {
+          "id": "incidentId",
+          "label": "Incident ID",
+          "type": "text",
+          "required": true,
+          "description": "Unique identifier for the incident",
+          "in": "path"
+        },
+        {
+          "id": "content",
+          "label": "Content",
+          "type": "text",
+          "required": true,
+          "description": "The note content"
+        },
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "required": true,
+          "placeholder": "name@email.com",
+          "description": "The email address of a valid user associated with the account making the request"
+        }
+      ],
+      "group": "Incident Note",
+      "description": "Create a incident note"
+    },
+    {
+      "id": "incident_note_get_all",
+      "label": "Get Many Incident Note",
+      "method": "GET",
+      "path": "/incidents/{incidentId}/notes",
+      "fields": [
+        {
+          "id": "incidentId",
+          "label": "Incident ID",
+          "type": "text",
+          "required": true,
+          "description": "Unique identifier for the incident",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        }
+      ],
+      "group": "Incident Note",
+      "description": "Get many incident's notes"
+    },
+    {
+      "id": "log_entry_get",
+      "label": "Get Log Entry",
+      "method": "GET",
+      "path": "/log_entries/{logEntryId}",
+      "fields": [
+        {
+          "id": "logEntryId",
+          "label": "Log Entry ID",
+          "type": "text",
+          "required": true,
+          "description": "Unique identifier for the log entry",
+          "in": "path"
+        }
+      ],
+      "group": "Log Entry",
+      "description": "Get a log entry"
+    },
+    {
+      "id": "log_entry_get_all",
+      "label": "Get Many Log Entry",
+      "method": "GET",
+      "path": "/log_entries",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: include, isOverview, since, timeZone, until)"
+        }
+      ],
+      "group": "Log Entry",
+      "description": "Get many log entries"
+    },
+    {
+      "id": "user_get",
+      "label": "Get User",
+      "method": "GET",
+      "path": "/users/{userId}",
+      "fields": [
+        {
+          "id": "userId",
+          "label": "User ID",
+          "type": "text",
+          "required": true,
+          "description": "Unique identifier for the user",
+          "in": "path"
+        }
+      ],
+      "group": "User",
+      "description": "Get a user"
     }
   ]
 }

@@ -4,69 +4,70 @@
   "description": "Sends data to AWS SNS",
   "category": "dev",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 10,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
-    "type": "none"
+    "type": "bearer",
+    "credentialType": "aws_sns"
   },
-  "baseUrl": "",
+  "baseUrl": "https://iam.amazonaws.com",
   "endpoints": [
     {
-      "id": "default_create",
+      "id": "create",
       "label": "Create",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/?Action=CreateTopic&params.join('&",
       "fields": [
         {
           "id": "name",
           "label": "Name",
           "type": "text",
-          "in": "query",
           "required": true
         },
         {
           "id": "options",
           "label": "Options",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add option"
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: displayName, fifoTopic)"
         }
-      ]
+      ],
+      "description": "Create a topic"
     },
     {
-      "id": "default_delete",
+      "id": "delete",
       "label": "Delete",
-      "method": "GET",
-      "path": "/",
+      "method": "DELETE",
+      "path": "/?Action=DeleteTopic&params.join('&",
       "fields": [
         {
           "id": "topic",
           "label": "Topic",
           "type": "text",
-          "in": "query",
-          "required": true
+          "required": true,
+          "description": "(provide the ID)"
         }
-      ]
+      ],
+      "description": "Delete a topic"
     },
     {
-      "id": "default_publish",
+      "id": "publish",
       "label": "Publish",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/?Action=Publish&params.join('&",
       "fields": [
         {
           "id": "topic",
           "label": "Topic",
           "type": "text",
-          "in": "query",
-          "required": true
+          "required": true,
+          "description": "(provide the ID)"
         },
         {
           "id": "subject",
           "label": "Subject",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Subject when the message is delivered to email endpoints"
         },
@@ -74,11 +75,11 @@
           "id": "message",
           "label": "Message",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "The message you want to send"
         }
-      ]
+      ],
+      "description": "Publish a message to a topic"
     }
   ]
 }

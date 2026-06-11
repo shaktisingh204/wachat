@@ -4,42 +4,560 @@
   "description": "Consume Twist API",
   "category": "communication",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
     "credentialType": "oauth2"
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.twist.com/api/v3",
   "endpoints": [
     {
-      "id": "channel_default",
-      "label": "List Channel",
-      "method": "GET",
-      "path": "/channel",
-      "fields": []
+      "id": "channel_archive",
+      "label": "Archive Channel",
+      "method": "POST",
+      "path": "/channels/archive",
+      "fields": [
+        {
+          "id": "channelId",
+          "label": "Channel ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the channel"
+        }
+      ],
+      "group": "Channel",
+      "description": "Archive a channel"
     },
     {
-      "id": "comment_default",
-      "label": "List Comment",
-      "method": "GET",
-      "path": "/comment",
-      "fields": []
+      "id": "channel_create",
+      "label": "Create Channel",
+      "method": "POST",
+      "path": "/channels/add",
+      "fields": [
+        {
+          "id": "workspaceId",
+          "label": "Workspace Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the workspace. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "The name of the channel"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: color, description, public, temp_id, user_ids)"
+        }
+      ],
+      "group": "Channel",
+      "description": "Initiates a public or private channel-based conversation"
     },
     {
-      "id": "message_conversation_default",
-      "label": "List MessageConversation",
-      "method": "GET",
-      "path": "/messageConversation",
-      "fields": []
+      "id": "channel_delete",
+      "label": "Delete Channel",
+      "method": "POST",
+      "path": "/channels/remove",
+      "fields": [
+        {
+          "id": "channelId",
+          "label": "Channel ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the channel"
+        }
+      ],
+      "group": "Channel",
+      "description": "Delete a channel"
     },
     {
-      "id": "thread_default",
-      "label": "List Thread",
+      "id": "channel_get",
+      "label": "Get Channel",
       "method": "GET",
-      "path": "/thread",
-      "fields": []
+      "path": "/channels/getone",
+      "fields": [
+        {
+          "id": "channelId",
+          "label": "Channel ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the channel"
+        }
+      ],
+      "group": "Channel",
+      "description": "Get information about a channel"
+    },
+    {
+      "id": "channel_get_all",
+      "label": "Get Many Channel",
+      "method": "GET",
+      "path": "/channels/get",
+      "fields": [
+        {
+          "id": "workspaceId",
+          "label": "Workspace Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the workspace. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: archived)"
+        }
+      ],
+      "group": "Channel",
+      "description": "Get many channels"
+    },
+    {
+      "id": "channel_unarchive",
+      "label": "Unarchive Channel",
+      "method": "POST",
+      "path": "/channels/unarchive",
+      "fields": [
+        {
+          "id": "channelId",
+          "label": "Channel ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the channel"
+        }
+      ],
+      "group": "Channel",
+      "description": "Unarchive a channel"
+    },
+    {
+      "id": "channel_update",
+      "label": "Update Channel",
+      "method": "POST",
+      "path": "/channels/update",
+      "fields": [
+        {
+          "id": "channelId",
+          "label": "Channel ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the channel"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: color, description, name, public)"
+        }
+      ],
+      "group": "Channel",
+      "description": "Update a channel"
+    },
+    {
+      "id": "comment_create",
+      "label": "Create Comment",
+      "method": "POST",
+      "path": "/attachments/upload",
+      "fields": [
+        {
+          "id": "threadId",
+          "label": "Thread ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the thread"
+        },
+        {
+          "id": "content",
+          "label": "Content",
+          "type": "text",
+          "required": true,
+          "description": "The content of the comment"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: actionsUi, binaryProperties, direct_mentions, mark_thread_position, recipients, temp_id, send_as_integration)"
+        }
+      ],
+      "group": "Comment",
+      "description": "Create a new comment to a thread"
+    },
+    {
+      "id": "comment_delete",
+      "label": "Delete Comment",
+      "method": "POST",
+      "path": "/comments/remove",
+      "fields": [
+        {
+          "id": "commentId",
+          "label": "Comment ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the comment"
+        }
+      ],
+      "group": "Comment",
+      "description": "Delete a comment"
+    },
+    {
+      "id": "comment_get",
+      "label": "Get Comment",
+      "method": "GET",
+      "path": "/comments/getone",
+      "fields": [
+        {
+          "id": "commentId",
+          "label": "Comment ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the comment"
+        }
+      ],
+      "group": "Comment",
+      "description": "Get information about a comment"
+    },
+    {
+      "id": "comment_get_all",
+      "label": "Get Many Comment",
+      "method": "GET",
+      "path": "/comments/get",
+      "fields": [
+        {
+          "id": "threadId",
+          "label": "Thread ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the channel"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: as_ids, to_obj_index, newer_than_ts, older_than_ts, order_by, from_obj_index)"
+        }
+      ],
+      "group": "Comment",
+      "description": "Get many comments"
+    },
+    {
+      "id": "comment_update",
+      "label": "Update Comment",
+      "method": "POST",
+      "path": "/attachments/upload",
+      "fields": [
+        {
+          "id": "commentId",
+          "label": "Comment ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the comment"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: actionsUi, binaryProperties, content, direct_mentions)"
+        }
+      ],
+      "group": "Comment",
+      "description": "Update a comment"
+    },
+    {
+      "id": "message_conversation_create",
+      "label": "Create Message Conversation",
+      "method": "POST",
+      "path": "/attachments/upload",
+      "fields": [
+        {
+          "id": "workspaceId",
+          "label": "Workspace Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the workspace. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "conversationId",
+          "label": "Conversation Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the conversation. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "content",
+          "label": "Content",
+          "type": "text",
+          "description": "The content of the new message. Mentions can be used as [Name](twist-mention://user_id) for users or [Group name](twist-group-mention://group_id) for groups."
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "Other options to set (JSON object; supported keys: actionsUi, binaryProperties, direct_mentions)"
+        }
+      ],
+      "group": "Message Conversation",
+      "description": "Create a message in a conversation"
+    },
+    {
+      "id": "message_conversation_delete",
+      "label": "Delete Message Conversation",
+      "method": "POST",
+      "path": "/conversation_messages/remove",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Message ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the conversation message"
+        }
+      ],
+      "group": "Message Conversation",
+      "description": "Delete a message in a conversation"
+    },
+    {
+      "id": "message_conversation_get",
+      "label": "Get Message Conversation",
+      "method": "GET",
+      "path": "/conversation_messages/getone",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Message ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the conversation message"
+        }
+      ],
+      "group": "Message Conversation",
+      "description": "Get a message in a conversation"
+    },
+    {
+      "id": "message_conversation_get_all",
+      "label": "Get Many Message Conversation",
+      "method": "GET",
+      "path": "/conversation_messages/get",
+      "fields": [
+        {
+          "id": "workspaceId",
+          "label": "Workspace Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the workspace. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "conversationId",
+          "label": "Conversation Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the conversation. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "description": "Other options to set (JSON object; supported keys: to_obj_index, limit, order_by, from_obj_index)"
+        }
+      ],
+      "group": "Message Conversation",
+      "description": "Get many messages in a conversation"
+    },
+    {
+      "id": "message_conversation_update",
+      "label": "Update Message Conversation",
+      "method": "POST",
+      "path": "/attachments/upload",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Conversation Message ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the conversation message"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "description": "Other options to set (JSON object; supported keys: actionsUi, binaryProperties, content, direct_mentions)"
+        }
+      ],
+      "group": "Message Conversation",
+      "description": "Update a message in a conversation"
+    },
+    {
+      "id": "thread_create",
+      "label": "Create Thread",
+      "method": "POST",
+      "path": "/attachments/upload",
+      "fields": [
+        {
+          "id": "channelId",
+          "label": "Channel ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the channel"
+        },
+        {
+          "id": "title",
+          "label": "Title",
+          "type": "text",
+          "required": true,
+          "description": "The title of the new thread (1 < length < 300)"
+        },
+        {
+          "id": "content",
+          "label": "Content",
+          "type": "text",
+          "required": true,
+          "description": "The content of the thread"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: actionsUi, binaryProperties, direct_mentions, recipients, send_as_integration, temp_id)"
+        }
+      ],
+      "group": "Thread",
+      "description": "Create a new thread in a channel"
+    },
+    {
+      "id": "thread_delete",
+      "label": "Delete Thread",
+      "method": "POST",
+      "path": "/threads/remove",
+      "fields": [
+        {
+          "id": "threadId",
+          "label": "Thread ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the thread"
+        }
+      ],
+      "group": "Thread",
+      "description": "Delete a thread"
+    },
+    {
+      "id": "thread_get",
+      "label": "Get Thread",
+      "method": "GET",
+      "path": "/threads/getone",
+      "fields": [
+        {
+          "id": "threadId",
+          "label": "Thread ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the thread"
+        }
+      ],
+      "group": "Thread",
+      "description": "Get information about a thread"
+    },
+    {
+      "id": "thread_get_all",
+      "label": "Get Many Thread",
+      "method": "GET",
+      "path": "/threads/get",
+      "fields": [
+        {
+          "id": "channelId",
+          "label": "Channel ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the channel"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: as_ids, filter_by, newer_than_ts, older_than_ts)"
+        }
+      ],
+      "group": "Thread",
+      "description": "Get many threads"
+    },
+    {
+      "id": "thread_update",
+      "label": "Update Thread",
+      "method": "POST",
+      "path": "/attachments/upload",
+      "fields": [
+        {
+          "id": "threadId",
+          "label": "Thread ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the thread"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: actionsUi, binaryProperties, content, direct_mentions, title)"
+        }
+      ],
+      "group": "Thread",
+      "description": "Update a thread"
     }
   ]
 }

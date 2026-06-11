@@ -4,8 +4,8 @@
   "description": "Consume Asana REST API",
   "category": "productivity",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -21,39 +21,21 @@
     {
       "id": "subtask_create",
       "label": "Create Subtask",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/tasks/{taskId}/subtasks",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "taskId",
           "label": "Parent Task ID",
           "type": "text",
-          "in": "query",
           "required": true,
-          "description": "The task to operate on"
+          "description": "The task to operate on",
+          "in": "path"
         },
         {
           "id": "name",
           "label": "Name",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "The name of the subtask to create"
         },
@@ -61,47 +43,31 @@
           "id": "otherProperties",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: assignee, assignee_status, completed, due_on, liked, notes, workspace)"
         }
-      ]
+      ],
+      "group": "Subtask",
+      "description": "Create a subtask"
     },
     {
       "id": "subtask_get_all",
       "label": "Get Many Subtask",
       "method": "GET",
-      "path": "/",
+      "path": "/tasks/{taskId}/subtasks",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "taskId",
           "label": "Parent Task ID",
           "type": "text",
-          "in": "query",
           "required": true,
-          "description": "The task to operate on"
+          "description": "The task to operate on",
+          "in": "path"
         },
         {
           "id": "returnAll",
           "label": "Return All",
           "type": "toggle",
-          "in": "query",
           "description": "Whether to return all results or only up to a given limit",
           "defaultValue": false
         },
@@ -109,7 +75,6 @@
           "id": "limit",
           "label": "Limit",
           "type": "number",
-          "in": "query",
           "description": "Max number of results to return",
           "defaultValue": 100
         },
@@ -117,48 +82,30 @@
           "id": "options",
           "label": "Options",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: opt_fields, opt_pretty)"
         }
-      ]
+      ],
+      "group": "Subtask",
+      "description": "Get many subtasks"
     },
     {
       "id": "task_create",
       "label": "Create Task",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/tasks",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "workspace",
           "label": "Workspace Name or ID",
-          "type": "select",
-          "in": "query",
+          "type": "text",
           "required": true,
-          "description": "The workspace to create the task in. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>.",
-          "options": []
+          "description": "The workspace to create the task in. Choose from the list, or specify an ID using an expression."
         },
         {
           "id": "name",
           "label": "Name",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "The name of the task to create"
         },
@@ -166,105 +113,57 @@
           "id": "otherProperties",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: assignee, assignee_status, completed, due_on, name, liked, notes, projects)"
         }
-      ]
+      ],
+      "group": "Task",
+      "description": "Create a task"
     },
     {
       "id": "task_delete",
       "label": "Delete Task",
-      "method": "GET",
-      "path": "/",
+      "method": "DELETE",
+      "path": "/tasks/${this.getNodeParameter('id', i",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "id",
           "label": "Task ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "The ID of the task to delete"
         }
-      ]
+      ],
+      "group": "Task",
+      "description": "Delete a task"
     },
     {
       "id": "task_get",
       "label": "Get Task",
       "method": "GET",
-      "path": "/",
+      "path": "/tasks/${this.getNodeParameter('id', i",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "id",
           "label": "Task ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "The ID of the task to get the data of"
         }
-      ]
+      ],
+      "group": "Task",
+      "description": "Get a task"
     },
     {
       "id": "task_get_all",
       "label": "Get Many Task",
       "method": "GET",
-      "path": "/",
+      "path": "/tasks",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "returnAll",
           "label": "Return All",
           "type": "toggle",
-          "in": "query",
           "description": "Whether to return all results or only up to a given limit",
           "defaultValue": false
         },
@@ -272,7 +171,6 @@
           "id": "limit",
           "label": "Limit",
           "type": "number",
-          "in": "query",
           "description": "Max number of results to return",
           "defaultValue": 100
         },
@@ -280,133 +178,78 @@
           "id": "filters",
           "label": "Filters",
           "type": "json",
-          "in": "query",
           "placeholder": "Add Filter",
-          "description": "Properties to search for"
+          "description": "Properties to search for (JSON object; supported keys: assignee, opt_fields, opt_pretty, project, section, workspace, completed_since, modified_since)"
         }
-      ]
+      ],
+      "group": "Task",
+      "description": "Get many tasks"
     },
     {
       "id": "task_move",
       "label": "Move Task",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/sections/{sectionId}/addTask",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "id",
           "label": "Task ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "The ID of the task to be moved"
         },
         {
           "id": "projectId",
           "label": "Project Name or ID",
-          "type": "select",
-          "in": "query",
+          "type": "text",
           "required": true,
-          "description": "Project to show the sections of. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>.",
-          "options": []
+          "description": "Project to show the sections of. Choose from the list, or specify an ID using an expression."
         },
         {
           "id": "section",
           "label": "Section Name or ID",
-          "type": "select",
-          "in": "query",
+          "type": "text",
           "required": true,
-          "description": "The Section to move the task to. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>.",
-          "options": []
+          "description": "The Section to move the task to. Choose from the list, or specify an ID using an expression."
         }
-      ]
+      ],
+      "group": "Task",
+      "description": "Move a task"
     },
     {
       "id": "task_search",
       "label": "Search Task",
       "method": "GET",
-      "path": "/",
+      "path": "/workspaces/{workspaceId}/tasks/search",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "workspace",
           "label": "Workspace Name or ID",
-          "type": "select",
-          "in": "query",
+          "type": "text",
           "required": true,
-          "description": "The workspace in which the task is searched. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>.",
-          "options": []
+          "description": "The workspace in which the task is searched. Choose from the list, or specify an ID using an expression."
         },
         {
           "id": "searchTaskProperties",
           "label": "Filters",
           "type": "json",
-          "in": "query",
           "placeholder": "Add Filter",
-          "description": "Properties to search for"
+          "description": "Properties to search for (JSON object; supported keys: completed, text)"
         }
-      ]
+      ],
+      "group": "Task",
+      "description": "Search for tasks"
     },
     {
       "id": "task_update",
       "label": "Update Task",
-      "method": "GET",
-      "path": "/",
+      "method": "PUT",
+      "path": "/tasks/${this.getNodeParameter('id', i",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "id",
           "label": "Task ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "The ID of the task to update the data of"
         },
@@ -414,39 +257,23 @@
           "id": "otherProperties",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: assignee, assignee_status, completed, due_on, name, liked, notes, projects)"
         }
-      ]
+      ],
+      "group": "Task",
+      "description": "Update a task"
     },
     {
       "id": "task_comment_add",
-      "label": "Add TaskComment",
-      "method": "GET",
-      "path": "/",
+      "label": "Add Task Comment",
+      "method": "POST",
+      "path": "/tasks/{taskId}/stories",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "id",
           "label": "Task ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "The ID of the task to add the comment to"
         },
@@ -454,7 +281,6 @@
           "id": "isTextHtml",
           "label": "Is Text HTML",
           "type": "toggle",
-          "in": "query",
           "description": "Whether body is HTML or simple text",
           "defaultValue": false
         },
@@ -462,89 +288,47 @@
           "id": "text",
           "label": "Text",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "The plain text of the comment to add"
         },
         {
-          "id": "text",
-          "label": "HTML Text",
-          "type": "text",
-          "in": "query",
-          "required": true,
-          "description": "Comment as HTML string. Do not use together with plain text."
-        },
-        {
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
           "placeholder": "Add Field",
-          "description": "Properties of the task comment"
+          "description": "Properties of the task comment (JSON object; supported keys: is_pinned)"
         }
-      ]
+      ],
+      "group": "Task Comment",
+      "description": "Add a comment to a task"
     },
     {
       "id": "task_comment_remove",
-      "label": "Remove TaskComment",
-      "method": "GET",
-      "path": "/",
+      "label": "Remove Task Comment",
+      "method": "DELETE",
+      "path": "/stories/{commentId}",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "id",
           "label": "Comment ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "The ID of the comment to be removed"
         }
-      ]
+      ],
+      "group": "Task Comment",
+      "description": "Remove a comment from a task"
     },
     {
       "id": "task_project_add",
-      "label": "Add TaskProject",
-      "method": "GET",
-      "path": "/",
+      "label": "Add Task Project",
+      "method": "POST",
+      "path": "/tasks/{taskId}/addProject",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "id",
           "label": "Task ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "The ID of the task to add the project to"
         },
@@ -552,48 +336,30 @@
           "id": "project",
           "label": "Project Name or ID",
           "type": "select",
-          "in": "query",
           "required": true,
-          "description": "The project where the task will be added. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>."
+          "description": "The project where the task will be added. Choose from the list, or specify an ID using an expression."
         },
         {
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
           "placeholder": "Add Field",
-          "description": "Other properties to set"
+          "description": "Other properties to set (JSON object; supported keys: insert_after, insert_before, section)"
         }
-      ]
+      ],
+      "group": "Task Project",
+      "description": "Add a task to a project"
     },
     {
       "id": "task_project_remove",
-      "label": "Remove TaskProject",
-      "method": "GET",
-      "path": "/",
+      "label": "Remove Task Project",
+      "method": "POST",
+      "path": "/tasks/{taskId}/removeProject",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "id",
           "label": "Task ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "The ID of the task to add the project to"
         },
@@ -601,40 +367,23 @@
           "id": "project",
           "label": "Project Name or ID",
           "type": "select",
-          "in": "query",
           "required": true,
-          "description": "The project where the task will be removed from. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>."
+          "description": "The project where the task will be removed from. Choose from the list, or specify an ID using an expression."
         }
-      ]
+      ],
+      "group": "Task Project",
+      "description": "Remove a task from a project"
     },
     {
       "id": "task_tag_add",
-      "label": "Add TaskTag",
-      "method": "GET",
-      "path": "/",
+      "label": "Add Task Tag",
+      "method": "POST",
+      "path": "/tasks/{taskId}/addTag",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "id",
           "label": "Task ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "The ID of the task to add the tag to"
         },
@@ -642,40 +391,23 @@
           "id": "tag",
           "label": "Tags Name or ID",
           "type": "select",
-          "in": "query",
           "required": true,
-          "description": "The tag that should be added. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>."
+          "description": "The tag that should be added. Choose from the list, or specify an ID using an expression."
         }
-      ]
+      ],
+      "group": "Task Tag",
+      "description": "Add a tag to a task"
     },
     {
       "id": "task_tag_remove",
-      "label": "Remove TaskTag",
-      "method": "GET",
-      "path": "/",
+      "label": "Remove Task Tag",
+      "method": "POST",
+      "path": "/tasks/{taskId}/removeTag",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "id",
           "label": "Task ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "The ID of the task to add the tag to"
         },
@@ -683,107 +415,58 @@
           "id": "tag",
           "label": "Tags Name or ID",
           "type": "select",
-          "in": "query",
           "required": true,
-          "description": "The tag that should be added. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>."
+          "description": "The tag that should be added. Choose from the list, or specify an ID using an expression."
         }
-      ]
+      ],
+      "group": "Task Tag",
+      "description": "Remove a tag from a task"
     },
     {
       "id": "user_get",
       "label": "Get User",
       "method": "GET",
-      "path": "/",
+      "path": "/users/{userId}",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "userId",
           "label": "User ID",
           "type": "text",
-          "in": "query",
           "required": true,
-          "description": "An identifier for the user to get data of. Can be one of an email address,the globally unique identifier for the user, or the keyword me to indicate the current user making the request."
+          "description": "An identifier for the user to get data of. Can be one of an email address,the globally unique identifier for the user, or the keyword me to indicate the current user making the request.",
+          "in": "path"
         }
-      ]
+      ],
+      "group": "User",
+      "description": "Get a user"
     },
     {
       "id": "user_get_all",
       "label": "Get Many User",
       "method": "GET",
-      "path": "/",
+      "path": "/workspaces/{workspaceId}/users",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "workspace",
           "label": "Workspace Name or ID",
-          "type": "select",
-          "in": "query",
+          "type": "text",
           "required": true,
-          "description": "The workspace in which to get users. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>.",
-          "options": []
+          "description": "The workspace in which to get users. Choose from the list, or specify an ID using an expression."
         }
-      ]
+      ],
+      "group": "User",
+      "description": "Get many users"
     },
     {
       "id": "project_create",
       "label": "Create Project",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/teams/{teamId}/projects",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "name",
           "label": "Name",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "The name of the project to create"
         },
@@ -791,128 +474,75 @@
           "id": "workspace",
           "label": "Workspace Name or ID",
           "type": "select",
-          "in": "query",
           "required": true,
-          "description": "The workspace to create the project in. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>."
+          "description": "The workspace to create the project in. Choose from the list, or specify an ID using an expression."
         },
         {
           "id": "team",
           "label": "Team Name or ID",
           "type": "select",
-          "in": "query",
-          "description": "The team this project will be assigned to. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>."
+          "description": "The team this project will be assigned to. Choose from the list, or specify an ID using an expression."
         },
         {
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
           "placeholder": "Add Property",
-          "description": "Other properties to set"
+          "description": "Other properties to set (JSON object; supported keys: color, due_on, notes, privacy_setting)"
         }
-      ]
+      ],
+      "group": "Project",
+      "description": "Create a new project"
     },
     {
       "id": "project_delete",
       "label": "Delete Project",
-      "method": "GET",
-      "path": "/",
+      "method": "DELETE",
+      "path": "/projects/{projectId}",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "id",
           "label": "Project ID",
           "type": "text",
-          "in": "query",
           "required": true
         }
-      ]
+      ],
+      "group": "Project",
+      "description": "Delete a project"
     },
     {
       "id": "project_get",
       "label": "Get Project",
       "method": "GET",
-      "path": "/",
+      "path": "/projects/{projectId}",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "id",
           "label": "Project ID",
           "type": "text",
-          "in": "query",
           "required": true
         }
-      ]
+      ],
+      "group": "Project",
+      "description": "Get a project"
     },
     {
       "id": "project_get_all",
       "label": "Get Many Project",
       "method": "GET",
-      "path": "/",
+      "path": "/projects",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "workspace",
           "label": "Workspace Name or ID",
-          "type": "select",
-          "in": "query",
+          "type": "text",
           "required": true,
-          "description": "The workspace in which to get users. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>.",
-          "options": []
+          "description": "The workspace in which to get users. Choose from the list, or specify an ID using an expression."
         },
         {
           "id": "returnAll",
           "label": "Return All",
           "type": "toggle",
-          "in": "query",
           "description": "Whether to return all results or only up to a given limit",
           "defaultValue": false
         },
@@ -920,7 +550,6 @@
           "id": "limit",
           "label": "Limit",
           "type": "number",
-          "in": "query",
           "description": "Max number of results to return",
           "defaultValue": 100
         },
@@ -928,49 +557,30 @@
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
           "placeholder": "Add Property",
-          "description": "Other properties to set"
+          "description": "Other properties to set (JSON object; supported keys: archived, team)"
         }
-      ]
+      ],
+      "group": "Project",
+      "description": "Get many projects"
     },
     {
       "id": "project_update",
       "label": "Update Project",
-      "method": "GET",
-      "path": "/",
+      "method": "PUT",
+      "path": "/projects/{projectId}",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "workspace",
           "label": "Workspace Name or ID",
-          "type": "select",
-          "in": "query",
+          "type": "text",
           "required": true,
-          "description": "The workspace in which to get users. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>.",
-          "options": []
+          "description": "The workspace in which to get users. Choose from the list, or specify an ID using an expression."
         },
         {
           "id": "id",
           "label": "Project ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "The ID of the project to update the data of"
         },
@@ -978,11 +588,12 @@
           "id": "updateFields",
           "label": "Update Fields",
           "type": "json",
-          "in": "query",
           "placeholder": "Add Property",
-          "description": "Other properties to set"
+          "description": "Other properties to set (JSON object; supported keys: color, due_on, name, notes, owner, privacy_setting, team)"
         }
-      ]
+      ],
+      "group": "Project",
+      "description": "Update a project"
     }
   ]
 }

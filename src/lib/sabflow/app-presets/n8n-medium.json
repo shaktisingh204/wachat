@@ -4,43 +4,25 @@
   "description": "Consume Medium API",
   "category": "communication",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.medium.com/v1",
   "endpoints": [
     {
       "id": "post_create",
       "label": "Create Post",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/publications/{publicationId}/posts",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "publication",
           "label": "Publication",
           "type": "toggle",
-          "in": "query",
           "description": "Whether you are posting for a publication",
           "defaultValue": false
         },
@@ -48,14 +30,13 @@
           "id": "publicationId",
           "label": "Publication Name or ID",
           "type": "select",
-          "in": "query",
-          "description": "Publication IDs. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>."
+          "description": "Publication IDs. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
         },
         {
           "id": "title",
           "label": "Title",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "My Open Source Contribution",
           "description": "Title of the post. Max Length : 100 characters."
@@ -64,7 +45,6 @@
           "id": "contentFormat",
           "label": "Content Format",
           "type": "select",
-          "in": "query",
           "required": true,
           "description": "The format of the content to be posted",
           "options": [
@@ -82,7 +62,6 @@
           "id": "content",
           "label": "Content",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "My open source contribution",
           "description": "The body of the post, in a valid semantic HTML fragment, or Markdown"
@@ -91,39 +70,23 @@
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: canonicalUrl, license, notifyFollowers, publishStatus, tags)"
         }
-      ]
+      ],
+      "group": "Post",
+      "description": "Create a post"
     },
     {
       "id": "publication_get_all",
       "label": "Get Many Publication",
       "method": "GET",
-      "path": "/",
+      "path": "/me",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "returnAll",
           "label": "Return All",
           "type": "toggle",
-          "in": "query",
           "description": "Whether to return all results or only up to a given limit",
           "defaultValue": false
         },
@@ -131,11 +94,12 @@
           "id": "limit",
           "label": "Limit",
           "type": "number",
-          "in": "query",
           "description": "Max number of results to return",
           "defaultValue": 100
         }
-      ]
+      ],
+      "group": "Publication",
+      "description": "Get many publications"
     }
   ]
 }

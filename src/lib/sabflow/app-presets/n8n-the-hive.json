@@ -4,49 +4,173 @@
   "description": "Consume TheHive API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 4,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://{host}/api",
   "endpoints": [
     {
-      "id": "alert_default",
-      "label": "List Alert",
-      "method": "GET",
-      "path": "/alert",
-      "fields": []
+      "id": "log_create",
+      "label": "Create Log",
+      "method": "POST",
+      "path": "/case/task/{taskId}/log",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your TheHive server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "taskId",
+          "label": "Task ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the task",
+          "in": "path"
+        },
+        {
+          "id": "message",
+          "label": "Message",
+          "type": "text",
+          "required": true,
+          "description": "Content of the Log"
+        },
+        {
+          "id": "startDate",
+          "label": "Start Date",
+          "type": "text",
+          "required": true,
+          "placeholder": "2024-01-01T00:00:00Z",
+          "description": "Date of the log submission default=now (ISO 8601 date-time)"
+        },
+        {
+          "id": "status",
+          "label": "Status",
+          "type": "select",
+          "required": true,
+          "description": "Status of the log (Ok or Deleted) default=Ok",
+          "options": [
+            {
+              "value": "Ok",
+              "label": "Ok"
+            },
+            {
+              "value": "Deleted",
+              "label": "Deleted"
+            }
+          ]
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: attachmentValues)"
+        }
+      ],
+      "group": "Log",
+      "description": "Create task log"
     },
     {
-      "id": "case_default",
-      "label": "List Case",
-      "method": "GET",
-      "path": "/case",
-      "fields": []
+      "id": "log_execute_responder",
+      "label": "Execute Responder Log",
+      "method": "POST",
+      "path": "/connector/cortex/action' as string",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your TheHive server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "id",
+          "label": "Log ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "responder",
+          "label": "Responder Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        }
+      ],
+      "group": "Log",
+      "description": "Execute a responder on a selected log"
     },
     {
-      "id": "log_default",
-      "label": "List Log",
-      "method": "GET",
-      "path": "/log",
-      "fields": []
+      "id": "log_get_all",
+      "label": "Get Many Log",
+      "method": "POST",
+      "path": "/v1/query",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your TheHive server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "taskId",
+          "label": "Task ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the task"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        }
+      ],
+      "group": "Log",
+      "description": "Get many task logs"
     },
     {
-      "id": "observable_default",
-      "label": "List Observable",
-      "method": "GET",
-      "path": "/observable",
-      "fields": []
-    },
-    {
-      "id": "task_default",
-      "label": "List Task",
-      "method": "GET",
-      "path": "/task",
-      "fields": []
+      "id": "log_get",
+      "label": "Get Log",
+      "method": "POST",
+      "path": "/v1/query",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your TheHive server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "id",
+          "label": "Log ID",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "group": "Log",
+      "description": "Get a single log"
     }
   ]
 }

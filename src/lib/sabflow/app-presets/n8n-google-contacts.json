@@ -4,8 +4,8 @@
   "description": "Consume Google Contacts API",
   "category": "crm",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -16,14 +16,474 @@
       "credentialType": "oauth2"
     }
   },
-  "baseUrl": "",
+  "baseUrl": "https://people.googleapis.com/v1",
   "endpoints": [
     {
-      "id": "contact_default",
-      "label": "List Contact",
+      "id": "contact_create",
+      "label": "Create Contact",
+      "method": "POST",
+      "path": "/people:createContact",
+      "fields": [
+        {
+          "id": "familyName",
+          "label": "Family Name",
+          "type": "text"
+        },
+        {
+          "id": "givenName",
+          "label": "Given Name",
+          "type": "text"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: addressesUi, birthday, companyUi, customFieldsUi, emailsUi, eventsUi, fileAs, group, honorificPrefix, honorificSuffix, middleName, biographies, phoneUi, relationsUi)"
+        }
+      ],
+      "group": "Contact",
+      "description": "Create a contact"
+    },
+    {
+      "id": "contact_delete",
+      "label": "Delete Contact",
+      "method": "DELETE",
+      "path": "/people/{contactId}:deleteContact",
+      "fields": [
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Contact",
+      "description": "Delete a contact"
+    },
+    {
+      "id": "contact_get",
+      "label": "Get Contact",
       "method": "GET",
-      "path": "/contact",
-      "fields": []
+      "path": "/people/{contactId}",
+      "fields": [
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "fields",
+          "label": "Fields",
+          "type": "select",
+          "description": "A field mask to restrict which fields on each person are returned. Multiple fields can be specified by separating them with commas. (multiple values: comma-separated)",
+          "options": [
+            {
+              "value": "*",
+              "label": "*"
+            },
+            {
+              "value": "addresses",
+              "label": "Addresses"
+            },
+            {
+              "value": "biographies",
+              "label": "Biographies"
+            },
+            {
+              "value": "birthdays",
+              "label": "Birthdays"
+            },
+            {
+              "value": "coverPhotos",
+              "label": "Cover Photos"
+            },
+            {
+              "value": "emailAddresses",
+              "label": "Email Addresses"
+            },
+            {
+              "value": "events",
+              "label": "Events"
+            },
+            {
+              "value": "genders",
+              "label": "Genders"
+            },
+            {
+              "value": "imClients",
+              "label": "IM Clients"
+            },
+            {
+              "value": "interests",
+              "label": "Interests"
+            },
+            {
+              "value": "locales",
+              "label": "Locales"
+            },
+            {
+              "value": "memberships",
+              "label": "Memberships"
+            },
+            {
+              "value": "metadata",
+              "label": "Metadata"
+            },
+            {
+              "value": "names",
+              "label": "Names"
+            },
+            {
+              "value": "nicknames",
+              "label": "Nicknames"
+            },
+            {
+              "value": "occupations",
+              "label": "Occupations"
+            },
+            {
+              "value": "organizations",
+              "label": "Organizations"
+            },
+            {
+              "value": "phoneNumbers",
+              "label": "Phone Numbers"
+            },
+            {
+              "value": "photos",
+              "label": "Photos"
+            },
+            {
+              "value": "relations",
+              "label": "Relations"
+            },
+            {
+              "value": "residences",
+              "label": "Residences"
+            },
+            {
+              "value": "sipAddresses",
+              "label": "Sip Addresses"
+            },
+            {
+              "value": "skills",
+              "label": "Skills"
+            },
+            {
+              "value": "urls",
+              "label": "URLs"
+            },
+            {
+              "value": "userDefined",
+              "label": "User Defined"
+            }
+          ]
+        },
+        {
+          "id": "rawData",
+          "label": "RAW Data",
+          "type": "toggle",
+          "description": "Whether to return the data exactly in the way it got received from the API",
+          "defaultValue": false
+        }
+      ],
+      "group": "Contact",
+      "description": "Get a contact"
+    },
+    {
+      "id": "contact_get_all",
+      "label": "Get Many Contact",
+      "method": "GET",
+      "path": "/people:searchContacts",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "fields",
+          "label": "Fields",
+          "type": "select",
+          "description": "A field mask to restrict which fields on each person are returned. Multiple fields can be specified by separating them with commas. (multiple values: comma-separated)",
+          "options": [
+            {
+              "value": "*",
+              "label": "*"
+            },
+            {
+              "value": "addresses",
+              "label": "Addresses"
+            },
+            {
+              "value": "biographies",
+              "label": "Biographies"
+            },
+            {
+              "value": "birthdays",
+              "label": "Birthdays"
+            },
+            {
+              "value": "coverPhotos",
+              "label": "Cover Photos"
+            },
+            {
+              "value": "emailAddresses",
+              "label": "Email Addresses"
+            },
+            {
+              "value": "events",
+              "label": "Events"
+            },
+            {
+              "value": "genders",
+              "label": "Genders"
+            },
+            {
+              "value": "imClients",
+              "label": "IM Clients"
+            },
+            {
+              "value": "interests",
+              "label": "Interests"
+            },
+            {
+              "value": "locales",
+              "label": "Locales"
+            },
+            {
+              "value": "memberships",
+              "label": "Memberships"
+            },
+            {
+              "value": "metadata",
+              "label": "Metadata"
+            },
+            {
+              "value": "names",
+              "label": "Names"
+            },
+            {
+              "value": "nicknames",
+              "label": "Nicknames"
+            },
+            {
+              "value": "occupations",
+              "label": "Occupations"
+            },
+            {
+              "value": "organizations",
+              "label": "Organizations"
+            },
+            {
+              "value": "phoneNumbers",
+              "label": "Phone Numbers"
+            },
+            {
+              "value": "photos",
+              "label": "Photos"
+            },
+            {
+              "value": "relations",
+              "label": "Relations"
+            },
+            {
+              "value": "residences",
+              "label": "Residences"
+            },
+            {
+              "value": "sipAddresses",
+              "label": "Sip Addresses"
+            },
+            {
+              "value": "skills",
+              "label": "Skills"
+            },
+            {
+              "value": "urls",
+              "label": "URLs"
+            },
+            {
+              "value": "userDefined",
+              "label": "User Defined"
+            }
+          ]
+        },
+        {
+          "id": "useQuery",
+          "label": "Use Query",
+          "type": "toggle",
+          "description": "Whether or not to use a query to filter the results",
+          "defaultValue": false
+        },
+        {
+          "id": "query",
+          "label": "Query",
+          "type": "text",
+          "description": "The plain-text query for the request. The query is used to match prefix phrases of the fields on a person. For example, a person with name \"foo name\" matches queries such as \"f\", \"fo\", \"foo\", \"foo n\", \"nam\", etc., but not \"oo n\"."
+        },
+        {
+          "id": "rawData",
+          "label": "RAW Data",
+          "type": "toggle",
+          "description": "Whether to return the data exactly in the way it got received from the API",
+          "defaultValue": false
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: sortOrder)"
+        }
+      ],
+      "group": "Contact",
+      "description": "Retrieve many contacts"
+    },
+    {
+      "id": "contact_update",
+      "label": "Update Contact",
+      "method": "PATCH",
+      "path": "/people/{contactId}:updateContact",
+      "fields": [
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "fields",
+          "label": "Fields",
+          "type": "select",
+          "description": "A field mask to restrict which fields on each person are returned. Multiple fields can be specified by separating them with commas. (multiple values: comma-separated)",
+          "options": [
+            {
+              "value": "*",
+              "label": "*"
+            },
+            {
+              "value": "addresses",
+              "label": "Addresses"
+            },
+            {
+              "value": "biographies",
+              "label": "Biographies"
+            },
+            {
+              "value": "birthdays",
+              "label": "Birthdays"
+            },
+            {
+              "value": "coverPhotos",
+              "label": "Cover Photos"
+            },
+            {
+              "value": "emailAddresses",
+              "label": "Email Addresses"
+            },
+            {
+              "value": "events",
+              "label": "Events"
+            },
+            {
+              "value": "genders",
+              "label": "Genders"
+            },
+            {
+              "value": "imClients",
+              "label": "IM Clients"
+            },
+            {
+              "value": "interests",
+              "label": "Interests"
+            },
+            {
+              "value": "locales",
+              "label": "Locales"
+            },
+            {
+              "value": "memberships",
+              "label": "Memberships"
+            },
+            {
+              "value": "metadata",
+              "label": "Metadata"
+            },
+            {
+              "value": "names",
+              "label": "Names"
+            },
+            {
+              "value": "nicknames",
+              "label": "Nicknames"
+            },
+            {
+              "value": "occupations",
+              "label": "Occupations"
+            },
+            {
+              "value": "organizations",
+              "label": "Organizations"
+            },
+            {
+              "value": "phoneNumbers",
+              "label": "Phone Numbers"
+            },
+            {
+              "value": "photos",
+              "label": "Photos"
+            },
+            {
+              "value": "relations",
+              "label": "Relations"
+            },
+            {
+              "value": "residences",
+              "label": "Residences"
+            },
+            {
+              "value": "sipAddresses",
+              "label": "Sip Addresses"
+            },
+            {
+              "value": "skills",
+              "label": "Skills"
+            },
+            {
+              "value": "urls",
+              "label": "URLs"
+            },
+            {
+              "value": "userDefined",
+              "label": "User Defined"
+            }
+          ]
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: etag, familyName, givenName, addressesUi, birthday, companyUi, customFieldsUi, emailsUi, eventsUi, fileAs, group, honorificPrefix, honorificSuffix, middleName, biographies, phoneUi, relationsUi)"
+        }
+      ],
+      "group": "Contact",
+      "description": "Update a contact"
     }
   ]
 }

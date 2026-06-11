@@ -4,12 +4,788 @@
   "description": "Consume Todoist API",
   "category": "productivity",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
-    "type": "none"
+    "type": "bearer",
+    "credentialType": "todoist"
   },
-  "baseUrl": "",
-  "endpoints": []
+  "baseUrl": "https://api.todoist.com/rest/v2",
+  "endpoints": [
+    {
+      "id": "task_close",
+      "label": "Close Task",
+      "method": "POST",
+      "path": "/tasks/{id}/close",
+      "fields": [
+        {
+          "id": "taskId",
+          "label": "Task ID",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "group": "Task",
+      "description": "Close a task"
+    },
+    {
+      "id": "task_create",
+      "label": "Create Task",
+      "method": "POST",
+      "path": "/tasks",
+      "fields": [
+        {
+          "id": "project",
+          "label": "Project Name or ID",
+          "type": "text",
+          "required": true,
+          "description": "The destination project. Choose from the list, or specify an ID. (provide the ID)"
+        },
+        {
+          "id": "labels",
+          "label": "Label Names",
+          "type": "select",
+          "description": "Optional labels that will be assigned to a created task. Choose from the list, or specify IDs using an expression. (multiple values: comma-separated)"
+        },
+        {
+          "id": "content",
+          "label": "Content",
+          "type": "textarea",
+          "required": true,
+          "description": "Task content"
+        },
+        {
+          "id": "options",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: description, dueDateTime, dueLang, dueString, parentId, priority, section, order, dueDate, assigneeId, duration, durationUnit, deadlineDate)"
+        }
+      ],
+      "group": "Task",
+      "description": "Create a new task"
+    },
+    {
+      "id": "task_delete",
+      "label": "Delete Task",
+      "method": "DELETE",
+      "path": "/tasks/{id}",
+      "fields": [
+        {
+          "id": "taskId",
+          "label": "Task ID",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "group": "Task",
+      "description": "Delete a task"
+    },
+    {
+      "id": "task_get",
+      "label": "Get Task",
+      "method": "GET",
+      "path": "/tasks/{id}",
+      "fields": [
+        {
+          "id": "taskId",
+          "label": "Task ID",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "group": "Task",
+      "description": "Get a task"
+    },
+    {
+      "id": "task_get_all",
+      "label": "Get Many Task",
+      "method": "GET",
+      "path": "/task",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: filter, ids, labelId, lang, parentId, projectId, sectionId)"
+        }
+      ],
+      "group": "Task",
+      "description": "[unverified path] Get many tasks"
+    },
+    {
+      "id": "task_move",
+      "label": "Move Task",
+      "method": "PATCH",
+      "path": "/task",
+      "fields": [
+        {
+          "id": "taskId",
+          "label": "Task ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "project",
+          "label": "Project Name or ID",
+          "type": "text",
+          "required": true,
+          "description": "The destination project. Choose from the list, or specify an ID. (provide the ID)"
+        },
+        {
+          "id": "section",
+          "label": "Section Name or ID",
+          "type": "select",
+          "description": "Section to which you want move the task. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "options",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: section, parent)"
+        }
+      ],
+      "group": "Task",
+      "description": "[unverified path] Move a task"
+    },
+    {
+      "id": "task_quick_add",
+      "label": "Quick Add Task",
+      "method": "POST",
+      "path": "/task",
+      "fields": [
+        {
+          "id": "text",
+          "label": "Text",
+          "type": "textarea",
+          "required": true,
+          "description": "Natural language text for quick adding task (e.g., \"Buy milk @Grocery #shopping tomorrow\"). It can include a due date in free form text, a project name starting with the \"#\" character (without spaces), a label starting with the \"@\" character, an assignee starting with the \"+\" character, a priority (e.g., p1), a deadline between \"{}\" (e.g. {in 3 days}), or a description starting from \"//\" until the end of the text."
+        },
+        {
+          "id": "options",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: note, reminder, auto_reminder)"
+        }
+      ],
+      "group": "Task",
+      "description": "[unverified path] Quick add a task using natural language"
+    },
+    {
+      "id": "task_reopen",
+      "label": "Reopen Task",
+      "method": "POST",
+      "path": "/tasks/{id}/reopen",
+      "fields": [
+        {
+          "id": "taskId",
+          "label": "Task ID",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "group": "Task",
+      "description": "Reopen a task"
+    },
+    {
+      "id": "task_update",
+      "label": "Update Task",
+      "method": "POST",
+      "path": "/tasks/{id}",
+      "fields": [
+        {
+          "id": "taskId",
+          "label": "Task ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: content, description, dueDateTime, dueLang, dueString, labels, priority, order, dueDate, assigneeId, duration, durationUnit, deadlineDate)"
+        }
+      ],
+      "group": "Task",
+      "description": "Update a task"
+    },
+    {
+      "id": "project_archive",
+      "label": "Archive Project",
+      "method": "POST",
+      "path": "/projects/{id}/archive",
+      "fields": [
+        {
+          "id": "projectId",
+          "label": "Project ID",
+          "type": "text",
+          "required": true,
+          "description": "The project ID - can be either a string or number"
+        }
+      ],
+      "group": "Project",
+      "description": "Archive a project"
+    },
+    {
+      "id": "project_create",
+      "label": "Create Project",
+      "method": "POST",
+      "path": "/projects",
+      "fields": [
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "Name of the project"
+        },
+        {
+          "id": "projectOptions",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: color, is_favorite, parent_id, view_style)"
+        }
+      ],
+      "group": "Project",
+      "description": "Create a new project"
+    },
+    {
+      "id": "project_delete",
+      "label": "Delete Project",
+      "method": "DELETE",
+      "path": "/projects/{id}",
+      "fields": [
+        {
+          "id": "projectId",
+          "label": "Project ID",
+          "type": "text",
+          "required": true,
+          "description": "The project ID - can be either a string or number"
+        }
+      ],
+      "group": "Project",
+      "description": "Delete a project"
+    },
+    {
+      "id": "project_get",
+      "label": "Get Project",
+      "method": "GET",
+      "path": "/projects/{id}",
+      "fields": [
+        {
+          "id": "projectId",
+          "label": "Project ID",
+          "type": "text",
+          "required": true,
+          "description": "The project ID - can be either a string or number"
+        }
+      ],
+      "group": "Project",
+      "description": "Get a project"
+    },
+    {
+      "id": "project_get_collaborators",
+      "label": "Get Collaborators Project",
+      "method": "GET",
+      "path": "/project",
+      "fields": [
+        {
+          "id": "projectId",
+          "label": "Project ID",
+          "type": "text",
+          "required": true,
+          "description": "The project ID - can be either a string or number"
+        }
+      ],
+      "group": "Project",
+      "description": "[unverified path] Get project collaborators"
+    },
+    {
+      "id": "project_get_all",
+      "label": "Get Many Project",
+      "method": "GET",
+      "path": "/project",
+      "fields": [],
+      "group": "Project",
+      "description": "[unverified path] Get many projects"
+    },
+    {
+      "id": "project_unarchive",
+      "label": "Unarchive Project",
+      "method": "POST",
+      "path": "/projects/{id}/unarchive",
+      "fields": [
+        {
+          "id": "projectId",
+          "label": "Project ID",
+          "type": "text",
+          "required": true,
+          "description": "The project ID - can be either a string or number"
+        }
+      ],
+      "group": "Project",
+      "description": "Unarchive a project"
+    },
+    {
+      "id": "project_update",
+      "label": "Update Project",
+      "method": "POST",
+      "path": "/projects/{id}",
+      "fields": [
+        {
+          "id": "projectId",
+          "label": "Project ID",
+          "type": "text",
+          "required": true,
+          "description": "The project ID - can be either a string or number"
+        },
+        {
+          "id": "projectUpdateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: name, color, is_favorite, view_style)"
+        }
+      ],
+      "group": "Project",
+      "description": "Update a project"
+    },
+    {
+      "id": "section_create",
+      "label": "Create Section",
+      "method": "POST",
+      "path": "/sections",
+      "fields": [
+        {
+          "id": "sectionProject",
+          "label": "Project Name or ID",
+          "type": "text",
+          "required": true,
+          "description": "The project to add the section to (provide the ID)"
+        },
+        {
+          "id": "sectionName",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "Name of the section"
+        },
+        {
+          "id": "sectionOptions",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: order)"
+        }
+      ],
+      "group": "Section",
+      "description": "Create a new section"
+    },
+    {
+      "id": "section_delete",
+      "label": "Delete Section",
+      "method": "DELETE",
+      "path": "/sections/{id}",
+      "fields": [
+        {
+          "id": "sectionId",
+          "label": "Section ID",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "group": "Section",
+      "description": "Delete a section"
+    },
+    {
+      "id": "section_get",
+      "label": "Get Section",
+      "method": "GET",
+      "path": "/sections/{id}",
+      "fields": [
+        {
+          "id": "sectionId",
+          "label": "Section ID",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "group": "Section",
+      "description": "Get a section"
+    },
+    {
+      "id": "section_get_all",
+      "label": "Get Many Section",
+      "method": "GET",
+      "path": "/section",
+      "fields": [
+        {
+          "id": "sectionFilters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: project_id)"
+        }
+      ],
+      "group": "Section",
+      "description": "[unverified path] Get many sections"
+    },
+    {
+      "id": "section_update",
+      "label": "Update Section",
+      "method": "POST",
+      "path": "/sections/{id}",
+      "fields": [
+        {
+          "id": "sectionId",
+          "label": "Section ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "sectionUpdateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: name)"
+        }
+      ],
+      "group": "Section",
+      "description": "Update a section"
+    },
+    {
+      "id": "comment_create",
+      "label": "Create Comment",
+      "method": "POST",
+      "path": "/comments",
+      "fields": [
+        {
+          "id": "commentTaskId",
+          "label": "Task ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the task to comment on"
+        },
+        {
+          "id": "commentContent",
+          "label": "Content",
+          "type": "textarea",
+          "required": true,
+          "description": "Comment content"
+        }
+      ],
+      "group": "Comment",
+      "description": "Create a new comment"
+    },
+    {
+      "id": "comment_delete",
+      "label": "Delete Comment",
+      "method": "DELETE",
+      "path": "/comments/{id}",
+      "fields": [
+        {
+          "id": "commentId",
+          "label": "Comment ID",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "group": "Comment",
+      "description": "Delete a comment"
+    },
+    {
+      "id": "comment_get",
+      "label": "Get Comment",
+      "method": "GET",
+      "path": "/comments/{id}",
+      "fields": [
+        {
+          "id": "commentId",
+          "label": "Comment ID",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "group": "Comment",
+      "description": "Get a comment"
+    },
+    {
+      "id": "comment_get_all",
+      "label": "Get Many Comment",
+      "method": "GET",
+      "path": "/comment",
+      "fields": [
+        {
+          "id": "commentFilters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: task_id, project_id)"
+        }
+      ],
+      "group": "Comment",
+      "description": "[unverified path] Get many comments"
+    },
+    {
+      "id": "comment_update",
+      "label": "Update Comment",
+      "method": "POST",
+      "path": "/comments/{id}",
+      "fields": [
+        {
+          "id": "commentId",
+          "label": "Comment ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "commentUpdateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: content)"
+        }
+      ],
+      "group": "Comment",
+      "description": "Update a comment"
+    },
+    {
+      "id": "label_create",
+      "label": "Create Label",
+      "method": "POST",
+      "path": "/labels",
+      "fields": [
+        {
+          "id": "labelName",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "Name of the label"
+        },
+        {
+          "id": "labelOptions",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: color, order, is_favorite)"
+        }
+      ],
+      "group": "Label",
+      "description": "Create a new label"
+    },
+    {
+      "id": "label_delete",
+      "label": "Delete Label",
+      "method": "DELETE",
+      "path": "/labels/{id}",
+      "fields": [
+        {
+          "id": "labelId",
+          "label": "Label ID",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "group": "Label",
+      "description": "Delete a label"
+    },
+    {
+      "id": "label_get",
+      "label": "Get Label",
+      "method": "GET",
+      "path": "/labels/{id}",
+      "fields": [
+        {
+          "id": "labelId",
+          "label": "Label ID",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "group": "Label",
+      "description": "Get a label"
+    },
+    {
+      "id": "label_get_all",
+      "label": "Get Many Label",
+      "method": "GET",
+      "path": "/label",
+      "fields": [],
+      "group": "Label",
+      "description": "[unverified path] Get many labels"
+    },
+    {
+      "id": "label_update",
+      "label": "Update Label",
+      "method": "POST",
+      "path": "/labels/{id}",
+      "fields": [
+        {
+          "id": "labelId",
+          "label": "Label ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "labelUpdateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: name, color, order, is_favorite)"
+        }
+      ],
+      "group": "Label",
+      "description": "Update a label"
+    },
+    {
+      "id": "reminder_create",
+      "label": "Create Reminder",
+      "method": "POST",
+      "path": "/tasks",
+      "fields": [
+        {
+          "id": "itemId",
+          "label": "Task ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the task to attach reminder to"
+        },
+        {
+          "id": "dueDateType",
+          "label": "Due Date Type",
+          "type": "select",
+          "required": true,
+          "description": "How to specify when the reminder should trigger",
+          "defaultValue": "natural_language",
+          "options": [
+            {
+              "value": "natural_language",
+              "label": "Natural Language"
+            },
+            {
+              "value": "full_day",
+              "label": "Full-Day Date"
+            },
+            {
+              "value": "floating_time",
+              "label": "Floating Date with Time"
+            },
+            {
+              "value": "fixed_timezone",
+              "label": "Fixed Timezone Date with Time"
+            }
+          ]
+        },
+        {
+          "id": "natural_language_representation",
+          "label": "Natural Language Representation",
+          "type": "text",
+          "required": true,
+          "placeholder": "e.g., \"tomorrow 2pm\", \"monday 10:45am\"",
+          "description": "Human-readable date and time"
+        },
+        {
+          "id": "date",
+          "label": "Date",
+          "type": "text",
+          "required": true,
+          "placeholder": "YYYY-MM-DD",
+          "description": "Full-day date in YYYY-MM-DD format"
+        },
+        {
+          "id": "datetime",
+          "label": "Date Time",
+          "type": "text",
+          "required": true,
+          "placeholder": "2024-01-01T00:00:00Z",
+          "description": "Floating date and time (no timezone) (ISO 8601 date-time)"
+        },
+        {
+          "id": "timezone",
+          "label": "Timezone",
+          "type": "text",
+          "required": true,
+          "placeholder": "e.g., \"America/New_York\"",
+          "description": "Timezone for the fixed timezone date"
+        },
+        {
+          "id": "reminderOptions",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: type, minute_offset, notify_uid)"
+        }
+      ],
+      "group": "Reminder",
+      "description": "Create a new reminder"
+    },
+    {
+      "id": "reminder_delete",
+      "label": "Delete Reminder",
+      "method": "DELETE",
+      "path": "/tasks/{id}",
+      "fields": [
+        {
+          "id": "reminderId",
+          "label": "Reminder ID",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "group": "Reminder",
+      "description": "Delete a reminder"
+    },
+    {
+      "id": "reminder_get_all",
+      "label": "Get Many Reminder",
+      "method": "GET",
+      "path": "/reminder",
+      "fields": [],
+      "group": "Reminder",
+      "description": "[unverified path] Get many reminders"
+    },
+    {
+      "id": "reminder_update",
+      "label": "Update Reminder",
+      "method": "POST",
+      "path": "/tasks/{id}",
+      "fields": [
+        {
+          "id": "reminderId",
+          "label": "Reminder ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "reminderUpdateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: due, type, minute_offset, notify_uid)"
+        }
+      ],
+      "group": "Reminder",
+      "description": "Update a reminder"
+    }
+  ]
 }

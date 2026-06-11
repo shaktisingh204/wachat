@@ -4,126 +4,818 @@
   "description": "Consume Clockify REST API",
   "category": "productivity",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.clockify.me/api/v1",
   "endpoints": [
     {
-      "id": "client_default",
-      "label": "List Client",
-      "method": "GET",
-      "path": "/client",
+      "id": "client_create",
+      "label": "Create Client",
+      "method": "POST",
+      "path": "/workspaces/{workspaceId}/clients",
       "fields": [
         {
           "id": "workspaceId",
           "label": "Workspace Name or ID",
           "type": "select",
-          "in": "query",
           "required": true,
-          "description": "Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>"
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        },
+        {
+          "id": "name",
+          "label": "Client Name",
+          "type": "text",
+          "required": true,
+          "description": "Name of client being created"
         }
-      ]
+      ],
+      "group": "Client",
+      "description": "Create a client"
     },
     {
-      "id": "project_default",
-      "label": "List Project",
-      "method": "GET",
-      "path": "/project",
+      "id": "client_delete",
+      "label": "Delete Client",
+      "method": "DELETE",
+      "path": "/workspaces/{workspaceId}/clients/{clientId}",
       "fields": [
         {
           "id": "workspaceId",
           "label": "Workspace Name or ID",
           "type": "select",
-          "in": "query",
           "required": true,
-          "description": "Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>"
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        },
+        {
+          "id": "clientId",
+          "label": "Client ID",
+          "type": "text",
+          "in": "path"
         }
-      ]
+      ],
+      "group": "Client",
+      "description": "Delete a client"
     },
     {
-      "id": "tag_default",
-      "label": "List Tag",
+      "id": "client_get",
+      "label": "Get Client",
       "method": "GET",
-      "path": "/tag",
+      "path": "/workspaces/{workspaceId}/clients/{clientId}",
       "fields": [
         {
           "id": "workspaceId",
           "label": "Workspace Name or ID",
           "type": "select",
-          "in": "query",
           "required": true,
-          "description": "Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>"
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        },
+        {
+          "id": "clientId",
+          "label": "Client ID",
+          "type": "text",
+          "in": "path"
         }
-      ]
+      ],
+      "group": "Client",
+      "description": "Get a client"
     },
     {
-      "id": "task_default",
-      "label": "List Task",
+      "id": "client_get_all",
+      "label": "Get Many Client",
       "method": "GET",
-      "path": "/task",
+      "path": "/workspaces/{workspaceId}/clients",
       "fields": [
         {
           "id": "workspaceId",
           "label": "Workspace Name or ID",
           "type": "select",
-          "in": "query",
           "required": true,
-          "description": "Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>"
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: archived, name, sort-order)"
         }
-      ]
+      ],
+      "group": "Client",
+      "description": "Get many clients"
     },
     {
-      "id": "time_entry_default",
-      "label": "List TimeEntry",
-      "method": "GET",
-      "path": "/timeEntry",
+      "id": "client_update",
+      "label": "Update Client",
+      "method": "PUT",
+      "path": "/workspaces/{workspaceId}/clients/{clientId}",
       "fields": [
         {
           "id": "workspaceId",
           "label": "Workspace Name or ID",
           "type": "select",
-          "in": "query",
           "required": true,
-          "description": "Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>"
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        },
+        {
+          "id": "clientId",
+          "label": "Client ID",
+          "type": "text",
+          "in": "path"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: address, archived)"
         }
-      ]
+      ],
+      "group": "Client",
+      "description": "Update a client"
     },
     {
-      "id": "user_default",
-      "label": "List User",
-      "method": "GET",
-      "path": "/user",
+      "id": "project_create",
+      "label": "Create Project",
+      "method": "POST",
+      "path": "/workspaces/{workspaceId}/projects",
       "fields": [
         {
           "id": "workspaceId",
           "label": "Workspace Name or ID",
           "type": "select",
-          "in": "query",
           "required": true,
-          "description": "Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>"
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        },
+        {
+          "id": "name",
+          "label": "Project Name",
+          "type": "text",
+          "required": true,
+          "description": "Name of project being created"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: billable, color, clientId, estimateUi, isPublic, note)"
         }
-      ]
+      ],
+      "group": "Project",
+      "description": "Create a project"
     },
     {
-      "id": "workspace_default",
-      "label": "List Workspace",
-      "method": "GET",
-      "path": "/workspace",
+      "id": "project_delete",
+      "label": "Delete Project",
+      "method": "DELETE",
+      "path": "/workspaces/{workspaceId}/projects/{projectId}",
       "fields": [
         {
           "id": "workspaceId",
           "label": "Workspace Name or ID",
           "type": "select",
-          "in": "query",
           "required": true,
-          "description": "Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>"
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        },
+        {
+          "id": "projectId",
+          "label": "Project ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
         }
-      ]
+      ],
+      "group": "Project",
+      "description": "Delete a project"
+    },
+    {
+      "id": "project_get",
+      "label": "Get Project",
+      "method": "GET",
+      "path": "/workspaces/{workspaceId}/projects/{projectId}",
+      "fields": [
+        {
+          "id": "workspaceId",
+          "label": "Workspace Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        },
+        {
+          "id": "projectId",
+          "label": "Project ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Project",
+      "description": "Get a project"
+    },
+    {
+      "id": "project_get_all",
+      "label": "Get Many Project",
+      "method": "GET",
+      "path": "/workspaces/{workspaceId}/projects",
+      "fields": [
+        {
+          "id": "workspaceId",
+          "label": "Workspace Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: archived, billable, clients, contains-client, client-status, contains-user, is-template, name, sort-column, sort-order, users, user-status)"
+        }
+      ],
+      "group": "Project",
+      "description": "Get many projects"
+    },
+    {
+      "id": "project_update",
+      "label": "Update Project",
+      "method": "PUT",
+      "path": "/workspaces/{workspaceId}/projects/{projectId}",
+      "fields": [
+        {
+          "id": "workspaceId",
+          "label": "Workspace Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        },
+        {
+          "id": "projectId",
+          "label": "Project ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: billable, color, clientId, estimateUi, isPublic, name, note)"
+        }
+      ],
+      "group": "Project",
+      "description": "Update a project"
+    },
+    {
+      "id": "tag_create",
+      "label": "Create Tag",
+      "method": "POST",
+      "path": "/workspaces/{workspaceId}/tags",
+      "fields": [
+        {
+          "id": "workspaceId",
+          "label": "Workspace Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "Name of tag being created"
+        }
+      ],
+      "group": "Tag",
+      "description": "Create a tag"
+    },
+    {
+      "id": "tag_delete",
+      "label": "Delete Tag",
+      "method": "DELETE",
+      "path": "/workspaces/{workspaceId}/tags/{tagId}",
+      "fields": [
+        {
+          "id": "workspaceId",
+          "label": "Workspace Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        },
+        {
+          "id": "tagId",
+          "label": "Tag ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Tag",
+      "description": "Delete a tag"
+    },
+    {
+      "id": "tag_get_all",
+      "label": "Get Many Tag",
+      "method": "GET",
+      "path": "/workspaces/{workspaceId}/tags",
+      "fields": [
+        {
+          "id": "workspaceId",
+          "label": "Workspace Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: archived, name, sort-column, sort-order)"
+        }
+      ],
+      "group": "Tag",
+      "description": "Get many tags"
+    },
+    {
+      "id": "tag_update",
+      "label": "Update Tag",
+      "method": "PUT",
+      "path": "/workspaces/{workspaceId}/tags/{tagId}",
+      "fields": [
+        {
+          "id": "workspaceId",
+          "label": "Workspace Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        },
+        {
+          "id": "tagId",
+          "label": "Tag ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: archived, name)"
+        }
+      ],
+      "group": "Tag",
+      "description": "Update a tag"
+    },
+    {
+      "id": "task_create",
+      "label": "Create Task",
+      "method": "POST",
+      "path": "/workspaces/{workspaceId}/projects/{projectId}/tasks",
+      "fields": [
+        {
+          "id": "workspaceId",
+          "label": "Workspace Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        },
+        {
+          "id": "projectId",
+          "label": "Project Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        },
+        {
+          "id": "name",
+          "label": "Task Name",
+          "type": "text",
+          "required": true,
+          "description": "Name of task to create"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: assigneeIds, estimate)"
+        }
+      ],
+      "group": "Task",
+      "description": "Create a task"
+    },
+    {
+      "id": "task_delete",
+      "label": "Delete Task",
+      "method": "DELETE",
+      "path": "/workspaces/{workspaceId}/projects/{projectId}/tasks/{taskId}",
+      "fields": [
+        {
+          "id": "workspaceId",
+          "label": "Workspace Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        },
+        {
+          "id": "projectId",
+          "label": "Project Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        },
+        {
+          "id": "taskId",
+          "label": "Task ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of task to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Task",
+      "description": "Delete a task"
+    },
+    {
+      "id": "task_get",
+      "label": "Get Task",
+      "method": "GET",
+      "path": "/workspaces/{workspaceId}/projects/{projectId}/tasks/{taskId}",
+      "fields": [
+        {
+          "id": "workspaceId",
+          "label": "Workspace Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        },
+        {
+          "id": "projectId",
+          "label": "Project Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        },
+        {
+          "id": "taskId",
+          "label": "Task ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of task to get",
+          "in": "path"
+        }
+      ],
+      "group": "Task",
+      "description": "Get a task"
+    },
+    {
+      "id": "task_get_all",
+      "label": "Get Many Task",
+      "method": "GET",
+      "path": "/workspaces/{workspaceId}/projects/{projectId}/tasks",
+      "fields": [
+        {
+          "id": "workspaceId",
+          "label": "Workspace Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        },
+        {
+          "id": "projectId",
+          "label": "Project Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: is-active, name, sort-column, sort-order)"
+        }
+      ],
+      "group": "Task",
+      "description": "Get many tasks"
+    },
+    {
+      "id": "task_update",
+      "label": "Update Task",
+      "method": "PUT",
+      "path": "/workspaces/{workspaceId}/projects/{projectId}/tasks/{taskId}",
+      "fields": [
+        {
+          "id": "workspaceId",
+          "label": "Workspace Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        },
+        {
+          "id": "projectId",
+          "label": "Project Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        },
+        {
+          "id": "taskId",
+          "label": "Task ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of task to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: assigneeIds, estimate, name, status)"
+        }
+      ],
+      "group": "Task",
+      "description": "Update a task"
+    },
+    {
+      "id": "time_entry_create",
+      "label": "Create Time Entry",
+      "method": "POST",
+      "path": "/workspaces/{workspaceId}/time-entries",
+      "fields": [
+        {
+          "id": "workspaceId",
+          "label": "Workspace Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        },
+        {
+          "id": "start",
+          "label": "Start",
+          "type": "text",
+          "required": true,
+          "placeholder": "2024-01-01T00:00:00Z",
+          "description": "(ISO 8601 date-time)"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: billable, customFieldsUi, description, end, projectId, tagIds, taskId)"
+        }
+      ],
+      "group": "Time Entry",
+      "description": "Create a time entry"
+    },
+    {
+      "id": "time_entry_delete",
+      "label": "Delete Time Entry",
+      "method": "DELETE",
+      "path": "/workspaces/{workspaceId}/time-entries/{timeEntryId}",
+      "fields": [
+        {
+          "id": "workspaceId",
+          "label": "Workspace Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        },
+        {
+          "id": "timeEntryId",
+          "label": "Time Entry ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Time Entry",
+      "description": "Delete a time entry"
+    },
+    {
+      "id": "time_entry_get",
+      "label": "Get Time Entry",
+      "method": "GET",
+      "path": "/workspaces/{workspaceId}/time-entries/{timeEntryId}",
+      "fields": [
+        {
+          "id": "workspaceId",
+          "label": "Workspace Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        },
+        {
+          "id": "timeEntryId",
+          "label": "Time Entry ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: consider-duration-format, hydrated)"
+        }
+      ],
+      "group": "Time Entry",
+      "description": "Get time entrie"
+    },
+    {
+      "id": "time_entry_update",
+      "label": "Update Time Entry",
+      "method": "PUT",
+      "path": "/workspaces/{workspaceId}/time-entries/{timeEntryId}",
+      "fields": [
+        {
+          "id": "workspaceId",
+          "label": "Workspace Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        },
+        {
+          "id": "timeEntryId",
+          "label": "Time Entry ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: billable, customFieldsUi, description, end, projectId, start, tagIds, taskId)"
+        }
+      ],
+      "group": "Time Entry",
+      "description": "Update a time entry"
+    },
+    {
+      "id": "user_get_all",
+      "label": "Get Many User",
+      "method": "GET",
+      "path": "/workspaces/{workspaceId}/users",
+      "fields": [
+        {
+          "id": "workspaceId",
+          "label": "Workspace Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: email, name, status, sort-column, sort-order)"
+        }
+      ],
+      "group": "User",
+      "description": "Get many users"
+    },
+    {
+      "id": "workspace_get_all",
+      "label": "Get Many Workspace",
+      "method": "GET",
+      "path": "/workspaces",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        }
+      ],
+      "group": "Workspace",
+      "description": "Get many workspaces"
     }
   ]
 }

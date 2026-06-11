@@ -4,42 +4,406 @@
   "description": "Integrate with the Quick Base RESTful API",
   "category": "data",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.quickbase.com/v1",
   "endpoints": [
     {
-      "id": "field_default",
-      "label": "List Field",
+      "id": "field_get_all",
+      "label": "Get Many Field",
       "method": "GET",
-      "path": "/field",
-      "fields": []
+      "path": "/fields",
+      "fields": [
+        {
+          "id": "tableId",
+          "label": "Table ID",
+          "type": "text",
+          "required": true,
+          "description": "The table identifier"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: includeFieldPerms)"
+        }
+      ],
+      "group": "Field",
+      "description": "Get many fields"
     },
     {
-      "id": "file_default",
-      "label": "List File",
-      "method": "GET",
-      "path": "/file",
-      "fields": []
+      "id": "file_delete",
+      "label": "Delete File",
+      "method": "DELETE",
+      "path": "/files/{tableId}/{recordId}/{fieldId}/{versionNumber}",
+      "fields": [
+        {
+          "id": "tableId",
+          "label": "Table ID",
+          "type": "text",
+          "required": true,
+          "description": "The table identifier",
+          "in": "path"
+        },
+        {
+          "id": "recordId",
+          "label": "Record ID",
+          "type": "text",
+          "required": true,
+          "description": "The unique identifier of the record",
+          "in": "path"
+        },
+        {
+          "id": "fieldId",
+          "label": "Field ID",
+          "type": "text",
+          "required": true,
+          "description": "The unique identifier of the field",
+          "in": "path"
+        },
+        {
+          "id": "versionNumber",
+          "label": "Version Number",
+          "type": "number",
+          "required": true,
+          "description": "The file attachment version number",
+          "defaultValue": 1,
+          "in": "path"
+        }
+      ],
+      "group": "File",
+      "description": "Delete a file"
     },
     {
-      "id": "record_default",
-      "label": "List Record",
+      "id": "file_download",
+      "label": "Download File",
       "method": "GET",
-      "path": "/record",
-      "fields": []
+      "path": "/files/{tableId}/{recordId}/{fieldId}/{versionNumber}",
+      "fields": [
+        {
+          "id": "tableId",
+          "label": "Table ID",
+          "type": "text",
+          "required": true,
+          "description": "The table identifier",
+          "in": "path"
+        },
+        {
+          "id": "recordId",
+          "label": "Record ID",
+          "type": "text",
+          "required": true,
+          "description": "The unique identifier of the record",
+          "in": "path"
+        },
+        {
+          "id": "fieldId",
+          "label": "Field ID",
+          "type": "text",
+          "required": true,
+          "description": "The unique identifier of the field",
+          "in": "path"
+        },
+        {
+          "id": "versionNumber",
+          "label": "Version Number",
+          "type": "number",
+          "required": true,
+          "description": "The file attachment version number",
+          "defaultValue": 1,
+          "in": "path"
+        },
+        {
+          "id": "binaryPropertyName",
+          "label": "Input Binary Field",
+          "type": "text",
+          "required": true,
+          "defaultValue": "data"
+        }
+      ],
+      "group": "File",
+      "description": "Download a file"
     },
     {
-      "id": "report_default",
-      "label": "List Report",
+      "id": "record_create",
+      "label": "Create Record",
+      "method": "POST",
+      "path": "/records",
+      "fields": [
+        {
+          "id": "tableId",
+          "label": "Table ID",
+          "type": "text",
+          "required": true,
+          "description": "The table identifier"
+        },
+        {
+          "id": "columns",
+          "label": "Columns",
+          "type": "text",
+          "required": true,
+          "placeholder": "Select Fields...",
+          "description": "Comma-separated list of the properties which should used as columns for the new rows"
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: fields, useFieldIDs)"
+        }
+      ],
+      "group": "Record",
+      "description": "Create a record"
+    },
+    {
+      "id": "record_upsert",
+      "label": "Create or Update Record",
+      "method": "POST",
+      "path": "/records",
+      "fields": [
+        {
+          "id": "tableId",
+          "label": "Table ID",
+          "type": "text",
+          "required": true,
+          "description": "The table identifier"
+        },
+        {
+          "id": "columns",
+          "label": "Columns",
+          "type": "text",
+          "required": true,
+          "placeholder": "id,name,description",
+          "description": "Comma-separated list of the properties which should used as columns for the new rows"
+        },
+        {
+          "id": "updateKey",
+          "label": "Update Key",
+          "type": "text",
+          "description": "Update can use the key field on the table, or any other supported unique field"
+        },
+        {
+          "id": "mergeFieldId",
+          "label": "Merge Field Name or ID",
+          "type": "select",
+          "description": "You're updating records in a Quick Base table with data from an external file. In order for a merge like this to work, Quick Base needs a way to match records in the source data with corresponding records in the destination table.You make this possible by choosing the field in the app table that holds unique matching values. This is called a merge field.. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: fields, useFieldIDs)"
+        }
+      ],
+      "group": "Record",
+      "description": "Create a new record, or update the current one if it already exists (upsert)"
+    },
+    {
+      "id": "record_delete",
+      "label": "Delete Record",
+      "method": "DELETE",
+      "path": "/records",
+      "fields": [
+        {
+          "id": "tableId",
+          "label": "Table ID",
+          "type": "text",
+          "required": true,
+          "description": "The table identifier"
+        },
+        {
+          "id": "where",
+          "label": "Where",
+          "type": "text",
+          "required": true,
+          "description": "The filter to delete records. To delete all records specify a filter that will include all records, for example {3.GT.0} where 3 is the ID of the Record ID field."
+        }
+      ],
+      "group": "Record",
+      "description": "Delete a record"
+    },
+    {
+      "id": "record_get_all",
+      "label": "Get Many Record",
+      "method": "POST",
+      "path": "/records/query",
+      "fields": [
+        {
+          "id": "tableId",
+          "label": "Table ID",
+          "type": "text",
+          "required": true,
+          "description": "The table identifier"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: select, sortByUi, where)"
+        }
+      ],
+      "group": "Record",
+      "description": "Get many records"
+    },
+    {
+      "id": "record_update",
+      "label": "Update Record",
+      "method": "POST",
+      "path": "/records",
+      "fields": [
+        {
+          "id": "tableId",
+          "label": "Table ID",
+          "type": "text",
+          "required": true,
+          "description": "The table identifier"
+        },
+        {
+          "id": "columns",
+          "label": "Columns",
+          "type": "text",
+          "required": true,
+          "placeholder": "id,name,description",
+          "description": "Comma-separated list of the properties which should used as columns for the new rows"
+        },
+        {
+          "id": "updateKey",
+          "label": "Update Key",
+          "type": "text",
+          "description": "Update can use the key field on the table, or any other supported unique field"
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: fields, useFieldIDs)"
+        }
+      ],
+      "group": "Record",
+      "description": "Update a record"
+    },
+    {
+      "id": "report_get",
+      "label": "Get Report",
       "method": "GET",
-      "path": "/report",
-      "fields": []
+      "path": "/reports/{reportId}",
+      "fields": [
+        {
+          "id": "tableId",
+          "label": "Table ID",
+          "type": "text",
+          "required": true,
+          "description": "The table identifier"
+        },
+        {
+          "id": "reportId",
+          "label": "Report ID",
+          "type": "text",
+          "required": true,
+          "description": "The identifier of the report, unique to the table",
+          "in": "path"
+        }
+      ],
+      "group": "Report",
+      "description": "Get a report"
+    },
+    {
+      "id": "report_run",
+      "label": "Run Report",
+      "method": "POST",
+      "path": "/reports/{reportId}/run",
+      "fields": [
+        {
+          "id": "tableId",
+          "label": "Table ID",
+          "type": "text",
+          "required": true,
+          "description": "The table identifier"
+        },
+        {
+          "id": "reportId",
+          "label": "Report ID",
+          "type": "text",
+          "required": true,
+          "description": "The identifier of the report, unique to the table",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": true
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        }
+      ],
+      "group": "Report",
+      "description": "Run a report"
     }
   ]
 }

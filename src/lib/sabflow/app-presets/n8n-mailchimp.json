@@ -4,8 +4,8 @@
   "description": "Consume Mailchimp API",
   "category": "marketing",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -16,45 +16,25 @@
       "credentialType": "http_header_auth"
     }
   },
-  "baseUrl": "",
+  "baseUrl": "https://us1.api.mailchimp.com/3.0",
   "endpoints": [
     {
       "id": "member_create",
       "label": "Create Member",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/member",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "apiKey",
-          "options": [
-            {
-              "value": "apiKey",
-              "label": "API Key"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "list",
           "label": "List Name or ID",
-          "type": "select",
-          "in": "query",
+          "type": "text",
           "required": true,
-          "description": "List of lists. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>.",
-          "options": []
+          "description": "List of lists. Choose from the list, or specify an ID using an expression."
         },
         {
           "id": "email",
           "label": "Email",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "name@email.com",
           "description": "Email address for a subscriber"
@@ -63,7 +43,6 @@
           "id": "status",
           "label": "Status",
           "type": "select",
-          "in": "query",
           "required": true,
           "description": "Subscriber's current status",
           "options": [
@@ -93,139 +72,97 @@
           "id": "jsonParameters",
           "label": "JSON Parameters",
           "type": "toggle",
-          "in": "query",
           "defaultValue": false
         },
         {
           "id": "options",
           "label": "Options",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add option"
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: emailType, language, ipOptIn, ipSignup, timestampSignup, tags, vip, timestampOpt)"
         },
         {
           "id": "locationFieldsUi",
           "label": "Location",
           "type": "json",
-          "in": "query",
           "placeholder": "Add Location",
-          "description": "Subscriber location information.n"
+          "description": "Subscriber location information.n (JSON object; supported keys: locationFieldsValues, locationFieldsValues.latitude, locationFieldsValues.longitude)"
         },
         {
           "id": "mergeFieldsUi",
           "label": "Merge Fields",
           "type": "json",
-          "in": "query",
           "placeholder": "Add Merge Fields",
-          "description": "An individual merge var and value for a member"
+          "description": "An individual merge var and value for a member (JSON object; supported keys: mergeFieldsValues, mergeFieldsValues.name, mergeFieldsValues.value)"
         },
         {
           "id": "mergeFieldsJson",
           "label": "Merge Fields",
-          "type": "json",
-          "in": "query"
+          "type": "json"
         },
         {
           "id": "locationJson",
           "label": "Location",
-          "type": "json",
-          "in": "query"
+          "type": "json"
         },
         {
           "id": "groupsUi",
           "label": "Interest Groups",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Interest Group"
+          "placeholder": "Add Interest Group",
+          "description": "(JSON object; supported keys: groupsValues, groupsValues.categoryId, groupsValues.categoryFieldId, groupsValues.value)"
         },
         {
           "id": "groupJson",
           "label": "Interest Groups",
-          "type": "json",
-          "in": "query"
+          "type": "json"
         }
-      ]
+      ],
+      "group": "Member",
+      "description": "[unverified path] Create a new member on list"
     },
     {
       "id": "member_delete",
       "label": "Delete Member",
-      "method": "GET",
-      "path": "/",
+      "method": "DELETE",
+      "path": "/member",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "apiKey",
-          "options": [
-            {
-              "value": "apiKey",
-              "label": "API Key"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "list",
           "label": "List Name or ID",
-          "type": "select",
-          "in": "query",
+          "type": "text",
           "required": true,
-          "description": "List of lists. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>.",
-          "options": []
+          "description": "List of lists. Choose from the list, or specify an ID using an expression."
         },
         {
           "id": "email",
           "label": "Email",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "name@email.com",
           "description": "Member's email"
         }
-      ]
+      ],
+      "group": "Member",
+      "description": "[unverified path] Delete a member on list"
     },
     {
       "id": "member_get",
       "label": "Get Member",
       "method": "GET",
-      "path": "/",
+      "path": "/member",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "apiKey",
-          "options": [
-            {
-              "value": "apiKey",
-              "label": "API Key"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "list",
           "label": "List Name or ID",
-          "type": "select",
-          "in": "query",
+          "type": "text",
           "required": true,
-          "description": "List of lists. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>.",
-          "options": []
+          "description": "List of lists. Choose from the list, or specify an ID using an expression."
         },
         {
           "id": "email",
           "label": "Email",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "name@email.com",
           "description": "Member's email"
@@ -234,48 +171,30 @@
           "id": "options",
           "label": "Options",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add option"
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: fields, excludeFields)"
         }
-      ]
+      ],
+      "group": "Member",
+      "description": "[unverified path] Get a member on list"
     },
     {
       "id": "member_get_all",
       "label": "Get Many Member",
       "method": "GET",
-      "path": "/",
+      "path": "/members",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "apiKey",
-          "options": [
-            {
-              "value": "apiKey",
-              "label": "API Key"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "list",
           "label": "List Name or ID",
-          "type": "select",
-          "in": "query",
+          "type": "text",
           "required": true,
-          "description": "List of lists. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>.",
-          "options": []
+          "description": "List of lists. Choose from the list, or specify an ID using an expression."
         },
         {
           "id": "returnAll",
           "label": "Return All",
           "type": "toggle",
-          "in": "query",
           "description": "Whether to return all results or only up to a given limit",
           "defaultValue": false
         },
@@ -283,7 +202,6 @@
           "id": "limit",
           "label": "Limit",
           "type": "number",
-          "in": "query",
           "description": "Max number of results to return",
           "defaultValue": 500
         },
@@ -291,48 +209,30 @@
           "id": "options",
           "label": "Options",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add option"
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: beforeLastChanged, beforeTimestampOpt, emailType, status, sinceLastChanged)"
         }
-      ]
+      ],
+      "group": "Member",
+      "description": "Get many members on a list"
     },
     {
       "id": "member_update",
       "label": "Update Member",
-      "method": "GET",
-      "path": "/",
+      "method": "PATCH",
+      "path": "/member",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "apiKey",
-          "options": [
-            {
-              "value": "apiKey",
-              "label": "API Key"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "list",
           "label": "List Name or ID",
-          "type": "select",
-          "in": "query",
+          "type": "text",
           "required": true,
-          "description": "List of lists. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>.",
-          "options": []
+          "description": "List of lists. Choose from the list, or specify an ID using an expression."
         },
         {
           "id": "email",
           "label": "Email",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "name@email.com",
           "description": "Email address of the subscriber"
@@ -341,73 +241,51 @@
           "id": "jsonParameters",
           "label": "JSON Parameters",
           "type": "toggle",
-          "in": "query",
           "defaultValue": false
         },
         {
           "id": "updateFields",
           "label": "Update Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: emailType, groupsUi, language, mergeFieldsUi, ipOptIn, ipSignup, timestampSignup, skipMergeValidation, status, vip, locationFieldsUi, timestampOpt)"
         },
         {
           "id": "mergeFieldsJson",
           "label": "Merge Fields",
-          "type": "json",
-          "in": "query"
+          "type": "json"
         },
         {
           "id": "locationJson",
           "label": "Location",
-          "type": "json",
-          "in": "query"
+          "type": "json"
         },
         {
           "id": "groupJson",
           "label": "Interest Groups",
-          "type": "json",
-          "in": "query"
+          "type": "json"
         }
-      ]
+      ],
+      "group": "Member",
+      "description": "[unverified path] Update a new member on list"
     },
     {
       "id": "member_tag_create",
-      "label": "Create MemberTag",
-      "method": "GET",
-      "path": "/",
+      "label": "Create Member Tag",
+      "method": "POST",
+      "path": "/member-tag",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "apiKey",
-          "options": [
-            {
-              "value": "apiKey",
-              "label": "API Key"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "list",
           "label": "List Name or ID",
-          "type": "select",
-          "in": "query",
+          "type": "text",
           "required": true,
-          "description": "List of lists. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>.",
-          "options": []
+          "description": "List of lists. Choose from the list, or specify an ID using an expression."
         },
         {
           "id": "email",
           "label": "Email",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "name@email.com",
           "description": "Email address of the subscriber"
@@ -415,55 +293,36 @@
         {
           "id": "tags",
           "label": "Tags",
-          "type": "text",
-          "in": "query"
+          "type": "text"
         },
         {
           "id": "options",
           "label": "Options",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add option"
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: isSyncing)"
         }
-      ]
+      ],
+      "group": "Member Tag",
+      "description": "[unverified path] Add tags from a list member"
     },
     {
       "id": "member_tag_delete",
-      "label": "Delete MemberTag",
-      "method": "GET",
-      "path": "/",
+      "label": "Delete Member Tag",
+      "method": "DELETE",
+      "path": "/member-tag",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "apiKey",
-          "options": [
-            {
-              "value": "apiKey",
-              "label": "API Key"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "list",
           "label": "List Name or ID",
-          "type": "select",
-          "in": "query",
+          "type": "text",
           "required": true,
-          "description": "List of lists. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>.",
-          "options": []
+          "description": "List of lists. Choose from the list, or specify an ID using an expression."
         },
         {
           "id": "email",
           "label": "Email",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "name@email.com",
           "description": "Email address of the subscriber"
@@ -471,64 +330,43 @@
         {
           "id": "tags",
           "label": "Tags",
-          "type": "text",
-          "in": "query"
+          "type": "text"
         },
         {
           "id": "options",
           "label": "Options",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add option"
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: isSyncing)"
         }
-      ]
+      ],
+      "group": "Member Tag",
+      "description": "[unverified path] Remove tags from a list member"
     },
     {
       "id": "list_group_get_all",
-      "label": "Get Many ListGroup",
+      "label": "Get Many List Group",
       "method": "GET",
-      "path": "/",
+      "path": "/interests",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "apiKey",
-          "options": [
-            {
-              "value": "apiKey",
-              "label": "API Key"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "list",
           "label": "List Name or ID",
-          "type": "select",
-          "in": "query",
+          "type": "text",
           "required": true,
-          "description": "List of lists. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>.",
-          "options": []
+          "description": "List of lists. Choose from the list, or specify an ID using an expression."
         },
         {
           "id": "groupCategory",
           "label": "Group Category Name or ID",
-          "type": "select",
-          "in": "query",
+          "type": "text",
           "required": true,
-          "description": "Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>",
-          "options": []
+          "description": "Choose from the list, or specify an ID using an expression"
         },
         {
           "id": "returnAll",
           "label": "Return All",
           "type": "toggle",
-          "in": "query",
           "description": "Whether to return all results or only up to a given limit",
           "defaultValue": false
         },
@@ -536,106 +374,57 @@
           "id": "limit",
           "label": "Limit",
           "type": "number",
-          "in": "query",
           "description": "Max number of results to return",
           "defaultValue": 500
         }
-      ]
+      ],
+      "group": "List Group",
+      "description": "Get many groups"
     },
     {
       "id": "campaign_delete",
       "label": "Delete Campaign",
-      "method": "GET",
-      "path": "/",
+      "method": "DELETE",
+      "path": "/campaign",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "apiKey",
-          "options": [
-            {
-              "value": "apiKey",
-              "label": "API Key"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "campaignId",
           "label": "Campaign ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "List of Campaigns"
         }
-      ]
+      ],
+      "group": "Campaign",
+      "description": "[unverified path] Delete a campaign"
     },
     {
       "id": "campaign_get",
       "label": "Get Campaign",
       "method": "GET",
-      "path": "/",
+      "path": "/campaign",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "apiKey",
-          "options": [
-            {
-              "value": "apiKey",
-              "label": "API Key"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "campaignId",
           "label": "Campaign ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "List of Campaigns"
         }
-      ]
+      ],
+      "group": "Campaign",
+      "description": "[unverified path] Get a campaign"
     },
     {
       "id": "campaign_get_all",
       "label": "Get Many Campaign",
       "method": "GET",
-      "path": "/",
+      "path": "/campaigns",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "apiKey",
-          "options": [
-            {
-              "value": "apiKey",
-              "label": "API Key"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "returnAll",
           "label": "Return All",
           "type": "toggle",
-          "in": "query",
           "description": "Whether to return all results or only up to a given limit",
           "defaultValue": false
         },
@@ -643,7 +432,6 @@
           "id": "limit",
           "label": "Limit",
           "type": "number",
-          "in": "query",
           "description": "Max number of results to return",
           "defaultValue": 10
         },
@@ -651,109 +439,63 @@
           "id": "options",
           "label": "Options",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add option"
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: beforeCreateTime, beforeSendTime, excludeFields, fields, listId, sinceCreateTime, sinceSendTime, sortDirection, sortField, status)"
         }
-      ]
+      ],
+      "group": "Campaign",
+      "description": "Get many campaigns"
     },
     {
       "id": "campaign_replicate",
       "label": "Replicate Campaign",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/campaign",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "apiKey",
-          "options": [
-            {
-              "value": "apiKey",
-              "label": "API Key"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "campaignId",
           "label": "Campaign ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "List of Campaigns"
         }
-      ]
+      ],
+      "group": "Campaign",
+      "description": "[unverified path] Replicate a campaign"
     },
     {
       "id": "campaign_resend",
       "label": "Resend Campaign",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/campaign",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "apiKey",
-          "options": [
-            {
-              "value": "apiKey",
-              "label": "API Key"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "campaignId",
           "label": "Campaign ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "List of Campaigns"
         }
-      ]
+      ],
+      "group": "Campaign",
+      "description": "[unverified path] Creates a Resend to Non-Openers version of this campaign"
     },
     {
       "id": "campaign_send",
       "label": "Send Campaign",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/campaign",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "apiKey",
-          "options": [
-            {
-              "value": "apiKey",
-              "label": "API Key"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "campaignId",
           "label": "Campaign ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "List of Campaigns"
         }
-      ]
+      ],
+      "group": "Campaign",
+      "description": "[unverified path] Send a campaign"
     }
   ]
 }

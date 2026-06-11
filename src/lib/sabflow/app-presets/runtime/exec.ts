@@ -38,6 +38,57 @@ export function resolveFieldLocation(
   return 'query';
 }
 
+/* ── Input normalisation / validation ─────────────────────────────────────── */
+
+/**
+ * Parse string values supplied for `json`-typed fields into real values so
+ * they land in the request body as objects/arrays instead of quoted strings.
+ * Non-string values (already structured) and blank strings pass through
+ * untouched. Throws naming the field on invalid JSON. Pure — returns a new
+ * object only when something actually changed.
+ */
+export function coerceJsonInputs(
+  fields: AppPresetField[],
+  inputs: Record<string, unknown>,
+): Record<string, unknown> {
+  let out = inputs;
+  for (const field of fields) {
+    if (field.type !== 'json') continue;
+    const raw = inputs[field.id];
+    if (typeof raw !== 'string') continue;
+    const trimmed = raw.trim();
+    if (!trimmed) continue;
+    try {
+      const parsed: unknown = JSON.parse(trimmed);
+      if (out === inputs) out = { ...inputs };
+      out[field.id] = parsed;
+    } catch (err) {
+      throw new Error(
+        `field '${field.label}' is not valid JSON — ${(err as Error).message}`,
+      );
+    }
+  }
+  return out;
+}
+
+/**
+ * Required fields with no usable value (after `defaultValue` fallback).
+ * Empty string / null / undefined count as missing — mirrors the skip logic
+ * in `resolvePath`, which would silently drop those values from the request.
+ */
+export function findMissingRequiredFields(
+  fields: AppPresetField[],
+  inputs: Record<string, unknown>,
+): AppPresetField[] {
+  const isEmpty = (v: unknown) => v === undefined || v === null || v === '';
+  return fields.filter((field) => {
+    if (!field.required) return false;
+    const provided = Object.prototype.hasOwnProperty.call(inputs, field.id);
+    const value = provided && !isEmpty(inputs[field.id]) ? inputs[field.id] : field.defaultValue;
+    return isEmpty(value);
+  });
+}
+
 /* ── Path / query / body resolution ──────────────────────────────────────── */
 
 export type ResolvedRequest = {

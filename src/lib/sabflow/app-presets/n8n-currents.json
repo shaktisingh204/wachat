@@ -4,8 +4,8 @@
   "description": "Interact with the Currents API for test orchestration and analytics",
   "category": "analytics",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
@@ -14,60 +14,712 @@
   "baseUrl": "https://api.currents.dev/v1",
   "endpoints": [
     {
-      "id": "action_default",
-      "label": "List Action",
-      "method": "GET",
-      "path": "/action",
-      "fields": []
+      "id": "action_create",
+      "label": "Create Action",
+      "method": "POST",
+      "path": "/actions",
+      "fields": [
+        {
+          "id": "projectId",
+          "label": "Project",
+          "type": "text",
+          "required": true,
+          "description": "The Currents project (provide the ID)",
+          "in": "query"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "The name of the action (1-255 characters)",
+          "in": "body"
+        },
+        {
+          "id": "action",
+          "label": "Action Type",
+          "type": "select",
+          "required": true,
+          "defaultValue": "quarantine",
+          "options": [
+            {
+              "value": "quarantine",
+              "label": "Quarantine"
+            },
+            {
+              "value": "skip",
+              "label": "Skip"
+            },
+            {
+              "value": "tag",
+              "label": "Tag"
+            }
+          ],
+          "in": "body"
+        },
+        {
+          "id": "matcherType",
+          "label": "Matcher Type",
+          "type": "select",
+          "required": true,
+          "description": "How to match tests for this action",
+          "defaultValue": "titleContains",
+          "options": [
+            {
+              "value": "specContains",
+              "label": "Spec File Contains"
+            },
+            {
+              "value": "specEquals",
+              "label": "Spec File Equals"
+            },
+            {
+              "value": "signature",
+              "label": "Test Signature"
+            },
+            {
+              "value": "titleContains",
+              "label": "Test Title Contains"
+            },
+            {
+              "value": "titleEquals",
+              "label": "Test Title Equals"
+            }
+          ]
+        },
+        {
+          "id": "matcher",
+          "label": "Matcher Value",
+          "type": "text",
+          "required": true,
+          "description": "The value to match against (test title, spec file path, or signature)",
+          "in": "body"
+        },
+        {
+          "id": "createOptions",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Option",
+          "description": "(JSON object; supported keys: description, expiresAfter)"
+        }
+      ],
+      "group": "Action",
+      "description": "Create a new action for a project"
     },
     {
-      "id": "instance_default",
-      "label": "List Instance",
-      "method": "GET",
-      "path": "/instance",
-      "fields": []
+      "id": "action_delete",
+      "label": "Delete Action",
+      "method": "DELETE",
+      "path": "/actions/{{{actionId}}}",
+      "fields": [
+        {
+          "id": "actionId",
+          "label": "Action ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the action",
+          "in": "path"
+        }
+      ],
+      "group": "Action",
+      "description": "[unverified path] Archive an action (soft delete)"
     },
     {
-      "id": "project_default",
-      "label": "List Project",
-      "method": "GET",
-      "path": "/project",
-      "fields": []
+      "id": "action_disable",
+      "label": "Disable Action",
+      "method": "PUT",
+      "path": "/actions/{{{actionId}}}/disable",
+      "fields": [
+        {
+          "id": "actionId",
+          "label": "Action ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the action",
+          "in": "path"
+        }
+      ],
+      "group": "Action",
+      "description": "[unverified path] Deactivate an active action"
     },
     {
-      "id": "run_default",
-      "label": "List Run",
-      "method": "GET",
-      "path": "/run",
-      "fields": []
+      "id": "action_enable",
+      "label": "Enable Action",
+      "method": "PUT",
+      "path": "/actions/{{{actionId}}}/enable",
+      "fields": [
+        {
+          "id": "actionId",
+          "label": "Action ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the action",
+          "in": "path"
+        }
+      ],
+      "group": "Action",
+      "description": "[unverified path] Reactivate a disabled action"
     },
     {
-      "id": "signature_default",
-      "label": "List Signature",
+      "id": "action_get",
+      "label": "Get Action",
       "method": "GET",
-      "path": "/signature",
-      "fields": []
+      "path": "/actions/{{{actionId}}}",
+      "fields": [
+        {
+          "id": "actionId",
+          "label": "Action ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the action",
+          "in": "path"
+        }
+      ],
+      "group": "Action",
+      "description": "[unverified path] Get a single action by ID"
     },
     {
-      "id": "spec_file_default",
-      "label": "List SpecFile",
+      "id": "action_get_all",
+      "label": "Get Many Action",
       "method": "GET",
-      "path": "/specFile",
-      "fields": []
+      "path": "/actions",
+      "fields": [
+        {
+          "id": "projectId",
+          "label": "Project",
+          "type": "text",
+          "required": true,
+          "description": "The Currents project (provide the ID)",
+          "in": "query"
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: search, status)"
+        }
+      ],
+      "group": "Action",
+      "description": "Get many actions for a project"
     },
     {
-      "id": "test_default",
-      "label": "List Test",
-      "method": "GET",
-      "path": "/test",
-      "fields": []
+      "id": "action_update",
+      "label": "Update Action",
+      "method": "PUT",
+      "path": "/actions/{{{actionId}}}",
+      "fields": [
+        {
+          "id": "actionId",
+          "label": "Action ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the action",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: name, description, expiresAfter)"
+        }
+      ],
+      "group": "Action",
+      "description": "[unverified path] Update an existing action"
     },
     {
-      "id": "test_result_default",
-      "label": "List TestResult",
+      "id": "instance_get",
+      "label": "Get Instance",
       "method": "GET",
-      "path": "/testResult",
-      "fields": []
+      "path": "/instances/{{{instanceId}}}",
+      "fields": [
+        {
+          "id": "instanceId",
+          "label": "Instance ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the spec file execution instance",
+          "in": "path"
+        }
+      ],
+      "group": "Instance",
+      "description": "[unverified path] Get a spec file execution instance with full test results"
+    },
+    {
+      "id": "project_get",
+      "label": "Get Project",
+      "method": "GET",
+      "path": "/projects/{{{projectId}}}",
+      "fields": [
+        {
+          "id": "projectId",
+          "label": "Project",
+          "type": "text",
+          "required": true,
+          "description": "The Currents project (provide the ID)",
+          "in": "path"
+        }
+      ],
+      "group": "Project",
+      "description": "[unverified path] Get a project by ID"
+    },
+    {
+      "id": "project_get_all",
+      "label": "Get Many Project",
+      "method": "GET",
+      "path": "/projects",
+      "fields": [
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 10,
+          "in": "query"
+        }
+      ],
+      "group": "Project",
+      "description": "Get many projects"
+    },
+    {
+      "id": "project_get_insights",
+      "label": "Get Insights Project",
+      "method": "GET",
+      "path": "/projects/{{{projectId}}}/insights",
+      "fields": [
+        {
+          "id": "projectId",
+          "label": "Project",
+          "type": "text",
+          "required": true,
+          "description": "The Currents project (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "date_start",
+          "label": "Date Start",
+          "type": "text",
+          "required": true,
+          "placeholder": "2024-01-01T00:00:00Z",
+          "description": "Start date for metrics (ISO 8601 format) (ISO 8601 date-time)",
+          "in": "query"
+        },
+        {
+          "id": "date_end",
+          "label": "Date End",
+          "type": "text",
+          "required": true,
+          "placeholder": "2024-01-01T00:00:00Z",
+          "description": "End date for metrics (ISO 8601 format) (ISO 8601 date-time)",
+          "in": "query"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Option",
+          "description": "(JSON object; supported keys: authors, branches, groups, resolution, tags)"
+        }
+      ],
+      "group": "Project",
+      "description": "[unverified path] Get project insights and metrics"
+    },
+    {
+      "id": "run_cancel",
+      "label": "Cancel Run",
+      "method": "PUT",
+      "path": "/runs/{{{runId}}}/cancel",
+      "fields": [
+        {
+          "id": "runId",
+          "label": "Run ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the run",
+          "in": "path"
+        }
+      ],
+      "group": "Run",
+      "description": "[unverified path] Cancel a run in progress"
+    },
+    {
+      "id": "run_cancel_github",
+      "label": "Cancel by GitHub CI Run",
+      "method": "PUT",
+      "path": "/runs/cancel-ci/github",
+      "fields": [
+        {
+          "id": "githubRunId",
+          "label": "GitHub Run ID",
+          "type": "text",
+          "required": true,
+          "description": "The GitHub Actions workflow run ID",
+          "in": "body"
+        },
+        {
+          "id": "githubRunAttempt",
+          "label": "GitHub Run Attempt",
+          "type": "number",
+          "required": true,
+          "description": "The GitHub Actions workflow attempt number",
+          "defaultValue": 1,
+          "in": "body"
+        },
+        {
+          "id": "cancelGithubOptions",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Option",
+          "description": "(JSON object; supported keys: projectId, ciBuildId)"
+        }
+      ],
+      "group": "Run",
+      "description": "Cancel a run by GitHub Actions workflow run ID"
+    },
+    {
+      "id": "run_delete",
+      "label": "Delete Run",
+      "method": "DELETE",
+      "path": "/runs/{{{runId}}}",
+      "fields": [
+        {
+          "id": "runId",
+          "label": "Run ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the run",
+          "in": "path"
+        }
+      ],
+      "group": "Run",
+      "description": "[unverified path] Delete a run and all associated data"
+    },
+    {
+      "id": "run_find",
+      "label": "Find Run",
+      "method": "GET",
+      "path": "/runs/find",
+      "fields": [
+        {
+          "id": "projectId",
+          "label": "Project",
+          "type": "text",
+          "required": true,
+          "description": "The Currents project (provide the ID)",
+          "in": "query"
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: branch, ciBuildId, tags)"
+        }
+      ],
+      "group": "Run",
+      "description": "Find a run by project and filters"
+    },
+    {
+      "id": "run_get",
+      "label": "Get Run",
+      "method": "GET",
+      "path": "/runs/{{{runId}}}",
+      "fields": [
+        {
+          "id": "runId",
+          "label": "Run ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the run",
+          "in": "path"
+        }
+      ],
+      "group": "Run",
+      "description": "[unverified path] Get a run by ID"
+    },
+    {
+      "id": "run_get_all",
+      "label": "Get Many Run",
+      "method": "GET",
+      "path": "/projects/{{{projectId}}}/runs",
+      "fields": [
+        {
+          "id": "projectId",
+          "label": "Project",
+          "type": "text",
+          "required": true,
+          "description": "The Currents project (provide the ID)",
+          "in": "query"
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 10,
+          "in": "query"
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: authors, branches, completionState, dateEnd, dateStart, search, status, tags, tagOperator)"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Option",
+          "description": "(JSON object; supported keys: startingAfter, endingBefore)"
+        }
+      ],
+      "group": "Run",
+      "description": "[unverified path] Get many runs for a project"
+    },
+    {
+      "id": "run_reset",
+      "label": "Reset Run",
+      "method": "PUT",
+      "path": "/runs/{{{runId}}}/reset",
+      "fields": [
+        {
+          "id": "runId",
+          "label": "Run ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the run",
+          "in": "path"
+        },
+        {
+          "id": "machineId",
+          "label": "Machine IDs",
+          "type": "text",
+          "required": true,
+          "description": "Comma-separated list of machine identifiers to reset (1-63 items)",
+          "in": "body"
+        },
+        {
+          "id": "resetOptions",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Option",
+          "description": "(JSON object; supported keys: isBatchedOr8n)"
+        }
+      ],
+      "group": "Run",
+      "description": "[unverified path] Reset failed specs for re-execution on specified machines"
+    },
+    {
+      "id": "signature_generate",
+      "label": "Generate Signature",
+      "method": "POST",
+      "path": "/signature/test",
+      "fields": [
+        {
+          "id": "projectId",
+          "label": "Project",
+          "type": "text",
+          "required": true,
+          "description": "The Currents project (provide the ID)",
+          "in": "body"
+        },
+        {
+          "id": "specFilePath",
+          "label": "Spec File Path",
+          "type": "text",
+          "required": true,
+          "placeholder": "e.g., tests/e2e/login.spec.ts",
+          "description": "The complete path to the spec file",
+          "in": "body"
+        },
+        {
+          "id": "testTitle",
+          "label": "Test Title",
+          "type": "text",
+          "required": true,
+          "placeholder": "e.g., should login with valid credentials",
+          "description": "The test title. For nested describe blocks, use \" > \" as separator (e.g., \"Login > should login with valid credentials\").",
+          "in": "body"
+        }
+      ],
+      "group": "Signature",
+      "description": "Generate a unique test signature"
+    },
+    {
+      "id": "spec_file_get_all",
+      "label": "Get Many Spec File",
+      "method": "GET",
+      "path": "/spec-files/{{{projectId}}}",
+      "fields": [
+        {
+          "id": "projectId",
+          "label": "Project",
+          "type": "text",
+          "required": true,
+          "description": "The Currents project (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "date_start",
+          "label": "Date Start",
+          "type": "text",
+          "required": true,
+          "placeholder": "2024-01-01T00:00:00Z",
+          "description": "Start date for metrics (ISO 8601 format) (ISO 8601 date-time)",
+          "in": "query"
+        },
+        {
+          "id": "date_end",
+          "label": "Date End",
+          "type": "text",
+          "required": true,
+          "placeholder": "2024-01-01T00:00:00Z",
+          "description": "End date for metrics (ISO 8601 format) (ISO 8601 date-time)",
+          "in": "query"
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50,
+          "in": "query"
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: authors, branches, groups, specNameFilter, tags)"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Option",
+          "description": "(JSON object; supported keys: includeFailedInDuration, order, dir, page)"
+        }
+      ],
+      "group": "Spec File",
+      "description": "[unverified path] Get aggregated spec file metrics for a project"
+    },
+    {
+      "id": "test_get_all",
+      "label": "Get Many Test",
+      "method": "GET",
+      "path": "/tests/{{{projectId}}}",
+      "fields": [
+        {
+          "id": "projectId",
+          "label": "Project",
+          "type": "text",
+          "required": true,
+          "description": "The Currents project (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "date_start",
+          "label": "Date Start",
+          "type": "text",
+          "required": true,
+          "placeholder": "2024-01-01T00:00:00Z",
+          "description": "Start date for metrics (ISO 8601 format) (ISO 8601 date-time)",
+          "in": "query"
+        },
+        {
+          "id": "date_end",
+          "label": "Date End",
+          "type": "text",
+          "required": true,
+          "placeholder": "2024-01-01T00:00:00Z",
+          "description": "End date for metrics (ISO 8601 format) (ISO 8601 date-time)",
+          "in": "query"
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50,
+          "in": "query"
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: authors, branches, groups, minExecutions, spec, tags, testState, title)"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Option",
+          "description": "(JSON object; supported keys: order, dir, page, metric_settings)"
+        }
+      ],
+      "group": "Test",
+      "description": "[unverified path] Get aggregated test metrics for a project"
+    },
+    {
+      "id": "test_result_get_all",
+      "label": "Get Many Test Result",
+      "method": "GET",
+      "path": "/test-results/{{{signature}}}",
+      "fields": [
+        {
+          "id": "signature",
+          "label": "Test Signature",
+          "type": "text",
+          "required": true,
+          "description": "The unique test signature. Use the Signature resource to generate this from project ID, spec file path, and test title.",
+          "in": "path"
+        },
+        {
+          "id": "date_start",
+          "label": "Date Start",
+          "type": "text",
+          "required": true,
+          "placeholder": "2024-01-01T00:00:00Z",
+          "description": "Start date for results (ISO 8601 format) (ISO 8601 date-time)",
+          "in": "query"
+        },
+        {
+          "id": "date_end",
+          "label": "Date End",
+          "type": "text",
+          "required": true,
+          "placeholder": "2024-01-01T00:00:00Z",
+          "description": "End date for results (ISO 8601 format) (ISO 8601 date-time)",
+          "in": "query"
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 10,
+          "in": "query"
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: branches, authors, groups, status, tags)"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Option",
+          "description": "(JSON object; supported keys: startingAfter, endingBefore)"
+        }
+      ],
+      "group": "Test Result",
+      "description": "[unverified path] Get historical test execution results for a specific test signature"
     }
   ]
 }

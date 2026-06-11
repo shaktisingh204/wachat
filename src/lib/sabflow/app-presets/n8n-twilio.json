@@ -4,26 +4,25 @@
   "description": "Send SMS and WhatsApp messages or make phone calls",
   "category": "communication",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.twilio.com/2010-04-01",
   "endpoints": [
     {
       "id": "sms_send",
-      "label": "Send Sms",
-      "method": "GET",
-      "path": "/",
+      "label": "Send SMS",
+      "method": "POST",
+      "path": "/Messages.json",
       "fields": [
         {
           "id": "from",
           "label": "From",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "+14155238886",
           "description": "The number from which to send the message"
@@ -32,7 +31,6 @@
           "id": "to",
           "label": "To",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "+14155238886",
           "description": "The number to which to send the message"
@@ -41,7 +39,6 @@
           "id": "toWhatsapp",
           "label": "To Whatsapp",
           "type": "toggle",
-          "in": "query",
           "description": "Whether the message should be sent to WhatsApp",
           "defaultValue": false
         },
@@ -49,7 +46,6 @@
           "id": "message",
           "label": "Message",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "The message to send"
         },
@@ -57,22 +53,23 @@
           "id": "options",
           "label": "Options",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: statusCallback)"
         }
-      ]
+      ],
+      "group": "SMS",
+      "description": "Send SMS/MMS/WhatsApp message"
     },
     {
       "id": "call_make",
       "label": "Make Call",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/Calls.json",
       "fields": [
         {
           "id": "from",
           "label": "From",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "+14155238886",
           "description": "The number from which to send the message"
@@ -81,7 +78,6 @@
           "id": "to",
           "label": "To",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "+14155238886",
           "description": "The number to which to send the message"
@@ -90,25 +86,25 @@
           "id": "twiml",
           "label": "Use TwiML",
           "type": "toggle",
-          "in": "query",
-          "description": "Whether to use the <a href=\"https://www.twilio.com/docs/voice/twiml\">Twilio Markup Language</a> in the message",
+          "description": "Whether to use the Twilio Markup Language in the message",
           "defaultValue": false
         },
         {
           "id": "message",
           "label": "Message",
           "type": "text",
-          "in": "query",
           "required": true
         },
         {
           "id": "options",
           "label": "Options",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: statusCallback)"
         }
-      ]
+      ],
+      "group": "Call",
+      "description": "Make a call"
     }
   ]
 }

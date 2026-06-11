@@ -4,214 +4,486 @@
   "description": "Consume the Baserow API",
   "category": "data",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 4,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://{host}",
   "endpoints": [
     {
       "id": "row_batch_create",
       "label": "Batch Create Row",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/api/database/rows/table/{tableId}/batch/",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Baserow server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "databaseId",
+          "label": "Database Name or ID",
           "type": "select",
-          "in": "query",
-          "defaultValue": "usernamePassword",
+          "required": true,
+          "description": "Database to operate on. Choose from the list, or specify an ID using an expression.",
+          "defaultValue": "0"
+        },
+        {
+          "id": "tableId",
+          "label": "Table Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Table to operate on. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "dataToSend",
+          "label": "Data to Send",
+          "type": "select",
+          "description": "Whether to insert the input data this node receives in the new row",
+          "defaultValue": "defineBelow",
           "options": [
             {
-              "value": "usernamePassword",
-              "label": "Username & Password"
+              "value": "autoMapInputData",
+              "label": "Auto-Map Input Data to Columns"
             },
             {
-              "value": "databaseToken",
-              "label": "Database Token"
+              "value": "defineBelow",
+              "label": "Define Below for Each Column"
             }
           ]
+        },
+        {
+          "id": "inputsToIgnore",
+          "label": "Inputs to Ignore",
+          "type": "text",
+          "placeholder": "Enter properties...",
+          "description": "List of input properties to avoid sending, separated by commas. Leave empty to send all properties."
+        },
+        {
+          "id": "rowsUi",
+          "label": "Rows",
+          "type": "json",
+          "placeholder": "Add Row",
+          "description": "(JSON object; supported keys: rowValues, rowValues.id, rowValues.fieldsUi)"
         }
-      ]
+      ],
+      "group": "Row",
+      "description": "Create up to 200 rows in one request"
     },
     {
       "id": "row_batch_delete",
       "label": "Batch Delete Row",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/api/database/rows/table/{tableId}/batch-delete/",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Baserow server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "databaseId",
+          "label": "Database Name or ID",
           "type": "select",
-          "in": "query",
-          "defaultValue": "usernamePassword",
+          "required": true,
+          "description": "Database to operate on. Choose from the list, or specify an ID using an expression.",
+          "defaultValue": "0"
+        },
+        {
+          "id": "tableId",
+          "label": "Table Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Table to operate on. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "dataToSend",
+          "label": "Data to Send",
+          "type": "select",
+          "description": "Choose whether to manually enter row IDs or map them from input data",
+          "defaultValue": "defineBelow",
           "options": [
             {
-              "value": "usernamePassword",
-              "label": "Username & Password"
+              "value": "autoMapInputData",
+              "label": "Auto-Map Input Data"
             },
             {
-              "value": "databaseToken",
-              "label": "Database Token"
+              "value": "defineBelow",
+              "label": "Define Below"
             }
           ]
+        },
+        {
+          "id": "rowIds",
+          "label": "Row IDs",
+          "type": "text",
+          "placeholder": "Add Row ID",
+          "description": "IDs of the rows to delete"
+        },
+        {
+          "id": "rowIdProperty",
+          "label": "Property Containing Row ID",
+          "type": "text",
+          "description": "Name of the property in each input item that contains the row ID",
+          "defaultValue": "id"
         }
-      ]
+      ],
+      "group": "Row",
+      "description": "Delete up to 200 rows in one request"
     },
     {
       "id": "row_batch_update",
       "label": "Batch Update Row",
-      "method": "GET",
-      "path": "/",
+      "method": "PATCH",
+      "path": "/api/database/rows/table/{tableId}/batch/",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Baserow server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "databaseId",
+          "label": "Database Name or ID",
           "type": "select",
-          "in": "query",
-          "defaultValue": "usernamePassword",
+          "required": true,
+          "description": "Database to operate on. Choose from the list, or specify an ID using an expression.",
+          "defaultValue": "0"
+        },
+        {
+          "id": "tableId",
+          "label": "Table Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Table to operate on. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "dataToSend",
+          "label": "Data to Send",
+          "type": "select",
+          "description": "Whether to insert the input data this node receives in the new row",
+          "defaultValue": "defineBelow",
           "options": [
             {
-              "value": "usernamePassword",
-              "label": "Username & Password"
+              "value": "autoMapInputData",
+              "label": "Auto-Map Input Data to Columns"
             },
             {
-              "value": "databaseToken",
-              "label": "Database Token"
+              "value": "defineBelow",
+              "label": "Define Below for Each Column"
             }
           ]
+        },
+        {
+          "id": "inputsToIgnore",
+          "label": "Inputs to Ignore",
+          "type": "text",
+          "placeholder": "Enter properties...",
+          "description": "List of input properties to avoid sending, separated by commas. Leave empty to send all properties."
+        },
+        {
+          "id": "rowsUi",
+          "label": "Rows",
+          "type": "json",
+          "placeholder": "Add Row",
+          "description": "(JSON object; supported keys: rowValues, rowValues.id, rowValues.fieldsUi)"
         }
-      ]
+      ],
+      "group": "Row",
+      "description": "Update up to 200 rows in one request"
     },
     {
       "id": "row_create",
       "label": "Create Row",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/api/database/rows/table/{tableId}/",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Baserow server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "databaseId",
+          "label": "Database Name or ID",
           "type": "select",
-          "in": "query",
-          "defaultValue": "usernamePassword",
+          "required": true,
+          "description": "Database to operate on. Choose from the list, or specify an ID using an expression.",
+          "defaultValue": "0"
+        },
+        {
+          "id": "tableId",
+          "label": "Table Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Table to operate on. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "dataToSend",
+          "label": "Data to Send",
+          "type": "select",
+          "description": "Whether to insert the input data this node receives in the new row",
+          "defaultValue": "defineBelow",
           "options": [
             {
-              "value": "usernamePassword",
-              "label": "Username & Password"
+              "value": "autoMapInputData",
+              "label": "Auto-Map Input Data to Columns"
             },
             {
-              "value": "databaseToken",
-              "label": "Database Token"
+              "value": "defineBelow",
+              "label": "Define Below for Each Column"
             }
           ]
+        },
+        {
+          "id": "inputsToIgnore",
+          "label": "Inputs to Ignore",
+          "type": "text",
+          "placeholder": "Enter properties...",
+          "description": "List of input properties to avoid sending, separated by commas. Leave empty to send all properties."
+        },
+        {
+          "id": "fieldsUi",
+          "label": "Fields to Send",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: fieldValues, fieldValues.fieldId, fieldValues.fieldValue)"
         }
-      ]
+      ],
+      "group": "Row",
+      "description": "Create a row"
     },
     {
       "id": "row_delete",
       "label": "Delete Row",
-      "method": "GET",
-      "path": "/",
+      "method": "DELETE",
+      "path": "/api/database/rows/table/{tableId}/{rowId}/",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Baserow server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "databaseId",
+          "label": "Database Name or ID",
           "type": "select",
-          "in": "query",
-          "defaultValue": "usernamePassword",
-          "options": [
-            {
-              "value": "usernamePassword",
-              "label": "Username & Password"
-            },
-            {
-              "value": "databaseToken",
-              "label": "Database Token"
-            }
-          ]
+          "required": true,
+          "description": "Database to operate on. Choose from the list, or specify an ID using an expression.",
+          "defaultValue": "0"
+        },
+        {
+          "id": "tableId",
+          "label": "Table Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Table to operate on. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "rowId",
+          "label": "Row ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the row to delete",
+          "in": "path"
         }
-      ]
+      ],
+      "group": "Row",
+      "description": "Delete a row"
     },
     {
       "id": "row_get",
       "label": "Get Row",
       "method": "GET",
-      "path": "/",
+      "path": "/api/database/rows/table/{tableId}/{rowId}/",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Baserow server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "databaseId",
+          "label": "Database Name or ID",
           "type": "select",
-          "in": "query",
-          "defaultValue": "usernamePassword",
-          "options": [
-            {
-              "value": "usernamePassword",
-              "label": "Username & Password"
-            },
-            {
-              "value": "databaseToken",
-              "label": "Database Token"
-            }
-          ]
+          "required": true,
+          "description": "Database to operate on. Choose from the list, or specify an ID using an expression.",
+          "defaultValue": "0"
+        },
+        {
+          "id": "tableId",
+          "label": "Table Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Table to operate on. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "rowId",
+          "label": "Row ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the row to return",
+          "in": "path"
         }
-      ]
+      ],
+      "group": "Row",
+      "description": "Retrieve a row"
     },
     {
       "id": "row_get_all",
       "label": "Get Many Row",
       "method": "GET",
-      "path": "/",
+      "path": "/api/database/rows/table/{tableId}/",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Baserow server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "databaseId",
+          "label": "Database Name or ID",
           "type": "select",
-          "in": "query",
-          "defaultValue": "usernamePassword",
-          "options": [
-            {
-              "value": "usernamePassword",
-              "label": "Username & Password"
-            },
-            {
-              "value": "databaseToken",
-              "label": "Database Token"
-            }
-          ]
+          "required": true,
+          "description": "Database to operate on. Choose from the list, or specify an ID using an expression.",
+          "defaultValue": "0"
+        },
+        {
+          "id": "tableId",
+          "label": "Table Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Table to operate on. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "additionalOptions",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: filters, filterType, search, order)"
         }
-      ]
+      ],
+      "group": "Row",
+      "description": "Retrieve many rows"
     },
     {
       "id": "row_update",
       "label": "Update Row",
-      "method": "GET",
-      "path": "/",
+      "method": "PATCH",
+      "path": "/api/database/rows/table/{tableId}/{rowId}/",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Baserow server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "databaseId",
+          "label": "Database Name or ID",
           "type": "select",
-          "in": "query",
-          "defaultValue": "usernamePassword",
+          "required": true,
+          "description": "Database to operate on. Choose from the list, or specify an ID using an expression.",
+          "defaultValue": "0"
+        },
+        {
+          "id": "tableId",
+          "label": "Table Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Table to operate on. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "rowId",
+          "label": "Row ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the row to update",
+          "in": "path"
+        },
+        {
+          "id": "dataToSend",
+          "label": "Data to Send",
+          "type": "select",
+          "description": "Whether to insert the input data this node receives in the new row",
+          "defaultValue": "defineBelow",
           "options": [
             {
-              "value": "usernamePassword",
-              "label": "Username & Password"
+              "value": "autoMapInputData",
+              "label": "Auto-Map Input Data to Columns"
             },
             {
-              "value": "databaseToken",
-              "label": "Database Token"
+              "value": "defineBelow",
+              "label": "Define Below for Each Column"
             }
           ]
+        },
+        {
+          "id": "inputsToIgnore",
+          "label": "Inputs to Ignore",
+          "type": "text",
+          "placeholder": "Enter properties...",
+          "description": "List of input properties to avoid sending, separated by commas. Leave empty to send all properties."
+        },
+        {
+          "id": "fieldsUi",
+          "label": "Fields to Send",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: fieldValues, fieldValues.fieldId, fieldValues.fieldValue)"
         }
-      ]
+      ],
+      "group": "Row",
+      "description": "Update a row"
     }
   ]
 }

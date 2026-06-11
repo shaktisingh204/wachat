@@ -4,51 +4,53 @@
   "description": "Consume SIGNL4 API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://connect.signl4.com/webhook",
   "endpoints": [
     {
       "id": "alert_send",
       "label": "Send Alert",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/alert",
       "fields": [
         {
           "id": "message",
           "label": "Message",
           "type": "text",
-          "in": "query",
           "description": "A more detailed description for the alert"
         },
         {
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: alertingScenario, attachmentsUi, externalId, filtering, locationFieldsUi, service, title)"
         }
-      ]
+      ],
+      "group": "Alert",
+      "description": "[unverified path] Send an alert"
     },
     {
       "id": "alert_resolve",
       "label": "Resolve Alert",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/alert",
       "fields": [
         {
           "id": "externalId",
           "label": "External ID",
           "type": "text",
-          "in": "query",
           "description": "If the event originates from a record in a 3rd party system, use this parameter to pass the unique ID of that record. That ID will be communicated in outbound webhook notifications from SIGNL4, which is great for correlation/synchronization of that record with the alert. If you resolve / close an alert you must use the same External ID as in the original alert."
         }
-      ]
+      ],
+      "group": "Alert",
+      "description": "[unverified path] Resolve an alert"
     }
   ]
 }

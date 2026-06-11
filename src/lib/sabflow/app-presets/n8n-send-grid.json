@@ -4,35 +4,339 @@
   "description": "Consume SendGrid API",
   "category": "communication",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.sendgrid.com/v3",
   "endpoints": [
     {
-      "id": "contact_default",
-      "label": "List Contact",
-      "method": "GET",
-      "path": "/contact",
-      "fields": []
+      "id": "list_create",
+      "label": "Create List",
+      "method": "POST",
+      "path": "/list",
+      "fields": [
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "Name of the list"
+        }
+      ],
+      "group": "List",
+      "description": "[unverified path] Create a list"
     },
     {
-      "id": "list_default",
-      "label": "List List",
+      "id": "list_delete",
+      "label": "Delete List",
+      "method": "DELETE",
+      "path": "/list",
+      "fields": [
+        {
+          "id": "listId",
+          "label": "List ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the list"
+        },
+        {
+          "id": "deleteContacts",
+          "label": "Delete Contacts",
+          "type": "toggle",
+          "description": "Whether to delete all contacts on the list",
+          "defaultValue": false
+        }
+      ],
+      "group": "List",
+      "description": "[unverified path] Delete a list"
+    },
+    {
+      "id": "list_get",
+      "label": "Get List",
       "method": "GET",
       "path": "/list",
-      "fields": []
+      "fields": [
+        {
+          "id": "listId",
+          "label": "List ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the list"
+        },
+        {
+          "id": "contactSample",
+          "label": "Contact Sample",
+          "type": "toggle",
+          "description": "Whether to return the contact sample",
+          "defaultValue": false
+        }
+      ],
+      "group": "List",
+      "description": "[unverified path] Get a list"
     },
     {
-      "id": "mail_default",
-      "label": "List Mail",
+      "id": "list_get_all",
+      "label": "Get Many List",
       "method": "GET",
+      "path": "/result",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        }
+      ],
+      "group": "List",
+      "description": "Get many lists"
+    },
+    {
+      "id": "list_update",
+      "label": "Update List",
+      "method": "PATCH",
+      "path": "/list",
+      "fields": [
+        {
+          "id": "listId",
+          "label": "List ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the list"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "Name of the list"
+        }
+      ],
+      "group": "List",
+      "description": "[unverified path] Update a list"
+    },
+    {
+      "id": "contact_upsert",
+      "label": "Create or Update Contact",
+      "method": "POST",
+      "path": "/contact",
+      "fields": [
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "required": true,
+          "placeholder": "name@email.com",
+          "description": "Primary email for the contact"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: addressUi, alternateEmails, city, country, firstName, lastName, postalCode, stateProvinceRegion, listIdsUi, customFieldsUi)"
+        }
+      ],
+      "group": "Contact",
+      "description": "[unverified path] Create a new contact, or update the current one if it already exists (upsert)"
+    },
+    {
+      "id": "contact_delete",
+      "label": "Delete Contact",
+      "method": "DELETE",
+      "path": "/contact",
+      "fields": [
+        {
+          "id": "ids",
+          "label": "Contact IDs",
+          "type": "text",
+          "description": "ID of the contact. Multiple can be added separated by comma."
+        },
+        {
+          "id": "deleteAll",
+          "label": "Delete All",
+          "type": "toggle",
+          "description": "Whether all contacts will be deleted",
+          "defaultValue": false
+        }
+      ],
+      "group": "Contact",
+      "description": "[unverified path] Delete a contact"
+    },
+    {
+      "id": "contact_get",
+      "label": "Get Contact",
+      "method": "GET",
+      "path": "/marketing/contacts/{contactId}",
+      "fields": [
+        {
+          "id": "by",
+          "label": "By",
+          "type": "select",
+          "required": true,
+          "description": "Search the user by ID or email",
+          "defaultValue": "id",
+          "options": [
+            {
+              "value": "id",
+              "label": "ID"
+            },
+            {
+              "value": "email",
+              "label": "Email"
+            }
+          ]
+        },
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the contact",
+          "in": "path"
+        },
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "required": true,
+          "placeholder": "name@email.com",
+          "description": "Email of the contact"
+        }
+      ],
+      "group": "Contact",
+      "description": "Get a contact by ID"
+    },
+    {
+      "id": "contact_get_all",
+      "label": "Get Many Contact",
+      "method": "POST",
+      "path": "/marketing/contacts",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: query)"
+        }
+      ],
+      "group": "Contact",
+      "description": "Get many contacts"
+    },
+    {
+      "id": "mail_send",
+      "label": "Send Mail",
+      "method": "POST",
       "path": "/mail",
-      "fields": []
+      "fields": [
+        {
+          "id": "fromEmail",
+          "label": "Sender Email",
+          "type": "text",
+          "placeholder": "sender@domain.com",
+          "description": "Email address of the sender of the email"
+        },
+        {
+          "id": "fromName",
+          "label": "Sender Name",
+          "type": "text",
+          "placeholder": "John Smith",
+          "description": "Name of the sender of the email"
+        },
+        {
+          "id": "toEmail",
+          "label": "Recipient Email",
+          "type": "text",
+          "placeholder": "recipient@domain.com",
+          "description": "Comma-separated list of recipient email addresses"
+        },
+        {
+          "id": "subject",
+          "label": "Subject",
+          "type": "text",
+          "description": "Subject of the email to send"
+        },
+        {
+          "id": "dynamicTemplate",
+          "label": "Dynamic Template",
+          "type": "toggle",
+          "required": true,
+          "description": "Whether this email will contain a dynamic template",
+          "defaultValue": false
+        },
+        {
+          "id": "contentType",
+          "label": "MIME Type",
+          "type": "select",
+          "description": "MIME type of the email to send",
+          "defaultValue": "text/plain",
+          "options": [
+            {
+              "value": "text/plain",
+              "label": "Plain Text"
+            },
+            {
+              "value": "text/html",
+              "label": "HTML"
+            }
+          ]
+        },
+        {
+          "id": "contentValue",
+          "label": "Message Body",
+          "type": "text",
+          "required": true,
+          "description": "Message body of the email to send"
+        },
+        {
+          "id": "templateId",
+          "label": "Template Name or ID",
+          "type": "select",
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "dynamicTemplateFields",
+          "label": "Dynamic Template Fields",
+          "type": "json",
+          "placeholder": "Add Dynamic Template Fields",
+          "description": "(JSON object; supported keys: fields, fields.key, fields.value)"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: attachments, bccEmail, categories, ccEmail, enableSandbox, ipPoolName, replyToEmail, headers, sendAt)"
+        }
+      ],
+      "group": "Mail",
+      "description": "[unverified path] Send an email"
     }
   ]
 }

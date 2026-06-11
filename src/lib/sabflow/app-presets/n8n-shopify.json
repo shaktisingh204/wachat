@@ -4,8 +4,8 @@
   "description": "Consume Shopify API",
   "category": "commerce",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -16,77 +16,247 @@
       "credentialType": "http_header_auth"
     }
   },
-  "baseUrl": "",
+  "baseUrl": "https://shopify.dev/admin/api",
   "endpoints": [
     {
-      "id": "order_default",
-      "label": "List Order",
-      "method": "GET",
-      "path": "/order",
+      "id": "order_create",
+      "label": "Create Order",
+      "method": "POST",
+      "path": "/orders.json",
       "fields": [
         {
-          "id": "apiVersion",
-          "label": "Shopify API Version: 2024-07",
-          "type": "text",
-          "in": "query"
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: billingAddressUi, discountCodesUi, email, fulfillmentStatus, inventoryBehaviour, locationId, note, sendFulfillmentReceipt, sendReceipt, shippingAddressUi, sourceName, tags, test)"
         },
         {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "apiKey",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            },
-            {
-              "value": "apiKey",
-              "label": "API Key"
-            }
-          ]
+          "id": "limeItemsUi",
+          "label": "Line Items",
+          "type": "json",
+          "placeholder": "Add Line Item",
+          "description": "(JSON object; supported keys: lineItemValues, lineItemValues.productId, lineItemValues.variantId, lineItemValues.title, lineItemValues.grams, lineItemValues.quantity, lineItemValues.price)"
         }
-      ]
+      ],
+      "group": "Order",
+      "description": "Create an order"
     },
     {
-      "id": "product_default",
-      "label": "List Product",
-      "method": "GET",
-      "path": "/product",
+      "id": "order_delete",
+      "label": "Delete Order",
+      "method": "DELETE",
+      "path": "/orders/{orderId}.json",
       "fields": [
         {
-          "id": "apiVersion",
-          "label": "Shopify API Version: 2024-07",
+          "id": "orderId",
+          "label": "Order ID",
           "type": "text",
-          "in": "query"
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Order",
+      "description": "Delete an order"
+    },
+    {
+      "id": "order_get",
+      "label": "Get Order",
+      "method": "GET",
+      "path": "/orders/{orderId}.json",
+      "fields": [
+        {
+          "id": "orderId",
+          "label": "Order ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
         },
         {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "apiKey",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            },
-            {
-              "value": "apiKey",
-              "label": "API Key"
-            }
-          ]
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: fields)"
         }
-      ]
+      ],
+      "group": "Order",
+      "description": "Get an order"
+    },
+    {
+      "id": "order_get_all",
+      "label": "Get Many Order",
+      "method": "GET",
+      "path": "/orders.json",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: attributionAppId, createdAtMin, createdAtMax, financialStatus, fulfillmentStatus, fields, ids, processedAtMax, processedAtMin, status, sinceId, updatedAtMax, updatedAtMin)"
+        }
+      ],
+      "group": "Order",
+      "description": "Get many orders"
+    },
+    {
+      "id": "order_update",
+      "label": "Update Order",
+      "method": "PUT",
+      "path": "/orders/{orderId}.json",
+      "fields": [
+        {
+          "id": "orderId",
+          "label": "Order ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: email, locationId, note, shippingAddressUi, sourceName, tags)"
+        }
+      ],
+      "group": "Order",
+      "description": "Update an order"
+    },
+    {
+      "id": "product_create",
+      "label": "Create Product",
+      "method": "POST",
+      "path": "/products.json",
+      "fields": [
+        {
+          "id": "title",
+          "label": "Title",
+          "type": "text",
+          "required": true,
+          "description": "The name of the product"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: body_html, handle, images, productOptions, product_type, published_at, published_scope, tags, template_suffix, vendor)"
+        }
+      ],
+      "group": "Product",
+      "description": "Create a product"
+    },
+    {
+      "id": "product_delete",
+      "label": "Delete Product",
+      "method": "DELETE",
+      "path": "/products/{productId}.json",
+      "fields": [
+        {
+          "id": "productId",
+          "label": "Product ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Product",
+      "description": "Delete a product"
+    },
+    {
+      "id": "product_get",
+      "label": "Get Product",
+      "method": "GET",
+      "path": "/products/{productId}.json",
+      "fields": [
+        {
+          "id": "productId",
+          "label": "Product ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: fields)"
+        }
+      ],
+      "group": "Product",
+      "description": "Get a product"
+    },
+    {
+      "id": "product_get_all",
+      "label": "Get Many Product",
+      "method": "GET",
+      "path": "/products.json",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: collection_id, created_at_max, created_at_min, fields, handle, ids, presentment_currencies, product_type, published_at_max, published_at_min, published_status, title, updated_at_max, updated_at_min, vendor)"
+        }
+      ],
+      "group": "Product",
+      "description": "Get many products"
+    },
+    {
+      "id": "product_update",
+      "label": "Update Product",
+      "method": "PUT",
+      "path": "/products/{productId}.json",
+      "fields": [
+        {
+          "id": "productId",
+          "label": "Product ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: body_html, handle, images, productOptions, product_type, published_at, published_scope, tags, template_suffix, title, vendor)"
+        }
+      ],
+      "group": "Product",
+      "description": "Update a product"
     }
   ]
 }

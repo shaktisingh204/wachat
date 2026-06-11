@@ -4,49 +4,425 @@
   "description": "Consume ConvertKit API",
   "category": "marketing",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.convertkit.com/v3",
   "endpoints": [
     {
-      "id": "custom_field_default",
-      "label": "List CustomField",
-      "method": "GET",
-      "path": "/customField",
-      "fields": []
+      "id": "custom_field_create",
+      "label": "Create Custom Field",
+      "method": "POST",
+      "path": "/custom_fields",
+      "fields": [
+        {
+          "id": "label",
+          "label": "Label",
+          "type": "text",
+          "required": true,
+          "description": "The label of the custom field"
+        }
+      ],
+      "group": "Custom Field",
+      "description": "Create a field"
     },
     {
-      "id": "form_default",
-      "label": "List Form",
-      "method": "GET",
-      "path": "/form",
-      "fields": []
+      "id": "custom_field_delete",
+      "label": "Delete Custom Field",
+      "method": "DELETE",
+      "path": "/custom_fields/{id}",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Field ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of your custom field",
+          "in": "path"
+        }
+      ],
+      "group": "Custom Field",
+      "description": "Delete a field"
     },
     {
-      "id": "sequence_default",
-      "label": "List Sequence",
+      "id": "custom_field_get_all",
+      "label": "Get Many Custom Field",
       "method": "GET",
-      "path": "/sequence",
-      "fields": []
+      "path": "/custom_fields",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        }
+      ],
+      "group": "Custom Field",
+      "description": "Get many fields"
     },
     {
-      "id": "tag_default",
-      "label": "List Tag",
-      "method": "GET",
-      "path": "/tag",
-      "fields": []
+      "id": "custom_field_update",
+      "label": "Update Custom Field",
+      "method": "PUT",
+      "path": "/custom_fields/{id}",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Field ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of your custom field",
+          "in": "path"
+        },
+        {
+          "id": "label",
+          "label": "Label",
+          "type": "text",
+          "required": true,
+          "description": "The label of the custom field"
+        }
+      ],
+      "group": "Custom Field",
+      "description": "Update a field"
     },
     {
-      "id": "tag_subscriber_default",
-      "label": "List TagSubscriber",
+      "id": "form_add_subscriber",
+      "label": "Add Subscriber Form",
+      "method": "POST",
+      "path": "/forms/{formId}/subscribe",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Form Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "required": true,
+          "placeholder": "name@email.com",
+          "description": "The subscriber's email address"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: fieldsUi, firstName)"
+        }
+      ],
+      "group": "Form",
+      "description": "Add a subscriber"
+    },
+    {
+      "id": "form_get_all",
+      "label": "Get Many Form",
       "method": "GET",
-      "path": "/tagSubscriber",
-      "fields": []
+      "path": "/forms",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        }
+      ],
+      "group": "Form",
+      "description": "Get many forms"
+    },
+    {
+      "id": "form_get_subscriptions",
+      "label": "Get Subscriptions Form",
+      "method": "GET",
+      "path": "/forms/{formId}/subscriptions",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Form Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "Receive only active subscribers or cancelled subscribers (JSON object; supported keys: subscriberState)"
+        }
+      ],
+      "group": "Form",
+      "description": "List subscriptions to a form including subscriber data"
+    },
+    {
+      "id": "sequence_add_subscriber",
+      "label": "Add Subscriber Sequence",
+      "method": "POST",
+      "path": "/sequences/{sequenceId}/subscribe",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Sequence Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "required": true,
+          "placeholder": "name@email.com",
+          "description": "The subscriber's email address"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: fieldsUi, firstName, tags)"
+        }
+      ],
+      "group": "Sequence",
+      "description": "Add a subscriber"
+    },
+    {
+      "id": "sequence_get_all",
+      "label": "Get Many Sequence",
+      "method": "GET",
+      "path": "/sequences",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        }
+      ],
+      "group": "Sequence",
+      "description": "Get many sequences"
+    },
+    {
+      "id": "sequence_get_subscriptions",
+      "label": "Get Subscriptions Sequence",
+      "method": "GET",
+      "path": "/sequences/{sequenceId}/subscriptions",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Sequence Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "Receive only active subscribers or cancelled subscribers (JSON object; supported keys: subscriberState)"
+        }
+      ],
+      "group": "Sequence",
+      "description": "Get all subscriptions to a sequence including subscriber data"
+    },
+    {
+      "id": "tag_create",
+      "label": "Create Tag",
+      "method": "POST",
+      "path": "/tags",
+      "fields": [
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "Tag name, multiple can be added separated by comma"
+        }
+      ],
+      "group": "Tag",
+      "description": "Create a tag"
+    },
+    {
+      "id": "tag_get_all",
+      "label": "Get Many Tag",
+      "method": "GET",
+      "path": "/tags",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        }
+      ],
+      "group": "Tag",
+      "description": "Get many tags"
+    },
+    {
+      "id": "tag_subscriber_add",
+      "label": "Add Tag Subscriber",
+      "method": "POST",
+      "path": "/tags/{tagId}/subscribe",
+      "fields": [
+        {
+          "id": "tagId",
+          "label": "Tag Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        },
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "required": true,
+          "placeholder": "name@email.com",
+          "description": "Subscriber email address"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: fields, firstName)"
+        }
+      ],
+      "group": "Tag Subscriber",
+      "description": "Add a tag to a subscriber"
+    },
+    {
+      "id": "tag_subscriber_get_all",
+      "label": "Get Many Tag Subscriber",
+      "method": "GET",
+      "path": "/tags/{tagId}/subscriptions",
+      "fields": [
+        {
+          "id": "tagId",
+          "label": "Tag Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "Receive only active subscribers or cancelled subscribers (JSON object; supported keys: subscriberState)"
+        }
+      ],
+      "group": "Tag Subscriber",
+      "description": "List subscriptions to a tag including subscriber data"
+    },
+    {
+      "id": "tag_subscriber_delete",
+      "label": "Delete Tag Subscriber",
+      "method": "POST",
+      "path": "/tags/{tagId}>/unsubscribe",
+      "fields": [
+        {
+          "id": "tagId",
+          "label": "Tag Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        },
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "required": true,
+          "placeholder": "name@email.com",
+          "description": "Subscriber email address"
+        }
+      ],
+      "group": "Tag Subscriber",
+      "description": "Delete a tag from a subscriber"
     }
   ]
 }

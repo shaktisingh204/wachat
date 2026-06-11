@@ -4,8 +4,8 @@
   "description": "Consume Intercom API",
   "category": "support",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -16,28 +16,617 @@
       "credentialType": "http_header_auth"
     }
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.intercom.io",
   "endpoints": [
     {
-      "id": "company_default",
-      "label": "List Company",
-      "method": "GET",
-      "path": "/company",
-      "fields": []
+      "id": "lead_create",
+      "label": "Create Lead",
+      "method": "POST",
+      "path": "/lead",
+      "fields": [
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "required": true,
+          "placeholder": "name@email.com",
+          "description": "The email of the user"
+        },
+        {
+          "id": "jsonParameters",
+          "label": "JSON Parameters",
+          "type": "toggle",
+          "defaultValue": false
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: avatar, companies, email, name, phone, unsubscribedFromEmails, updateLastRequestAt, utmCampaign, utmContent, utmMedium, utmSource, utmTerm)"
+        },
+        {
+          "id": "customAttributesJson",
+          "label": "Custom Attributes",
+          "type": "json",
+          "description": "A hash of key/value pairs to represent custom data you want to attribute to a user"
+        },
+        {
+          "id": "customAttributesUi",
+          "label": "Custom Attributes",
+          "type": "json",
+          "placeholder": "Add Attribute",
+          "description": "A hash of key/value pairs to represent custom data you want to attribute to a user (JSON object; supported keys: customAttributesValues, customAttributesValues.name, customAttributesValues.value)"
+        }
+      ],
+      "group": "Lead",
+      "description": "[unverified path] Create a new lead"
     },
     {
-      "id": "lead_default",
-      "label": "List Lead",
+      "id": "lead_delete",
+      "label": "Delete Lead",
+      "method": "DELETE",
+      "path": "/lead",
+      "fields": [
+        {
+          "id": "deleteBy",
+          "label": "Delete By",
+          "type": "select",
+          "options": [
+            {
+              "value": "id",
+              "label": "ID"
+            },
+            {
+              "value": "userId",
+              "label": "User ID"
+            }
+          ]
+        },
+        {
+          "id": "value",
+          "label": "Value",
+          "type": "text",
+          "required": true,
+          "description": "Delete by value"
+        }
+      ],
+      "group": "Lead",
+      "description": "[unverified path] Delete a lead"
+    },
+    {
+      "id": "lead_get",
+      "label": "Get Lead",
       "method": "GET",
       "path": "/lead",
-      "fields": []
+      "fields": [
+        {
+          "id": "selectBy",
+          "label": "Select By",
+          "type": "select",
+          "description": "The property to select the lead by",
+          "options": [
+            {
+              "value": "email",
+              "label": "Email"
+            },
+            {
+              "value": "id",
+              "label": "ID"
+            },
+            {
+              "value": "userId",
+              "label": "User ID"
+            },
+            {
+              "value": "phone",
+              "label": "Phone"
+            }
+          ]
+        },
+        {
+          "id": "value",
+          "label": "Value",
+          "type": "text",
+          "required": true,
+          "description": "View by value"
+        }
+      ],
+      "group": "Lead",
+      "description": "[unverified path] Get data of a lead"
     },
     {
-      "id": "user_default",
-      "label": "List User",
+      "id": "lead_get_all",
+      "label": "Get Many Lead",
+      "method": "GET",
+      "path": "/lead",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: email, phone)"
+        }
+      ],
+      "group": "Lead",
+      "description": "[unverified path] Get data of many leads"
+    },
+    {
+      "id": "lead_update",
+      "label": "Update Lead",
+      "method": "PATCH",
+      "path": "/lead",
+      "fields": [
+        {
+          "id": "updateBy",
+          "label": "Update By",
+          "type": "select",
+          "description": "The property via which to query the lead",
+          "defaultValue": "id",
+          "options": [
+            {
+              "value": "userId",
+              "label": "User ID"
+            },
+            {
+              "value": "id",
+              "label": "ID"
+            }
+          ]
+        },
+        {
+          "id": "value",
+          "label": "Value",
+          "type": "text",
+          "required": true,
+          "description": "Value of the property to identify the lead to update"
+        },
+        {
+          "id": "jsonParameters",
+          "label": "JSON Parameters",
+          "type": "toggle",
+          "defaultValue": false
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: avatar, companies, email, name, phone, unsubscribedFromEmails, updateLastRequestAt, utmCampaign, utmContent, utmMedium, utmSource, utmTerm)"
+        },
+        {
+          "id": "customAttributesJson",
+          "label": "Custom Attributes",
+          "type": "json",
+          "description": "A hash of key/value pairs to represent custom data you want to attribute to a user"
+        },
+        {
+          "id": "customAttributesUi",
+          "label": "Custom Attributes",
+          "type": "json",
+          "placeholder": "Add Attribute",
+          "description": "A hash of key/value pairs to represent custom data you want to attribute to a user (JSON object; supported keys: customAttributesValues, customAttributesValues.name, customAttributesValues.value)"
+        }
+      ],
+      "group": "Lead",
+      "description": "[unverified path] Update new lead"
+    },
+    {
+      "id": "user_create",
+      "label": "Create User",
+      "method": "POST",
+      "path": "/user",
+      "fields": [
+        {
+          "id": "identifierType",
+          "label": "Identifier Type",
+          "type": "select",
+          "description": "Unique string identifier",
+          "options": [
+            {
+              "value": "userId",
+              "label": "User ID"
+            },
+            {
+              "value": "email",
+              "label": "Email"
+            }
+          ]
+        },
+        {
+          "id": "idValue",
+          "label": "Value",
+          "type": "text",
+          "required": true,
+          "description": "Unique string identifier value"
+        },
+        {
+          "id": "jsonParameters",
+          "label": "JSON Parameters",
+          "type": "toggle",
+          "defaultValue": false
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: avatar, companies, email, name, phone, sessionCount, userId, unsubscribedFromEmails, updateLastRequestAt, utmCampaign, utmContent, utmMedium, utmSource, utmTerm)"
+        },
+        {
+          "id": "customAttributesJson",
+          "label": "Custom Attributes",
+          "type": "json",
+          "description": "A hash of key/value pairs to represent custom data you want to attribute to a user"
+        },
+        {
+          "id": "customAttributesUi",
+          "label": "Custom Attributes",
+          "type": "json",
+          "placeholder": "Add Attribute",
+          "description": "A hash of key/value pairs to represent custom data you want to attribute to a user (JSON object; supported keys: customAttributesValues, customAttributesValues.name, customAttributesValues.value)"
+        }
+      ],
+      "group": "User",
+      "description": "[unverified path] Create a new user"
+    },
+    {
+      "id": "user_delete",
+      "label": "Delete User",
+      "method": "DELETE",
+      "path": "/user",
+      "fields": [
+        {
+          "id": "id",
+          "label": "ID",
+          "type": "text",
+          "required": true,
+          "description": "The Intercom defined ID representing the Lead"
+        }
+      ],
+      "group": "User",
+      "description": "[unverified path] Delete a user"
+    },
+    {
+      "id": "user_get",
+      "label": "Get User",
       "method": "GET",
       "path": "/user",
-      "fields": []
+      "fields": [
+        {
+          "id": "selectBy",
+          "label": "Select By",
+          "type": "select",
+          "description": "The property to select the user by",
+          "options": [
+            {
+              "value": "id",
+              "label": "ID"
+            },
+            {
+              "value": "userId",
+              "label": "User ID"
+            }
+          ]
+        },
+        {
+          "id": "value",
+          "label": "Value",
+          "type": "text",
+          "required": true,
+          "description": "View by value"
+        }
+      ],
+      "group": "User",
+      "description": "[unverified path] Get data of a user"
+    },
+    {
+      "id": "user_get_all",
+      "label": "Get Many User",
+      "method": "GET",
+      "path": "/user",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: company_id, email, segment_id, tag_id)"
+        }
+      ],
+      "group": "User",
+      "description": "[unverified path] Get data of many users"
+    },
+    {
+      "id": "user_update",
+      "label": "Update User",
+      "method": "PATCH",
+      "path": "/user",
+      "fields": [
+        {
+          "id": "updateBy",
+          "label": "Update By",
+          "type": "select",
+          "description": "The property via which to query the user",
+          "defaultValue": "id",
+          "options": [
+            {
+              "value": "id",
+              "label": "ID"
+            },
+            {
+              "value": "email",
+              "label": "Email"
+            },
+            {
+              "value": "userId",
+              "label": "User ID"
+            }
+          ]
+        },
+        {
+          "id": "value",
+          "label": "Value",
+          "type": "text",
+          "required": true,
+          "description": "Value of the property to identify the user to update"
+        },
+        {
+          "id": "jsonParameters",
+          "label": "JSON Parameters",
+          "type": "toggle",
+          "defaultValue": false
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: avatar, companies, email, name, phone, sessionCount, userId, unsubscribedFromEmails, updateLastRequestAt, utmCampaign, utmContent, utmMedium, utmSource, utmTerm)"
+        },
+        {
+          "id": "customAttributesJson",
+          "label": "Custom Attributes",
+          "type": "json",
+          "description": "A hash of key/value pairs to represent custom data you want to attribute to a user"
+        },
+        {
+          "id": "customAttributesUi",
+          "label": "Custom Attributes",
+          "type": "json",
+          "placeholder": "Add Attribute",
+          "description": "A hash of key/value pairs to represent custom data you want to attribute to a user (JSON object; supported keys: customAttributesValues, customAttributesValues.name, customAttributesValues.value)"
+        }
+      ],
+      "group": "User",
+      "description": "[unverified path] Update a user"
+    },
+    {
+      "id": "company_create",
+      "label": "Create Company",
+      "method": "POST",
+      "path": "/company",
+      "fields": [
+        {
+          "id": "companyId",
+          "label": "Company ID",
+          "type": "text",
+          "description": "The company ID you have defined for the company"
+        },
+        {
+          "id": "jsonParameters",
+          "label": "JSON Parameters",
+          "type": "toggle",
+          "defaultValue": false
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: industry, monthlySpend, name, plan, size, website)"
+        },
+        {
+          "id": "customAttributesJson",
+          "label": "Custom Attributes",
+          "type": "json",
+          "description": "A hash of key/value pairs to represent custom data you want to attribute to a user"
+        },
+        {
+          "id": "customAttributesUi",
+          "label": "Custom Attributes",
+          "type": "json",
+          "placeholder": "Add Attribute",
+          "description": "A hash of key/value pairs to represent custom data you want to attribute to a user (JSON object; supported keys: customAttributesValues, customAttributesValues.name, customAttributesValues.value)"
+        }
+      ],
+      "group": "Company",
+      "description": "[unverified path] Create a new company"
+    },
+    {
+      "id": "company_get",
+      "label": "Get Company",
+      "method": "GET",
+      "path": "/company",
+      "fields": [
+        {
+          "id": "selectBy",
+          "label": "Select By",
+          "type": "select",
+          "description": "What property to use to query the company",
+          "options": [
+            {
+              "value": "companyId",
+              "label": "Company ID"
+            },
+            {
+              "value": "id",
+              "label": "ID"
+            },
+            {
+              "value": "name",
+              "label": "Name"
+            }
+          ]
+        },
+        {
+          "id": "value",
+          "label": "Value",
+          "type": "text",
+          "required": true,
+          "description": "View by value"
+        }
+      ],
+      "group": "Company",
+      "description": "[unverified path] Get data of a company"
+    },
+    {
+      "id": "company_get_all",
+      "label": "Get Many Company",
+      "method": "GET",
+      "path": "/company",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: segment_id, tag_id)"
+        }
+      ],
+      "group": "Company",
+      "description": "[unverified path] Get data of many companies"
+    },
+    {
+      "id": "company_update",
+      "label": "Update Company",
+      "method": "PATCH",
+      "path": "/company",
+      "fields": [
+        {
+          "id": "companyId",
+          "label": "Company ID",
+          "type": "text",
+          "description": "The company ID you have defined for the company"
+        },
+        {
+          "id": "jsonParameters",
+          "label": "JSON Parameters",
+          "type": "toggle",
+          "defaultValue": false
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: industry, monthlySpend, name, plan, size, website)"
+        },
+        {
+          "id": "customAttributesJson",
+          "label": "Custom Attributes",
+          "type": "json",
+          "description": "A hash of key/value pairs to represent custom data you want to attribute to a user"
+        },
+        {
+          "id": "customAttributesUi",
+          "label": "Custom Attributes",
+          "type": "json",
+          "placeholder": "Add Attribute",
+          "description": "A hash of key/value pairs to represent custom data you want to attribute to a user (JSON object; supported keys: customAttributesValues, customAttributesValues.name, customAttributesValues.value)"
+        }
+      ],
+      "group": "Company",
+      "description": "[unverified path] Update a company"
+    },
+    {
+      "id": "company_users",
+      "label": "Users Company",
+      "method": "POST",
+      "path": "/company",
+      "fields": [
+        {
+          "id": "listBy",
+          "label": "List By",
+          "type": "select",
+          "options": [
+            {
+              "value": "id",
+              "label": "ID"
+            },
+            {
+              "value": "companyId",
+              "label": "Company ID"
+            }
+          ]
+        },
+        {
+          "id": "value",
+          "label": "Value",
+          "type": "text",
+          "required": true,
+          "description": "View by value"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Company",
+      "description": "[unverified path] List company's users"
     }
   ]
 }

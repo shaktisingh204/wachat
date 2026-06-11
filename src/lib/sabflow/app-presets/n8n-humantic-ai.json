@@ -4,21 +4,104 @@
   "description": "Consume Humantic AI API",
   "category": "ai",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.humantic.ai/v1",
   "endpoints": [
     {
-      "id": "profile_default",
-      "label": "List Profile",
+      "id": "profile_create",
+      "label": "Create Profile",
+      "method": "POST",
+      "path": "/user-profile/create",
+      "fields": [
+        {
+          "id": "userId",
+          "label": "User ID",
+          "type": "text",
+          "required": true,
+          "description": "The LinkedIn profile URL or email ID for creating a Humantic profile. If you are sending the resume, this should be a unique string."
+        },
+        {
+          "id": "sendResume",
+          "label": "Send Resume",
+          "type": "toggle",
+          "description": "Whether to send a resume for a resume based analysis",
+          "defaultValue": false
+        },
+        {
+          "id": "binaryPropertyName",
+          "label": "Input Binary Field",
+          "type": "text",
+          "defaultValue": "data"
+        }
+      ],
+      "group": "Profile",
+      "description": "Create a profile"
+    },
+    {
+      "id": "profile_get",
+      "label": "Get Profile",
       "method": "GET",
-      "path": "/profile",
-      "fields": []
+      "path": "/user-profile",
+      "fields": [
+        {
+          "id": "userId",
+          "label": "User ID",
+          "type": "text",
+          "required": true,
+          "description": "This value is the same as the User ID that was provided when the analysis was created. This could be a LinkedIn URL, email ID, or a unique string in case of resume based analysis."
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: persona)"
+        }
+      ],
+      "group": "Profile",
+      "description": "Retrieve a profile"
+    },
+    {
+      "id": "profile_update",
+      "label": "Update Profile",
+      "method": "POST",
+      "path": "/user-profile/create",
+      "fields": [
+        {
+          "id": "userId",
+          "label": "User ID",
+          "type": "text",
+          "required": true,
+          "description": "This value is the same as the User ID that was provided when the analysis was created. Currently only supported for profiles created using LinkedIn URL."
+        },
+        {
+          "id": "sendResume",
+          "label": "Send Resume",
+          "type": "toggle",
+          "description": "Whether to send a resume for a resume of the user",
+          "defaultValue": false
+        },
+        {
+          "id": "text",
+          "label": "Text",
+          "type": "text",
+          "description": "Additional text written by the user"
+        },
+        {
+          "id": "binaryPropertyName",
+          "label": "Input Binary Field",
+          "type": "text",
+          "defaultValue": "data"
+        }
+      ],
+      "group": "Profile",
+      "description": "Update a profile"
     }
   ]
 }

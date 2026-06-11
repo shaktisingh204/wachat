@@ -4,35 +4,679 @@
   "description": "Consume Google Workspace Admin API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
     "credentialType": "oauth2"
   },
-  "baseUrl": "",
+  "baseUrl": "https://www.googleapis.com/admin",
   "endpoints": [
     {
-      "id": "device_default",
-      "label": "List Device",
+      "id": "device_get",
+      "label": "Get ChromeOS Device",
       "method": "GET",
-      "path": "/device",
-      "fields": []
+      "path": "/directory/v1/customer/my_customer/devices/chromeos/{deviceId}?projection={output}",
+      "fields": [
+        {
+          "id": "deviceId",
+          "label": "Device",
+          "type": "text",
+          "required": true,
+          "description": "Select the device you want to retrieve (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "projection",
+          "label": "Output",
+          "type": "select",
+          "required": true,
+          "description": "What subset of fields to fetch for this device",
+          "defaultValue": "basic",
+          "options": [
+            {
+              "value": "basic",
+              "label": "Basic"
+            },
+            {
+              "value": "full",
+              "label": "Full"
+            }
+          ]
+        }
+      ],
+      "group": "ChromeOS Device",
+      "description": "Get a ChromeOS device"
     },
     {
-      "id": "group_default",
-      "label": "List Group",
+      "id": "device_get_all",
+      "label": "Get Many ChromeOS Device",
       "method": "GET",
-      "path": "/group",
-      "fields": []
+      "path": "/directory/v1/customer/{qs_customer}/devices/chromeos/",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "projection",
+          "label": "Output",
+          "type": "select",
+          "required": true,
+          "description": "What subset of fields to fetch for this device",
+          "defaultValue": "basic",
+          "options": [
+            {
+              "value": "basic",
+              "label": "Basic"
+            },
+            {
+              "value": "full",
+              "label": "Full"
+            }
+          ]
+        },
+        {
+          "id": "includeChildOrgunits",
+          "label": "Include Children",
+          "type": "toggle",
+          "description": "Whether to include devices from organizational units below your specified organizational unit",
+          "defaultValue": false
+        },
+        {
+          "id": "filter",
+          "label": "Filter",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: orgUnitPath, query)"
+        },
+        {
+          "id": "sort",
+          "label": "Sort",
+          "type": "json",
+          "placeholder": "Add Sort Rule",
+          "description": "Define sorting rules for the results (JSON object; supported keys: sortRules, sortRules.orderBy, sortRules.sortBy)"
+        }
+      ],
+      "group": "ChromeOS Device",
+      "description": "[unverified path] Get many ChromeOS devices"
     },
     {
-      "id": "user_default",
-      "label": "List User",
+      "id": "device_update",
+      "label": "Update ChromeOS Device",
+      "method": "PUT",
+      "path": "/directory/v1/customer/my_customer/devices/chromeos/{deviceId}",
+      "fields": [
+        {
+          "id": "deviceId",
+          "label": "Device",
+          "type": "text",
+          "required": true,
+          "description": "Select the device you want to retrieve (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "updateOptions",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Option",
+          "description": "(JSON object; supported keys: orgUnitPath, annotatedUser, annotatedLocation, annotatedAssetId, notes)"
+        }
+      ],
+      "group": "ChromeOS Device",
+      "description": "Update a ChromeOS device"
+    },
+    {
+      "id": "device_change_status",
+      "label": "Change Status ChromeOS Device",
+      "method": "POST",
+      "path": "/directory/v1/customer/my_customer/devices/chromeos/{deviceId}/action",
+      "fields": [
+        {
+          "id": "deviceId",
+          "label": "Device",
+          "type": "text",
+          "required": true,
+          "description": "Select the device you want to retrieve (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "action",
+          "label": "Status",
+          "type": "select",
+          "required": true,
+          "description": "Set the status of a device",
+          "defaultValue": "reenable",
+          "options": [
+            {
+              "value": "reenable",
+              "label": "Enabled"
+            },
+            {
+              "value": "disable",
+              "label": "Disabled"
+            }
+          ]
+        }
+      ],
+      "group": "ChromeOS Device",
+      "description": "Change the status of a ChromeOS device"
+    },
+    {
+      "id": "group_create",
+      "label": "Create Group",
+      "method": "POST",
+      "path": "/directory/v1/groups",
+      "fields": [
+        {
+          "id": "name",
+          "label": "Group Name",
+          "type": "text",
+          "placeholder": "e.g. Sales",
+          "description": "The group's display name"
+        },
+        {
+          "id": "email",
+          "label": "Group Email",
+          "type": "text",
+          "required": true,
+          "placeholder": "e.g. sales@example.com",
+          "description": "The group's email address. If your account has multiple domains, select the appropriate domain for the email address. The email must be unique"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: description)"
+        }
+      ],
+      "group": "Group",
+      "description": "Create a group"
+    },
+    {
+      "id": "group_delete",
+      "label": "Delete Group",
+      "method": "DELETE",
+      "path": "/directory/v1/groups/{groupId}",
+      "fields": [
+        {
+          "id": "groupId",
+          "label": "Group",
+          "type": "text",
+          "required": true,
+          "description": "Select the group to perform the operation on (provide the ID)",
+          "in": "path"
+        }
+      ],
+      "group": "Group",
+      "description": "Delete a group"
+    },
+    {
+      "id": "group_get",
+      "label": "Get Group",
       "method": "GET",
-      "path": "/user",
-      "fields": []
+      "path": "/directory/v1/groups/{groupId}",
+      "fields": [
+        {
+          "id": "groupId",
+          "label": "Group",
+          "type": "text",
+          "required": true,
+          "description": "Select the group to perform the operation on (provide the ID)",
+          "in": "path"
+        }
+      ],
+      "group": "Group",
+      "description": "Get a group"
+    },
+    {
+      "id": "group_get_all",
+      "label": "Get Many Group",
+      "method": "GET",
+      "path": "/directory/v1/groups",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "filter",
+          "label": "Filter",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: customer, domain, query, userId)"
+        },
+        {
+          "id": "sort",
+          "label": "Sort",
+          "type": "json",
+          "placeholder": "Add Sort Rule",
+          "description": "(JSON object; supported keys: sortRules, sortRules.orderBy, sortRules.sortOrder)"
+        }
+      ],
+      "group": "Group",
+      "description": "Get many groups"
+    },
+    {
+      "id": "group_update",
+      "label": "Update Group",
+      "method": "PUT",
+      "path": "/directory/v1/groups/{groupId}",
+      "fields": [
+        {
+          "id": "groupId",
+          "label": "Group",
+          "type": "text",
+          "required": true,
+          "description": "Select the group to perform the operation on (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: description, email, name)"
+        }
+      ],
+      "group": "Group",
+      "description": "Update a group"
+    },
+    {
+      "id": "user_add_to_group",
+      "label": "Add to Group User",
+      "method": "POST",
+      "path": "/directory/v1/groups/{groupId}/members",
+      "fields": [
+        {
+          "id": "userId",
+          "label": "User",
+          "type": "text",
+          "required": true,
+          "description": "Select the user to perform the operation on (provide the ID)"
+        },
+        {
+          "id": "groupId",
+          "label": "Group",
+          "type": "text",
+          "required": true,
+          "description": "Select the group to perform the operation on (provide the ID)",
+          "in": "path"
+        }
+      ],
+      "group": "User",
+      "description": "Add an existing user to a group"
+    },
+    {
+      "id": "user_create",
+      "label": "Create User",
+      "method": "POST",
+      "path": "/directory/v1/users",
+      "fields": [
+        {
+          "id": "firstName",
+          "label": "First Name",
+          "type": "text",
+          "required": true,
+          "placeholder": "e.g. Nathan"
+        },
+        {
+          "id": "lastName",
+          "label": "Last Name",
+          "type": "text",
+          "required": true,
+          "placeholder": "e.g. Smith"
+        },
+        {
+          "id": "password",
+          "label": "Password",
+          "type": "password",
+          "required": true,
+          "description": "Stores the password for the user account. A minimum of 8 characters is required. The maximum length is 100 characters."
+        },
+        {
+          "id": "username",
+          "label": "Username",
+          "type": "text",
+          "placeholder": "e.g. n.smith",
+          "description": "The username that will be set to the user. Example: If you domain is example.com and you set the username to n.smith then the user's final email address will be n.smith@example.com."
+        },
+        {
+          "id": "domain",
+          "label": "Domain Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: changePasswordAtNextLogin, phoneUi, emailUi, roles, customFields)"
+        }
+      ],
+      "group": "User",
+      "description": "Create a user"
+    },
+    {
+      "id": "user_delete",
+      "label": "Delete User",
+      "method": "DELETE",
+      "path": "/directory/v1/users/{userId}",
+      "fields": [
+        {
+          "id": "userId",
+          "label": "User",
+          "type": "text",
+          "required": true,
+          "description": "Select the user to perform the operation on (provide the ID)",
+          "in": "path"
+        }
+      ],
+      "group": "User",
+      "description": "Delete a user"
+    },
+    {
+      "id": "user_get",
+      "label": "Get User",
+      "method": "GET",
+      "path": "/directory/v1/users/{userId}",
+      "fields": [
+        {
+          "id": "userId",
+          "label": "User",
+          "type": "text",
+          "required": true,
+          "description": "Select the user to perform the operation on (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "output",
+          "label": "Output",
+          "type": "select",
+          "required": true,
+          "defaultValue": "simplified",
+          "options": [
+            {
+              "value": "simplified",
+              "label": "Simplified"
+            },
+            {
+              "value": "raw",
+              "label": "Raw"
+            },
+            {
+              "value": "select",
+              "label": "Select Included Fields"
+            }
+          ]
+        },
+        {
+          "id": "fields",
+          "label": "Fields",
+          "type": "select",
+          "description": "Fields to include in the response when \"Select Included Fields\" is chosen (multiple values: comma-separated)",
+          "options": [
+            {
+              "value": "creationTime",
+              "label": "Creation Time"
+            },
+            {
+              "value": "isAdmin",
+              "label": "Is Admin"
+            },
+            {
+              "value": "kind",
+              "label": "Kind"
+            },
+            {
+              "value": "lastLoginTime",
+              "label": "Last Login Time"
+            },
+            {
+              "value": "name",
+              "label": "Name"
+            },
+            {
+              "value": "primaryEmail",
+              "label": "Primary Email"
+            },
+            {
+              "value": "suspended",
+              "label": "Suspended"
+            }
+          ]
+        },
+        {
+          "id": "projection",
+          "label": "Custom Fields",
+          "type": "select",
+          "required": true,
+          "description": "What subset of fields to fetch for this user",
+          "defaultValue": "basic",
+          "options": [
+            {
+              "value": "basic",
+              "label": "Don't Include"
+            },
+            {
+              "value": "custom",
+              "label": "Custom"
+            },
+            {
+              "value": "full",
+              "label": "Include All"
+            }
+          ]
+        },
+        {
+          "id": "customFieldMask",
+          "label": "Custom Schema Names or IDs",
+          "type": "select",
+          "required": true,
+          "description": "A comma-separated list of schema names. All fields from these schemas are fetched. Choose from the list, or specify IDs using an expression. (multiple values: comma-separated)"
+        }
+      ],
+      "group": "User",
+      "description": "Get a user"
+    },
+    {
+      "id": "user_get_all",
+      "label": "Get Many User",
+      "method": "GET",
+      "path": "/directory/v1/users",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "output",
+          "label": "Output",
+          "type": "select",
+          "required": true,
+          "defaultValue": "simplified",
+          "options": [
+            {
+              "value": "simplified",
+              "label": "Simplified"
+            },
+            {
+              "value": "raw",
+              "label": "Raw"
+            },
+            {
+              "value": "select",
+              "label": "Select Included Fields"
+            }
+          ]
+        },
+        {
+          "id": "fields",
+          "label": "Fields",
+          "type": "select",
+          "description": "Fields to include in the response when \"Select Included Fields\" is chosen (multiple values: comma-separated)",
+          "options": [
+            {
+              "value": "creationTime",
+              "label": "Creation Time"
+            },
+            {
+              "value": "isAdmin",
+              "label": "Is Admin"
+            },
+            {
+              "value": "kind",
+              "label": "Kind"
+            },
+            {
+              "value": "lastLoginTime",
+              "label": "Last Login Time"
+            },
+            {
+              "value": "name",
+              "label": "Name"
+            },
+            {
+              "value": "primaryEmail",
+              "label": "Primary Email"
+            },
+            {
+              "value": "suspended",
+              "label": "Suspended"
+            }
+          ]
+        },
+        {
+          "id": "projection",
+          "label": "Custom Fields",
+          "type": "select",
+          "required": true,
+          "description": "What subset of fields to fetch for this user",
+          "defaultValue": "basic",
+          "options": [
+            {
+              "value": "basic",
+              "label": "Don't Include"
+            },
+            {
+              "value": "custom",
+              "label": "Custom"
+            },
+            {
+              "value": "full",
+              "label": "Include All"
+            }
+          ]
+        },
+        {
+          "id": "customFieldMask",
+          "label": "Custom Schema Names or IDs",
+          "type": "select",
+          "required": true,
+          "description": "A comma-separated list of schema names. All fields from these schemas are fetched. Choose from the list, or specify IDs using an expression. (multiple values: comma-separated)"
+        },
+        {
+          "id": "filter",
+          "label": "Filter",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: customer, domain, query, showDeleted)"
+        },
+        {
+          "id": "sort",
+          "label": "Sort",
+          "type": "json",
+          "placeholder": "Add Sort Rule",
+          "description": "Define sorting rules for the results (JSON object; supported keys: sortRules, sortRules.orderBy, sortRules.sortOrder)"
+        }
+      ],
+      "group": "User",
+      "description": "Get many users"
+    },
+    {
+      "id": "user_remove_from_group",
+      "label": "Remove From Group User",
+      "method": "DELETE",
+      "path": "/directory/v1/groups/{groupId}/members/{userId}",
+      "fields": [
+        {
+          "id": "userId",
+          "label": "User",
+          "type": "text",
+          "required": true,
+          "description": "Select the user to perform the operation on (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "groupId",
+          "label": "Group",
+          "type": "text",
+          "required": true,
+          "description": "Select the group to perform the operation on (provide the ID)",
+          "in": "path"
+        }
+      ],
+      "group": "User",
+      "description": "Remove a user from a group"
+    },
+    {
+      "id": "user_update",
+      "label": "Update User",
+      "method": "PUT",
+      "path": "/directory/v1/users/{userId}",
+      "fields": [
+        {
+          "id": "userId",
+          "label": "User",
+          "type": "text",
+          "required": true,
+          "description": "Select the user to perform the operation on (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: archived, suspendUi, changePasswordAtNextLogin, firstName, lastName, password, phoneUi, primaryEmail, emailUi, roles, customFields)"
+        }
+      ],
+      "group": "User",
+      "description": "Update a user"
     }
   ]
 }

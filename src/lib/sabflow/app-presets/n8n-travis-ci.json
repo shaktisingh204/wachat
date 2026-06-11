@@ -4,21 +4,135 @@
   "description": "Consume TravisCI API",
   "category": "dev",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.travis-ci.com",
   "endpoints": [
     {
-      "id": "build_default",
-      "label": "List Build",
+      "id": "build_cancel",
+      "label": "Cancel Build",
+      "method": "POST",
+      "path": "/build/{buildId}/cancel",
+      "fields": [
+        {
+          "id": "buildId",
+          "label": "Build ID",
+          "type": "text",
+          "description": "Value uniquely identifying the build",
+          "in": "path"
+        }
+      ],
+      "group": "Build",
+      "description": "Cancel a build"
+    },
+    {
+      "id": "build_get",
+      "label": "Get Build",
       "method": "GET",
-      "path": "/build",
-      "fields": []
+      "path": "/build/{buildId}",
+      "fields": [
+        {
+          "id": "buildId",
+          "label": "Build ID",
+          "type": "text",
+          "description": "Value uniquely identifying the build",
+          "in": "path"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: include)"
+        }
+      ],
+      "group": "Build",
+      "description": "Get a build"
+    },
+    {
+      "id": "build_get_all",
+      "label": "Get Many Build",
+      "method": "GET",
+      "path": "/builds",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: include, order, sortBy)"
+        }
+      ],
+      "group": "Build",
+      "description": "Get many builds"
+    },
+    {
+      "id": "build_restart",
+      "label": "Restart Build",
+      "method": "POST",
+      "path": "/build/{buildId}/restart",
+      "fields": [
+        {
+          "id": "buildId",
+          "label": "Build ID",
+          "type": "text",
+          "description": "Value uniquely identifying the build",
+          "in": "path"
+        }
+      ],
+      "group": "Build",
+      "description": "Restart a build"
+    },
+    {
+      "id": "build_trigger",
+      "label": "Trigger Build",
+      "method": "POST",
+      "path": "/repo/{slug}/requests",
+      "fields": [
+        {
+          "id": "slug",
+          "label": "Slug",
+          "type": "text",
+          "placeholder": "n8n-io/n8n",
+          "description": "Same as {ownerName}/{repositoryName}",
+          "in": "path"
+        },
+        {
+          "id": "branch",
+          "label": "Branch",
+          "type": "text",
+          "placeholder": "master",
+          "description": "Branch requested to be built"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: message, mergeMode)"
+        }
+      ],
+      "group": "Build",
+      "description": "Trigger a build"
     }
   ]
 }

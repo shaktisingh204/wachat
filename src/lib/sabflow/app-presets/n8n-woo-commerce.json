@@ -4,35 +4,603 @@
   "description": "Consume WooCommerce API",
   "category": "commerce",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 4,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://{host}/wp-json/wc/v3",
   "endpoints": [
     {
-      "id": "customer_default",
-      "label": "List Customer",
-      "method": "GET",
-      "path": "/customer",
-      "fields": []
+      "id": "customer_create",
+      "label": "Create Customer",
+      "method": "POST",
+      "path": "/customers",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your WooCommerce server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "required": true,
+          "placeholder": "name@email.com"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: billing, first_name, last_name, meta_data, password, shipping, username)"
+        }
+      ],
+      "group": "Customer",
+      "description": "Create a customer"
     },
     {
-      "id": "order_default",
-      "label": "List Order",
-      "method": "GET",
-      "path": "/order",
-      "fields": []
+      "id": "customer_delete",
+      "label": "Delete Customer",
+      "method": "DELETE",
+      "path": "/customers/{customerId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your WooCommerce server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "customerId",
+          "label": "Customer ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the customer to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Customer",
+      "description": "Delete a customer"
     },
     {
-      "id": "product_default",
-      "label": "List Product",
+      "id": "customer_get",
+      "label": "Get Customer",
       "method": "GET",
-      "path": "/product",
-      "fields": []
+      "path": "/customers/{customerId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your WooCommerce server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "customerId",
+          "label": "Customer ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the customer to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Customer",
+      "description": "Retrieve a customer"
+    },
+    {
+      "id": "customer_get_all",
+      "label": "Get Many Customer",
+      "method": "GET",
+      "path": "/customers",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your WooCommerce server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: email, order, orderby)"
+        }
+      ],
+      "group": "Customer",
+      "description": "Retrieve many customers"
+    },
+    {
+      "id": "customer_update",
+      "label": "Update Customer",
+      "method": "PUT",
+      "path": "/customers/{customerId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your WooCommerce server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "customerId",
+          "label": "Customer ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the customer to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: billing, first_name, last_name, meta_data, password, shipping)"
+        }
+      ],
+      "group": "Customer",
+      "description": "Update a customer"
+    },
+    {
+      "id": "product_create",
+      "label": "Create Product",
+      "method": "POST",
+      "path": "/products",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your WooCommerce server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "Product name"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: backorders, buttonText, catalogVisibility, categories, crossSellIds, dateOnSaleFrom, dateOnSaleTo, description, downloadable, externalUrl, featured, manageStock, menuOrder, parentId, purchaseNote, regularPrice, reviewsAllowed, salePrice, shippingClass, shortDescription, sku, slug, soldIndividually, status, stockQuantity, stockStatus, tags, taxClass, taxStatus, type)"
+        },
+        {
+          "id": "dimensionsUi",
+          "label": "Dimensions",
+          "type": "json",
+          "placeholder": "Add Dimension",
+          "description": "Product dimensions (JSON object; supported keys: dimensionsValues, dimensionsValues.height, dimensionsValues.length, dimensionsValues.width)"
+        },
+        {
+          "id": "imagesUi",
+          "label": "Images",
+          "type": "json",
+          "placeholder": "Add Image",
+          "description": "Product Image (JSON object; supported keys: imagesValues, imagesValues.alt, imagesValues.src, imagesValues.name)"
+        },
+        {
+          "id": "metadataUi",
+          "label": "Metadata",
+          "type": "json",
+          "placeholder": "Add Metadata",
+          "description": "Meta data (JSON object; supported keys: metadataValues, metadataValues.key, metadataValues.value)"
+        }
+      ],
+      "group": "Product",
+      "description": "Create a product"
+    },
+    {
+      "id": "product_delete",
+      "label": "Delete Product",
+      "method": "DELETE",
+      "path": "/products/{productId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your WooCommerce server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "productId",
+          "label": "Product ID",
+          "type": "text",
+          "in": "path"
+        }
+      ],
+      "group": "Product",
+      "description": "Delete a product"
+    },
+    {
+      "id": "product_get",
+      "label": "Get Product",
+      "method": "GET",
+      "path": "/products/{productId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your WooCommerce server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "productId",
+          "label": "Product ID",
+          "type": "text",
+          "in": "path"
+        }
+      ],
+      "group": "Product",
+      "description": "Get a product"
+    },
+    {
+      "id": "product_get_all",
+      "label": "Get Many Product",
+      "method": "GET",
+      "path": "/products",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your WooCommerce server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: after, before, category, context, featured, maxPrice, minPrice, order, orderBy, search, sku, slug, status, stockStatus, tag, taxClass, type)"
+        }
+      ],
+      "group": "Product",
+      "description": "Get many products"
+    },
+    {
+      "id": "product_update",
+      "label": "Update Product",
+      "method": "PUT",
+      "path": "/products/{productId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your WooCommerce server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "productId",
+          "label": "Product ID",
+          "type": "text",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: backorders, buttonText, catalogVisibility, categories, crossSellIds, dateOnSaleFrom, dateOnSaleTo, description, downloadable, externalUrl, featured, manageStock, menuOrder, name, parentId, purchaseNote, regularPrice, reviewsAllowed, salePrice, shippingClass, shortDescription, sku, slug, soldIndividually, status, stockQuantity, stockStatus, tags, taxClass, taxStatus)"
+        },
+        {
+          "id": "dimensionsUi",
+          "label": "Dimensions",
+          "type": "json",
+          "placeholder": "Add Dimension",
+          "description": "Product dimensions (JSON object; supported keys: dimensionsValues, dimensionsValues.height, dimensionsValues.length, dimensionsValues.width)"
+        },
+        {
+          "id": "imagesUi",
+          "label": "Images",
+          "type": "json",
+          "placeholder": "Add Image",
+          "description": "Product Image (JSON object; supported keys: imagesValues, imagesValues.alt, imagesValues.src, imagesValues.name)"
+        },
+        {
+          "id": "metadataUi",
+          "label": "Metadata",
+          "type": "json",
+          "placeholder": "Add Metadata",
+          "description": "Meta data (JSON object; supported keys: metadataValues, metadataValues.key, metadataValues.value)"
+        }
+      ],
+      "group": "Product",
+      "description": "Update a product"
+    },
+    {
+      "id": "order_create",
+      "label": "Create Order",
+      "method": "POST",
+      "path": "/orders",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your WooCommerce server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: currency, customerId, customerNote, parentId, paymentMethodId, paymentMethodTitle, setPaid, status, transactionID)"
+        },
+        {
+          "id": "billingUi",
+          "label": "Billing",
+          "type": "json",
+          "placeholder": "Add Billing",
+          "description": "Billing address (JSON object; supported keys: billingValues, billingValues.firstName, billingValues.lastName, billingValues.company, billingValues.address_1, billingValues.address_2, billingValues.city, billingValues.postcode, billingValues.country, billingValues.email, billingValues.phone)"
+        },
+        {
+          "id": "couponLinesUi",
+          "label": "Coupon Lines",
+          "type": "json",
+          "placeholder": "Add Coupon Line",
+          "description": "Coupons line data (JSON object; supported keys: couponLinesValues, couponLinesValues.code, couponLinesValues.metadataUi)"
+        },
+        {
+          "id": "feeLinesUi",
+          "label": "Fee Lines",
+          "type": "json",
+          "placeholder": "Add Fee Line",
+          "description": "Fee line data (JSON object; supported keys: feeLinesValues, feeLinesValues.name, feeLinesValues.taxClass, feeLinesValues.taxStatus, feeLinesValues.total, feeLinesValues.metadataUi)"
+        },
+        {
+          "id": "lineItemsUi",
+          "label": "Line Items",
+          "type": "json",
+          "placeholder": "Add Line Item",
+          "description": "Line item data (JSON object; supported keys: lineItemsValues, lineItemsValues.name, lineItemsValues.productId, lineItemsValues.variationId, lineItemsValues.quantity, lineItemsValues.taxClass, lineItemsValues.subtotal, lineItemsValues.total, lineItemsValues.metadataUi)"
+        },
+        {
+          "id": "metadataUi",
+          "label": "Metadata",
+          "type": "json",
+          "placeholder": "Add Metadata",
+          "description": "Meta data (JSON object; supported keys: metadataValues, metadataValues.key, metadataValues.value)"
+        },
+        {
+          "id": "shippingUi",
+          "label": "Shipping",
+          "type": "json",
+          "placeholder": "Add Shipping",
+          "description": "Shipping address (JSON object; supported keys: shippingValues, shippingValues.firstName, shippingValues.lastName, shippingValues.company, shippingValues.address_1, shippingValues.address_2, shippingValues.city, shippingValues.postcode, shippingValues.country)"
+        },
+        {
+          "id": "shippingLinesUi",
+          "label": "Shipping Lines",
+          "type": "json",
+          "placeholder": "Add Shipping Line",
+          "description": "Shipping line data (JSON object; supported keys: shippingLinesValues, shippingLinesValues.methodTitle, shippingLinesValues.method ID, shippingLinesValues.total, shippingLinesValues.metadataUi)"
+        }
+      ],
+      "group": "Order",
+      "description": "Create a order"
+    },
+    {
+      "id": "order_delete",
+      "label": "Delete Order",
+      "method": "DELETE",
+      "path": "/orders/{orderId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your WooCommerce server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "orderId",
+          "label": "Order ID",
+          "type": "text",
+          "in": "path"
+        }
+      ],
+      "group": "Order",
+      "description": "Delete a order"
+    },
+    {
+      "id": "order_get",
+      "label": "Get Order",
+      "method": "GET",
+      "path": "/orders/{orderId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your WooCommerce server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "orderId",
+          "label": "Order ID",
+          "type": "text",
+          "in": "path"
+        }
+      ],
+      "group": "Order",
+      "description": "Get a order"
+    },
+    {
+      "id": "order_get_all",
+      "label": "Get Many Order",
+      "method": "GET",
+      "path": "/orders",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your WooCommerce server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: after, before, customer, decimalPoints, order, product, orderBy, search, status)"
+        }
+      ],
+      "group": "Order",
+      "description": "Get many orders"
+    },
+    {
+      "id": "order_update",
+      "label": "Update Order",
+      "method": "PUT",
+      "path": "/orders/{orderId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your WooCommerce server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "orderId",
+          "label": "Order ID",
+          "type": "text",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: currency, customerId, customerNote, parentId, paymentMethodId, paymentMethodTitle, status, transactionID)"
+        },
+        {
+          "id": "billingUi",
+          "label": "Billing",
+          "type": "json",
+          "placeholder": "Add Billing",
+          "description": "Billing address (JSON object; supported keys: billingValues, billingValues.firstName, billingValues.lastName, billingValues.company, billingValues.address_1, billingValues.address_2, billingValues.city, billingValues.postalCode, billingValues.country, billingValues.email, billingValues.phone)"
+        },
+        {
+          "id": "couponLinesUi",
+          "label": "Coupon Lines",
+          "type": "json",
+          "placeholder": "Add Coupon Line",
+          "description": "Coupons line data (JSON object; supported keys: couponLinesValues, couponLinesValues.code, couponLinesValues.metadataUi)"
+        },
+        {
+          "id": "feeLinesUi",
+          "label": "Fee Lines",
+          "type": "json",
+          "placeholder": "Add Fee Line",
+          "description": "Fee line data (JSON object; supported keys: feeLinesValues, feeLinesValues.name, feeLinesValues.taxClass, feeLinesValues.taxStatus, feeLinesValues.total, feeLinesValues.metadataUi)"
+        },
+        {
+          "id": "lineItemsUi",
+          "label": "Line Items",
+          "type": "json",
+          "placeholder": "Add Line Item",
+          "description": "Line item data (JSON object; supported keys: lineItemsValues, lineItemsValues.name, lineItemsValues.productId, lineItemsValues.variationId, lineItemsValues.quantity, lineItemsValues.taxClass, lineItemsValues.subtotal, lineItemsValues.total, lineItemsValues.metadataUi)"
+        },
+        {
+          "id": "metadataUi",
+          "label": "Metadata",
+          "type": "json",
+          "placeholder": "Add Metadata",
+          "description": "Meta data (JSON object; supported keys: metadataValues, metadataValues.key, metadataValues.value)"
+        },
+        {
+          "id": "shippingUi",
+          "label": "Shipping",
+          "type": "json",
+          "placeholder": "Add Shipping",
+          "description": "Shipping address (JSON object; supported keys: shippingValues, shippingValues.firstName, shippingValues.lastName, shippingValues.company, shippingValues.address_1, shippingValues.address_2, shippingValues.city, shippingValues.postalCode, shippingValues.country)"
+        },
+        {
+          "id": "shippingLinesUi",
+          "label": "Shipping Lines",
+          "type": "json",
+          "placeholder": "Add Shipping Line",
+          "description": "Shipping line data (JSON object; supported keys: shippingLinesValues, shippingLinesValues.methodTitle, shippingLinesValues.method ID, shippingLinesValues.total, shippingLinesValues.metadataUi)"
+        }
+      ],
+      "group": "Order",
+      "description": "Update a order"
     }
   ]
 }

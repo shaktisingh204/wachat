@@ -4,8 +4,8 @@
   "description": "Interact with Microsoft SharePoint API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 8,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -16,28 +16,205 @@
       "credentialType": "oauth2"
     }
   },
-  "baseUrl": "=https://{{ $credentials.subdomain }}.sharepoint.com/_api/v2.0",
+  "baseUrl": "https://{subdomain}.sharepoint.com/_api/v2.0",
   "endpoints": [
     {
-      "id": "file_default",
-      "label": "List File",
+      "id": "file_download",
+      "label": "Download File",
       "method": "GET",
-      "path": "/file",
-      "fields": []
+      "path": "/sites/{{ {site} }}/drive/items/{{ {file} }}/content",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your Microsoft SharePoint account (host token in the API base URL)"
+        }
+      ],
+      "group": "File",
+      "description": "[unverified path] Download a file"
     },
     {
-      "id": "item_default",
-      "label": "List Item",
-      "method": "GET",
-      "path": "/item",
-      "fields": []
+      "id": "file_update",
+      "label": "Update File",
+      "method": "PATCH",
+      "path": "/sites/{{ {site} }}/drive/items/{{ {file} }}",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your Microsoft SharePoint account (host token in the API base URL)"
+        }
+      ],
+      "group": "File",
+      "description": "[unverified path] Update a file"
     },
     {
-      "id": "list_default",
-      "label": "List List",
+      "id": "file_upload",
+      "label": "Upload File",
+      "method": "PUT",
+      "path": "/sites/{{ {site} }}/drive/items/{{ {folder} }}:/{{ {fileName} }}:/content",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your Microsoft SharePoint account (host token in the API base URL)"
+        }
+      ],
+      "group": "File",
+      "description": "[unverified path] Upload an existing file"
+    },
+    {
+      "id": "item_create",
+      "label": "Create Item",
+      "method": "POST",
+      "path": "/sites/{{ {site} }}/lists/{{ {list} }}/items",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your Microsoft SharePoint account (host token in the API base URL)"
+        }
+      ],
+      "group": "Item",
+      "description": "[unverified path] Create an item in an existing list"
+    },
+    {
+      "id": "item_upsert",
+      "label": "Create or Update Item",
+      "method": "POST",
+      "path": "/sites/{{ {site} }}/lists/{{ {list} }}/items",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your Microsoft SharePoint account (host token in the API base URL)"
+        }
+      ],
+      "group": "Item",
+      "description": "[unverified path] Create a new item, or update the current one if it already exists (upsert)"
+    },
+    {
+      "id": "item_delete",
+      "label": "Delete Item",
+      "method": "DELETE",
+      "path": "/sites/{{ {site} }}/lists/{{ {list} }}/items/{{ {item} }}",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your Microsoft SharePoint account (host token in the API base URL)"
+        }
+      ],
+      "group": "Item",
+      "description": "[unverified path] Delete an item from a list"
+    },
+    {
+      "id": "item_get",
+      "label": "Get Item",
       "method": "GET",
-      "path": "/list",
-      "fields": []
+      "path": "/sites/{{ {site} }}/lists/{{ {list} }}/items/{{ {item} }}",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your Microsoft SharePoint account (host token in the API base URL)"
+        }
+      ],
+      "group": "Item",
+      "description": "[unverified path] Retrieve an item from a list"
+    },
+    {
+      "id": "item_get_all",
+      "label": "Get Many Item",
+      "method": "GET",
+      "path": "/sites/{{ {site} }}/lists/{{ {list} }}/items",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your Microsoft SharePoint account (host token in the API base URL)"
+        }
+      ],
+      "group": "Item",
+      "description": "[unverified path] Get specific items in a list or list many items"
+    },
+    {
+      "id": "item_update",
+      "label": "Update Item",
+      "method": "PATCH",
+      "path": "/sites/{{ {site} }}/lists/{{ {list} }}/items",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your Microsoft SharePoint account (host token in the API base URL)"
+        }
+      ],
+      "group": "Item",
+      "description": "[unverified path] Update an item in an existing list"
+    },
+    {
+      "id": "list_get",
+      "label": "Get List",
+      "method": "GET",
+      "path": "/sites/{{ {site} }}/lists/{{ {list} }}",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your Microsoft SharePoint account (host token in the API base URL)"
+        }
+      ],
+      "group": "List",
+      "description": "[unverified path] Retrieve details of a single list"
+    },
+    {
+      "id": "list_get_all",
+      "label": "Get Many List",
+      "method": "GET",
+      "path": "/sites/{{ {site} }}/lists",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your Microsoft SharePoint account (host token in the API base URL)"
+        }
+      ],
+      "group": "List",
+      "description": "[unverified path] Retrieve a list of lists"
     }
   ]
 }

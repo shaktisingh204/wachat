@@ -4,8 +4,8 @@
   "description": "Use the Google Cloud Storage API",
   "category": "storage",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -19,18 +19,536 @@
   "baseUrl": "https://storage.googleapis.com/storage/v1",
   "endpoints": [
     {
-      "id": "bucket_default",
-      "label": "List Bucket",
-      "method": "GET",
-      "path": "/bucket",
-      "fields": []
+      "id": "bucket_create",
+      "label": "Create Bucket",
+      "method": "POST",
+      "path": "/b/",
+      "fields": [
+        {
+          "id": "projectId",
+          "label": "Project ID",
+          "type": "text",
+          "required": true,
+          "placeholder": "Project ID"
+        },
+        {
+          "id": "bucketName",
+          "label": "Bucket Name",
+          "type": "text",
+          "required": true,
+          "placeholder": "Bucket Name"
+        },
+        {
+          "id": "projection",
+          "label": "Projection",
+          "type": "select",
+          "defaultValue": "noAcl",
+          "options": [
+            {
+              "value": "full",
+              "label": "All Properties"
+            },
+            {
+              "value": "noAcl",
+              "label": "No ACL"
+            }
+          ]
+        },
+        {
+          "id": "createAcl",
+          "label": "Predefined Access Control",
+          "type": "json",
+          "placeholder": "Add Access Control Parameters",
+          "description": "(JSON object; supported keys: predefinedAcl, predefinedDefaultObjectAcl)"
+        },
+        {
+          "id": "createBody",
+          "label": "Additional Parameters",
+          "type": "json",
+          "placeholder": "Add Metadata Parameter",
+          "description": "(JSON object; supported keys: acl, billing, cors, customPlacementConfig, dataLocations, defaultEventBasedHold, defaultObjectAcl, encryption, iamConfiguration, labels, lifecycle, location, logging, retentionPolicy, rpo, storageClass, versioning, website)"
+        }
+      ],
+      "group": "Bucket",
+      "description": "Create a new Bucket"
     },
     {
-      "id": "object_default",
-      "label": "List Object",
+      "id": "bucket_delete",
+      "label": "Delete Bucket",
+      "method": "DELETE",
+      "path": "/b/{bucketName}",
+      "fields": [
+        {
+          "id": "bucketName",
+          "label": "Bucket Name",
+          "type": "text",
+          "required": true,
+          "placeholder": "Bucket Name",
+          "in": "path"
+        },
+        {
+          "id": "getFilters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: ifMetagenerationMatch, ifMetagenerationNotMatch)"
+        }
+      ],
+      "group": "Bucket",
+      "description": "Delete an empty Bucket"
+    },
+    {
+      "id": "bucket_get",
+      "label": "Get Bucket",
       "method": "GET",
-      "path": "/object",
-      "fields": []
+      "path": "/b/{bucketName}",
+      "fields": [
+        {
+          "id": "bucketName",
+          "label": "Bucket Name",
+          "type": "text",
+          "required": true,
+          "placeholder": "Bucket Name",
+          "in": "path"
+        },
+        {
+          "id": "projection",
+          "label": "Projection",
+          "type": "select",
+          "defaultValue": "noAcl",
+          "options": [
+            {
+              "value": "full",
+              "label": "All Properties"
+            },
+            {
+              "value": "noAcl",
+              "label": "No ACL"
+            }
+          ]
+        },
+        {
+          "id": "getFilters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: ifMetagenerationMatch, ifMetagenerationNotMatch)"
+        }
+      ],
+      "group": "Bucket",
+      "description": "Get metadata for a specific Bucket"
+    },
+    {
+      "id": "bucket_get_all",
+      "label": "Get Many Bucket",
+      "method": "GET",
+      "path": "/b/",
+      "fields": [
+        {
+          "id": "projectId",
+          "label": "Project ID",
+          "type": "text",
+          "required": true,
+          "placeholder": "Project ID"
+        },
+        {
+          "id": "prefix",
+          "label": "Prefix",
+          "type": "text",
+          "placeholder": "Filter for Bucket Names"
+        },
+        {
+          "id": "projection",
+          "label": "Projection",
+          "type": "select",
+          "defaultValue": "noAcl",
+          "options": [
+            {
+              "value": "full",
+              "label": "All Properties"
+            },
+            {
+              "value": "noAcl",
+              "label": "No ACL"
+            }
+          ]
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        }
+      ],
+      "group": "Bucket",
+      "description": "Get list of Buckets"
+    },
+    {
+      "id": "bucket_update",
+      "label": "Update Bucket",
+      "method": "PATCH",
+      "path": "/b/{bucketName}",
+      "fields": [
+        {
+          "id": "bucketName",
+          "label": "Bucket Name",
+          "type": "text",
+          "required": true,
+          "placeholder": "Bucket Name",
+          "in": "path"
+        },
+        {
+          "id": "projection",
+          "label": "Projection",
+          "type": "select",
+          "defaultValue": "noAcl",
+          "options": [
+            {
+              "value": "full",
+              "label": "All Properties"
+            },
+            {
+              "value": "noAcl",
+              "label": "No ACL"
+            }
+          ]
+        },
+        {
+          "id": "getFilters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: ifMetagenerationMatch, ifMetagenerationNotMatch)"
+        },
+        {
+          "id": "createAcl",
+          "label": "Predefined Access Control",
+          "type": "json",
+          "placeholder": "Add Access Control Parameters",
+          "description": "(JSON object; supported keys: predefinedAcl, predefinedDefaultObjectAcl)"
+        },
+        {
+          "id": "createBody",
+          "label": "Additional Parameters",
+          "type": "json",
+          "placeholder": "Add Metadata Parameter",
+          "description": "(JSON object; supported keys: acl, billing, cors, customPlacementConfig, dataLocations, defaultEventBasedHold, defaultObjectAcl, encryption, iamConfiguration, labels, lifecycle, location, logging, retentionPolicy, rpo, storageClass, versioning, website)"
+        }
+      ],
+      "group": "Bucket",
+      "description": "Update the metadata of a bucket"
+    },
+    {
+      "id": "object_create",
+      "label": "Create Object",
+      "method": "POST",
+      "path": "/b/{bucketName}/o/",
+      "fields": [
+        {
+          "id": "bucketName",
+          "label": "Bucket Name",
+          "type": "text",
+          "required": true,
+          "placeholder": "Bucket Name",
+          "in": "path"
+        },
+        {
+          "id": "objectName",
+          "label": "Object Name",
+          "type": "text",
+          "required": true,
+          "placeholder": "Object Name"
+        },
+        {
+          "id": "updateProjection",
+          "label": "Projection",
+          "type": "select",
+          "defaultValue": "full",
+          "options": [
+            {
+              "value": "full",
+              "label": "All Properties"
+            },
+            {
+              "value": "noAcl",
+              "label": "No ACL"
+            }
+          ]
+        },
+        {
+          "id": "createFromBinary",
+          "label": "Use Input Binary Field",
+          "type": "toggle",
+          "description": "Whether the data for creating a file should come from a binary field",
+          "defaultValue": true
+        },
+        {
+          "id": "createBinaryPropertyName",
+          "label": "Input Binary Field",
+          "type": "text",
+          "defaultValue": "data"
+        },
+        {
+          "id": "createContent",
+          "label": "File Content",
+          "type": "text",
+          "description": "Content of the file to be uploaded"
+        },
+        {
+          "id": "createData",
+          "label": "Create Fields",
+          "type": "json",
+          "placeholder": "Add Create Body Field",
+          "description": "(JSON object; supported keys: acl, cacheControl, contentDisposition, contentEncoding, contentLanguage, contentType, crc32c, customTime, eventBasedHold, md5Hash, metadata, storageClass, temporaryHold)"
+        },
+        {
+          "id": "createQuery",
+          "label": "Additional Parameters",
+          "type": "json",
+          "placeholder": "Add Additional Parameters",
+          "description": "(JSON object; supported keys: contentEncoding, generation, ifGenerationMatch, ifGenerationNotMatch, ifMetagenerationMatch, ifMetagenerationNotMatch, kmsKeyName, predefinedAcl)"
+        },
+        {
+          "id": "encryptionHeaders",
+          "label": "Encryption Headers",
+          "type": "json",
+          "placeholder": "Add Encryption Headers",
+          "description": "(JSON object; supported keys: X-Goog-Encryption-Algorithm, X-Goog-Encryption-Key, X-Goog-Encryption-Key-Sha256)"
+        }
+      ],
+      "group": "Object",
+      "description": "Create an object"
+    },
+    {
+      "id": "object_delete",
+      "label": "Delete Object",
+      "method": "DELETE",
+      "path": "/b/{bucketName}/o/{objectName}",
+      "fields": [
+        {
+          "id": "bucketName",
+          "label": "Bucket Name",
+          "type": "text",
+          "required": true,
+          "placeholder": "Bucket Name",
+          "in": "path"
+        },
+        {
+          "id": "objectName",
+          "label": "Object Name",
+          "type": "text",
+          "required": true,
+          "placeholder": "Object Name",
+          "in": "path"
+        },
+        {
+          "id": "getParameters",
+          "label": "Additional Parameters",
+          "type": "json",
+          "placeholder": "Add Additional Parameters",
+          "description": "(JSON object; supported keys: generation, ifGenerationMatch, ifGenerationNotMatch, ifMetagenerationMatch, ifMetagenerationNotMatch)"
+        }
+      ],
+      "group": "Object",
+      "description": "Delete an object"
+    },
+    {
+      "id": "object_get",
+      "label": "Get Object",
+      "method": "GET",
+      "path": "/b/{bucketName}/o/{objectName}",
+      "fields": [
+        {
+          "id": "bucketName",
+          "label": "Bucket Name",
+          "type": "text",
+          "required": true,
+          "placeholder": "Bucket Name",
+          "in": "path"
+        },
+        {
+          "id": "objectName",
+          "label": "Object Name",
+          "type": "text",
+          "required": true,
+          "placeholder": "Object Name",
+          "in": "path"
+        },
+        {
+          "id": "projection",
+          "label": "Projection",
+          "type": "select",
+          "defaultValue": "noAcl",
+          "options": [
+            {
+              "value": "full",
+              "label": "All Properties"
+            },
+            {
+              "value": "noAcl",
+              "label": "No ACL"
+            }
+          ]
+        },
+        {
+          "id": "alt",
+          "label": "Return Data",
+          "type": "select",
+          "placeholder": "The type of data to return from the request",
+          "defaultValue": "json",
+          "options": [
+            {
+              "value": "json",
+              "label": "Metadata"
+            },
+            {
+              "value": "media",
+              "label": "Object Data"
+            }
+          ]
+        },
+        {
+          "id": "binaryPropertyName",
+          "label": "Put Output File in Field",
+          "type": "text",
+          "defaultValue": "data"
+        },
+        {
+          "id": "getParameters",
+          "label": "Additional Parameters",
+          "type": "json",
+          "placeholder": "Add Additional Parameters",
+          "description": "(JSON object; supported keys: generation, ifGenerationMatch, ifGenerationNotMatch, ifMetagenerationMatch, ifMetagenerationNotMatch)"
+        },
+        {
+          "id": "encryptionHeaders",
+          "label": "Encryption Headers",
+          "type": "json",
+          "placeholder": "Add Encryption Headers",
+          "description": "(JSON object; supported keys: X-Goog-Encryption-Algorithm, X-Goog-Encryption-Key, X-Goog-Encryption-Key-Sha256)"
+        }
+      ],
+      "group": "Object",
+      "description": "Get object data or metadata"
+    },
+    {
+      "id": "object_get_all",
+      "label": "Get Many Object",
+      "method": "GET",
+      "path": "/b/{bucketName}/o/",
+      "fields": [
+        {
+          "id": "bucketName",
+          "label": "Bucket Name",
+          "type": "text",
+          "required": true,
+          "placeholder": "Bucket Name",
+          "in": "path"
+        },
+        {
+          "id": "projection",
+          "label": "Projection",
+          "type": "select",
+          "defaultValue": "noAcl",
+          "options": [
+            {
+              "value": "full",
+              "label": "All Properties"
+            },
+            {
+              "value": "noAcl",
+              "label": "No ACL"
+            }
+          ]
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "maxResults",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "listFilters",
+          "label": "Additional Parameters",
+          "type": "json",
+          "placeholder": "Add Additional Parameters",
+          "description": "(JSON object; supported keys: delimiter, endOffset, includeTrailingDelimiter, prefix, startOffset, versions)"
+        }
+      ],
+      "group": "Object",
+      "description": "Retrieve a list of objects"
+    },
+    {
+      "id": "object_update",
+      "label": "Update Object",
+      "method": "PATCH",
+      "path": "/b/{bucketName}/o/{objectName}",
+      "fields": [
+        {
+          "id": "bucketName",
+          "label": "Bucket Name",
+          "type": "text",
+          "required": true,
+          "placeholder": "Bucket Name",
+          "in": "path"
+        },
+        {
+          "id": "objectName",
+          "label": "Object Name",
+          "type": "text",
+          "required": true,
+          "placeholder": "Object Name",
+          "in": "path"
+        },
+        {
+          "id": "updateProjection",
+          "label": "Projection",
+          "type": "select",
+          "defaultValue": "full",
+          "options": [
+            {
+              "value": "full",
+              "label": "All Properties"
+            },
+            {
+              "value": "noAcl",
+              "label": "No ACL"
+            }
+          ]
+        },
+        {
+          "id": "updateData",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Update Body Field",
+          "description": "(JSON object; supported keys: acl, cacheControl, contentDisposition, contentEncoding, contentLanguage, contentType, customTime, eventBasedHold, metadata, temporaryHold)"
+        },
+        {
+          "id": "metagenAndAclQuery",
+          "label": "Additional Parameters",
+          "type": "json",
+          "placeholder": "Add Additional Parameters",
+          "description": "(JSON object; supported keys: generation, ifGenerationMatch, ifGenerationNotMatch, ifMetagenerationMatch, ifMetagenerationNotMatch, predefinedAcl)"
+        },
+        {
+          "id": "encryptionHeaders",
+          "label": "Encryption Headers",
+          "type": "json",
+          "placeholder": "Add Encryption Headers",
+          "description": "(JSON object; supported keys: X-Goog-Encryption-Algorithm, X-Goog-Encryption-Key, X-Goog-Encryption-Key-Sha256)"
+        }
+      ],
+      "group": "Object",
+      "description": "Update an object's metadata"
     }
   ]
 }

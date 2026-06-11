@@ -4,42 +4,357 @@
   "description": "Consume Customer.io API",
   "category": "marketing",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 8,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://{appHost}/v1",
   "endpoints": [
     {
-      "id": "customer_default",
-      "label": "List Customer",
+      "id": "campaign_get",
+      "label": "Get Campaign",
       "method": "GET",
-      "path": "/customer",
-      "fields": []
+      "path": "/campaigns/{campaignId}",
+      "fields": [
+        {
+          "id": "appHost",
+          "label": "App Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "App Host of your Customer.io account (host token in the API base URL)"
+        },
+        {
+          "id": "campaignId",
+          "label": "Campaign ID",
+          "type": "number",
+          "required": true,
+          "description": "The unique identifier for the campaign",
+          "defaultValue": 0,
+          "in": "path"
+        }
+      ],
+      "group": "Campaign",
+      "description": "Get a campaign"
     },
     {
-      "id": "event_default",
-      "label": "List Event",
+      "id": "campaign_get_all",
+      "label": "Get Many Campaign",
       "method": "GET",
-      "path": "/event",
-      "fields": []
+      "path": "/campaigns",
+      "fields": [
+        {
+          "id": "appHost",
+          "label": "App Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "App Host of your Customer.io account (host token in the API base URL)"
+        }
+      ],
+      "group": "Campaign",
+      "description": "Get many campaigns"
     },
     {
-      "id": "campaign_default",
-      "label": "List Campaign",
+      "id": "campaign_get_metrics",
+      "label": "Get Metrics Campaign",
       "method": "GET",
-      "path": "/campaign",
-      "fields": []
+      "path": "/campaigns/{campaignId}/metrics",
+      "fields": [
+        {
+          "id": "appHost",
+          "label": "App Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "App Host of your Customer.io account (host token in the API base URL)"
+        },
+        {
+          "id": "campaignId",
+          "label": "Campaign ID",
+          "type": "number",
+          "required": true,
+          "description": "The unique identifier for the campaign",
+          "defaultValue": 0,
+          "in": "path"
+        },
+        {
+          "id": "period",
+          "label": "Period",
+          "type": "select",
+          "description": "Specify metric period",
+          "defaultValue": "days",
+          "options": [
+            {
+              "value": "hours",
+              "label": "Hours"
+            },
+            {
+              "value": "days",
+              "label": "Days"
+            },
+            {
+              "value": "weeks",
+              "label": "Weeks"
+            },
+            {
+              "value": "months",
+              "label": "Months"
+            }
+          ]
+        },
+        {
+          "id": "jsonParameters",
+          "label": "JSON Parameters",
+          "type": "toggle",
+          "defaultValue": false
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: steps, type)"
+        }
+      ],
+      "group": "Campaign",
+      "description": "Get metrics for a campaign"
     },
     {
-      "id": "segment_default",
-      "label": "List Segment",
-      "method": "GET",
+      "id": "customer_upsert",
+      "label": "Create or Update Customer",
+      "method": "PUT",
+      "path": "/customers/{id}",
+      "fields": [
+        {
+          "id": "appHost",
+          "label": "App Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "App Host of your Customer.io account (host token in the API base URL)"
+        },
+        {
+          "id": "id",
+          "label": "ID",
+          "type": "text",
+          "required": true,
+          "description": "The unique identifier for the customer",
+          "in": "path"
+        },
+        {
+          "id": "jsonParameters",
+          "label": "JSON Parameters",
+          "type": "toggle",
+          "defaultValue": false
+        },
+        {
+          "id": "additionalFieldsJson",
+          "label": "Additional Fields",
+          "type": "json",
+          "description": "Object of values to set as described here"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: customProperties, email, createdAt)"
+        }
+      ],
+      "group": "Customer",
+      "description": "Create a new customer, or update the current one if it already exists (upsert)"
+    },
+    {
+      "id": "customer_delete",
+      "label": "Delete Customer",
+      "method": "DELETE",
+      "path": "/customers/{id}",
+      "fields": [
+        {
+          "id": "appHost",
+          "label": "App Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "App Host of your Customer.io account (host token in the API base URL)"
+        },
+        {
+          "id": "id",
+          "label": "ID",
+          "type": "text",
+          "required": true,
+          "description": "The unique identifier for the customer",
+          "in": "path"
+        }
+      ],
+      "group": "Customer",
+      "description": "Delete a customer"
+    },
+    {
+      "id": "event_track",
+      "label": "Track Event",
+      "method": "POST",
+      "path": "/customers/{customerId}/events",
+      "fields": [
+        {
+          "id": "appHost",
+          "label": "App Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "App Host of your Customer.io account (host token in the API base URL)"
+        },
+        {
+          "id": "customerId",
+          "label": "Customer ID",
+          "type": "text",
+          "required": true,
+          "description": "The unique identifier for the customer",
+          "in": "path"
+        },
+        {
+          "id": "eventName",
+          "label": "Event Name",
+          "type": "text",
+          "description": "Name of the event to track"
+        },
+        {
+          "id": "jsonParameters",
+          "label": "JSON Parameters",
+          "type": "toggle",
+          "defaultValue": false
+        },
+        {
+          "id": "additionalFieldsJson",
+          "label": "Additional Fields",
+          "type": "json",
+          "description": "Object of values to set as described here"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: customAttributes, type)"
+        }
+      ],
+      "group": "Event",
+      "description": "Track a customer event"
+    },
+    {
+      "id": "event_track_anonymous",
+      "label": "Track Anonymous Event",
+      "method": "POST",
+      "path": "/events",
+      "fields": [
+        {
+          "id": "appHost",
+          "label": "App Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "App Host of your Customer.io account (host token in the API base URL)"
+        },
+        {
+          "id": "eventName",
+          "label": "Event Name",
+          "type": "text",
+          "required": true,
+          "description": "The unique identifier for the customer"
+        },
+        {
+          "id": "jsonParameters",
+          "label": "JSON Parameters",
+          "type": "toggle",
+          "defaultValue": false
+        },
+        {
+          "id": "additionalFieldsJson",
+          "label": "Additional Fields",
+          "type": "json",
+          "description": "Object of values to set as described here"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: customAttributes)"
+        }
+      ],
+      "group": "Event",
+      "description": "Track an anonymous event"
+    },
+    {
+      "id": "segment_add",
+      "label": "Add Customer Segment",
+      "method": "POST",
+      "path": "/segments/{segmentId}/add_customers",
+      "fields": [
+        {
+          "id": "appHost",
+          "label": "App Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "App Host of your Customer.io account (host token in the API base URL)"
+        },
+        {
+          "id": "segmentId",
+          "label": "Segment ID",
+          "type": "number",
+          "required": true,
+          "description": "The unique identifier of the segment",
+          "defaultValue": 0,
+          "in": "path"
+        },
+        {
+          "id": "customerIds",
+          "label": "Customer IDs",
+          "type": "text",
+          "required": true,
+          "description": "A list of customer IDs to add to the segment"
+        }
+      ],
+      "group": "Segment",
+      "description": "Add a customer to a segment"
+    },
+    {
+      "id": "segment_remove",
+      "label": "Remove Customer Segment",
+      "method": "DELETE",
       "path": "/segment",
-      "fields": []
+      "fields": [
+        {
+          "id": "appHost",
+          "label": "App Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "App Host of your Customer.io account (host token in the API base URL)"
+        },
+        {
+          "id": "segmentId",
+          "label": "Segment ID",
+          "type": "number",
+          "required": true,
+          "description": "The unique identifier of the segment",
+          "defaultValue": 0
+        },
+        {
+          "id": "customerIds",
+          "label": "Customer IDs",
+          "type": "text",
+          "required": true,
+          "description": "A list of customer IDs to add to the segment"
+        }
+      ],
+      "group": "Segment",
+      "description": "[unverified path] Remove a customer from a segment"
     }
   ]
 }

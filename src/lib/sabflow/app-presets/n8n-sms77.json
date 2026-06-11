@@ -4,26 +4,25 @@
   "description": "Send SMS and make text-to-speech calls",
   "category": "communication",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://gateway.seven.io/api",
   "endpoints": [
     {
       "id": "sms_send",
-      "label": "Send Sms",
-      "method": "GET",
-      "path": "/",
+      "label": "Send SMS",
+      "method": "POST",
+      "path": "/sms",
       "fields": [
         {
           "id": "from",
           "label": "From",
           "type": "text",
-          "in": "query",
           "placeholder": "+4901234567890",
           "description": "The caller ID displayed in the receivers display. Max 16 numeric or 11 alphanumeric characters."
         },
@@ -31,7 +30,6 @@
           "id": "to",
           "label": "To",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "+49876543210, MyGroup",
           "description": "The number of your recipient(s) separated by comma. Can be regular numbers or contact/groups from seven."
@@ -40,7 +38,6 @@
           "id": "message",
           "label": "Message",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "The message to send. Max. 1520 characters"
         },
@@ -48,22 +45,23 @@
           "id": "options",
           "label": "Options",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Option"
+          "placeholder": "Add Option",
+          "description": "(JSON object; supported keys: delay, foreign_id, flash, label, performance_tracking, ttl)"
         }
-      ]
+      ],
+      "group": "SMS",
+      "description": "Send SMS"
     },
     {
       "id": "voice_send",
-      "label": "Send Voice",
-      "method": "GET",
-      "path": "/",
+      "label": "Send Voice Call",
+      "method": "POST",
+      "path": "/voice",
       "fields": [
         {
           "id": "to",
           "label": "To",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "+49876543210, MyGroup",
           "description": "The number of your recipient(s) separated by comma. Can be regular numbers or contact/groups from seven."
@@ -72,7 +70,6 @@
           "id": "message",
           "label": "Message",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "The message to send. Max. 1520 characters"
         },
@@ -80,10 +77,12 @@
           "id": "options",
           "label": "Options",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Option"
+          "placeholder": "Add Option",
+          "description": "(JSON object; supported keys: from)"
         }
-      ]
+      ],
+      "group": "Voice Call",
+      "description": "Converts text to voice and calls a given number"
     }
   ]
 }

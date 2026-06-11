@@ -4,39 +4,149 @@
   "description": "Consume GetResponse API",
   "category": "marketing",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.getresponse.com/v3",
   "endpoints": [
     {
-      "id": "contact_default",
-      "label": "List Contact",
-      "method": "GET",
-      "path": "/contact",
+      "id": "contact_create",
+      "label": "Create Contact",
+      "method": "POST",
+      "path": "/contacts",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "placeholder": "name@email.com"
+        },
+        {
+          "id": "campaignId",
+          "label": "Campaign Name or ID",
           "type": "select",
-          "in": "query",
-          "defaultValue": "apiKey",
-          "options": [
-            {
-              "value": "apiKey",
-              "label": "API Key"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: customFieldsUi, dayOfCycle, ipAddress, name, note, scoring, tags)"
         }
-      ]
+      ],
+      "group": "Contact",
+      "description": "Create a new contact"
+    },
+    {
+      "id": "contact_delete",
+      "label": "Delete Contact",
+      "method": "DELETE",
+      "path": "/contacts/{contactId}",
+      "fields": [
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of contact to delete",
+          "in": "path"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: ipAddress, messageId)"
+        }
+      ],
+      "group": "Contact",
+      "description": "Delete a contact"
+    },
+    {
+      "id": "contact_get",
+      "label": "Get Contact",
+      "method": "GET",
+      "path": "/contacts/{contactId}",
+      "fields": [
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true,
+          "description": "Unique identifier for a particular contact",
+          "in": "path"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: fields)"
+        }
+      ],
+      "group": "Contact",
+      "description": "Get a contact"
+    },
+    {
+      "id": "contact_get_all",
+      "label": "Get Many Contact",
+      "method": "GET",
+      "path": "/contacts",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 20
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: campaignId, changeOnFrom, changeOnTo, createdOnFrom, createdOnTo, exactMatch, fields, name, origin, sortBy, sortOrder)"
+        }
+      ],
+      "group": "Contact",
+      "description": "Get many contacts"
+    },
+    {
+      "id": "contact_update",
+      "label": "Update Contact",
+      "method": "POST",
+      "path": "/contacts/{contactId}",
+      "fields": [
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true,
+          "description": "Unique identifier for a particular contact",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: campaignId, customFieldsUi, dayOfCycle, email, ipAddress, name, note, scoring, tags)"
+        }
+      ],
+      "group": "Contact",
+      "description": "Update contact properties"
     }
   ]
 }

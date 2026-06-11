@@ -4,8 +4,8 @@
   "description": "Consume Microsoft Outlook API",
   "category": "communication",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 10,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -15,6 +15,349 @@
       "type": "none"
     }
   },
-  "baseUrl": "",
-  "endpoints": []
+  "baseUrl": "https://graph.microsoft.com",
+  "endpoints": [
+    {
+      "id": "calendar_create",
+      "label": "Create Calendar",
+      "method": "POST",
+      "path": "/calendars",
+      "fields": [],
+      "group": "Calendar",
+      "description": "Create a new calendar"
+    },
+    {
+      "id": "calendar_delete",
+      "label": "Delete Calendar",
+      "method": "DELETE",
+      "path": "/calendars/{calendarId}",
+      "fields": [],
+      "group": "Calendar",
+      "description": "Delete a calendar"
+    },
+    {
+      "id": "calendar_get",
+      "label": "Get Calendar",
+      "method": "GET",
+      "path": "/calendars/{calendarId}",
+      "fields": [],
+      "group": "Calendar",
+      "description": "Retrieve a calendar"
+    },
+    {
+      "id": "calendar_get_all",
+      "label": "Get Many Calendar",
+      "method": "GET",
+      "path": "/calendars",
+      "fields": [],
+      "group": "Calendar",
+      "description": "List and search calendars"
+    },
+    {
+      "id": "calendar_update",
+      "label": "Update Calendar",
+      "method": "PATCH",
+      "path": "/calendars/{calendarId}",
+      "fields": [],
+      "group": "Calendar",
+      "description": "Update a calendar"
+    },
+    {
+      "id": "contact_create",
+      "label": "Create Contact",
+      "method": "POST",
+      "path": "/contacts",
+      "fields": [],
+      "group": "Contact",
+      "description": "Create a new contact"
+    },
+    {
+      "id": "contact_delete",
+      "label": "Delete Contact",
+      "method": "DELETE",
+      "path": "/contacts/{contactId}",
+      "fields": [],
+      "group": "Contact",
+      "description": "Delete a contact"
+    },
+    {
+      "id": "contact_get",
+      "label": "Get Contact",
+      "method": "GET",
+      "path": "/contacts/{contactId}",
+      "fields": [],
+      "group": "Contact",
+      "description": "Retrieve a contact"
+    },
+    {
+      "id": "contact_get_all",
+      "label": "Get Many Contact",
+      "method": "GET",
+      "path": "/contacts",
+      "fields": [],
+      "group": "Contact",
+      "description": "List and search contacts"
+    },
+    {
+      "id": "contact_update",
+      "label": "Update Contact",
+      "method": "PATCH",
+      "path": "/contacts/{contactId}",
+      "fields": [],
+      "group": "Contact",
+      "description": "Update a contact"
+    },
+    {
+      "id": "draft_create",
+      "label": "Create Draft",
+      "method": "POST",
+      "path": "/messages",
+      "fields": [],
+      "group": "Draft",
+      "description": "Create a new email draft"
+    },
+    {
+      "id": "draft_delete",
+      "label": "Delete Draft",
+      "method": "DELETE",
+      "path": "/messages/{draftId}",
+      "fields": [],
+      "group": "Draft",
+      "description": "Delete an email draft"
+    },
+    {
+      "id": "draft_get",
+      "label": "Get Draft",
+      "method": "GET",
+      "path": "/messages/{draftId}",
+      "fields": [],
+      "group": "Draft",
+      "description": "Retrieve an email draft"
+    },
+    {
+      "id": "draft_send",
+      "label": "Send Draft",
+      "method": "POST",
+      "path": "/messages/{draftId}/send",
+      "fields": [],
+      "group": "Draft",
+      "description": "Send an existing email draft"
+    },
+    {
+      "id": "draft_update",
+      "label": "Update Draft",
+      "method": "PATCH",
+      "path": "/messages/{draftId}",
+      "fields": [],
+      "group": "Draft",
+      "description": "Update an email draft"
+    },
+    {
+      "id": "event_create",
+      "label": "Create Event",
+      "method": "POST",
+      "path": "/calendars/{calendarId}/events",
+      "fields": [],
+      "group": "Event",
+      "description": "Create a new event"
+    },
+    {
+      "id": "event_delete",
+      "label": "Delete Event",
+      "method": "DELETE",
+      "path": "/calendar/events/{eventId}",
+      "fields": [],
+      "group": "Event",
+      "description": "Delete an event"
+    },
+    {
+      "id": "event_get",
+      "label": "Get Event",
+      "method": "GET",
+      "path": "/calendar/events/{eventId}",
+      "fields": [],
+      "group": "Event",
+      "description": "Retrieve an event"
+    },
+    {
+      "id": "event_get_all",
+      "label": "Get Many Event",
+      "method": "GET",
+      "path": "/calendars",
+      "fields": [],
+      "group": "Event",
+      "description": "List and search events"
+    },
+    {
+      "id": "event_update",
+      "label": "Update Event",
+      "method": "PATCH",
+      "path": "/calendar/events/{eventId}",
+      "fields": [],
+      "group": "Event",
+      "description": "Update an event"
+    },
+    {
+      "id": "folder_create",
+      "label": "Create Folder",
+      "method": "POST",
+      "path": "/mailFolders/{folderId}/childFolders",
+      "fields": [],
+      "group": "Folder",
+      "description": "Create a mail folder in the root folder of the user's mailbox"
+    },
+    {
+      "id": "folder_delete",
+      "label": "Delete Folder",
+      "method": "DELETE",
+      "path": "/mailFolders/{folderId}",
+      "fields": [],
+      "group": "Folder",
+      "description": "Delete a folder"
+    },
+    {
+      "id": "folder_get",
+      "label": "Get Folder",
+      "method": "GET",
+      "path": "/mailFolders/{folderId}",
+      "fields": [],
+      "group": "Folder",
+      "description": "Retrieve a folder"
+    },
+    {
+      "id": "folder_get_all",
+      "label": "Get Many Folder",
+      "method": "GET",
+      "path": "/mailFolders/{parentFolderId}/childFolders",
+      "fields": [],
+      "group": "Folder",
+      "description": "Get many folders"
+    },
+    {
+      "id": "folder_update",
+      "label": "Update Folder",
+      "method": "PATCH",
+      "path": "/mailFolders/{folderId}",
+      "fields": [],
+      "group": "Folder",
+      "description": "Update a folder"
+    },
+    {
+      "id": "folder_message_get_all",
+      "label": "Get Many Folder Message",
+      "method": "GET",
+      "path": "/mailFolders/{folderId}/messages",
+      "fields": [],
+      "group": "Folder Message",
+      "description": "Retrieves the messages in a folder"
+    },
+    {
+      "id": "message_delete",
+      "label": "Delete Message",
+      "method": "DELETE",
+      "path": "/messages/{messageId}",
+      "fields": [],
+      "group": "Message",
+      "description": "Delete a message"
+    },
+    {
+      "id": "message_get",
+      "label": "Get Message",
+      "method": "GET",
+      "path": "/messages/{messageId}",
+      "fields": [],
+      "group": "Message",
+      "description": "Retrieve a single message"
+    },
+    {
+      "id": "message_get_all",
+      "label": "Get Many Message",
+      "method": "GET",
+      "path": "/messages",
+      "fields": [],
+      "group": "Message",
+      "description": "List and search messages"
+    },
+    {
+      "id": "message_move",
+      "label": "Move Message",
+      "method": "POST",
+      "path": "/messages/{messageId}/move",
+      "fields": [],
+      "group": "Message",
+      "description": "Move a message to a folder"
+    },
+    {
+      "id": "message_reply",
+      "label": "Reply Message",
+      "method": "POST",
+      "path": "/messages/{messageId}/{action}",
+      "fields": [],
+      "group": "Message",
+      "description": "Create a reply to a message"
+    },
+    {
+      "id": "message_send",
+      "label": "Send Message",
+      "method": "POST",
+      "path": "/sendMail",
+      "fields": [],
+      "group": "Message",
+      "description": "Send a message"
+    },
+    {
+      "id": "message_send_and_wait_operation",
+      "label": "Send and Wait for Response Message",
+      "method": "POST",
+      "path": "/message",
+      "fields": [],
+      "group": "Message",
+      "description": "[unverified path] Send a message and wait for response"
+    },
+    {
+      "id": "message_update",
+      "label": "Update Message",
+      "method": "PATCH",
+      "path": "/messages/{messageId}",
+      "fields": [],
+      "group": "Message",
+      "description": "Update a message"
+    },
+    {
+      "id": "message_attachment_add",
+      "label": "Add Message Attachment",
+      "method": "POST",
+      "path": "/messages/{messageId}/attachments/createUploadSession",
+      "fields": [],
+      "group": "Message Attachment",
+      "description": "Add an attachment to a message"
+    },
+    {
+      "id": "message_attachment_download",
+      "label": "Download Message Attachment",
+      "method": "GET",
+      "path": "/messages/{messageId}/attachments/{attachmentId}",
+      "fields": [],
+      "group": "Message Attachment",
+      "description": "Download an attachment from a message"
+    },
+    {
+      "id": "message_attachment_get",
+      "label": "Get Message Attachment",
+      "method": "GET",
+      "path": "/messages/{messageId}/attachments/{attachmentId}",
+      "fields": [],
+      "group": "Message Attachment",
+      "description": "Retrieve information about an attachment of a message"
+    },
+    {
+      "id": "message_attachment_get_all",
+      "label": "Get Many Message Attachment",
+      "method": "GET",
+      "path": "/messages/{messageId}/attachments",
+      "fields": [],
+      "group": "Message Attachment",
+      "description": "Retrieve information about the attachments of a message"
+    }
+  ]
 }

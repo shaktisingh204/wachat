@@ -4,13 +4,243 @@
   "description": "Consume the Grist API",
   "category": "data",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 8,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
-  "endpoints": []
+  "baseUrl": "https://{customSubdomain}.getgrist.com/api",
+  "endpoints": [
+    {
+      "id": "create",
+      "label": "Create Row",
+      "method": "POST",
+      "path": "/docs/{docId}/tables/{tableId}/records",
+      "fields": [
+        {
+          "id": "customSubdomain",
+          "label": "Custom Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Custom Subdomain of your Grist account (host token in the API base URL)"
+        },
+        {
+          "id": "docId",
+          "label": "Document ID",
+          "type": "text",
+          "required": true,
+          "description": "In your document, click your profile icon, then Document Settings, then copy the value under \"This document's ID\"",
+          "in": "path"
+        },
+        {
+          "id": "tableId",
+          "label": "Table ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of table to operate on. If unsure, look at the Code View.",
+          "in": "path"
+        },
+        {
+          "id": "dataToSend",
+          "label": "Data to Send",
+          "type": "select",
+          "description": "Whether to insert the input data this node receives in the new row",
+          "defaultValue": "defineInNode",
+          "options": [
+            {
+              "value": "autoMapInputs",
+              "label": "Auto-Map Input Data to Columns"
+            },
+            {
+              "value": "defineInNode",
+              "label": "Define Below for Each Column"
+            }
+          ]
+        },
+        {
+          "id": "inputsToIgnore",
+          "label": "Inputs to Ignore",
+          "type": "text",
+          "placeholder": "Enter properties...",
+          "description": "List of input properties to avoid sending, separated by commas. Leave empty to send all properties."
+        },
+        {
+          "id": "fieldsToSend",
+          "label": "Fields to Send",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: properties, properties.fieldId, properties.fieldValue)"
+        }
+      ],
+      "description": "Create rows in a table"
+    },
+    {
+      "id": "delete",
+      "label": "Delete Row",
+      "method": "POST",
+      "path": "/docs/{docId}/tables/{tableId}/data/delete",
+      "fields": [
+        {
+          "id": "customSubdomain",
+          "label": "Custom Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Custom Subdomain of your Grist account (host token in the API base URL)"
+        },
+        {
+          "id": "docId",
+          "label": "Document ID",
+          "type": "text",
+          "required": true,
+          "description": "In your document, click your profile icon, then Document Settings, then copy the value under \"This document's ID\"",
+          "in": "path"
+        },
+        {
+          "id": "tableId",
+          "label": "Table ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of table to operate on. If unsure, look at the Code View.",
+          "in": "path"
+        },
+        {
+          "id": "rowId",
+          "label": "Row ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the row to delete, or comma-separated list of row IDs to delete"
+        }
+      ],
+      "description": "Delete rows from a table"
+    },
+    {
+      "id": "get_all",
+      "label": "Get Many Rows",
+      "method": "GET",
+      "path": "/docs/{docId}/tables/{tableId}/records",
+      "fields": [
+        {
+          "id": "customSubdomain",
+          "label": "Custom Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Custom Subdomain of your Grist account (host token in the API base URL)"
+        },
+        {
+          "id": "docId",
+          "label": "Document ID",
+          "type": "text",
+          "required": true,
+          "description": "In your document, click your profile icon, then Document Settings, then copy the value under \"This document's ID\"",
+          "in": "path"
+        },
+        {
+          "id": "tableId",
+          "label": "Table ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of table to operate on. If unsure, look at the Code View.",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "additionalOptions",
+          "label": "Additional Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: filter, sort)"
+        }
+      ],
+      "description": "Read rows from a table"
+    },
+    {
+      "id": "update",
+      "label": "Update Row",
+      "method": "PATCH",
+      "path": "/docs/{docId}/tables/{tableId}/records",
+      "fields": [
+        {
+          "id": "customSubdomain",
+          "label": "Custom Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Custom Subdomain of your Grist account (host token in the API base URL)"
+        },
+        {
+          "id": "docId",
+          "label": "Document ID",
+          "type": "text",
+          "required": true,
+          "description": "In your document, click your profile icon, then Document Settings, then copy the value under \"This document's ID\"",
+          "in": "path"
+        },
+        {
+          "id": "tableId",
+          "label": "Table ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of table to operate on. If unsure, look at the Code View.",
+          "in": "path"
+        },
+        {
+          "id": "rowId",
+          "label": "Row ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the row to update"
+        },
+        {
+          "id": "dataToSend",
+          "label": "Data to Send",
+          "type": "select",
+          "description": "Whether to insert the input data this node receives in the new row",
+          "defaultValue": "defineInNode",
+          "options": [
+            {
+              "value": "autoMapInputs",
+              "label": "Auto-Map Input Data to Columns"
+            },
+            {
+              "value": "defineInNode",
+              "label": "Define Below for Each Column"
+            }
+          ]
+        },
+        {
+          "id": "inputsToIgnore",
+          "label": "Inputs to Ignore",
+          "type": "text",
+          "placeholder": "Enter properties...",
+          "description": "List of input properties to avoid sending, separated by commas. Leave empty to send all properties."
+        },
+        {
+          "id": "fieldsToSend",
+          "label": "Fields to Send",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: properties, properties.fieldId, properties.fieldValue)"
+        }
+      ],
+      "description": "Update rows in a table"
+    }
+  ]
 }

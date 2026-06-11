@@ -4,8 +4,8 @@
   "description": "Consume Google BigQuery API",
   "category": "data",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -15,6 +15,59 @@
       "type": "none"
     }
   },
-  "baseUrl": "",
-  "endpoints": []
+  "baseUrl": "https://bigquery.googleapis.com/bigquery",
+  "endpoints": [
+    {
+      "id": "database_execute_query",
+      "label": "Execute Query Database",
+      "method": "POST",
+      "path": "/v2/projects/{projectId}/jobs",
+      "fields": [
+        {
+          "id": "projectId",
+          "label": "Project",
+          "type": "text",
+          "required": true,
+          "description": "Projects to which you have been granted any project role (provide the ID)",
+          "in": "path"
+        }
+      ],
+      "group": "Database",
+      "description": "Execute a SQL query"
+    },
+    {
+      "id": "database_insert",
+      "label": "Insert Database",
+      "method": "POST",
+      "path": "/v2/projects/{projectId}/datasets/{datasetId}/tables/{tableId}/insertAll",
+      "fields": [
+        {
+          "id": "projectId",
+          "label": "Project",
+          "type": "text",
+          "required": true,
+          "description": "Projects to which you have been granted any project role (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "datasetId",
+          "label": "Dataset",
+          "type": "text",
+          "required": true,
+          "description": "(provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "tableId",
+          "label": "Table",
+          "type": "text",
+          "required": true,
+          "description": "(provide the ID)",
+          "in": "path"
+        }
+      ],
+      "group": "Database",
+      "description": "Insert rows in a table"
+    }
+  ]
 }

@@ -4,8 +4,8 @@
   "description": "Interact with Google Firebase - Realtime Database API",
   "category": "data",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -16,27 +16,25 @@
       "credentialType": "oauth2"
     }
   },
-  "baseUrl": "",
+  "baseUrl": "https://oauth2.googleapis.com/token",
   "endpoints": [
     {
-      "id": "default_create",
+      "id": "create",
       "label": "Create",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/create",
       "fields": [
         {
           "id": "projectId",
           "label": "Project Name or ID",
           "type": "select",
-          "in": "query",
           "required": true,
-          "description": "As displayed in firebase console URL. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>."
+          "description": "As displayed in firebase console URL. Choose from the list, or specify an ID using an expression."
         },
         {
           "id": "path",
           "label": "Object Path",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "e.g. /app/users",
           "description": "Object path on database. Do not append .json."
@@ -45,90 +43,77 @@
           "id": "attributes",
           "label": "Columns / Attributes",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "age, name, city",
           "description": "Attributes to save"
         }
-      ]
+      ],
+      "description": "[unverified path] Write data to a database"
     },
     {
-      "id": "default_delete",
+      "id": "delete",
       "label": "Delete",
-      "method": "GET",
-      "path": "/",
+      "method": "DELETE",
+      "path": "/delete",
       "fields": [
         {
           "id": "projectId",
           "label": "Project Name or ID",
           "type": "select",
-          "in": "query",
           "required": true,
-          "description": "As displayed in firebase console URL. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>."
+          "description": "As displayed in firebase console URL. Choose from the list, or specify an ID using an expression."
         },
         {
           "id": "path",
           "label": "Object Path",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "e.g. /app/users",
           "description": "Object path on database. Do not append .json."
         }
-      ]
+      ],
+      "description": "[unverified path] Delete data from a database"
     },
     {
-      "id": "default_get",
+      "id": "get",
       "label": "Get",
       "method": "GET",
-      "path": "/",
+      "path": "/get",
       "fields": [
         {
           "id": "projectId",
           "label": "Project Name or ID",
           "type": "select",
-          "in": "query",
           "required": true,
-          "description": "As displayed in firebase console URL. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>."
+          "description": "As displayed in firebase console URL. Choose from the list, or specify an ID using an expression."
         },
         {
           "id": "path",
           "label": "Object Path",
           "type": "text",
-          "in": "query",
-          "required": true,
-          "placeholder": "e.g. /app/users",
-          "description": "Object path on database. Do not append .json."
-        },
-        {
-          "id": "path",
-          "label": "Object Path",
-          "type": "text",
-          "in": "query",
           "placeholder": "e.g. /app/users",
           "description": "Object path on database. Do not append .json."
         }
-      ]
+      ],
+      "description": "[unverified path] Get a record from a database"
     },
     {
-      "id": "default_push",
+      "id": "push",
       "label": "Push",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/push",
       "fields": [
         {
           "id": "projectId",
           "label": "Project Name or ID",
           "type": "select",
-          "in": "query",
           "required": true,
-          "description": "As displayed in firebase console URL. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>."
+          "description": "As displayed in firebase console URL. Choose from the list, or specify an ID using an expression."
         },
         {
           "id": "path",
           "label": "Object Path",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "e.g. /app/users",
           "description": "Object path on database. Do not append .json."
@@ -137,32 +122,30 @@
           "id": "attributes",
           "label": "Columns / Attributes",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "age, name, city",
           "description": "Attributes to save"
         }
-      ]
+      ],
+      "description": "[unverified path] Append to a list of data"
     },
     {
-      "id": "default_update",
+      "id": "update",
       "label": "Update",
-      "method": "GET",
-      "path": "/",
+      "method": "PATCH",
+      "path": "/update",
       "fields": [
         {
           "id": "projectId",
           "label": "Project Name or ID",
           "type": "select",
-          "in": "query",
           "required": true,
-          "description": "As displayed in firebase console URL. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>."
+          "description": "As displayed in firebase console URL. Choose from the list, or specify an ID using an expression."
         },
         {
           "id": "path",
           "label": "Object Path",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "e.g. /app/users",
           "description": "Object path on database. Do not append .json."
@@ -171,12 +154,12 @@
           "id": "attributes",
           "label": "Columns / Attributes",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "age, name, city",
           "description": "Attributes to save"
         }
-      ]
+      ],
+      "description": "[unverified path] Update item on a database"
     }
   ]
 }

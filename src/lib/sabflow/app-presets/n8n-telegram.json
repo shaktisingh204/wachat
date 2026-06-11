@@ -4,26 +4,25 @@
   "description": "Sends data to Telegram",
   "category": "communication",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.telegram.org",
   "endpoints": [
     {
       "id": "chat_get",
       "label": "Get Chat",
       "method": "GET",
-      "path": "/",
+      "path": "/getChat",
       "fields": [
         {
           "id": "chatId",
           "label": "Chat ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Unique identifier for the target chat or username, To find your chat ID ask @get_id_bot"
         },
@@ -31,37 +30,37 @@
           "id": "replyKeyboard",
           "label": "Reply Keyboard",
           "type": "json",
-          "in": "query",
           "placeholder": "Add Reply Keyboard Row",
-          "description": "Adds a custom keyboard with reply options"
+          "description": "Adds a custom keyboard with reply options (JSON object; supported keys: rows, rows.row)"
         },
         {
           "id": "replyKeyboardOptions",
           "label": "Reply Keyboard Options",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add option"
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: resize_keyboard, one_time_keyboard, selective)"
         },
         {
           "id": "replyKeyboardRemove",
           "label": "Reply Keyboard Remove",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: remove_keyboard, selective)"
         }
-      ]
+      ],
+      "group": "Chat",
+      "description": "Get up to date information about a chat"
     },
     {
       "id": "chat_administrators",
       "label": "Get Administrators Chat",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/getChatAdministrators",
       "fields": [
         {
           "id": "chatId",
           "label": "Chat ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Unique identifier for the target chat or username, To find your chat ID ask @get_id_bot"
         },
@@ -69,37 +68,37 @@
           "id": "replyKeyboard",
           "label": "Reply Keyboard",
           "type": "json",
-          "in": "query",
           "placeholder": "Add Reply Keyboard Row",
-          "description": "Adds a custom keyboard with reply options"
+          "description": "Adds a custom keyboard with reply options (JSON object; supported keys: rows, rows.row)"
         },
         {
           "id": "replyKeyboardOptions",
           "label": "Reply Keyboard Options",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add option"
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: resize_keyboard, one_time_keyboard, selective)"
         },
         {
           "id": "replyKeyboardRemove",
           "label": "Reply Keyboard Remove",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: remove_keyboard, selective)"
         }
-      ]
+      ],
+      "group": "Chat",
+      "description": "Get the Administrators of a chat"
     },
     {
       "id": "chat_member",
       "label": "Get Member Chat",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/getChatMember",
       "fields": [
         {
           "id": "chatId",
           "label": "Chat ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Unique identifier for the target chat or username, To find your chat ID ask @get_id_bot"
         },
@@ -107,7 +106,6 @@
           "id": "userId",
           "label": "User ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Unique identifier of the target user"
         },
@@ -115,37 +113,37 @@
           "id": "replyKeyboard",
           "label": "Reply Keyboard",
           "type": "json",
-          "in": "query",
           "placeholder": "Add Reply Keyboard Row",
-          "description": "Adds a custom keyboard with reply options"
+          "description": "Adds a custom keyboard with reply options (JSON object; supported keys: rows, rows.row)"
         },
         {
           "id": "replyKeyboardOptions",
           "label": "Reply Keyboard Options",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add option"
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: resize_keyboard, one_time_keyboard, selective)"
         },
         {
           "id": "replyKeyboardRemove",
           "label": "Reply Keyboard Remove",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: remove_keyboard, selective)"
         }
-      ]
+      ],
+      "group": "Chat",
+      "description": "Get the member of a chat"
     },
     {
       "id": "chat_leave",
       "label": "Leave Chat",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/leaveChat",
       "fields": [
         {
           "id": "chatId",
           "label": "Chat ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Unique identifier for the target chat or username, To find your chat ID ask @get_id_bot"
         },
@@ -153,37 +151,37 @@
           "id": "replyKeyboard",
           "label": "Reply Keyboard",
           "type": "json",
-          "in": "query",
           "placeholder": "Add Reply Keyboard Row",
-          "description": "Adds a custom keyboard with reply options"
+          "description": "Adds a custom keyboard with reply options (JSON object; supported keys: rows, rows.row)"
         },
         {
           "id": "replyKeyboardOptions",
           "label": "Reply Keyboard Options",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add option"
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: resize_keyboard, one_time_keyboard, selective)"
         },
         {
           "id": "replyKeyboardRemove",
           "label": "Reply Keyboard Remove",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: remove_keyboard, selective)"
         }
-      ]
+      ],
+      "group": "Chat",
+      "description": "Leave a group, supergroup or channel"
     },
     {
       "id": "chat_set_description",
       "label": "Set Description Chat",
-      "method": "GET",
-      "path": "/",
+      "method": "PATCH",
+      "path": "/setChatDescription",
       "fields": [
         {
           "id": "chatId",
           "label": "Chat ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Unique identifier for the target chat or username, To find your chat ID ask @get_id_bot"
         },
@@ -191,7 +189,6 @@
           "id": "description",
           "label": "Description",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "New chat description, 0-255 characters"
         },
@@ -199,37 +196,37 @@
           "id": "replyKeyboard",
           "label": "Reply Keyboard",
           "type": "json",
-          "in": "query",
           "placeholder": "Add Reply Keyboard Row",
-          "description": "Adds a custom keyboard with reply options"
+          "description": "Adds a custom keyboard with reply options (JSON object; supported keys: rows, rows.row)"
         },
         {
           "id": "replyKeyboardOptions",
           "label": "Reply Keyboard Options",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add option"
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: resize_keyboard, one_time_keyboard, selective)"
         },
         {
           "id": "replyKeyboardRemove",
           "label": "Reply Keyboard Remove",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: remove_keyboard, selective)"
         }
-      ]
+      ],
+      "group": "Chat",
+      "description": "Set the description of a chat"
     },
     {
       "id": "chat_set_title",
       "label": "Set Title Chat",
-      "method": "GET",
-      "path": "/",
+      "method": "PATCH",
+      "path": "/setChatTitle",
       "fields": [
         {
           "id": "chatId",
           "label": "Chat ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Unique identifier for the target chat or username, To find your chat ID ask @get_id_bot"
         },
@@ -237,7 +234,6 @@
           "id": "title",
           "label": "Title",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "New chat title, 1-255 characters"
         },
@@ -245,37 +241,37 @@
           "id": "replyKeyboard",
           "label": "Reply Keyboard",
           "type": "json",
-          "in": "query",
           "placeholder": "Add Reply Keyboard Row",
-          "description": "Adds a custom keyboard with reply options"
+          "description": "Adds a custom keyboard with reply options (JSON object; supported keys: rows, rows.row)"
         },
         {
           "id": "replyKeyboardOptions",
           "label": "Reply Keyboard Options",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add option"
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: resize_keyboard, one_time_keyboard, selective)"
         },
         {
           "id": "replyKeyboardRemove",
           "label": "Reply Keyboard Remove",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: remove_keyboard, selective)"
         }
-      ]
+      ],
+      "group": "Chat",
+      "description": "Set the title of a chat"
     },
     {
       "id": "callback_answer_query",
       "label": "Answer Query Callback",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/answerCallbackQuery",
       "fields": [
         {
           "id": "queryId",
           "label": "Query ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Unique identifier for the query to be answered"
         },
@@ -283,44 +279,44 @@
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: cache_time, show_alert, text, url)"
         },
         {
           "id": "replyKeyboard",
           "label": "Reply Keyboard",
           "type": "json",
-          "in": "query",
           "placeholder": "Add Reply Keyboard Row",
-          "description": "Adds a custom keyboard with reply options"
+          "description": "Adds a custom keyboard with reply options (JSON object; supported keys: rows, rows.row)"
         },
         {
           "id": "replyKeyboardOptions",
           "label": "Reply Keyboard Options",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add option"
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: resize_keyboard, one_time_keyboard, selective)"
         },
         {
           "id": "replyKeyboardRemove",
           "label": "Reply Keyboard Remove",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: remove_keyboard, selective)"
         }
-      ]
+      ],
+      "group": "Callback",
+      "description": "Send answer to callback query sent from inline keyboard"
     },
     {
       "id": "callback_answer_inline_query",
       "label": "Answer Inline Query Callback",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/answerInlineQuery",
       "fields": [
         {
           "id": "queryId",
           "label": "Query ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Unique identifier for the answered query"
         },
@@ -328,7 +324,6 @@
           "id": "results",
           "label": "Results",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "A JSON-serialized array of results for the inline query"
         },
@@ -336,44 +331,44 @@
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: cache_time, show_alert, text, url)"
         },
         {
           "id": "replyKeyboard",
           "label": "Reply Keyboard",
           "type": "json",
-          "in": "query",
           "placeholder": "Add Reply Keyboard Row",
-          "description": "Adds a custom keyboard with reply options"
+          "description": "Adds a custom keyboard with reply options (JSON object; supported keys: rows, rows.row)"
         },
         {
           "id": "replyKeyboardOptions",
           "label": "Reply Keyboard Options",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add option"
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: resize_keyboard, one_time_keyboard, selective)"
         },
         {
           "id": "replyKeyboardRemove",
           "label": "Reply Keyboard Remove",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: remove_keyboard, selective)"
         }
-      ]
+      ],
+      "group": "Callback",
+      "description": "Send answer to callback query sent from inline bot"
     },
     {
       "id": "file_get",
       "label": "Get File",
       "method": "GET",
-      "path": "/",
+      "path": "/getFile",
       "fields": [
         {
           "id": "fileId",
           "label": "File ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "The ID of the file"
         },
@@ -381,7 +376,6 @@
           "id": "download",
           "label": "Download",
           "type": "toggle",
-          "in": "query",
           "description": "Whether to download the file",
           "defaultValue": true
         },
@@ -389,44 +383,44 @@
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: mimeType)"
         },
         {
           "id": "replyKeyboard",
           "label": "Reply Keyboard",
           "type": "json",
-          "in": "query",
           "placeholder": "Add Reply Keyboard Row",
-          "description": "Adds a custom keyboard with reply options"
+          "description": "Adds a custom keyboard with reply options (JSON object; supported keys: rows, rows.row)"
         },
         {
           "id": "replyKeyboardOptions",
           "label": "Reply Keyboard Options",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add option"
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: resize_keyboard, one_time_keyboard, selective)"
         },
         {
           "id": "replyKeyboardRemove",
           "label": "Reply Keyboard Remove",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: remove_keyboard, selective)"
         }
-      ]
+      ],
+      "group": "File",
+      "description": "Get a file"
     },
     {
       "id": "message_delete_message",
       "label": "Delete Chat Message Message",
-      "method": "GET",
-      "path": "/",
+      "method": "DELETE",
+      "path": "/deleteMessage",
       "fields": [
         {
           "id": "chatId",
           "label": "Chat ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Unique identifier for the target chat or username, To find your chat ID ask @get_id_bot"
         },
@@ -434,7 +428,6 @@
           "id": "messageId",
           "label": "Message ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Unique identifier of the message to delete"
         },
@@ -442,52 +435,51 @@
           "id": "forceReply",
           "label": "Force Reply",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: force_reply, selective)"
         },
         {
           "id": "inlineKeyboard",
           "label": "Inline Keyboard",
           "type": "json",
-          "in": "query",
           "placeholder": "Add Keyboard Row",
-          "description": "Adds an inline keyboard that appears right next to the message it belongs to"
+          "description": "Adds an inline keyboard that appears right next to the message it belongs to (JSON object; supported keys: rows, rows.row)"
         },
         {
           "id": "replyKeyboard",
           "label": "Reply Keyboard",
           "type": "json",
-          "in": "query",
           "placeholder": "Add Reply Keyboard Row",
-          "description": "Adds a custom keyboard with reply options"
+          "description": "Adds a custom keyboard with reply options (JSON object; supported keys: rows, rows.row)"
         },
         {
           "id": "replyKeyboardOptions",
           "label": "Reply Keyboard Options",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add option"
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: resize_keyboard, one_time_keyboard, selective)"
         },
         {
           "id": "replyKeyboardRemove",
           "label": "Reply Keyboard Remove",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: remove_keyboard, selective)"
         }
-      ]
+      ],
+      "group": "Message",
+      "description": "Delete a chat message"
     },
     {
       "id": "message_edit_message_text",
       "label": "Edit Message Text Message",
-      "method": "GET",
-      "path": "/",
+      "method": "PATCH",
+      "path": "/editMessageText",
       "fields": [
         {
           "id": "messageType",
           "label": "Message Type",
           "type": "select",
-          "in": "query",
           "description": "The type of the message to edit",
           "defaultValue": "message",
           "options": [
@@ -505,7 +497,6 @@
           "id": "chatId",
           "label": "Chat ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Unique identifier for the target chat or username, To find your chat ID ask @get_id_bot"
         },
@@ -513,7 +504,6 @@
           "id": "messageId",
           "label": "Message ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Unique identifier of the message to edit"
         },
@@ -521,7 +511,6 @@
           "id": "inlineMessageId",
           "label": "Inline Message ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Unique identifier of the inline message to edit"
         },
@@ -529,7 +518,6 @@
           "id": "replyMarkup",
           "label": "Reply Markup",
           "type": "select",
-          "in": "query",
           "description": "Additional interface options",
           "defaultValue": "none",
           "options": [
@@ -547,7 +535,6 @@
           "id": "text",
           "label": "Text",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Text of the message to be sent"
         },
@@ -555,59 +542,58 @@
           "id": "forceReply",
           "label": "Force Reply",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: force_reply, selective)"
         },
         {
           "id": "inlineKeyboard",
           "label": "Inline Keyboard",
           "type": "json",
-          "in": "query",
           "placeholder": "Add Keyboard Row",
-          "description": "Adds an inline keyboard that appears right next to the message it belongs to"
+          "description": "Adds an inline keyboard that appears right next to the message it belongs to (JSON object; supported keys: rows, rows.row)"
         },
         {
           "id": "replyKeyboard",
           "label": "Reply Keyboard",
           "type": "json",
-          "in": "query",
           "placeholder": "Add Reply Keyboard Row",
-          "description": "Adds a custom keyboard with reply options"
+          "description": "Adds a custom keyboard with reply options (JSON object; supported keys: rows, rows.row)"
         },
         {
           "id": "replyKeyboardOptions",
           "label": "Reply Keyboard Options",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add option"
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: resize_keyboard, one_time_keyboard, selective)"
         },
         {
           "id": "replyKeyboardRemove",
           "label": "Reply Keyboard Remove",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: remove_keyboard, selective)"
         },
         {
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: appendAttribution, caption, disable_notification, disable_web_page_preview, duration, fileName, height, parse_mode, performer, reply_to_message_id, message_thread_id, title, thumb, width)"
         }
-      ]
+      ],
+      "group": "Message",
+      "description": "Edit a text message"
     },
     {
       "id": "message_pin_chat_message",
       "label": "Pin Chat Message Message",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/pinChatMessage",
       "fields": [
         {
           "id": "chatId",
           "label": "Chat ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Unique identifier for the target chat or username, To find your chat ID ask @get_id_bot"
         },
@@ -615,7 +601,6 @@
           "id": "messageId",
           "label": "Message ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Unique identifier of the message to pin or unpin"
         },
@@ -623,59 +608,58 @@
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: disable_notification)"
         },
         {
           "id": "forceReply",
           "label": "Force Reply",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: force_reply, selective)"
         },
         {
           "id": "inlineKeyboard",
           "label": "Inline Keyboard",
           "type": "json",
-          "in": "query",
           "placeholder": "Add Keyboard Row",
-          "description": "Adds an inline keyboard that appears right next to the message it belongs to"
+          "description": "Adds an inline keyboard that appears right next to the message it belongs to (JSON object; supported keys: rows, rows.row)"
         },
         {
           "id": "replyKeyboard",
           "label": "Reply Keyboard",
           "type": "json",
-          "in": "query",
           "placeholder": "Add Reply Keyboard Row",
-          "description": "Adds a custom keyboard with reply options"
+          "description": "Adds a custom keyboard with reply options (JSON object; supported keys: rows, rows.row)"
         },
         {
           "id": "replyKeyboardOptions",
           "label": "Reply Keyboard Options",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add option"
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: resize_keyboard, one_time_keyboard, selective)"
         },
         {
           "id": "replyKeyboardRemove",
           "label": "Reply Keyboard Remove",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: remove_keyboard, selective)"
         }
-      ]
+      ],
+      "group": "Message",
+      "description": "Pin a chat message"
     },
     {
       "id": "message_send_animation",
       "label": "Send Animation Message",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/sendAnimation",
       "fields": [
         {
           "id": "chatId",
           "label": "Chat ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Unique identifier for the target chat or username, To find your chat ID ask @get_id_bot"
         },
@@ -683,7 +667,6 @@
           "id": "binaryData",
           "label": "Binary File",
           "type": "toggle",
-          "in": "query",
           "required": true,
           "description": "Whether the data to upload should be taken from binary field",
           "defaultValue": false
@@ -692,7 +675,6 @@
           "id": "binaryPropertyName",
           "label": "Input Binary Field",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Name of the binary property that contains the data to upload",
           "defaultValue": "data"
@@ -701,14 +683,12 @@
           "id": "file",
           "label": "Animation",
           "type": "text",
-          "in": "query",
           "description": "Animation to send. Pass a file_id to send an animation that exists on the Telegram servers (recommended), an HTTP URL for Telegram to get an animation from the Internet."
         },
         {
           "id": "replyMarkup",
           "label": "Reply Markup",
           "type": "select",
-          "in": "query",
           "description": "Additional interface options",
           "defaultValue": "none",
           "options": [
@@ -738,59 +718,58 @@
           "id": "forceReply",
           "label": "Force Reply",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: force_reply, selective)"
         },
         {
           "id": "inlineKeyboard",
           "label": "Inline Keyboard",
           "type": "json",
-          "in": "query",
           "placeholder": "Add Keyboard Row",
-          "description": "Adds an inline keyboard that appears right next to the message it belongs to"
+          "description": "Adds an inline keyboard that appears right next to the message it belongs to (JSON object; supported keys: rows, rows.row)"
         },
         {
           "id": "replyKeyboard",
           "label": "Reply Keyboard",
           "type": "json",
-          "in": "query",
           "placeholder": "Add Reply Keyboard Row",
-          "description": "Adds a custom keyboard with reply options"
+          "description": "Adds a custom keyboard with reply options (JSON object; supported keys: rows, rows.row)"
         },
         {
           "id": "replyKeyboardOptions",
           "label": "Reply Keyboard Options",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add option"
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: resize_keyboard, one_time_keyboard, selective)"
         },
         {
           "id": "replyKeyboardRemove",
           "label": "Reply Keyboard Remove",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: remove_keyboard, selective)"
         },
         {
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: appendAttribution, caption, disable_notification, disable_web_page_preview, duration, fileName, height, parse_mode, performer, reply_to_message_id, message_thread_id, title, thumb, width)"
         }
-      ]
+      ],
+      "group": "Message",
+      "description": "Send an animated file"
     },
     {
       "id": "message_send_audio",
       "label": "Send Audio Message",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/sendAudio",
       "fields": [
         {
           "id": "chatId",
           "label": "Chat ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Unique identifier for the target chat or username, To find your chat ID ask @get_id_bot"
         },
@@ -798,7 +777,6 @@
           "id": "binaryData",
           "label": "Binary File",
           "type": "toggle",
-          "in": "query",
           "required": true,
           "description": "Whether the data to upload should be taken from binary field",
           "defaultValue": false
@@ -807,7 +785,6 @@
           "id": "binaryPropertyName",
           "label": "Input Binary Field",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Name of the binary property that contains the data to upload",
           "defaultValue": "data"
@@ -816,14 +793,12 @@
           "id": "file",
           "label": "Audio",
           "type": "text",
-          "in": "query",
           "description": "Audio file to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), an HTTP URL for Telegram to get a file from the Internet."
         },
         {
           "id": "replyMarkup",
           "label": "Reply Markup",
           "type": "select",
-          "in": "query",
           "description": "Additional interface options",
           "defaultValue": "none",
           "options": [
@@ -853,59 +828,58 @@
           "id": "forceReply",
           "label": "Force Reply",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: force_reply, selective)"
         },
         {
           "id": "inlineKeyboard",
           "label": "Inline Keyboard",
           "type": "json",
-          "in": "query",
           "placeholder": "Add Keyboard Row",
-          "description": "Adds an inline keyboard that appears right next to the message it belongs to"
+          "description": "Adds an inline keyboard that appears right next to the message it belongs to (JSON object; supported keys: rows, rows.row)"
         },
         {
           "id": "replyKeyboard",
           "label": "Reply Keyboard",
           "type": "json",
-          "in": "query",
           "placeholder": "Add Reply Keyboard Row",
-          "description": "Adds a custom keyboard with reply options"
+          "description": "Adds a custom keyboard with reply options (JSON object; supported keys: rows, rows.row)"
         },
         {
           "id": "replyKeyboardOptions",
           "label": "Reply Keyboard Options",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add option"
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: resize_keyboard, one_time_keyboard, selective)"
         },
         {
           "id": "replyKeyboardRemove",
           "label": "Reply Keyboard Remove",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: remove_keyboard, selective)"
         },
         {
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: appendAttribution, caption, disable_notification, disable_web_page_preview, duration, fileName, height, parse_mode, performer, reply_to_message_id, message_thread_id, title, thumb, width)"
         }
-      ]
+      ],
+      "group": "Message",
+      "description": "Send a audio file"
     },
     {
       "id": "message_send_chat_action",
       "label": "Send Chat Action Message",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/sendChatAction",
       "fields": [
         {
           "id": "chatId",
           "label": "Chat ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Unique identifier for the target chat or username, To find your chat ID ask @get_id_bot"
         },
@@ -913,7 +887,6 @@
           "id": "action",
           "label": "Action",
           "type": "select",
-          "in": "query",
           "description": "Type of action to broadcast. Choose one, depending on what the user is about to receive. The status is set for 5 seconds or less (when a message arrives from your bot).",
           "defaultValue": "typing",
           "options": [
@@ -963,52 +936,51 @@
           "id": "forceReply",
           "label": "Force Reply",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: force_reply, selective)"
         },
         {
           "id": "inlineKeyboard",
           "label": "Inline Keyboard",
           "type": "json",
-          "in": "query",
           "placeholder": "Add Keyboard Row",
-          "description": "Adds an inline keyboard that appears right next to the message it belongs to"
+          "description": "Adds an inline keyboard that appears right next to the message it belongs to (JSON object; supported keys: rows, rows.row)"
         },
         {
           "id": "replyKeyboard",
           "label": "Reply Keyboard",
           "type": "json",
-          "in": "query",
           "placeholder": "Add Reply Keyboard Row",
-          "description": "Adds a custom keyboard with reply options"
+          "description": "Adds a custom keyboard with reply options (JSON object; supported keys: rows, rows.row)"
         },
         {
           "id": "replyKeyboardOptions",
           "label": "Reply Keyboard Options",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add option"
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: resize_keyboard, one_time_keyboard, selective)"
         },
         {
           "id": "replyKeyboardRemove",
           "label": "Reply Keyboard Remove",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: remove_keyboard, selective)"
         }
-      ]
+      ],
+      "group": "Message",
+      "description": "Send a chat action"
     },
     {
       "id": "message_send_document",
       "label": "Send Document Message",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/sendDocument",
       "fields": [
         {
           "id": "chatId",
           "label": "Chat ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Unique identifier for the target chat or username, To find your chat ID ask @get_id_bot"
         },
@@ -1016,7 +988,6 @@
           "id": "binaryData",
           "label": "Binary File",
           "type": "toggle",
-          "in": "query",
           "required": true,
           "description": "Whether the data to upload should be taken from binary field",
           "defaultValue": false
@@ -1025,7 +996,6 @@
           "id": "binaryPropertyName",
           "label": "Input Binary Field",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Name of the binary property that contains the data to upload",
           "defaultValue": "data"
@@ -1034,14 +1004,12 @@
           "id": "file",
           "label": "Document",
           "type": "text",
-          "in": "query",
           "description": "Document to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), an HTTP URL for Telegram to get a file from the Internet."
         },
         {
           "id": "replyMarkup",
           "label": "Reply Markup",
           "type": "select",
-          "in": "query",
           "description": "Additional interface options",
           "defaultValue": "none",
           "options": [
@@ -1071,59 +1039,58 @@
           "id": "forceReply",
           "label": "Force Reply",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: force_reply, selective)"
         },
         {
           "id": "inlineKeyboard",
           "label": "Inline Keyboard",
           "type": "json",
-          "in": "query",
           "placeholder": "Add Keyboard Row",
-          "description": "Adds an inline keyboard that appears right next to the message it belongs to"
+          "description": "Adds an inline keyboard that appears right next to the message it belongs to (JSON object; supported keys: rows, rows.row)"
         },
         {
           "id": "replyKeyboard",
           "label": "Reply Keyboard",
           "type": "json",
-          "in": "query",
           "placeholder": "Add Reply Keyboard Row",
-          "description": "Adds a custom keyboard with reply options"
+          "description": "Adds a custom keyboard with reply options (JSON object; supported keys: rows, rows.row)"
         },
         {
           "id": "replyKeyboardOptions",
           "label": "Reply Keyboard Options",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add option"
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: resize_keyboard, one_time_keyboard, selective)"
         },
         {
           "id": "replyKeyboardRemove",
           "label": "Reply Keyboard Remove",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: remove_keyboard, selective)"
         },
         {
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: appendAttribution, caption, disable_notification, disable_web_page_preview, duration, fileName, height, parse_mode, performer, reply_to_message_id, message_thread_id, title, thumb, width)"
         }
-      ]
+      ],
+      "group": "Message",
+      "description": "Send a document"
     },
     {
       "id": "message_send_location",
       "label": "Send Location Message",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/sendLocation",
       "fields": [
         {
           "id": "chatId",
           "label": "Chat ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Unique identifier for the target chat or username, To find your chat ID ask @get_id_bot"
         },
@@ -1131,7 +1098,6 @@
           "id": "latitude",
           "label": "Latitude",
           "type": "number",
-          "in": "query",
           "description": "Location latitude",
           "defaultValue": 0
         },
@@ -1139,7 +1105,6 @@
           "id": "longitude",
           "label": "Longitude",
           "type": "number",
-          "in": "query",
           "description": "Location longitude",
           "defaultValue": 0
         },
@@ -1147,7 +1112,6 @@
           "id": "replyMarkup",
           "label": "Reply Markup",
           "type": "select",
-          "in": "query",
           "description": "Additional interface options",
           "defaultValue": "none",
           "options": [
@@ -1177,59 +1141,58 @@
           "id": "forceReply",
           "label": "Force Reply",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: force_reply, selective)"
         },
         {
           "id": "inlineKeyboard",
           "label": "Inline Keyboard",
           "type": "json",
-          "in": "query",
           "placeholder": "Add Keyboard Row",
-          "description": "Adds an inline keyboard that appears right next to the message it belongs to"
+          "description": "Adds an inline keyboard that appears right next to the message it belongs to (JSON object; supported keys: rows, rows.row)"
         },
         {
           "id": "replyKeyboard",
           "label": "Reply Keyboard",
           "type": "json",
-          "in": "query",
           "placeholder": "Add Reply Keyboard Row",
-          "description": "Adds a custom keyboard with reply options"
+          "description": "Adds a custom keyboard with reply options (JSON object; supported keys: rows, rows.row)"
         },
         {
           "id": "replyKeyboardOptions",
           "label": "Reply Keyboard Options",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add option"
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: resize_keyboard, one_time_keyboard, selective)"
         },
         {
           "id": "replyKeyboardRemove",
           "label": "Reply Keyboard Remove",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: remove_keyboard, selective)"
         },
         {
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: appendAttribution, caption, disable_notification, disable_web_page_preview, duration, fileName, height, parse_mode, performer, reply_to_message_id, message_thread_id, title, thumb, width)"
         }
-      ]
+      ],
+      "group": "Message",
+      "description": "Send a location"
     },
     {
       "id": "message_send_media_group",
       "label": "Send Media Group Message",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/sendMediaGroup",
       "fields": [
         {
           "id": "chatId",
           "label": "Chat ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Unique identifier for the target chat or username, To find your chat ID ask @get_id_bot"
         },
@@ -1237,67 +1200,65 @@
           "id": "media",
           "label": "Media",
           "type": "json",
-          "in": "query",
           "placeholder": "Add Media",
-          "description": "The media to add"
+          "description": "The media to add (JSON object; supported keys: media, media.type, media.media, media.additionalFields)"
         },
         {
           "id": "forceReply",
           "label": "Force Reply",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: force_reply, selective)"
         },
         {
           "id": "inlineKeyboard",
           "label": "Inline Keyboard",
           "type": "json",
-          "in": "query",
           "placeholder": "Add Keyboard Row",
-          "description": "Adds an inline keyboard that appears right next to the message it belongs to"
+          "description": "Adds an inline keyboard that appears right next to the message it belongs to (JSON object; supported keys: rows, rows.row)"
         },
         {
           "id": "replyKeyboard",
           "label": "Reply Keyboard",
           "type": "json",
-          "in": "query",
           "placeholder": "Add Reply Keyboard Row",
-          "description": "Adds a custom keyboard with reply options"
+          "description": "Adds a custom keyboard with reply options (JSON object; supported keys: rows, rows.row)"
         },
         {
           "id": "replyKeyboardOptions",
           "label": "Reply Keyboard Options",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add option"
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: resize_keyboard, one_time_keyboard, selective)"
         },
         {
           "id": "replyKeyboardRemove",
           "label": "Reply Keyboard Remove",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: remove_keyboard, selective)"
         },
         {
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: appendAttribution, caption, disable_notification, disable_web_page_preview, duration, fileName, height, parse_mode, performer, reply_to_message_id, message_thread_id, title, thumb, width)"
         }
-      ]
+      ],
+      "group": "Message",
+      "description": "Send group of photos or videos to album"
     },
     {
       "id": "message_send_message",
       "label": "Send Message Message",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/sendMessage",
       "fields": [
         {
           "id": "chatId",
           "label": "Chat ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Unique identifier for the target chat or username, To find your chat ID ask @get_id_bot"
         },
@@ -1305,7 +1266,6 @@
           "id": "text",
           "label": "Text",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Text of the message to be sent"
         },
@@ -1313,7 +1273,6 @@
           "id": "replyMarkup",
           "label": "Reply Markup",
           "type": "select",
-          "in": "query",
           "description": "Additional interface options",
           "defaultValue": "none",
           "options": [
@@ -1343,59 +1302,103 @@
           "id": "forceReply",
           "label": "Force Reply",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: force_reply, selective)"
         },
         {
           "id": "inlineKeyboard",
           "label": "Inline Keyboard",
           "type": "json",
-          "in": "query",
           "placeholder": "Add Keyboard Row",
-          "description": "Adds an inline keyboard that appears right next to the message it belongs to"
+          "description": "Adds an inline keyboard that appears right next to the message it belongs to (JSON object; supported keys: rows, rows.row)"
         },
         {
           "id": "replyKeyboard",
           "label": "Reply Keyboard",
           "type": "json",
-          "in": "query",
           "placeholder": "Add Reply Keyboard Row",
-          "description": "Adds a custom keyboard with reply options"
+          "description": "Adds a custom keyboard with reply options (JSON object; supported keys: rows, rows.row)"
         },
         {
           "id": "replyKeyboardOptions",
           "label": "Reply Keyboard Options",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add option"
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: resize_keyboard, one_time_keyboard, selective)"
         },
         {
           "id": "replyKeyboardRemove",
           "label": "Reply Keyboard Remove",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: remove_keyboard, selective)"
         },
         {
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: appendAttribution, caption, disable_notification, disable_web_page_preview, duration, fileName, height, parse_mode, performer, reply_to_message_id, message_thread_id, title, thumb, width)"
         }
-      ]
+      ],
+      "group": "Message",
+      "description": "Send a text message"
+    },
+    {
+      "id": "message_send_and_wait_operation",
+      "label": "Send and Wait for Response Message",
+      "method": "POST",
+      "path": "/message",
+      "fields": [
+        {
+          "id": "forceReply",
+          "label": "Force Reply",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: force_reply, selective)"
+        },
+        {
+          "id": "inlineKeyboard",
+          "label": "Inline Keyboard",
+          "type": "json",
+          "placeholder": "Add Keyboard Row",
+          "description": "Adds an inline keyboard that appears right next to the message it belongs to (JSON object; supported keys: rows, rows.row)"
+        },
+        {
+          "id": "replyKeyboard",
+          "label": "Reply Keyboard",
+          "type": "json",
+          "placeholder": "Add Reply Keyboard Row",
+          "description": "Adds a custom keyboard with reply options (JSON object; supported keys: rows, rows.row)"
+        },
+        {
+          "id": "replyKeyboardOptions",
+          "label": "Reply Keyboard Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: resize_keyboard, one_time_keyboard, selective)"
+        },
+        {
+          "id": "replyKeyboardRemove",
+          "label": "Reply Keyboard Remove",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: remove_keyboard, selective)"
+        }
+      ],
+      "group": "Message",
+      "description": "[unverified path] Send a message and wait for response"
     },
     {
       "id": "message_send_photo",
       "label": "Send Photo Message",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/sendPhoto",
       "fields": [
         {
           "id": "chatId",
           "label": "Chat ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Unique identifier for the target chat or username, To find your chat ID ask @get_id_bot"
         },
@@ -1403,7 +1406,6 @@
           "id": "binaryData",
           "label": "Binary File",
           "type": "toggle",
-          "in": "query",
           "required": true,
           "description": "Whether the data to upload should be taken from binary field",
           "defaultValue": false
@@ -1412,7 +1414,6 @@
           "id": "binaryPropertyName",
           "label": "Input Binary Field",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Name of the binary property that contains the data to upload",
           "defaultValue": "data"
@@ -1421,14 +1422,12 @@
           "id": "file",
           "label": "Photo",
           "type": "text",
-          "in": "query",
           "description": "Photo to send. Pass a file_id to send a photo that exists on the Telegram servers (recommended), an HTTP URL for Telegram to get a photo from the Internet."
         },
         {
           "id": "replyMarkup",
           "label": "Reply Markup",
           "type": "select",
-          "in": "query",
           "description": "Additional interface options",
           "defaultValue": "none",
           "options": [
@@ -1458,59 +1457,58 @@
           "id": "forceReply",
           "label": "Force Reply",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: force_reply, selective)"
         },
         {
           "id": "inlineKeyboard",
           "label": "Inline Keyboard",
           "type": "json",
-          "in": "query",
           "placeholder": "Add Keyboard Row",
-          "description": "Adds an inline keyboard that appears right next to the message it belongs to"
+          "description": "Adds an inline keyboard that appears right next to the message it belongs to (JSON object; supported keys: rows, rows.row)"
         },
         {
           "id": "replyKeyboard",
           "label": "Reply Keyboard",
           "type": "json",
-          "in": "query",
           "placeholder": "Add Reply Keyboard Row",
-          "description": "Adds a custom keyboard with reply options"
+          "description": "Adds a custom keyboard with reply options (JSON object; supported keys: rows, rows.row)"
         },
         {
           "id": "replyKeyboardOptions",
           "label": "Reply Keyboard Options",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add option"
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: resize_keyboard, one_time_keyboard, selective)"
         },
         {
           "id": "replyKeyboardRemove",
           "label": "Reply Keyboard Remove",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: remove_keyboard, selective)"
         },
         {
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: appendAttribution, caption, disable_notification, disable_web_page_preview, duration, fileName, height, parse_mode, performer, reply_to_message_id, message_thread_id, title, thumb, width)"
         }
-      ]
+      ],
+      "group": "Message",
+      "description": "Send a photo"
     },
     {
       "id": "message_send_sticker",
       "label": "Send Sticker Message",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/sendSticker",
       "fields": [
         {
           "id": "chatId",
           "label": "Chat ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Unique identifier for the target chat or username, To find your chat ID ask @get_id_bot"
         },
@@ -1518,7 +1516,6 @@
           "id": "binaryData",
           "label": "Binary File",
           "type": "toggle",
-          "in": "query",
           "required": true,
           "description": "Whether the data to upload should be taken from binary field",
           "defaultValue": false
@@ -1527,7 +1524,6 @@
           "id": "binaryPropertyName",
           "label": "Input Binary Field",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Name of the binary property that contains the data to upload",
           "defaultValue": "data"
@@ -1536,14 +1532,12 @@
           "id": "file",
           "label": "Sticker",
           "type": "text",
-          "in": "query",
           "description": "Sticker to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), an HTTP URL for Telegram to get a .webp file from the Internet."
         },
         {
           "id": "replyMarkup",
           "label": "Reply Markup",
           "type": "select",
-          "in": "query",
           "description": "Additional interface options",
           "defaultValue": "none",
           "options": [
@@ -1573,59 +1567,58 @@
           "id": "forceReply",
           "label": "Force Reply",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: force_reply, selective)"
         },
         {
           "id": "inlineKeyboard",
           "label": "Inline Keyboard",
           "type": "json",
-          "in": "query",
           "placeholder": "Add Keyboard Row",
-          "description": "Adds an inline keyboard that appears right next to the message it belongs to"
+          "description": "Adds an inline keyboard that appears right next to the message it belongs to (JSON object; supported keys: rows, rows.row)"
         },
         {
           "id": "replyKeyboard",
           "label": "Reply Keyboard",
           "type": "json",
-          "in": "query",
           "placeholder": "Add Reply Keyboard Row",
-          "description": "Adds a custom keyboard with reply options"
+          "description": "Adds a custom keyboard with reply options (JSON object; supported keys: rows, rows.row)"
         },
         {
           "id": "replyKeyboardOptions",
           "label": "Reply Keyboard Options",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add option"
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: resize_keyboard, one_time_keyboard, selective)"
         },
         {
           "id": "replyKeyboardRemove",
           "label": "Reply Keyboard Remove",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: remove_keyboard, selective)"
         },
         {
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: appendAttribution, caption, disable_notification, disable_web_page_preview, duration, fileName, height, parse_mode, performer, reply_to_message_id, message_thread_id, title, thumb, width)"
         }
-      ]
+      ],
+      "group": "Message",
+      "description": "Send a sticker"
     },
     {
       "id": "message_send_video",
       "label": "Send Video Message",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/sendVideo",
       "fields": [
         {
           "id": "chatId",
           "label": "Chat ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Unique identifier for the target chat or username, To find your chat ID ask @get_id_bot"
         },
@@ -1633,7 +1626,6 @@
           "id": "binaryData",
           "label": "Binary File",
           "type": "toggle",
-          "in": "query",
           "required": true,
           "description": "Whether the data to upload should be taken from binary field",
           "defaultValue": false
@@ -1642,7 +1634,6 @@
           "id": "binaryPropertyName",
           "label": "Input Binary Field",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Name of the binary property that contains the data to upload",
           "defaultValue": "data"
@@ -1651,14 +1642,12 @@
           "id": "file",
           "label": "Video",
           "type": "text",
-          "in": "query",
           "description": "Video file to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), an HTTP URL for Telegram to get a file from the Internet."
         },
         {
           "id": "replyMarkup",
           "label": "Reply Markup",
           "type": "select",
-          "in": "query",
           "description": "Additional interface options",
           "defaultValue": "none",
           "options": [
@@ -1688,59 +1677,58 @@
           "id": "forceReply",
           "label": "Force Reply",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: force_reply, selective)"
         },
         {
           "id": "inlineKeyboard",
           "label": "Inline Keyboard",
           "type": "json",
-          "in": "query",
           "placeholder": "Add Keyboard Row",
-          "description": "Adds an inline keyboard that appears right next to the message it belongs to"
+          "description": "Adds an inline keyboard that appears right next to the message it belongs to (JSON object; supported keys: rows, rows.row)"
         },
         {
           "id": "replyKeyboard",
           "label": "Reply Keyboard",
           "type": "json",
-          "in": "query",
           "placeholder": "Add Reply Keyboard Row",
-          "description": "Adds a custom keyboard with reply options"
+          "description": "Adds a custom keyboard with reply options (JSON object; supported keys: rows, rows.row)"
         },
         {
           "id": "replyKeyboardOptions",
           "label": "Reply Keyboard Options",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add option"
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: resize_keyboard, one_time_keyboard, selective)"
         },
         {
           "id": "replyKeyboardRemove",
           "label": "Reply Keyboard Remove",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: remove_keyboard, selective)"
         },
         {
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: appendAttribution, caption, disable_notification, disable_web_page_preview, duration, fileName, height, parse_mode, performer, reply_to_message_id, message_thread_id, title, thumb, width)"
         }
-      ]
+      ],
+      "group": "Message",
+      "description": "Send a video"
     },
     {
       "id": "message_unpin_chat_message",
       "label": "Unpin Chat Message Message",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/unpinChatMessage",
       "fields": [
         {
           "id": "chatId",
           "label": "Chat ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Unique identifier for the target chat or username, To find your chat ID ask @get_id_bot"
         },
@@ -1748,7 +1736,6 @@
           "id": "messageId",
           "label": "Message ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Unique identifier of the message to pin or unpin"
         },
@@ -1756,40 +1743,40 @@
           "id": "forceReply",
           "label": "Force Reply",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: force_reply, selective)"
         },
         {
           "id": "inlineKeyboard",
           "label": "Inline Keyboard",
           "type": "json",
-          "in": "query",
           "placeholder": "Add Keyboard Row",
-          "description": "Adds an inline keyboard that appears right next to the message it belongs to"
+          "description": "Adds an inline keyboard that appears right next to the message it belongs to (JSON object; supported keys: rows, rows.row)"
         },
         {
           "id": "replyKeyboard",
           "label": "Reply Keyboard",
           "type": "json",
-          "in": "query",
           "placeholder": "Add Reply Keyboard Row",
-          "description": "Adds a custom keyboard with reply options"
+          "description": "Adds a custom keyboard with reply options (JSON object; supported keys: rows, rows.row)"
         },
         {
           "id": "replyKeyboardOptions",
           "label": "Reply Keyboard Options",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add option"
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: resize_keyboard, one_time_keyboard, selective)"
         },
         {
           "id": "replyKeyboardRemove",
           "label": "Reply Keyboard Remove",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: remove_keyboard, selective)"
         }
-      ]
+      ],
+      "group": "Message",
+      "description": "Unpin a chat message"
     }
   ]
 }

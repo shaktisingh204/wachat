@@ -1,11 +1,11 @@
 {
   "id": "n8n-twitter",
   "name": "X (Formerly Twitter)",
-  "description": "Consume the X API",
+  "description": "Post, like, and search tweets, send messages, search users, and add users to lists",
   "category": "communication",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -15,6 +15,201 @@
       "type": "none"
     }
   },
-  "baseUrl": "",
-  "endpoints": []
+  "baseUrl": "https://api.twitter.com/2",
+  "endpoints": [
+    {
+      "id": "direct_message_create",
+      "label": "Create Direct Message",
+      "method": "POST",
+      "path": "/dm_conversations/with/{user}/messages",
+      "fields": [
+        {
+          "id": "user",
+          "label": "User",
+          "type": "text",
+          "required": true,
+          "description": "The user you want to send the message to (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "text",
+          "label": "Text",
+          "type": "textarea",
+          "required": true,
+          "description": "The text of the direct message. URL encoding is required. Max length of 10,000 characters."
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: attachments)"
+        }
+      ],
+      "group": "Direct Message",
+      "description": "Send a direct message to a user"
+    },
+    {
+      "id": "list_add",
+      "label": "Add Member List",
+      "method": "POST",
+      "path": "/lists/{listId}/members",
+      "fields": [
+        {
+          "id": "list",
+          "label": "List",
+          "type": "text",
+          "required": true,
+          "description": "The list you want to add the user to (provide the ID)"
+        },
+        {
+          "id": "user",
+          "label": "User",
+          "type": "text",
+          "required": true,
+          "description": "The user you want to add to the list (provide the ID)"
+        }
+      ],
+      "group": "List",
+      "description": "Add a member to a list"
+    },
+    {
+      "id": "tweet_create",
+      "label": "Create Tweet",
+      "method": "POST",
+      "path": "/tweets",
+      "fields": [
+        {
+          "id": "text",
+          "label": "Text",
+          "type": "textarea",
+          "required": true,
+          "description": "The text of the status update. URLs must be encoded. Links wrapped with the t.co shortener will affect character count"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: location, attachments, inQuoteToStatusId, inReplyToStatusId)"
+        }
+      ],
+      "group": "Tweet",
+      "description": "Create, quote, or reply to a tweet"
+    },
+    {
+      "id": "tweet_delete",
+      "label": "Delete Tweet",
+      "method": "DELETE",
+      "path": "/tweets/{tweetId}",
+      "fields": [
+        {
+          "id": "tweetDeleteId",
+          "label": "Tweet",
+          "type": "text",
+          "required": true,
+          "description": "The tweet to delete (provide the ID)"
+        }
+      ],
+      "group": "Tweet",
+      "description": "Delete a tweet"
+    },
+    {
+      "id": "tweet_like",
+      "label": "Like Tweet",
+      "method": "POST",
+      "path": "/users/{user}/likes",
+      "fields": [
+        {
+          "id": "tweetId",
+          "label": "Tweet",
+          "type": "text",
+          "required": true,
+          "description": "The tweet to like (provide the ID)"
+        }
+      ],
+      "group": "Tweet",
+      "description": "Like a tweet"
+    },
+    {
+      "id": "tweet_retweet",
+      "label": "Retweet Tweet",
+      "method": "POST",
+      "path": "/users/{user}/retweets",
+      "fields": [
+        {
+          "id": "tweetId",
+          "label": "Tweet",
+          "type": "text",
+          "required": true,
+          "description": "The tweet to retweet (provide the ID)"
+        }
+      ],
+      "group": "Tweet",
+      "description": "Retweet a tweet"
+    },
+    {
+      "id": "tweet_search",
+      "label": "Search Tweet",
+      "method": "GET",
+      "path": "/tweets/search/recent",
+      "fields": [
+        {
+          "id": "searchText",
+          "label": "Search Term",
+          "type": "text",
+          "required": true,
+          "placeholder": "e.g. automation",
+          "description": "A UTF-8, URL-encoded search query of 500 characters maximum, including operators. Queries may additionally be limited by complexity. Check the searching examples here."
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "additionalFields",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: sortOrder, startTime, endTime, tweetFieldsObject)"
+        }
+      ],
+      "group": "Tweet",
+      "description": "Search for tweets from the last seven days"
+    },
+    {
+      "id": "user_search_user",
+      "label": "Get User",
+      "method": "GET",
+      "path": "/users/me",
+      "fields": [
+        {
+          "id": "user",
+          "label": "User",
+          "type": "text",
+          "required": true,
+          "description": "The user you want to search (provide the ID)"
+        },
+        {
+          "id": "me",
+          "label": "Me",
+          "type": "toggle",
+          "description": "Whether you want to search the authenticated user",
+          "defaultValue": false
+        }
+      ],
+      "group": "User",
+      "description": "Retrieve a user by username"
+    }
+  ]
 }

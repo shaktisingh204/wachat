@@ -4,42 +4,554 @@
   "description": "Consume Taiga API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.taiga.io/api/v1/auth",
   "endpoints": [
     {
-      "id": "epic_default",
-      "label": "List Epic",
+      "id": "epic_create",
+      "label": "Create Epic",
+      "method": "POST",
+      "path": "/epics",
+      "fields": [
+        {
+          "id": "projectId",
+          "label": "Project Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of the project to which the epic belongs. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "subject",
+          "label": "Subject",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: assigned_to, blocked_note, color, description, is_blocked, tags)"
+        }
+      ],
+      "group": "Epic",
+      "description": "Create an epic"
+    },
+    {
+      "id": "epic_delete",
+      "label": "Delete Epic",
+      "method": "DELETE",
+      "path": "/epics/{epicId}",
+      "fields": [
+        {
+          "id": "epicId",
+          "label": "Epic ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the epic to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Epic",
+      "description": "Delete an epic"
+    },
+    {
+      "id": "epic_get",
+      "label": "Get Epic",
+      "method": "GET",
+      "path": "/epics/{epicId}",
+      "fields": [
+        {
+          "id": "epicId",
+          "label": "Epic ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the epic to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Epic",
+      "description": "Get an epic"
+    },
+    {
+      "id": "epic_get_all",
+      "label": "Get Many Epic",
       "method": "GET",
       "path": "/epic",
-      "fields": []
+      "fields": [
+        {
+          "id": "projectId",
+          "label": "Project Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of the project to which the epic belongs. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: assigned_to, statusIsClosed)"
+        }
+      ],
+      "group": "Epic",
+      "description": "[unverified path] Get many epics"
     },
     {
-      "id": "issue_default",
-      "label": "List Issue",
+      "id": "epic_update",
+      "label": "Update Epic",
+      "method": "PATCH",
+      "path": "/epics/{epicId}",
+      "fields": [
+        {
+          "id": "projectId",
+          "label": "Project Name or ID",
+          "type": "select",
+          "description": "ID of the project to set the epic to. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "epicId",
+          "label": "Epic ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the epic to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: assigned_to, blocked_note, color, description, is_blocked, subject, tags)"
+        }
+      ],
+      "group": "Epic",
+      "description": "Update an epic"
+    },
+    {
+      "id": "issue_create",
+      "label": "Create Issue",
+      "method": "POST",
+      "path": "/issues",
+      "fields": [
+        {
+          "id": "projectId",
+          "label": "Project Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of the project to which the issue belongs. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "subject",
+          "label": "Subject",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: assigned_to, blocked_note, description, is_blocked, milestone, priority, severity, status, tags, type)"
+        }
+      ],
+      "group": "Issue",
+      "description": "Create an issue"
+    },
+    {
+      "id": "issue_delete",
+      "label": "Delete Issue",
+      "method": "DELETE",
+      "path": "/issues/{issueId}",
+      "fields": [
+        {
+          "id": "issueId",
+          "label": "Issue ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the issue to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Issue",
+      "description": "Delete an issue"
+    },
+    {
+      "id": "issue_get",
+      "label": "Get Issue",
+      "method": "GET",
+      "path": "/issues/{issueId}",
+      "fields": [
+        {
+          "id": "issueId",
+          "label": "Issue ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the issue to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Issue",
+      "description": "Get an issue"
+    },
+    {
+      "id": "issue_get_all",
+      "label": "Get Many Issue",
       "method": "GET",
       "path": "/issue",
-      "fields": []
+      "fields": [
+        {
+          "id": "projectId",
+          "label": "Project Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of the project to which the issue belongs. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: assigned_to, orderBy, owner, priority, role, severity, status, tags, type)"
+        }
+      ],
+      "group": "Issue",
+      "description": "[unverified path] Get many issues"
     },
     {
-      "id": "task_default",
-      "label": "List Task",
+      "id": "issue_update",
+      "label": "Update Issue",
+      "method": "PATCH",
+      "path": "/issues/{issueId}",
+      "fields": [
+        {
+          "id": "projectId",
+          "label": "Project Name or ID",
+          "type": "select",
+          "description": "ID of the project to set the issue to. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "issueId",
+          "label": "Issue ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the issue to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: assigned_to, blocked_note, description, is_blocked, milestone, priority, severity, status, subject, tags, type)"
+        }
+      ],
+      "group": "Issue",
+      "description": "Update an issue"
+    },
+    {
+      "id": "task_create",
+      "label": "Create Task",
+      "method": "POST",
+      "path": "/tasks",
+      "fields": [
+        {
+          "id": "projectId",
+          "label": "Project Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of the project to which the task belongs. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "subject",
+          "label": "Subject",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: assigned_to, blocked_note, description, is_blocked, milestone, status, tags, taskboard_order, user_story, us_order)"
+        }
+      ],
+      "group": "Task",
+      "description": "Create a task"
+    },
+    {
+      "id": "task_delete",
+      "label": "Delete Task",
+      "method": "DELETE",
+      "path": "/tasks/{taskId}",
+      "fields": [
+        {
+          "id": "taskId",
+          "label": "Task ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the task to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Task",
+      "description": "Delete a task"
+    },
+    {
+      "id": "task_get",
+      "label": "Get Task",
+      "method": "GET",
+      "path": "/tasks/{taskId}",
+      "fields": [
+        {
+          "id": "taskId",
+          "label": "Task ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the task to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Task",
+      "description": "Get a task"
+    },
+    {
+      "id": "task_get_all",
+      "label": "Get Many Task",
       "method": "GET",
       "path": "/task",
-      "fields": []
+      "fields": [
+        {
+          "id": "projectId",
+          "label": "Project Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of the project to which the task belongs. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: assigned_to, statusIsClosed, milestone, owner, role, status, tags, userStory)"
+        }
+      ],
+      "group": "Task",
+      "description": "[unverified path] Get many tasks"
     },
     {
-      "id": "user_story_default",
-      "label": "List UserStory",
+      "id": "task_update",
+      "label": "Update Task",
+      "method": "PATCH",
+      "path": "/tasks/{taskId}",
+      "fields": [
+        {
+          "id": "projectId",
+          "label": "Project Name or ID",
+          "type": "select",
+          "description": "ID of the project to set the task to. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "taskId",
+          "label": "Task ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the task to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: assigned_to, blocked_note, description, is_blocked, milestone, status, subject, user_story, us_order, tags, taskboard_order)"
+        }
+      ],
+      "group": "Task",
+      "description": "Update a task"
+    },
+    {
+      "id": "user_story_create",
+      "label": "Create User Story",
+      "method": "POST",
+      "path": "/userstories",
+      "fields": [
+        {
+          "id": "projectId",
+          "label": "Project Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of the project to which the user story belongs. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "subject",
+          "label": "Subject",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: assigned_to, backlog_order, blocked_note, description, is_blocked, kanban_order, milestone, sprint_order, status, tags, type)"
+        }
+      ],
+      "group": "User Story",
+      "description": "Create a user story"
+    },
+    {
+      "id": "user_story_delete",
+      "label": "Delete User Story",
+      "method": "DELETE",
+      "path": "/userstories/{userStoryId}",
+      "fields": [
+        {
+          "id": "userStoryId",
+          "label": "User Story ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the user story to delete",
+          "in": "path"
+        }
+      ],
+      "group": "User Story",
+      "description": "Delete a user story"
+    },
+    {
+      "id": "user_story_get",
+      "label": "Get User Story",
       "method": "GET",
-      "path": "/userStory",
-      "fields": []
+      "path": "/userstories/{userStoryId}",
+      "fields": [
+        {
+          "id": "userStoryId",
+          "label": "User Story ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the user story to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "User Story",
+      "description": "Get a user story"
+    },
+    {
+      "id": "user_story_get_all",
+      "label": "Get Many User Story",
+      "method": "GET",
+      "path": "/user-story",
+      "fields": [
+        {
+          "id": "projectId",
+          "label": "Project Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of the project to which the user story belongs. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: assigned_to, epic, statusIsClosed, statusIsArchived, milestone, role, status, tags)"
+        }
+      ],
+      "group": "User Story",
+      "description": "[unverified path] Get many user stories"
+    },
+    {
+      "id": "user_story_update",
+      "label": "Update User Story",
+      "method": "PATCH",
+      "path": "/userstories/{userStoryId}",
+      "fields": [
+        {
+          "id": "projectId",
+          "label": "Project Name or ID",
+          "type": "select",
+          "description": "ID of the project to set the user story to. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "userStoryId",
+          "label": "User Story ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the user story to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: assigned_to, backlog_order, blocked_note, description, is_blocked, kanban_order, milestone, subject, sprint_order, status, tags, type)"
+        }
+      ],
+      "group": "User Story",
+      "description": "Update a user story"
     }
   ]
 }

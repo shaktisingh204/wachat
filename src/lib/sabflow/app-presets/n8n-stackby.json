@@ -4,26 +4,25 @@
   "description": "Read, write, and delete data in Stackby",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://stackby.com/api/betav1",
   "endpoints": [
     {
-      "id": "default_append",
+      "id": "append",
       "label": "Append",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/rowcreate/{recordKey}",
       "fields": [
         {
           "id": "stackId",
           "label": "Stack ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "The ID of the stack to access"
         },
@@ -31,7 +30,6 @@
           "id": "table",
           "label": "Table",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "Stories",
           "description": "Enter Table Name"
@@ -40,7 +38,6 @@
           "id": "columns",
           "label": "Columns",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "id,name,description",
           "description": "Comma-separated list of the properties which should used as columns for the new rows"
@@ -48,66 +45,64 @@
       ]
     },
     {
-      "id": "default_delete",
+      "id": "delete",
       "label": "Delete",
-      "method": "GET",
-      "path": "/",
+      "method": "DELETE",
+      "path": "/rowdelete/{stackId}/{table}",
       "fields": [
         {
           "id": "stackId",
           "label": "Stack ID",
           "type": "text",
-          "in": "query",
           "required": true,
-          "description": "The ID of the stack to access"
+          "description": "The ID of the stack to access",
+          "in": "path"
         },
         {
           "id": "table",
           "label": "Table",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "Stories",
-          "description": "Enter Table Name"
+          "description": "Enter Table Name",
+          "in": "path"
         },
         {
           "id": "id",
           "label": "ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "ID of the record to return"
         }
       ]
     },
     {
-      "id": "default_list",
+      "id": "list",
       "label": "List",
       "method": "GET",
-      "path": "/",
+      "path": "/rowlist/{stackId}/{table}",
       "fields": [
         {
           "id": "stackId",
           "label": "Stack ID",
           "type": "text",
-          "in": "query",
           "required": true,
-          "description": "The ID of the stack to access"
+          "description": "The ID of the stack to access",
+          "in": "path"
         },
         {
           "id": "table",
           "label": "Table",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "Stories",
-          "description": "Enter Table Name"
+          "description": "Enter Table Name",
+          "in": "path"
         },
         {
           "id": "returnAll",
           "label": "Return All",
           "type": "toggle",
-          "in": "query",
           "description": "Whether to return all results or only up to a given limit",
           "defaultValue": true
         },
@@ -115,7 +110,6 @@
           "id": "limit",
           "label": "Limit",
           "type": "number",
-          "in": "query",
           "description": "Max number of results to return",
           "defaultValue": 1000
         },
@@ -123,39 +117,38 @@
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: view)"
         }
       ]
     },
     {
-      "id": "default_read",
+      "id": "read",
       "label": "Read",
       "method": "GET",
-      "path": "/",
+      "path": "/rowlist/{stackId}/{table}",
       "fields": [
         {
           "id": "stackId",
           "label": "Stack ID",
           "type": "text",
-          "in": "query",
           "required": true,
-          "description": "The ID of the stack to access"
+          "description": "The ID of the stack to access",
+          "in": "path"
         },
         {
           "id": "table",
           "label": "Table",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "Stories",
-          "description": "Enter Table Name"
+          "description": "Enter Table Name",
+          "in": "path"
         },
         {
           "id": "id",
           "label": "ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "ID of the record to return"
         }

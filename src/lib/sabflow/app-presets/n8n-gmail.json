@@ -4,8 +4,8 @@
   "description": "Consume the Gmail API",
   "category": "communication",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -15,6 +15,711 @@
       "type": "none"
     }
   },
-  "baseUrl": "",
-  "endpoints": []
+  "baseUrl": "https://www.googleapis.com/gmail/v1",
+  "endpoints": [
+    {
+      "id": "draft_create",
+      "label": "Create Draft",
+      "method": "POST",
+      "path": "/gmail/v1/users/me/drafts",
+      "fields": [
+        {
+          "id": "subject",
+          "label": "Subject",
+          "type": "text",
+          "required": true,
+          "placeholder": "Hello World!"
+        },
+        {
+          "id": "emailType",
+          "label": "Email Type",
+          "type": "select",
+          "required": true,
+          "defaultValue": "text",
+          "options": [
+            {
+              "value": "html",
+              "label": "HTML"
+            },
+            {
+              "value": "text",
+              "label": "Text"
+            }
+          ]
+        },
+        {
+          "id": "message",
+          "label": "Message",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: attachmentsUi, bccList, ccList, fromAlias, replyTo, threadId, sendTo)"
+        }
+      ],
+      "group": "Draft",
+      "description": "Create a draft"
+    },
+    {
+      "id": "draft_delete",
+      "label": "Delete Draft",
+      "method": "DELETE",
+      "path": "/gmail/v1/users/me/drafts/{id}",
+      "fields": [
+        {
+          "id": "messageId",
+          "label": "Draft ID",
+          "type": "text",
+          "required": true,
+          "placeholder": "r-3254521568507167962"
+        }
+      ],
+      "group": "Draft",
+      "description": "Delete a draft"
+    },
+    {
+      "id": "draft_get",
+      "label": "Get Draft",
+      "method": "GET",
+      "path": "/gmail/v1/users/me/drafts/{id}",
+      "fields": [
+        {
+          "id": "messageId",
+          "label": "Draft ID",
+          "type": "text",
+          "required": true,
+          "placeholder": "r-3254521568507167962"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: dataPropertyAttachmentsPrefixName, downloadAttachments)"
+        }
+      ],
+      "group": "Draft",
+      "description": "Get a draft"
+    },
+    {
+      "id": "draft_get_all",
+      "label": "Get Many Draft",
+      "method": "GET",
+      "path": "/gmail/v1/users/me/drafts",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: dataPropertyAttachmentsPrefixName, downloadAttachments, includeSpamTrash)"
+        }
+      ],
+      "group": "Draft",
+      "description": "Get many drafts"
+    },
+    {
+      "id": "label_create",
+      "label": "Create Label",
+      "method": "POST",
+      "path": "/gmail/v1/users/me/labels",
+      "fields": [
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "placeholder": "invoices",
+          "description": "Label Name"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: labelListVisibility, messageListVisibility)"
+        }
+      ],
+      "group": "Label",
+      "description": "Create a label"
+    },
+    {
+      "id": "label_delete",
+      "label": "Delete Label",
+      "method": "DELETE",
+      "path": "/gmail/v1/users/me/labels/{labelId}",
+      "fields": [
+        {
+          "id": "labelId",
+          "label": "Label ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the label",
+          "in": "path"
+        }
+      ],
+      "group": "Label",
+      "description": "Delete a label"
+    },
+    {
+      "id": "label_get",
+      "label": "Get Label",
+      "method": "GET",
+      "path": "/gmail/v1/users/me/labels/{labelId}",
+      "fields": [
+        {
+          "id": "labelId",
+          "label": "Label ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the label",
+          "in": "path"
+        }
+      ],
+      "group": "Label",
+      "description": "Get a label info"
+    },
+    {
+      "id": "label_get_all",
+      "label": "Get Many Label",
+      "method": "GET",
+      "path": "/gmail/v1/users/me/labels",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Label",
+      "description": "Get many labels"
+    },
+    {
+      "id": "message_add_labels",
+      "label": "Add Label Message",
+      "method": "POST",
+      "path": "/gmail/v1/users/me/messages/{id}/modify",
+      "fields": [
+        {
+          "id": "messageId",
+          "label": "Message ID",
+          "type": "text",
+          "required": true,
+          "placeholder": "172ce2c4a72cc243"
+        },
+        {
+          "id": "labelIds",
+          "label": "Label Names or IDs",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify IDs using an expression (multiple values: comma-separated)"
+        }
+      ],
+      "group": "Message",
+      "description": "Add label to message"
+    },
+    {
+      "id": "message_delete",
+      "label": "Delete Message",
+      "method": "DELETE",
+      "path": "/gmail/v1/users/me/messages/{id}",
+      "fields": [
+        {
+          "id": "messageId",
+          "label": "Message ID",
+          "type": "text",
+          "required": true,
+          "placeholder": "172ce2c4a72cc243"
+        }
+      ],
+      "group": "Message",
+      "description": "Delete a message"
+    },
+    {
+      "id": "message_get",
+      "label": "Get Message",
+      "method": "GET",
+      "path": "/gmail/v1/users/me/messages/{id}",
+      "fields": [
+        {
+          "id": "messageId",
+          "label": "Message ID",
+          "type": "text",
+          "required": true,
+          "placeholder": "172ce2c4a72cc243"
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: dataPropertyAttachmentsPrefixName, downloadAttachments)"
+        }
+      ],
+      "group": "Message",
+      "description": "Get a message"
+    },
+    {
+      "id": "message_get_all",
+      "label": "Get Many Message",
+      "method": "GET",
+      "path": "/gmail/v1/users/me/messages",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: includeSpamTrash, labelIds, q, readStatus, receivedAfter, receivedBefore, sender)"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: dataPropertyAttachmentsPrefixName, downloadAttachments)"
+        }
+      ],
+      "group": "Message",
+      "description": "Get many messages"
+    },
+    {
+      "id": "message_mark_as_read",
+      "label": "Mark as Read Message",
+      "method": "POST",
+      "path": "/gmail/v1/users/me/messages/{id}/modify",
+      "fields": [
+        {
+          "id": "messageId",
+          "label": "Message ID",
+          "type": "text",
+          "required": true,
+          "placeholder": "172ce2c4a72cc243"
+        }
+      ],
+      "group": "Message",
+      "description": "Mark a message as read"
+    },
+    {
+      "id": "message_mark_as_unread",
+      "label": "Mark as Unread Message",
+      "method": "POST",
+      "path": "/gmail/v1/users/me/messages/{id}/modify",
+      "fields": [
+        {
+          "id": "messageId",
+          "label": "Message ID",
+          "type": "text",
+          "required": true,
+          "placeholder": "172ce2c4a72cc243"
+        }
+      ],
+      "group": "Message",
+      "description": "Mark a message as unread"
+    },
+    {
+      "id": "message_remove_labels",
+      "label": "Remove Label Message",
+      "method": "POST",
+      "path": "/gmail/v1/users/me/messages/{id}/modify",
+      "fields": [
+        {
+          "id": "messageId",
+          "label": "Message ID",
+          "type": "text",
+          "required": true,
+          "placeholder": "172ce2c4a72cc243"
+        },
+        {
+          "id": "labelIds",
+          "label": "Label Names or IDs",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify IDs using an expression (multiple values: comma-separated)"
+        }
+      ],
+      "group": "Message",
+      "description": "Remove label from message"
+    },
+    {
+      "id": "message_reply",
+      "label": "Reply Message",
+      "method": "POST",
+      "path": "/message",
+      "fields": [
+        {
+          "id": "messageId",
+          "label": "Message ID",
+          "type": "text",
+          "required": true,
+          "placeholder": "172ce2c4a72cc243"
+        },
+        {
+          "id": "emailType",
+          "label": "Email Type",
+          "type": "select",
+          "required": true,
+          "defaultValue": "html",
+          "options": [
+            {
+              "value": "text",
+              "label": "Text"
+            },
+            {
+              "value": "html",
+              "label": "HTML"
+            }
+          ]
+        },
+        {
+          "id": "message",
+          "label": "Message",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: appendAttribution, attachmentsUi, bccList, ccList, senderName, replyTo, replyToSenderOnly)"
+        }
+      ],
+      "group": "Message",
+      "description": "[unverified path] Reply to a message"
+    },
+    {
+      "id": "message_send",
+      "label": "Send Message",
+      "method": "POST",
+      "path": "/gmail/v1/users/me/messages/send",
+      "fields": [
+        {
+          "id": "sendTo",
+          "label": "To",
+          "type": "text",
+          "required": true,
+          "placeholder": "info@example.com",
+          "description": "The email addresses of the recipients. Multiple addresses can be separated by a comma. e.g. jay@getsby.com, jon@smith.com."
+        },
+        {
+          "id": "subject",
+          "label": "Subject",
+          "type": "text",
+          "required": true,
+          "placeholder": "Hello World!"
+        },
+        {
+          "id": "emailType",
+          "label": "Email Type",
+          "type": "select",
+          "required": true,
+          "defaultValue": "html",
+          "options": [
+            {
+              "value": "text",
+              "label": "Text"
+            },
+            {
+              "value": "html",
+              "label": "HTML"
+            }
+          ]
+        },
+        {
+          "id": "message",
+          "label": "Message",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: appendAttribution, attachmentsUi, bccList, ccList, senderName, replyTo, replyToSenderOnly)"
+        }
+      ],
+      "group": "Message",
+      "description": "Send a message"
+    },
+    {
+      "id": "message_send_and_wait_operation",
+      "label": "Send and Wait for Response Message",
+      "method": "POST",
+      "path": "/message",
+      "fields": [],
+      "group": "Message",
+      "description": "[unverified path] Send message and wait for response"
+    },
+    {
+      "id": "thread_add_labels",
+      "label": "Add Label Thread",
+      "method": "POST",
+      "path": "/gmail/v1/users/me/threads/{id}/modify",
+      "fields": [
+        {
+          "id": "threadId",
+          "label": "Thread ID",
+          "type": "text",
+          "required": true,
+          "placeholder": "172ce2c4a72cc243"
+        },
+        {
+          "id": "labelIds",
+          "label": "Label Names or IDs",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify IDs using an expression (multiple values: comma-separated)"
+        }
+      ],
+      "group": "Thread",
+      "description": "Add label to thread"
+    },
+    {
+      "id": "thread_delete",
+      "label": "Delete Thread",
+      "method": "DELETE",
+      "path": "/gmail/v1/users/me/threads/{id}",
+      "fields": [
+        {
+          "id": "threadId",
+          "label": "Thread ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the thread you are operating on"
+        }
+      ],
+      "group": "Thread",
+      "description": "Delete a thread"
+    },
+    {
+      "id": "thread_get",
+      "label": "Get Thread",
+      "method": "GET",
+      "path": "/gmail/v1/users/me/threads/{id}",
+      "fields": [
+        {
+          "id": "threadId",
+          "label": "Thread ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the thread you are operating on"
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: returnOnlyMessages)"
+        }
+      ],
+      "group": "Thread",
+      "description": "Get a thread"
+    },
+    {
+      "id": "thread_get_all",
+      "label": "Get Many Thread",
+      "method": "GET",
+      "path": "/gmail/v1/users/me/threads",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: includeSpamTrash, labelIds, q, readStatus, receivedAfter, receivedBefore)"
+        }
+      ],
+      "group": "Thread",
+      "description": "Get many threads"
+    },
+    {
+      "id": "thread_remove_labels",
+      "label": "Remove Label Thread",
+      "method": "POST",
+      "path": "/gmail/v1/users/me/threads/{id}/modify",
+      "fields": [
+        {
+          "id": "threadId",
+          "label": "Thread ID",
+          "type": "text",
+          "required": true,
+          "placeholder": "172ce2c4a72cc243"
+        },
+        {
+          "id": "labelIds",
+          "label": "Label Names or IDs",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify IDs using an expression (multiple values: comma-separated)"
+        }
+      ],
+      "group": "Thread",
+      "description": "Remove label from thread"
+    },
+    {
+      "id": "thread_reply",
+      "label": "Reply Thread",
+      "method": "POST",
+      "path": "/thread",
+      "fields": [
+        {
+          "id": "threadId",
+          "label": "Thread ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the thread you are operating on"
+        },
+        {
+          "id": "messageId",
+          "label": "Message Snippet or ID",
+          "type": "select",
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "emailType",
+          "label": "Email Type",
+          "type": "select",
+          "required": true,
+          "defaultValue": "text",
+          "options": [
+            {
+              "value": "text",
+              "label": "Text"
+            },
+            {
+              "value": "html",
+              "label": "HTML"
+            }
+          ]
+        },
+        {
+          "id": "message",
+          "label": "Message",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: attachmentsUi, bccList, ccList, senderName, replyToSenderOnly, replyToRecipientsOnly)"
+        }
+      ],
+      "group": "Thread",
+      "description": "[unverified path] Reply to a message"
+    },
+    {
+      "id": "thread_trash",
+      "label": "Trash Thread",
+      "method": "POST",
+      "path": "/gmail/v1/users/me/threads/{id}/trash",
+      "fields": [
+        {
+          "id": "threadId",
+          "label": "Thread ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the thread you are operating on"
+        }
+      ],
+      "group": "Thread",
+      "description": "Trash a thread"
+    },
+    {
+      "id": "thread_untrash",
+      "label": "Untrash Thread",
+      "method": "POST",
+      "path": "/gmail/v1/users/me/threads/{id}/untrash",
+      "fields": [
+        {
+          "id": "threadId",
+          "label": "Thread ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the thread you are operating on"
+        }
+      ],
+      "group": "Thread",
+      "description": "Untrash a thread"
+    }
+  ]
 }

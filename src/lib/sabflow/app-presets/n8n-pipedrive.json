@@ -4,8 +4,8 @@
   "description": "Create and edit data in Pipedrive",
   "category": "crm",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -15,6 +15,1512 @@
       "type": "none"
     }
   },
-  "baseUrl": "",
-  "endpoints": []
+  "baseUrl": "https://api.pipedrive.com/v1",
+  "endpoints": [
+    {
+      "id": "activity_create",
+      "label": "Create Activity",
+      "method": "POST",
+      "path": "/activities",
+      "fields": [
+        {
+          "id": "subject",
+          "label": "Subject",
+          "type": "text",
+          "required": true,
+          "description": "The subject of the activity to create"
+        },
+        {
+          "id": "done",
+          "label": "Done",
+          "type": "toggle",
+          "description": "Whether the activity is done or not",
+          "defaultValue": false
+        },
+        {
+          "id": "type",
+          "label": "Type",
+          "type": "text",
+          "required": true,
+          "placeholder": "call",
+          "description": "Type of the activity like \"call\", \"meeting\", etc"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: deal_id, due_date, note, org_id, person_id, user_id, customFields)"
+        },
+        {
+          "id": "rawCustomFieldKeys",
+          "label": "Use Raw Field Keys",
+          "type": "toggle",
+          "description": "Whether to provide raw Pipedrive field keys and option IDs instead of human-readable names",
+          "defaultValue": false
+        }
+      ],
+      "group": "Activity",
+      "description": "Create an activity"
+    },
+    {
+      "id": "activity_delete",
+      "label": "Delete Activity",
+      "method": "DELETE",
+      "path": "/activities/{activityId}",
+      "fields": [
+        {
+          "id": "activityId",
+          "label": "Activity ID",
+          "type": "number",
+          "required": true,
+          "description": "ID of the activity to delete",
+          "defaultValue": 0,
+          "in": "path"
+        }
+      ],
+      "group": "Activity",
+      "description": "Delete an activity"
+    },
+    {
+      "id": "activity_get",
+      "label": "Get Activity",
+      "method": "GET",
+      "path": "/activities/{activityId}",
+      "fields": [
+        {
+          "id": "activityId",
+          "label": "Activity ID",
+          "type": "number",
+          "required": true,
+          "description": "ID of the activity to get",
+          "defaultValue": 0,
+          "in": "path"
+        },
+        {
+          "id": "rawCustomFieldOutput",
+          "label": "Show Raw Field Keys",
+          "type": "toggle",
+          "description": "Whether to show raw Pipedrive field keys and option IDs instead of human-readable names in output",
+          "defaultValue": false
+        }
+      ],
+      "group": "Activity",
+      "description": "Get an activity"
+    },
+    {
+      "id": "activity_get_all",
+      "label": "Get Many Activity",
+      "method": "GET",
+      "path": "/activities",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "rawCustomFieldOutput",
+          "label": "Show Raw Field Keys",
+          "type": "toggle",
+          "description": "Whether to show raw Pipedrive field keys and option IDs instead of human-readable names in output",
+          "defaultValue": false
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: dealId, done, end_date, filterId, start_date, type, user_id)"
+        }
+      ],
+      "group": "Activity",
+      "description": "Get many activities"
+    },
+    {
+      "id": "activity_update",
+      "label": "Update Activity",
+      "method": "PATCH",
+      "path": "/activities/{activityId}",
+      "fields": [
+        {
+          "id": "activityId",
+          "label": "Activity ID",
+          "type": "number",
+          "required": true,
+          "description": "ID of the activity to update",
+          "defaultValue": 0,
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: busy_flag, deal_id, done, due_date, note, org_id, person_id, public_description, subject, type, user_id, customFields)"
+        },
+        {
+          "id": "rawCustomFieldKeys",
+          "label": "Use Raw Field Keys",
+          "type": "toggle",
+          "description": "Whether to provide raw Pipedrive field keys and option IDs instead of human-readable names",
+          "defaultValue": false
+        }
+      ],
+      "group": "Activity",
+      "description": "Update an activity"
+    },
+    {
+      "id": "deal_create",
+      "label": "Create Deal",
+      "method": "POST",
+      "path": "/deals",
+      "fields": [
+        {
+          "id": "title",
+          "label": "Title",
+          "type": "text",
+          "required": true,
+          "description": "The title of the deal to create"
+        },
+        {
+          "id": "associateWith",
+          "label": "Associate With",
+          "type": "select",
+          "required": true,
+          "description": "Type of entity to link to this deal",
+          "defaultValue": "organization",
+          "options": [
+            {
+              "value": "organization",
+              "label": "Organization"
+            },
+            {
+              "value": "person",
+              "label": "Person"
+            }
+          ]
+        },
+        {
+          "id": "org_id",
+          "label": "Organization ID",
+          "type": "number",
+          "required": true,
+          "description": "ID of the organization this deal will be associated with",
+          "defaultValue": 0
+        },
+        {
+          "id": "person_id",
+          "label": "Person ID",
+          "type": "number",
+          "required": true,
+          "description": "ID of the person this deal will be associated with",
+          "defaultValue": 0
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: currency, expected_close_date, label_ids, lost_reason, org_id, person_id, probability, stage_id, status, user_id, value, visible_to, customFields)"
+        },
+        {
+          "id": "rawCustomFieldKeys",
+          "label": "Use Raw Field Keys",
+          "type": "toggle",
+          "description": "Whether to provide raw Pipedrive field keys and option IDs instead of human-readable names",
+          "defaultValue": false
+        }
+      ],
+      "group": "Deal",
+      "description": "Create a deal"
+    },
+    {
+      "id": "deal_delete",
+      "label": "Delete Deal",
+      "method": "DELETE",
+      "path": "/deals/{dealId}",
+      "fields": [
+        {
+          "id": "dealId",
+          "label": "Deal ID",
+          "type": "number",
+          "required": true,
+          "description": "ID of the deal to delete",
+          "defaultValue": 0,
+          "in": "path"
+        }
+      ],
+      "group": "Deal",
+      "description": "Delete a deal"
+    },
+    {
+      "id": "deal_duplicate",
+      "label": "Duplicate Deal",
+      "method": "POST",
+      "path": "/deals/{dealId}/duplicate",
+      "fields": [
+        {
+          "id": "dealId",
+          "label": "Deal ID",
+          "type": "number",
+          "required": true,
+          "description": "ID of the deal to duplicate",
+          "defaultValue": 0,
+          "in": "path"
+        }
+      ],
+      "group": "Deal",
+      "description": "Duplicate a deal"
+    },
+    {
+      "id": "deal_get",
+      "label": "Get Deal",
+      "method": "GET",
+      "path": "/deals/{dealId}",
+      "fields": [
+        {
+          "id": "dealId",
+          "label": "Deal ID",
+          "type": "number",
+          "required": true,
+          "description": "ID of the deal to get",
+          "defaultValue": 0,
+          "in": "path"
+        },
+        {
+          "id": "rawCustomFieldOutput",
+          "label": "Show Raw Field Keys",
+          "type": "toggle",
+          "description": "Whether to show raw Pipedrive field keys and option IDs instead of human-readable names in output",
+          "defaultValue": false
+        }
+      ],
+      "group": "Deal",
+      "description": "Get a deal"
+    },
+    {
+      "id": "deal_get_all",
+      "label": "Get Many Deal",
+      "method": "GET",
+      "path": "/deals",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "rawCustomFieldOutput",
+          "label": "Show Raw Field Keys",
+          "type": "toggle",
+          "description": "Whether to show raw Pipedrive field keys and option IDs instead of human-readable names in output",
+          "defaultValue": false
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: filter_id, stage_id, status, user_id)"
+        }
+      ],
+      "group": "Deal",
+      "description": "Get many deals"
+    },
+    {
+      "id": "deal_search",
+      "label": "Search Deal",
+      "method": "GET",
+      "path": "/deals/search",
+      "fields": [
+        {
+          "id": "term",
+          "label": "Term",
+          "type": "text",
+          "required": true,
+          "description": "The search term to look for. Minimum 2 characters (or 1 if using exact_match)."
+        },
+        {
+          "id": "exactMatch",
+          "label": "Exact Match",
+          "type": "toggle",
+          "description": "Whether only full exact matches against the given term are returned. It is not case sensitive.",
+          "defaultValue": false
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: includeFields, organizationId, personId, fields, status)"
+        }
+      ],
+      "group": "Deal",
+      "description": "Search deals"
+    },
+    {
+      "id": "deal_update",
+      "label": "Update Deal",
+      "method": "PATCH",
+      "path": "/deals/{dealId}",
+      "fields": [
+        {
+          "id": "dealId",
+          "label": "Deal ID",
+          "type": "number",
+          "required": true,
+          "description": "ID of the deal to update",
+          "defaultValue": 0,
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: currency, expected_close_date, label_ids, lost_reason, org_id, person_id, probability, stage_id, status, title, user_id, value, visible_to, customFields)"
+        },
+        {
+          "id": "rawCustomFieldKeys",
+          "label": "Use Raw Field Keys",
+          "type": "toggle",
+          "description": "Whether to provide raw Pipedrive field keys and option IDs instead of human-readable names",
+          "defaultValue": false
+        }
+      ],
+      "group": "Deal",
+      "description": "Update a deal"
+    },
+    {
+      "id": "deal_product_add",
+      "label": "Add Deal Product",
+      "method": "POST",
+      "path": "/deals/{dealId}/products",
+      "fields": [
+        {
+          "id": "dealId",
+          "label": "Deal ID",
+          "type": "number",
+          "required": true,
+          "description": "ID of the deal to add a product to",
+          "defaultValue": 0,
+          "in": "path"
+        },
+        {
+          "id": "productId",
+          "label": "Product ID",
+          "type": "number",
+          "required": true,
+          "description": "ID of the product to add to the deal",
+          "defaultValue": 0
+        },
+        {
+          "id": "item_price",
+          "label": "Item Price",
+          "type": "number",
+          "required": true,
+          "description": "Price at which to add this product to the deal",
+          "defaultValue": 0
+        },
+        {
+          "id": "quantity",
+          "label": "Quantity",
+          "type": "number",
+          "required": true,
+          "description": "How many items of this product to add to the deal",
+          "defaultValue": 1
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: comments, discount, discount_type, tax)"
+        }
+      ],
+      "group": "Deal Product",
+      "description": "Add a product to a deal"
+    },
+    {
+      "id": "deal_product_get_all",
+      "label": "Get Many Deal Product",
+      "method": "GET",
+      "path": "/deals/{dealId}/products",
+      "fields": [
+        {
+          "id": "dealId",
+          "label": "Deal ID",
+          "type": "number",
+          "required": true,
+          "description": "ID of the deal whose products to retrieve",
+          "defaultValue": 0,
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        }
+      ],
+      "group": "Deal Product",
+      "description": "Get many products of a deal"
+    },
+    {
+      "id": "deal_product_remove",
+      "label": "Remove Deal Product",
+      "method": "DELETE",
+      "path": "/deals/{dealId}/products/{productAttachmentId}",
+      "fields": [
+        {
+          "id": "dealId",
+          "label": "Deal ID",
+          "type": "number",
+          "required": true,
+          "description": "ID of the deal whose product to remove",
+          "defaultValue": 0,
+          "in": "path"
+        },
+        {
+          "id": "productAttachmentId",
+          "label": "Product Attachment ID",
+          "type": "number",
+          "required": true,
+          "description": "ID of the deal-product (the ID of the product attached to the deal, not the product ID itself)",
+          "defaultValue": 0,
+          "in": "path"
+        }
+      ],
+      "group": "Deal Product",
+      "description": "Remove a product from a deal"
+    },
+    {
+      "id": "deal_product_update",
+      "label": "Update Deal Product",
+      "method": "PATCH",
+      "path": "/deals/{dealId}/products/{productAttachmentId}",
+      "fields": [
+        {
+          "id": "dealId",
+          "label": "Deal ID",
+          "type": "number",
+          "required": true,
+          "description": "ID of the deal whose product to update",
+          "defaultValue": 0,
+          "in": "path"
+        },
+        {
+          "id": "productAttachmentId",
+          "label": "Product Attachment ID",
+          "type": "number",
+          "required": true,
+          "description": "ID of the deal-product (the ID of the product attached to the deal, not the product ID itself)",
+          "defaultValue": 0,
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: comments, discount, discount_type, item_price, quantity, tax)"
+        }
+      ],
+      "group": "Deal Product",
+      "description": "Update a product in a deal"
+    },
+    {
+      "id": "file_create",
+      "label": "Create File",
+      "method": "POST",
+      "path": "/files",
+      "fields": [
+        {
+          "id": "binaryPropertyName",
+          "label": "Input Binary Field",
+          "type": "text",
+          "required": true,
+          "defaultValue": "data"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: activity_id, deal_id, lead_id, org_id, person_id, product_id)"
+        }
+      ],
+      "group": "File",
+      "description": "Create a file"
+    },
+    {
+      "id": "file_delete",
+      "label": "Delete File",
+      "method": "DELETE",
+      "path": "/files/{fileId}",
+      "fields": [
+        {
+          "id": "fileId",
+          "label": "File ID",
+          "type": "number",
+          "required": true,
+          "description": "ID of the file to delete",
+          "defaultValue": 0,
+          "in": "path"
+        }
+      ],
+      "group": "File",
+      "description": "Delete a file"
+    },
+    {
+      "id": "file_download",
+      "label": "Download File",
+      "method": "GET",
+      "path": "/files/{fileId}/download",
+      "fields": [
+        {
+          "id": "fileId",
+          "label": "File ID",
+          "type": "number",
+          "required": true,
+          "description": "ID of the file to download",
+          "defaultValue": 0,
+          "in": "path"
+        },
+        {
+          "id": "binaryPropertyName",
+          "label": "Put Output File in Field",
+          "type": "text",
+          "required": true,
+          "defaultValue": "data"
+        }
+      ],
+      "group": "File",
+      "description": "Download a file"
+    },
+    {
+      "id": "file_get",
+      "label": "Get File",
+      "method": "GET",
+      "path": "/files/{fileId}",
+      "fields": [
+        {
+          "id": "fileId",
+          "label": "File ID",
+          "type": "number",
+          "required": true,
+          "description": "ID of the file to get",
+          "defaultValue": 0,
+          "in": "path"
+        }
+      ],
+      "group": "File",
+      "description": "Get a file"
+    },
+    {
+      "id": "file_update",
+      "label": "Update File",
+      "method": "PUT",
+      "path": "/files/{fileId}",
+      "fields": [
+        {
+          "id": "fileId",
+          "label": "File ID",
+          "type": "number",
+          "required": true,
+          "description": "ID of the file to update",
+          "defaultValue": 0,
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: name, description)"
+        }
+      ],
+      "group": "File",
+      "description": "Update a file"
+    },
+    {
+      "id": "lead_create",
+      "label": "Create Lead",
+      "method": "POST",
+      "path": "/leads",
+      "fields": [
+        {
+          "id": "title",
+          "label": "Title",
+          "type": "text",
+          "required": true,
+          "description": "Name of the lead to create"
+        },
+        {
+          "id": "associateWith",
+          "label": "Associate With",
+          "type": "select",
+          "required": true,
+          "description": "Type of entity to link to this lead",
+          "defaultValue": "organization",
+          "options": [
+            {
+              "value": "organization",
+              "label": "Organization"
+            },
+            {
+              "value": "person",
+              "label": "Person"
+            }
+          ]
+        },
+        {
+          "id": "organization_id",
+          "label": "Organization ID",
+          "type": "number",
+          "required": true,
+          "description": "ID of the organization to link to this lead",
+          "defaultValue": 0
+        },
+        {
+          "id": "person_id",
+          "label": "Person ID",
+          "type": "number",
+          "required": true,
+          "description": "ID of the person to link to this lead",
+          "defaultValue": 0
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: expected_close_date, label_ids, organization_id, owner_id, person_id, value, visible_to, was_seen)"
+        }
+      ],
+      "group": "Lead",
+      "description": "Create a lead"
+    },
+    {
+      "id": "lead_delete",
+      "label": "Delete Lead",
+      "method": "DELETE",
+      "path": "/leads/{leadId}",
+      "fields": [
+        {
+          "id": "leadId",
+          "label": "Lead ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the lead to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Lead",
+      "description": "Delete a lead"
+    },
+    {
+      "id": "lead_get",
+      "label": "Get Lead",
+      "method": "GET",
+      "path": "/leads/{leadId}",
+      "fields": [
+        {
+          "id": "leadId",
+          "label": "Lead ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the lead to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Lead",
+      "description": "Get a lead"
+    },
+    {
+      "id": "lead_get_all",
+      "label": "Get Many Lead",
+      "method": "GET",
+      "path": "/leads",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: archived_status, organization_id, owner_id, person_id)"
+        }
+      ],
+      "group": "Lead",
+      "description": "Get many leads"
+    },
+    {
+      "id": "lead_update",
+      "label": "Update Lead",
+      "method": "PUT",
+      "path": "/leads/{leadId}",
+      "fields": [
+        {
+          "id": "leadId",
+          "label": "Lead ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the lead to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: expected_close_date, is_archived, label_ids, owner_id, person_id, title, value, visible_to, was_seen)"
+        }
+      ],
+      "group": "Lead",
+      "description": "Update a lead"
+    },
+    {
+      "id": "note_create",
+      "label": "Create Note",
+      "method": "POST",
+      "path": "/notes",
+      "fields": [
+        {
+          "id": "content",
+          "label": "Content",
+          "type": "textarea",
+          "required": true,
+          "description": "The content of the note to create"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: deal_id, lead_id, org_id, person_id, pinned_to_deal_flag, pinned_to_organization_flag, pinned_to_person_flag)"
+        }
+      ],
+      "group": "Note",
+      "description": "Create a note"
+    },
+    {
+      "id": "note_delete",
+      "label": "Delete Note",
+      "method": "DELETE",
+      "path": "/notes/{noteId}",
+      "fields": [
+        {
+          "id": "noteId",
+          "label": "Note ID",
+          "type": "number",
+          "required": true,
+          "description": "ID of the note to delete",
+          "defaultValue": 0,
+          "in": "path"
+        }
+      ],
+      "group": "Note",
+      "description": "Delete a note"
+    },
+    {
+      "id": "note_get",
+      "label": "Get Note",
+      "method": "GET",
+      "path": "/notes/{noteId}",
+      "fields": [
+        {
+          "id": "noteId",
+          "label": "Note ID",
+          "type": "number",
+          "required": true,
+          "description": "ID of the note to get",
+          "defaultValue": 0,
+          "in": "path"
+        }
+      ],
+      "group": "Note",
+      "description": "Get a note"
+    },
+    {
+      "id": "note_get_all",
+      "label": "Get Many Note",
+      "method": "GET",
+      "path": "/notes",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: deal_id, end_date, lead_id, org_id, person_id, pinned_to_deal_flag, pinned_to_organization_flag, pinned_to_person_flag, sort, start_date)"
+        }
+      ],
+      "group": "Note",
+      "description": "Get many notes"
+    },
+    {
+      "id": "note_update",
+      "label": "Update Note",
+      "method": "PUT",
+      "path": "/notes/{noteId}",
+      "fields": [
+        {
+          "id": "noteId",
+          "label": "Note ID",
+          "type": "number",
+          "required": true,
+          "description": "ID of the note to update",
+          "defaultValue": 0,
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: content, deal_id, lead_id, org_id, person_id, pinned_to_deal_flag, pinned_to_organization_flag, pinned_to_person_flag)"
+        }
+      ],
+      "group": "Note",
+      "description": "Update a note"
+    },
+    {
+      "id": "organization_create",
+      "label": "Create Organization",
+      "method": "POST",
+      "path": "/organizations",
+      "fields": [
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "The name of the organization to create"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: label_ids, owner_id, visible_to, customFields)"
+        },
+        {
+          "id": "rawCustomFieldKeys",
+          "label": "Use Raw Field Keys",
+          "type": "toggle",
+          "description": "Whether to provide raw Pipedrive field keys and option IDs instead of human-readable names",
+          "defaultValue": false
+        }
+      ],
+      "group": "Organization",
+      "description": "Create an organization"
+    },
+    {
+      "id": "organization_delete",
+      "label": "Delete Organization",
+      "method": "DELETE",
+      "path": "/organizations/{organizationId}",
+      "fields": [
+        {
+          "id": "organizationId",
+          "label": "Organization ID",
+          "type": "number",
+          "required": true,
+          "description": "ID of the organization to delete",
+          "defaultValue": 0,
+          "in": "path"
+        }
+      ],
+      "group": "Organization",
+      "description": "Delete an organization"
+    },
+    {
+      "id": "organization_get",
+      "label": "Get Organization",
+      "method": "GET",
+      "path": "/organizations/{organizationId}",
+      "fields": [
+        {
+          "id": "organizationId",
+          "label": "Organization ID",
+          "type": "number",
+          "required": true,
+          "description": "ID of the organization to get",
+          "defaultValue": 0,
+          "in": "path"
+        },
+        {
+          "id": "rawCustomFieldOutput",
+          "label": "Show Raw Field Keys",
+          "type": "toggle",
+          "description": "Whether to show raw Pipedrive field keys and option IDs instead of human-readable names in output",
+          "defaultValue": false
+        }
+      ],
+      "group": "Organization",
+      "description": "Get an organization"
+    },
+    {
+      "id": "organization_get_all",
+      "label": "Get Many Organization",
+      "method": "GET",
+      "path": "/organizations",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "rawCustomFieldOutput",
+          "label": "Show Raw Field Keys",
+          "type": "toggle",
+          "description": "Whether to show raw Pipedrive field keys and option IDs instead of human-readable names in output",
+          "defaultValue": false
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: first_char, filter_id)"
+        }
+      ],
+      "group": "Organization",
+      "description": "Get many organizations"
+    },
+    {
+      "id": "organization_search",
+      "label": "Search Organization",
+      "method": "GET",
+      "path": "/organizations/search",
+      "fields": [
+        {
+          "id": "term",
+          "label": "Term",
+          "type": "text",
+          "required": true,
+          "description": "The search term to look for. Minimum 2 characters (or 1 if using exact_match)."
+        },
+        {
+          "id": "exactMatch",
+          "label": "Exact Match",
+          "type": "toggle",
+          "description": "Whether only full exact matches against the given term are returned. It is not case sensitive.",
+          "defaultValue": false
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: fields)"
+        }
+      ],
+      "group": "Organization",
+      "description": "Search organizations"
+    },
+    {
+      "id": "organization_update",
+      "label": "Update Organization",
+      "method": "PATCH",
+      "path": "/organizations/{organizationId}",
+      "fields": [
+        {
+          "id": "organizationId",
+          "label": "Organization ID",
+          "type": "number",
+          "required": true,
+          "description": "ID of the organization to update",
+          "defaultValue": 0,
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: label_ids, name, owner_id, visible_to, customFields)"
+        },
+        {
+          "id": "rawCustomFieldKeys",
+          "label": "Use Raw Field Keys",
+          "type": "toggle",
+          "description": "Whether to provide raw Pipedrive field keys and option IDs instead of human-readable names",
+          "defaultValue": false
+        }
+      ],
+      "group": "Organization",
+      "description": "Update an organization"
+    },
+    {
+      "id": "person_create",
+      "label": "Create Person",
+      "method": "POST",
+      "path": "/persons",
+      "fields": [
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "The name of the person to create"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: emails, label_ids, org_id, owner_id, phones, visible_to, customFields)"
+        },
+        {
+          "id": "rawCustomFieldKeys",
+          "label": "Use Raw Field Keys",
+          "type": "toggle",
+          "description": "Whether to provide raw Pipedrive field keys and option IDs instead of human-readable names",
+          "defaultValue": false
+        }
+      ],
+      "group": "Person",
+      "description": "Create a person"
+    },
+    {
+      "id": "person_delete",
+      "label": "Delete Person",
+      "method": "DELETE",
+      "path": "/persons/{personId}",
+      "fields": [
+        {
+          "id": "personId",
+          "label": "Person ID",
+          "type": "number",
+          "required": true,
+          "description": "ID of the person to delete",
+          "defaultValue": 0,
+          "in": "path"
+        }
+      ],
+      "group": "Person",
+      "description": "Delete a person"
+    },
+    {
+      "id": "person_get",
+      "label": "Get Person",
+      "method": "GET",
+      "path": "/persons/{personId}",
+      "fields": [
+        {
+          "id": "personId",
+          "label": "Person ID",
+          "type": "number",
+          "required": true,
+          "description": "ID of the person to get",
+          "defaultValue": 0,
+          "in": "path"
+        },
+        {
+          "id": "rawCustomFieldOutput",
+          "label": "Show Raw Field Keys",
+          "type": "toggle",
+          "description": "Whether to show raw Pipedrive field keys and option IDs instead of human-readable names in output",
+          "defaultValue": false
+        }
+      ],
+      "group": "Person",
+      "description": "Get a person"
+    },
+    {
+      "id": "person_get_all",
+      "label": "Get Many Person",
+      "method": "GET",
+      "path": "/persons",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "rawCustomFieldOutput",
+          "label": "Show Raw Field Keys",
+          "type": "toggle",
+          "description": "Whether to show raw Pipedrive field keys and option IDs instead of human-readable names in output",
+          "defaultValue": false
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: first_char, filter_id)"
+        }
+      ],
+      "group": "Person",
+      "description": "Get many persons"
+    },
+    {
+      "id": "person_search",
+      "label": "Search Person",
+      "method": "GET",
+      "path": "/persons/search",
+      "fields": [
+        {
+          "id": "term",
+          "label": "Term",
+          "type": "text",
+          "required": true,
+          "description": "The search term to look for. Minimum 2 characters (or 1 if using exact_match)."
+        },
+        {
+          "id": "exactMatch",
+          "label": "Exact Match",
+          "type": "toggle",
+          "description": "Whether only full exact matches against the given term are returned. It is not case sensitive.",
+          "defaultValue": false
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: includeFields, organizationId, fields)"
+        }
+      ],
+      "group": "Person",
+      "description": "Search persons"
+    },
+    {
+      "id": "person_update",
+      "label": "Update Person",
+      "method": "PATCH",
+      "path": "/persons/{personId}",
+      "fields": [
+        {
+          "id": "personId",
+          "label": "Person ID",
+          "type": "number",
+          "required": true,
+          "description": "ID of the person to update",
+          "defaultValue": 0,
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: emails, label_ids, name, org_id, owner_id, phones, visible_to, customFields)"
+        },
+        {
+          "id": "rawCustomFieldKeys",
+          "label": "Use Raw Field Keys",
+          "type": "toggle",
+          "description": "Whether to provide raw Pipedrive field keys and option IDs instead of human-readable names",
+          "defaultValue": false
+        }
+      ],
+      "group": "Person",
+      "description": "Update a person"
+    },
+    {
+      "id": "product_create",
+      "label": "Create Product",
+      "method": "POST",
+      "path": "/products",
+      "fields": [
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "The name of the product"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: code, owner_id, prices, tax, unit, visible_to, customFields)"
+        },
+        {
+          "id": "rawCustomFieldKeys",
+          "label": "Use Raw Field Keys",
+          "type": "toggle",
+          "description": "Whether to provide raw Pipedrive field keys and option IDs instead of human-readable names",
+          "defaultValue": false
+        }
+      ],
+      "group": "Product",
+      "description": "Create a product"
+    },
+    {
+      "id": "product_delete",
+      "label": "Delete Product",
+      "method": "DELETE",
+      "path": "/products/{productId}",
+      "fields": [
+        {
+          "id": "productId",
+          "label": "Product ID",
+          "type": "number",
+          "required": true,
+          "description": "ID of the product to delete",
+          "defaultValue": 0,
+          "in": "path"
+        }
+      ],
+      "group": "Product",
+      "description": "Delete a product"
+    },
+    {
+      "id": "product_get",
+      "label": "Get Product",
+      "method": "GET",
+      "path": "/products/{productId}",
+      "fields": [
+        {
+          "id": "productId",
+          "label": "Product ID",
+          "type": "number",
+          "required": true,
+          "description": "ID of the product to get",
+          "defaultValue": 0,
+          "in": "path"
+        },
+        {
+          "id": "rawCustomFieldOutput",
+          "label": "Show Raw Field Keys",
+          "type": "toggle",
+          "description": "Whether to show raw Pipedrive field keys and option IDs instead of human-readable names in output",
+          "defaultValue": false
+        }
+      ],
+      "group": "Product",
+      "description": "Get a product"
+    },
+    {
+      "id": "product_get_all",
+      "label": "Get Many Product",
+      "method": "GET",
+      "path": "/products",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "rawCustomFieldOutput",
+          "label": "Show Raw Field Keys",
+          "type": "toggle",
+          "description": "Whether to show raw Pipedrive field keys and option IDs instead of human-readable names in output",
+          "defaultValue": false
+        }
+      ],
+      "group": "Product",
+      "description": "Get many products"
+    },
+    {
+      "id": "product_search",
+      "label": "Search Product",
+      "method": "GET",
+      "path": "/products/search",
+      "fields": [
+        {
+          "id": "term",
+          "label": "Term",
+          "type": "text",
+          "required": true,
+          "description": "The search term to look for. Minimum 2 characters (or 1 if using exact_match)."
+        },
+        {
+          "id": "exactMatch",
+          "label": "Exact Match",
+          "type": "toggle",
+          "description": "Whether only full exact matches against the given term are returned. It is not case sensitive.",
+          "defaultValue": false
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: includeFields, fields)"
+        }
+      ],
+      "group": "Product",
+      "description": "Search products"
+    },
+    {
+      "id": "product_update",
+      "label": "Update Product",
+      "method": "PATCH",
+      "path": "/products/{productId}",
+      "fields": [
+        {
+          "id": "productId",
+          "label": "Product ID",
+          "type": "number",
+          "required": true,
+          "description": "ID of the product to update",
+          "defaultValue": 0,
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: code, name, owner_id, prices, tax, unit, visible_to, customFields)"
+        },
+        {
+          "id": "rawCustomFieldKeys",
+          "label": "Use Raw Field Keys",
+          "type": "toggle",
+          "description": "Whether to provide raw Pipedrive field keys and option IDs instead of human-readable names",
+          "defaultValue": false
+        }
+      ],
+      "group": "Product",
+      "description": "Update a product"
+    }
+  ]
 }

@@ -12,17 +12,19 @@
  *     credentialId?, __label? }
  *
  * - No `presetId` yet → searchable picker over the preset summaries.
- * - With `presetId`     → locked brand header, action select over the
- *   preset's endpoints, the selected endpoint's fields rendered via
- *   ForgeFieldRenderer (AppPresetField maps 1:1 onto ForgeField), and a
- *   CredentialSelect bound to `preset.auth.credentialType`.
+ * - With `presetId`     → locked brand header, an action picker over the
+ *   preset's endpoints (flat Select for ≤12 endpoints, searchable grouped
+ *   list above that — grouped by the optional `endpoint.group` resource
+ *   name), the selected endpoint's fields rendered via ForgeFieldRenderer
+ *   (AppPresetField maps 1:1 onto ForgeField), and a CredentialSelect bound
+ *   to `preset.auth.credentialType`.
  *
  * The Test runner (TestNodePanel) is rendered by BlockSettingsPanel directly
  * below this body for every block, so it is intentionally not duplicated here.
  */
 
 import { useEffect, useMemo, useState } from 'react';
-import { KeyRound, Package, RefreshCw, Search, Zap } from 'lucide-react';
+import { Check, KeyRound, Package, RefreshCw, Search, Zap } from 'lucide-react';
 
 import {
   Alert,
@@ -45,6 +47,7 @@ import {
 } from '@/lib/sabflow/app-presets/client';
 import type {
   AppPreset,
+  AppPresetEndpoint,
   AppPresetField,
   AppPresetSummary,
 } from '@/lib/sabflow/app-presets/types';
@@ -65,6 +68,32 @@ type Props = {
 /* ── Helpers ─────────────────────────────────────────────────────────────── */
 
 const SIX_MONTHS_MS = 1000 * 60 * 60 * 24 * 182;
+
+/** Above this many endpoints the flat Action Select becomes a searchable, grouped picker. */
+const LARGE_PRESET_THRESHOLD = 12;
+
+/** Auto-imported endpoints whose path could not be verified carry this description prefix. */
+const UNVERIFIED_PREFIX = '[unverified path]';
+
+const GROUP_FALLBACK = 'General';
+
+/** Resource group for an endpoint — `group` is optional (n8n resource name) with a 'General' fallback. */
+function endpointGroup(e: AppPresetEndpoint): string {
+  const g = (e as AppPresetEndpoint & { group?: string }).group;
+  return typeof g === 'string' && g.trim() ? g.trim() : GROUP_FALLBACK;
+}
+
+function isUnverifiedPath(e: AppPresetEndpoint): boolean {
+  return (e.description ?? '').startsWith(UNVERIFIED_PREFIX);
+}
+
+/** Endpoint description with the `[unverified path]` marker stripped (the chip conveys it instead). */
+function endpointDescription(e: AppPresetEndpoint): string | undefined {
+  const d = e.description?.trim();
+  if (!d) return undefined;
+  const clean = d.startsWith(UNVERIFIED_PREFIX) ? d.slice(UNVERIFIED_PREFIX.length).trim() : d;
+  return clean || undefined;
+}
 
 function isStale(lastVerified: string | undefined): boolean {
   if (!lastVerified) return false;
@@ -369,27 +398,48 @@ function PresetEditor({
 
       {/* ── Action + fields ───────────────────────────────── */}
       <PanelSection icon="zap" title="Configuration">
-        <Field label="Action">
-          <Select
-            value={selectedEndpoint?.id}
-            onValueChange={(id) => onChange({ actionId: id })}
-          >
-            <SelectTrigger aria-label="Action">
-              <SelectValue placeholder="Select an action" />
-            </SelectTrigger>
-            <SelectContent>
-              {preset.endpoints.map((e) => (
-                <SelectItem key={e.id} value={e.id}>
-                  {e.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </Field>
+        {preset.endpoints.length > LARGE_PRESET_THRESHOLD ? (
+          <EndpointPicker
+            endpoints={preset.endpoints}
+            selectedId={selectedEndpoint?.id}
+            onSelect={(id) => onChange({ actionId: id })}
+          />
+        ) : (
+          <Field label="Action">
+            <Select
+              value={selectedEndpoint?.id}
+              onValueChange={(id) => onChange({ actionId: id })}
+            >
+              <SelectTrigger aria-label="Action">
+                <SelectValue placeholder="Select an action" />
+              </SelectTrigger>
+              <SelectContent>
+                {preset.endpoints.map((e) => (
+                  <SelectItem key={e.id} value={e.id}>
+                    {e.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Field>
+        )}
 
-        {selectedEndpoint?.description && (
+        {/* Method + path of whatever the run will actually call. */}
+        {selectedEndpoint && (
+          <p className="flex items-center gap-1.5 font-mono text-[10.5px] text-[var(--st-text-tertiary)]">
+            <span className="shrink-0 font-semibold">{selectedEndpoint.method}</span>
+            <span className="truncate">{selectedEndpoint.path}</span>
+            {isUnverifiedPath(selectedEndpoint) && (
+              <Badge tone="warning" className="shrink-0 font-sans !text-[9px]">
+                path unverified
+              </Badge>
+            )}
+          </p>
+        )}
+
+        {selectedEndpoint && endpointDescription(selectedEndpoint) && (
           <p className="text-[11.5px] leading-relaxed text-[var(--st-text-tertiary)]">
-            {selectedEndpoint.description}
+            {endpointDescription(selectedEndpoint)}
           </p>
         )}
 
@@ -421,6 +471,118 @@ function PresetEditor({
         )}
       </PanelSection>
     </div>
+  );
+}
+
+/* ── Endpoint picker (large presets: search + grouped list) ──────────────── */
+
+function EndpointPicker({
+  endpoints,
+  selectedId,
+  onSelect,
+}: {
+  endpoints: AppPresetEndpoint[];
+  selectedId?: string;
+  onSelect: (id: string) => void;
+}) {
+  const [query, setQuery] = useState('');
+
+  /** Filtered endpoints bucketed by group, preserving the preset's order. */
+  const groups = useMemo(() => {
+    const lower = query.trim().toLowerCase();
+    const filtered = lower
+      ? endpoints.filter(
+          (e) =>
+            e.label.toLowerCase().includes(lower) ||
+            (e.description ?? '').toLowerCase().includes(lower) ||
+            e.id.toLowerCase().includes(lower) ||
+            e.path.toLowerCase().includes(lower) ||
+            endpointGroup(e).toLowerCase().includes(lower),
+        )
+      : endpoints;
+    const map = new Map<string, AppPresetEndpoint[]>();
+    for (const e of filtered) {
+      const group = endpointGroup(e);
+      const bucket = map.get(group);
+      if (bucket) bucket.push(e);
+      else map.set(group, [e]);
+    }
+    return [...map.entries()];
+  }, [endpoints, query]);
+
+  return (
+    <Field label="Action">
+      <div className="space-y-2">
+        <Input
+          inputSize="sm"
+          value={query}
+          placeholder={`Search ${endpoints.length} actions...`}
+          iconLeft={Search}
+          aria-label="Search actions"
+          onChange={(e) => setQuery(e.target.value)}
+        />
+
+        {groups.length === 0 ? (
+          <p className="text-[11.5px] text-[var(--st-text-tertiary)]">
+            No actions match &quot;{query}&quot;.
+          </p>
+        ) : (
+          <div
+            role="listbox"
+            aria-label="Actions"
+            className="max-h-64 overflow-y-auto rounded-[var(--st-radius)] border border-[var(--st-border)]"
+          >
+            {groups.map(([group, list]) => (
+              <div key={group}>
+                <div className="sticky top-0 z-[1] border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-1 text-[10px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
+                  {group}
+                </div>
+                {list.map((e) => {
+                  const selected = e.id === selectedId;
+                  return (
+                    <button
+                      key={e.id}
+                      type="button"
+                      role="option"
+                      aria-selected={selected}
+                      className={`flex w-full items-center gap-2 px-3 py-1.5 text-left transition-colors ${
+                        selected
+                          ? 'bg-[var(--st-bg-muted)]'
+                          : 'hover:bg-[var(--st-bg-secondary)]'
+                      }`}
+                      onClick={() => onSelect(e.id)}
+                    >
+                      <span className="min-w-0 flex-1">
+                        <span className="flex items-center gap-1.5">
+                          <span className="truncate text-[12px] font-medium text-[var(--st-text)]">
+                            {e.label}
+                          </span>
+                          {isUnverifiedPath(e) && (
+                            <Badge tone="warning" className="shrink-0 !text-[9px]">
+                              path unverified
+                            </Badge>
+                          )}
+                        </span>
+                        <span className="block truncate font-mono text-[10px] text-[var(--st-text-tertiary)]">
+                          {e.method} {e.path}
+                        </span>
+                      </span>
+                      {selected && (
+                        <Check
+                          className="h-3.5 w-3.5 shrink-0 text-[var(--st-text-secondary)]"
+                          strokeWidth={2}
+                          aria-hidden="true"
+                        />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </Field>
   );
 }
 

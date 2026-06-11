@@ -4,8 +4,8 @@
   "description": "Consume Zendesk API",
   "category": "support",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 8,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -16,107 +16,734 @@
       "credentialType": "http_header_auth"
     }
   },
-  "baseUrl": "",
+  "baseUrl": "https://{subdomain}.zendesk.com/api/v2",
   "endpoints": [
     {
-      "id": "ticket_default",
-      "label": "List Ticket",
+      "id": "ticket_create",
+      "label": "Create Ticket",
+      "method": "POST",
+      "path": "/tickets",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your Zendesk account (host token in the API base URL)"
+        },
+        {
+          "id": "description",
+          "label": "Description",
+          "type": "text",
+          "required": true,
+          "description": "The first comment on the ticket"
+        },
+        {
+          "id": "jsonParameters",
+          "label": "JSON Parameters",
+          "type": "toggle",
+          "defaultValue": false
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: customFieldsUi, externalId, group, recipient, status, subject, tags, type)"
+        },
+        {
+          "id": "additionalFieldsJson",
+          "label": "Additional Fields",
+          "type": "json",
+          "description": "Object of values to set as described here"
+        }
+      ],
+      "group": "Ticket",
+      "description": "Create a ticket"
+    },
+    {
+      "id": "ticket_delete",
+      "label": "Delete Ticket",
+      "method": "DELETE",
+      "path": "/ticket",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your Zendesk account (host token in the API base URL)"
+        },
+        {
+          "id": "ticketType",
+          "label": "Ticket Type",
+          "type": "select",
+          "required": true,
+          "defaultValue": "regular",
+          "options": [
+            {
+              "value": "regular",
+              "label": "Regular"
+            },
+            {
+              "value": "suspended",
+              "label": "Suspended"
+            }
+          ]
+        },
+        {
+          "id": "id",
+          "label": "Ticket ID",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "group": "Ticket",
+      "description": "[unverified path] Delete a ticket"
+    },
+    {
+      "id": "ticket_get",
+      "label": "Get Ticket",
       "method": "GET",
       "path": "/ticket",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your Zendesk account (host token in the API base URL)"
+        },
+        {
+          "id": "ticketType",
+          "label": "Ticket Type",
           "type": "select",
-          "in": "query",
-          "defaultValue": "apiToken",
+          "required": true,
+          "defaultValue": "regular",
           "options": [
             {
-              "value": "apiToken",
-              "label": "API Token"
+              "value": "regular",
+              "label": "Regular"
             },
             {
-              "value": "oAuth2",
-              "label": "OAuth2"
+              "value": "suspended",
+              "label": "Suspended"
             }
           ]
+        },
+        {
+          "id": "id",
+          "label": "Ticket ID",
+          "type": "text",
+          "required": true
         }
-      ]
+      ],
+      "group": "Ticket",
+      "description": "[unverified path] Get a ticket"
     },
     {
-      "id": "ticket_field_default",
-      "label": "List TicketField",
+      "id": "ticket_get_all",
+      "label": "Get Many Ticket",
       "method": "GET",
-      "path": "/ticketField",
+      "path": "/ticket",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your Zendesk account (host token in the API base URL)"
+        },
+        {
+          "id": "ticketType",
+          "label": "Ticket Type",
           "type": "select",
-          "in": "query",
-          "defaultValue": "apiToken",
+          "required": true,
+          "defaultValue": "regular",
           "options": [
             {
-              "value": "apiToken",
-              "label": "API Token"
+              "value": "regular",
+              "label": "Regular"
             },
             {
-              "value": "oAuth2",
-              "label": "OAuth2"
+              "value": "suspended",
+              "label": "Suspended"
             }
           ]
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: group, query, sortBy, sortOrder, status)"
         }
-      ]
+      ],
+      "group": "Ticket",
+      "description": "[unverified path] Get many tickets"
     },
     {
-      "id": "user_default",
-      "label": "List User",
-      "method": "GET",
-      "path": "/user",
+      "id": "ticket_recover",
+      "label": "Recover Ticket",
+      "method": "PUT",
+      "path": "/suspended_tickets/{ticketId}/recover",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "apiToken",
-          "options": [
-            {
-              "value": "apiToken",
-              "label": "API Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your Zendesk account (host token in the API base URL)"
+        },
+        {
+          "id": "id",
+          "label": "Suspended Ticket ID",
+          "type": "text",
+          "required": true
         }
-      ]
+      ],
+      "group": "Ticket",
+      "description": "Recover a suspended ticket"
     },
     {
-      "id": "organization_default",
-      "label": "List Organization",
-      "method": "GET",
-      "path": "/organization",
+      "id": "ticket_update",
+      "label": "Update Ticket",
+      "method": "PUT",
+      "path": "/tickets/{ticketId}",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "apiToken",
-          "options": [
-            {
-              "value": "apiToken",
-              "label": "API Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your Zendesk account (host token in the API base URL)"
+        },
+        {
+          "id": "id",
+          "label": "Ticket ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "jsonParameters",
+          "label": "JSON Parameters",
+          "type": "toggle",
+          "defaultValue": false
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: assigneeEmail, customFieldsUi, externalId, group, internalNote, publicReply, recipient, status, subject, tags, type)"
+        },
+        {
+          "id": "updateFieldsJson",
+          "label": "Update Fields",
+          "type": "json",
+          "description": "Object of values to update as described here"
         }
-      ]
+      ],
+      "group": "Ticket",
+      "description": "Update a ticket"
+    },
+    {
+      "id": "ticket_field_get",
+      "label": "Get Ticket Field",
+      "method": "GET",
+      "path": "/ticket_fields/{ticketFieldId}",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your Zendesk account (host token in the API base URL)"
+        },
+        {
+          "id": "ticketFieldId",
+          "label": "Ticket Field ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Ticket Field",
+      "description": "Get a ticket field"
+    },
+    {
+      "id": "ticket_field_get_all",
+      "label": "Get Many Ticket Field",
+      "method": "GET",
+      "path": "/ticket_fields",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your Zendesk account (host token in the API base URL)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        }
+      ],
+      "group": "Ticket Field",
+      "description": "Get many system and custom ticket fields"
+    },
+    {
+      "id": "user_create",
+      "label": "Create User",
+      "method": "POST",
+      "path": "/users",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your Zendesk account (host token in the API base URL)"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "The user's name"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: alias, custom_role_id, details, email, external_id, locale, moderator, notes, only_private_comments, organization_id, phone, report_csv, restricted_agent, role, signature, suspended, tags, ticket_restriction, time_zone, userFieldsUi, verified)"
+        }
+      ],
+      "group": "User",
+      "description": "Create a user"
+    },
+    {
+      "id": "user_delete",
+      "label": "Delete User",
+      "method": "DELETE",
+      "path": "/users/{userId}",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your Zendesk account (host token in the API base URL)"
+        },
+        {
+          "id": "id",
+          "label": "User ID",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "group": "User",
+      "description": "Delete a user"
+    },
+    {
+      "id": "user_get",
+      "label": "Get User",
+      "method": "GET",
+      "path": "/users/{userId}",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your Zendesk account (host token in the API base URL)"
+        },
+        {
+          "id": "id",
+          "label": "User ID",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "group": "User",
+      "description": "Get a user"
+    },
+    {
+      "id": "user_get_all",
+      "label": "Get Many User",
+      "method": "GET",
+      "path": "/users",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your Zendesk account (host token in the API base URL)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: role)"
+        }
+      ],
+      "group": "User",
+      "description": "Get many users"
+    },
+    {
+      "id": "user_get_organizations",
+      "label": "Get Organizations User",
+      "method": "GET",
+      "path": "/users/{userId}/organizations",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your Zendesk account (host token in the API base URL)"
+        },
+        {
+          "id": "id",
+          "label": "User ID",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "group": "User",
+      "description": "Get a user's organizations"
+    },
+    {
+      "id": "user_get_related_data",
+      "label": "Get Related Data User",
+      "method": "GET",
+      "path": "/users/{userId}/related",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your Zendesk account (host token in the API base URL)"
+        },
+        {
+          "id": "id",
+          "label": "User ID",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "group": "User",
+      "description": "Get data related to the user"
+    },
+    {
+      "id": "user_search",
+      "label": "Search User",
+      "method": "GET",
+      "path": "/users/search",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your Zendesk account (host token in the API base URL)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: query, external_id)"
+        }
+      ],
+      "group": "User",
+      "description": "Search users"
+    },
+    {
+      "id": "user_update",
+      "label": "Update User",
+      "method": "PUT",
+      "path": "/users/{userId}",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your Zendesk account (host token in the API base URL)"
+        },
+        {
+          "id": "id",
+          "label": "User ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: alias, custom_role_id, details, email, external_id, locale, moderator, name, notes, only_private_comments, organization_id, phone, report_csv, restricted_agent, role, signature, suspended, tags, ticket_restriction, time_zone, userFieldsUi, verified)"
+        }
+      ],
+      "group": "User",
+      "description": "Update a user"
+    },
+    {
+      "id": "organization_count",
+      "label": "Count Organization",
+      "method": "GET",
+      "path": "/organizations/count",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your Zendesk account (host token in the API base URL)"
+        }
+      ],
+      "group": "Organization",
+      "description": "Count organizations"
+    },
+    {
+      "id": "organization_create",
+      "label": "Create Organization",
+      "method": "POST",
+      "path": "/organizations",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your Zendesk account (host token in the API base URL)"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: details, domain_names, notes, organizationFieldsUi, tags)"
+        }
+      ],
+      "group": "Organization",
+      "description": "Create an organization"
+    },
+    {
+      "id": "organization_delete",
+      "label": "Delete Organization",
+      "method": "DELETE",
+      "path": "/organizations/{organizationId}",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your Zendesk account (host token in the API base URL)"
+        },
+        {
+          "id": "id",
+          "label": "Organization ID",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "group": "Organization",
+      "description": "Delete an organization"
+    },
+    {
+      "id": "organization_get",
+      "label": "Get Organization",
+      "method": "GET",
+      "path": "/organizations/{organizationId}",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your Zendesk account (host token in the API base URL)"
+        },
+        {
+          "id": "id",
+          "label": "Organization ID",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "group": "Organization",
+      "description": "Get an organization"
+    },
+    {
+      "id": "organization_get_all",
+      "label": "Get Many Organization",
+      "method": "GET",
+      "path": "/organizations",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your Zendesk account (host token in the API base URL)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        }
+      ],
+      "group": "Organization",
+      "description": "Get many organizations"
+    },
+    {
+      "id": "organization_get_related_data",
+      "label": "Get Related Data Organization",
+      "method": "GET",
+      "path": "/organizations/{organizationId}/related",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your Zendesk account (host token in the API base URL)"
+        },
+        {
+          "id": "id",
+          "label": "Organization ID",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "group": "Organization",
+      "description": "Get data related to the organization"
+    },
+    {
+      "id": "organization_update",
+      "label": "Update Organization",
+      "method": "PUT",
+      "path": "/organizations/{organizationId}",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your Zendesk account (host token in the API base URL)"
+        },
+        {
+          "id": "id",
+          "label": "Organization ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: details, domain_names, name, notes, organizationFieldsUi, tags)"
+        }
+      ],
+      "group": "Organization",
+      "description": "Update a organization"
     }
   ]
 }

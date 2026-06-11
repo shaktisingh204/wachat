@@ -4,42 +4,695 @@
   "description": "Consume the Elastic Security API",
   "category": "data",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 4,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://{host}/api",
   "endpoints": [
     {
-      "id": "case_default",
-      "label": "List Case",
+      "id": "case_create",
+      "label": "Create Case",
+      "method": "POST",
+      "path": "/cases",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Elastic Security server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "title",
+          "label": "Title",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "connectorId",
+          "label": "Connector Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Connectors allow you to send Elastic Security cases into other systems (only ServiceNow, Jira, or IBM Resilient). Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "connectorType",
+          "label": "Connector Type",
+          "type": "select",
+          "required": true,
+          "defaultValue": ".jira",
+          "options": [
+            {
+              "value": ".resilient",
+              "label": "IBM Resilient"
+            },
+            {
+              "value": ".jira",
+              "label": "Jira"
+            },
+            {
+              "value": ".servicenow",
+              "label": "ServiceNow ITSM"
+            }
+          ]
+        },
+        {
+          "id": "issueType",
+          "label": "Issue Type",
+          "type": "text",
+          "required": true,
+          "placeholder": "Task",
+          "description": "Type of the Jira issue to create for this case"
+        },
+        {
+          "id": "priority",
+          "label": "Priority",
+          "type": "text",
+          "required": true,
+          "placeholder": "High",
+          "description": "Priority of the Jira issue to create for this case"
+        },
+        {
+          "id": "urgency",
+          "label": "Urgency",
+          "type": "select",
+          "required": true,
+          "description": "Urgency of the ServiceNow ITSM issue to create for this case",
+          "defaultValue": 1,
+          "options": [
+            {
+              "value": "1",
+              "label": "Low"
+            },
+            {
+              "value": "2",
+              "label": "Medium"
+            },
+            {
+              "value": "3",
+              "label": "High"
+            }
+          ]
+        },
+        {
+          "id": "severity",
+          "label": "Severity",
+          "type": "select",
+          "required": true,
+          "description": "Severity of the ServiceNow ITSM issue to create for this case",
+          "defaultValue": 1,
+          "options": [
+            {
+              "value": "1",
+              "label": "Low"
+            },
+            {
+              "value": "2",
+              "label": "Medium"
+            },
+            {
+              "value": "3",
+              "label": "High"
+            }
+          ]
+        },
+        {
+          "id": "impact",
+          "label": "Impact",
+          "type": "select",
+          "required": true,
+          "description": "Impact of the ServiceNow ITSM issue to create for this case",
+          "defaultValue": 1,
+          "options": [
+            {
+              "value": "1",
+              "label": "Low"
+            },
+            {
+              "value": "2",
+              "label": "Medium"
+            },
+            {
+              "value": "3",
+              "label": "High"
+            }
+          ]
+        },
+        {
+          "id": "category",
+          "label": "Category",
+          "type": "text",
+          "required": true,
+          "placeholder": "Helpdesk",
+          "description": "Category of the ServiceNow ITSM issue to create for this case"
+        },
+        {
+          "id": "issueTypes",
+          "label": "Issue Types",
+          "type": "text",
+          "required": true,
+          "placeholder": "123,456",
+          "description": "Comma-separated list of numerical types of the IBM Resilient issue to create for this case"
+        },
+        {
+          "id": "severityCode",
+          "label": "Severity Code",
+          "type": "number",
+          "required": true,
+          "description": "Severity code of the IBM Resilient issue to create for this case",
+          "defaultValue": 1
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: description, owner, syncAlerts)"
+        }
+      ],
+      "group": "Case",
+      "description": "Create a case"
+    },
+    {
+      "id": "case_delete",
+      "label": "Delete Case",
+      "method": "DELETE",
+      "path": "/cases?ids=[\"{caseId}\"]",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Elastic Security server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "caseId",
+          "label": "Case ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Case",
+      "description": "Delete a case"
+    },
+    {
+      "id": "case_get",
+      "label": "Get Case",
+      "method": "GET",
+      "path": "/cases/{caseId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Elastic Security server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "caseId",
+          "label": "Case ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Case",
+      "description": "Get a case"
+    },
+    {
+      "id": "case_get_all",
+      "label": "Get Many Case",
       "method": "GET",
       "path": "/case",
-      "fields": []
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Elastic Security server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: status, tags)"
+        },
+        {
+          "id": "sortOptions",
+          "label": "Sort",
+          "type": "json",
+          "placeholder": "Add Sort Options",
+          "description": "(JSON object; supported keys: sortOptionsProperties, sortOptionsProperties.sortField, sortOptionsProperties.sortOrder)"
+        }
+      ],
+      "group": "Case",
+      "description": "[unverified path] Retrieve many cases"
     },
     {
-      "id": "case_comment_default",
-      "label": "List CaseComment",
+      "id": "case_get_status",
+      "label": "Get Status Case",
       "method": "GET",
-      "path": "/caseComment",
-      "fields": []
+      "path": "/cases/status",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Elastic Security server, e.g. app.example.com (no https:// prefix)"
+        }
+      ],
+      "group": "Case",
+      "description": "Retrieve a summary of all case activity"
     },
     {
-      "id": "case_tag_default",
-      "label": "List CaseTag",
-      "method": "GET",
-      "path": "/caseTag",
-      "fields": []
+      "id": "case_update",
+      "label": "Update Case",
+      "method": "PATCH",
+      "path": "/cases",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Elastic Security server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "caseId",
+          "label": "Case ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: description, status, syncAlerts, title, version)"
+        }
+      ],
+      "group": "Case",
+      "description": "Update a case"
     },
     {
-      "id": "connector_default",
-      "label": "List Connector",
+      "id": "case_comment_add",
+      "label": "Add Case Comment",
+      "method": "POST",
+      "path": "/cases/{caseId}/comments",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Elastic Security server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "caseId",
+          "label": "Case ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the case containing the comment to retrieve",
+          "in": "path"
+        },
+        {
+          "id": "comment",
+          "label": "Comment",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: owner)"
+        }
+      ],
+      "group": "Case Comment",
+      "description": "Add a comment to a case"
+    },
+    {
+      "id": "case_comment_get",
+      "label": "Get Case Comment",
       "method": "GET",
-      "path": "/connector",
-      "fields": []
+      "path": "/cases/{caseId}/comments/{commentId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Elastic Security server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "caseId",
+          "label": "Case ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the case containing the comment to retrieve",
+          "in": "path"
+        },
+        {
+          "id": "commentId",
+          "label": "Comment ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the case comment to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Case Comment",
+      "description": "Get a case comment"
+    },
+    {
+      "id": "case_comment_get_all",
+      "label": "Get Many Case Comment",
+      "method": "GET",
+      "path": "/cases/{caseId}/comments",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Elastic Security server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "caseId",
+          "label": "Case ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Case Comment",
+      "description": "Retrieve many case comments"
+    },
+    {
+      "id": "case_comment_remove",
+      "label": "Remove Case Comment",
+      "method": "DELETE",
+      "path": "/cases/{caseId}/comments/{commentId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Elastic Security server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "caseId",
+          "label": "Case ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the case containing the comment to remove",
+          "in": "path"
+        },
+        {
+          "id": "commentId",
+          "label": "Comment ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Case Comment",
+      "description": "Remove a comment from a case"
+    },
+    {
+      "id": "case_comment_update",
+      "label": "Update Case Comment",
+      "method": "PATCH",
+      "path": "/cases/{caseId}/comments",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Elastic Security server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "caseId",
+          "label": "Case ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the case containing the comment to retrieve",
+          "in": "path"
+        },
+        {
+          "id": "commentId",
+          "label": "Comment ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "comment",
+          "label": "Comment",
+          "type": "text",
+          "required": true,
+          "description": "Text to replace current comment message"
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        }
+      ],
+      "group": "Case Comment",
+      "description": "Update a comment in a case"
+    },
+    {
+      "id": "case_tag_add",
+      "label": "Add Case Tag",
+      "method": "PATCH",
+      "path": "/cases",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Elastic Security server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "caseId",
+          "label": "Case ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "tag",
+          "label": "Tag Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Tag to attach to the case. Choose from the list, or specify an ID using an expression."
+        }
+      ],
+      "group": "Case Tag",
+      "description": "Add a tag to a case"
+    },
+    {
+      "id": "case_tag_remove",
+      "label": "Remove Case Tag",
+      "method": "GET",
+      "path": "/cases/{caseId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Elastic Security server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "caseId",
+          "label": "Case ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "tag",
+          "label": "Tag Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        }
+      ],
+      "group": "Case Tag",
+      "description": "Remove a tag from a case"
+    },
+    {
+      "id": "connector_create",
+      "label": "Create Connector",
+      "method": "POST",
+      "path": "/actions/connector",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Elastic Security server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "name",
+          "label": "Connector Name",
+          "type": "text",
+          "required": true,
+          "description": "Connectors allow you to send Elastic Security cases into other systems (only ServiceNow, Jira, or IBM Resilient)"
+        },
+        {
+          "id": "connectorType",
+          "label": "Connector Type",
+          "type": "select",
+          "required": true,
+          "defaultValue": ".jira",
+          "options": [
+            {
+              "value": ".resilient",
+              "label": "IBM Resilient"
+            },
+            {
+              "value": ".jira",
+              "label": "Jira"
+            },
+            {
+              "value": ".servicenow",
+              "label": "ServiceNow ITSM"
+            }
+          ]
+        },
+        {
+          "id": "apiUrl",
+          "label": "API URL",
+          "type": "text",
+          "required": true,
+          "description": "URL of the third-party instance"
+        },
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "required": true,
+          "placeholder": "name@email.com",
+          "description": "Jira-registered email"
+        },
+        {
+          "id": "apiToken",
+          "label": "API Token",
+          "type": "password",
+          "required": true,
+          "description": "Jira API token"
+        },
+        {
+          "id": "projectKey",
+          "label": "Project Key",
+          "type": "text",
+          "required": true,
+          "description": "Jira Project Key"
+        },
+        {
+          "id": "username",
+          "label": "Username",
+          "type": "text",
+          "required": true,
+          "description": "ServiceNow ITSM username"
+        },
+        {
+          "id": "password",
+          "label": "Password",
+          "type": "password",
+          "required": true,
+          "description": "ServiceNow ITSM password"
+        },
+        {
+          "id": "apiKeyId",
+          "label": "API Key ID",
+          "type": "password",
+          "required": true,
+          "description": "IBM Resilient API key ID"
+        },
+        {
+          "id": "apiKeySecret",
+          "label": "API Key Secret",
+          "type": "password",
+          "required": true,
+          "description": "IBM Resilient API key secret"
+        },
+        {
+          "id": "orgId",
+          "label": "Organization ID",
+          "type": "text",
+          "required": true,
+          "description": "IBM Resilient organization ID"
+        }
+      ],
+      "group": "Connector",
+      "description": "Create a connector"
     }
   ]
 }

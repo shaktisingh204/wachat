@@ -4,8 +4,8 @@
   "description": "Sends data to Discord",
   "category": "communication",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -15,6 +15,689 @@
       "type": "none"
     }
   },
-  "baseUrl": "",
-  "endpoints": []
+  "baseUrl": "https://discord.com/api/v10",
+  "endpoints": [
+    {
+      "id": "message_delete_message",
+      "label": "Delete Message",
+      "method": "DELETE",
+      "path": "/channels/{channelId}/messages/{messageId}",
+      "fields": [
+        {
+          "id": "guildId",
+          "label": "Server",
+          "type": "text",
+          "required": true,
+          "description": "Select the server (guild) that your bot is connected to (provide the ID)"
+        },
+        {
+          "id": "channelId",
+          "label": "Channel",
+          "type": "text",
+          "required": true,
+          "description": "Select the channel by name, URL, or ID (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "messageId",
+          "label": "Message ID",
+          "type": "text",
+          "required": true,
+          "placeholder": "e.g. 1057576506244726804",
+          "description": "The ID of the message",
+          "in": "path"
+        }
+      ],
+      "group": "Message",
+      "description": "Delete a message in a channel"
+    },
+    {
+      "id": "message_get",
+      "label": "Get Message",
+      "method": "GET",
+      "path": "/channels/{channelId}/messages/{messageId}",
+      "fields": [
+        {
+          "id": "guildId",
+          "label": "Server",
+          "type": "text",
+          "required": true,
+          "description": "Select the server (guild) that your bot is connected to (provide the ID)"
+        },
+        {
+          "id": "channelId",
+          "label": "Channel",
+          "type": "text",
+          "required": true,
+          "description": "Select the channel by name, URL, or ID (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "messageId",
+          "label": "Message ID",
+          "type": "text",
+          "required": true,
+          "placeholder": "e.g. 1057576506244726804",
+          "description": "The ID of the message",
+          "in": "path"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: simplify)"
+        }
+      ],
+      "group": "Message",
+      "description": "Get a message in a channel"
+    },
+    {
+      "id": "message_get_all",
+      "label": "Get Many Message",
+      "method": "GET",
+      "path": "/channels/{channelId}/messages",
+      "fields": [
+        {
+          "id": "guildId",
+          "label": "Server",
+          "type": "text",
+          "required": true,
+          "description": "Select the server (guild) that your bot is connected to (provide the ID)"
+        },
+        {
+          "id": "channelId",
+          "label": "Channel",
+          "type": "text",
+          "required": true,
+          "description": "Select the channel by name, URL, or ID (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: simplify)"
+        }
+      ],
+      "group": "Message",
+      "description": "Retrieve the latest messages in a channel"
+    },
+    {
+      "id": "message_react",
+      "label": "React with Emoji Message",
+      "method": "PUT",
+      "path": "/channels/{channelId}/messages/{messageId}/reactions/${encodeURIComponent(emoji",
+      "fields": [
+        {
+          "id": "guildId",
+          "label": "Server",
+          "type": "text",
+          "required": true,
+          "description": "Select the server (guild) that your bot is connected to (provide the ID)"
+        },
+        {
+          "id": "channelId",
+          "label": "Channel",
+          "type": "text",
+          "required": true,
+          "description": "Select the channel by name, URL, or ID (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "messageId",
+          "label": "Message ID",
+          "type": "text",
+          "required": true,
+          "placeholder": "e.g. 1057576506244726804",
+          "description": "The ID of the message",
+          "in": "path"
+        },
+        {
+          "id": "emoji",
+          "label": "Emoji",
+          "type": "text",
+          "required": true,
+          "description": "The emoji you want to react with"
+        }
+      ],
+      "group": "Message",
+      "description": "React to a message with an emoji"
+    },
+    {
+      "id": "message_send",
+      "label": "Send Message",
+      "method": "POST",
+      "path": "/message",
+      "fields": [
+        {
+          "id": "guildId",
+          "label": "Server",
+          "type": "text",
+          "required": true,
+          "description": "Select the server (guild) that your bot is connected to (provide the ID)"
+        },
+        {
+          "id": "sendTo",
+          "label": "Send To",
+          "type": "select",
+          "description": "Send message to a channel or DM to a user",
+          "defaultValue": "channel",
+          "options": [
+            {
+              "value": "user",
+              "label": "User"
+            },
+            {
+              "value": "channel",
+              "label": "Channel"
+            }
+          ]
+        },
+        {
+          "id": "userId",
+          "label": "User",
+          "type": "text",
+          "description": "Select the user you want to assign a role to (provide the ID)"
+        },
+        {
+          "id": "channelId",
+          "label": "Channel",
+          "type": "text",
+          "required": true,
+          "description": "Select the channel by name, URL, or ID (provide the ID)"
+        },
+        {
+          "id": "content",
+          "label": "Message",
+          "type": "textarea",
+          "placeholder": "e.g. My message",
+          "description": "The content of the message (up to 2000 characters)"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: flags, message_reference, tts)"
+        },
+        {
+          "id": "embeds",
+          "label": "Embeds",
+          "type": "json",
+          "placeholder": "Add Embeds",
+          "description": "(JSON object; supported keys: values, values.inputMethod, values.json, values.description, values.author, values.color, values.timestamp, values.title, values.url, values.image, values.thumbnail, values.video)"
+        },
+        {
+          "id": "files",
+          "label": "Files",
+          "type": "json",
+          "placeholder": "Add Files",
+          "description": "(JSON object; supported keys: values, values.inputFieldName)"
+        }
+      ],
+      "group": "Message",
+      "description": "[unverified path] Send a message to a channel, thread, or member"
+    },
+    {
+      "id": "message_send_and_wait_operation",
+      "label": "Send and Wait for Response Message",
+      "method": "POST",
+      "path": "/message",
+      "fields": [
+        {
+          "id": "guildId",
+          "label": "Server",
+          "type": "text",
+          "required": true,
+          "description": "Select the server (guild) that your bot is connected to (provide the ID)"
+        }
+      ],
+      "group": "Message",
+      "description": "[unverified path] Send a message and wait for response"
+    },
+    {
+      "id": "channel_create",
+      "label": "Create Channel",
+      "method": "POST",
+      "path": "/guilds/{guildId}/channels",
+      "fields": [
+        {
+          "id": "guildId",
+          "label": "Server",
+          "type": "text",
+          "required": true,
+          "description": "Select the server (guild) that your bot is connected to (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "placeholder": "e.g. new-channel",
+          "description": "The name of the channel"
+        },
+        {
+          "id": "type",
+          "label": "Type",
+          "type": "select",
+          "required": true,
+          "description": "The type of channel to create",
+          "defaultValue": "0",
+          "options": [
+            {
+              "value": "0",
+              "label": "Guild Text"
+            },
+            {
+              "value": "2",
+              "label": "Guild Voice"
+            },
+            {
+              "value": "4",
+              "label": "Guild Category"
+            }
+          ]
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: nsfw, bitrate, categoryId, position, rate_limit_per_user, topic, user_limit)"
+        }
+      ],
+      "group": "Channel",
+      "description": "Create a new channel"
+    },
+    {
+      "id": "channel_delete_channel",
+      "label": "Delete Channel",
+      "method": "DELETE",
+      "path": "/channels/{channelId}",
+      "fields": [
+        {
+          "id": "guildId",
+          "label": "Server",
+          "type": "text",
+          "required": true,
+          "description": "Select the server (guild) that your bot is connected to (provide the ID)"
+        },
+        {
+          "id": "channelId",
+          "label": "Channel",
+          "type": "text",
+          "required": true,
+          "description": "Select the channel by name, URL, or ID (provide the ID)",
+          "in": "path"
+        }
+      ],
+      "group": "Channel",
+      "description": "Delete a channel"
+    },
+    {
+      "id": "channel_get",
+      "label": "Get Channel",
+      "method": "GET",
+      "path": "/channels/{channelId}",
+      "fields": [
+        {
+          "id": "guildId",
+          "label": "Server",
+          "type": "text",
+          "required": true,
+          "description": "Select the server (guild) that your bot is connected to (provide the ID)"
+        },
+        {
+          "id": "channelId",
+          "label": "Channel",
+          "type": "text",
+          "required": true,
+          "description": "Select the channel by name, URL, or ID (provide the ID)",
+          "in": "path"
+        }
+      ],
+      "group": "Channel",
+      "description": "Get a channel"
+    },
+    {
+      "id": "channel_get_all",
+      "label": "Get Many Channel",
+      "method": "GET",
+      "path": "/guilds/{guildId}/channels",
+      "fields": [
+        {
+          "id": "guildId",
+          "label": "Server",
+          "type": "text",
+          "required": true,
+          "description": "Select the server (guild) that your bot is connected to (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: filter)"
+        }
+      ],
+      "group": "Channel",
+      "description": "Retrieve the channels of a server"
+    },
+    {
+      "id": "channel_update",
+      "label": "Update Channel",
+      "method": "PATCH",
+      "path": "/channels/{channelId}",
+      "fields": [
+        {
+          "id": "guildId",
+          "label": "Server",
+          "type": "text",
+          "required": true,
+          "description": "Select the server (guild) that your bot is connected to (provide the ID)"
+        },
+        {
+          "id": "channelId",
+          "label": "Channel",
+          "type": "text",
+          "required": true,
+          "description": "Select the channel by name, URL, or ID (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "placeholder": "e.g. new-channel-name",
+          "description": "The new name of the channel. Fill this field only if you want to change the channel's name."
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: nsfw, bitrate, categoryId, position, rate_limit_per_user, topic, user_limit)"
+        }
+      ],
+      "group": "Channel",
+      "description": "Update a channel"
+    },
+    {
+      "id": "member_get_all",
+      "label": "Get Many Member",
+      "method": "GET",
+      "path": "/guilds/{guildId}/members",
+      "fields": [
+        {
+          "id": "guildId",
+          "label": "Server",
+          "type": "text",
+          "required": true,
+          "description": "Select the server (guild) that your bot is connected to (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "after",
+          "label": "After",
+          "type": "text",
+          "placeholder": "e.g. 786953432728469534",
+          "description": "The ID of the user after which to return the members"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: simplify)"
+        }
+      ],
+      "group": "Member",
+      "description": "Retrieve the members of a server"
+    },
+    {
+      "id": "member_role_add",
+      "label": "Role Add Member",
+      "method": "PUT",
+      "path": "/guilds/{guildId}/members/{userId}/roles/{roleId}",
+      "fields": [
+        {
+          "id": "guildId",
+          "label": "Server",
+          "type": "text",
+          "required": true,
+          "description": "Select the server (guild) that your bot is connected to (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "userId",
+          "label": "User",
+          "type": "text",
+          "description": "Select the user you want to assign a role to (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "role",
+          "label": "Role",
+          "type": "select",
+          "required": true,
+          "description": "Select the roles you want to add to the user (multiple values: comma-separated)"
+        }
+      ],
+      "group": "Member",
+      "description": "Add a role to a member"
+    },
+    {
+      "id": "member_role_remove",
+      "label": "Role Remove Member",
+      "method": "DELETE",
+      "path": "/guilds/{guildId}/members/{userId}/roles/{roleId}",
+      "fields": [
+        {
+          "id": "guildId",
+          "label": "Server",
+          "type": "text",
+          "required": true,
+          "description": "Select the server (guild) that your bot is connected to (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "userId",
+          "label": "User",
+          "type": "text",
+          "description": "Select the user you want to assign a role to (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "role",
+          "label": "Role",
+          "type": "select",
+          "required": true,
+          "description": "Select the roles you want to add to the user (multiple values: comma-separated)"
+        }
+      ],
+      "group": "Member",
+      "description": "Remove a role from a member"
+    },
+    {
+      "id": "channel_send_legacy",
+      "label": "Send a Message Channel",
+      "method": "POST",
+      "path": "/channel",
+      "fields": [
+        {
+          "id": "guildId",
+          "label": "Server",
+          "type": "text",
+          "required": true,
+          "description": "Select the server (guild) that your bot is connected to (provide the ID)"
+        },
+        {
+          "id": "content",
+          "label": "Message",
+          "type": "textarea",
+          "placeholder": "e.g. My message",
+          "description": "The content of the message (up to 2000 characters)"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: avatar_url, flags, tts, username, wait)"
+        },
+        {
+          "id": "embeds",
+          "label": "Embeds",
+          "type": "json",
+          "placeholder": "Add Embeds",
+          "description": "(JSON object; supported keys: values, values.inputMethod, values.json, values.description, values.author, values.color, values.timestamp, values.title, values.url, values.image, values.thumbnail, values.video)"
+        },
+        {
+          "id": "files",
+          "label": "Files",
+          "type": "json",
+          "placeholder": "Add Files",
+          "description": "(JSON object; supported keys: values, values.inputFieldName)"
+        }
+      ],
+      "group": "Channel",
+      "description": "[unverified path] Send a message to a channel using the webhook"
+    },
+    {
+      "id": "message_send_legacy",
+      "label": "Send a Message Message",
+      "method": "POST",
+      "path": "/message",
+      "fields": [
+        {
+          "id": "guildId",
+          "label": "Server",
+          "type": "text",
+          "required": true,
+          "description": "Select the server (guild) that your bot is connected to (provide the ID)"
+        },
+        {
+          "id": "content",
+          "label": "Message",
+          "type": "textarea",
+          "placeholder": "e.g. My message",
+          "description": "The content of the message (up to 2000 characters)"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: avatar_url, flags, tts, username, wait)"
+        },
+        {
+          "id": "embeds",
+          "label": "Embeds",
+          "type": "json",
+          "placeholder": "Add Embeds",
+          "description": "(JSON object; supported keys: values, values.inputMethod, values.json, values.description, values.author, values.color, values.timestamp, values.title, values.url, values.image, values.thumbnail, values.video)"
+        },
+        {
+          "id": "files",
+          "label": "Files",
+          "type": "json",
+          "placeholder": "Add Files",
+          "description": "(JSON object; supported keys: values, values.inputFieldName)"
+        }
+      ],
+      "group": "Message",
+      "description": "[unverified path] Send a message to a channel using the webhook"
+    },
+    {
+      "id": "member_send_legacy",
+      "label": "Send a Message Member",
+      "method": "POST",
+      "path": "/member",
+      "fields": [
+        {
+          "id": "guildId",
+          "label": "Server",
+          "type": "text",
+          "required": true,
+          "description": "Select the server (guild) that your bot is connected to (provide the ID)"
+        },
+        {
+          "id": "content",
+          "label": "Message",
+          "type": "textarea",
+          "placeholder": "e.g. My message",
+          "description": "The content of the message (up to 2000 characters)"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: avatar_url, flags, tts, username, wait)"
+        },
+        {
+          "id": "embeds",
+          "label": "Embeds",
+          "type": "json",
+          "placeholder": "Add Embeds",
+          "description": "(JSON object; supported keys: values, values.inputMethod, values.json, values.description, values.author, values.color, values.timestamp, values.title, values.url, values.image, values.thumbnail, values.video)"
+        },
+        {
+          "id": "files",
+          "label": "Files",
+          "type": "json",
+          "placeholder": "Add Files",
+          "description": "(JSON object; supported keys: values, values.inputFieldName)"
+        }
+      ],
+      "group": "Member",
+      "description": "[unverified path] Send a message to a channel using the webhook"
+    }
+  ]
 }

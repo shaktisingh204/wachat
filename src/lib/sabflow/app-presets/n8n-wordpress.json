@@ -4,26 +4,25 @@
   "description": "Consume Wordpress API",
   "category": "productivity",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 10,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://public-api.wordpress.com/wp/v2/sites",
   "endpoints": [
     {
-      "id": "post_default",
-      "label": "List Post",
-      "method": "GET",
-      "path": "/post",
+      "id": "post_create",
+      "label": "Create Post",
+      "method": "POST",
+      "path": "/posts",
       "fields": [
         {
           "id": "authType",
           "label": "Authentication",
           "type": "select",
-          "in": "query",
           "description": "The authentication method to use",
           "defaultValue": "basicAuth",
           "options": [
@@ -36,20 +35,35 @@
               "label": "OAuth2 (WordPress.com)"
             }
           ]
+        },
+        {
+          "id": "title",
+          "label": "Title",
+          "type": "text",
+          "required": true,
+          "description": "The title for the post"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: authorId, content, slug, password, status, date, commentStatus, pingStatus, format, sticky, categories, tags, postTemplate)"
         }
-      ]
+      ],
+      "group": "Post",
+      "description": "Create a post"
     },
     {
-      "id": "page_default",
-      "label": "List Page",
+      "id": "post_get",
+      "label": "Get Post",
       "method": "GET",
-      "path": "/page",
+      "path": "/posts/{postId}",
       "fields": [
         {
           "id": "authType",
           "label": "Authentication",
           "type": "select",
-          "in": "query",
           "description": "The authentication method to use",
           "defaultValue": "basicAuth",
           "options": [
@@ -62,20 +76,36 @@
               "label": "OAuth2 (WordPress.com)"
             }
           ]
+        },
+        {
+          "id": "postId",
+          "label": "Post ID",
+          "type": "text",
+          "required": true,
+          "description": "Unique identifier for the object",
+          "in": "path"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: password, context)"
         }
-      ]
+      ],
+      "group": "Post",
+      "description": "Get a post"
     },
     {
-      "id": "user_default",
-      "label": "List User",
+      "id": "post_get_all",
+      "label": "Get Many Post",
       "method": "GET",
-      "path": "/user",
+      "path": "/posts",
       "fields": [
         {
           "id": "authType",
           "label": "Authentication",
           "type": "select",
-          "in": "query",
           "description": "The authentication method to use",
           "defaultValue": "basicAuth",
           "options": [
@@ -88,8 +118,455 @@
               "label": "OAuth2 (WordPress.com)"
             }
           ]
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 5
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: after, author, before, categories, context, excludedCategories, excludedTags, order, orderBy, search, status, sticky, tags)"
         }
-      ]
+      ],
+      "group": "Post",
+      "description": "Get many posts"
+    },
+    {
+      "id": "post_update",
+      "label": "Update Post",
+      "method": "POST",
+      "path": "/posts/{postId}",
+      "fields": [
+        {
+          "id": "authType",
+          "label": "Authentication",
+          "type": "select",
+          "description": "The authentication method to use",
+          "defaultValue": "basicAuth",
+          "options": [
+            {
+              "value": "basicAuth",
+              "label": "Basic Auth"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2 (WordPress.com)"
+            }
+          ]
+        },
+        {
+          "id": "postId",
+          "label": "Post ID",
+          "type": "text",
+          "required": true,
+          "description": "Unique identifier for the object",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: authorId, title, content, slug, password, status, date, commentStatus, pingStatus, format, sticky, categories, tags, postTemplate)"
+        }
+      ],
+      "group": "Post",
+      "description": "Update a post"
+    },
+    {
+      "id": "page_create",
+      "label": "Create Page",
+      "method": "POST",
+      "path": "/pages",
+      "fields": [
+        {
+          "id": "authType",
+          "label": "Authentication",
+          "type": "select",
+          "description": "The authentication method to use",
+          "defaultValue": "basicAuth",
+          "options": [
+            {
+              "value": "basicAuth",
+              "label": "Basic Auth"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2 (WordPress.com)"
+            }
+          ]
+        },
+        {
+          "id": "title",
+          "label": "Title",
+          "type": "text",
+          "required": true,
+          "description": "The title for the page"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: authorId, parent, content, slug, password, status, commentStatus, pingStatus, pageTemplate, menuOrder, featuredMediaId)"
+        }
+      ],
+      "group": "Page",
+      "description": "Create a page"
+    },
+    {
+      "id": "page_get",
+      "label": "Get Page",
+      "method": "GET",
+      "path": "/pages/{pageId}",
+      "fields": [
+        {
+          "id": "authType",
+          "label": "Authentication",
+          "type": "select",
+          "description": "The authentication method to use",
+          "defaultValue": "basicAuth",
+          "options": [
+            {
+              "value": "basicAuth",
+              "label": "Basic Auth"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2 (WordPress.com)"
+            }
+          ]
+        },
+        {
+          "id": "pageId",
+          "label": "Page ID",
+          "type": "text",
+          "required": true,
+          "description": "Unique identifier for the object",
+          "in": "path"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: password, context)"
+        }
+      ],
+      "group": "Page",
+      "description": "Get a page"
+    },
+    {
+      "id": "page_get_all",
+      "label": "Get Many Page",
+      "method": "GET",
+      "path": "/pages",
+      "fields": [
+        {
+          "id": "authType",
+          "label": "Authentication",
+          "type": "select",
+          "description": "The authentication method to use",
+          "defaultValue": "basicAuth",
+          "options": [
+            {
+              "value": "basicAuth",
+              "label": "Basic Auth"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2 (WordPress.com)"
+            }
+          ]
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 5
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: after, author, before, context, menuOrder, order, orderBy, page, parent, search, status)"
+        }
+      ],
+      "group": "Page",
+      "description": "Get many pages"
+    },
+    {
+      "id": "page_update",
+      "label": "Update Page",
+      "method": "POST",
+      "path": "/pages/{pageId}",
+      "fields": [
+        {
+          "id": "authType",
+          "label": "Authentication",
+          "type": "select",
+          "description": "The authentication method to use",
+          "defaultValue": "basicAuth",
+          "options": [
+            {
+              "value": "basicAuth",
+              "label": "Basic Auth"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2 (WordPress.com)"
+            }
+          ]
+        },
+        {
+          "id": "pageId",
+          "label": "Page ID",
+          "type": "text",
+          "required": true,
+          "description": "Unique identifier for the object",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: authorId, parent, title, content, slug, password, status, commentStatus, pingStatus, pageTemplate, menuOrder, featuredMediaId)"
+        }
+      ],
+      "group": "Page",
+      "description": "Update a page"
+    },
+    {
+      "id": "user_create",
+      "label": "Create User",
+      "method": "POST",
+      "path": "/users",
+      "fields": [
+        {
+          "id": "authType",
+          "label": "Authentication",
+          "type": "select",
+          "description": "The authentication method to use",
+          "defaultValue": "basicAuth",
+          "options": [
+            {
+              "value": "basicAuth",
+              "label": "Basic Auth"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2 (WordPress.com)"
+            }
+          ]
+        },
+        {
+          "id": "username",
+          "label": "Username",
+          "type": "text",
+          "required": true,
+          "description": "Login name for the user"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "Display name for the user"
+        },
+        {
+          "id": "firstName",
+          "label": "First Name",
+          "type": "text",
+          "required": true,
+          "description": "First name for the user"
+        },
+        {
+          "id": "lastName",
+          "label": "Last Name",
+          "type": "text",
+          "required": true,
+          "description": "Last name for the user"
+        },
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "required": true,
+          "placeholder": "name@email.com",
+          "description": "The email address for the user"
+        },
+        {
+          "id": "password",
+          "label": "Password",
+          "type": "password",
+          "required": true,
+          "description": "Password for the user (never included)"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: url, description, nickname, slug)"
+        }
+      ],
+      "group": "User",
+      "description": "Create a user"
+    },
+    {
+      "id": "user_get",
+      "label": "Get User",
+      "method": "GET",
+      "path": "/users/{userId}",
+      "fields": [
+        {
+          "id": "authType",
+          "label": "Authentication",
+          "type": "select",
+          "description": "The authentication method to use",
+          "defaultValue": "basicAuth",
+          "options": [
+            {
+              "value": "basicAuth",
+              "label": "Basic Auth"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2 (WordPress.com)"
+            }
+          ]
+        },
+        {
+          "id": "userId",
+          "label": "User ID",
+          "type": "text",
+          "required": true,
+          "description": "Unique identifier for the user",
+          "in": "path"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: context)"
+        }
+      ],
+      "group": "User",
+      "description": "Get a user"
+    },
+    {
+      "id": "user_get_all",
+      "label": "Get Many User",
+      "method": "GET",
+      "path": "/users",
+      "fields": [
+        {
+          "id": "authType",
+          "label": "Authentication",
+          "type": "select",
+          "description": "The authentication method to use",
+          "defaultValue": "basicAuth",
+          "options": [
+            {
+              "value": "basicAuth",
+              "label": "Basic Auth"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2 (WordPress.com)"
+            }
+          ]
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 5
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: context, orderBy, order, search, who)"
+        }
+      ],
+      "group": "User",
+      "description": "Get many users"
+    },
+    {
+      "id": "user_update",
+      "label": "Update User",
+      "method": "POST",
+      "path": "/users/{userId}",
+      "fields": [
+        {
+          "id": "authType",
+          "label": "Authentication",
+          "type": "select",
+          "description": "The authentication method to use",
+          "defaultValue": "basicAuth",
+          "options": [
+            {
+              "value": "basicAuth",
+              "label": "Basic Auth"
+            },
+            {
+              "value": "oAuth2",
+              "label": "OAuth2 (WordPress.com)"
+            }
+          ]
+        },
+        {
+          "id": "userId",
+          "label": "User ID",
+          "type": "text",
+          "required": true,
+          "description": "Unique identifier for the user",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: username, name, firstName, lastName, email, password, url, description, nickname, slug)"
+        }
+      ],
+      "group": "User",
+      "description": "Update a user"
     }
   ]
 }

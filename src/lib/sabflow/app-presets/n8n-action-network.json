@@ -4,63 +4,739 @@
   "description": "Consume the Action Network API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://actionnetwork.org/api/v2",
   "endpoints": [
     {
-      "id": "attendance_default",
-      "label": "List Attendance",
-      "method": "GET",
-      "path": "/attendance",
-      "fields": []
+      "id": "attendance_create",
+      "label": "Create Attendance",
+      "method": "POST",
+      "path": "/events/{eventId}/attendances",
+      "fields": [
+        {
+          "id": "personId",
+          "label": "Person ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the person to create an attendance for"
+        },
+        {
+          "id": "eventId",
+          "label": "Event ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the event to create an attendance for",
+          "in": "path"
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        }
+      ],
+      "group": "Attendance",
+      "description": "Create an attendance"
     },
     {
-      "id": "event_default",
-      "label": "List Event",
+      "id": "attendance_get",
+      "label": "Get Attendance",
+      "method": "GET",
+      "path": "/events/{eventId}/attendances/{attendanceId}",
+      "fields": [
+        {
+          "id": "eventId",
+          "label": "Event ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the event whose attendance to retrieve",
+          "in": "path"
+        },
+        {
+          "id": "attendanceId",
+          "label": "Attendance ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the attendance to retrieve",
+          "in": "path"
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        }
+      ],
+      "group": "Attendance",
+      "description": "Get an attendance"
+    },
+    {
+      "id": "attendance_get_all",
+      "label": "Get Many Attendance",
+      "method": "GET",
+      "path": "/events/{eventId}/attendances",
+      "fields": [
+        {
+          "id": "eventId",
+          "label": "Event ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the event to create an attendance for",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        }
+      ],
+      "group": "Attendance",
+      "description": "Get many attendances"
+    },
+    {
+      "id": "event_create",
+      "label": "Create Event",
+      "method": "POST",
+      "path": "/events",
+      "fields": [
+        {
+          "id": "originSystem",
+          "label": "Origin System",
+          "type": "text",
+          "required": true,
+          "description": "Source where the event originated"
+        },
+        {
+          "id": "title",
+          "label": "Title",
+          "type": "text",
+          "required": true,
+          "description": "Title of the event to create"
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: browser_url, description, end_date, featured_image_url, instructions, location, name, start_date)"
+        }
+      ],
+      "group": "Event",
+      "description": "Create an event"
+    },
+    {
+      "id": "event_get",
+      "label": "Get Event",
+      "method": "GET",
+      "path": "/events/{eventId}",
+      "fields": [
+        {
+          "id": "eventId",
+          "label": "Event ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the event to retrieve",
+          "in": "path"
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        }
+      ],
+      "group": "Event",
+      "description": "Get an event"
+    },
+    {
+      "id": "event_get_all",
+      "label": "Get Many Event",
       "method": "GET",
       "path": "/event",
-      "fields": []
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        }
+      ],
+      "group": "Event",
+      "description": "[unverified path] Get many events"
     },
     {
-      "id": "person_default",
-      "label": "List Person",
+      "id": "person_create",
+      "label": "Create Person",
+      "method": "POST",
+      "path": "/people",
+      "fields": [
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        },
+        {
+          "id": "email_addresses",
+          "label": "Email Address",
+          "type": "json",
+          "placeholder": "Add Email Address Field",
+          "description": "Person’s email addresses (JSON object; supported keys: email_addresses_fields, email_addresses_fields.address, email_addresses_fields.primary, email_addresses_fields.status)"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: family_name, given_name, languages_spoken, phone_numbers, postal_addresses)"
+        }
+      ],
+      "group": "Person",
+      "description": "Create a person"
+    },
+    {
+      "id": "person_get",
+      "label": "Get Person",
+      "method": "GET",
+      "path": "/people/{personId}",
+      "fields": [
+        {
+          "id": "personId",
+          "label": "Person ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the person to retrieve",
+          "in": "path"
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        }
+      ],
+      "group": "Person",
+      "description": "Get a person"
+    },
+    {
+      "id": "person_get_all",
+      "label": "Get Many Person",
       "method": "GET",
       "path": "/person",
-      "fields": []
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 25
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        }
+      ],
+      "group": "Person",
+      "description": "[unverified path] Get many people"
     },
     {
-      "id": "person_tag_default",
-      "label": "List PersonTag",
+      "id": "person_update",
+      "label": "Update Person",
+      "method": "PUT",
+      "path": "/people/{personId}",
+      "fields": [
+        {
+          "id": "personId",
+          "label": "Person ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the person to update",
+          "in": "path"
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: family_name, given_name, languages_spoken, phone_numbers, postal_addresses)"
+        }
+      ],
+      "group": "Person",
+      "description": "Update a person"
+    },
+    {
+      "id": "petition_create",
+      "label": "Create Petition",
+      "method": "POST",
+      "path": "/petitions",
+      "fields": [
+        {
+          "id": "originSystem",
+          "label": "Origin System",
+          "type": "text",
+          "required": true,
+          "description": "Source where the petition originated"
+        },
+        {
+          "id": "title",
+          "label": "Title",
+          "type": "text",
+          "required": true,
+          "description": "Title of the petition to create"
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: browser_url, featured_image_url, name, petition_text, target)"
+        }
+      ],
+      "group": "Petition",
+      "description": "Create a petition"
+    },
+    {
+      "id": "petition_get",
+      "label": "Get Petition",
       "method": "GET",
-      "path": "/personTag",
-      "fields": []
+      "path": "/petitions/{petitionId}",
+      "fields": [
+        {
+          "id": "petitionId",
+          "label": "Petition ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the petition to retrieve",
+          "in": "path"
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        }
+      ],
+      "group": "Petition",
+      "description": "Get a petition"
     },
     {
-      "id": "petition_default",
-      "label": "List Petition",
+      "id": "petition_get_all",
+      "label": "Get Many Petition",
       "method": "GET",
       "path": "/petition",
-      "fields": []
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        }
+      ],
+      "group": "Petition",
+      "description": "[unverified path] Get many petitions"
     },
     {
-      "id": "signature_default",
-      "label": "List Signature",
+      "id": "petition_update",
+      "label": "Update Petition",
+      "method": "PUT",
+      "path": "/petitions/{petitionId}",
+      "fields": [
+        {
+          "id": "petitionId",
+          "label": "Petition ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the petition to update",
+          "in": "path"
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: browser_url, featured_image_url, name, petition_text, target)"
+        }
+      ],
+      "group": "Petition",
+      "description": "Update a petition"
+    },
+    {
+      "id": "signature_create",
+      "label": "Create Signature",
+      "method": "POST",
+      "path": "/petitions/{petitionId}/signatures",
+      "fields": [
+        {
+          "id": "petitionId",
+          "label": "Petition ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the petition to sign",
+          "in": "path"
+        },
+        {
+          "id": "personId",
+          "label": "Person ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the person whose signature to create"
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: comments)"
+        }
+      ],
+      "group": "Signature",
+      "description": "Create a signature"
+    },
+    {
+      "id": "signature_get",
+      "label": "Get Signature",
       "method": "GET",
-      "path": "/signature",
-      "fields": []
+      "path": "/petitions/{petitionId}/signatures/{signatureId}",
+      "fields": [
+        {
+          "id": "petitionId",
+          "label": "Petition ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the petition whose signature to retrieve",
+          "in": "path"
+        },
+        {
+          "id": "signatureId",
+          "label": "Signature ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the signature to retrieve",
+          "in": "path"
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        }
+      ],
+      "group": "Signature",
+      "description": "Get a signature"
     },
     {
-      "id": "tag_default",
-      "label": "List Tag",
+      "id": "signature_get_all",
+      "label": "Get Many Signature",
+      "method": "GET",
+      "path": "/petitions/{petitionId}/signatures",
+      "fields": [
+        {
+          "id": "petitionId",
+          "label": "Petition ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the petition whose signatures to retrieve",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        }
+      ],
+      "group": "Signature",
+      "description": "Get many signatures"
+    },
+    {
+      "id": "signature_update",
+      "label": "Update Signature",
+      "method": "PUT",
+      "path": "/petitions/{petitionId}/signatures/{signatureId}",
+      "fields": [
+        {
+          "id": "petitionId",
+          "label": "Petition ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the petition whose signature to update",
+          "in": "path"
+        },
+        {
+          "id": "signatureId",
+          "label": "Signature ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the signature to update",
+          "in": "path"
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: comments)"
+        }
+      ],
+      "group": "Signature",
+      "description": "Update a signature"
+    },
+    {
+      "id": "tag_create",
+      "label": "Create Tag",
+      "method": "POST",
+      "path": "/tags",
+      "fields": [
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "Name of the tag to create"
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        }
+      ],
+      "group": "Tag",
+      "description": "Create a tag"
+    },
+    {
+      "id": "tag_get",
+      "label": "Get Tag",
+      "method": "GET",
+      "path": "/tags/{tagId}",
+      "fields": [
+        {
+          "id": "tagId",
+          "label": "Tag ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the tag to retrieve",
+          "in": "path"
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        }
+      ],
+      "group": "Tag",
+      "description": "Get a tag"
+    },
+    {
+      "id": "tag_get_all",
+      "label": "Get Many Tag",
       "method": "GET",
       "path": "/tag",
-      "fields": []
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        }
+      ],
+      "group": "Tag",
+      "description": "[unverified path] Get many tags"
+    },
+    {
+      "id": "person_tag_add",
+      "label": "Add Person Tag",
+      "method": "POST",
+      "path": "/tags/{tagId}/taggings",
+      "fields": [
+        {
+          "id": "tagId",
+          "label": "Tag Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of the tag to add. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "personId",
+          "label": "Person ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the person to add the tag to"
+        }
+      ],
+      "group": "Person Tag",
+      "description": "Add a person tag"
+    },
+    {
+      "id": "person_tag_remove",
+      "label": "Remove Person Tag",
+      "method": "DELETE",
+      "path": "/tags/{tagId}/taggings/{taggingId}",
+      "fields": [
+        {
+          "id": "tagId",
+          "label": "Tag Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of the tag whose tagging to delete. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "taggingId",
+          "label": "Tagging Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of the tagging to remove. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        }
+      ],
+      "group": "Person Tag",
+      "description": "Remove a person tag"
     }
   ]
 }

@@ -4,8 +4,8 @@
   "description": "Consume Google Chat API",
   "category": "communication",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -16,82 +16,231 @@
       "credentialType": "http_header_auth"
     }
   },
-  "baseUrl": "",
+  "baseUrl": "https://chat.googleapis.com",
   "endpoints": [
     {
-      "id": "member_default",
-      "label": "List Member",
+      "id": "member_get",
+      "label": "Get Member",
       "method": "GET",
-      "path": "/member",
+      "path": "/v1/{memberId}",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "serviceAccount",
-          "options": [
-            {
-              "value": "oAuth2",
-              "label": "OAuth2 (recommended)"
-            },
-            {
-              "value": "serviceAccount",
-              "label": "Service Account"
-            }
-          ]
+          "id": "memberId",
+          "label": "Member ID",
+          "type": "text",
+          "required": true,
+          "description": "Member to be retrieved in the form \"spaces/*/members/*\"",
+          "in": "path"
         }
-      ]
+      ],
+      "group": "Member",
+      "description": "Get a membership"
     },
     {
-      "id": "message_default",
-      "label": "List Message",
+      "id": "member_get_all",
+      "label": "Get Many Member",
       "method": "GET",
+      "path": "/v1/{spaceId}/members",
+      "fields": [
+        {
+          "id": "spaceId",
+          "label": "Space Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The name of the space for which to retrieve members, in the form \"spaces/*\". Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        }
+      ],
+      "group": "Member",
+      "description": "Get many memberships in a space"
+    },
+    {
+      "id": "message_create",
+      "label": "Create Message",
+      "method": "POST",
+      "path": "/v1/{spaceId}/messages",
+      "fields": [
+        {
+          "id": "spaceId",
+          "label": "Space Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Space resource name, in the form \"spaces/*\". Example: spaces/AAAAMpdlehY. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "jsonParameters",
+          "label": "JSON Parameters",
+          "type": "toggle",
+          "description": "Whether to pass the message object as JSON",
+          "defaultValue": false
+        },
+        {
+          "id": "messageUi",
+          "label": "Message",
+          "type": "json",
+          "required": true,
+          "placeholder": "Add Message",
+          "description": "(JSON object; supported keys: text)"
+        },
+        {
+          "id": "messageJson",
+          "label": "Message (JSON)",
+          "type": "json",
+          "required": true,
+          "description": "Message input as JSON Object or JSON String"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: requestId)"
+        }
+      ],
+      "group": "Message",
+      "description": "Create a message"
+    },
+    {
+      "id": "message_delete",
+      "label": "Delete Message",
+      "method": "DELETE",
+      "path": "/v1/{messageId}",
+      "fields": [
+        {
+          "id": "messageId",
+          "label": "Message ID",
+          "type": "text",
+          "required": true,
+          "description": "Resource name of the message to be deleted, in the form \"spaces//messages/\"",
+          "in": "path"
+        }
+      ],
+      "group": "Message",
+      "description": "Delete a message"
+    },
+    {
+      "id": "message_get",
+      "label": "Get Message",
+      "method": "GET",
+      "path": "/v1/{messageId}",
+      "fields": [
+        {
+          "id": "messageId",
+          "label": "Message ID",
+          "type": "text",
+          "required": true,
+          "description": "Resource name of the message to be retrieved, in the form \"spaces//messages/\"",
+          "in": "path"
+        }
+      ],
+      "group": "Message",
+      "description": "Get a message"
+    },
+    {
+      "id": "message_send_and_wait_operation",
+      "label": "Send and Wait for Response Message",
+      "method": "POST",
       "path": "/message",
-      "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "serviceAccount",
-          "options": [
-            {
-              "value": "oAuth2",
-              "label": "OAuth2 (recommended)"
-            },
-            {
-              "value": "serviceAccount",
-              "label": "Service Account"
-            }
-          ]
-        }
-      ]
+      "fields": [],
+      "group": "Message",
+      "description": "[unverified path] Send a message and wait for response"
     },
     {
-      "id": "space_default",
-      "label": "List Space",
-      "method": "GET",
-      "path": "/space",
+      "id": "message_update",
+      "label": "Update Message",
+      "method": "PUT",
+      "path": "/v1/{messageId}",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "serviceAccount",
-          "options": [
-            {
-              "value": "oAuth2",
-              "label": "OAuth2 (recommended)"
-            },
-            {
-              "value": "serviceAccount",
-              "label": "Service Account"
-            }
-          ]
+          "id": "messageId",
+          "label": "Message ID",
+          "type": "text",
+          "required": true,
+          "description": "Resource name of the message to be updated, in the form \"spaces//messages/\"",
+          "in": "path"
+        },
+        {
+          "id": "jsonParameters",
+          "label": "JSON Parameters",
+          "type": "toggle",
+          "description": "Whether to pass the update fields object as JSON",
+          "defaultValue": false
+        },
+        {
+          "id": "updateFieldsUi",
+          "label": "Update Fields",
+          "type": "json",
+          "required": true,
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: text)"
+        },
+        {
+          "id": "updateFieldsJson",
+          "label": "Update Fields (JSON)",
+          "type": "json",
+          "required": true,
+          "description": "Message input as JSON Object or JSON String"
         }
-      ]
+      ],
+      "group": "Message",
+      "description": "Update a message"
+    },
+    {
+      "id": "space_get",
+      "label": "Get Space",
+      "method": "GET",
+      "path": "/v1/{spaceId}",
+      "fields": [
+        {
+          "id": "spaceId",
+          "label": "Space ID",
+          "type": "text",
+          "required": true,
+          "description": "Resource name of the space, in the form \"spaces/*\"",
+          "in": "path"
+        }
+      ],
+      "group": "Space",
+      "description": "Get a space"
+    },
+    {
+      "id": "space_get_all",
+      "label": "Get Many Space",
+      "method": "GET",
+      "path": "/v1/spaces",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        }
+      ],
+      "group": "Space",
+      "description": "Get many spaces the caller is a member of"
     }
   ]
 }

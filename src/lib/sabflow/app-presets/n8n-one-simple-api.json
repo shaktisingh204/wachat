@@ -4,26 +4,25 @@
   "description": "A toolbox of no-code utilities",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 10,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://onesimpleapi.com/api",
   "endpoints": [
     {
       "id": "website_pdf",
       "label": "Generate PDF Website",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/pdf",
       "fields": [
         {
           "id": "link",
           "label": "Webpage URL",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Link to webpage to convert"
         },
@@ -31,7 +30,6 @@
           "id": "download",
           "label": "Download PDF?",
           "type": "toggle",
-          "in": "query",
           "required": true,
           "description": "Whether to download the PDF or return a link to it",
           "defaultValue": false
@@ -40,7 +38,6 @@
           "id": "output",
           "label": "Put Output In Field",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "The name of the output field to put the binary file data in",
           "defaultValue": "data"
@@ -49,22 +46,23 @@
           "id": "options",
           "label": "Options",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add option"
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: page, force)"
         }
-      ]
+      ],
+      "group": "Website",
+      "description": "Generate a PDF from a webpage"
     },
     {
       "id": "website_seo",
       "label": "Get SEO Data Website",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/page_info",
       "fields": [
         {
           "id": "link",
           "label": "Webpage URL",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Webpage to get SEO information for"
         },
@@ -72,22 +70,23 @@
           "id": "options",
           "label": "Options",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add option"
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: headers)"
         }
-      ]
+      ],
+      "group": "Website",
+      "description": "Get SEO information from website"
     },
     {
       "id": "website_screenshot",
       "label": "Take Screenshot Website",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/screenshot",
       "fields": [
         {
           "id": "link",
           "label": "Webpage URL",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Link to webpage to convert"
         },
@@ -95,7 +94,6 @@
           "id": "download",
           "label": "Download Screenshot?",
           "type": "toggle",
-          "in": "query",
           "required": true,
           "description": "Whether to download the screenshot or return a link to it",
           "defaultValue": false
@@ -104,7 +102,6 @@
           "id": "output",
           "label": "Put Output In Field",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "The name of the output field to put the binary file data in",
           "defaultValue": "data"
@@ -113,54 +110,57 @@
           "id": "options",
           "label": "Options",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add option"
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: screen, force, fullpage)"
         }
-      ]
+      ],
+      "group": "Website",
+      "description": "Create a screenshot from a webpage"
     },
     {
       "id": "social_profile_instagram_profile",
-      "label": "Instagram SocialProfile",
-      "method": "GET",
-      "path": "/",
+      "label": "Instagram Social Profile",
+      "method": "POST",
+      "path": "/instagram_profile",
       "fields": [
         {
           "id": "profileName",
           "label": "Profile Name",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Profile name to get details of"
         }
-      ]
+      ],
+      "group": "Social Profile",
+      "description": "Get details about an Instagram profile"
     },
     {
       "id": "social_profile_spotify_artist_profile",
-      "label": "Spotify SocialProfile",
-      "method": "GET",
-      "path": "/",
+      "label": "Spotify Social Profile",
+      "method": "POST",
+      "path": "/spotify_profile",
       "fields": [
         {
           "id": "artistName",
           "label": "Artist Name",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Artist name to get details for"
         }
-      ]
+      ],
+      "group": "Social Profile",
+      "description": "Get details about a Spotify Artist"
     },
     {
       "id": "information_exchange_rate",
       "label": "Exchange Rate Information",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/exchange_rate",
       "fields": [
         {
           "id": "value",
           "label": "Value",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Value to convert"
         },
@@ -168,7 +168,6 @@
           "id": "fromCurrency",
           "label": "From Currency",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "USD"
         },
@@ -176,55 +175,57 @@
           "id": "toCurrency",
           "label": "To Currency",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "EUR"
         }
-      ]
+      ],
+      "group": "Information",
+      "description": "Convert a value between currencies"
     },
     {
       "id": "information_image_metadata",
       "label": "Image Metadata Information",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/image_info",
       "fields": [
         {
           "id": "link",
           "label": "Link To Image",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Image to get metadata from"
         }
-      ]
+      ],
+      "group": "Information",
+      "description": "Retrieve image metadata from a URL"
     },
     {
       "id": "utility_expand_url",
       "label": "Expand URL Utility",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/unshorten",
       "fields": [
         {
           "id": "link",
           "label": "URL",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "URL to unshorten"
         }
-      ]
+      ],
+      "group": "Utility",
+      "description": "Expand a shortened URL"
     },
     {
       "id": "utility_qr_code",
       "label": "Generate QR Code Utility",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/qr_code",
       "fields": [
         {
           "id": "message",
           "label": "QR Content",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "The text that should be turned into a QR code - like a website URL"
         },
@@ -232,7 +233,6 @@
           "id": "download",
           "label": "Download Image?",
           "type": "toggle",
-          "in": "query",
           "required": true,
           "description": "Whether to download the QR code or return a link to it",
           "defaultValue": false
@@ -241,7 +241,6 @@
           "id": "output",
           "label": "Put Output In Field",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "The name of the output field to put the binary file data in",
           "defaultValue": "data"
@@ -250,25 +249,28 @@
           "id": "options",
           "label": "Options",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add option"
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: size, format)"
         }
-      ]
+      ],
+      "group": "Utility",
+      "description": "Generate a QR Code"
     },
     {
       "id": "utility_validate_email",
       "label": "Validate Email Utility",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/email",
       "fields": [
         {
           "id": "emailAddress",
           "label": "Email Address",
           "type": "text",
-          "in": "query",
           "required": true
         }
-      ]
+      ],
+      "group": "Utility",
+      "description": "Validate an email address"
     }
   ]
 }

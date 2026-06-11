@@ -4,70 +4,1180 @@
   "description": "Consume the Freshworks CRM API",
   "category": "crm",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 8,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://{domain}.myfreshworks.com/crm/sales/api",
   "endpoints": [
     {
-      "id": "account_default",
-      "label": "List Account",
+      "id": "account_create",
+      "label": "Create Account",
+      "method": "POST",
+      "path": "/sales_accounts",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshworks CRM account (host token in the API base URL)"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "Name of the account"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: address, annual_revenue, business_type_id, city, country, facebook, industry_type_id, linkedin, number_of_employees, owner_id, parent_sales_account_id, phone, state, territory_id, twitter, website, zipcode)"
+        }
+      ],
+      "group": "Account",
+      "description": "Create an account"
+    },
+    {
+      "id": "account_delete",
+      "label": "Delete Account",
+      "method": "DELETE",
+      "path": "/sales_accounts/{accountId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshworks CRM account (host token in the API base URL)"
+        },
+        {
+          "id": "accountId",
+          "label": "Account ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the account to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Account",
+      "description": "Delete an account"
+    },
+    {
+      "id": "account_get",
+      "label": "Get Account",
+      "method": "GET",
+      "path": "/sales_accounts/{accountId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshworks CRM account (host token in the API base URL)"
+        },
+        {
+          "id": "accountId",
+          "label": "Account ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the account to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Account",
+      "description": "Retrieve an account"
+    },
+    {
+      "id": "account_get_all",
+      "label": "Get Many Account",
       "method": "GET",
       "path": "/account",
-      "fields": []
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshworks CRM account (host token in the API base URL)"
+        },
+        {
+          "id": "view",
+          "label": "View Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Account",
+      "description": "[unverified path] Retrieve many accounts"
     },
     {
-      "id": "appointment_default",
-      "label": "List Appointment",
+      "id": "account_update",
+      "label": "Update Account",
+      "method": "PUT",
+      "path": "/sales_accounts/{accountId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshworks CRM account (host token in the API base URL)"
+        },
+        {
+          "id": "accountId",
+          "label": "Account ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the account to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: address, annual_revenue, business_type_id, city, country, facebook, industry_type_id, linkedin, name, number_of_employees, owner_id, parent_sales_account_id, phone, state, territory_id, twitter, website, zipcode)"
+        }
+      ],
+      "group": "Account",
+      "description": "Update an account"
+    },
+    {
+      "id": "appointment_create",
+      "label": "Create Appointment",
+      "method": "POST",
+      "path": "/appointments",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshworks CRM account (host token in the API base URL)"
+        },
+        {
+          "id": "title",
+          "label": "Title",
+          "type": "text",
+          "required": true,
+          "description": "Title of the appointment"
+        },
+        {
+          "id": "fromDate",
+          "label": "Start Date",
+          "type": "text",
+          "required": true,
+          "placeholder": "2024-01-01T00:00:00Z",
+          "description": "Timestamp that denotes the start of appointment. Start date if this is an all-day appointment. (ISO 8601 date-time)"
+        },
+        {
+          "id": "endDate",
+          "label": "End Date",
+          "type": "text",
+          "required": true,
+          "placeholder": "2024-01-01T00:00:00Z",
+          "description": "Timestamp that denotes the end of appointment. End date if this is an all-day appointment. (ISO 8601 date-time)"
+        },
+        {
+          "id": "attendees",
+          "label": "Attendees",
+          "type": "json",
+          "placeholder": "Add Attendee",
+          "description": "(JSON object; supported keys: attendee, attendee.type, attendee.userId, attendee.contactId)"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: creater_id, is_allday, latitude, location, longitude, outcome_id, targetable_id, targetable_type, time_zone)"
+        }
+      ],
+      "group": "Appointment",
+      "description": "Create an appointment"
+    },
+    {
+      "id": "appointment_delete",
+      "label": "Delete Appointment",
+      "method": "DELETE",
+      "path": "/appointments/{appointmentId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshworks CRM account (host token in the API base URL)"
+        },
+        {
+          "id": "appointmentId",
+          "label": "Appointment ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the appointment to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Appointment",
+      "description": "Delete an appointment"
+    },
+    {
+      "id": "appointment_get",
+      "label": "Get Appointment",
+      "method": "GET",
+      "path": "/appointments/{appointmentId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshworks CRM account (host token in the API base URL)"
+        },
+        {
+          "id": "appointmentId",
+          "label": "Appointment ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the appointment to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Appointment",
+      "description": "Retrieve an appointment"
+    },
+    {
+      "id": "appointment_get_all",
+      "label": "Get Many Appointment",
       "method": "GET",
       "path": "/appointment",
-      "fields": []
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshworks CRM account (host token in the API base URL)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: include, filter)"
+        }
+      ],
+      "group": "Appointment",
+      "description": "[unverified path] Retrieve many appointments"
     },
     {
-      "id": "contact_default",
-      "label": "List Contact",
+      "id": "appointment_update",
+      "label": "Update Appointment",
+      "method": "PUT",
+      "path": "/appointments/{appointmentId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshworks CRM account (host token in the API base URL)"
+        },
+        {
+          "id": "appointmentId",
+          "label": "Appointment ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the appointment to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: attendees, creater_id, endDate, is_allday, latitude, location, longitude, outcome_id, fromDate, targetable_id, targetable_type, time_zone, title)"
+        }
+      ],
+      "group": "Appointment",
+      "description": "Update an appointment"
+    },
+    {
+      "id": "contact_create",
+      "label": "Create Contact",
+      "method": "POST",
+      "path": "/contacts",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshworks CRM account (host token in the API base URL)"
+        },
+        {
+          "id": "firstName",
+          "label": "First Name",
+          "type": "text",
+          "required": true,
+          "description": "First name of the contact"
+        },
+        {
+          "id": "lastName",
+          "label": "Last Name",
+          "type": "text",
+          "required": true,
+          "description": "Last name of the contact"
+        },
+        {
+          "id": "emails",
+          "label": "Email Address",
+          "type": "text",
+          "required": true,
+          "description": "Email addresses of the contact"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: address, campaign_id, city, contact_status_id, country, external_id, facebook, job_title, keyword, lead_source_id, lifecycle_stage_id, linkedin, medium, mobile_number, owner_id, sales_accounts, state, subscription_status, subscription_types, territory_id, time_zone, twitter, work_number, zipcode)"
+        }
+      ],
+      "group": "Contact",
+      "description": "Create a contact"
+    },
+    {
+      "id": "contact_delete",
+      "label": "Delete Contact",
+      "method": "DELETE",
+      "path": "/contacts/{contactId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshworks CRM account (host token in the API base URL)"
+        },
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the contact to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Contact",
+      "description": "Delete a contact"
+    },
+    {
+      "id": "contact_get",
+      "label": "Get Contact",
+      "method": "GET",
+      "path": "/contacts/{contactId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshworks CRM account (host token in the API base URL)"
+        },
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the contact to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Contact",
+      "description": "Retrieve a contact"
+    },
+    {
+      "id": "contact_get_all",
+      "label": "Get Many Contact",
       "method": "GET",
       "path": "/contact",
-      "fields": []
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshworks CRM account (host token in the API base URL)"
+        },
+        {
+          "id": "view",
+          "label": "View Name or ID",
+          "type": "select",
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Contact",
+      "description": "[unverified path] Retrieve many contacts"
     },
     {
-      "id": "deal_default",
-      "label": "List Deal",
+      "id": "contact_update",
+      "label": "Update Contact",
+      "method": "PUT",
+      "path": "/contacts/{contactId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshworks CRM account (host token in the API base URL)"
+        },
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the contact to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: address, campaign_id, city, contact_status_id, country, external_id, facebook, first_name, job_title, keyword, last_name, lead_source_id, lifecycle_stage_id, linkedin, medium, mobile_number, owner_id, sales_accounts, state, subscription_status, subscription_types, territory_id, time_zone, twitter, work_number, zipcode)"
+        }
+      ],
+      "group": "Contact",
+      "description": "Update a contact"
+    },
+    {
+      "id": "deal_create",
+      "label": "Create Deal",
+      "method": "POST",
+      "path": "/deals",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshworks CRM account (host token in the API base URL)"
+        },
+        {
+          "id": "amount",
+          "label": "Amount",
+          "type": "number",
+          "required": true,
+          "description": "Value of the deal",
+          "defaultValue": 0
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "Name of the deal"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: base_currency_amount, campaign_id, currency_id, deal_payment_status_id, deal_pipeline_id, deal_product_id, deal_reason_id, deal_stage_id, deal_type_id, lead_source_id, owner_id, probability, sales_account_id, territory_id)"
+        }
+      ],
+      "group": "Deal",
+      "description": "Create a deal"
+    },
+    {
+      "id": "deal_delete",
+      "label": "Delete Deal",
+      "method": "DELETE",
+      "path": "/deals/{dealId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshworks CRM account (host token in the API base URL)"
+        },
+        {
+          "id": "dealId",
+          "label": "Deal ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the deal to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Deal",
+      "description": "Delete a deal"
+    },
+    {
+      "id": "deal_get",
+      "label": "Get Deal",
+      "method": "GET",
+      "path": "/deals/{dealId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshworks CRM account (host token in the API base URL)"
+        },
+        {
+          "id": "dealId",
+          "label": "Deal ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the deal to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Deal",
+      "description": "Retrieve a deal"
+    },
+    {
+      "id": "deal_get_all",
+      "label": "Get Many Deal",
       "method": "GET",
       "path": "/deal",
-      "fields": []
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshworks CRM account (host token in the API base URL)"
+        },
+        {
+          "id": "view",
+          "label": "View Name or ID",
+          "type": "select",
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Deal",
+      "description": "[unverified path] Retrieve many deals"
     },
     {
-      "id": "note_default",
-      "label": "List Note",
+      "id": "deal_update",
+      "label": "Update Deal",
+      "method": "PUT",
+      "path": "/deals/{dealId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshworks CRM account (host token in the API base URL)"
+        },
+        {
+          "id": "dealId",
+          "label": "Deal ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the deal to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: amount, base_currency_amount, campaign_id, currency_id, deal_payment_status_id, deal_pipeline_id, deal_product_id, deal_reason_id, deal_stage_id, deal_type_id, lead_source_id, name, owner_id, probability, sales_account_id, territory_id)"
+        }
+      ],
+      "group": "Deal",
+      "description": "Update a deal"
+    },
+    {
+      "id": "note_create",
+      "label": "Create Note",
+      "method": "POST",
+      "path": "/notes",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshworks CRM account (host token in the API base URL)"
+        },
+        {
+          "id": "description",
+          "label": "Content",
+          "type": "textarea",
+          "required": true,
+          "description": "Content of the note"
+        },
+        {
+          "id": "targetableType",
+          "label": "Target Type",
+          "type": "select",
+          "required": true,
+          "description": "Type of the entity for which the note is created",
+          "defaultValue": "Contact",
+          "options": [
+            {
+              "value": "Contact",
+              "label": "Contact"
+            },
+            {
+              "value": "Deal",
+              "label": "Deal"
+            },
+            {
+              "value": "SalesAccount",
+              "label": "Sales Account"
+            }
+          ]
+        },
+        {
+          "id": "targetable_id",
+          "label": "Target ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the entity for which note is created. The type of entity is selected in \"Target Type\"."
+        }
+      ],
+      "group": "Note",
+      "description": "Create a note"
+    },
+    {
+      "id": "note_delete",
+      "label": "Delete Note",
+      "method": "DELETE",
+      "path": "/notes/{noteId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshworks CRM account (host token in the API base URL)"
+        },
+        {
+          "id": "noteId",
+          "label": "Note ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the note to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Note",
+      "description": "Delete a note"
+    },
+    {
+      "id": "note_update",
+      "label": "Update Note",
+      "method": "PUT",
+      "path": "/notes/{noteId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshworks CRM account (host token in the API base URL)"
+        },
+        {
+          "id": "noteId",
+          "label": "Note ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the note to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: description, targetable_id, targetable_type)"
+        }
+      ],
+      "group": "Note",
+      "description": "Update a note"
+    },
+    {
+      "id": "sales_activity_get",
+      "label": "Get Sales Activity",
       "method": "GET",
-      "path": "/note",
-      "fields": []
+      "path": "/sales_activities/{salesActivityId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshworks CRM account (host token in the API base URL)"
+        },
+        {
+          "id": "salesActivityId",
+          "label": "Sales Activity ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the salesActivity to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Sales Activity",
+      "description": "Retrieve a sales activity"
     },
     {
-      "id": "sales_activity_default",
-      "label": "List SalesActivity",
+      "id": "sales_activity_get_all",
+      "label": "Get Many Sales Activity",
       "method": "GET",
-      "path": "/salesActivity",
-      "fields": []
+      "path": "/sales-activity",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshworks CRM account (host token in the API base URL)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Sales Activity",
+      "description": "[unverified path] Retrieve many sales activities"
     },
     {
-      "id": "search_default",
-      "label": "List Search",
+      "id": "search_query",
+      "label": "Query Search",
       "method": "GET",
       "path": "/search",
-      "fields": []
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshworks CRM account (host token in the API base URL)"
+        },
+        {
+          "id": "query",
+          "label": "Search Term",
+          "type": "text",
+          "required": true,
+          "description": "Enter a term that will be used for searching entities"
+        },
+        {
+          "id": "entities",
+          "label": "Search on Entities",
+          "type": "select",
+          "required": true,
+          "description": "Enter a term that will be used for searching entities (multiple values: comma-separated)",
+          "options": [
+            {
+              "value": "contact",
+              "label": "Contact"
+            },
+            {
+              "value": "deal",
+              "label": "Deal"
+            },
+            {
+              "value": "sales_account",
+              "label": "Sales Account"
+            },
+            {
+              "value": "user",
+              "label": "User"
+            }
+          ]
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 25
+        }
+      ],
+      "group": "Search",
+      "description": "Search for records by entering search queries of your choice"
     },
     {
-      "id": "task_default",
-      "label": "List Task",
+      "id": "search_lookup",
+      "label": "Lookup Search",
+      "method": "GET",
+      "path": "/lookup",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshworks CRM account (host token in the API base URL)"
+        },
+        {
+          "id": "searchField",
+          "label": "Search Field",
+          "type": "select",
+          "required": true,
+          "description": "Field against which the entities have to be searched",
+          "options": [
+            {
+              "value": "email",
+              "label": "Email"
+            },
+            {
+              "value": "name",
+              "label": "Name"
+            },
+            {
+              "value": "customField",
+              "label": "Custom Field"
+            }
+          ]
+        },
+        {
+          "id": "customFieldName",
+          "label": "Custom Field Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "customFieldValue",
+          "label": "Custom Field Value",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "fieldValue",
+          "label": "Field Value",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: entities)"
+        }
+      ],
+      "group": "Search",
+      "description": "Search for the name or email address of records"
+    },
+    {
+      "id": "task_create",
+      "label": "Create Task",
+      "method": "POST",
+      "path": "/tasks",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshworks CRM account (host token in the API base URL)"
+        },
+        {
+          "id": "title",
+          "label": "Title",
+          "type": "text",
+          "required": true,
+          "description": "Title of the task"
+        },
+        {
+          "id": "dueDate",
+          "label": "Due Date",
+          "type": "text",
+          "required": true,
+          "placeholder": "2024-01-01T00:00:00Z",
+          "description": "Timestamp that denotes when the task is due to be completed (ISO 8601 date-time)"
+        },
+        {
+          "id": "ownerId",
+          "label": "Owner Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of the user to whom the task is assigned. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "targetableType",
+          "label": "Target Type",
+          "type": "select",
+          "required": true,
+          "description": "Type of the entity for which the task is updated",
+          "defaultValue": "Contact",
+          "options": [
+            {
+              "value": "Contact",
+              "label": "Contact"
+            },
+            {
+              "value": "Deal",
+              "label": "Deal"
+            },
+            {
+              "value": "SalesAccount",
+              "label": "SalesAccount"
+            }
+          ]
+        },
+        {
+          "id": "targetable_id",
+          "label": "Target ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the entity for which the task is created. The type of entity is selected in \"Target Type\"."
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: creater_id, outcome_id, task_type_id)"
+        }
+      ],
+      "group": "Task",
+      "description": "Create a task"
+    },
+    {
+      "id": "task_delete",
+      "label": "Delete Task",
+      "method": "DELETE",
+      "path": "/tasks/{taskId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshworks CRM account (host token in the API base URL)"
+        },
+        {
+          "id": "taskId",
+          "label": "Task ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the task to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Task",
+      "description": "Delete a task"
+    },
+    {
+      "id": "task_get",
+      "label": "Get Task",
+      "method": "GET",
+      "path": "/tasks/{taskId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshworks CRM account (host token in the API base URL)"
+        },
+        {
+          "id": "taskId",
+          "label": "Task ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the task to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Task",
+      "description": "Retrieve a task"
+    },
+    {
+      "id": "task_get_all",
+      "label": "Get Many Task",
       "method": "GET",
       "path": "/task",
-      "fields": []
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshworks CRM account (host token in the API base URL)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: include, filter)"
+        }
+      ],
+      "group": "Task",
+      "description": "[unverified path] Retrieve many tasks"
+    },
+    {
+      "id": "task_update",
+      "label": "Update Task",
+      "method": "PUT",
+      "path": "/tasks/{taskId}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your Freshworks CRM account (host token in the API base URL)"
+        },
+        {
+          "id": "taskId",
+          "label": "Task ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the task to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: creater_id, dueDate, outcome_id, owner_id, targetable_id, targetable_type, task_type_id, title)"
+        }
+      ],
+      "group": "Task",
+      "description": "Update a task"
     }
   ]
 }

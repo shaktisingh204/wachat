@@ -4,98 +4,101 @@
   "description": "Consume Brandfetch API",
   "category": "marketing",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.brandfetch.io/v2",
   "endpoints": [
     {
-      "id": "default_color",
+      "id": "color",
       "label": "Color",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/brands/{domain}",
       "fields": [
         {
           "id": "domain",
           "label": "Domain",
           "type": "text",
-          "in": "query",
           "required": true,
-          "description": "The domain name of the company"
+          "description": "The domain name of the company",
+          "in": "path"
         }
-      ]
+      ],
+      "description": "Return a company's colors"
     },
     {
-      "id": "default_company",
+      "id": "company",
       "label": "Company",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/brands/{domain}",
       "fields": [
         {
           "id": "domain",
           "label": "Domain",
           "type": "text",
-          "in": "query",
           "required": true,
-          "description": "The domain name of the company"
+          "description": "The domain name of the company",
+          "in": "path"
         }
-      ]
+      ],
+      "description": "Return a company's data"
     },
     {
-      "id": "default_font",
+      "id": "font",
       "label": "Font",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/brands/{domain}",
       "fields": [
         {
           "id": "domain",
           "label": "Domain",
           "type": "text",
-          "in": "query",
           "required": true,
-          "description": "The domain name of the company"
+          "description": "The domain name of the company",
+          "in": "path"
         }
-      ]
+      ],
+      "description": "Return a company's fonts"
     },
     {
-      "id": "default_industry",
+      "id": "industry",
       "label": "Industry",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/brands/{domain}",
       "fields": [
         {
           "id": "domain",
           "label": "Domain",
           "type": "text",
-          "in": "query",
           "required": true,
-          "description": "The domain name of the company"
+          "description": "The domain name of the company",
+          "in": "path"
         }
-      ]
+      ],
+      "description": "Return a company's industry"
     },
     {
-      "id": "default_logo",
+      "id": "logo",
       "label": "Logo",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/brands/{domain}",
       "fields": [
         {
           "id": "domain",
           "label": "Domain",
           "type": "text",
-          "in": "query",
           "required": true,
-          "description": "The domain name of the company"
+          "description": "The domain name of the company",
+          "in": "path"
         },
         {
           "id": "download",
           "label": "Download",
           "type": "toggle",
-          "in": "query",
           "required": true,
           "description": "Name of the binary property to which to write the data of the read file",
           "defaultValue": false
@@ -104,8 +107,8 @@
           "id": "imageTypes",
           "label": "Image Type",
           "type": "select",
-          "in": "query",
           "required": true,
+          "description": "(multiple values: comma-separated)",
           "options": [
             {
               "value": "icon",
@@ -121,9 +124,8 @@
           "id": "imageFormats",
           "label": "Image Format",
           "type": "select",
-          "in": "query",
           "required": true,
-          "description": "The image format in which the logo should be returned as",
+          "description": "The image format in which the logo should be returned as (multiple values: comma-separated)",
           "options": [
             {
               "value": "png",
@@ -135,7 +137,8 @@
             }
           ]
         }
-      ]
+      ],
+      "description": "Return a company's logo & icon"
     }
   ]
 }

@@ -4,28 +4,257 @@
   "description": "Consume Venafi TLS Protect Datacenter",
   "category": "dev",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 4,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://{host}",
   "endpoints": [
     {
-      "id": "certificate_default",
-      "label": "List Certificate",
-      "method": "GET",
-      "path": "/certificate",
-      "fields": []
+      "id": "certificate_create",
+      "label": "Create Certificate",
+      "method": "POST",
+      "path": "/vedsdk/Certificates/Request",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Venafi TLS Protect Datacenter server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "PolicyDN",
+          "label": "Policy DN",
+          "type": "text",
+          "description": "The folder DN for the new certificate. If the value is missing, the folder name is the system default. If no system default is configured"
+        },
+        {
+          "id": "Subject",
+          "label": "Subject",
+          "type": "text",
+          "description": "The Common Name field for the certificate Subject (DN)"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: Approvers, CADN, CertificateType, City, Contacts, Country, customFieldsUi, CreatedBy, Devices, DisableAutomaticRenewal, EllipticCurve, KeyAlgorithm, KeyBitSize, ManagementType, origin, Organization, OrganizationalUnit, PKCS10, Reenable, SetWorkToDo, State, SubjectAltNamesUi)"
+        }
+      ],
+      "group": "Certificate",
+      "description": "Provision a new certificate"
     },
     {
-      "id": "policy_default",
-      "label": "List Policy",
+      "id": "certificate_delete",
+      "label": "Delete Certificate",
+      "method": "DELETE",
+      "path": "/vedsdk/Certificates/{certificateId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Venafi TLS Protect Datacenter server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "certificateId",
+          "label": "Certificate GUID",
+          "type": "text",
+          "required": true,
+          "description": "A GUID that uniquely identifies the certificate",
+          "in": "path"
+        }
+      ],
+      "group": "Certificate",
+      "description": "Delete a certificate"
+    },
+    {
+      "id": "certificate_download",
+      "label": "Download Certificate",
+      "method": "POST",
+      "path": "/vedsdk/Certificates/Retrieve",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Venafi TLS Protect Datacenter server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "certificateDn",
+          "label": "Certificate DN",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "includePrivateKey",
+          "label": "Include Private Key",
+          "type": "toggle",
+          "defaultValue": false
+        },
+        {
+          "id": "password",
+          "label": "Password",
+          "type": "password",
+          "required": true
+        },
+        {
+          "id": "binaryProperty",
+          "label": "Input Data Field Name",
+          "type": "text",
+          "required": true,
+          "description": "The name of the input field containing the binary file data to be uploaded",
+          "defaultValue": "data"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: IncludeChain, RootFirstOrder, KeystorePassword)"
+        }
+      ],
+      "group": "Certificate",
+      "description": "Download a certificate"
+    },
+    {
+      "id": "certificate_get",
+      "label": "Get Certificate",
       "method": "GET",
-      "path": "/policy",
-      "fields": []
+      "path": "/vedsdk/Certificates/{certificateId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Venafi TLS Protect Datacenter server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "certificateId",
+          "label": "Certificate GUID",
+          "type": "text",
+          "required": true,
+          "description": "A GUID that uniquely identifies the certificate",
+          "in": "path"
+        }
+      ],
+      "group": "Certificate",
+      "description": "Retrieve a certificate"
+    },
+    {
+      "id": "certificate_get_many",
+      "label": "Get Many Certificate",
+      "method": "GET",
+      "path": "/vedsdk/Certificates",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Venafi TLS Protect Datacenter server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: fields)"
+        }
+      ],
+      "group": "Certificate",
+      "description": "Retrieve many certificates"
+    },
+    {
+      "id": "certificate_renew",
+      "label": "Renew Certificate",
+      "method": "POST",
+      "path": "/vedsdk/Certificates/Renew",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Venafi TLS Protect Datacenter server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "certificateDN",
+          "label": "Certificate DN",
+          "type": "text",
+          "required": true,
+          "description": "The Distinguished Name (DN) of the certificate to renew"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: PKCS10, Reenable)"
+        }
+      ],
+      "group": "Certificate",
+      "description": "Renew a certificate"
+    },
+    {
+      "id": "policy_get",
+      "label": "Get Policy",
+      "method": "POST",
+      "path": "/vedsdk/Certificates/CheckPolicy",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Venafi TLS Protect Datacenter server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "policyDn",
+          "label": "Policy DN",
+          "type": "text",
+          "required": true,
+          "description": "The Distinguished Name (DN) of the policy folder"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: PKCS10)"
+        }
+      ],
+      "group": "Policy",
+      "description": "Get a policy"
     }
   ]
 }

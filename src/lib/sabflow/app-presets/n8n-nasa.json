@@ -4,26 +4,25 @@
   "description": "Retrieve data from the NASA API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.nasa.gov",
   "endpoints": [
     {
       "id": "astronomy_picture_of_the_day_get",
-      "label": "Get AstronomyPictureOfTheDay",
+      "label": "Get Astronomy Picture of the Day",
       "method": "GET",
-      "path": "/",
+      "path": "/planetary/apod",
       "fields": [
         {
           "id": "download",
           "label": "Download Image",
           "type": "toggle",
-          "in": "query",
           "description": "By default just the URL of the image is returned. When set to true the image will be downloaded.",
           "defaultValue": true
         },
@@ -31,7 +30,6 @@
           "id": "binaryPropertyName",
           "label": "Put Output File in Field",
           "type": "text",
-          "in": "query",
           "required": true,
           "defaultValue": "data"
         },
@@ -39,61 +37,66 @@
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add field"
+          "placeholder": "Add field",
+          "description": "(JSON object; supported keys: date)"
         }
-      ]
+      ],
+      "group": "Astronomy Picture of the Day",
+      "description": "Get the Astronomy Picture of the Day"
     },
     {
       "id": "asteroid_neo_feed_get",
-      "label": "Get AsteroidNeoFeed",
+      "label": "Get Asteroid Neo-Feed",
       "method": "GET",
-      "path": "/",
+      "path": "/neo/rest/v1/feed",
       "fields": [
         {
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add field"
+          "placeholder": "Add field",
+          "description": "(JSON object; supported keys: startDate, endDate)"
         }
-      ]
+      ],
+      "group": "Asteroid Neo-Feed",
+      "description": "Retrieve a list of asteroids based on their closest approach date to Earth"
     },
     {
       "id": "asteroid_neo_lookup_get",
-      "label": "Get AsteroidNeoLookup",
+      "label": "Get Asteroid Neo-Lookup",
       "method": "GET",
-      "path": "/",
+      "path": "/neo/rest/v1/neo/{asteroidId}",
       "fields": [
         {
           "id": "asteroidId",
           "label": "Asteroid ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "3542519",
-          "description": "The ID of the asteroid to be returned"
+          "description": "The ID of the asteroid to be returned",
+          "in": "path"
         },
         {
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: includeCloseApproachData)"
         }
-      ]
+      ],
+      "group": "Asteroid Neo-Lookup",
+      "description": "Look up an asteroid based on its NASA SPK-ID"
     },
     {
       "id": "asteroid_neo_browse_get_all",
-      "label": "Get Many AsteroidNeoBrowse",
+      "label": "Get Many Asteroid Neo-Browse",
       "method": "GET",
-      "path": "/",
+      "path": "/neo/rest/v1/neo/browse",
       "fields": [
         {
           "id": "returnAll",
           "label": "Return All",
           "type": "toggle",
-          "in": "query",
           "description": "Whether to return all results or only up to a given limit",
           "defaultValue": false
         },
@@ -101,173 +104,193 @@
           "id": "limit",
           "label": "Limit",
           "type": "number",
-          "in": "query",
           "description": "Max number of results to return",
           "defaultValue": 20
         }
-      ]
+      ],
+      "group": "Asteroid Neo-Browse",
+      "description": "Browse the overall asteroid dataset"
     },
     {
       "id": "donki_coronal_mass_ejection_get",
-      "label": "Get DonkiCoronalMassEjection",
+      "label": "Get DONKI Coronal Mass Ejection",
       "method": "GET",
-      "path": "/",
+      "path": "/DONKI/CME",
       "fields": [
         {
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add field"
+          "placeholder": "Add field",
+          "description": "(JSON object; supported keys: startDate, endDate)"
         }
-      ]
+      ],
+      "group": "DONKI Coronal Mass Ejection",
+      "description": "Retrieve DONKI coronal mass ejection data"
     },
     {
       "id": "donki_geomagnetic_storm_get",
-      "label": "Get DonkiGeomagneticStorm",
+      "label": "Get Donki Geomagnetic Storm",
       "method": "GET",
-      "path": "/",
+      "path": "/DONKI/GST",
       "fields": [
         {
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add field"
+          "placeholder": "Add field",
+          "description": "(JSON object; supported keys: startDate, endDate)"
         }
-      ]
+      ],
+      "group": "Donki Geomagnetic Storm",
+      "description": "Retrieve DONKI geomagnetic storm data"
     },
     {
       "id": "donki_interplanetary_shock_get",
-      "label": "Get DonkiInterplanetaryShock",
+      "label": "Get DONKI Interplanetary Shock",
       "method": "GET",
-      "path": "/",
+      "path": "/DONKI/IPS",
       "fields": [
         {
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add field"
+          "placeholder": "Add field",
+          "description": "(JSON object; supported keys: startDate, endDate, location, catalog)"
         }
-      ]
+      ],
+      "group": "DONKI Interplanetary Shock",
+      "description": "Retrieve DONKI interplanetary shock data"
     },
     {
       "id": "donki_solar_flare_get",
-      "label": "Get DonkiSolarFlare",
+      "label": "Get DONKI Solar Flare",
       "method": "GET",
-      "path": "/",
+      "path": "/DONKI/FLR",
       "fields": [
         {
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add field"
+          "placeholder": "Add field",
+          "description": "(JSON object; supported keys: startDate, endDate)"
         }
-      ]
+      ],
+      "group": "DONKI Solar Flare",
+      "description": "Retrieve DONKI solar flare data"
     },
     {
       "id": "donki_solar_energetic_particle_get",
-      "label": "Get DonkiSolarEnergeticParticle",
+      "label": "Get DONKI Solar Energetic Particle",
       "method": "GET",
-      "path": "/",
+      "path": "/DONKI/SEP",
       "fields": [
         {
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add field"
+          "placeholder": "Add field",
+          "description": "(JSON object; supported keys: startDate, endDate)"
         }
-      ]
+      ],
+      "group": "DONKI Solar Energetic Particle",
+      "description": "Retrieve DONKI solar energetic particle data"
     },
     {
       "id": "donki_magnetopause_crossing_get",
-      "label": "Get DonkiMagnetopauseCrossing",
+      "label": "Get DONKI Magnetopause Crossing",
       "method": "GET",
-      "path": "/",
+      "path": "/DONKI/MPC",
       "fields": [
         {
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add field"
+          "placeholder": "Add field",
+          "description": "(JSON object; supported keys: startDate, endDate)"
         }
-      ]
+      ],
+      "group": "DONKI Magnetopause Crossing",
+      "description": "Retrieve data on DONKI magnetopause crossings"
     },
     {
       "id": "donki_radiation_belt_enhancement_get",
-      "label": "Get DonkiRadiationBeltEnhancement",
+      "label": "Get DONKI Radiation Belt Enhancement",
       "method": "GET",
-      "path": "/",
+      "path": "/DONKI/RBE",
       "fields": [
         {
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add field"
+          "placeholder": "Add field",
+          "description": "(JSON object; supported keys: startDate, endDate)"
         }
-      ]
+      ],
+      "group": "DONKI Radiation Belt Enhancement",
+      "description": "Retrieve DONKI radiation belt enhancement data"
     },
     {
       "id": "donki_high_speed_stream_get",
-      "label": "Get DonkiHighSpeedStream",
+      "label": "Get DONKI High Speed Stream",
       "method": "GET",
-      "path": "/",
+      "path": "/DONKI/HSS",
       "fields": [
         {
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add field"
+          "placeholder": "Add field",
+          "description": "(JSON object; supported keys: startDate, endDate)"
         }
-      ]
+      ],
+      "group": "DONKI High Speed Stream",
+      "description": "Retrieve DONKI high speed stream data"
     },
     {
       "id": "donki_wsa_enlil_simulation_get",
-      "label": "Get DonkiWsaEnlilSimulation",
+      "label": "Get DONKI WSA+EnlilSimulation",
       "method": "GET",
-      "path": "/",
+      "path": "/DONKI/WSAEnlilSimulations",
       "fields": [
         {
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add field"
+          "placeholder": "Add field",
+          "description": "(JSON object; supported keys: startDate, endDate)"
         }
-      ]
+      ],
+      "group": "DONKI WSA+EnlilSimulation",
+      "description": "Retrieve DONKI WSA+EnlilSimulation data"
     },
     {
       "id": "donki_notifications_get",
-      "label": "Get DonkiNotifications",
+      "label": "Get DONKI Notification",
       "method": "GET",
-      "path": "/",
+      "path": "/DONKI/notifications",
       "fields": [
         {
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add field"
+          "placeholder": "Add field",
+          "description": "(JSON object; supported keys: startDate, endDate)"
         }
-      ]
+      ],
+      "group": "DONKI Notification",
+      "description": "Retrieve DONKI notifications data"
     },
     {
       "id": "earth_imagery_get",
-      "label": "Get EarthImagery",
+      "label": "Get Earth Imagery",
       "method": "GET",
-      "path": "/",
+      "path": "/planetary/earth/imagery",
       "fields": [
         {
           "id": "lat",
           "label": "Latitude",
           "type": "number",
-          "in": "query",
           "placeholder": "47.751076",
           "description": "Latitude for the location of the image"
         },
@@ -275,7 +298,6 @@
           "id": "lon",
           "label": "Longitude",
           "type": "number",
-          "in": "query",
           "placeholder": "-120.740135",
           "description": "Longitude for the location of the image"
         },
@@ -283,7 +305,6 @@
           "id": "binaryPropertyName",
           "label": "Put Output File in Field",
           "type": "text",
-          "in": "query",
           "required": true,
           "defaultValue": "data"
         },
@@ -291,22 +312,23 @@
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add field"
+          "placeholder": "Add field",
+          "description": "(JSON object; supported keys: date, dim)"
         }
-      ]
+      ],
+      "group": "Earth Imagery",
+      "description": "Retrieve Earth imagery"
     },
     {
       "id": "earth_assets_get",
-      "label": "Get EarthAssets",
+      "label": "Get Earth Asset",
       "method": "GET",
-      "path": "/",
+      "path": "/planetary/earth/assets",
       "fields": [
         {
           "id": "lat",
           "label": "Latitude",
           "type": "number",
-          "in": "query",
           "placeholder": "47.751076",
           "description": "Latitude for the location of the image"
         },
@@ -314,7 +336,6 @@
           "id": "lon",
           "label": "Longitude",
           "type": "number",
-          "in": "query",
           "placeholder": "-120.740135",
           "description": "Longitude for the location of the image"
         },
@@ -322,38 +343,48 @@
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add field"
+          "placeholder": "Add field",
+          "description": "(JSON object; supported keys: date, dim)"
         }
-      ]
+      ],
+      "group": "Earth Asset",
+      "description": "Retrieve Earth assets"
     },
     {
       "id": "in_sight_mars_weather_service_get",
-      "label": "Get InSightMarsWeatherService",
+      "label": "Get In Sight Mars Weather Service",
       "method": "GET",
-      "path": "/",
-      "fields": []
+      "path": "/in-sight-mars-weather-service",
+      "fields": [],
+      "group": "In Sight Mars Weather Service",
+      "description": "[unverified path] Retrieve Insight Mars Weather Service data"
     },
     {
       "id": "image_and_video_library_get",
-      "label": "Get ImageAndVideoLibrary",
+      "label": "Get Image And Video Library",
       "method": "GET",
-      "path": "/",
-      "fields": []
+      "path": "/image-and-video-library",
+      "fields": [],
+      "group": "Image And Video Library",
+      "description": "[unverified path] Retrieve Image and Video Library data"
     },
     {
       "id": "tech_transfer_get",
-      "label": "Get TechTransfer",
+      "label": "Get Tech Transfer",
       "method": "GET",
-      "path": "/",
-      "fields": []
+      "path": "/tech-transfer",
+      "fields": [],
+      "group": "Tech Transfer",
+      "description": "[unverified path] Retrieve TechTransfer data"
     },
     {
       "id": "two_line_element_set_get",
-      "label": "Get TwoLineElementSet",
+      "label": "Get Two Line Element Set",
       "method": "GET",
-      "path": "/",
-      "fields": []
+      "path": "/two-line-element-set",
+      "fields": [],
+      "group": "Two Line Element Set",
+      "description": "[unverified path] Retrieve Two-Line Element Set data"
     }
   ]
 }

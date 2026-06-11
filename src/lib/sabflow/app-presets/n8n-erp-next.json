@@ -4,21 +4,245 @@
   "description": "Consume ERPNext API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 8,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://{subdomain}.{domain}",
   "endpoints": [
     {
-      "id": "document_default",
-      "label": "List Document",
+      "id": "document_create",
+      "label": "Create Document",
+      "method": "POST",
+      "path": "/api/resource/{docType}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your ERPNext account (host token in the API base URL)"
+        },
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your ERPNext account (host token in the API base URL)"
+        },
+        {
+          "id": "docType",
+          "label": "DocType Name or ID",
+          "type": "select",
+          "required": true,
+          "placeholder": "Customer",
+          "description": "DocType you would like to create. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "properties",
+          "label": "Properties",
+          "type": "json",
+          "required": true,
+          "placeholder": "Add Property",
+          "description": "(JSON object; supported keys: customProperty, customProperty.field, customProperty.value)"
+        }
+      ],
+      "group": "Document",
+      "description": "Create a document"
+    },
+    {
+      "id": "document_delete",
+      "label": "Delete Document",
+      "method": "DELETE",
+      "path": "/api/resource/{docType}/{documentName}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your ERPNext account (host token in the API base URL)"
+        },
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your ERPNext account (host token in the API base URL)"
+        },
+        {
+          "id": "docType",
+          "label": "DocType Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The type of document you would like to delete. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "documentName",
+          "label": "Document Name",
+          "type": "text",
+          "required": true,
+          "description": "The name (ID) of document you would like to get",
+          "in": "path"
+        }
+      ],
+      "group": "Document",
+      "description": "Delete a document"
+    },
+    {
+      "id": "document_get",
+      "label": "Get Document",
       "method": "GET",
-      "path": "/document",
-      "fields": []
+      "path": "/api/resource/{docType}/{documentName}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your ERPNext account (host token in the API base URL)"
+        },
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your ERPNext account (host token in the API base URL)"
+        },
+        {
+          "id": "docType",
+          "label": "DocType Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The type of document you would like to get. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "documentName",
+          "label": "Document Name",
+          "type": "text",
+          "required": true,
+          "description": "The name (ID) of document you would like to get",
+          "in": "path"
+        }
+      ],
+      "group": "Document",
+      "description": "Retrieve a document"
+    },
+    {
+      "id": "document_get_all",
+      "label": "Get Many Document",
+      "method": "GET",
+      "path": "/api/resource/{docType}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your ERPNext account (host token in the API base URL)"
+        },
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your ERPNext account (host token in the API base URL)"
+        },
+        {
+          "id": "docType",
+          "label": "DocType Name or ID",
+          "type": "select",
+          "placeholder": "Customer",
+          "description": "DocType whose documents to retrieve. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 10
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: fields, filters)"
+        }
+      ],
+      "group": "Document",
+      "description": "Retrieve many documents"
+    },
+    {
+      "id": "document_update",
+      "label": "Update Document",
+      "method": "PUT",
+      "path": "/api/resource/{docType}/{documentName}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Domain of your ERPNext account (host token in the API base URL)"
+        },
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your ERPNext account (host token in the API base URL)"
+        },
+        {
+          "id": "docType",
+          "label": "DocType Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The type of document you would like to update. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "documentName",
+          "label": "Document Name",
+          "type": "text",
+          "required": true,
+          "description": "The name (ID) of document you would like to get",
+          "in": "path"
+        },
+        {
+          "id": "properties",
+          "label": "Properties",
+          "type": "json",
+          "placeholder": "Add Property",
+          "description": "Properties of request body (JSON object; supported keys: customProperty, customProperty.field, customProperty.value)"
+        }
+      ],
+      "group": "Document",
+      "description": "Update a document"
     }
   ]
 }

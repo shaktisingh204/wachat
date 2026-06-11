@@ -4,36 +4,37 @@
   "description": "Consume Pushcut API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.pushcut.io/v1",
   "endpoints": [
     {
       "id": "notification_send",
       "label": "Send Notification",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/notifications/${encodeURI(notificationName",
       "fields": [
         {
           "id": "notificationName",
           "label": "Notification Name or ID",
           "type": "select",
-          "in": "query",
-          "description": "Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>"
+          "description": "Choose from the list, or specify an ID using an expression"
         },
         {
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: devices, input, text, title)"
         }
-      ]
+      ],
+      "group": "Notification",
+      "description": "Send a notification"
     }
   ]
 }

@@ -4,21 +4,86 @@
   "description": "Provides various utilities for monitoring websites like health checks or screenshots",
   "category": "analytics",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://urlscan.io/api/v1",
   "endpoints": [
     {
-      "id": "scan_default",
-      "label": "List Scan",
+      "id": "scan_get",
+      "label": "Get Scan",
+      "method": "GET",
+      "path": "/result/{scanId}",
+      "fields": [
+        {
+          "id": "scanId",
+          "label": "Scan ID",
+          "type": "text",
+          "description": "ID of the scan to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Scan",
+      "description": "Get a scan"
+    },
+    {
+      "id": "scan_get_all",
+      "label": "Get Many Scan",
       "method": "GET",
       "path": "/scan",
-      "fields": []
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: query)"
+        }
+      ],
+      "group": "Scan",
+      "description": "[unverified path] Get many scans"
+    },
+    {
+      "id": "scan_perform",
+      "label": "Perform Scan",
+      "method": "POST",
+      "path": "/scan",
+      "fields": [
+        {
+          "id": "url",
+          "label": "URL",
+          "type": "text",
+          "placeholder": "https://n8n.io",
+          "description": "URL to scan"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: customAgent, overrideSafety, referer, tags, visibility)"
+        }
+      ],
+      "group": "Scan",
+      "description": "Perform a scan"
     }
   ]
 }

@@ -4,39 +4,203 @@
   "description": "Consume Strapi API",
   "category": "productivity",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 4,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://{host}",
   "endpoints": [
     {
-      "id": "entry_default",
-      "label": "List Entry",
-      "method": "GET",
-      "path": "/entry",
+      "id": "entry_create",
+      "label": "Create Entry",
+      "method": "POST",
+      "path": "/{contentType}",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "password",
-          "options": [
-            {
-              "value": "password",
-              "label": "Username & Password"
-            },
-            {
-              "value": "token",
-              "label": "API Token"
-            }
-          ]
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Strapi server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "contentType",
+          "label": "Content Type",
+          "type": "text",
+          "required": true,
+          "description": "Name of the content type",
+          "in": "path"
+        },
+        {
+          "id": "columns",
+          "label": "Columns",
+          "type": "text",
+          "placeholder": "id,name,description",
+          "description": "Comma-separated list of the properties which should used as columns for the new rows"
         }
-      ]
+      ],
+      "group": "Entry",
+      "description": "Create an entry"
+    },
+    {
+      "id": "entry_delete",
+      "label": "Delete Entry",
+      "method": "DELETE",
+      "path": "/{contentType}/{entryId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Strapi server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "contentType",
+          "label": "Content Type",
+          "type": "text",
+          "required": true,
+          "description": "Name of the content type",
+          "in": "path"
+        },
+        {
+          "id": "entryId",
+          "label": "Entry ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the entry to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Entry",
+      "description": "Delete an entry"
+    },
+    {
+      "id": "entry_get",
+      "label": "Get Entry",
+      "method": "GET",
+      "path": "/{contentType}/{entryId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Strapi server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "contentType",
+          "label": "Content Type",
+          "type": "text",
+          "required": true,
+          "description": "Name of the content type",
+          "in": "path"
+        },
+        {
+          "id": "entryId",
+          "label": "Entry ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the entry to get",
+          "in": "path"
+        }
+      ],
+      "group": "Entry",
+      "description": "Get an entry"
+    },
+    {
+      "id": "entry_get_all",
+      "label": "Get Many Entry",
+      "method": "GET",
+      "path": "/{contentType}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Strapi server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "contentType",
+          "label": "Content Type",
+          "type": "text",
+          "required": true,
+          "description": "Name of the content type",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: publicationState, sort, where)"
+        }
+      ],
+      "group": "Entry",
+      "description": "Get many entries"
+    },
+    {
+      "id": "entry_update",
+      "label": "Update Entry",
+      "method": "PUT",
+      "path": "/{contentType}/{entryId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Strapi server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "contentType",
+          "label": "Content Type",
+          "type": "text",
+          "required": true,
+          "description": "Name of the content type",
+          "in": "path"
+        },
+        {
+          "id": "updateKey",
+          "label": "Update Key",
+          "type": "text",
+          "required": true,
+          "description": "Name of the property which decides which rows in the database should be updated. Normally that would be \"id\".",
+          "defaultValue": "id"
+        },
+        {
+          "id": "columns",
+          "label": "Columns",
+          "type": "text",
+          "placeholder": "id,name,description",
+          "description": "Comma-separated list of the properties which should used as columns for the new rows"
+        }
+      ],
+      "group": "Entry",
+      "description": "Update an entry"
     }
   ]
 }

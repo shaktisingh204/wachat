@@ -4,91 +4,1416 @@
   "description": "Consume the MISP API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 4,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://{host}",
   "endpoints": [
     {
-      "id": "attribute_default",
-      "label": "List Attribute",
+      "id": "attribute_create",
+      "label": "Create Attribute",
+      "method": "POST",
+      "path": "/attributes/add/{eventId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your MISP server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "eventId",
+          "label": "Event UUID",
+          "type": "text",
+          "required": true,
+          "description": "UUID of the event to attach the attribute to",
+          "in": "path"
+        },
+        {
+          "id": "type",
+          "label": "Type",
+          "type": "select",
+          "required": true,
+          "defaultValue": "text",
+          "options": [
+            {
+              "value": "text",
+              "label": "Text"
+            },
+            {
+              "value": "url",
+              "label": "URL"
+            },
+            {
+              "value": "comment",
+              "label": "Comment"
+            }
+          ]
+        },
+        {
+          "id": "value",
+          "label": "Value",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: distribution, sharing_group_id)"
+        }
+      ],
+      "group": "Attribute",
+      "description": "Create an attribute"
+    },
+    {
+      "id": "attribute_delete",
+      "label": "Delete Attribute",
+      "method": "DELETE",
+      "path": "/attributes/delete/{attributeId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your MISP server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "attributeId",
+          "label": "Attribute ID",
+          "type": "text",
+          "required": true,
+          "description": "UUID or numeric ID of the attribute",
+          "in": "path"
+        }
+      ],
+      "group": "Attribute",
+      "description": "Delete an attribute"
+    },
+    {
+      "id": "attribute_get",
+      "label": "Get Attribute",
+      "method": "GET",
+      "path": "/attributes/view/{attributeId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your MISP server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "attributeId",
+          "label": "Attribute ID",
+          "type": "text",
+          "required": true,
+          "description": "UUID or numeric ID of the attribute",
+          "in": "path"
+        }
+      ],
+      "group": "Attribute",
+      "description": "Get an attribute"
+    },
+    {
+      "id": "attribute_get_all",
+      "label": "Get Many Attribute",
       "method": "GET",
       "path": "/attribute",
-      "fields": []
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your MISP server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Attribute",
+      "description": "[unverified path] Get many attributes"
     },
     {
-      "id": "event_default",
-      "label": "List Event",
+      "id": "attribute_search",
+      "label": "Search Attribute",
+      "method": "GET",
+      "path": "/attribute",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your MISP server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "useJson",
+          "label": "Use JSON to Specify Fields",
+          "type": "toggle",
+          "description": "Whether to use JSON to specify the fields for the search request",
+          "defaultValue": false
+        },
+        {
+          "id": "jsonOutput",
+          "label": "JSON",
+          "type": "json",
+          "description": "Get more info at {YOUR_BASE_URL_SPECIFIED_IN_CREDENTIALS}/api/openapi#operation/restSearchAttributes",
+          "defaultValue": "{\n  \"value\": \"search value\",\n  \"type\": \"text\"\n}\n"
+        },
+        {
+          "id": "value",
+          "label": "Value",
+          "type": "text",
+          "required": true,
+          "placeholder": "e.g. 127.0.0.1"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: category, deleted, searchall, tags, type, published)"
+        }
+      ],
+      "group": "Attribute",
+      "description": "[unverified path] Get a filtered list of attributes"
+    },
+    {
+      "id": "attribute_update",
+      "label": "Update Attribute",
+      "method": "PUT",
+      "path": "/attributes/edit/{attributeId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your MISP server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "attributeId",
+          "label": "Attribute ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the attribute to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: distribution, sharing_group_id)"
+        }
+      ],
+      "group": "Attribute",
+      "description": "Update an attribute"
+    },
+    {
+      "id": "event_create",
+      "label": "Create Event",
+      "method": "POST",
+      "path": "/events",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your MISP server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "org_id",
+          "label": "Organization Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "information",
+          "label": "Information",
+          "type": "text",
+          "required": true,
+          "description": "Information on the event - max 65535 characters"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: analysis, distribution, sharing_group_id, threat_level_id)"
+        }
+      ],
+      "group": "Event",
+      "description": "Create an event"
+    },
+    {
+      "id": "event_delete",
+      "label": "Delete Event",
+      "method": "DELETE",
+      "path": "/events/delete/{eventId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your MISP server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "eventId",
+          "label": "Event ID",
+          "type": "text",
+          "required": true,
+          "description": "UUID or numeric ID of the event",
+          "in": "path"
+        }
+      ],
+      "group": "Event",
+      "description": "Delete an event"
+    },
+    {
+      "id": "event_get",
+      "label": "Get Event",
+      "method": "GET",
+      "path": "/events/view/{eventId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your MISP server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "eventId",
+          "label": "Event ID",
+          "type": "text",
+          "required": true,
+          "description": "UUID or numeric ID of the event",
+          "in": "path"
+        }
+      ],
+      "group": "Event",
+      "description": "Get an event"
+    },
+    {
+      "id": "event_get_all",
+      "label": "Get Many Event",
       "method": "GET",
       "path": "/event",
-      "fields": []
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your MISP server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Event",
+      "description": "[unverified path] Get many events"
     },
     {
-      "id": "event_tag_default",
-      "label": "List EventTag",
+      "id": "event_publish",
+      "label": "Publish Event",
+      "method": "POST",
+      "path": "/events/publish/{eventId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your MISP server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "eventId",
+          "label": "Event ID",
+          "type": "text",
+          "required": true,
+          "description": "UUID or numeric ID of the event",
+          "in": "path"
+        }
+      ],
+      "group": "Event",
+      "description": "Publish an event"
+    },
+    {
+      "id": "event_search",
+      "label": "Search Event",
       "method": "GET",
-      "path": "/eventTag",
-      "fields": []
+      "path": "/event",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your MISP server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "useJson",
+          "label": "Use JSON to Specify Fields",
+          "type": "toggle",
+          "description": "Whether to use JSON to specify the fields for the search request",
+          "defaultValue": false
+        },
+        {
+          "id": "jsonOutput",
+          "label": "JSON",
+          "type": "json",
+          "description": "Get more info at {YOUR_BASE_URL_SPECIFIED_IN_CREDENTIALS}/api/openapi#operation/restSearchAttributes",
+          "defaultValue": "{\n  \"value\": \"search value\",\n  \"type\": \"text\"\n}\n"
+        },
+        {
+          "id": "value",
+          "label": "Value",
+          "type": "text",
+          "required": true,
+          "placeholder": "e.g. 127.0.0.1"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: category, deleted, searchall, tags, type, published)"
+        }
+      ],
+      "group": "Event",
+      "description": "[unverified path] Get a filtered list of events"
     },
     {
-      "id": "feed_default",
-      "label": "List Feed",
+      "id": "event_unpublish",
+      "label": "Unpublish Event",
+      "method": "POST",
+      "path": "/events/unpublish/{eventId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your MISP server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "eventId",
+          "label": "Event ID",
+          "type": "text",
+          "required": true,
+          "description": "UUID or numeric ID of the event",
+          "in": "path"
+        }
+      ],
+      "group": "Event",
+      "description": "Unpublish an event"
+    },
+    {
+      "id": "event_update",
+      "label": "Update Event",
+      "method": "PUT",
+      "path": "/events/edit/{eventId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your MISP server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "eventId",
+          "label": "Event ID",
+          "type": "text",
+          "required": true,
+          "description": "UUID or numeric ID of the event",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: analysis, distribution, information, sharing_group_id, threat_level_id)"
+        }
+      ],
+      "group": "Event",
+      "description": "Update an event"
+    },
+    {
+      "id": "event_tag_add",
+      "label": "Add Event Tag",
+      "method": "POST",
+      "path": "/events/addTag",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your MISP server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "eventId",
+          "label": "Event ID",
+          "type": "text",
+          "required": true,
+          "description": "UUID or numeric ID of the event"
+        },
+        {
+          "id": "tagId",
+          "label": "Tag Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        }
+      ],
+      "group": "Event Tag",
+      "description": "Add a tag to an event"
+    },
+    {
+      "id": "event_tag_remove",
+      "label": "Remove Event Tag",
+      "method": "POST",
+      "path": "/events/removeTag/{eventId}/{tagId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your MISP server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "eventId",
+          "label": "Event ID",
+          "type": "text",
+          "required": true,
+          "description": "UUID or numeric ID of the event",
+          "in": "path"
+        },
+        {
+          "id": "tagId",
+          "label": "Tag Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        }
+      ],
+      "group": "Event Tag",
+      "description": "Remove a tag from an event"
+    },
+    {
+      "id": "feed_create",
+      "label": "Create Feed",
+      "method": "POST",
+      "path": "/feeds/add",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your MISP server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "provider",
+          "label": "Provider",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "url",
+          "label": "URL",
+          "type": "text",
+          "required": true,
+          "placeholder": "https://example.com"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: distribution, json)"
+        }
+      ],
+      "group": "Feed",
+      "description": "Create a feed"
+    },
+    {
+      "id": "feed_disable",
+      "label": "Disable Feed",
+      "method": "POST",
+      "path": "/feeds/disable/{feedId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your MISP server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "feedId",
+          "label": "Feed ID",
+          "type": "text",
+          "required": true,
+          "description": "UUID or numeric ID of the feed",
+          "in": "path"
+        }
+      ],
+      "group": "Feed",
+      "description": "Disable a feed"
+    },
+    {
+      "id": "feed_enable",
+      "label": "Enable Feed",
+      "method": "POST",
+      "path": "/feeds/enable/{feedId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your MISP server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "feedId",
+          "label": "Feed ID",
+          "type": "text",
+          "required": true,
+          "description": "UUID or numeric ID of the feed",
+          "in": "path"
+        }
+      ],
+      "group": "Feed",
+      "description": "Enable a feed"
+    },
+    {
+      "id": "feed_get",
+      "label": "Get Feed",
+      "method": "GET",
+      "path": "/feeds/view/{feedId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your MISP server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "feedId",
+          "label": "Feed ID",
+          "type": "text",
+          "required": true,
+          "description": "UUID or numeric ID of the feed",
+          "in": "path"
+        }
+      ],
+      "group": "Feed",
+      "description": "Get a feed"
+    },
+    {
+      "id": "feed_get_all",
+      "label": "Get Many Feed",
       "method": "GET",
       "path": "/feed",
-      "fields": []
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your MISP server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Feed",
+      "description": "[unverified path] Get many feeds"
     },
     {
-      "id": "galaxy_default",
-      "label": "List Galaxy",
+      "id": "feed_update",
+      "label": "Update Feed",
+      "method": "PUT",
+      "path": "/feeds/edit/{feedId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your MISP server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "feedId",
+          "label": "Feed ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the feed to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: distribution, name, provider, rules, url)"
+        }
+      ],
+      "group": "Feed",
+      "description": "Update a feed"
+    },
+    {
+      "id": "galaxy_delete",
+      "label": "Delete Galaxy",
+      "method": "DELETE",
+      "path": "/galaxies/delete/{galaxyId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your MISP server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "galaxyId",
+          "label": "Galaxy ID",
+          "type": "text",
+          "required": true,
+          "description": "UUID or numeric ID of the galaxy",
+          "in": "path"
+        }
+      ],
+      "group": "Galaxy",
+      "description": "Delete a galaxy"
+    },
+    {
+      "id": "galaxy_get",
+      "label": "Get Galaxy",
+      "method": "GET",
+      "path": "/galaxies/view/{galaxyId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your MISP server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "galaxyId",
+          "label": "Galaxy ID",
+          "type": "text",
+          "required": true,
+          "description": "UUID or numeric ID of the galaxy",
+          "in": "path"
+        }
+      ],
+      "group": "Galaxy",
+      "description": "Get a galaxy"
+    },
+    {
+      "id": "galaxy_get_all",
+      "label": "Get Many Galaxy",
       "method": "GET",
       "path": "/galaxy",
-      "fields": []
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your MISP server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Galaxy",
+      "description": "[unverified path] Get many galaxies"
     },
     {
-      "id": "noticelist_default",
-      "label": "List Noticelist",
+      "id": "noticelist_get",
+      "label": "Get Noticelist",
+      "method": "GET",
+      "path": "/noticelists/view/{noticelistId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your MISP server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "noticelistId",
+          "label": "Noticelist ID",
+          "type": "text",
+          "required": true,
+          "description": "Numeric ID of the noticelist",
+          "in": "path"
+        }
+      ],
+      "group": "Noticelist",
+      "description": "Get a noticelist"
+    },
+    {
+      "id": "noticelist_get_all",
+      "label": "Get Many Noticelist",
       "method": "GET",
       "path": "/noticelist",
-      "fields": []
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your MISP server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Noticelist",
+      "description": "[unverified path] Get many noticelists"
     },
     {
-      "id": "object_default",
-      "label": "List Object",
+      "id": "object_search",
+      "label": "Search Object",
       "method": "GET",
       "path": "/object",
-      "fields": []
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your MISP server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "useJson",
+          "label": "Use JSON to Specify Fields",
+          "type": "toggle",
+          "description": "Whether to use JSON to specify the fields for the search request",
+          "defaultValue": false
+        },
+        {
+          "id": "jsonOutput",
+          "label": "JSON",
+          "type": "json",
+          "description": "Get more info at {YOUR_BASE_URL_SPECIFIED_IN_CREDENTIALS}/api/openapi#operation/restSearchAttributes",
+          "defaultValue": "{\n  \"value\": \"search value\",\n  \"type\": \"text\"\n}\n"
+        },
+        {
+          "id": "value",
+          "label": "Value",
+          "type": "text",
+          "required": true,
+          "placeholder": "e.g. 127.0.0.1"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: category, deleted, searchall, tags, type, published)"
+        }
+      ],
+      "group": "Object",
+      "description": "[unverified path] Get a filtered list of objects"
     },
     {
-      "id": "organisation_default",
-      "label": "List Organisation",
+      "id": "organisation_create",
+      "label": "Create Organisation",
+      "method": "POST",
+      "path": "/admin/organisations/add",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your MISP server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: created_by_email, description, nationality, sector, type, usercount)"
+        }
+      ],
+      "group": "Organisation",
+      "description": "Create an organization"
+    },
+    {
+      "id": "organisation_delete",
+      "label": "Delete Organisation",
+      "method": "DELETE",
+      "path": "/admin/organisations/delete/{organisationId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your MISP server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "organisationId",
+          "label": "Organisation ID",
+          "type": "text",
+          "required": true,
+          "description": "UUID or numeric ID of the organisation",
+          "in": "path"
+        }
+      ],
+      "group": "Organisation",
+      "description": "Delete an organization"
+    },
+    {
+      "id": "organisation_get",
+      "label": "Get Organisation",
+      "method": "GET",
+      "path": "/organisations/view/{organisationId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your MISP server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "organisationId",
+          "label": "Organisation ID",
+          "type": "text",
+          "required": true,
+          "description": "UUID or numeric ID of the organisation",
+          "in": "path"
+        }
+      ],
+      "group": "Organisation",
+      "description": "Get an organization"
+    },
+    {
+      "id": "organisation_get_all",
+      "label": "Get Many Organisation",
       "method": "GET",
       "path": "/organisation",
-      "fields": []
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your MISP server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Organisation",
+      "description": "[unverified path] Get many organizations"
     },
     {
-      "id": "tag_default",
-      "label": "List Tag",
+      "id": "organisation_update",
+      "label": "Update Organisation",
+      "method": "PUT",
+      "path": "/admin/organisations/edit/{organisationId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your MISP server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "organisationId",
+          "label": "Organisation ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the organisation to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: description, name, nationality, sector, type)"
+        }
+      ],
+      "group": "Organisation",
+      "description": "Update an organization"
+    },
+    {
+      "id": "tag_create",
+      "label": "Create Tag",
+      "method": "POST",
+      "path": "/tags/add",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your MISP server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: colour)"
+        }
+      ],
+      "group": "Tag",
+      "description": "Create a tag"
+    },
+    {
+      "id": "tag_delete",
+      "label": "Delete Tag",
+      "method": "POST",
+      "path": "/tags/delete/{tagId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your MISP server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "tagId",
+          "label": "Tag ID",
+          "type": "text",
+          "required": true,
+          "description": "Numeric ID of the attribute",
+          "in": "path"
+        }
+      ],
+      "group": "Tag",
+      "description": "Delete a tag"
+    },
+    {
+      "id": "tag_get_all",
+      "label": "Get Many Tag",
       "method": "GET",
-      "path": "/tag",
-      "fields": []
+      "path": "/tags",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your MISP server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Tag",
+      "description": "Get many tags"
     },
     {
-      "id": "user_default",
-      "label": "List User",
+      "id": "tag_update",
+      "label": "Update Tag",
+      "method": "POST",
+      "path": "/tags/edit/{tagId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your MISP server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "tagId",
+          "label": "Tag ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the tag to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: colour, name)"
+        }
+      ],
+      "group": "Tag",
+      "description": "Update a tag"
+    },
+    {
+      "id": "user_create",
+      "label": "Create User",
+      "method": "POST",
+      "path": "/admin/users/add",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your MISP server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "required": true,
+          "placeholder": "name@email.com"
+        },
+        {
+          "id": "role_id",
+          "label": "Role ID",
+          "type": "text",
+          "required": true,
+          "description": "Role IDs are available in the MISP dashboard at /roles/index"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: gpgkey, invited_by, org_id)"
+        }
+      ],
+      "group": "User",
+      "description": "Create a user"
+    },
+    {
+      "id": "user_delete",
+      "label": "Delete User",
+      "method": "DELETE",
+      "path": "/admin/users/delete/{userId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your MISP server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "userId",
+          "label": "User ID",
+          "type": "text",
+          "required": true,
+          "description": "Numeric ID of the user",
+          "in": "path"
+        }
+      ],
+      "group": "User",
+      "description": "Delete a user"
+    },
+    {
+      "id": "user_get",
+      "label": "Get User",
+      "method": "GET",
+      "path": "/admin/users/view/{userId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your MISP server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "userId",
+          "label": "User ID",
+          "type": "text",
+          "required": true,
+          "description": "Numeric ID of the user",
+          "in": "path"
+        }
+      ],
+      "group": "User",
+      "description": "Get a user"
+    },
+    {
+      "id": "user_get_all",
+      "label": "Get Many User",
       "method": "GET",
       "path": "/user",
-      "fields": []
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your MISP server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "User",
+      "description": "[unverified path] Get many users"
     },
     {
-      "id": "warninglist_default",
-      "label": "List Warninglist",
+      "id": "user_update",
+      "label": "Update User",
+      "method": "PUT",
+      "path": "/admin/users/edit/{userId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your MISP server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "userId",
+          "label": "User ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the user to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: email, gpgkey, invited_by, org_id)"
+        }
+      ],
+      "group": "User",
+      "description": "Update a user"
+    },
+    {
+      "id": "warninglist_get",
+      "label": "Get Warninglist",
       "method": "GET",
-      "path": "/warninglist",
-      "fields": []
+      "path": "/warninglists/view/{warninglistId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your MISP server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "warninglistId",
+          "label": "Warninglist ID",
+          "type": "text",
+          "required": true,
+          "description": "Numeric ID of the warninglist",
+          "in": "path"
+        }
+      ],
+      "group": "Warninglist",
+      "description": "Get a warninglist"
+    },
+    {
+      "id": "warninglist_get_all",
+      "label": "Get Many Warninglist",
+      "method": "GET",
+      "path": "/warninglists",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your MISP server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Warninglist",
+      "description": "Get many warninglists"
     }
   ]
 }

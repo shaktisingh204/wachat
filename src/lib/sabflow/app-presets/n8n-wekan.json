@@ -4,56 +4,1143 @@
   "description": "Consume Wekan API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 4,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://{host}/api",
   "endpoints": [
     {
-      "id": "board_default",
-      "label": "List Board",
-      "method": "GET",
-      "path": "/board",
-      "fields": []
+      "id": "board_create",
+      "label": "Create Board",
+      "method": "POST",
+      "path": "/boards",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Wekan server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "title",
+          "label": "Title",
+          "type": "text",
+          "required": true,
+          "placeholder": "My board",
+          "description": "The title of the board"
+        },
+        {
+          "id": "owner",
+          "label": "Owner Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The user ID in Wekan. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: isActive, isAdmin, color, isCommentOnly, isNoComments, permission, isWorker)"
+        }
+      ],
+      "group": "Board",
+      "description": "Create a new board"
     },
     {
-      "id": "card_default",
-      "label": "List Card",
-      "method": "GET",
-      "path": "/card",
-      "fields": []
+      "id": "board_delete",
+      "label": "Delete Board",
+      "method": "DELETE",
+      "path": "/boards/{boardId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Wekan server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "boardId",
+          "label": "Board ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the board to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Board",
+      "description": "Delete a board"
     },
     {
-      "id": "card_comment_default",
-      "label": "List CardComment",
+      "id": "board_get",
+      "label": "Get Board",
       "method": "GET",
-      "path": "/cardComment",
-      "fields": []
+      "path": "/boards/{boardId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Wekan server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "boardId",
+          "label": "Board ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the board to get",
+          "in": "path"
+        }
+      ],
+      "group": "Board",
+      "description": "Get the data of a board"
     },
     {
-      "id": "checklist_default",
-      "label": "List Checklist",
+      "id": "board_get_all",
+      "label": "Get Many Board",
       "method": "GET",
-      "path": "/checklist",
-      "fields": []
+      "path": "/users/{userId}/boards",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Wekan server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "IdUser",
+          "label": "User Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the user that boards are attached. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        }
+      ],
+      "group": "Board",
+      "description": "Get many user boards"
     },
     {
-      "id": "checklist_item_default",
-      "label": "List ChecklistItem",
-      "method": "GET",
-      "path": "/checklistItem",
-      "fields": []
+      "id": "card_create",
+      "label": "Create Card",
+      "method": "POST",
+      "path": "/boards/{boardId}/lists/{listId}/cards",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Wekan server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "boardId",
+          "label": "Board Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the board that list belongs to. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "listId",
+          "label": "List Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the list to create card in. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "title",
+          "label": "Title",
+          "type": "text",
+          "required": true,
+          "placeholder": "My card",
+          "description": "The title of the card"
+        },
+        {
+          "id": "swimlaneId",
+          "label": "Swimlane Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The swimlane ID of the new card. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "authorId",
+          "label": "Author Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: assignees, description, members)"
+        }
+      ],
+      "group": "Card",
+      "description": "Create a new card"
     },
     {
-      "id": "list_default",
-      "label": "List List",
+      "id": "card_delete",
+      "label": "Delete Card",
+      "method": "DELETE",
+      "path": "/boards/{boardId}/lists/{listId}/cards/{cardId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Wekan server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "boardId",
+          "label": "Board Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the board that list belongs to. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "listId",
+          "label": "List Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the list that card belongs to. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "cardId",
+          "label": "Card Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the card to delete. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        }
+      ],
+      "group": "Card",
+      "description": "Delete a card"
+    },
+    {
+      "id": "card_get",
+      "label": "Get Card",
       "method": "GET",
-      "path": "/list",
-      "fields": []
+      "path": "/boards/{boardId}/lists/{listId}/cards/{cardId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Wekan server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "boardId",
+          "label": "Board Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the board that list belongs to. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "listId",
+          "label": "List Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the list that card belongs to. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "cardId",
+          "label": "Card ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the card to get",
+          "in": "path"
+        }
+      ],
+      "group": "Card",
+      "description": "Get a card"
+    },
+    {
+      "id": "card_get_all",
+      "label": "Get Many Card",
+      "method": "GET",
+      "path": "/boards/{boardId}/lists/{listId}/cards",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Wekan server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "boardId",
+          "label": "Board Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the board that list belongs to. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "fromObject",
+          "label": "From Object",
+          "type": "select",
+          "required": true,
+          "options": [
+            {
+              "value": "list",
+              "label": "List"
+            },
+            {
+              "value": "swimlane",
+              "label": "Swimlane"
+            }
+          ]
+        },
+        {
+          "id": "listId",
+          "label": "List Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the list that card belongs to. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "swimlaneId",
+          "label": "Swimlane Name or ID",
+          "type": "select",
+          "description": "The ID of the swimlane that card belongs to. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        }
+      ],
+      "group": "Card",
+      "description": "Get many cards"
+    },
+    {
+      "id": "card_update",
+      "label": "Update Card",
+      "method": "PUT",
+      "path": "/boards/{boardId}/lists/{listId}/cards/{cardId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Wekan server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "boardId",
+          "label": "Board Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the board that list belongs to. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "listId",
+          "label": "List Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the list that card belongs to. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "cardId",
+          "label": "Card Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the card to update. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: authorId, assignees, color, description, dueAt, endAt, labelIds, listId, members, isOverTime, parentId, receivedAt, sort, spentTime, startAt, swimlaneId, title)"
+        }
+      ],
+      "group": "Card",
+      "description": "Update a card"
+    },
+    {
+      "id": "card_comment_create",
+      "label": "Create Card Comment",
+      "method": "POST",
+      "path": "/boards/{boardId}/cards/{cardId}/comments",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Wekan server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "boardId",
+          "label": "Board Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the board that card belongs to. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "listId",
+          "label": "List Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the list that card belongs to. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "cardId",
+          "label": "Card Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the card. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "authorId",
+          "label": "Author Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The user who posted the comment. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "comment",
+          "label": "Comment",
+          "type": "text",
+          "required": true,
+          "description": "The comment text"
+        }
+      ],
+      "group": "Card Comment",
+      "description": "Create a comment on a card"
+    },
+    {
+      "id": "card_comment_delete",
+      "label": "Delete Card Comment",
+      "method": "DELETE",
+      "path": "/boards/{boardId}/cards/{cardId}/comments/{commentId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Wekan server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "boardId",
+          "label": "Board Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the board that card belongs to. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "listId",
+          "label": "List Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the list that card belongs to. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "cardId",
+          "label": "Card Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the card. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "commentId",
+          "label": "Comment Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the comment to delete. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        }
+      ],
+      "group": "Card Comment",
+      "description": "Delete a comment from a card"
+    },
+    {
+      "id": "card_comment_get",
+      "label": "Get Card Comment",
+      "method": "GET",
+      "path": "/boards/{boardId}/cards/{cardId}/comments/{commentId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Wekan server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "boardId",
+          "label": "Board ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the board that card belongs to",
+          "in": "path"
+        },
+        {
+          "id": "listId",
+          "label": "List Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the list that card belongs to. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "cardId",
+          "label": "Card Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the card. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "commentId",
+          "label": "Comment ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the comment to get",
+          "in": "path"
+        }
+      ],
+      "group": "Card Comment",
+      "description": "Get a card comment"
+    },
+    {
+      "id": "card_comment_get_all",
+      "label": "Get Many Card Comment",
+      "method": "GET",
+      "path": "/boards/{boardId}/cards/{cardId}/comments",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Wekan server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "boardId",
+          "label": "Board Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the board that card belongs to. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "listId",
+          "label": "List Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the list that card belongs to. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "cardId",
+          "label": "Card Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the card. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        }
+      ],
+      "group": "Card Comment",
+      "description": "Get many card comments"
+    },
+    {
+      "id": "checklist_create",
+      "label": "Create Checklist",
+      "method": "POST",
+      "path": "/boards/{boardId}/cards/{cardId}/checklists",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Wekan server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "boardId",
+          "label": "Board Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the board where the card is in. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "listId",
+          "label": "List Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the list that card belongs to. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "cardId",
+          "label": "Card Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the card to add checklist to. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "title",
+          "label": "Title",
+          "type": "text",
+          "required": true,
+          "description": "The title of the checklist to add"
+        },
+        {
+          "id": "items",
+          "label": "Items",
+          "type": "text",
+          "description": "Items to be added to the checklist"
+        }
+      ],
+      "group": "Checklist",
+      "description": "Create a new checklist"
+    },
+    {
+      "id": "checklist_delete",
+      "label": "Delete Checklist",
+      "method": "DELETE",
+      "path": "/boards/{boardId}/cards/{cardId}/checklists/{checklistId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Wekan server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "boardId",
+          "label": "Board Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the board that card belongs to. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "listId",
+          "label": "List Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the list that card belongs to. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "cardId",
+          "label": "Card Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the card that checklist belongs to. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "checklistId",
+          "label": "Checklist Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the checklist to delete. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        }
+      ],
+      "group": "Checklist",
+      "description": "Delete a checklist"
+    },
+    {
+      "id": "checklist_get",
+      "label": "Get Checklist",
+      "method": "GET",
+      "path": "/boards/{boardId}/cards/{cardId}/checklists/{checklistId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Wekan server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "boardId",
+          "label": "Board Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the board that card belongs to. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "listId",
+          "label": "List Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the list that card belongs to. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "cardId",
+          "label": "Card Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the card that checklist belongs to. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "checklistId",
+          "label": "Checklist Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the checklist to get. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        }
+      ],
+      "group": "Checklist",
+      "description": "Get the data of a checklist"
+    },
+    {
+      "id": "checklist_get_all",
+      "label": "Get Many Checklist",
+      "method": "GET",
+      "path": "/boards/{boardId}/cards/{cardId}/checklists",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Wekan server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "boardId",
+          "label": "Board Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the board that list belongs to. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "listId",
+          "label": "List Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the list that card belongs to. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "cardId",
+          "label": "Card Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the card to get checklists. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        }
+      ],
+      "group": "Checklist",
+      "description": "Returns many checklists for the card"
+    },
+    {
+      "id": "checklist_item_delete",
+      "label": "Delete Checklist Item",
+      "method": "DELETE",
+      "path": "/boards/{boardId}/cards/{cardId}/checklists/{checklistId}/items/{itemId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Wekan server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "boardId",
+          "label": "Board Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the board that card belongs to. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "listId",
+          "label": "List Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the list that card belongs to. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "cardId",
+          "label": "Card Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the card that checklistItem belongs to. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "checklistId",
+          "label": "Checklist Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the checklistItem that card belongs to. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "checklistItemId",
+          "label": "Checklist Item Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the checklistItem item to get. Choose from the list, or specify an ID using an expression."
+        }
+      ],
+      "group": "Checklist Item",
+      "description": "Delete a checklist item"
+    },
+    {
+      "id": "checklist_item_get",
+      "label": "Get Checklist Item",
+      "method": "GET",
+      "path": "/boards/{boardId}/cards/{cardId}/checklists/{checklistId}/items/{itemId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Wekan server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "boardId",
+          "label": "Board Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the board that card belongs to. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "listId",
+          "label": "List Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the list that card belongs to. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "cardId",
+          "label": "Card Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the card that checklistItem belongs to. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "checklistId",
+          "label": "Checklist ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the checklistItem that card belongs to",
+          "in": "path"
+        },
+        {
+          "id": "checklistItemId",
+          "label": "Checklist Item Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the checklistItem item to get. Choose from the list, or specify an ID using an expression."
+        }
+      ],
+      "group": "Checklist Item",
+      "description": "Get a checklist item"
+    },
+    {
+      "id": "checklist_item_update",
+      "label": "Update Checklist Item",
+      "method": "PUT",
+      "path": "/boards/{boardId}/cards/{cardId}/checklists/{checklistId}/items/{itemId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Wekan server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "boardId",
+          "label": "Board Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the board that card belongs to. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "listId",
+          "label": "List Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the list that card belongs to. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "cardId",
+          "label": "Card Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the card that checklistItem belongs to. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "checklistId",
+          "label": "CheckList Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the checklistItem that card belongs to. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "checklistItemId",
+          "label": "Checklist Item Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the checklistItem item to update. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: title, isFinished)"
+        }
+      ],
+      "group": "Checklist Item",
+      "description": "Update a checklist item"
+    },
+    {
+      "id": "list_create",
+      "label": "Create List",
+      "method": "POST",
+      "path": "/boards/{boardId}/lists",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Wekan server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "boardId",
+          "label": "Board Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the board the list should be created in. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "title",
+          "label": "Title",
+          "type": "text",
+          "required": true,
+          "placeholder": "My list",
+          "description": "The title of the list"
+        }
+      ],
+      "group": "List",
+      "description": "Create a new list"
+    },
+    {
+      "id": "list_delete",
+      "label": "Delete List",
+      "method": "DELETE",
+      "path": "/boards/{boardId}/lists/{listId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Wekan server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "boardId",
+          "label": "Board Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the board that list belongs to. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "listId",
+          "label": "List Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the list to delete. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        }
+      ],
+      "group": "List",
+      "description": "Delete a list"
+    },
+    {
+      "id": "list_get",
+      "label": "Get List",
+      "method": "GET",
+      "path": "/boards/{boardId}/lists/{listId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Wekan server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "boardId",
+          "label": "Board Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the board that list belongs to. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "listId",
+          "label": "List ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the list to get",
+          "in": "path"
+        }
+      ],
+      "group": "List",
+      "description": "Get the data of a list"
+    },
+    {
+      "id": "list_get_all",
+      "label": "Get Many List",
+      "method": "GET",
+      "path": "/boards/{boardId}/lists",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Wekan server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "boardId",
+          "label": "Board Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of the board where the lists are in. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        }
+      ],
+      "group": "List",
+      "description": "Get many board lists"
     }
   ]
 }

@@ -4,26 +4,25 @@
   "description": "Create List, add / delete items",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://public-api.lonescale.com",
   "endpoints": [
     {
       "id": "list_create",
       "label": "Create List",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/lists",
       "fields": [
         {
           "id": "name",
           "label": "Name",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "list name",
           "description": "Name of your list"
@@ -32,7 +31,6 @@
           "id": "type",
           "label": "Type",
           "type": "select",
-          "in": "query",
           "required": true,
           "description": "Type of your list",
           "defaultValue": "COMPANY",
@@ -47,19 +45,20 @@
             }
           ]
         }
-      ]
+      ],
+      "group": "List",
+      "description": "Create a list"
     },
     {
       "id": "item_add",
       "label": "Create Item",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/lists/{listId}/item",
       "fields": [
         {
           "id": "type",
           "label": "Type",
           "type": "select",
-          "in": "query",
           "required": true,
           "description": "Type of your list",
           "defaultValue": "PEOPLE",
@@ -78,15 +77,13 @@
           "id": "list",
           "label": "List Name or ID",
           "type": "select",
-          "in": "query",
           "required": true,
-          "description": "Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>"
+          "description": "Choose from the list, or specify an ID using an expression"
         },
         {
           "id": "first_name",
           "label": "First Name",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Contact first name"
         },
@@ -94,7 +91,6 @@
           "id": "last_name",
           "label": "Last Name",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Contact last name"
         },
@@ -102,24 +98,25 @@
           "id": "company_name",
           "label": "Company Name",
           "type": "text",
-          "in": "query",
           "description": "Contact company name"
         },
         {
           "id": "peopleAdditionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: full_name, email, company_name, current_position, domain, linkedin_url, location, contact_id)"
         },
         {
           "id": "companyAdditionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: linkedin_url, domain, location, contact_id)"
         }
-      ]
+      ],
+      "group": "Item",
+      "description": "Create an item"
     }
   ]
 }

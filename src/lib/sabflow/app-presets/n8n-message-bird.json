@@ -4,26 +4,25 @@
   "description": "Sends SMS via MessageBird",
   "category": "communication",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://rest.messagebird.com",
   "endpoints": [
     {
       "id": "sms_send",
-      "label": "Send Sms",
-      "method": "GET",
-      "path": "/",
+      "label": "Send SMS",
+      "method": "POST",
+      "path": "/messages",
       "fields": [
         {
           "id": "originator",
           "label": "From",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "14155238886",
           "description": "The number from which to send the message"
@@ -32,7 +31,6 @@
           "id": "recipients",
           "label": "To",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "14155238886/+14155238886",
           "description": "All recipients separated by commas"
@@ -41,7 +39,6 @@
           "id": "message",
           "label": "Message",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "The message to be send"
         },
@@ -49,17 +46,21 @@
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Fields"
+          "placeholder": "Add Fields",
+          "description": "(JSON object; supported keys: createdDatetime, datacoding, gateway, groupIds, mclass, reference, reportUrl, scheduledDatetime, type, typeDetails, validity)"
         }
-      ]
+      ],
+      "group": "SMS",
+      "description": "Send text messages (SMS)"
     },
     {
       "id": "balance_get",
       "label": "Get Balance",
       "method": "GET",
-      "path": "/",
-      "fields": []
+      "path": "/balance",
+      "fields": [],
+      "group": "Balance",
+      "description": "[unverified path] Get the balance"
     }
   ]
 }

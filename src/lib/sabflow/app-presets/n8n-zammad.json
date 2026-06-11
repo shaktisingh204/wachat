@@ -4,114 +4,664 @@
   "description": "Consume the Zammad API",
   "category": "support",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 4,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "basic",
     "credentialType": "http_basic_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://{host}/api/v1",
   "endpoints": [
     {
-      "id": "group_default",
-      "label": "List Group",
-      "method": "GET",
-      "path": "/group",
+      "id": "group_create",
+      "label": "Create Group",
+      "method": "POST",
+      "path": "/groups",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "tokenAuth",
-          "options": [
-            {
-              "value": "basicAuth",
-              "label": "Basic Auth"
-            },
-            {
-              "value": "tokenAuth",
-              "label": "Token Auth"
-            }
-          ]
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Zammad server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "name",
+          "label": "Group Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: active, customFieldsUi, note)"
         }
-      ]
+      ],
+      "group": "Group",
+      "description": "Create a group"
     },
     {
-      "id": "organization_default",
-      "label": "List Organization",
-      "method": "GET",
-      "path": "/organization",
+      "id": "group_delete",
+      "label": "Delete Group",
+      "method": "DELETE",
+      "path": "/groups/{id}",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "tokenAuth",
-          "options": [
-            {
-              "value": "basicAuth",
-              "label": "Basic Auth"
-            },
-            {
-              "value": "tokenAuth",
-              "label": "Token Auth"
-            }
-          ]
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Zammad server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "id",
+          "label": "Group ID",
+          "type": "text",
+          "required": true,
+          "description": "Group to delete. Specify an ID using an expression.",
+          "in": "path"
         }
-      ]
+      ],
+      "group": "Group",
+      "description": "Delete a group"
     },
     {
-      "id": "ticket_default",
-      "label": "List Ticket",
+      "id": "group_get",
+      "label": "Get Group",
       "method": "GET",
-      "path": "/ticket",
+      "path": "/groups/{id}",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "tokenAuth",
-          "options": [
-            {
-              "value": "basicAuth",
-              "label": "Basic Auth"
-            },
-            {
-              "value": "tokenAuth",
-              "label": "Token Auth"
-            }
-          ]
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Zammad server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "id",
+          "label": "Group ID",
+          "type": "text",
+          "required": true,
+          "description": "Group to retrieve. Specify an ID using an expression.",
+          "in": "path"
         }
-      ]
+      ],
+      "group": "Group",
+      "description": "Retrieve a group"
     },
     {
-      "id": "user_default",
-      "label": "List User",
+      "id": "group_get_all",
+      "label": "Get Many Group",
+      "method": "GET",
+      "path": "/groups",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Zammad server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Group",
+      "description": "Get many groups"
+    },
+    {
+      "id": "group_update",
+      "label": "Update Group",
+      "method": "PUT",
+      "path": "/groups/{id}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Zammad server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "id",
+          "label": "Group ID",
+          "type": "text",
+          "required": true,
+          "description": "Group to update. Specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: active, customFieldsUi, name, note)"
+        }
+      ],
+      "group": "Group",
+      "description": "Update a group"
+    },
+    {
+      "id": "organization_create",
+      "label": "Create Organization",
+      "method": "POST",
+      "path": "/organizations",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Zammad server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "name",
+          "label": "Organization Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: shared, domain, domain_assignment, active, vip, note, customFieldsUi)"
+        }
+      ],
+      "group": "Organization",
+      "description": "Create an organization"
+    },
+    {
+      "id": "organization_delete",
+      "label": "Delete Organization",
+      "method": "DELETE",
+      "path": "/organizations/{id}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Zammad server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "id",
+          "label": "Organization ID",
+          "type": "text",
+          "required": true,
+          "description": "Organization to delete. Specify an ID using an expression.",
+          "in": "path"
+        }
+      ],
+      "group": "Organization",
+      "description": "Delete an organization"
+    },
+    {
+      "id": "organization_get",
+      "label": "Get Organization",
+      "method": "GET",
+      "path": "/organizations/{id}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Zammad server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "id",
+          "label": "Organization ID",
+          "type": "text",
+          "required": true,
+          "description": "Organization to retrieve. Specify an ID using an expression.",
+          "in": "path"
+        }
+      ],
+      "group": "Organization",
+      "description": "Retrieve an organization"
+    },
+    {
+      "id": "organization_get_all",
+      "label": "Get Many Organization",
+      "method": "GET",
+      "path": "/organizations",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Zammad server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Organization",
+      "description": "Retrieve many organizations"
+    },
+    {
+      "id": "organization_update",
+      "label": "Update Organization",
+      "method": "PUT",
+      "path": "/organizations/{id}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Zammad server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "id",
+          "label": "Organization ID",
+          "type": "text",
+          "required": true,
+          "description": "Organization to update. Specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: shared, domain, domain_assignment, active, vip, note, customFieldsUi)"
+        }
+      ],
+      "group": "Organization",
+      "description": "Update an organization"
+    },
+    {
+      "id": "ticket_create",
+      "label": "Create Ticket",
+      "method": "POST",
+      "path": "/tickets",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Zammad server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "title",
+          "label": "Title",
+          "type": "text",
+          "required": true,
+          "description": "Title of the ticket to create"
+        },
+        {
+          "id": "group",
+          "label": "Group Name or ID",
+          "type": "select",
+          "required": true,
+          "placeholder": "First-Level Helpdesk",
+          "description": "Group that will own the ticket to create. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "customer",
+          "label": "Customer Email Name or ID",
+          "type": "select",
+          "required": true,
+          "placeholder": "hello@n8n.io",
+          "description": "Email address of the customer concerned in the ticket to create. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "article",
+          "label": "Article",
+          "type": "json",
+          "required": true,
+          "placeholder": "Add Article",
+          "description": "(JSON object; supported keys: articleDetails, articleDetails.subject, articleDetails.body, articleDetails.visibility, articleDetails.sender, articleDetails.type, articleDetails.reply_to)"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: customFieldsUi)"
+        }
+      ],
+      "group": "Ticket",
+      "description": "Create a ticket"
+    },
+    {
+      "id": "ticket_delete",
+      "label": "Delete Ticket",
+      "method": "DELETE",
+      "path": "/tickets/{id}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Zammad server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "id",
+          "label": "Ticket ID",
+          "type": "text",
+          "required": true,
+          "description": "Ticket to delete. Specify an ID using an expression.",
+          "in": "path"
+        }
+      ],
+      "group": "Ticket",
+      "description": "Delete a ticket"
+    },
+    {
+      "id": "ticket_get",
+      "label": "Get Ticket",
+      "method": "GET",
+      "path": "/tickets/{id}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Zammad server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "id",
+          "label": "Ticket ID",
+          "type": "text",
+          "required": true,
+          "description": "Ticket to retrieve. Specify an ID using an expression.",
+          "in": "path"
+        }
+      ],
+      "group": "Ticket",
+      "description": "Retrieve a ticket"
+    },
+    {
+      "id": "ticket_get_all",
+      "label": "Get Many Ticket",
+      "method": "GET",
+      "path": "/tickets",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Zammad server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Ticket",
+      "description": "Retrieve many tickets"
+    },
+    {
+      "id": "ticket_update",
+      "label": "Update Ticket",
+      "method": "PUT",
+      "path": "/tickets/{id}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Zammad server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "id",
+          "label": "Ticket ID",
+          "type": "text",
+          "required": true,
+          "description": "Ticket to update. Specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: title, group, state_id, pending_time, priority_id, owner_id, customer_id, note, customFieldsUi)"
+        }
+      ],
+      "group": "Ticket",
+      "description": "Update a ticket"
+    },
+    {
+      "id": "user_create",
+      "label": "Create User",
+      "method": "POST",
+      "path": "/users",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Zammad server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "firstname",
+          "label": "First Name",
+          "type": "text",
+          "required": true,
+          "placeholder": "John"
+        },
+        {
+          "id": "lastname",
+          "label": "Last Name",
+          "type": "text",
+          "required": true,
+          "placeholder": "Smith"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: active, addressUi, customFieldsUi, department, email, fax, note, organization, phone, mobile, verified, vip, web)"
+        }
+      ],
+      "group": "User",
+      "description": "Create a user"
+    },
+    {
+      "id": "user_delete",
+      "label": "Delete User",
+      "method": "DELETE",
+      "path": "/users/{id}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Zammad server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "id",
+          "label": "User ID",
+          "type": "text",
+          "required": true,
+          "description": "User to delete. Specify an ID using an expression.",
+          "in": "path"
+        }
+      ],
+      "group": "User",
+      "description": "Delete a user"
+    },
+    {
+      "id": "user_get",
+      "label": "Get User",
+      "method": "GET",
+      "path": "/users/{id}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Zammad server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "id",
+          "label": "User ID",
+          "type": "text",
+          "required": true,
+          "description": "User to retrieve. Specify an ID using an expression.",
+          "in": "path"
+        }
+      ],
+      "group": "User",
+      "description": "Retrieve a user"
+    },
+    {
+      "id": "user_get_all",
+      "label": "Get Many User",
       "method": "GET",
       "path": "/user",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "tokenAuth",
-          "options": [
-            {
-              "value": "basicAuth",
-              "label": "Basic Auth"
-            },
-            {
-              "value": "tokenAuth",
-              "label": "Token Auth"
-            }
-          ]
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Zammad server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: query, sortUi)"
         }
-      ]
+      ],
+      "group": "User",
+      "description": "[unverified path] Retrieve many users"
+    },
+    {
+      "id": "user_get_self",
+      "label": "Get Self User",
+      "method": "GET",
+      "path": "/users/me",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Zammad server, e.g. app.example.com (no https:// prefix)"
+        }
+      ],
+      "group": "User",
+      "description": "Retrieve currently logged-in user"
+    },
+    {
+      "id": "user_update",
+      "label": "Update User",
+      "method": "PUT",
+      "path": "/users/{id}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Zammad server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "id",
+          "label": "User ID",
+          "type": "text",
+          "required": true,
+          "description": "User to update. Specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: active, addressUi, customFieldsUi, department, email, fax, firstname, lastname, note, organization, phone, mobile, verified, vip, web)"
+        }
+      ],
+      "group": "User",
+      "description": "Update a user"
     }
   ]
 }

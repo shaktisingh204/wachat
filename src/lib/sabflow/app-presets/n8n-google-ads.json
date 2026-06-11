@@ -4,8 +4,8 @@
   "description": "Use the Google Ads API",
   "category": "marketing",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -19,18 +19,68 @@
   "baseUrl": "https://googleads.googleapis.com",
   "endpoints": [
     {
-      "id": "campaign_default",
-      "label": "List Campaign",
-      "method": "GET",
-      "path": "/campaign",
+      "id": "campaign_get_all",
+      "label": "Get Many Campaign",
+      "method": "POST",
+      "path": "/v20/customers/{clientCustomerId}.toString().replace(/-/g, \"\")/googleAds:search",
       "fields": [
         {
-          "id": "campaigsNotice",
-          "label": "Divide field names expressed with <i>micros</i> by 1,000,000 to get the actual value",
+          "id": "managerCustomerId",
+          "label": "Manager Customer ID",
           "type": "text",
-          "in": "query"
+          "required": true,
+          "placeholder": "9998887777"
+        },
+        {
+          "id": "clientCustomerId",
+          "label": "Client Customer ID",
+          "type": "text",
+          "required": true,
+          "placeholder": "6665554444",
+          "in": "path"
+        },
+        {
+          "id": "additionalOptions",
+          "label": "Additional Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "Additional options for fetching campaigns (JSON object; supported keys: dateRange, campaignStatus)"
         }
-      ]
+      ],
+      "group": "Campaign",
+      "description": "Get many campaigns linked to the specified account"
+    },
+    {
+      "id": "campaign_get",
+      "label": "Get Campaign",
+      "method": "POST",
+      "path": "/v20/customers/{clientCustomerId}.toString().replace(/-/g, \"\")/googleAds:search",
+      "fields": [
+        {
+          "id": "managerCustomerId",
+          "label": "Manager Customer ID",
+          "type": "text",
+          "required": true,
+          "placeholder": "9998887777"
+        },
+        {
+          "id": "clientCustomerId",
+          "label": "Client Customer ID",
+          "type": "text",
+          "required": true,
+          "placeholder": "6665554444",
+          "in": "path"
+        },
+        {
+          "id": "campaignId",
+          "label": "Campaign ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the campaign"
+        }
+      ],
+      "group": "Campaign",
+      "description": "Get a specific campaign"
     }
   ]
 }

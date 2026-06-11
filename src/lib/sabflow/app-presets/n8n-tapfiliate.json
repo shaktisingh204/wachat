@@ -4,35 +4,345 @@
   "description": "Consume Tapfiliate API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.tapfiliate.com/1.6",
   "endpoints": [
     {
-      "id": "affiliate_default",
-      "label": "List Affiliate",
-      "method": "GET",
-      "path": "/affiliate",
-      "fields": []
+      "id": "affiliate_create",
+      "label": "Create Affiliate",
+      "method": "POST",
+      "path": "/affiliates/",
+      "fields": [
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "required": true,
+          "placeholder": "name@email.com",
+          "description": "The affiliate’s email"
+        },
+        {
+          "id": "firstname",
+          "label": "First Name",
+          "type": "text",
+          "required": true,
+          "description": "The affiliate’s firstname"
+        },
+        {
+          "id": "lastname",
+          "label": "Last Name",
+          "type": "text",
+          "required": true,
+          "description": "The affiliate’s lastname"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: addressUi, companyName)"
+        }
+      ],
+      "group": "Affiliate",
+      "description": "Create an affiliate"
     },
     {
-      "id": "affiliate_metadata_default",
-      "label": "List AffiliateMetadata",
-      "method": "GET",
-      "path": "/affiliateMetadata",
-      "fields": []
+      "id": "affiliate_delete",
+      "label": "Delete Affiliate",
+      "method": "DELETE",
+      "path": "/affiliates/{affiliateId}/",
+      "fields": [
+        {
+          "id": "affiliateId",
+          "label": "Affiliate ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the affiliate",
+          "in": "path"
+        }
+      ],
+      "group": "Affiliate",
+      "description": "Delete an affiliate"
     },
     {
-      "id": "program_affiliate_default",
-      "label": "List ProgramAffiliate",
+      "id": "affiliate_get",
+      "label": "Get Affiliate",
       "method": "GET",
-      "path": "/programAffiliate",
-      "fields": []
+      "path": "/affiliates/{affiliateId}/",
+      "fields": [
+        {
+          "id": "affiliateId",
+          "label": "Affiliate ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the affiliate",
+          "in": "path"
+        }
+      ],
+      "group": "Affiliate",
+      "description": "Get an affiliate by ID"
+    },
+    {
+      "id": "affiliate_get_all",
+      "label": "Get Many Affiliate",
+      "method": "GET",
+      "path": "/affiliates/",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: affiliate_group_id, click_id, email, parentId, referral_code, source_id)"
+        }
+      ],
+      "group": "Affiliate",
+      "description": "Get many affiliates"
+    },
+    {
+      "id": "affiliate_metadata_add",
+      "label": "Add Affiliate Metadata",
+      "method": "PUT",
+      "path": "/affiliates/{affiliateId}/meta-data/{key}/",
+      "fields": [
+        {
+          "id": "affiliateId",
+          "label": "Affiliate ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the affiliate",
+          "in": "path"
+        },
+        {
+          "id": "metadataUi",
+          "label": "Metadata",
+          "type": "json",
+          "placeholder": "Add Metadata",
+          "description": "Meta data (JSON object; supported keys: metadataValues, metadataValues.key, metadataValues.value)"
+        }
+      ],
+      "group": "Affiliate Metadata",
+      "description": "Add metadata to affiliate"
+    },
+    {
+      "id": "affiliate_metadata_remove",
+      "label": "Remove Affiliate Metadata",
+      "method": "DELETE",
+      "path": "/affiliates/{affiliateId}/meta-data/{key}/",
+      "fields": [
+        {
+          "id": "affiliateId",
+          "label": "Affiliate ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the affiliate",
+          "in": "path"
+        },
+        {
+          "id": "key",
+          "label": "Key",
+          "type": "text",
+          "description": "Name of the metadata key to remove",
+          "in": "path"
+        }
+      ],
+      "group": "Affiliate Metadata",
+      "description": "Remove metadata from affiliate"
+    },
+    {
+      "id": "affiliate_metadata_update",
+      "label": "Update Affiliate Metadata",
+      "method": "PUT",
+      "path": "/affiliates/{affiliateId}/meta-data/",
+      "fields": [
+        {
+          "id": "affiliateId",
+          "label": "Affiliate ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the affiliate",
+          "in": "path"
+        },
+        {
+          "id": "key",
+          "label": "Key",
+          "type": "text",
+          "description": "Name of the metadata key to update"
+        },
+        {
+          "id": "value",
+          "label": "Value",
+          "type": "text",
+          "description": "Value to set for the metadata key"
+        }
+      ],
+      "group": "Affiliate Metadata",
+      "description": "Update affiliate's metadata"
+    },
+    {
+      "id": "program_affiliate_add",
+      "label": "Add Program Affiliate",
+      "method": "POST",
+      "path": "/programs/{programId}/affiliates/",
+      "fields": [
+        {
+          "id": "programId",
+          "label": "Program Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the Program to add the affiliate to. This ID can be found as part of the URL when viewing the program on the platform. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "affiliateId",
+          "label": "Affiliate ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the affiliate"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: approved, coupon)"
+        }
+      ],
+      "group": "Program Affiliate",
+      "description": "Add affiliate to program"
+    },
+    {
+      "id": "program_affiliate_approve",
+      "label": "Approve Program Affiliate",
+      "method": "PUT",
+      "path": "/programs/{programId}/affiliates/{affiliateId}/approved/",
+      "fields": [
+        {
+          "id": "programId",
+          "label": "Program Name or ID",
+          "type": "select",
+          "description": "The ID of the Program to add the affiliate to. This ID can be found as part of the URL when viewing the program on the platform. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "affiliateId",
+          "label": "Affiliate ID",
+          "type": "text",
+          "description": "The ID of the affiliate",
+          "in": "path"
+        }
+      ],
+      "group": "Program Affiliate",
+      "description": "Approve an affiliate for a program"
+    },
+    {
+      "id": "program_affiliate_disapprove",
+      "label": "Disapprove Program Affiliate",
+      "method": "DELETE",
+      "path": "/programs/{programId}/affiliates/{affiliateId}/approved/",
+      "fields": [
+        {
+          "id": "programId",
+          "label": "Program Name or ID",
+          "type": "select",
+          "description": "The ID of the Program to add the affiliate to. This ID can be found as part of the URL when viewing the program on the platform. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "affiliateId",
+          "label": "Affiliate ID",
+          "type": "text",
+          "description": "The ID of the affiliate",
+          "in": "path"
+        }
+      ],
+      "group": "Program Affiliate",
+      "description": "Disapprove an affiliate"
+    },
+    {
+      "id": "program_affiliate_get",
+      "label": "Get Program Affiliate",
+      "method": "GET",
+      "path": "/programs/{programId}/affiliates/{affiliateId}/",
+      "fields": [
+        {
+          "id": "programId",
+          "label": "Program Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the Program to add the affiliate to. This ID can be found as part of the URL when viewing the program on the platform. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "affiliateId",
+          "label": "Affiliate ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the affiliate",
+          "in": "path"
+        }
+      ],
+      "group": "Program Affiliate",
+      "description": "Get an affiliate in a program"
+    },
+    {
+      "id": "program_affiliate_get_all",
+      "label": "Get Many Program Affiliate",
+      "method": "GET",
+      "path": "/programs/{programId}/affiliates/",
+      "fields": [
+        {
+          "id": "programId",
+          "label": "Program Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the Program to add the affiliate to. This ID can be found as part of the URL when viewing the program on the platform. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: affiliate_group_id, email, parentId, source_id)"
+        }
+      ],
+      "group": "Program Affiliate",
+      "description": "Get many affiliates in program"
     }
   ]
 }

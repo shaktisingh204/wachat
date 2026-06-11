@@ -4,25 +4,24 @@
   "description": "Consume Hacker News API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 9,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "none"
   },
-  "baseUrl": "",
+  "baseUrl": "http://hn.algolia.com/api/v1",
   "endpoints": [
     {
       "id": "all_get_all",
       "label": "Get Many All",
       "method": "GET",
-      "path": "/",
+      "path": "/search?",
       "fields": [
         {
           "id": "returnAll",
           "label": "Return All",
           "type": "toggle",
-          "in": "query",
           "description": "Whether to return all results or only up to a given limit",
           "defaultValue": false
         },
@@ -30,7 +29,6 @@
           "id": "limit",
           "label": "Limit",
           "type": "number",
-          "in": "query",
           "description": "Max number of results to return",
           "defaultValue": 100
         },
@@ -38,49 +36,55 @@
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: keyword, tags)"
         }
-      ]
+      ],
+      "group": "All",
+      "description": "Get many items"
     },
     {
       "id": "article_get",
       "label": "Get Article",
       "method": "GET",
-      "path": "/",
+      "path": "/items/{articleId}",
       "fields": [
         {
           "id": "articleId",
           "label": "Article ID",
           "type": "text",
-          "in": "query",
           "required": true,
-          "description": "The ID of the Hacker News article to be returned"
+          "description": "The ID of the Hacker News article to be returned",
+          "in": "path"
         },
         {
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: includeComments)"
         }
-      ]
+      ],
+      "group": "Article",
+      "description": "Get a Hacker News article"
     },
     {
       "id": "user_get",
       "label": "Get User",
       "method": "GET",
-      "path": "/",
+      "path": "/users/{username}",
       "fields": [
         {
           "id": "username",
           "label": "Username",
           "type": "text",
-          "in": "query",
           "required": true,
-          "description": "The Hacker News user to be returned"
+          "description": "The Hacker News user to be returned",
+          "in": "path"
         }
-      ]
+      ],
+      "group": "User",
+      "description": "Get a Hacker News user"
     }
   ]
 }

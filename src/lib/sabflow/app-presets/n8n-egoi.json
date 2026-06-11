@@ -4,33 +4,31 @@
   "description": "Consume E-goi API",
   "category": "marketing",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.egoiapp.com",
   "endpoints": [
     {
       "id": "contact_create",
       "label": "Create Contact",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/lists/{listId}/contacts",
       "fields": [
         {
           "id": "list",
           "label": "List Name or ID",
           "type": "select",
-          "in": "query",
-          "description": "ID of list to operate on. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>."
+          "description": "ID of list to operate on. Choose from the list, or specify an ID using an expression."
         },
         {
           "id": "email",
           "label": "Email",
           "type": "text",
-          "in": "query",
           "placeholder": "name@email.com",
           "description": "Email address for a subscriber"
         },
@@ -38,7 +36,6 @@
           "id": "resolveData",
           "label": "Resolve Data",
           "type": "toggle",
-          "in": "query",
           "description": "By default the response just includes the contact ID. If this option gets activated, it will resolve the data automatically.",
           "defaultValue": true
         },
@@ -46,29 +43,29 @@
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: birth_date, cellphone, extraFieldsUi, first_name, last_name, status, tagIds)"
         }
-      ]
+      ],
+      "group": "Contact",
+      "description": "Create a member"
     },
     {
       "id": "contact_get",
       "label": "Get Contact",
       "method": "GET",
-      "path": "/",
+      "path": "/lists/{listId}/contacts/{contactId}",
       "fields": [
         {
           "id": "list",
           "label": "List Name or ID",
           "type": "select",
-          "in": "query",
-          "description": "ID of list to operate on. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>."
+          "description": "ID of list to operate on. Choose from the list, or specify an ID using an expression."
         },
         {
           "id": "by",
           "label": "By",
           "type": "select",
-          "in": "query",
           "description": "Search by",
           "defaultValue": "id",
           "options": [
@@ -86,14 +83,13 @@
           "id": "contactId",
           "label": "Contact ID",
           "type": "text",
-          "in": "query",
-          "description": "Contact ID of the subscriber"
+          "description": "Contact ID of the subscriber",
+          "in": "path"
         },
         {
           "id": "email",
           "label": "Email",
           "type": "text",
-          "in": "query",
           "placeholder": "name@email.com",
           "description": "Email address for subscriber"
         },
@@ -101,30 +97,29 @@
           "id": "simple",
           "label": "Simplify",
           "type": "toggle",
-          "in": "query",
           "description": "Whether to return a simplified version of the response instead of the raw data",
           "defaultValue": true
         }
-      ]
+      ],
+      "group": "Contact",
+      "description": "Get a member"
     },
     {
       "id": "contact_get_all",
       "label": "Get Many Contact",
       "method": "GET",
-      "path": "/",
+      "path": "/lists/{listId}/contacts",
       "fields": [
         {
           "id": "list",
           "label": "List Name or ID",
           "type": "select",
-          "in": "query",
-          "description": "ID of list to operate on. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>."
+          "description": "ID of list to operate on. Choose from the list, or specify an ID using an expression."
         },
         {
           "id": "returnAll",
           "label": "Return All",
           "type": "toggle",
-          "in": "query",
           "description": "Whether to return all results or only up to a given limit",
           "defaultValue": false
         },
@@ -132,7 +127,6 @@
           "id": "limit",
           "label": "Limit",
           "type": "number",
-          "in": "query",
           "description": "Max number of results to return",
           "defaultValue": 100
         },
@@ -140,37 +134,36 @@
           "id": "simple",
           "label": "Simplify",
           "type": "toggle",
-          "in": "query",
           "description": "Whether to return a simplified version of the response instead of the raw data",
           "defaultValue": true
         }
-      ]
+      ],
+      "group": "Contact",
+      "description": "Get many members"
     },
     {
       "id": "contact_update",
       "label": "Update Contact",
-      "method": "GET",
-      "path": "/",
+      "method": "PATCH",
+      "path": "/lists/{listId}/contacts/{contactId}",
       "fields": [
         {
           "id": "list",
           "label": "List Name or ID",
           "type": "select",
-          "in": "query",
-          "description": "ID of list to operate on. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>."
+          "description": "ID of list to operate on. Choose from the list, or specify an ID using an expression."
         },
         {
           "id": "contactId",
           "label": "Contact ID",
           "type": "text",
-          "in": "query",
-          "description": "Contact ID of the subscriber"
+          "description": "Contact ID of the subscriber",
+          "in": "path"
         },
         {
           "id": "resolveData",
           "label": "Resolve Data",
           "type": "toggle",
-          "in": "query",
           "description": "By default the response just includes the contact ID. If this option gets activated, it will resolve the data automatically.",
           "defaultValue": true
         },
@@ -178,10 +171,12 @@
           "id": "updateFields",
           "label": "Update Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: birth_date, cellphone, email, extraFieldsUi, first_name, last_name, status, tagIds)"
         }
-      ]
+      ],
+      "group": "Contact",
+      "description": "Update a member"
     }
   ]
 }

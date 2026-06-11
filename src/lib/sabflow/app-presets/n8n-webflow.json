@@ -1,11 +1,11 @@
 {
   "id": "n8n-webflow",
-  "name": "Authentication",
+  "name": "Webflow",
   "description": "Consume the Webflow API",
   "category": "productivity",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -15,6 +15,192 @@
       "type": "none"
     }
   },
-  "baseUrl": "",
-  "endpoints": []
+  "baseUrl": "https://api.webflow.com",
+  "endpoints": [
+    {
+      "id": "item_create",
+      "label": "Create Item",
+      "method": "POST",
+      "path": "/item",
+      "fields": [
+        {
+          "id": "siteId",
+          "label": "Site Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of the site containing the collection whose items to add to. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "collectionId",
+          "label": "Collection Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of the collection to add an item to. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "live",
+          "label": "Live",
+          "type": "toggle",
+          "required": true,
+          "description": "Whether the item should be published on the live site",
+          "defaultValue": false
+        },
+        {
+          "id": "fieldsUi",
+          "label": "Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: fieldValues, fieldValues.fieldId, fieldValues.fieldValue)"
+        }
+      ],
+      "group": "Item",
+      "description": "[unverified path] Create an item"
+    },
+    {
+      "id": "item_delete_item",
+      "label": "Delete Item",
+      "method": "DELETE",
+      "path": "/item",
+      "fields": [
+        {
+          "id": "siteId",
+          "label": "Site Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of the site containing the collection whose items to operate on. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "collectionId",
+          "label": "Collection Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of the collection whose items to operate on. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "itemId",
+          "label": "Item ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the item to operate on"
+        }
+      ],
+      "group": "Item",
+      "description": "[unverified path] Delete an item"
+    },
+    {
+      "id": "item_get",
+      "label": "Get Item",
+      "method": "GET",
+      "path": "/item",
+      "fields": [
+        {
+          "id": "siteId",
+          "label": "Site Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of the site containing the collection whose items to operate on. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "collectionId",
+          "label": "Collection Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of the collection whose items to operate on. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "itemId",
+          "label": "Item ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the item to operate on"
+        }
+      ],
+      "group": "Item",
+      "description": "[unverified path] Get an item"
+    },
+    {
+      "id": "item_get_all",
+      "label": "Get Many Item",
+      "method": "GET",
+      "path": "/item",
+      "fields": [
+        {
+          "id": "siteId",
+          "label": "Site Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of the site containing the collection whose items to operate on. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "collectionId",
+          "label": "Collection Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of the collection whose items to operate on. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        }
+      ],
+      "group": "Item",
+      "description": "[unverified path] Get many items"
+    },
+    {
+      "id": "item_update",
+      "label": "Update Item",
+      "method": "PATCH",
+      "path": "/item",
+      "fields": [
+        {
+          "id": "siteId",
+          "label": "Site Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of the site containing the collection whose items to add to. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "collectionId",
+          "label": "Collection Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of the collection to add an item to. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "itemId",
+          "label": "Item ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the item to update"
+        },
+        {
+          "id": "live",
+          "label": "Live",
+          "type": "toggle",
+          "required": true,
+          "description": "Whether the item should be published on the live site",
+          "defaultValue": false
+        },
+        {
+          "id": "fieldsUi",
+          "label": "Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: fieldValues, fieldValues.fieldId, fieldValues.fieldValue)"
+        }
+      ],
+      "group": "Item",
+      "description": "[unverified path] Update an item"
+    }
+  ]
 }

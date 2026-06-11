@@ -4,21 +4,105 @@
   "description": "Consume Philips Hue API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
     "credentialType": "oauth2"
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.meethue.com/route",
   "endpoints": [
     {
-      "id": "light_default",
-      "label": "List Light",
+      "id": "light_delete",
+      "label": "Delete Light",
+      "method": "DELETE",
+      "path": "/api/{user}/lights/{lightId}",
+      "fields": [
+        {
+          "id": "lightId",
+          "label": "Light ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Light",
+      "description": "Delete a light"
+    },
+    {
+      "id": "light_get",
+      "label": "Get Light",
       "method": "GET",
-      "path": "/light",
-      "fields": []
+      "path": "/api/{user}/lights/{lightId}",
+      "fields": [
+        {
+          "id": "lightId",
+          "label": "Light ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Light",
+      "description": "Retrieve a light"
+    },
+    {
+      "id": "light_get_all",
+      "label": "Get Many Light",
+      "method": "GET",
+      "path": "/api/{user}/lights",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        }
+      ],
+      "group": "Light",
+      "description": "Retrieve many lights"
+    },
+    {
+      "id": "light_update",
+      "label": "Update Light",
+      "method": "PUT",
+      "path": "/api/{user}/lights/{lightId}/state",
+      "fields": [
+        {
+          "id": "lightId",
+          "label": "Light Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        },
+        {
+          "id": "on",
+          "label": "On",
+          "type": "toggle",
+          "required": true,
+          "description": "On/Off state of the light",
+          "defaultValue": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: alert, bri, bri_inc, ct, ct_inc, xy, xy_inc, effect, hue, hue_inc, sat, sat_inc, transitiontime)"
+        }
+      ],
+      "group": "Light",
+      "description": "Update a light"
     }
   ]
 }

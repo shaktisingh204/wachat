@@ -4,8 +4,8 @@
   "description": "Access data on Google Drive",
   "category": "storage",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -15,6 +15,160 @@
       "type": "none"
     }
   },
-  "baseUrl": "",
-  "endpoints": []
+  "baseUrl": "https://www.googleapis.com/drive/v3",
+  "endpoints": [
+    {
+      "id": "drive_create",
+      "label": "Create Shared Drive",
+      "method": "POST",
+      "path": "/drive/v3/drives",
+      "fields": [],
+      "group": "Shared Drive",
+      "description": "Create a shared drive"
+    },
+    {
+      "id": "drive_delete_drive",
+      "label": "Delete Shared Drive",
+      "method": "DELETE",
+      "path": "/drive/v3/drives/{driveId}",
+      "fields": [],
+      "group": "Shared Drive",
+      "description": "Permanently delete a shared drive"
+    },
+    {
+      "id": "drive_get",
+      "label": "Get Shared Drive",
+      "method": "GET",
+      "path": "/drive/v3/drives/{driveId}",
+      "fields": [],
+      "group": "Shared Drive",
+      "description": "Get a shared drive"
+    },
+    {
+      "id": "drive_list",
+      "label": "Get Many Shared Drive",
+      "method": "GET",
+      "path": "/drives",
+      "fields": [],
+      "group": "Shared Drive",
+      "description": "Get the list of shared drives"
+    },
+    {
+      "id": "drive_update",
+      "label": "Update Shared Drive",
+      "method": "PATCH",
+      "path": "/drive/v3/drives/{driveId}",
+      "fields": [],
+      "group": "Shared Drive",
+      "description": "Update a shared drive"
+    },
+    {
+      "id": "file_copy",
+      "label": "Copy File",
+      "method": "POST",
+      "path": "/drive/v3/files/{fileId}/copy",
+      "fields": [],
+      "group": "File",
+      "description": "Create a copy of an existing file"
+    },
+    {
+      "id": "file_create_from_text",
+      "label": "Create From Text File",
+      "method": "POST",
+      "path": "/drive/v3/files",
+      "fields": [],
+      "group": "File",
+      "description": "Create a file from a provided text"
+    },
+    {
+      "id": "file_delete_file",
+      "label": "Delete File",
+      "method": "DELETE",
+      "path": "/drive/v3/files/{fileId}",
+      "fields": [],
+      "group": "File",
+      "description": "Permanently delete a file"
+    },
+    {
+      "id": "file_download",
+      "label": "Download File",
+      "method": "GET",
+      "path": "/drive/v3/files/{fileId}",
+      "fields": [],
+      "group": "File",
+      "description": "Download a file"
+    },
+    {
+      "id": "file_move",
+      "label": "Move File",
+      "method": "PATCH",
+      "path": "/drive/v3/files/{fileId}",
+      "fields": [],
+      "group": "File",
+      "description": "Move a file to another folder"
+    },
+    {
+      "id": "file_share",
+      "label": "Share File",
+      "method": "POST",
+      "path": "/drive/v3/files/{fileId}/permissions",
+      "fields": [],
+      "group": "File",
+      "description": "Add sharing permissions to a file"
+    },
+    {
+      "id": "file_update",
+      "label": "Update File",
+      "method": "PATCH",
+      "path": "/upload/drive/v3/files/{fileId}",
+      "fields": [],
+      "group": "File",
+      "description": "Update a file"
+    },
+    {
+      "id": "file_upload",
+      "label": "Upload File",
+      "method": "POST",
+      "path": "/upload/drive/v3/files",
+      "fields": [],
+      "group": "File",
+      "description": "Upload an existing file to Google Drive"
+    },
+    {
+      "id": "file_folder_search",
+      "label": "Search File/Folder",
+      "method": "GET",
+      "path": "/files",
+      "fields": [],
+      "group": "File/Folder",
+      "description": "Search or list files and folders"
+    },
+    {
+      "id": "folder_create",
+      "label": "Create Folder",
+      "method": "POST",
+      "path": "/drive/v3/files",
+      "fields": [],
+      "group": "Folder",
+      "description": "Create a folder"
+    },
+    {
+      "id": "folder_delete_folder",
+      "label": "Delete Folder",
+      "method": "DELETE",
+      "path": "/drive/v3/files/{folderId}",
+      "fields": [],
+      "group": "Folder",
+      "description": "Permanently delete a folder"
+    },
+    {
+      "id": "folder_share",
+      "label": "Share Folder",
+      "method": "POST",
+      "path": "/drive/v3/files/{folderId}/permissions",
+      "fields": [],
+      "group": "Folder",
+      "description": "Add sharing permissions to a folder"
+    }
+  ]
 }

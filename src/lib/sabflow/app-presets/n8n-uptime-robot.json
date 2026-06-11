@@ -4,21 +4,623 @@
   "description": "Consume UptimeRobot API",
   "category": "analytics",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.uptimerobot.com/v2",
   "endpoints": [
     {
       "id": "account_get",
       "label": "Get Account",
-      "method": "GET",
-      "path": "/",
-      "fields": []
+      "method": "POST",
+      "path": "/getAccountDetails",
+      "fields": [],
+      "group": "Account",
+      "description": "Get account details"
+    },
+    {
+      "id": "monitor_create",
+      "label": "Create Monitor",
+      "method": "POST",
+      "path": "/newMonitor",
+      "fields": [
+        {
+          "id": "friendlyName",
+          "label": "Friendly Name",
+          "type": "text",
+          "required": true,
+          "description": "The friendly name of the monitor"
+        },
+        {
+          "id": "type",
+          "label": "Type",
+          "type": "select",
+          "required": true,
+          "description": "The type of the monitor",
+          "options": [
+            {
+              "value": "5",
+              "label": "Heartbeat"
+            },
+            {
+              "value": "1",
+              "label": "HTTP(S)"
+            },
+            {
+              "value": "2",
+              "label": "Keyword"
+            },
+            {
+              "value": "3",
+              "label": "Ping"
+            },
+            {
+              "value": "4",
+              "label": "Port"
+            }
+          ]
+        },
+        {
+          "id": "url",
+          "label": "URL",
+          "type": "text",
+          "required": true,
+          "description": "The URL/IP of the monitor"
+        }
+      ],
+      "group": "Monitor",
+      "description": "Create a monitor"
+    },
+    {
+      "id": "monitor_delete",
+      "label": "Delete Monitor",
+      "method": "POST",
+      "path": "/deleteMonitor",
+      "fields": [
+        {
+          "id": "id",
+          "label": "ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the monitor"
+        }
+      ],
+      "group": "Monitor",
+      "description": "Delete a monitor"
+    },
+    {
+      "id": "monitor_get",
+      "label": "Get Monitor",
+      "method": "POST",
+      "path": "/getMonitors",
+      "fields": [
+        {
+          "id": "id",
+          "label": "ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the monitor"
+        }
+      ],
+      "group": "Monitor",
+      "description": "Get a monitor"
+    },
+    {
+      "id": "monitor_get_all",
+      "label": "Get Many Monitor",
+      "method": "POST",
+      "path": "/getMonitors",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: alert_contacts, logs, mwindow, monitors, response_times, search, statuses, types)"
+        }
+      ],
+      "group": "Monitor",
+      "description": "Get many monitors"
+    },
+    {
+      "id": "monitor_reset",
+      "label": "Reset Monitor",
+      "method": "POST",
+      "path": "/resetMonitor",
+      "fields": [
+        {
+          "id": "id",
+          "label": "ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the monitor"
+        }
+      ],
+      "group": "Monitor",
+      "description": "Reset a monitor"
+    },
+    {
+      "id": "monitor_update",
+      "label": "Update Monitor",
+      "method": "POST",
+      "path": "/editMonitor",
+      "fields": [
+        {
+          "id": "id",
+          "label": "ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the monitor"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: friendly_name, http_auth_type, http_method, http_password, http_username, interval, port, status, sub_type, url)"
+        }
+      ],
+      "group": "Monitor",
+      "description": "Update a monitor"
+    },
+    {
+      "id": "alert_contact_create",
+      "label": "Create Alert Contact",
+      "method": "POST",
+      "path": "/newAlertContact",
+      "fields": [
+        {
+          "id": "friendlyName",
+          "label": "Friendly Name",
+          "type": "text",
+          "required": true,
+          "description": "The friendly name of the alert contact"
+        },
+        {
+          "id": "type",
+          "label": "Type",
+          "type": "select",
+          "required": true,
+          "description": "The type of the alert contact",
+          "options": [
+            {
+              "value": "4",
+              "label": "Boxcar"
+            },
+            {
+              "value": "2",
+              "label": "E-Mail"
+            },
+            {
+              "value": "6",
+              "label": "Pushbullet"
+            },
+            {
+              "value": "9",
+              "label": "Pushover"
+            },
+            {
+              "value": "1",
+              "label": "SMS"
+            },
+            {
+              "value": "3",
+              "label": "Twitter DM"
+            },
+            {
+              "value": "5",
+              "label": "Webhook"
+            }
+          ]
+        },
+        {
+          "id": "value",
+          "label": "Value",
+          "type": "text",
+          "required": true,
+          "description": "The correspondent value for the alert contact type"
+        }
+      ],
+      "group": "Alert Contact",
+      "description": "Create an alert contact"
+    },
+    {
+      "id": "alert_contact_delete",
+      "label": "Delete Alert Contact",
+      "method": "POST",
+      "path": "/deleteAlertContact",
+      "fields": [
+        {
+          "id": "id",
+          "label": "ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the alert contact"
+        }
+      ],
+      "group": "Alert Contact",
+      "description": "Delete an alert contact"
+    },
+    {
+      "id": "alert_contact_get",
+      "label": "Get Alert Contact",
+      "method": "POST",
+      "path": "/getAlertContacts",
+      "fields": [
+        {
+          "id": "id",
+          "label": "ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the alert contact"
+        }
+      ],
+      "group": "Alert Contact",
+      "description": "Get an alert contact"
+    },
+    {
+      "id": "alert_contact_get_all",
+      "label": "Get Many Alert Contact",
+      "method": "POST",
+      "path": "/getAlertContacts",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: alert_contacts)"
+        }
+      ],
+      "group": "Alert Contact",
+      "description": "Get many alert contacts"
+    },
+    {
+      "id": "alert_contact_update",
+      "label": "Update Alert Contact",
+      "method": "POST",
+      "path": "/editAlertContact",
+      "fields": [
+        {
+          "id": "id",
+          "label": "ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the alert contact"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: friendly_name, value)"
+        }
+      ],
+      "group": "Alert Contact",
+      "description": "Update an alert contact"
+    },
+    {
+      "id": "maintenance_window_create",
+      "label": "Create Maintenance Window",
+      "method": "POST",
+      "path": "/newMWindow",
+      "fields": [
+        {
+          "id": "duration",
+          "label": "Duration (Minutes)",
+          "type": "number",
+          "required": true,
+          "description": "The maintenance window activation period (minutes)",
+          "defaultValue": 1
+        },
+        {
+          "id": "friendlyName",
+          "label": "Friendly Name",
+          "type": "text",
+          "required": true,
+          "description": "The friendly name of the maintenance window"
+        },
+        {
+          "id": "type",
+          "label": "Type",
+          "type": "select",
+          "required": true,
+          "description": "The type of the maintenance window",
+          "options": [
+            {
+              "value": "1",
+              "label": "Once"
+            },
+            {
+              "value": "2",
+              "label": "Daily"
+            },
+            {
+              "value": "3",
+              "label": "Weekly"
+            },
+            {
+              "value": "4",
+              "label": "Monthly"
+            }
+          ]
+        },
+        {
+          "id": "weekDay",
+          "label": "Week Day",
+          "type": "select",
+          "options": [
+            {
+              "value": "1",
+              "label": "Monday"
+            },
+            {
+              "value": "2",
+              "label": "Tuesday"
+            },
+            {
+              "value": "3",
+              "label": "Wednesday"
+            },
+            {
+              "value": "4",
+              "label": "Thursday"
+            },
+            {
+              "value": "5",
+              "label": "Friday"
+            },
+            {
+              "value": "6",
+              "label": "Saturday"
+            },
+            {
+              "value": "7",
+              "label": "Sunday"
+            }
+          ]
+        },
+        {
+          "id": "monthDay",
+          "label": "Month Day",
+          "type": "number",
+          "defaultValue": 1
+        },
+        {
+          "id": "start_time",
+          "label": "Start Time",
+          "type": "text",
+          "required": true,
+          "placeholder": "2024-01-01T00:00:00Z",
+          "description": "The maintenance window start datetime (ISO 8601 date-time)"
+        }
+      ],
+      "group": "Maintenance Window",
+      "description": "Create a maintenance window"
+    },
+    {
+      "id": "maintenance_window_delete",
+      "label": "Delete Maintenance Window",
+      "method": "POST",
+      "path": "/deleteMWindow",
+      "fields": [
+        {
+          "id": "id",
+          "label": "ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the maintenance window"
+        }
+      ],
+      "group": "Maintenance Window",
+      "description": "Delete a maintenance window"
+    },
+    {
+      "id": "maintenance_window_get",
+      "label": "Get Maintenance Window",
+      "method": "POST",
+      "path": "/getMWindows",
+      "fields": [
+        {
+          "id": "id",
+          "label": "ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the maintenance window"
+        }
+      ],
+      "group": "Maintenance Window",
+      "description": "Get a maintenance window"
+    },
+    {
+      "id": "maintenance_window_get_all",
+      "label": "Get Many Maintenance Window",
+      "method": "POST",
+      "path": "/getMWindows",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: mwindow)"
+        }
+      ],
+      "group": "Maintenance Window",
+      "description": "Get many a maintenance windows"
+    },
+    {
+      "id": "maintenance_window_update",
+      "label": "Update Maintenance Window",
+      "method": "POST",
+      "path": "/editMWindow",
+      "fields": [
+        {
+          "id": "id",
+          "label": "ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the maintenance window"
+        },
+        {
+          "id": "duration",
+          "label": "Duration (Minutes)",
+          "type": "number",
+          "required": true,
+          "description": "The maintenance window activation period (minutes)"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: friendly_name, start_time, type, weekDay, monthDay)"
+        }
+      ],
+      "group": "Maintenance Window",
+      "description": "Update a maintenance window"
+    },
+    {
+      "id": "public_status_page_create",
+      "label": "Create Public Status Page",
+      "method": "POST",
+      "path": "/newPSP",
+      "fields": [
+        {
+          "id": "friendlyName",
+          "label": "Friendly Name",
+          "type": "text",
+          "required": true,
+          "description": "The friendly name of the status page"
+        },
+        {
+          "id": "monitors",
+          "label": "Monitor IDs",
+          "type": "text",
+          "required": true,
+          "description": "Monitor IDs to be displayed in status page (the values are separated with a dash (-) or 0 for all monitors)"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: custom_domain, password, sort)"
+        }
+      ],
+      "group": "Public Status Page",
+      "description": "Create a public status page"
+    },
+    {
+      "id": "public_status_page_delete",
+      "label": "Delete Public Status Page",
+      "method": "POST",
+      "path": "/deletePSP",
+      "fields": [
+        {
+          "id": "id",
+          "label": "ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the public status page"
+        }
+      ],
+      "group": "Public Status Page",
+      "description": "Delete a public status page"
+    },
+    {
+      "id": "public_status_page_get",
+      "label": "Get Public Status Page",
+      "method": "POST",
+      "path": "/getPSPs",
+      "fields": [
+        {
+          "id": "id",
+          "label": "ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the public status page"
+        }
+      ],
+      "group": "Public Status Page",
+      "description": "Get a public status page"
+    },
+    {
+      "id": "public_status_page_get_all",
+      "label": "Get Many Public Status Page",
+      "method": "POST",
+      "path": "/getPSPs",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: psps)"
+        }
+      ],
+      "group": "Public Status Page",
+      "description": "Get many public status pages"
     }
   ]
 }

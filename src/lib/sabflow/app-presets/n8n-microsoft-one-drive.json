@@ -4,8 +4,8 @@
   "description": "Consume Microsoft OneDrive API",
   "category": "storage",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 10,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -16,21 +16,381 @@
       "credentialType": "oauth2"
     }
   },
-  "baseUrl": "",
+  "baseUrl": "https://graph.microsoft.com",
   "endpoints": [
     {
-      "id": "file_default",
-      "label": "List File",
-      "method": "GET",
-      "path": "/file",
-      "fields": []
+      "id": "file_copy",
+      "label": "Copy File",
+      "method": "POST",
+      "path": "/drive/items/{fileId}/copy",
+      "fields": [
+        {
+          "id": "fileId",
+          "label": "File ID",
+          "type": "text",
+          "in": "path"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: name)"
+        },
+        {
+          "id": "parentReference",
+          "label": "Parent Reference",
+          "type": "json",
+          "placeholder": "Add Parent Reference",
+          "description": "Reference to the parent item the copy will be created in Details (JSON object; supported keys: driveId, driveType, id, listId, name, path, shareId, siteId)"
+        }
+      ],
+      "group": "File",
+      "description": "Copy a file"
     },
     {
-      "id": "folder_default",
-      "label": "List Folder",
+      "id": "file_delete",
+      "label": "Delete File",
+      "method": "DELETE",
+      "path": "/drive/items/{fileId}",
+      "fields": [
+        {
+          "id": "fileId",
+          "label": "File ID",
+          "type": "text",
+          "description": "Field ID",
+          "in": "path"
+        }
+      ],
+      "group": "File",
+      "description": "Delete a file"
+    },
+    {
+      "id": "file_download",
+      "label": "Download File",
       "method": "GET",
-      "path": "/folder",
-      "fields": []
+      "path": "/drive/items/{fileId}",
+      "fields": [
+        {
+          "id": "fileId",
+          "label": "File ID",
+          "type": "text",
+          "in": "path"
+        },
+        {
+          "id": "binaryPropertyName",
+          "label": "Put Output File in Field",
+          "type": "text",
+          "required": true,
+          "defaultValue": "data"
+        }
+      ],
+      "group": "File",
+      "description": "Download a file"
+    },
+    {
+      "id": "file_get",
+      "label": "Get File",
+      "method": "GET",
+      "path": "/drive/items/{fileId}",
+      "fields": [
+        {
+          "id": "fileId",
+          "label": "File ID",
+          "type": "text",
+          "description": "Field ID",
+          "in": "path"
+        }
+      ],
+      "group": "File",
+      "description": "Get a file"
+    },
+    {
+      "id": "file_rename",
+      "label": "Rename File",
+      "method": "PATCH",
+      "path": "/file",
+      "fields": [
+        {
+          "id": "itemId",
+          "label": "Item ID",
+          "type": "text",
+          "description": "ID of the file"
+        },
+        {
+          "id": "newName",
+          "label": "New Name",
+          "type": "text",
+          "description": "New name for file"
+        }
+      ],
+      "group": "File",
+      "description": "[unverified path] Rename a file"
+    },
+    {
+      "id": "file_search",
+      "label": "Search File",
+      "method": "GET",
+      "path": "/drive/root/search(q='{query}",
+      "fields": [
+        {
+          "id": "query",
+          "label": "Query",
+          "type": "text",
+          "description": "The query text used to search for items. Values may be matched across several fields including filename, metadata, and file content.",
+          "in": "path"
+        }
+      ],
+      "group": "File",
+      "description": "Search a file"
+    },
+    {
+      "id": "file_share",
+      "label": "Share File",
+      "method": "POST",
+      "path": "/drive/items/{fileId}/createLink",
+      "fields": [
+        {
+          "id": "fileId",
+          "label": "File ID",
+          "type": "text",
+          "in": "path"
+        },
+        {
+          "id": "type",
+          "label": "Type",
+          "type": "select",
+          "description": "The type of sharing link to create",
+          "options": [
+            {
+              "value": "view",
+              "label": "View"
+            },
+            {
+              "value": "edit",
+              "label": "Edit"
+            },
+            {
+              "value": "embed",
+              "label": "Embed"
+            }
+          ]
+        },
+        {
+          "id": "scope",
+          "label": "Scope",
+          "type": "select",
+          "description": "The type of sharing link to create",
+          "options": [
+            {
+              "value": "anonymous",
+              "label": "Anonymous"
+            },
+            {
+              "value": "organization",
+              "label": "Organization"
+            }
+          ]
+        }
+      ],
+      "group": "File",
+      "description": "Share a file"
+    },
+    {
+      "id": "file_upload",
+      "label": "Upload File",
+      "method": "PUT",
+      "path": "/drive/items/{parentId}:/{encodedFilename}:/content",
+      "fields": [
+        {
+          "id": "fileName",
+          "label": "File Name",
+          "type": "text",
+          "description": "The name the file should be saved as"
+        },
+        {
+          "id": "parentId",
+          "label": "Parent ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the parent folder that will contain the file",
+          "in": "path"
+        },
+        {
+          "id": "binaryData",
+          "label": "Binary File",
+          "type": "toggle",
+          "required": true,
+          "description": "Whether the data to upload should be taken from binary field",
+          "defaultValue": false
+        },
+        {
+          "id": "fileContent",
+          "label": "File Content",
+          "type": "text",
+          "required": true,
+          "description": "The text content of the file"
+        },
+        {
+          "id": "binaryPropertyName",
+          "label": "Input Binary Field",
+          "type": "text",
+          "required": true,
+          "defaultValue": "data"
+        }
+      ],
+      "group": "File",
+      "description": "Upload a file up to 4MB in size"
+    },
+    {
+      "id": "folder_create",
+      "label": "Create Folder",
+      "method": "POST",
+      "path": "/drive/root/children",
+      "fields": [
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "placeholder": "/Pictures/2021",
+          "description": "The name or path of the folder"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: parentFolderId)"
+        }
+      ],
+      "group": "Folder",
+      "description": "Create a folder"
+    },
+    {
+      "id": "folder_delete",
+      "label": "Delete Folder",
+      "method": "DELETE",
+      "path": "/drive/items/{folderId}",
+      "fields": [
+        {
+          "id": "folderId",
+          "label": "Folder ID",
+          "type": "text",
+          "in": "path"
+        }
+      ],
+      "group": "Folder",
+      "description": "Delete a folder"
+    },
+    {
+      "id": "folder_get_children",
+      "label": "Get Children Folder",
+      "method": "GET",
+      "path": "/drive/items/{folderId}/children",
+      "fields": [
+        {
+          "id": "folderId",
+          "label": "Folder ID",
+          "type": "text",
+          "in": "path"
+        }
+      ],
+      "group": "Folder",
+      "description": "Get items inside a folder"
+    },
+    {
+      "id": "folder_rename",
+      "label": "Rename Folder",
+      "method": "PATCH",
+      "path": "/drive/items/{itemId}",
+      "fields": [
+        {
+          "id": "itemId",
+          "label": "Item ID",
+          "type": "text",
+          "description": "ID of the folder",
+          "in": "path"
+        },
+        {
+          "id": "newName",
+          "label": "New Name",
+          "type": "text",
+          "description": "New name for folder"
+        }
+      ],
+      "group": "Folder",
+      "description": "Rename a folder"
+    },
+    {
+      "id": "folder_search",
+      "label": "Search Folder",
+      "method": "GET",
+      "path": "/drive/root/search(q='{query}",
+      "fields": [
+        {
+          "id": "query",
+          "label": "Query",
+          "type": "text",
+          "description": "The query text used to search for items. Values may be matched across several fields including filename, metadata, and file content.",
+          "in": "path"
+        }
+      ],
+      "group": "Folder",
+      "description": "Search a folder"
+    },
+    {
+      "id": "folder_share",
+      "label": "Share Folder",
+      "method": "POST",
+      "path": "/drive/items/{folderId}/createLink",
+      "fields": [
+        {
+          "id": "folderId",
+          "label": "Folder ID",
+          "type": "text",
+          "description": "File ID",
+          "in": "path"
+        },
+        {
+          "id": "type",
+          "label": "Type",
+          "type": "select",
+          "description": "The type of sharing link to create",
+          "options": [
+            {
+              "value": "view",
+              "label": "View"
+            },
+            {
+              "value": "edit",
+              "label": "Edit"
+            },
+            {
+              "value": "embed",
+              "label": "Embed"
+            }
+          ]
+        },
+        {
+          "id": "scope",
+          "label": "Scope",
+          "type": "select",
+          "description": "The type of sharing link to create",
+          "options": [
+            {
+              "value": "anonymous",
+              "label": "Anonymous"
+            },
+            {
+              "value": "organization",
+              "label": "Organization"
+            }
+          ]
+        }
+      ],
+      "group": "Folder",
+      "description": "Share a folder"
     }
   ]
 }

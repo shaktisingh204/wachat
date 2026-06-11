@@ -4,21 +4,152 @@
   "description": "Consume CircleCI API",
   "category": "dev",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://circleci.com/api/v2",
   "endpoints": [
     {
-      "id": "pipeline_default",
-      "label": "List Pipeline",
+      "id": "pipeline_get",
+      "label": "Get Pipeline",
       "method": "GET",
-      "path": "/pipeline",
-      "fields": []
+      "path": "/project/{vcs}/{slug}/pipeline/{pipelineNumber}",
+      "fields": [
+        {
+          "id": "vcs",
+          "label": "Provider",
+          "type": "select",
+          "description": "Source control system",
+          "options": [
+            {
+              "value": "bitbucket",
+              "label": "Bitbucket"
+            },
+            {
+              "value": "github",
+              "label": "GitHub"
+            }
+          ],
+          "in": "path"
+        },
+        {
+          "id": "projectSlug",
+          "label": "Project Slug",
+          "type": "text",
+          "placeholder": "n8n-io/n8n",
+          "description": "Project slug in the form org-name/repo-name"
+        },
+        {
+          "id": "pipelineNumber",
+          "label": "Pipeline Number",
+          "type": "number",
+          "description": "The number of the pipeline",
+          "defaultValue": 1,
+          "in": "path"
+        }
+      ],
+      "group": "Pipeline",
+      "description": "Get a pipeline"
+    },
+    {
+      "id": "pipeline_get_all",
+      "label": "Get Many Pipeline",
+      "method": "GET",
+      "path": "/project/{vcs}/{slug}/pipeline",
+      "fields": [
+        {
+          "id": "vcs",
+          "label": "Provider",
+          "type": "select",
+          "description": "Source control system",
+          "options": [
+            {
+              "value": "bitbucket",
+              "label": "Bitbucket"
+            },
+            {
+              "value": "github",
+              "label": "GitHub"
+            }
+          ],
+          "in": "path"
+        },
+        {
+          "id": "projectSlug",
+          "label": "Project Slug",
+          "type": "text",
+          "placeholder": "n8n-io/n8n",
+          "description": "Project slug in the form org-name/repo-name"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: branch)"
+        }
+      ],
+      "group": "Pipeline",
+      "description": "Get many pipelines"
+    },
+    {
+      "id": "pipeline_trigger",
+      "label": "Trigger Pipeline",
+      "method": "POST",
+      "path": "/project/{vcs}/{slug}/pipeline",
+      "fields": [
+        {
+          "id": "vcs",
+          "label": "Provider",
+          "type": "select",
+          "description": "Source control system",
+          "options": [
+            {
+              "value": "bitbucket",
+              "label": "Bitbucket"
+            },
+            {
+              "value": "github",
+              "label": "GitHub"
+            }
+          ],
+          "in": "path"
+        },
+        {
+          "id": "projectSlug",
+          "label": "Project Slug",
+          "type": "text",
+          "placeholder": "n8n-io/n8n",
+          "description": "Project slug in the form org-name/repo-name"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: branch, tag)"
+        }
+      ],
+      "group": "Pipeline",
+      "description": "Trigger a pipeline"
     }
   ]
 }

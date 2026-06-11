@@ -4,25 +4,24 @@
   "description": "Get synonmns for German words using the OpenThesaurus API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "none"
   },
-  "baseUrl": "",
+  "baseUrl": "https://www.openthesaurus.de",
   "endpoints": [
     {
-      "id": "default_get_synonyms",
+      "id": "get_synonyms",
       "label": "Get Synonyms",
       "method": "GET",
-      "path": "/",
+      "path": "/synonyme/search",
       "fields": [
         {
           "id": "text",
           "label": "Text",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "The word to get synonyms for"
         },
@@ -30,10 +29,11 @@
           "id": "options",
           "label": "Options",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add option"
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: baseform, similar, startswith, substring, substringFromResults, substringMaxResults, subsynsets, supersynsets)"
         }
-      ]
+      ],
+      "description": "Get synonyms for a German word in German"
     }
   ]
 }

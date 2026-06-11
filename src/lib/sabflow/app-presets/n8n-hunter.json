@@ -4,26 +4,25 @@
   "description": "Consume Hunter API",
   "category": "crm",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.hunter.io/v2",
   "endpoints": [
     {
-      "id": "default_domain_search",
+      "id": "domain_search",
       "label": "Domain Search",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/domain-search",
       "fields": [
         {
           "id": "domain",
           "label": "Domain",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Domain name from which you want to find the email addresses. For example, \"stripe.com\"."
         },
@@ -31,7 +30,6 @@
           "id": "onlyEmails",
           "label": "Only Emails",
           "type": "toggle",
-          "in": "query",
           "description": "Whether to return only the found emails",
           "defaultValue": true
         },
@@ -39,7 +37,6 @@
           "id": "returnAll",
           "label": "Return All",
           "type": "toggle",
-          "in": "query",
           "description": "Whether to return all results or only up to a given limit",
           "defaultValue": false
         },
@@ -47,7 +44,6 @@
           "id": "limit",
           "label": "Limit",
           "type": "number",
-          "in": "query",
           "description": "Max number of results to return",
           "defaultValue": 100
         },
@@ -55,22 +51,22 @@
           "id": "filters",
           "label": "Filters",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Filter"
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: type, seniority, department)"
         }
-      ]
+      ],
+      "description": "Get every email address found on the internet using a given domain name, with sources"
     },
     {
-      "id": "default_email_finder",
+      "id": "email_finder",
       "label": "Email Finder",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/email-finder",
       "fields": [
         {
           "id": "domain",
           "label": "Domain",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Domain name from which you want to find the email addresses. For example, \"stripe.com\"."
         },
@@ -78,7 +74,6 @@
           "id": "firstname",
           "label": "First Name",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "The person's first name. It doesn't need to be in lowercase."
         },
@@ -86,28 +81,28 @@
           "id": "lastname",
           "label": "Last Name",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "The person's last name. It doesn't need to be in lowercase."
         }
-      ]
+      ],
+      "description": "Generate or retrieve the most likely email address from a domain name, a first name and a last name"
     },
     {
-      "id": "default_email_verifier",
+      "id": "email_verifier",
       "label": "Email Verifier",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/email-verifier",
       "fields": [
         {
           "id": "email",
           "label": "Email",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "name@email.com",
           "description": "The email address you want to verify"
         }
-      ]
+      ],
+      "description": "Verify the deliverability of an email address"
     }
   ]
 }

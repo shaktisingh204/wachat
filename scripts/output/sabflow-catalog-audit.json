@@ -1,16 +1,16 @@
 {
-  "generatedAt": "2026-06-11T10:22:58.043Z",
+  "generatedAt": "2026-06-11T15:24:44.263Z",
   "counts": {
-    "live": 137,
+    "live": 141,
     "shadowed-by-forge": 92,
-    "shadowed-by-rust": 252,
+    "shadowed-by-rust": 254,
     "shadowed-by-native": 23,
-    "repairable": 10,
+    "repairable": 6,
     "shell": 11
   },
   "tierSizes": {
-    "presets": 525,
-    "forgeBlocks": 838,
+    "presets": 527,
+    "forgeBlocks": 839,
     "rustNodes": 316,
     "staticBlockTypes": 57
   },
@@ -2568,6 +2568,7 @@
     {
       "slug": "thehiveproject",
       "tiers": [
+        "preset",
         "forge",
         "rust"
       ]
@@ -2907,15 +2908,11 @@
   ],
   "residualRepairIds": [
     "n8n-aws-certificate-manager",
-    "n8n-aws-sns",
     "n8n-citrix-adc",
-    "n8n-google-firebase-realtime-database",
     "n8n-i-cal",
-    "n8n-magento2",
     "n8n-microsoft-sql",
     "n8n-n8n",
-    "n8n-venafi-tls-protect-cloud",
-    "n8n-venafi-tls-protect-datacenter"
+    "n8n-venafi-tls-protect-cloud"
   ],
   "rows": [
     {
@@ -3954,8 +3951,8 @@
       "name": "Action Network",
       "category": "misc",
       "status": "draft",
-      "endpointCount": 7,
-      "hasBaseUrl": false,
+      "endpointCount": 23,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -3964,8 +3961,8 @@
       "name": "ActiveCampaign",
       "category": "marketing",
       "status": "draft",
-      "endpointCount": 12,
-      "hasBaseUrl": false,
+      "endpointCount": 48,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -3975,7 +3972,7 @@
       "category": "misc",
       "status": "draft",
       "endpointCount": 5,
-      "hasBaseUrl": true,
+      "hasBaseUrl": false,
       "classification": "shadowed-by-rust"
     },
     {
@@ -3984,8 +3981,8 @@
       "name": "Affinity",
       "category": "crm",
       "status": "draft",
-      "endpointCount": 4,
-      "hasBaseUrl": false,
+      "endpointCount": 16,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -4004,8 +4001,8 @@
       "name": "Agile CRM",
       "category": "crm",
       "status": "draft",
-      "endpointCount": 3,
-      "hasBaseUrl": false,
+      "endpointCount": 15,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -4024,8 +4021,8 @@
       "name": "Airtable",
       "category": "data",
       "status": "draft",
-      "endpointCount": 0,
-      "hasBaseUrl": false,
+      "endpointCount": 8,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-native"
     },
     {
@@ -4034,8 +4031,8 @@
       "name": "Airtop",
       "category": "data",
       "status": "draft",
-      "endpointCount": 6,
-      "hasBaseUrl": false,
+      "endpointCount": 24,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -4055,7 +4052,7 @@
       "category": "misc",
       "status": "draft",
       "endpointCount": 3,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-forge"
     },
     {
@@ -4074,8 +4071,8 @@
       "name": "Autopilot",
       "category": "marketing",
       "status": "draft",
-      "endpointCount": 4,
-      "hasBaseUrl": false,
+      "endpointCount": 11,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -4134,8 +4131,8 @@
       "name": "AWS IAM",
       "category": "dev",
       "status": "draft",
-      "endpointCount": 2,
-      "hasBaseUrl": false,
+      "endpointCount": 12,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-forge"
     },
     {
@@ -4145,7 +4142,7 @@
       "category": "dev",
       "status": "draft",
       "endpointCount": 1,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-forge"
     },
     {
@@ -4185,8 +4182,8 @@
       "category": "dev",
       "status": "draft",
       "endpointCount": 3,
-      "hasBaseUrl": false,
-      "classification": "repairable"
+      "hasBaseUrl": true,
+      "classification": "live"
     },
     {
       "id": "n8n-aws-sqs",
@@ -4224,7 +4221,7 @@
       "name": "Azure Cosmos DB",
       "category": "dev",
       "status": "draft",
-      "endpointCount": 2,
+      "endpointCount": 10,
       "hasBaseUrl": true,
       "classification": "shadowed-by-forge"
     },
@@ -4234,9 +4231,19 @@
       "name": "Azure Storage",
       "category": "storage",
       "status": "draft",
-      "endpointCount": 2,
-      "hasBaseUrl": false,
+      "endpointCount": 8,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-bamboo-hr",
+      "slug": "bamboohr",
+      "name": "BambooHR",
+      "category": "HR",
+      "status": "draft",
+      "endpointCount": 15,
+      "hasBaseUrl": true,
+      "classification": "shadowed-by-rust"
     },
     {
       "id": "n8n-bannerbear",
@@ -4244,8 +4251,8 @@
       "name": "Bannerbear",
       "category": "misc",
       "status": "draft",
-      "endpointCount": 2,
-      "hasBaseUrl": false,
+      "endpointCount": 4,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-forge"
     },
     {
@@ -4255,7 +4262,7 @@
       "category": "data",
       "status": "draft",
       "endpointCount": 8,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -4265,7 +4272,7 @@
       "category": "misc",
       "status": "draft",
       "endpointCount": 18,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -4274,8 +4281,8 @@
       "name": "Bitly",
       "category": "marketing",
       "status": "draft",
-      "endpointCount": 1,
-      "hasBaseUrl": false,
+      "endpointCount": 3,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -4284,8 +4291,8 @@
       "name": "Bitwarden",
       "category": "misc",
       "status": "draft",
-      "endpointCount": 4,
-      "hasBaseUrl": false,
+      "endpointCount": 19,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -4294,8 +4301,8 @@
       "name": "Box",
       "category": "storage",
       "status": "draft",
-      "endpointCount": 2,
-      "hasBaseUrl": false,
+      "endpointCount": 13,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -4305,7 +4312,7 @@
       "category": "marketing",
       "status": "draft",
       "endpointCount": 5,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -4314,8 +4321,8 @@
       "name": "Bubble",
       "category": "misc",
       "status": "draft",
-      "endpointCount": 1,
-      "hasBaseUrl": false,
+      "endpointCount": 5,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -4325,7 +4332,7 @@
       "category": "finance",
       "status": "draft",
       "endpointCount": 5,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -4334,8 +4341,8 @@
       "name": "CircleCI",
       "category": "dev",
       "status": "draft",
-      "endpointCount": 1,
-      "hasBaseUrl": false,
+      "endpointCount": 3,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -4344,8 +4351,8 @@
       "name": "Webex by Cisco",
       "category": "communication",
       "status": "draft",
-      "endpointCount": 2,
-      "hasBaseUrl": false,
+      "endpointCount": 10,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-forge"
     },
     {
@@ -4364,8 +4371,8 @@
       "name": "Clearbit",
       "category": "crm",
       "status": "draft",
-      "endpointCount": 2,
-      "hasBaseUrl": false,
+      "endpointCount": 3,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-forge"
     },
     {
@@ -4374,8 +4381,8 @@
       "name": "ClickUp",
       "category": "productivity",
       "status": "draft",
-      "endpointCount": 14,
-      "hasBaseUrl": false,
+      "endpointCount": 57,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -4384,8 +4391,8 @@
       "name": "Clockify",
       "category": "productivity",
       "status": "draft",
-      "endpointCount": 7,
-      "hasBaseUrl": false,
+      "endpointCount": 25,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -4394,8 +4401,8 @@
       "name": "Cloudflare",
       "category": "dev",
       "status": "draft",
-      "endpointCount": 1,
-      "hasBaseUrl": false,
+      "endpointCount": 4,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-forge"
     },
     {
@@ -4404,8 +4411,8 @@
       "name": "Cockpit",
       "category": "productivity",
       "status": "draft",
-      "endpointCount": 3,
-      "hasBaseUrl": false,
+      "endpointCount": 5,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -4414,8 +4421,8 @@
       "name": "Coda",
       "category": "productivity",
       "status": "draft",
-      "endpointCount": 4,
-      "hasBaseUrl": false,
+      "endpointCount": 18,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -4434,8 +4441,8 @@
       "name": "CoinGecko",
       "category": "finance",
       "status": "draft",
-      "endpointCount": 2,
-      "hasBaseUrl": false,
+      "endpointCount": 9,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -4464,8 +4471,8 @@
       "name": "Contentful",
       "category": "productivity",
       "status": "draft",
-      "endpointCount": 0,
-      "hasBaseUrl": false,
+      "endpointCount": 7,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -4474,8 +4481,8 @@
       "name": "ConvertKit",
       "category": "marketing",
       "status": "draft",
-      "endpointCount": 5,
-      "hasBaseUrl": false,
+      "endpointCount": 15,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -4494,8 +4501,8 @@
       "name": "Copper",
       "category": "crm",
       "status": "draft",
-      "endpointCount": 8,
-      "hasBaseUrl": false,
+      "endpointCount": 32,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -4544,7 +4551,7 @@
       "name": "Currents",
       "category": "analytics",
       "status": "draft",
-      "endpointCount": 8,
+      "endpointCount": 22,
       "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
@@ -4554,8 +4561,8 @@
       "name": "Customer.io",
       "category": "marketing",
       "status": "draft",
-      "endpointCount": 4,
-      "hasBaseUrl": false,
+      "endpointCount": 9,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -4605,7 +4612,7 @@
       "category": "ai",
       "status": "draft",
       "endpointCount": 1,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -4624,8 +4631,8 @@
       "name": "Demio",
       "category": "misc",
       "status": "draft",
-      "endpointCount": 2,
-      "hasBaseUrl": false,
+      "endpointCount": 4,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -4635,7 +4642,7 @@
       "category": "commerce",
       "status": "draft",
       "endpointCount": 1,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -4644,8 +4651,8 @@
       "name": "Discord",
       "category": "communication",
       "status": "draft",
-      "endpointCount": 0,
-      "hasBaseUrl": false,
+      "endpointCount": 17,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-native"
     },
     {
@@ -4654,8 +4661,8 @@
       "name": "Discourse",
       "category": "communication",
       "status": "draft",
-      "endpointCount": 5,
-      "hasBaseUrl": false,
+      "endpointCount": 16,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -4665,7 +4672,7 @@
       "category": "communication",
       "status": "draft",
       "endpointCount": 4,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -4674,8 +4681,8 @@
       "name": "Drift",
       "category": "support",
       "status": "draft",
-      "endpointCount": 1,
-      "hasBaseUrl": false,
+      "endpointCount": 5,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -4685,7 +4692,7 @@
       "category": "storage",
       "status": "draft",
       "endpointCount": 11,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -4695,7 +4702,7 @@
       "category": "crm",
       "status": "draft",
       "endpointCount": 2,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -4735,7 +4742,7 @@
       "category": "marketing",
       "status": "draft",
       "endpointCount": 4,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -4744,8 +4751,8 @@
       "name": "Elastic Security",
       "category": "data",
       "status": "draft",
-      "endpointCount": 4,
-      "hasBaseUrl": false,
+      "endpointCount": 14,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-forge"
     },
     {
@@ -4784,8 +4791,8 @@
       "name": "Emelia",
       "category": "marketing",
       "status": "draft",
-      "endpointCount": 2,
-      "hasBaseUrl": false,
+      "endpointCount": 9,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -4794,8 +4801,8 @@
       "name": "ERPNext",
       "category": "misc",
       "status": "draft",
-      "endpointCount": 1,
-      "hasBaseUrl": false,
+      "endpointCount": 5,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -4874,8 +4881,8 @@
       "name": "Flow",
       "category": "misc",
       "status": "draft",
-      "endpointCount": 1,
-      "hasBaseUrl": false,
+      "endpointCount": 4,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -4904,8 +4911,8 @@
       "name": "Freshdesk",
       "category": "support",
       "status": "draft",
-      "endpointCount": 5,
-      "hasBaseUrl": false,
+      "endpointCount": 10,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -4914,8 +4921,8 @@
       "name": "Freshservice",
       "category": "misc",
       "status": "draft",
-      "endpointCount": 15,
-      "hasBaseUrl": false,
+      "endpointCount": 72,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -4924,8 +4931,8 @@
       "name": "Freshworks CRM",
       "category": "crm",
       "status": "draft",
-      "endpointCount": 8,
-      "hasBaseUrl": false,
+      "endpointCount": 32,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -4964,8 +4971,8 @@
       "name": "Google Workspace Admin",
       "category": "misc",
       "status": "draft",
-      "endpointCount": 3,
-      "hasBaseUrl": false,
+      "endpointCount": 16,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-forge"
     },
     {
@@ -4974,8 +4981,8 @@
       "name": "GetResponse",
       "category": "marketing",
       "status": "draft",
-      "endpointCount": 1,
-      "hasBaseUrl": false,
+      "endpointCount": 5,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -4984,8 +4991,8 @@
       "name": "Ghost",
       "category": "productivity",
       "status": "draft",
-      "endpointCount": 1,
-      "hasBaseUrl": false,
+      "endpointCount": 5,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -5005,7 +5012,7 @@
       "category": "dev",
       "status": "draft",
       "endpointCount": 37,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-native"
     },
     {
@@ -5015,7 +5022,7 @@
       "category": "dev",
       "status": "draft",
       "endpointCount": 18,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -5024,8 +5031,8 @@
       "name": "Gmail",
       "category": "communication",
       "status": "draft",
-      "endpointCount": 0,
-      "hasBaseUrl": false,
+      "endpointCount": 26,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -5034,8 +5041,8 @@
       "name": "GoToWebinar",
       "category": "productivity",
       "status": "draft",
-      "endpointCount": 6,
-      "hasBaseUrl": false,
+      "endpointCount": 22,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -5044,8 +5051,8 @@
       "name": "Gong",
       "category": "crm",
       "status": "draft",
-      "endpointCount": 2,
-      "hasBaseUrl": false,
+      "endpointCount": 4,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -5054,7 +5061,7 @@
       "name": "Google Ads",
       "category": "marketing",
       "status": "draft",
-      "endpointCount": 1,
+      "endpointCount": 2,
       "hasBaseUrl": true,
       "classification": "shadowed-by-forge"
     },
@@ -5064,8 +5071,8 @@
       "name": "Google Analytics",
       "category": "analytics",
       "status": "draft",
-      "endpointCount": 0,
-      "hasBaseUrl": false,
+      "endpointCount": 2,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-native"
     },
     {
@@ -5074,8 +5081,8 @@
       "name": "Google BigQuery",
       "category": "data",
       "status": "draft",
-      "endpointCount": 0,
-      "hasBaseUrl": false,
+      "endpointCount": 2,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-forge"
     },
     {
@@ -5085,7 +5092,7 @@
       "category": "misc",
       "status": "draft",
       "endpointCount": 9,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-forge"
     },
     {
@@ -5094,7 +5101,7 @@
       "name": "Google Business Profile",
       "category": "storage",
       "status": "draft",
-      "endpointCount": 2,
+      "endpointCount": 9,
       "hasBaseUrl": true,
       "classification": "shadowed-by-forge"
     },
@@ -5104,8 +5111,8 @@
       "name": "Google Calendar",
       "category": "productivity",
       "status": "draft",
-      "endpointCount": 2,
-      "hasBaseUrl": false,
+      "endpointCount": 6,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-forge"
     },
     {
@@ -5114,8 +5121,8 @@
       "name": "Google Chat",
       "category": "communication",
       "status": "draft",
-      "endpointCount": 3,
-      "hasBaseUrl": false,
+      "endpointCount": 9,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-forge"
     },
     {
@@ -5134,7 +5141,7 @@
       "name": "Google Cloud Storage",
       "category": "storage",
       "status": "draft",
-      "endpointCount": 2,
+      "endpointCount": 10,
       "hasBaseUrl": true,
       "classification": "shadowed-by-forge"
     },
@@ -5144,8 +5151,8 @@
       "name": "Google Contacts",
       "category": "crm",
       "status": "draft",
-      "endpointCount": 1,
-      "hasBaseUrl": false,
+      "endpointCount": 5,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-forge"
     },
     {
@@ -5154,8 +5161,8 @@
       "name": "Google Docs",
       "category": "productivity",
       "status": "draft",
-      "endpointCount": 1,
-      "hasBaseUrl": false,
+      "endpointCount": 3,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-forge"
     },
     {
@@ -5164,8 +5171,8 @@
       "name": "Google Drive",
       "category": "storage",
       "status": "draft",
-      "endpointCount": 0,
-      "hasBaseUrl": false,
+      "endpointCount": 17,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-forge"
     },
     {
@@ -5174,7 +5181,7 @@
       "name": "Google Cloud Firestore",
       "category": "commerce",
       "status": "draft",
-      "endpointCount": 2,
+      "endpointCount": 7,
       "hasBaseUrl": true,
       "classification": "live"
     },
@@ -5185,8 +5192,8 @@
       "category": "data",
       "status": "draft",
       "endpointCount": 5,
-      "hasBaseUrl": false,
-      "classification": "repairable"
+      "hasBaseUrl": true,
+      "classification": "live"
     },
     {
       "id": "n8n-google-perspective",
@@ -5195,7 +5202,7 @@
       "category": "misc",
       "status": "draft",
       "endpointCount": 1,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-forge"
     },
     {
@@ -5204,8 +5211,8 @@
       "name": "Google Sheets",
       "category": "productivity",
       "status": "draft",
-      "endpointCount": 0,
-      "hasBaseUrl": false,
+      "endpointCount": 10,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-native"
     },
     {
@@ -5215,7 +5222,7 @@
       "category": "productivity",
       "status": "draft",
       "endpointCount": 6,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-forge"
     },
     {
@@ -5224,8 +5231,8 @@
       "name": "Google Tasks",
       "category": "productivity",
       "status": "draft",
-      "endpointCount": 1,
-      "hasBaseUrl": false,
+      "endpointCount": 5,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-forge"
     },
     {
@@ -5235,7 +5242,7 @@
       "category": "ai",
       "status": "draft",
       "endpointCount": 1,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-forge"
     },
     {
@@ -5245,7 +5252,7 @@
       "category": "communication",
       "status": "draft",
       "endpointCount": 3,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -5254,8 +5261,8 @@
       "name": "Grafana",
       "category": "analytics",
       "status": "draft",
-      "endpointCount": 4,
-      "hasBaseUrl": false,
+      "endpointCount": 16,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -5274,8 +5281,8 @@
       "name": "Grist",
       "category": "data",
       "status": "draft",
-      "endpointCount": 0,
-      "hasBaseUrl": false,
+      "endpointCount": 4,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -5285,7 +5292,7 @@
       "category": "misc",
       "status": "draft",
       "endpointCount": 3,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -5294,8 +5301,8 @@
       "name": "HaloPSA",
       "category": "support",
       "status": "draft",
-      "endpointCount": 4,
-      "hasBaseUrl": false,
+      "endpointCount": 20,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -5304,8 +5311,8 @@
       "name": "Harvest",
       "category": "finance",
       "status": "draft",
-      "endpointCount": 10,
-      "hasBaseUrl": false,
+      "endpointCount": 51,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -5314,8 +5321,8 @@
       "name": "Help Scout",
       "category": "support",
       "status": "draft",
-      "endpointCount": 4,
-      "hasBaseUrl": false,
+      "endpointCount": 13,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -5324,8 +5331,8 @@
       "name": "HighLevel",
       "category": "crm",
       "status": "draft",
-      "endpointCount": 0,
-      "hasBaseUrl": false,
+      "endpointCount": 17,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -5404,8 +5411,8 @@
       "name": "HubSpot",
       "category": "crm",
       "status": "draft",
-      "endpointCount": 0,
-      "hasBaseUrl": false,
+      "endpointCount": 31,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -5414,8 +5421,8 @@
       "name": "Humantic AI",
       "category": "ai",
       "status": "draft",
-      "endpointCount": 1,
-      "hasBaseUrl": false,
+      "endpointCount": 3,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -5425,7 +5432,7 @@
       "category": "crm",
       "status": "draft",
       "endpointCount": 3,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -5454,8 +5461,8 @@
       "name": "Intercom",
       "category": "support",
       "status": "draft",
-      "endpointCount": 3,
-      "hasBaseUrl": false,
+      "endpointCount": 15,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -5474,8 +5481,8 @@
       "name": "Invoice Ninja",
       "category": "finance",
       "status": "draft",
-      "endpointCount": 7,
-      "hasBaseUrl": false,
+      "endpointCount": 31,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -5494,8 +5501,8 @@
       "name": "Iterable",
       "category": "marketing",
       "status": "draft",
-      "endpointCount": 3,
-      "hasBaseUrl": false,
+      "endpointCount": 6,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -5505,7 +5512,7 @@
       "category": "dev",
       "status": "draft",
       "endpointCount": 11,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -5515,7 +5522,7 @@
       "category": "ai",
       "status": "draft",
       "endpointCount": 3,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -5524,8 +5531,8 @@
       "name": "Jira Software",
       "category": "dev",
       "status": "draft",
-      "endpointCount": 4,
-      "hasBaseUrl": false,
+      "endpointCount": 20,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -5554,8 +5561,8 @@
       "name": "Keap",
       "category": "crm",
       "status": "draft",
-      "endpointCount": 8,
-      "hasBaseUrl": false,
+      "endpointCount": 28,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -5564,8 +5571,8 @@
       "name": "KoBoToolbox",
       "category": "misc",
       "status": "draft",
-      "endpointCount": 4,
-      "hasBaseUrl": false,
+      "endpointCount": 17,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -5584,8 +5591,8 @@
       "name": "Lemlist",
       "category": "marketing",
       "status": "draft",
-      "endpointCount": 0,
-      "hasBaseUrl": false,
+      "endpointCount": 15,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -5614,8 +5621,8 @@
       "name": "Linear",
       "category": "dev",
       "status": "draft",
-      "endpointCount": 2,
-      "hasBaseUrl": false,
+      "endpointCount": 7,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -5625,7 +5632,7 @@
       "category": "ai",
       "status": "draft",
       "endpointCount": 1,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -5635,7 +5642,7 @@
       "category": "communication",
       "status": "draft",
       "endpointCount": 1,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -5645,7 +5652,7 @@
       "category": "misc",
       "status": "draft",
       "endpointCount": 2,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -5654,9 +5661,9 @@
       "name": "Magento 2",
       "category": "commerce",
       "status": "draft",
-      "endpointCount": 4,
-      "hasBaseUrl": false,
-      "classification": "repairable"
+      "endpointCount": 15,
+      "hasBaseUrl": true,
+      "classification": "live"
     },
     {
       "id": "n8n-mailcheck",
@@ -5665,7 +5672,7 @@
       "category": "marketing",
       "status": "draft",
       "endpointCount": 1,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -5675,7 +5682,7 @@
       "category": "marketing",
       "status": "draft",
       "endpointCount": 14,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -5694,8 +5701,8 @@
       "name": "MailerLite",
       "category": "marketing",
       "status": "draft",
-      "endpointCount": 0,
-      "hasBaseUrl": false,
+      "endpointCount": 4,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -5714,8 +5721,8 @@
       "name": "Mailjet",
       "category": "marketing",
       "status": "draft",
-      "endpointCount": 2,
-      "hasBaseUrl": false,
+      "endpointCount": 3,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -5725,7 +5732,7 @@
       "category": "marketing",
       "status": "draft",
       "endpointCount": 2,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -5745,7 +5752,7 @@
       "category": "misc",
       "status": "draft",
       "endpointCount": 3,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -5764,8 +5771,8 @@
       "name": "Mattermost",
       "category": "communication",
       "status": "draft",
-      "endpointCount": 0,
-      "hasBaseUrl": false,
+      "endpointCount": 19,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -5785,7 +5792,7 @@
       "category": "communication",
       "status": "draft",
       "endpointCount": 2,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -5805,7 +5812,7 @@
       "category": "communication",
       "status": "draft",
       "endpointCount": 2,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-forge"
     },
     {
@@ -5824,8 +5831,8 @@
       "name": "Microsoft Dynamics CRM",
       "category": "crm",
       "status": "draft",
-      "endpointCount": 1,
-      "hasBaseUrl": false,
+      "endpointCount": 5,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-forge"
     },
     {
@@ -5834,8 +5841,8 @@
       "name": "Microsoft Entra ID",
       "category": "misc",
       "status": "draft",
-      "endpointCount": 2,
-      "hasBaseUrl": false,
+      "endpointCount": 12,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-forge"
     },
     {
@@ -5844,8 +5851,8 @@
       "name": "Microsoft Excel 365",
       "category": "productivity",
       "status": "draft",
-      "endpointCount": 0,
-      "hasBaseUrl": false,
+      "endpointCount": 17,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-forge"
     },
     {
@@ -5854,8 +5861,8 @@
       "name": "Microsoft Graph Security",
       "category": "misc",
       "status": "draft",
-      "endpointCount": 2,
-      "hasBaseUrl": false,
+      "endpointCount": 5,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-forge"
     },
     {
@@ -5864,8 +5871,8 @@
       "name": "Microsoft OneDrive",
       "category": "storage",
       "status": "draft",
-      "endpointCount": 2,
-      "hasBaseUrl": false,
+      "endpointCount": 14,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-forge"
     },
     {
@@ -5874,8 +5881,8 @@
       "name": "Microsoft Outlook",
       "category": "communication",
       "status": "draft",
-      "endpointCount": 0,
-      "hasBaseUrl": false,
+      "endpointCount": 38,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-forge"
     },
     {
@@ -5884,7 +5891,7 @@
       "name": "Microsoft SharePoint",
       "category": "misc",
       "status": "draft",
-      "endpointCount": 3,
+      "endpointCount": 11,
       "hasBaseUrl": true,
       "classification": "shadowed-by-forge"
     },
@@ -5904,8 +5911,8 @@
       "name": "Microsoft Teams",
       "category": "communication",
       "status": "draft",
-      "endpointCount": 0,
-      "hasBaseUrl": false,
+      "endpointCount": 16,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-forge"
     },
     {
@@ -5914,8 +5921,8 @@
       "name": "Microsoft To Do",
       "category": "productivity",
       "status": "draft",
-      "endpointCount": 3,
-      "hasBaseUrl": false,
+      "endpointCount": 15,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-forge"
     },
     {
@@ -5925,7 +5932,7 @@
       "category": "misc",
       "status": "draft",
       "endpointCount": 2,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -5934,8 +5941,8 @@
       "name": "MISP",
       "category": "misc",
       "status": "draft",
-      "endpointCount": 11,
-      "hasBaseUrl": false,
+      "endpointCount": 44,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -5945,7 +5952,7 @@
       "category": "ai",
       "status": "draft",
       "endpointCount": 1,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -5955,7 +5962,7 @@
       "category": "communication",
       "status": "draft",
       "endpointCount": 2,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -5964,8 +5971,8 @@
       "name": "Monday.com",
       "category": "productivity",
       "status": "draft",
-      "endpointCount": 4,
-      "hasBaseUrl": false,
+      "endpointCount": 18,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -5984,8 +5991,8 @@
       "name": "Monica CRM",
       "category": "crm",
       "status": "draft",
-      "endpointCount": 12,
-      "hasBaseUrl": false,
+      "endpointCount": 52,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -6015,7 +6022,7 @@
       "category": "communication",
       "status": "draft",
       "endpointCount": 1,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -6065,7 +6072,7 @@
       "category": "misc",
       "status": "draft",
       "endpointCount": 20,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -6074,8 +6081,8 @@
       "name": "Netlify",
       "category": "dev",
       "status": "draft",
-      "endpointCount": 2,
-      "hasBaseUrl": false,
+      "endpointCount": 7,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -6105,7 +6112,7 @@
       "category": "data",
       "status": "draft",
       "endpointCount": 5,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-native"
     },
     {
@@ -6114,8 +6121,8 @@
       "name": "Notion",
       "category": "productivity",
       "status": "draft",
-      "endpointCount": 0,
-      "hasBaseUrl": false,
+      "endpointCount": 15,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-native"
     },
     {
@@ -6124,8 +6131,8 @@
       "name": "Npm",
       "category": "misc",
       "status": "draft",
-      "endpointCount": 2,
-      "hasBaseUrl": false,
+      "endpointCount": 5,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -6134,8 +6141,8 @@
       "name": "Odoo",
       "category": "crm",
       "status": "draft",
-      "endpointCount": 4,
-      "hasBaseUrl": false,
+      "endpointCount": 20,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -6144,8 +6151,8 @@
       "name": "Okta",
       "category": "misc",
       "status": "draft",
-      "endpointCount": 1,
-      "hasBaseUrl": false,
+      "endpointCount": 5,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -6155,7 +6162,7 @@
       "category": "misc",
       "status": "draft",
       "endpointCount": 10,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-forge"
     },
     {
@@ -6164,8 +6171,8 @@
       "name": "Onfleet",
       "category": "commerce",
       "status": "draft",
-      "endpointCount": 9,
-      "hasBaseUrl": false,
+      "endpointCount": 37,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -6174,8 +6181,8 @@
       "name": "OpenAI",
       "category": "ai",
       "status": "draft",
-      "endpointCount": 3,
-      "hasBaseUrl": false,
+      "endpointCount": 5,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-native"
     },
     {
@@ -6185,7 +6192,7 @@
       "category": "misc",
       "status": "draft",
       "endpointCount": 1,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -6195,7 +6202,7 @@
       "category": "misc",
       "status": "draft",
       "endpointCount": 2,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -6214,8 +6221,8 @@
       "name": "Orbit",
       "category": "misc",
       "status": "draft",
-      "endpointCount": 4,
-      "hasBaseUrl": false,
+      "endpointCount": 14,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -6224,8 +6231,8 @@
       "name": "Oura",
       "category": "misc",
       "status": "draft",
-      "endpointCount": 2,
-      "hasBaseUrl": false,
+      "endpointCount": 4,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -6234,8 +6241,8 @@
       "name": "Paddle",
       "category": "finance",
       "status": "draft",
-      "endpointCount": 5,
-      "hasBaseUrl": false,
+      "endpointCount": 9,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -6244,8 +6251,8 @@
       "name": "PagerDuty",
       "category": "misc",
       "status": "draft",
-      "endpointCount": 4,
-      "hasBaseUrl": false,
+      "endpointCount": 9,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -6254,8 +6261,8 @@
       "name": "PayPal",
       "category": "finance",
       "status": "draft",
-      "endpointCount": 2,
-      "hasBaseUrl": false,
+      "endpointCount": 4,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -6274,7 +6281,7 @@
       "name": "Perplexity",
       "category": "ai",
       "status": "draft",
-      "endpointCount": 1,
+      "endpointCount": 5,
       "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
@@ -6284,8 +6291,8 @@
       "name": "Phantombuster",
       "category": "misc",
       "status": "draft",
-      "endpointCount": 1,
-      "hasBaseUrl": false,
+      "endpointCount": 5,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -6294,8 +6301,8 @@
       "name": "Philips Hue",
       "category": "misc",
       "status": "draft",
-      "endpointCount": 1,
-      "hasBaseUrl": false,
+      "endpointCount": 4,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -6304,8 +6311,8 @@
       "name": "Pipedrive",
       "category": "crm",
       "status": "draft",
-      "endpointCount": 0,
-      "hasBaseUrl": false,
+      "endpointCount": 49,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -6315,7 +6322,7 @@
       "category": "communication",
       "status": "draft",
       "endpointCount": 3,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -6324,7 +6331,7 @@
       "name": "PostBin",
       "category": "misc",
       "status": "draft",
-      "endpointCount": 2,
+      "endpointCount": 6,
       "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
@@ -6355,7 +6362,7 @@
       "category": "finance",
       "status": "draft",
       "endpointCount": 2,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -6365,7 +6372,7 @@
       "category": "misc",
       "status": "draft",
       "endpointCount": 4,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -6375,7 +6382,7 @@
       "category": "misc",
       "status": "draft",
       "endpointCount": 1,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -6385,7 +6392,7 @@
       "category": "communication",
       "status": "draft",
       "endpointCount": 1,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -6414,8 +6421,8 @@
       "name": "Quick Base",
       "category": "data",
       "status": "draft",
-      "endpointCount": 4,
-      "hasBaseUrl": false,
+      "endpointCount": 10,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -6424,8 +6431,8 @@
       "name": "QuickBooks Online",
       "category": "finance",
       "status": "draft",
-      "endpointCount": 10,
-      "hasBaseUrl": false,
+      "endpointCount": 42,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -6444,8 +6451,8 @@
       "name": "Raindrop",
       "category": "misc",
       "status": "draft",
-      "endpointCount": 4,
-      "hasBaseUrl": false,
+      "endpointCount": 13,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -6494,8 +6501,8 @@
       "name": "Reddit",
       "category": "communication",
       "status": "draft",
-      "endpointCount": 5,
-      "hasBaseUrl": false,
+      "endpointCount": 13,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -6555,7 +6562,7 @@
       "category": "communication",
       "status": "draft",
       "endpointCount": 1,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -6594,8 +6601,8 @@
       "name": "Salesforce",
       "category": "crm",
       "status": "draft",
-      "endpointCount": 12,
-      "hasBaseUrl": false,
+      "endpointCount": 65,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -6604,8 +6611,8 @@
       "name": "Salesmate",
       "category": "crm",
       "status": "draft",
-      "endpointCount": 3,
-      "hasBaseUrl": false,
+      "endpointCount": 15,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -6624,8 +6631,8 @@
       "name": "SeaTable",
       "category": "data",
       "status": "draft",
-      "endpointCount": 0,
-      "hasBaseUrl": false,
+      "endpointCount": 16,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -6634,8 +6641,8 @@
       "name": "SecurityScorecard",
       "category": "misc",
       "status": "draft",
-      "endpointCount": 6,
-      "hasBaseUrl": false,
+      "endpointCount": 19,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -6644,8 +6651,8 @@
       "name": "Segment",
       "category": "analytics",
       "status": "draft",
-      "endpointCount": 3,
-      "hasBaseUrl": false,
+      "endpointCount": 4,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-native"
     },
     {
@@ -6654,8 +6661,8 @@
       "name": "SendGrid",
       "category": "communication",
       "status": "draft",
-      "endpointCount": 3,
-      "hasBaseUrl": false,
+      "endpointCount": 10,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-native"
     },
     {
@@ -6664,7 +6671,7 @@
       "name": "Brevo",
       "category": "marketing",
       "status": "draft",
-      "endpointCount": 4,
+      "endpointCount": 15,
       "hasBaseUrl": true,
       "classification": "live"
     },
@@ -6674,8 +6681,8 @@
       "name": "Sendy",
       "category": "marketing",
       "status": "draft",
-      "endpointCount": 2,
-      "hasBaseUrl": false,
+      "endpointCount": 6,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -6684,8 +6691,8 @@
       "name": "Sentry.io",
       "category": "analytics",
       "status": "draft",
-      "endpointCount": 6,
-      "hasBaseUrl": false,
+      "endpointCount": 25,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -6694,8 +6701,8 @@
       "name": "ServiceNow",
       "category": "misc",
       "status": "draft",
-      "endpointCount": 10,
-      "hasBaseUrl": false,
+      "endpointCount": 25,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -6724,8 +6731,8 @@
       "name": "Shopify",
       "category": "commerce",
       "status": "draft",
-      "endpointCount": 2,
-      "hasBaseUrl": false,
+      "endpointCount": 10,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -6735,7 +6742,7 @@
       "category": "misc",
       "status": "draft",
       "endpointCount": 2,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -6754,8 +6761,8 @@
       "name": "Slack",
       "category": "communication",
       "status": "draft",
-      "endpointCount": 0,
-      "hasBaseUrl": false,
+      "endpointCount": 44,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-native"
     },
     {
@@ -6765,7 +6772,7 @@
       "category": "communication",
       "status": "draft",
       "endpointCount": 2,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -6814,8 +6821,8 @@
       "name": "Splunk",
       "category": "analytics",
       "status": "draft",
-      "endpointCount": 0,
-      "hasBaseUrl": false,
+      "endpointCount": 16,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -6825,7 +6832,7 @@
       "category": "misc",
       "status": "draft",
       "endpointCount": 30,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -6855,7 +6862,7 @@
       "category": "misc",
       "status": "draft",
       "endpointCount": 4,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -6884,8 +6891,8 @@
       "name": "Storyblok",
       "category": "misc",
       "status": "draft",
-      "endpointCount": 1,
-      "hasBaseUrl": false,
+      "endpointCount": 5,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -6894,8 +6901,8 @@
       "name": "Strapi",
       "category": "productivity",
       "status": "draft",
-      "endpointCount": 1,
-      "hasBaseUrl": false,
+      "endpointCount": 5,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -6904,8 +6911,8 @@
       "name": "Strava",
       "category": "misc",
       "status": "draft",
-      "endpointCount": 1,
-      "hasBaseUrl": false,
+      "endpointCount": 9,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -6914,8 +6921,8 @@
       "name": "Stripe",
       "category": "finance",
       "status": "draft",
-      "endpointCount": 8,
-      "hasBaseUrl": false,
+      "endpointCount": 20,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -6934,8 +6941,8 @@
       "name": "Supabase",
       "category": "data",
       "status": "draft",
-      "endpointCount": 1,
-      "hasBaseUrl": false,
+      "endpointCount": 5,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -6954,8 +6961,8 @@
       "name": "SyncroMSP",
       "category": "support",
       "status": "draft",
-      "endpointCount": 0,
-      "hasBaseUrl": false,
+      "endpointCount": 20,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -6964,8 +6971,8 @@
       "name": "Taiga",
       "category": "misc",
       "status": "draft",
-      "endpointCount": 4,
-      "hasBaseUrl": false,
+      "endpointCount": 20,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -6974,8 +6981,8 @@
       "name": "Tapfiliate",
       "category": "misc",
       "status": "draft",
-      "endpointCount": 3,
-      "hasBaseUrl": false,
+      "endpointCount": 12,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -6984,8 +6991,18 @@
       "name": "Telegram",
       "category": "communication",
       "status": "draft",
-      "endpointCount": 23,
-      "hasBaseUrl": false,
+      "endpointCount": 24,
+      "hasBaseUrl": true,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-the-hive-project",
+      "slug": "thehiveproject",
+      "name": "TheHive 5",
+      "category": "Imported (n8n)",
+      "status": "draft",
+      "endpointCount": 48,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -6994,8 +7011,8 @@
       "name": "TheHive",
       "category": "misc",
       "status": "draft",
-      "endpointCount": 5,
-      "hasBaseUrl": false,
+      "endpointCount": 4,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -7024,8 +7041,8 @@
       "name": "Todoist",
       "category": "productivity",
       "status": "draft",
-      "endpointCount": 0,
-      "hasBaseUrl": false,
+      "endpointCount": 36,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -7044,8 +7061,8 @@
       "name": "TravisCI",
       "category": "dev",
       "status": "draft",
-      "endpointCount": 1,
-      "hasBaseUrl": false,
+      "endpointCount": 5,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -7054,8 +7071,8 @@
       "name": "Trello",
       "category": "productivity",
       "status": "draft",
-      "endpointCount": 8,
-      "hasBaseUrl": false,
+      "endpointCount": 41,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -7065,7 +7082,7 @@
       "category": "misc",
       "status": "draft",
       "endpointCount": 1,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -7075,7 +7092,7 @@
       "category": "communication",
       "status": "draft",
       "endpointCount": 2,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-native"
     },
     {
@@ -7084,8 +7101,8 @@
       "name": "Twist",
       "category": "communication",
       "status": "draft",
-      "endpointCount": 4,
-      "hasBaseUrl": false,
+      "endpointCount": 22,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-forge"
     },
     {
@@ -7094,8 +7111,8 @@
       "name": "X (Formerly Twitter)",
       "category": "communication",
       "status": "draft",
-      "endpointCount": 0,
-      "hasBaseUrl": false,
+      "endpointCount": 8,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -7104,8 +7121,8 @@
       "name": "Unleashed Software",
       "category": "misc",
       "status": "draft",
-      "endpointCount": 2,
-      "hasBaseUrl": false,
+      "endpointCount": 3,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -7115,7 +7132,7 @@
       "category": "crm",
       "status": "draft",
       "endpointCount": 2,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -7134,8 +7151,8 @@
       "name": "UptimeRobot",
       "category": "analytics",
       "status": "draft",
-      "endpointCount": 1,
-      "hasBaseUrl": false,
+      "endpointCount": 21,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -7144,8 +7161,8 @@
       "name": "urlscan.io",
       "category": "analytics",
       "status": "draft",
-      "endpointCount": 1,
-      "hasBaseUrl": false,
+      "endpointCount": 3,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-forge"
     },
     {
@@ -7164,7 +7181,7 @@
       "name": "Venafi TLS Protect Cloud",
       "category": "dev",
       "status": "draft",
-      "endpointCount": 2,
+      "endpointCount": 8,
       "hasBaseUrl": false,
       "classification": "repairable"
     },
@@ -7174,9 +7191,9 @@
       "name": "Venafi TLS Protect Datacenter",
       "category": "dev",
       "status": "draft",
-      "endpointCount": 2,
-      "hasBaseUrl": false,
-      "classification": "repairable"
+      "endpointCount": 7,
+      "hasBaseUrl": true,
+      "classification": "live"
     },
     {
       "id": "n8n-vero",
@@ -7184,8 +7201,8 @@
       "name": "Vero",
       "category": "marketing",
       "status": "draft",
-      "endpointCount": 2,
-      "hasBaseUrl": false,
+      "endpointCount": 8,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -7195,7 +7212,7 @@
       "category": "communication",
       "status": "draft",
       "endpointCount": 1,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-forge"
     },
     {
@@ -7221,11 +7238,11 @@
     {
       "id": "n8n-webflow",
       "slug": "webflow",
-      "name": "Authentication",
+      "name": "Webflow",
       "category": "productivity",
       "status": "draft",
-      "endpointCount": 0,
-      "hasBaseUrl": false,
+      "endpointCount": 5,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -7244,8 +7261,8 @@
       "name": "Wekan",
       "category": "misc",
       "status": "draft",
-      "endpointCount": 6,
-      "hasBaseUrl": false,
+      "endpointCount": 24,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -7254,8 +7271,8 @@
       "name": "WhatsApp Business Cloud",
       "category": "communication",
       "status": "draft",
-      "endpointCount": 2,
-      "hasBaseUrl": false,
+      "endpointCount": 6,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -7264,8 +7281,8 @@
       "name": "Wise",
       "category": "finance",
       "status": "draft",
-      "endpointCount": 6,
-      "hasBaseUrl": false,
+      "endpointCount": 14,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -7274,8 +7291,8 @@
       "name": "WooCommerce",
       "category": "commerce",
       "status": "draft",
-      "endpointCount": 3,
-      "hasBaseUrl": false,
+      "endpointCount": 15,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -7284,8 +7301,8 @@
       "name": "Wordpress",
       "category": "productivity",
       "status": "draft",
-      "endpointCount": 3,
-      "hasBaseUrl": false,
+      "endpointCount": 12,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -7314,8 +7331,8 @@
       "name": "Xero",
       "category": "finance",
       "status": "draft",
-      "endpointCount": 2,
-      "hasBaseUrl": false,
+      "endpointCount": 8,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -7334,8 +7351,8 @@
       "name": "YouTube",
       "category": "misc",
       "status": "draft",
-      "endpointCount": 5,
-      "hasBaseUrl": false,
+      "endpointCount": 20,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-forge"
     },
     {
@@ -7344,8 +7361,8 @@
       "name": "Yourls",
       "category": "misc",
       "status": "draft",
-      "endpointCount": 1,
-      "hasBaseUrl": false,
+      "endpointCount": 3,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-forge"
     },
     {
@@ -7354,8 +7371,8 @@
       "name": "Zammad",
       "category": "support",
       "status": "draft",
-      "endpointCount": 4,
-      "hasBaseUrl": false,
+      "endpointCount": 21,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -7364,8 +7381,8 @@
       "name": "Zendesk",
       "category": "support",
       "status": "draft",
-      "endpointCount": 4,
-      "hasBaseUrl": false,
+      "endpointCount": 23,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -7374,8 +7391,8 @@
       "name": "Zoho CRM",
       "category": "crm",
       "status": "draft",
-      "endpointCount": 10,
-      "hasBaseUrl": false,
+      "endpointCount": 61,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-forge"
     },
     {
@@ -7384,8 +7401,8 @@
       "name": "Zoom",
       "category": "communication",
       "status": "draft",
-      "endpointCount": 1,
-      "hasBaseUrl": false,
+      "endpointCount": 5,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {

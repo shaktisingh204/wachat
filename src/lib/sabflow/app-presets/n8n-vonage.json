@@ -4,50 +4,49 @@
   "description": "Consume Vonage API",
   "category": "communication",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://rest.nexmo.com",
   "endpoints": [
     {
       "id": "sms_send",
-      "label": "Send Sms",
-      "method": "GET",
-      "path": "/",
+      "label": "Send SMS",
+      "method": "POST",
+      "path": "/sms/json",
       "fields": [
         {
           "id": "from",
           "label": "From",
           "type": "text",
-          "in": "query",
           "description": "The name or number the message should be sent from"
         },
         {
           "id": "to",
           "label": "To",
           "type": "text",
-          "in": "query",
           "description": "The number that the message should be sent to. Numbers are specified in E.164 format."
         },
         {
           "id": "message",
           "label": "Message",
           "type": "text",
-          "in": "query",
           "description": "The body of the message being sent"
         },
         {
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: account-ref, callback, client-ref, message-class, protocol-id, status-report-req, ttl)"
         }
-      ]
+      ],
+      "group": "SMS",
+      "description": "Send an SMS"
     }
   ]
 }

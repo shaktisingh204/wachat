@@ -1,15 +1,662 @@
 {
   "id": "n8n-syncro-msp",
   "name": "SyncroMSP",
-  "description": "Manage contacts, tickets and more from Syncro MSP",
+  "description": "Gets data from SyncroMSP",
   "category": "support",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 8,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
-    "type": "none"
+    "type": "bearer",
+    "credentialType": "syncro_msp"
   },
-  "baseUrl": "",
-  "endpoints": []
+  "baseUrl": "https://{subdomain}.syncromsp.com/api/v1",
+  "endpoints": [
+    {
+      "id": "customer_create",
+      "label": "Create Customer",
+      "method": "POST",
+      "path": "/customer",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your SyncroMSP account (host token in the API base URL)"
+        },
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "placeholder": "name@email.com"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: address, businessName, firstName, getSms, invoiceCcEmails, lastname, noEmail, notes, notificationEmail, phone, referredBy)"
+        }
+      ],
+      "group": "Customer",
+      "description": "[unverified path] Create new customer"
+    },
+    {
+      "id": "customer_delete",
+      "label": "Delete Customer",
+      "method": "DELETE",
+      "path": "/customer",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your SyncroMSP account (host token in the API base URL)"
+        },
+        {
+          "id": "customerId",
+          "label": "Customer ID",
+          "type": "text",
+          "required": true,
+          "description": "Delete a specific customer by ID"
+        }
+      ],
+      "group": "Customer",
+      "description": "[unverified path] Delete customer"
+    },
+    {
+      "id": "customer_get",
+      "label": "Get Customer",
+      "method": "GET",
+      "path": "/customer",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your SyncroMSP account (host token in the API base URL)"
+        },
+        {
+          "id": "customerId",
+          "label": "Cutomer ID",
+          "type": "text",
+          "required": true,
+          "description": "Get specific customer by ID"
+        }
+      ],
+      "group": "Customer",
+      "description": "[unverified path] Retrieve customer"
+    },
+    {
+      "id": "customer_get_all",
+      "label": "Get Many Customer",
+      "method": "GET",
+      "path": "/customer",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your SyncroMSP account (host token in the API base URL)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 25
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: businessName, email, firstName, includeDisabled, lastname, query, sort)"
+        }
+      ],
+      "group": "Customer",
+      "description": "[unverified path] Retrieve many customers"
+    },
+    {
+      "id": "customer_update",
+      "label": "Update Customer",
+      "method": "PATCH",
+      "path": "/customer",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your SyncroMSP account (host token in the API base URL)"
+        },
+        {
+          "id": "customerId",
+          "label": "Customer ID",
+          "type": "text"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: address, businessName, email, firstName, getSms, invoiceCcEmails, lastName, noEmail, notes, notificationEmail, phone, referredBy)"
+        }
+      ],
+      "group": "Customer",
+      "description": "[unverified path] Update customer"
+    },
+    {
+      "id": "ticket_create",
+      "label": "Create Ticket",
+      "method": "POST",
+      "path": "/ticket",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your SyncroMSP account (host token in the API base URL)"
+        },
+        {
+          "id": "customerId",
+          "label": "Customer ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "subject",
+          "label": "Subject",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: assetId, contactId, issueType, status)"
+        }
+      ],
+      "group": "Ticket",
+      "description": "[unverified path] Create new ticket"
+    },
+    {
+      "id": "ticket_delete",
+      "label": "Delete Ticket",
+      "method": "DELETE",
+      "path": "/ticket",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your SyncroMSP account (host token in the API base URL)"
+        },
+        {
+          "id": "ticketId",
+          "label": "Ticket ID",
+          "type": "text",
+          "required": true,
+          "description": "Delete a specific customer by ID"
+        }
+      ],
+      "group": "Ticket",
+      "description": "[unverified path] Delete ticket"
+    },
+    {
+      "id": "ticket_get",
+      "label": "Get Ticket",
+      "method": "GET",
+      "path": "/ticket",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your SyncroMSP account (host token in the API base URL)"
+        },
+        {
+          "id": "ticketId",
+          "label": "Ticket ID",
+          "type": "text",
+          "description": "Get specific customer by ID"
+        }
+      ],
+      "group": "Ticket",
+      "description": "[unverified path] Retrieve ticket"
+    },
+    {
+      "id": "ticket_get_all",
+      "label": "Get Many Ticket",
+      "method": "GET",
+      "path": "/ticket",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your SyncroMSP account (host token in the API base URL)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 25
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: query, status)"
+        }
+      ],
+      "group": "Ticket",
+      "description": "[unverified path] Retrieve many tickets"
+    },
+    {
+      "id": "ticket_update",
+      "label": "Update Ticket",
+      "method": "PATCH",
+      "path": "/ticket",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your SyncroMSP account (host token in the API base URL)"
+        },
+        {
+          "id": "ticketId",
+          "label": "Ticket ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: assetId, contactId, customerId, dueDate, issueType, status, subject)"
+        }
+      ],
+      "group": "Ticket",
+      "description": "[unverified path] Update ticket"
+    },
+    {
+      "id": "contact_create",
+      "label": "Create Contact",
+      "method": "POST",
+      "path": "/contact",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your SyncroMSP account (host token in the API base URL)"
+        },
+        {
+          "id": "customerId",
+          "label": "Customer ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "placeholder": "name@email.com"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: address, name, notes, phone)"
+        }
+      ],
+      "group": "Contact",
+      "description": "[unverified path] Create new contact"
+    },
+    {
+      "id": "contact_delete",
+      "label": "Delete Contact",
+      "method": "DELETE",
+      "path": "/contact",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your SyncroMSP account (host token in the API base URL)"
+        },
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true,
+          "description": "Delete a specific contact by ID"
+        }
+      ],
+      "group": "Contact",
+      "description": "[unverified path] Delete contact"
+    },
+    {
+      "id": "contact_get",
+      "label": "Get Contact",
+      "method": "GET",
+      "path": "/contact",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your SyncroMSP account (host token in the API base URL)"
+        },
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true,
+          "description": "Get specific contact by ID"
+        }
+      ],
+      "group": "Contact",
+      "description": "[unverified path] Retrieve contact"
+    },
+    {
+      "id": "contact_get_all",
+      "label": "Get Many Contact",
+      "method": "GET",
+      "path": "/contact",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your SyncroMSP account (host token in the API base URL)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 25
+        }
+      ],
+      "group": "Contact",
+      "description": "[unverified path] Retrieve many contacts"
+    },
+    {
+      "id": "contact_update",
+      "label": "Update Contact",
+      "method": "PATCH",
+      "path": "/contact",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your SyncroMSP account (host token in the API base URL)"
+        },
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: address, customerId, email, name, notes, phone)"
+        }
+      ],
+      "group": "Contact",
+      "description": "[unverified path] Update contact"
+    },
+    {
+      "id": "rmm_create",
+      "label": "Create RMM",
+      "method": "POST",
+      "path": "/rmm",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your SyncroMSP account (host token in the API base URL)"
+        },
+        {
+          "id": "assetId",
+          "label": "Asset ID",
+          "type": "text"
+        },
+        {
+          "id": "customerId",
+          "label": "Customer ID",
+          "type": "text"
+        },
+        {
+          "id": "description",
+          "label": "Description",
+          "type": "text"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: resolved)"
+        }
+      ],
+      "group": "RMM",
+      "description": "[unverified path] Create new RMM Alert"
+    },
+    {
+      "id": "rmm_delete",
+      "label": "Delete RMM",
+      "method": "DELETE",
+      "path": "/rmm",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your SyncroMSP account (host token in the API base URL)"
+        },
+        {
+          "id": "alertId",
+          "label": "RMM Alert ID",
+          "type": "text",
+          "required": true,
+          "description": "Delete the RMM alert by ID"
+        }
+      ],
+      "group": "RMM",
+      "description": "[unverified path] Delete RMM Alert"
+    },
+    {
+      "id": "rmm_get",
+      "label": "Get RMM",
+      "method": "GET",
+      "path": "/rmm",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your SyncroMSP account (host token in the API base URL)"
+        },
+        {
+          "id": "alertId",
+          "label": "RMM Alert ID",
+          "type": "text",
+          "required": true,
+          "description": "Get specific RMM alert by ID"
+        }
+      ],
+      "group": "RMM",
+      "description": "[unverified path] Retrieve RMM Alert"
+    },
+    {
+      "id": "rmm_get_all",
+      "label": "Get Many RMM",
+      "method": "GET",
+      "path": "/rmm",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your SyncroMSP account (host token in the API base URL)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 25
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: status)"
+        }
+      ],
+      "group": "RMM",
+      "description": "[unverified path] Retrieve many RMM Alerts"
+    },
+    {
+      "id": "rmm_mute",
+      "label": "Mute RMM",
+      "method": "POST",
+      "path": "/rmm",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your SyncroMSP account (host token in the API base URL)"
+        },
+        {
+          "id": "alertId",
+          "label": "RMM Alert ID",
+          "type": "text",
+          "required": true,
+          "description": "Mute the RMM alert by ID"
+        },
+        {
+          "id": "muteFor",
+          "label": "Mute Period",
+          "type": "select",
+          "description": "Length of time to mute alert for",
+          "options": [
+            {
+              "value": "1-hour",
+              "label": "1 Hour"
+            },
+            {
+              "value": "1-day",
+              "label": "1 Day"
+            },
+            {
+              "value": "2-days",
+              "label": "2 Days"
+            },
+            {
+              "value": "1-week",
+              "label": "1 Week"
+            },
+            {
+              "value": "2-weeks",
+              "label": "2 Weeks"
+            },
+            {
+              "value": "1-month",
+              "label": "1 Month"
+            },
+            {
+              "value": "forever",
+              "label": "Forever"
+            }
+          ]
+        }
+      ],
+      "group": "RMM",
+      "description": "[unverified path] Mute RMM Alert"
+    }
+  ]
 }

@@ -4,8 +4,8 @@
   "description": "Consume the QuickBooks Online API",
   "category": "finance",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 10,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -16,77 +16,1094 @@
       "credentialType": "oauth2"
     }
   },
-  "baseUrl": "",
+  "baseUrl": "https://quickbooks.api.intuit.com",
   "endpoints": [
     {
-      "id": "bill_default",
-      "label": "List Bill",
-      "method": "GET",
-      "path": "/bill",
-      "fields": []
+      "id": "bill_create",
+      "label": "Create Bill",
+      "method": "POST",
+      "path": "/v3/company/{companyId}/bill",
+      "fields": [
+        {
+          "id": "VendorRef",
+          "label": "For Vendor Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the vendor who the bill is for. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "Line",
+          "label": "Line",
+          "type": "json",
+          "placeholder": "Add Line Item Property",
+          "description": "Individual line item of a transaction (JSON object; supported keys: accountId, Amount, Description, DetailType, itemId, LineNum)"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: APAccountRef, Balance, DueDate, SalesTermRef, TotalAmt, TxnDate)"
+        }
+      ],
+      "group": "Bill",
+      "description": "Create a bill"
     },
     {
-      "id": "customer_default",
-      "label": "List Customer",
-      "method": "GET",
-      "path": "/customer",
-      "fields": []
+      "id": "bill_delete",
+      "label": "Delete Bill",
+      "method": "POST",
+      "path": "/v3/company/{companyId}/bill",
+      "fields": [
+        {
+          "id": "billId",
+          "label": "Bill ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the bill to delete"
+        }
+      ],
+      "group": "Bill",
+      "description": "Delete a bill"
     },
     {
-      "id": "employee_default",
-      "label": "List Employee",
+      "id": "bill_get",
+      "label": "Get Bill",
       "method": "GET",
-      "path": "/employee",
-      "fields": []
+      "path": "/v3/company/{companyId}/bill/{billId}",
+      "fields": [
+        {
+          "id": "billId",
+          "label": "Bill ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the bill to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Bill",
+      "description": "Get a bill"
     },
     {
-      "id": "estimate_default",
-      "label": "List Estimate",
+      "id": "bill_get_all",
+      "label": "Get Many Bill",
       "method": "GET",
-      "path": "/estimate",
-      "fields": []
+      "path": "/v3/company/{companyId}/query",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: query)"
+        }
+      ],
+      "group": "Bill",
+      "description": "Get many bills"
     },
     {
-      "id": "invoice_default",
-      "label": "List Invoice",
-      "method": "GET",
-      "path": "/invoice",
-      "fields": []
+      "id": "bill_update",
+      "label": "Update Bill",
+      "method": "POST",
+      "path": "/v3/company/{companyId}/bill",
+      "fields": [
+        {
+          "id": "billId",
+          "label": "Bill ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the bill to update"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "required": true,
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: APAccountRef, DueDate, SalesTermRef, TxnDate)"
+        }
+      ],
+      "group": "Bill",
+      "description": "Update a bill"
     },
     {
-      "id": "item_default",
-      "label": "List Item",
-      "method": "GET",
-      "path": "/item",
-      "fields": []
+      "id": "customer_create",
+      "label": "Create Customer",
+      "method": "POST",
+      "path": "/v3/company/{companyId}/customer",
+      "fields": [
+        {
+          "id": "displayName",
+          "label": "Display Name",
+          "type": "text",
+          "required": true,
+          "description": "The display name of the customer to create"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: Active, Balance, BalanceWithJobs, BillAddr, BillWithParent, CompanyName, FamilyName, FullyQualifiedName, GivenName, PreferredDeliveryMethod, PrimaryEmailAddr, PrimaryPhone, PrintOnCheckName, Taxable)"
+        }
+      ],
+      "group": "Customer",
+      "description": "Create a customer"
     },
     {
-      "id": "payment_default",
-      "label": "List Payment",
+      "id": "customer_get",
+      "label": "Get Customer",
       "method": "GET",
-      "path": "/payment",
-      "fields": []
+      "path": "/v3/company/{companyId}/customer/{customerId}",
+      "fields": [
+        {
+          "id": "customerId",
+          "label": "Customer ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the customer to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Customer",
+      "description": "Get a customer"
     },
     {
-      "id": "purchase_default",
-      "label": "List Purchase",
+      "id": "customer_get_all",
+      "label": "Get Many Customer",
       "method": "GET",
-      "path": "/purchase",
-      "fields": []
+      "path": "/v3/company/{companyId}/query",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: query)"
+        }
+      ],
+      "group": "Customer",
+      "description": "Get many customers"
     },
     {
-      "id": "transaction_default",
-      "label": "List Transaction",
-      "method": "GET",
-      "path": "/transaction",
-      "fields": []
+      "id": "customer_update",
+      "label": "Update Customer",
+      "method": "POST",
+      "path": "/v3/company/{companyId}/customer",
+      "fields": [
+        {
+          "id": "customerId",
+          "label": "Customer ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the customer to update"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "required": true,
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: Active, Balance, BalanceWithJobs, BillAddr, BillWithParent, CompanyName, FamilyName, FullyQualifiedName, GivenName, PreferredDeliveryMethod, PrimaryEmailAddr, PrimaryPhone, PrintOnCheckName, Taxable)"
+        }
+      ],
+      "group": "Customer",
+      "description": "Update a customer"
     },
     {
-      "id": "vendor_default",
-      "label": "List Vendor",
+      "id": "employee_create",
+      "label": "Create Employee",
+      "method": "POST",
+      "path": "/v3/company/{companyId}/employee",
+      "fields": [
+        {
+          "id": "FamilyName",
+          "label": "Family Name",
+          "type": "text"
+        },
+        {
+          "id": "GivenName",
+          "label": "Given Name",
+          "type": "text"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: Active, BillableTime, DisplayName, BillAddr, PrimaryPhone, PrintOnCheckName, SSN)"
+        }
+      ],
+      "group": "Employee",
+      "description": "Create an employee"
+    },
+    {
+      "id": "employee_get",
+      "label": "Get Employee",
       "method": "GET",
-      "path": "/vendor",
-      "fields": []
+      "path": "/v3/company/{companyId}/employee/{employeeId}",
+      "fields": [
+        {
+          "id": "employeeId",
+          "label": "Employee ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the employee to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Employee",
+      "description": "Get an employee"
+    },
+    {
+      "id": "employee_get_all",
+      "label": "Get Many Employee",
+      "method": "GET",
+      "path": "/v3/company/{companyId}/query",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: query)"
+        }
+      ],
+      "group": "Employee",
+      "description": "Get many employees"
+    },
+    {
+      "id": "employee_update",
+      "label": "Update Employee",
+      "method": "POST",
+      "path": "/v3/company/{companyId}/employee",
+      "fields": [
+        {
+          "id": "employeeId",
+          "label": "Employee ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the employee to update"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "required": true,
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: Active, BillableTime, DisplayName, BillAddr, PrimaryPhone, PrintOnCheckName, SSN)"
+        }
+      ],
+      "group": "Employee",
+      "description": "Update an employee"
+    },
+    {
+      "id": "estimate_create",
+      "label": "Create Estimate",
+      "method": "POST",
+      "path": "/v3/company/{companyId}/estimate",
+      "fields": [
+        {
+          "id": "CustomerRef",
+          "label": "For Customer Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the customer who the estimate is for. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "Line",
+          "label": "Line",
+          "type": "json",
+          "placeholder": "Add Line Item Property",
+          "description": "Individual line item of a transaction (JSON object; supported keys: Amount, Description, DetailType, itemId, LineNum, TaxCodeRef)"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: ApplyTaxAfterDiscount, BillAddr, BillEmail, CustomFields, CustomerMemo, DocNumber, EmailStatus, PrintStatus, ShipAddr, TotalAmt, TxnDate, TotalTax)"
+        }
+      ],
+      "group": "Estimate",
+      "description": "Create an estimate"
+    },
+    {
+      "id": "estimate_delete",
+      "label": "Delete Estimate",
+      "method": "POST",
+      "path": "/v3/company/{companyId}/estimate",
+      "fields": [
+        {
+          "id": "estimateId",
+          "label": "Estimate ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the estimate to delete"
+        }
+      ],
+      "group": "Estimate",
+      "description": "Delete an estimate"
+    },
+    {
+      "id": "estimate_get",
+      "label": "Get Estimate",
+      "method": "GET",
+      "path": "/v3/company/{companyId}/estimate/{estimateId}",
+      "fields": [
+        {
+          "id": "estimateId",
+          "label": "Estimate ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the estimate to retrieve",
+          "in": "path"
+        },
+        {
+          "id": "download",
+          "label": "Download",
+          "type": "toggle",
+          "required": true,
+          "description": "Whether to download the estimate as a PDF file",
+          "defaultValue": false
+        },
+        {
+          "id": "binaryProperty",
+          "label": "Put Output File in Field",
+          "type": "text",
+          "required": true,
+          "defaultValue": "data"
+        },
+        {
+          "id": "fileName",
+          "label": "File Name",
+          "type": "text",
+          "required": true,
+          "placeholder": "data.pdf",
+          "description": "Name of the file that will be downloaded"
+        }
+      ],
+      "group": "Estimate",
+      "description": "Get an estimate"
+    },
+    {
+      "id": "estimate_get_all",
+      "label": "Get Many Estimate",
+      "method": "GET",
+      "path": "/v3/company/{companyId}/query",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: query)"
+        }
+      ],
+      "group": "Estimate",
+      "description": "Get many estimates"
+    },
+    {
+      "id": "estimate_send",
+      "label": "Send Estimate",
+      "method": "POST",
+      "path": "/v3/company/{companyId}/estimate/{estimateId}/send",
+      "fields": [
+        {
+          "id": "estimateId",
+          "label": "Estimate ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the estimate to send",
+          "in": "path"
+        },
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "required": true,
+          "placeholder": "name@email.com",
+          "description": "The email of the recipient of the estimate"
+        }
+      ],
+      "group": "Estimate",
+      "description": "Send an estimate"
+    },
+    {
+      "id": "estimate_update",
+      "label": "Update Estimate",
+      "method": "POST",
+      "path": "/v3/company/{companyId}/estimate",
+      "fields": [
+        {
+          "id": "estimateId",
+          "label": "Estimate ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the estimate to update"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "required": true,
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: ApplyTaxAfterDiscount, BillAddr, BillEmail, CustomFields, CustomerMemo, DocNumber, EmailStatus, PrintStatus, ShipAddr, TxnDate)"
+        }
+      ],
+      "group": "Estimate",
+      "description": "Update an estimate"
+    },
+    {
+      "id": "invoice_create",
+      "label": "Create Invoice",
+      "method": "POST",
+      "path": "/v3/company/{companyId}/invoice",
+      "fields": [
+        {
+          "id": "CustomerRef",
+          "label": "For Customer Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the customer who the invoice is for. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "Line",
+          "label": "Line",
+          "type": "json",
+          "placeholder": "Add Line Item Property",
+          "description": "Individual line item of a transaction (JSON object; supported keys: Amount, Description, DetailType, itemId, LineNum, TaxCodeRef, Qty)"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: Balance, BillAddr, BillEmail, CustomerMemo, CustomFields, DocNumber, DueDate, EmailStatus, PrintStatus, ShipAddr, TotalAmt, TxnDate)"
+        }
+      ],
+      "group": "Invoice",
+      "description": "Create an invoice"
+    },
+    {
+      "id": "invoice_delete",
+      "label": "Delete Invoice",
+      "method": "POST",
+      "path": "/v3/company/{companyId}/invoice",
+      "fields": [
+        {
+          "id": "invoiceId",
+          "label": "Invoice ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the invoice to delete"
+        }
+      ],
+      "group": "Invoice",
+      "description": "Delete an invoice"
+    },
+    {
+      "id": "invoice_get",
+      "label": "Get Invoice",
+      "method": "GET",
+      "path": "/v3/company/{companyId}/invoice/{invoiceId}",
+      "fields": [
+        {
+          "id": "invoiceId",
+          "label": "Invoice ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the invoice to retrieve",
+          "in": "path"
+        },
+        {
+          "id": "download",
+          "label": "Download",
+          "type": "toggle",
+          "required": true,
+          "description": "Whether to download the invoice as a PDF file",
+          "defaultValue": false
+        },
+        {
+          "id": "binaryProperty",
+          "label": "Put Output File in Field",
+          "type": "text",
+          "required": true,
+          "defaultValue": "data"
+        },
+        {
+          "id": "fileName",
+          "label": "File Name",
+          "type": "text",
+          "required": true,
+          "placeholder": "data.pdf",
+          "description": "Name of the file that will be downloaded"
+        }
+      ],
+      "group": "Invoice",
+      "description": "Get an invoice"
+    },
+    {
+      "id": "invoice_get_all",
+      "label": "Get Many Invoice",
+      "method": "GET",
+      "path": "/v3/company/{companyId}/query",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: query)"
+        }
+      ],
+      "group": "Invoice",
+      "description": "Get many invoices"
+    },
+    {
+      "id": "invoice_send",
+      "label": "Send Invoice",
+      "method": "POST",
+      "path": "/v3/company/{companyId}/invoice/{invoiceId}/send",
+      "fields": [
+        {
+          "id": "invoiceId",
+          "label": "Invoice ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the invoice to send",
+          "in": "path"
+        },
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "required": true,
+          "placeholder": "name@email.com",
+          "description": "The email of the recipient of the invoice"
+        }
+      ],
+      "group": "Invoice",
+      "description": "Send an invoice"
+    },
+    {
+      "id": "invoice_update",
+      "label": "Update Invoice",
+      "method": "POST",
+      "path": "/v3/company/{companyId}/invoice",
+      "fields": [
+        {
+          "id": "invoiceId",
+          "label": "Invoice ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the invoice to update"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "required": true,
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: BillAddr, BillEmail, CustomerMemo, CustomFields, DocNumber, DueDate, EmailStatus, PrintStatus, ShipAddr, TxnDate)"
+        }
+      ],
+      "group": "Invoice",
+      "description": "Update an invoice"
+    },
+    {
+      "id": "invoice_void",
+      "label": "Void Invoice",
+      "method": "POST",
+      "path": "/v3/company/{companyId}/invoice",
+      "fields": [
+        {
+          "id": "invoiceId",
+          "label": "Invoice ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the invoice to void"
+        }
+      ],
+      "group": "Invoice",
+      "description": "Void an invoice"
+    },
+    {
+      "id": "item_get",
+      "label": "Get Item",
+      "method": "GET",
+      "path": "/v3/company/{companyId}/item/{item}",
+      "fields": [
+        {
+          "id": "itemId",
+          "label": "Item ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the item to retrieve"
+        }
+      ],
+      "group": "Item",
+      "description": "Get an item"
+    },
+    {
+      "id": "item_get_all",
+      "label": "Get Many Item",
+      "method": "GET",
+      "path": "/v3/company/{companyId}/query",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: query)"
+        }
+      ],
+      "group": "Item",
+      "description": "Get many items"
+    },
+    {
+      "id": "payment_create",
+      "label": "Create Payment",
+      "method": "POST",
+      "path": "/v3/company/{companyId}/payment",
+      "fields": [
+        {
+          "id": "CustomerRef",
+          "label": "For Customer Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the customer who the payment is for. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "TotalAmt",
+          "label": "Total Amount",
+          "type": "number",
+          "description": "Total amount of the transaction",
+          "defaultValue": 0
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: TxnDate)"
+        }
+      ],
+      "group": "Payment",
+      "description": "Create a payment"
+    },
+    {
+      "id": "payment_delete",
+      "label": "Delete Payment",
+      "method": "POST",
+      "path": "/v3/company/{companyId}/payment",
+      "fields": [
+        {
+          "id": "paymentId",
+          "label": "Payment ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the payment to delete"
+        }
+      ],
+      "group": "Payment",
+      "description": "Delete a payment"
+    },
+    {
+      "id": "payment_get",
+      "label": "Get Payment",
+      "method": "GET",
+      "path": "/v3/company/{companyId}/payment/{paymentId}",
+      "fields": [
+        {
+          "id": "paymentId",
+          "label": "Payment ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the payment to retrieve",
+          "in": "path"
+        },
+        {
+          "id": "download",
+          "label": "Download",
+          "type": "toggle",
+          "required": true,
+          "description": "Whether to download estimate as PDF file",
+          "defaultValue": false
+        },
+        {
+          "id": "binaryProperty",
+          "label": "Put Output File in Field",
+          "type": "text",
+          "required": true,
+          "defaultValue": "data"
+        },
+        {
+          "id": "fileName",
+          "label": "File Name",
+          "type": "text",
+          "required": true,
+          "placeholder": "data.pdf",
+          "description": "Name of the file that will be downloaded"
+        }
+      ],
+      "group": "Payment",
+      "description": "Get a payment"
+    },
+    {
+      "id": "payment_get_all",
+      "label": "Get Many Payment",
+      "method": "GET",
+      "path": "/v3/company/{companyId}/query",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: query)"
+        }
+      ],
+      "group": "Payment",
+      "description": "Get many payments"
+    },
+    {
+      "id": "payment_send",
+      "label": "Send Payment",
+      "method": "POST",
+      "path": "/v3/company/{companyId}/payment/{paymentId}/send",
+      "fields": [
+        {
+          "id": "paymentId",
+          "label": "Payment ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the payment to send",
+          "in": "path"
+        },
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "required": true,
+          "placeholder": "name@email.com",
+          "description": "The email of the recipient of the payment"
+        }
+      ],
+      "group": "Payment",
+      "description": "Send a payment"
+    },
+    {
+      "id": "payment_update",
+      "label": "Update Payment",
+      "method": "POST",
+      "path": "/v3/company/{companyId}/payment",
+      "fields": [
+        {
+          "id": "paymentId",
+          "label": "Payment ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the payment to update"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "required": true,
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: TxnDate)"
+        }
+      ],
+      "group": "Payment",
+      "description": "Update a payment"
+    },
+    {
+      "id": "payment_void",
+      "label": "Void Payment",
+      "method": "POST",
+      "path": "/v3/company/{companyId}/payment",
+      "fields": [
+        {
+          "id": "paymentId",
+          "label": "Payment ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the payment to void"
+        }
+      ],
+      "group": "Payment",
+      "description": "Void a payment"
+    },
+    {
+      "id": "purchase_get",
+      "label": "Get Purchase",
+      "method": "GET",
+      "path": "/v3/company/{companyId}/purchase/{purchaseId}",
+      "fields": [
+        {
+          "id": "purchaseId",
+          "label": "Purchase ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the purchase to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Purchase",
+      "description": "Get a purchase"
+    },
+    {
+      "id": "purchase_get_all",
+      "label": "Get Many Purchase",
+      "method": "GET",
+      "path": "/v3/company/{companyId}/query",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: query)"
+        }
+      ],
+      "group": "Purchase",
+      "description": "Get many purchases"
+    },
+    {
+      "id": "transaction_get_report",
+      "label": "Get Report Transaction",
+      "method": "GET",
+      "path": "/v3/company/{companyId}/reports/TransactionList",
+      "fields": [
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: appaid, arpaid, cleared, columns, customer, dateRangeCustom, date_macro, dateRangeCreationCustom, createdate_macro, dateRangeDueCustom, duedate_macro, dateRangeModificationCustom, moddate_macro, department, docnum, group_by, memo, payment_Method, printed, qzurl, sort_by, sort_order, source_account_type, term, bothamount, transaction_type, vendor)"
+        }
+      ],
+      "group": "Transaction",
+      "description": "Get a report"
+    },
+    {
+      "id": "vendor_create",
+      "label": "Create Vendor",
+      "method": "POST",
+      "path": "/v3/company/{companyId}/vendor",
+      "fields": [
+        {
+          "id": "displayName",
+          "label": "Display Name",
+          "type": "text",
+          "required": true,
+          "description": "The display name of the vendor to create"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: AcctNum, Active, Balance, BillAddr, CompanyName, FamilyName, GivenName, PrimaryEmailAddr, PrimaryPhone, PrintOnCheckName, Vendor1099)"
+        }
+      ],
+      "group": "Vendor",
+      "description": "Create a vendor"
+    },
+    {
+      "id": "vendor_get",
+      "label": "Get Vendor",
+      "method": "GET",
+      "path": "/v3/company/{companyId}/vendor/{vendorId}",
+      "fields": [
+        {
+          "id": "vendorId",
+          "label": "Vendor ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the vendor to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Vendor",
+      "description": "Get a vendor"
+    },
+    {
+      "id": "vendor_get_all",
+      "label": "Get Many Vendor",
+      "method": "GET",
+      "path": "/v3/company/{companyId}/query",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: query)"
+        }
+      ],
+      "group": "Vendor",
+      "description": "Get many vendors"
+    },
+    {
+      "id": "vendor_update",
+      "label": "Update Vendor",
+      "method": "POST",
+      "path": "/v3/company/{companyId}/vendor",
+      "fields": [
+        {
+          "id": "vendorId",
+          "label": "Vendor ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the vendor to update"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "required": true,
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: AcctNum, Active, Balance, BillAddr, CompanyName, FamilyName, GivenName, PrimaryEmailAddr, PrimaryPhone, PrintOnCheckName, Vendor1099)"
+        }
+      ],
+      "group": "Vendor",
+      "description": "Update a vendor"
     }
   ]
 }

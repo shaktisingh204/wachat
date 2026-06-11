@@ -4,259 +4,491 @@
   "description": "Read, update, write and delete data from NocoDB",
   "category": "data",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 4,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://{host}",
   "endpoints": [
     {
       "id": "row_create",
       "label": "Create Row",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/row",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your NocoDB server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "version",
+          "label": "API Version",
           "type": "select",
-          "in": "query",
-          "defaultValue": "nocoDb",
+          "defaultValue": 1,
           "options": [
             {
-              "value": "nocoDbApiToken",
-              "label": "API Token"
+              "value": "1",
+              "label": "Before v0.90.0"
             },
             {
-              "value": "nocoDb",
-              "label": "User Token"
+              "value": "2",
+              "label": "v0.90.0 Onwards"
+            },
+            {
+              "value": "3",
+              "label": "v0.200.0 Onwards"
             }
           ]
         },
         {
-          "id": "version",
-          "label": "API Version",
+          "id": "workspaceId",
+          "label": "Workspace Name or ID",
           "type": "select",
-          "in": "query",
-          "defaultValue": 1,
-          "options": []
+          "description": "Choose from the list, or specify an ID using an expression",
+          "defaultValue": "none"
         },
         {
-          "id": "version",
-          "label": "API Version",
+          "id": "projectId",
+          "label": "Base Name or ID",
           "type": "select",
-          "in": "query",
-          "defaultValue": 2,
-          "options": []
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
         },
         {
-          "id": "version",
-          "label": "API Version",
+          "id": "table",
+          "label": "Table Name or ID",
           "type": "select",
-          "in": "query",
-          "defaultValue": 3,
-          "options": []
+          "required": true,
+          "description": "The table to operate on. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "dataToSend",
+          "label": "Data to Send",
+          "type": "select",
+          "description": "Whether to insert the input data this node receives in the new row",
+          "defaultValue": "defineBelow",
+          "options": [
+            {
+              "value": "autoMapInputData",
+              "label": "Auto-Map Input Data to Columns"
+            },
+            {
+              "value": "defineBelow",
+              "label": "Define Below for Each Column"
+            }
+          ]
+        },
+        {
+          "id": "inputsToIgnore",
+          "label": "Inputs to Ignore",
+          "type": "text",
+          "placeholder": "Enter properties...",
+          "description": "List of input properties to avoid sending, separated by commas. Leave empty to send all properties."
+        },
+        {
+          "id": "fieldsUi",
+          "label": "Fields to Send",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: fieldValues, fieldValues.fieldName, fieldValues.binaryData, fieldValues.fieldValue, fieldValues.binaryProperty)"
         }
-      ]
+      ],
+      "group": "Row",
+      "description": "[unverified path] Create a row"
     },
     {
       "id": "row_delete",
       "label": "Delete Row",
-      "method": "GET",
-      "path": "/",
+      "method": "DELETE",
+      "path": "/row",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your NocoDB server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "version",
+          "label": "API Version",
           "type": "select",
-          "in": "query",
-          "defaultValue": "nocoDb",
+          "defaultValue": 1,
           "options": [
             {
-              "value": "nocoDbApiToken",
-              "label": "API Token"
+              "value": "1",
+              "label": "Before v0.90.0"
             },
             {
-              "value": "nocoDb",
-              "label": "User Token"
+              "value": "2",
+              "label": "v0.90.0 Onwards"
+            },
+            {
+              "value": "3",
+              "label": "v0.200.0 Onwards"
             }
           ]
         },
         {
-          "id": "version",
-          "label": "API Version",
+          "id": "workspaceId",
+          "label": "Workspace Name or ID",
           "type": "select",
-          "in": "query",
-          "defaultValue": 1,
-          "options": []
+          "description": "Choose from the list, or specify an ID using an expression",
+          "defaultValue": "none"
         },
         {
-          "id": "version",
-          "label": "API Version",
+          "id": "projectId",
+          "label": "Base Name or ID",
           "type": "select",
-          "in": "query",
-          "defaultValue": 2,
-          "options": []
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
         },
         {
-          "id": "version",
-          "label": "API Version",
+          "id": "table",
+          "label": "Table Name or ID",
           "type": "select",
-          "in": "query",
-          "defaultValue": 3,
-          "options": []
+          "required": true,
+          "description": "The table to operate on. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "primaryKey",
+          "label": "Primary Key Type",
+          "type": "select",
+          "defaultValue": "id",
+          "options": [
+            {
+              "value": "id",
+              "label": "Default"
+            },
+            {
+              "value": "ncRecordId",
+              "label": "Imported From Airtable"
+            },
+            {
+              "value": "custom",
+              "label": "Custom"
+            }
+          ]
+        },
+        {
+          "id": "customPrimaryKey",
+          "label": "Field Name",
+          "type": "text"
+        },
+        {
+          "id": "id",
+          "label": "Row ID Value",
+          "type": "text",
+          "required": true,
+          "description": "The value of the ID field"
         }
-      ]
+      ],
+      "group": "Row",
+      "description": "[unverified path] Delete a row"
     },
     {
       "id": "row_get",
       "label": "Get Row",
       "method": "GET",
-      "path": "/",
+      "path": "/row",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your NocoDB server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "version",
+          "label": "API Version",
           "type": "select",
-          "in": "query",
-          "defaultValue": "nocoDb",
+          "defaultValue": 1,
           "options": [
             {
-              "value": "nocoDbApiToken",
-              "label": "API Token"
+              "value": "1",
+              "label": "Before v0.90.0"
             },
             {
-              "value": "nocoDb",
-              "label": "User Token"
+              "value": "2",
+              "label": "v0.90.0 Onwards"
+            },
+            {
+              "value": "3",
+              "label": "v0.200.0 Onwards"
             }
           ]
         },
         {
-          "id": "version",
-          "label": "API Version",
+          "id": "workspaceId",
+          "label": "Workspace Name or ID",
           "type": "select",
-          "in": "query",
-          "defaultValue": 1,
-          "options": []
+          "description": "Choose from the list, or specify an ID using an expression",
+          "defaultValue": "none"
         },
         {
-          "id": "version",
-          "label": "API Version",
+          "id": "projectId",
+          "label": "Base Name or ID",
           "type": "select",
-          "in": "query",
-          "defaultValue": 2,
-          "options": []
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
         },
         {
-          "id": "version",
-          "label": "API Version",
+          "id": "table",
+          "label": "Table Name or ID",
           "type": "select",
-          "in": "query",
-          "defaultValue": 3,
-          "options": []
+          "required": true,
+          "description": "The table to operate on. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "id",
+          "label": "Row ID Value",
+          "type": "text",
+          "required": true,
+          "description": "The value of the ID field"
+        },
+        {
+          "id": "downloadAttachments",
+          "label": "Download Attachments",
+          "type": "toggle",
+          "description": "Whether the attachment fields define in 'Download Fields' will be downloaded",
+          "defaultValue": false
+        },
+        {
+          "id": "downloadFieldNames",
+          "label": "Download Fields",
+          "type": "text",
+          "required": true,
+          "description": "Name of the fields of type 'attachment' that should be downloaded. Multiple ones can be defined separated by comma. Case sensitive."
         }
-      ]
+      ],
+      "group": "Row",
+      "description": "[unverified path] Retrieve a row"
     },
     {
       "id": "row_get_all",
       "label": "Get Many Row",
       "method": "GET",
-      "path": "/",
+      "path": "/row",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your NocoDB server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "version",
+          "label": "API Version",
           "type": "select",
-          "in": "query",
-          "defaultValue": "nocoDb",
+          "defaultValue": 1,
           "options": [
             {
-              "value": "nocoDbApiToken",
-              "label": "API Token"
+              "value": "1",
+              "label": "Before v0.90.0"
             },
             {
-              "value": "nocoDb",
-              "label": "User Token"
+              "value": "2",
+              "label": "v0.90.0 Onwards"
+            },
+            {
+              "value": "3",
+              "label": "v0.200.0 Onwards"
             }
           ]
         },
         {
-          "id": "version",
-          "label": "API Version",
+          "id": "workspaceId",
+          "label": "Workspace Name or ID",
           "type": "select",
-          "in": "query",
-          "defaultValue": 1,
-          "options": []
+          "description": "Choose from the list, or specify an ID using an expression",
+          "defaultValue": "none"
         },
         {
-          "id": "version",
-          "label": "API Version",
+          "id": "projectId",
+          "label": "Base Name or ID",
           "type": "select",
-          "in": "query",
-          "defaultValue": 2,
-          "options": []
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
         },
         {
-          "id": "version",
-          "label": "API Version",
+          "id": "table",
+          "label": "Table Name or ID",
           "type": "select",
-          "in": "query",
-          "defaultValue": 3,
-          "options": []
+          "required": true,
+          "description": "The table to operate on. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "downloadAttachments",
+          "label": "Download Attachments",
+          "type": "toggle",
+          "description": "Whether the attachment fields define in 'Download Fields' will be downloaded",
+          "defaultValue": false
+        },
+        {
+          "id": "downloadFieldNames",
+          "label": "Download Fields",
+          "type": "text",
+          "required": true,
+          "description": "Name of the fields of type 'attachment' that should be downloaded. Multiple ones can be defined separated by comma. Case sensitive."
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: viewId, fields, sort, where)"
         }
-      ]
+      ],
+      "group": "Row",
+      "description": "[unverified path] Retrieve many rows"
     },
     {
       "id": "row_update",
       "label": "Update Row",
-      "method": "GET",
-      "path": "/",
+      "method": "PATCH",
+      "path": "/row",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your NocoDB server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "version",
+          "label": "API Version",
           "type": "select",
-          "in": "query",
-          "defaultValue": "nocoDb",
+          "defaultValue": 1,
           "options": [
             {
-              "value": "nocoDbApiToken",
-              "label": "API Token"
+              "value": "1",
+              "label": "Before v0.90.0"
             },
             {
-              "value": "nocoDb",
-              "label": "User Token"
+              "value": "2",
+              "label": "v0.90.0 Onwards"
+            },
+            {
+              "value": "3",
+              "label": "v0.200.0 Onwards"
             }
           ]
         },
         {
-          "id": "version",
-          "label": "API Version",
+          "id": "workspaceId",
+          "label": "Workspace Name or ID",
           "type": "select",
-          "in": "query",
-          "defaultValue": 1,
-          "options": []
+          "description": "Choose from the list, or specify an ID using an expression",
+          "defaultValue": "none"
         },
         {
-          "id": "version",
-          "label": "API Version",
+          "id": "projectId",
+          "label": "Base Name or ID",
           "type": "select",
-          "in": "query",
-          "defaultValue": 2,
-          "options": []
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
         },
         {
-          "id": "version",
-          "label": "API Version",
+          "id": "table",
+          "label": "Table Name or ID",
           "type": "select",
-          "in": "query",
-          "defaultValue": 3,
-          "options": []
+          "required": true,
+          "description": "The table to operate on. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "primaryKey",
+          "label": "Primary Key Type",
+          "type": "select",
+          "defaultValue": "id",
+          "options": [
+            {
+              "value": "id",
+              "label": "Default"
+            },
+            {
+              "value": "ncRecordId",
+              "label": "Imported From Airtable"
+            },
+            {
+              "value": "custom",
+              "label": "Custom"
+            }
+          ]
+        },
+        {
+          "id": "customPrimaryKey",
+          "label": "Field Name",
+          "type": "text"
+        },
+        {
+          "id": "id",
+          "label": "Row ID Value",
+          "type": "text",
+          "required": true,
+          "description": "The value of the ID field"
+        },
+        {
+          "id": "dataToSend",
+          "label": "Data to Send",
+          "type": "select",
+          "description": "Whether to insert the input data this node receives in the new row",
+          "defaultValue": "defineBelow",
+          "options": [
+            {
+              "value": "autoMapInputData",
+              "label": "Auto-Map Input Data to Columns"
+            },
+            {
+              "value": "defineBelow",
+              "label": "Define Below for Each Column"
+            }
+          ]
+        },
+        {
+          "id": "inputsToIgnore",
+          "label": "Inputs to Ignore",
+          "type": "text",
+          "placeholder": "Enter properties...",
+          "description": "List of input properties to avoid sending, separated by commas. Leave empty to send all properties."
+        },
+        {
+          "id": "fieldsUi",
+          "label": "Fields to Send",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: fieldValues, fieldValues.fieldName, fieldValues.binaryData, fieldValues.fieldValue, fieldValues.binaryProperty)"
         }
-      ]
+      ],
+      "group": "Row",
+      "description": "[unverified path] Update a row"
     }
   ]
 }

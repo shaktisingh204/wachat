@@ -4,8 +4,8 @@
   "description": "Consume Monday.com API",
   "category": "productivity",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -16,107 +16,593 @@
       "credentialType": "http_header_auth"
     }
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.monday.com/v2",
   "endpoints": [
     {
-      "id": "board_default",
-      "label": "List Board",
+      "id": "board_archive",
+      "label": "Archive Board",
+      "method": "DELETE",
+      "path": "/board",
+      "fields": [
+        {
+          "id": "boardId",
+          "label": "Board Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Board unique identifiers. Choose from the list, or specify an ID using an expression."
+        }
+      ],
+      "group": "Board",
+      "description": "[unverified path] Archive a board"
+    },
+    {
+      "id": "board_create",
+      "label": "Create Board",
+      "method": "POST",
+      "path": "/board",
+      "fields": [
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "The board's name"
+        },
+        {
+          "id": "kind",
+          "label": "Kind",
+          "type": "select",
+          "required": true,
+          "description": "The board's kind (public / private / share)",
+          "options": [
+            {
+              "value": "share",
+              "label": "Share"
+            },
+            {
+              "value": "public",
+              "label": "Public"
+            },
+            {
+              "value": "private",
+              "label": "Private"
+            }
+          ]
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: templateId)"
+        }
+      ],
+      "group": "Board",
+      "description": "[unverified path] Create a new board"
+    },
+    {
+      "id": "board_get",
+      "label": "Get Board",
       "method": "GET",
       "path": "/board",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
+          "id": "boardId",
+          "label": "Board Name or ID",
           "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
+          "required": true,
+          "description": "Board unique identifiers. Choose from the list, or specify an ID using an expression."
         }
-      ]
+      ],
+      "group": "Board",
+      "description": "[unverified path] Get a board"
     },
     {
-      "id": "board_column_default",
-      "label": "List BoardColumn",
+      "id": "board_get_all",
+      "label": "Get Many Board",
       "method": "GET",
-      "path": "/boardColumn",
+      "path": "/board",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
         }
-      ]
+      ],
+      "group": "Board",
+      "description": "[unverified path] Get many boards"
     },
     {
-      "id": "board_group_default",
-      "label": "List BoardGroup",
-      "method": "GET",
-      "path": "/boardGroup",
+      "id": "board_column_create",
+      "label": "Create Board Column",
+      "method": "POST",
+      "path": "/board-column",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
+          "id": "boardId",
+          "label": "Board Name or ID",
           "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "title",
+          "label": "Title",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "columnType",
+          "label": "Column Type",
+          "type": "select",
+          "required": true,
           "options": [
             {
-              "value": "accessToken",
-              "label": "Access Token"
+              "value": "checkbox",
+              "label": "Checkbox"
             },
             {
-              "value": "oAuth2",
-              "label": "OAuth2"
+              "value": "country",
+              "label": "Country"
+            },
+            {
+              "value": "date",
+              "label": "Date"
+            },
+            {
+              "value": "dropdown",
+              "label": "Dropdown"
+            },
+            {
+              "value": "email",
+              "label": "Email"
+            },
+            {
+              "value": "hour",
+              "label": "Hour"
+            },
+            {
+              "value": "Link",
+              "label": "Link"
+            },
+            {
+              "value": "longText",
+              "label": "Long Text"
+            },
+            {
+              "value": "numbers",
+              "label": "Numbers"
+            },
+            {
+              "value": "people",
+              "label": "People"
+            },
+            {
+              "value": "person",
+              "label": "Person"
+            },
+            {
+              "value": "phone",
+              "label": "Phone"
+            },
+            {
+              "value": "rating",
+              "label": "Rating"
+            },
+            {
+              "value": "status",
+              "label": "Status"
+            },
+            {
+              "value": "tags",
+              "label": "Tags"
+            },
+            {
+              "value": "team",
+              "label": "Team"
+            },
+            {
+              "value": "text",
+              "label": "Text"
+            },
+            {
+              "value": "timeline",
+              "label": "Timeline"
+            },
+            {
+              "value": "timezone",
+              "label": "Timezone"
+            },
+            {
+              "value": "week",
+              "label": "Week"
+            },
+            {
+              "value": "worldClock",
+              "label": "World Clock"
             }
           ]
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: defaults)"
         }
-      ]
+      ],
+      "group": "Board Column",
+      "description": "[unverified path] Create a new column"
     },
     {
-      "id": "board_item_default",
-      "label": "List BoardItem",
+      "id": "board_column_get_all",
+      "label": "Get Many Board Column",
       "method": "GET",
-      "path": "/boardItem",
+      "path": "/board-column",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
+          "id": "boardId",
+          "label": "Board Name or ID",
           "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
         }
-      ]
+      ],
+      "group": "Board Column",
+      "description": "[unverified path] Get many columns"
+    },
+    {
+      "id": "board_group_delete",
+      "label": "Delete Board Group",
+      "method": "DELETE",
+      "path": "/board-group",
+      "fields": [
+        {
+          "id": "boardId",
+          "label": "Board Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "groupId",
+          "label": "Group Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        }
+      ],
+      "group": "Board Group",
+      "description": "[unverified path] Delete a group in a board"
+    },
+    {
+      "id": "board_group_create",
+      "label": "Create Board Group",
+      "method": "POST",
+      "path": "/board-group",
+      "fields": [
+        {
+          "id": "boardId",
+          "label": "Board Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "The group name"
+        }
+      ],
+      "group": "Board Group",
+      "description": "[unverified path] Create a group in a board"
+    },
+    {
+      "id": "board_group_get_all",
+      "label": "Get Many Board Group",
+      "method": "GET",
+      "path": "/board-group",
+      "fields": [
+        {
+          "id": "boardId",
+          "label": "Board Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        }
+      ],
+      "group": "Board Group",
+      "description": "[unverified path] Get list of groups in a board"
+    },
+    {
+      "id": "board_item_add_update",
+      "label": "Add Update Board Item",
+      "method": "POST",
+      "path": "/board-item",
+      "fields": [
+        {
+          "id": "itemId",
+          "label": "Item ID",
+          "type": "text",
+          "required": true,
+          "description": "The unique identifier of the item to add update to"
+        },
+        {
+          "id": "value",
+          "label": "Update Text",
+          "type": "text",
+          "required": true,
+          "description": "The update text to add"
+        }
+      ],
+      "group": "Board Item",
+      "description": "[unverified path] Add an update to an item"
+    },
+    {
+      "id": "board_item_change_column_value",
+      "label": "Change Column Value Board Item",
+      "method": "PATCH",
+      "path": "/board-item",
+      "fields": [
+        {
+          "id": "boardId",
+          "label": "Board Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The unique identifier of the board. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "itemId",
+          "label": "Item ID",
+          "type": "text",
+          "required": true,
+          "description": "The unique identifier of the item to change column of"
+        },
+        {
+          "id": "columnId",
+          "label": "Column Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The column's unique identifier. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "value",
+          "label": "Value",
+          "type": "json",
+          "required": true,
+          "description": "The column value in JSON format. Documentation can be found here."
+        }
+      ],
+      "group": "Board Item",
+      "description": "[unverified path] Change a column value for a board item"
+    },
+    {
+      "id": "board_item_change_multiple_column_values",
+      "label": "Change Multiple Column Values Board Item",
+      "method": "PATCH",
+      "path": "/board-item",
+      "fields": [
+        {
+          "id": "boardId",
+          "label": "Board Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The unique identifier of the board. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "itemId",
+          "label": "Item ID",
+          "type": "text",
+          "required": true,
+          "description": "Item's ID"
+        },
+        {
+          "id": "columnValues",
+          "label": "Column Values",
+          "type": "json",
+          "required": true,
+          "description": "The column fields and values in JSON format. Documentation can be found here."
+        }
+      ],
+      "group": "Board Item",
+      "description": "[unverified path] Change multiple column values for a board item"
+    },
+    {
+      "id": "board_item_create",
+      "label": "Create Board Item",
+      "method": "POST",
+      "path": "/board-item",
+      "fields": [
+        {
+          "id": "boardId",
+          "label": "Board Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "groupId",
+          "label": "Group Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "The new item's name"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: columnValues)"
+        }
+      ],
+      "group": "Board Item",
+      "description": "[unverified path] Create an item in a board's group"
+    },
+    {
+      "id": "board_item_delete",
+      "label": "Delete Board Item",
+      "method": "DELETE",
+      "path": "/board-item",
+      "fields": [
+        {
+          "id": "itemId",
+          "label": "Item ID",
+          "type": "text",
+          "required": true,
+          "description": "Item's ID"
+        }
+      ],
+      "group": "Board Item",
+      "description": "[unverified path] Delete an item"
+    },
+    {
+      "id": "board_item_get",
+      "label": "Get Board Item",
+      "method": "GET",
+      "path": "/board-item",
+      "fields": [
+        {
+          "id": "itemId",
+          "label": "Item ID",
+          "type": "text",
+          "required": true,
+          "description": "Item's ID (Multiple can be added separated by comma)"
+        }
+      ],
+      "group": "Board Item",
+      "description": "[unverified path] Get an item"
+    },
+    {
+      "id": "board_item_get_by_column_value",
+      "label": "Get By Column Value Board Item",
+      "method": "GET",
+      "path": "/board-item",
+      "fields": [
+        {
+          "id": "boardId",
+          "label": "Board Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The unique identifier of the board. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "columnId",
+          "label": "Column Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The column's unique identifier. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "columnValue",
+          "label": "Column Value",
+          "type": "text",
+          "required": true,
+          "description": "The column value to search items by"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Board Item",
+      "description": "[unverified path] Get items by column value"
+    },
+    {
+      "id": "board_item_get_all",
+      "label": "Get Many Board Item",
+      "method": "GET",
+      "path": "/board-item",
+      "fields": [
+        {
+          "id": "boardId",
+          "label": "Board Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "groupId",
+          "label": "Group Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Board Item",
+      "description": "[unverified path] Get many items"
+    },
+    {
+      "id": "board_item_move",
+      "label": "Move Board Item",
+      "method": "PATCH",
+      "path": "/board-item",
+      "fields": [
+        {
+          "id": "boardId",
+          "label": "Board Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "itemId",
+          "label": "Item ID",
+          "type": "text",
+          "required": true,
+          "description": "The item's ID"
+        },
+        {
+          "id": "groupId",
+          "label": "Group Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        }
+      ],
+      "group": "Board Item",
+      "description": "[unverified path] Move item to group"
     }
   ]
 }

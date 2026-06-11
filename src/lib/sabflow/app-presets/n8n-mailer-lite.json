@@ -1,15 +1,116 @@
 {
   "id": "n8n-mailer-lite",
   "name": "MailerLite",
-  "description": "Consume MailerLite API",
+  "description": "Consume Mailer Lite API",
   "category": "marketing",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 10,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
-    "type": "none"
+    "type": "bearer",
+    "credentialType": "mailer_lite"
   },
-  "baseUrl": "",
-  "endpoints": []
+  "baseUrl": "https://api.mailerlite.com/api/v2",
+  "endpoints": [
+    {
+      "id": "subscriber_create",
+      "label": "Create Subscriber",
+      "method": "POST",
+      "path": "/subscribers",
+      "fields": [
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "required": true,
+          "placeholder": "name@email.com",
+          "description": "Email of new subscriber"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: customFieldsUi, status, subscribed_at, ip_address, opted_in_at, optin_ip, unsubscribed_at)"
+        }
+      ],
+      "group": "Subscriber",
+      "description": "Create a new subscriber"
+    },
+    {
+      "id": "subscriber_get",
+      "label": "Get Subscriber",
+      "method": "GET",
+      "path": "/subscribers/{subscriberId}",
+      "fields": [
+        {
+          "id": "subscriberId",
+          "label": "Subscriber Email",
+          "type": "text",
+          "required": true,
+          "description": "Email of subscriber to get",
+          "in": "path"
+        }
+      ],
+      "group": "Subscriber",
+      "description": "Get an subscriber"
+    },
+    {
+      "id": "subscriber_get_all",
+      "label": "Get Many Subscriber",
+      "method": "GET",
+      "path": "/subscribers",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: status)"
+        }
+      ],
+      "group": "Subscriber",
+      "description": "Get many subscribers"
+    },
+    {
+      "id": "subscriber_update",
+      "label": "Update Subscriber",
+      "method": "PUT",
+      "path": "/subscribers/{subscriberId}",
+      "fields": [
+        {
+          "id": "subscriberId",
+          "label": "Subscriber Email",
+          "type": "text",
+          "required": true,
+          "description": "Email of subscriber",
+          "in": "path"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: customFieldsUi, status, subscribed_at, ip_address, opted_in_at, optin_ip, unsubscribed_at)"
+        }
+      ],
+      "group": "Subscriber",
+      "description": "Update an subscriber"
+    }
+  ]
 }

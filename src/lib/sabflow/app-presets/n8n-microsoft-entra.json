@@ -4,8 +4,8 @@
   "description": "Interact with Microsoft Entra ID API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 10,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -16,21 +16,504 @@
       "credentialType": "oauth2"
     }
   },
-  "baseUrl": "",
+  "baseUrl": "https://graph.microsoft.com",
   "endpoints": [
     {
-      "id": "group_default",
-      "label": "List Group",
-      "method": "GET",
-      "path": "/group",
-      "fields": []
+      "id": "group_create",
+      "label": "Create Group",
+      "method": "POST",
+      "path": "/groups",
+      "fields": [
+        {
+          "id": "groupType",
+          "label": "Group Type",
+          "type": "select",
+          "options": [
+            {
+              "value": "Unified",
+              "label": "Microsoft 365"
+            },
+            {
+              "value": "",
+              "label": "Security"
+            }
+          ]
+        },
+        {
+          "id": "displayName",
+          "label": "Group Name",
+          "type": "text",
+          "required": true,
+          "description": "The name to display in the address book for the group",
+          "in": "body"
+        },
+        {
+          "id": "mailNickname",
+          "label": "Group Email Address",
+          "type": "text",
+          "required": true,
+          "placeholder": "e.g. alias",
+          "description": "The mail alias for the group. Only enter the local-part without the domain.",
+          "in": "body"
+        },
+        {
+          "id": "mailEnabled",
+          "label": "Mail Enabled",
+          "type": "toggle",
+          "required": true,
+          "description": "Whether the group is mail-enabled",
+          "defaultValue": false,
+          "in": "body"
+        },
+        {
+          "id": "membershipType",
+          "label": "Membership Type",
+          "type": "select",
+          "options": [
+            {
+              "value": "",
+              "label": "Assigned"
+            },
+            {
+              "value": "DynamicMembership",
+              "label": "Dynamic"
+            }
+          ]
+        },
+        {
+          "id": "securityEnabled",
+          "label": "Security Enabled",
+          "type": "toggle",
+          "description": "Whether the group is a security group",
+          "defaultValue": true,
+          "in": "body"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: isAssignableToRole, description, membershipRule, membershipRuleProcessingState, preferredDataLocation, uniqueName, visibility)"
+        }
+      ],
+      "group": "Group",
+      "description": "Create a group"
     },
     {
-      "id": "user_default",
-      "label": "List User",
+      "id": "group_delete",
+      "label": "Delete Group",
+      "method": "DELETE",
+      "path": "/groups/{{ {group} }}",
+      "fields": [
+        {
+          "id": "group",
+          "label": "Group to Delete",
+          "type": "text",
+          "required": true,
+          "description": "(provide the ID)",
+          "in": "path"
+        }
+      ],
+      "group": "Group",
+      "description": "[unverified path] Delete a group"
+    },
+    {
+      "id": "group_get",
+      "label": "Get Group",
       "method": "GET",
-      "path": "/user",
-      "fields": []
+      "path": "/groups/{{ {group} }}",
+      "fields": [
+        {
+          "id": "group",
+          "label": "Group to Get",
+          "type": "text",
+          "required": true,
+          "description": "(provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "output",
+          "label": "Output",
+          "type": "select",
+          "defaultValue": "simple",
+          "options": [
+            {
+              "value": "simple",
+              "label": "Simplified"
+            },
+            {
+              "value": "raw",
+              "label": "Raw"
+            },
+            {
+              "value": "fields",
+              "label": "Selected Fields"
+            }
+          ]
+        },
+        {
+          "id": "fields",
+          "label": "Fields",
+          "type": "select",
+          "description": "The fields to add to the output (multiple values: comma-separated)",
+          "in": "query"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Option",
+          "description": "(JSON object; supported keys: includeMembers)"
+        }
+      ],
+      "group": "Group",
+      "description": "[unverified path] Retrieve data for a specific group"
+    },
+    {
+      "id": "group_get_all",
+      "label": "Get Many Group",
+      "method": "GET",
+      "path": "/groups",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50,
+          "in": "query"
+        },
+        {
+          "id": "filter",
+          "label": "Filter",
+          "type": "text",
+          "placeholder": "e.g. startswith(displayName, 'a')",
+          "description": "Query parameter to filter results by",
+          "in": "query"
+        },
+        {
+          "id": "output",
+          "label": "Output",
+          "type": "select",
+          "defaultValue": "simple",
+          "options": [
+            {
+              "value": "simple",
+              "label": "Simplified"
+            },
+            {
+              "value": "raw",
+              "label": "Raw"
+            },
+            {
+              "value": "fields",
+              "label": "Selected Fields"
+            }
+          ]
+        },
+        {
+          "id": "fields",
+          "label": "Fields",
+          "type": "select",
+          "description": "The fields to add to the output (multiple values: comma-separated)",
+          "in": "query"
+        }
+      ],
+      "group": "Group",
+      "description": "Retrieve a list of groups"
+    },
+    {
+      "id": "group_update",
+      "label": "Update Group",
+      "method": "PATCH",
+      "path": "/groups/{{ {group} }}",
+      "fields": [
+        {
+          "id": "group",
+          "label": "Group to Update",
+          "type": "text",
+          "required": true,
+          "description": "(provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: allowExternalSenders, autoSubscribeNewMembers, description, displayName, mailNickname, membershipRule, membershipRuleProcessingState, preferredDataLocation, securityEnabled, uniqueName, visibility)"
+        }
+      ],
+      "group": "Group",
+      "description": "[unverified path] Update a group"
+    },
+    {
+      "id": "user_add_group",
+      "label": "Add to Group User",
+      "method": "POST",
+      "path": "/groups/{{ {group} }}/members/$ref",
+      "fields": [
+        {
+          "id": "group",
+          "label": "Group",
+          "type": "text",
+          "required": true,
+          "description": "(provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "user",
+          "label": "User to Add",
+          "type": "text",
+          "required": true,
+          "description": "(provide the ID)",
+          "in": "body"
+        }
+      ],
+      "group": "User",
+      "description": "[unverified path] Add user to group"
+    },
+    {
+      "id": "user_create",
+      "label": "Create User",
+      "method": "POST",
+      "path": "/users",
+      "fields": [
+        {
+          "id": "accountEnabled",
+          "label": "Account Enabled",
+          "type": "toggle",
+          "required": true,
+          "description": "Whether the account is enabled",
+          "defaultValue": true,
+          "in": "body"
+        },
+        {
+          "id": "displayName",
+          "label": "Display Name",
+          "type": "text",
+          "required": true,
+          "placeholder": "e.g. Nathan Smith",
+          "description": "The name to display in the address book for the user",
+          "in": "body"
+        },
+        {
+          "id": "userPrincipalName",
+          "label": "User Principal Name",
+          "type": "text",
+          "required": true,
+          "placeholder": "e.g. NathanSmith@contoso.com",
+          "description": "The user principal name (UPN)",
+          "in": "body"
+        },
+        {
+          "id": "mailNickname",
+          "label": "Mail Nickname",
+          "type": "text",
+          "required": true,
+          "placeholder": "e.g. NathanSmith",
+          "description": "The mail alias for the user",
+          "in": "body"
+        },
+        {
+          "id": "password",
+          "label": "Password",
+          "type": "password",
+          "required": true,
+          "description": "The password for the user",
+          "in": "body"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: aboutMe, ageGroup, birthday, businessPhones, city, companyName, consentProvidedForMinor, country, department, employeeId, employeeType, employeeHireDate, employeeLeaveDateTime, employeeOrgData, givenName, forceChangePassword, interests, jobTitle, surname, mail, mobilePhone, mySite, officeLocation, onPremisesImmutableId, otherMails, passwordPolicies, pastProjects, postalCode, preferredLanguage, responsibilities)"
+        }
+      ],
+      "group": "User",
+      "description": "Create a user"
+    },
+    {
+      "id": "user_delete",
+      "label": "Delete User",
+      "method": "DELETE",
+      "path": "/users/{{ {user} }}",
+      "fields": [
+        {
+          "id": "user",
+          "label": "User to Delete",
+          "type": "text",
+          "required": true,
+          "description": "(provide the ID)",
+          "in": "path"
+        }
+      ],
+      "group": "User",
+      "description": "[unverified path] Delete a user"
+    },
+    {
+      "id": "user_get",
+      "label": "Get User",
+      "method": "GET",
+      "path": "/users/{{ {user} }}",
+      "fields": [
+        {
+          "id": "user",
+          "label": "User to Get",
+          "type": "text",
+          "required": true,
+          "description": "(provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "output",
+          "label": "Output",
+          "type": "select",
+          "defaultValue": "simple",
+          "options": [
+            {
+              "value": "simple",
+              "label": "Simplified"
+            },
+            {
+              "value": "raw",
+              "label": "Raw"
+            },
+            {
+              "value": "fields",
+              "label": "Selected Fields"
+            }
+          ]
+        },
+        {
+          "id": "fields",
+          "label": "Fields",
+          "type": "select",
+          "description": "The fields to add to the output (multiple values: comma-separated)",
+          "in": "query"
+        }
+      ],
+      "group": "User",
+      "description": "[unverified path] Retrieve data for a specific user"
+    },
+    {
+      "id": "user_get_all",
+      "label": "Get Many User",
+      "method": "GET",
+      "path": "/users",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50,
+          "in": "query"
+        },
+        {
+          "id": "filter",
+          "label": "Filter",
+          "type": "text",
+          "placeholder": "e.g. startswith(displayName, 'a')",
+          "description": "Query parameter to filter results by",
+          "in": "query"
+        },
+        {
+          "id": "output",
+          "label": "Output",
+          "type": "select",
+          "defaultValue": "simple",
+          "options": [
+            {
+              "value": "simple",
+              "label": "Simplified"
+            },
+            {
+              "value": "raw",
+              "label": "Raw"
+            },
+            {
+              "value": "fields",
+              "label": "Selected Fields"
+            }
+          ]
+        },
+        {
+          "id": "fields",
+          "label": "Fields",
+          "type": "select",
+          "description": "The fields to add to the output (multiple values: comma-separated)",
+          "in": "query"
+        }
+      ],
+      "group": "User",
+      "description": "Retrieve a list of users"
+    },
+    {
+      "id": "user_remove_group",
+      "label": "Remove from Group User",
+      "method": "DELETE",
+      "path": "/groups/{{ {group} }}/members/{{ {user} }}/$ref",
+      "fields": [
+        {
+          "id": "group",
+          "label": "Group",
+          "type": "text",
+          "required": true,
+          "description": "(provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "user",
+          "label": "User to Remove",
+          "type": "text",
+          "required": true,
+          "description": "(provide the ID)",
+          "in": "path"
+        }
+      ],
+      "group": "User",
+      "description": "[unverified path] Remove user from group"
+    },
+    {
+      "id": "user_update",
+      "label": "Update User",
+      "method": "PATCH",
+      "path": "/users/{{ {user} }}",
+      "fields": [
+        {
+          "id": "user",
+          "label": "User to Update",
+          "type": "text",
+          "required": true,
+          "description": "(provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: aboutMe, accountEnabled, ageGroup, birthday, businessPhones, city, companyName, consentProvidedForMinor, country, department, displayName, employeeId, employeeType, givenName, employeeHireDate, employeeLeaveDateTime, employeeOrgData, forceChangePassword, interests, jobTitle, surname, mail, mailNickname, mobilePhone, mySite, officeLocation, onPremisesImmutableId, otherMails, password, passwordPolicies)"
+        }
+      ],
+      "group": "User",
+      "description": "[unverified path] Update a user"
     }
   ]
 }

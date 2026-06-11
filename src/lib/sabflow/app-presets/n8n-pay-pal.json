@@ -4,8 +4,8 @@
   "description": "Consume PayPal API",
   "category": "finance",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -16,21 +16,115 @@
       "credentialType": "http_header_auth"
     }
   },
-  "baseUrl": "",
+  "baseUrl": "https://api-m.sandbox.paypal.com",
   "endpoints": [
     {
-      "id": "payout_default",
-      "label": "List Payout",
-      "method": "GET",
+      "id": "payout_create",
+      "label": "Create Payout",
+      "method": "POST",
       "path": "/payout",
-      "fields": []
+      "fields": [
+        {
+          "id": "senderBatchId",
+          "label": "Sender Batch ID",
+          "type": "text",
+          "required": true,
+          "description": "A sender-specified ID number. Tracks the payout in an accounting system."
+        },
+        {
+          "id": "jsonParameters",
+          "label": "JSON Parameters",
+          "type": "toggle",
+          "defaultValue": false
+        },
+        {
+          "id": "itemsUi",
+          "label": "Items",
+          "type": "json",
+          "placeholder": "Add Item",
+          "description": "(JSON object; supported keys: itemsValues, itemsValues.recipientType, itemsValues.receiverValue, itemsValues.currency, itemsValues.amount, itemsValues.note, itemsValues.senderItemId, itemsValues.recipientWallet)"
+        },
+        {
+          "id": "itemsJson",
+          "label": "Items",
+          "type": "json",
+          "description": "An array of individual payout items"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: emailSubject, emailMessage, note)"
+        }
+      ],
+      "group": "Payout",
+      "description": "[unverified path] Create a batch payout"
     },
     {
-      "id": "payout_item_default",
-      "label": "List PayoutItem",
+      "id": "payout_get",
+      "label": "Get Payout",
       "method": "GET",
-      "path": "/payoutItem",
-      "fields": []
+      "path": "/payout",
+      "fields": [
+        {
+          "id": "payoutBatchId",
+          "label": "Payout Batch ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the payout for which to show details"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        }
+      ],
+      "group": "Payout",
+      "description": "[unverified path] Show batch payout details"
+    },
+    {
+      "id": "payout_item_cancel",
+      "label": "Cancel Payout Item",
+      "method": "POST",
+      "path": "/payout-item",
+      "fields": [
+        {
+          "id": "payoutItemId",
+          "label": "Payout Item ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the payout item to cancel"
+        }
+      ],
+      "group": "Payout Item",
+      "description": "[unverified path] Cancels an unclaimed payout item"
+    },
+    {
+      "id": "payout_item_get",
+      "label": "Get Payout Item",
+      "method": "GET",
+      "path": "/payout-item",
+      "fields": [
+        {
+          "id": "payoutItemId",
+          "label": "Payout Item ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the payout item for which to show details"
+        }
+      ],
+      "group": "Payout Item",
+      "description": "[unverified path] Show payout item details"
     }
   ]
 }

@@ -22,6 +22,8 @@ import {
   appendQuery,
   buildAuthHeaders,
   buildAuthQuery,
+  coerceJsonInputs,
+  findMissingRequiredFields,
   projectOutput,
   resolvePath,
 } from '@/lib/sabflow/app-presets/runtime/exec';
@@ -55,6 +57,24 @@ async function execute(ctx: ForgeActionContext): Promise<ForgeActionResult> {
         `App preset '${presetId}': inputs must be a JSON object — ${(err as Error).message}`,
       );
     }
+  }
+
+  // Parse string values for `json`-typed fields into structured values so
+  // they reach the body as objects/arrays (a clear error names the field).
+  try {
+    inputs = coerceJsonInputs(endpoint.fields, inputs);
+  } catch (err) {
+    throw new Error(`${preset.name}.${endpoint.id}: ${(err as Error).message}`);
+  }
+
+  // Validate required fields (post-interpolation) before touching the network.
+  const missing = findMissingRequiredFields(endpoint.fields, inputs);
+  if (missing.length > 0) {
+    throw new Error(
+      `${preset.name}.${endpoint.id}: missing required field${missing.length === 1 ? '' : 's'}: ${missing
+        .map((f) => f.label)
+        .join(', ')}`,
+    );
   }
 
   const resolved = resolvePath(

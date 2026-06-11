@@ -4,42 +4,474 @@
   "description": "Consume the Bitwarden API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 10,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://identity.bitwarden.com/connect/token",
   "endpoints": [
     {
-      "id": "collection_default",
-      "label": "List Collection",
-      "method": "GET",
-      "path": "/collection",
-      "fields": []
+      "id": "collection_delete",
+      "label": "Delete Collection",
+      "method": "DELETE",
+      "path": "/public/collections/{id}",
+      "fields": [
+        {
+          "id": "collectionId",
+          "label": "Collection ID",
+          "type": "text",
+          "required": true,
+          "placeholder": "5e59c8c7-e05a-4d17-8e85-acc301343926",
+          "description": "The identifier of the collection"
+        }
+      ],
+      "group": "Collection",
+      "description": "Delete a collection"
     },
     {
-      "id": "event_default",
-      "label": "List Event",
+      "id": "collection_get",
+      "label": "Get Collection",
       "method": "GET",
-      "path": "/event",
-      "fields": []
+      "path": "/public/collections/{id}",
+      "fields": [
+        {
+          "id": "collectionId",
+          "label": "Collection ID",
+          "type": "text",
+          "required": true,
+          "placeholder": "5e59c8c7-e05a-4d17-8e85-acc301343926",
+          "description": "The identifier of the collection"
+        }
+      ],
+      "group": "Collection",
+      "description": "Get a collection"
     },
     {
-      "id": "group_default",
-      "label": "List Group",
+      "id": "collection_get_all",
+      "label": "Get Many Collection",
       "method": "GET",
-      "path": "/group",
-      "fields": []
+      "path": "/public/collections",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 10
+        }
+      ],
+      "group": "Collection",
+      "description": "Get many collections"
     },
     {
-      "id": "member_default",
-      "label": "List Member",
+      "id": "collection_update",
+      "label": "Update Collection",
+      "method": "PUT",
+      "path": "/public/collections/{id}",
+      "fields": [
+        {
+          "id": "collectionId",
+          "label": "Collection ID",
+          "type": "text",
+          "required": true,
+          "placeholder": "5e59c8c7-e05a-4d17-8e85-acc301343926",
+          "description": "The identifier of the collection"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "required": true,
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: groups, externalId)"
+        }
+      ],
+      "group": "Collection",
+      "description": "Update a collection"
+    },
+    {
+      "id": "event_get_all",
+      "label": "Get Many Event",
       "method": "GET",
-      "path": "/member",
-      "fields": []
+      "path": "/public/events",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 10
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: actingUserId, end, itemID, start)"
+        }
+      ],
+      "group": "Event",
+      "description": "Get many events"
+    },
+    {
+      "id": "group_create",
+      "label": "Create Group",
+      "method": "POST",
+      "path": "/public/groups",
+      "fields": [
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "The name of the group to create"
+        },
+        {
+          "id": "accessAll",
+          "label": "Access All",
+          "type": "toggle",
+          "description": "Whether to allow this group to access all collections within the organization, instead of only its associated collections. If set to true, this option overrides any collection assignments.",
+          "defaultValue": false
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: collections, externalId)"
+        }
+      ],
+      "group": "Group",
+      "description": "Create a group"
+    },
+    {
+      "id": "group_delete",
+      "label": "Delete Group",
+      "method": "DELETE",
+      "path": "/public/groups/{id}",
+      "fields": [
+        {
+          "id": "groupId",
+          "label": "Group ID",
+          "type": "text",
+          "required": true,
+          "placeholder": "5e59c8c7-e05a-4d17-8e85-acc301343926",
+          "description": "The identifier of the group"
+        }
+      ],
+      "group": "Group",
+      "description": "Delete a group"
+    },
+    {
+      "id": "group_get",
+      "label": "Get Group",
+      "method": "GET",
+      "path": "/public/groups/{id}",
+      "fields": [
+        {
+          "id": "groupId",
+          "label": "Group ID",
+          "type": "text",
+          "required": true,
+          "placeholder": "5e59c8c7-e05a-4d17-8e85-acc301343926",
+          "description": "The identifier of the group"
+        }
+      ],
+      "group": "Group",
+      "description": "Get a group"
+    },
+    {
+      "id": "group_get_all",
+      "label": "Get Many Group",
+      "method": "GET",
+      "path": "/public/groups",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 10
+        }
+      ],
+      "group": "Group",
+      "description": "Get many groups"
+    },
+    {
+      "id": "group_get_members",
+      "label": "Get Members Group",
+      "method": "GET",
+      "path": "/public/groups/{id}/member-ids",
+      "fields": [
+        {
+          "id": "groupId",
+          "label": "Group ID",
+          "type": "text",
+          "required": true,
+          "placeholder": "5e59c8c7-e05a-4d17-8e85-acc301343926",
+          "description": "The identifier of the group"
+        }
+      ],
+      "group": "Group",
+      "description": "Get group members"
+    },
+    {
+      "id": "group_update",
+      "label": "Update Group",
+      "method": "PUT",
+      "path": "/public/groups/{groupId}",
+      "fields": [
+        {
+          "id": "groupId",
+          "label": "Group ID",
+          "type": "text",
+          "required": true,
+          "placeholder": "5e59c8c7-e05a-4d17-8e85-acc301343926",
+          "description": "The identifier of the group",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: accessAll, collections, externalId, name)"
+        }
+      ],
+      "group": "Group",
+      "description": "Update a group"
+    },
+    {
+      "id": "group_update_members",
+      "label": "Update Members Group",
+      "method": "PUT",
+      "path": "/public/groups/{groupId}/member-ids",
+      "fields": [
+        {
+          "id": "groupId",
+          "label": "Group ID",
+          "type": "text",
+          "required": true,
+          "placeholder": "5e59c8c7-e05a-4d17-8e85-acc301343926",
+          "description": "The identifier of the group",
+          "in": "path"
+        },
+        {
+          "id": "memberIds",
+          "label": "Member IDs",
+          "type": "text",
+          "description": "Comma-separated list of IDs of members to set in a group"
+        }
+      ],
+      "group": "Group",
+      "description": "Update group members"
+    },
+    {
+      "id": "member_create",
+      "label": "Create Member",
+      "method": "POST",
+      "path": "/public/members/",
+      "fields": [
+        {
+          "id": "type",
+          "label": "Type",
+          "type": "select",
+          "required": true,
+          "defaultValue": 2,
+          "options": [
+            {
+              "value": "0",
+              "label": "Owner"
+            },
+            {
+              "value": "1",
+              "label": "Admin"
+            },
+            {
+              "value": "2",
+              "label": "User"
+            },
+            {
+              "value": "3",
+              "label": "Manager"
+            }
+          ]
+        },
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "placeholder": "name@email.com",
+          "description": "The email of the member to update"
+        },
+        {
+          "id": "accessAll",
+          "label": "Access All",
+          "type": "toggle",
+          "defaultValue": false
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: collections, externalId)"
+        }
+      ],
+      "group": "Member",
+      "description": "Create a member"
+    },
+    {
+      "id": "member_delete",
+      "label": "Delete Member",
+      "method": "DELETE",
+      "path": "/public/members/{id}",
+      "fields": [
+        {
+          "id": "memberId",
+          "label": "Member ID",
+          "type": "text",
+          "required": true,
+          "placeholder": "5e59c8c7-e05a-4d17-8e85-acc301343926",
+          "description": "The identifier of the member"
+        }
+      ],
+      "group": "Member",
+      "description": "Delete a member"
+    },
+    {
+      "id": "member_get",
+      "label": "Get Member",
+      "method": "GET",
+      "path": "/public/members/{id}",
+      "fields": [
+        {
+          "id": "memberId",
+          "label": "Member ID",
+          "type": "text",
+          "required": true,
+          "placeholder": "5e59c8c7-e05a-4d17-8e85-acc301343926",
+          "description": "The identifier of the member"
+        }
+      ],
+      "group": "Member",
+      "description": "Get a member"
+    },
+    {
+      "id": "member_get_groups",
+      "label": "Get Groups Member",
+      "method": "GET",
+      "path": "/public/members/{id}/group-ids",
+      "fields": [
+        {
+          "id": "memberId",
+          "label": "Member ID",
+          "type": "text",
+          "required": true,
+          "placeholder": "5e59c8c7-e05a-4d17-8e85-acc301343926",
+          "description": "The identifier of the member"
+        }
+      ],
+      "group": "Member",
+      "description": "Get groups for a member"
+    },
+    {
+      "id": "member_get_all",
+      "label": "Get Many Member",
+      "method": "GET",
+      "path": "/public/members",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 10
+        }
+      ],
+      "group": "Member",
+      "description": "Get many members"
+    },
+    {
+      "id": "member_update",
+      "label": "Update Member",
+      "method": "PUT",
+      "path": "/public/members/{id}",
+      "fields": [
+        {
+          "id": "memberId",
+          "label": "Member ID",
+          "type": "text",
+          "required": true,
+          "placeholder": "5e59c8c7-e05a-4d17-8e85-acc301343926",
+          "description": "The identifier of the member"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: type, collections, externalId, accessAll)"
+        }
+      ],
+      "group": "Member",
+      "description": "Update a member"
+    },
+    {
+      "id": "member_update_groups",
+      "label": "Update Groups Member",
+      "method": "PUT",
+      "path": "/public/members/{memberId}/group-ids",
+      "fields": [
+        {
+          "id": "memberId",
+          "label": "Member ID",
+          "type": "text",
+          "required": true,
+          "placeholder": "5e59c8c7-e05a-4d17-8e85-acc301343926",
+          "description": "The identifier of the member",
+          "in": "path"
+        },
+        {
+          "id": "groupIds",
+          "label": "Group IDs",
+          "type": "text",
+          "description": "Comma-separated list of IDs of groups to set for a member"
+        }
+      ],
+      "group": "Member",
+      "description": "Update groups for a member"
     }
   ]
 }

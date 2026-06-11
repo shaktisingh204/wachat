@@ -4,28 +4,188 @@
   "description": "Consume Mailjet API",
   "category": "marketing",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.mailjet.com",
   "endpoints": [
     {
-      "id": "email_default",
-      "label": "List Email",
-      "method": "GET",
-      "path": "/email",
-      "fields": []
+      "id": "email_send",
+      "label": "Send Email",
+      "method": "POST",
+      "path": "/v3.1/send",
+      "fields": [
+        {
+          "id": "fromEmail",
+          "label": "From Email",
+          "type": "text",
+          "required": true,
+          "placeholder": "admin@example.com",
+          "description": "The title for the email"
+        },
+        {
+          "id": "toEmail",
+          "label": "To Email",
+          "type": "text",
+          "required": true,
+          "placeholder": "info@example.com",
+          "description": "Email address of the recipient. Multiple ones can be separated by comma."
+        },
+        {
+          "id": "subject",
+          "label": "Subject",
+          "type": "text",
+          "placeholder": "My subject line",
+          "description": "Subject line of the email"
+        },
+        {
+          "id": "text",
+          "label": "Text",
+          "type": "text",
+          "description": "Plain text message of email"
+        },
+        {
+          "id": "html",
+          "label": "HTML",
+          "type": "text",
+          "description": "HTML text message of email"
+        },
+        {
+          "id": "jsonParameters",
+          "label": "JSON Parameters",
+          "type": "toggle",
+          "defaultValue": false
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: bccEmail, ccAddresses, fromName, priority, replyTo, templateLanguage, trackClicks, trackOpens, customCampaign, deduplicateCampaign)"
+        },
+        {
+          "id": "variablesJson",
+          "label": "Variables (JSON)",
+          "type": "text",
+          "description": "HTML text message of email"
+        },
+        {
+          "id": "variablesUi",
+          "label": "Variables",
+          "type": "json",
+          "placeholder": "Add Variable",
+          "description": "(JSON object; supported keys: variablesValues, variablesValues.name, variablesValues.value)"
+        }
+      ],
+      "group": "Email",
+      "description": "Send a email"
     },
     {
-      "id": "sms_default",
-      "label": "List Sms",
-      "method": "GET",
-      "path": "/sms",
-      "fields": []
+      "id": "email_send_template",
+      "label": "Send Template Email",
+      "method": "POST",
+      "path": "/v3.1/send",
+      "fields": [
+        {
+          "id": "subject",
+          "label": "Subject",
+          "type": "text",
+          "placeholder": "My subject line",
+          "description": "Subject line of the email"
+        },
+        {
+          "id": "fromEmail",
+          "label": "From Email",
+          "type": "text",
+          "required": true,
+          "placeholder": "admin@example.com",
+          "description": "The title for the email"
+        },
+        {
+          "id": "toEmail",
+          "label": "To Email",
+          "type": "text",
+          "required": true,
+          "placeholder": "info@example.com",
+          "description": "Email address of the recipient. Multiple ones can be separated by comma."
+        },
+        {
+          "id": "templateId",
+          "label": "Template Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "jsonParameters",
+          "label": "JSON Parameters",
+          "type": "toggle",
+          "defaultValue": false
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: bccEmail, ccEmail, fromName, priority, replyTo, subject, templateLanguage, trackClicks, trackOpens, customCampaign, deduplicateCampaign)"
+        },
+        {
+          "id": "variablesUi",
+          "label": "Variables",
+          "type": "json",
+          "placeholder": "Add Variable",
+          "description": "(JSON object; supported keys: variablesValues, variablesValues.name, variablesValues.value)"
+        },
+        {
+          "id": "variablesJson",
+          "label": "Variables (JSON)",
+          "type": "text",
+          "description": "HTML text message of email"
+        }
+      ],
+      "group": "Email",
+      "description": "Send a email template"
+    },
+    {
+      "id": "sms_send",
+      "label": "Send SMS",
+      "method": "POST",
+      "path": "/v4/sms-send",
+      "fields": [
+        {
+          "id": "subject",
+          "label": "Subject",
+          "type": "text",
+          "placeholder": "My subject line",
+          "description": "Subject line of the email"
+        },
+        {
+          "id": "from",
+          "label": "From",
+          "type": "text",
+          "required": true,
+          "description": "Customizable sender name. Should be between 3 and 11 characters in length, only alphanumeric characters are allowed."
+        },
+        {
+          "id": "to",
+          "label": "To",
+          "type": "text",
+          "required": true,
+          "description": "Message recipient. Should be between 3 and 15 characters in length. The number always starts with a plus sign followed by a country code, followed by the number. Phone numbers are expected to comply with the E.164 format."
+        },
+        {
+          "id": "text",
+          "label": "Text",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "group": "SMS",
+      "description": "Send a sms"
     }
   ]
 }

@@ -4,8 +4,8 @@
   "description": "Read, update, write and delete data from Airtable",
   "category": "data",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 13,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -15,6 +15,313 @@
       "type": "none"
     }
   },
-  "baseUrl": "",
-  "endpoints": []
+  "baseUrl": "https://api.airtable.com/v0",
+  "endpoints": [
+    {
+      "id": "record_create",
+      "label": "Create Record",
+      "method": "POST",
+      "path": "/{base}/{table}",
+      "fields": [
+        {
+          "id": "base",
+          "label": "Base",
+          "type": "text",
+          "required": true,
+          "description": "(provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "table",
+          "label": "Table",
+          "type": "text",
+          "required": true,
+          "description": "(provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "columns",
+          "label": "Columns",
+          "type": "json",
+          "required": true,
+          "description": "(JSON)"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: typecast, ignoreFields, updateAllMatches)"
+        }
+      ],
+      "group": "Record",
+      "description": "Create a new record in a table"
+    },
+    {
+      "id": "record_upsert",
+      "label": "Create or Update Record",
+      "method": "POST",
+      "path": "/{base}/{table}",
+      "fields": [
+        {
+          "id": "base",
+          "label": "Base",
+          "type": "text",
+          "required": true,
+          "description": "(provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "table",
+          "label": "Table",
+          "type": "text",
+          "required": true,
+          "description": "(provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "columns",
+          "label": "Columns",
+          "type": "json",
+          "required": true,
+          "description": "(JSON)"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: typecast, ignoreFields, updateAllMatches)"
+        }
+      ],
+      "group": "Record",
+      "description": "Create a new record, or update the current one if it already exists (upsert)"
+    },
+    {
+      "id": "record_delete_record",
+      "label": "Delete Record",
+      "method": "DELETE",
+      "path": "/{base}/{table}/{id}",
+      "fields": [
+        {
+          "id": "base",
+          "label": "Base",
+          "type": "text",
+          "required": true,
+          "description": "(provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "table",
+          "label": "Table",
+          "type": "text",
+          "required": true,
+          "description": "(provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "id",
+          "label": "Record ID",
+          "type": "text",
+          "required": true,
+          "placeholder": "e.g. recf7EaZp707CEc8g",
+          "description": "ID of the record to delete. More info.",
+          "in": "path"
+        }
+      ],
+      "group": "Record",
+      "description": "Delete a record from a table"
+    },
+    {
+      "id": "record_get",
+      "label": "Get Record",
+      "method": "GET",
+      "path": "/{base}/{table}/{id}",
+      "fields": [
+        {
+          "id": "base",
+          "label": "Base",
+          "type": "text",
+          "required": true,
+          "description": "(provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "table",
+          "label": "Table",
+          "type": "text",
+          "required": true,
+          "description": "(provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "id",
+          "label": "Record ID",
+          "type": "text",
+          "required": true,
+          "placeholder": "e.g. recf7EaZp707CEc8g",
+          "description": "ID of the record to get. More info.",
+          "in": "path"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "Additional options which decide which records should be returned (JSON object; supported keys: downloadFields)"
+        }
+      ],
+      "group": "Record",
+      "description": "Retrieve a record from a table"
+    },
+    {
+      "id": "record_search",
+      "label": "Search Record",
+      "method": "GET",
+      "path": "/{base}/{table}",
+      "fields": [
+        {
+          "id": "base",
+          "label": "Base",
+          "type": "text",
+          "required": true,
+          "description": "(provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "table",
+          "label": "Table",
+          "type": "text",
+          "required": true,
+          "description": "(provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "filterByFormula",
+          "label": "Filter By Formula",
+          "type": "text",
+          "placeholder": "e.g. NOT({Name} = 'Admin')",
+          "description": "The formula will be evaluated for each record, and if the result is not 0, false, \"\", NaN, [], or #Error! the record will be included in the response. More info."
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": true
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "Additional options which decide which records should be returned (JSON object; supported keys: downloadFields, fields, view)"
+        },
+        {
+          "id": "sort",
+          "label": "Sort",
+          "type": "json",
+          "placeholder": "Add Sort Rule",
+          "description": "Defines how the returned records should be ordered (JSON object; supported keys: property, property.field, property.direction)"
+        }
+      ],
+      "group": "Record",
+      "description": "Search for specific records or list all"
+    },
+    {
+      "id": "record_update",
+      "label": "Update Record",
+      "method": "PATCH",
+      "path": "/{base}/{table}",
+      "fields": [
+        {
+          "id": "base",
+          "label": "Base",
+          "type": "text",
+          "required": true,
+          "description": "(provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "table",
+          "label": "Table",
+          "type": "text",
+          "required": true,
+          "description": "(provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "columns",
+          "label": "Columns",
+          "type": "json",
+          "required": true,
+          "description": "(JSON)"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: typecast, ignoreFields, updateAllMatches)"
+        }
+      ],
+      "group": "Record",
+      "description": "Update a record in a table"
+    },
+    {
+      "id": "base_get_many",
+      "label": "Get Many Base",
+      "method": "GET",
+      "path": "/meta/bases",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": true
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: permissionLevel)"
+        }
+      ],
+      "group": "Base",
+      "description": "List all the bases"
+    },
+    {
+      "id": "base_get_schema",
+      "label": "Get Schema Base",
+      "method": "GET",
+      "path": "/meta/bases/{baseId}/tables",
+      "fields": [
+        {
+          "id": "base",
+          "label": "Base",
+          "type": "text",
+          "required": true,
+          "description": "The Airtable Base to retrieve the schema from (provide the ID)"
+        }
+      ],
+      "group": "Base",
+      "description": "Get the schema of the tables in a base"
+    }
+  ]
 }

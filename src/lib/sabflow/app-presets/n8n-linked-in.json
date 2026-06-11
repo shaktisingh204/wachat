@@ -4,8 +4,8 @@
   "description": "Consume LinkedIn API",
   "category": "communication",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -16,32 +16,88 @@
       "credentialType": "oauth2"
     }
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.linkedin.com",
   "endpoints": [
     {
-      "id": "post_default",
-      "label": "List Post",
-      "method": "GET",
-      "path": "/post",
+      "id": "post_create",
+      "label": "Create Post",
+      "method": "POST",
+      "path": "/images?action=initializeUpload",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
+          "id": "postAs",
+          "label": "Post As",
           "type": "select",
-          "in": "query",
-          "defaultValue": "standard",
+          "description": "If to post on behalf of a user or an organization",
+          "defaultValue": "person",
           "options": [
             {
-              "value": "standard",
-              "label": "Standard"
+              "value": "person",
+              "label": "Person"
             },
             {
-              "value": "communityManagement",
-              "label": "Community Management"
+              "value": "organization",
+              "label": "Organization"
             }
           ]
+        },
+        {
+          "id": "person",
+          "label": "Person Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Person as which the post should be posted as. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "organization",
+          "label": "Organization URN",
+          "type": "text",
+          "placeholder": "1234567",
+          "description": "URN of Organization as which the post should be posted as"
+        },
+        {
+          "id": "text",
+          "label": "Text",
+          "type": "text",
+          "description": "The primary content of the post"
+        },
+        {
+          "id": "shareMediaCategory",
+          "label": "Media Category",
+          "type": "select",
+          "defaultValue": "NONE",
+          "options": [
+            {
+              "value": "NONE",
+              "label": "None"
+            },
+            {
+              "value": "ARTICLE",
+              "label": "Article"
+            },
+            {
+              "value": "IMAGE",
+              "label": "Image"
+            }
+          ]
+        },
+        {
+          "id": "binaryPropertyName",
+          "label": "Input Binary Field",
+          "type": "text",
+          "required": true,
+          "defaultValue": "data"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: description, originalUrl, thumbnailBinaryPropertyName, title, visibility)"
         }
-      ]
+      ],
+      "group": "Post",
+      "description": "Create a new post"
     }
   ]
 }

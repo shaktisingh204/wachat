@@ -4,21 +4,223 @@
   "description": "Use the Okta API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 2,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://{host}/api/v1",
   "endpoints": [
     {
-      "id": "user_default",
-      "label": "List User",
+      "id": "user_create",
+      "label": "Create User",
+      "method": "POST",
+      "path": "/api/v1/users/",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Okta server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "firstName",
+          "label": "First Name",
+          "type": "text",
+          "required": true,
+          "placeholder": "e.g. Nathan",
+          "in": "body"
+        },
+        {
+          "id": "lastName",
+          "label": "Last Name",
+          "type": "text",
+          "required": true,
+          "placeholder": "e.g. Smith",
+          "in": "body"
+        },
+        {
+          "id": "login",
+          "label": "Username",
+          "type": "text",
+          "required": true,
+          "placeholder": "e.g. nathan@example.com",
+          "in": "body"
+        },
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "required": true,
+          "placeholder": "e.g. nathan@example.com",
+          "in": "body"
+        },
+        {
+          "id": "activate",
+          "label": "Activate",
+          "type": "toggle",
+          "description": "Whether to activate the user and allow access to all assigned applications",
+          "defaultValue": true
+        },
+        {
+          "id": "getCreateFields",
+          "label": "Fields",
+          "type": "json",
+          "placeholder": "Add field",
+          "description": "(JSON object; supported keys: city, costCenter, countryCode, department, displayName, division, employeeNumber, honorificPrefix, honorificSuffix, locale, manager, managerId, middleName, mobilePhone, nickName, password, organization, postalAddress, preferredLanguage, primaryPhone, profileUrl, recoveryQuestionAnswer, recoveryQuestionQuestion, secondEmail, state, streetAddress, timezone, title, userType, zipCode)"
+        }
+      ],
+      "group": "User",
+      "description": "Create a new user"
+    },
+    {
+      "id": "user_delete",
+      "label": "Delete User",
+      "method": "DELETE",
+      "path": "/api/v1/users/{userId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Okta server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "userId",
+          "label": "User",
+          "type": "text",
+          "required": true,
+          "description": "The user you want to operate on. Choose from the list, or specify an ID. (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "sendEmail",
+          "label": "Send Email",
+          "type": "toggle",
+          "description": "Whether to send a deactivation email to the administrator",
+          "defaultValue": false
+        }
+      ],
+      "group": "User",
+      "description": "Delete an existing user"
+    },
+    {
+      "id": "user_get",
+      "label": "Get User",
       "method": "GET",
-      "path": "/user",
-      "fields": []
+      "path": "/api/v1/users/{userId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Okta server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "userId",
+          "label": "User",
+          "type": "text",
+          "required": true,
+          "description": "The user you want to operate on. Choose from the list, or specify an ID. (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "simplify",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        }
+      ],
+      "group": "User",
+      "description": "Get details of a user"
+    },
+    {
+      "id": "user_get_all",
+      "label": "Get Many User",
+      "method": "GET",
+      "path": "/api/v1/users/",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Okta server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "searchQuery",
+          "label": "Search Query",
+          "type": "text",
+          "placeholder": "e.g. profile.lastName sw \"Smi\""
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 20,
+          "in": "query"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "simplify",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        }
+      ],
+      "group": "User",
+      "description": "Get many users"
+    },
+    {
+      "id": "user_update",
+      "label": "Update User",
+      "method": "POST",
+      "path": "/api/v1/users/{userId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Okta server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "userId",
+          "label": "User",
+          "type": "text",
+          "required": true,
+          "description": "The user you want to operate on. Choose from the list, or specify an ID. (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "getUpdateFields",
+          "label": "Fields",
+          "type": "json",
+          "placeholder": "Add field",
+          "description": "(JSON object; supported keys: city, costCenter, countryCode, department, displayName, division, email, employeeNumber, firstName, honorificPrefix, honorificSuffix, lastName, locale, manager, managerId, middleName, mobilePhone, nickName, organization, password, postalAddress, preferredLanguage, primaryPhone, profileUrl, recoveryQuestionAnswer, recoveryQuestionQuestion, secondEmail, state, streetAddress, timezone)"
+        }
+      ],
+      "group": "User",
+      "description": "Update an existing user"
     }
   ]
 }

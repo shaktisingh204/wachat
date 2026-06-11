@@ -4,8 +4,8 @@
   "description": "Consume Xero API",
   "category": "finance",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -16,21 +16,278 @@
       "credentialType": "oauth2"
     }
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.xero.com/api.xro/2.0",
   "endpoints": [
     {
-      "id": "contact_default",
-      "label": "List Contact",
-      "method": "GET",
-      "path": "/contact",
-      "fields": []
+      "id": "contact_create",
+      "label": "Create Contact",
+      "method": "POST",
+      "path": "/Contacts",
+      "fields": [
+        {
+          "id": "organizationId",
+          "label": "Organization Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "Full name of contact/organisation"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: accountNumber, addressesUi, bankAccountDetails, contactNumber, contactStatus, defaultCurrency, emailAddress, firstName, lastName, phonesUi, purchasesDefaultAccountCode, salesDefaultAccountCode, skypeUserName, taxNumber, xeroNetworkKey)"
+        }
+      ],
+      "group": "Contact",
+      "description": "Create a contact"
     },
     {
-      "id": "invoice_default",
-      "label": "List Invoice",
+      "id": "contact_get",
+      "label": "Get Contact",
       "method": "GET",
-      "path": "/invoice",
-      "fields": []
+      "path": "/Contacts/{contactId}",
+      "fields": [
+        {
+          "id": "organizationId",
+          "label": "Organization Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Contact",
+      "description": "Get a contact"
+    },
+    {
+      "id": "contact_get_all",
+      "label": "Get Many Contact",
+      "method": "GET",
+      "path": "/Contacts",
+      "fields": [
+        {
+          "id": "organizationId",
+          "label": "Organization Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: includeArchived, orderBy, sortOrder, where)"
+        }
+      ],
+      "group": "Contact",
+      "description": "Get many contacts"
+    },
+    {
+      "id": "contact_update",
+      "label": "Update Contact",
+      "method": "POST",
+      "path": "/Contacts/{contactId}",
+      "fields": [
+        {
+          "id": "organizationId",
+          "label": "Organization Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: accountNumber, addressesUi, bankAccountDetails, contactNumber, contactStatus, defaultCurrency, emailAddress, firstName, lastName, name, phonesUi, purchasesDefaultAccountCode, salesDefaultAccountCode, skypeUserName, taxNumber, xeroNetworkKey)"
+        }
+      ],
+      "group": "Contact",
+      "description": "Update a contact"
+    },
+    {
+      "id": "invoice_create",
+      "label": "Create Invoice",
+      "method": "POST",
+      "path": "/Invoices",
+      "fields": [
+        {
+          "id": "organizationId",
+          "label": "Organization Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "type",
+          "label": "Type",
+          "type": "select",
+          "required": true,
+          "description": "Invoice Type",
+          "options": [
+            {
+              "value": "ACCPAY",
+              "label": "Bill"
+            },
+            {
+              "value": "ACCREC",
+              "label": "Sales Invoice"
+            }
+          ]
+        },
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "lineItemsUi",
+          "label": "Line Items",
+          "type": "json",
+          "placeholder": "Add Line Item",
+          "description": "Line item data (JSON object; supported keys: lineItemsValues, lineItemsValues.description, lineItemsValues.quantity, lineItemsValues.unitAmount, lineItemsValues.itemCode, lineItemsValues.accountCode, lineItemsValues.taxType, lineItemsValues.taxAmount, lineItemsValues.lineAmount, lineItemsValues.discountRate)"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: brandingThemeId, currency, currencyRate, date, dueDate, expectedPaymentDate, invoiceNumber, lineAmountType, plannedPaymentDate, reference, sendToContact, status, url)"
+        }
+      ],
+      "group": "Invoice",
+      "description": "Create a invoice"
+    },
+    {
+      "id": "invoice_get",
+      "label": "Get Invoice",
+      "method": "GET",
+      "path": "/Invoices/{invoiceId}",
+      "fields": [
+        {
+          "id": "organizationId",
+          "label": "Organization Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "invoiceId",
+          "label": "Invoice ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Invoice",
+      "description": "Get a invoice"
+    },
+    {
+      "id": "invoice_get_all",
+      "label": "Get Many Invoice",
+      "method": "GET",
+      "path": "/Invoices",
+      "fields": [
+        {
+          "id": "organizationId",
+          "label": "Organization Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: createdByMyApp, orderBy, sortOrder, statuses, where)"
+        }
+      ],
+      "group": "Invoice",
+      "description": "Get many invoices"
+    },
+    {
+      "id": "invoice_update",
+      "label": "Update Invoice",
+      "method": "POST",
+      "path": "/Invoices/{invoiceId}",
+      "fields": [
+        {
+          "id": "organizationId",
+          "label": "Organization Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "invoiceId",
+          "label": "Invoice ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: brandingThemeId, contactId, currency, currencyRate, date, dueDate, expectedPaymentDate, invoiceNumber, lineAmountType, lineItemsUi, plannedPaymentDate, reference, sendToContact, status, url)"
+        }
+      ],
+      "group": "Invoice",
+      "description": "Update a invoice"
     }
   ]
 }

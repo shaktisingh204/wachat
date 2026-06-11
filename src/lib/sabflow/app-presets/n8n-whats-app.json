@@ -4,27 +4,294 @@
   "description": "Access WhatsApp API",
   "category": "communication",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
-    "type": "none"
+    "type": "bearer",
+    "credentialType": "whats_app"
   },
-  "baseUrl": "",
+  "baseUrl": "https://graph.facebook.com/v13.0",
   "endpoints": [
     {
-      "id": "message_default",
-      "label": "List Message",
-      "method": "GET",
+      "id": "message_send",
+      "label": "Send Message",
+      "method": "POST",
       "path": "/message",
-      "fields": []
+      "fields": [
+        {
+          "id": "phoneNumberId",
+          "label": "Sender Phone Number (or ID)",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the business account's phone number from which the message will be sent from"
+        },
+        {
+          "id": "recipientPhoneNumber",
+          "label": "Recipient's Phone Number",
+          "type": "text",
+          "required": true,
+          "description": "Phone number of the recipient of the message",
+          "in": "body"
+        },
+        {
+          "id": "messageType",
+          "label": "MessageType",
+          "type": "select",
+          "description": "The type of the message",
+          "defaultValue": "text",
+          "options": [
+            {
+              "value": "audio",
+              "label": "Audio"
+            },
+            {
+              "value": "contacts",
+              "label": "Contacts"
+            },
+            {
+              "value": "document",
+              "label": "Document"
+            },
+            {
+              "value": "image",
+              "label": "Image"
+            },
+            {
+              "value": "location",
+              "label": "Location"
+            },
+            {
+              "value": "text",
+              "label": "Text"
+            },
+            {
+              "value": "video",
+              "label": "Video"
+            }
+          ]
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "json",
+          "placeholder": "Add Parameter",
+          "description": "(JSON object; supported keys: data, data.formatted_name, data.first_name, data.last_name, data.middle_name, data.suffix, data.prefix)"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: addresses, birthday, emails, organization, phones, urls)"
+        },
+        {
+          "id": "longitude",
+          "label": "Longitude",
+          "type": "number",
+          "required": true,
+          "in": "body"
+        },
+        {
+          "id": "latitude",
+          "label": "Latitude",
+          "type": "number",
+          "required": true,
+          "in": "body"
+        },
+        {
+          "id": "textBody",
+          "label": "Text Body",
+          "type": "text",
+          "required": true,
+          "description": "The body of the message (max 4096 characters)",
+          "in": "body"
+        },
+        {
+          "id": "mediaPath",
+          "label": "Take Audio From",
+          "type": "select",
+          "description": "Use a link, an ID, or n8n to upload an audio file",
+          "defaultValue": "useMediaLink",
+          "options": [
+            {
+              "value": "useMediaLink",
+              "label": "Link"
+            },
+            {
+              "value": "useMediaId",
+              "label": "WhatsApp Media"
+            },
+            {
+              "value": "useMedian8n",
+              "label": "n8n"
+            }
+          ]
+        },
+        {
+          "id": "mediaLink",
+          "label": "Link",
+          "type": "text",
+          "description": "Link of the media to be sent",
+          "in": "body"
+        },
+        {
+          "id": "mediaId",
+          "label": "ID",
+          "type": "text",
+          "description": "ID of the media to be sent",
+          "in": "body"
+        },
+        {
+          "id": "mediaPropertyName",
+          "label": "Input Data Field Name",
+          "type": "text",
+          "required": true,
+          "description": "The name of the input field containing the binary file data to be uploaded",
+          "defaultValue": "data"
+        },
+        {
+          "id": "mediaFilename",
+          "label": "Filename",
+          "type": "text",
+          "required": true,
+          "description": "The name of the file (required when using a file ID)",
+          "in": "body"
+        }
+      ],
+      "group": "Message",
+      "description": "[unverified path] Send message"
     },
     {
-      "id": "media_default",
-      "label": "List Media",
-      "method": "GET",
+      "id": "message_send_and_wait_operation",
+      "label": "Send and Wait for Response Message",
+      "method": "POST",
+      "path": "/message",
+      "fields": [
+        {
+          "id": "phoneNumberId",
+          "label": "Sender Phone Number (or ID)",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the business account's phone number from which the message will be sent from"
+        },
+        {
+          "id": "recipientPhoneNumber",
+          "label": "Recipient's Phone Number",
+          "type": "text",
+          "required": true,
+          "description": "Phone number of the recipient of the message",
+          "in": "body"
+        }
+      ],
+      "group": "Message",
+      "description": "[unverified path] Send message and wait for response"
+    },
+    {
+      "id": "message_send_template",
+      "label": "Send Template Message",
+      "method": "POST",
+      "path": "/message",
+      "fields": [
+        {
+          "id": "phoneNumberId",
+          "label": "Sender Phone Number (or ID)",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the business account's phone number from which the message will be sent from"
+        },
+        {
+          "id": "recipientPhoneNumber",
+          "label": "Recipient's Phone Number",
+          "type": "text",
+          "required": true,
+          "description": "Phone number of the recipient of the message",
+          "in": "body"
+        },
+        {
+          "id": "template",
+          "label": "Template",
+          "type": "select",
+          "required": true,
+          "description": "Name of the template",
+          "in": "body"
+        },
+        {
+          "id": "components",
+          "label": "Components",
+          "type": "json",
+          "placeholder": "Add Component",
+          "description": "(JSON object; supported keys: component, component.type, component.bodyParameters, component.sub_type, component.index, component.buttonParameters, component.headerParameters)"
+        }
+      ],
+      "group": "Message",
+      "description": "[unverified path] Send template"
+    },
+    {
+      "id": "media_media_upload",
+      "label": "Upload Media",
+      "method": "POST",
       "path": "/media",
-      "fields": []
+      "fields": [
+        {
+          "id": "phoneNumberId",
+          "label": "Sender Phone Number (or ID)",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the business account's phone number to store the media"
+        },
+        {
+          "id": "mediaPropertyName",
+          "label": "Property Name",
+          "type": "text",
+          "required": true,
+          "description": "Name of the binary property which contains the data for the file to be uploaded",
+          "defaultValue": "data"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: mediaFileName)"
+        }
+      ],
+      "group": "Media",
+      "description": "[unverified path] Upload media"
+    },
+    {
+      "id": "media_media_url_get",
+      "label": "Download Media",
+      "method": "POST",
+      "path": "/media",
+      "fields": [
+        {
+          "id": "mediaGetId",
+          "label": "Media ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the media"
+        }
+      ],
+      "group": "Media",
+      "description": "[unverified path] Download media"
+    },
+    {
+      "id": "media_media_delete",
+      "label": "Delete Media",
+      "method": "POST",
+      "path": "/media",
+      "fields": [
+        {
+          "id": "mediaDeleteId",
+          "label": "Media ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the media"
+        }
+      ],
+      "group": "Media",
+      "description": "[unverified path] Delete media"
     }
   ]
 }

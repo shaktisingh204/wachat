@@ -4,42 +4,270 @@
   "description": "Consume Autopilot API",
   "category": "marketing",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://api2.autopilothq.com/v1",
   "endpoints": [
     {
-      "id": "contact_default",
-      "label": "List Contact",
-      "method": "GET",
+      "id": "contact_upsert",
+      "label": "Create or Update Contact",
+      "method": "POST",
       "path": "/contact",
-      "fields": []
+      "fields": [
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "required": true,
+          "placeholder": "name@email.com",
+          "description": "Email address of the contact"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: Company, customFieldsUi, Fax, FirstName, Industry, LastName, LeadSource, LinkedIn, autopilotList, MailingCountry, MailingPostalCode, MailingState, MailingStreet, MailingCity, MobilePhone, newEmail, notify, NumberOfEmployees, owner_name, Phone, Salutation, autopilotSessionId, Status, Title, unsubscribed, Website)"
+        }
+      ],
+      "group": "Contact",
+      "description": "Create a new contact, or update the current one if it already exists (upsert)"
     },
     {
-      "id": "contact_journey_default",
-      "label": "List ContactJourney",
-      "method": "GET",
-      "path": "/contactJourney",
-      "fields": []
+      "id": "contact_delete",
+      "label": "Delete Contact",
+      "method": "DELETE",
+      "path": "/contact/{contactId}",
+      "fields": [
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true,
+          "description": "Can be ID or email",
+          "in": "path"
+        }
+      ],
+      "group": "Contact",
+      "description": "Delete a contact"
     },
     {
-      "id": "contact_list_default",
-      "label": "List ContactList",
+      "id": "contact_get",
+      "label": "Get Contact",
       "method": "GET",
-      "path": "/contactList",
-      "fields": []
+      "path": "/contact/{contactId}",
+      "fields": [
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true,
+          "description": "Can be ID or email",
+          "in": "path"
+        }
+      ],
+      "group": "Contact",
+      "description": "Get a contact"
     },
     {
-      "id": "list_default",
-      "label": "List List",
+      "id": "contact_get_all",
+      "label": "Get Many Contact",
       "method": "GET",
+      "path": "/contacts",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        }
+      ],
+      "group": "Contact",
+      "description": "Get many contacts"
+    },
+    {
+      "id": "contact_journey_add",
+      "label": "Add Contact Journey",
+      "method": "POST",
+      "path": "/trigger/{triggerId}/contact/{contactId}",
+      "fields": [
+        {
+          "id": "triggerId",
+          "label": "Trigger Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "List ID. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true,
+          "description": "Can be ID or email",
+          "in": "path"
+        }
+      ],
+      "group": "Contact Journey",
+      "description": "Add contact to list"
+    },
+    {
+      "id": "contact_list_add",
+      "label": "Add Contact List",
+      "method": "POST",
+      "path": "/contact-list",
+      "fields": [
+        {
+          "id": "listId",
+          "label": "List Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of the list to operate on. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true,
+          "description": "Can be ID or email"
+        }
+      ],
+      "group": "Contact List",
+      "description": "[unverified path] Add contact to list"
+    },
+    {
+      "id": "contact_list_exist",
+      "label": "Exist Contact List",
+      "method": "POST",
+      "path": "/contact-list",
+      "fields": [
+        {
+          "id": "listId",
+          "label": "List Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of the list to operate on. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true,
+          "description": "Can be ID or email"
+        }
+      ],
+      "group": "Contact List",
+      "description": "[unverified path] Check if contact is on list"
+    },
+    {
+      "id": "contact_list_get_all",
+      "label": "Get Many Contact List",
+      "method": "GET",
+      "path": "/list/{listId}/contacts",
+      "fields": [
+        {
+          "id": "listId",
+          "label": "List Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of the list to operate on. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        }
+      ],
+      "group": "Contact List",
+      "description": "Get many contacts from a list"
+    },
+    {
+      "id": "contact_list_remove",
+      "label": "Remove Contact List",
+      "method": "DELETE",
+      "path": "/contact-list",
+      "fields": [
+        {
+          "id": "listId",
+          "label": "List Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of the list to operate on. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true,
+          "description": "Can be ID or email"
+        }
+      ],
+      "group": "Contact List",
+      "description": "[unverified path] Remove a contact from a list"
+    },
+    {
+      "id": "list_create",
+      "label": "Create List",
+      "method": "POST",
       "path": "/list",
-      "fields": []
+      "fields": [
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "Name of the list to create"
+        }
+      ],
+      "group": "List",
+      "description": "Create a list"
+    },
+    {
+      "id": "list_get_all",
+      "label": "Get Many List",
+      "method": "GET",
+      "path": "/lists",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        }
+      ],
+      "group": "List",
+      "description": "Get many lists"
     }
   ]
 }

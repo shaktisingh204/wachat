@@ -4,28 +4,243 @@
   "description": "Consume Vero API",
   "category": "marketing",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.getvero.com/api/v2",
   "endpoints": [
     {
-      "id": "user_default",
-      "label": "List User",
-      "method": "GET",
+      "id": "user_add_tags",
+      "label": "Add Tags User",
+      "method": "POST",
       "path": "/user",
-      "fields": []
+      "fields": [
+        {
+          "id": "id",
+          "label": "ID",
+          "type": "text",
+          "required": true,
+          "description": "The unique identifier of the user"
+        },
+        {
+          "id": "tags",
+          "label": "Tags",
+          "type": "text",
+          "required": true,
+          "description": "Tags to add separated by \",\""
+        }
+      ],
+      "group": "User",
+      "description": "[unverified path] Adds a tag to a users profile"
     },
     {
-      "id": "event_default",
-      "label": "List Event",
-      "method": "GET",
-      "path": "/event",
-      "fields": []
+      "id": "user_alias",
+      "label": "Alias User",
+      "method": "PUT",
+      "path": "/users/reidentify",
+      "fields": [
+        {
+          "id": "id",
+          "label": "ID",
+          "type": "text",
+          "required": true,
+          "description": "The old unique identifier of the user"
+        },
+        {
+          "id": "newId",
+          "label": "New ID",
+          "type": "text",
+          "required": true,
+          "description": "The new unique identifier of the user"
+        }
+      ],
+      "group": "User",
+      "description": "Change a users identifier"
+    },
+    {
+      "id": "user_create",
+      "label": "Create or Update User",
+      "method": "POST",
+      "path": "/users/track",
+      "fields": [
+        {
+          "id": "id",
+          "label": "ID",
+          "type": "text",
+          "required": true,
+          "description": "The unique identifier of the customer"
+        },
+        {
+          "id": "jsonParameters",
+          "label": "JSON Parameters",
+          "type": "toggle",
+          "defaultValue": false
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: email)"
+        },
+        {
+          "id": "dataAttributesUi",
+          "label": "Data",
+          "type": "json",
+          "placeholder": "Add Data",
+          "description": "Key value pairs that represent the custom user properties you want to update (JSON object; supported keys: dataAttributesValues, dataAttributesValues.key, dataAttributesValues.value)"
+        },
+        {
+          "id": "dataAttributesJson",
+          "label": "Data",
+          "type": "json",
+          "description": "Key value pairs that represent the custom user properties you want to update"
+        }
+      ],
+      "group": "User",
+      "description": "Create or update a user profile"
+    },
+    {
+      "id": "user_delete",
+      "label": "Delete User",
+      "method": "POST",
+      "path": "/users/delete",
+      "fields": [
+        {
+          "id": "id",
+          "label": "ID",
+          "type": "text",
+          "required": true,
+          "description": "The unique identifier of the user"
+        }
+      ],
+      "group": "User",
+      "description": "Delete a user"
+    },
+    {
+      "id": "user_resubscribe",
+      "label": "Re-Subscribe User",
+      "method": "POST",
+      "path": "/user",
+      "fields": [
+        {
+          "id": "id",
+          "label": "ID",
+          "type": "text",
+          "required": true,
+          "description": "The unique identifier of the user"
+        }
+      ],
+      "group": "User",
+      "description": "[unverified path] Resubscribe a user"
+    },
+    {
+      "id": "user_remove_tags",
+      "label": "Remove Tags User",
+      "method": "PUT",
+      "path": "/users/tags/edit",
+      "fields": [
+        {
+          "id": "id",
+          "label": "ID",
+          "type": "text",
+          "required": true,
+          "description": "The unique identifier of the user"
+        },
+        {
+          "id": "tags",
+          "label": "Tags",
+          "type": "text",
+          "required": true,
+          "description": "Tags to remove separated by \",\""
+        }
+      ],
+      "group": "User",
+      "description": "Removes a tag from a users profile"
+    },
+    {
+      "id": "user_unsubscribe",
+      "label": "Unsubscribe User",
+      "method": "DELETE",
+      "path": "/user",
+      "fields": [
+        {
+          "id": "id",
+          "label": "ID",
+          "type": "text",
+          "required": true,
+          "description": "The unique identifier of the user"
+        }
+      ],
+      "group": "User",
+      "description": "[unverified path] Unsubscribe a user"
+    },
+    {
+      "id": "event_track",
+      "label": "Track Event",
+      "method": "POST",
+      "path": "/events/track",
+      "fields": [
+        {
+          "id": "id",
+          "label": "ID",
+          "type": "text",
+          "required": true,
+          "description": "The unique identifier of the customer"
+        },
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "required": true,
+          "placeholder": "name@email.com"
+        },
+        {
+          "id": "eventName",
+          "label": "Event Name",
+          "type": "text",
+          "required": true,
+          "description": "The name of the event tracked"
+        },
+        {
+          "id": "jsonParameters",
+          "label": "JSON Parameters",
+          "type": "toggle",
+          "defaultValue": false
+        },
+        {
+          "id": "dataAttributesUi",
+          "label": "Data",
+          "type": "json",
+          "placeholder": "Add Data",
+          "description": "Key value pairs that represent any properties you want to track with this event (JSON object; supported keys: dataAttributesValues, dataAttributesValues.key, dataAttributesValues.value)"
+        },
+        {
+          "id": "extraAttributesUi",
+          "label": "Extra",
+          "type": "json",
+          "placeholder": "Add Extra",
+          "description": "Key value pairs that represent reserved, Vero-specific operators. Refer to the note on “deduplication” below. (JSON object; supported keys: extraAttributesValues, extraAttributesValues.key, extraAttributesValues.value)"
+        },
+        {
+          "id": "dataAttributesJson",
+          "label": "Data",
+          "type": "json",
+          "description": "Key value pairs that represent the custom user properties you want to update"
+        },
+        {
+          "id": "extraAttributesJson",
+          "label": "Extra",
+          "type": "json",
+          "description": "Key value pairs that represent reserved, Vero-specific operators. Refer to the note on “deduplication” below."
+        }
+      ],
+      "group": "Event",
+      "description": "Track an event for a specific customer"
     }
   ]
 }

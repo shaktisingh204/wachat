@@ -4,28 +4,223 @@
   "description": "Consume the Emelia API",
   "category": "marketing",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://graphql.emelia.io",
   "endpoints": [
     {
-      "id": "campaign_default",
-      "label": "List Campaign",
-      "method": "GET",
+      "id": "campaign_add_contact",
+      "label": "Add Contact Campaign",
+      "method": "POST",
       "path": "/campaign",
-      "fields": []
+      "fields": [
+        {
+          "id": "campaignId",
+          "label": "Campaign Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the campaign to add the contact to. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "contactEmail",
+          "label": "Contact Email",
+          "type": "text",
+          "required": true,
+          "description": "The email of the contact to add to the campaign"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: customFieldsUi, firstName, lastContacted, lastName, lastOpen, lastReplied, mailsSent, phoneNumber)"
+        }
+      ],
+      "group": "Campaign",
+      "description": "[unverified path] Add a contact to a campaign"
     },
     {
-      "id": "contact_list_default",
-      "label": "List ContactList",
+      "id": "campaign_create",
+      "label": "Create Campaign",
+      "method": "POST",
+      "path": "/campaign",
+      "fields": [
+        {
+          "id": "campaignName",
+          "label": "Campaign Name",
+          "type": "text",
+          "required": true,
+          "description": "The name of the campaign to create"
+        }
+      ],
+      "group": "Campaign",
+      "description": "[unverified path] Create a campaign"
+    },
+    {
+      "id": "campaign_duplicate",
+      "label": "Duplicate Campaign",
+      "method": "POST",
+      "path": "/campaign",
+      "fields": [
+        {
+          "id": "campaignId",
+          "label": "Campaign Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the campaign to duplicate. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "campaignName",
+          "label": "New Campaign Name",
+          "type": "text",
+          "required": true,
+          "description": "The name of the new campaign to create"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: copyContacts, copyProvider, copyMails, copySettings)"
+        }
+      ],
+      "group": "Campaign",
+      "description": "[unverified path] Duplicate a campaign"
+    },
+    {
+      "id": "campaign_get",
+      "label": "Get Campaign",
       "method": "GET",
-      "path": "/contactList",
-      "fields": []
+      "path": "/campaign",
+      "fields": [
+        {
+          "id": "campaignId",
+          "label": "Campaign ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the campaign to retrieve"
+        }
+      ],
+      "group": "Campaign",
+      "description": "[unverified path] Get a campaign"
+    },
+    {
+      "id": "campaign_get_all",
+      "label": "Get Many Campaign",
+      "method": "GET",
+      "path": "/campaign",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        }
+      ],
+      "group": "Campaign",
+      "description": "[unverified path] Get many campaigns"
+    },
+    {
+      "id": "campaign_pause",
+      "label": "Pause Campaign",
+      "method": "POST",
+      "path": "/campaign",
+      "fields": [
+        {
+          "id": "campaignId",
+          "label": "Campaign ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the campaign to pause. The campaign must be in RUNNING mode."
+        }
+      ],
+      "group": "Campaign",
+      "description": "[unverified path] Pause a campaign"
+    },
+    {
+      "id": "campaign_start",
+      "label": "Start Campaign",
+      "method": "POST",
+      "path": "/campaign",
+      "fields": [
+        {
+          "id": "campaignId",
+          "label": "Campaign ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the campaign to start. Email provider and contacts must be set."
+        }
+      ],
+      "group": "Campaign",
+      "description": "[unverified path] Start a campaign"
+    },
+    {
+      "id": "contact_list_add",
+      "label": "Add Contact List",
+      "method": "POST",
+      "path": "/contact-list",
+      "fields": [
+        {
+          "id": "contactListId",
+          "label": "Contact List Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the contact list to add the contact to. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "contactEmail",
+          "label": "Contact Email",
+          "type": "text",
+          "required": true,
+          "description": "The email of the contact to add to the contact list"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: customFieldsUi, firstName, lastContacted, lastName, lastOpen, lastReplied, mailsSent, phoneNumber)"
+        }
+      ],
+      "group": "Contact List",
+      "description": "[unverified path] Add a contact list"
+    },
+    {
+      "id": "contact_list_get_all",
+      "label": "Get Many Contact List",
+      "method": "GET",
+      "path": "/contact-list",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        }
+      ],
+      "group": "Contact List",
+      "description": "[unverified path] Get many contact lists"
     }
   ]
 }

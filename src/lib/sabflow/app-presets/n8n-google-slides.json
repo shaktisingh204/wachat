@@ -4,8 +4,8 @@
   "description": "Consume the Google Slides API",
   "category": "productivity",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -16,163 +16,63 @@
       "credentialType": "http_header_auth"
     }
   },
-  "baseUrl": "",
+  "baseUrl": "https://slides.googleapis.com/v1",
   "endpoints": [
     {
       "id": "presentation_create",
       "label": "Create Presentation",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/presentations",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "serviceAccount",
-          "options": [
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            },
-            {
-              "value": "serviceAccount",
-              "label": "Service Account"
-            }
-          ]
-        },
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "oAuth2",
-          "options": [
-            {
-              "value": "oAuth2",
-              "label": "OAuth2 (recommended)"
-            },
-            {
-              "value": "serviceAccount",
-              "label": "Service Account"
-            }
-          ]
-        },
         {
           "id": "title",
           "label": "Title",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Title of the presentation to create"
         }
-      ]
+      ],
+      "group": "Presentation",
+      "description": "Create a presentation"
     },
     {
       "id": "presentation_get",
       "label": "Get Presentation",
       "method": "GET",
-      "path": "/",
+      "path": "/presentations/{presentationId}",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "serviceAccount",
-          "options": [
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            },
-            {
-              "value": "serviceAccount",
-              "label": "Service Account"
-            }
-          ]
-        },
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "oAuth2",
-          "options": [
-            {
-              "value": "oAuth2",
-              "label": "OAuth2 (recommended)"
-            },
-            {
-              "value": "serviceAccount",
-              "label": "Service Account"
-            }
-          ]
-        },
         {
           "id": "presentationId",
           "label": "Presentation ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "1wZtNFZ8MO-WKrxhYrOLMvyiqSgFwdSz5vn8_l_7eNqw",
-          "description": "ID of the presentation to retrieve. Found in the presentation URL: <code>https://docs.google.com/presentation/d/PRESENTATION_ID/edit</code>"
+          "description": "ID of the presentation to retrieve. Found in the presentation URL: https://docs.google.com/presentation/d/PRESENTATION_ID/edit",
+          "in": "path"
         }
-      ]
+      ],
+      "group": "Presentation",
+      "description": "Get a presentation"
     },
     {
       "id": "presentation_get_slides",
       "label": "Get Slides Presentation",
       "method": "GET",
-      "path": "/",
+      "path": "/presentations/{presentationId}",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "serviceAccount",
-          "options": [
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            },
-            {
-              "value": "serviceAccount",
-              "label": "Service Account"
-            }
-          ]
-        },
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "oAuth2",
-          "options": [
-            {
-              "value": "oAuth2",
-              "label": "OAuth2 (recommended)"
-            },
-            {
-              "value": "serviceAccount",
-              "label": "Service Account"
-            }
-          ]
-        },
         {
           "id": "presentationId",
           "label": "Presentation ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "1wZtNFZ8MO-WKrxhYrOLMvyiqSgFwdSz5vn8_l_7eNqw",
-          "description": "ID of the presentation to retrieve. Found in the presentation URL: <code>https://docs.google.com/presentation/d/PRESENTATION_ID/edit</code>"
+          "description": "ID of the presentation to retrieve. Found in the presentation URL: https://docs.google.com/presentation/d/PRESENTATION_ID/edit",
+          "in": "path"
         },
         {
           "id": "returnAll",
           "label": "Return All",
           "type": "toggle",
-          "in": "query",
           "description": "Whether to return all results or only up to a given limit",
           "defaultValue": false
         },
@@ -180,198 +80,100 @@
           "id": "limit",
           "label": "Limit",
           "type": "number",
-          "in": "query",
           "description": "Max number of results to return",
           "defaultValue": 100
         }
-      ]
+      ],
+      "group": "Presentation",
+      "description": "Get presentation slides"
     },
     {
       "id": "presentation_replace_text",
       "label": "Replace Text Presentation",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/presentations/{presentationId}:batchUpdate",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "serviceAccount",
-          "options": [
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            },
-            {
-              "value": "serviceAccount",
-              "label": "Service Account"
-            }
-          ]
-        },
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "oAuth2",
-          "options": [
-            {
-              "value": "oAuth2",
-              "label": "OAuth2 (recommended)"
-            },
-            {
-              "value": "serviceAccount",
-              "label": "Service Account"
-            }
-          ]
-        },
         {
           "id": "presentationId",
           "label": "Presentation ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "1wZtNFZ8MO-WKrxhYrOLMvyiqSgFwdSz5vn8_l_7eNqw",
-          "description": "ID of the presentation to retrieve. Found in the presentation URL: <code>https://docs.google.com/presentation/d/PRESENTATION_ID/edit</code>"
+          "description": "ID of the presentation to retrieve. Found in the presentation URL: https://docs.google.com/presentation/d/PRESENTATION_ID/edit",
+          "in": "path"
         },
         {
           "id": "textUi",
           "label": "Texts To Replace",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Text"
+          "placeholder": "Add Text",
+          "description": "(JSON object; supported keys: textValues, textValues.matchCase, textValues.pageObjectIds, textValues.text, textValues.replaceText)"
         },
         {
           "id": "options",
           "label": "Options",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add option"
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: revisionId)"
         }
-      ]
+      ],
+      "group": "Presentation",
+      "description": "Replace text in a presentation"
     },
     {
       "id": "page_get",
       "label": "Get Page",
       "method": "GET",
-      "path": "/",
+      "path": "/presentations/{presentationId}/pages/{pageObjectId}",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "serviceAccount",
-          "options": [
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            },
-            {
-              "value": "serviceAccount",
-              "label": "Service Account"
-            }
-          ]
-        },
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "oAuth2",
-          "options": [
-            {
-              "value": "oAuth2",
-              "label": "OAuth2 (recommended)"
-            },
-            {
-              "value": "serviceAccount",
-              "label": "Service Account"
-            }
-          ]
-        },
         {
           "id": "presentationId",
           "label": "Presentation ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "1wZtNFZ8MO-WKrxhYrOLMvyiqSgFwdSz5vn8_l_7eNqw",
-          "description": "ID of the presentation to retrieve. Found in the presentation URL: <code>https://docs.google.com/presentation/d/PRESENTATION_ID/edit</code>"
+          "description": "ID of the presentation to retrieve. Found in the presentation URL: https://docs.google.com/presentation/d/PRESENTATION_ID/edit",
+          "in": "path"
         },
         {
           "id": "pageObjectId",
           "label": "Page Object ID",
           "type": "text",
-          "in": "query",
           "required": true,
-          "description": "ID of the page object to retrieve"
+          "description": "ID of the page object to retrieve",
+          "in": "path"
         }
-      ]
+      ],
+      "group": "Page",
+      "description": "Get a page"
     },
     {
       "id": "page_get_thumbnail",
       "label": "Get Thumbnail Page",
       "method": "GET",
-      "path": "/",
+      "path": "/presentations/{presentationId}/pages/{pageObjectId}/thumbnail",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "serviceAccount",
-          "options": [
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            },
-            {
-              "value": "serviceAccount",
-              "label": "Service Account"
-            }
-          ]
-        },
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "oAuth2",
-          "options": [
-            {
-              "value": "oAuth2",
-              "label": "OAuth2 (recommended)"
-            },
-            {
-              "value": "serviceAccount",
-              "label": "Service Account"
-            }
-          ]
-        },
         {
           "id": "presentationId",
           "label": "Presentation ID",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "1wZtNFZ8MO-WKrxhYrOLMvyiqSgFwdSz5vn8_l_7eNqw",
-          "description": "ID of the presentation to retrieve. Found in the presentation URL: <code>https://docs.google.com/presentation/d/PRESENTATION_ID/edit</code>"
+          "description": "ID of the presentation to retrieve. Found in the presentation URL: https://docs.google.com/presentation/d/PRESENTATION_ID/edit",
+          "in": "path"
         },
         {
           "id": "pageObjectId",
           "label": "Page Object ID",
           "type": "text",
-          "in": "query",
           "required": true,
-          "description": "ID of the page object to retrieve"
+          "description": "ID of the page object to retrieve",
+          "in": "path"
         },
         {
           "id": "download",
           "label": "Download",
           "type": "toggle",
-          "in": "query",
           "description": "Name of the binary property to which to write the data of the read page",
           "defaultValue": false
         },
@@ -379,11 +181,12 @@
           "id": "binaryProperty",
           "label": "Put Output File in Field",
           "type": "text",
-          "in": "query",
           "required": true,
           "defaultValue": "data"
         }
-      ]
+      ],
+      "group": "Page",
+      "description": "Get a thumbnail"
     }
   ]
 }

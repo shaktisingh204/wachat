@@ -4,8 +4,8 @@
   "description": "Consume Salesforce API",
   "category": "crm",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -16,319 +16,1667 @@
       "credentialType": "oauth2"
     }
   },
-  "baseUrl": "",
+  "baseUrl": "https://login.salesforce.com",
   "endpoints": [
     {
-      "id": "account_default",
-      "label": "List Account",
-      "method": "GET",
-      "path": "/account",
+      "id": "lead_add_to_campaign",
+      "label": "Add Lead To Campaign Lead",
+      "method": "POST",
+      "path": "/sobjects/CampaignMember",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
+          "id": "leadId",
+          "label": "Lead ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of contact that needs to be fetched"
+        },
+        {
+          "id": "campaignId",
+          "label": "Campaign Name or ID",
           "type": "select",
-          "in": "query",
-          "description": "OAuth Authorization Flow",
-          "defaultValue": "oAuth2",
-          "options": [
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            },
-            {
-              "value": "jwt",
-              "label": "OAuth2 JWT"
-            }
-          ]
+          "required": true,
+          "description": "ID of the campaign that needs to be fetched. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: status)"
         }
-      ]
+      ],
+      "group": "Lead",
+      "description": "Add lead to a campaign"
     },
     {
-      "id": "attachment_default",
-      "label": "List Attachment",
-      "method": "GET",
-      "path": "/attachment",
+      "id": "lead_add_note",
+      "label": "Add Note Lead",
+      "method": "POST",
+      "path": "/sobjects/note",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "description": "OAuth Authorization Flow",
-          "defaultValue": "oAuth2",
-          "options": [
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            },
-            {
-              "value": "jwt",
-              "label": "OAuth2 JWT"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "case_default",
-      "label": "List Case",
-      "method": "GET",
-      "path": "/case",
-      "fields": [
+          "id": "leadId",
+          "label": "Lead ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of lead that needs to be fetched"
+        },
         {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "description": "OAuth Authorization Flow",
-          "defaultValue": "oAuth2",
-          "options": [
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            },
-            {
-              "value": "jwt",
-              "label": "OAuth2 JWT"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "contact_default",
-      "label": "List Contact",
-      "method": "GET",
-      "path": "/contact",
-      "fields": [
+          "id": "title",
+          "label": "Title",
+          "type": "text",
+          "required": true,
+          "description": "Title of the note"
+        },
         {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "description": "OAuth Authorization Flow",
-          "defaultValue": "oAuth2",
-          "options": [
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            },
-            {
-              "value": "jwt",
-              "label": "OAuth2 JWT"
-            }
-          ]
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: body, isPrivate, owner)"
         }
-      ]
+      ],
+      "group": "Lead",
+      "description": "Add note to a lead"
     },
     {
-      "id": "custom_object_default",
-      "label": "List CustomObject",
-      "method": "GET",
-      "path": "/customObject",
-      "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "description": "OAuth Authorization Flow",
-          "defaultValue": "oAuth2",
-          "options": [
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            },
-            {
-              "value": "jwt",
-              "label": "OAuth2 JWT"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "document_default",
-      "label": "List Document",
-      "method": "GET",
-      "path": "/document",
-      "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "description": "OAuth Authorization Flow",
-          "defaultValue": "oAuth2",
-          "options": [
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            },
-            {
-              "value": "jwt",
-              "label": "OAuth2 JWT"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "flow_default",
-      "label": "List Flow",
-      "method": "GET",
-      "path": "/flow",
-      "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "description": "OAuth Authorization Flow",
-          "defaultValue": "oAuth2",
-          "options": [
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            },
-            {
-              "value": "jwt",
-              "label": "OAuth2 JWT"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "lead_default",
-      "label": "List Lead",
-      "method": "GET",
+      "id": "lead_create",
+      "label": "Create Lead",
+      "method": "POST",
       "path": "/lead",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "description": "OAuth Authorization Flow",
-          "defaultValue": "oAuth2",
-          "options": [
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            },
-            {
-              "value": "jwt",
-              "label": "OAuth2 JWT"
-            }
-          ]
+          "id": "company",
+          "label": "Company",
+          "type": "text",
+          "required": true,
+          "description": "Company of the lead. If person account record types have been enabled, and if the value of Company is null, the lead converts to a person account."
+        },
+        {
+          "id": "lastname",
+          "label": "Last Name",
+          "type": "text",
+          "required": true,
+          "description": "Required. Last name of the lead. Limited to 80 characters."
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: annualRevenue, city, country, customFieldsUi, description, email, fax, firstname, hasOptedOutOfEmail, hasOptedOutOfFax, industry, IsUnreadByOwner, jigsaw, leadSource, mobilePhone, numberOfEmployees, owner, phone, postalCode, recordTypeId, rating, salutation, state, status, street, title, website)"
         }
-      ]
+      ],
+      "group": "Lead",
+      "description": "[unverified path] Create a lead"
     },
     {
-      "id": "opportunity_default",
-      "label": "List Opportunity",
+      "id": "lead_upsert",
+      "label": "Create or Update Lead",
+      "method": "POST",
+      "path": "/sobjects/lead",
+      "fields": [
+        {
+          "id": "externalId",
+          "label": "Match Against",
+          "type": "select",
+          "required": true,
+          "description": "The field to check to see if the lead already exists. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "externalIdValue",
+          "label": "Value to Match",
+          "type": "text",
+          "required": true,
+          "description": "If this value exists in the 'match against' field, update the lead. Otherwise create a new one."
+        },
+        {
+          "id": "company",
+          "label": "Company",
+          "type": "text",
+          "required": true,
+          "description": "Company of the lead. If person account record types have been enabled, and if the value of Company is null, the lead converts to a person account."
+        },
+        {
+          "id": "lastname",
+          "label": "Last Name",
+          "type": "text",
+          "required": true,
+          "description": "Required. Last name of the lead. Limited to 80 characters."
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: annualRevenue, city, country, customFieldsUi, description, email, fax, firstname, hasOptedOutOfEmail, hasOptedOutOfFax, industry, IsUnreadByOwner, jigsaw, leadSource, mobilePhone, numberOfEmployees, owner, phone, postalCode, recordTypeId, rating, salutation, state, status, street, title, website)"
+        }
+      ],
+      "group": "Lead",
+      "description": "Create a new lead, or update the current one if it already exists (upsert)"
+    },
+    {
+      "id": "lead_delete",
+      "label": "Delete Lead",
+      "method": "DELETE",
+      "path": "/sobjects/lead/{leadId}",
+      "fields": [
+        {
+          "id": "leadId",
+          "label": "Lead ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of Lead that needs to be fetched",
+          "in": "path"
+        }
+      ],
+      "group": "Lead",
+      "description": "Delete a lead"
+    },
+    {
+      "id": "lead_get",
+      "label": "Get Lead",
       "method": "GET",
+      "path": "/sobjects/lead/{leadId}",
+      "fields": [
+        {
+          "id": "leadId",
+          "label": "Lead ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of Lead that needs to be fetched",
+          "in": "path"
+        }
+      ],
+      "group": "Lead",
+      "description": "Get a lead"
+    },
+    {
+      "id": "lead_get_all",
+      "label": "Get Many Lead",
+      "method": "GET",
+      "path": "/query",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: conditionsUi, fields)"
+        }
+      ],
+      "group": "Lead",
+      "description": "Get many leads"
+    },
+    {
+      "id": "lead_get_summary",
+      "label": "Get Summary Lead",
+      "method": "GET",
+      "path": "/sobjects/lead",
+      "fields": [],
+      "group": "Lead",
+      "description": "Returns an overview of Lead's metadata"
+    },
+    {
+      "id": "lead_update",
+      "label": "Update Lead",
+      "method": "PATCH",
+      "path": "/sobjects/lead/{leadId}",
+      "fields": [
+        {
+          "id": "leadId",
+          "label": "Lead ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of Lead that needs to be fetched",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: annualRevenue, city, company, country, customFieldsUi, description, email, fax, firstname, hasOptedOutOfEmail, HasOptedOutOfFax, industry, IsUnreadByOwner, jigsaw, lastname, leadSource, mobilePhone, numberOfEmployees, owner, postalCode, phone, recordTypeId, rating, salutation, state, status, street, title, website)"
+        }
+      ],
+      "group": "Lead",
+      "description": "Update a lead"
+    },
+    {
+      "id": "contact_add_to_campaign",
+      "label": "Add Contact To Campaign Contact",
+      "method": "POST",
+      "path": "/sobjects/CampaignMember",
+      "fields": [
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of contact that needs to be fetched"
+        },
+        {
+          "id": "campaignId",
+          "label": "Campaign Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of the campaign that needs to be fetched. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: status)"
+        }
+      ],
+      "group": "Contact",
+      "description": "Add contact to a campaign"
+    },
+    {
+      "id": "contact_add_note",
+      "label": "Add Note Contact",
+      "method": "POST",
+      "path": "/sobjects/note",
+      "fields": [
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of contact that needs to be fetched"
+        },
+        {
+          "id": "title",
+          "label": "Title",
+          "type": "text",
+          "required": true,
+          "description": "Title of the note"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: body, isPrivate, owner)"
+        }
+      ],
+      "group": "Contact",
+      "description": "Add note to a contact"
+    },
+    {
+      "id": "contact_create",
+      "label": "Create Contact",
+      "method": "POST",
+      "path": "/contact",
+      "fields": [
+        {
+          "id": "lastname",
+          "label": "Last Name",
+          "type": "text",
+          "required": true,
+          "description": "Required. Last name of the contact. Limited to 80 characters."
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: acconuntId, assistantName, Assistant Phone, birthdate, customFieldsUi, department, description, email, otherPostalCode, emailBouncedReason, fax, firstName, homePhone, jigsaw, leadSource, mailingCity, mailingCountry, mobilePhone, mailingPostalCode, mailingState, mailingStreet, otherCity, otherCountry, otherPhone, otherState, otherStreet, owner, phone, recordTypeId, salutation)"
+        }
+      ],
+      "group": "Contact",
+      "description": "[unverified path] Create a contact"
+    },
+    {
+      "id": "contact_upsert",
+      "label": "Create or Update Contact",
+      "method": "POST",
+      "path": "/sobjects/contact",
+      "fields": [
+        {
+          "id": "externalId",
+          "label": "Match Against",
+          "type": "select",
+          "required": true,
+          "description": "The field to check to see if the contact already exists. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "externalIdValue",
+          "label": "Value to Match",
+          "type": "text",
+          "required": true,
+          "description": "If this value exists in the 'match against' field, update the contact. Otherwise create a new one."
+        },
+        {
+          "id": "lastname",
+          "label": "Last Name",
+          "type": "text",
+          "required": true,
+          "description": "Required. Last name of the contact. Limited to 80 characters."
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: acconuntId, assistantName, Assistant Phone, birthdate, customFieldsUi, department, description, email, otherPostalCode, emailBouncedReason, fax, firstName, homePhone, jigsaw, leadSource, mailingCity, mailingCountry, mobilePhone, mailingPostalCode, mailingState, mailingStreet, otherCity, otherCountry, otherPhone, otherState, otherStreet, owner, phone, recordTypeId, salutation)"
+        }
+      ],
+      "group": "Contact",
+      "description": "Create a new contact, or update the current one if it already exists (upsert)"
+    },
+    {
+      "id": "contact_delete",
+      "label": "Delete Contact",
+      "method": "DELETE",
+      "path": "/sobjects/contact/{contactId}",
+      "fields": [
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of contact that needs to be fetched",
+          "in": "path"
+        }
+      ],
+      "group": "Contact",
+      "description": "Delete a contact"
+    },
+    {
+      "id": "contact_get",
+      "label": "Get Contact",
+      "method": "GET",
+      "path": "/sobjects/contact/{contactId}",
+      "fields": [
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of contact that needs to be fetched",
+          "in": "path"
+        }
+      ],
+      "group": "Contact",
+      "description": "Get a contact"
+    },
+    {
+      "id": "contact_get_all",
+      "label": "Get Many Contact",
+      "method": "GET",
+      "path": "/query",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: conditionsUi, fields)"
+        }
+      ],
+      "group": "Contact",
+      "description": "Get many contacts"
+    },
+    {
+      "id": "contact_get_summary",
+      "label": "Get Summary Contact",
+      "method": "GET",
+      "path": "/sobjects/contact",
+      "fields": [],
+      "group": "Contact",
+      "description": "Returns an overview of contact's metadata"
+    },
+    {
+      "id": "contact_update",
+      "label": "Update Contact",
+      "method": "PATCH",
+      "path": "/sobjects/contact/{contactId}",
+      "fields": [
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of contact that needs to be fetched",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: acconuntId, assistantName, Assistant Phone, birthdate, customFieldsUi, department, description, email, emailBouncedDate, emailBouncedReason, fax, firstName, homePhone, jigsaw, lastName, leadSource, mailingCity, mailingCountry, mailingState, mailingStreet, mailingPostalCode, mobilePhone, otherCity, otherCountry, otherPhone, otherPostalCode, otherState, otherStreet, owner, phone)"
+        }
+      ],
+      "group": "Contact",
+      "description": "Update a contact"
+    },
+    {
+      "id": "custom_object_create",
+      "label": "Create Custom Object",
+      "method": "POST",
+      "path": "/custom-object",
+      "fields": [
+        {
+          "id": "customObject",
+          "label": "Custom Object Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Name of the custom object. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "customFieldsUi",
+          "label": "Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "Filter by custom fields (JSON object; supported keys: customFieldsValues, customFieldsValues.fieldId, customFieldsValues.value)"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: recordTypeId)"
+        }
+      ],
+      "group": "Custom Object",
+      "description": "[unverified path] Create a custom object record"
+    },
+    {
+      "id": "custom_object_upsert",
+      "label": "Create or Update Custom Object",
+      "method": "POST",
+      "path": "/sobjects/{customObject}",
+      "fields": [
+        {
+          "id": "customObject",
+          "label": "Custom Object Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Name of the custom object. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "externalId",
+          "label": "Match Against",
+          "type": "select",
+          "required": true,
+          "description": "The field to check to see if the object already exists. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "externalIdValue",
+          "label": "Value to Match",
+          "type": "text",
+          "required": true,
+          "description": "If this value exists in the 'match against' field, update the object. Otherwise create a new one."
+        },
+        {
+          "id": "customFieldsUi",
+          "label": "Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "Filter by custom fields (JSON object; supported keys: customFieldsValues, customFieldsValues.fieldId, customFieldsValues.value)"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: recordTypeId)"
+        }
+      ],
+      "group": "Custom Object",
+      "description": "Create a new record, or update the current one if it already exists (upsert)"
+    },
+    {
+      "id": "custom_object_delete",
+      "label": "Delete Custom Object",
+      "method": "DELETE",
+      "path": "/sobjects/{customObject}/{recordId}",
+      "fields": [
+        {
+          "id": "customObject",
+          "label": "Custom Object Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Name of the custom object. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "recordId",
+          "label": "Record ID",
+          "type": "text",
+          "required": true,
+          "description": "Record ID to be deleted",
+          "in": "path"
+        }
+      ],
+      "group": "Custom Object",
+      "description": "Delete a custom object record"
+    },
+    {
+      "id": "custom_object_get",
+      "label": "Get Custom Object",
+      "method": "GET",
+      "path": "/sobjects/{customObject}/{recordId}",
+      "fields": [
+        {
+          "id": "customObject",
+          "label": "Custom Object Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Name of the custom object. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "recordId",
+          "label": "Record ID",
+          "type": "text",
+          "required": true,
+          "description": "Record ID to be retrieved",
+          "in": "path"
+        }
+      ],
+      "group": "Custom Object",
+      "description": "Get a custom object record"
+    },
+    {
+      "id": "custom_object_get_all",
+      "label": "Get Many Custom Object",
+      "method": "GET",
+      "path": "/query",
+      "fields": [
+        {
+          "id": "customObject",
+          "label": "Custom Object Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Name of the custom object. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: conditionsUi, fields)"
+        }
+      ],
+      "group": "Custom Object",
+      "description": "Get many custom object records"
+    },
+    {
+      "id": "custom_object_update",
+      "label": "Update Custom Object",
+      "method": "PATCH",
+      "path": "/sobjects/{customObject}/{recordId}",
+      "fields": [
+        {
+          "id": "customObject",
+          "label": "Custom Object Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Name of the custom object. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "recordId",
+          "label": "Record ID",
+          "type": "text",
+          "required": true,
+          "description": "Record ID to be updated",
+          "in": "path"
+        },
+        {
+          "id": "customFieldsUi",
+          "label": "Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "Filter by custom fields (JSON object; supported keys: customFieldsValues, customFieldsValues.fieldId, customFieldsValues.value)"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: recordTypeId)"
+        }
+      ],
+      "group": "Custom Object",
+      "description": "Update a custom object record"
+    },
+    {
+      "id": "document_upload",
+      "label": "Upload Document",
+      "method": "POST",
+      "path": "/sobjects/ContentVersion",
+      "fields": [
+        {
+          "id": "title",
+          "label": "Title",
+          "type": "text",
+          "required": true,
+          "description": "Name of the file"
+        },
+        {
+          "id": "binaryPropertyName",
+          "label": "Input Binary Field",
+          "type": "text",
+          "required": true,
+          "defaultValue": "data"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: fileExtension, linkToObjectId, ownerId)"
+        }
+      ],
+      "group": "Document",
+      "description": "Upload a document"
+    },
+    {
+      "id": "opportunity_add_note",
+      "label": "Add Note Opportunity",
+      "method": "POST",
+      "path": "/sobjects/note",
+      "fields": [
+        {
+          "id": "opportunityId",
+          "label": "Opportunity ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of opportunity that needs to be fetched"
+        },
+        {
+          "id": "title",
+          "label": "Title",
+          "type": "text",
+          "required": true,
+          "description": "Title of the note"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: body, isPrivate, owner)"
+        }
+      ],
+      "group": "Opportunity",
+      "description": "Add note to an opportunity"
+    },
+    {
+      "id": "opportunity_create",
+      "label": "Create Opportunity",
+      "method": "POST",
       "path": "/opportunity",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "Required. Last name of the opportunity. Limited to 80 characters."
+        },
+        {
+          "id": "closeDate",
+          "label": "Close Date",
+          "type": "text",
+          "required": true,
+          "placeholder": "2024-01-01T00:00:00Z",
+          "description": "Required. Date when the opportunity is expected to close. (ISO 8601 date-time)"
+        },
+        {
+          "id": "stageName",
+          "label": "Stage Name or ID",
           "type": "select",
-          "in": "query",
-          "description": "OAuth Authorization Flow",
-          "defaultValue": "oAuth2",
-          "options": [
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            },
-            {
-              "value": "jwt",
-              "label": "OAuth2 JWT"
-            }
-          ]
+          "required": true,
+          "description": "Required. Date when the opportunity is expected to close. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: accountId, amount, campaignId, customFieldsUi, description, forecastCategoryName, leadSource, nextStep, owner, phone, pricebook2Id, probability, type)"
         }
-      ]
+      ],
+      "group": "Opportunity",
+      "description": "[unverified path] Create an opportunity"
     },
     {
-      "id": "search_default",
-      "label": "List Search",
-      "method": "GET",
-      "path": "/search",
+      "id": "opportunity_upsert",
+      "label": "Create or Update Opportunity",
+      "method": "POST",
+      "path": "/sobjects/opportunity",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
+          "id": "externalId",
+          "label": "Match Against",
           "type": "select",
-          "in": "query",
-          "description": "OAuth Authorization Flow",
-          "defaultValue": "oAuth2",
-          "options": [
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            },
-            {
-              "value": "jwt",
-              "label": "OAuth2 JWT"
-            }
-          ]
+          "required": true,
+          "description": "The field to check to see if the opportunity already exists. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "externalIdValue",
+          "label": "Value to Match",
+          "type": "text",
+          "required": true,
+          "description": "If this value exists in the 'match against' field, update the opportunity. Otherwise create a new one."
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "Required. Last name of the opportunity. Limited to 80 characters."
+        },
+        {
+          "id": "closeDate",
+          "label": "Close Date",
+          "type": "text",
+          "required": true,
+          "placeholder": "2024-01-01T00:00:00Z",
+          "description": "Required. Date when the opportunity is expected to close. (ISO 8601 date-time)"
+        },
+        {
+          "id": "stageName",
+          "label": "Stage Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Required. Date when the opportunity is expected to close. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: accountId, amount, campaignId, customFieldsUi, description, forecastCategoryName, leadSource, nextStep, owner, phone, pricebook2Id, probability, type)"
         }
-      ]
+      ],
+      "group": "Opportunity",
+      "description": "Create a new opportunity, or update the current one if it already exists (upsert)"
     },
     {
-      "id": "task_default",
-      "label": "List Task",
-      "method": "GET",
-      "path": "/task",
+      "id": "opportunity_delete",
+      "label": "Delete Opportunity",
+      "method": "DELETE",
+      "path": "/sobjects/opportunity/{opportunityId}",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "description": "OAuth Authorization Flow",
-          "defaultValue": "oAuth2",
-          "options": [
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            },
-            {
-              "value": "jwt",
-              "label": "OAuth2 JWT"
-            }
-          ]
+          "id": "opportunityId",
+          "label": "Opportunity ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of opportunity that needs to be fetched",
+          "in": "path"
         }
-      ]
+      ],
+      "group": "Opportunity",
+      "description": "Delete an opportunity"
     },
     {
-      "id": "user_default",
-      "label": "List User",
+      "id": "opportunity_get",
+      "label": "Get Opportunity",
       "method": "GET",
-      "path": "/user",
+      "path": "/sobjects/opportunity/{opportunityId}",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "description": "OAuth Authorization Flow",
-          "defaultValue": "oAuth2",
-          "options": [
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            },
-            {
-              "value": "jwt",
-              "label": "OAuth2 JWT"
-            }
-          ]
+          "id": "opportunityId",
+          "label": "Opportunity ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of opportunity that needs to be fetched",
+          "in": "path"
         }
-      ]
+      ],
+      "group": "Opportunity",
+      "description": "Get an opportunity"
+    },
+    {
+      "id": "opportunity_get_all",
+      "label": "Get Many Opportunity",
+      "method": "GET",
+      "path": "/query",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: conditionsUi, fields)"
+        }
+      ],
+      "group": "Opportunity",
+      "description": "Get many opportunities"
+    },
+    {
+      "id": "opportunity_get_summary",
+      "label": "Get Summary Opportunity",
+      "method": "GET",
+      "path": "/sobjects/opportunity",
+      "fields": [],
+      "group": "Opportunity",
+      "description": "Returns an overview of opportunity's metadata"
+    },
+    {
+      "id": "opportunity_update",
+      "label": "Update Opportunity",
+      "method": "PATCH",
+      "path": "/sobjects/opportunity/{opportunityId}",
+      "fields": [
+        {
+          "id": "opportunityId",
+          "label": "Opportunity ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of opportunity that needs to be fetched",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: accountId, amount, campaignId, closeDate, customFieldsUi, description, forecastCategoryName, leadSource, name, nextStep, owner, phone, pricebook2Id, probability, stageName, type)"
+        }
+      ],
+      "group": "Opportunity",
+      "description": "Update an opportunity"
+    },
+    {
+      "id": "account_add_note",
+      "label": "Add Note Account",
+      "method": "POST",
+      "path": "/sobjects/note",
+      "fields": [
+        {
+          "id": "accountId",
+          "label": "Account ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of account that needs to be fetched"
+        },
+        {
+          "id": "title",
+          "label": "Title",
+          "type": "text",
+          "required": true,
+          "description": "Title of the note"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: body, isPrivate, ownerId)"
+        }
+      ],
+      "group": "Account",
+      "description": "Add note to an account"
+    },
+    {
+      "id": "account_create",
+      "label": "Create Account",
+      "method": "POST",
+      "path": "/account",
+      "fields": [
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "Name of the account. Maximum size is 255 characters."
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: accountNumber, annualRevenue, accountSource, billingCity, billingCountry, billingPostalCode, billingState, billingStreet, customFieldsUi, description, fax, jigsaw, industry, numberOfEmployees, owner, parentId, phone, recordTypeId, sicDesc, type, shippingCity, shippingCountry, shippingPostalCode, shippingState, shippingStreet, website)"
+        }
+      ],
+      "group": "Account",
+      "description": "[unverified path] Create an account"
+    },
+    {
+      "id": "account_upsert",
+      "label": "Create or Update Account",
+      "method": "POST",
+      "path": "/sobjects/account",
+      "fields": [
+        {
+          "id": "externalId",
+          "label": "Match Against",
+          "type": "select",
+          "required": true,
+          "description": "The field to check to see if the account already exists. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "externalIdValue",
+          "label": "Value to Match",
+          "type": "text",
+          "required": true,
+          "description": "If this value exists in the 'match against' field, update the account. Otherwise create a new one."
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "Name of the account. Maximum size is 255 characters."
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: accountNumber, annualRevenue, accountSource, billingCity, billingCountry, billingPostalCode, billingState, billingStreet, customFieldsUi, description, fax, jigsaw, industry, numberOfEmployees, owner, parentId, phone, recordTypeId, sicDesc, type, shippingCity, shippingCountry, shippingPostalCode, shippingState, shippingStreet, website)"
+        }
+      ],
+      "group": "Account",
+      "description": "Create a new account, or update the current one if it already exists (upsert)"
+    },
+    {
+      "id": "account_delete",
+      "label": "Delete Account",
+      "method": "DELETE",
+      "path": "/sobjects/account/{accountId}",
+      "fields": [
+        {
+          "id": "accountId",
+          "label": "Account ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of account that needs to be fetched",
+          "in": "path"
+        }
+      ],
+      "group": "Account",
+      "description": "Delete an account"
+    },
+    {
+      "id": "account_get",
+      "label": "Get Account",
+      "method": "GET",
+      "path": "/sobjects/account/{accountId}",
+      "fields": [
+        {
+          "id": "accountId",
+          "label": "Account ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of account that needs to be fetched",
+          "in": "path"
+        }
+      ],
+      "group": "Account",
+      "description": "Get an account"
+    },
+    {
+      "id": "account_get_all",
+      "label": "Get Many Account",
+      "method": "GET",
+      "path": "/query",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: fields, conditionsUi)"
+        }
+      ],
+      "group": "Account",
+      "description": "Get many accounts"
+    },
+    {
+      "id": "account_get_summary",
+      "label": "Get Summary Account",
+      "method": "GET",
+      "path": "/sobjects/account",
+      "fields": [],
+      "group": "Account",
+      "description": "Returns an overview of account's metadata"
+    },
+    {
+      "id": "account_update",
+      "label": "Update Account",
+      "method": "PATCH",
+      "path": "/sobjects/account/{accountId}",
+      "fields": [
+        {
+          "id": "accountId",
+          "label": "Account ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of account that needs to be fetched",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: accountNumber, accountSource, annualRevenue, billingCity, billingCountry, billingPostalCode, billingState, billingStreet, customFieldsUi, description, fax, industry, jigsaw, name, numberOfEmployees, ownerId, parentId, phone, recordTypeId, sicDesc, shippingCity, shippingCountry, shippingPostalCode, shippingState, shippingStreet, type, website)"
+        }
+      ],
+      "group": "Account",
+      "description": "Update an account"
+    },
+    {
+      "id": "search_query",
+      "label": "Query Search",
+      "method": "GET",
+      "path": "/query",
+      "fields": [
+        {
+          "id": "query",
+          "label": "Query",
+          "type": "text",
+          "required": true,
+          "description": "A SOQL query. An example query parameter string might look like: “SELECT+Name+FROM+MyObject”. If the SOQL query string is invalid, a MALFORMED_QUERY response is returned."
+        }
+      ],
+      "group": "Search",
+      "description": "Execute a SOQL query that returns all the results in a single response"
+    },
+    {
+      "id": "case_add_comment",
+      "label": "Add Comment Case",
+      "method": "POST",
+      "path": "/sobjects/casecomment",
+      "fields": [
+        {
+          "id": "caseId",
+          "label": "Case ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of case that needs to be fetched"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: commentBody, isPublished)"
+        }
+      ],
+      "group": "Case",
+      "description": "Add a comment to a case"
+    },
+    {
+      "id": "case_create",
+      "label": "Create Case",
+      "method": "POST",
+      "path": "/sobjects/case",
+      "fields": [
+        {
+          "id": "type",
+          "label": "Type Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The type of case. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: accountId, contactId, customFieldsUi, description, isEscalated, origin, owner, ParentId, priority, reason, recordTypeId, status, subject, suppliedCompany, suppliedEmail, suppliedName, suppliedPhone)"
+        }
+      ],
+      "group": "Case",
+      "description": "Create a case"
+    },
+    {
+      "id": "case_delete",
+      "label": "Delete Case",
+      "method": "DELETE",
+      "path": "/sobjects/case/{caseId}",
+      "fields": [
+        {
+          "id": "caseId",
+          "label": "Case ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of case that needs to be fetched",
+          "in": "path"
+        }
+      ],
+      "group": "Case",
+      "description": "Delete a case"
+    },
+    {
+      "id": "case_get",
+      "label": "Get Case",
+      "method": "GET",
+      "path": "/sobjects/case/{caseId}",
+      "fields": [
+        {
+          "id": "caseId",
+          "label": "Case ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of case that needs to be fetched",
+          "in": "path"
+        }
+      ],
+      "group": "Case",
+      "description": "Get a case"
+    },
+    {
+      "id": "case_get_all",
+      "label": "Get Many Case",
+      "method": "GET",
+      "path": "/query",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: conditionsUi, fields)"
+        }
+      ],
+      "group": "Case",
+      "description": "Get many cases"
+    },
+    {
+      "id": "case_get_summary",
+      "label": "Get Summary Case",
+      "method": "GET",
+      "path": "/sobjects/case",
+      "fields": [],
+      "group": "Case",
+      "description": "Returns an overview of case's metadata"
+    },
+    {
+      "id": "case_update",
+      "label": "Update Case",
+      "method": "PATCH",
+      "path": "/sobjects/case/{caseId}",
+      "fields": [
+        {
+          "id": "caseId",
+          "label": "Case ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of case that needs to be fetched",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: accountId, contactId, customFieldsUi, description, isEscalated, origin, owner, ParentId, priority, reason, recordTypeId, status, subject, suppliedCompany, suppliedEmail, suppliedName, suppliedPhone, type)"
+        }
+      ],
+      "group": "Case",
+      "description": "Update a case"
+    },
+    {
+      "id": "task_create",
+      "label": "Create Task",
+      "method": "POST",
+      "path": "/sobjects/task",
+      "fields": [
+        {
+          "id": "status",
+          "label": "Status Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The current status of the task, such as In Progress or Completed. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: activityDate, callDisposition, callDurationInSeconds, callObject, callType, customFieldsUi, description, isReminderSet, owner, priority, recurrenceType, recurrenceInstance, recurrenceInterval, recurrenceDayOfMonth, recurrenceDayOfWeekMask, recurrenceEndDateOnly, recurrenceMonthOfYear, recurrenceRegeneratedType, recurrenceTimeZoneSidKey, reminderDateTime, subject, type, whatId, whoId)"
+        }
+      ],
+      "group": "Task",
+      "description": "Create a task"
+    },
+    {
+      "id": "task_delete",
+      "label": "Delete Task",
+      "method": "DELETE",
+      "path": "/sobjects/task/{taskId}",
+      "fields": [
+        {
+          "id": "taskId",
+          "label": "Task ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of task that needs to be fetched",
+          "in": "path"
+        }
+      ],
+      "group": "Task",
+      "description": "Delete a task"
+    },
+    {
+      "id": "task_get",
+      "label": "Get Task",
+      "method": "GET",
+      "path": "/sobjects/task/{taskId}",
+      "fields": [
+        {
+          "id": "taskId",
+          "label": "Task ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of task that needs to be fetched",
+          "in": "path"
+        }
+      ],
+      "group": "Task",
+      "description": "Get a task"
+    },
+    {
+      "id": "task_get_all",
+      "label": "Get Many Task",
+      "method": "GET",
+      "path": "/query",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: conditionsUi, fields)"
+        }
+      ],
+      "group": "Task",
+      "description": "Get many tasks"
+    },
+    {
+      "id": "task_get_summary",
+      "label": "Get Summary Task",
+      "method": "GET",
+      "path": "/sobjects/task",
+      "fields": [],
+      "group": "Task",
+      "description": "Returns an overview of task's metadata"
+    },
+    {
+      "id": "task_update",
+      "label": "Update Task",
+      "method": "PATCH",
+      "path": "/sobjects/task/{taskId}",
+      "fields": [
+        {
+          "id": "taskId",
+          "label": "Task ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of task that needs to be fetched",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: activityDate, callDisposition, callDurationInSeconds, callObject, callType, customFieldsUi, description, isReminderSet, owner, priority, status, subject, recurrenceDayOfMonth, recurrenceDayOfWeekMask, recurrenceEndDateOnly, recurrenceInstance, recurrenceInterval, recurrenceMonthOfYear, recurrenceRegeneratedType, recurrenceType, recurrenceTimeZoneSidKey, reminderDateTime, type, whatId, whoId)"
+        }
+      ],
+      "group": "Task",
+      "description": "Update a task"
+    },
+    {
+      "id": "attachment_create",
+      "label": "Create Attachment",
+      "method": "POST",
+      "path": "/sobjects/attachment",
+      "fields": [
+        {
+          "id": "parentId",
+          "label": "Parent ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "Required. Name of the attached file. Maximum size is 255 characters. Label is File Name."
+        },
+        {
+          "id": "binaryPropertyName",
+          "label": "Input Binary Field",
+          "type": "text",
+          "required": true,
+          "defaultValue": "data"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: description, isPrivate, owner)"
+        }
+      ],
+      "group": "Attachment",
+      "description": "Create a attachment"
+    },
+    {
+      "id": "attachment_delete",
+      "label": "Delete Attachment",
+      "method": "DELETE",
+      "path": "/sobjects/attachment/{attachmentId}",
+      "fields": [
+        {
+          "id": "attachmentId",
+          "label": "Attachment ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of attachment that needs to be fetched",
+          "in": "path"
+        }
+      ],
+      "group": "Attachment",
+      "description": "Delete a attachment"
+    },
+    {
+      "id": "attachment_get",
+      "label": "Get Attachment",
+      "method": "GET",
+      "path": "/sobjects/attachment/{attachmentId}",
+      "fields": [
+        {
+          "id": "attachmentId",
+          "label": "Attachment ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of attachment that needs to be fetched",
+          "in": "path"
+        }
+      ],
+      "group": "Attachment",
+      "description": "Get a attachment"
+    },
+    {
+      "id": "attachment_get_all",
+      "label": "Get Many Attachment",
+      "method": "GET",
+      "path": "/query",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: conditionsUi, fields)"
+        }
+      ],
+      "group": "Attachment",
+      "description": "Get many attachments"
+    },
+    {
+      "id": "attachment_get_summary",
+      "label": "Get Summary Attachment",
+      "method": "GET",
+      "path": "/sobjects/attachment",
+      "fields": [],
+      "group": "Attachment",
+      "description": "Returns an overview of attachment's metadata"
+    },
+    {
+      "id": "attachment_update",
+      "label": "Update Attachment",
+      "method": "PATCH",
+      "path": "/sobjects/attachment/{attachmentId}",
+      "fields": [
+        {
+          "id": "attachmentId",
+          "label": "Attachment ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of attachment that needs to be fetched",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: binaryPropertyName, description, isPrivate, name, owner)"
+        }
+      ],
+      "group": "Attachment",
+      "description": "Update a attachment"
+    },
+    {
+      "id": "user_get",
+      "label": "Get User",
+      "method": "GET",
+      "path": "/sobjects/user/{userId}",
+      "fields": [
+        {
+          "id": "userId",
+          "label": "User ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of user that needs to be fetched",
+          "in": "path"
+        }
+      ],
+      "group": "User",
+      "description": "Get a user"
+    },
+    {
+      "id": "user_get_all",
+      "label": "Get Many User",
+      "method": "GET",
+      "path": "/query",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: conditionsUi, fields)"
+        }
+      ],
+      "group": "User",
+      "description": "Get many users"
+    },
+    {
+      "id": "flow_get_all",
+      "label": "Get Many Flow",
+      "method": "GET",
+      "path": "/actions/custom/flow",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Flow",
+      "description": "Get many flows"
+    },
+    {
+      "id": "flow_invoke",
+      "label": "Invoke Flow",
+      "method": "POST",
+      "path": "/actions/custom/flow/{apiName}",
+      "fields": [
+        {
+          "id": "apiName",
+          "label": "API Name",
+          "type": "text",
+          "required": true,
+          "description": "Required. API name of the flow.",
+          "in": "path"
+        },
+        {
+          "id": "jsonParameters",
+          "label": "JSON Parameters",
+          "type": "toggle",
+          "description": "Whether the input variables should be set via the value-key pair UI or JSON/RAW",
+          "defaultValue": false
+        },
+        {
+          "id": "variablesJson",
+          "label": "Variables",
+          "type": "json",
+          "description": "Input variables as JSON object"
+        },
+        {
+          "id": "variablesUi",
+          "label": "Variables",
+          "type": "json",
+          "placeholder": "Add Variable",
+          "description": "The input variable to send (JSON object; supported keys: variablesValues, variablesValues.name, variablesValues.value)"
+        }
+      ],
+      "group": "Flow",
+      "description": "Invoke a flow"
     }
   ]
 }

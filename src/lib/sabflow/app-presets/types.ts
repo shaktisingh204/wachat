@@ -81,6 +81,8 @@ export type AppPresetEndpoint = {
   fields: AppPresetField[];
   /** Minimal JSONPath projector — `$`, `$.foo`, `$.foo[0].bar`. Defaults to `$`. */
   outputPath?: string;
+  /** Optional UI grouping label (e.g. the source resource, "Contact"). */
+  group?: string;
 };
 
 /** Lifecycle state for a preset. Auto-imported presets start as `draft`. */

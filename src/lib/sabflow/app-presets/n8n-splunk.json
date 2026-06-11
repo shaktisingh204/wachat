@@ -4,12 +4,512 @@
   "description": "Consume the Splunk Enterprise API",
   "category": "analytics",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 4,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
-    "type": "none"
+    "type": "bearer",
+    "credentialType": "splunk"
   },
-  "baseUrl": "",
-  "endpoints": []
+  "baseUrl": "https://{host}",
+  "endpoints": [
+    {
+      "id": "alert_get_report",
+      "label": "Get Fired Alerts Alert",
+      "method": "GET",
+      "path": "/services/alerts/fired_alerts",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Splunk server, e.g. app.example.com (no https:// prefix)"
+        }
+      ],
+      "group": "Alert",
+      "description": "Retrieve a fired alerts report"
+    },
+    {
+      "id": "alert_get_metrics",
+      "label": "Get Metrics Alert",
+      "method": "GET",
+      "path": "/services/alerts/metric_alerts",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Splunk server, e.g. app.example.com (no https:// prefix)"
+        }
+      ],
+      "group": "Alert",
+      "description": "Retrieve metrics"
+    },
+    {
+      "id": "report_create",
+      "label": "Create From Search Report",
+      "method": "POST",
+      "path": "/services/search/jobs/{searchJobId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Splunk server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "searchJobId",
+          "label": "Search Job",
+          "type": "text",
+          "required": true,
+          "description": "(provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "description": "The name of the report"
+        }
+      ],
+      "group": "Report",
+      "description": "Create a search report from a search job"
+    },
+    {
+      "id": "report_delete_report",
+      "label": "Delete Report",
+      "method": "DELETE",
+      "path": "/services/saved/searches/{reportId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Splunk server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "reportId",
+          "label": "Report",
+          "type": "text",
+          "required": true,
+          "description": "(provide the ID)",
+          "in": "path"
+        }
+      ],
+      "group": "Report",
+      "description": "Delete a search report"
+    },
+    {
+      "id": "report_get",
+      "label": "Get Report",
+      "method": "GET",
+      "path": "/services/saved/searches/{reportId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Splunk server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "reportId",
+          "label": "Report",
+          "type": "text",
+          "required": true,
+          "description": "(provide the ID)",
+          "in": "path"
+        }
+      ],
+      "group": "Report",
+      "description": "Retrieve a search report"
+    },
+    {
+      "id": "report_get_all",
+      "label": "Get Many Report",
+      "method": "GET",
+      "path": "/services/saved/searches",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Splunk server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: add_orphan_field, listDefaultActionArgs)"
+        }
+      ],
+      "group": "Report",
+      "description": "Retrieve many search reports"
+    },
+    {
+      "id": "search_create",
+      "label": "Create Search",
+      "method": "POST",
+      "path": "/services/search/jobs",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Splunk server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "search",
+          "label": "Query",
+          "type": "textarea",
+          "required": true,
+          "placeholder": "e.g. search index=_internal | stats count by source",
+          "description": "Search language string to execute, in Splunk's Search Processing Language"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: adhoc_search_level, auto_cancel, auto_finalize_ec, auto_pause, index_earliest, earliest_time, exec_mode, indexedRealtimeOffset, index_latest, latest_time, max_time, namespace, reduce_freq, remote_server_list, reuse_max_seconds_ago, rf, search_mode, status_buckets, timeout, workload_pool)"
+        }
+      ],
+      "group": "Search",
+      "description": "Create a search job"
+    },
+    {
+      "id": "search_delete_job",
+      "label": "Delete Search",
+      "method": "DELETE",
+      "path": "/services/search/jobs/{searchJobId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Splunk server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "searchJobId",
+          "label": "Search Job",
+          "type": "text",
+          "required": true,
+          "description": "(provide the ID)",
+          "in": "path"
+        }
+      ],
+      "group": "Search",
+      "description": "Delete a search job"
+    },
+    {
+      "id": "search_get",
+      "label": "Get Search",
+      "method": "GET",
+      "path": "/services/search/jobs/{searchJobId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Splunk server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "searchJobId",
+          "label": "Search Job",
+          "type": "text",
+          "required": true,
+          "description": "(provide the ID)",
+          "in": "path"
+        }
+      ],
+      "group": "Search",
+      "description": "Retrieve a search job"
+    },
+    {
+      "id": "search_get_all",
+      "label": "Get Many Search",
+      "method": "GET",
+      "path": "/services/search/jobs",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Splunk server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "sort",
+          "label": "Sort",
+          "type": "json",
+          "description": "(JSON object; supported keys: values, values.sort_dir, values.sort_key, values.sort_mode)"
+        }
+      ],
+      "group": "Search",
+      "description": "Retrieve many search jobs"
+    },
+    {
+      "id": "search_get_result",
+      "label": "Get Result Search",
+      "method": "GET",
+      "path": "/services/search/jobs/{searchJobId}/results",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Splunk server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "searchJobId",
+          "label": "Search Job",
+          "type": "text",
+          "required": true,
+          "description": "(provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: keyValueMatch)"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: add_summary_to_metadata)"
+        }
+      ],
+      "group": "Search",
+      "description": "Get the result of a search job"
+    },
+    {
+      "id": "user_create",
+      "label": "Create User",
+      "method": "POST",
+      "path": "/services/authentication/users",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Splunk server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "Login name of the user"
+        },
+        {
+          "id": "roles",
+          "label": "Roles",
+          "type": "select",
+          "required": true,
+          "description": "Comma-separated list of roles to assign to the user. Choose from the list, or specify IDs using an expression. (multiple values: comma-separated)"
+        },
+        {
+          "id": "password",
+          "label": "Password",
+          "type": "password",
+          "required": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: email, realname)"
+        }
+      ],
+      "group": "User",
+      "description": "Create an user"
+    },
+    {
+      "id": "user_delete_user",
+      "label": "Delete User",
+      "method": "DELETE",
+      "path": "/services/authentication/users/{userId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Splunk server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "userId",
+          "label": "User",
+          "type": "text",
+          "required": true,
+          "description": "(provide the ID)",
+          "in": "path"
+        }
+      ],
+      "group": "User",
+      "description": "Delete an user"
+    },
+    {
+      "id": "user_get",
+      "label": "Get User",
+      "method": "GET",
+      "path": "/services/authentication/users/{userId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Splunk server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "userId",
+          "label": "User",
+          "type": "text",
+          "required": true,
+          "description": "(provide the ID)",
+          "in": "path"
+        }
+      ],
+      "group": "User",
+      "description": "Retrieve an user"
+    },
+    {
+      "id": "user_get_all",
+      "label": "Get Many User",
+      "method": "GET",
+      "path": "/services/authentication/users",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Splunk server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "User",
+      "description": "Retrieve many users"
+    },
+    {
+      "id": "user_update",
+      "label": "Update User",
+      "method": "POST",
+      "path": "/services/authentication/users/{userId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Splunk server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "userId",
+          "label": "User",
+          "type": "text",
+          "required": true,
+          "description": "(provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: email, realname, password, roles)"
+        }
+      ],
+      "group": "User",
+      "description": "Update an user"
+    }
+  ]
 }

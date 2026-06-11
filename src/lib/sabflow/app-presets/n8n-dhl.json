@@ -4,36 +4,37 @@
   "description": "Consume DHL API",
   "category": "commerce",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://api-eu.dhl.com",
   "endpoints": [
     {
       "id": "shipment_get",
       "label": "Get Tracking Details Shipment",
       "method": "GET",
-      "path": "/",
+      "path": "/track/shipments",
       "fields": [
         {
           "id": "trackingNumber",
           "label": "Tracking Number",
           "type": "text",
-          "in": "query",
           "required": true
         },
         {
           "id": "options",
           "label": "Options",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add option"
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: recipientPostalCode)"
         }
-      ]
+      ],
+      "group": "Shipment",
+      "description": "Get tracking details for a shipment"
     }
   ]
 }

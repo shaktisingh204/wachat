@@ -4,41 +4,38 @@
   "description": "Consume the APITemplate.io API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.apitemplate.io/v1",
   "endpoints": [
     {
       "id": "image_create",
       "label": "Create Image",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/create",
       "fields": [
         {
           "id": "imageTemplateId",
           "label": "Template Name or ID",
           "type": "select",
-          "in": "query",
           "required": true,
-          "description": "ID of the image template to use. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>."
+          "description": "ID of the image template to use. Choose from the list, or specify an ID using an expression."
         },
         {
           "id": "jsonParameters",
           "label": "JSON Parameters",
           "type": "toggle",
-          "in": "query",
           "defaultValue": false
         },
         {
           "id": "download",
           "label": "Download",
           "type": "toggle",
-          "in": "query",
           "description": "Name of the binary property to which to write the data of the read file",
           "defaultValue": false
         },
@@ -46,7 +43,6 @@
           "id": "binaryProperty",
           "label": "Put Output File in Field",
           "type": "text",
-          "in": "query",
           "required": true,
           "defaultValue": "data"
         },
@@ -54,51 +50,49 @@
           "id": "overridesJson",
           "label": "Overrides (JSON)",
           "type": "json",
-          "in": "query",
           "placeholder": "[ {\"name\": \"text_1\", \"text\": \"hello world\", \"textBackgroundColor\": \"rgba(246, 243, 243, 0)\" } ]"
         },
         {
           "id": "overridesUi",
           "label": "Overrides",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Override"
+          "placeholder": "Add Override",
+          "description": "(JSON object; supported keys: overrideValues, overrideValues.propertiesUi)"
         },
         {
           "id": "options",
           "label": "Options",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: fileName)"
         }
-      ]
+      ],
+      "group": "Image",
+      "description": "Create an image"
     },
     {
       "id": "pdf_create",
-      "label": "Create Pdf",
-      "method": "GET",
-      "path": "/",
+      "label": "Create PDF",
+      "method": "POST",
+      "path": "/create",
       "fields": [
         {
           "id": "pdfTemplateId",
           "label": "Template Name or ID",
           "type": "select",
-          "in": "query",
           "required": true,
-          "description": "ID of the PDF template to use. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>."
+          "description": "ID of the PDF template to use. Choose from the list, or specify an ID using an expression."
         },
         {
           "id": "jsonParameters",
           "label": "JSON Parameters",
           "type": "toggle",
-          "in": "query",
           "defaultValue": false
         },
         {
           "id": "download",
           "label": "Download",
           "type": "toggle",
-          "in": "query",
           "description": "Name of the binary property to which to write the data of the read file",
           "defaultValue": false
         },
@@ -106,7 +100,6 @@
           "id": "binaryProperty",
           "label": "Put Output File in Field",
           "type": "text",
-          "in": "query",
           "required": true,
           "defaultValue": "data"
         },
@@ -114,31 +107,34 @@
           "id": "propertiesJson",
           "label": "Properties (JSON)",
           "type": "json",
-          "in": "query",
           "placeholder": "{ \"name\": \"text_1\" }"
         },
         {
           "id": "propertiesUi",
           "label": "Properties",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Property"
+          "placeholder": "Add Property",
+          "description": "(JSON object; supported keys: propertyValues, propertyValues.key, propertyValues.value)"
         },
         {
           "id": "options",
           "label": "Options",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: fileName)"
         }
-      ]
+      ],
+      "group": "PDF",
+      "description": "Create a pdf"
     },
     {
       "id": "account_get",
       "label": "Get Account",
       "method": "GET",
-      "path": "/",
-      "fields": []
+      "path": "/account-information",
+      "fields": [],
+      "group": "Account",
+      "description": "Get an account"
     }
   ]
 }

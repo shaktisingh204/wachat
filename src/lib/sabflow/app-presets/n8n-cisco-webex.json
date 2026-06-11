@@ -4,8 +4,8 @@
   "description": "Consume the Cisco Webex API",
   "category": "communication",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -16,21 +16,344 @@
       "credentialType": "oauth2"
     }
   },
-  "baseUrl": "",
+  "baseUrl": "https://webexapis.com/v1",
   "endpoints": [
     {
-      "id": "meeting_default",
-      "label": "List Meeting",
-      "method": "GET",
-      "path": "/meeting",
-      "fields": []
+      "id": "meeting_create",
+      "label": "Create Meeting",
+      "method": "POST",
+      "path": "/meetings",
+      "fields": [
+        {
+          "id": "title",
+          "label": "Title",
+          "type": "text",
+          "required": true,
+          "description": "Meeting title. The title can be a maximum of 128 characters long."
+        },
+        {
+          "id": "start",
+          "label": "Start",
+          "type": "text",
+          "required": true,
+          "placeholder": "2024-01-01T00:00:00Z",
+          "description": "Date and time for the start of the meeting. Acceptable format. (ISO 8601 date-time)"
+        },
+        {
+          "id": "end",
+          "label": "End",
+          "type": "text",
+          "required": true,
+          "placeholder": "2024-01-01T00:00:00Z",
+          "description": "Date and time for the end of the meeting. Acceptable format. (ISO 8601 date-time)"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: agenda, allowAnyUserToBeCoHost, allowAuthenticatedDevices, allowFirstUserToBeCoHost, autoAcceptRequest, enableConnectAudioBeforeHost, enabledAutoRecordMeeting, enabledJoinBeforeHost, excludePassword, hostEmail, integrationTags, inviteesUi, joinBeforeHostMinutes, publicMeeting, recurrence, requireRegistrationInfo, reminderTime, sendEmail, siteUrl)"
+        }
+      ],
+      "group": "Meeting",
+      "description": "Create a meeting"
     },
     {
-      "id": "message_default",
-      "label": "List Message",
+      "id": "meeting_delete",
+      "label": "Delete Meeting",
+      "method": "DELETE",
+      "path": "/meetings/{meetingId}",
+      "fields": [
+        {
+          "id": "meetingId",
+          "label": "Meeting ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the meeting",
+          "in": "path"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: hostEmail, sendEmail)"
+        }
+      ],
+      "group": "Meeting",
+      "description": "Delete a meeting"
+    },
+    {
+      "id": "meeting_get",
+      "label": "Get Meeting",
       "method": "GET",
-      "path": "/message",
-      "fields": []
+      "path": "/meetings/{meetingId}",
+      "fields": [
+        {
+          "id": "meetingId",
+          "label": "Meeting ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the meeting",
+          "in": "path"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: hostEmail, password, sendEmail)"
+        }
+      ],
+      "group": "Meeting",
+      "description": "Get a meeting"
+    },
+    {
+      "id": "meeting_get_all",
+      "label": "Get Many Meeting",
+      "method": "GET",
+      "path": "/meetings",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: from, hostEmail, integrationTag, current, meetingNumber, meetingType, participantEmail, siteUrl, state, to, webLink)"
+        }
+      ],
+      "group": "Meeting",
+      "description": "Get many meetings"
+    },
+    {
+      "id": "meeting_update",
+      "label": "Update Meeting",
+      "method": "PUT",
+      "path": "/meetings/{meetingId}",
+      "fields": [
+        {
+          "id": "meetingId",
+          "label": "Meeting ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the meeting",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: agenda, allowAnyUserToBeCoHost, allowAuthenticatedDevices, allowFirstUserToBeCoHost, enableConnectAudioBeforeHost, enabledAutoRecordMeeting, enabledJoinBeforeHost, end, excludePassword, hostEmail, inviteesUi, joinBeforeHostMinutes, password, publicMeeting, recurrence, requireRegistrationInfo, reminderTime, sendEmail, siteUrl, start, title)"
+        }
+      ],
+      "group": "Meeting",
+      "description": "Update a meeting"
+    },
+    {
+      "id": "message_create",
+      "label": "Create Message",
+      "method": "POST",
+      "path": "/messages",
+      "fields": [
+        {
+          "id": "destination",
+          "label": "Destination",
+          "type": "select",
+          "required": true,
+          "defaultValue": "room",
+          "options": [
+            {
+              "value": "room",
+              "label": "Room"
+            },
+            {
+              "value": "person",
+              "label": "Person"
+            }
+          ]
+        },
+        {
+          "id": "roomId",
+          "label": "Room Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "specifyPersonBy",
+          "label": "Specify Person By",
+          "type": "select",
+          "required": true,
+          "defaultValue": "email",
+          "options": [
+            {
+              "value": "email",
+              "label": "Email"
+            },
+            {
+              "value": "id",
+              "label": "ID"
+            }
+          ]
+        },
+        {
+          "id": "toPersonId",
+          "label": "Person ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "toPersonEmail",
+          "label": "Person Email",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "text",
+          "label": "Text",
+          "type": "text",
+          "required": true,
+          "description": "The message, in plain text"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: attachmentsUi, fileUi, markdown)"
+        }
+      ],
+      "group": "Message",
+      "description": "Create a message"
+    },
+    {
+      "id": "message_delete",
+      "label": "Delete Message",
+      "method": "DELETE",
+      "path": "/messages/{messageId}",
+      "fields": [
+        {
+          "id": "messageId",
+          "label": "Message ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the message to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Message",
+      "description": "Delete a message"
+    },
+    {
+      "id": "message_get",
+      "label": "Get Message",
+      "method": "GET",
+      "path": "/messages/{messageId}",
+      "fields": [
+        {
+          "id": "messageId",
+          "label": "Message ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the message to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Message",
+      "description": "Get a message"
+    },
+    {
+      "id": "message_get_all",
+      "label": "Get Many Message",
+      "method": "GET",
+      "path": "/messages",
+      "fields": [
+        {
+          "id": "roomId",
+          "label": "Room Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "List messages in a room, by ID. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: before, beforeMessage, parentId, mentionedPeople)"
+        }
+      ],
+      "group": "Message",
+      "description": "Get many messages"
+    },
+    {
+      "id": "message_update",
+      "label": "Update Message",
+      "method": "PUT",
+      "path": "/messages/{messageId}",
+      "fields": [
+        {
+          "id": "messageId",
+          "label": "Message ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the message to update",
+          "in": "path"
+        },
+        {
+          "id": "markdown",
+          "label": "Is Markdown",
+          "type": "toggle",
+          "required": true,
+          "description": "Whether the message uses markdown",
+          "defaultValue": false
+        },
+        {
+          "id": "text",
+          "label": "Text",
+          "type": "text",
+          "required": true,
+          "description": "The message, in plain text"
+        },
+        {
+          "id": "markdownText",
+          "label": "Markdown",
+          "type": "text",
+          "required": true,
+          "description": "The message, in Markdown format. The maximum message length is 7439 bytes."
+        }
+      ],
+      "group": "Message",
+      "description": "Update a message"
     }
   ]
 }

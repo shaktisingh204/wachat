@@ -4,8 +4,8 @@
   "description": "Sends data to AWS Transcribe",
   "category": "ai",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 3,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
@@ -15,29 +15,26 @@
   "endpoints": [
     {
       "id": "transcription_job_create",
-      "label": "Create TranscriptionJob",
-      "method": "GET",
-      "path": "/",
+      "label": "Create Transcription Job",
+      "method": "POST",
+      "path": "/transcription-job",
       "fields": [
         {
           "id": "transcriptionJobName",
           "label": "Job Name",
           "type": "text",
-          "in": "query",
           "description": "The name of the job"
         },
         {
           "id": "mediaFileUri",
           "label": "Media File URI",
           "type": "text",
-          "in": "query",
           "description": "The S3 object location of the input media file"
         },
         {
           "id": "detectLanguage",
           "label": "Detect Language",
           "type": "toggle",
-          "in": "query",
           "description": "Whether to set this field to true to enable automatic language identification",
           "defaultValue": false
         },
@@ -45,7 +42,6 @@
           "id": "languageCode",
           "label": "Language",
           "type": "select",
-          "in": "query",
           "description": "Language used in the input media file",
           "defaultValue": "en-US",
           "options": [
@@ -83,44 +79,45 @@
           "id": "options",
           "label": "Options",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add option"
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: channelIdentification, maxAlternatives, maxSpeakerLabels, vocabularyName, vocabularyFilterName, vocabularyFilterMethod)"
         }
-      ]
+      ],
+      "group": "Transcription Job",
+      "description": "[unverified path] Create a transcription job"
     },
     {
       "id": "transcription_job_delete",
-      "label": "Delete TranscriptionJob",
-      "method": "GET",
-      "path": "/",
+      "label": "Delete Transcription Job",
+      "method": "DELETE",
+      "path": "/transcription-job",
       "fields": [
         {
           "id": "transcriptionJobName",
           "label": "Job Name",
           "type": "text",
-          "in": "query",
           "description": "The name of the job"
         }
-      ]
+      ],
+      "group": "Transcription Job",
+      "description": "[unverified path] Delete a transcription job"
     },
     {
       "id": "transcription_job_get",
-      "label": "Get TranscriptionJob",
+      "label": "Get Transcription Job",
       "method": "GET",
-      "path": "/",
+      "path": "/transcription-job",
       "fields": [
         {
           "id": "transcriptionJobName",
           "label": "Job Name",
           "type": "text",
-          "in": "query",
           "description": "The name of the job"
         },
         {
           "id": "returnTranscript",
           "label": "Return Transcript",
           "type": "toggle",
-          "in": "query",
           "description": "By default, the response only contains metadata about the transcript. Enable this option to retrieve the transcript instead.",
           "defaultValue": true
         },
@@ -128,23 +125,23 @@
           "id": "simple",
           "label": "Simplify",
           "type": "toggle",
-          "in": "query",
           "description": "Whether to return a simplified version of the response instead of the raw data",
           "defaultValue": true
         }
-      ]
+      ],
+      "group": "Transcription Job",
+      "description": "[unverified path] Get a transcription job"
     },
     {
       "id": "transcription_job_get_all",
-      "label": "Get Many TranscriptionJob",
+      "label": "Get Many Transcription Job",
       "method": "GET",
-      "path": "/",
+      "path": "/transcription-job",
       "fields": [
         {
           "id": "returnAll",
           "label": "Return All",
           "type": "toggle",
-          "in": "query",
           "description": "Whether to return all results or only up to a given limit",
           "defaultValue": false
         },
@@ -152,7 +149,6 @@
           "id": "limit",
           "label": "Limit",
           "type": "number",
-          "in": "query",
           "description": "Max number of results to return",
           "defaultValue": 20
         },
@@ -160,10 +156,12 @@
           "id": "filters",
           "label": "Filters",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Filter"
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: jobNameContains, status)"
         }
-      ]
+      ],
+      "group": "Transcription Job",
+      "description": "[unverified path] Get many transcription jobs"
     }
   ]
 }

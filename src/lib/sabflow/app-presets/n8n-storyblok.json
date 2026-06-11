@@ -4,26 +4,25 @@
   "description": "Consume Storyblok API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.storyblok.com",
   "endpoints": [
     {
-      "id": "story_default",
-      "label": "List Story",
+      "id": "story_get",
+      "label": "Get Story",
       "method": "GET",
-      "path": "/story",
+      "path": "/v1/cdn/stories/{identifier}",
       "fields": [
         {
           "id": "source",
           "label": "Source",
           "type": "select",
-          "in": "query",
           "description": "Pick where your data comes from, Content or Management API",
           "defaultValue": "contentApi",
           "options": [
@@ -36,8 +35,223 @@
               "label": "Management API"
             }
           ]
+        },
+        {
+          "id": "identifier",
+          "label": "Identifier",
+          "type": "text",
+          "required": true,
+          "description": "The ID or slug of the story to get",
+          "in": "path"
+        },
+        {
+          "id": "space",
+          "label": "Space Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The name of the space. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "storyId",
+          "label": "Story ID",
+          "type": "text",
+          "required": true,
+          "description": "Numeric ID of the story"
         }
-      ]
+      ],
+      "group": "Story",
+      "description": "Get a story"
+    },
+    {
+      "id": "story_get_all",
+      "label": "Get Many Story",
+      "method": "GET",
+      "path": "/v1/cdn/stories",
+      "fields": [
+        {
+          "id": "source",
+          "label": "Source",
+          "type": "select",
+          "description": "Pick where your data comes from, Content or Management API",
+          "defaultValue": "contentApi",
+          "options": [
+            {
+              "value": "contentApi",
+              "label": "Content API"
+            },
+            {
+              "value": "managementApi",
+              "label": "Management API"
+            }
+          ]
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: starts_with)"
+        },
+        {
+          "id": "space",
+          "label": "Space Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The name of the space. Choose from the list, or specify an ID using an expression."
+        }
+      ],
+      "group": "Story",
+      "description": "Get many stories"
+    },
+    {
+      "id": "story_delete",
+      "label": "Delete Story",
+      "method": "DELETE",
+      "path": "/v1/spaces/{space}/stories/{storyId}",
+      "fields": [
+        {
+          "id": "source",
+          "label": "Source",
+          "type": "select",
+          "description": "Pick where your data comes from, Content or Management API",
+          "defaultValue": "contentApi",
+          "options": [
+            {
+              "value": "contentApi",
+              "label": "Content API"
+            },
+            {
+              "value": "managementApi",
+              "label": "Management API"
+            }
+          ]
+        },
+        {
+          "id": "space",
+          "label": "Space Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The name of the space. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "storyId",
+          "label": "Story ID",
+          "type": "text",
+          "required": true,
+          "description": "Numeric ID of the story",
+          "in": "path"
+        }
+      ],
+      "group": "Story",
+      "description": "Delete a story"
+    },
+    {
+      "id": "story_publish",
+      "label": "Publish Story",
+      "method": "POST",
+      "path": "/v1/spaces/{space}/stories/{storyId}/publish",
+      "fields": [
+        {
+          "id": "source",
+          "label": "Source",
+          "type": "select",
+          "description": "Pick where your data comes from, Content or Management API",
+          "defaultValue": "contentApi",
+          "options": [
+            {
+              "value": "contentApi",
+              "label": "Content API"
+            },
+            {
+              "value": "managementApi",
+              "label": "Management API"
+            }
+          ]
+        },
+        {
+          "id": "space",
+          "label": "Space Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The name of the space. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "storyId",
+          "label": "Story ID",
+          "type": "text",
+          "required": true,
+          "description": "Numeric ID of the story",
+          "in": "path"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: releaseId, language)"
+        }
+      ],
+      "group": "Story",
+      "description": "Publish a story"
+    },
+    {
+      "id": "story_unpublish",
+      "label": "Unpublish Story",
+      "method": "POST",
+      "path": "/v1/spaces/{space}/stories/{storyId}/unpublish",
+      "fields": [
+        {
+          "id": "source",
+          "label": "Source",
+          "type": "select",
+          "description": "Pick where your data comes from, Content or Management API",
+          "defaultValue": "contentApi",
+          "options": [
+            {
+              "value": "contentApi",
+              "label": "Content API"
+            },
+            {
+              "value": "managementApi",
+              "label": "Management API"
+            }
+          ]
+        },
+        {
+          "id": "space",
+          "label": "Space Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The name of the space. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "storyId",
+          "label": "Story ID",
+          "type": "text",
+          "required": true,
+          "description": "Numeric ID of the story",
+          "in": "path"
+        }
+      ],
+      "group": "Story",
+      "description": "Unpublish a story"
     }
   ]
 }

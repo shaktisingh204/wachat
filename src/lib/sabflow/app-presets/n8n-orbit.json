@@ -4,70 +4,558 @@
   "description": "Consume Orbit API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://app.orbit.love/api/v1",
   "endpoints": [
     {
-      "id": "activity_default",
-      "label": "List Activity",
+      "id": "activity_create",
+      "label": "Create Activity",
+      "method": "POST",
+      "path": "/activity",
+      "fields": [
+        {
+          "id": "workspaceId",
+          "label": "Workspace Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "defaultValue": "Deprecated"
+        },
+        {
+          "id": "memberId",
+          "label": "Member ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "title",
+          "label": "Title",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: activityType, description, key, link, linkText, occurredAt)"
+        }
+      ],
+      "group": "Activity",
+      "description": "[unverified path] Create an activity for a member"
+    },
+    {
+      "id": "activity_get_all",
+      "label": "Get Many Activity",
       "method": "GET",
       "path": "/activity",
       "fields": [
         {
-          "id": "deprecated",
-          "label": "Orbit has been shutdown and will no longer function from July 11th, You can read more <a target=\"_blank\" href=\"https://orbit.love/blog/orbit-is-joining-postman\">here</a>.",
-          "type": "text",
-          "in": "query"
+          "id": "workspaceId",
+          "label": "Workspace Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "defaultValue": "Deprecated"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: memberId)"
         }
-      ]
+      ],
+      "group": "Activity",
+      "description": "[unverified path] Get many activities"
     },
     {
-      "id": "member_default",
-      "label": "List Member",
+      "id": "member_upsert",
+      "label": "Create or Update Member",
+      "method": "POST",
+      "path": "/member",
+      "fields": [
+        {
+          "id": "workspaceId",
+          "label": "Workspace Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "defaultValue": "Deprecated"
+        },
+        {
+          "id": "identityUi",
+          "label": "Identity",
+          "type": "json",
+          "placeholder": "Add Identity",
+          "description": "The identity is used to find the member. If no member exists, a new member will be created and linked to the provided identity. (JSON object; supported keys: identityValue, identityValue.source, identityValue.searchBy, identityValue.id, identityValue.username, identityValue.email, identityValue.host)"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: bio, birthday, company, location, name, pronouns, shippingAddress, slug, tagsToAdd, tagList, tShirt, teammate, url)"
+        }
+      ],
+      "group": "Member",
+      "description": "[unverified path] Create a new member, or update the current one if it already exists (upsert)"
+    },
+    {
+      "id": "member_delete",
+      "label": "Delete Member",
+      "method": "DELETE",
+      "path": "/member",
+      "fields": [
+        {
+          "id": "workspaceId",
+          "label": "Workspace Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "defaultValue": "Deprecated"
+        },
+        {
+          "id": "memberId",
+          "label": "Member ID",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "group": "Member",
+      "description": "[unverified path] Delete a member"
+    },
+    {
+      "id": "member_get",
+      "label": "Get Member",
       "method": "GET",
       "path": "/member",
       "fields": [
         {
-          "id": "deprecated",
-          "label": "Orbit has been shutdown and will no longer function from July 11th, You can read more <a target=\"_blank\" href=\"https://orbit.love/blog/orbit-is-joining-postman\">here</a>.",
+          "id": "workspaceId",
+          "label": "Workspace Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "defaultValue": "Deprecated"
+        },
+        {
+          "id": "memberId",
+          "label": "Member ID",
           "type": "text",
-          "in": "query"
+          "required": true
+        },
+        {
+          "id": "resolveIdentities",
+          "label": "Resolve Identities",
+          "type": "toggle",
+          "description": "By default, the response just includes the reference of the identity. When set to true the identities will be resolved automatically.",
+          "defaultValue": false
         }
-      ]
+      ],
+      "group": "Member",
+      "description": "[unverified path] Get a member"
     },
     {
-      "id": "note_default",
-      "label": "List Note",
+      "id": "member_get_all",
+      "label": "Get Many Member",
+      "method": "GET",
+      "path": "/member",
+      "fields": [
+        {
+          "id": "workspaceId",
+          "label": "Workspace Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "defaultValue": "Deprecated"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "resolveIdentities",
+          "label": "Resolve Identities",
+          "type": "toggle",
+          "description": "By default, the response just includes the reference of the identity. When set to true the identities will be resolved automatically.",
+          "defaultValue": false
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: sort, direction)"
+        }
+      ],
+      "group": "Member",
+      "description": "[unverified path] Get many members in a workspace"
+    },
+    {
+      "id": "member_lookup",
+      "label": "Lookup Member",
+      "method": "GET",
+      "path": "/member",
+      "fields": [
+        {
+          "id": "workspaceId",
+          "label": "Workspace Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "defaultValue": "Deprecated"
+        },
+        {
+          "id": "source",
+          "label": "Source",
+          "type": "select",
+          "required": true,
+          "description": "Set to github, twitter, email, discourse or the source of any identities you've manually created",
+          "options": [
+            {
+              "value": "discourse",
+              "label": "Discourse"
+            },
+            {
+              "value": "email",
+              "label": "Email"
+            },
+            {
+              "value": "github",
+              "label": "GitHub"
+            },
+            {
+              "value": "twitter",
+              "label": "Twitter"
+            }
+          ]
+        },
+        {
+          "id": "searchBy",
+          "label": "Search By",
+          "type": "select",
+          "required": true,
+          "options": [
+            {
+              "value": "username",
+              "label": "Username"
+            },
+            {
+              "value": "id",
+              "label": "ID"
+            }
+          ]
+        },
+        {
+          "id": "id",
+          "label": "ID",
+          "type": "text",
+          "required": true,
+          "description": "The username at the source"
+        },
+        {
+          "id": "username",
+          "label": "Username",
+          "type": "text",
+          "required": true,
+          "description": "The username at the source"
+        },
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "required": true,
+          "placeholder": "name@email.com",
+          "description": "The email address"
+        },
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "group": "Member",
+      "description": "[unverified path] Lookup a member by identity"
+    },
+    {
+      "id": "member_update",
+      "label": "Update Member",
+      "method": "PATCH",
+      "path": "/member",
+      "fields": [
+        {
+          "id": "workspaceId",
+          "label": "Workspace Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "defaultValue": "Deprecated"
+        },
+        {
+          "id": "memberId",
+          "label": "Member ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: bio, birthday, company, location, name, pronouns, shippingAddress, slug, tagsToAdd, tagList, tShirt, teammate, url)"
+        }
+      ],
+      "group": "Member",
+      "description": "[unverified path] Update a member"
+    },
+    {
+      "id": "note_create",
+      "label": "Create Note",
+      "method": "POST",
+      "path": "/note",
+      "fields": [
+        {
+          "id": "workspaceId",
+          "label": "Workspace Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "defaultValue": "Deprecated"
+        },
+        {
+          "id": "memberId",
+          "label": "Member ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "note",
+          "label": "Note",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "group": "Note",
+      "description": "[unverified path] Create a note"
+    },
+    {
+      "id": "note_get_all",
+      "label": "Get Many Note",
       "method": "GET",
       "path": "/note",
       "fields": [
         {
-          "id": "deprecated",
-          "label": "Orbit has been shutdown and will no longer function from July 11th, You can read more <a target=\"_blank\" href=\"https://orbit.love/blog/orbit-is-joining-postman\">here</a>.",
+          "id": "workspaceId",
+          "label": "Workspace Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "defaultValue": "Deprecated"
+        },
+        {
+          "id": "memberId",
+          "label": "Member ID",
           "type": "text",
-          "in": "query"
+          "required": true
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "resolveMember",
+          "label": "Resolve Member",
+          "type": "toggle",
+          "defaultValue": false
         }
-      ]
+      ],
+      "group": "Note",
+      "description": "[unverified path] Get many notes for a member"
     },
     {
-      "id": "post_default",
-      "label": "List Post",
+      "id": "note_update",
+      "label": "Update Note",
+      "method": "PATCH",
+      "path": "/note",
+      "fields": [
+        {
+          "id": "workspaceId",
+          "label": "Workspace Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "defaultValue": "Deprecated"
+        },
+        {
+          "id": "memberId",
+          "label": "Member ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "noteId",
+          "label": "Note ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "note",
+          "label": "Note",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "group": "Note",
+      "description": "[unverified path] Update a note"
+    },
+    {
+      "id": "post_create",
+      "label": "Create Post",
+      "method": "POST",
+      "path": "/post",
+      "fields": [
+        {
+          "id": "workspaceId",
+          "label": "Workspace Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "defaultValue": "Deprecated"
+        },
+        {
+          "id": "memberId",
+          "label": "Member ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "url",
+          "label": "URL",
+          "type": "text",
+          "required": true,
+          "description": "Supply any URL and Orbit will do its best job to parse out a title, description, and image"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: publishedAt)"
+        }
+      ],
+      "group": "Post",
+      "description": "[unverified path] Create a post"
+    },
+    {
+      "id": "post_get_all",
+      "label": "Get Many Post",
       "method": "GET",
       "path": "/post",
       "fields": [
         {
-          "id": "deprecated",
-          "label": "Orbit has been shutdown and will no longer function from July 11th, You can read more <a target=\"_blank\" href=\"https://orbit.love/blog/orbit-is-joining-postman\">here</a>.",
-          "type": "text",
-          "in": "query"
+          "id": "workspaceId",
+          "label": "Workspace Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "defaultValue": "Deprecated"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: memberId)"
         }
-      ]
+      ],
+      "group": "Post",
+      "description": "[unverified path] Get many posts"
+    },
+    {
+      "id": "post_delete",
+      "label": "Delete Post",
+      "method": "DELETE",
+      "path": "/post",
+      "fields": [
+        {
+          "id": "workspaceId",
+          "label": "Workspace Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "defaultValue": "Deprecated"
+        },
+        {
+          "id": "memberId",
+          "label": "Member ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "postId",
+          "label": "Post ID",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "group": "Post",
+      "description": "[unverified path] Delete a post"
     }
   ]
 }

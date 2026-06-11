@@ -4,56 +4,751 @@
   "description": "Consume the GoToWebinar API",
   "category": "productivity",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
     "credentialType": "oauth2"
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.getgo.com/G2W/rest/v2",
   "endpoints": [
     {
-      "id": "attendee_default",
-      "label": "List Attendee",
+      "id": "attendee_get",
+      "label": "Get Attendee",
       "method": "GET",
-      "path": "/attendee",
-      "fields": []
+      "path": "/organizers/{organizerKey}/webinars/{webinarKey}/sessions/{sessionKey}/attendees/{registrantKey}",
+      "fields": [
+        {
+          "id": "webinarKey",
+          "label": "Webinar Key Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Key of the webinar that the attendee attended. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "sessionKey",
+          "label": "Session Key Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Key of the session that the attendee attended. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "registrantKey",
+          "label": "Registrant Key",
+          "type": "text",
+          "required": true,
+          "description": "Registrant key of the attendee at the webinar session",
+          "in": "path"
+        }
+      ],
+      "group": "Attendee",
+      "description": "Get an attendee"
     },
     {
-      "id": "coorganizer_default",
-      "label": "List Coorganizer",
+      "id": "attendee_get_all",
+      "label": "Get Many Attendee",
       "method": "GET",
-      "path": "/coorganizer",
-      "fields": []
+      "path": "/organizers/{organizerKey}/webinars/{webinarKey}/sessions/{sessionKey}/attendees",
+      "fields": [
+        {
+          "id": "webinarKey",
+          "label": "Webinar Key Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Key of the webinar that the attendee attended. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "sessionKey",
+          "label": "Session Key Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Key of the session that the attendee attended. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 10
+        }
+      ],
+      "group": "Attendee",
+      "description": "Get many attendees"
     },
     {
-      "id": "panelist_default",
-      "label": "List Panelist",
+      "id": "attendee_get_details",
+      "label": "Get Details Attendee",
       "method": "GET",
-      "path": "/panelist",
-      "fields": []
+      "path": "/organizers/{organizerKey}/webinars/{webinarKey}/sessions/{sessionKey}/attendees/{registrantKey}/{details}",
+      "fields": [
+        {
+          "id": "webinarKey",
+          "label": "Webinar Key Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Key of the webinar that the attendee attended. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "sessionKey",
+          "label": "Session Key Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Key of the session that the attendee attended. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "registrantKey",
+          "label": "Registrant Key",
+          "type": "text",
+          "required": true,
+          "description": "Registrant key of the attendee at the webinar session",
+          "in": "path"
+        },
+        {
+          "id": "details",
+          "label": "Details",
+          "type": "select",
+          "required": true,
+          "description": "The details to retrieve for the attendee",
+          "options": [
+            {
+              "value": "polls",
+              "label": "Polls"
+            },
+            {
+              "value": "questions",
+              "label": "Questions"
+            },
+            {
+              "value": "surveyAnswers",
+              "label": "Survey Answers"
+            }
+          ],
+          "in": "path"
+        }
+      ],
+      "group": "Attendee",
+      "description": "Get details of an attendee"
     },
     {
-      "id": "registrant_default",
-      "label": "List Registrant",
-      "method": "GET",
-      "path": "/registrant",
-      "fields": []
+      "id": "coorganizer_create",
+      "label": "Create Co-Organizer",
+      "method": "POST",
+      "path": "/organizers/{organizerKey}/webinars/{webinarKey}/coorganizers",
+      "fields": [
+        {
+          "id": "webinarKey",
+          "label": "Webinar Key Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Key of the webinar that the co-organizer is hosting. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "isExternal",
+          "label": "Is External",
+          "type": "toggle",
+          "required": true,
+          "description": "Whether the co-organizer has no GoToWebinar account",
+          "defaultValue": false
+        },
+        {
+          "id": "organizerKey",
+          "label": "Organizer Key",
+          "type": "text",
+          "description": "The co-organizer's organizer key for the webinar",
+          "in": "path"
+        },
+        {
+          "id": "givenName",
+          "label": "Given Name",
+          "type": "text",
+          "description": "The co-organizer's given name"
+        },
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "placeholder": "name@email.com",
+          "description": "The co-organizer's email address"
+        }
+      ],
+      "group": "Co-Organizer",
+      "description": "Create a coorganizer"
     },
     {
-      "id": "session_default",
-      "label": "List Session",
-      "method": "GET",
-      "path": "/session",
-      "fields": []
+      "id": "coorganizer_delete",
+      "label": "Delete Co-Organizer",
+      "method": "DELETE",
+      "path": "/organizers/{organizerKey}/webinars/{webinarKey}/coorganizers/{coorganizerKey}",
+      "fields": [
+        {
+          "id": "webinarKey",
+          "label": "Webinar Key Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Key of the webinar to delete. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "coorganizerKey",
+          "label": "Co-Organizer Key",
+          "type": "text",
+          "description": "Key of the co-organizer to delete",
+          "in": "path"
+        },
+        {
+          "id": "isExternal",
+          "label": "Is External",
+          "type": "toggle",
+          "required": true,
+          "description": "By default only internal co-organizers (with a GoToWebinar account) can be deleted. If you want to use this call for external co-organizers you have to set this parameter to 'true'.",
+          "defaultValue": false
+        }
+      ],
+      "group": "Co-Organizer",
+      "description": "Delete a coorganizer"
     },
     {
-      "id": "webinar_default",
-      "label": "List Webinar",
+      "id": "coorganizer_get_all",
+      "label": "Get Many Co-Organizer",
       "method": "GET",
-      "path": "/webinar",
-      "fields": []
+      "path": "/organizers/{organizerKey}/webinars/{webinarKey}/coorganizers",
+      "fields": [
+        {
+          "id": "webinarKey",
+          "label": "Webinar Key Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Key of the webinar to retrieve all co-organizers from. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 10
+        }
+      ],
+      "group": "Co-Organizer",
+      "description": "Get many coorganizers"
+    },
+    {
+      "id": "coorganizer_reinvite",
+      "label": "Reinvite Co-Organizer",
+      "method": "POST",
+      "path": "/organizers/{organizerKey}/webinars/{webinarKey}/coorganizers/{coorganizerKey}/resendInvitation",
+      "fields": [
+        {
+          "id": "webinarKey",
+          "label": "Webinar Key",
+          "type": "text",
+          "required": true,
+          "description": "By default only internal co-organizers (with a GoToWebinar account) can be deleted. If you want to use this call for external co-organizers you have to set this parameter to 'true'.",
+          "in": "path"
+        },
+        {
+          "id": "coorganizerKey",
+          "label": "Co-Organizer Key",
+          "type": "text",
+          "description": "Key of the co-organizer to reinvite",
+          "in": "path"
+        },
+        {
+          "id": "isExternal",
+          "label": "Is External",
+          "type": "toggle",
+          "required": true,
+          "description": "Whether the co-organizer has no GoToWebinar account",
+          "defaultValue": false
+        }
+      ],
+      "group": "Co-Organizer",
+      "description": "Reinvite a coorganizer"
+    },
+    {
+      "id": "panelist_create",
+      "label": "Create Panelist",
+      "method": "POST",
+      "path": "/organizers/{organizerKey}/webinars/{webinarKey}/panelists",
+      "fields": [
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "Name of the panelist to create"
+        },
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "required": true,
+          "placeholder": "name@email.com",
+          "description": "Email address of the panelist to create"
+        },
+        {
+          "id": "webinarKey",
+          "label": "Webinar Key Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Key of the webinar that the panelist will present at. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        }
+      ],
+      "group": "Panelist",
+      "description": "Create a panelist"
+    },
+    {
+      "id": "panelist_delete",
+      "label": "Delete Panelist",
+      "method": "DELETE",
+      "path": "/organizers/{organizerKey}/webinars/{webinarKey}/panelists/{panelistKey}",
+      "fields": [
+        {
+          "id": "webinarKey",
+          "label": "Webinar Key Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Key of the webinar to delete the panelist from. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "panelistKey",
+          "label": "Panelist Key",
+          "type": "text",
+          "required": true,
+          "description": "Key of the panelist to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Panelist",
+      "description": "Delete a panelist"
+    },
+    {
+      "id": "panelist_get_all",
+      "label": "Get Many Panelist",
+      "method": "GET",
+      "path": "/organizers/{organizerKey}/webinars/{webinarKey}/panelists",
+      "fields": [
+        {
+          "id": "webinarKey",
+          "label": "Webinar Key Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Key of the webinar to retrieve all panelists from. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 10
+        }
+      ],
+      "group": "Panelist",
+      "description": "Get many panelists"
+    },
+    {
+      "id": "panelist_reinvite",
+      "label": "Reinvite Panelist",
+      "method": "POST",
+      "path": "/organizers/{organizerKey}/webinars/{webinarKey}/panelists/{panelistKey}/resendInvitation",
+      "fields": [
+        {
+          "id": "webinarKey",
+          "label": "Webinar Key Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Key of the webinar to reinvite the panelist to. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "panelistKey",
+          "label": "Panelist Key",
+          "type": "text",
+          "required": true,
+          "description": "Key of the panelist to reinvite",
+          "in": "path"
+        }
+      ],
+      "group": "Panelist",
+      "description": "Reinvite a panelist"
+    },
+    {
+      "id": "registrant_create",
+      "label": "Create Registrant",
+      "method": "POST",
+      "path": "/organizers/{organizerKey}/webinars/{webinarKey}/registrants",
+      "fields": [
+        {
+          "id": "webinarKey",
+          "label": "Webinar Key Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Key of the webinar of the registrant to create. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "firstName",
+          "label": "First Name",
+          "type": "text",
+          "description": "First name of the registrant to create"
+        },
+        {
+          "id": "lastName",
+          "label": "Last Name",
+          "type": "text",
+          "description": "Last name of the registrant to create"
+        },
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "placeholder": "name@email.com",
+          "description": "Email address of the registrant to create"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: fullAddress, industry, jobTitle, multiChoiceResponses, numberOfEmployees, organization, phone, purchasingRole, purchasingTimeFrame, questionsAndComments, resendConfirmation, simpleResponses, source)"
+        }
+      ],
+      "group": "Registrant",
+      "description": "Create a registrant"
+    },
+    {
+      "id": "registrant_delete",
+      "label": "Delete Registrant",
+      "method": "DELETE",
+      "path": "/organizers/{organizerKey}/webinars/{webinarKey}/registrants/{registrantKey}",
+      "fields": [
+        {
+          "id": "webinarKey",
+          "label": "Webinar Key Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Key of the webinar of the registrant to delete. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "registrantKey",
+          "label": "Registrant Key",
+          "type": "text",
+          "required": true,
+          "description": "Key of the registrant to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Registrant",
+      "description": "Delete a registrant"
+    },
+    {
+      "id": "registrant_get",
+      "label": "Get Registrant",
+      "method": "GET",
+      "path": "/organizers/{organizerKey}/webinars/{webinarKey}/registrants/{registrantKey}",
+      "fields": [
+        {
+          "id": "webinarKey",
+          "label": "Webinar Key Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Key of the webinar of the registrant to retrieve. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "registrantKey",
+          "label": "Registrant Key",
+          "type": "text",
+          "required": true,
+          "description": "Key of the registrant to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Registrant",
+      "description": "Get a registrant"
+    },
+    {
+      "id": "registrant_get_all",
+      "label": "Get Many Registrant",
+      "method": "GET",
+      "path": "/organizers/{organizerKey}/webinars/{webinarKey}/registrants",
+      "fields": [
+        {
+          "id": "webinarKey",
+          "label": "Webinar Key Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The key of the webinar to retrieve registrants from. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 10
+        }
+      ],
+      "group": "Registrant",
+      "description": "Get many registrants"
+    },
+    {
+      "id": "session_get",
+      "label": "Get Session",
+      "method": "GET",
+      "path": "/organizers/{organizerKey}/webinars/{webinarKey}/sessions/{sessionKey}",
+      "fields": [
+        {
+          "id": "webinarKey",
+          "label": "Webinar Key Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Key of the webinar to which the session belongs. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "sessionKey",
+          "label": "Session Key",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Session",
+      "description": "Get a session"
+    },
+    {
+      "id": "session_get_all",
+      "label": "Get Many Session",
+      "method": "GET",
+      "path": "/organizers/{organizerKey}/webinars/{webinarKey}/sessions",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 10
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: times, webinarKey)"
+        }
+      ],
+      "group": "Session",
+      "description": "Get many sessions"
+    },
+    {
+      "id": "session_get_details",
+      "label": "Get Details Session",
+      "method": "GET",
+      "path": "/organizers/{organizerKey}/webinars/{webinarKey}/sessions/{sessionKey}/{details}",
+      "fields": [
+        {
+          "id": "webinarKey",
+          "label": "Webinar Key Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Key of the webinar to which the session belongs. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "sessionKey",
+          "label": "Session Key",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "details",
+          "label": "Details",
+          "type": "select",
+          "defaultValue": "performance",
+          "options": [
+            {
+              "value": "performance",
+              "label": "Performance"
+            },
+            {
+              "value": "polls",
+              "label": "Polls"
+            },
+            {
+              "value": "questions",
+              "label": "Questions"
+            },
+            {
+              "value": "surveys",
+              "label": "Surveys"
+            }
+          ],
+          "in": "path"
+        }
+      ],
+      "group": "Session",
+      "description": "Get details on a session"
+    },
+    {
+      "id": "webinar_create",
+      "label": "Create Webinar",
+      "method": "POST",
+      "path": "/organizers/{organizerKey}/webinars",
+      "fields": [
+        {
+          "id": "subject",
+          "label": "Subject",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "times",
+          "label": "Time Range",
+          "type": "json",
+          "required": true,
+          "placeholder": "Add Time Range",
+          "description": "(JSON object; supported keys: timesProperties, timesProperties.startTime, timesProperties.endTime)"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: description, experienceType, isOnDemand, isPasswordProtected, timezone, type)"
+        }
+      ],
+      "group": "Webinar",
+      "description": "Create a webinar"
+    },
+    {
+      "id": "webinar_get",
+      "label": "Get Webinar",
+      "method": "GET",
+      "path": "/organizers/{organizerKey}/webinars/{webinarKey}",
+      "fields": [
+        {
+          "id": "webinarKey",
+          "label": "Webinar Key",
+          "type": "text",
+          "required": true,
+          "description": "Key of the webinar to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Webinar",
+      "description": "Get a webinar"
+    },
+    {
+      "id": "webinar_get_all",
+      "label": "Get Many Webinar",
+      "method": "GET",
+      "path": "/accounts/{accountKey}/webinars",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 10
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: times)"
+        }
+      ],
+      "group": "Webinar",
+      "description": "Get many webinars"
+    },
+    {
+      "id": "webinar_update",
+      "label": "Update Webinar",
+      "method": "PUT",
+      "path": "/organizers/{organizerKey}/webinars/{webinarKey}",
+      "fields": [
+        {
+          "id": "webinarKey",
+          "label": "Webinar Key",
+          "type": "text",
+          "required": true,
+          "description": "Key of the webinar to update",
+          "in": "path"
+        },
+        {
+          "id": "notifyParticipants",
+          "label": "Notify Participants",
+          "type": "toggle",
+          "required": true,
+          "defaultValue": false
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: description, experienceType, isOnDemand, isPasswordProtected, times, subject, timezone, type)"
+        }
+      ],
+      "group": "Webinar",
+      "description": "Update a webinar"
     }
   ]
 }

@@ -4,8 +4,8 @@
   "description": "Consume Box API",
   "category": "storage",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -16,21 +16,518 @@
       "credentialType": "oauth2"
     }
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.box.com/2.0",
   "endpoints": [
     {
-      "id": "file_default",
-      "label": "List File",
-      "method": "GET",
-      "path": "/file",
-      "fields": []
+      "id": "file_copy",
+      "label": "Copy File",
+      "method": "POST",
+      "path": "/files/{fileId}/copy",
+      "fields": [
+        {
+          "id": "fileId",
+          "label": "File ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "parentId",
+          "label": "Parent ID",
+          "type": "text",
+          "description": "The ID of folder to copy the file to. If not defined will be copied to the root folder."
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: fields, name, version)"
+        }
+      ],
+      "group": "File",
+      "description": "Copy a file"
     },
     {
-      "id": "folder_default",
-      "label": "List Folder",
+      "id": "file_delete",
+      "label": "Delete File",
+      "method": "DELETE",
+      "path": "/files/{fileId}",
+      "fields": [
+        {
+          "id": "fileId",
+          "label": "File ID",
+          "type": "text",
+          "description": "Field ID",
+          "in": "path"
+        }
+      ],
+      "group": "File",
+      "description": "Delete a file"
+    },
+    {
+      "id": "file_download",
+      "label": "Download File",
       "method": "GET",
-      "path": "/folder",
-      "fields": []
+      "path": "/files/{fileId}",
+      "fields": [
+        {
+          "id": "fileId",
+          "label": "File ID",
+          "type": "text",
+          "in": "path"
+        },
+        {
+          "id": "binaryPropertyName",
+          "label": "Put Output File in Field",
+          "type": "text",
+          "required": true,
+          "defaultValue": "data"
+        }
+      ],
+      "group": "File",
+      "description": "Download a file"
+    },
+    {
+      "id": "file_get",
+      "label": "Get File",
+      "method": "GET",
+      "path": "/files/{fileId}",
+      "fields": [
+        {
+          "id": "fileId",
+          "label": "File ID",
+          "type": "text",
+          "description": "Field ID",
+          "in": "path"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: fields)"
+        }
+      ],
+      "group": "File",
+      "description": "Get a file"
+    },
+    {
+      "id": "file_search",
+      "label": "Search File",
+      "method": "GET",
+      "path": "/search",
+      "fields": [
+        {
+          "id": "query",
+          "label": "Query",
+          "type": "text",
+          "description": "The string to search for. This query is matched against item names, descriptions, text content of files, and various other fields of the different item types."
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: contet_types, createdRangeUi, direction, fields, file_extensions, ancestor_folder_ids, scope, size_range, sort, trash_content, updatedRangeUi, owner_user_ids)"
+        }
+      ],
+      "group": "File",
+      "description": "Search files"
+    },
+    {
+      "id": "file_share",
+      "label": "Share File",
+      "method": "POST",
+      "path": "/collaborations",
+      "fields": [
+        {
+          "id": "fileId",
+          "label": "File ID",
+          "type": "text",
+          "description": "The ID of the file to share"
+        },
+        {
+          "id": "accessibleBy",
+          "label": "Accessible By",
+          "type": "select",
+          "description": "The type of object the file will be shared with",
+          "options": [
+            {
+              "value": "group",
+              "label": "Group"
+            },
+            {
+              "value": "user",
+              "label": "User"
+            }
+          ]
+        },
+        {
+          "id": "useEmail",
+          "label": "Use Email",
+          "type": "toggle",
+          "description": "Whether identify the user by email or ID",
+          "defaultValue": true
+        },
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "placeholder": "name@email.com",
+          "description": "The user's email address to share the file with"
+        },
+        {
+          "id": "userId",
+          "label": "User ID",
+          "type": "text",
+          "description": "The user's ID to share the file with"
+        },
+        {
+          "id": "groupId",
+          "label": "Group ID",
+          "type": "text",
+          "description": "The group's ID to share the file with"
+        },
+        {
+          "id": "role",
+          "label": "Role",
+          "type": "select",
+          "description": "The level of access granted",
+          "defaultValue": "editor",
+          "options": [
+            {
+              "value": "coOwner",
+              "label": "Co-Owner"
+            },
+            {
+              "value": "editor",
+              "label": "Editor"
+            },
+            {
+              "value": "previewer",
+              "label": "Previewer"
+            },
+            {
+              "value": "previewerUploader",
+              "label": "Previewer Uploader"
+            },
+            {
+              "value": "uploader",
+              "label": "Uploader"
+            },
+            {
+              "value": "viewer",
+              "label": "Viewer"
+            },
+            {
+              "value": "viewerUploader",
+              "label": "Viewer Uploader"
+            }
+          ]
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: can_view_path, expires_at, fields, notify)"
+        }
+      ],
+      "group": "File",
+      "description": "Share a file"
+    },
+    {
+      "id": "file_upload",
+      "label": "Upload File",
+      "method": "POST",
+      "path": "/file",
+      "fields": [
+        {
+          "id": "fileName",
+          "label": "File Name",
+          "type": "text",
+          "placeholder": "photo.png",
+          "description": "The name the file should be saved as"
+        },
+        {
+          "id": "binaryData",
+          "label": "Binary File",
+          "type": "toggle",
+          "required": true,
+          "description": "Whether the data to upload should be taken from binary field",
+          "defaultValue": false
+        },
+        {
+          "id": "fileContent",
+          "label": "File Content",
+          "type": "text",
+          "required": true,
+          "description": "The text content of the file"
+        },
+        {
+          "id": "binaryPropertyName",
+          "label": "Input Binary Field",
+          "type": "text",
+          "required": true,
+          "defaultValue": "data"
+        },
+        {
+          "id": "parentId",
+          "label": "Parent ID",
+          "type": "text",
+          "description": "ID of the parent folder that will contain the file. If not it will be uploaded to the root folder."
+        }
+      ],
+      "group": "File",
+      "description": "[unverified path] Upload a file"
+    },
+    {
+      "id": "folder_create",
+      "label": "Create Folder",
+      "method": "POST",
+      "path": "/folders",
+      "fields": [
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "Folder's name"
+        },
+        {
+          "id": "parentId",
+          "label": "Parent ID",
+          "type": "text",
+          "description": "ID of the folder you want to create the new folder in. if not defined it will be created on the root folder."
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: access, fields)"
+        }
+      ],
+      "group": "Folder",
+      "description": "Create a folder"
+    },
+    {
+      "id": "folder_delete",
+      "label": "Delete Folder",
+      "method": "DELETE",
+      "path": "/folders/{folderId}",
+      "fields": [
+        {
+          "id": "folderId",
+          "label": "Folder ID",
+          "type": "text",
+          "in": "path"
+        },
+        {
+          "id": "recursive",
+          "label": "Recursive",
+          "type": "toggle",
+          "description": "Whether to delete a folder that is not empty by recursively deleting the folder and all of its content",
+          "defaultValue": false
+        }
+      ],
+      "group": "Folder",
+      "description": "Delete a folder"
+    },
+    {
+      "id": "folder_get",
+      "label": "Get Folder",
+      "method": "GET",
+      "path": "/folders/{folderId}",
+      "fields": [
+        {
+          "id": "folderId",
+          "label": "Folder ID",
+          "type": "text",
+          "in": "path"
+        }
+      ],
+      "group": "Folder",
+      "description": "Get a folder"
+    },
+    {
+      "id": "folder_search",
+      "label": "Search Folder",
+      "method": "GET",
+      "path": "/search",
+      "fields": [
+        {
+          "id": "query",
+          "label": "Query",
+          "type": "text",
+          "description": "The string to search for. This query is matched against item names, descriptions, text content of files, and various other fields of the different item types."
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: contet_types, createdRangeUi, direction, fields, file_extensions, ancestor_folder_ids, scope, size_range, sort, trash_content, updatedRangeUi, owner_user_ids)"
+        }
+      ],
+      "group": "Folder",
+      "description": "Search files"
+    },
+    {
+      "id": "folder_share",
+      "label": "Share Folder",
+      "method": "POST",
+      "path": "/collaborations",
+      "fields": [
+        {
+          "id": "folderId",
+          "label": "Folder ID",
+          "type": "text",
+          "description": "The ID of the folder to share"
+        },
+        {
+          "id": "accessibleBy",
+          "label": "Accessible By",
+          "type": "select",
+          "description": "The type of object the file will be shared with",
+          "defaultValue": "user",
+          "options": [
+            {
+              "value": "user",
+              "label": "User"
+            },
+            {
+              "value": "group",
+              "label": "Group"
+            }
+          ]
+        },
+        {
+          "id": "useEmail",
+          "label": "Use Email",
+          "type": "toggle",
+          "description": "Whether identify the user by email or ID",
+          "defaultValue": true
+        },
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "placeholder": "name@email.com",
+          "description": "The user's email address to share the folder with"
+        },
+        {
+          "id": "userId",
+          "label": "User ID",
+          "type": "text",
+          "description": "The user's ID to share the folder with"
+        },
+        {
+          "id": "groupId",
+          "label": "Group ID",
+          "type": "text",
+          "description": "The group's ID to share the folder with"
+        },
+        {
+          "id": "role",
+          "label": "Role",
+          "type": "select",
+          "description": "The level of access granted",
+          "defaultValue": "editor",
+          "options": [
+            {
+              "value": "coOwner",
+              "label": "Co-Owner"
+            },
+            {
+              "value": "editor",
+              "label": "Editor"
+            },
+            {
+              "value": "previewer",
+              "label": "Previewer"
+            },
+            {
+              "value": "previewerUploader",
+              "label": "Previewer Uploader"
+            },
+            {
+              "value": "uploader",
+              "label": "Uploader"
+            },
+            {
+              "value": "viewer",
+              "label": "Viewer"
+            },
+            {
+              "value": "viewerUploader",
+              "label": "Viewer Uploader"
+            }
+          ]
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: can_view_path, expires_at, fields, notify)"
+        }
+      ],
+      "group": "Folder",
+      "description": "Share a folder"
+    },
+    {
+      "id": "folder_update",
+      "label": "Update Folder",
+      "method": "PUT",
+      "path": "/folders/{folderId}",
+      "fields": [
+        {
+          "id": "folderId",
+          "label": "Folder ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: can_non_owners_invite, can_non_owners_view_collaborators, description, fields, is_collaboration_restricted_to_enterprise, name, parentId, shared_link)"
+        }
+      ],
+      "group": "Folder",
+      "description": "Update folder"
     }
   ]
 }

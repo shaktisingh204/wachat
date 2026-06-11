@@ -4,77 +4,1097 @@
   "description": "Consume Onfleet API",
   "category": "commerce",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://onfleet.com/api/v2",
   "endpoints": [
     {
-      "id": "admin_default",
-      "label": "List Admin",
+      "id": "admin_create",
+      "label": "Create Admin",
+      "method": "POST",
+      "path": "/admin",
+      "fields": [
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "The administrator's name"
+        },
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "required": true,
+          "placeholder": "name@email.com",
+          "description": "The administrator's email address"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: phone, isReadOnly)"
+        }
+      ],
+      "group": "Admin",
+      "description": "[unverified path] Create a new Onfleet admin"
+    },
+    {
+      "id": "admin_delete",
+      "label": "Delete Admin",
+      "method": "DELETE",
+      "path": "/admin",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Admin ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the admin object for lookup"
+        }
+      ],
+      "group": "Admin",
+      "description": "[unverified path] Delete an Onfleet admin"
+    },
+    {
+      "id": "admin_get_all",
+      "label": "Get Many Admin",
       "method": "GET",
       "path": "/admin",
-      "fields": []
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 64
+        }
+      ],
+      "group": "Admin",
+      "description": "[unverified path] Get many Onfleet admins"
     },
     {
-      "id": "container_default",
-      "label": "List Container",
+      "id": "admin_update",
+      "label": "Update Admin",
+      "method": "PATCH",
+      "path": "/admin",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Admin ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the admin object for lookup"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: name, phone, isReadOnly)"
+        }
+      ],
+      "group": "Admin",
+      "description": "[unverified path] Update an Onfleet admin"
+    },
+    {
+      "id": "container_add_task",
+      "label": "Add Tasks Container",
+      "method": "PUT",
+      "path": "/container/{containerType}/{containerId}",
+      "fields": [
+        {
+          "id": "containerType",
+          "label": "Container Type",
+          "type": "select",
+          "required": true,
+          "options": [
+            {
+              "value": "organizations",
+              "label": "Organizations"
+            },
+            {
+              "value": "teams",
+              "label": "Teams"
+            },
+            {
+              "value": "workers",
+              "label": "Workers"
+            }
+          ],
+          "in": "path"
+        },
+        {
+          "id": "containerId",
+          "label": "Container ID",
+          "type": "text",
+          "required": true,
+          "description": "The object ID according to the container chosen",
+          "in": "path"
+        },
+        {
+          "id": "type",
+          "label": "Insert Type",
+          "type": "select",
+          "required": true,
+          "options": [
+            {
+              "value": "-1",
+              "label": "Append"
+            },
+            {
+              "value": "0",
+              "label": "Prepend"
+            },
+            {
+              "value": "1",
+              "label": "At Specific Index"
+            }
+          ]
+        },
+        {
+          "id": "index",
+          "label": "Index",
+          "type": "number",
+          "required": true,
+          "description": "The index given indicates the position where the tasks are going to be inserted",
+          "defaultValue": 0
+        },
+        {
+          "id": "tasks",
+          "label": "Task IDs",
+          "type": "text",
+          "required": true,
+          "description": "Task's ID that are going to be used"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: considerDependencies)"
+        }
+      ],
+      "group": "Container",
+      "description": "Add task at index (or append)"
+    },
+    {
+      "id": "container_get",
+      "label": "Get Container",
       "method": "GET",
+      "path": "/container/{containerType}/{containerId}",
+      "fields": [
+        {
+          "id": "containerType",
+          "label": "Container Type",
+          "type": "select",
+          "required": true,
+          "options": [
+            {
+              "value": "organizations",
+              "label": "Organizations"
+            },
+            {
+              "value": "teams",
+              "label": "Teams"
+            },
+            {
+              "value": "workers",
+              "label": "Workers"
+            }
+          ],
+          "in": "path"
+        },
+        {
+          "id": "containerId",
+          "label": "Container ID",
+          "type": "text",
+          "required": true,
+          "description": "The object ID according to the container chosen",
+          "in": "path"
+        }
+      ],
+      "group": "Container",
+      "description": "Get container information"
+    },
+    {
+      "id": "container_update_task",
+      "label": "Update Tasks Container",
+      "method": "PATCH",
       "path": "/container",
-      "fields": []
+      "fields": [
+        {
+          "id": "containerId",
+          "label": "Container ID",
+          "type": "text",
+          "required": true,
+          "description": "The object ID according to the container chosen"
+        },
+        {
+          "id": "tasks",
+          "label": "Task IDs",
+          "type": "text",
+          "required": true,
+          "description": "Task's ID that are going to be used"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: considerDependencies)"
+        }
+      ],
+      "group": "Container",
+      "description": "[unverified path] Fully replace a container's tasks"
     },
     {
-      "id": "destination_default",
-      "label": "List Destination",
-      "method": "GET",
+      "id": "destination_create",
+      "label": "Create Destination",
+      "method": "POST",
       "path": "/destination",
-      "fields": []
+      "fields": [
+        {
+          "id": "unparsed",
+          "label": "Unparsed Address",
+          "type": "toggle",
+          "required": true,
+          "description": "Whether or not the address is specified in a single unparsed string",
+          "defaultValue": false
+        },
+        {
+          "id": "address",
+          "label": "Destination Address",
+          "type": "text",
+          "required": true,
+          "description": "The destination's street address details"
+        },
+        {
+          "id": "addressNumber",
+          "label": "Number",
+          "type": "text",
+          "required": true,
+          "description": "The number component of this address, it may also contain letters"
+        },
+        {
+          "id": "addressStreet",
+          "label": "Street",
+          "type": "text",
+          "required": true,
+          "description": "The name of the street"
+        },
+        {
+          "id": "addressCity",
+          "label": "City",
+          "type": "text",
+          "required": true,
+          "description": "The name of the municipality"
+        },
+        {
+          "id": "addressCountry",
+          "label": "Country",
+          "type": "text",
+          "required": true,
+          "description": "The name of the country"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: addressApartment, addressName, addressNotes)"
+        }
+      ],
+      "group": "Destination",
+      "description": "[unverified path] Create a new destination"
     },
     {
-      "id": "hub_default",
-      "label": "List Hub",
+      "id": "destination_get",
+      "label": "Get Destination",
+      "method": "GET",
+      "path": "/destination/{id}",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Destination ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the destination object for lookup",
+          "in": "path"
+        }
+      ],
+      "group": "Destination",
+      "description": "Get a specific destination"
+    },
+    {
+      "id": "hub_create",
+      "label": "Create Hub",
+      "method": "POST",
+      "path": "/hub",
+      "fields": [
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "A name to identify the hub"
+        },
+        {
+          "id": "destination",
+          "label": "Destination",
+          "type": "json",
+          "placeholder": "Add Destination",
+          "description": "(JSON object; supported keys: destinationProperties, destinationProperties.unparsed, destinationProperties.address, destinationProperties.addressNumber, destinationProperties.addressStreet, destinationProperties.addressCity, destinationProperties.addressState, destinationProperties.addressCountry, destinationProperties.addressPostalCode, destinationProperties.addressName, destinationProperties.addressApartment, destinationProperties.addressNotes)"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: teams)"
+        }
+      ],
+      "group": "Hub",
+      "description": "[unverified path] Create a new Onfleet hub"
+    },
+    {
+      "id": "hub_get_all",
+      "label": "Get Many Hub",
       "method": "GET",
       "path": "/hub",
-      "fields": []
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 64
+        }
+      ],
+      "group": "Hub",
+      "description": "[unverified path] Get many Onfleet hubs"
     },
     {
-      "id": "organization_default",
-      "label": "List Organization",
+      "id": "hub_update",
+      "label": "Update Hub",
+      "method": "PUT",
+      "path": "/hub/{id}",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Hub ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the hub object for lookup",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: destination, name, teams)"
+        }
+      ],
+      "group": "Hub",
+      "description": "Update an Onfleet hub"
+    },
+    {
+      "id": "organization_get",
+      "label": "Get My Organization Organization",
       "method": "GET",
       "path": "/organization",
-      "fields": []
+      "fields": [],
+      "group": "Organization",
+      "description": "Retrieve your own organization's details"
     },
     {
-      "id": "recipient_default",
-      "label": "List Recipient",
+      "id": "organization_get_delegatee",
+      "label": "Get Delegatee Details Organization",
       "method": "GET",
+      "path": "/organization/{id}",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Organization ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the delegatees for lookup",
+          "in": "path"
+        }
+      ],
+      "group": "Organization",
+      "description": "Retrieve the details of an organization with which you are connected"
+    },
+    {
+      "id": "recipient_create",
+      "label": "Create Recipient",
+      "method": "POST",
       "path": "/recipient",
-      "fields": []
+      "fields": [
+        {
+          "id": "recipientName",
+          "label": "Recipient Name",
+          "type": "text",
+          "required": true,
+          "description": "The recipient's complete name"
+        },
+        {
+          "id": "recipientPhone",
+          "label": "Recipient Phone",
+          "type": "text",
+          "required": true,
+          "description": "A unique, valid phone number as per the organization's country if there's no leading + sign. If a phone number has a leading + sign, it will disregard the organization's country setting."
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: recipientNotes, recipientSkipSMSNotifications)"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: recipientSkipPhoneNumberValidation)"
+        }
+      ],
+      "group": "Recipient",
+      "description": "[unverified path] Create a new Onfleet recipient"
     },
     {
-      "id": "task_default",
-      "label": "List Task",
+      "id": "recipient_get",
+      "label": "Get Recipient",
       "method": "GET",
-      "path": "/task",
-      "fields": []
+      "path": "/recipient{lookupBy______id___________lookupBy}/{lookupByValue}",
+      "fields": [
+        {
+          "id": "getBy",
+          "label": "Get By",
+          "type": "select",
+          "required": true,
+          "description": "The variable that is used for looking up a recipient",
+          "defaultValue": "id",
+          "options": [
+            {
+              "value": "id",
+              "label": "ID"
+            },
+            {
+              "value": "phone",
+              "label": "Phone"
+            },
+            {
+              "value": "name",
+              "label": "Name"
+            }
+          ]
+        },
+        {
+          "id": "id",
+          "label": "Recipient ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the recipient object for lookup"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "The name of the recipient for lookup"
+        },
+        {
+          "id": "phone",
+          "label": "Phone",
+          "type": "text",
+          "required": true,
+          "description": "The phone of the recipient for lookup"
+        }
+      ],
+      "group": "Recipient",
+      "description": "[unverified path] Get a specific Onfleet recipient"
     },
     {
-      "id": "team_default",
-      "label": "List Team",
+      "id": "recipient_update",
+      "label": "Update Recipient",
+      "method": "PUT",
+      "path": "/recipient/{id}",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Recipient ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the recipient object for lookup",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Update Fields",
+          "description": "(JSON object; supported keys: recipientName, notes, recipientPhone, skipSMSNotifications)"
+        }
+      ],
+      "group": "Recipient",
+      "description": "Update an Onfleet recipient"
+    },
+    {
+      "id": "task_clone",
+      "label": "Clone Task",
+      "method": "POST",
+      "path": "/task/{id}/clone",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Task ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the task object for lookup",
+          "in": "path"
+        },
+        {
+          "id": "overrideFields",
+          "label": "Override Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: completeAfter, completeBefore, includeBarcodes, includeDependencies, includeMetadata, notes, pickupTask, serviceTime)"
+        }
+      ],
+      "group": "Task",
+      "description": "Clone an Onfleet task"
+    },
+    {
+      "id": "task_complete",
+      "label": "Complete Task",
+      "method": "POST",
+      "path": "/task/{id}/complete",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Task ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the task object for lookup",
+          "in": "path"
+        },
+        {
+          "id": "success",
+          "label": "Complete as a Success",
+          "type": "toggle",
+          "required": true,
+          "description": "Whether the task's completion was successful",
+          "defaultValue": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: notes)"
+        }
+      ],
+      "group": "Task",
+      "description": "Force-complete a started Onfleet task"
+    },
+    {
+      "id": "task_create",
+      "label": "Create Task",
+      "method": "POST",
+      "path": "/task/batch",
+      "fields": [
+        {
+          "id": "destination",
+          "label": "Destination",
+          "type": "json",
+          "required": true,
+          "placeholder": "Add Destination",
+          "description": "(JSON object; supported keys: destinationProperties, destinationProperties.unparsed, destinationProperties.address, destinationProperties.addressNumber, destinationProperties.addressStreet, destinationProperties.addressCity, destinationProperties.addressState, destinationProperties.addressCountry, destinationProperties.addressPostalCode, destinationProperties.addressName, destinationProperties.addressApartment, destinationProperties.addressNotes)"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: completeAfter, completeBefore, executor, merchant, notes, pickupTask, quantity, recipient, recipientName, recipientNotes, recipientSkipSMSNotifications, serviceTime, useMerchantForProxy)"
+        }
+      ],
+      "group": "Task",
+      "description": "Create a new Onfleet task"
+    },
+    {
+      "id": "task_delete",
+      "label": "Delete Task",
+      "method": "DELETE",
+      "path": "/task/{id}",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Task ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the task object for lookup",
+          "in": "path"
+        }
+      ],
+      "group": "Task",
+      "description": "Delete an Onfleet task"
+    },
+    {
+      "id": "task_get",
+      "label": "Get Task",
+      "method": "GET",
+      "path": "/task{shortId_____shortId______}/{id}",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Task ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the task object for lookup",
+          "in": "path"
+        }
+      ],
+      "group": "Task",
+      "description": "[unverified path] Get a specific Onfleet task"
+    },
+    {
+      "id": "task_get_all",
+      "label": "Get Many Task",
+      "method": "GET",
+      "path": "/task/all",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 64
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: from, state, to)"
+        }
+      ],
+      "group": "Task",
+      "description": "Get many Onfleet tasks"
+    },
+    {
+      "id": "task_update",
+      "label": "Update Task",
+      "method": "PUT",
+      "path": "/task/{id}",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Task ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the task object for lookup",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: completeAfter, completeBefore, executor, merchant, notes, pickupTask, quantity, serviceTime)"
+        }
+      ],
+      "group": "Task",
+      "description": "Update an Onfleet task"
+    },
+    {
+      "id": "team_auto_dispatch",
+      "label": "Auto-Dispatch Team",
+      "method": "POST",
+      "path": "/team/{id}/dispatch",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Team ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the team object for lookup",
+          "in": "path"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: endingRoute, maxAllowedDelay, maxTasksPerRoute, scheduleTimeWindow, serviceTime, taskTimeWindow)"
+        }
+      ],
+      "group": "Team",
+      "description": "Automatically dispatch tasks assigned to a team to on-duty drivers"
+    },
+    {
+      "id": "team_create",
+      "label": "Create Team",
+      "method": "POST",
+      "path": "/team",
+      "fields": [
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "A unique name for the team"
+        },
+        {
+          "id": "workers",
+          "label": "Worker Names or IDs",
+          "type": "select",
+          "required": true,
+          "description": "A list of workers. Choose from the list, or specify IDs using an expression. (multiple values: comma-separated)"
+        },
+        {
+          "id": "managers",
+          "label": "Administrator Names or IDs",
+          "type": "select",
+          "required": true,
+          "description": "A list of managing administrators. Choose from the list, or specify IDs using an expression. (multiple values: comma-separated)"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: hub, enableSelfAssignment)"
+        }
+      ],
+      "group": "Team",
+      "description": "[unverified path] Create a new Onfleet team"
+    },
+    {
+      "id": "team_delete",
+      "label": "Delete Team",
+      "method": "DELETE",
+      "path": "/team/{id}",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Team ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the team object for lookup",
+          "in": "path"
+        }
+      ],
+      "group": "Team",
+      "description": "Delete an Onfleet team"
+    },
+    {
+      "id": "team_get",
+      "label": "Get Team",
+      "method": "GET",
+      "path": "/team/{id}",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Team ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the team object for lookup",
+          "in": "path"
+        }
+      ],
+      "group": "Team",
+      "description": "Get a specific Onfleet team"
+    },
+    {
+      "id": "team_get_all",
+      "label": "Get Many Team",
       "method": "GET",
       "path": "/team",
-      "fields": []
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 64
+        }
+      ],
+      "group": "Team",
+      "description": "[unverified path] Get many Onfleet teams"
     },
     {
-      "id": "worker_default",
-      "label": "List Worker",
+      "id": "team_get_time_estimates",
+      "label": "Get Time Estimates Team",
       "method": "GET",
+      "path": "/team/{id}/estimate",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Team ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the team object for lookup",
+          "in": "path"
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: dropOff, pickUp, restrictedVehicleTypes, serviceTime)"
+        }
+      ],
+      "group": "Team",
+      "description": "Get estimated times for upcoming tasks for a team, returns a selected driver"
+    },
+    {
+      "id": "team_update",
+      "label": "Update Team",
+      "method": "PUT",
+      "path": "/team/{id}",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Team ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the team object for lookup",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: managers, hub, name, enableSelfAssignment, workers)"
+        }
+      ],
+      "group": "Team",
+      "description": "Update an Onfleet team"
+    },
+    {
+      "id": "worker_create",
+      "label": "Create Worker",
+      "method": "POST",
       "path": "/worker",
-      "fields": []
+      "fields": [
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "The worker's name"
+        },
+        {
+          "id": "phone",
+          "label": "Phone",
+          "type": "text",
+          "required": true,
+          "description": "A list of worker’s phone numbers"
+        },
+        {
+          "id": "teams",
+          "label": "Team Names or IDs",
+          "type": "select",
+          "required": true,
+          "description": "One or more teams of which the worker is a member. Choose from the list, or specify IDs using an expression. (multiple values: comma-separated)"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: capacity, displayName, vehicle)"
+        }
+      ],
+      "group": "Worker",
+      "description": "[unverified path] Create a new Onfleet worker"
+    },
+    {
+      "id": "worker_delete",
+      "label": "Delete Worker",
+      "method": "DELETE",
+      "path": "/worker/{id}",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Worker ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the worker object for lookup",
+          "in": "path"
+        }
+      ],
+      "group": "Worker",
+      "description": "Delete an Onfleet worker"
+    },
+    {
+      "id": "worker_get",
+      "label": "Get Worker",
+      "method": "GET",
+      "path": "/worker/{id}",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Worker ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the worker object for lookup",
+          "in": "path"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: analytics, filter)"
+        }
+      ],
+      "group": "Worker",
+      "description": "Get a specific Onfleet worker"
+    },
+    {
+      "id": "worker_get_all",
+      "label": "Get Many Worker",
+      "method": "GET",
+      "path": "/worker/location",
+      "fields": [
+        {
+          "id": "byLocation",
+          "label": "Search by Location",
+          "type": "toggle",
+          "required": true,
+          "description": "Whether to search for only those workers who are currently within a certain target area",
+          "defaultValue": false
+        },
+        {
+          "id": "longitude",
+          "label": "Longitude",
+          "type": "number",
+          "required": true,
+          "description": "The longitude component of the coordinate pair",
+          "defaultValue": 0
+        },
+        {
+          "id": "latitude",
+          "label": "Latitude",
+          "type": "number",
+          "required": true,
+          "description": "The latitude component of the coordinate pair",
+          "defaultValue": 0
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 64
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: radius)"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: filter)"
+        }
+      ],
+      "group": "Worker",
+      "description": "Get many Onfleet workers"
+    },
+    {
+      "id": "worker_get_schedule",
+      "label": "Get Schedule Worker",
+      "method": "GET",
+      "path": "/worker/{id}/schedule",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Worker ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the worker object for lookup",
+          "in": "path"
+        }
+      ],
+      "group": "Worker",
+      "description": "Get a specific Onfleet worker schedule"
+    },
+    {
+      "id": "worker_update",
+      "label": "Update Worker",
+      "method": "PUT",
+      "path": "/worker/{id}",
+      "fields": [
+        {
+          "id": "id",
+          "label": "Worker ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the worker object for lookup",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: capacity, displayName, name, teams)"
+        }
+      ],
+      "group": "Worker",
+      "description": "Update an Onfleet worker"
     }
   ]
 }

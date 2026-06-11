@@ -4,38 +4,394 @@
   "description": "Add, get, delete and update data in a table",
   "category": "data",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 10,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://postgrest.org/en/stable/references/api/tables_views.html#horizontal-filtering",
   "endpoints": [
     {
-      "id": "row_default",
-      "label": "List Row",
-      "method": "GET",
-      "path": "/row",
+      "id": "row_create",
+      "label": "Create Row",
+      "method": "POST",
+      "path": "/{tableId}",
       "fields": [
         {
           "id": "useCustomSchema",
           "label": "Use Custom Schema",
           "type": "toggle",
-          "in": "query",
-          "description": "Whether to use a database schema different from the default \"public\" schema (requires schema exposure in the <a href=\"https://supabase.com/docs/guides/api/using-custom-schemas?queryGroups=language&language=curl#exposing-custom-schemas\">Supabase API</a>)",
+          "description": "Whether to use a database schema different from the default \"public\" schema (requires schema exposure in the Supabase API)",
           "defaultValue": false
         },
         {
           "id": "schema",
           "label": "Schema",
           "type": "text",
-          "in": "query",
           "description": "Name of database schema to use for table",
           "defaultValue": "public"
+        },
+        {
+          "id": "tableId",
+          "label": "Table Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        },
+        {
+          "id": "dataToSend",
+          "label": "Data to Send",
+          "type": "select",
+          "defaultValue": "defineBelow",
+          "options": [
+            {
+              "value": "autoMapInputData",
+              "label": "Auto-Map Input Data to Columns"
+            },
+            {
+              "value": "defineBelow",
+              "label": "Define Below for Each Column"
+            }
+          ]
+        },
+        {
+          "id": "inputsToIgnore",
+          "label": "Inputs to Ignore",
+          "type": "text",
+          "placeholder": "Enter properties...",
+          "description": "List of input properties to avoid sending, separated by commas. Leave empty to send all properties."
+        },
+        {
+          "id": "fieldsUi",
+          "label": "Fields to Send",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: fieldValues, fieldValues.fieldId, fieldValues.fieldValue)"
         }
-      ]
+      ],
+      "group": "Row",
+      "description": "Create a new row"
+    },
+    {
+      "id": "row_delete",
+      "label": "Delete Row",
+      "method": "DELETE",
+      "path": "/{tableId}",
+      "fields": [
+        {
+          "id": "useCustomSchema",
+          "label": "Use Custom Schema",
+          "type": "toggle",
+          "description": "Whether to use a database schema different from the default \"public\" schema (requires schema exposure in the Supabase API)",
+          "defaultValue": false
+        },
+        {
+          "id": "schema",
+          "label": "Schema",
+          "type": "text",
+          "description": "Name of database schema to use for table",
+          "defaultValue": "public"
+        },
+        {
+          "id": "tableId",
+          "label": "Table Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        },
+        {
+          "id": "filterType",
+          "label": "Select Type",
+          "type": "select",
+          "defaultValue": "manual",
+          "options": [
+            {
+              "value": "manual",
+              "label": "Build Manually"
+            },
+            {
+              "value": "string",
+              "label": "String"
+            }
+          ]
+        },
+        {
+          "id": "matchType",
+          "label": "Must Match",
+          "type": "select",
+          "defaultValue": "anyFilter",
+          "options": [
+            {
+              "value": "anyFilter",
+              "label": "Any Select Condition"
+            },
+            {
+              "value": "allFilters",
+              "label": "All Select Conditions"
+            }
+          ]
+        },
+        {
+          "id": "filters",
+          "label": "Select Conditions",
+          "type": "json",
+          "placeholder": "Add Condition",
+          "description": "Filter to decide which rows get deleted (JSON object; supported keys: conditions, conditions.keyName, conditions.condition, conditions.searchFunction, conditions.keyValue)"
+        },
+        {
+          "id": "filterString",
+          "label": "Filters (String)",
+          "type": "text",
+          "placeholder": "name=eq.jhon"
+        }
+      ],
+      "group": "Row",
+      "description": "Delete a row"
+    },
+    {
+      "id": "row_get",
+      "label": "Get Row",
+      "method": "GET",
+      "path": "/{tableId}",
+      "fields": [
+        {
+          "id": "useCustomSchema",
+          "label": "Use Custom Schema",
+          "type": "toggle",
+          "description": "Whether to use a database schema different from the default \"public\" schema (requires schema exposure in the Supabase API)",
+          "defaultValue": false
+        },
+        {
+          "id": "schema",
+          "label": "Schema",
+          "type": "text",
+          "description": "Name of database schema to use for table",
+          "defaultValue": "public"
+        },
+        {
+          "id": "tableId",
+          "label": "Table Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        },
+        {
+          "id": "filters",
+          "label": "Select Conditions",
+          "type": "json",
+          "placeholder": "Add Condition",
+          "description": "(JSON object; supported keys: conditions, conditions.keyName, conditions.keyValue)"
+        }
+      ],
+      "group": "Row",
+      "description": "Get a row"
+    },
+    {
+      "id": "row_get_all",
+      "label": "Get Many Row",
+      "method": "GET",
+      "path": "/{tableId}",
+      "fields": [
+        {
+          "id": "useCustomSchema",
+          "label": "Use Custom Schema",
+          "type": "toggle",
+          "description": "Whether to use a database schema different from the default \"public\" schema (requires schema exposure in the Supabase API)",
+          "defaultValue": false
+        },
+        {
+          "id": "schema",
+          "label": "Schema",
+          "type": "text",
+          "description": "Name of database schema to use for table",
+          "defaultValue": "public"
+        },
+        {
+          "id": "tableId",
+          "label": "Table Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "filterType",
+          "label": "Filter",
+          "type": "select",
+          "defaultValue": "manual",
+          "options": [
+            {
+              "value": "none",
+              "label": "None"
+            },
+            {
+              "value": "manual",
+              "label": "Build Manually"
+            },
+            {
+              "value": "string",
+              "label": "String"
+            }
+          ]
+        },
+        {
+          "id": "matchType",
+          "label": "Must Match",
+          "type": "select",
+          "defaultValue": "anyFilter",
+          "options": [
+            {
+              "value": "anyFilter",
+              "label": "Any Filter"
+            },
+            {
+              "value": "allFilters",
+              "label": "All Filters"
+            }
+          ]
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Condition",
+          "description": "Filter to decide which rows get retrieved (JSON object; supported keys: conditions, conditions.keyName, conditions.condition, conditions.searchFunction, conditions.keyValue)"
+        },
+        {
+          "id": "filterString",
+          "label": "Filters (String)",
+          "type": "text",
+          "placeholder": "name=eq.jhon"
+        }
+      ],
+      "group": "Row",
+      "description": "Get many rows"
+    },
+    {
+      "id": "row_update",
+      "label": "Update Row",
+      "method": "PATCH",
+      "path": "/{tableId}",
+      "fields": [
+        {
+          "id": "useCustomSchema",
+          "label": "Use Custom Schema",
+          "type": "toggle",
+          "description": "Whether to use a database schema different from the default \"public\" schema (requires schema exposure in the Supabase API)",
+          "defaultValue": false
+        },
+        {
+          "id": "schema",
+          "label": "Schema",
+          "type": "text",
+          "description": "Name of database schema to use for table",
+          "defaultValue": "public"
+        },
+        {
+          "id": "tableId",
+          "label": "Table Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        },
+        {
+          "id": "filterType",
+          "label": "Select Type",
+          "type": "select",
+          "defaultValue": "manual",
+          "options": [
+            {
+              "value": "manual",
+              "label": "Build Manually"
+            },
+            {
+              "value": "string",
+              "label": "String"
+            }
+          ]
+        },
+        {
+          "id": "matchType",
+          "label": "Must Match",
+          "type": "select",
+          "defaultValue": "anyFilter",
+          "options": [
+            {
+              "value": "anyFilter",
+              "label": "Any Select Condition"
+            },
+            {
+              "value": "allFilters",
+              "label": "All Select Conditions"
+            }
+          ]
+        },
+        {
+          "id": "filters",
+          "label": "Select Conditions",
+          "type": "json",
+          "placeholder": "Add Condition",
+          "description": "Filter to decide which rows get updated (JSON object; supported keys: conditions, conditions.keyName, conditions.condition, conditions.searchFunction, conditions.keyValue)"
+        },
+        {
+          "id": "filterString",
+          "label": "Filters (String)",
+          "type": "text",
+          "placeholder": "name=eq.jhon"
+        },
+        {
+          "id": "dataToSend",
+          "label": "Data to Send",
+          "type": "select",
+          "defaultValue": "defineBelow",
+          "options": [
+            {
+              "value": "autoMapInputData",
+              "label": "Auto-Map Input Data to Columns"
+            },
+            {
+              "value": "defineBelow",
+              "label": "Define Below for Each Column"
+            }
+          ]
+        },
+        {
+          "id": "inputsToIgnore",
+          "label": "Inputs to Ignore",
+          "type": "text",
+          "placeholder": "Enter properties...",
+          "description": "List of input properties to avoid sending, separated by commas. Leave empty to send all properties."
+        },
+        {
+          "id": "fieldsUi",
+          "label": "Fields to Send",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: fieldValues, fieldValues.fieldId, fieldValues.fieldValue)"
+        }
+      ],
+      "group": "Row",
+      "description": "Update a row"
     }
   ]
 }

@@ -4,42 +4,670 @@
   "description": "Consume Coda API",
   "category": "productivity",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://coda.io/apis/v1",
   "endpoints": [
     {
-      "id": "control_default",
-      "label": "List Control",
-      "method": "GET",
-      "path": "/control",
-      "fields": []
+      "id": "table_create_row",
+      "label": "Create Row Table",
+      "method": "POST",
+      "path": "/docs/{docId}/tables/{tableId}/rows",
+      "fields": [
+        {
+          "id": "docId",
+          "label": "Doc Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of the doc. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "tableId",
+          "label": "Table Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The table to create the row in. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: disableParsing, keyColumns)"
+        }
+      ],
+      "group": "Table",
+      "description": "Create/Insert a row"
     },
     {
-      "id": "formula_default",
-      "label": "List Formula",
-      "method": "GET",
-      "path": "/formula",
-      "fields": []
+      "id": "table_delete_row",
+      "label": "Delete Row Table",
+      "method": "DELETE",
+      "path": "/docs/{docId}/tables/{tableId}/rows",
+      "fields": [
+        {
+          "id": "docId",
+          "label": "Doc Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of the doc. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "tableId",
+          "label": "Table Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The table to delete the row in. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "rowId",
+          "label": "Row ID",
+          "type": "text",
+          "required": true,
+          "description": "Row IDs to delete"
+        }
+      ],
+      "group": "Table",
+      "description": "Delete one or multiple rows"
     },
     {
-      "id": "table_default",
-      "label": "List Table",
+      "id": "table_get_all_columns",
+      "label": "Get All Columns Table",
       "method": "GET",
-      "path": "/table",
-      "fields": []
+      "path": "/docs/{docId}/tables/{tableId}/columns",
+      "fields": [
+        {
+          "id": "docId",
+          "label": "Doc Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of the doc. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "tableId",
+          "label": "Table Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The table to get the row from. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Table",
+      "description": "Get all columns in a table"
     },
     {
-      "id": "view_default",
-      "label": "List View",
+      "id": "table_get_all_rows",
+      "label": "Get All Rows Table",
       "method": "GET",
-      "path": "/view",
-      "fields": []
+      "path": "/docs/{docId}/tables/{tableId}/rows",
+      "fields": [
+        {
+          "id": "docId",
+          "label": "Doc Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of the doc. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "tableId",
+          "label": "Table Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The table to get the rows from. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: query, rawData, sortBy, useColumnNames, valueFormat, visibleOnly)"
+        }
+      ],
+      "group": "Table",
+      "description": "Get all rows in a table"
+    },
+    {
+      "id": "table_get_column",
+      "label": "Get Column Table",
+      "method": "GET",
+      "path": "/docs/{docId}/tables/{tableId}/columns/{columnId}",
+      "fields": [
+        {
+          "id": "docId",
+          "label": "Doc Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of the doc. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "tableId",
+          "label": "Table Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The table to get the row from. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "columnId",
+          "label": "Column ID",
+          "type": "text",
+          "required": true,
+          "description": "The table to get the row from",
+          "in": "path"
+        }
+      ],
+      "group": "Table",
+      "description": "Get a column"
+    },
+    {
+      "id": "table_get_row",
+      "label": "Get Row Table",
+      "method": "GET",
+      "path": "/docs/{docId}/tables/{tableId}/rows/{rowId}",
+      "fields": [
+        {
+          "id": "docId",
+          "label": "Doc Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of the doc. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "tableId",
+          "label": "Table Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The table to get the row from. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "rowId",
+          "label": "Row ID",
+          "type": "text",
+          "required": true,
+          "description": "ID or name of the row. Names are discouraged because they're easily prone to being changed by users. If you're using a name, be sure to URI-encode it. If there are multiple rows with the same value in the identifying column, an arbitrary one will be selected",
+          "in": "path"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: rawData, useColumnNames, valueFormat)"
+        }
+      ],
+      "group": "Table",
+      "description": "Get a row"
+    },
+    {
+      "id": "table_push_button",
+      "label": "Push Button Table",
+      "method": "POST",
+      "path": "/docs/{docId}/tables/{tableId}/rows/{rowId}/buttons/{columnId}",
+      "fields": [
+        {
+          "id": "docId",
+          "label": "Doc Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of the doc. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "tableId",
+          "label": "Table Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The table to get the row from. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "rowId",
+          "label": "Row ID",
+          "type": "text",
+          "required": true,
+          "description": "ID or name of the row. Names are discouraged because they're easily prone to being changed by users. If you're using a name, be sure to URI-encode it. If there are multiple rows with the same value in the identifying column, an arbitrary one will be selected",
+          "in": "path"
+        },
+        {
+          "id": "columnId",
+          "label": "Column Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        }
+      ],
+      "group": "Table",
+      "description": "Pushes a button"
+    },
+    {
+      "id": "formula_get",
+      "label": "Get Formula",
+      "method": "GET",
+      "path": "/docs/{docId}/formulas/{formulaId}",
+      "fields": [
+        {
+          "id": "docId",
+          "label": "Doc Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of the doc. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "formulaId",
+          "label": "Formula ID",
+          "type": "text",
+          "required": true,
+          "description": "The formula to get the row from",
+          "in": "path"
+        }
+      ],
+      "group": "Formula",
+      "description": "Get a formula"
+    },
+    {
+      "id": "formula_get_all",
+      "label": "Get Many Formula",
+      "method": "GET",
+      "path": "/docs/{docId}/formulas",
+      "fields": [
+        {
+          "id": "docId",
+          "label": "Doc Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of the doc. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Formula",
+      "description": "Get many formulas"
+    },
+    {
+      "id": "control_get",
+      "label": "Get Control",
+      "method": "GET",
+      "path": "/docs/{docId}/controls/{controlId}",
+      "fields": [
+        {
+          "id": "docId",
+          "label": "Doc Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of the doc. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "controlId",
+          "label": "Control ID",
+          "type": "text",
+          "required": true,
+          "description": "The control to get the row from",
+          "in": "path"
+        }
+      ],
+      "group": "Control",
+      "description": "Get a control"
+    },
+    {
+      "id": "control_get_all",
+      "label": "Get Many Control",
+      "method": "GET",
+      "path": "/docs/{docId}/controls",
+      "fields": [
+        {
+          "id": "docId",
+          "label": "Doc Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of the doc. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Control",
+      "description": "Get many controls"
+    },
+    {
+      "id": "view_delete_view_row",
+      "label": "Delete Row View",
+      "method": "DELETE",
+      "path": "/docs/{docId}/tables/{viewId}/rows/{rowId}",
+      "fields": [
+        {
+          "id": "docId",
+          "label": "Doc Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of the doc. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "viewId",
+          "label": "View Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The view to get the row from. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "rowId",
+          "label": "Row Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The view to get the row from. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        }
+      ],
+      "group": "View",
+      "description": "Delete view row"
+    },
+    {
+      "id": "view_get",
+      "label": "Get View",
+      "method": "GET",
+      "path": "/docs/{docId}/tables/{viewId}",
+      "fields": [
+        {
+          "id": "docId",
+          "label": "Doc Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of the doc. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "viewId",
+          "label": "View ID",
+          "type": "text",
+          "required": true,
+          "description": "The view to get the row from",
+          "in": "path"
+        }
+      ],
+      "group": "View",
+      "description": "Get a view"
+    },
+    {
+      "id": "view_get_all_view_columns",
+      "label": "Get Columns View",
+      "method": "GET",
+      "path": "/docs/{docId}/tables/{viewId}/columns",
+      "fields": [
+        {
+          "id": "docId",
+          "label": "Doc Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of the doc. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "viewId",
+          "label": "View Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The table to get the rows from. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "View",
+      "description": "Get all views columns"
+    },
+    {
+      "id": "view_get_all",
+      "label": "Get Many View",
+      "method": "GET",
+      "path": "/docs/{docId}/tables?tableTypes=view",
+      "fields": [
+        {
+          "id": "docId",
+          "label": "Doc Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of the doc. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "View",
+      "description": "Get many views"
+    },
+    {
+      "id": "view_get_all_view_rows",
+      "label": "Get Rows View",
+      "method": "GET",
+      "path": "/docs/{docId}/tables/{viewId}/rows",
+      "fields": [
+        {
+          "id": "docId",
+          "label": "Doc Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of the doc. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "viewId",
+          "label": "View Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The table to get the rows from. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: query, useColumnNames, valueFormat, rawData, sortBy)"
+        }
+      ],
+      "group": "View",
+      "description": "Get all views rows"
+    },
+    {
+      "id": "view_push_view_button",
+      "label": "Push Button View",
+      "method": "POST",
+      "path": "/docs/{docId}/tables/{viewId}/rows/{rowId}/buttons/{columnId}",
+      "fields": [
+        {
+          "id": "docId",
+          "label": "Doc Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of the doc. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "viewId",
+          "label": "View Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The view to get the row from. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "rowId",
+          "label": "Row Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The view to get the row from. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "columnId",
+          "label": "Column Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        }
+      ],
+      "group": "View",
+      "description": "Push view button"
+    },
+    {
+      "id": "view_update_view_row",
+      "label": "Update Row View",
+      "method": "PUT",
+      "path": "/docs/{docId}/tables/{viewId}/rows/{rowId}",
+      "fields": [
+        {
+          "id": "docId",
+          "label": "Doc Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of the doc. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "viewId",
+          "label": "View Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The view to get the row from. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "rowId",
+          "label": "Row Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The view to get the row from. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "keyName",
+          "label": "Key Name",
+          "type": "text",
+          "required": true,
+          "description": "The view to get the row from",
+          "defaultValue": "columns"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: disableParsing)"
+        }
+      ],
+      "group": "View",
+      "description": "Update a view row"
     }
   ]
 }

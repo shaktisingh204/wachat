@@ -4,34 +4,32 @@
   "description": "Invoke functions on AWS Lambda",
   "category": "dev",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 10,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
-    "type": "none"
+    "type": "bearer",
+    "credentialType": "aws_lambda"
   },
-  "baseUrl": "",
+  "baseUrl": "https://iam.amazonaws.com",
   "endpoints": [
     {
-      "id": "default_invoke",
+      "id": "invoke",
       "label": "Invoke",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/invoke",
       "fields": [
         {
           "id": "function",
           "label": "Function Name or ID",
-          "type": "select",
-          "in": "query",
+          "type": "text",
           "required": true,
-          "description": "The function you want to invoke. Choose from the list, or specify an ID using an <a href=\"https://docs.n8n.io/code/expressions/\">expression</a>.",
-          "options": []
+          "description": "The function you want to invoke. Choose from the list, or specify an ID using an expression."
         },
         {
           "id": "qualifier",
           "label": "Qualifier",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Specify a version or alias to invoke a published version of the function",
           "defaultValue": "$LATEST"
@@ -40,7 +38,6 @@
           "id": "invocationType",
           "label": "Invocation Type",
           "type": "select",
-          "in": "query",
           "description": "Specify if the workflow should wait for the function to return the results",
           "defaultValue": "RequestResponse",
           "options": [
@@ -58,10 +55,10 @@
           "id": "payload",
           "label": "JSON Input",
           "type": "text",
-          "in": "query",
           "description": "The JSON that you want to provide to your Lambda function as input"
         }
-      ]
+      ],
+      "description": "[unverified path] Invoke a function"
     }
   ]
 }

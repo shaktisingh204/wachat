@@ -4,8 +4,8 @@
   "description": "Consume Help Scout API",
   "category": "support",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -16,35 +16,443 @@
       "credentialType": "oauth2"
     }
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.helpscout.net",
   "endpoints": [
     {
-      "id": "conversation_default",
-      "label": "List Conversation",
-      "method": "GET",
-      "path": "/conversation",
-      "fields": []
+      "id": "conversation_create",
+      "label": "Create Conversation",
+      "method": "POST",
+      "path": "/v2/conversations",
+      "fields": [
+        {
+          "id": "mailboxId",
+          "label": "Mailbox Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "ID of a mailbox where the conversation is being created. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "status",
+          "label": "Status",
+          "type": "select",
+          "required": true,
+          "description": "Conversation status",
+          "options": [
+            {
+              "value": "active",
+              "label": "Active"
+            },
+            {
+              "value": "closed",
+              "label": "Closed"
+            },
+            {
+              "value": "pending",
+              "label": "Pending"
+            }
+          ]
+        },
+        {
+          "id": "subject",
+          "label": "Subject",
+          "type": "text",
+          "required": true,
+          "description": "Conversation’s subject"
+        },
+        {
+          "id": "type",
+          "label": "Type",
+          "type": "select",
+          "required": true,
+          "description": "Conversation type",
+          "options": [
+            {
+              "value": "chat",
+              "label": "Chat"
+            },
+            {
+              "value": "email",
+              "label": "Email"
+            },
+            {
+              "value": "phone",
+              "label": "Phone"
+            }
+          ]
+        },
+        {
+          "id": "resolveData",
+          "label": "Resolve Data",
+          "type": "toggle",
+          "description": "By default the response only contain the ID to resource. If this option gets activated, it will resolve the data automatically.",
+          "defaultValue": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: assignTo, autoReply, closedAt, createdAt, customerEmail, customerId, imported, tags, user)"
+        },
+        {
+          "id": "threadsUi",
+          "label": "Threads",
+          "type": "json",
+          "placeholder": "Add Thread",
+          "description": "(JSON object; supported keys: threadsValues, threadsValues.type, threadsValues.text, threadsValues.bcc, threadsValues.cc, threadsValues.draft)"
+        }
+      ],
+      "group": "Conversation",
+      "description": "Create a new conversation"
     },
     {
-      "id": "customer_default",
-      "label": "List Customer",
-      "method": "GET",
-      "path": "/customer",
-      "fields": []
+      "id": "conversation_delete",
+      "label": "Delete Conversation",
+      "method": "DELETE",
+      "path": "/v2/conversations/{conversationId}",
+      "fields": [
+        {
+          "id": "conversationId",
+          "label": "Conversation ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Conversation",
+      "description": "Delete a conversation"
     },
     {
-      "id": "mailbox_default",
-      "label": "List Mailbox",
+      "id": "conversation_get",
+      "label": "Get Conversation",
       "method": "GET",
-      "path": "/mailbox",
-      "fields": []
+      "path": "/v2/conversations/{conversationId}",
+      "fields": [
+        {
+          "id": "conversationId",
+          "label": "Conversation ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Conversation",
+      "description": "Get a conversation"
     },
     {
-      "id": "thread_default",
-      "label": "List Thread",
+      "id": "conversation_get_all",
+      "label": "Get Many Conversation",
       "method": "GET",
-      "path": "/thread",
-      "fields": []
+      "path": "/v2/conversations",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: assignTo, embed, folder, mailbox, modifiedSince, number, query, sortField, sortOrder, status, tags)"
+        }
+      ],
+      "group": "Conversation",
+      "description": "Get many conversations"
+    },
+    {
+      "id": "customer_create",
+      "label": "Create Customer",
+      "method": "POST",
+      "path": "/v2/customers",
+      "fields": [
+        {
+          "id": "resolveData",
+          "label": "Resolve Data",
+          "type": "toggle",
+          "description": "By default the response only contain the ID to resource. If this option gets activated, it will resolve the data automatically.",
+          "defaultValue": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: age, firstName, gender, jobTitle, lastName, location, background, organization, photoUrl)"
+        },
+        {
+          "id": "addressUi",
+          "label": "Address",
+          "type": "json",
+          "placeholder": "Add Address",
+          "description": "(JSON object; supported keys: addressValue, addressValue.line1, addressValue.line2, addressValue.city, addressValue.state, addressValue.country, addressValue.postalCode)"
+        },
+        {
+          "id": "chatsUi",
+          "label": "Chat Handles",
+          "type": "json",
+          "placeholder": "Add Chat Handle",
+          "description": "(JSON object; supported keys: chatsValues, chatsValues.type, chatsValues.value)"
+        },
+        {
+          "id": "emailsUi",
+          "label": "Emails",
+          "type": "json",
+          "placeholder": "Add Email",
+          "description": "(JSON object; supported keys: emailsValues, emailsValues.type, emailsValues.value)"
+        },
+        {
+          "id": "phonesUi",
+          "label": "Phones",
+          "type": "json",
+          "placeholder": "Add Phone",
+          "description": "(JSON object; supported keys: phonesValues, phonesValues.type, phonesValues.value)"
+        },
+        {
+          "id": "socialProfilesUi",
+          "label": "Social Profiles",
+          "type": "json",
+          "placeholder": "Add Social Profile",
+          "description": "(JSON object; supported keys: socialProfilesValues, socialProfilesValues.type, socialProfilesValues.value)"
+        },
+        {
+          "id": "websitesUi",
+          "label": "Websites",
+          "type": "json",
+          "placeholder": "Add Website",
+          "description": "(JSON object; supported keys: websitesValues, websitesValues.value)"
+        }
+      ],
+      "group": "Customer",
+      "description": "Create a new customer"
+    },
+    {
+      "id": "customer_get",
+      "label": "Get Customer",
+      "method": "GET",
+      "path": "/v2/customers/{customerId}",
+      "fields": [
+        {
+          "id": "customerId",
+          "label": "Customer ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Customer",
+      "description": "Get a customer"
+    },
+    {
+      "id": "customer_get_all",
+      "label": "Get Many Customer",
+      "method": "GET",
+      "path": "/v2/customers",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: firstName, lastName, mailbox, modifiedSince, sortField, sortOrder, query)"
+        }
+      ],
+      "group": "Customer",
+      "description": "Get many customers"
+    },
+    {
+      "id": "customer_properties",
+      "label": "Properties Customer",
+      "method": "POST",
+      "path": "/v2/customer-properties",
+      "fields": [],
+      "group": "Customer",
+      "description": "Get customer property definitions"
+    },
+    {
+      "id": "customer_update",
+      "label": "Update Customer",
+      "method": "PUT",
+      "path": "/v2/customers/{customerId}",
+      "fields": [
+        {
+          "id": "customerId",
+          "label": "Customer ID",
+          "type": "text",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: age, firstName, gender, jobTitle, lastName, location, background, organization, photoUrl)"
+        }
+      ],
+      "group": "Customer",
+      "description": "Update a customer"
+    },
+    {
+      "id": "mailbox_get",
+      "label": "Get Mailbox",
+      "method": "GET",
+      "path": "/v2/mailboxes/{mailboxId}",
+      "fields": [
+        {
+          "id": "mailboxId",
+          "label": "Mailbox ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Mailbox",
+      "description": "Get data of a mailbox"
+    },
+    {
+      "id": "mailbox_get_all",
+      "label": "Get Many Mailbox",
+      "method": "GET",
+      "path": "/v2/mailboxes",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Mailbox",
+      "description": "Get many mailboxes"
+    },
+    {
+      "id": "thread_create",
+      "label": "Create Thread",
+      "method": "POST",
+      "path": "/v2/conversations/{conversationId}/{threadType}",
+      "fields": [
+        {
+          "id": "conversationId",
+          "label": "Conversation ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "type",
+          "label": "Type",
+          "type": "select",
+          "required": true,
+          "options": [
+            {
+              "value": "chat",
+              "label": "Chat"
+            },
+            {
+              "value": "customer",
+              "label": "Customer"
+            },
+            {
+              "value": "note",
+              "label": "Note"
+            },
+            {
+              "value": "phone",
+              "label": "Phone"
+            },
+            {
+              "value": "reply",
+              "label": "Reply"
+            }
+          ]
+        },
+        {
+          "id": "text",
+          "label": "Text",
+          "type": "text",
+          "required": true,
+          "description": "The chat text"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: createdAt, customerEmail, customerId, draft, imported)"
+        },
+        {
+          "id": "attachmentsUi",
+          "label": "Attachments",
+          "type": "json",
+          "placeholder": "Add Attachments",
+          "description": "Array of supported attachments to add to the message (JSON object; supported keys: attachmentsValues, attachmentsValues.fileName, attachmentsValues.mimeType, attachmentsValues.data, attachmentsBinary, attachmentsBinary.property)"
+        }
+      ],
+      "group": "Thread",
+      "description": "Create a new chat thread"
+    },
+    {
+      "id": "thread_get_all",
+      "label": "Get Many Thread",
+      "method": "GET",
+      "path": "/v2/conversations/{conversationId}/threads",
+      "fields": [
+        {
+          "id": "conversationId",
+          "label": "Conversation ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Thread",
+      "description": "Get many chat threads"
     }
   ]
 }

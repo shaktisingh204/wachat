@@ -4,274 +4,1025 @@
   "description": "Consume ServiceNow API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 8,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
     "credentialType": "oauth2"
   },
-  "baseUrl": "",
+  "baseUrl": "https://{subdomain}.service-now.com/api",
   "endpoints": [
     {
-      "id": "attachment_default",
-      "label": "List Attachment",
-      "method": "GET",
-      "path": "/attachment",
+      "id": "attachment_upload",
+      "label": "Upload Attachment",
+      "method": "POST",
+      "path": "/now/attachment/file",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your ServiceNow account (host token in the API base URL)"
+        },
+        {
+          "id": "tableName",
+          "label": "Table Name or ID",
           "type": "select",
-          "in": "query",
-          "description": "Authentication method to use",
-          "defaultValue": "oAuth2",
-          "options": [
-            {
-              "value": "basicAuth",
-              "label": "Basic Auth"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "id",
+          "label": "Table Record ID",
+          "type": "text",
+          "required": true,
+          "description": "Sys_id of the record in the table specified in Table Name that you want to attach the file to"
+        },
+        {
+          "id": "inputDataFieldName",
+          "label": "Input Data Field Name",
+          "type": "text",
+          "required": true,
+          "description": "Name of the binary property that contains the data to upload",
+          "defaultValue": "data"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: file_name)"
         }
-      ]
+      ],
+      "group": "Attachment",
+      "description": "Upload an attachment to a specific table record"
     },
     {
-      "id": "business_service_default",
-      "label": "List BusinessService",
-      "method": "GET",
-      "path": "/businessService",
+      "id": "attachment_delete",
+      "label": "Delete Attachment",
+      "method": "DELETE",
+      "path": "/now/attachment/{attachmentsSysId}",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "description": "Authentication method to use",
-          "defaultValue": "oAuth2",
-          "options": [
-            {
-              "value": "basicAuth",
-              "label": "Basic Auth"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your ServiceNow account (host token in the API base URL)"
+        },
+        {
+          "id": "attachmentId",
+          "label": "Attachment ID",
+          "type": "text",
+          "required": true,
+          "description": "Sys_id value of the attachment to delete"
         }
-      ]
+      ],
+      "group": "Attachment",
+      "description": "Delete an attachment"
     },
     {
-      "id": "configuration_items_default",
-      "label": "List ConfigurationItems",
+      "id": "attachment_get",
+      "label": "Get Attachment",
       "method": "GET",
-      "path": "/configurationItems",
+      "path": "/now/attachment/{attachmentsSysId}",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "description": "Authentication method to use",
-          "defaultValue": "oAuth2",
-          "options": [
-            {
-              "value": "basicAuth",
-              "label": "Basic Auth"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your ServiceNow account (host token in the API base URL)"
+        },
+        {
+          "id": "attachmentId",
+          "label": "Attachment ID",
+          "type": "text",
+          "required": true,
+          "description": "Sys_id value of the attachment to delete"
+        },
+        {
+          "id": "download",
+          "label": "Download Attachments",
+          "type": "toggle",
+          "required": true,
+          "defaultValue": false
+        },
+        {
+          "id": "outputField",
+          "label": "Output Field",
+          "type": "text",
+          "description": "Field name where downloaded data will be placed",
+          "defaultValue": "data"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: queryFilter)"
         }
-      ]
+      ],
+      "group": "Attachment",
+      "description": "Get an attachment"
     },
     {
-      "id": "department_default",
-      "label": "List Department",
+      "id": "attachment_get_all",
+      "label": "Get Many Attachment",
       "method": "GET",
-      "path": "/department",
+      "path": "/now/attachment",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your ServiceNow account (host token in the API base URL)"
+        },
+        {
+          "id": "tableName",
+          "label": "Table Name or ID",
           "type": "select",
-          "in": "query",
-          "description": "Authentication method to use",
-          "defaultValue": "oAuth2",
-          "options": [
-            {
-              "value": "basicAuth",
-              "label": "Basic Auth"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "download",
+          "label": "Download Attachments",
+          "type": "toggle",
+          "required": true,
+          "defaultValue": false
+        },
+        {
+          "id": "outputField",
+          "label": "Output Field",
+          "type": "text",
+          "description": "Field name where downloaded data will be placed",
+          "defaultValue": "data"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: queryFilter)"
         }
-      ]
+      ],
+      "group": "Attachment",
+      "description": "Get many attachments on a table"
     },
     {
-      "id": "dictionary_default",
-      "label": "List Dictionary",
+      "id": "business_service_get_all",
+      "label": "Get Many Business Service",
       "method": "GET",
-      "path": "/dictionary",
+      "path": "/now/table/cmdb_ci_service",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "description": "Authentication method to use",
-          "defaultValue": "oAuth2",
-          "options": [
-            {
-              "value": "basicAuth",
-              "label": "Basic Auth"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your ServiceNow account (host token in the API base URL)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: sysparm_exclude_reference_link, sysparm_fields, sysparm_query, sysparm_display_value)"
         }
-      ]
+      ],
+      "group": "Business Service",
+      "description": "Get many business services"
     },
     {
-      "id": "incident_default",
-      "label": "List Incident",
+      "id": "configuration_items_get_all",
+      "label": "Get Many Configuration Item",
       "method": "GET",
-      "path": "/incident",
+      "path": "/now/table/cmdb_ci",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "description": "Authentication method to use",
-          "defaultValue": "oAuth2",
-          "options": [
-            {
-              "value": "basicAuth",
-              "label": "Basic Auth"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your ServiceNow account (host token in the API base URL)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: sysparm_exclude_reference_link, sysparm_fields, sysparm_query, sysparm_display_value)"
         }
-      ]
+      ],
+      "group": "Configuration Item",
+      "description": "Get many configuration items"
     },
     {
-      "id": "table_record_default",
-      "label": "List TableRecord",
+      "id": "department_get_all",
+      "label": "Get Many Department",
       "method": "GET",
-      "path": "/tableRecord",
+      "path": "/now/table/cmn_department",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "description": "Authentication method to use",
-          "defaultValue": "oAuth2",
-          "options": [
-            {
-              "value": "basicAuth",
-              "label": "Basic Auth"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your ServiceNow account (host token in the API base URL)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: sysparm_exclude_reference_link, sysparm_fields, sysparm_query, sysparm_display_value)"
         }
-      ]
+      ],
+      "group": "Department",
+      "description": "Get many departments"
     },
     {
-      "id": "user_default",
-      "label": "List User",
+      "id": "dictionary_get_all",
+      "label": "Get Many Dictionary",
       "method": "GET",
-      "path": "/user",
+      "path": "/now/table/sys_dictionary",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "description": "Authentication method to use",
-          "defaultValue": "oAuth2",
-          "options": [
-            {
-              "value": "basicAuth",
-              "label": "Basic Auth"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your ServiceNow account (host token in the API base URL)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: sysparm_exclude_reference_link, sysparm_fields, sysparm_query, sysparm_display_value)"
         }
-      ]
+      ],
+      "group": "Dictionary",
+      "description": "Get many dictionaries"
     },
     {
-      "id": "user_group_default",
-      "label": "List UserGroup",
-      "method": "GET",
-      "path": "/userGroup",
+      "id": "incident_create",
+      "label": "Create Incident",
+      "method": "POST",
+      "path": "/now/table/incident",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "description": "Authentication method to use",
-          "defaultValue": "oAuth2",
-          "options": [
-            {
-              "value": "basicAuth",
-              "label": "Basic Auth"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your ServiceNow account (host token in the API base URL)"
+        },
+        {
+          "id": "short_description",
+          "label": "Short Description",
+          "type": "text",
+          "required": true,
+          "description": "Short description of the incident"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: assigned_to, assignment_group, business_service, caller_id, category, close_notes, cmdb_ci, contact_type, description, impact, close_code, state, subcategory, urgency)"
         }
-      ]
+      ],
+      "group": "Incident",
+      "description": "Create an incident"
     },
     {
-      "id": "user_role_default",
-      "label": "List UserRole",
-      "method": "GET",
-      "path": "/userRole",
+      "id": "incident_delete",
+      "label": "Delete Incident",
+      "method": "DELETE",
+      "path": "/now/table/incident/{id}",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your ServiceNow account (host token in the API base URL)"
+        },
+        {
+          "id": "id",
+          "label": "Incident ID",
+          "type": "text",
+          "required": true,
+          "description": "Unique identifier of the incident",
+          "in": "path"
+        }
+      ],
+      "group": "Incident",
+      "description": "Delete an incident"
+    },
+    {
+      "id": "incident_get",
+      "label": "Get Incident",
+      "method": "GET",
+      "path": "/now/table/incident/{id}",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your ServiceNow account (host token in the API base URL)"
+        },
+        {
+          "id": "id",
+          "label": "Incident ID",
+          "type": "text",
+          "required": true,
+          "description": "Unique identifier of the incident",
+          "in": "path"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: sysparm_exclude_reference_link, sysparm_fields, sysparm_display_value)"
+        }
+      ],
+      "group": "Incident",
+      "description": "Get an incident"
+    },
+    {
+      "id": "incident_get_all",
+      "label": "Get Many Incident",
+      "method": "GET",
+      "path": "/now/table/incident",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your ServiceNow account (host token in the API base URL)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: sysparm_exclude_reference_link, sysparm_fields, sysparm_query, sysparm_display_value)"
+        }
+      ],
+      "group": "Incident",
+      "description": "Get many incidents"
+    },
+    {
+      "id": "incident_update",
+      "label": "Update Incident",
+      "method": "PATCH",
+      "path": "/now/table/incident/{id}",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your ServiceNow account (host token in the API base URL)"
+        },
+        {
+          "id": "id",
+          "label": "Incident ID",
+          "type": "text",
+          "required": true,
+          "description": "Unique identifier of the incident",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: assigned_to, assignment_group, business_service, caller_id, category, close_notes, cmdb_ci, contact_type, description, impact, close_code, hold_reason, state, subcategory, urgency, work_notes)"
+        }
+      ],
+      "group": "Incident",
+      "description": "Update an incident"
+    },
+    {
+      "id": "table_record_create",
+      "label": "Create Table Record",
+      "method": "POST",
+      "path": "/now/table/{tableName}",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your ServiceNow account (host token in the API base URL)"
+        },
+        {
+          "id": "tableName",
+          "label": "Table Name or ID",
           "type": "select",
-          "in": "query",
-          "description": "Authentication method to use",
-          "defaultValue": "oAuth2",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        },
+        {
+          "id": "dataToSend",
+          "label": "Data to Send",
+          "type": "select",
+          "defaultValue": "columns",
           "options": [
             {
-              "value": "basicAuth",
-              "label": "Basic Auth"
+              "value": "mapInput",
+              "label": "Auto-Map Input Data to Columns"
             },
             {
-              "value": "oAuth2",
-              "label": "OAuth2"
+              "value": "columns",
+              "label": "Define Below for Each Column"
+            },
+            {
+              "value": "nothing",
+              "label": "Nothing"
             }
           ]
+        },
+        {
+          "id": "inputsToIgnore",
+          "label": "Inputs to Ignore",
+          "type": "text",
+          "description": "List of input properties to avoid sending, separated by commas. Leave empty to send all inputs."
+        },
+        {
+          "id": "fieldsToSend",
+          "label": "Fields to Send",
+          "type": "json",
+          "placeholder": "Add field to send",
+          "description": "(JSON object; supported keys: field, field.column, field.value)"
         }
-      ]
+      ],
+      "group": "Table Record",
+      "description": "Create a table record"
+    },
+    {
+      "id": "table_record_delete",
+      "label": "Delete Table Record",
+      "method": "DELETE",
+      "path": "/now/table/{tableName}/{id}",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your ServiceNow account (host token in the API base URL)"
+        },
+        {
+          "id": "tableName",
+          "label": "Table Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Name of the table in which the record exists. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "id",
+          "label": "Table Record ID",
+          "type": "text",
+          "required": true,
+          "description": "Unique identifier of the record",
+          "in": "path"
+        }
+      ],
+      "group": "Table Record",
+      "description": "Delete a table record"
+    },
+    {
+      "id": "table_record_get",
+      "label": "Get Table Record",
+      "method": "GET",
+      "path": "/now/table/{tableName}/{id}",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your ServiceNow account (host token in the API base URL)"
+        },
+        {
+          "id": "tableName",
+          "label": "Table Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Name of the table in which the record exists. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "id",
+          "label": "Table Record ID",
+          "type": "text",
+          "required": true,
+          "description": "Unique identifier of the record",
+          "in": "path"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: sysparm_exclude_reference_link, sysparm_fields, sysparm_display_value)"
+        }
+      ],
+      "group": "Table Record",
+      "description": "Get a table record"
+    },
+    {
+      "id": "table_record_get_all",
+      "label": "Get Many Table Record",
+      "method": "GET",
+      "path": "/now/table/{tableName}",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your ServiceNow account (host token in the API base URL)"
+        },
+        {
+          "id": "tableName",
+          "label": "Table Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: sysparm_exclude_reference_link, sysparm_fields, sysparm_query, sysparm_display_value)"
+        }
+      ],
+      "group": "Table Record",
+      "description": "Get many table records"
+    },
+    {
+      "id": "table_record_update",
+      "label": "Update Table Record",
+      "method": "PATCH",
+      "path": "/now/table/{tableName}/{id}",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your ServiceNow account (host token in the API base URL)"
+        },
+        {
+          "id": "tableName",
+          "label": "Table Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        },
+        {
+          "id": "id",
+          "label": "Table Record ID",
+          "type": "text",
+          "required": true,
+          "description": "Unique identifier of the record",
+          "in": "path"
+        },
+        {
+          "id": "dataToSend",
+          "label": "Data to Send",
+          "type": "select",
+          "defaultValue": "columns",
+          "options": [
+            {
+              "value": "mapInput",
+              "label": "Auto-Map Input Data to Columns"
+            },
+            {
+              "value": "columns",
+              "label": "Define Below for Each Column"
+            },
+            {
+              "value": "nothing",
+              "label": "Nothing"
+            }
+          ]
+        },
+        {
+          "id": "inputsToIgnore",
+          "label": "Inputs to Ignore",
+          "type": "text",
+          "description": "List of input properties to avoid sending, separated by commas. Leave empty to send all inputs."
+        },
+        {
+          "id": "fieldsToSend",
+          "label": "Fields to Send",
+          "type": "json",
+          "placeholder": "Add field to send",
+          "description": "(JSON object; supported keys: field, field.column, field.value)"
+        }
+      ],
+      "group": "Table Record",
+      "description": "Update a table record"
+    },
+    {
+      "id": "user_create",
+      "label": "Create User",
+      "method": "POST",
+      "path": "/now/table/sys_user",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your ServiceNow account (host token in the API base URL)"
+        },
+        {
+          "id": "short_description",
+          "label": "Short Description",
+          "type": "text",
+          "required": true,
+          "description": "Short description of the user"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: active, building, city, company, country, department, email, first_name, gender, home_phone, last_name, location, manager, middle_name, mobile_phone, user_password, password_needs_reset, phone, roles, source, state, street, user_name, zip)"
+        }
+      ],
+      "group": "User",
+      "description": "Create a user"
+    },
+    {
+      "id": "user_delete",
+      "label": "Delete User",
+      "method": "DELETE",
+      "path": "/now/table/sys_user/{id}",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your ServiceNow account (host token in the API base URL)"
+        },
+        {
+          "id": "id",
+          "label": "User ID",
+          "type": "text",
+          "required": true,
+          "description": "Unique identifier of the user",
+          "in": "path"
+        }
+      ],
+      "group": "User",
+      "description": "Delete a user"
+    },
+    {
+      "id": "user_get",
+      "label": "Get User",
+      "method": "GET",
+      "path": "/now/table/sys_user/{id}",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your ServiceNow account (host token in the API base URL)"
+        },
+        {
+          "id": "getOption",
+          "label": "Retrieve Identifier",
+          "type": "select",
+          "required": true,
+          "description": "Unique identifier of the user",
+          "defaultValue": "id",
+          "options": [
+            {
+              "value": "id",
+              "label": "ID"
+            },
+            {
+              "value": "user_name",
+              "label": "Username"
+            }
+          ]
+        },
+        {
+          "id": "user_name",
+          "label": "Username",
+          "type": "text",
+          "required": true,
+          "description": "Unique identifier of the user"
+        },
+        {
+          "id": "id",
+          "label": "User ID",
+          "type": "text",
+          "required": true,
+          "description": "Unique identifier of the user",
+          "in": "path"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: sysparm_exclude_reference_link, sysparm_fields, sysparm_display_value)"
+        }
+      ],
+      "group": "User",
+      "description": "Get a user"
+    },
+    {
+      "id": "user_get_all",
+      "label": "Get Many User",
+      "method": "GET",
+      "path": "/now/table/sys_user",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your ServiceNow account (host token in the API base URL)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: sysparm_exclude_reference_link, sysparm_fields, sysparm_query, sysparm_display_value)"
+        }
+      ],
+      "group": "User",
+      "description": "Get many users"
+    },
+    {
+      "id": "user_update",
+      "label": "Update User",
+      "method": "PATCH",
+      "path": "/now/table/sys_user/{id}",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your ServiceNow account (host token in the API base URL)"
+        },
+        {
+          "id": "id",
+          "label": "User ID",
+          "type": "text",
+          "required": true,
+          "description": "Unique identifier of the user",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: active, building, city, company, country, department, email, first_name, gender, home_phone, last_name, location, manager, middle_name, mobile_phone, user_password, password_needs_reset, phone, roles, source, state, street, user_name, zip)"
+        }
+      ],
+      "group": "User",
+      "description": "Update a user"
+    },
+    {
+      "id": "user_group_get_all",
+      "label": "Get Many User Group",
+      "method": "GET",
+      "path": "/now/table/sys_user_group",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your ServiceNow account (host token in the API base URL)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: sysparm_exclude_reference_link, sysparm_fields, sysparm_query, sysparm_display_value)"
+        }
+      ],
+      "group": "User Group",
+      "description": "Get many user groups"
+    },
+    {
+      "id": "user_role_get_all",
+      "label": "Get Many User Role",
+      "method": "GET",
+      "path": "/now/table/sys_user_role",
+      "fields": [
+        {
+          "id": "subdomain",
+          "label": "Subdomain",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Subdomain of your ServiceNow account (host token in the API base URL)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: sysparm_exclude_reference_link, sysparm_fields, sysparm_query, sysparm_display_value)"
+        }
+      ],
+      "group": "User Role",
+      "description": "Get many user roles"
     }
   ]
 }

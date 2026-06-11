@@ -4,35 +4,246 @@
   "description": "Consume Open AI",
   "category": "ai",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 10,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.openai.com",
   "endpoints": [
     {
-      "id": "chat_default",
-      "label": "List Chat",
-      "method": "GET",
-      "path": "/chat",
-      "fields": []
+      "id": "chat_complete",
+      "label": "Complete Chat",
+      "method": "POST",
+      "path": "/v1/chat/completions",
+      "fields": [
+        {
+          "id": "model",
+          "label": "Model",
+          "type": "select",
+          "description": "The model which will generate the completion. Learn more.",
+          "defaultValue": "gpt-3.5-turbo",
+          "in": "body"
+        },
+        {
+          "id": "messages",
+          "label": "Prompt",
+          "type": "json",
+          "placeholder": "Add Message",
+          "description": "(JSON object; supported keys: messages, messages.role, messages.content)",
+          "in": "body"
+        },
+        {
+          "id": "simplifyOutput",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "Additional options to add (JSON object; supported keys: echo, frequency_penalty, maxTokens, n, presence_penalty, temperature, topP)"
+        }
+      ],
+      "group": "Chat",
+      "description": "Create one or more completions for a given text"
     },
     {
-      "id": "image_default",
-      "label": "List Image",
-      "method": "GET",
-      "path": "/image",
-      "fields": []
+      "id": "image_create",
+      "label": "Create Image",
+      "method": "POST",
+      "path": "/v1/images/generations",
+      "fields": [
+        {
+          "id": "prompt",
+          "label": "Prompt",
+          "type": "text",
+          "placeholder": "e.g. A cute cat eating a dinosaur",
+          "description": "A text description of the desired image(s). The maximum length is 1000 characters.",
+          "in": "body"
+        },
+        {
+          "id": "model",
+          "label": "Model",
+          "type": "select",
+          "description": "The model to use for image generation",
+          "defaultValue": "dall-e-2",
+          "in": "body"
+        },
+        {
+          "id": "response_format",
+          "label": "Response Format",
+          "type": "select",
+          "description": "The format in which to return the image(s)",
+          "defaultValue": "binaryData",
+          "options": [
+            {
+              "value": "binaryData",
+              "label": "Binary File"
+            },
+            {
+              "value": "imageUrl",
+              "label": "Image Url"
+            }
+          ],
+          "in": "body"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "Additional options to add (JSON object; supported keys: n, quality, size, style)"
+        }
+      ],
+      "group": "Image",
+      "description": "Create an image for a given text"
     },
     {
-      "id": "text_default",
-      "label": "List Text",
-      "method": "GET",
-      "path": "/text",
-      "fields": []
+      "id": "text_complete",
+      "label": "Complete Text",
+      "method": "POST",
+      "path": "/v1/completions",
+      "fields": [
+        {
+          "id": "model",
+          "label": "Model",
+          "type": "select",
+          "description": "The model which will generate the completion. Learn more.",
+          "defaultValue": "gpt-3.5-turbo-instruct",
+          "in": "body"
+        },
+        {
+          "id": "prompt",
+          "label": "Prompt",
+          "type": "textarea",
+          "placeholder": "e.g. Say this is a test",
+          "description": "The prompt to generate completion(s) for",
+          "in": "body"
+        },
+        {
+          "id": "simplifyOutput",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "Additional options to add (JSON object; supported keys: echo, frequency_penalty, maxTokens, n, presence_penalty, temperature, topP)"
+        }
+      ],
+      "group": "Text",
+      "description": "Create one or more completions for a given text"
+    },
+    {
+      "id": "text_edit",
+      "label": "Edit Text",
+      "method": "POST",
+      "path": "/v1/edits",
+      "fields": [
+        {
+          "id": "model",
+          "label": "Model",
+          "type": "select",
+          "description": "The model which will generate the edited version. Learn more.",
+          "defaultValue": "text-davinci-edit-001",
+          "options": [
+            {
+              "value": "code-davinci-edit-001",
+              "label": "code-davinci-edit-001"
+            },
+            {
+              "value": "text-davinci-edit-001",
+              "label": "text-davinci-edit-001"
+            }
+          ],
+          "in": "body"
+        },
+        {
+          "id": "input",
+          "label": "Input",
+          "type": "text",
+          "placeholder": "e.g. What day of the wek is it?",
+          "description": "The input text to be edited",
+          "in": "body"
+        },
+        {
+          "id": "instruction",
+          "label": "Instruction",
+          "type": "text",
+          "placeholder": "e.g. Fix the spelling mistakes",
+          "description": "The instruction that tells the model how to edit the input text",
+          "in": "body"
+        },
+        {
+          "id": "simplifyOutput",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "Additional options to add (JSON object; supported keys: echo, frequency_penalty, maxTokens, n, presence_penalty, temperature, topP)"
+        }
+      ],
+      "group": "Text",
+      "description": "Create an edited version for a given text"
+    },
+    {
+      "id": "text_moderate",
+      "label": "Moderate Text",
+      "method": "POST",
+      "path": "/v1/moderations",
+      "fields": [
+        {
+          "id": "model",
+          "label": "Model",
+          "type": "select",
+          "description": "The model which will classify the text. Learn more.",
+          "defaultValue": "text-moderation-latest",
+          "options": [
+            {
+              "value": "text-moderation-stable",
+              "label": "text-moderation-stable"
+            },
+            {
+              "value": "text-moderation-latest",
+              "label": "text-moderation-latest"
+            }
+          ],
+          "in": "body"
+        },
+        {
+          "id": "input",
+          "label": "Input",
+          "type": "text",
+          "placeholder": "e.g. My cat is adorable ❤️❤️",
+          "description": "The input text to classify",
+          "in": "body"
+        },
+        {
+          "id": "simplifyOutput",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        }
+      ],
+      "group": "Text",
+      "description": "Classify if a text violates OpenAI's content policy"
     }
   ]
 }

@@ -4,8 +4,8 @@
   "description": "Consume Google Calendar API",
   "category": "productivity",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -16,35 +16,274 @@
       "credentialType": "oauth2"
     }
   },
-  "baseUrl": "",
+  "baseUrl": "https://www.googleapis.com/calendar/v3",
   "endpoints": [
     {
-      "id": "calendar_default",
-      "label": "List Calendar",
-      "method": "GET",
-      "path": "/calendar",
+      "id": "calendar_availability",
+      "label": "Availability Calendar",
+      "method": "POST",
+      "path": "/calendar/v3/freeBusy",
       "fields": [
         {
-          "id": "useN8nTimeZone",
-          "label": "This node will use the time zone set in n8n’s settings, but you can override this in the workflow settings",
+          "id": "calendar",
+          "label": "Calendar",
           "type": "text",
-          "in": "query"
+          "required": true,
+          "description": "Google Calendar to operate on (provide the ID)"
+        },
+        {
+          "id": "timeMin",
+          "label": "Start Time",
+          "type": "text",
+          "required": true,
+          "placeholder": "2024-01-01T00:00:00Z",
+          "description": "Start of the interval (ISO 8601 date-time)"
+        },
+        {
+          "id": "timeMax",
+          "label": "End Time",
+          "type": "text",
+          "required": true,
+          "placeholder": "2024-01-01T00:00:00Z",
+          "description": "End of the interval (ISO 8601 date-time)"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: outputFormat, timezone)"
         }
-      ]
+      ],
+      "group": "Calendar",
+      "description": "If a time-slot is available in a calendar"
     },
     {
-      "id": "event_default",
-      "label": "List Event",
-      "method": "GET",
-      "path": "/event",
+      "id": "event_create",
+      "label": "Create Event",
+      "method": "POST",
+      "path": "/calendar/v3/calendars/{calendarId}/events",
       "fields": [
         {
-          "id": "useN8nTimeZone",
-          "label": "This node will use the time zone set in n8n’s settings, but you can override this in the workflow settings",
+          "id": "calendar",
+          "label": "Calendar",
           "type": "text",
-          "in": "query"
+          "required": true,
+          "description": "Google Calendar to operate on (provide the ID)"
+        },
+        {
+          "id": "start",
+          "label": "Start",
+          "type": "text",
+          "required": true,
+          "placeholder": "2024-01-01T00:00:00Z",
+          "description": "Start time of the event (ISO 8601 date-time)"
+        },
+        {
+          "id": "end",
+          "label": "End",
+          "type": "text",
+          "required": true,
+          "placeholder": "2024-01-01T00:00:00Z",
+          "description": "End time of the event (ISO 8601 date-time)"
+        },
+        {
+          "id": "useDefaultReminders",
+          "label": "Use Default Reminders",
+          "type": "toggle",
+          "defaultValue": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: allday, attendees, color, conferenceDataUi, description, guestsCanInviteOthers, guestsCanModify, guestsCanSeeOtherGuests, id, location, maxAttendees, repeatFrecuency, repeatHowManyTimes, repeatUntil, rrule, sendUpdates, showMeAs, summary, visibility)"
+        },
+        {
+          "id": "remindersUi",
+          "label": "Reminders",
+          "type": "json",
+          "placeholder": "Add Reminder",
+          "description": "If the event doesn't use the default reminders, this lists the reminders specific to the event (JSON object; supported keys: remindersValues, remindersValues.method, remindersValues.minutes)"
         }
-      ]
+      ],
+      "group": "Event",
+      "description": "Add a event to calendar"
+    },
+    {
+      "id": "event_delete",
+      "label": "Delete Event",
+      "method": "DELETE",
+      "path": "/calendar/v3/calendars/{calendarId}/events/{eventId}",
+      "fields": [
+        {
+          "id": "calendar",
+          "label": "Calendar",
+          "type": "text",
+          "required": true,
+          "description": "Google Calendar to operate on (provide the ID)"
+        },
+        {
+          "id": "eventId",
+          "label": "Event ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: sendUpdates)"
+        }
+      ],
+      "group": "Event",
+      "description": "Delete an event"
+    },
+    {
+      "id": "event_get",
+      "label": "Get Event",
+      "method": "GET",
+      "path": "/calendar/v3/calendars/{calendarId}/events/{eventId}",
+      "fields": [
+        {
+          "id": "calendar",
+          "label": "Calendar",
+          "type": "text",
+          "required": true,
+          "description": "Google Calendar to operate on (provide the ID)"
+        },
+        {
+          "id": "eventId",
+          "label": "Event ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: maxAttendees, returnNextInstance, timeZone)"
+        }
+      ],
+      "group": "Event",
+      "description": "Retrieve an event"
+    },
+    {
+      "id": "event_get_all",
+      "label": "Get Many Event",
+      "method": "GET",
+      "path": "/calendar/v3/calendars/{calendarId}/events",
+      "fields": [
+        {
+          "id": "calendar",
+          "label": "Calendar",
+          "type": "text",
+          "required": true,
+          "description": "Google Calendar to operate on (provide the ID)"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "timeMin",
+          "label": "After",
+          "type": "text",
+          "placeholder": "2024-01-01T00:00:00Z",
+          "description": "At least some part of the event must be after this time, use expression to set a date, or switch to fixed mode to choose date from widget (ISO 8601 date-time)"
+        },
+        {
+          "id": "timeMax",
+          "label": "Before",
+          "type": "text",
+          "placeholder": "2024-01-01T00:00:00Z",
+          "description": "At least some part of the event must be before this time, use expression to set a date, or switch to fixed mode to choose date from widget (ISO 8601 date-time)"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: timeMin, timeMax, singleEvents, fields, iCalUID, maxAttendees, orderBy, query, recurringEventHandling, showDeleted, showHiddenInvitations, timeZone, updatedMin)"
+        }
+      ],
+      "group": "Event",
+      "description": "Retrieve many events from a calendar"
+    },
+    {
+      "id": "event_update",
+      "label": "Update Event",
+      "method": "PATCH",
+      "path": "/calendar/v3/calendars/{calendarId}/events/{eventId}",
+      "fields": [
+        {
+          "id": "calendar",
+          "label": "Calendar",
+          "type": "text",
+          "required": true,
+          "description": "Google Calendar to operate on (provide the ID)"
+        },
+        {
+          "id": "eventId",
+          "label": "Event ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "modifyTarget",
+          "label": "Modify",
+          "type": "select",
+          "defaultValue": "instance",
+          "options": [
+            {
+              "value": "instance",
+              "label": "Recurring Event Instance"
+            },
+            {
+              "value": "event",
+              "label": "Recurring Event"
+            }
+          ]
+        },
+        {
+          "id": "useDefaultReminders",
+          "label": "Use Default Reminders",
+          "type": "toggle",
+          "defaultValue": true
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: allday, attendeesUi, attendees, color, description, end, guestsCanInviteOthers, guestsCanModify, guestsCanSeeOtherGuests, id, location, maxAttendees, repeatFrecuency, repeatHowManyTimes, repeatUntil, rrule, sendUpdates, showMeAs, start, summary, visibility)"
+        },
+        {
+          "id": "remindersUi",
+          "label": "Reminders",
+          "type": "json",
+          "placeholder": "Add Reminder",
+          "description": "If the event doesn't use the default reminders, this lists the reminders specific to the event (JSON object; supported keys: remindersValues, remindersValues.method, remindersValues.minutes)"
+        }
+      ],
+      "group": "Event",
+      "description": "Update an event"
     }
   ]
 }

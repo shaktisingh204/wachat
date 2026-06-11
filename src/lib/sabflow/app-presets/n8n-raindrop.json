@@ -4,42 +4,343 @@
   "description": "Consume the Raindrop API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
     "credentialType": "oauth2"
   },
-  "baseUrl": "",
+  "baseUrl": "https://api.raindrop.io/rest/v1",
   "endpoints": [
     {
-      "id": "bookmark_default",
-      "label": "List Bookmark",
-      "method": "GET",
-      "path": "/bookmark",
-      "fields": []
+      "id": "bookmark_create",
+      "label": "Create Bookmark",
+      "method": "POST",
+      "path": "/raindrop",
+      "fields": [
+        {
+          "id": "collectionId",
+          "label": "Collection Name or ID",
+          "type": "select",
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "link",
+          "label": "Link",
+          "type": "text",
+          "required": true,
+          "description": "Link of the bookmark to be created"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: important, order, pleaseParse, tags, title)"
+        }
+      ],
+      "group": "Bookmark",
+      "description": "Create a bookmark"
     },
     {
-      "id": "collection_default",
-      "label": "List Collection",
+      "id": "bookmark_delete",
+      "label": "Delete Bookmark",
+      "method": "DELETE",
+      "path": "/raindrop/{bookmarkId}",
+      "fields": [
+        {
+          "id": "bookmarkId",
+          "label": "Bookmark ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the bookmark to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Bookmark",
+      "description": "Delete a bookmark"
+    },
+    {
+      "id": "bookmark_get",
+      "label": "Get Bookmark",
+      "method": "GET",
+      "path": "/raindrop/{bookmarkId}",
+      "fields": [
+        {
+          "id": "bookmarkId",
+          "label": "Bookmark ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the bookmark to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Bookmark",
+      "description": "Get a bookmark"
+    },
+    {
+      "id": "bookmark_get_all",
+      "label": "Get Many Bookmark",
+      "method": "GET",
+      "path": "/raindrops/{collectionId}",
+      "fields": [
+        {
+          "id": "collectionId",
+          "label": "Collection Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The ID of the collection from which to retrieve all bookmarks. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 5
+        }
+      ],
+      "group": "Bookmark",
+      "description": "Get many bookmarks"
+    },
+    {
+      "id": "bookmark_update",
+      "label": "Update Bookmark",
+      "method": "PUT",
+      "path": "/raindrop/{bookmarkId}",
+      "fields": [
+        {
+          "id": "bookmarkId",
+          "label": "Bookmark ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the bookmark to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: collectionId, important, order, pleaseParse, tags, title)"
+        }
+      ],
+      "group": "Bookmark",
+      "description": "Update a bookmark"
+    },
+    {
+      "id": "collection_create",
+      "label": "Create Collection",
+      "method": "POST",
+      "path": "/collection",
+      "fields": [
+        {
+          "id": "title",
+          "label": "Title",
+          "type": "text",
+          "required": true,
+          "description": "Title of the collection to create"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: cover, public, parentId, sort, view)"
+        }
+      ],
+      "group": "Collection",
+      "description": "Create a collection"
+    },
+    {
+      "id": "collection_delete",
+      "label": "Delete Collection",
+      "method": "DELETE",
+      "path": "/collection/{collectionId}",
+      "fields": [
+        {
+          "id": "collectionId",
+          "label": "Collection ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the collection to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Collection",
+      "description": "Delete a collection"
+    },
+    {
+      "id": "collection_get",
+      "label": "Get Collection",
+      "method": "GET",
+      "path": "/collection/{collectionId}",
+      "fields": [
+        {
+          "id": "collectionId",
+          "label": "Collection ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the collection to retrieve",
+          "in": "path"
+        }
+      ],
+      "group": "Collection",
+      "description": "Get a collection"
+    },
+    {
+      "id": "collection_get_all",
+      "label": "Get Many Collection",
       "method": "GET",
       "path": "/collection",
-      "fields": []
+      "fields": [
+        {
+          "id": "type",
+          "label": "Type",
+          "type": "select",
+          "required": true,
+          "defaultValue": "parent",
+          "options": [
+            {
+              "value": "parent",
+              "label": "Parent"
+            },
+            {
+              "value": "children",
+              "label": "Children"
+            }
+          ]
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 5
+        }
+      ],
+      "group": "Collection",
+      "description": "[unverified path] Get many collections"
     },
     {
-      "id": "tag_default",
-      "label": "List Tag",
+      "id": "collection_update",
+      "label": "Update Collection",
+      "method": "PUT",
+      "path": "/collection/{collectionId}",
+      "fields": [
+        {
+          "id": "collectionId",
+          "label": "Collection ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the collection to update",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: cover, public, parentId, sort, title, view)"
+        }
+      ],
+      "group": "Collection",
+      "description": "Update a collection"
+    },
+    {
+      "id": "tag_delete",
+      "label": "Delete Tag",
+      "method": "DELETE",
+      "path": "/tags",
+      "fields": [
+        {
+          "id": "tags",
+          "label": "Tags",
+          "type": "text",
+          "required": true,
+          "description": "One or more tags to delete. Enter comma-separated values to delete multiple tags."
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: collectionId)"
+        }
+      ],
+      "group": "Tag",
+      "description": "Delete a tag"
+    },
+    {
+      "id": "tag_get_all",
+      "label": "Get Many Tag",
       "method": "GET",
-      "path": "/tag",
-      "fields": []
+      "path": "/tags",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 5
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: collectionId)"
+        }
+      ],
+      "group": "Tag",
+      "description": "Get many tags"
     },
     {
-      "id": "user_default",
-      "label": "List User",
+      "id": "user_get",
+      "label": "Get User",
       "method": "GET",
       "path": "/user",
-      "fields": []
+      "fields": [
+        {
+          "id": "self",
+          "label": "Self",
+          "type": "toggle",
+          "required": true,
+          "description": "Whether to return details on the logged-in user",
+          "defaultValue": true
+        },
+        {
+          "id": "userId",
+          "label": "User ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the user to retrieve"
+        }
+      ],
+      "group": "User",
+      "description": "Get a user"
     }
   ]
 }

@@ -4,8 +4,8 @@
   "description": "Consume YouTube API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -16,42 +16,879 @@
       "credentialType": "oauth2"
     }
   },
-  "baseUrl": "",
+  "baseUrl": "https://www.googleapis.com",
   "endpoints": [
     {
-      "id": "channel_default",
-      "label": "List Channel",
+      "id": "channel_get",
+      "label": "Get Channel",
       "method": "GET",
-      "path": "/channel",
-      "fields": []
+      "path": "/youtube/v3/channels",
+      "fields": [
+        {
+          "id": "channelId",
+          "label": "Channel ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the channel"
+        },
+        {
+          "id": "part",
+          "label": "Fields",
+          "type": "select",
+          "required": true,
+          "description": "The fields parameter specifies a comma-separated list of one or more channel resource properties that the API response will include (multiple values: comma-separated)",
+          "options": [
+            {
+              "value": "*",
+              "label": "*"
+            },
+            {
+              "value": "brandingSettings",
+              "label": "Branding Settings"
+            },
+            {
+              "value": "contentDetails",
+              "label": "Content Details"
+            },
+            {
+              "value": "contentOwnerDetails",
+              "label": "Content Owner Details"
+            },
+            {
+              "value": "id",
+              "label": "ID"
+            },
+            {
+              "value": "localizations",
+              "label": "Localizations"
+            },
+            {
+              "value": "snippet",
+              "label": "Snippet"
+            },
+            {
+              "value": "statistics",
+              "label": "Statistics"
+            },
+            {
+              "value": "status",
+              "label": "Status"
+            },
+            {
+              "value": "topicDetails",
+              "label": "Topic Details"
+            }
+          ]
+        }
+      ],
+      "group": "Channel",
+      "description": "Retrieve a channel"
     },
     {
-      "id": "playlist_default",
-      "label": "List Playlist",
+      "id": "channel_get_all",
+      "label": "Get Many Channel",
       "method": "GET",
-      "path": "/playlist",
-      "fields": []
+      "path": "/youtube/v3/channels",
+      "fields": [
+        {
+          "id": "part",
+          "label": "Fields",
+          "type": "select",
+          "required": true,
+          "description": "The fields parameter specifies a comma-separated list of one or more channel resource properties that the API response will include (multiple values: comma-separated)",
+          "options": [
+            {
+              "value": "*",
+              "label": "*"
+            },
+            {
+              "value": "brandingSettings",
+              "label": "Branding Settings"
+            },
+            {
+              "value": "contentDetails",
+              "label": "Content Details"
+            },
+            {
+              "value": "contentOwnerDetails",
+              "label": "Content Owner Details"
+            },
+            {
+              "value": "id",
+              "label": "ID"
+            },
+            {
+              "value": "localizations",
+              "label": "Localizations"
+            },
+            {
+              "value": "snippet",
+              "label": "Snippet"
+            },
+            {
+              "value": "statistics",
+              "label": "Statistics"
+            },
+            {
+              "value": "status",
+              "label": "Status"
+            },
+            {
+              "value": "topicDetails",
+              "label": "Topic Details"
+            }
+          ]
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 25
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: categoryId, forUsername, id, managedByMe)"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: h1, onBehalfOfContentOwner)"
+        }
+      ],
+      "group": "Channel",
+      "description": "Retrieve many channels"
     },
     {
-      "id": "playlist_item_default",
-      "label": "List PlaylistItem",
-      "method": "GET",
-      "path": "/playlistItem",
-      "fields": []
+      "id": "channel_update",
+      "label": "Update Channel",
+      "method": "PUT",
+      "path": "/youtube/v3/channels",
+      "fields": [
+        {
+          "id": "channelId",
+          "label": "Channel ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: brandingSettingsUi, onBehalfOfContentOwner)"
+        }
+      ],
+      "group": "Channel",
+      "description": "Update a channel"
     },
     {
-      "id": "video_default",
-      "label": "List Video",
-      "method": "GET",
-      "path": "/video",
-      "fields": []
+      "id": "channel_upload_banner",
+      "label": "Upload Banner Channel",
+      "method": "POST",
+      "path": "/upload/youtube/v3/channelBanners/insert",
+      "fields": [
+        {
+          "id": "channelId",
+          "label": "Channel ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the channel"
+        },
+        {
+          "id": "binaryProperty",
+          "label": "Input Binary Field",
+          "type": "text",
+          "required": true,
+          "defaultValue": "data"
+        }
+      ],
+      "group": "Channel",
+      "description": "Upload a channel banner"
     },
     {
-      "id": "video_category_default",
-      "label": "List VideoCategory",
+      "id": "playlist_create",
+      "label": "Create Playlist",
+      "method": "POST",
+      "path": "/youtube/v3/playlists",
+      "fields": [
+        {
+          "id": "title",
+          "label": "Title",
+          "type": "text",
+          "required": true,
+          "description": "The playlist's title"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: description, privacyStatus, tags, defaultLanguage, onBehalfOfContentOwnerChannel, onBehalfOfContentOwner)"
+        }
+      ],
+      "group": "Playlist",
+      "description": "Create a playlist"
+    },
+    {
+      "id": "playlist_delete",
+      "label": "Delete Playlist",
+      "method": "DELETE",
+      "path": "/youtube/v3/playlists",
+      "fields": [
+        {
+          "id": "playlistId",
+          "label": "Playlist ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: onBehalfOfContentOwner)"
+        }
+      ],
+      "group": "Playlist",
+      "description": "Delete a playlist"
+    },
+    {
+      "id": "playlist_get",
+      "label": "Get Playlist",
       "method": "GET",
-      "path": "/videoCategory",
-      "fields": []
+      "path": "/youtube/v3/playlists",
+      "fields": [
+        {
+          "id": "playlistId",
+          "label": "Playlist ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "part",
+          "label": "Fields",
+          "type": "select",
+          "required": true,
+          "description": "The fields parameter specifies a comma-separated list of one or more playlist resource properties that the API response will include (multiple values: comma-separated)",
+          "options": [
+            {
+              "value": "*",
+              "label": "*"
+            },
+            {
+              "value": "contentDetails",
+              "label": "Content Details"
+            },
+            {
+              "value": "id",
+              "label": "ID"
+            },
+            {
+              "value": "localizations",
+              "label": "Localizations"
+            },
+            {
+              "value": "player",
+              "label": "Player"
+            },
+            {
+              "value": "snippet",
+              "label": "Snippet"
+            },
+            {
+              "value": "status",
+              "label": "Status"
+            }
+          ]
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel)"
+        }
+      ],
+      "group": "Playlist",
+      "description": "Get a playlist"
+    },
+    {
+      "id": "playlist_get_all",
+      "label": "Get Many Playlist",
+      "method": "GET",
+      "path": "/youtube/v3/playlists",
+      "fields": [
+        {
+          "id": "part",
+          "label": "Fields",
+          "type": "select",
+          "required": true,
+          "description": "The fields parameter specifies a comma-separated list of one or more playlist resource properties that the API response will include (multiple values: comma-separated)",
+          "options": [
+            {
+              "value": "*",
+              "label": "*"
+            },
+            {
+              "value": "contentDetails",
+              "label": "Content Details"
+            },
+            {
+              "value": "id",
+              "label": "ID"
+            },
+            {
+              "value": "localizations",
+              "label": "Localizations"
+            },
+            {
+              "value": "player",
+              "label": "Player"
+            },
+            {
+              "value": "snippet",
+              "label": "Snippet"
+            },
+            {
+              "value": "status",
+              "label": "Status"
+            }
+          ]
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 25
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: channelId, id)"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: onBehalfOfContentOwnerChannel, onBehalfOfContentOwner)"
+        }
+      ],
+      "group": "Playlist",
+      "description": "Retrieve many playlists"
+    },
+    {
+      "id": "playlist_update",
+      "label": "Update Playlist",
+      "method": "PUT",
+      "path": "/youtube/v3/playlists",
+      "fields": [
+        {
+          "id": "playlistId",
+          "label": "Playlist ID",
+          "type": "text",
+          "required": true,
+          "description": "The playlist's title"
+        },
+        {
+          "id": "title",
+          "label": "Title",
+          "type": "text",
+          "required": true,
+          "description": "The playlist's title"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: defaultLanguage, description, onBehalfOfContentOwner, privacyStatus, tags)"
+        }
+      ],
+      "group": "Playlist",
+      "description": "Update a playlist"
+    },
+    {
+      "id": "playlist_item_add",
+      "label": "Add Playlist Item",
+      "method": "POST",
+      "path": "/youtube/v3/playlistItems",
+      "fields": [
+        {
+          "id": "playlistId",
+          "label": "Playlist Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "videoId",
+          "label": "Video ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: endAt, note, onBehalfOfContentOwner, position, startAt)"
+        }
+      ],
+      "group": "Playlist Item",
+      "description": "Add an item to a playlist"
+    },
+    {
+      "id": "playlist_item_delete",
+      "label": "Delete Playlist Item",
+      "method": "DELETE",
+      "path": "/youtube/v3/playlistItems",
+      "fields": [
+        {
+          "id": "playlistItemId",
+          "label": "Playlist Item ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: onBehalfOfContentOwner)"
+        }
+      ],
+      "group": "Playlist Item",
+      "description": "Delete a item from a playlist"
+    },
+    {
+      "id": "playlist_item_get",
+      "label": "Get Playlist Item",
+      "method": "GET",
+      "path": "/youtube/v3/playlistItems",
+      "fields": [
+        {
+          "id": "playlistItemId",
+          "label": "Playlist Item ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "part",
+          "label": "Fields",
+          "type": "select",
+          "required": true,
+          "description": "The fields parameter specifies a comma-separated list of one or more playlistItem resource properties that the API response will include (multiple values: comma-separated)",
+          "options": [
+            {
+              "value": "*",
+              "label": "*"
+            },
+            {
+              "value": "contentDetails",
+              "label": "Content Details"
+            },
+            {
+              "value": "id",
+              "label": "ID"
+            },
+            {
+              "value": "snippet",
+              "label": "Snippet"
+            },
+            {
+              "value": "status",
+              "label": "Status"
+            }
+          ]
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: onBehalfOfContentOwner)"
+        }
+      ],
+      "group": "Playlist Item",
+      "description": "Get a playlist's item"
+    },
+    {
+      "id": "playlist_item_get_all",
+      "label": "Get Many Playlist Item",
+      "method": "GET",
+      "path": "/youtube/v3/playlistItems",
+      "fields": [
+        {
+          "id": "playlistId",
+          "label": "Playlist Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "part",
+          "label": "Fields",
+          "type": "select",
+          "required": true,
+          "description": "The fields parameter specifies a comma-separated list of one or more playlistItem resource properties that the API response will include (multiple values: comma-separated)",
+          "options": [
+            {
+              "value": "*",
+              "label": "*"
+            },
+            {
+              "value": "contentDetails",
+              "label": "Content Details"
+            },
+            {
+              "value": "id",
+              "label": "ID"
+            },
+            {
+              "value": "snippet",
+              "label": "Snippet"
+            },
+            {
+              "value": "status",
+              "label": "Status"
+            }
+          ]
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 25
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: onBehalfOfContentOwner)"
+        }
+      ],
+      "group": "Playlist Item",
+      "description": "Retrieve many playlist items"
+    },
+    {
+      "id": "video_delete",
+      "label": "Delete Video",
+      "method": "DELETE",
+      "path": "/youtube/v3/videos",
+      "fields": [
+        {
+          "id": "videoId",
+          "label": "Video ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the video"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: onBehalfOfContentOwner)"
+        }
+      ],
+      "group": "Video",
+      "description": "Delete a video"
+    },
+    {
+      "id": "video_get",
+      "label": "Get Video",
+      "method": "GET",
+      "path": "/youtube/v3/videos",
+      "fields": [
+        {
+          "id": "videoId",
+          "label": "Video ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "part",
+          "label": "Fields",
+          "type": "select",
+          "required": true,
+          "description": "The fields parameter specifies a comma-separated list of one or more video resource properties that the API response will include (multiple values: comma-separated)",
+          "options": [
+            {
+              "value": "*",
+              "label": "*"
+            },
+            {
+              "value": "contentDetails",
+              "label": "Content Details"
+            },
+            {
+              "value": "id",
+              "label": "ID"
+            },
+            {
+              "value": "liveStreamingDetails",
+              "label": "Live Streaming Details"
+            },
+            {
+              "value": "localizations",
+              "label": "Localizations"
+            },
+            {
+              "value": "player",
+              "label": "Player"
+            },
+            {
+              "value": "recordingDetails",
+              "label": "Recording Details"
+            },
+            {
+              "value": "snippet",
+              "label": "Snippet"
+            },
+            {
+              "value": "statistics",
+              "label": "Statistics"
+            },
+            {
+              "value": "status",
+              "label": "Status"
+            },
+            {
+              "value": "topicDetails",
+              "label": "Topic Details"
+            }
+          ]
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: onBehalfOfContentOwner)"
+        }
+      ],
+      "group": "Video",
+      "description": "Get a video"
+    },
+    {
+      "id": "video_get_all",
+      "label": "Get Many Video",
+      "method": "GET",
+      "path": "/youtube/v3/search",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 25
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: channelId, forDeveloper, publishedAfter, publishedBefore, q, regionCode, relatedToVideoId, videoCategoryId, videoSyndicated, videoType)"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: order, safeSearch)"
+        }
+      ],
+      "group": "Video",
+      "description": "Retrieve many videos"
+    },
+    {
+      "id": "video_rate",
+      "label": "Rate Video",
+      "method": "POST",
+      "path": "/youtube/v3/videos/rate",
+      "fields": [
+        {
+          "id": "videoId",
+          "label": "Video ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "rating",
+          "label": "Rating",
+          "type": "select",
+          "options": [
+            {
+              "value": "dislike",
+              "label": "Dislike"
+            },
+            {
+              "value": "like",
+              "label": "Like"
+            },
+            {
+              "value": "none",
+              "label": "None"
+            }
+          ]
+        }
+      ],
+      "group": "Video",
+      "description": "Rate a video"
+    },
+    {
+      "id": "video_update",
+      "label": "Update Video",
+      "method": "PUT",
+      "path": "/youtube/v3/videos",
+      "fields": [
+        {
+          "id": "videoId",
+          "label": "Video ID",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "title",
+          "label": "Title",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "regionCode",
+          "label": "Region Code",
+          "type": "select",
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "categoryId",
+          "label": "Category Name or ID",
+          "type": "select",
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: defaultLanguage, description, embeddable, license, notifySubscribers, privacyStatus, publicStatsViewable, publishAt, recordingDate, selfDeclaredMadeForKids, tags)"
+        }
+      ],
+      "group": "Video",
+      "description": "Update a video"
+    },
+    {
+      "id": "video_upload",
+      "label": "Upload Video",
+      "method": "POST",
+      "path": "/upload/youtube/v3/videos",
+      "fields": [
+        {
+          "id": "title",
+          "label": "Title",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "regionCode",
+          "label": "Region Code",
+          "type": "select",
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "categoryId",
+          "label": "Category Name or ID",
+          "type": "select",
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "binaryProperty",
+          "label": "Input Binary Field",
+          "type": "text",
+          "required": true,
+          "defaultValue": "data"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: defaultLanguage, description, embeddable, license, notifySubscribers, privacyStatus, publicStatsViewable, publishAt, recordingDate, selfDeclaredMadeForKids, tags)"
+        }
+      ],
+      "group": "Video",
+      "description": "Upload a video"
+    },
+    {
+      "id": "video_category_get_all",
+      "label": "Get Many Video Category",
+      "method": "GET",
+      "path": "/youtube/v3/videoCategories",
+      "fields": [
+        {
+          "id": "regionCode",
+          "label": "Region Code",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 25
+        }
+      ],
+      "group": "Video Category",
+      "description": "Retrieve many video categories"
     }
   ]
 }

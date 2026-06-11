@@ -4,8 +4,8 @@
   "description": "Consume Google Business Profile API",
   "category": "storage",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 11,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -19,18 +19,417 @@
   "baseUrl": "https://mybusiness.googleapis.com/v4",
   "endpoints": [
     {
-      "id": "post_default",
-      "label": "List Post",
-      "method": "GET",
-      "path": "/post",
-      "fields": []
+      "id": "post_create",
+      "label": "Create Post",
+      "method": "POST",
+      "path": "/{{{account}}}/{{{location}}}/localPosts",
+      "fields": [
+        {
+          "id": "account",
+          "label": "Account",
+          "type": "text",
+          "required": true,
+          "description": "The Google Business Profile account (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "location",
+          "label": "Location",
+          "type": "text",
+          "required": true,
+          "description": "The specific location or business associated with the account (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "topicType",
+          "label": "Post Type",
+          "type": "select",
+          "required": true,
+          "description": "The type of post to create (standard, event, offer, or alert)",
+          "defaultValue": "STANDARD",
+          "options": [
+            {
+              "value": "STANDARD",
+              "label": "Standard"
+            },
+            {
+              "value": "EVENT",
+              "label": "Event"
+            },
+            {
+              "value": "OFFER",
+              "label": "Offer"
+            },
+            {
+              "value": "ALERT",
+              "label": "Alert"
+            }
+          ],
+          "in": "body"
+        },
+        {
+          "id": "summary",
+          "label": "Summary",
+          "type": "text",
+          "required": true,
+          "description": "The main text of the post",
+          "in": "body"
+        },
+        {
+          "id": "title",
+          "label": "Title",
+          "type": "text",
+          "required": true,
+          "description": "E.g. Sales this week.",
+          "in": "body"
+        },
+        {
+          "id": "startDateTime",
+          "label": "Start Date and Time",
+          "type": "text",
+          "required": true,
+          "placeholder": "2024-01-01T00:00:00Z",
+          "description": "The start date and time of the event (ISO 8601 date-time)"
+        },
+        {
+          "id": "endDateTime",
+          "label": "End Date and Time",
+          "type": "text",
+          "required": true,
+          "placeholder": "2024-01-01T00:00:00Z",
+          "description": "The end date and time of the event (ISO 8601 date-time)"
+        },
+        {
+          "id": "startDate",
+          "label": "Start Date",
+          "type": "text",
+          "required": true,
+          "placeholder": "YYYY-MM-DD",
+          "description": "The start date of the offer"
+        },
+        {
+          "id": "endDate",
+          "label": "End Date",
+          "type": "text",
+          "required": true,
+          "placeholder": "YYYY-MM-DD",
+          "description": "The end date of the offer"
+        },
+        {
+          "id": "alertType",
+          "label": "Alert Type",
+          "type": "select",
+          "required": true,
+          "description": "The sub-type of the alert",
+          "defaultValue": "COVID_19",
+          "options": [
+            {
+              "value": "COVID_19",
+              "label": "Covid 19"
+            }
+          ],
+          "in": "body"
+        },
+        {
+          "id": "additionalOptions",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Option",
+          "description": "(JSON object; supported keys: languageCode, callToActionType, url, couponCode, redeemOnlineUrl, termsConditions)"
+        }
+      ],
+      "group": "Post",
+      "description": "[unverified path] Create a new post on Google Business Profile"
     },
     {
-      "id": "review_default",
-      "label": "List Review",
+      "id": "post_delete",
+      "label": "Delete Post",
+      "method": "DELETE",
+      "path": "/{{{post}}}",
+      "fields": [
+        {
+          "id": "account",
+          "label": "Account",
+          "type": "text",
+          "required": true,
+          "description": "The Google Business Profile account (provide the ID)"
+        },
+        {
+          "id": "location",
+          "label": "Location",
+          "type": "text",
+          "required": true,
+          "description": "The specific location or business associated with the account (provide the ID)"
+        },
+        {
+          "id": "post",
+          "label": "Post",
+          "type": "text",
+          "description": "Select the post to retrieve its details (provide the ID)",
+          "in": "path"
+        }
+      ],
+      "group": "Post",
+      "description": "[unverified path] Delete an existing post"
+    },
+    {
+      "id": "post_get",
+      "label": "Get Post",
       "method": "GET",
-      "path": "/review",
-      "fields": []
+      "path": "/{{{post}}}",
+      "fields": [
+        {
+          "id": "account",
+          "label": "Account",
+          "type": "text",
+          "required": true,
+          "description": "The Google Business Profile account (provide the ID)"
+        },
+        {
+          "id": "location",
+          "label": "Location",
+          "type": "text",
+          "required": true,
+          "description": "The specific location or business associated with the account (provide the ID)"
+        },
+        {
+          "id": "post",
+          "label": "Post",
+          "type": "text",
+          "description": "Select the post to retrieve its details (provide the ID)",
+          "in": "path"
+        }
+      ],
+      "group": "Post",
+      "description": "[unverified path] Retrieve details of a specific post"
+    },
+    {
+      "id": "post_get_all",
+      "label": "Get Many Post",
+      "method": "GET",
+      "path": "/{{{account}}}/{{{location}}}/localPosts",
+      "fields": [
+        {
+          "id": "account",
+          "label": "Account",
+          "type": "text",
+          "required": true,
+          "description": "The Google Business Profile account (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "location",
+          "label": "Location",
+          "type": "text",
+          "required": true,
+          "description": "The specific location or business associated with the account (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 20
+        }
+      ],
+      "group": "Post",
+      "description": "[unverified path] Retrieve multiple posts"
+    },
+    {
+      "id": "post_update",
+      "label": "Update Post",
+      "method": "PATCH",
+      "path": "/{{{post}}}",
+      "fields": [
+        {
+          "id": "account",
+          "label": "Account",
+          "type": "text",
+          "required": true,
+          "description": "The Google Business Profile account (provide the ID)"
+        },
+        {
+          "id": "location",
+          "label": "Location",
+          "type": "text",
+          "required": true,
+          "description": "The specific location or business associated with the account (provide the ID)"
+        },
+        {
+          "id": "post",
+          "label": "Post",
+          "type": "text",
+          "description": "Select the post to retrieve its details (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "additionalOptions",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Option",
+          "description": "(JSON object; supported keys: summary, languageCode, callToActionType, url, startDateTime, endDateTime, title, startDate, endDate, couponCode, redeemOnlineUrl, termsConditions)"
+        }
+      ],
+      "group": "Post",
+      "description": "[unverified path] Update an existing post"
+    },
+    {
+      "id": "review_delete",
+      "label": "Delete Reply Review",
+      "method": "DELETE",
+      "path": "/{{{account}}}/{{{location}}}/reviews/{{{review}.split(\"reviews/\").pop().split(\"/reply\")[0]}}/reply",
+      "fields": [
+        {
+          "id": "account",
+          "label": "Account",
+          "type": "text",
+          "required": true,
+          "description": "The Google Business Profile account (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "location",
+          "label": "Location",
+          "type": "text",
+          "required": true,
+          "description": "The specific location or business associated with the account (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "review",
+          "label": "Review",
+          "type": "text",
+          "required": true,
+          "description": "Select the review to retrieve its details (provide the ID)",
+          "in": "path"
+        }
+      ],
+      "group": "Review",
+      "description": "[unverified path] Delete a reply to a review"
+    },
+    {
+      "id": "review_get",
+      "label": "Get Review",
+      "method": "GET",
+      "path": "/{{{account}}}/{{{location}}}/reviews/{{{review}.split(\"reviews/\").pop().split(\"/reply\")[0]}}",
+      "fields": [
+        {
+          "id": "account",
+          "label": "Account",
+          "type": "text",
+          "required": true,
+          "description": "The Google Business Profile account (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "location",
+          "label": "Location",
+          "type": "text",
+          "required": true,
+          "description": "The specific location or business associated with the account (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "review",
+          "label": "Review",
+          "type": "text",
+          "required": true,
+          "description": "Select the review to retrieve its details (provide the ID)",
+          "in": "path"
+        }
+      ],
+      "group": "Review",
+      "description": "[unverified path] Retrieve details of a specific review on Google Business Profile"
+    },
+    {
+      "id": "review_get_all",
+      "label": "Get Many Review",
+      "method": "GET",
+      "path": "/{{{account}}}/{{{location}}}/reviews",
+      "fields": [
+        {
+          "id": "account",
+          "label": "Account",
+          "type": "text",
+          "required": true,
+          "description": "The Google Business Profile account (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "location",
+          "label": "Location",
+          "type": "text",
+          "required": true,
+          "description": "The specific location or business associated with the account (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "required": true,
+          "description": "Max number of results to return",
+          "defaultValue": 20
+        }
+      ],
+      "group": "Review",
+      "description": "[unverified path] Retrieve multiple reviews"
+    },
+    {
+      "id": "review_reply",
+      "label": "Reply Review",
+      "method": "PUT",
+      "path": "/{{{account}}}/{{{location}}}/reviews/{{{review}.split(\"reviews/\").pop().split(\"/reply\")[0]}}/reply",
+      "fields": [
+        {
+          "id": "account",
+          "label": "Account",
+          "type": "text",
+          "required": true,
+          "description": "The Google Business Profile account (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "location",
+          "label": "Location",
+          "type": "text",
+          "required": true,
+          "description": "The specific location or business associated with the account (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "review",
+          "label": "Review",
+          "type": "text",
+          "required": true,
+          "description": "Select the review to retrieve its details (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "comment",
+          "label": "Reply",
+          "type": "textarea",
+          "description": "The body of the reply (up to 4096 characters)",
+          "in": "body"
+        }
+      ],
+      "group": "Review",
+      "description": "[unverified path] Reply to a review"
     }
   ]
 }

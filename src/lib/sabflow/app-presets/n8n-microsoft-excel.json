@@ -4,8 +4,8 @@
   "description": "Consume Microsoft Excel API",
   "category": "productivity",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 10,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -15,6 +15,160 @@
       "type": "none"
     }
   },
-  "baseUrl": "",
-  "endpoints": []
+  "baseUrl": "https://onedrive.live.com/edit.aspx?resid=",
+  "endpoints": [
+    {
+      "id": "table_append",
+      "label": "Append Table",
+      "method": "POST",
+      "path": "/drive/items/{workbookId}/workbook/createSession",
+      "fields": [],
+      "group": "Table",
+      "description": "Add rows to the end of the table"
+    },
+    {
+      "id": "table_convert_to_range",
+      "label": "Convert to Range Table",
+      "method": "POST",
+      "path": "/drive/items/{workbookId}/workbook/worksheets/{worksheetId}/tables/{tableId}/convertToRange",
+      "fields": [],
+      "group": "Table",
+      "description": "Convert a table to a range"
+    },
+    {
+      "id": "table_add_table",
+      "label": "Create Table",
+      "method": "POST",
+      "path": "/drive/items/{workbookId}/workbook/worksheets/{worksheetId}/tables/add",
+      "fields": [],
+      "group": "Table",
+      "description": "Add a table based on range"
+    },
+    {
+      "id": "table_delete_table",
+      "label": "Delete Table",
+      "method": "DELETE",
+      "path": "/drive/items/{workbookId}/workbook/worksheets/{worksheetId}/tables/{tableId}",
+      "fields": [],
+      "group": "Table",
+      "description": "Delete a table"
+    },
+    {
+      "id": "table_get_columns",
+      "label": "Get Columns Table",
+      "method": "GET",
+      "path": "/drive/items/{workbookId}/workbook/worksheets/{worksheetId}/tables/{tableId}/columns",
+      "fields": [],
+      "group": "Table",
+      "description": "Retrieve a list of table columns"
+    },
+    {
+      "id": "table_get_rows",
+      "label": "Get Rows Table",
+      "method": "GET",
+      "path": "/drive/items/{workbookId}/workbook/worksheets/{worksheetId}/tables/{tableId}/rows",
+      "fields": [],
+      "group": "Table",
+      "description": "Retrieve a list of table rows"
+    },
+    {
+      "id": "table_lookup",
+      "label": "Lookup Table",
+      "method": "GET",
+      "path": "/drive/items/{workbookId}/workbook/worksheets/{worksheetId}/tables/{tableId}/rows",
+      "fields": [],
+      "group": "Table",
+      "description": "Look for rows that match a given value in a column"
+    },
+    {
+      "id": "workbook_add_worksheet",
+      "label": "Add Sheet Workbook",
+      "method": "POST",
+      "path": "/drive/items/{workbookId}/workbook/createSession",
+      "fields": [],
+      "group": "Workbook",
+      "description": "Add a new sheet to the workbook"
+    },
+    {
+      "id": "workbook_delete_workbook",
+      "label": "Delete Workbook",
+      "method": "DELETE",
+      "path": "/drive/items/{workbookId}",
+      "fields": [],
+      "group": "Workbook",
+      "description": "Delete workbook"
+    },
+    {
+      "id": "workbook_get_all",
+      "label": "Get Many Workbook",
+      "method": "GET",
+      "path": "/drive/root/search(q='.xlsx",
+      "fields": [],
+      "group": "Workbook",
+      "description": "Get workbooks"
+    },
+    {
+      "id": "worksheet_append",
+      "label": "Append Sheet",
+      "method": "PATCH",
+      "path": "/drive/items/{workbookId}/workbook/worksheets/{worksheetId}/range(address='{range}",
+      "fields": [],
+      "group": "Sheet",
+      "description": "Append data to sheet"
+    },
+    {
+      "id": "worksheet_upsert",
+      "label": "Append or Update Sheet",
+      "method": "PATCH",
+      "path": "/drive/items/{workbookId}/workbook/worksheets/{worksheetId}/range(address='{range}",
+      "fields": [],
+      "group": "Sheet",
+      "description": "Append a new row or update the current one if it already exists (upsert)"
+    },
+    {
+      "id": "worksheet_clear",
+      "label": "Clear Sheet",
+      "method": "POST",
+      "path": "/drive/items/{workbookId}/workbook/worksheets/{worksheetId}/range/clear",
+      "fields": [],
+      "group": "Sheet",
+      "description": "Clear sheet"
+    },
+    {
+      "id": "worksheet_delete_worksheet",
+      "label": "Delete Sheet",
+      "method": "DELETE",
+      "path": "/drive/items/{workbookId}/workbook/worksheets/{worksheetId}",
+      "fields": [],
+      "group": "Sheet",
+      "description": "Delete sheet"
+    },
+    {
+      "id": "worksheet_get_all",
+      "label": "Get Many Sheet",
+      "method": "GET",
+      "path": "/drive/items/{workbookId}/workbook/worksheets",
+      "fields": [],
+      "group": "Sheet",
+      "description": "Get a list of sheets"
+    },
+    {
+      "id": "worksheet_read_rows",
+      "label": "Get Rows Sheet",
+      "method": "GET",
+      "path": "/drive/items/{workbookId}/workbook/worksheets/{worksheetId}/range(address='{range}",
+      "fields": [],
+      "group": "Sheet",
+      "description": "Retrieve a list of sheet rows"
+    },
+    {
+      "id": "worksheet_update",
+      "label": "Update Sheet",
+      "method": "PATCH",
+      "path": "/drive/items/{workbookId}/workbook/worksheets/{worksheetId}/range(address='{range}",
+      "fields": [],
+      "group": "Sheet",
+      "description": "Update rows of a sheet or sheet range"
+    }
+  ]
 }
