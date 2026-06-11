@@ -230,6 +230,13 @@ impl SabEngine {
         self.model.get_worksheets_properties().len()
     }
 
+    /// Frozen pane counts for a sheet: `(frozen_rows, frozen_columns)`.
+    pub fn frozen(&self, sheet: u32) -> (i32, i32) {
+        let r = self.model.get_frozen_rows_count(sheet).unwrap_or(0);
+        let c = self.model.get_frozen_columns_count(sheet).unwrap_or(0);
+        (r, c)
+    }
+
     /// Ordered worksheet metadata; the index in this list is the command `sheet` index.
     pub fn sheet_list(&self) -> Vec<SheetInfo> {
         self.model

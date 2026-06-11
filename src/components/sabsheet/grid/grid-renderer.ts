@@ -63,6 +63,8 @@ export class GridRenderer {
 
   scrollX = 0;
   scrollY = 0;
+  private frozenRows = 0;
+  private frozenCols = 0;
   private cells = new Map<string, CellView>();
   private selection: SelectionState | null = null;
 
@@ -122,10 +124,28 @@ export class GridRenderer {
     this.selection = s;
   }
 
-  /** Pixel rect of a cell in the current viewport (content coords, header offset included). */
+  /** Set frozen pane counts (rows above / columns left that stay pinned while scrolling). */
+  setFrozen(rows: number, cols: number): void {
+    this.frozenRows = Math.max(0, rows | 0);
+    this.frozenCols = Math.max(0, cols | 0);
+  }
+
+  private get frozenW(): number {
+    return this.cols.offsetOf(this.frozenCols);
+  }
+  private get frozenH(): number {
+    return this.rows.offsetOf(this.frozenRows);
+  }
+
+  /**
+   * Pixel rect of a cell. Frozen rows/columns are pinned (they ignore the matching scroll offset), so
+   * with no freeze (`frozenRows === frozenCols === 0`) this is identical to the unfrozen formula.
+   */
   cellRect(row: number, col: number): { x: number; y: number; w: number; h: number } {
-    const x = this.theme.rowHeaderWidth + this.cols.offsetOf(col - 1) - this.scrollX;
-    const y = this.theme.colHeaderHeight + this.rows.offsetOf(row - 1) - this.scrollY;
+    const fc = col <= this.frozenCols;
+    const fr = row <= this.frozenRows;
+    const x = this.theme.rowHeaderWidth + this.cols.offsetOf(col - 1) - (fc ? 0 : this.scrollX);
+    const y = this.theme.colHeaderHeight + this.rows.offsetOf(row - 1) - (fr ? 0 : this.scrollY);
     return { x, y, w: this.cols.sizeOf(col - 1), h: this.rows.sizeOf(row - 1) };
   }
 
@@ -145,12 +165,14 @@ export class GridRenderer {
     const inRowStrip = px < t.rowHeaderWidth;
     if (inColStrip && inRowStrip) return { kind: "corner", index: 0 };
     if (inColStrip) {
-      const cx = px - t.rowHeaderWidth + this.scrollX;
-      return { kind: "col", index: this.cols.indexAt(cx).index + 1 };
+      const dx = px - t.rowHeaderWidth;
+      const col = dx < this.frozenW ? this.cols.indexAt(dx).index : this.cols.indexAt(dx + this.scrollX).index;
+      return { kind: "col", index: col + 1 };
     }
     if (inRowStrip) {
-      const cy = py - t.colHeaderHeight + this.scrollY;
-      return { kind: "row", index: this.rows.indexAt(cy).index + 1 };
+      const dy = py - t.colHeaderHeight;
+      const row = dy < this.frozenH ? this.rows.indexAt(dy).index : this.rows.indexAt(dy + this.scrollY).index;
+      return { kind: "row", index: row + 1 };
     }
     return null;
   }
@@ -158,81 +180,163 @@ export class GridRenderer {
   /** Hit-test a pointer position (CSS coords) to a 1-based cell, or null if over a header. */
   cellAt(px: number, py: number): { row: number; col: number } | null {
     if (px < this.theme.rowHeaderWidth || py < this.theme.colHeaderHeight) return null;
-    const cx = px - this.theme.rowHeaderWidth + this.scrollX;
-    const cy = py - this.theme.colHeaderHeight + this.scrollY;
-    const col = this.cols.indexAt(cx).index + 1;
-    const row = this.rows.indexAt(cy).index + 1;
+    const dx = px - this.theme.rowHeaderWidth;
+    const dy = py - this.theme.colHeaderHeight;
+    const col = (dx < this.frozenW ? this.cols.indexAt(dx) : this.cols.indexAt(dx + this.scrollX)).index + 1;
+    const row = (dy < this.frozenH ? this.rows.indexAt(dy) : this.rows.indexAt(dy + this.scrollY)).index + 1;
     return { row, col };
   }
 
-  /** Visible 1-based cell range for the current scroll/size. */
+  /** Visible 1-based cell range for the *scrollable* (main) pane. Frozen bands are added in draw. */
   visibleRange(): { rowStart: number; rowEnd: number; colStart: number; colEnd: number } {
     const contentW = this.cssW - this.theme.rowHeaderWidth;
     const contentH = this.cssH - this.theme.colHeaderHeight;
-    const r = this.rows.rangeForViewport(this.scrollY, contentH);
-    const c = this.cols.rangeForViewport(this.scrollX, contentW);
-    return { rowStart: r.start + 1, rowEnd: r.end + 1, colStart: c.start + 1, colEnd: c.end + 1 };
+    const r = this.rows.rangeForViewport(this.frozenH + this.scrollY, contentH - this.frozenH);
+    const c = this.cols.rangeForViewport(this.frozenW + this.scrollX, contentW - this.frozenW);
+    return {
+      rowStart: Math.max(this.frozenRows, r.start) + 1,
+      rowEnd: r.end + 1,
+      colStart: Math.max(this.frozenCols, c.start) + 1,
+      colEnd: c.end + 1,
+    };
   }
 
   /** Repaint both layers. */
   draw(): void {
-    this.drawContent();
+    if (this.frozenRows === 0 && this.frozenCols === 0) this.drawContent();
+    else this.drawFrozen();
     this.drawOverlay();
   }
 
-  private drawContent(): void {
+  /** Paint cells (gridlines then text, two passes) for a 1-based range. Caller sets any clip. */
+  private paintCells(rowStart: number, rowEnd: number, colStart: number, colEnd: number): void {
     const ctx = this.content;
     const t = this.theme;
-    const { rowStart, rowEnd, colStart, colEnd } = this.visibleRange();
-
-    ctx.clearRect(0, 0, this.cssW, this.cssH);
-    ctx.fillStyle = "#ffffff";
-    ctx.fillRect(t.rowHeaderWidth, t.colHeaderHeight, this.cssW, this.cssH);
-
-    // Cell text + gridlines.
-    ctx.font = t.font;
-    ctx.textBaseline = "middle";
+    // Pass 1 — gridlines (one path, stroked once; kept separate from text so the clip below can't
+    // clobber the accumulated path).
     ctx.strokeStyle = t.gridLine;
     ctx.lineWidth = 1;
     ctx.beginPath();
     for (let row = rowStart; row <= rowEnd; row++) {
       for (let col = colStart; col <= colEnd; col++) {
         const { x, y, w, h } = this.cellRect(row, col);
-        // Gridline (right + bottom edges).
         ctx.moveTo(x + w + 0.5, y);
         ctx.lineTo(x + w + 0.5, y + h);
         ctx.moveTo(x, y + h + 0.5);
         ctx.lineTo(x + w, y + h + 0.5);
-        const cell = this.cells.get(`${row},${col}`);
-        if (cell && cell.text) {
-          ctx.save();
-          ctx.beginPath();
-          ctx.rect(x + 1, y, w - 3, h);
-          ctx.clip();
-          ctx.fillStyle = t.cellText;
-          ctx.fillText(cell.text, x + 4, y + h / 2);
-          ctx.restore();
-        }
       }
     }
     ctx.stroke();
-
-    this.drawHeaders(rowStart, rowEnd, colStart, colEnd);
+    // Pass 2 — text.
+    ctx.font = t.font;
+    ctx.textAlign = "left";
+    ctx.textBaseline = "middle";
+    ctx.fillStyle = t.cellText;
+    for (let row = rowStart; row <= rowEnd; row++) {
+      for (let col = colStart; col <= colEnd; col++) {
+        const cell = this.cells.get(`${row},${col}`);
+        if (!cell || !cell.text) continue;
+        const { x, y, w, h } = this.cellRect(row, col);
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(x + 1, y, w - 3, h);
+        ctx.clip();
+        ctx.fillText(cell.text, x + 4, y + h / 2);
+        ctx.restore();
+      }
+    }
   }
 
-  private drawHeaders(rowStart: number, rowEnd: number, colStart: number, colEnd: number): void {
+  private clipPaint(cx: number, cy: number, cw: number, ch: number, rs: number, re: number, cs: number, ce: number): void {
+    if (cw <= 0 || ch <= 0) return;
+    const ctx = this.content;
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(cx, cy, cw, ch);
+    ctx.clip();
+    this.paintCells(rs, re, cs, ce);
+    ctx.restore();
+  }
+
+  private drawContent(): void {
+    const ctx = this.content;
+    const t = this.theme;
+    const { rowStart, rowEnd, colStart, colEnd } = this.visibleRange();
+    ctx.clearRect(0, 0, this.cssW, this.cssH);
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(t.rowHeaderWidth, t.colHeaderHeight, this.cssW, this.cssH);
+    this.paintCells(rowStart, rowEnd, colStart, colEnd);
+    this.fillHeaderStrips();
+    this.paintColHeaders(colStart, colEnd, t.rowHeaderWidth, this.cssW);
+    this.paintRowHeaders(rowStart, rowEnd, t.colHeaderHeight, this.cssH);
+    this.finishHeaders();
+  }
+
+  private drawFrozen(): void {
+    const ctx = this.content;
+    const t = this.theme;
+    const fw = this.frozenW;
+    const fh = this.frozenH;
+    const px0 = t.rowHeaderWidth + fw;
+    const py0 = t.colHeaderHeight + fh;
+    const { rowStart, rowEnd, colStart, colEnd } = this.visibleRange();
+
+    ctx.clearRect(0, 0, this.cssW, this.cssH);
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(t.rowHeaderWidth, t.colHeaderHeight, this.cssW, this.cssH);
+
+    // Four panes, each clipped so a scrolling pane never paints over a frozen one.
+    this.clipPaint(px0, py0, this.cssW - px0, this.cssH - py0, rowStart, rowEnd, colStart, colEnd);
+    if (this.frozenRows > 0)
+      this.clipPaint(px0, t.colHeaderHeight, this.cssW - px0, fh, 1, this.frozenRows, colStart, colEnd);
+    if (this.frozenCols > 0)
+      this.clipPaint(t.rowHeaderWidth, py0, fw, this.cssH - py0, rowStart, rowEnd, 1, this.frozenCols);
+    if (this.frozenRows > 0 && this.frozenCols > 0)
+      this.clipPaint(t.rowHeaderWidth, t.colHeaderHeight, fw, fh, 1, this.frozenRows, 1, this.frozenCols);
+
+    this.fillHeaderStrips();
+    if (this.frozenCols > 0) this.paintColHeaders(1, this.frozenCols, t.rowHeaderWidth, px0);
+    this.paintColHeaders(colStart, colEnd, px0, this.cssW);
+    if (this.frozenRows > 0) this.paintRowHeaders(1, this.frozenRows, t.colHeaderHeight, py0);
+    this.paintRowHeaders(rowStart, rowEnd, py0, this.cssH);
+    this.finishHeaders();
+
+    // Freeze divider lines (slightly darker than gridlines).
+    ctx.strokeStyle = "#bdc1c6";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    if (this.frozenRows > 0) {
+      ctx.moveTo(t.rowHeaderWidth, py0 + 0.5);
+      ctx.lineTo(this.cssW, py0 + 0.5);
+    }
+    if (this.frozenCols > 0) {
+      ctx.moveTo(px0 + 0.5, t.colHeaderHeight);
+      ctx.lineTo(px0 + 0.5, this.cssH);
+    }
+    ctx.stroke();
+  }
+
+  private fillHeaderStrips(): void {
+    const ctx = this.content;
+    const t = this.theme;
+    ctx.fillStyle = t.headerBg;
+    ctx.fillRect(0, 0, this.cssW, t.colHeaderHeight);
+    ctx.fillRect(0, 0, t.rowHeaderWidth, this.cssH);
+  }
+
+  private paintColHeaders(cs: number, ce: number, clipX0: number, clipX1: number): void {
     const ctx = this.content;
     const t = this.theme;
     const box = this.selection ? selectionBox(this.selection) : null;
-
-    // Column header strip.
-    ctx.fillStyle = t.headerBg;
-    ctx.fillRect(0, 0, this.cssW, t.colHeaderHeight);
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(clipX0, 0, Math.max(0, clipX1 - clipX0), t.colHeaderHeight);
+    ctx.clip();
     ctx.font = t.headerFont;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    for (let col = colStart; col <= colEnd; col++) {
-      const { x, w } = this.cellRect(rowStart, col);
+    for (let col = cs; col <= ce; col++) {
+      const { x, w } = this.cellRect(1, col);
       if (box && col >= box.left && col <= box.right) {
         ctx.fillStyle = t.headerActiveBg;
         ctx.fillRect(x, 0, w, t.colHeaderHeight);
@@ -240,12 +344,22 @@ export class GridRenderer {
       ctx.fillStyle = t.headerText;
       ctx.fillText(colLetters(col), x + w / 2, t.colHeaderHeight / 2);
     }
+    ctx.restore();
+  }
 
-    // Row header strip.
-    ctx.fillStyle = t.headerBg;
-    ctx.fillRect(0, 0, t.rowHeaderWidth, this.cssH);
-    for (let row = rowStart; row <= rowEnd; row++) {
-      const { y, h } = this.cellRect(row, colStart);
+  private paintRowHeaders(rs: number, re: number, clipY0: number, clipY1: number): void {
+    const ctx = this.content;
+    const t = this.theme;
+    const box = this.selection ? selectionBox(this.selection) : null;
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(0, clipY0, t.rowHeaderWidth, Math.max(0, clipY1 - clipY0));
+    ctx.clip();
+    ctx.font = t.headerFont;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    for (let row = rs; row <= re; row++) {
+      const { y, h } = this.cellRect(row, 1);
       if (box && row >= box.top && row <= box.bottom) {
         ctx.fillStyle = t.headerActiveBg;
         ctx.fillRect(0, y, t.rowHeaderWidth, h);
@@ -253,8 +367,12 @@ export class GridRenderer {
       ctx.fillStyle = t.headerText;
       ctx.fillText(String(row), t.rowHeaderWidth / 2, y + h / 2);
     }
+    ctx.restore();
+  }
 
-    // Corner box + header separators.
+  private finishHeaders(): void {
+    const ctx = this.content;
+    const t = this.theme;
     ctx.fillStyle = t.headerBg;
     ctx.fillRect(0, 0, t.rowHeaderWidth, t.colHeaderHeight);
     ctx.strokeStyle = t.gridLine;
@@ -265,7 +383,7 @@ export class GridRenderer {
     ctx.moveTo(0, t.colHeaderHeight + 0.5);
     ctx.lineTo(this.cssW, t.colHeaderHeight + 0.5);
     ctx.stroke();
-    ctx.textAlign = "left"; // reset for next content pass
+    ctx.textAlign = "left";
   }
 
   private drawOverlay(): void {

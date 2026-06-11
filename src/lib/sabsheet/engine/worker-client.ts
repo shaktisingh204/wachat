@@ -111,6 +111,14 @@ export class CalcEngineClient {
     return res.sheets;
   }
 
+  /** Frozen pane counts for a sheet. */
+  async frozen(sheet: number): Promise<{ rows: number; cols: number }> {
+    await this.ready;
+    const res = await this.call({ kind: "frozen", sheet });
+    if (res.kind !== "frozen") throw new Error("unexpected result");
+    return { rows: res.rows, cols: res.cols };
+  }
+
   /** Full-workbook snapshot (autosave / version history). */
   async toSnapshot(): Promise<Uint8Array> {
     await this.ready;

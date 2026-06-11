@@ -101,6 +101,13 @@ impl WasmEngine {
         self.inner.sheet_count()
     }
 
+    /// Frozen pane counts for a sheet as `[rows, cols]`.
+    #[wasm_bindgen(js_name = frozen)]
+    pub fn frozen(&self, sheet: u32) -> Vec<i32> {
+        let (r, c) = self.inner.frozen(sheet);
+        vec![r, c]
+    }
+
     /// Ordered worksheet metadata as a JSON array of `SheetInfo`.
     #[wasm_bindgen(js_name = sheetList)]
     pub fn sheet_list(&self) -> Result<JsValue, String> {

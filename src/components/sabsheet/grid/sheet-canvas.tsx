@@ -137,6 +137,8 @@ export const SheetCanvas = forwardRef<SheetCanvasHandle, SheetCanvasProps>(funct
   const onlineRef = useRef(true);
   /** Active worksheet index (command `sheet`); the grid renders one sheet at a time. */
   const sheetRef = useRef(0);
+  /** Frozen pane counts for the active sheet (mirrors the engine; drives band fetching + paint). */
+  const frozenRef = useRef({ rows: 0, cols: 0 });
 
   const [editing, setEditing] = useState<EditState | null>(null);
   const [ready, setReady] = useState(false);
@@ -145,15 +147,32 @@ export const SheetCanvas = forwardRef<SheetCanvasHandle, SheetCanvasProps>(funct
   const rows = useMemo(() => new AxisIndex(MAX_ROW, DEFAULT_ROW_H), []);
   const cols = useMemo(() => new AxisIndex(MAX_COL, DEFAULT_COL_W), []);
 
-  /** Re-read the visible viewport from the engine and repaint. */
+  /** Re-read the visible viewport (plus any frozen bands) from the engine and repaint. */
   const refresh = useCallback(async () => {
     const r = rendererRef.current;
     const e = engineRef.current;
     if (!r || !e) return;
+    const sheet = sheetRef.current;
     const { rowStart, rowEnd, colStart, colEnd } = r.visibleRange();
-    const cells = await e.readViewport(sheetRef.current, rowStart, colStart, colEnd - colStart + 1, rowEnd - rowStart + 1);
+    const mw = colEnd - colStart + 1;
+    const mh = rowEnd - rowStart + 1;
+    const { rows: fr, cols: fc } = frozenRef.current;
+    let cells = await e.readViewport(sheet, rowStart, colStart, mw, mh);
+    if (fr > 0) cells = cells.concat(await e.readViewport(sheet, 1, colStart, mw, fr)); // frozen rows × main cols
+    if (fc > 0) cells = cells.concat(await e.readViewport(sheet, rowStart, 1, fc, mh)); // main rows × frozen cols
+    if (fr > 0 && fc > 0) cells = cells.concat(await e.readViewport(sheet, 1, 1, fc, fr)); // corner
     r.setCells(cells);
     r.draw();
+  }, []);
+
+  /** Read frozen pane counts for the active sheet from the engine and apply them to the renderer. */
+  const syncFrozen = useCallback(async () => {
+    const e = engineRef.current;
+    const r = rendererRef.current;
+    if (!e || !r) return;
+    const f = await e.frozen(sheetRef.current);
+    frozenRef.current = f;
+    r.setFrozen(f.rows, f.cols);
   }, []);
 
   const emitSelection = useCallback(async () => {
@@ -241,10 +260,11 @@ export const SheetCanvas = forwardRef<SheetCanvasHandle, SheetCanvasProps>(funct
       const count = (await e.sheetList()).length;
       sheetRef.current = Math.max(0, Math.min(index, count - 1));
       setSelection(singleCell(1, 1));
+      await syncFrozen();
       await refresh();
       await syncSheets();
     },
-    [refresh, setSelection, syncSheets],
+    [refresh, setSelection, syncSheets, syncFrozen],
   );
 
   useImperativeHandle(
@@ -358,12 +378,16 @@ export const SheetCanvas = forwardRef<SheetCanvasHandle, SheetCanvasProps>(funct
           { type: "setFrozenRows", sheet: sheetRef.current, count: a.row - 1 },
           { type: "setFrozenColumns", sheet: sheetRef.current, count: a.col - 1 },
         ]);
+        await syncFrozen();
+        await refresh();
       },
       async unfreeze() {
         await applyLocal([
           { type: "setFrozenRows", sheet: sheetRef.current, count: 0 },
           { type: "setFrozenColumns", sheet: sheetRef.current, count: 0 },
         ]);
+        await syncFrozen();
+        await refresh();
       },
       async autoSum() {
         const box = selectionBox(selectionRef.current);
@@ -373,7 +397,7 @@ export const SheetCanvas = forwardRef<SheetCanvasHandle, SheetCanvasProps>(funct
         setSelection(singleCell(box.bottom + 1, box.left));
       },
     }),
-    [applyLocal, refresh, emitSelection, switchSheet, syncSheets, setSelection, cols, rows],
+    [applyLocal, refresh, emitSelection, switchSheet, syncSheets, syncFrozen, setSelection, cols, rows],
   );
 
   // --- lifecycle: build renderer + engine, size to container, seed, first paint ---
@@ -509,6 +533,7 @@ export const SheetCanvas = forwardRef<SheetCanvasHandle, SheetCanvasProps>(funct
       const rect = container.getBoundingClientRect();
       renderer.resize(rect.width, rect.height, window.devicePixelRatio || 1);
       setReady(true);
+      await syncFrozen();
       await refresh();
       await emitSelection();
       await syncSheets();

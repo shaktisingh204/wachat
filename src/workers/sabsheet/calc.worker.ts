@@ -31,6 +31,7 @@ interface WasmEngineLike {
   toSnapshot(): Uint8Array;
   sheetCount(): number;
   sheetList(): unknown;
+  frozen(sheet: number): Int32Array;
 }
 interface WasmModule {
   default: (opts: { module_or_path: string }) => Promise<unknown>;
@@ -109,6 +110,10 @@ async function dispatch(req: RequestMessage["req"]): Promise<Extract<ResponseMes
     }
     case "sheetList": {
       return { kind: "sheetList", sheets: engine!.sheetList() as never };
+    }
+    case "frozen": {
+      const f = engine!.frozen(req.sheet);
+      return { kind: "frozen", rows: f[0] ?? 0, cols: f[1] ?? 0 };
     }
     case "toSnapshot": {
       return { kind: "toSnapshot", snapshot: engine!.toSnapshot() };
