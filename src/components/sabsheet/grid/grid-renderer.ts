@@ -227,24 +227,60 @@ export class GridRenderer {
       }
     }
     ctx.stroke();
-    // Pass 2 — text.
-    ctx.font = t.font;
-    ctx.textAlign = "left";
+    // Pass 2 — cell fills (cell.fill background), drawn over the white base but before text. Each is
+    // clipped to its cell so it can't bleed into neighbours; gridlines stay visible underneath.
+    for (let row = rowStart; row <= rowEnd; row++) {
+      for (let col = colStart; col <= colEnd; col++) {
+        const cell = this.cells.get(`${row},${col}`);
+        if (!cell || !cell.fill) continue;
+        const { x, y, w, h } = this.cellRect(row, col);
+        ctx.fillStyle = cell.fill;
+        ctx.fillRect(x + 1, y + 1, w - 1, h - 1);
+      }
+    }
+    // Pass 3 — text, honoring per-cell bold/italic/color/alignment/underline. The base font config
+    // (size + family) comes from the theme; weight/style are prepended per cell. Plain cells fall
+    // straight through to the theme defaults, so the no-style path is unchanged.
     ctx.textBaseline = "middle";
-    ctx.fillStyle = t.cellText;
     for (let row = rowStart; row <= rowEnd; row++) {
       for (let col = colStart; col <= colEnd; col++) {
         const cell = this.cells.get(`${row},${col}`);
         if (!cell || !cell.text) continue;
         const { x, y, w, h } = this.cellRect(row, col);
+
+        const styled = cell.bold || cell.italic;
+        ctx.font = styled
+          ? `${cell.italic ? "italic " : ""}${cell.bold ? "700 " : ""}${t.font}`
+          : t.font;
+        ctx.fillStyle = cell.color || t.cellText;
+
+        const align = cell.align === "center" ? "center" : cell.align === "right" ? "right" : "left";
+        ctx.textAlign = align;
+        const tx = align === "center" ? x + w / 2 : align === "right" ? x + w - 4 : x + 4;
+        const ty = y + h / 2;
+
         ctx.save();
         ctx.beginPath();
         ctx.rect(x + 1, y, w - 3, h);
         ctx.clip();
-        ctx.fillText(cell.text, x + 4, y + h / 2);
+        ctx.fillText(cell.text, tx, ty);
+        if (cell.underline) {
+          const tw = ctx.measureText(cell.text).width;
+          const ux = align === "center" ? tx - tw / 2 : align === "right" ? tx - tw : tx;
+          const uy = Math.round(ty + 7) + 0.5;
+          ctx.strokeStyle = cell.color || t.cellText;
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(ux, uy);
+          ctx.lineTo(ux + tw, uy);
+          ctx.stroke();
+        }
         ctx.restore();
       }
     }
+    // Leave shared text state at the renderer's defaults so header passes are unaffected.
+    ctx.font = t.font;
+    ctx.textAlign = "left";
   }
 
   private clipPaint(cx: number, cy: number, cw: number, ch: number, rs: number, re: number, cs: number, ce: number): void {

@@ -60,6 +60,16 @@ export interface CellView {
   text: string;
   /** Present (and equal to `=...`) when the cell holds a formula. */
   formula: string | null;
+  /** Cell style (only present when non-default) — the canvas paints these. Serde twin of Rust. */
+  bold?: boolean;
+  italic?: boolean;
+  underline?: boolean;
+  /** CSS hex text color. */
+  color?: string | null;
+  /** CSS hex background fill. */
+  fill?: string | null;
+  /** Horizontal alignment: `"left"` / `"center"` / `"right"`. */
+  align?: string | null;
 }
 
 /** A single cell as a 1×1 range. */

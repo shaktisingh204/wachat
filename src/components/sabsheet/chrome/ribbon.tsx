@@ -10,14 +10,16 @@ import { useState } from "react";
 import { StylePath } from "../../../lib/sabsheet/commands/ops.ts";
 import type { SheetCanvasHandle } from "../grid/sheet-canvas.tsx";
 
-export type SheetPanel = "ai" | "connections" | "charts" | "forms";
+export type SheetPanel = "ai" | "connections" | "charts" | "forms" | "pivot";
 
 export interface RibbonProps {
   grid: React.RefObject<SheetCanvasHandle | null>;
   /** Shown as the "Download" button when present (persistent workbook + online). */
   onExportXlsx?: () => void;
-  /** Opens a side panel (AI / connections / charts / forms). Persistent workbooks only. */
+  /** Opens a side panel (AI / connections / charts / forms / pivot). Persistent workbooks only. */
   onOpenPanel?: (panel: SheetPanel) => void;
+  /** Opens the print/PDF view (persistent workbooks only). */
+  onPrint?: () => void;
 }
 
 type Tab = "Home" | "Insert" | "Formulas" | "Data" | "View";
@@ -34,7 +36,7 @@ const NUMBER_FORMATS: { label: string; code: string }[] = [
   { label: "Text", code: "@" },
 ];
 
-export function Ribbon({ grid, onExportXlsx, onOpenPanel }: RibbonProps) {
+export function Ribbon({ grid, onExportXlsx, onOpenPanel, onPrint }: RibbonProps) {
   const [tab, setTab] = useState<Tab>("Home");
   const [findOpen, setFindOpen] = useState(false);
   const [find, setFind] = useState("");
@@ -120,7 +122,7 @@ export function Ribbon({ grid, onExportXlsx, onOpenPanel }: RibbonProps) {
             </Group>
             <Group label="Illustrations">
               <Btn title="Chart from the selected range" disabled={!onOpenPanel} onClick={() => onOpenPanel?.("charts")}>Chart</Btn>
-              <Btn title="Pivot table — coming soon" disabled>Pivot</Btn>
+              <Btn title="Pivot table from the selected range" disabled={!onOpenPanel} onClick={() => onOpenPanel?.("pivot")}>Pivot</Btn>
               <Btn title="Image — coming soon" disabled>Image</Btn>
             </Group>
             {onOpenPanel && (
@@ -173,6 +175,7 @@ export function Ribbon({ grid, onExportXlsx, onOpenPanel }: RibbonProps) {
             </Group>
             <Group label="Workbook">
               {onExportXlsx ? <Btn title="Download as .xlsx" onClick={onExportXlsx}>⤓ Download .xlsx</Btn> : <span style={hint}>Sign-in + online required to export.</span>}
+              {onPrint && <Btn title="Print / Save as PDF" onClick={onPrint}>🖨 Print / PDF</Btn>}
             </Group>
           </>
         )}

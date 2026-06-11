@@ -14,6 +14,7 @@ pub mod ops;
 
 use ironcalc_base::UserModel;
 use ironcalc_base::expressions::types::Area;
+use ironcalc_base::types::{HorizontalAlignment, Style};
 use ops::{Command, RangeRef};
 
 const LANGUAGE: &str = "en";
@@ -37,6 +38,23 @@ pub struct CellView {
     pub col: i32,
     pub text: String,
     pub formula: Option<String>,
+    /// Cell style, mapped from IronCalc's `Style` (only set when non-default). These let the canvas
+    /// renderer paint formatting that today only persists + exports to xlsx.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub bold: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub italic: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub underline: Option<bool>,
+    /// CSS hex text color (`font.color`).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub color: Option<String>,
+    /// CSS hex background (`fill.fg_color`).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub fill: Option<String>,
+    /// Horizontal alignment: `"left"` / `"center"` / `"right"` (general/None omitted).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub align: Option<String>,
 }
 
 /// Display metadata for one worksheet (the order is the command sheet index).
@@ -219,7 +237,23 @@ impl SabEngine {
                 }
                 let raw = self.model.get_cell_content(r.sheet, row, col)?;
                 let formula = raw.strip_prefix('=').map(|_| raw.clone());
-                out.push(CellView { row, col, text, formula });
+                let mut view = CellView {
+                    row,
+                    col,
+                    text,
+                    formula,
+                    bold: None,
+                    italic: None,
+                    underline: None,
+                    color: None,
+                    fill: None,
+                    align: None,
+                };
+                // A style read failure must not fail the whole viewport — just paint plain.
+                if let Ok(style) = self.model.get_cell_style(r.sheet, row, col) {
+                    apply_style(&mut view, &style);
+                }
+                out.push(view);
             }
         }
         Ok(out)
@@ -348,6 +382,40 @@ impl SabEngine {
             .map_err(|e| format!("xlsx import: {e:?}"))?;
         let model = Model::from_workbook(workbook, LANGUAGE).map_err(|e| format!("xlsx model: {e:?}"))?;
         Ok(Self { model: UserModel::from_model(model) })
+    }
+}
+
+/// Map an IronCalc [`Style`] onto a [`CellView`], setting only the non-default attributes the canvas
+/// renderer cares about (bold/italic/underline, text color, fill, horizontal alignment). Anything at
+/// its IronCalc default is left as `None` so plain cells serialize without style fields.
+fn apply_style(view: &mut CellView, style: &Style) {
+    let font = &style.font;
+    if font.b {
+        view.bold = Some(true);
+    }
+    if font.i {
+        view.italic = Some(true);
+    }
+    if font.u {
+        view.underline = Some(true);
+    }
+    if let Some(c) = &font.color {
+        view.color = Some(c.clone());
+    }
+    // The ribbon sets the swatch via `fill.fg_color`, so that is the visible background.
+    if let Some(bg) = &style.fill.fg_color {
+        view.fill = Some(bg.clone());
+    }
+    if let Some(al) = &style.alignment {
+        view.align = match al.horizontal {
+            HorizontalAlignment::Left => Some("left".to_string()),
+            HorizontalAlignment::Center | HorizontalAlignment::CenterContinuous => {
+                Some("center".to_string())
+            }
+            HorizontalAlignment::Right => Some("right".to_string()),
+            // General / Justify / Distributed / Fill: no explicit horizontal anchor to paint.
+            _ => None,
+        };
     }
 }
 

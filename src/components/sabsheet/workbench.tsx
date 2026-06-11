@@ -15,6 +15,7 @@ import { AiPanel } from "./chrome/ai-panel.tsx";
 import { ConnectionsPanel } from "./chrome/connections-panel.tsx";
 import { FormsPanel } from "./chrome/forms-panel.tsx";
 import { ChartPanel } from "./charts/chart-panel.tsx";
+import { PivotPanel } from "./pivot/pivot-panel.tsx";
 import { exportXlsxAction } from "../../app/actions/sabsheet-ops.actions.ts";
 import type { SheetInfo } from "../../lib/sabsheet/engine/protocol.ts";
 import type { Command, CellView } from "../../lib/sabsheet/commands/ops.ts";
@@ -49,13 +50,16 @@ export function Workbench({ name, workbookId, seed }: WorkbenchProps) {
   const [chartSel, setChartSel] = useState<{ cells: CellView[]; box: { top: number; left: number; bottom: number; right: number }; sheet: number } | null>(null);
 
   const openPanel = useCallback(async (p: SheetPanel) => {
-    if (p === "charts") {
+    if (p === "charts" || p === "pivot") {
       const sel = await gridRef.current?.getSelection();
       setChartSel(sel ?? null);
     }
     setPanel(p);
   }, []);
   const closePanel = useCallback(() => setPanel(null), []);
+  const print = useCallback(() => {
+    if (workbookId) window.open(`/dashboard/sabsheet/v2/${workbookId}/print?sheet=${activeSheet}`, "_blank");
+  }, [workbookId, activeSheet]);
 
   const onSheetsChange = useCallback((list: SheetInfo[], active: number) => {
     setSheets(list);
@@ -106,6 +110,7 @@ export function Workbench({ name, workbookId, seed }: WorkbenchProps) {
         grid={gridRef}
         onExportXlsx={workbookId && online ? exportXlsx : undefined}
         onOpenPanel={workbookId ? (p) => void openPanel(p) : undefined}
+        onPrint={workbookId ? print : undefined}
       />
       <div style={styles.formulaBar}>
         <input
@@ -161,6 +166,15 @@ export function Workbench({ name, workbookId, seed }: WorkbenchProps) {
         {panel === "forms" && workbookId && <FormsPanel workbookId={workbookId} onClose={closePanel} />}
         {panel === "charts" && workbookId && chartSel && (
           <ChartPanel
+            cells={chartSel.cells}
+            box={chartSel.box}
+            workbookId={workbookId}
+            sheetId={String(chartSel.sheet)}
+            onClose={closePanel}
+          />
+        )}
+        {panel === "pivot" && workbookId && chartSel && (
+          <PivotPanel
             cells={chartSel.cells}
             box={chartSel.box}
             workbookId={workbookId}
