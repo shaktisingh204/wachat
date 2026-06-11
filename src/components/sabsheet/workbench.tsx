@@ -17,7 +17,9 @@ import { FormsPanel } from "./chrome/forms-panel.tsx";
 import { ChartPanel } from "./charts/chart-panel.tsx";
 import { PivotPanel } from "./pivot/pivot-panel.tsx";
 import { CFormatPanel } from "./chrome/cformat-panel.tsx";
+import { ValidationPanel } from "./chrome/validation-panel.tsx";
 import type { CFRule } from "../../lib/sabsheet/cformat/types.ts";
+import type { DataValidationRule } from "../../lib/sabsheet/validation/types.ts";
 import { exportXlsxAction } from "../../app/actions/sabsheet-ops.actions.ts";
 import type { SheetInfo } from "../../lib/sabsheet/engine/protocol.ts";
 import type { Command, CellView } from "../../lib/sabsheet/commands/ops.ts";
@@ -52,7 +54,7 @@ export function Workbench({ name, workbookId, seed }: WorkbenchProps) {
   const [chartSel, setChartSel] = useState<{ cells: CellView[]; box: { top: number; left: number; bottom: number; right: number }; sheet: number } | null>(null);
 
   const openPanel = useCallback(async (p: SheetPanel) => {
-    if (p === "charts" || p === "pivot" || p === "cformat") {
+    if (p === "charts" || p === "pivot" || p === "cformat" || p === "validation") {
       const sel = await gridRef.current?.getSelection();
       setChartSel(sel ?? null);
     }
@@ -60,6 +62,9 @@ export function Workbench({ name, workbookId, seed }: WorkbenchProps) {
   }, []);
   const onRulesChange = useCallback((rules: CFRule[]) => {
     void gridRef.current?.setConditionalFormats(rules);
+  }, []);
+  const onValidationChange = useCallback((rules: DataValidationRule[]) => {
+    void gridRef.current?.setDataValidations(rules);
   }, []);
   const closePanel = useCallback(() => setPanel(null), []);
   const print = useCallback(() => {
@@ -194,6 +199,15 @@ export function Workbench({ name, workbookId, seed }: WorkbenchProps) {
             box={chartSel.box}
             onClose={closePanel}
             onRulesChange={onRulesChange}
+          />
+        )}
+        {panel === "validation" && workbookId && chartSel && (
+          <ValidationPanel
+            workbookId={workbookId}
+            sheet={chartSel.sheet}
+            box={chartSel.box}
+            onClose={closePanel}
+            onRulesChange={onValidationChange}
           />
         )}
       </div>

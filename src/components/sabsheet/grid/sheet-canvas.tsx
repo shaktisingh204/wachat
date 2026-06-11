@@ -40,6 +40,8 @@ import { RealtimeSync } from "../../../lib/sabsheet/collab/sync.ts";
 import { applyConditionalFormats } from "../../../lib/sabsheet/cformat/apply.ts";
 import { getConditionalFormats } from "../../../app/actions/sabsheet-cformat.actions.ts";
 import type { CFRule } from "../../../lib/sabsheet/cformat/types.ts";
+import { getDataValidations } from "../../../app/actions/sabsheet-validation.actions.ts";
+import { listForCell, type DataValidationRule } from "../../../lib/sabsheet/validation/types.ts";
 
 /** Decode a base64 string to bytes (client-side; no Node Buffer). */
 function b64ToBytes(b64: string): Uint8Array {
@@ -123,6 +125,8 @@ export interface SheetCanvasHandle {
   getSelection(): Promise<{ cells: CellView[]; box: { top: number; left: number; bottom: number; right: number }; sheet: number }>;
   /** Replace the conditional-formatting rule set and repaint. */
   setConditionalFormats(rules: CFRule[]): Promise<void>;
+  /** Replace the data-validation rule set (list dropdowns in the editor). */
+  setDataValidations(rules: DataValidationRule[]): Promise<void>;
 }
 
 export const SheetCanvas = forwardRef<SheetCanvasHandle, SheetCanvasProps>(function SheetCanvas(
@@ -148,6 +152,8 @@ export const SheetCanvas = forwardRef<SheetCanvasHandle, SheetCanvasProps>(funct
   const frozenRef = useRef({ rows: 0, cols: 0 });
   /** Conditional-formatting rules (applied to viewport cells before paint). */
   const cfRef = useRef<CFRule[]>([]);
+  /** Data-validation rules (list dropdowns in the cell editor). */
+  const valRef = useRef<DataValidationRule[]>([]);
 
   const [editing, setEditing] = useState<EditState | null>(null);
   const [ready, setReady] = useState(false);
@@ -419,6 +425,9 @@ export const SheetCanvas = forwardRef<SheetCanvasHandle, SheetCanvasProps>(funct
         cfRef.current = rules;
         await refresh();
       },
+      async setDataValidations(rules: DataValidationRule[]) {
+        valRef.current = rules;
+      },
     }),
     [applyLocal, refresh, emitSelection, switchSheet, syncSheets, syncFrozen, setSelection, cols, rows],
   );
@@ -559,9 +568,12 @@ export const SheetCanvas = forwardRef<SheetCanvasHandle, SheetCanvasProps>(funct
       await syncFrozen();
       if (workbookId) {
         try {
-          cfRef.current = await getConditionalFormats(workbookId);
+          [cfRef.current, valRef.current] = await Promise.all([
+            getConditionalFormats(workbookId),
+            getDataValidations(workbookId),
+          ]);
         } catch {
-          /* CF is an enhancement — ignore load failures (e.g. offline) */
+          /* CF + validation are enhancements — ignore load failures (e.g. offline) */
         }
       }
       await refresh();
@@ -943,26 +955,60 @@ export const SheetCanvas = forwardRef<SheetCanvasHandle, SheetCanvasProps>(funct
           ))}
         </ul>
       )}
-      {editing && editorStyle && (
-        <textarea
-          autoFocus
-          value={editing.value}
-          style={editorStyle}
-          onChange={(e) => setEditing({ ...editing, value: e.target.value })}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault();
-              void commitEdit(1, 0);
-            } else if (e.key === "Tab") {
-              e.preventDefault();
-              void commitEdit(0, e.shiftKey ? -1 : 1);
-            } else if (e.key === "Escape") {
-              e.preventDefault();
-              setEditing(null);
-            }
-          }}
-        />
-      )}
+      {editing && editorStyle && (() => {
+        const list = listForCell(valRef.current, sheetRef.current, editing.row, editing.col);
+        if (list && list.length) {
+          // Data validation: a list-restricted cell edits via a dropdown of allowed values.
+          return (
+            <select
+              autoFocus
+              value={list.includes(editing.value) ? editing.value : ""}
+              style={editorStyle}
+              onChange={async (e) => {
+                const value = e.target.value;
+                await applyLocal([cmd.setCell(sheetRef.current, editing.row, editing.col, value)]);
+                setEditing(null);
+                setSelection(move(selectionRef.current, 1, 0, BOUNDS));
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Escape") {
+                  e.preventDefault();
+                  setEditing(null);
+                }
+              }}
+            >
+              <option value="" disabled>
+                Select…
+              </option>
+              {list.map((opt) => (
+                <option key={opt} value={opt}>
+                  {opt}
+                </option>
+              ))}
+            </select>
+          );
+        }
+        return (
+          <textarea
+            autoFocus
+            value={editing.value}
+            style={editorStyle}
+            onChange={(e) => setEditing({ ...editing, value: e.target.value })}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                void commitEdit(1, 0);
+              } else if (e.key === "Tab") {
+                e.preventDefault();
+                void commitEdit(0, e.shiftKey ? -1 : 1);
+              } else if (e.key === "Escape") {
+                e.preventDefault();
+                setEditing(null);
+              }
+            }}
+          />
+        );
+      })()}
       {!ready && (
         <div style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", color: "#5f6368", font: DEFAULT_THEME.font }}>
           Loading engine…

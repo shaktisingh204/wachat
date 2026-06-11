@@ -10,7 +10,7 @@ import { useState } from "react";
 import { StylePath } from "../../../lib/sabsheet/commands/ops.ts";
 import type { SheetCanvasHandle } from "../grid/sheet-canvas.tsx";
 
-export type SheetPanel = "ai" | "connections" | "charts" | "forms" | "pivot" | "cformat";
+export type SheetPanel = "ai" | "connections" | "charts" | "forms" | "pivot" | "cformat" | "validation";
 
 export interface RibbonProps {
   grid: React.RefObject<SheetCanvasHandle | null>;
@@ -161,7 +161,7 @@ export function Ribbon({ grid, onExportXlsx, onOpenPanel, onPrint }: RibbonProps
             </Group>
             <Group label="Data Tools">
               <Btn title="Find & Replace" onClick={() => setFindOpen((v) => !v)}>Find & Replace</Btn>
-              <Btn title="Data validation — coming soon" disabled>Validation</Btn>
+              <Btn title="Data validation (dropdown lists)" disabled={!onOpenPanel} onClick={() => onOpenPanel?.("validation")}>Validation</Btn>
               <Btn title="Remove duplicates — coming soon" disabled>Dedupe</Btn>
             </Group>
             {onOpenPanel && (
