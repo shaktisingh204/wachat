@@ -24,7 +24,7 @@ import {
 import { cellsToTsv } from "../clipboard/tsv.ts";
 import { CalcEngineClient } from "../../../lib/sabsheet/engine/worker-client.ts";
 import type { SheetInfo } from "../../../lib/sabsheet/engine/protocol.ts";
-import { cmd, cellRange, type Command } from "../../../lib/sabsheet/commands/ops.ts";
+import { cmd, cellRange, StylePath, type Command } from "../../../lib/sabsheet/commands/ops.ts";
 import {
   applyOpsAction,
   getSnapshotAction,
@@ -587,6 +587,35 @@ export const SheetCanvas = forwardRef<SheetCanvasHandle, SheetCanvasProps>(funct
         await pasteSelection();
         return;
       }
+      // Formatting shortcuts (apply across the selection).
+      if (mod && (k === "b" || k === "i" || k === "u" || k === "B" || k === "I" || k === "U")) {
+        ev.preventDefault();
+        const box = selectionBox(sel);
+        const path = k.toLowerCase() === "b" ? StylePath.bold : k.toLowerCase() === "i" ? StylePath.italic : StylePath.underline;
+        await applyLocal([
+          cmd.setStyle(
+            { sheet: sheetRef.current, row: box.top, col: box.left, width: box.right - box.left + 1, height: box.bottom - box.top + 1 },
+            path,
+            "true",
+          ),
+        ]);
+        return;
+      }
+      // Ctrl/Cmd+S forces a sync flush rather than the browser save dialog.
+      if (mod && (k === "s" || k === "S")) {
+        ev.preventDefault();
+        onSaveStateChange?.("saving");
+        await outboxRef.current?.flush();
+        return;
+      }
+      // Ctrl/Cmd+Home jumps to A1.
+      if (mod && k === "Home") {
+        ev.preventDefault();
+        rendererRef.current?.setScroll(0, 0);
+        setSelection(singleCell(1, 1));
+        await refresh();
+        return;
+      }
       if (k === "ArrowUp" || k === "ArrowDown" || k === "ArrowLeft" || k === "ArrowRight") {
         ev.preventDefault();
         const d = { ArrowUp: [-1, 0], ArrowDown: [1, 0], ArrowLeft: [0, -1], ArrowRight: [0, 1] }[k]!;
@@ -621,7 +650,7 @@ export const SheetCanvas = forwardRef<SheetCanvasHandle, SheetCanvasProps>(funct
         await beginEdit(k);
       }
     },
-    [editing, beginEdit, applyLocal, setSelection, refresh, emitSelection, copySelection, pasteSelection],
+    [editing, beginEdit, applyLocal, setSelection, refresh, emitSelection, copySelection, pasteSelection, onSaveStateChange],
   );
 
   // Position the editor textarea over the active cell.
