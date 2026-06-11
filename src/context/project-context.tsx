@@ -200,6 +200,17 @@ export function useProject() {
 }
 
 /**
+ * Non-throwing variant for shared chrome (e.g. SabHomeShell) that renders in
+ * both project-scoped trees (dashboard, wachat, sabsms, sabwa) and
+ * user-scoped ones with no ProjectProvider (sabpay). Returns `null` when no
+ * provider is mounted; callers treat that as "acting on the user's own
+ * account" (owner semantics, no team-member gating).
+ */
+export function useOptionalProject() {
+    return useContext(ProjectContext) ?? null;
+}
+
+/**
  * Declarative permission check for components.
  * Returns true when the current user can perform `action` on `moduleKey`
  * in the active project (owner bypass + plan ceiling handled in rbac.ts).

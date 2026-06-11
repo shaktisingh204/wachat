@@ -32,7 +32,7 @@ import {
 } from "./app-sidebar";
 import { SAB_APPS } from "./apps";
 import { findAppSidebarConfig } from "./app-sidebars";
-import { useProject } from "@/context/project-context";
+import { useOptionalProject } from "@/context/project-context";
 import { isElevatedRole } from "@/lib/rbac";
 import { Button } from "../button";
 import { SabNotificationPopover } from "../notification-popover";
@@ -194,8 +194,13 @@ function SabHomeShellContent({
   // (project owner) sees admin-only menu entries; invited team members do
   // not. `isOwner` is the SabNode owner flag; `ADMIN_ROLE_ID` covers users
   // promoted to the elevated tenant-admin role within the workspace.
-  const { effectivePermissions } = useProject();
+  // User-scoped modules (e.g. SabPay) mount this shell with no
+  // ProjectProvider: there the signed-in user acts on their own account, so
+  // owner semantics apply.
+  const project = useOptionalProject();
+  const effectivePermissions = project?.effectivePermissions ?? null;
   const isAdmin =
+    project === null ||
     Boolean(effectivePermissions?.isOwner) ||
     isElevatedRole(effectivePermissions?.role);
 
