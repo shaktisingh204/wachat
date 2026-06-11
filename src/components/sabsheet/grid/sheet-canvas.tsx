@@ -28,9 +28,11 @@ import { cmd, cellRange, StylePath, type Command } from "../../../lib/sabsheet/c
 import {
   applyOpsAction,
   getSnapshotAction,
+  opsSinceAction,
 } from "../../../app/actions/sabsheet-ops.actions.ts";
 import { OfflineOutbox, MemoryOutboxStore, type SyncState } from "../../../lib/sabsheet/offline/outbox.ts";
 import { IdbOutboxStore, idbAvailable } from "../../../lib/sabsheet/offline/idb-store.ts";
+import { RealtimeSync } from "../../../lib/sabsheet/collab/sync.ts";
 
 /** Decode a base64 string to bytes (client-side; no Node Buffer). */
 function b64ToBytes(b64: string): Uint8Array {
@@ -301,9 +303,34 @@ export const SheetCanvas = forwardRef<SheetCanvasHandle, SheetCanvasProps>(funct
       outboxRef.current = outbox;
     }
 
+    // Inbound realtime sync (other collaborators' edits). Reuses the ordered op log via opsSince;
+    // an SSE/WebSocket push can replace the poller later without touching this wiring.
+    let sync: RealtimeSync | null = null;
+    if (workbookId && outbox) {
+      const ob = outbox;
+      sync = new RealtimeSync({
+        isOnline: () => onlineRef.current,
+        hasPending: async () => (await ob.pendingCount()) > 0,
+        getSeq: () => ob.currentSeq(),
+        setSeq: (s) => ob.setBaseSeq(s),
+        fetchSince: async (since) => {
+          const { ops } = await opsSinceAction(workbookId, since);
+          return ops.map((o) => ({ seq: o.seq, diffs: b64ToBytes(o.diffsB64) }));
+        },
+        applyRemote: async (diffs) => {
+          await engine.applyRemoteDiffs(diffs);
+        },
+        onApplied: () => {
+          void refresh();
+          void emitSelection();
+        },
+      });
+    }
+
     const onOnline = () => {
       onlineRef.current = true;
       void outbox?.flush();
+      void sync?.poll();
     };
     const onOffline = () => {
       onlineRef.current = false;
@@ -355,11 +382,13 @@ export const SheetCanvas = forwardRef<SheetCanvasHandle, SheetCanvasProps>(funct
       await refresh();
       await emitSelection();
       await syncSheets();
+      sync?.start(); // begin polling for collaborators' edits
     })();
 
     return () => {
       cancelled = true;
       ro.disconnect();
+      sync?.stop();
       window.removeEventListener("online", onOnline);
       window.removeEventListener("offline", onOffline);
       engine.destroy();

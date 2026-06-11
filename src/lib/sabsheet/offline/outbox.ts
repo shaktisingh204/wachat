@@ -83,6 +83,11 @@ export class OfflineOutbox {
     await this.store.setSeq(this.workbookId, seq);
   }
 
+  /** The seq this client has applied up to (shared with inbound `RealtimeSync`). */
+  async currentSeq(): Promise<number> {
+    return this.store.getSeq(this.workbookId);
+  }
+
   /**
    * Record a local edit: cache the fresh engine snapshot and queue the batch. Then attempt to flush.
    * The batch is durably queued *before* any network attempt, so a crash/refresh never loses it.
