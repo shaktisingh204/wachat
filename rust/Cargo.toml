@@ -7,6 +7,7 @@ members = [
     "crates/db",
     "crates/observability",
     "crates/users",
+    "crates/sabpay",
     "crates/sabvault-secrets",
     "crates/sabvault-shares",
     "crates/sabvault-breach-alerts",

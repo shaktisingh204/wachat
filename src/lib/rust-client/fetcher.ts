@@ -216,6 +216,49 @@ export async function rustFetch<T>(path: string, init?: RequestInit): Promise<T>
 }
 
 /**
+ * Variant of {@link rustFetch} that authenticates as an **explicit user**
+ * rather than the session cookie. Used by surfaces that resolve their own
+ * principal before calling Rust — e.g. the SabPay public API, which
+ * authenticates a merchant via a secret `sk_…` key and then needs to act as
+ * that merchant's user id (there is no session cookie on those requests).
+ *
+ * Mints a short-lived HS256 JWT with `sub = userId` and forwards it as
+ * `Authorization: Bearer …`. Throws {@link RustApiError} on non-2xx.
+ */
+export async function rustFetchAs<T>(
+    userId: string,
+    path: string,
+    init?: RequestInit,
+): Promise<T> {
+    const token = await issueRustJwt({
+        userId: String(userId),
+        tenantId: String(userId),
+        roles: [],
+    });
+    const url = `${getBaseUrl()}${path}`;
+    const headers = new Headers(init?.headers);
+    headers.set('Authorization', `Bearer ${token}`);
+    const isFormData =
+        typeof FormData !== 'undefined' && init?.body instanceof FormData;
+    if (!headers.has('Content-Type') && init?.body && !isFormData) {
+        headers.set('Content-Type', 'application/json');
+    }
+    headers.set('Accept', 'application/json');
+
+    const res = await fetch(url, { ...init, headers, cache: 'no-store' });
+    if (!res.ok) {
+        let envelope: RustErrorEnvelope | null = null;
+        try {
+            envelope = (await res.json()) as RustErrorEnvelope;
+        } catch {
+            // non-JSON body
+        }
+        throw new RustApiError(res.status, envelope, `Rust API ${res.status} ${res.statusText}`);
+    }
+    return (await res.json()) as T;
+}
+
+/**
  * Variant of {@link rustFetch} for endpoints intentionally exposed without
  * tenant authentication — e.g. SabAssist's `/v1/sabassist/public/redeem`,
  * which is hit directly from a customer browser via a share link.

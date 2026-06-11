@@ -58,6 +58,13 @@ module.exports = {
         R2_ACCESS_KEY_ID: process.env.R2_ACCESS_KEY_ID,
         R2_SECRET_ACCESS_KEY: process.env.R2_SECRET_ACCESS_KEY,
         R2_BUCKET: process.env.R2_BUCKET || 'sabnode',
+
+        // SabPay (sabpay crate): platform PayU credentials + the public app
+        // URL used for hosted-checkout links and the PayU surl/furl callback.
+        PAYU_MERCHANT_KEY: process.env.PAYU_MERCHANT_KEY,
+        PAYU_MERCHANT_SALT: process.env.PAYU_MERCHANT_SALT,
+        PAYU_MODE: process.env.PAYU_MODE || 'test',
+        NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
       },
     },
 

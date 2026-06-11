@@ -331,6 +331,7 @@ pub fn build(state: AppState) -> Router {
     let wachat_contacts = wachat_contacts::router::<AppState>();
     let wachat_number_routing = wachat_number_routing::router::<AppState>();
     let wachat_razorpay = wachat_razorpay::router::<AppState>();
+    let sabpay = sabpay::router::<AppState>();
     let wachat_post_generator = wachat_post_generator::router::<AppState>();
     let wachat_contacts_export_sync = wachat_contacts_export_sync::router::<AppState>();
     let wachat_ab_testing = wachat_ab_testing::router::<AppState>();
@@ -613,6 +614,7 @@ pub fn build(state: AppState) -> Router {
         .nest("/v1/wachat/public", wachat_public)
         .nest("/v1/wachat/number-routing", wachat_number_routing)
         .nest("/v1/wachat/razorpay", wachat_razorpay)
+        .nest("/v1/sabpay", sabpay)
         .nest("/v1/wachat/post-generator", wachat_post_generator)
         .nest("/v1/wachat/contacts-export-sync", wachat_contacts_export_sync)
         .nest("/v1/wachat/ab-tests", wachat_ab_testing)

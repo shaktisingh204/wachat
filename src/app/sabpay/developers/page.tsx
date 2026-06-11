@@ -1,9 +1,12 @@
 import { SabpayPage } from '../_components/sabpay-page';
 import { getSabpayKeys } from '../actions';
-import { sabpayAppUrl } from '@/lib/sabpay/db.server';
 import { DevelopersClient } from './developers-client';
 
 export const dynamic = 'force-dynamic';
+
+const APP_URL = (
+  process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3002'
+).replace(/\/$/, '');
 
 export default async function SabpayDevelopersPage() {
   const keys = await getSabpayKeys();
@@ -18,7 +21,7 @@ export default async function SabpayDevelopersPage() {
       title="Developers"
       description="Secret keys, the payments API, and everything you need to take SabPay live on your site or app."
     >
-      <DevelopersClient initialKeys={keys} apiBase={`${sabpayAppUrl()}/api/sabpay/v1`} />
+      <DevelopersClient initialKeys={keys} apiBase={`${APP_URL}/api/sabpay/v1`} />
     </SabpayPage>
   );
 }

@@ -1,0 +1,63 @@
+# Axum router for the **SabPay** payment-gateway surface (`/v1/sabpay/*`).
+#
+# SabPay is a Stripe-style gateway built on SabNode's platform PayU account.
+# This crate owns every SabPay Mongo collection and all of its business logic:
+#
+#   - merchants (branding + test/live mode)         -> `sabpay_merchants`
+#   - payment sessions + PayU SHA-512 signing        -> `sabpay_payments`
+#   - secret API keys (sk_test_ / sk_live_)          -> `sabpay_api_keys`
+#   - outbound webhook endpoints + HMAC delivery     -> `sabpay_webhook_endpoints`
+#   - webhook delivery log                           -> `sabpay_webhook_deliveries`
+#
+# Document shapes are byte-identical to the Next.js `src/lib/sabpay/*`
+# implementation (ISO-string timestamps, `userId` as ObjectId) so both sides
+# share the same collections without a migration.
+#
+# Leaf crate: no `[workspace]` table; the `api` crate wires it in under
+# `/v1/sabpay`.
+[package]
+name = "sabpay"
+version = "0.1.0"
+edition = "2024"
+description = "Axum router for the SabPay payment-gateway surface (/v1/sabpay/*). Merchants, payments (PayU SHA-512), API keys, webhooks (HMAC + retry delivery), stats."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "sabpay"
+path = "src/lib.rs"
+
+[dependencies]
+axum = { version = "0.8", default-features = false, features = ["json", "http1", "tokio", "macros", "query"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "time"] }
+
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+bson = { version = "2", features = ["chrono-0_4"] }
+mongodb = { version = "3" }
+
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+futures = "0.3"
+
+# PayU request/response SHA-512 hashing + webhook HMAC-SHA256 signing.
+sha2 = "0.10"
+hmac = "0.12"
+hex = "0.4"
+# Random ids + secrets (payment ids, txnids, api-key + webhook secrets).
+rand = "0.8"
+
+# EXTERNAL SEAM: outbound webhook delivery to merchant endpoints, confined to
+# `mod webhooks`. Mirrors the wachat-razorpay client (reqwest + rustls).
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls", "gzip"] }
+
+tracing = "0.1"
+anyhow = "1"
+utoipa = { version = "5", features = ["axum_extras", "chrono"] }
+
+sabnode-common = { path = "../common" }
+sabnode-auth = { path = "../auth" }
+sabnode-db = { path = "../db" }
+
+[lints]
+workspace = true

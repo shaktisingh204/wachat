@@ -45,6 +45,7 @@ import { wachatRazorpayApi } from './wachat-razorpay';
 import { wachatPostGeneratorApi } from './wachat-post-generator';
 import { wachatContactsExportSyncApi } from './wachat-contacts-export-sync';
 import { wachatNumberRoutingApi } from './wachat-number-routing';
+import { sabpayApi } from './sabpay';
 import { sabchatApi } from './sabchat';
 import { sabchatKbApi } from './sabchat-knowledge';
 import { sabchatReportsApi } from './sabchat-reports';
@@ -137,6 +138,7 @@ export const rustClient = {
     wachatWidgetTracking: wachatWidgetTrackingApi,
     wachatIntegrationsHub: wachatIntegrationsHubApi,
     wachatRazorpay: wachatRazorpayApi,
+    sabpay: sabpayApi,
     wachatPostGenerator: wachatPostGeneratorApi,
     wachatContactsExportSync: wachatContactsExportSyncApi,
     wachatNumberRouting: wachatNumberRoutingApi,

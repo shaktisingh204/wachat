@@ -3,38 +3,21 @@
 /**
  * SabPay dashboard — server actions.
  *
- * Every action resolves the SabNode session itself and scopes all reads
- * and writes to that user (the merchant). Mutations return
- * `{ error }` instead of throwing so the client can render inline
- * messages; reads throw on missing auth (the layout already redirects).
+ * These are a thin pass-through to the SabPay router on the Rust engine
+ * (`rust/crates/sabpay`, mounted at `/v1/sabpay`). `rustClient.sabpay.*`
+ * authenticates as the current SabNode session via the shared-secret JWT, so
+ * every read/write is automatically scoped to the signed-in merchant. Mutations
+ * return `{ error }` instead of throwing so the client can render inline
+ * messages; reads surface through the route's error boundary.
  */
 
-import { ObjectId } from 'mongodb';
 import { revalidatePath } from 'next/cache';
 
-import { getSession } from '@/app/actions/user.actions';
-import {
-  createApiKey,
-  createPayment,
-  getOrCreateMerchant,
-  getPaymentDocById,
-  getStats,
-  listApiKeys,
-  listPayments,
-  paymentDocToPayment,
-  revokeApiKey,
-  updateMerchant,
-  type UpdateMerchantPatch,
-} from '@/lib/sabpay/db.server';
-import {
-  createEndpoint,
-  deleteEndpoint,
-  dispatchSabpayEvent,
-  listDeliveries,
-  listEndpoints,
-  rotateEndpointSecret,
-  updateEndpoint,
-} from '@/lib/sabpay/webhooks.server';
+import { rustClient } from '@/lib/rust-client';
+import { RustApiError } from '@/lib/rust-client/fetcher';
+import type {
+  SabpayUpdateMerchantBody,
+} from '@/lib/rust-client/sabpay';
 import type {
   SabpayApiKey,
   SabpayMerchant,
@@ -47,26 +30,8 @@ import type {
   SabpayWebhookEvent,
 } from '@/lib/sabpay/types';
 
-interface SabpayActor {
-  userId: ObjectId;
-  displayName: string;
-}
-
-async function requireActor(): Promise<SabpayActor> {
-  const session = await getSession();
-  const user = session?.user as
-    | { _id?: unknown; name?: string; email?: string }
-    | undefined;
-  if (!user?._id || !ObjectId.isValid(String(user._id))) {
-    throw new Error('Not authenticated.');
-  }
-  return {
-    userId: new ObjectId(String(user._id)),
-    displayName: user.name || user.email || 'My business',
-  };
-}
-
 function errorMessage(err: unknown): string {
+  if (err instanceof RustApiError) return err.message;
   return err instanceof Error ? err.message : 'Something went wrong.';
 }
 
@@ -79,13 +44,7 @@ export interface SabpayOverviewData {
 }
 
 export async function getSabpayOverview(): Promise<SabpayOverviewData> {
-  const actor = await requireActor();
-  const merchant = await getOrCreateMerchant(actor.userId, actor.displayName);
-  const [stats, recent] = await Promise.all([
-    getStats(actor.userId, merchant.mode),
-    listPayments(actor.userId, { mode: merchant.mode, limit: 8 }),
-  ]);
-  return { merchant, stats, recent };
+  return rustClient.sabpay.getOverview();
 }
 
 /* ── Payments ────────────────────────────────────────────────────────────── */
@@ -95,30 +54,24 @@ export async function getSabpayPayments(query: {
   before?: string;
   limit?: number;
 }): Promise<{ merchant: SabpayMerchant; payments: SabpayPayment[] }> {
-  const actor = await requireActor();
-  const merchant = await getOrCreateMerchant(actor.userId, actor.displayName);
-  const payments = await listPayments(actor.userId, {
-    mode: merchant.mode,
+  return rustClient.sabpay.listPayments({
     status: query.status,
     before: query.before,
     limit: query.limit ?? 50,
   });
-  return { merchant, payments };
 }
 
 export async function getSabpayPaymentDetail(
   id: string,
 ): Promise<SabpayPayment | null> {
-  const actor = await requireActor();
-  const doc = await getPaymentDocById(id);
-  if (!doc || !doc.userId.equals(actor.userId)) return null;
-  return paymentDocToPayment(doc);
+  try {
+    return await rustClient.sabpay.getPayment(id);
+  } catch (err) {
+    if (err instanceof RustApiError && err.status === 404) return null;
+    throw err;
+  }
 }
 
-/**
- * Dashboard-side payment creation ("create a payment link" without
- * touching the API) — same path the public API uses.
- */
 export async function createSabpayPayment(input: {
   amount: number;
   description?: string;
@@ -126,15 +79,12 @@ export async function createSabpayPayment(input: {
   cancelUrl?: string;
 }): Promise<{ payment?: SabpayPayment; error?: string }> {
   try {
-    const actor = await requireActor();
-    const merchant = await getOrCreateMerchant(actor.userId, actor.displayName);
-    const payment = await createPayment(actor.userId, merchant.mode, {
+    const payment = await rustClient.sabpay.createPayment({
       amount: input.amount,
       description: input.description,
       successUrl: input.successUrl,
       cancelUrl: input.cancelUrl,
     });
-    void dispatchSabpayEvent(actor.userId, 'payment.created', payment);
     revalidatePath('/sabpay');
     revalidatePath('/sabpay/payments');
     return { payment };
@@ -146,8 +96,7 @@ export async function createSabpayPayment(input: {
 /* ── API keys ────────────────────────────────────────────────────────────── */
 
 export async function getSabpayKeys(): Promise<SabpayApiKey[]> {
-  const actor = await requireActor();
-  return listApiKeys(actor.userId);
+  return rustClient.sabpay.listKeys();
 }
 
 export async function createSabpayKey(input: {
@@ -155,11 +104,7 @@ export async function createSabpayKey(input: {
   mode: SabpayMode;
 }): Promise<{ key?: SabpayApiKey; error?: string }> {
   try {
-    const actor = await requireActor();
-    if (input.mode !== 'test' && input.mode !== 'live') {
-      return { error: 'Mode must be test or live.' };
-    }
-    const key = await createApiKey(actor.userId, input.name, input.mode);
+    const key = await rustClient.sabpay.createKey(input);
     revalidatePath('/sabpay/developers');
     return { key };
   } catch (err) {
@@ -171,10 +116,9 @@ export async function revokeSabpayKey(
   keyId: string,
 ): Promise<{ ok?: boolean; error?: string }> {
   try {
-    const actor = await requireActor();
-    const ok = await revokeApiKey(actor.userId, keyId);
+    const res = await rustClient.sabpay.revokeKey(keyId);
     revalidatePath('/sabpay/developers');
-    return ok ? { ok } : { error: 'Key not found.' };
+    return { ok: res.success };
   } catch (err) {
     return { error: errorMessage(err) };
   }
@@ -188,12 +132,7 @@ export interface SabpayWebhookData {
 }
 
 export async function getSabpayWebhookData(): Promise<SabpayWebhookData> {
-  const actor = await requireActor();
-  const [endpoints, deliveries] = await Promise.all([
-    listEndpoints(actor.userId),
-    listDeliveries(actor.userId, 50),
-  ]);
-  return { endpoints, deliveries };
+  return rustClient.sabpay.getWebhookData();
 }
 
 export async function createSabpayWebhook(input: {
@@ -202,8 +141,7 @@ export async function createSabpayWebhook(input: {
   description?: string;
 }): Promise<{ endpoint?: SabpayWebhookEndpoint; error?: string }> {
   try {
-    const actor = await requireActor();
-    const endpoint = await createEndpoint(actor.userId, input);
+    const endpoint = await rustClient.sabpay.createWebhook(input);
     revalidatePath('/sabpay/webhooks');
     return { endpoint };
   } catch (err) {
@@ -213,13 +151,17 @@ export async function createSabpayWebhook(input: {
 
 export async function updateSabpayWebhook(
   id: string,
-  patch: { active?: boolean; url?: string; events?: SabpayWebhookEvent[]; description?: string },
+  patch: {
+    active?: boolean;
+    url?: string;
+    events?: SabpayWebhookEvent[];
+    description?: string;
+  },
 ): Promise<{ endpoint?: SabpayWebhookEndpoint; error?: string }> {
   try {
-    const actor = await requireActor();
-    const endpoint = await updateEndpoint(actor.userId, id, patch);
+    const endpoint = await rustClient.sabpay.updateWebhook(id, patch);
     revalidatePath('/sabpay/webhooks');
-    return endpoint ? { endpoint } : { error: 'Endpoint not found.' };
+    return { endpoint };
   } catch (err) {
     return { error: errorMessage(err) };
   }
@@ -229,10 +171,9 @@ export async function rotateSabpayWebhookSecret(
   id: string,
 ): Promise<{ endpoint?: SabpayWebhookEndpoint; error?: string }> {
   try {
-    const actor = await requireActor();
-    const endpoint = await rotateEndpointSecret(actor.userId, id);
+    const endpoint = await rustClient.sabpay.rotateWebhook(id);
     revalidatePath('/sabpay/webhooks');
-    return endpoint ? { endpoint } : { error: 'Endpoint not found.' };
+    return { endpoint };
   } catch (err) {
     return { error: errorMessage(err) };
   }
@@ -242,10 +183,9 @@ export async function deleteSabpayWebhook(
   id: string,
 ): Promise<{ ok?: boolean; error?: string }> {
   try {
-    const actor = await requireActor();
-    const ok = await deleteEndpoint(actor.userId, id);
+    const res = await rustClient.sabpay.deleteWebhook(id);
     revalidatePath('/sabpay/webhooks');
-    return ok ? { ok } : { error: 'Endpoint not found.' };
+    return { ok: res.success };
   } catch (err) {
     return { error: errorMessage(err) };
   }
@@ -254,20 +194,17 @@ export async function deleteSabpayWebhook(
 /* ── Settings ────────────────────────────────────────────────────────────── */
 
 export async function getSabpaySettings(): Promise<SabpayMerchant> {
-  const actor = await requireActor();
-  return getOrCreateMerchant(actor.userId, actor.displayName);
+  return rustClient.sabpay.getMerchant();
 }
 
 export async function saveSabpaySettings(
-  patch: UpdateMerchantPatch,
+  patch: SabpayUpdateMerchantBody,
 ): Promise<{ merchant?: SabpayMerchant; error?: string }> {
   try {
-    const actor = await requireActor();
-    await getOrCreateMerchant(actor.userId, actor.displayName);
-    const merchant = await updateMerchant(actor.userId, patch);
+    const merchant = await rustClient.sabpay.updateMerchant(patch);
     revalidatePath('/sabpay');
     revalidatePath('/sabpay/settings');
-    return merchant ? { merchant } : { error: 'Settings not found.' };
+    return { merchant };
   } catch (err) {
     return { error: errorMessage(err) };
   }

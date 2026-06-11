@@ -1,4 +1,4 @@
-import { type SidebarGroup } from '@/components/sabcrm/20ui';
+import type { SabSidebarGroup } from '@/components/sabcrm/20ui/composites/shell/app-sidebar';
 import {
   ArrowLeftRight,
   Code2,
@@ -16,7 +16,7 @@ import * as React from 'react';
 
 export function buildSabpaySidebarGroups(
   pathname: string | null,
-): SidebarGroup[] {
+): SabSidebarGroup[] {
   const isActive = (href: string, exact = false) => {
     if (!pathname) return false;
     if (exact) return pathname === href;

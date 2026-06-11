@@ -59,6 +59,7 @@ wachat-projects = { path = "../wachat-projects" }
 wachat-contacts = { path = "../wachat-contacts" }
 wachat-number-routing = { path = "../wachat-number-routing" }
 wachat-razorpay = { path = "../wachat-razorpay" }
+sabpay = { path = "../sabpay" }
 wachat-post-generator = { path = "../wachat-post-generator" }
 wachat-contacts-export-sync = { path = "../wachat-contacts-export-sync" }
 wachat-ab-testing = { path = "../wachat-ab-testing" }

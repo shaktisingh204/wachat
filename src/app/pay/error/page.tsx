@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 
-import '../[id]/checkout.css';
+import '../[pageSlug]/checkout.css';
 
 /**
  * SabPay hosted checkout — terminal error page. Customers land here only

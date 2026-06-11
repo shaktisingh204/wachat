@@ -10,7 +10,11 @@ import * as React from 'react';
 
 import {
   Breadcrumb,
-  type BreadcrumbItem,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
   PageHeader,
   PageHeaderHeading,
   PageEyebrow,
@@ -27,9 +31,16 @@ function cx(...parts: Array<string | false | null | undefined>): string {
 
 export type SabpayPageWidth = 'default' | 'narrow' | 'wide';
 
+/** One crumb in the page's breadcrumb trail. */
+export interface SabpayCrumb {
+  label: React.ReactNode;
+  /** Link target for non-current crumbs; omit for the current page. */
+  href?: string;
+}
+
 export interface SabpayPageProps
   extends Omit<React.HTMLAttributes<HTMLDivElement>, 'title'> {
-  breadcrumb?: BreadcrumbItem[];
+  breadcrumb?: SabpayCrumb[];
   eyebrow?: React.ReactNode;
   title?: React.ReactNode;
   description?: React.ReactNode;
@@ -69,7 +80,25 @@ export function SabpayPage({
     <div className={cx('ui20', 'sabpay-page', className)} {...rest}>
       <div className={cx('sabpay-page__inner', contentClassName)} data-width={width}>
         {breadcrumb && breadcrumb.length > 0 ? (
-          <Breadcrumb className="sabpay-page__crumbs" items={breadcrumb} />
+          <Breadcrumb className="sabpay-page__crumbs">
+            <BreadcrumbList>
+              {breadcrumb.map((crumb, i) => {
+                const isLast = i === breadcrumb.length - 1;
+                return (
+                  <React.Fragment key={i}>
+                    <BreadcrumbItem>
+                      {crumb.href && !isLast ? (
+                        <BreadcrumbLink href={crumb.href}>{crumb.label}</BreadcrumbLink>
+                      ) : (
+                        <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
+                      )}
+                    </BreadcrumbItem>
+                    {!isLast ? <BreadcrumbSeparator /> : null}
+                  </React.Fragment>
+                );
+              })}
+            </BreadcrumbList>
+          </Breadcrumb>
         ) : null}
 
         {hasHeader ? (

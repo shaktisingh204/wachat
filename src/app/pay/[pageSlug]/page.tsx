@@ -19,10 +19,8 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
 import { loadPublicSabcheckoutPage } from '@/app/actions/sabcheckout-public.actions';
-import {
-  getMerchantDocByUserId,
-  getPaymentDocById,
-} from '@/lib/sabpay/db.server';
+import { rustClient } from '@/lib/rust-client';
+import { RustApiError } from '@/lib/rust-client/fetcher';
 import { PublicCheckoutForm } from './_components/public-checkout-form';
 import { CheckoutClient, type CheckoutData } from './checkout-client';
 
@@ -40,33 +38,32 @@ export default async function PublicCheckoutRoute({
 }) {
   const { pageSlug } = await params;
 
-  // SabPay payment ids are unguessable and never collide with page
-  // slugs, so the id lookup safely goes first.
-  const payment = await getPaymentDocById(pageSlug);
-  if (payment) {
-    const merchant = await getMerchantDocByUserId(payment.userId);
-
-    const data: CheckoutData = {
-      paymentId: payment.paymentId,
-      mode: payment.mode,
-      status: payment.status,
-      amount: payment.amount,
-      currency: payment.currency,
-      description: payment.description,
-      customerName: payment.customerName ?? '',
-      customerEmail: payment.customerEmail ?? '',
-      customerPhone: payment.customerPhone ?? '',
-      successUrl: payment.successUrl,
-      cancelUrl: payment.cancelUrl,
-      failureReason: payment.failureReason,
-      business: {
-        name: merchant?.businessName || 'SabPay merchant',
-        logoUrl: merchant?.logoUrl,
-        brandColor: merchant?.brandColor || '#4f46e5',
-      },
-    };
-
-    return <CheckoutClient data={data} />;
+  // SabPay payment ids are `pay_<hex>` and never collide with SabCheckout
+  // page slugs, so we only consult the SabPay engine for that shape. The
+  // hosted-checkout view (payment + merchant branding) comes from Rust.
+  if (pageSlug.startsWith('pay_')) {
+    try {
+      const view = await rustClient.sabpay.getCheckout(pageSlug);
+      const data: CheckoutData = {
+        paymentId: view.paymentId,
+        mode: view.mode,
+        status: view.status,
+        amount: view.amount,
+        currency: view.currency,
+        description: view.description,
+        customerName: view.customerName,
+        customerEmail: view.customerEmail,
+        customerPhone: view.customerPhone,
+        successUrl: view.successUrl,
+        cancelUrl: view.cancelUrl,
+        failureReason: view.failureReason,
+        business: view.business,
+      };
+      return <CheckoutClient data={data} />;
+    } catch (err) {
+      // 404 → fall through to SabCheckout; anything else is a real failure.
+      if (!(err instanceof RustApiError && err.status === 404)) throw err;
+    }
   }
 
   const res = await loadPublicSabcheckoutPage(pageSlug);
