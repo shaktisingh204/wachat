@@ -7,6 +7,9 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
+  // Seeds the e2e fixture user in Mongo and writes the authenticated
+  // storageState consumed by the `sabflow` project (see e2e/global-setup.ts).
+  globalSetup: './e2e/global-setup',
   use: {
     baseURL: 'http://localhost:3002',
     trace: 'on-first-retry',
@@ -15,6 +18,18 @@ export default defineConfig({
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
-    }
+      // sabflow specs run in their own authenticated project below.
+      testIgnore: /e2e[\\/]sabflow[\\/]/,
+    },
+    {
+      // Authenticated SabFlow suite — starts with the `session` cookie
+      // minted by global-setup for the seeded e2e user.
+      name: 'sabflow',
+      testMatch: /e2e[\\/]sabflow[\\/].*\.spec\.ts/,
+      use: {
+        ...devices['Desktop Chrome'],
+        storageState: 'e2e/.auth/sabflow.json',
+      },
+    },
   ],
 });
