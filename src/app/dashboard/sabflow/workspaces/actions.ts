@@ -7,7 +7,7 @@ import type { WorkspaceRole as DBWorkspaceRole } from '@/lib/sabflow/workspaces/
 type WorkspaceRole = DBWorkspaceRole;
 type WorkspacePlan = 'free' | 'starter' | 'pro' | 'enterprise';
 
-interface Workspace {
+export interface Workspace {
   id: string;
   name: string;
   plan: string;

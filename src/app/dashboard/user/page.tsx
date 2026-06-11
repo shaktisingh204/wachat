@@ -98,7 +98,7 @@ export default async function UserDashboardPage() {
   );
 
   return (
-    <div className="mx-auto w-full max-w-5xl px-4 py-6 space-y-6">
+    <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-[var(--st-space-7)]">
       <PageHeader>
         <PageHeaderHeading>
           <PageEyebrow>Account</PageEyebrow>

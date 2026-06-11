@@ -16,7 +16,6 @@
 
 import type { Collection, Db, ObjectId as ObjectIdType } from 'mongodb';
 import { getSabFlowCollection } from '@/lib/sabflow/db';
-import { enqueueExecution } from '@/lib/sabflow/queue/enqueue';
 import {
   SABFLOW_EXECUTIONS_COLLECTION,
   type ExecutionDoc,
@@ -193,8 +192,8 @@ async function fetchRawEvents(
 
 /**
  * Build the per-event idempotency key. The key is shared with the dedup query
- * AND the `enqueueExecution` call so a concurrent legitimate fire that beats
- * the replay to the queue is also collapsed.
+ * AND the BullMQ `jobId` passed to `enqueueWorkerExecution`, so a concurrent
+ * legitimate fire that beats the replay to the queue is also collapsed.
  */
 function makeEventKey(triggerId: string, firedAt: Date): string {
   return `replay:${triggerId}:${firedAt.toISOString()}`;
@@ -359,34 +358,68 @@ export async function replayTriggerWindow(
     return { source, replayed: plan, skipped, dryRun: true };
   }
 
-  // 5. Enqueue. Each enqueueExecution call is independently idempotent on
-  //    `eventKey`, so even partial failures here are safe to retry by calling
-  //    `replayTriggerWindow` again.
+  // 5. Enqueue onto the BullMQ queue the PM2 sabflow-worker consumes.
+  //    Idempotency is layered: the Mongo seen-set above skips already-run
+  //    fires, and the BullMQ `jobId = eventKey` de-dupes a producer race.
+  //    Partial failures are safe to retry by calling `replayTriggerWindow`
+  //    again.
+  const { connectToDatabase } = await import('@/lib/mongodb');
+  const { ObjectId } = await import('mongodb');
+  const { enqueueWorkerExecution } = await import('@/lib/sabflow/queue/enqueue-worker');
+  const { db } = await connectToDatabase();
+  const execCol = (db as Db).collection(SABFLOW_EXECUTIONS_COLLECTION);
+  const projectId = String((flow as SabFlowDoc & { userId?: string }).userId ?? workspaceId);
+
   for (const raw of rawEvents) {
     if (!raw.firedAt) continue;
     const originalFireAt = raw.firedAt.toISOString();
     if (seenKeys.has(`${triggerId}:${originalFireAt}`)) continue;
     const eventKey = makeEventKey(triggerId, raw.firedAt);
 
+    const triggerData = {
+      __replay: {
+        replay: true,
+        triggerId,
+        originalFireAt,
+        requesterId,
+        source,
+        sourceRef: raw.sourceRef,
+      },
+      payload: raw.payload,
+    };
+
     try {
-      await enqueueExecution({
-        workspaceId,
-        workflowId: flowId,
-        mode: 'retry',
-        plan: 'pro', // sibling #4 reads the real plan tier; fallback default.
-        triggerData: {
-          __replay: {
-            replay: true,
-            triggerId,
-            originalFireAt,
-            requesterId,
-            source,
-            sourceRef: raw.sourceRef,
-          },
-          payload: raw.payload,
-        },
-        idempotencyKey: eventKey,
+      const executionId = new ObjectId().toHexString();
+      const now = new Date();
+      // Insert the row first: the worker updates by `{ executionId }` without
+      // upsert, and `loadExistingFires` reads `workspaceId` (ObjectId) +
+      // `triggerData.__replay` off this document on the next replay pass.
+      await execCol.insertOne({
+        executionId,
+        flowId,
+        projectId,
+        ...(ObjectId.isValid(workspaceId) ? { workspaceId: new ObjectId(workspaceId) } : {}),
+        status: 'queued',
+        triggerMode: 'webhook',
+        triggerData,
+        startedAt: now,
+        finishedAt: null,
+        error: null,
+        createdAt: now,
+        updatedAt: now,
       });
+      await enqueueWorkerExecution(
+        {
+          executionId,
+          flowId,
+          projectId,
+          flowSnapshot: flow,
+          triggerMode: 'webhook',
+          triggerData,
+          variables: {},
+        },
+        { jobId: eventKey },
+      );
       // Mark seen so a duplicate raw event later in the same loop is skipped.
       seenKeys.add(`${triggerId}:${originalFireAt}`);
     } catch (err) {

@@ -21,6 +21,8 @@ use hmac::{Hmac, Mac};
 use sabnode_db::mongo::MongoHandle;
 use sha2::Sha256;
 
+use serde_json::Value;
+
 use crate::dto::PaymentOut;
 use crate::store;
 
@@ -136,17 +138,33 @@ fn prev_failures(ep: &Document) -> i64 {
     }
 }
 
-/// Fan `event` (for `payment`) out to every active subscribed endpoint of the
-/// merchant. Never panics; designed to be `tokio::spawn`ed fire-and-forget.
-pub async fn dispatch(
+/// Payment-event convenience over [`dispatch`] — serializes the payment as the
+/// `data.payment` object. Existing call sites use this.
+pub async fn dispatch_payment(
     mongo: MongoHandle,
     uid: ObjectId,
     event: String,
     payment: PaymentOut,
     mode: String,
 ) {
-    let payment_id = payment.id.clone();
+    let id = payment.id.clone();
+    let value = serde_json::to_value(&payment).unwrap_or(Value::Null);
+    dispatch(mongo, uid, event, "payment", value, id, mode).await;
+}
 
+/// Fan `event` out to every active subscribed endpoint of the merchant. The
+/// envelope nests the object under `data.<object_type>` (e.g. `data.refund`),
+/// matching the payment shape existing consumers already parse. Never panics;
+/// designed to be `tokio::spawn`ed fire-and-forget.
+pub async fn dispatch(
+    mongo: MongoHandle,
+    uid: ObjectId,
+    event: String,
+    object_type: &'static str,
+    object: Value,
+    object_id: String,
+    mode: String,
+) {
     let ecoll = mongo.collection::<Document>(store::ENDPOINTS);
     let endpoints: Vec<Document> = match ecoll
         .find(doc! { "userId": uid, "active": true, "events": &event })
@@ -168,12 +186,13 @@ pub async fn dispatch(
         return;
     }
 
+    let event_id = format!("evt_{}", store::random_hex(12));
     let envelope = serde_json::json!({
-        "id": format!("evt_{}", store::random_hex(12)),
+        "id": &event_id,
         "event": &event,
         "mode": &mode,
         "timestamp": store::now_iso(),
-        "data": { "payment": payment },
+        "data": { object_type: object },
     });
     let body = serde_json::to_string(&envelope).unwrap_or_else(|_| "{}".to_owned());
 
@@ -192,7 +211,6 @@ pub async fn dispatch(
         let outcome = deliver(&url, &body, &signature, &event).await;
         let now = store::now_iso();
 
-        // Endpoint bookkeeping (+ auto-disable after the failure cap).
         if let Some(eid) = endpoint_oid {
             let update = if outcome.success {
                 doc! { "$set": {
@@ -221,24 +239,136 @@ pub async fn dispatch(
             }
         }
 
-        // Delivery log.
-        let mut log = doc! {
-            "_id": ObjectId::new(),
-            "userId": uid,
-            "endpointId": endpoint_oid.unwrap_or_else(ObjectId::new),
-            "url": &url,
-            "event": &event,
-            "paymentId": &payment_id,
-            "success": outcome.success,
-            "status": outcome.status,
-            "attempts": outcome.attempts,
-            "createdAt": &now,
-        };
-        if let Some(err) = &outcome.error {
-            log.insert("error", err.clone());
-        }
-        if let Err(e) = dcoll.insert_one(&log).await {
-            tracing::error!("sabpay webhook delivery log: {e}");
-        }
+        write_delivery_log(
+            &dcoll,
+            DeliveryLog {
+                uid,
+                endpoint_id: endpoint_oid.unwrap_or_else(ObjectId::new),
+                url: &url,
+                event: &event,
+                event_id: &event_id,
+                object_type,
+                object_id: &object_id,
+                payload: &body,
+                outcome: &outcome,
+                redelivered_from: None,
+            },
+        )
+        .await;
     }
+}
+
+struct DeliveryLog<'a> {
+    uid: ObjectId,
+    endpoint_id: ObjectId,
+    url: &'a str,
+    event: &'a str,
+    event_id: &'a str,
+    object_type: &'a str,
+    object_id: &'a str,
+    payload: &'a str,
+    outcome: &'a Outcome,
+    redelivered_from: Option<&'a str>,
+}
+
+async fn write_delivery_log(
+    dcoll: &mongodb::Collection<Document>,
+    log: DeliveryLog<'_>,
+) {
+    let payload = log.payload.chars().take(32_768).collect::<String>();
+    let mut d = doc! {
+        "_id": ObjectId::new(),
+        "userId": log.uid,
+        "endpointId": log.endpoint_id,
+        "url": log.url,
+        "event": log.event,
+        "eventId": log.event_id,
+        "objectType": log.object_type,
+        "objectId": log.object_id,
+        // Back-compat: the dashboard delivery row reads `paymentId`.
+        "paymentId": if log.object_type == "payment" { log.object_id } else { "" },
+        "payload": payload,
+        "success": log.outcome.success,
+        "status": log.outcome.status,
+        "attempts": log.outcome.attempts,
+        "createdAt": store::now_iso(),
+    };
+    if let Some(err) = &log.outcome.error {
+        d.insert("error", err.clone());
+    }
+    if let Some(from) = log.redelivered_from {
+        d.insert("redeliveredFrom", from);
+    }
+    if let Err(e) = dcoll.insert_one(&d).await {
+        tracing::error!("sabpay webhook delivery log: {e}");
+    }
+}
+
+/// Re-send a previously logged delivery to its endpoint's CURRENT url + secret,
+/// re-signing the stored payload. Logs a fresh delivery row tagged
+/// `redeliveredFrom`. Returns the new delivery id, or `None` when the original
+/// delivery / its endpoint no longer belongs to the user.
+pub async fn redeliver(
+    mongo: &MongoHandle,
+    uid: ObjectId,
+    delivery_id: &str,
+) -> sabnode_common::Result<Option<String>> {
+    let did = bson::oid::ObjectId::parse_str(delivery_id).map_err(|_| {
+        sabnode_common::ApiError::BadRequest("Invalid delivery id.".to_owned())
+    })?;
+    let dcoll = mongo.collection::<Document>(store::DELIVERIES);
+    let delivery = match dcoll
+        .find_one(doc! { "_id": did, "userId": uid })
+        .await
+        .map_err(|e| sabnode_common::ApiError::Internal(anyhow::Error::new(e)))?
+    {
+        Some(d) => d,
+        None => return Ok(None),
+    };
+
+    let endpoint_oid = delivery.get_object_id("endpointId").ok();
+    let ecoll = mongo.collection::<Document>(store::ENDPOINTS);
+    let endpoint = match endpoint_oid {
+        Some(eid) => ecoll
+            .find_one(doc! { "_id": eid, "userId": uid })
+            .await
+            .map_err(|e| sabnode_common::ApiError::Internal(anyhow::Error::new(e)))?,
+        None => None,
+    };
+    let endpoint = match endpoint {
+        Some(e) => e,
+        None => return Ok(None),
+    };
+
+    let url = endpoint.get_str("url").unwrap_or_default().to_owned();
+    let secret = endpoint.get_str("secret").unwrap_or_default().to_owned();
+    let event = store::str_or(&delivery, "event", "");
+    let event_id = store::str_or(&delivery, "eventId", "");
+    let object_type = store::str_or(&delivery, "objectType", "payment");
+    let object_id = store::str_or(&delivery, "objectId", "");
+    let payload = store::str_or(&delivery, "payload", "{}");
+    if url.is_empty() || payload.is_empty() {
+        return Ok(None);
+    }
+
+    let signature = sign(&secret, &payload);
+    let outcome = deliver(&url, &payload, &signature, &event).await;
+    let new_id = ObjectId::new();
+    write_delivery_log(
+        &dcoll,
+        DeliveryLog {
+            uid,
+            endpoint_id: endpoint_oid.unwrap_or(new_id),
+            url: &url,
+            event: &event,
+            event_id: &event_id,
+            object_type: &object_type,
+            object_id: &object_id,
+            payload: &payload,
+            outcome: &outcome,
+            redelivered_from: Some(delivery_id),
+        },
+    )
+    .await;
+    Ok(Some(delivery_id.to_owned()))
 }

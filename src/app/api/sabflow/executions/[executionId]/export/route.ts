@@ -429,7 +429,7 @@ export async function GET(
       `events=${events.length} nodes=${nodeIds.length} zipBytes=${zipBuf.length}`,
     );
 
-    return new Response(zipBuf, {
+    return new Response(new Uint8Array(zipBuf), {
       status: 200,
       headers: {
         'Content-Type': 'application/zip',

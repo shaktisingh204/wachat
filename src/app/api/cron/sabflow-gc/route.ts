@@ -21,23 +21,21 @@
 import { NextResponse, type NextRequest } from 'next/server';
 
 import { connectToDatabase } from '@/lib/mongodb';
-// Forward-declared import — owned by a sibling branch.
-// `compactDoc` resolves at integration time when
-// `src/lib/sabflow/persistence/compaction.ts` lands on main.
 import { compactDoc } from '@/lib/sabflow/persistence/compaction';
+import { makeCompactionDeps } from '@/lib/sabflow/persistence/compaction-deps';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
-export const maxDuration = 300; // Vercel Functions cap; compaction is I/O-bound.
+export const maxDuration = 300; // compaction is I/O-bound.
 
 /** Oplog entry threshold above which a doc becomes eligible for compaction. */
 const OPLOG_PENDING_THRESHOLD = 256;
 /** Max age since last compaction (ms) above which a doc becomes eligible. */
 const MAX_AGE_SINCE_COMPACTION_MS = 5 * 60 * 1000;
-/** Concurrency cap when fanning out `compactDoc` calls. */
-const COMPACTION_CONCURRENCY = 4;
 /** Defensive ceiling on per-tick doc count so a backlog can't blow past `maxDuration`. */
 const MAX_DOCS_PER_TICK = 500;
+/** Concurrency cap when fanning out `compactDoc` calls. */
+const COMPACTION_CONCURRENCY = 4;
 
 type SabFlowDocRow = {
     workspaceId: string;
@@ -72,45 +70,40 @@ function authorize(
 }
 
 /**
- * Pick docs eligible for compaction. The `sabflow_docs` collection schema is
- * owned by a sibling branch (Phase 2 · sub-task on persistence). Until that
- * lands we forward-declare the query shape and degrade gracefully.
+ * Pick docs eligible for compaction from `sabflow_docs`.
  *
- * TODO(sabflow-persistence): swap the inline query for the shared model/repo
- * once `src/lib/sabflow/persistence/sabflowDocs.ts` exists on main.
+ * Schema note: the live rows (see `persistence/snapshot.ts`) use `_id` AS
+ * the doc id — there is no separate `docId` column. Hot docs only
+ * (`coldTier: null`), live docs only (`deletedAt: null`).
  */
 async function findEligibleDocs(now: Date): Promise<SabFlowDocRow[]> {
     const { db } = await connectToDatabase();
-    const col = db.collection<SabFlowDocRow & { lastCompactedAt?: Date }>(
-        'sabflow_docs',
-    );
+    const col = db.collection('sabflow_docs');
 
     const ageCutoff = new Date(now.getTime() - MAX_AGE_SINCE_COMPACTION_MS);
 
     // Either the oplog has grown past the snapshot threshold, OR the doc
     // hasn't been compacted in the last MAX_AGE_SINCE_COMPACTION_MS.
-    const cursor = col
+    const rows = await col
         .find(
             {
+                deletedAt: null,
+                coldTier: null,
                 $or: [
                     { oplogPending: { $gt: OPLOG_PENDING_THRESHOLD } },
                     { lastCompactedAt: { $lt: ageCutoff } },
                     { lastCompactedAt: { $exists: false } },
                 ],
             },
-            {
-                projection: {
-                    _id: 0,
-                    workspaceId: 1,
-                    docId: 1,
-                    oplogPending: 1,
-                    lastCompactedAt: 1,
-                },
-            },
+            { projection: { _id: 1, workspaceId: 1 } },
         )
-        .limit(MAX_DOCS_PER_TICK);
+        .limit(MAX_DOCS_PER_TICK)
+        .toArray();
 
-    return cursor.toArray();
+    return rows.map((row) => ({
+        workspaceId: String(row.workspaceId),
+        docId: String(row._id),
+    }));
 }
 
 /**
@@ -121,23 +114,33 @@ async function findEligibleDocs(now: Date): Promise<SabFlowDocRow[]> {
 async function runCompactionBatch(
     docs: SabFlowDocRow[],
 ): Promise<CompactionOutcome[]> {
+    const deps = makeCompactionDeps();
     const outcomes: CompactionOutcome[] = [];
 
     for (let i = 0; i < docs.length; i += COMPACTION_CONCURRENCY) {
         const chunk = docs.slice(i, i + COMPACTION_CONCURRENCY);
         const settled = await Promise.allSettled(
             chunk.map((d) =>
-                compactDoc({ workspaceId: d.workspaceId, docId: d.docId }),
+                compactDoc({ workspaceId: d.workspaceId, docId: d.docId }, deps),
             ),
         );
         settled.forEach((result, idx) => {
             const d = chunk[idx];
             if (result.status === 'fulfilled') {
-                outcomes.push({
-                    status: 'processed',
-                    workspaceId: d.workspaceId,
-                    docId: d.docId,
-                });
+                if (result.value.skipped) {
+                    outcomes.push({
+                        status: 'skipped',
+                        workspaceId: d.workspaceId,
+                        docId: d.docId,
+                        reason: result.value.skipped,
+                    });
+                } else {
+                    outcomes.push({
+                        status: 'processed',
+                        workspaceId: d.workspaceId,
+                        docId: d.docId,
+                    });
+                }
             } else {
                 const error =
                     result.reason instanceof Error

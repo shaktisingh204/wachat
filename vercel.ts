@@ -52,6 +52,18 @@ export const config: VercelConfig = {
       path: '/api/cron/msme-45-day-check',
       schedule: '0 6 * * *',
     },
+    {
+      path: '/api/cron/sabpay-settlements',
+      schedule: '30 1 * * *',
+    },
+    {
+      path: '/api/cron/sabpay-subscriptions',
+      schedule: '0 3 * * *',
+    },
+    {
+      path: '/api/cron/sabpay-expiries',
+      schedule: '*/30 * * * *',
+    },
   ],
 };
 

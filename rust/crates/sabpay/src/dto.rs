@@ -52,6 +52,33 @@ pub struct PaymentOut {
     pub provider_meta: ProviderMetaOut,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub failure_reason: Option<String>,
+    /* ── linkage to other entities (Razorpay parity) ──────────────────────── */
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub order_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub customer_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub payment_link_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub payment_page_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub invoice_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub subscription_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub qr_code_id: Option<String>,
+    /* ── refunds / fees / dispute / settlement ────────────────────────────── */
+    pub amount_refunded: i64,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub refund_status: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub fee: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub tax: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub dispute_status: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub settlement_id: Option<String>,
     pub created_at: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub paid_at: Option<String>,
@@ -131,6 +158,14 @@ pub struct WebhookDeliveryOut {
     pub attempts: i64,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub error: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub object_type: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub object_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub event_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub redelivered_from: Option<String>,
     pub created_at: String,
 }
 
@@ -250,6 +285,24 @@ pub struct CreatePaymentBody {
     /// merchant's mode); set by the public API from the key prefix.
     #[serde(default)]
     pub mode: Option<String>,
+    /* ── optional entity linkage ─────────────────────────────────────────── */
+    /// Attach this payment to an existing order (public API `order_id`).
+    #[serde(default)]
+    pub order_id: Option<String>,
+    /// Attach this payment to an existing customer (public API `customer_id`).
+    #[serde(default)]
+    pub customer_id: Option<String>,
+    /// Internal linkage set by session endpoints — not part of the public API.
+    #[serde(default)]
+    pub payment_link_id: Option<String>,
+    #[serde(default)]
+    pub payment_page_id: Option<String>,
+    #[serde(default)]
+    pub invoice_id: Option<String>,
+    #[serde(default)]
+    pub subscription_id: Option<String>,
+    #[serde(default)]
+    pub qr_code_id: Option<String>,
 }
 
 #[derive(Debug, Clone, Deserialize)]

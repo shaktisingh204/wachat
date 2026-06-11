@@ -32,6 +32,7 @@ import {
   Input,
   cn,
 } from '@/components/sabcrm/20ui';
+import { SabflowPage, SABFLOW_CRUMBS } from '../_components/sabflow-page';
 import { NODE_DOCS, NODE_DOC_SECTIONS, type NodeDoc } from '@/lib/sabflow/docs/nodeDocs';
 import { getSamplePayload } from '@/lib/sabflow/docs/samplePayloads';
 import { getTriggerFilters } from '@/lib/sabflow/docs/triggerFilters';
@@ -69,7 +70,11 @@ export default function SabFlowDocsPage() {
   }, [rows]);
 
   return (
-    <div className="20ui flex h-full min-h-screen bg-[var(--st-bg)]">
+    <SabflowPage
+      width="wide"
+      breadcrumb={[...SABFLOW_CRUMBS, { label: 'Docs' }]}
+    >
+    <div className="flex min-h-[70vh] overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)]">
       {/* Left rail */}
       <aside className="w-64 shrink-0 overflow-y-auto border-r border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4">
         <div className="mb-4 flex items-center gap-2">
@@ -148,6 +153,7 @@ export default function SabFlowDocsPage() {
         </div>
       </main>
     </div>
+    </SabflowPage>
   );
 }
 

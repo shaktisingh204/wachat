@@ -16,7 +16,6 @@ import { useCallback, useEffect, useState } from 'react';
 import {
   Folder,
   FolderPlus,
-  Loader,
   Pencil,
   Plus,
   RefreshCw,
@@ -33,12 +32,10 @@ import {
   Input,
   Modal,
   PageActions,
-  PageDescription,
   PageHeader,
-  PageHeaderHeading,
-  PageTitle,
   Radio,
   RadioGroup,
+  Spinner,
   useToast,
 } from '@/components/sabcrm/20ui';
 import { cn } from '@/lib/utils';
@@ -185,21 +182,7 @@ export function FoldersClient() {
   return (
     <div className="20ui flex flex-col h-full">
       {/* Header */}
-      <PageHeader className="px-4 sm:px-6 py-4 shrink-0">
-        <PageHeaderHeading className="flex-row items-center gap-3">
-          <span
-            className="flex h-8 w-8 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]"
-            aria-hidden="true"
-          >
-            <Folder className="h-4 w-4" strokeWidth={2} />
-          </span>
-          <span className="flex flex-col leading-tight min-w-0">
-            <PageTitle>Folders</PageTitle>
-            <PageDescription>
-              Organise your flows into colour-coded groups
-            </PageDescription>
-          </span>
-        </PageHeaderHeading>
+      <PageHeader compact bordered={false} className="justify-end px-4 sm:px-6 py-4 shrink-0">
         <PageActions>
           <Button
             variant="secondary"
@@ -232,7 +215,7 @@ export function FoldersClient() {
 
         {loading && folders.length === 0 ? (
           <div className="flex h-64 items-center justify-center gap-2 text-[var(--st-text-secondary)]">
-            <Loader className="h-4 w-4 animate-spin" aria-hidden="true" />
+            <Spinner size="sm" label="Loading folders" />
             <span className="text-[12px]">Loading folders...</span>
           </div>
         ) : folders.length === 0 && !error ? (

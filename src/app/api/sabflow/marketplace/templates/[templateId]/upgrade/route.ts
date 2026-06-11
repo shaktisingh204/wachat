@@ -148,7 +148,7 @@ export async function POST(
     }
 
     /* Remap all ids so the cloned doc is fully independent. */
-    const flowJson = versionDoc.flowJson as Parameters<typeof remapFlowIds>[0];
+    const flowJson = versionDoc.flowJson as unknown as Parameters<typeof remapFlowIds>[0];
     const cloned = remapFlowIds(flowJson);
 
     const now = new Date();

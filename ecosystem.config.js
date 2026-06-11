@@ -297,6 +297,40 @@ module.exports = {
     },
 
     // ---------------------------------------------------------------------
+    // SabFlow Scheduler (fires `schedule` trigger events every minute)
+    // ---------------------------------------------------------------------
+    {
+      name: 'sabflow-scheduler',
+
+      script: './node_modules/.bin/tsx',
+      args: 'src/workers/sabflow-scheduler.ts',
+
+      instances: 1,
+      exec_mode: 'fork',
+
+      watch: false,
+      autorestart: true,
+
+      restart_delay: 5000,
+      max_restarts: 50,
+      kill_timeout: 10000,
+
+      env: {
+        NODE_ENV: 'production',
+
+        MONGODB_URI: process.env.MONGODB_URI,
+        MONGODB_DB: process.env.MONGODB_DB,
+
+        REDIS_HOST: process.env.REDIS_HOST || '127.0.0.1',
+        REDIS_PORT: process.env.REDIS_PORT || '6379',
+        REDIS_PASSWORD: process.env.REDIS_PASSWORD,
+
+        CRON_SECRET: process.env.CRON_SECRET,
+        SABNODE_INTERNAL_URL: process.env.SABNODE_INTERNAL_URL || 'http://127.0.0.1:3002',
+      },
+    },
+
+    // ---------------------------------------------------------------------
     // Legacy Worker
     // ---------------------------------------------------------------------
     {

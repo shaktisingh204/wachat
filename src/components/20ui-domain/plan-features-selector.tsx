@@ -14,6 +14,7 @@ import {
   cn,
 } from '@/components/sabcrm/20ui';
 import {
+  PLAN_FEATURE_GROUPS,
   planFeatureMap,
   planFeaturesDefaults } from '@/lib/plans';
 import type { PlanFeaturePermissions } from '@/lib/definitions';
@@ -33,65 +34,10 @@ interface PlanFeaturesSelectorProps {
  * plus a `__featuresSubmitted=1` marker so `savePlan` knows this tab was in the
  * form (and therefore the user's intent is authoritative).
  */
-const CATEGORIES: { label: string; keys: (keyof PlanFeaturePermissions)[] }[] = [
-    {
-        label: 'Wachat',
-        keys: [
-            'overview',
-            'campaigns',
-            'liveChat',
-            'contacts',
-            'templates',
-            'catalog',
-            'flowBuilder',
-            'metaFlows',
-            'whatsappAds',
-            'webhooks',
-            'numbers',
-        ],
-    },
-    {
-        label: 'Instagram',
-        keys: ['instagramFeed', 'instagramStories', 'instagramReels', 'instagramMessages'],
-    },
-    {
-        label: 'CRM',
-        keys: [
-            'crmDashboard',
-            'crmSales',
-            'crmPurchases',
-            'crmInventory',
-            'crmAccounting',
-            'crmSalesCrm',
-            'crmBanking',
-            'crmHrPayroll',
-            'crmGstReports',
-            'crmIntegrations',
-            'crmSettings',
-        ],
-    },
-    { label: 'Team', keys: ['teamChat', 'teamTasks'] },
-    {
-        label: 'Standalone Tools',
-        keys: ['chatbot', 'email', 'sabsms', 'seo', 'websiteBuilder', 'urlShortener', 'qrCodeMaker'],
-    },
-    {
-        label: 'Settings & Account',
-        keys: [
-            'billing',
-            'notifications',
-            'apiAccess',
-            'settingsBroadcast',
-            'settingsAutoReply',
-            'settingsMarketing',
-            'settingsTemplateLibrary',
-            'settingsCannedMessages',
-            'settingsAgentsRoles',
-            'settingsCompliance',
-            'settingsUserAttributes',
-        ],
-    },
-];
+// Categories derive from the shared grouping in lib/plans.ts so the admin
+// editor always shows every key (including hidden-from-users modules).
+const CATEGORIES: { label: string; keys: (keyof PlanFeaturePermissions)[] }[] =
+    PLAN_FEATURE_GROUPS.map((g) => ({ label: g.label, keys: g.features.map((f) => f.id) }));
 
 const LABEL_BY_KEY = planFeatureMap.reduce<Record<string, { name: string; Icon: any }>>(
     (acc, item) => {

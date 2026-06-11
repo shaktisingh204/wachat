@@ -139,7 +139,7 @@ export default function SabFlowListPage() {
     startTransition(async () => {
       const data = await listSabFlows();
       if (Array.isArray(data)) {
-        const items = data as FlowItem[];
+        const items = data as unknown as FlowItem[];
         setFlows(items);
         const ids = items.map((f) => f._id);
         if (ids.length > 0) {

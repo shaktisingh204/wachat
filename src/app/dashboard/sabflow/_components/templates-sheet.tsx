@@ -21,7 +21,7 @@
 import * as React from 'react';
 import { useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Search, ChevronRight, Loader2, Sparkles } from 'lucide-react';
+import { Search, ChevronRight, Sparkles } from 'lucide-react';
 import {
   Sheet,
   SheetContent,
@@ -31,6 +31,7 @@ import {
   Button,
   Input,
   EmptyState,
+  Spinner,
   useToast,
   cn,
 } from '@/components/sabcrm/20ui';
@@ -274,7 +275,7 @@ export function TemplatesSheet({ open, onClose, onCreated }: Props) {
                     <div className="flex items-center gap-2 w-full">
                       <div className="flex h-9 w-9 items-center justify-center rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)]">
                         {busy ? (
-                          <Loader2 className="h-4 w-4 animate-spin text-[var(--st-text-secondary)]" aria-hidden="true" />
+                          <Spinner size={16} label="Creating flow" className="text-[var(--st-text-secondary)]" />
                         ) : (
                           <Icon className="h-4 w-4 text-[var(--st-text-secondary)]" strokeWidth={1.75} />
                         )}
@@ -349,7 +350,7 @@ function FeaturedRow({
               <div className="flex items-center gap-2 mb-1.5 w-full">
                 <div className="flex h-7 w-7 items-center justify-center rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text-secondary)]">
                   {busy ? (
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
+                    <Spinner size="sm" label="Creating flow" />
                   ) : (
                     <Icon className="h-3.5 w-3.5" strokeWidth={1.75} />
                   )}

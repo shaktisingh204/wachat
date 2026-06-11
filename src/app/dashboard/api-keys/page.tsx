@@ -137,7 +137,7 @@ export default function ApiKeysPage() {
   }
 
   return (
-    <div className="flex min-h-full flex-col gap-6">
+    <div className="mx-auto flex min-h-full w-full max-w-[1200px] flex-col gap-[var(--st-space-7)]">
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>

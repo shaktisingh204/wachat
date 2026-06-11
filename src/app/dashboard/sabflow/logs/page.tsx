@@ -1,15 +1,15 @@
 "use client";
 
 import React, { useMemo, useState, useEffect, useRef, useCallback } from "react";
-import { ColumnDef } from "@tanstack/react-table";
-import { LuDownload, LuRefreshCw, LuTerminal, LuActivity, LuServer, LuCircle } from "react-icons/lu";
+import { Download, RefreshCw, Terminal, Activity, Server, Circle } from "lucide-react";
 
-import { DataTable } from '@/components/sabcrm/20ui';
-import { Badge } from '@/components/sabcrm/20ui';
+import { DataTable, type DataTableColumn } from '@/components/sabcrm/20ui';
+import { Badge, type BadgeTone } from '@/components/sabcrm/20ui';
 import { Button } from '@/components/sabcrm/20ui';
+import { Input } from '@/components/sabcrm/20ui';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
-import { PageHeader, PageHeading, PageEyebrow, PageTitle, PageDescription, PageActions } from '@/components/sabcrm/20ui';
 import { Card } from '@/components/sabcrm/20ui';
+import { SabflowPage, SABFLOW_CRUMBS } from '../_components/sabflow-page';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -24,70 +24,22 @@ export interface SystemLog {
   metadata: Record<string, any>;
 }
 
-// ── Mock Data Generator ───────────────────────────────────────────────────────
-
-function generateMockLogs(count: number): SystemLog[] {
-  const nodes = [
-    "api-server",
-    "auth-service",
-    "webhook-listener",
-    "db-worker",
-    "sabflow-engine",
-  ];
-  const severities: LogSeverity[] = ["info", "info", "info", "warning", "error", "debug", "critical"];
-  const messages = [
-    "User authentication successful",
-    "User login failed: Invalid credentials",
-    "Webhook received payload successfully",
-    "Worker node disconnected unexpectedly",
-    "Database query execution slow",
-    "Processing batch job #8372",
-    "Memory usage exceeding 80% threshold",
-    "SabFlow execution engine started",
-    "Payment processing gateway timeout",
-    "Cache miss for key user_192",
-    "Disk space running low on /dev/sda1",
-    "API rate limit exceeded for client_id 402",
-    "Garbage collection cycle completed",
-  ];
-
-  const logs: SystemLog[] = [];
-  const now = Date.now();
-  for (let i = 0; i < count; i++) {
-    const s = severities[Math.floor(Math.random() * severities.length)];
-    const node = nodes[Math.floor(Math.random() * nodes.length)];
-    const msg = messages[Math.floor(Math.random() * messages.length)];
-    const timeOffset = Math.floor(Math.random() * 86400000 * 2); // past 48 hours
-    const time = new Date(now - timeOffset).toISOString();
-
-    logs.push({
-      id: `log-${i}-${Math.random().toString(36).slice(2, 9)}`,
-      timestamp: time,
-      severity: s,
-      node: node,
-      message: msg,
-      metadata: {
-        latency: `${Math.floor(Math.random() * 500 + 10)}ms`,
-        ip: `192.168.1.${Math.floor(Math.random() * 255)}`,
-        ...(s === "error" || s === "critical"
-          ? { errorCode: "E" + Math.floor(Math.random() * 9999) }
-          : {}),
-      },
-    });
-  }
-  return logs.sort(
-    (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-  );
-}
-
 // ── Columns ───────────────────────────────────────────────────────────────────
 
-const columns: ColumnDef<SystemLog>[] = [
+const SEVERITY_TONE: Record<LogSeverity, BadgeTone> = {
+  info: "info",
+  warning: "warning",
+  error: "danger",
+  debug: "neutral",
+  critical: "danger",
+};
+
+const columns: DataTableColumn<SystemLog>[] = [
   {
-    accessorKey: "timestamp",
+    key: "timestamp",
     header: "Timestamp",
-    cell: ({ row }) => {
-      const date = new Date(row.original.timestamp);
+    render: (row) => {
+      const date = new Date(row.timestamp);
       return (
         <span className="font-mono text-xs text-[var(--st-text-secondary)] whitespace-nowrap">
           {date.toLocaleString("en-US", {
@@ -102,64 +54,51 @@ const columns: ColumnDef<SystemLog>[] = [
     },
   },
   {
-    accessorKey: "severity",
+    key: "severity",
     header: "Severity",
-    cell: ({ row }) => {
-      const s = row.original.severity;
-      const variantMap: Record<string, "info" | "warning" | "danger" | "ghost" | "destructive"> = {
-        info: "info",
-        warning: "warning",
-        error: "danger",
-        debug: "ghost",
-        critical: "destructive",
-      };
-      return (
-        <Badge variant={variantMap[s]} className="uppercase text-[10px] tracking-widest font-semibold px-2 py-0.5">
-          {s}
-        </Badge>
-      );
-    },
+    render: (row) => (
+      <Badge tone={SEVERITY_TONE[row.severity]} className="uppercase text-[10px] tracking-widest font-semibold px-2 py-0.5">
+        {row.severity}
+      </Badge>
+    ),
   },
   {
-    accessorKey: "node",
+    key: "node",
     header: "Node",
-    cell: ({ row }) => (
+    render: (row) => (
       <div className="flex items-center gap-2">
-        <LuServer className="w-3.5 h-3.5 text-[var(--st-text-tertiary)]" />
-        <span className="font-medium text-sm text-[var(--st-text)]">{row.original.node}</span>
+        <Server className="w-3.5 h-3.5 text-[var(--st-text-tertiary)]" />
+        <span className="font-medium text-sm text-[var(--st-text)]">{row.node}</span>
       </div>
     ),
   },
   {
-    accessorKey: "message",
+    key: "message",
     header: "Message",
-    cell: ({ row }) => (
+    render: (row) => (
       <div
         className="max-w-[400px] truncate text-sm text-[var(--st-text)] font-medium"
-        title={row.original.message}
+        title={row.message}
       >
-        {row.original.message}
+        {row.message}
       </div>
     ),
   },
   {
-    accessorKey: "metadata",
+    key: "metadata",
     header: "Metadata",
-    cell: ({ row }) => {
-      const meta = row.original.metadata;
-      return (
-        <div className="flex flex-wrap gap-1.5 max-w-[300px]">
-          {Object.entries(meta).map(([k, v]) => (
-            <span
-              key={k}
-              className="px-1.5 py-0.5 rounded text-[10px] bg-[var(--st-bg-secondary)] border border-[var(--st-border)] text-[var(--st-text-secondary)] font-mono whitespace-nowrap"
-            >
-              <span className="opacity-60">{k}:</span> <span className="text-[var(--st-text)]">{v as string}</span>
-            </span>
-          ))}
-        </div>
-      );
-    },
+    render: (row) => (
+      <div className="flex flex-wrap gap-1.5 max-w-[300px]">
+        {Object.entries(row.metadata).map(([k, v]) => (
+          <span
+            key={k}
+            className="px-1.5 py-0.5 rounded text-[10px] bg-[var(--st-bg-secondary)] border border-[var(--st-border)] text-[var(--st-text-secondary)] font-mono whitespace-nowrap"
+          >
+            <span className="opacity-60">{k}:</span> <span className="text-[var(--st-text)]">{v as string}</span>
+          </span>
+        ))}
+      </div>
+    ),
   },
 ];
 
@@ -174,14 +113,26 @@ export default function SystemLogsPage() {
   // Filters
   const [severityFilter, setSeverityFilter] = useState<string>("all");
   const [nodeFilter, setNodeFilter] = useState<string>("all");
+  const [messageFilter, setMessageFilter] = useState<string>("");
 
-  const fetchLogs = useCallback(() => {
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchLogs = useCallback(async () => {
     setLoading(true);
-    // Simulate network delay
-    setTimeout(() => {
-      setLogs(generateMockLogs(150));
+    try {
+      const res = await fetch('/api/sabflow/logs?limit=300', { cache: 'no-store' });
+      const json = (await res.json().catch(() => ({}))) as {
+        logs?: SystemLog[];
+        error?: string;
+      };
+      if (!res.ok) throw new Error(json.error ?? 'Failed to load logs');
+      setLogs(json.logs ?? []);
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load logs');
+    } finally {
       setLoading(false);
-    }, 600);
+    }
   }, []);
 
   // Start/stop live tail polling
@@ -211,46 +162,75 @@ export default function SystemLogsPage() {
   }, [fetchLogs]);
 
   const filteredData = useMemo(() => {
+    const query = messageFilter.trim().toLowerCase();
     return logs.filter((item) => {
       if (severityFilter !== "all" && item.severity !== severityFilter) return false;
       if (nodeFilter !== "all" && item.node !== nodeFilter) return false;
+      if (query && !item.message.toLowerCase().includes(query)) return false;
       return true;
     });
-  }, [logs, severityFilter, nodeFilter]);
+  }, [logs, severityFilter, nodeFilter, messageFilter]);
+
+  const nodeOptions = useMemo(
+    () => [...new Set(logs.map((l) => l.node))].sort(),
+    [logs],
+  );
+
+  const exportCsv = useCallback(() => {
+    const esc = (v: string) => `"${v.replace(/"/g, '""')}"`;
+    const lines = [
+      'timestamp,severity,node,message,metadata',
+      ...filteredData.map((l) =>
+        [
+          l.timestamp,
+          l.severity,
+          esc(l.node),
+          esc(l.message),
+          esc(Object.entries(l.metadata).map(([k, v]) => `${k}=${v}`).join(' ')),
+        ].join(','),
+      ),
+    ];
+    const blob = new Blob([lines.join('\n')], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `sabflow-logs-${new Date().toISOString().slice(0, 19)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [filteredData]);
 
   return (
-    <div className="min-h-screen bg-[var(--st-bg)] p-6 md:p-8">
-      <div className="mx-auto max-w-7xl">
-        <PageHeader className="mb-8">
-          <PageHeading>
-            <PageEyebrow className="flex items-center gap-1.5 text-[var(--st-text)]">
-              <LuActivity className="w-3.5 h-3.5" />
-              Observability
-            </PageEyebrow>
-            <PageTitle>System Logs</PageTitle>
-            <PageDescription>
-              Monitor heavy system-level logs and activities across all infrastructure nodes. High-throughput event tracking for SabFlow execution engines and services.
-            </PageDescription>
-          </PageHeading>
-          <PageActions>
-            <Button variant="outline" onClick={fetchLogs} disabled={loading || liveTail}>
-              <LuRefreshCw className={loading ? "mr-2 h-4 w-4 animate-spin" : "mr-2 h-4 w-4"} />
-              Refresh
-            </Button>
-            <Button
-              variant={liveTail ? "default" : "outline"}
-              onClick={() => setLiveTail((prev) => !prev)}
-            >
-              {liveTail ? (
-                <LuCircle className="mr-2 h-4 w-4 animate-pulse fill-current" />
-              ) : (
-                <LuTerminal className="mr-2 h-4 w-4" />
-              )}
-              {liveTail ? "Stop Tail" : "Live Tail"}
-            </Button>
-          </PageActions>
-        </PageHeader>
-
+    <SabflowPage
+      breadcrumb={[...SABFLOW_CRUMBS, { label: 'Logs' }]}
+      eyebrow={
+        <span className="flex items-center gap-1.5">
+          <Activity className="w-3.5 h-3.5" aria-hidden="true" />
+          Observability
+        </span>
+      }
+      title="System Logs"
+      description="Execution and node-level log lines derived from your flow runs — filter by severity, node type, or message."
+      actions={
+        <>
+          <Button variant="outline" onClick={fetchLogs} disabled={loading || liveTail}>
+            <RefreshCw className={loading ? "mr-2 h-4 w-4 animate-spin" : "mr-2 h-4 w-4"} />
+            Refresh
+          </Button>
+          <Button
+            variant={liveTail ? "default" : "outline"}
+            onClick={() => setLiveTail((prev) => !prev)}
+          >
+            {liveTail ? (
+              <Circle className="mr-2 h-4 w-4 animate-pulse fill-current" />
+            ) : (
+              <Terminal className="mr-2 h-4 w-4" />
+            )}
+            {liveTail ? "Stop Tail" : "Live Tail"}
+          </Button>
+        </>
+      }
+    >
+      <div>
         {/* Count summary — shows real fetched total and how many pass current filters */}
         <div className="flex items-center gap-4 mb-3 px-1 text-xs text-[var(--st-text-secondary)]">
           <span>
@@ -263,62 +243,78 @@ export default function SystemLogsPage() {
             )}
           </span>
           {liveTail && (
-            <span className="flex items-center gap-1 text-green-600 dark:text-green-400 font-medium">
-              <LuCircle className="w-2.5 h-2.5 animate-pulse fill-current" />
+            <span className="flex items-center gap-1 text-[var(--st-status-ok)] font-medium">
+              <Circle className="w-2.5 h-2.5 animate-pulse fill-current" />
               Live — refreshing every 3s
             </span>
           )}
         </div>
 
         <Card className="p-0 border-[var(--st-border)] overflow-hidden shadow-[var(--st-shadow-sm)]">
-          <DataTable
-            className="p-5"
-            columns={columns}
-            data={filteredData}
-            filterColumn="message"
-            filterPlaceholder="Search logs by message..."
-            pageSize={15}
-            toolbar={
-              <div className="flex items-center gap-3">
-                <Select value={severityFilter} onValueChange={setSeverityFilter}>
-                  <SelectTrigger className="w-[140px]">
-                    <SelectValue placeholder="Severity" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Severities</SelectItem>
-                    <SelectItem value="info">Info</SelectItem>
-                    <SelectItem value="warning">Warning</SelectItem>
-                    <SelectItem value="error">Error</SelectItem>
-                    <SelectItem value="debug">Debug</SelectItem>
-                    <SelectItem value="critical">Critical</SelectItem>
-                  </SelectContent>
-                </Select>
+          <div className="flex flex-wrap items-center gap-3 p-5 pb-0">
+            <Input
+              className="w-[240px]"
+              value={messageFilter}
+              onChange={(e) => setMessageFilter(e.target.value)}
+              placeholder="Search logs by message..."
+              aria-label="Search logs by message"
+            />
 
-                <Select value={nodeFilter} onValueChange={setNodeFilter}>
-                  <SelectTrigger className="w-[160px]">
-                    <SelectValue placeholder="Node" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Nodes</SelectItem>
-                    <SelectItem value="api-server">API Server</SelectItem>
-                    <SelectItem value="auth-service">Auth Service</SelectItem>
-                    <SelectItem value="webhook-listener">Webhook Listener</SelectItem>
-                    <SelectItem value="db-worker">DB Worker</SelectItem>
-                    <SelectItem value="sabflow-engine">SabFlow Engine</SelectItem>
-                  </SelectContent>
-                </Select>
+            <Select value={severityFilter} onValueChange={setSeverityFilter}>
+              <SelectTrigger className="w-[140px]">
+                <SelectValue placeholder="Severity" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Severities</SelectItem>
+                <SelectItem value="info">Info</SelectItem>
+                <SelectItem value="warning">Warning</SelectItem>
+                <SelectItem value="error">Error</SelectItem>
+                <SelectItem value="debug">Debug</SelectItem>
+              </SelectContent>
+            </Select>
 
-                <div className="w-px h-6 bg-[var(--st-border)] mx-1" />
+            <Select value={nodeFilter} onValueChange={setNodeFilter}>
+              <SelectTrigger className="w-[160px]">
+                <SelectValue placeholder="Node" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Nodes</SelectItem>
+                {nodeOptions.map((node) => (
+                  <SelectItem key={node} value={node}>
+                    {node}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-                <Button variant="outline" size="sm" className="hidden sm:flex">
-                  <LuDownload className="mr-2 h-4 w-4" />
-                  Export CSV
-                </Button>
-              </div>
-            }
-          />
+            <div className="w-px h-6 bg-[var(--st-border)] mx-1" />
+
+            <Button
+              variant="outline"
+              size="sm"
+              className="hidden sm:flex"
+              onClick={exportCsv}
+              disabled={filteredData.length === 0}
+            >
+              <Download className="mr-2 h-4 w-4" />
+              Export CSV
+            </Button>
+          </div>
+
+          {error ? (
+            <div className="p-8 text-center text-sm text-[var(--st-danger)]">
+              {error}
+            </div>
+          ) : (
+            <DataTable
+              className="p-5"
+              columns={columns}
+              rows={filteredData}
+              getRowId={(row) => row.id}
+            />
+          )}
         </Card>
       </div>
-    </div>
+    </SabflowPage>
   );
 }

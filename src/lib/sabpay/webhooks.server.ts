@@ -401,7 +401,8 @@ async function deliverToEndpoint(
       endpointId: endpoint._id,
       url: endpoint.url,
       event: envelope.event,
-      paymentId: envelope.data.payment.id,
+      paymentId:
+        (envelope.data as { payment?: { id?: string } } | undefined)?.payment?.id ?? '',
       success,
       status,
       attempts,

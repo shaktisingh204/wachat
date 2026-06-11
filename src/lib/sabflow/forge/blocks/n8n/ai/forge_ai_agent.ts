@@ -56,17 +56,17 @@ const block: ForgeBlock = {
   auth: { type: "apiKey", credentialType: "openai" },
   fields: [
     {
-      name: "prompt",
+      id: "prompt",
       type: "text",
       label: "Prompt",
       required: true,
-      description: "The instruction or prompt to pass to the agent.",
+      helperText: "The instruction or prompt to pass to the agent.",
     },
     {
-      name: "model",
+      id: "model",
       type: "text",
       label: "Model",
-      description: "The model to use (e.g. gpt-4o-mini)",
+      helperText: "The model to use (e.g. gpt-4o-mini)",
       defaultValue: "gpt-4o-mini",
     },
   ],

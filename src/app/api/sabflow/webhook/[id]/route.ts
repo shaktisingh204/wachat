@@ -24,7 +24,7 @@ import { ObjectId } from 'mongodb';
 import { Queue } from 'bullmq';
 import Redis from 'ioredis';
 import { connectToDatabase } from '@/lib/mongodb';
-import { enqueueExecution } from '@/lib/sabflow/queue/enqueue';
+import { enqueueWorkerExecution } from '@/lib/sabflow/queue/enqueue-worker';
 import {
     SABFLOW_QUEUE,
     SABFLOW_EXEC_CHANNEL,
@@ -474,17 +474,71 @@ async function handleByPath(
 
     const responseMode: WebhookResponseMode = webhook.responseMode ?? 'onReceived';
     const idempotencyKey = req.headers.get('x-idempotency-key') ?? undefined;
-    let executionId: string;
+    const executionId = new ObjectId().toHexString();
     try {
-        const result = await enqueueExecution({
-            workspaceId: webhook.workspaceId,
-            workflowId: webhook.workflowId,
-            mode: 'webhook',
-            triggerData: { nodeId: webhook.nodeId, payload },
-            plan: webhook.plan ?? 'free',
-            ...(idempotencyKey ? { idempotencyKey } : {}),
+        // Idempotency: upstream providers (Stripe, Meta, …) retry deliveries.
+        // First delivery claims the key → runs; retries get the original
+        // executionId back without enqueueing a duplicate.
+        if (idempotencyKey) {
+            const idemKey = `sabflow:webhook:idem:${webhook.workflowId}:${idempotencyKey}`;
+            // eslint-disable-next-line @typescript-eslint/no-var-requires
+            const { getRedisClient } = require('@/lib/redis') as {
+                getRedisClient: () => Promise<{
+                    set: (...args: unknown[]) => Promise<unknown>;
+                    get: (key: string) => Promise<string | null>;
+                }>;
+            };
+            const redis = await getRedisClient();
+            const claimed = await redis.set(idemKey, executionId, 'EX', 86400, 'NX');
+            if (!claimed) {
+                const existing = await redis.get(idemKey);
+                if (existing) {
+                    return jsonOk({ executionId: existing, status: 'queued' }, 200, corsHeaders);
+                }
+            }
+        }
+        // Load the flow snapshot the worker executes. The webhook row is
+        // server-registered, so the workflowId is trusted; still prefer the
+        // owner-scoped lookup when the ids line up.
+        const { db } = await connectToDatabase();
+        const flow = ObjectId.isValid(webhook.workflowId)
+            ? await db.collection('sabflows').findOne({ _id: new ObjectId(webhook.workflowId) })
+            : null;
+        if (!flow) {
+            logEvent('webhook.flow_missing', {
+                subpath,
+                method,
+                workspaceId: webhook.workspaceId,
+                workflowId: webhook.workflowId,
+            });
+            return jsonError(410, 'Workflow no longer exists', corsHeaders);
+        }
+
+        const projectId = String(flow.userId ?? webhook.workspaceId);
+        const now = new Date();
+        await db.collection('sabflow_executions').insertOne({
+            executionId,
+            flowId: webhook.workflowId,
+            projectId,
+            status: 'queued',
+            triggerMode: 'webhook',
+            startedAt: null,
+            finishedAt: null,
+            durationMs: null,
+            error: null,
+            createdAt: now,
+            updatedAt: now,
         });
-        executionId = result.jobId;
+
+        await enqueueWorkerExecution({
+            executionId,
+            flowId: webhook.workflowId,
+            projectId,
+            flowSnapshot: flow,
+            triggerMode: 'webhook',
+            triggerData: { nodeId: webhook.nodeId, payload },
+            variables: {},
+        });
     } catch (err) {
         logEvent('webhook.enqueue_error', {
             subpath,

@@ -26,11 +26,8 @@ import {
   PageTitle,
   PageDescription,
   PageActions,
-  cn,
 } from '@/components/sabcrm/20ui';
 import {
-  Check,
-  X,
   History,
   Search,
   PackageSearch,
@@ -51,7 +48,10 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { getPlans } from '@/app/actions/plan.actions';
-import { planFeatureMap } from '@/lib/plans';
+import {
+  PlanFeatureGroups,
+  getVisiblePlanFeatureGroups,
+} from '@/components/20ui-domain/plan-feature-groups';
 import Link from 'next/link';
 import { useEffect, useState, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
@@ -171,6 +171,16 @@ export default function BillingPage() {
     return (c.broadcast || 0) + (c.sms || 0) + (c.meta || 0) + (c.email || 0) + (c.seo || 0);
   }, [sessionUser?.credits]);
 
+  // "X of Y features included" headline over the user-visible (non-hidden) groups.
+  const featureSummary = useMemo(() => {
+    const planFeatures = sessionUser?.plan?.features as
+      | Record<string, boolean | undefined>
+      | undefined;
+    const visible = getVisiblePlanFeatureGroups().flatMap((g) => g.features);
+    const included = visible.filter((f) => planFeatures?.[f.id] ?? true).length;
+    return { included, total: visible.length };
+  }, [sessionUser?.plan?.features]);
+
   if (!isClient || !sessionUser || isLoadingPlans) {
     return <BillingSkeleton />;
   }
@@ -257,46 +267,14 @@ export default function BillingPage() {
               Plan features
               <Badge tone="accent">{sessionUser?.plan?.name || 'Free'}</Badge>
             </CardTitle>
-            <CardDescription>Everything included in your active subscription.</CardDescription>
+            <CardDescription>
+              {featureSummary.included === featureSummary.total
+                ? `All ${featureSummary.total} features included in your active subscription.`
+                : `${featureSummary.included} of ${featureSummary.total} features included in your active subscription.`}
+            </CardDescription>
           </CardHeader>
-          <CardBody>
-            <ul className="grid grid-cols-1 gap-x-[var(--st-space-6)] gap-y-[var(--st-space-3)] sm:grid-cols-2">
-              {planFeatureMap.map((feature) => {
-                const isAllowed =
-                  sessionUser?.plan?.features?.[
-                    feature.id as keyof typeof sessionUser.plan.features
-                  ] ?? true;
-                const FeatureIcon = feature.icon as LucideIcon;
-                return (
-                  <li key={feature.id} className="flex items-center gap-2.5">
-                    <span
-                      className={cn(
-                        'flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-[var(--st-radius-sm)]',
-                        isAllowed
-                          ? 'bg-[var(--st-accent-soft)] text-[var(--st-accent)]'
-                          : 'bg-[var(--st-bg-secondary)] text-[var(--st-text-tertiary)]',
-                      )}
-                      aria-hidden="true"
-                    >
-                      {FeatureIcon ? <FeatureIcon className="h-3.5 w-3.5" /> : null}
-                    </span>
-                    <span
-                      className={cn(
-                        'flex-1 text-sm text-[var(--st-text)]',
-                        !isAllowed && 'text-[var(--st-text-tertiary)] line-through',
-                      )}
-                    >
-                      {feature.name}
-                    </span>
-                    {isAllowed ? (
-                      <Check className="h-4 w-4 flex-shrink-0 text-[var(--st-status-ok)]" aria-hidden="true" />
-                    ) : (
-                      <X className="h-4 w-4 flex-shrink-0 text-[var(--st-text-tertiary)]" aria-hidden="true" />
-                    )}
-                  </li>
-                );
-              })}
-            </ul>
+          <CardBody className="pt-0">
+            <PlanFeatureGroups features={sessionUser?.plan?.features} />
           </CardBody>
         </Card>
 

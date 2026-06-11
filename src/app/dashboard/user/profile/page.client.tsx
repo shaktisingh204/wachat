@@ -59,7 +59,7 @@ export default function ProfilePage() {
 
   if (!user) {
     return (
-      <div className="mx-auto flex min-h-[400px] w-full max-w-4xl items-center justify-center px-4 py-6">
+      <div className="mx-auto flex min-h-[400px] w-full max-w-4xl items-center justify-center">
         <EmptyState
           icon={AlertCircle}
           tone="danger"
@@ -78,7 +78,7 @@ export default function ProfilePage() {
   const anyMatch = Object.values(filteredSections).some(Boolean);
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-4 py-6 space-y-6">
+    <div className="mx-auto flex w-full max-w-4xl flex-col gap-[var(--st-space-7)]">
       <PageHeader>
         <PageHeaderHeading>
           <PageEyebrow>Account</PageEyebrow>

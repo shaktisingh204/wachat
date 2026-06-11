@@ -179,7 +179,7 @@ export default function NotificationsPage() {
   const filteredNotifications = notifications;
 
   return (
-    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
+    <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-[var(--st-space-7)]">
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>

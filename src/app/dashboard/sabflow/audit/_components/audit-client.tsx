@@ -46,10 +46,7 @@ import {
   IconButton,
   Input,
   PageActions,
-  PageDescription,
   PageHeader,
-  PageHeaderHeading,
-  PageTitle,
   SegmentedControl,
   Select,
   SelectContent,
@@ -237,23 +234,7 @@ export function AuditClient() {
   return (
     <div className="20ui flex flex-col h-full">
       {/* Header */}
-      <PageHeader className="px-4 sm:px-6 shrink-0">
-        <PageHeaderHeading>
-          <div className="flex items-center gap-3">
-            <span
-              className="flex h-8 w-8 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)]"
-              aria-hidden="true"
-            >
-              <History className="h-4 w-4" strokeWidth={2} />
-            </span>
-            <div className="flex flex-col leading-tight min-w-0">
-              <PageTitle>Audit log</PageTitle>
-              <PageDescription>
-                Who changed what across your SabFlow workspace
-              </PageDescription>
-            </div>
-          </div>
-        </PageHeaderHeading>
+      <PageHeader compact bordered={false} className="justify-end px-4 sm:px-6 shrink-0">
         <PageActions>
           <span className="text-[11px] text-[var(--st-text-secondary)] tabular-nums">
             {total.toLocaleString()} total

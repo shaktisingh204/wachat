@@ -1,6 +1,7 @@
 /**
  * DELETE /api/sabflow/workspaces/[workspaceId]/invites/[inviteId]
- *   Revoke a pending invite. Owner / admin only.
+ *   Revoke a pending invite. Owner / admin — or the invitee themselves
+ *   (declining an invite to a workspace they're not yet a member of).
  */
 
 import { NextResponse, type NextRequest } from 'next/server';
@@ -24,13 +25,18 @@ export async function DELETE(
     return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
   }
   const { workspaceId, inviteId } = await params;
-  const role = await getMemberRole(workspaceId, session.user._id.toString());
-  if (!canManageMembers(role)) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-  }
   const invite = await getInviteById(inviteId);
   if (!invite || invite.workspaceId !== workspaceId) {
     return NextResponse.json({ error: 'Invite not found' }, { status: 404 });
+  }
+  const role = await getMemberRole(workspaceId, session.user._id.toString());
+  const sessionEmail =
+    typeof session.user.email === 'string' ? session.user.email.toLowerCase() : null;
+  const isInvitee =
+    sessionEmail !== null &&
+    (invite as { email?: string }).email?.toLowerCase() === sessionEmail;
+  if (!canManageMembers(role) && !isInvitee) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
   await deleteInvite(inviteId);
 

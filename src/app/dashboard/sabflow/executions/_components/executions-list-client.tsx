@@ -28,9 +28,6 @@ import {
   Input,
   PageActions,
   PageHeader,
-  PageHeaderHeading,
-  PageDescription,
-  PageTitle,
   SegmentedControl,
   Spinner,
   Table,
@@ -135,21 +132,7 @@ export function ExecutionsListClient() {
   return (
     <div className="20ui flex flex-col h-full">
       {/* Header */}
-      <PageHeader compact className="px-4 sm:px-6">
-        <div className="flex items-center gap-3 min-w-0">
-          <span
-            className="flex h-8 w-8 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)] shrink-0"
-            aria-hidden="true"
-          >
-            <Activity className="h-4 w-4" strokeWidth={2} />
-          </span>
-          <PageHeaderHeading>
-            <PageTitle className="text-[15px]">{t('executions.title', LOCALE)}</PageTitle>
-            <PageDescription className="hidden sm:block">
-              Past flow runs with per-node detail
-            </PageDescription>
-          </PageHeaderHeading>
-        </div>
+      <PageHeader compact bordered={false} className="justify-end px-4 sm:px-6">
         <PageActions>
           <Button
             variant="secondary"

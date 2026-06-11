@@ -107,7 +107,11 @@ async function readCsv(ctx: ForgeActionContext): Promise<ForgeActionResult> {
   } else if (format === 'xlsx') {
     const ExcelJS = (await import('exceljs')).default;
     const workbook = new ExcelJS.Workbook();
-    await workbook.xlsx.load(buf);
+    // exceljs declares its own Buffer type that predates Node's generic
+    // Buffer<ArrayBuffer>; the runtime value is a plain Buffer either way.
+    await workbook.xlsx.load(
+      Buffer.from(buf) as unknown as Parameters<typeof workbook.xlsx.load>[0],
+    );
     const requestedSheet = asString(ctx.options.sheet);
     const worksheet = requestedSheet
       ? workbook.getWorksheet(requestedSheet)

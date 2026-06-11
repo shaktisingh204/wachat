@@ -115,7 +115,7 @@ export default function BillingHistoryPage() {
         }).format(paisa / 100);
 
     return (
-        <div className="20ui mx-auto flex w-full max-w-[1100px] flex-col gap-[var(--st-space-6)]">
+        <div className="20ui mx-auto flex w-full max-w-[1200px] flex-col gap-[var(--st-space-7)]">
             <PageHeader>
                 <PageHeaderHeading>
                     <PageTitle>Billing history</PageTitle>

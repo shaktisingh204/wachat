@@ -1,7 +1,8 @@
 import { Suspense } from 'react';
+import { Spinner } from '@/components/sabcrm/20ui';
+import { SabflowPage, SABFLOW_CRUMBS } from '../_components/sabflow-page';
 import { listSabFlowWorkspaces } from './actions';
 import { WorkspacesClient } from './_components/workspaces-client';
-import SabFlowWorkspacesLoading from './loading';
 
 export const metadata = {
   title: 'SabFlow Workspaces | SabNode',
@@ -16,10 +17,16 @@ async function WorkspacesData() {
 
 export default function SabFlowWorkspacesPage() {
   return (
-    <div className="min-h-screen bg-[var(--st-text)] text-white p-6">
-      <Suspense fallback={<SabFlowWorkspacesLoading />}>
+    <SabflowPage breadcrumb={[...SABFLOW_CRUMBS, { label: 'Workspaces' }]}>
+      <Suspense
+        fallback={
+          <div className="flex h-64 items-center justify-center">
+            <Spinner label="Loading workspaces" />
+          </div>
+        }
+      >
         <WorkspacesData />
       </Suspense>
-    </div>
+    </SabflowPage>
   );
 }

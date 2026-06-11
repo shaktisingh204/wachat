@@ -1,13 +1,12 @@
 "use client";
 
-import { Alert, AlertDescription, AlertTitle, Avatar, AvatarFallback, AvatarImage, Button, Card, CardBody } from '@/components/sabcrm/20ui';
+import { Alert, AlertDescription, AlertTitle, Avatar, AvatarFallback, AvatarImage, Button, Card, CardBody, Spinner } from '@/components/sabcrm/20ui';
 import {
   useCallback,
   useState } from "react";
 import { useRouter } from "next/navigation";
 import { Building2,
   Check,
-  Loader2,
   UserPlus,
   X } from "lucide-react";
 
@@ -137,7 +136,7 @@ export function InviteAcceptClient({
           >
             {working === "accept" ? (
               <>
-                <Loader2 className="animate-spin" aria-hidden="true" />
+                <Spinner size="sm" label="Accepting invite" />
                 Accepting…
               </>
             ) : (

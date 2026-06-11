@@ -45,7 +45,7 @@ export const PlanCard = ({
     <Card
       padding="none"
       className={cn(
-        'relative flex h-full w-[296px] flex-col overflow-hidden transition-[border-color,box-shadow] duration-200',
+        'relative flex h-full w-[296px] max-w-[calc(100vw-3rem)] flex-shrink-0 snap-start flex-col overflow-hidden transition-[border-color,box-shadow] duration-200',
         isHighlighted
           ? 'border-[var(--st-accent)] shadow-[var(--st-shadow-md)] bg-[var(--st-accent-soft)]/40'
           : 'border-[var(--st-border)] hover:border-[var(--st-border-strong)] hover:shadow-[var(--st-shadow-md)]',

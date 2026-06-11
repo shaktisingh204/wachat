@@ -103,13 +103,13 @@ export function DashboardClient({ initialData }: { initialData: any }) {
              />
              <Button variant="outline" onClick={handleApplyFilters}>Filter</Button>
           </div>
-          <Button variant="ghost" onClick={() => loadData(true)} leading={<RefreshCcw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />}>
+          <Button variant="ghost" onClick={() => loadData(true)} iconLeft={<RefreshCcw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />}>
             Refresh
           </Button>
-          <Button variant="outline" leading={<Play className="w-4 h-4" />}>
+          <Button variant="outline" iconLeft={<Play className="w-4 h-4" />}>
             Run Flow
           </Button>
-          <Button asChild leading={<Plus className="w-4 h-4" />}>
+          <Button asChild iconLeft={<Plus className="w-4 h-4" />}>
             <Link href="/dashboard/sabflow/flow-builder">
               New Flow
             </Link>
@@ -149,7 +149,13 @@ export function DashboardClient({ initialData }: { initialData: any }) {
             </CardDescription>
           </CardHeader>
           <CardBody>
-            <ChartContainer height={300}>
+            <ChartContainer
+              config={{
+                success: { label: 'Success', color: 'var(--st-status-ok)' },
+                failed: { label: 'Failed', color: 'var(--st-danger)' },
+              }}
+              style={{ height: 300 }}
+            >
               <Recharts.AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorSuccess" x1="0" y1="0" x2="0" y2="1">
@@ -219,7 +225,7 @@ export function DashboardClient({ initialData }: { initialData: any }) {
                     </Td>
                     <Td>
                       <Badge 
-                        tone={activity.status === "success" || activity.status === "completed" ? "green" : (activity.status === "failed" || activity.status === "error" ? "red" : "gray")}
+                        tone={activity.status === "success" || activity.status === "completed" ? "success" : (activity.status === "failed" || activity.status === "error" ? "danger" : "neutral")}
                       >
                         {activity.status}
                       </Badge>

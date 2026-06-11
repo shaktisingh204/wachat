@@ -20,7 +20,14 @@ export { SabHeader, type SabHeaderProps } from "./header";
 export { SabDock, SabDockIcon, type SabDockAccent } from "./dock";
 export { SabAppDock } from "./app-dock";
 export { SabLaunchpad, type SabLaunchpadProps } from "./launchpad";
-export { useDockApps, type DockApps } from "./use-dock-apps";
+export {
+  useDockApps,
+  useDockAutoHide,
+  type DockApps,
+  type DockAutoHide,
+} from "./use-dock-apps";
+export { appAccent, appAccentGradient, type AppAccent } from "./app-colors";
+export { SabAppLogo, hasAppGlyph, type SabAppLogoProps } from "./app-logos";
 export {
   SabHomeShell,
   type SabHomeShellProps,

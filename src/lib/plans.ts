@@ -14,98 +14,162 @@ import {
 } from 'lucide-react';
 import { MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, InstagramIcon, SabChatIcon } from '@/components/20ui-domain/custom-sidebar-components';
 
-export const planFeatureMap: { id: keyof PlanFeaturePermissions, name: string, icon: React.ElementType }[] = [
-    // Wachat
-    { id: 'overview', name: 'Project Overview', icon: LayoutDashboard },
-    { id: 'campaigns', name: 'Broadcast Campaigns', icon: Send },
-    { id: 'liveChat', name: 'Live Chat', icon: MessageSquare },
-    { id: 'contacts', name: 'Wachat Contacts', icon: Users },
-    { id: 'templates', name: 'Message Templates', icon: FileText },
-    { id: 'catalog', name: 'Wachat Catalog', icon: ShoppingBag },
-    { id: 'flowBuilder', name: 'Wachat Flow Builder', icon: GitFork },
-    { id: 'metaFlows', name: 'Meta Flows', icon: ServerCog },
-    { id: 'whatsappAds', name: 'WhatsApp Ads', icon: Megaphone },
-    { id: 'webhooks', name: 'Webhooks Page', icon: Webhook },
-    { id: 'numbers', name: 'Phone Numbers', icon: Phone },
+export interface PlanFeatureEntry {
+    id: keyof PlanFeaturePermissions;
+    name: string;
+    icon: React.ElementType;
+    /** Belongs to a module hidden from end users; admin plan editor still shows it. */
+    hiddenFromUsers?: boolean;
+}
 
-    // Meta Suite
-    { id: 'instagramFeed', name: 'Instagram Feed', icon: Newspaper },
-    { id: 'instagramStories', name: 'Instagram Stories', icon: Clapperboard },
-    { id: 'instagramReels', name: 'Instagram Reels', icon: Video },
-    { id: 'instagramMessages', name: 'Instagram Messages', icon: MessageSquare },
+export interface PlanFeatureGroup {
+    key: 'wachat' | 'instagram' | 'crm' | 'team' | 'standalone' | 'settings' | 'sab-apps';
+    label: string;
+    icon: React.ElementType;
+    /** Entire module hidden from end users; admin plan editor still shows it. */
+    hiddenFromUsers?: boolean;
+    features: PlanFeatureEntry[];
+}
 
-    // CRM
-    { id: 'crmDashboard', name: 'CRM Dashboard', icon: LayoutDashboard },
-    { id: 'crmSales', name: 'Sales', icon: Handshake },
-    { id: 'crmPurchases', name: 'Purchases', icon: ShoppingBag },
-    { id: 'crmInventory', name: 'Inventory', icon: Briefcase },
-    { id: 'crmAccounting', name: 'Accounting', icon: Database },
-    { id: 'crmSalesCrm', name: 'Sales CRM', icon: BarChart },
-    { id: 'crmBanking', name: 'Banking', icon: CreditCard },
-    { id: 'crmHrPayroll', name: 'HR & Payroll', icon: Users },
-    { id: 'crmGstReports', name: 'GST Reports', icon: FileText },
-    { id: 'crmIntegrations', name: 'CRM Integrations', icon: Zap },
-    { id: 'crmSettings', name: 'CRM Settings', icon: Settings },
-
-    // Team
-    { id: 'teamChat', name: 'Team Chat', icon: MessageSquare },
-    { id: 'teamTasks', name: 'Team Tasks', icon: Users },
-
-    // Standalone
-    { id: 'chatbot', name: 'AI Chatbot Builder', icon: Bot },
-    { id: 'email', name: 'Email Suite', icon: Mail },
-    { id: 'sabsms', name: 'SabSMS — SMS / MMS / RCS', icon: MessageSquare },
-    { id: 'seo', name: 'SEO Suite', icon: TrendingUp },
-    { id: 'websiteBuilder', name: 'Website Builder', icon: Brush },
-    { id: 'urlShortener', name: 'URL Shortener', icon: LinkIcon },
-    { id: 'qrCodeMaker', name: 'QR Code Maker', icon: QrCode },
-
-    // Settings & Others
-    { id: 'billing', name: 'Billing Page', icon: CreditCard },
-    { id: 'notifications', name: 'Notifications Page', icon: Send },
-    { id: 'apiAccess', name: 'API Access', icon: ServerCog },
-    { id: 'settingsBroadcast', name: 'Broadcast Settings', icon: Settings },
-    { id: 'settingsAutoReply', name: 'Auto-Reply Settings', icon: Bot },
-    { id: 'settingsMarketing', name: 'Marketing Settings', icon: Megaphone },
-    { id: 'settingsTemplateLibrary', name: 'Template Library', icon: FileText },
-    { id: 'settingsCannedMessages', name: 'Canned Messages', icon: MessageSquare },
-    { id: 'settingsAgentsRoles', name: 'Agents & Roles', icon: Users },
-    { id: 'settingsCompliance', name: 'Compliance Settings', icon: ShieldCheck },
-    { id: 'settingsUserAttributes', name: 'User Attributes', icon: Users },
-
-    // §17 Sab-* applications — one row per app on the dock rail.
-    { id: 'sabmail', name: 'SabMail — Hosted Email', icon: Mail },
-    { id: 'sabmeet', name: 'SabMeet — Video Rooms', icon: Video },
-    { id: 'sabvoice', name: 'SabVoice — Cloud PBX', icon: Mic },
-    { id: 'sabsign', name: 'SabSign — E-Signatures', icon: PenSquare },
-    { id: 'sabwebinar', name: 'SabWebinar — Live + Registration', icon: Video },
-    { id: 'sabconnect', name: 'SabConnect — Intranet', icon: Network },
-    { id: 'sabvault', name: 'SabVault — Password Manager', icon: KeyRound },
-    { id: 'sabsheet', name: 'SabSheet — Spreadsheets', icon: Sheet },
-    { id: 'sabshow', name: 'SabShow — Presentations', icon: Presentation },
-    { id: 'sabtables', name: 'SabTables — Airtable-style DB', icon: Table2 },
-    { id: 'sabsprints', name: 'SabSprints — Scrum', icon: Kanban },
-    { id: 'sabbugs', name: 'SabBugs — Bug Tracker', icon: Bug },
-    { id: 'sabrequests', name: 'SabRequests — Approvals', icon: ClipboardList },
-    { id: 'sabworkerly', name: 'SabWorkerly — Staffing', icon: Briefcase },
-    { id: 'sabpractice', name: 'SabPractice — Accountants', icon: Calculator },
-    { id: 'sabbi', name: 'SabBI — Analytics', icon: PieChart },
-    { id: 'sabprep', name: 'SabPrep — DataPrep', icon: FlaskConical },
-    { id: 'sabsense', name: 'SabSense — CRO + Recordings', icon: Eye },
-    { id: 'sabcreator', name: 'SabCreator — Low-Code Builder', icon: Wand2 },
-    { id: 'sabcatalyst', name: 'SabCatalyst — Serverless BaaS', icon: Cloud },
-    { id: 'sabops', name: 'SabOps — IT Operations', icon: Wrench },
-    { id: 'sabmonitor', name: 'SabMonitor — Synthetic + APM', icon: Activity },
-    { id: 'sablens', name: 'SabLens — AR Remote Support', icon: Camera },
-    { id: 'sabpublish', name: 'SabPublish — Local Listings', icon: MapPin },
-    { id: 'sabbigin', name: 'SabBigin — Lite CRM', icon: Building2 },
-    { id: 'sabshop', name: 'SabShop — Storefront', icon: ShoppingCart },
-    { id: 'sabcheckout', name: 'SabCheckout — Payment Pages', icon: CreditCard },
-    { id: 'sabdesk', name: 'SabDesk — Helpdesk', icon: Headphones },
-    { id: 'sabcampaigns', name: 'SabCampaigns — Email Mktg', icon: Megaphone },
-    { id: 'sabthrive', name: 'SabThrive — Rewards Storefront', icon: Sparkles },
-    { id: 'sabrewards', name: 'SabRewards — Loyalty + Coupons', icon: Award },
+/**
+ * Source of truth for plan-feature grouping. The flat `planFeatureMap` is
+ * derived below, so both the grouped billing display and the admin
+ * `PlanFeaturesSelector` categories stay in sync with one list.
+ */
+export const PLAN_FEATURE_GROUPS: PlanFeatureGroup[] = [
+    {
+        key: 'wachat',
+        label: 'Wachat Suite',
+        icon: MessageSquare,
+        features: [
+            { id: 'overview', name: 'Project Overview', icon: LayoutDashboard },
+            { id: 'campaigns', name: 'Broadcast Campaigns', icon: Send },
+            { id: 'liveChat', name: 'Live Chat', icon: MessageSquare },
+            { id: 'contacts', name: 'Wachat Contacts', icon: Users },
+            { id: 'templates', name: 'Message Templates', icon: FileText },
+            { id: 'catalog', name: 'Wachat Catalog', icon: ShoppingBag },
+            { id: 'ecommerce', name: 'Custom E-commerce', icon: CustomEcommerceIcon },
+            { id: 'flowBuilder', name: 'Wachat Flow Builder', icon: GitFork },
+            { id: 'metaFlows', name: 'Meta Flows', icon: ServerCog },
+            { id: 'whatsappAds', name: 'WhatsApp Ads', icon: Megaphone },
+            { id: 'webhooks', name: 'Webhooks Page', icon: Webhook },
+            { id: 'numbers', name: 'Phone Numbers', icon: Phone },
+        ],
+    },
+    {
+        key: 'instagram',
+        label: 'Instagram Suite',
+        icon: InstagramIcon,
+        features: [
+            { id: 'instagramFeed', name: 'Instagram Feed', icon: Newspaper },
+            { id: 'instagramStories', name: 'Instagram Stories', icon: Clapperboard },
+            { id: 'instagramReels', name: 'Instagram Reels', icon: Video },
+            { id: 'instagramMessages', name: 'Instagram Messages', icon: MessageSquare },
+        ],
+    },
+    {
+        // Legacy CRM module — hidden from end users (hidden-modules directive).
+        key: 'crm',
+        label: 'CRM Suite',
+        icon: BarChart,
+        hiddenFromUsers: true,
+        features: [
+            { id: 'crmDashboard', name: 'CRM Dashboard', icon: LayoutDashboard },
+            { id: 'crmSales', name: 'Sales', icon: Handshake },
+            { id: 'crmPurchases', name: 'Purchases', icon: ShoppingBag },
+            { id: 'crmInventory', name: 'Inventory', icon: Briefcase },
+            { id: 'crmAccounting', name: 'Accounting', icon: Database },
+            { id: 'crmSalesCrm', name: 'Sales CRM', icon: BarChart },
+            { id: 'crmBanking', name: 'Banking', icon: CreditCard },
+            { id: 'crmHrPayroll', name: 'HR & Payroll', icon: Users },
+            { id: 'crmGstReports', name: 'GST Reports', icon: FileText },
+            { id: 'crmIntegrations', name: 'CRM Integrations', icon: Zap },
+            { id: 'crmSettings', name: 'CRM Settings', icon: Settings },
+        ],
+    },
+    {
+        key: 'team',
+        label: 'Team',
+        icon: Users,
+        features: [
+            { id: 'teamChat', name: 'Team Chat', icon: MessageSquare },
+            { id: 'teamTasks', name: 'Team Tasks', icon: Users },
+        ],
+    },
+    {
+        key: 'standalone',
+        label: 'Standalone Tools',
+        icon: Zap,
+        features: [
+            { id: 'chatbot', name: 'AI Chatbot Builder', icon: Bot },
+            { id: 'email', name: 'Email Suite', icon: Mail },
+            { id: 'sabsms', name: 'SabSMS — SMS / MMS / RCS', icon: MessageSquare },
+            { id: 'seo', name: 'SEO Suite', icon: TrendingUp, hiddenFromUsers: true },
+            { id: 'websiteBuilder', name: 'Website Builder', icon: Brush, hiddenFromUsers: true },
+            { id: 'urlShortener', name: 'URL Shortener', icon: LinkIcon },
+            { id: 'qrCodeMaker', name: 'QR Code Maker', icon: QrCode },
+        ],
+    },
+    {
+        key: 'settings',
+        label: 'Settings & Account',
+        icon: Settings,
+        features: [
+            { id: 'billing', name: 'Billing Page', icon: CreditCard },
+            { id: 'notifications', name: 'Notifications Page', icon: Send },
+            { id: 'apiAccess', name: 'API Access', icon: ServerCog },
+            { id: 'settingsBroadcast', name: 'Broadcast Settings', icon: Settings },
+            { id: 'settingsAutoReply', name: 'Auto-Reply Settings', icon: Bot },
+            { id: 'settingsMarketing', name: 'Marketing Settings', icon: Megaphone },
+            { id: 'settingsTemplateLibrary', name: 'Template Library', icon: FileText },
+            { id: 'settingsCannedMessages', name: 'Canned Messages', icon: MessageSquare },
+            { id: 'settingsAgentsRoles', name: 'Agents & Roles', icon: Users },
+            { id: 'settingsCompliance', name: 'Compliance Settings', icon: ShieldCheck },
+            { id: 'settingsUserAttributes', name: 'User Attributes', icon: Users },
+        ],
+    },
+    {
+        // §17 Sab-* applications — one row per app on the dock rail.
+        key: 'sab-apps',
+        label: 'Sab Apps',
+        icon: Sparkles,
+        features: [
+            { id: 'sabmail', name: 'SabMail — Hosted Email', icon: Mail },
+            { id: 'sabmeet', name: 'SabMeet — Video Rooms', icon: Video },
+            { id: 'sabvoice', name: 'SabVoice — Cloud PBX', icon: Mic },
+            { id: 'sabsign', name: 'SabSign — E-Signatures', icon: PenSquare },
+            { id: 'sabwebinar', name: 'SabWebinar — Live + Registration', icon: Video },
+            { id: 'sabconnect', name: 'SabConnect — Intranet', icon: Network },
+            { id: 'sabvault', name: 'SabVault — Password Manager', icon: KeyRound },
+            { id: 'sabsheet', name: 'SabSheet — Spreadsheets', icon: Sheet },
+            { id: 'sabshow', name: 'SabShow — Presentations', icon: Presentation },
+            { id: 'sabtables', name: 'SabTables — Airtable-style DB', icon: Table2 },
+            { id: 'sabsprints', name: 'SabSprints — Scrum', icon: Kanban },
+            { id: 'sabbugs', name: 'SabBugs — Bug Tracker', icon: Bug },
+            { id: 'sabrequests', name: 'SabRequests — Approvals', icon: ClipboardList },
+            { id: 'sabworkerly', name: 'SabWorkerly — Staffing', icon: Briefcase },
+            { id: 'sabpractice', name: 'SabPractice — Accountants', icon: Calculator },
+            { id: 'sabbi', name: 'SabBI — Analytics', icon: PieChart },
+            { id: 'sabprep', name: 'SabPrep — DataPrep', icon: FlaskConical },
+            { id: 'sabsense', name: 'SabSense — CRO + Recordings', icon: Eye },
+            { id: 'sabcreator', name: 'SabCreator — Low-Code Builder', icon: Wand2 },
+            { id: 'sabcatalyst', name: 'SabCatalyst — Serverless BaaS', icon: Cloud },
+            { id: 'sabops', name: 'SabOps — IT Operations', icon: Wrench },
+            { id: 'sabmonitor', name: 'SabMonitor — Synthetic + APM', icon: Activity },
+            { id: 'sablens', name: 'SabLens — AR Remote Support', icon: Camera },
+            { id: 'sabpublish', name: 'SabPublish — Local Listings', icon: MapPin },
+            { id: 'sabbigin', name: 'SabBigin — Lite CRM', icon: Building2 },
+            { id: 'sabshop', name: 'SabShop — Storefront', icon: ShoppingCart },
+            { id: 'sabcheckout', name: 'SabCheckout — Payment Pages', icon: CreditCard },
+            { id: 'sabdesk', name: 'SabDesk — Helpdesk', icon: Headphones },
+            { id: 'sabcampaigns', name: 'SabCampaigns — Email Mktg', icon: Megaphone },
+            { id: 'sabthrive', name: 'SabThrive — Rewards Storefront', icon: Sparkles },
+            { id: 'sabrewards', name: 'SabRewards — Loyalty + Coupons', icon: Award },
+        ],
+    },
 ];
+
+export const planFeatureMap: PlanFeatureEntry[] = PLAN_FEATURE_GROUPS.flatMap((g) => g.features);
 
 /**
  * SabCRM (embedded Twenty engine) plan feature.

@@ -216,6 +216,36 @@ export async function rustFetch<T>(path: string, init?: RequestInit): Promise<T>
 }
 
 /**
+ * Variant of {@link rustFetch} for endpoints that return a non-JSON body
+ * (e.g. SabPay's CSV exports, `text/csv`). Authenticates with the session
+ * cookie like {@link rustFetch}, but returns the raw response text.
+ *
+ * @throws {RustApiError} on non-2xx responses.
+ */
+export async function rustFetchText(path: string, init?: RequestInit): Promise<string> {
+    const url = `${getBaseUrl()}${path}`;
+    const auth = await buildAuthHeader();
+
+    const headers = new Headers(init?.headers);
+    headers.set('Authorization', auth);
+    if (!headers.has('Accept')) {
+        headers.set('Accept', 'text/csv, text/plain, */*');
+    }
+
+    const res = await fetch(url, { ...init, headers, cache: 'no-store' });
+    if (!res.ok) {
+        let envelope: RustErrorEnvelope | null = null;
+        try {
+            envelope = (await res.json()) as RustErrorEnvelope;
+        } catch {
+            // non-JSON error body
+        }
+        throw new RustApiError(res.status, envelope, `Rust API ${res.status} ${res.statusText}`);
+    }
+    return res.text();
+}
+
+/**
  * Variant of {@link rustFetch} that authenticates as an **explicit user**
  * rather than the session cookie. Used by surfaces that resolve their own
  * principal before calling Rust — e.g. the SabPay public API, which

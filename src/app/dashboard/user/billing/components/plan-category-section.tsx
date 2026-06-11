@@ -36,7 +36,7 @@ export const PlanCategorySection = ({
         </Badge>
         <div className="h-px flex-1 bg-[var(--st-border)]" />
       </div>
-      <ScrollArea className="w-full">
+      <ScrollArea className="w-full" viewportClassName="snap-x snap-mandatory">
         <div className="flex w-max gap-[var(--st-space-4)] pb-3">
           {plans.map((plan: WithId<Plan>) => (
             <PlanCard

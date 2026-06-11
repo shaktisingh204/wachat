@@ -166,23 +166,9 @@ export function EnvVarsClient() {
 
   return (
     <div className="20ui flex flex-col h-full">
-      {/* Header */}
-      <div className="border-b border-[var(--st-border)] px-4 sm:px-6">
+      {/* Actions */}
+      <div className="px-4 sm:px-6">
         <div className="flex flex-wrap items-center gap-3 py-4">
-          <div className="flex h-8 w-8 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
-            <Key className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
-          </div>
-          <div className="flex flex-col leading-tight min-w-0">
-            <h1 className="text-[15px] font-semibold text-[var(--st-text)]">
-              Environment variables
-            </h1>
-            <p className="text-[11.5px] text-[var(--st-text-secondary)]">
-              Workspace env vars are accessible to every flow as{' '}
-              <code className="rounded bg-[var(--st-bg-muted)] px-1 py-0.5 font-mono text-[10.5px] text-[var(--st-text)]">
-                $env.KEY
-              </code>
-            </p>
-          </div>
           <div className="ml-auto flex flex-wrap items-center gap-2">
             <Button
               variant="secondary"

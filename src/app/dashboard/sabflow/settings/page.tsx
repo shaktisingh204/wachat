@@ -1,6 +1,7 @@
 'use client';
 
-import { Alert, AlertDescription, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Input, Label, PageDescription, PageHeader, PageHeading, PageTitle, Separator, Skeleton, Switch, toast } from '@/components/sabcrm/20ui';
+import { Alert, AlertDescription, AlertTitle, Badge, Button, Card, Input, Label, Separator, Skeleton, Switch, toast } from '@/components/sabcrm/20ui';
+import { SabflowPage, SABFLOW_CRUMBS } from '../_components/sabflow-page';
 import {
   useEffect,
   useState,
@@ -50,19 +51,19 @@ function SectionHeader({ title, description }: { title: string; description: str
 
 function PageSkeleton() {
     return (
-        <div className="mx-auto w-full max-w-[1200px] px-6 pt-6 pb-10">
+        <SabflowPage>
             <Skeleton className="h-3 w-56" />
-            <div className="mt-5 flex flex-col gap-2">
+            <div className="flex flex-col gap-2">
                 <Skeleton className="h-3 w-24" />
                 <Skeleton className="h-7 w-72" />
                 <Skeleton className="h-3 w-96" />
             </div>
-            <div className="mt-6 grid gap-4">
+            <div className="grid gap-4">
                 <Skeleton className="h-60 w-full" />
                 <Skeleton className="h-60 w-full" />
                 <Skeleton className="h-60 w-full" />
             </div>
-        </div>
+        </SabflowPage>
     );
 }
 
@@ -106,7 +107,7 @@ export default function SabflowSettingsPage() {
     ) {
         const parseResult = sabflowSettingsSchema.safeParse(patch);
         if (!parseResult.success) {
-            toast.error(parseResult.error.errors[0].message);
+            toast.error(parseResult.error.issues[0].message);
             return;
         }
 
@@ -136,7 +137,7 @@ export default function SabflowSettingsPage() {
 
         const parseResult = sabflowSettingsSchema.safeParse(patch);
         if (!parseResult.success) {
-            toast.error(parseResult.error.errors[0].message);
+            toast.error(parseResult.error.issues[0].message);
             return;
         }
 
@@ -157,50 +158,26 @@ export default function SabflowSettingsPage() {
 
     if (loadError) {
         return (
-            <div className="mx-auto w-full max-w-[1200px] px-6 pt-6 pb-10">
+            <SabflowPage breadcrumb={[...SABFLOW_CRUMBS, { label: 'Settings' }]}>
                 <Alert variant="destructive">
                     <AlertCircle />
                     <AlertTitle>Could not load SabFlow settings</AlertTitle>
                     <AlertDescription>{loadError}</AlertDescription>
                 </Alert>
-            </div>
+            </SabflowPage>
         );
     }
 
     if (!settings) return <PageSkeleton />;
 
     return (
-        <div className="mx-auto w-full max-w-[1200px] px-6 pt-6 pb-10">
-            <Breadcrumb>
-                <BreadcrumbList>
-                    <BreadcrumbItem>
-                        <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator />
-                    <BreadcrumbItem>
-                        <BreadcrumbLink href="/dashboard/sabflow">SabFlow</BreadcrumbLink>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator />
-                    <BreadcrumbItem>
-                        <BreadcrumbPage>Settings</BreadcrumbPage>
-                    </BreadcrumbItem>
-                </BreadcrumbList>
-            </Breadcrumb>
-
-            <PageHeader className="mt-5" bordered={false}>
-                <PageHeading>
-                    {activeProject?.name ? (
-                        <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[var(--st-text-tertiary)]">
-                            Project · {activeProject.name}
-                        </p>
-                    ) : null}
-                    <PageTitle>SabFlow settings</PageTitle>
-                    <PageDescription>
-                        Defaults, retention, run limits, webhooks, and global variables for the
-                        visual flow builder.
-                    </PageDescription>
-                </PageHeading>
-                <div className="flex items-center gap-3">
+        <SabflowPage
+            breadcrumb={[...SABFLOW_CRUMBS, { label: 'Settings' }]}
+            eyebrow={activeProject?.name ? `Project · ${activeProject.name}` : undefined}
+            title="SabFlow settings"
+            description="Defaults, retention, run limits, webhooks, and global variables for the visual flow builder."
+            actions={
+                <>
                     <Badge variant="outline" className="gap-1.5 h-[32px] px-3">
                         <span className="text-[var(--st-text-tertiary)]">Last saved:</span>
                         <span className="text-[var(--st-text)] font-medium">{formatTimestamp(settings.updatedAt)}</span>
@@ -208,10 +185,10 @@ export default function SabflowSettingsPage() {
                     <Button size="sm" onClick={saveAll} disabled={savingSection === 'all'}>
                         <Save /> {savingSection === 'all' ? 'Saving…' : 'Save all'}
                     </Button>
-                </div>
-            </PageHeader>
-
-            <div className="mt-6 flex flex-col gap-5">
+                </>
+            }
+        >
+            <div className="flex flex-col gap-5">
                 <DefaultsSection
                     value={settings.defaults}
                     onChange={(defaults) => setSettings({ ...settings, defaults })}
@@ -271,7 +248,7 @@ export default function SabflowSettingsPage() {
                 />
             </div>
 
-            <div className="mt-8 flex items-center justify-between text-[11.5px] text-[var(--st-text-secondary)]">
+            <div className="mt-3 flex items-center justify-between text-[11.5px] text-[var(--st-text-secondary)]">
                 <span>Settings apply to every flow run across your SabFlow workspaces.</span>
                 <Link
                     href="/dashboard/sabflow"
@@ -280,7 +257,7 @@ export default function SabflowSettingsPage() {
                     Back to SabFlow
                 </Link>
             </div>
-        </div>
+        </SabflowPage>
     );
 }
 
@@ -333,10 +310,10 @@ function DefaultsSection({
                                 executionTimeout: safeNumber(e.target.value, value.executionTimeout),
                             })
                         }
-                        className={getError(['executionTimeout']) ? 'border-[var(--st-border)] focus-visible:ring-[var(--st-border)]' : ''}
+                        className={getError(['executionTimeout']) ? 'border-[var(--st-danger)] focus-visible:ring-[var(--st-danger)]' : ''}
                     />
                     {getError(['executionTimeout']) && (
-                        <p className="text-[11.5px] text-[var(--st-text)]">{getError(['executionTimeout'])}</p>
+                        <p className="text-[11.5px] text-[var(--st-danger)]">{getError(['executionTimeout'])}</p>
                     )}
                 </div>
             </div>
@@ -385,10 +362,10 @@ function RetentionSection({
                                 ),
                             })
                         }
-                        className={getError(['keepRunHistoryDays']) ? 'border-[var(--st-border)] focus-visible:ring-[var(--st-border)]' : ''}
+                        className={getError(['keepRunHistoryDays']) ? 'border-[var(--st-danger)] focus-visible:ring-[var(--st-danger)]' : ''}
                     />
                     {getError(['keepRunHistoryDays']) && (
-                        <p className="text-[11.5px] text-[var(--st-text)]">{getError(['keepRunHistoryDays'])}</p>
+                        <p className="text-[11.5px] text-[var(--st-danger)]">{getError(['keepRunHistoryDays'])}</p>
                     )}
                 </div>
                 <div className="flex items-start justify-between gap-4 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3">
@@ -454,10 +431,10 @@ function RunLimitsSection({
                                 ),
                             })
                         }
-                        className={getError(['maxConcurrentRuns']) ? 'border-[var(--st-border)] focus-visible:ring-[var(--st-border)]' : ''}
+                        className={getError(['maxConcurrentRuns']) ? 'border-[var(--st-danger)] focus-visible:ring-[var(--st-danger)]' : ''}
                     />
                     {getError(['maxConcurrentRuns']) && (
-                        <p className="text-[11.5px] text-[var(--st-text)]">{getError(['maxConcurrentRuns'])}</p>
+                        <p className="text-[11.5px] text-[var(--st-danger)]">{getError(['maxConcurrentRuns'])}</p>
                     )}
                 </div>
                 <div className="grid gap-1.5">
@@ -473,10 +450,10 @@ function RunLimitsSection({
                                 maxStepsPerRun: safeNumber(e.target.value, value.maxStepsPerRun),
                             })
                         }
-                        className={getError(['maxStepsPerRun']) ? 'border-[var(--st-border)] focus-visible:ring-[var(--st-border)]' : ''}
+                        className={getError(['maxStepsPerRun']) ? 'border-[var(--st-danger)] focus-visible:ring-[var(--st-danger)]' : ''}
                     />
                     {getError(['maxStepsPerRun']) && (
-                        <p className="text-[11.5px] text-[var(--st-text)]">{getError(['maxStepsPerRun'])}</p>
+                        <p className="text-[11.5px] text-[var(--st-danger)]">{getError(['maxStepsPerRun'])}</p>
                     )}
                 </div>
             </div>
@@ -506,12 +483,13 @@ function WebhooksSection({
         }
 
         startTesting(async () => {
-            toast.loading('Testing webhook...', { id: 'webhook-test' });
+            const loadingId = toast.loading('Testing webhook...');
             const res = await testSabflowWebhook(value.url, value.secret);
+            toast.dismiss(loadingId);
             if (res.error) {
-                toast.error(`Test failed: ${res.error}`, { id: 'webhook-test' });
+                toast.error(`Test failed: ${res.error}`);
             } else {
-                toast.success('Test webhook sent successfully.', { id: 'webhook-test' });
+                toast.success('Test webhook sent successfully.');
             }
         });
     }
@@ -541,10 +519,10 @@ function WebhooksSection({
                         placeholder="https://example.com/webhooks/sabflow"
                         value={value.url}
                         onChange={(e) => onChange({ ...value, url: e.target.value })}
-                        className={getError(['url']) ? 'border-[var(--st-border)] focus-visible:ring-[var(--st-border)]' : ''}
+                        className={getError(['url']) ? 'border-[var(--st-danger)] focus-visible:ring-[var(--st-danger)]' : ''}
                     />
                     {getError(['url']) && (
-                        <p className="text-[11.5px] text-[var(--st-text)]">{getError(['url'])}</p>
+                        <p className="text-[11.5px] text-[var(--st-danger)]">{getError(['url'])}</p>
                     )}
                 </div>
                 <div className="grid gap-1.5">
@@ -561,10 +539,10 @@ function WebhooksSection({
                                 retryAttempts: safeNumber(e.target.value, value.retryAttempts),
                             })
                         }
-                        className={getError(['retryAttempts']) ? 'border-[var(--st-border)] focus-visible:ring-[var(--st-border)]' : ''}
+                        className={getError(['retryAttempts']) ? 'border-[var(--st-danger)] focus-visible:ring-[var(--st-danger)]' : ''}
                     />
                     {getError(['retryAttempts']) && (
-                        <p className="text-[11.5px] text-[var(--st-text)]">{getError(['retryAttempts'])}</p>
+                        <p className="text-[11.5px] text-[var(--st-danger)]">{getError(['retryAttempts'])}</p>
                     )}
                 </div>
                 <div className="grid gap-1.5 sm:col-span-3">
@@ -647,10 +625,10 @@ function VariablesSection({
                                     placeholder="API_BASE_URL"
                                     value={row.key}
                                     onChange={(e) => updateRow(idx, { key: e.target.value })}
-                                    className={getError([idx, 'key']) ? 'border-[var(--st-border)] focus-visible:ring-[var(--st-border)]' : ''}
+                                    className={getError([idx, 'key']) ? 'border-[var(--st-danger)] focus-visible:ring-[var(--st-danger)]' : ''}
                                 />
                                 {getError([idx, 'key']) && (
-                                    <p className="text-[11.5px] text-[var(--st-text)]">{getError([idx, 'key'])}</p>
+                                    <p className="text-[11.5px] text-[var(--st-danger)]">{getError([idx, 'key'])}</p>
                                 )}
                             </div>
                             <div className="grid gap-1.5">
@@ -665,15 +643,15 @@ function VariablesSection({
                                     placeholder="https://api.example.com"
                                     value={row.value}
                                     onChange={(e) => updateRow(idx, { value: e.target.value })}
-                                    className={getError([idx, 'value']) ? 'border-[var(--st-border)] focus-visible:ring-[var(--st-border)]' : ''}
+                                    className={getError([idx, 'value']) ? 'border-[var(--st-danger)] focus-visible:ring-[var(--st-danger)]' : ''}
                                 />
                                 {getError([idx, 'value']) && (
-                                    <p className="text-[11.5px] text-[var(--st-text)]">{getError([idx, 'value'])}</p>
+                                    <p className="text-[11.5px] text-[var(--st-danger)]">{getError([idx, 'value'])}</p>
                                 )}
                             </div>
                             <Button
                                 variant="outline"
-                                size="icon-sm"
+                                size="sm"
                                 onClick={() => removeRow(idx)}
                                 aria-label="Remove variable"
                             >

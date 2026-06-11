@@ -24,6 +24,7 @@ import { Pin, PinOff, Search } from "lucide-react";
 
 import { cn } from "../lib/cn";
 import { SAB_APPS, type SabAppDescriptor } from "./apps";
+import { SabAppLogo } from "./app-logos";
 import { useDockApps } from "./use-dock-apps";
 
 const EASE_OUT = [0.23, 1, 0.32, 1] as const;
@@ -187,14 +188,16 @@ function LaunchpadTile({
           onClick={onOpen}
           aria-label={`Open ${app.name}`}
           className={cn(
-            "flex size-16 items-center justify-center rounded-[18px] border border-[var(--st-border)]",
-            "bg-[color-mix(in_srgb,var(--st-surface)_88%,transparent)] text-[var(--st-text)]",
-            "shadow-sm backdrop-blur-md outline-none",
-            "transition-transform duration-150 hover:scale-[1.06] active:scale-[0.95]",
+            "block size-14 rounded-[23%] border-0 bg-transparent p-0",
+            "shadow-[0_4px_14px_-4px_rgba(0,0,0,0.45)]",
+            "outline-none transition-transform duration-150 hover:scale-[1.06] active:scale-[0.95]",
             "focus-visible:ring-2 focus-visible:ring-[var(--st-accent,#4f46e5)] focus-visible:ring-offset-2",
           )}
         >
-          <app.Icon aria-hidden="true" style={{ width: "50%", height: "50%" }} />
+          <SabAppLogo
+            appId={app.id}
+            style={{ width: "100%", height: "100%", display: "block" }}
+          />
         </button>
 
         {/* Pin toggle — revealed on hover / keyboard focus; always shown for

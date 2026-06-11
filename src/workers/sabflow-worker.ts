@@ -14,8 +14,9 @@
  */
 
 import 'dotenv/config';
+import { createDecipheriv, createHash } from 'node:crypto';
 import { Worker, type Job } from 'bullmq';
-import { MongoClient, type Db } from 'mongodb';
+import { MongoClient, ObjectId, type Db } from 'mongodb';
 import Redis from 'ioredis';
 import { SABFLOW_QUEUE, SABFLOW_EXEC_CHANNEL } from '@/lib/sabflow/worker/queues';
 
@@ -81,23 +82,24 @@ interface ExecutionJobPayload {
 
 /* ── Rust engine response shape ────────────────────────────────────────────
  *
- * The Rust handler at `/v1/sabflow/internal/execute` returns JSON with the
- * following shape (camelCase via serde):
- *
- *   {
- *     executionId: string,
- *     status:      'success' | 'error',
- *     error?:      string,
- *     nodeResults: Record<string, unknown>,
- *     variables:   Record<string, string>,
- *   }
+ * Mirrors `ExecuteFlowOutput` in
+ * rust/crates/sabflow-engine-runtime/src/engine.rs — plain serde derives,
+ * so every field is snake_case. Keep in sync with that struct.
  */
+interface RustNodeResult {
+  block_id: string;
+  block_type: string;
+  status: string;
+  output_branches: number;
+  error?: string | null;
+}
+
 interface RustExecutionResult {
-  executionId: string;
+  execution_id: string;
   status: 'success' | 'error';
-  error?: string;
-  nodeResults?: Record<string, unknown>;
-  variables?: Record<string, string>;
+  error?: string | null;
+  node_results?: RustNodeResult[];
+  variables?: Record<string, unknown>;
 }
 
 /** Detect transport-level failures so we can fall back to the TS engine. */
@@ -119,20 +121,150 @@ function isConnectionError(err: unknown): boolean {
   );
 }
 
+// ── Credential forwarding (Rust engine) ────────────────────────────────────
+//
+// The Rust engine (`rust/crates/sabflow-engine-runtime`) expects
+// `credentials: HashMap<credentialId, { id, credential_type, data }>` with
+// every `data` value already decrypted (see `sabflow_nodes::Credential`).
+//
+// Decryption mirrors `src/lib/sabflow/credentials/encryption.ts`
+// (AES-256-GCM, `base64(iv):base64(ciphertext):base64(authTag)`, key =
+// sha256(CREDENTIALS_ENCRYPTION_KEY || NEXTAUTH_SECRET)). That module is
+// `server-only` and this worker runs under tsx outside the Next.js runtime,
+// so the small decrypt routine is replicated here instead of imported —
+// keep the two in sync if the envelope format ever changes.
+
+/** Decrypted credential record in the shape `sabflow_nodes::Credential` expects. */
+interface RustCredential {
+  id: string;
+  credential_type: string;
+  data: Record<string, string>;
+}
+
+function credentialKeyBuffer(): Buffer | null {
+  const secret =
+    process.env.CREDENTIALS_ENCRYPTION_KEY || process.env.NEXTAUTH_SECRET;
+  if (!secret) return null;
+  // Matches `resolveDefaultKey()` in credentials/encryption.ts — the env
+  // secret is always run through SHA-256 to derive the 32-byte AES key.
+  return createHash('sha256').update(secret, 'utf8').digest();
+}
+
+function decryptCredentialValue(encrypted: string, keyBuf: Buffer): string {
+  const parts = encrypted.split(':');
+  if (parts.length !== 3) {
+    throw new Error('invalid payload shape (expected iv:ciphertext:tag)');
+  }
+  const [ivB64, dataB64, tagB64] = parts;
+  const iv = Buffer.from(ivB64, 'base64');
+  const decipher = createDecipheriv('aes-256-gcm', keyBuf, iv);
+  decipher.setAuthTag(Buffer.from(tagB64, 'base64'));
+  return Buffer.concat([
+    decipher.update(Buffer.from(dataB64, 'base64')),
+    decipher.final(),
+  ]).toString('utf8');
+}
+
+/**
+ * Walk the flow snapshot and collect every credential id its blocks
+ * reference. Mirrors how the TS engine resolves credentials at run time
+ * (`block.options.credentialId` for forge blocks, plus the legacy
+ * `credentialsId` used by AI / email blocks).
+ */
+function collectCredentialIds(flowSnapshot: ExecutionJobPayload['flowSnapshot']): string[] {
+  const ids = new Set<string>();
+  for (const group of flowSnapshot?.groups ?? []) {
+    for (const block of group?.blocks ?? []) {
+      const opts = (block?.options ?? {}) as Record<string, unknown>;
+      for (const candidate of [opts.credentialId, opts.credentialsId]) {
+        if (typeof candidate === 'string' && candidate.trim()) {
+          ids.add(candidate.trim());
+        }
+      }
+    }
+  }
+  return [...ids];
+}
+
+/**
+ * Fetches + decrypts the credentials referenced by the flow, scoped to the
+ * flow's owner (credentials belonging to any other workspace are never
+ * forwarded). Failures are non-fatal: the job proceeds with `{}` and the
+ * affected nodes surface their own "missing credential" errors.
+ */
+async function loadFlowCredentials(
+  payload: ExecutionJobPayload,
+): Promise<Record<string, RustCredential>> {
+  try {
+    const ids = collectCredentialIds(payload.flowSnapshot);
+    if (ids.length === 0) return {};
+
+    const keyBuf = credentialKeyBuffer();
+    if (!keyBuf) {
+      console.warn(
+        '[sabflow-worker] CREDENTIALS_ENCRYPTION_KEY / NEXTAUTH_SECRET not set — forwarding no credentials',
+      );
+      return {};
+    }
+
+    // Tenancy: only the flow owner's credentials may be forwarded.
+    const ownerId = String(payload.flowSnapshot?.userId ?? payload.projectId ?? '');
+    if (!ownerId) return {};
+
+    const oids = ids.filter((id) => ObjectId.isValid(id)).map((id) => new ObjectId(id));
+    if (oids.length === 0) return {};
+
+    const db = await getDb();
+    const docs = await db
+      .collection('sabflow_credentials')
+      .find({ _id: { $in: oids }, workspaceId: ownerId })
+      .toArray();
+
+    const out: Record<string, RustCredential> = {};
+    for (const doc of docs) {
+      const id = doc._id.toString();
+      const data: Record<string, string> = {};
+      const encrypted = (doc.data ?? {}) as Record<string, string>;
+      for (const [field, value] of Object.entries(encrypted)) {
+        try {
+          data[field] = decryptCredentialValue(String(value), keyBuf);
+        } catch {
+          // Corrupt / legacy-plaintext value — mirror decryptRecord()'s
+          // lenient behaviour and keep the rest of the record usable.
+          data[field] = '';
+        }
+      }
+      out[id] = { id, credential_type: String(doc.type ?? ''), data };
+    }
+    return out;
+  } catch (err) {
+    console.warn(
+      '[sabflow-worker] failed to load credentials — continuing with {}:',
+      err instanceof Error ? err.message : err,
+    );
+    return {};
+  }
+}
+
 // ── Rust engine proxy ──────────────────────────────────────────────────────
 
 async function rustExecuteFlow(payload: ExecutionJobPayload): Promise<RustExecutionResult> {
   const baseUrl = process.env.RUST_API_URL ?? 'http://localhost:3001';
+  const credentials = await loadFlowCredentials(payload);
   const res = await fetch(`${baseUrl}/v1/sabflow/internal/execute`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    // Field names mirror `ExecuteFlowInput` in
+    // rust/crates/sabflow-engine-runtime/src/engine.rs (plain serde derives →
+    // snake_case). camelCase here fails deserialisation with a 422.
     body: JSON.stringify({
-      executionId: payload.executionId,
+      execution_id: payload.executionId,
       flow: payload.flowSnapshot,
-      triggerData: payload.triggerData,
+      trigger_data: payload.triggerData,
       variables: payload.variables,
-      // TODO: fetch and decrypt credentials from Mongo and forward them.
-      credentials: {},
+      // Decrypted credentials keyed by credential id, scoped to the flow
+      // owner — the shape `sabflow_nodes::Credential` deserialises.
+      credentials,
     }),
   });
   if (!res.ok) {
@@ -247,6 +379,15 @@ async function processExecution(job: Job<ExecutionJobPayload>): Promise<void> {
     const durationMs = Date.now() - start;
     const finishedAt = new Date();
 
+    // Persist node steps in the `ExecutionHistoryNode` shape the replay UI
+    // and /api/sabflow/logs read, alongside the raw engine records.
+    const nodes = (result.node_results ?? []).map((n) => ({
+      blockId: n.block_id,
+      blockType: n.block_type,
+      status: n.status,
+      ...(n.error ? { error: n.error } : {}),
+    }));
+
     if (result.status === 'success') {
       await execCol.updateOne(
         { executionId },
@@ -256,7 +397,8 @@ async function processExecution(job: Job<ExecutionJobPayload>): Promise<void> {
             finishedAt,
             durationMs,
             updatedVariables: result.variables ?? {},
-            nodeResults: result.nodeResults ?? {},
+            nodeResults: result.node_results ?? [],
+            nodes,
             engine: 'rust',
           },
         },
@@ -277,6 +419,8 @@ async function processExecution(job: Job<ExecutionJobPayload>): Promise<void> {
           finishedAt,
           durationMs,
           error: errMsg,
+          nodeResults: result.node_results ?? [],
+          nodes,
           engine: 'rust',
         },
       },

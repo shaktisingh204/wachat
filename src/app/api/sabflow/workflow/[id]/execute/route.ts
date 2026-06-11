@@ -18,11 +18,12 @@
  *   - Gates on the `sabflow.workflow.execute` RBAC key.
  *   - Loads the workflow IR (the persisted `sabflows` document).
  *   - Inserts an `sabflow_executions` row in status `queued`.
- *   - Enqueues a `mode: 'manual'` job via `enqueueExecution` carrying the IR
- *     plus the optional `pinData`, `singleNodeId` and `inputItems` so the
- *     Rust dispatcher can either replay the whole graph or run one node in
- *     isolation. Live progress is published on `sabflow:exec:<executionId>`
- *     and consumed by the sibling SSE route.
+ *   - Enqueues onto the BullMQ queue consumed by the PM2 `sabflow-worker`
+ *     (Rust engine with TS fallback). The worker publishes live progress on
+ *     `sabflow:exec:<executionId>`, consumed by the sibling SSE route.
+ *   - `mode: 'singleNode'` is not supported by the worker yet and returns
+ *     501 (it was designed for the Rust dispatcher loop, which is not
+ *     deployed; the editor's single-node testing uses /api/sabflow/execute).
  *
  * Track B · Phase 6 · sub-task #6.
  */
@@ -32,7 +33,7 @@ import { ObjectId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
 import { requirePermission } from '@/lib/rbac-server';
-import { enqueueExecution } from '@/lib/sabflow/queue/enqueue';
+import { enqueueWorkerExecution } from '@/lib/sabflow/queue/enqueue-worker';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -113,6 +114,18 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
             { status: 400 },
         );
     }
+    if (mode === 'singleNode') {
+        // The queue worker runs whole flows only; single-node isolation was
+        // designed for the Rust dispatcher loop, which is not deployed.
+        // Failing loudly beats enqueueing a job nothing will ever consume.
+        return NextResponse.json(
+            {
+                error:
+                    "mode 'singleNode' is not supported by the queue worker yet — use the direct execute API for single-node testing",
+            },
+            { status: 501 },
+        );
+    }
 
     try {
         const { db } = await connectToDatabase();
@@ -141,7 +154,6 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
             status: 'queued',
             triggerMode: 'manual',
             mode,
-            ...(mode === 'singleNode' ? { singleNodeId: body.nodeId } : {}),
             startedAt: null,
             finishedAt: null,
             durationMs: null,
@@ -150,27 +162,15 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
             updatedAt: now,
         });
 
-        // 6) Enqueue. The dispatcher distinguishes the two flavours via
-        //    `singleNodeId` on the payload.
-        const triggerData: Record<string, unknown> = {
+        // 6) Enqueue onto the BullMQ queue the PM2 sabflow-worker consumes.
+        await enqueueWorkerExecution({
             executionId,
-            workflowIR: workflow,
-            ...(body.pinData ? { pinData: body.pinData } : {}),
-        };
-        if (mode === 'singleNode') {
-            triggerData.singleNodeId = body.nodeId;
-            triggerData.inputItems = body.inputItems ?? [];
-        }
-
-        const plan =
-            (session.user as { plan?: { name?: string } }).plan?.name ?? 'free';
-
-        await enqueueExecution({
-            workspaceId: projectId,
-            workflowId,
-            mode: 'manual',
-            triggerData,
-            plan,
+            flowId: workflowId,
+            projectId,
+            flowSnapshot: workflow,
+            triggerMode: 'manual',
+            triggerData: body.pinData ? { pinData: body.pinData } : undefined,
+            variables: {},
         });
 
         return NextResponse.json(

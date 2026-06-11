@@ -4,19 +4,22 @@
  * SabAppDock — macOS-style application dock. Replaces the vertical app rail.
  *
  * Behaviour, deliberately faithful to the Mac dock:
- *   - Bottom-centred frosted-glass panel; icons magnify with cursor
+ *   - Bottom-centred frosted-glass panel; compact colourful tiles (each app
+ *     has its own gradient, see `app-colors.ts`) that magnify with cursor
  *     proximity (motion values + springs — never React state, so the
  *     magnification runs off the render loop and stays 60fps).
- *   - Auto-hides so it never steals space or input from the app. A 10px
- *     invisible strip along the bottom edge summons it; moving away
- *     dismisses it. Keyboard focus summons it instantly (no animation on
- *     keyboard-initiated reveals).
+ *   - Visible by default. Right-click the dock background for
+ *     "Turn Hiding On/Off" (persisted) — with hiding on, a 10px strip along
+ *     the bottom edge summons it and moving away dismisses it. Keyboard
+ *     focus summons it instantly (no animation on keyboard-initiated
+ *     reveals).
  *   - Right-click an icon for Open / Remove from Dock. The Launchpad tile
  *     opens the full app grid where any app can be pinned or unpinned.
  *   - The active app always shows (with its indicator dot) even when it
  *     isn't pinned — mirroring macOS "running app" behaviour.
- *   - Touch devices get a persistent pill handle that toggles a static,
- *     horizontally-scrollable dock (no hover physics on coarse pointers).
+ *   - Touch devices get no hover physics; with hiding on they get a
+ *     persistent pill handle that toggles a static, horizontally-scrollable
+ *     dock.
  *   - `prefers-reduced-motion` collapses magnification and slides to
  *     simple opacity fades.
  *
@@ -36,33 +39,41 @@ import {
   useTransform,
   type MotionValue,
 } from "motion/react";
-import { ArrowUpRight, LayoutGrid, Pin, PinOff } from "lucide-react";
+import {
+  ArrowUpRight,
+  Eye,
+  EyeOff,
+  Pin,
+  PinOff,
+  RotateCcw,
+} from "lucide-react";
 
 import { cn } from "../lib/cn";
 import { SAB_APPS, type SabAppDescriptor } from "./apps";
-import { useDockApps } from "./use-dock-apps";
+import { SabAppLogo } from "./app-logos";
+import { useDockApps, useDockAutoHide } from "./use-dock-apps";
 import { SabLaunchpad } from "./launchpad";
 
-/* Geometry (px). BASE tile, MAX under the cursor, RANGE of influence. */
-const BASE = 44;
-const MAX = 76;
-const RANGE = 132;
+/* Compact geometry (px). BASE tile, MAX under the cursor, RANGE of influence. */
+const BASE = 38;
+const MAX = 64;
+const RANGE = 112;
 const HIDE_DELAY_MS = 380;
 /** Strong ease-out (emil): starts fast, settles softly. */
 const EASE_OUT = [0.23, 1, 0.32, 1] as const;
 
-interface MenuState {
-  appId: string;
-  pinned: boolean;
-}
+type MenuState =
+  | { kind: "app"; appId: string; pinned: boolean }
+  | { kind: "dock" };
 
 export function SabAppDock({ className }: { className?: string }) {
   const pathname = usePathname();
   const reduceMotion = useReducedMotion();
   const dock = useDockApps();
+  const hiding = useDockAutoHide();
 
   const [finePointer, setFinePointer] = React.useState(false);
-  const [visible, setVisible] = React.useState(false);
+  const [visible, setVisible] = React.useState(true);
   const [instantReveal, setInstantReveal] = React.useState(false);
   const [launchpadOpen, setLaunchpadOpen] = React.useState(false);
   const [menu, setMenu] = React.useState<MenuState | null>(null);
@@ -82,14 +93,15 @@ export function SabAppDock({ className }: { className?: string }) {
     return () => mq.removeEventListener("change", apply);
   }, []);
 
-  /* Show briefly on first load so the dock is discoverable, then hide. */
+  /* With hiding on: show briefly on load for discoverability, then hide. */
   React.useEffect(() => {
+    if (!hiding.hydrated || !hiding.autoHide) return;
     setVisible(true);
     const t = window.setTimeout(() => {
       if (!menuOpenRef.current) setVisible(false);
     }, 2200);
     return () => window.clearTimeout(t);
-  }, []);
+  }, [hiding.hydrated, hiding.autoHide]);
 
   const cancelHide = React.useCallback(() => {
     if (hideTimer.current !== null) {
@@ -107,10 +119,13 @@ export function SabAppDock({ className }: { className?: string }) {
     [cancelHide],
   );
 
+  const autoHideRef = React.useRef(false);
+  autoHideRef.current = hiding.autoHide;
+
   const scheduleHide = React.useCallback(() => {
     cancelHide();
     hideTimer.current = window.setTimeout(() => {
-      if (!menuOpenRef.current) {
+      if (autoHideRef.current && !menuOpenRef.current) {
         setVisible(false);
         setMenu(null);
       }
@@ -151,32 +166,42 @@ export function SabAppDock({ className }: { className?: string }) {
     };
   }, [menu]);
 
-  /* Touch: tapping anywhere outside the dock dismisses it (there's no
-     pointer-leave on coarse pointers). */
+  /* Touch + hiding on: tapping anywhere outside the dock dismisses it
+     (there's no pointer-leave on coarse pointers). */
   React.useEffect(() => {
-    if (finePointer || !visible) return;
+    if (finePointer || !hiding.autoHide || !visible) return;
     const onDown = (e: PointerEvent) => {
       if (!wrapRef.current?.contains(e.target as Node)) setVisible(false);
     };
     window.addEventListener("pointerdown", onDown);
     return () => window.removeEventListener("pointerdown", onDown);
-  }, [finePointer, visible]);
+  }, [finePointer, hiding.autoHide, visible]);
 
   const magnify = finePointer && !reduceMotion;
+  /* With hiding off the dock is pinned on screen, whatever `visible` says. */
+  const shown = !hiding.autoHide || visible;
 
-  const hiddenStyle = reduceMotion
-    ? { opacity: 0 }
-    : { y: 104, opacity: 0 };
+  function toggleHiding() {
+    const next = !hiding.autoHide;
+    hiding.setAutoHide(next);
+    setMenu(null);
+    if (next) {
+      setVisible(true);
+      scheduleHide();
+    } else {
+      reveal(true);
+    }
+  }
+
+  const hiddenStyle = reduceMotion ? { opacity: 0 } : { y: 88, opacity: 0 };
   const shownStyle = reduceMotion ? { opacity: 1 } : { y: 0, opacity: 1 };
 
-  if (!dock.hydrated) return null;
+  if (!dock.hydrated || !hiding.hydrated) return null;
 
   return (
     <>
-      {/* Bottom-edge summon strip (fine pointers only). Invisible, never
-          intercepts clicks for the app itself — it only listens for the
-          pointer brushing the very bottom edge, like macOS. */}
-      {finePointer && !launchpadOpen && (
+      {/* Bottom-edge summon strip (hiding on, fine pointers only). */}
+      {hiding.autoHide && finePointer && !launchpadOpen && (
         <div
           aria-hidden="true"
           onPointerEnter={() => reveal(false)}
@@ -184,8 +209,8 @@ export function SabAppDock({ className }: { className?: string }) {
         />
       )}
 
-      {/* Touch handle: a small persistent pill that toggles the dock. */}
-      {!finePointer && !visible && !launchpadOpen && (
+      {/* Touch handle (hiding on): a small pill that summons the dock. */}
+      {hiding.autoHide && !finePointer && !shown && !launchpadOpen && (
         <button
           type="button"
           aria-label="Show app dock"
@@ -202,13 +227,13 @@ export function SabAppDock({ className }: { className?: string }) {
         ref={wrapRef}
         className={cn(
           "fixed bottom-2 left-1/2 z-[60] -translate-x-1/2",
-          !visible && "pointer-events-none",
+          !shown && "pointer-events-none",
           className,
         )}
       >
       <m.div
         initial={false}
-        animate={visible ? shownStyle : hiddenStyle}
+        animate={shown ? shownStyle : hiddenStyle}
         transition={
           instantReveal
             ? { duration: 0 }
@@ -216,17 +241,22 @@ export function SabAppDock({ className }: { className?: string }) {
         }
         className="relative"
         onPointerEnter={() => {
-          if (finePointer) reveal(false);
+          if (hiding.autoHide && finePointer) reveal(false);
         }}
         onPointerLeave={() => {
           if (finePointer) {
             mouseX.set(Infinity);
-            scheduleHide();
+            if (hiding.autoHide) scheduleHide();
           }
         }}
-        onFocusCapture={() => reveal(true)}
+        onFocusCapture={() => {
+          if (hiding.autoHide) reveal(true);
+        }}
         onBlurCapture={(e) => {
-          if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
+          if (
+            hiding.autoHide &&
+            !e.currentTarget.contains(e.relatedTarget as Node | null)
+          ) {
             scheduleHide();
           }
         }}
@@ -237,10 +267,15 @@ export function SabAppDock({ className }: { className?: string }) {
             if (magnify) mouseX.set(e.clientX);
           }}
           onMouseLeave={() => mouseX.set(Infinity)}
+          onContextMenu={(e) => {
+            // Background right-click → dock settings (tiles stop propagation).
+            e.preventDefault();
+            setMenu({ kind: "dock" });
+          }}
           className={cn(
-            "flex items-end gap-1.5 rounded-[22px] border border-[var(--st-border)] px-2.5 py-2",
+            "flex items-end gap-1 rounded-[18px] border border-[var(--st-border)] px-2 py-1.5",
             "bg-[color-mix(in_srgb,var(--st-surface)_78%,transparent)]",
-            "shadow-[0_18px_44px_-18px_rgba(0,0,0,0.45)]",
+            "shadow-[0_14px_36px_-16px_rgba(0,0,0,0.45)]",
             "backdrop-blur-2xl backdrop-saturate-150",
             // Touch: cap to the viewport and let the row scroll.
             !finePointer && "max-w-[calc(100vw-16px)] overflow-x-auto",
@@ -248,15 +283,14 @@ export function SabAppDock({ className }: { className?: string }) {
         >
           <DockTile
             label="Launchpad"
+            appId="launchpad"
             mouseX={mouseX}
             magnify={magnify}
             onActivate={() => {
               setMenu(null);
               setLaunchpadOpen(true);
             }}
-          >
-            <LayoutGrid aria-hidden="true" style={{ width: "46%", height: "46%" }} />
-          </DockTile>
+          />
 
           <DockSeparator />
 
@@ -264,19 +298,20 @@ export function SabAppDock({ className }: { className?: string }) {
             <DockTile
               key={app.id}
               label={app.name}
+              appId={app.id}
               href={app.href}
               active={app.isActive(pathname)}
               mouseX={mouseX}
               magnify={magnify}
-              menuOpen={menu?.appId === app.id}
-              onContextMenu={() => setMenu({ appId: app.id, pinned: true })}
+              menuOpen={menu?.kind === "app" && menu.appId === app.id}
+              onContextMenu={() =>
+                setMenu({ kind: "app", appId: app.id, pinned: true })
+              }
               onNavigate={() => {
                 setMenu(null);
-                if (!finePointer) setVisible(false);
+                if (hiding.autoHide && !finePointer) setVisible(false);
               }}
-            >
-              <app.Icon aria-hidden="true" style={{ width: "52%", height: "52%" }} />
-            </DockTile>
+            />
           ))}
 
           {runningUnpinned && (
@@ -284,21 +319,17 @@ export function SabAppDock({ className }: { className?: string }) {
               <DockSeparator />
               <DockTile
                 label={runningUnpinned.name}
+                appId={runningUnpinned.id}
                 href={runningUnpinned.href}
                 active
                 mouseX={mouseX}
                 magnify={magnify}
-                menuOpen={menu?.appId === runningUnpinned.id}
+                menuOpen={menu?.kind === "app" && menu.appId === runningUnpinned.id}
                 onContextMenu={() =>
-                  setMenu({ appId: runningUnpinned.id, pinned: false })
+                  setMenu({ kind: "app", appId: runningUnpinned.id, pinned: false })
                 }
                 onNavigate={() => setMenu(null)}
-              >
-                <runningUnpinned.Icon
-                  aria-hidden="true"
-                  style={{ width: "52%", height: "52%" }}
-                />
-              </DockTile>
+              />
             </>
           )}
         </nav>
@@ -309,12 +340,18 @@ export function SabAppDock({ className }: { className?: string }) {
           <AnimatePresence>
             {menu && (
               <DockContextMenu
-                key={menu.appId}
-                app={byId.get(menu.appId) ?? null}
-                pinned={menu.pinned}
+                key={menu.kind === "app" ? menu.appId : "dock"}
+                menu={menu}
+                app={menu.kind === "app" ? (byId.get(menu.appId) ?? null) : null}
+                autoHide={hiding.autoHide}
                 reduceMotion={Boolean(reduceMotion)}
                 onPinToggle={() => {
-                  dock.toggle(menu.appId);
+                  if (menu.kind === "app") dock.toggle(menu.appId);
+                  setMenu(null);
+                }}
+                onToggleHiding={toggleHiding}
+                onResetDock={() => {
+                  dock.reset();
                   setMenu(null);
                 }}
                 onClose={() => setMenu(null)}
@@ -329,7 +366,7 @@ export function SabAppDock({ className }: { className?: string }) {
         open={launchpadOpen}
         onClose={() => {
           setLaunchpadOpen(false);
-          scheduleHide();
+          if (hiding.autoHide) scheduleHide();
         }}
       />
     </>
@@ -340,19 +377,20 @@ function DockSeparator() {
   return (
     <span
       aria-hidden="true"
-      className="mx-0.5 mb-[5px] block h-8 w-px self-end bg-[var(--st-border)]"
+      className="mx-0.5 mb-[4px] block h-7 w-px self-end bg-[var(--st-border)]"
     />
   );
 }
 
 interface DockTileProps {
   label: string;
+  /** App id — picks the full macOS-style logo (gradient + glyph). */
+  appId: string;
   href?: string;
   active?: boolean;
   mouseX: MotionValue<number>;
   magnify: boolean;
   menuOpen?: boolean;
-  children: React.ReactNode;
   onActivate?: () => void;
   onNavigate?: () => void;
   onContextMenu?: () => void;
@@ -364,12 +402,12 @@ interface DockTileProps {
  */
 function DockTile({
   label,
+  appId,
   href,
   active,
   mouseX,
   magnify,
   menuOpen,
-  children,
   onActivate,
   onNavigate,
   onContextMenu,
@@ -394,14 +432,14 @@ function DockTile({
     <m.span
       style={{ width: size, height: size }}
       className={cn(
-        "relative flex items-center justify-center rounded-[14px] border border-[var(--st-border)]/70",
-        "bg-[var(--st-bg)] text-[var(--st-text)]",
-        "transition-colors duration-150",
-        "[&_svg]:shrink-0",
-        active && "bg-[var(--st-text)] text-[var(--st-bg)] border-transparent",
+        "relative block rounded-[23%]",
+        "shadow-[0_2px_8px_-2px_rgba(0,0,0,0.45)]",
       )}
     >
-      {children}
+      <SabAppLogo
+        appId={appId}
+        style={{ width: "100%", height: "100%", display: "block" }}
+      />
     </m.span>
   );
 
@@ -425,7 +463,7 @@ function DockTile({
     >
       {/* Name label, macOS-style, above the icon. The outer span owns the
           centering transform; the inner m.span animates independently. */}
-      <span className="pointer-events-none absolute -top-9 left-1/2 z-[1] -translate-x-1/2">
+      <span className="pointer-events-none absolute -top-8 left-1/2 z-[1] -translate-x-1/2">
         <AnimatePresence>
           {showLabel && (
             <m.span
@@ -452,7 +490,7 @@ function DockTile({
           aria-label={label}
           aria-current={active ? "page" : undefined}
           onClick={onNavigate}
-          className="rounded-[14px] outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-accent,#4f46e5)] focus-visible:ring-offset-2 active:scale-[0.94] [transition:transform_140ms]"
+          className="rounded-[23%] outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-accent,#4f46e5)] focus-visible:ring-offset-2 active:scale-[0.94] [transition:transform_140ms]"
         >
           {inner}
         </Link>
@@ -461,7 +499,7 @@ function DockTile({
           type="button"
           aria-label={label}
           onClick={onActivate}
-          className="rounded-[14px] border-0 bg-transparent p-0 outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-accent,#4f46e5)] focus-visible:ring-offset-2 active:scale-[0.94] [transition:transform_140ms]"
+          className="rounded-[23%] border-0 bg-transparent p-0 outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-accent,#4f46e5)] focus-visible:ring-offset-2 active:scale-[0.94] [transition:transform_140ms]"
         >
           {inner}
         </button>
@@ -471,7 +509,7 @@ function DockTile({
       <span
         aria-hidden="true"
         className={cn(
-          "mt-[3px] h-1 w-1 rounded-full transition-opacity duration-150",
+          "mt-[2px] h-1 w-1 rounded-full transition-opacity duration-150",
           active ? "bg-[var(--st-text)]/70 opacity-100" : "opacity-0",
         )}
       />
@@ -480,27 +518,33 @@ function DockTile({
 }
 
 interface DockContextMenuProps {
+  menu: MenuState;
   app: SabAppDescriptor | null;
-  pinned: boolean;
+  autoHide: boolean;
   reduceMotion: boolean;
   onPinToggle: () => void;
+  onToggleHiding: () => void;
+  onResetDock: () => void;
   onClose: () => void;
 }
 
 function DockContextMenu({
+  menu,
   app,
-  pinned,
+  autoHide,
   reduceMotion,
   onPinToggle,
+  onToggleHiding,
+  onResetDock,
   onClose,
 }: DockContextMenuProps) {
   const router = useRouter();
-  if (!app) return null;
+  if (menu.kind === "app" && !app) return null;
 
   return (
     <m.div
       role="menu"
-      aria-label={`${app.name} options`}
+      aria-label={menu.kind === "app" ? `${app?.name} options` : "Dock options"}
       initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 8, scale: 0.96 }}
       animate={reduceMotion ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0 }}
@@ -513,27 +557,52 @@ function DockContextMenu({
       )}
     >
       <p className="px-2.5 pb-1 pt-1.5 text-[11px] font-semibold text-[var(--st-text-secondary,inherit)] opacity-70">
-        {app.name}
+        {menu.kind === "app" ? app?.name : "Dock"}
       </p>
-      <DockMenuItem
-        icon={<ArrowUpRight aria-hidden="true" className="size-3.5" />}
-        label="Open"
-        onSelect={() => {
-          onClose();
-          router.push(app.href);
-        }}
-      />
+
+      {menu.kind === "app" && app && (
+        <>
+          <DockMenuItem
+            icon={<ArrowUpRight aria-hidden="true" className="size-3.5" />}
+            label="Open"
+            onSelect={() => {
+              onClose();
+              router.push(app.href);
+            }}
+          />
+          <DockMenuItem
+            icon={
+              menu.pinned ? (
+                <PinOff aria-hidden="true" className="size-3.5" />
+              ) : (
+                <Pin aria-hidden="true" className="size-3.5" />
+              )
+            }
+            label={menu.pinned ? "Remove from Dock" : "Keep in Dock"}
+            onSelect={onPinToggle}
+          />
+          <div aria-hidden="true" className="mx-2 my-1 h-px bg-[var(--st-border)]" />
+        </>
+      )}
+
       <DockMenuItem
         icon={
-          pinned ? (
-            <PinOff aria-hidden="true" className="size-3.5" />
+          autoHide ? (
+            <Eye aria-hidden="true" className="size-3.5" />
           ) : (
-            <Pin aria-hidden="true" className="size-3.5" />
+            <EyeOff aria-hidden="true" className="size-3.5" />
           )
         }
-        label={pinned ? "Remove from Dock" : "Keep in Dock"}
-        onSelect={onPinToggle}
+        label={autoHide ? "Turn Hiding Off" : "Turn Hiding On"}
+        onSelect={onToggleHiding}
       />
+      {menu.kind === "dock" && (
+        <DockMenuItem
+          icon={<RotateCcw aria-hidden="true" className="size-3.5" />}
+          label="Reset Dock"
+          onSelect={onResetDock}
+        />
+      )}
     </m.div>
   );
 }

@@ -175,3 +175,7 @@ graphify-out/
 src/lib/sabcrm/_ported_raw/
 src/components/sabcrm/_ported_raw/
 /_ported_raw_misc/
+
+# SabSheet v2 — built wasm engine artifacts (produced by scripts/build-sabsheet-wasm.sh)
+/public/sabsheet-engine/
+/rust/crates/sabsheet-engine-wasm/pkg/

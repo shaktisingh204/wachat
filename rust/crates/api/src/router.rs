@@ -263,6 +263,7 @@ pub fn build(state: AppState) -> Router {
     let sabsheet_cells_r = sabsheet_cells::router::<AppState>();
     let sabsheet_comments_r = sabsheet_comments::router::<AppState>();
     let sabsheet_named_ranges_r = sabsheet_named_ranges::router::<AppState>();
+    let sabsheet_ops_r = sabsheet_ops::router::<AppState>();
     let sabsheet_pivot_tables_r = sabsheet_pivot_tables::router::<AppState>();
     let sabsheet_presence_r = sabsheet_presence::router::<AppState>();
     let sabsheet_sheets_r = sabsheet_sheets::router::<AppState>();
@@ -1167,6 +1168,7 @@ pub fn build(state: AppState) -> Router {
         .nest("/v1/sabsheet/cells", sabsheet_cells_r)
         .nest("/v1/sabsheet/comments", sabsheet_comments_r)
         .nest("/v1/sabsheet/named-ranges", sabsheet_named_ranges_r)
+        .nest("/v1/sabsheet/ops", sabsheet_ops_r)
         .nest("/v1/sabsheet/pivot-tables", sabsheet_pivot_tables_r)
         .nest("/v1/sabsheet/presence", sabsheet_presence_r)
         .nest("/v1/sabsheet/sheets", sabsheet_sheets_r)

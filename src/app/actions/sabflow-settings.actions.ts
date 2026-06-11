@@ -39,12 +39,12 @@ type SabflowWebhooks = {
     retryAttempts: number;
 };
 
-type SabflowVariableEntry = {
+export type SabflowVariableEntry = {
     key: string;
     value: string;
 };
 
-type SabflowSettings = {
+export type SabflowSettings = {
     defaults: SabflowDefaults;
     retention: SabflowRetention;
     runLimits: SabflowRunLimits;

@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { Check, Copy, Plus } from 'lucide-react';
+import { Check, Copy, Plus, RefreshCw } from 'lucide-react';
 
 import {
   Badge,
@@ -16,6 +16,7 @@ import {
   Field,
   Input,
   Modal,
+  SelectField,
   Switch,
   Table,
   TBody,
@@ -24,9 +25,12 @@ import {
   THead,
   toast,
   Tr,
+  type SelectOption,
 } from '@/components/sabcrm/20ui';
 import {
   SABPAY_WEBHOOK_EVENTS,
+  isSabpayWebhookEvent,
+  type SabpayWebhookDelivery,
   type SabpayWebhookEndpoint,
   type SabpayWebhookEvent,
 } from '@/lib/sabpay/types';
@@ -38,6 +42,52 @@ import {
   updateSabpayWebhook,
   type SabpayWebhookData,
 } from '../actions';
+import {
+  getSabpayWebhookDeliveries,
+  redeliverSabpayWebhook,
+} from '../actions/webhooks-extra';
+import { ConfirmAction } from '../_components/confirm-action';
+
+/* ── Event catalog, grouped by entity prefix ─────────────────────────────── */
+
+const EVENT_GROUP_LABELS: Record<string, string> = {
+  payment: 'Payments',
+  order: 'Orders',
+  refund: 'Refunds',
+  payment_link: 'Payment links',
+  invoice: 'Invoices',
+  subscription: 'Subscriptions',
+  qr_code: 'QR codes',
+  settlement: 'Settlements',
+  dispute: 'Disputes',
+};
+
+interface EventGroup {
+  prefix: string;
+  label: string;
+  events: SabpayWebhookEvent[];
+}
+
+/** `payment.*`, `order.*`, … in catalog order. */
+const EVENT_GROUPS: EventGroup[] = (() => {
+  const byPrefix = new Map<string, SabpayWebhookEvent[]>();
+  for (const event of SABPAY_WEBHOOK_EVENTS) {
+    const prefix = event.slice(0, event.indexOf('.'));
+    const bucket = byPrefix.get(prefix);
+    if (bucket) bucket.push(event);
+    else byPrefix.set(prefix, [event]);
+  }
+  return [...byPrefix].map(([prefix, events]) => ({
+    prefix,
+    label: EVENT_GROUP_LABELS[prefix] ?? prefix,
+    events,
+  }));
+})();
+
+const EVENT_FILTER_OPTIONS: SelectOption[] = [
+  { value: 'all', label: 'All events' },
+  ...SABPAY_WEBHOOK_EVENTS.map((event) => ({ value: event, label: event })),
+];
 
 function SecretReveal({ secret }: { secret: string }) {
   const [copied, setCopied] = React.useState(false);
@@ -99,6 +149,49 @@ export function WebhooksClient({ initialData }: { initialData: SabpayWebhookData
   const [saving, setSaving] = React.useState(false);
   const [revealedSecret, setRevealedSecret] = React.useState<string | null>(null);
 
+  const [rotateTarget, setRotateTarget] = React.useState<SabpayWebhookEndpoint | null>(null);
+  const [deleteTarget, setDeleteTarget] = React.useState<SabpayWebhookEndpoint | null>(null);
+
+  // Delivery-log filter. `filtered` is null while the unfiltered server-fed
+  // list is shown; `filterVersion` bumps to refetch after a redelivery.
+  const [eventFilter, setEventFilter] = React.useState<SabpayWebhookEvent | 'all'>('all');
+  const [endpointFilter, setEndpointFilter] = React.useState<string>('all');
+  const [filtered, setFiltered] = React.useState<SabpayWebhookDelivery[] | null>(null);
+  const [filterLoading, setFilterLoading] = React.useState(false);
+  const [filterVersion, setFilterVersion] = React.useState(0);
+  const [redelivering, setRedelivering] = React.useState<string | null>(null);
+
+  const filtersActive = eventFilter !== 'all' || endpointFilter !== 'all';
+
+  React.useEffect(() => {
+    if (eventFilter === 'all' && endpointFilter === 'all') {
+      setFiltered(null);
+      setFilterLoading(false);
+      return;
+    }
+    let cancelled = false;
+    setFilterLoading(true);
+    getSabpayWebhookDeliveries({
+      event: eventFilter === 'all' ? undefined : eventFilter,
+      endpointId: endpointFilter === 'all' ? undefined : endpointFilter,
+      limit: 50,
+    })
+      .then((rows) => {
+        if (!cancelled) setFiltered(rows);
+      })
+      .catch(() => {
+        if (!cancelled) toast.error('Could not load the filtered deliveries.');
+      })
+      .finally(() => {
+        if (!cancelled) setFilterLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [eventFilter, endpointFilter, filterVersion]);
+
+  const shownDeliveries = filtered ?? deliveries;
+
   function toggleEvent(event: SabpayWebhookEvent, on: boolean) {
     setEvents((prev) =>
       on ? [...new Set([...prev, event])] : prev.filter((e) => e !== event),
@@ -136,9 +229,6 @@ export function WebhooksClient({ initialData }: { initialData: SabpayWebhookData
   }
 
   async function handleRotate(endpoint: SabpayWebhookEndpoint) {
-    if (!window.confirm('Rotate the signing secret? Deliveries signed with the old secret will stop verifying.')) {
-      return;
-    }
     const result = await rotateSabpayWebhookSecret(endpoint._id);
     if (result.error || !result.endpoint?.secret) {
       toast.error(result.error || 'Could not rotate the secret.');
@@ -150,13 +240,33 @@ export function WebhooksClient({ initialData }: { initialData: SabpayWebhookData
   }
 
   async function handleDelete(endpoint: SabpayWebhookEndpoint) {
-    if (!window.confirm(`Delete the endpoint ${endpoint.url}?`)) return;
     const result = await deleteSabpayWebhook(endpoint._id);
     if (result.error) {
       toast.error(result.error);
       return;
     }
     toast({ title: 'Endpoint deleted', tone: 'success' });
+    router.refresh();
+  }
+
+  async function handleRedeliver(delivery: SabpayWebhookDelivery) {
+    setRedelivering(delivery._id);
+    const result = await redeliverSabpayWebhook(delivery._id);
+    setRedelivering(null);
+    if (result.error || !result.delivery) {
+      toast.error(result.error || 'Could not redeliver the event.');
+      return;
+    }
+    toast({
+      title: result.delivery.success ? 'Event redelivered' : 'Redelivery attempted',
+      description: result.delivery.success
+        ? `${delivery.event} was accepted with HTTP ${result.delivery.status}.`
+        : `The endpoint answered ${
+            result.delivery.status ? `HTTP ${result.delivery.status}` : 'no response'
+          } — see the new log row.`,
+      tone: result.delivery.success ? 'success' : 'warning',
+    });
+    if (filtersActive) setFilterVersion((v) => v + 1);
     router.refresh();
   }
 
@@ -271,10 +381,10 @@ export function WebhooksClient({ initialData }: { initialData: SabpayWebhookData
                     </Td>
                     <Td>
                       <span style={{ display: 'flex', gap: 4 }}>
-                        <Button variant="ghost" size="sm" onClick={() => handleRotate(endpoint)}>
+                        <Button variant="ghost" size="sm" onClick={() => setRotateTarget(endpoint)}>
                           Rotate secret
                         </Button>
-                        <Button variant="ghost" size="sm" onClick={() => handleDelete(endpoint)}>
+                        <Button variant="ghost" size="sm" onClick={() => setDeleteTarget(endpoint)}>
                           Delete
                         </Button>
                       </span>
@@ -293,55 +403,110 @@ export function WebhooksClient({ initialData }: { initialData: SabpayWebhookData
             <CardTitle>Recent deliveries</CardTitle>
             <CardDescription>The last 50 webhook attempts across all endpoints.</CardDescription>
           </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+            <SelectField
+              aria-label="Filter deliveries by event"
+              options={EVENT_FILTER_OPTIONS}
+              value={eventFilter}
+              onChange={(v) =>
+                setEventFilter(v && isSabpayWebhookEvent(v) ? v : 'all')
+              }
+              searchable
+              size="sm"
+            />
+            {endpoints.length > 0 ? (
+              <SelectField
+                aria-label="Filter deliveries by endpoint"
+                options={[
+                  { value: 'all', label: 'All endpoints' },
+                  ...endpoints.map((ep) => ({ value: ep._id, label: ep.url })),
+                ]}
+                value={endpointFilter}
+                onChange={(v) => setEndpointFilter(v ?? 'all')}
+                size="sm"
+              />
+            ) : null}
+          </div>
         </CardHeader>
         <CardBody>
-          {deliveries.length === 0 ? (
+          {filterLoading && shownDeliveries.length === 0 ? (
+            <p style={{ margin: 0, color: 'var(--st-text-muted)' }} aria-live="polite">
+              Loading deliveries…
+            </p>
+          ) : shownDeliveries.length === 0 ? (
             <p style={{ margin: 0, color: 'var(--st-text-muted)' }}>
-              No deliveries yet — they appear as soon as a payment event fires.
+              {filtersActive
+                ? 'No deliveries match the current filter.'
+                : 'No deliveries yet — they appear as soon as a payment event fires.'}
             </p>
           ) : (
-            <Table>
-              <THead>
-                <Tr>
-                  <Th>Event</Th>
-                  <Th>Payment</Th>
-                  <Th>Endpoint</Th>
-                  <Th>Result</Th>
-                  <Th>Attempts</Th>
-                  <Th>When</Th>
-                </Tr>
-              </THead>
-              <TBody>
-                {deliveries.map((d) => (
-                  <Tr key={d._id}>
-                    <Td>
-                      <Badge tone="neutral">{d.event}</Badge>
-                    </Td>
-                    <Td style={{ fontFamily: 'var(--st-font-mono, monospace)', fontSize: 12.5 }}>
-                      {d.paymentId}
-                    </Td>
-                    <Td
-                      style={{
-                        maxWidth: 260,
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
-                        fontSize: 12.5,
-                      }}
-                    >
-                      {d.url}
-                    </Td>
-                    <Td>
-                      <Badge tone={d.success ? 'success' : 'danger'}>
-                        {d.success ? `OK ${d.status}` : d.status ? `HTTP ${d.status}` : 'No response'}
-                      </Badge>
-                    </Td>
-                    <Td>{d.attempts}</Td>
-                    <Td>{new Date(d.createdAt).toLocaleString()}</Td>
+            <div
+              style={{
+                opacity: filterLoading ? 0.6 : 1,
+                transition: 'opacity 120ms ease',
+              }}
+              aria-busy={filterLoading || undefined}
+            >
+              <Table>
+                <THead>
+                  <Tr>
+                    <Th>Event</Th>
+                    <Th>Object</Th>
+                    <Th>Endpoint</Th>
+                    <Th>Result</Th>
+                    <Th>Attempts</Th>
+                    <Th>When</Th>
+                    <Th aria-label="Actions" />
                   </Tr>
-                ))}
-              </TBody>
-            </Table>
+                </THead>
+                <TBody>
+                  {shownDeliveries.map((d) => (
+                    <Tr key={d._id}>
+                      <Td>
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
+                          <Badge tone="neutral">{d.event}</Badge>
+                          {d.redeliveredFrom ? <Badge tone="info">Redelivery</Badge> : null}
+                        </span>
+                      </Td>
+                      <Td style={{ fontFamily: 'var(--st-font-mono, monospace)', fontSize: 12.5 }}>
+                        {d.objectId ?? d.paymentId}
+                      </Td>
+                      <Td
+                        style={{
+                          maxWidth: 260,
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                          fontSize: 12.5,
+                        }}
+                      >
+                        {d.url}
+                      </Td>
+                      <Td>
+                        <Badge tone={d.success ? 'success' : 'danger'}>
+                          {d.success ? `OK ${d.status}` : d.status ? `HTTP ${d.status}` : 'No response'}
+                        </Badge>
+                      </Td>
+                      <Td>{d.attempts}</Td>
+                      <Td>{new Date(d.createdAt).toLocaleString()}</Td>
+                      <Td>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          iconLeft={<RefreshCw size={13} />}
+                          loading={redelivering === d._id}
+                          disabled={redelivering !== null && redelivering !== d._id}
+                          onClick={() => handleRedeliver(d)}
+                          aria-label={`Redeliver ${d.event} to ${d.url}`}
+                        >
+                          Redeliver
+                        </Button>
+                      </Td>
+                    </Tr>
+                  ))}
+                </TBody>
+              </Table>
+            </div>
           )}
         </CardBody>
       </Card>
@@ -389,16 +554,59 @@ export function WebhooksClient({ initialData }: { initialData: SabpayWebhookData
                 required
               />
             </Field>
-            <Field label="Events">
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {SABPAY_WEBHOOK_EVENTS.map((event) => (
-                  <Checkbox
-                    key={event}
-                    label={event}
-                    checked={events.includes(event)}
-                    onChange={(e) => toggleEvent(event, e.target.checked)}
-                  />
-                ))}
+            <Field
+              label="Events"
+              help={`${events.length} of ${SABPAY_WEBHOOK_EVENTS.length} events selected.`}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 14,
+                  maxHeight: 320,
+                  overflowY: 'auto',
+                  padding: '10px 12px',
+                  borderRadius: 10,
+                  border: '1px solid var(--st-border)',
+                  background: 'var(--st-bg)',
+                }}
+              >
+                {EVENT_GROUPS.map((group) => {
+                  const headingId = `sabpay-evt-group-${group.prefix}`;
+                  return (
+                    <div key={group.prefix} role="group" aria-labelledby={headingId}>
+                      <p
+                        id={headingId}
+                        style={{
+                          margin: '0 0 6px',
+                          fontSize: 11.5,
+                          fontWeight: 650,
+                          letterSpacing: '0.04em',
+                          textTransform: 'uppercase',
+                          color: 'var(--st-text-muted)',
+                        }}
+                      >
+                        {group.label}
+                      </p>
+                      <div
+                        style={{
+                          display: 'grid',
+                          gridTemplateColumns: 'repeat(auto-fill, minmax(190px, 1fr))',
+                          gap: '6px 12px',
+                        }}
+                      >
+                        {group.events.map((event) => (
+                          <Checkbox
+                            key={event}
+                            label={event}
+                            checked={events.includes(event)}
+                            onChange={(e) => toggleEvent(event, e.target.checked)}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </Field>
             <Field label="Description">
@@ -412,6 +620,37 @@ export function WebhooksClient({ initialData }: { initialData: SabpayWebhookData
           </form>
         )}
       </Modal>
+
+      <ConfirmAction
+        open={rotateTarget !== null}
+        onClose={() => setRotateTarget(null)}
+        onConfirm={async () => {
+          if (rotateTarget) await handleRotate(rotateTarget);
+        }}
+        title="Rotate the signing secret?"
+        description={
+          rotateTarget
+            ? `Deliveries to ${rotateTarget.url} signed with the old secret will stop verifying immediately.`
+            : undefined
+        }
+        confirmLabel="Rotate secret"
+        tone="primary"
+      />
+
+      <ConfirmAction
+        open={deleteTarget !== null}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={async () => {
+          if (deleteTarget) await handleDelete(deleteTarget);
+        }}
+        title="Delete this endpoint?"
+        description={
+          deleteTarget
+            ? `${deleteTarget.url} will stop receiving events immediately. Its delivery log is kept.`
+            : undefined
+        }
+        confirmLabel="Delete endpoint"
+      />
     </>
   );
 }

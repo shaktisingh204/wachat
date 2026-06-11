@@ -84,6 +84,63 @@ export interface DockApps {
   reset: () => void;
 }
 
+/* ── Auto-hide preference ────────────────────────────────────────────────── */
+
+const HIDE_KEY = "sabnode.dock.autohide.v1";
+const HIDE_SYNC_EVENT = "sabnode:dock-autohide-changed";
+
+function readAutoHide(): boolean {
+  try {
+    // Default OFF — the dock stays visible unless the user turns hiding on.
+    return window.localStorage.getItem(HIDE_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+export interface DockAutoHide {
+  autoHide: boolean;
+  hydrated: boolean;
+  setAutoHide: (on: boolean) => void;
+}
+
+/**
+ * useDockAutoHide — whether the dock auto-hides (macOS "Turn Hiding
+ * On/Off"). Defaults to always-visible; persisted per browser and synced
+ * across hook instances + tabs like the pin list.
+ */
+export function useDockAutoHide(): DockAutoHide {
+  const [autoHide, setAutoHideState] = React.useState(false);
+  const [hydrated, setHydrated] = React.useState(false);
+
+  React.useLayoutEffect(() => {
+    setAutoHideState(readAutoHide());
+    setHydrated(true);
+
+    const refresh = () => setAutoHideState(readAutoHide());
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === null || e.key === HIDE_KEY) refresh();
+    };
+    window.addEventListener(HIDE_SYNC_EVENT, refresh);
+    window.addEventListener("storage", onStorage);
+    return () => {
+      window.removeEventListener(HIDE_SYNC_EVENT, refresh);
+      window.removeEventListener("storage", onStorage);
+    };
+  }, []);
+
+  const setAutoHide = React.useCallback((on: boolean) => {
+    try {
+      window.localStorage.setItem(HIDE_KEY, on ? "1" : "0");
+    } catch {
+      // Storage blocked — in-memory state still works for this tab.
+    }
+    window.dispatchEvent(new CustomEvent(HIDE_SYNC_EVENT));
+  }, []);
+
+  return { autoHide, hydrated, setAutoHide };
+}
+
 export function useDockApps(): DockApps {
   // Start empty on both server and client so hydration matches; the real
   // pins land in a layout effect before first paint.

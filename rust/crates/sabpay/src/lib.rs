@@ -50,8 +50,15 @@
 //! | POST   | `/public/payments/{id}/simulate`      | finalize a test payment          |
 //! | POST   | `/public/payu-callback`               | verify + finalize + dispatch     |
 
+pub mod cron;
 pub mod dto;
+pub mod entities;
+pub mod exports;
+pub mod fees;
+pub mod finalize;
 pub mod handlers;
+pub mod ids;
+pub mod idempotency;
 pub mod payu;
 pub mod store;
 pub mod webhooks;
@@ -107,4 +114,172 @@ where
             post(handlers::public_simulate),
         )
         .route("/public/payu-callback", post(handlers::public_callback))
+        /* ── orders ──────────────────────────────────────────────────────── */
+        .route(
+            "/orders",
+            get(entities::orders::list_handler).post(entities::orders::create_handler),
+        )
+        .route(
+            "/orders/{id}",
+            get(entities::orders::get_handler).patch(entities::orders::update_handler),
+        )
+        .route("/orders/{id}/payments", get(entities::orders::payments_handler))
+        /* ── customers ───────────────────────────────────────────────────── */
+        .route(
+            "/customers",
+            get(entities::customers::list_handler).post(entities::customers::create_handler),
+        )
+        .route(
+            "/customers/{id}",
+            get(entities::customers::get_handler)
+                .patch(entities::customers::update_handler)
+                .delete(entities::customers::delete_handler),
+        )
+        .route(
+            "/customers/{id}/payments",
+            get(entities::customers::payments_handler),
+        )
+        /* ── refunds ─────────────────────────────────────────────────────── */
+        .route("/refunds", get(entities::refunds::list_handler))
+        .route("/refunds/{id}", get(entities::refunds::get_handler))
+        .route(
+            "/payments/{id}/refunds",
+            get(entities::refunds::list_for_payment_handler)
+                .post(entities::refunds::create_handler),
+        )
+        /* ── webhooks: deliveries (filtered) + redeliver ─────────────────── */
+        .route("/webhooks/deliveries", get(handlers::list_deliveries))
+        .route(
+            "/webhooks/deliveries/{id}/redeliver",
+            post(handlers::redeliver_delivery),
+        )
+        /* ── payment links ───────────────────────────────────────────────── */
+        .route(
+            "/payment-links",
+            get(entities::payment_links::list_handler)
+                .post(entities::payment_links::create_handler),
+        )
+        .route(
+            "/payment-links/{id}",
+            get(entities::payment_links::get_handler)
+                .patch(entities::payment_links::update_handler),
+        )
+        .route(
+            "/payment-links/{id}/cancel",
+            post(entities::payment_links::cancel_handler),
+        )
+        .route(
+            "/public/links/{id}",
+            get(entities::payment_links::public_view_handler),
+        )
+        .route(
+            "/public/links/{id}/session",
+            post(entities::payment_links::public_session_handler),
+        )
+        /* ── payment pages (literal route BEFORE {id}) ───────────────────── */
+        .route(
+            "/payment-pages",
+            get(entities::payment_pages::list_handler)
+                .post(entities::payment_pages::create_handler),
+        )
+        .route(
+            "/payment-pages/slug-available",
+            get(entities::payment_pages::slug_available_handler),
+        )
+        .route(
+            "/payment-pages/{id}",
+            get(entities::payment_pages::get_handler)
+                .patch(entities::payment_pages::update_handler)
+                .delete(entities::payment_pages::delete_handler),
+        )
+        .route(
+            "/public/pages/{slug}",
+            get(entities::payment_pages::public_view_handler),
+        )
+        .route(
+            "/public/pages/{slug}/session",
+            post(entities::payment_pages::public_session_handler),
+        )
+        /* ── plans ───────────────────────────────────────────────────────── */
+        .route(
+            "/plans",
+            get(entities::plans::list_handler).post(entities::plans::create_handler),
+        )
+        .route(
+            "/plans/{id}",
+            get(entities::plans::get_handler).delete(entities::plans::delete_handler),
+        )
+        /* ── subscriptions ───────────────────────────────────────────────── */
+        .route(
+            "/subscriptions",
+            get(entities::subscriptions::list_handler)
+                .post(entities::subscriptions::create_handler),
+        )
+        .route(
+            "/subscriptions/{id}",
+            get(entities::subscriptions::get_handler)
+                .patch(entities::subscriptions::update_handler),
+        )
+        .route(
+            "/subscriptions/{id}/cancel",
+            post(entities::subscriptions::cancel_handler),
+        )
+        .route(
+            "/subscriptions/{id}/pause",
+            post(entities::subscriptions::pause_handler),
+        )
+        .route(
+            "/subscriptions/{id}/resume",
+            post(entities::subscriptions::resume_handler),
+        )
+        /* ── invoices ────────────────────────────────────────────────────── */
+        .route(
+            "/invoices",
+            get(entities::invoices::list_handler).post(entities::invoices::create_handler),
+        )
+        .route(
+            "/invoices/{id}",
+            get(entities::invoices::get_handler)
+                .patch(entities::invoices::update_handler)
+                .delete(entities::invoices::delete_handler),
+        )
+        .route("/invoices/{id}/issue", post(entities::invoices::issue_handler))
+        .route("/invoices/{id}/cancel", post(entities::invoices::cancel_handler))
+        /* ── qr codes ────────────────────────────────────────────────────── */
+        .route(
+            "/qr-codes",
+            get(entities::qr_codes::list_handler).post(entities::qr_codes::create_handler),
+        )
+        .route("/qr-codes/{id}", get(entities::qr_codes::get_handler))
+        .route("/qr-codes/{id}/close", post(entities::qr_codes::close_handler))
+        .route(
+            "/public/qr/{id}",
+            get(entities::qr_codes::public_view_handler),
+        )
+        .route(
+            "/public/qr/{id}/session",
+            post(entities::qr_codes::public_session_handler),
+        )
+        /* ── settlements (literal route BEFORE {id}) ─────────────────────── */
+        .route("/settlements", get(entities::settlements::list_handler))
+        .route(
+            "/settlements/summary",
+            get(entities::settlements::summary_handler),
+        )
+        .route("/settlements/{id}", get(entities::settlements::get_handler))
+        /* ── disputes ────────────────────────────────────────────────────── */
+        .route("/disputes", get(entities::disputes::list_handler))
+        .route("/disputes/{id}", get(entities::disputes::get_handler))
+        .route("/disputes/{id}/accept", post(entities::disputes::accept_handler))
+        .route(
+            "/disputes/{id}/contest",
+            post(entities::disputes::contest_handler),
+        )
+        .route("/test/disputes", post(entities::disputes::simulate_create_handler))
+        /* ── internal cron (x-cron-secret self-guard) ────────────────────── */
+        .route("/internal/cron/settlements", post(cron::run_settlements))
+        .route("/internal/cron/subscriptions", post(cron::run_subscription_cycles))
+        .route("/internal/cron/expiries", post(cron::run_expiry_sweeps))
+        /* ── CSV exports ─────────────────────────────────────────────────── */
+        .route("/exports/{entity}", get(exports::export_csv))
 }

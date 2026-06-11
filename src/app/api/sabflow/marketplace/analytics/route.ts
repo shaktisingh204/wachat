@@ -76,7 +76,7 @@ export async function GET(_request: NextRequest) {
   }
 
   /* ── 2. RBAC: requires sabflow:marketplace:review ────────────────────── */
-  const canReview = await canServer('sabflow:marketplace:review', 'read', workspaceId);
+  const canReview = await canServer('sabflow:marketplace:review', 'view', workspaceId);
   if (!canReview) {
     return NextResponse.json(
       { error: 'Requires sabflow:marketplace:review permission.' },
@@ -158,7 +158,7 @@ export async function GET(_request: NextRequest) {
       const nameMap = new Map<string, string>(
         nameDocs.map((d) => [
           (d._id as { toHexString(): string }).toHexString(),
-          (d as { name: string }).name,
+          (d as unknown as { name: string }).name,
         ]),
       );
 

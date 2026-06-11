@@ -15,6 +15,7 @@
 use bson::{Bson, Document, doc, oid::ObjectId};
 use chrono::{Days, SecondsFormat, Utc};
 use futures::TryStreamExt;
+use sabnode_auth::AuthUser;
 use sabnode_common::{ApiError, Result};
 use sabnode_db::{bson_to_clean_json, mongo::MongoHandle};
 use serde_json::Value;
@@ -27,14 +28,53 @@ pub const PAYMENTS: &str = "sabpay_payments";
 pub const KEYS: &str = "sabpay_api_keys";
 pub const ENDPOINTS: &str = "sabpay_webhook_endpoints";
 pub const DELIVERIES: &str = "sabpay_webhook_deliveries";
+pub const ORDERS: &str = "sabpay_orders";
+pub const REFUNDS: &str = "sabpay_refunds";
+pub const CUSTOMERS: &str = "sabpay_customers";
+pub const PAYMENT_LINKS: &str = "sabpay_payment_links";
+pub const PAYMENT_PAGES: &str = "sabpay_payment_pages";
+pub const PLANS: &str = "sabpay_plans";
+pub const SUBSCRIPTIONS: &str = "sabpay_subscriptions";
+pub const INVOICES: &str = "sabpay_invoices";
+pub const QR_CODES: &str = "sabpay_qr_codes";
+pub const SETTLEMENTS: &str = "sabpay_settlements";
+pub const DISPUTES: &str = "sabpay_disputes";
+pub const IDEMPOTENCY: &str = "sabpay_idempotency_keys";
 
+/// Full webhook event catalog (superset of the original three). New events are
+/// added here so `normalise_events` accepts them on endpoint create/update.
 pub const WEBHOOK_EVENTS: &[&str] = &[
     "payment.created",
     "payment.succeeded",
     "payment.failed",
+    "order.paid",
+    "refund.created",
+    "refund.processed",
+    "payment_link.paid",
+    "payment_link.cancelled",
+    "payment_link.expired",
+    "invoice.issued",
+    "invoice.paid",
+    "invoice.cancelled",
+    "invoice.expired",
+    "subscription.activated",
+    "subscription.pending",
+    "subscription.charged",
+    "subscription.paused",
+    "subscription.resumed",
+    "subscription.halted",
+    "subscription.cancelled",
+    "subscription.completed",
+    "qr_code.credited",
+    "qr_code.closed",
+    "settlement.processed",
+    "dispute.created",
+    "dispute.under_review",
+    "dispute.won",
+    "dispute.lost",
 ];
 pub const MAX_CONSECUTIVE_FAILURES: i64 = 10;
-const PAYMENT_CAP_PAISE: i64 = 100_000_000; // ₹10,00,000
+pub const PAYMENT_CAP_PAISE: i64 = 100_000_000; // ₹10,00,000
 
 /* ── small helpers ───────────────────────────────────────────────────────── */
 
@@ -51,6 +91,19 @@ pub fn random_hex(n: usize) -> String {
         *b = rand::random();
     }
     hex::encode(bytes)
+}
+
+/// The caller's user id as an ObjectId, scoping every read/write. Shared by all
+/// dashboard handlers across entity modules.
+pub fn user_oid(user: &AuthUser) -> Result<ObjectId> {
+    ObjectId::parse_str(&user.user_id)
+        .map_err(|_| ApiError::Unauthorized("subject is not a valid ObjectId".to_owned()))
+}
+
+/// Append `sabpay_payment_id` + `sabpay_status` to a merchant redirect URL.
+pub fn append_redirect(base: &str, payment_id: &str, status: &str) -> String {
+    let sep = if base.contains('?') { '&' } else { '?' };
+    format!("{base}{sep}sabpay_payment_id={payment_id}&sabpay_status={status}")
 }
 
 /// SHA-256 hex of the full secret — matches the Next.js `hashSecret`.
@@ -70,7 +123,7 @@ pub fn app_url() -> String {
         .unwrap_or_else(|| "http://localhost:3002".to_owned())
 }
 
-fn num_i64(d: &Document, k: &str) -> i64 {
+pub fn num_i64(d: &Document, k: &str) -> i64 {
     match d.get(k) {
         Some(Bson::Int32(n)) => *n as i64,
         Some(Bson::Int64(n)) => *n,
@@ -79,7 +132,7 @@ fn num_i64(d: &Document, k: &str) -> i64 {
     }
 }
 
-fn num_opt_i64(d: &Document, k: &str) -> Option<i64> {
+pub fn num_opt_i64(d: &Document, k: &str) -> Option<i64> {
     match d.get(k) {
         Some(Bson::Int32(n)) => Some(*n as i64),
         Some(Bson::Int64(n)) => Some(*n),
@@ -88,24 +141,24 @@ fn num_opt_i64(d: &Document, k: &str) -> Option<i64> {
     }
 }
 
-fn str_opt(d: &Document, k: &str) -> Option<String> {
+pub fn str_opt(d: &Document, k: &str) -> Option<String> {
     match d.get(k) {
         Some(Bson::String(s)) if !s.is_empty() => Some(s.clone()),
         _ => None,
     }
 }
 
-fn str_or(d: &Document, k: &str, default: &str) -> String {
+pub fn str_or(d: &Document, k: &str, default: &str) -> String {
     str_opt(d, k).unwrap_or_else(|| default.to_owned())
 }
 
-fn bool_or(d: &Document, k: &str, default: bool) -> bool {
+pub fn bool_or(d: &Document, k: &str, default: bool) -> bool {
     d.get_bool(k).unwrap_or(default)
 }
 
 /// Timestamp getter that tolerates both ISO strings (what we write) and BSON
 /// dates (in case an older doc stored one).
-fn iso_opt(d: &Document, k: &str) -> Option<String> {
+pub fn iso_opt(d: &Document, k: &str) -> Option<String> {
     match d.get(k) {
         Some(Bson::String(s)) if !s.is_empty() => Some(s.clone()),
         Some(Bson::DateTime(dt)) => dt.try_to_rfc3339_string().ok(),
@@ -113,7 +166,7 @@ fn iso_opt(d: &Document, k: &str) -> Option<String> {
     }
 }
 
-fn metadata_opt(d: &Document) -> Option<Value> {
+pub fn metadata_opt(d: &Document) -> Option<Value> {
     match d.get("metadata") {
         Some(b) if !matches!(b, Bson::Null) => {
             let v = bson_to_clean_json(b.clone());
@@ -123,15 +176,59 @@ fn metadata_opt(d: &Document) -> Option<Value> {
     }
 }
 
-fn valid_http_url(url: &str) -> bool {
+pub fn valid_http_url(url: &str) -> bool {
     let u = url.trim();
     u.starts_with("http://") || u.starts_with("https://")
 }
 
-fn valid_hex_color(c: &str) -> bool {
+pub fn valid_hex_color(c: &str) -> bool {
     c.len() == 7
         && c.starts_with('#')
         && c[1..].chars().all(|ch| ch.is_ascii_hexdigit())
+}
+
+/// Validate a free-form `notes`/`metadata` object (≤20 string values, key ≤40,
+/// value ≤500) and return it as `Bson` ready to insert, or `None` when absent.
+/// Shared by every entity that accepts notes so the rule never drifts.
+pub fn validate_notes(value: &Option<Value>) -> Result<Option<Bson>> {
+    match value {
+        None | Some(Value::Null) => Ok(None),
+        Some(Value::Object(map)) => {
+            if map.len() > 20 {
+                return Err(ApiError::BadRequest(
+                    "notes/metadata supports at most 20 keys.".to_owned(),
+                ));
+            }
+            for (k, v) in map {
+                let ok = v.as_str().is_some_and(|s| s.len() <= 500) && k.len() <= 40;
+                if !ok {
+                    return Err(ApiError::BadRequest(
+                        "notes/metadata values must be strings (key ≤ 40, value ≤ 500 chars)."
+                            .to_owned(),
+                    ));
+                }
+            }
+            Ok(bson::to_bson(value).ok())
+        }
+        Some(_) => Err(ApiError::BadRequest(
+            "notes/metadata must be an object of string values.".to_owned(),
+        )),
+    }
+}
+
+/// Enforce the shared per-payment amount bounds (≥ ₹1, ≤ ₹10,00,000).
+pub fn validate_amount(amount: i64) -> Result<()> {
+    if amount < 100 {
+        return Err(ApiError::BadRequest(
+            "amount must be an integer in paise, at least 100 (₹1).".to_owned(),
+        ));
+    }
+    if amount > PAYMENT_CAP_PAISE {
+        return Err(ApiError::BadRequest(
+            "amount exceeds the per-payment cap of ₹10,00,000.".to_owned(),
+        ));
+    }
+    Ok(())
 }
 
 /* ── doc → DTO mappers ───────────────────────────────────────────────────── */
@@ -163,6 +260,19 @@ pub fn doc_to_payment(d: &Document) -> PaymentOut {
             error_message: str_opt(d, "providerErrorMessage"),
         },
         failure_reason: str_opt(d, "failureReason"),
+        order_id: str_opt(d, "orderId"),
+        customer_id: str_opt(d, "customerId"),
+        payment_link_id: str_opt(d, "paymentLinkId"),
+        payment_page_id: str_opt(d, "paymentPageId"),
+        invoice_id: str_opt(d, "invoiceId"),
+        subscription_id: str_opt(d, "subscriptionId"),
+        qr_code_id: str_opt(d, "qrCodeId"),
+        amount_refunded: num_i64(d, "amountRefunded"),
+        refund_status: str_opt(d, "refundStatus"),
+        fee: num_opt_i64(d, "fee"),
+        tax: num_opt_i64(d, "tax"),
+        dispute_status: str_opt(d, "disputeStatus"),
+        settlement_id: str_opt(d, "settlementId"),
         created_at: iso_opt(d, "createdAt").unwrap_or_else(now_iso),
         paid_at: iso_opt(d, "paidAt"),
     }
@@ -229,6 +339,10 @@ fn doc_to_delivery(d: &Document) -> WebhookDeliveryOut {
         status: num_opt_i64(d, "status"),
         attempts: num_i64(d, "attempts"),
         error: str_opt(d, "error"),
+        object_type: str_opt(d, "objectType"),
+        object_id: str_opt(d, "objectId"),
+        event_id: str_opt(d, "eventId"),
+        redelivered_from: str_opt(d, "redeliveredFrom"),
         created_at: iso_opt(d, "createdAt").unwrap_or_else(now_iso),
     }
 }
@@ -465,11 +579,62 @@ pub async fn create_payment(
         d.insert("cancelUrl", u);
     }
 
+    // Entity linkage. order_id / customer_id arrive from the public API and must
+    // resolve to an object owned by this merchant in the SAME mode (no mode
+    // bleed); the remaining ids are set internally by session endpoints and are
+    // trusted. All are stored verbatim so finalize-success side effects fire.
+    if let Some(oid) = body.order_id.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+        let found = mongo
+            .collection::<Document>(ORDERS)
+            .find_one(doc! { "orderId": oid, "userId": uid, "mode": mode })
+            .await
+            .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabpay.payment.order")))?;
+        if found.is_none() {
+            return Err(ApiError::BadRequest(format!("No {mode}-mode order \"{oid}\".")));
+        }
+        d.insert("orderId", oid);
+    }
+    if let Some(cid) = body.customer_id.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+        let found = mongo
+            .collection::<Document>(CUSTOMERS)
+            .find_one(doc! { "customerId": cid, "userId": uid, "mode": mode })
+            .await
+            .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabpay.payment.customer")))?;
+        if found.is_none() {
+            return Err(ApiError::BadRequest(format!("No {mode}-mode customer \"{cid}\".")));
+        }
+        d.insert("customerId", cid);
+    }
+    for (field, value) in [
+        ("paymentLinkId", &body.payment_link_id),
+        ("paymentPageId", &body.payment_page_id),
+        ("invoiceId", &body.invoice_id),
+        ("subscriptionId", &body.subscription_id),
+        ("qrCodeId", &body.qr_code_id),
+    ] {
+        if let Some(v) = value.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+            d.insert(field, v);
+        }
+    }
+    d.insert("amountRefunded", 0_i64);
+
     mongo
         .collection::<Document>(PAYMENTS)
         .insert_one(&d)
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabpay.payment.insert")))?;
+
+    // Mark a linked order as attempted (Razorpay's order goes created→attempted
+    // once a payment is associated).
+    if let Some(oid) = d.get_str("orderId").ok() {
+        let _ = mongo
+            .collection::<Document>(ORDERS)
+            .update_one(
+                doc! { "orderId": oid, "status": "created" },
+                doc! { "$set": { "status": "attempted", "updatedAt": now_iso() } },
+            )
+            .await;
+    }
     Ok(doc_to_payment(&d))
 }
 
@@ -937,9 +1102,37 @@ pub async fn list_deliveries(
     uid: ObjectId,
     limit: i64,
 ) -> Result<Vec<WebhookDeliveryOut>> {
+    list_deliveries_filtered(mongo, uid, None, None, None, None, limit).await
+}
+
+/// Filtered delivery log: optional endpoint / event / success / before-cursor.
+pub async fn list_deliveries_filtered(
+    mongo: &MongoHandle,
+    uid: ObjectId,
+    endpoint_id: Option<&str>,
+    event: Option<&str>,
+    success: Option<bool>,
+    before: Option<&str>,
+    limit: i64,
+) -> Result<Vec<WebhookDeliveryOut>> {
+    let mut filter = doc! { "userId": uid };
+    if let Some(eid) = endpoint_id {
+        if let Ok(oid) = ObjectId::parse_str(eid) {
+            filter.insert("endpointId", oid);
+        }
+    }
+    if let Some(e) = event {
+        filter.insert("event", e);
+    }
+    if let Some(s) = success {
+        filter.insert("success", s);
+    }
+    if let Some(b) = before {
+        filter.insert("createdAt", doc! { "$lt": b });
+    }
     let cursor = mongo
         .collection::<Document>(DELIVERIES)
-        .find(doc! { "userId": uid })
+        .find(filter)
         .sort(doc! { "createdAt": -1 })
         .limit(limit.clamp(1, 200))
         .await

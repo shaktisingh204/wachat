@@ -237,7 +237,7 @@ export default function FlowDiffPage() {
     <div className="flex min-h-screen flex-col bg-[var(--st-bg)] text-[var(--st-text)]">
       {/* ── Header ─────────────────────────────────────────── */}
       <header className="sticky top-0 z-20 flex items-center gap-3 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)]/90 px-4 py-3 backdrop-blur-md">
-        <Button variant="ghost" size="icon-sm" asChild>
+        <Button variant="ghost" size="sm" asChild>
           <Link
             href={`/dashboard/sabflow/flow-builder/${flowId}`}
             aria-label="Back to flow editor"
@@ -293,7 +293,7 @@ export default function FlowDiffPage() {
             </AlertDescription>
             <Button
               variant="ghost"
-              size="icon-sm"
+              size="sm"
               onClick={() => setRestoreError(null)}
               aria-label="Dismiss error"
             >

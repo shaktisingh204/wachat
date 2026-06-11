@@ -16,8 +16,9 @@
 
 import { Suspense } from 'react';
 import { redirect } from 'next/navigation';
-import { LuLoader, LuStore } from 'react-icons/lu';
 
+import { Spinner } from '@/components/sabcrm/20ui';
+import { SabflowPage, SABFLOW_CRUMBS } from '../_components/sabflow-page';
 import { getSession } from '@/app/actions/user.actions';
 import { getMarketplaceTemplatesCollection } from '@/lib/sabflow/marketplace/templates';
 import { MarketplaceBrowseClient } from '@/components/sabflow/marketplace/MarketplaceBrowseClient';
@@ -93,36 +94,20 @@ export default async function SabFlowMarketplacePage() {
   const templates = await fetchPublishedTemplates();
 
   return (
-    <div className="flex min-h-full flex-col bg-[var(--st-text)] text-white">
-      {/* ── Page header ──────────────────────────────────────────────────── */}
-      <header className="border-b border-[var(--st-border)] bg-[var(--st-text)] px-6 py-5">
-        <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--st-border)] bg-[var(--st-text)]">
-            <LuStore className="h-4.5 w-4.5 text-[var(--st-text-secondary)]" strokeWidth={1.7} />
+    <SabflowPage
+      breadcrumb={[...SABFLOW_CRUMBS, { label: 'Marketplace' }]}
+      title="Template Marketplace"
+      description="Browse ready-made workflow templates and install them into your workspace."
+    >
+      <Suspense
+        fallback={
+          <div className="flex h-64 items-center justify-center">
+            <Spinner label="Loading templates" />
           </div>
-          <div>
-            <h1 className="text-[16px] font-semibold text-white leading-tight">
-              Template Marketplace
-            </h1>
-            <p className="text-[12px] text-[var(--st-text)] mt-0.5">
-              Browse ready-made workflow templates and install them into your workspace.
-            </p>
-          </div>
-        </div>
-      </header>
-
-      {/* ── Browse grid ──────────────────────────────────────────────────── */}
-      <main className="flex-1 px-6 py-6 max-w-7xl mx-auto w-full">
-        <Suspense
-          fallback={
-            <div className="flex h-64 items-center justify-center">
-              <LuLoader className="h-5 w-5 animate-spin text-[var(--st-text)]" />
-            </div>
-          }
-        >
-          <MarketplaceBrowseClient templates={templates} />
-        </Suspense>
-      </main>
-    </div>
+        }
+      >
+        <MarketplaceBrowseClient templates={templates} />
+      </Suspense>
+    </SabflowPage>
   );
 }

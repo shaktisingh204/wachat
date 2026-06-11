@@ -555,6 +555,7 @@ sabpublish-sync-jobs = { path = "../sabpublish-sync-jobs" }
 sabsheet-cells = { path = "../sabsheet-cells" }
 sabsheet-comments = { path = "../sabsheet-comments" }
 sabsheet-named-ranges = { path = "../sabsheet-named-ranges" }
+sabsheet-ops = { path = "../sabsheet-ops" }
 sabsheet-pivot-tables = { path = "../sabsheet-pivot-tables" }
 sabsheet-presence = { path = "../sabsheet-presence" }
 sabsheet-sheets = { path = "../sabsheet-sheets" }

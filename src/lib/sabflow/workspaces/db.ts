@@ -93,6 +93,9 @@ async function ensureIndexes(): Promise<void> {
     db
       .collection('sabflow_workspace_invites')
       .createIndex({ workspaceId: 1 }, { background: true }),
+    db
+      .collection('sabflow_workspace_invites')
+      .createIndex({ email: 1 }, { background: true }),
   ]);
 
   indexesEnsured = true;
@@ -475,6 +478,60 @@ export async function getInvitesByWorkspace(
     .sort({ createdAt: -1 })
     .toArray();
   return docs.map(mapInvite);
+}
+
+/** An invite enriched with the inviting user's email / name (when resolvable). */
+export type WorkspaceInviteWithInviter = WorkspaceInvite & {
+  inviterEmail?: string;
+  inviterName?: string;
+};
+
+/**
+ * Pending (not yet accepted), non-expired invites addressed to `email`.
+ * Invite emails are stored lower-cased on write, so the lookup lower-cases
+ * the input too (case-insensitive match). The inviter's email / name are
+ * joined from the `users` collection (same pattern as getWorkspaceMembers).
+ */
+export async function getInvitesByEmail(
+  email: string,
+): Promise<WorkspaceInviteWithInviter[]> {
+  const normalized = email.trim().toLowerCase();
+  if (!normalized) return [];
+
+  const col = await getInviteCollection();
+  const docs = await col
+    .find({
+      email: normalized,
+      acceptedAt: { $exists: false },
+      expiresAt: { $gt: new Date() },
+    })
+    .sort({ createdAt: -1 })
+    .toArray();
+  if (docs.length === 0) return [];
+
+  const { db } = await connectToDatabase();
+  const userCol = db.collection<UserLookupDoc>('users');
+  const inviterOids = [...new Set(docs.map((d) => d.invitedBy))]
+    .filter((u): u is string => typeof u === 'string' && ObjectId.isValid(u))
+    .map((u) => new ObjectId(u));
+  const users = inviterOids.length
+    ? await userCol
+        .find(
+          { _id: { $in: inviterOids } },
+          { projection: { email: 1, name: 1 } },
+        )
+        .toArray()
+    : [];
+  const userMap = new Map(users.map((u) => [u._id.toHexString(), u]));
+
+  return docs.map((d) => {
+    const inviter = userMap.get(d.invitedBy);
+    return {
+      ...mapInvite(d),
+      inviterEmail: inviter?.email,
+      inviterName: inviter?.name,
+    };
+  });
 }
 
 export async function deleteInvite(id: string): Promise<void> {

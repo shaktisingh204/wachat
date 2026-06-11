@@ -21,7 +21,6 @@ import {
   ArrowRight,
   CheckCircle2,
   FileJson,
-  Loader,
   Upload,
 } from 'lucide-react';
 
@@ -223,7 +222,7 @@ export function ImportClient() {
                 onClick={submit}
                 disabled={busy || !raw.trim()}
                 loading={busy}
-                iconLeft={busy ? Loader : ArrowRight}
+                iconLeft={ArrowRight}
               >
                 {busy ? 'Importing' : 'Import'}
               </Button>

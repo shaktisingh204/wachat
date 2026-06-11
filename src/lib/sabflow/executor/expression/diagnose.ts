@@ -327,7 +327,7 @@ export function formatExpressionError(input: FormatInput): string {
     out.push(`  ${target}`);
 
     // Caret width: span length when the failure stays on one line, else 3.
-    let caretCol = col;
+    let caretCol = col ?? 1;
     let caretWidth = 3;
     if (span && span.end > span.start) {
       const sameLine =

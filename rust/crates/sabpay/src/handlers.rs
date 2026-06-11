@@ -135,7 +135,7 @@ pub async fn create_payment(
     };
     let payment = store::create_payment(&mongo, uid, &mode, body).await?;
 
-    tokio::spawn(webhooks::dispatch(
+    tokio::spawn(webhooks::dispatch_payment(
         mongo.clone(),
         uid,
         "payment.created".to_owned(),
@@ -253,6 +253,53 @@ pub async fn delete_webhook(
         Ok(Json(Ack::ok()))
     } else {
         Err(ApiError::NotFound("Endpoint not found.".to_owned()))
+    }
+}
+
+#[derive(Debug, Deserialize)]
+pub struct DeliveriesQuery {
+    #[serde(default, rename = "endpointId")]
+    pub endpoint_id: Option<String>,
+    #[serde(default)]
+    pub event: Option<String>,
+    #[serde(default)]
+    pub success: Option<bool>,
+    #[serde(default)]
+    pub before: Option<String>,
+    #[serde(default)]
+    pub limit: Option<i64>,
+}
+
+/// `GET /webhooks/deliveries` — filtered delivery log.
+pub async fn list_deliveries(
+    user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Query(q): Query<DeliveriesQuery>,
+) -> Result<Json<Vec<WebhookDeliveryOut>>> {
+    let uid = user_oid(&user)?;
+    let deliveries = store::list_deliveries_filtered(
+        &mongo,
+        uid,
+        q.endpoint_id.as_deref(),
+        q.event.as_deref(),
+        q.success,
+        q.before.as_deref(),
+        q.limit.unwrap_or(50),
+    )
+    .await?;
+    Ok(Json(deliveries))
+}
+
+/// `POST /webhooks/deliveries/{id}/redeliver` — re-send a logged delivery.
+pub async fn redeliver_delivery(
+    user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Path(id): Path<String>,
+) -> Result<Json<Ack>> {
+    let uid = user_oid(&user)?;
+    match webhooks::redeliver(&mongo, uid, &id).await? {
+        Some(_) => Ok(Json(Ack::ok())),
+        None => Err(ApiError::NotFound("Delivery not found.".to_owned())),
     }
 }
 
@@ -414,11 +461,16 @@ pub async fn public_simulate(
     .await?
     .ok_or_else(|| ApiError::Conflict("This payment is already finished.".to_owned()))?;
 
+    let updated = if succeeded {
+        crate::finalize::after_finalize_success(&mongo, &updated).await?
+    } else {
+        updated
+    };
     let out = store::doc_to_payment(&updated);
     let uid = updated
         .get_object_id("userId")
         .map_err(|_| ApiError::Internal(anyhow::anyhow!("payment missing userId")))?;
-    tokio::spawn(webhooks::dispatch(
+    tokio::spawn(webhooks::dispatch_payment(
         mongo.clone(),
         uid,
         if succeeded { "payment.succeeded" } else { "payment.failed" }.to_owned(),
@@ -514,11 +566,16 @@ pub async fn public_callback(
     .await?;
 
     if let Some(updated_doc) = updated {
+        let updated_doc = if succeeded {
+            crate::finalize::after_finalize_success(&mongo, &updated_doc).await?
+        } else {
+            updated_doc
+        };
         let out = store::doc_to_payment(&updated_doc);
         let uid = updated_doc
             .get_object_id("userId")
             .map_err(|_| ApiError::Internal(anyhow::anyhow!("payment missing userId")))?;
-        tokio::spawn(webhooks::dispatch(
+        tokio::spawn(webhooks::dispatch_payment(
             mongo.clone(),
             uid,
             if succeeded { "payment.succeeded" } else { "payment.failed" }.to_owned(),

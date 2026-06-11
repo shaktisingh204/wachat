@@ -6,13 +6,22 @@ import {
   CardBody,
   CardHeader,
   CardTitle,
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
 } from '@/components/sabcrm/20ui';
-import { formatSabpayAmount } from '@/lib/sabpay/types';
+import { formatSabpayAmount, type SabpayRefund } from '@/lib/sabpay/types';
 
 import { SabpayPage } from '../../_components/sabpay-page';
+import { EntityStatusBadge } from '../../_components/entity-status-badge';
 import { PaymentStatusBadge } from '../../_components/payment-status-badge';
 import { getSabpayPaymentDetail } from '../../actions';
+import { getSabpayPaymentRefunds } from '../../actions/refunds';
 import { CopyCheckoutLink } from './copy-checkout-link';
+import { PaymentActions } from './payment-actions';
 
 export const dynamic = 'force-dynamic';
 
@@ -40,7 +49,10 @@ export default async function SabpayPaymentDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const payment = await getSabpayPaymentDetail(id);
+  const [payment, refunds] = await Promise.all([
+    getSabpayPaymentDetail(id),
+    getSabpayPaymentRefunds(id).catch(() => [] as SabpayRefund[]),
+  ]);
   if (!payment) notFound();
 
   const mono = { fontFamily: 'var(--st-font-mono, monospace)', fontSize: 13 } as const;
@@ -56,7 +68,18 @@ export default async function SabpayPaymentDetailPage({
       eyebrow={payment.mode === 'live' ? 'Live payment' : 'Test payment'}
       title={formatSabpayAmount(payment.amount, payment.currency)}
       description={payment.description}
-      actions={<PaymentStatusBadge status={payment.status} />}
+      actions={
+        <>
+          <PaymentStatusBadge status={payment.status} />
+          <PaymentActions
+            paymentId={payment.id}
+            status={payment.status}
+            amount={payment.amount}
+            amountRefunded={payment.amountRefunded ?? 0}
+            currency={payment.currency}
+          />
+        </>
+      }
       width="narrow"
     >
       <Card>
@@ -113,6 +136,54 @@ export default async function SabpayPaymentDetailPage({
           ) : null}
         </CardBody>
       </Card>
+
+      {refunds.length > 0 ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>Refunds</CardTitle>
+          </CardHeader>
+          <CardBody>
+            <Table>
+              <THead>
+                <Tr>
+                  <Th>Refund</Th>
+                  <Th>Amount</Th>
+                  <Th>Status</Th>
+                  <Th>Created</Th>
+                </Tr>
+              </THead>
+              <TBody>
+                {refunds.map((r) => (
+                  <Tr key={r.id}>
+                    <Td>
+                      <Link
+                        href={`/sabpay/refunds/${r.id}`}
+                        style={{ fontFamily: 'var(--st-font-mono, monospace)', fontSize: 12.5 }}
+                      >
+                        {r.id}
+                      </Link>
+                    </Td>
+                    <Td style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 600 }}>
+                      {formatSabpayAmount(r.amount, r.currency)}
+                    </Td>
+                    <Td>
+                      <EntityStatusBadge status={r.status} />
+                    </Td>
+                    <Td>{new Date(r.createdAt).toLocaleString()}</Td>
+                  </Tr>
+                ))}
+              </TBody>
+            </Table>
+            {payment.amountRefunded ? (
+              <p style={{ margin: '12px 0 0', fontSize: 13, color: 'var(--st-text-muted)' }}>
+                {formatSabpayAmount(payment.amountRefunded, payment.currency)} of{' '}
+                {formatSabpayAmount(payment.amount, payment.currency)} refunded
+                {payment.refundStatus ? ` (${payment.refundStatus})` : ''}.
+              </p>
+            ) : null}
+          </CardBody>
+        </Card>
+      ) : null}
 
       {payment.metadata && Object.keys(payment.metadata).length > 0 ? (
         <Card>
