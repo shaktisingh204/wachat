@@ -121,6 +121,22 @@ export function a1ToCell(a1: string): CellAddr | null {
   return { row, col };
 }
 
+/** Parse a name-box entry ("B7" or "A1:C9") into a selection, or null if not a valid ref. */
+export function parseRef(ref: string): SelectionState | null {
+  const parts = ref.trim().split(":");
+  if (parts.length === 1) {
+    const c = a1ToCell(parts[0]);
+    return c ? singleCell(c.row, c.col) : null;
+  }
+  if (parts.length === 2) {
+    const a = a1ToCell(parts[0]);
+    const b = a1ToCell(parts[1]);
+    if (!a || !b) return null;
+    return { anchor: a, active: b };
+  }
+  return null;
+}
+
 /** Name-box / status label for a selection ("B7" or "A1:C9"). */
 export function selectionLabel(s: SelectionState): string {
   if (isSingleCell(s)) return cellToA1(s.active);

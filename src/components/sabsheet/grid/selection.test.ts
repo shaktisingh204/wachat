@@ -11,6 +11,7 @@ import {
   lettersToCol,
   cellToA1,
   a1ToCell,
+  parseRef,
   selectionLabel,
   selectionCount,
   isSingleCell,
@@ -72,6 +73,15 @@ test("selectionLabel reads like Excel", () => {
   let s = singleCell(1, 1);
   s = extend(s, 8, 2, B);
   assert.equal(selectionLabel(s), "A1:C9");
+});
+
+test("parseRef handles a cell and a range", () => {
+  assert.deepEqual(parseRef("B7"), { active: { row: 7, col: 2 }, anchor: { row: 7, col: 2 } });
+  const r = parseRef("A1:C9");
+  assert.deepEqual(r?.anchor, { row: 1, col: 1 });
+  assert.deepEqual(r?.active, { row: 9, col: 3 });
+  assert.equal(parseRef("nonsense"), null);
+  assert.equal(parseRef(""), null);
 });
 
 test("clamps to axis bounds", () => {

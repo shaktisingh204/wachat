@@ -17,11 +17,14 @@ import {
   extend,
   selectionBox,
   selectionLabel,
+  selectionCount,
+  parseRef,
   cellToA1,
   type SelectionState,
   type AxisBounds,
 } from "./selection.ts";
 import { cellsToTsv } from "../clipboard/tsv.ts";
+import { computeAggregates, aggregateLabel } from "./aggregate.ts";
 import { CalcEngineClient } from "../../../lib/sabsheet/engine/worker-client.ts";
 import type { SheetInfo } from "../../../lib/sabsheet/engine/protocol.ts";
 import { cmd, cellRange, StylePath, type Command } from "../../../lib/sabsheet/commands/ops.ts";
@@ -64,6 +67,8 @@ export interface SheetCanvasProps {
   onSaveStateChange?: (state: SaveState) => void;
   /** Reports the worksheet list + active index whenever they change (drives the sheet-tab strip). */
   onSheetsChange?: (sheets: SheetInfo[], active: number) => void;
+  /** Reports the status-bar aggregate label (Sum/Avg/Count) for the selection, or null. */
+  onAggregatesChange?: (label: string | null) => void;
 }
 
 /** Cloud-sync status surfaced to the workbench. Offline edits stay safe locally. */
@@ -89,10 +94,12 @@ export interface SheetCanvasHandle {
   addSheet(): Promise<void>;
   /** Rename a worksheet by index. */
   renameSheet(index: number, name: string): Promise<void>;
+  /** Navigate the selection to a name-box ref ("B7" or "A1:C9"); no-op if invalid. */
+  goTo(ref: string): void;
 }
 
 export const SheetCanvas = forwardRef<SheetCanvasHandle, SheetCanvasProps>(function SheetCanvas(
-  { name, workbookId, seed, onSelectionChange, onSaveStateChange, onSheetsChange },
+  { name, workbookId, seed, onSelectionChange, onSaveStateChange, onSheetsChange, onAggregatesChange },
   ref,
 ) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -141,7 +148,31 @@ export const SheetCanvas = forwardRef<SheetCanvasHandle, SheetCanvasProps>(funct
       }
     }
     onSelectionChange?.(selectionLabel(sel), content);
-  }, [onSelectionChange]);
+
+    // Status-bar aggregates for a multi-cell selection (capped so a huge selection stays cheap).
+    if (onAggregatesChange) {
+      const total = selectionCount(sel);
+      if (total < 2 || !e) {
+        onAggregatesChange(null);
+      } else if (total > 50_000) {
+        onAggregatesChange(`Count: ${total} (too large to total)`);
+      } else {
+        const box = selectionBox(sel);
+        try {
+          const cells = await e.readViewport(
+            sheetRef.current,
+            box.top,
+            box.left,
+            box.right - box.left + 1,
+            box.bottom - box.top + 1,
+          );
+          onAggregatesChange(aggregateLabel(computeAggregates(cells)));
+        } catch {
+          onAggregatesChange(null);
+        }
+      }
+    }
+  }, [onSelectionChange, onAggregatesChange]);
 
   /**
    * Apply a command batch to the local engine and repaint — this always succeeds, online or off.
@@ -242,8 +273,23 @@ export const SheetCanvas = forwardRef<SheetCanvasHandle, SheetCanvasProps>(funct
         await applyLocal([{ type: "renameSheet", sheet: index, name: newName }]);
         await syncSheets();
       },
+      goTo(refStr: string) {
+        const next = parseRef(refStr);
+        if (!next) return;
+        const clamped: SelectionState = {
+          anchor: { row: Math.min(next.anchor.row, MAX_ROW), col: Math.min(next.anchor.col, MAX_COL) },
+          active: { row: Math.min(next.active.row, MAX_ROW), col: Math.min(next.active.col, MAX_COL) },
+        };
+        // Scroll so the active cell is visible (place it near the top-left of the viewport).
+        const r = rendererRef.current;
+        if (r) {
+          r.setScroll(cols.offsetOf(clamped.active.col - 1), rows.offsetOf(clamped.active.row - 1));
+        }
+        setSelection(clamped);
+        void refresh();
+      },
     }),
-    [applyLocal, refresh, emitSelection, switchSheet, syncSheets],
+    [applyLocal, refresh, emitSelection, switchSheet, syncSheets, setSelection, cols, rows],
   );
 
   // --- lifecycle: build renderer + engine, size to container, seed, first paint ---

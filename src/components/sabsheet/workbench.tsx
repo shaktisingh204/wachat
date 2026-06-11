@@ -33,12 +33,14 @@ export interface WorkbenchProps {
 export function Workbench({ name, workbookId, seed }: WorkbenchProps) {
   const gridRef = useRef<SheetCanvasHandle>(null);
   const [label, setLabel] = useState("A1");
+  const [nameBox, setNameBox] = useState("A1");
   const [activeContent, setActiveContent] = useState("");
   const [draft, setDraft] = useState("");
   const [saveState, setSaveState] = useState<SaveState | null>(null);
   const [online, setOnline] = useState(true);
   const [sheets, setSheets] = useState<SheetInfo[]>([]);
   const [activeSheet, setActiveSheet] = useState(0);
+  const [aggregates, setAggregates] = useState<string | null>(null);
 
   const onSheetsChange = useCallback((list: SheetInfo[], active: number) => {
     setSheets(list);
@@ -58,6 +60,7 @@ export function Workbench({ name, workbookId, seed }: WorkbenchProps) {
 
   const onSelectionChange = useCallback((nextLabel: string, content: string) => {
     setLabel(nextLabel);
+    setNameBox(nextLabel);
     setActiveContent(content);
     setDraft(content);
   }, []);
@@ -86,9 +89,21 @@ export function Workbench({ name, workbookId, seed }: WorkbenchProps) {
       {/* xlsx export needs the server, so it's hidden offline (the grid keeps working). */}
       <Toolbar grid={gridRef} onExportXlsx={workbookId && online ? exportXlsx : undefined} />
       <div style={styles.formulaBar}>
-        <div style={styles.nameBox} aria-label="Name box">
-          {label}
-        </div>
+        <input
+          aria-label="Name box — type a cell or range to go to"
+          style={styles.nameBox}
+          value={nameBox}
+          onChange={(e) => setNameBox(e.target.value)}
+          onFocus={(e) => e.target.select()}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              gridRef.current?.goTo(nameBox);
+            } else if (e.key === "Escape") {
+              setNameBox(label);
+            }
+          }}
+        />
         <div style={styles.fx} aria-hidden>
           fx
         </div>
@@ -118,6 +133,7 @@ export function Workbench({ name, workbookId, seed }: WorkbenchProps) {
           onSelectionChange={onSelectionChange}
           onSaveStateChange={setSaveState}
           onSheetsChange={onSheetsChange}
+          onAggregatesChange={setAggregates}
         />
       </div>
 
@@ -133,7 +149,8 @@ export function Workbench({ name, workbookId, seed }: WorkbenchProps) {
         {saveState && workbookId && (
           <span aria-live="polite">{SAVE_LABEL[saveState]}</span>
         )}
-        <span style={{ marginLeft: "auto" }}>SabSheet v2 · IronCalc engine</span>
+        {aggregates && <span style={{ marginLeft: "auto", fontVariantNumeric: "tabular-nums" }}>{aggregates}</span>}
+        <span style={{ marginLeft: aggregates ? 16 : "auto" }}>SabSheet v2 · IronCalc engine</span>
       </div>
     </div>
   );
