@@ -15,19 +15,49 @@ export type SabbiginConfigStatus = 'active' | 'archived';
 
 export type SabbiginFeatureFlag =
   | 'contacts'
+  | 'companies'
+  | 'deals'
   | 'products'
+  | 'tasks'
+  | 'events'
   | 'calls'
   | 'emails'
-  | 'dashboard';
+  | 'dashboard'
+  | 'forms'
+  | 'bookings'
+  | 'workflows'
+  | 'emailIn'
+  | 'fileCabinet'
+  | 'api';
+
+export interface SabbiginPublicBranding {
+  logoUrl?: string | null;
+  accentColor?: string | null;
+  companyName?: string | null;
+}
+
+export interface SabbiginOnboardingState {
+  createdPipeline?: boolean;
+  importedContacts?: boolean;
+  createdDeal?: boolean;
+  connectedEmail?: boolean;
+  dismissed?: boolean;
+}
 
 export interface SabbiginConfigDoc {
   _id: string;
   userId?: string;
   enabled: boolean;
-  /** Hex `ObjectId` of the pipeline SabBigin should surface. */
+  /** Hex `ObjectId` of the pipeline the deals board defaults to. */
   pipelineId?: string | null;
+  /** `0` = no admin override; effective cap derived from the plan tier. */
   pipelineLimit: number;
   allowedFeatures: (SabbiginFeatureFlag | string)[];
+  defaultCurrency?: string | null;
+  multiCurrency?: boolean;
+  emailInEnabled?: boolean;
+  publicBranding?: SabbiginPublicBranding | null;
+  onboarding?: SabbiginOnboardingState | null;
   status: SabbiginConfigStatus;
   createdAt?: string;
   updatedAt?: string;
@@ -51,9 +81,14 @@ export interface SabbiginConfigCreateInput {
   pipelineId?: string;
   pipelineLimit?: number;
   allowedFeatures?: (SabbiginFeatureFlag | string)[];
+  defaultCurrency?: string;
+  multiCurrency?: boolean;
+  emailInEnabled?: boolean;
 }
 
 export type SabbiginConfigUpdateInput = Partial<SabbiginConfigCreateInput> & {
+  publicBranding?: SabbiginPublicBranding;
+  onboarding?: SabbiginOnboardingState;
   status?: SabbiginConfigStatus;
 };
 

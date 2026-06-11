@@ -1,56 +1,74 @@
 "use client";
 
 import {
-  Calendar,
+  Building2,
+  CalendarCheck,
+  CheckCheck,
   Contact,
   GaugeCircle,
-  Layers,
-  Mail,
+  Handshake,
+  LayoutDashboard,
   Package,
-  Phone,
-  Plus,
+  Settings2,
   Workflow,
+  Zap,
 } from "lucide-react";
 
 import { leaf, type SabAppSidebarConfig } from "./_shared";
 
 /**
- * SabBigin (lite CRM SKU) sidebar. Mirrors the retired `SabbiginNav`
- * top-strip (`_components/sabbigin-shell.tsx`) — the whole point of
- * SabBigin is a narrower surface than the full Sales CRM module, so
- * keep this list short.
+ * SabBigin (pipeline CRM) sidebar.
+ *
+ * Flat groups of leaves (the sidebar model supports nothing deeper). Quick-add
+ * lives in the shell header `+` / ⌘K rather than dedicated "New …" leaves, so
+ * this list stays scannable. Calendar/board sub-views are reached via the
+ * in-page view switcher (`?view=`), not separate leaves — `leaf()` matches by
+ * pathname, so query-param leaves wouldn't highlight correctly.
  */
 export const SABBIGIN_SIDEBAR: SabAppSidebarConfig = {
   prefix: "/dashboard/sabbigin",
   heading: "SabBigin",
-  caption: "Lite CRM",
+  caption: "Pipeline CRM",
   build: (p) => [
     {
       id: "sabbigin-overview",
       label: "Overview",
       items: [
         leaf("home", "Home", "/dashboard/sabbigin", GaugeCircle, p, { exact: true }),
-        leaf("dashboard", "Dashboard", "/dashboard/sabbigin/dashboard", Calendar, p),
+        leaf("dashboards", "Dashboards", "/dashboard/sabbigin/dashboards", LayoutDashboard, p),
       ],
     },
     {
       id: "sabbigin-sales",
       label: "Sales",
       items: [
-        leaf("pipeline", "Pipeline board", "/dashboard/sabbigin/pipeline", Layers, p),
-        leaf("pipelines", "Pipelines", "/dashboard/sabbigin/pipelines", Workflow, p),
-        leaf("pipelines-new", "New pipeline", "/dashboard/sabbigin/pipelines/new", Plus, p),
+        leaf("deals", "Deals", "/dashboard/sabbigin/deals", Handshake, p),
+        leaf("activities", "Activities", "/dashboard/sabbigin/activities", CalendarCheck, p),
+      ],
+    },
+    {
+      id: "sabbigin-records",
+      label: "Records",
+      items: [
+        leaf("contacts", "Contacts", "/dashboard/sabbigin/contacts", Contact, p),
+        leaf("companies", "Companies", "/dashboard/sabbigin/companies", Building2, p),
         leaf("products", "Products", "/dashboard/sabbigin/products", Package, p),
       ],
     },
     {
-      id: "sabbigin-contacts",
-      label: "Contacts & activity",
+      id: "sabbigin-automation",
+      label: "Automation",
       items: [
-        leaf("contacts", "Contacts", "/dashboard/sabbigin/contacts", Contact, p),
-        leaf("contacts-new", "New contact", "/dashboard/sabbigin/contacts/new", Plus, p),
-        leaf("calls", "Calls", "/dashboard/sabbigin/calls", Phone, p),
-        leaf("emails", "Emails", "/dashboard/sabbigin/emails", Mail, p),
+        leaf("automation", "Rules", "/dashboard/sabbigin/automation", Zap, p),
+        leaf("approvals", "Approvals", "/dashboard/sabbigin/approvals", CheckCheck, p),
+      ],
+    },
+    {
+      id: "sabbigin-workspace",
+      label: "Workspace",
+      items: [
+        leaf("pipelines", "Pipelines", "/dashboard/sabbigin/pipelines", Workflow, p),
+        leaf("settings", "Settings", "/dashboard/sabbigin/settings", Settings2, p),
       ],
     },
   ],

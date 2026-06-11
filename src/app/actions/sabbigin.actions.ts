@@ -1,24 +1,24 @@
 'use server';
 
 /**
- * SabBigin (lite CRM SKU) — server actions.
+ * SabBigin (pipeline CRM) — server actions.
  *
  * SabBigin reuses the existing CRM entity collections (`crm_contacts`,
- * `crm_deals`, `crm_pipelines`, `crm_products`, `crm_tasks`,
- * `crm_activities`) under a focused, micro-business UX mounted at
- * `/dashboard/sabbigin/`. This module owns **only** the per-tenant SabBigin
- * settings document (`sabbigin_configs`) — everything else delegates to the
+ * `crm_accounts`, `crm_deals`, `users.crmPipelines[]`, `crm_products`,
+ * `crm_tasks`, `crm_activities`) under a focused, Bigin-class pipeline UX
+ * mounted at `/dashboard/sabbigin/`. This module owns the per-tenant SabBigin
+ * settings document (`sabbigin_configs`) plus the SabBigin-specific surfaces
+ * (approvals, booking pages, email aliases) — entity CRUD delegates to the
  * existing CRM server actions.
  *
  * Data flow:
  *   • `USE_RUST_CRM=true`  → Rust `sabbigin_config` crate via `sabbiginConfigApi`.
  *   • otherwise            → direct Mongo via `connectToDatabase()`.
  *
- * Plan-gating:
- *   • `sessionUser.plan.features.crmSabbigin` is the canonical flag. The
- *     `/dashboard/sabbigin/layout.tsx` wraps every route with `<FeatureLock>`.
- *   • TODO: register the `crmSabbigin` feature key in `src/lib/plans.json`
- *     and price it into the "SabBigin" SKU tier.
+ * Plan-gating: `sessionUser.plan.features.sabbigin` is the canonical flag
+ * (defaults `true`). `/dashboard/sabbigin/layout.tsx` wraps every route with
+ * `<FeatureLock>`. Per-tier limits are enforced at create-time; workflows are
+ * uncapped.
  */
 
 import { ObjectId } from 'mongodb';
@@ -32,6 +32,7 @@ import {
   type SabbiginConfigCreateInput,
   type SabbiginConfigUpdateInput,
   type SabbiginFeatureFlag,
+  type SabbiginOnboardingState,
 } from '@/lib/rust-client/sabbigin-config';
 
 const COLL = 'sabbigin_configs';
@@ -42,10 +43,20 @@ function useRustCrm(): boolean {
 
 const DEFAULT_FEATURES: SabbiginFeatureFlag[] = [
   'contacts',
+  'companies',
+  'deals',
   'products',
+  'tasks',
+  'events',
   'calls',
   'emails',
   'dashboard',
+  'forms',
+  'bookings',
+  'workflows',
+  'emailIn',
+  'fileCabinet',
+  'api',
 ];
 
 function freshDefault(userId: ObjectId): SabbiginConfigDoc {
@@ -55,8 +66,13 @@ function freshDefault(userId: ObjectId): SabbiginConfigDoc {
     userId: userId.toHexString(),
     enabled: true,
     pipelineId: null,
-    pipelineLimit: 1,
+    pipelineLimit: 0,
     allowedFeatures: DEFAULT_FEATURES,
+    defaultCurrency: 'INR',
+    multiCurrency: false,
+    emailInEnabled: false,
+    publicBranding: null,
+    onboarding: null,
     status: 'active',
     createdAt: now,
     updatedAt: now,
@@ -124,8 +140,11 @@ export async function createSabbiginConfig(
         input.pipelineId && ObjectId.isValid(input.pipelineId)
           ? new ObjectId(input.pipelineId)
           : null,
-      pipelineLimit: Math.max(1, input.pipelineLimit ?? 1),
+      pipelineLimit: Math.max(0, input.pipelineLimit ?? 0),
       allowedFeatures: input.allowedFeatures ?? DEFAULT_FEATURES,
+      defaultCurrency: input.defaultCurrency ?? 'INR',
+      multiCurrency: input.multiCurrency ?? false,
+      emailInEnabled: input.emailInEnabled ?? false,
       status: 'active' as const,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -169,8 +188,13 @@ export async function updateSabbiginConfig(
           : null;
     }
     if (patch.pipelineLimit != null)
-      set.pipelineLimit = Math.max(1, patch.pipelineLimit);
+      set.pipelineLimit = Math.max(0, patch.pipelineLimit);
     if (patch.allowedFeatures) set.allowedFeatures = patch.allowedFeatures;
+    if (patch.defaultCurrency !== undefined) set.defaultCurrency = patch.defaultCurrency;
+    if (patch.multiCurrency != null) set.multiCurrency = patch.multiCurrency;
+    if (patch.emailInEnabled != null) set.emailInEnabled = patch.emailInEnabled;
+    if (patch.publicBranding !== undefined) set.publicBranding = patch.publicBranding;
+    if (patch.onboarding !== undefined) set.onboarding = patch.onboarding;
     if (patch.status) set.status = patch.status;
     const r = await db
       .collection(COLL)
@@ -185,4 +209,35 @@ export async function updateSabbiginConfig(
   } catch (e: any) {
     return { success: false, error: e?.message ?? 'Failed to update config' };
   }
+}
+
+/**
+ * Returns the tenant's persisted config id, creating a fresh row if none
+ * exists yet. The synthetic `freshDefault` row returned by `getSabbiginConfig`
+ * has an empty `_id`, so onboarding/branding writes need a real row first.
+ */
+export async function ensureSabbiginConfig(): Promise<{ id: string | null }> {
+  const session = await getSession();
+  if (!session?.user?._id) return { id: null };
+  const existing = await getSabbiginConfig();
+  if (existing && existing._id) return { id: existing._id };
+  const created = await createSabbiginConfig({ enabled: true });
+  return { id: created.id ?? null };
+}
+
+/**
+ * Merge-patch the onboarding checklist progress. Persists a real config row
+ * on first call so the dismissed/step flags survive reloads.
+ */
+export async function updateSabbiginOnboarding(
+  patch: Partial<SabbiginOnboardingState>,
+): Promise<{ success: boolean; error?: string }> {
+  const current = await getSabbiginConfig();
+  const merged: SabbiginOnboardingState = {
+    ...(current?.onboarding ?? {}),
+    ...patch,
+  };
+  const { id } = await ensureSabbiginConfig();
+  if (!id) return { success: false, error: 'No config row' };
+  return updateSabbiginConfig(id, { onboarding: merged });
 }

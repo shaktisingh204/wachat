@@ -311,7 +311,7 @@ export async function createCrmPipeline(
  * `chance` field is mirrored from `probability` on save so existing
  * read-only callers keep working.
  */
-interface PipelineUiStage {
+export interface PipelineUiStage {
     _id?: string;
     id?: string;
     name: string;
@@ -327,7 +327,7 @@ interface PipelineUiStage {
  * (description, color, entityKind, status, isDefault) that the form
  * captures.
  */
-interface PipelineUiDoc {
+export interface PipelineUiDoc {
     _id?: string;
     id?: string;
     name: string;

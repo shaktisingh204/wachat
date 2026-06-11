@@ -9199,6 +9199,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "sabbigin-bookings"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum 0.8.9",
+ "bson",
+ "chrono",
+ "crm-common",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "sabnode-rbac",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
 name = "sabbigin-config"
 version = "0.1.0"
 dependencies = [
@@ -13124,6 +13145,7 @@ dependencies = [
  "sabbi-embeds",
  "sabbi-schedules",
  "sabbi-workbooks",
+ "sabbigin-bookings",
  "sabbigin-config",
  "sabbugs-bugs",
  "sabbugs-comments",

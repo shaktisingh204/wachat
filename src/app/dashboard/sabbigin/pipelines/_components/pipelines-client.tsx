@@ -327,7 +327,7 @@ export function PipelinesClient({ pipelines: initialPipelines, kpi }: Props) {
                           <span className="u-btn__label">View Detail</span>
                         </Link>
                         <Link
-                          href="/dashboard/crm/sales-crm/deals"
+                          href={`/dashboard/sabbigin/deals?pipeline=${pipeline.id}`}
                           className={btnLinkClass('outline')}
                         >
                           <span className="u-btn__label">View Deals</span>

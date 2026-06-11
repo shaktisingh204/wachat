@@ -30,9 +30,10 @@ use crate::types::SabbiginConfig;
 const COLL: &str = "sabbigin_configs";
 const ENTITY_KIND: &str = "sabbigin_config";
 
-/// The default `pipelineLimit` for a fresh SabBigin tenant — the SKU exists
-/// precisely *because* one pipeline is enough for micro-businesses.
-const DEFAULT_PIPELINE_LIMIT: u32 = 1;
+/// The default `pipelineLimit` for a fresh SabBigin tenant. `0` means "no
+/// admin override" — the effective pipeline cap is derived from the plan tier
+/// in the TS layer (unlimited while the SKU is unpriced).
+const DEFAULT_PIPELINE_LIMIT: u32 = 0;
 
 // ─── Filter helpers ──────────────────────────────────────────────────────
 
@@ -67,10 +68,7 @@ fn config_from_create(
     let allowed_features = input
         .allowed_features
         .unwrap_or_else(SabbiginConfig::default_features);
-    let pipeline_limit = input
-        .pipeline_limit
-        .unwrap_or(DEFAULT_PIPELINE_LIMIT)
-        .max(1);
+    let pipeline_limit = input.pipeline_limit.unwrap_or(DEFAULT_PIPELINE_LIMIT);
 
     Ok(SabbiginConfig {
         id: None,
@@ -79,6 +77,11 @@ fn config_from_create(
         pipeline_id: pipeline_oid,
         pipeline_limit,
         allowed_features,
+        default_currency: input.default_currency,
+        multi_currency: input.multi_currency.unwrap_or(false),
+        email_in_enabled: input.email_in_enabled.unwrap_or(false),
+        public_branding: None,
+        onboarding: None,
         status: "active".to_owned(),
         created_at: BsonDateTime::from_chrono(Utc::now()),
         updated_at: None,
@@ -98,11 +101,29 @@ fn build_update_doc(patch: UpdateSabbiginConfigInput) -> Result<Document> {
         }
     }
     if let Some(v) = patch.pipeline_limit {
-        set.insert("pipelineLimit", v.max(1) as i64);
+        set.insert("pipelineLimit", v as i64);
     }
     if let Some(v) = patch.allowed_features {
         let arr: Vec<Bson> = v.into_iter().map(Bson::String).collect();
         set.insert("allowedFeatures", arr);
+    }
+    if let Some(v) = patch.default_currency {
+        set.insert("defaultCurrency", v);
+    }
+    if let Some(v) = patch.multi_currency {
+        set.insert("multiCurrency", v);
+    }
+    if let Some(v) = patch.email_in_enabled {
+        set.insert("emailInEnabled", v);
+    }
+    if let Some(v) = patch.public_branding {
+        set.insert(
+            "publicBranding",
+            bson::to_bson(&v).unwrap_or(Bson::Null),
+        );
+    }
+    if let Some(v) = patch.onboarding {
+        set.insert("onboarding", bson::to_bson(&v).unwrap_or(Bson::Null));
     }
     if let Some(v) = patch.status {
         set.insert("status", v);
@@ -384,14 +405,15 @@ mod tests {
     }
 
     #[test]
-    fn config_from_create_clamps_pipeline_limit_to_one() {
+    fn config_from_create_passes_pipeline_limit_through() {
         let user_id = ObjectId::new();
+        // `0` is a legitimate value now — it means "no admin override".
         let input = CreateSabbiginConfigInput {
             pipeline_limit: Some(0),
             ..Default::default()
         };
         let c = config_from_create(input, user_id).unwrap();
-        assert_eq!(c.pipeline_limit, 1);
+        assert_eq!(c.pipeline_limit, 0);
     }
 
     #[test]

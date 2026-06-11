@@ -49,6 +49,7 @@ pub fn build(state: AppState) -> Router {
     let sabbi_schedules_r = sabbi_schedules::router::<AppState>();
     let sabbi_workbooks_r = sabbi_workbooks::router::<AppState>();
     let sabbigin_config_r = sabbigin_config::router::<AppState>();
+    let sabbigin_bookings_r = sabbigin_bookings::router::<AppState>();
     let sabbugs_bugs_r = sabbugs_bugs::router::<AppState>();
     let sabbugs_comments_r = sabbugs_comments::router::<AppState>();
     let sabbugs_history_r = sabbugs_history::router::<AppState>();
@@ -913,6 +914,7 @@ pub fn build(state: AppState) -> Router {
         .nest("/v1/sabbi/schedules", sabbi_schedules_r)
         .nest("/v1/sabbi/workbooks", sabbi_workbooks_r)
         .nest("/v1/sabbigin/config", sabbigin_config_r)
+        .nest("/v1/sabbigin/bookings", sabbigin_bookings_r)
         .nest("/v1/sabbugs/bugs", sabbugs_bugs_r)
         .nest("/v1/sabbugs/comments", sabbugs_comments_r)
         .nest("/v1/sabbugs/history", sabbugs_history_r)

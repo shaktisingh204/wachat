@@ -1,33 +1,25 @@
 /**
- * SabBigin products list, simplified vs full CRM products.
+ * SabBigin products list — now editable.
  *
- * Reuses the existing `getCrmProducts` server action; renders a single
- * name / SKU / price table. No stock dashboards, no item-type filters,
- * no per-product KPIs. The create form lives in the full CRM.
+ * Reads via the existing `getCrmProducts` server action, serialises each doc
+ * into a plain `ProductRow`, and hands the list to the client island, which
+ * owns the create/edit Modal (posting through the lean SabBigin product
+ * actions). No links into the hidden full-CRM module.
  */
 
-import Link from 'next/link';
-import { Package, Plus, Tag } from 'lucide-react';
+import type { WithId } from 'mongodb';
 
 import {
-    Card,
-    EmptyState,
     PageHeader,
     PageHeaderHeading,
     PageEyebrow,
     PageTitle,
     PageDescription,
-    PageActions,
-    Table,
-    THead,
-    TBody,
-    Tr,
-    Th,
-    Td,
 } from '@/components/sabcrm/20ui';
 import { getCrmProducts } from '@/app/actions/crm-products.actions';
+import type { CrmProduct } from '@/lib/definitions';
 
-import { formatCurrency } from '../_components/sabbigin-data';
+import { ProductsClient, type ProductRow } from './_components/products-client';
 
 export const dynamic = 'force-dynamic';
 
@@ -40,12 +32,34 @@ interface PageProps {
     searchParams: Promise<SearchParams>;
 }
 
+/** Coerce a heterogeneous CRM product doc into the lean SabBigin row. */
+function toRow(p: WithId<CrmProduct>): ProductRow {
+    const anyP = p as unknown as {
+        price?: number;
+        sellingPrice?: number;
+        rate?: number;
+        sku?: string;
+        currency?: string;
+        description?: string;
+    };
+    const price = anyP.price ?? anyP.sellingPrice ?? anyP.rate ?? 0;
+    return {
+        _id: String(p._id),
+        name: p.name ?? 'Product',
+        sku: anyP.sku ?? '',
+        price: Number.isFinite(price) ? Number(price) : 0,
+        currency: anyP.currency ?? 'INR',
+        description: anyP.description ?? '',
+    };
+}
+
 export default async function SabbiginProductsPage({ searchParams }: PageProps) {
     const sp = await searchParams;
     const page = Math.max(1, Number(sp.page) || 1);
     const q = (sp.q ?? '').trim();
 
-    const { products, total } = await getCrmProducts(page, 25, q || undefined);
+    const { products, total } = await getCrmProducts(page, 100, q || undefined);
+    const rows = products.map(toRow);
 
     return (
         <div className="20ui flex w-full flex-col gap-5">
@@ -57,90 +71,9 @@ export default async function SabbiginProductsPage({ searchParams }: PageProps) 
                         {total.toLocaleString()} product{total === 1 ? '' : 's'} in your catalogue.
                     </PageDescription>
                 </PageHeaderHeading>
-                <PageActions>
-                    {/* Navigation target, so this is a Link styled with the 20ui button classes. */}
-                    <Link
-                        href="/dashboard/crm/sales-crm/products/new"
-                        className="u-btn u-btn--primary u-btn--sm"
-                    >
-                        <Plus size={13} aria-hidden="true" />
-                        <span className="u-btn__label">New product</span>
-                    </Link>
-                </PageActions>
             </PageHeader>
 
-            {products.length === 0 ? (
-                <Card padding="none" className="flex min-h-[280px] items-center justify-center">
-                    <EmptyState
-                        icon={Package}
-                        title="No products yet"
-                        description="Add your first product in the full CRM. The create form lives there."
-                        action={
-                            <Link
-                                href="/dashboard/crm/sales-crm/products/new"
-                                className="u-btn u-btn--primary u-btn--sm"
-                            >
-                                <Plus size={13} aria-hidden="true" />
-                                <span className="u-btn__label">New product</span>
-                            </Link>
-                        }
-                    />
-                </Card>
-            ) : (
-                <Card padding="none" className="overflow-hidden">
-                    <Table density="comfortable" hover>
-                        <THead>
-                            <Tr>
-                                <Th>Name</Th>
-                                <Th>SKU</Th>
-                                <Th align="right">Price</Th>
-                            </Tr>
-                        </THead>
-                        <TBody>
-                            {products.map((p) => {
-                                const id = String(p._id);
-                                const price =
-                                    (p as { price?: number; rate?: number }).price ??
-                                    (p as { rate?: number }).rate ??
-                                    0;
-                                const sku = (p as { sku?: string }).sku ?? '';
-                                return (
-                                    <Tr key={id}>
-                                        <Td>
-                                            <Link
-                                                href={`/dashboard/crm/sales-crm/products/${id}`}
-                                                className="-mx-1 flex items-center gap-2.5 rounded-[var(--st-radius-sm)] px-1 py-0.5 font-medium text-[var(--st-text)] transition-colors hover:text-[var(--st-accent)]"
-                                            >
-                                                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
-                                                    <Package className="h-3.5 w-3.5" aria-hidden="true" />
-                                                </span>
-                                                <span className="truncate">{p.name ?? 'Product'}</span>
-                                            </Link>
-                                        </Td>
-                                        <Td className="text-[var(--st-text-secondary)]">
-                                            <span className="inline-flex items-center gap-1.5 font-mono text-[12px]">
-                                                {sku ? (
-                                                    <>
-                                                        <Tag className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-                                                        {sku}
-                                                    </>
-                                                ) : (
-                                                    'No SKU'
-                                                )}
-                                            </span>
-                                        </Td>
-                                        <Td align="right">
-                                            <span className="font-semibold tabular-nums text-[var(--st-text)]">
-                                                {formatCurrency(price)}
-                                            </span>
-                                        </Td>
-                                    </Tr>
-                                );
-                            })}
-                        </TBody>
-                    </Table>
-                </Card>
-            )}
+            <ProductsClient products={rows} />
         </div>
     );
 }

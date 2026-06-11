@@ -2,7 +2,7 @@
 
 use serde::{Deserialize, Serialize};
 
-use crate::types::SabbiginConfig;
+use crate::types::{OnboardingState, PublicBranding, SabbiginConfig};
 
 /// `GET /v1/sabbigin/config?…`
 #[derive(Debug, Clone, Default, Deserialize)]
@@ -23,15 +23,21 @@ pub struct ListQuery {
 pub struct CreateSabbiginConfigInput {
     #[serde(default)]
     pub enabled: Option<bool>,
-    /// Hex `ObjectId` — the pipeline SabBigin should surface.
+    /// Hex `ObjectId` — the pipeline the deals board defaults to.
     #[serde(default)]
     pub pipeline_id: Option<String>,
-    /// Defaults to `1`.
+    /// `0` (default) means "no admin override".
     #[serde(default)]
     pub pipeline_limit: Option<u32>,
     /// Defaults to `SabbiginConfig::default_features()`.
     #[serde(default)]
     pub allowed_features: Option<Vec<String>>,
+    #[serde(default)]
+    pub default_currency: Option<String>,
+    #[serde(default)]
+    pub multi_currency: Option<bool>,
+    #[serde(default)]
+    pub email_in_enabled: Option<bool>,
 }
 
 /// `PATCH /v1/sabbigin/config/:id` body. Every field optional.
@@ -47,6 +53,16 @@ pub struct UpdateSabbiginConfigInput {
     pub pipeline_limit: Option<u32>,
     #[serde(default)]
     pub allowed_features: Option<Vec<String>>,
+    #[serde(default)]
+    pub default_currency: Option<String>,
+    #[serde(default)]
+    pub multi_currency: Option<bool>,
+    #[serde(default)]
+    pub email_in_enabled: Option<bool>,
+    #[serde(default)]
+    pub public_branding: Option<PublicBranding>,
+    #[serde(default)]
+    pub onboarding: Option<OnboardingState>,
     /// Allow `"active"` ↔ `"archived"` transitions via PATCH.
     #[serde(default)]
     pub status: Option<String>,

@@ -382,6 +382,7 @@ members = [
     "crates/sabsheet-versions",
     "crates/sabsheet-presence",
     "crates/sabbigin-config",
+    "crates/sabbigin-bookings",
     "crates/sabbugs-bugs",
     "crates/sabbugs-comments",
     "crates/sabbugs-history",

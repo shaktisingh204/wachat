@@ -351,6 +351,7 @@ sabbi-embeds = { path = "../sabbi-embeds" }
 sabbi-schedules = { path = "../sabbi-schedules" }
 sabbi-workbooks = { path = "../sabbi-workbooks" }
 sabbigin-config = { path = "../sabbigin-config" }
+sabbigin-bookings = { path = "../sabbigin-bookings" }
 sabbugs-bugs = { path = "../sabbugs-bugs" }
 sabbugs-comments = { path = "../sabbugs-comments" }
 sabbugs-history = { path = "../sabbugs-history" }

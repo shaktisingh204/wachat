@@ -26,7 +26,9 @@ import {
   type EntityStatusTone,
 } from '@/components/crm/entity-detail-shell';
 import { getSession } from '@/app/actions/user.actions';
-import { getPipelineById } from '@/app/actions/crm-pipelines.actions';
+import { getPipelineById, getCrmPipelines } from '@/app/actions/crm-pipelines.actions';
+import { getSabbiginPipelineConfig } from '@/app/actions/sabbigin-pipeline-config.actions';
+import { PipelineGovernanceEditor } from '@/components/sabbigin/pipelines/pipeline-governance-editor';
 
 import { PipelineEditButton } from './_components/pipeline-edit-button';
 
@@ -50,12 +52,22 @@ export default async function PipelineDetailPage({
   const session = await getSession();
   if (!session?.user) redirect('/login');
 
-  const pipeline = await getPipelineById(pipelineId);
+  const [pipeline, allPipelines, governance] = await Promise.all([
+    getPipelineById(pipelineId),
+    getCrmPipelines(),
+    getSabbiginPipelineConfig(pipelineId),
+  ]);
   if (!pipeline) notFound();
 
   const status = pipeline.status ?? 'active';
   const tone = STATUS_TONE[status] ?? 'neutral';
   const stages = pipeline.stages ?? [];
+  const stageNames = stages.map((s) => s.name).filter(Boolean);
+  const pipelineSummaries = allPipelines.map((p) => ({
+    id: String(p.id),
+    name: p.name,
+    stageCount: p.stages?.length ?? 0,
+  }));
 
   return (
     <div className="20ui">
@@ -189,6 +201,16 @@ export default async function PipelineDetailPage({
             )}
           </CardBody>
         </Card>
+
+        {/* Governance: stage rules, approvals & connected pipelines */}
+        {stageNames.length > 0 ? (
+          <PipelineGovernanceEditor
+            pipelineId={pipelineId}
+            stageNames={stageNames}
+            pipelines={pipelineSummaries}
+            initial={governance}
+          />
+        ) : null}
       </EntityDetailShell>
     </div>
   );

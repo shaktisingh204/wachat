@@ -36,6 +36,9 @@ import {
     stageTone,
     todayRange,
 } from './_components/sabbigin-data';
+import { getCrmPipelines } from '@/app/actions/crm-pipelines.actions';
+import { getSabbiginConfig } from '@/app/actions/sabbigin.actions';
+import { OnboardingChecklist } from '@/components/sabbigin/onboarding/onboarding-checklist';
 
 export const dynamic = 'force-dynamic';
 
@@ -82,6 +85,9 @@ export default async function SabbiginHomePage() {
         todaysTasks,
         upcomingMeetings,
         topDeals,
+        pipelines,
+        dealsTotal,
+        config,
     ] = await Promise.all([
         sabbiginCount('crm_deals', { status: { $nin: ['won', 'lost'] } }),
         sabbiginCount('crm_tasks', { status: { $nin: ['done', 'completed', 'cancelled'] } }),
@@ -110,10 +116,28 @@ export default async function SabbiginHomePage() {
             limit: 4,
             filter: { status: { $nin: ['won', 'lost'] } },
         }),
+        getCrmPipelines(),
+        sabbiginCount('crm_deals'),
+        getSabbiginConfig(),
     ]);
+
+    // Onboarding checklist completion is computed server-side so the check
+    // state is authoritative and survives reloads.
+    const onboardingSteps = {
+        hasPipeline: pipelines.length > 0,
+        hasContacts: contactsTotal > 0,
+        hasDeal: dealsTotal > 0,
+        connectedEmail: Boolean(config?.onboarding?.connectedEmail),
+    };
+    const onboardingDismissed = Boolean(config?.onboarding?.dismissed);
 
     return (
         <div className="20ui flex w-full flex-col gap-5">
+            <OnboardingChecklist
+                steps={onboardingSteps}
+                dismissed={onboardingDismissed}
+            />
+
             <PageHeader>
                 <PageHeaderHeading>
                     <PageEyebrow>SabBigin</PageEyebrow>
@@ -214,9 +238,9 @@ export default async function SabbiginHomePage() {
                         id: t._id,
                         primary: t.title ?? 'Task',
                         secondary: t.status ?? 'open',
-                        href: `/dashboard/crm/sales-crm/tasks/${t._id}`,
+                        href: `/dashboard/sabbigin/activities?type=task`,
                     }))}
-                    viewAllHref="/dashboard/sabbigin/dashboard"
+                    viewAllHref="/dashboard/sabbigin/activities?type=task"
                 />
             </div>
 
@@ -231,9 +255,9 @@ export default async function SabbiginHomePage() {
                         id: m._id,
                         primary: m.subject ?? 'Meeting',
                         secondary: formatDateTime(m.dueDate),
-                        href: `/dashboard/crm/sales-crm/tasks/${m._id}`,
+                        href: `/dashboard/sabbigin/activities?type=meeting`,
                     }))}
-                    viewAllHref="/dashboard/sabbigin/calls"
+                    viewAllHref="/dashboard/sabbigin/activities?type=meeting"
                 />
                 <ListCard
                     title="Recently added contacts"
