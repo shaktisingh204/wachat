@@ -10,10 +10,14 @@ import { useState } from "react";
 import { StylePath } from "../../../lib/sabsheet/commands/ops.ts";
 import type { SheetCanvasHandle } from "../grid/sheet-canvas.tsx";
 
+export type SheetPanel = "ai" | "connections" | "charts" | "forms";
+
 export interface RibbonProps {
   grid: React.RefObject<SheetCanvasHandle | null>;
   /** Shown as the "Download" button when present (persistent workbook + online). */
   onExportXlsx?: () => void;
+  /** Opens a side panel (AI / connections / charts / forms). Persistent workbooks only. */
+  onOpenPanel?: (panel: SheetPanel) => void;
 }
 
 type Tab = "Home" | "Insert" | "Formulas" | "Data" | "View";
@@ -30,7 +34,7 @@ const NUMBER_FORMATS: { label: string; code: string }[] = [
   { label: "Text", code: "@" },
 ];
 
-export function Ribbon({ grid, onExportXlsx }: RibbonProps) {
+export function Ribbon({ grid, onExportXlsx, onOpenPanel }: RibbonProps) {
   const [tab, setTab] = useState<Tab>("Home");
   const [findOpen, setFindOpen] = useState(false);
   const [find, setFind] = useState("");
@@ -95,6 +99,11 @@ export function Ribbon({ grid, onExportXlsx }: RibbonProps) {
               <Btn title="Sort Z→A" onClick={() => void g()?.sortSelection(false)}>Z↓</Btn>
               <Btn title="Find & Replace" onClick={() => setFindOpen((v) => !v)}>🔍</Btn>
             </Group>
+            {onOpenPanel && (
+              <Group label="AI">
+                <Btn title="AI: generate formulas, explain, transform" onClick={() => onOpenPanel("ai")}>✦ AI</Btn>
+              </Group>
+            )}
           </>
         )}
 
@@ -110,10 +119,15 @@ export function Ribbon({ grid, onExportXlsx }: RibbonProps) {
               <Btn title="Insert column right" onClick={() => void g()?.insertColumns(true)}>Col right</Btn>
             </Group>
             <Group label="Illustrations">
-              <Btn title="Charts — coming soon" disabled>Chart</Btn>
+              <Btn title="Chart from the selected range" disabled={!onOpenPanel} onClick={() => onOpenPanel?.("charts")}>Chart</Btn>
               <Btn title="Pivot table — coming soon" disabled>Pivot</Btn>
               <Btn title="Image — coming soon" disabled>Image</Btn>
             </Group>
+            {onOpenPanel && (
+              <Group label="Forms">
+                <Btn title="Public intake form → appends rows" onClick={() => onOpenPanel("forms")}>Form</Btn>
+              </Group>
+            )}
           </>
         )}
 
@@ -143,6 +157,11 @@ export function Ribbon({ grid, onExportXlsx }: RibbonProps) {
               <Btn title="Data validation — coming soon" disabled>Validation</Btn>
               <Btn title="Remove duplicates — coming soon" disabled>Dedupe</Btn>
             </Group>
+            {onOpenPanel && (
+              <Group label="Connect">
+                <Btn title="Live data connections (CRM / REST / CSV)" onClick={() => onOpenPanel("connections")}>🔌 Connections</Btn>
+              </Group>
+            )}
           </>
         )}
 

@@ -28,7 +28,7 @@ import { cellsToTsv } from "../clipboard/tsv.ts";
 import { computeAggregates, aggregateLabel } from "./aggregate.ts";
 import { CalcEngineClient } from "../../../lib/sabsheet/engine/worker-client.ts";
 import type { SheetInfo } from "../../../lib/sabsheet/engine/protocol.ts";
-import { cmd, cellRange, StylePath, type Command } from "../../../lib/sabsheet/commands/ops.ts";
+import { cmd, cellRange, StylePath, type Command, type CellView } from "../../../lib/sabsheet/commands/ops.ts";
 import {
   applyOpsAction,
   getSnapshotAction,
@@ -116,6 +116,8 @@ export interface SheetCanvasHandle {
   unfreeze(): Promise<void>;
   /** AutoSum: place `=SUM(selection)` just below a multi-cell selection. */
   autoSum(): Promise<void>;
+  /** Read the current selection's cells + box + active sheet index (for charts, etc.). */
+  getSelection(): Promise<{ cells: CellView[]; box: { top: number; left: number; bottom: number; right: number }; sheet: number }>;
 }
 
 export const SheetCanvas = forwardRef<SheetCanvasHandle, SheetCanvasProps>(function SheetCanvas(
@@ -395,6 +397,14 @@ export const SheetCanvas = forwardRef<SheetCanvasHandle, SheetCanvasProps>(funct
         const range = `${colToLetters(box.left)}${box.top}:${colToLetters(box.right)}${box.bottom}`;
         await applyLocal([cmd.setCell(sheetRef.current, box.bottom + 1, box.left, `=SUM(${range})`)]);
         setSelection(singleCell(box.bottom + 1, box.left));
+      },
+      async getSelection() {
+        const box = selectionBox(selectionRef.current);
+        const e = engineRef.current;
+        const cells = e
+          ? await e.readViewport(sheetRef.current, box.top, box.left, box.right - box.left + 1, box.bottom - box.top + 1)
+          : [];
+        return { cells, box, sheet: sheetRef.current };
       },
     }),
     [applyLocal, refresh, emitSelection, switchSheet, syncSheets, syncFrozen, setSelection, cols, rows],

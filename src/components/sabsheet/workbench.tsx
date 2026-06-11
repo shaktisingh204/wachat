@@ -9,11 +9,15 @@
  */
 import { useCallback, useEffect, useRef, useState } from "react";
 import { SheetCanvas, type SheetCanvasHandle, type SaveState } from "./grid/sheet-canvas.tsx";
-import { Ribbon } from "./chrome/ribbon.tsx";
+import { Ribbon, type SheetPanel } from "./chrome/ribbon.tsx";
 import { SheetTabs } from "./chrome/sheet-tabs.tsx";
+import { AiPanel } from "./chrome/ai-panel.tsx";
+import { ConnectionsPanel } from "./chrome/connections-panel.tsx";
+import { FormsPanel } from "./chrome/forms-panel.tsx";
+import { ChartPanel } from "./charts/chart-panel.tsx";
 import { exportXlsxAction } from "../../app/actions/sabsheet-ops.actions.ts";
 import type { SheetInfo } from "../../lib/sabsheet/engine/protocol.ts";
-import type { Command } from "../../lib/sabsheet/commands/ops.ts";
+import type { Command, CellView } from "../../lib/sabsheet/commands/ops.ts";
 
 const SAVE_LABEL: Record<SaveState, string> = {
   saving: "Saving…",
@@ -41,6 +45,17 @@ export function Workbench({ name, workbookId, seed }: WorkbenchProps) {
   const [sheets, setSheets] = useState<SheetInfo[]>([]);
   const [activeSheet, setActiveSheet] = useState(0);
   const [aggregates, setAggregates] = useState<string | null>(null);
+  const [panel, setPanel] = useState<SheetPanel | null>(null);
+  const [chartSel, setChartSel] = useState<{ cells: CellView[]; box: { top: number; left: number; bottom: number; right: number }; sheet: number } | null>(null);
+
+  const openPanel = useCallback(async (p: SheetPanel) => {
+    if (p === "charts") {
+      const sel = await gridRef.current?.getSelection();
+      setChartSel(sel ?? null);
+    }
+    setPanel(p);
+  }, []);
+  const closePanel = useCallback(() => setPanel(null), []);
 
   const onSheetsChange = useCallback((list: SheetInfo[], active: number) => {
     setSheets(list);
@@ -87,7 +102,11 @@ export function Workbench({ name, workbookId, seed }: WorkbenchProps) {
   return (
     <div style={styles.root}>
       {/* xlsx export needs the server, so it's hidden offline (the grid keeps working). */}
-      <Ribbon grid={gridRef} onExportXlsx={workbookId && online ? exportXlsx : undefined} />
+      <Ribbon
+        grid={gridRef}
+        onExportXlsx={workbookId && online ? exportXlsx : undefined}
+        onOpenPanel={workbookId ? (p) => void openPanel(p) : undefined}
+      />
       <div style={styles.formulaBar}>
         <input
           aria-label="Name box — type a cell or range to go to"
@@ -124,17 +143,31 @@ export function Workbench({ name, workbookId, seed }: WorkbenchProps) {
         />
       </div>
 
-      <div style={styles.gridWrap}>
-        <SheetCanvas
-          ref={gridRef}
-          name={name}
-          workbookId={workbookId}
-          seed={seed}
-          onSelectionChange={onSelectionChange}
-          onSaveStateChange={setSaveState}
-          onSheetsChange={onSheetsChange}
-          onAggregatesChange={setAggregates}
-        />
+      <div style={styles.gridRow}>
+        <div style={styles.gridWrap}>
+          <SheetCanvas
+            ref={gridRef}
+            name={name}
+            workbookId={workbookId}
+            seed={seed}
+            onSelectionChange={onSelectionChange}
+            onSaveStateChange={setSaveState}
+            onSheetsChange={onSheetsChange}
+            onAggregatesChange={setAggregates}
+          />
+        </div>
+        {panel === "ai" && <AiPanel grid={gridRef} activeCellContent={activeContent} onClose={closePanel} />}
+        {panel === "connections" && workbookId && <ConnectionsPanel workbookId={workbookId} onClose={closePanel} />}
+        {panel === "forms" && workbookId && <FormsPanel workbookId={workbookId} onClose={closePanel} />}
+        {panel === "charts" && workbookId && chartSel && (
+          <ChartPanel
+            cells={chartSel.cells}
+            box={chartSel.box}
+            workbookId={workbookId}
+            sheetId={String(chartSel.sheet)}
+            onClose={closePanel}
+          />
+        )}
       </div>
 
       {sheets.length > 0 && <SheetTabs sheets={sheets} active={activeSheet} grid={gridRef} />}
@@ -185,7 +218,8 @@ const styles: Record<string, React.CSSProperties> = {
     outline: "none",
     font: "13px -apple-system, system-ui, sans-serif",
   },
-  gridWrap: { flex: 1, minHeight: 0, position: "relative" },
+  gridRow: { flex: 1, minHeight: 0, display: "flex" },
+  gridWrap: { flex: 1, minWidth: 0, minHeight: 0, position: "relative" },
   statusBar: {
     display: "flex",
     alignItems: "center",

@@ -11,6 +11,7 @@ import 'server-only';
 
 import './blocks/notion';
 import './blocks/airtable';
+import './blocks/sabsheet';
 import './blocks/slack';
 import './blocks/discord';
 import './blocks/github';

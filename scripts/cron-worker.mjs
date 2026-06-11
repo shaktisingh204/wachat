@@ -24,6 +24,7 @@ const JOBS = [
   { name: 'process-webhooks', path: '/api/cron/process-webhooks', schedule: '*/5 * * * *' },
   { name: 'sla-breach-check', path: '/api/cron/sla-breach-check', schedule: '*/5 * * * *' },
   { name: 'qr-scan-notify', path: '/api/cron/qr-scan-notify', schedule: '*/5 * * * *' },
+  { name: 'sabsheet-connections', path: '/api/cron/sabsheet-connections', schedule: '*/5 * * * *' },
   { name: 'link-scheduler', path: '/api/cron/link-scheduler', schedule: '*/15 * * * *' },
   { name: 'abandoned-cart-reminder', path: '/api/cron/abandoned-cart-reminder', schedule: '*/15 * * * *' },
   { name: 'sync-local-templates', path: '/api/cron/sync-local-templates', schedule: '*/15 * * * *' },
