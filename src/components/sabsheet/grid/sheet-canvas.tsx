@@ -37,6 +37,7 @@ import {
 import { OfflineOutbox, MemoryOutboxStore, type SyncState } from "../../../lib/sabsheet/offline/outbox.ts";
 import { IdbOutboxStore, idbAvailable } from "../../../lib/sabsheet/offline/idb-store.ts";
 import { RealtimeSync } from "../../../lib/sabsheet/collab/sync.ts";
+import { openOpStream } from "../../../lib/sabsheet/collab/sse.ts";
 import { applyConditionalFormats } from "../../../lib/sabsheet/cformat/apply.ts";
 import { getConditionalFormats } from "../../../app/actions/sabsheet-cformat.actions.ts";
 import type { CFRule } from "../../../lib/sabsheet/cformat/types.ts";
@@ -510,6 +511,7 @@ export const SheetCanvas = forwardRef<SheetCanvasHandle, SheetCanvasProps>(funct
     // Inbound realtime sync (other collaborators' edits). Reuses the ordered op log via opsSince;
     // an SSE/WebSocket push can replace the poller later without touching this wiring.
     let sync: RealtimeSync | null = null;
+    let closeSse: (() => void) | null = null;
     if (workbookId && outbox) {
       const ob = outbox;
       sync = new RealtimeSync({
@@ -597,13 +599,20 @@ export const SheetCanvas = forwardRef<SheetCanvasHandle, SheetCanvasProps>(funct
       await refresh();
       await emitSelection();
       await syncSheets();
-      sync?.start(); // begin polling for collaborators' edits
+      sync?.start(); // begin polling for collaborators' edits (fallback)
+      // Instant push: an SSE event nudges sync.poll() the moment a collaborator's edit lands.
+      if (workbookId && sync) {
+        const s = sync;
+        const baseSeq = outbox ? await outbox.currentSeq() : 0;
+        closeSse = openOpStream(workbookId, baseSeq, () => void s.poll());
+      }
     })();
 
     return () => {
       cancelled = true;
       ro.disconnect();
       sync?.stop();
+      closeSse?.();
       window.removeEventListener("online", onOnline);
       window.removeEventListener("offline", onOffline);
       engine.destroy();
