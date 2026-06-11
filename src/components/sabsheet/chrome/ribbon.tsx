@@ -10,7 +10,7 @@ import { useState } from "react";
 import { StylePath } from "../../../lib/sabsheet/commands/ops.ts";
 import type { SheetCanvasHandle } from "../grid/sheet-canvas.tsx";
 
-export type SheetPanel = "ai" | "connections" | "charts" | "forms" | "pivot" | "cformat" | "validation" | "filter";
+export type SheetPanel = "ai" | "connections" | "charts" | "forms" | "pivot" | "cformat" | "validation" | "filter" | "share";
 
 export interface RibbonProps {
   grid: React.RefObject<SheetCanvasHandle | null>;
@@ -60,6 +60,11 @@ export function Ribbon({ grid, onExportXlsx, onOpenPanel, onPrint }: RibbonProps
             {t}
           </button>
         ))}
+        {onOpenPanel && (
+          <button title="Share with collaborators" onClick={() => onOpenPanel("share")} style={shareBtn}>
+            🔗 Share
+          </button>
+        )}
       </div>
 
       <div style={tabBody}>
@@ -264,6 +269,7 @@ const ribbonWrap: React.CSSProperties = { background: "#fff", borderBottom: "1px
 const tabStrip: React.CSSProperties = { display: "flex", gap: 2, padding: "4px 8px 0", borderBottom: "1px solid #f1f3f4" };
 const tabBtn: React.CSSProperties = { border: "none", background: "transparent", padding: "6px 14px", borderRadius: "6px 6px 0 0", color: "#5f6368", cursor: "pointer", font: FONT };
 const tabBtnActive: React.CSSProperties = { color: "#1a73e8", fontWeight: 600, background: "#f8f9fa" };
+const shareBtn: React.CSSProperties = { marginLeft: "auto", marginBottom: 4, padding: "5px 14px", border: "none", borderRadius: 16, background: "#1a73e8", color: "#fff", cursor: "pointer", font: "600 13px -apple-system, system-ui, sans-serif" };
 const tabBody: React.CSSProperties = { display: "flex", alignItems: "stretch", gap: 4, padding: "6px 8px", minHeight: 64, overflowX: "auto" };
 const group: React.CSSProperties = { display: "flex", flexDirection: "column", alignItems: "center", padding: "0 8px", borderRight: "1px solid #f1f3f4" };
 const groupBtns: React.CSSProperties = { display: "flex", alignItems: "center", gap: 2, flex: 1 };

@@ -53,8 +53,15 @@ pub async fn assert_workbook_access(
     user_id: ObjectId,
 ) -> Result<()> {
     let coll = mongo.collection::<Document>(WORKBOOK_COLL);
+    // Owner OR a shared member may access the workbook.
     let found = coll
-        .find_one(doc! { "_id": workbook_id, "ownerUserId": user_id })
+        .find_one(doc! {
+            "_id": workbook_id,
+            "$or": [
+                { "ownerUserId": user_id },
+                { "sharedWithUserIds": user_id },
+            ],
+        })
         .await
         .map_err(|e| internal(anyhow::Error::new(e), "sabsheet_ops.workbook_lookup"))?;
     if found.is_none() {

@@ -19,6 +19,7 @@ import { PivotPanel } from "./pivot/pivot-panel.tsx";
 import { CFormatPanel } from "./chrome/cformat-panel.tsx";
 import { ValidationPanel } from "./chrome/validation-panel.tsx";
 import { FilterPanel } from "./chrome/filter-panel.tsx";
+import { SharePanel } from "./chrome/share-panel.tsx";
 import type { CFRule } from "../../lib/sabsheet/cformat/types.ts";
 import type { DataValidationRule } from "../../lib/sabsheet/validation/types.ts";
 import { exportXlsxAction } from "../../app/actions/sabsheet-ops.actions.ts";
@@ -220,6 +221,7 @@ export function Workbench({ name, workbookId, seed }: WorkbenchProps) {
             onClose={closePanel}
           />
         )}
+        {panel === "share" && workbookId && <SharePanel workbookId={workbookId} onClose={closePanel} />}
       </div>
 
       {sheets.length > 0 && <SheetTabs sheets={sheets} active={activeSheet} grid={gridRef} />}
