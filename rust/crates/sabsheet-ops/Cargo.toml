@@ -22,6 +22,7 @@ axum = { version = "0.8", default-features = false, features = ["json", "http1",
 tracing = "0.1"
 anyhow = "1.0"
 base64 = "0.22"
+once_cell = "1"
 
 crm-common = { path = "../crm-common" }
 sabnode-auth = { path = "../auth" }

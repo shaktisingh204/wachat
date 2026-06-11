@@ -23,4 +23,5 @@ where
         .route("/snapshot", get(handlers::get_snapshot))
         .route("/export.xlsx", get(handlers::export_xlsx))
         .route("/import.xlsx", post(handlers::import_xlsx))
+        .route("/migrate", post(handlers::migrate))
 }

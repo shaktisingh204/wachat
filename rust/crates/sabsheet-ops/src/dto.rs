@@ -92,3 +92,40 @@ pub struct ImportXlsxResponse {
     /// New authoritative seq after the wholesale import-replace.
     pub seq: i64,
 }
+
+/// One cell in a migration payload: a position plus the raw user input (a formula starts with `=`,
+/// otherwise a literal like `"42"` or `"hello"`).
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct MigrateCell {
+    pub row: i32,
+    pub col: i32,
+    pub input: String,
+}
+
+/// One sheet in a migration payload: its display name and the cells to populate.
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct MigrateSheet {
+    pub name: String,
+    pub cells: Vec<MigrateCell>,
+}
+
+/// `POST /v1/sabsheet/ops/migrate` request: rebuild a workbook from sheet/cell intent payloads
+/// (used by the v1 -> v2 migration driver).
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct MigrateInput {
+    pub workbook_id: String,
+    pub sheets: Vec<MigrateSheet>,
+}
+
+/// `POST /v1/sabsheet/ops/migrate` response.
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct MigrateResponse {
+    /// Authoritative seq after migration (always 1 — migration seeds a fresh workbook).
+    pub seq: i64,
+    /// Total number of cells written across all sheets.
+    pub cell_count: i64,
+}

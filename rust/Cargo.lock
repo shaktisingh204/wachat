@@ -15223,6 +15223,7 @@ dependencies = [
  "crm-common",
  "futures",
  "mongodb",
+ "once_cell",
  "sabnode-auth",
  "sabnode-common",
  "sabnode-db",
