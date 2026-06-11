@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { getSabFlow } from '@/app/actions/sabflow';
 import { EditorPage } from '@/components/sabflow/editor/EditorPage';
+import type { SabFlowDoc } from '@/lib/sabflow/types';
 
 import '@/components/sabflow/sabflow.css';
 
@@ -25,9 +26,15 @@ export default async function FlowEditorPage({ params }: Props) {
     notFound();
   }
 
+  // `getSabFlow` returns the Mongo doc serialized for the client: `_id` is
+  // already a string and all BSON values are stripped. That matches the
+  // editor's `SabFlowDoc & { _id: string }` shape at runtime - the assertion
+  // only reconciles the serialized string `_id` with SabFlowDoc's ObjectId.
+  const editorFlow = flow as SabFlowDoc & { _id: string };
+
   return (
     <div className="20ui">
-      <EditorPage flow={flow as any} />
+      <EditorPage flow={editorFlow} />
     </div>
   );
 }

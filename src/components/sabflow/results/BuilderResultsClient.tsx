@@ -1,9 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { DataTable } from '@/components/sabcrm/20ui';
+import { DataTable, type DataTableColumn } from '@/components/sabcrm/20ui';
 import { ChartContainer, ChartTooltip, CHART_PALETTE, Recharts } from '@/components/sabcrm/20ui';
-import { type ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { Badge } from '@/components/sabcrm/20ui';
 
@@ -40,41 +39,53 @@ export function BuilderResultsChart({ data }: { data: { date: string; total: num
   );
 }
 
-export function BuilderResultsTable({ data }: { data: any[] }) {
-  const columns: ColumnDef<any>[] = React.useMemo(() => [
+type SessionRow = {
+  _id?: string;
+  sessionId?: string;
+  createdAt: string | Date;
+  updatedAt: string | Date;
+  messageCount?: number;
+  isCompleted?: boolean;
+};
+
+export function BuilderResultsTable({ data }: { data: SessionRow[] }) {
+  const columns: DataTableColumn<SessionRow>[] = React.useMemo(() => [
     {
-      accessorKey: "sessionId",
+      key: "sessionId",
       header: "Session ID",
-      cell: ({ row }) => <span className="font-mono text-xs">{row.original.sessionId || row.original._id}</span>,
+      render: (row) => <span className="font-mono text-xs">{row.sessionId || row._id}</span>,
     },
     {
-      accessorKey: "createdAt",
+      key: "createdAt",
       header: "Started",
-      cell: ({ row }) => <span className="text-[var(--st-text)]">{format(new Date(row.original.createdAt), "MMM d, h:mm a")}</span>,
+      render: (row) => <span className="text-[var(--st-text)]">{format(new Date(row.createdAt), "MMM d, h:mm a")}</span>,
     },
     {
-      accessorKey: "updatedAt",
+      key: "updatedAt",
       header: "Last Update",
-      cell: ({ row }) => <span className="text-[var(--st-text)]">{format(new Date(row.original.updatedAt), "MMM d, h:mm a")}</span>,
+      render: (row) => <span className="text-[var(--st-text)]">{format(new Date(row.updatedAt), "MMM d, h:mm a")}</span>,
     },
     {
-      accessorKey: "messageCount",
+      key: "messageCount",
       header: "Messages",
-      cell: ({ row }) => <span>{row.original.messageCount || 0}</span>,
+      render: (row) => <span>{row.messageCount || 0}</span>,
     },
     {
-      accessorKey: "isCompleted",
+      key: "isCompleted",
       header: "Status",
-      cell: ({ row }) => {
-        const isComplete = row.original.isCompleted;
-        return (
-          <Badge variant={isComplete ? "success" : "secondary"}>
-            {isComplete ? "Complete" : "In Progress"}
-          </Badge>
-        );
-      },
+      render: (row) => (
+        <Badge tone={row.isCompleted ? "success" : "neutral"}>
+          {row.isCompleted ? "Complete" : "In Progress"}
+        </Badge>
+      ),
     },
   ], []);
 
-  return <DataTable columns={columns} data={data} pageSize={10} />;
+  return (
+    <DataTable
+      columns={columns}
+      rows={data}
+      getRowId={(row, i) => row.sessionId ?? row._id ?? String(i)}
+    />
+  );
 }

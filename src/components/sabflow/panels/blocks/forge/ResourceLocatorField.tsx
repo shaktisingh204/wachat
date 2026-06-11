@@ -103,7 +103,7 @@ export function ResourceLocatorField({
     // Switching modes clears the value, n8n behaviour. Stops a URL pasted
     // in URL mode from leaking into ID mode and producing a bogus id.
     if (nextName === current.mode) return;
-    onChange({ mode: nextName, value: '' });
+    onChange({ mode: nextName as typeof current.mode, value: '' });
   };
 
   if (modes.length === 0) {

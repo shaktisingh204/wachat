@@ -66,6 +66,13 @@ interface SuccessPayload {
   editorUrl: string;
 }
 
+/** Shape of the install endpoint's JSON body (success or error). */
+interface InstallResponse {
+  docId?: string;
+  editorUrl?: string;
+  error?: string;
+}
+
 /* ── Component ────────────────────────────────────────────────────────── */
 
 export function InstallModal({
@@ -98,9 +105,12 @@ export function InstallModal({
         { method: 'POST' },
       );
 
-      let data: { docId?: string; editorUrl?: string; error?: string } | null = null;
+      let data: InstallResponse | null = null;
       try {
-        data = (await res.json()) as any;
+        const parsed: unknown = await res.json();
+        if (parsed && typeof parsed === 'object') {
+          data = parsed as InstallResponse;
+        }
       } catch {
         /* empty body */
       }

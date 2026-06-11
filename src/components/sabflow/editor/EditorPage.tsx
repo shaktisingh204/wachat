@@ -14,6 +14,7 @@ import { VariablesPanel } from '@/components/sabflow/panels/VariablesPanel';
 import { ThemePanel } from '@/components/sabflow/panels/ThemePanel';
 import { VersionHistoryPanel } from '@/components/sabflow/panels/VersionHistoryPanel';
 import { FlowEditorHeader } from './FlowEditorHeader';
+import { EditorErrorBoundary } from './EditorErrorBoundary';
 import { ValidationPanel } from '@/components/sabflow/panels/ValidationPanel';
 import {
   CollabProvider,
@@ -32,6 +33,9 @@ import { Settings, Play, Variable, Palette, History, Link, Copy, X } from 'lucid
 /* ── Constants ───────────────────────────────────────────────────────────── */
 
 const MAX_HISTORY = 50;
+
+/** Autosave fires this long after the last flow mutation. */
+const AUTOSAVE_DELAY_MS = 3000;
 
 // SABFLOW_COLLAB_ENABLED is imported from '@/lib/sabflow/features'.
 // It is a build-time constant (NEXT_PUBLIC_*) so the disabled branch
@@ -71,6 +75,24 @@ function EditorContent({ flow: initialFlow }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const { setOpenedNodeId } = useGraph();
 
+  /* ── Dirty tracking ──────────────────────────────────────────────────── */
+
+  // A monotonically increasing edit counter. Every flow mutation bumps it;
+  // a successful save captures the value it persisted. `isDirty` is then a
+  // trivial integer comparison - no deep-comparing of large flow docs.
+  const [editCount, setEditCount] = useState(0);
+  const [savedEditCount, setSavedEditCount] = useState(0);
+  const isDirty = editCount !== savedEditCount;
+
+  // Ref mirror of editCount for handlers that need the latest value without
+  // depending on it (e.g. marking the doc clean after a version restore).
+  const editCountRef = useRef(0);
+
+  const markEdit = useCallback(() => {
+    editCountRef.current += 1;
+    setEditCount(editCountRef.current);
+  }, []);
+
   /* ── Undo / Redo history ─────────────────────────────────────────────── */
 
   // history[historyIndex] is always the current state.
@@ -90,8 +112,9 @@ function EditorContent({ flow: initialFlow }: Props) {
         return next.length > MAX_HISTORY ? next.slice(next.length - MAX_HISTORY) : next;
       });
       setHistoryIndex((prev) => Math.min(prev + 1, MAX_HISTORY - 1));
+      markEdit();
     },
-    [historyIndex],
+    [historyIndex, markEdit],
   );
 
   const undo = useCallback(() => {
@@ -99,14 +122,16 @@ function EditorContent({ flow: initialFlow }: Props) {
     const newIndex = historyIndex - 1;
     setHistoryIndex(newIndex);
     setFlow(history[newIndex]);
-  }, [canUndo, historyIndex, history]);
+    markEdit();
+  }, [canUndo, historyIndex, history, markEdit]);
 
   const redo = useCallback(() => {
     if (!canRedo) return;
     const newIndex = historyIndex + 1;
     setHistoryIndex(newIndex);
     setFlow(history[newIndex]);
-  }, [canRedo, historyIndex, history]);
+    markEdit();
+  }, [canRedo, historyIndex, history, markEdit]);
 
   // When a toolbar panel is opened, close any open block node
   const togglePanel = useCallback((panel: Exclude<RightPanel, null>) => {
@@ -183,6 +208,9 @@ function EditorContent({ flow: initialFlow }: Props) {
           && !(typeof Node !== 'undefined' && overrides instanceof Node)
           ? overrides
           : undefined;
+      // Capture the edit counter the moment the save starts: edits made while
+      // the request is in flight keep the editor dirty after it resolves.
+      const editCountAtSave = editCount;
       startSaving(async () => {
         const rawPayload = {
           name: flow.name,
@@ -208,11 +236,41 @@ function EditorContent({ flow: initialFlow }: Props) {
           setSaveError(result.error as string);
         } else {
           setLastSaved(new Date());
+          setSavedEditCount(editCountAtSave);
         }
       });
     },
-    [flow],
+    [flow, editCount],
   );
+
+  /* ── Autosave ────────────────────────────────────────────────────────── */
+
+  // Debounced autosave: fires AUTOSAVE_DELAY_MS after the last flow mutation.
+  // - Every edit changes `save`'s identity (it closes over `flow`), so the
+  //   pending timer resets on each mutation - including continuous drag
+  //   commits from the canvas, which keep deferring the save until idle.
+  // - While a save is in flight (`isSaving`) no timer is scheduled; when it
+  //   settles, the effect re-runs and reschedules if edits arrived meanwhile.
+  // - After a failed save (`saveError` set) autosave pauses so it doesn't
+  //   hammer a broken endpoint - the user retries explicitly via Save/Cmd+S.
+  useEffect(() => {
+    if (!isDirty || isSaving || saveError) return;
+    const timer = setTimeout(() => save(), AUTOSAVE_DELAY_MS);
+    return () => clearTimeout(timer);
+  }, [isDirty, isSaving, saveError, save]);
+
+  /* ── Warn before leaving with unsaved changes ────────────────────────── */
+
+  useEffect(() => {
+    if (!isDirty) return;
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      // Chrome requires returnValue to be set for the prompt to show.
+      e.returnValue = '';
+    };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [isDirty]);
 
   /* ── Keyboard shortcuts ──────────────────────────────────────────────── */
 
@@ -311,6 +369,7 @@ function EditorContent({ flow: initialFlow }: Props) {
         canUndo={canUndo}
         canRedo={canRedo}
         isSaving={isSaving}
+        isDirty={isDirty}
         saveError={saveError}
         lastSaved={lastSaved}
         onUndo={undo}
@@ -399,26 +458,37 @@ function EditorContent({ flow: initialFlow }: Props) {
            canvas's intrinsic min-content from blowing the flex row out when
            a side panel opens. */}
         <div className="relative flex flex-1 min-w-0 overflow-hidden">
-          <WorkflowCanvas
-            flow={flow}
-            onFlowChange={handleDocChange}
-            containerRef={containerRef}
-          />
+          <EditorErrorBoundary label="canvas" fallbackClassName="flex-1">
+            <WorkflowCanvas
+              flow={flow}
+              onFlowChange={handleDocChange}
+              containerRef={containerRef}
+            />
 
-          {/* Remote cursors overlay - sibling of the canvas so cursors render
-             on top of the workflow surface but underneath any side panels.
-             Gated behind NEXT_PUBLIC_SABFLOW_COLLAB_ENABLED. Renders null
-             when collab is disabled or no remote peers are connected. */}
-          <CollabRemoteCursors />
+            {/* Remote cursors overlay - sibling of the canvas so cursors render
+               on top of the workflow surface but underneath any side panels.
+               Gated behind NEXT_PUBLIC_SABFLOW_COLLAB_ENABLED. Renders null
+               when collab is disabled or no remote peers are connected. */}
+            <CollabRemoteCursors />
+          </EditorErrorBoundary>
         </div>
 
-        {/* Right rail: one panel at a time */}
+        {/* Right rail: one panel at a time. Wrapped in its own error boundary
+           so a crash inside a settings/side panel never takes the canvas
+           down with it. */}
+        <EditorErrorBoundary
+          label="side panel"
+          fallbackClassName="z-20 w-[320px] shrink-0 border-l border-[var(--st-border)]"
+        >
 
         {/* Block settings panel - slides in from the right when a block node is clicked */}
         <BlockSettingsPanel
           flow={flow}
           onFlowChange={handleFlowChange}
-          onVariablesChange={(variables) => setFlow((prev) => ({ ...prev, variables }))}
+          onVariablesChange={(variables) => {
+            setFlow((prev) => ({ ...prev, variables }));
+            markEdit();
+          }}
         />
 
         {/* Variables panel */}
@@ -426,7 +496,10 @@ function EditorContent({ flow: initialFlow }: Props) {
           <div className="w-[300px] shrink-0 border-l border-[var(--st-border)] bg-[var(--st-bg)] z-20 overflow-hidden flex flex-col">
             <VariablesPanel
               variables={flow.variables}
-              onVariablesChange={(variables) => setFlow((prev) => ({ ...prev, variables }))}
+              onVariablesChange={(variables) => {
+                setFlow((prev) => ({ ...prev, variables }));
+                markEdit();
+              }}
               flow={flow}
             />
           </div>
@@ -436,7 +509,10 @@ function EditorContent({ flow: initialFlow }: Props) {
         {activePanel === 'theme' && (
           <ThemePanel
             theme={flow.theme}
-            onThemeChange={(theme) => setFlow((prev) => ({ ...prev, theme }))}
+            onThemeChange={(theme) => {
+              setFlow((prev) => ({ ...prev, theme }));
+              markEdit();
+            }}
             onClose={() => setActivePanel(null)}
           />
         )}
@@ -445,7 +521,10 @@ function EditorContent({ flow: initialFlow }: Props) {
         {activePanel === 'settings' && (
           <FlowSettingsPanel
             flow={flow}
-            onUpdate={(changes) => setFlow((prev) => ({ ...prev, ...changes }))}
+            onUpdate={(changes) => {
+              setFlow((prev) => ({ ...prev, ...changes }));
+              markEdit();
+            }}
             onClose={() => setActivePanel(null)}
           />
         )}
@@ -477,9 +556,15 @@ function EditorContent({ flow: initialFlow }: Props) {
               setFlow(restoredFlow);
               setHistory([restoredFlow]);
               setHistoryIndex(0);
+              // The restore endpoint already persisted this snapshot as the
+              // current doc, so the editor is clean (any unsaved edits were
+              // replaced by the restore).
+              setSavedEditCount(editCountRef.current);
+              setLastSaved(new Date());
             }}
           />
         )}
+        </EditorErrorBoundary>
       </div>
 
       {/* Drag overlay rendered at root level so it escapes stacking contexts */}

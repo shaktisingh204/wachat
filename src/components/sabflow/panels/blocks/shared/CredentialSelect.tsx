@@ -71,9 +71,19 @@ export function CredentialSelect({ credentialType, value, onChange }: Props) {
 
   if (error) {
     return (
-      <Alert tone="danger" title="Could not load credentials">
-        {error}
-      </Alert>
+      <div className="space-y-2">
+        <Alert tone="danger" title="Could not load credentials">
+          {error}
+        </Alert>
+        <Button
+          variant="outline"
+          size="sm"
+          iconLeft={RefreshCw}
+          onClick={load}
+        >
+          Retry
+        </Button>
+      </div>
     );
   }
 

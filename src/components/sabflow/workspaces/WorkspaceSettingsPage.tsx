@@ -148,7 +148,7 @@ export function WorkspaceSettingsPage({
           {tabs.map(({ id, label, icon: Icon }) => (
             <TabsTrigger key={id} value={id}>
               <span className="inline-flex items-center gap-2">
-                <Icon size={14} aria-hidden="true" />
+                <Icon size={14} aria-hidden />
                 {label}
               </span>
             </TabsTrigger>

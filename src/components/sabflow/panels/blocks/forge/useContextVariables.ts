@@ -26,7 +26,10 @@ export function useContextVariables(nodeId?: string): VariableOption[] {
       const sourceNode = nodes.find(n => n.id === id);
       if (!sourceNode) continue;
 
-      const type = sourceNode.data?.type || (sourceNode as any).type;
+      // Block nodes carry the SabFlow block type in `data.type`; fall back to
+      // the React Flow node type (`Node['type']` is `string | undefined`).
+      const dataType = sourceNode.data?.type;
+      const type = typeof dataType === 'string' ? dataType : sourceNode.type;
       if (!type) continue;
 
       if (type.startsWith('forge_')) {

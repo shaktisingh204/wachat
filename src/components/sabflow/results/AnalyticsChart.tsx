@@ -1,5 +1,7 @@
 'use client';
 
+import type { DailyCount } from '@/app/actions/sabflow-results';
+
 /* ── helpers ────────────────────────────────────────────── */
 
 function fmtAxisDate(iso: string) {

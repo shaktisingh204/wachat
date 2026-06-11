@@ -142,7 +142,7 @@ export function ConditionSettings({ block, onBlockChange, variables = [] }: Prop
       <Button
         variant="outline"
         block
-        iconLeft={LuPlus}
+        iconLeft={<LuPlus />}
         onClick={addCondition}
       >
         Add condition
@@ -228,7 +228,7 @@ function ConditionRow({
           <Button
             variant="ghost"
             size="sm"
-            iconLeft={LuTrash2}
+            iconLeft={<LuTrash2 />}
             onClick={onRemove}
           >
             Remove

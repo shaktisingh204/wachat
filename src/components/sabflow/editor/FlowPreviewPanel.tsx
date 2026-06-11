@@ -39,6 +39,7 @@ import {
   ChevronDown,
   ChevronRight,
   GripVertical,
+  SkipForward,
   Terminal,
 } from 'lucide-react';
 import {
@@ -67,7 +68,9 @@ type HostMsg =
   | { kind: 'video'; url: string }
   | { kind: 'audio'; url: string }
   | { kind: 'embed'; url: string }
-  | { kind: 'redirect'; url: string };
+  | { kind: 'redirect'; url: string }
+  /** Inline notice for blocks the local simulator cannot execute. */
+  | { kind: 'skipped'; label: string };
 
 type ChatMsg =
   | { role: 'host'; msg: HostMsg }
@@ -89,6 +92,20 @@ function resolveVars(
       ? vars[trimmed]
       : `{{${trimmed}}}`;
   });
+}
+
+/**
+ * Human label for a block the preview cannot execute (integration / forge /
+ * script). Prefers a user-given name, falls back to a readable type.
+ */
+function blockSkipLabel(block: Block): string {
+  const name =
+    typeof block.options?.name === 'string' ? block.options.name.trim() : '';
+  if (name) return name;
+  const raw = block.type.startsWith('forge_')
+    ? block.type.slice('forge_'.length)
+    : block.type;
+  return raw.replace(/_/g, ' ');
 }
 
 /** Find the next group/block edge from a given source. */
@@ -367,6 +384,18 @@ function runFlowEngine(
   const MAX_STEPS = 200; // prevent infinite loops
   let steps = 0;
 
+  // Block ids we've already emitted a "skipped in preview" notice for, so a
+  // block visited multiple times (loops) only announces itself once.
+  const skipNoticeShown = new Set<string>();
+  const pushSkipNotice = (block: Block) => {
+    if (skipNoticeShown.has(block.id)) return;
+    skipNoticeShown.add(block.id);
+    newMessages.push({
+      role: 'host',
+      msg: { kind: 'skipped', label: blockSkipLabel(block) },
+    });
+  };
+
   // Helper: follow edge to next group/block
   const followEdge = (edge: Edge | undefined): boolean => {
     if (!edge) {
@@ -517,7 +546,8 @@ function runFlowEngine(
       block.type === 'ab_test' ||
       block.type === 'script'
     ) {
-      // Skip unsupported logic blocks in preview
+      // Skip unsupported logic blocks in preview - but say so in the stream.
+      if (block.type === 'script') pushSkipNotice(block);
       const blockEdge = findEdgeFrom(flow.edges, { groupId: group.id, blockId: block.id });
       if (blockEdge) { followEdge(blockEdge); } else { blockIndex++; }
       continue;
@@ -543,7 +573,18 @@ function runFlowEngine(
       block.type === 'together_ai' ||
       block.type === 'mistral'
     ) {
-      // Silently skip integrations in local preview
+      // Integrations only run in real executions - announce the skip inline.
+      pushSkipNotice(block);
+      const blockEdge = findEdgeFrom(flow.edges, { groupId: group.id, blockId: block.id });
+      if (blockEdge) { followEdge(blockEdge); } else { blockIndex++; }
+      continue;
+    }
+
+    /* -- Forge blocks ----------------------------------- */
+    if (block.type.startsWith('forge_')) {
+      // Forge blocks execute on the server engine - skip with a notice and
+      // follow the block's outgoing edge like the other skipped kinds.
+      pushSkipNotice(block);
       const blockEdge = findEdgeFrom(flow.edges, { groupId: group.id, blockId: block.id });
       if (blockEdge) { followEdge(blockEdge); } else { blockIndex++; }
       continue;
@@ -700,6 +741,16 @@ function HostBubble({ msg }: { msg: HostMsg }) {
         title="Embedded content"
         className="max-w-[280px] h-[180px] rounded-2xl border-none shadow-sm animate-in fade-in-0 duration-200"
       />
+    );
+  }
+  if (msg.kind === 'skipped') {
+    return (
+      <div className="flex items-center gap-1.5 px-1 text-[11px] italic text-[var(--st-text-tertiary)] animate-in fade-in-0 duration-200">
+        <SkipForward className="h-3 w-3 shrink-0" strokeWidth={2} aria-hidden="true" />
+        <span>
+          {msg.label} runs only in real executions - skipped in preview
+        </span>
+      </div>
     );
   }
   if (msg.kind === 'redirect') {

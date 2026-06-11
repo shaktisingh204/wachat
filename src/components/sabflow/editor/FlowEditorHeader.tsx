@@ -26,6 +26,12 @@ export type FlowEditorHeaderProps = {
   canRedo: boolean;
   /** Whether a save is in-flight. */
   isSaving: boolean;
+  /**
+   * Whether there are unsaved changes (drives the dot + Save enablement).
+   * Optional: callers that don't track dirtiness (collab path persists via
+   * Yjs) omit it and keep the always-enabled Save button.
+   */
+  isDirty?: boolean;
   /** Error message from the last save attempt (null = none). */
   saveError: string | null;
   /** Timestamp of the last successful save (null = never saved this session). */
@@ -130,6 +136,7 @@ export function FlowEditorHeader({
   canUndo,
   canRedo,
   isSaving,
+  isDirty,
   saveError,
   lastSaved,
   onUndo,
@@ -182,6 +189,15 @@ export function FlowEditorHeader({
           onChange={onNameChange}
           onCommit={onSave}
         />
+        {/* Unsaved-changes dot */}
+        {isDirty && (
+          <span
+            className="ml-1 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--st-accent)]"
+            title="Unsaved changes"
+            role="status"
+            aria-label="Unsaved changes"
+          />
+        )}
       </div>
 
       {/* ── Right cluster ─────────────────────────────────────────────── */}
@@ -207,26 +223,32 @@ export function FlowEditorHeader({
 
         <div className="h-5 w-px bg-[var(--st-border)]" />
 
-        {/* Save status indicator */}
+        {/* Save status indicator (covers manual saves and autosave) */}
         {saveError ? (
           <span className="max-w-[140px] truncate text-[11px] text-[var(--st-danger)]" title={saveError}>
             {saveError}
           </span>
+        ) : isSaving ? (
+          <span className="text-[11px] text-[var(--st-text-tertiary)]" aria-live="polite">
+            Saving...
+          </span>
         ) : lastSaved ? (
-          <span className="flex items-center gap-1 text-[11px] text-[var(--st-text-tertiary)]">
+          <span className="flex items-center gap-1 text-[11px] text-[var(--st-text-tertiary)]" aria-live="polite">
             <Check className="h-3 w-3 shrink-0 text-[var(--st-status-ok)]" strokeWidth={2.5} aria-hidden="true" />
-            Saved
+            Saved{' '}
+            {lastSaved.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
           </span>
         ) : null}
 
-        {/* Save button (built-in spinner via the loading prop) */}
+        {/* Save button (built-in spinner via the loading prop). Disabled when
+            there is nothing to save - autosave keeps the doc clean anyway. */}
         <Button
           variant="primary"
           size="sm"
           iconLeft={Save}
           loading={isSaving}
           onClick={() => onSave()}
-          disabled={isSaving}
+          disabled={isSaving || isDirty === false}
           title="Save (Cmd+S)"
         >
           {isSaving ? 'Saving...' : 'Save'}
