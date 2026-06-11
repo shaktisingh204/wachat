@@ -232,7 +232,7 @@ export function BlocksSideBar() {
       .sort((a, b) => a.category.localeCompare(b.category));
   }, [entries, matches]);
 
-  /* Flattened virtual rows for the apps list (headers + 2-up entry rows). */
+  /* Flattened virtual rows for the apps list (headers + one-per-row entries). */
   type AppsRow =
     | { type: 'header'; category: string; count: number; expanded: boolean }
     | { type: 'entries'; items: AppCatalogEntry[]; category: string; index: number };
@@ -250,10 +250,10 @@ export function BlocksSideBar() {
         expanded,
       });
       if (!expanded) continue;
-      for (let i = 0; i < cat.entries.length; i += 2) {
+      for (let i = 0; i < cat.entries.length; i += 1) {
         rows.push({
           type: 'entries',
-          items: cat.entries.slice(i, i + 2),
+          items: cat.entries.slice(i, i + 1),
           category: cat.category,
           index: i,
         });
@@ -406,7 +406,7 @@ export function BlocksSideBar() {
               )}
             </div>
 
-            {/* Virtualized rows: category headers + 2-up entry rows. */}
+            {/* Virtualized rows: category headers + one-per-row entries. */}
             <div
               className="relative w-full"
               style={{ height: rowVirtualizer.getTotalSize() }}
@@ -432,7 +432,7 @@ export function BlocksSideBar() {
                         onToggle={toggleAppCategory}
                       />
                     ) : (
-                      <div className="grid grid-cols-2 gap-1.5 px-0.5 pb-1.5">
+                      <div className="grid grid-cols-1 gap-1.5 px-0.5 pb-1.5">
                         {row.items.map((entry) => (
                           <BlockCard
                             key={entry.key}
@@ -561,7 +561,7 @@ function RecentSection({
       </div>
 
       {/* Block grid */}
-      <div className="grid grid-cols-2 gap-1.5 pt-1 pb-1.5 px-0.5">
+      <div className="grid grid-cols-1 gap-1.5 pt-1 pb-1.5 px-0.5">
         {entries.map((entry) => (
           <BlockCard
             key={`recent-${entry.key}`}
@@ -639,7 +639,7 @@ function CategorySection({
 
       {/* Block grid */}
       {!isCollapsed && (
-        <div className="grid grid-cols-2 gap-1.5 pt-1 pb-1.5 px-0.5">
+        <div className="grid grid-cols-1 gap-1.5 pt-1 pb-1.5 px-0.5">
           {entries.map((entry) => (
             <BlockCard
               key={entry.key}
