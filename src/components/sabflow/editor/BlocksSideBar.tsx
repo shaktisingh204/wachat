@@ -397,6 +397,7 @@ export function BlocksSideBar() {
               </p>
               {!loading && (
                 <span
+                  data-testid="sabflow-apps-count"
                   className="text-[10px] tabular-nums text-[var(--st-text-tertiary)]"
                   title={`${counts.native} native · ${counts.rust} rust · ${counts.forge} forge · ${counts.preset} preset`}
                 >

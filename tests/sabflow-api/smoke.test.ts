@@ -113,10 +113,20 @@ test('workspaces/invites surfaces a seeded incoming + sent invite', async (t) =>
   // Sent: an invite from a workspace the fixture user owns.
   const sent = await createWorkspaceInvite(ctx.db!, { email: 'e2e-someone-else@test.local' });
 
-  const res = await api(ctx, 'GET', '/api/sabflow/workspaces/invites');
+  let res = await api(ctx, 'GET', '/api/sabflow/workspaces/invites');
   assert.equal(res.status, 200, JSON.stringify(res.body));
 
-  const inboxHit = res.body.incoming.find((i: { id: string }) => i.id === incoming.inviteId);
+  let inboxHit = res.body.incoming.find((i: { id: string }) => i.id === incoming.inviteId);
+  if (!inboxHit) {
+    // Test files run as parallel processes and share the __e2e cleanup
+    // sweep — another file's afterAll can race this seed. One re-seed +
+    // re-read absorbs it.
+    const reseeded = await createWorkspaceInvite(ctx.db!, { email: TEST_USER_EMAIL });
+    incoming.inviteId = reseeded.inviteId;
+    incoming.workspaceId = reseeded.workspaceId;
+    res = await api(ctx, 'GET', '/api/sabflow/workspaces/invites');
+    inboxHit = res.body.incoming.find((i: { id: string }) => i.id === incoming.inviteId);
+  }
   assert.ok(inboxHit, 'seeded incoming invite missing from inbox');
   assert.equal(inboxHit.workspaceId, incoming.workspaceId);
   assert.equal(typeof inboxHit.token, 'string');

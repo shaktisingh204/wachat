@@ -35,8 +35,8 @@ let _queue: Queue | null = null;
 function getQueue(): Queue {
   if (_queue) return _queue;
   const connection = {
-    host: process.env.REDIS_HOST ?? 'localhost',
-    port: Number(process.env.REDIS_PORT ?? 6379),
+    host: process.env.REDIS_HOST || 'localhost',
+    port: Number(process.env.REDIS_PORT || 6379),
     ...(process.env.REDIS_PASSWORD ? { password: process.env.REDIS_PASSWORD } : {}),
   };
   _queue = new Queue(SABFLOW_QUEUE, { connection });

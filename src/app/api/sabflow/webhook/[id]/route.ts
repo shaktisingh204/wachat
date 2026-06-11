@@ -129,8 +129,8 @@ let _bullQueue: Queue | null = null;
 function getBullQueue(): Queue {
     if (_bullQueue) return _bullQueue;
     const redisConn = {
-        host: process.env.REDIS_HOST ?? 'localhost',
-        port: Number(process.env.REDIS_PORT ?? 6379),
+        host: process.env.REDIS_HOST || 'localhost',
+        port: Number(process.env.REDIS_PORT || 6379),
         ...(process.env.REDIS_PASSWORD ? { password: process.env.REDIS_PASSWORD } : {}),
     };
     _bullQueue = new Queue(SABFLOW_QUEUE, { connection: redisConn });
@@ -304,8 +304,8 @@ async function waitForExecutionLegacy(
     timeoutMs: number,
 ): Promise<Record<string, unknown> | null> {
     const redisConn = {
-        host: process.env.REDIS_HOST ?? 'localhost',
-        port: Number(process.env.REDIS_PORT ?? 6379),
+        host: process.env.REDIS_HOST || 'localhost',
+        port: Number(process.env.REDIS_PORT || 6379),
         ...(process.env.REDIS_PASSWORD ? { password: process.env.REDIS_PASSWORD } : {}),
     };
     return new Promise((resolve) => {

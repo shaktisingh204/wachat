@@ -23,8 +23,8 @@ import { SABFLOW_QUEUE } from '@/lib/sabflow/worker/queues';
 // ── Redis / queue singletons ───────────────────────────────────────────────
 
 const redisConn = {
-  host: process.env.REDIS_HOST ?? 'localhost',
-  port: Number(process.env.REDIS_PORT ?? 6379),
+  host: process.env.REDIS_HOST || 'localhost',
+  port: Number(process.env.REDIS_PORT || 6379),
   ...(process.env.REDIS_PASSWORD ? { password: process.env.REDIS_PASSWORD } : {}),
 };
 

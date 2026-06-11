@@ -293,6 +293,12 @@ module.exports = {
         REDIS_PASSWORD: process.env.REDIS_PASSWORD,
 
         SABFLOW_WORKER_CONCURRENCY: process.env.SABFLOW_WORKER_CONCURRENCY || '10',
+
+        // The TS-engine path (forge/app-preset flows) imports library code
+        // that begins with `import 'server-only'`. Next strips that at build
+        // time; plain tsx cannot, and the real package throws outside a
+        // React Server environment. Resolve it to the benign local stub.
+        NODE_PATH: './src/workers/_stubs',
       },
     },
 

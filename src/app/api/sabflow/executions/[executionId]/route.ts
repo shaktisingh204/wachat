@@ -47,7 +47,9 @@ export async function GET(
     if (!ObjectId.isValid(execution.flowId)) {
       return NextResponse.json({ error: 'Invalid flow id' }, { status: 400 });
     }
-    const flow = await db.collection('sabflow_flows').findOne(
+    // Flows live in `sabflows` (this previously queried a nonexistent
+    // `sabflow_flows` collection, so every replay-detail request 404'd).
+    const flow = await db.collection('sabflows').findOne(
       { _id: new ObjectId(execution.flowId) },
       { projection: { projectId: 1, userId: 1, name: 1 } },
     );

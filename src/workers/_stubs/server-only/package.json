@@ -1,0 +1,6 @@
+{
+  "name": "server-only",
+  "version": "0.0.0-worker-stub",
+  "main": "index.js",
+  "description": "Benign stand-in for the `server-only` poison-pill package. Next's compiler strips `import 'server-only'` at build time, but the PM2 workers run library code (the TS engine's forge path) directly under tsx, where the real package would throw. Wired via NODE_PATH in ecosystem.config.js — never resolved inside the Next.js app."
+}
