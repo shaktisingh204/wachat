@@ -16,6 +16,8 @@ import { ConnectionsPanel } from "./chrome/connections-panel.tsx";
 import { FormsPanel } from "./chrome/forms-panel.tsx";
 import { ChartPanel } from "./charts/chart-panel.tsx";
 import { PivotPanel } from "./pivot/pivot-panel.tsx";
+import { CFormatPanel } from "./chrome/cformat-panel.tsx";
+import type { CFRule } from "../../lib/sabsheet/cformat/types.ts";
 import { exportXlsxAction } from "../../app/actions/sabsheet-ops.actions.ts";
 import type { SheetInfo } from "../../lib/sabsheet/engine/protocol.ts";
 import type { Command, CellView } from "../../lib/sabsheet/commands/ops.ts";
@@ -50,11 +52,14 @@ export function Workbench({ name, workbookId, seed }: WorkbenchProps) {
   const [chartSel, setChartSel] = useState<{ cells: CellView[]; box: { top: number; left: number; bottom: number; right: number }; sheet: number } | null>(null);
 
   const openPanel = useCallback(async (p: SheetPanel) => {
-    if (p === "charts" || p === "pivot") {
+    if (p === "charts" || p === "pivot" || p === "cformat") {
       const sel = await gridRef.current?.getSelection();
       setChartSel(sel ?? null);
     }
     setPanel(p);
+  }, []);
+  const onRulesChange = useCallback((rules: CFRule[]) => {
+    void gridRef.current?.setConditionalFormats(rules);
   }, []);
   const closePanel = useCallback(() => setPanel(null), []);
   const print = useCallback(() => {
@@ -180,6 +185,15 @@ export function Workbench({ name, workbookId, seed }: WorkbenchProps) {
             workbookId={workbookId}
             sheetId={String(chartSel.sheet)}
             onClose={closePanel}
+          />
+        )}
+        {panel === "cformat" && workbookId && chartSel && (
+          <CFormatPanel
+            workbookId={workbookId}
+            sheet={chartSel.sheet}
+            box={chartSel.box}
+            onClose={closePanel}
+            onRulesChange={onRulesChange}
           />
         )}
       </div>

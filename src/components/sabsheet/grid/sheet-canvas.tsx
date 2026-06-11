@@ -37,6 +37,9 @@ import {
 import { OfflineOutbox, MemoryOutboxStore, type SyncState } from "../../../lib/sabsheet/offline/outbox.ts";
 import { IdbOutboxStore, idbAvailable } from "../../../lib/sabsheet/offline/idb-store.ts";
 import { RealtimeSync } from "../../../lib/sabsheet/collab/sync.ts";
+import { applyConditionalFormats } from "../../../lib/sabsheet/cformat/apply.ts";
+import { getConditionalFormats } from "../../../app/actions/sabsheet-cformat.actions.ts";
+import type { CFRule } from "../../../lib/sabsheet/cformat/types.ts";
 
 /** Decode a base64 string to bytes (client-side; no Node Buffer). */
 function b64ToBytes(b64: string): Uint8Array {
@@ -118,6 +121,8 @@ export interface SheetCanvasHandle {
   autoSum(): Promise<void>;
   /** Read the current selection's cells + box + active sheet index (for charts, etc.). */
   getSelection(): Promise<{ cells: CellView[]; box: { top: number; left: number; bottom: number; right: number }; sheet: number }>;
+  /** Replace the conditional-formatting rule set and repaint. */
+  setConditionalFormats(rules: CFRule[]): Promise<void>;
 }
 
 export const SheetCanvas = forwardRef<SheetCanvasHandle, SheetCanvasProps>(function SheetCanvas(
@@ -141,6 +146,8 @@ export const SheetCanvas = forwardRef<SheetCanvasHandle, SheetCanvasProps>(funct
   const sheetRef = useRef(0);
   /** Frozen pane counts for the active sheet (mirrors the engine; drives band fetching + paint). */
   const frozenRef = useRef({ rows: 0, cols: 0 });
+  /** Conditional-formatting rules (applied to viewport cells before paint). */
+  const cfRef = useRef<CFRule[]>([]);
 
   const [editing, setEditing] = useState<EditState | null>(null);
   const [ready, setReady] = useState(false);
@@ -163,7 +170,9 @@ export const SheetCanvas = forwardRef<SheetCanvasHandle, SheetCanvasProps>(funct
     if (fr > 0) cells = cells.concat(await e.readViewport(sheet, 1, colStart, mw, fr)); // frozen rows × main cols
     if (fc > 0) cells = cells.concat(await e.readViewport(sheet, rowStart, 1, fc, mh)); // main rows × frozen cols
     if (fr > 0 && fc > 0) cells = cells.concat(await e.readViewport(sheet, 1, 1, fc, fr)); // corner
-    r.setCells(cells);
+    // Conditional formatting overrides fill/text color for matching cells (rules for this sheet only).
+    const rules = cfRef.current.filter((rule) => rule.sheet === sheet);
+    r.setCells(rules.length ? applyConditionalFormats(cells, rules) : cells);
     r.draw();
   }, []);
 
@@ -406,6 +415,10 @@ export const SheetCanvas = forwardRef<SheetCanvasHandle, SheetCanvasProps>(funct
           : [];
         return { cells, box, sheet: sheetRef.current };
       },
+      async setConditionalFormats(rules: CFRule[]) {
+        cfRef.current = rules;
+        await refresh();
+      },
     }),
     [applyLocal, refresh, emitSelection, switchSheet, syncSheets, syncFrozen, setSelection, cols, rows],
   );
@@ -544,6 +557,13 @@ export const SheetCanvas = forwardRef<SheetCanvasHandle, SheetCanvasProps>(funct
       renderer.resize(rect.width, rect.height, window.devicePixelRatio || 1);
       setReady(true);
       await syncFrozen();
+      if (workbookId) {
+        try {
+          cfRef.current = await getConditionalFormats(workbookId);
+        } catch {
+          /* CF is an enhancement — ignore load failures (e.g. offline) */
+        }
+      }
       await refresh();
       await emitSelection();
       await syncSheets();

@@ -10,7 +10,7 @@ import { useState } from "react";
 import { StylePath } from "../../../lib/sabsheet/commands/ops.ts";
 import type { SheetCanvasHandle } from "../grid/sheet-canvas.tsx";
 
-export type SheetPanel = "ai" | "connections" | "charts" | "forms" | "pivot";
+export type SheetPanel = "ai" | "connections" | "charts" | "forms" | "pivot" | "cformat";
 
 export interface RibbonProps {
   grid: React.RefObject<SheetCanvasHandle | null>;
@@ -88,6 +88,11 @@ export function Ribbon({ grid, onExportXlsx, onOpenPanel, onPrint }: RibbonProps
                 ))}
               </select>
             </Group>
+            {onOpenPanel && (
+              <Group label="Styles">
+                <Btn title="Conditional formatting on the selected range" onClick={() => onOpenPanel("cformat")}>▦ Cond. format</Btn>
+              </Group>
+            )}
             <Group label="Cells">
               <Btn title="Insert row above" onClick={() => void g()?.insertRows(false)}>＋Row</Btn>
               <Btn title="Insert column left" onClick={() => void g()?.insertColumns(false)}>＋Col</Btn>

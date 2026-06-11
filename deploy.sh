@@ -100,6 +100,28 @@ if [ -f services/sabwa-node/package.json ]; then
   ( cd services/sabwa-node && npm install && npm run build )
 fi
 
+# 3c.5 SabSheet engine → wasm (public/sabsheet-engine/<hash>/ + manifest.json).
+# The wasm artifacts are gitignored, so they must be (re)built on every deploy or
+# the SabSheet v2 grid can't load its engine. Needs cargo + the wasm32 target +
+# wasm-pack; best-effort so a wasm toolchain hiccup can't block the whole app.
+if [ "$BUILD_RUST" = "1" ]; then
+  echo "📐 Building SabSheet engine (wasm)..."
+  if ! rustup target list --installed 2>/dev/null | grep -q wasm32-unknown-unknown; then
+    rustup target add wasm32-unknown-unknown || true
+  fi
+  if ! command -v wasm-pack >/dev/null 2>&1; then
+    echo "   wasm-pack not found — installing…"
+    curl -sSf https://rustwasm.github.io/wasm-pack/installer/init.sh 2>/dev/null | sh || true
+  fi
+  if command -v wasm-pack >/dev/null 2>&1; then
+    npm run sabsheet:wasm || echo "⚠️  SabSheet wasm build failed — the /dashboard/sabsheet/v2 grid won't load until it's rebuilt (npm run sabsheet:wasm)."
+  else
+    echo "⚠️  wasm-pack unavailable — skipping SabSheet wasm build (grid won't load until built)."
+  fi
+else
+  echo "⏭️  Skipping SabSheet wasm build (BUILD_RUST=0)."
+fi
+
 # 3d. Next.js application (Turbopack). Raise the heap cap to avoid OOM kills.
 echo "🛠️  Building the Next.js application (heap: ${NODE_BUILD_MEMORY}MB)..."
 NODE_OPTIONS="--max-old-space-size=${NODE_BUILD_MEMORY}" npm run build
