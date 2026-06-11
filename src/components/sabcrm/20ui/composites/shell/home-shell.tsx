@@ -12,25 +12,26 @@ import {
   Sparkles,
   Workflow,
 } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
 
 import { cn } from "../lib/cn";
-// The app rail + header are now the 20ui primitives (dark-mode capable),
-// scoped to their own `.ui20 light|dark` root and kept in lock-step with the
-// app theme via useHtmlDark(). The grouped module sidebar stays SabUI.
+// The header is a 20ui primitive (dark-mode capable), scoped to its own
+// `.ui20 light|dark` root and kept in lock-step with the app theme via
+// useHtmlDark(). The grouped module sidebar stays SabUI. App switching now
+// lives in the macOS-style bottom dock (`./app-dock`) — the old vertical
+// app rail is gone.
 // Import directly from the shell module (not the barrel): home-shell is itself
-// re-exported by the 20ui barrel, so importing AppRail/AppHeader back through
-// the barrel forms a circular `export *` cycle that Turbopack resolves to an
-// empty namespace object — rendering <AppRail> then throws "Element type is
+// re-exported by the 20ui barrel, so importing AppHeader back through the
+// barrel forms a circular `export *` cycle that Turbopack resolves to an
+// empty namespace object — rendering it then throws "Element type is
 // invalid ... got: object" on every dashboard route. The relative path breaks it.
-import { AppRail, AppHeader, type AppRailItem } from "../../shell";
+import { AppHeader } from "../../shell";
+import { SabAppDock } from "./app-dock";
 import { useHtmlDark, AppThemeToggle } from "./app-theme";
 import {
   SabAppSidebar,
   type SabSidebarGroup,
   type SabSidebarLeaf,
 } from "./app-sidebar";
-import { SAB_APPS } from "./apps";
 import { findAppSidebarConfig } from "./app-sidebars";
 import { useOptionalProject } from "@/context/project-context";
 import { isElevatedRole } from "@/lib/rbac";
@@ -119,10 +120,11 @@ function isSidebarlessRoute(pathname: string | null): boolean {
 }
 
 /**
- * SabHomeShell — app rail + sidebar + header + main. Every app
- * lives in the leftmost vertical rail (was previously the bottom
- * dock). The URL-synced multi-tab strip is intentionally absent
- * (hard constraint from the project plan).
+ * SabHomeShell — dock + sidebar + header + main. App switching lives
+ * in the macOS-style auto-hiding bottom dock (with a Launchpad for the
+ * full app grid); the old vertical app rail is retired. The URL-synced
+ * multi-tab strip is intentionally absent (hard constraint from the
+ * project plan).
  */
 export function SabHomeShell({
   user,
@@ -163,21 +165,7 @@ function SabHomeShellContent({
   const fullBleed = isFullBleedRoute(pathname);
   const sidebarless = isSidebarlessRoute(pathname);
 
-  // Build the app rail's items from the central app registry — every
-  // app that lived in the dock is now an icon in the vertical rail.
-  const railItems: AppRailItem[] = React.useMemo(
-    () =>
-      SAB_APPS.map((app) => ({
-        id: app.id,
-        label: app.name,
-        href: app.href,
-        active: app.isActive(pathname),
-        icon: app.Icon as LucideIcon,
-      })),
-    [pathname],
-  );
-
-  // The 20ui rail + header follow the app's light/dark setting (the class on
+  // The 20ui dock + header follow the app's light/dark setting (the class on
   // <html>), so they flip in lock-step with the SabUI chrome around them.
   const appDark = useHtmlDark();
 
@@ -280,9 +268,11 @@ function SabHomeShellContent({
 
   return (
     <div className="flex h-[100dvh] w-full overflow-hidden bg-[var(--st-bg)] text-[var(--st-text)]">
-      {/* App rail — 20ui, in its own theme-synced design-system root. */}
-      <div className={`20ui ${appDark ? "dark" : "light"}`} style={{ display: "flex" }}>
-        <AppRail items={railItems} label="SabNode apps" />
+      {/* App switching — macOS-style auto-hiding dock + Launchpad. Fixed
+          position, so it takes no layout space; the theme-synced wrapper
+          only provides the `.20ui` token scope. */}
+      <div className={`20ui ${appDark ? "dark" : "light"}`}>
+        <SabAppDock />
       </div>
       {!fullBleed && !sidebarless && (
         <SabAppSidebar
