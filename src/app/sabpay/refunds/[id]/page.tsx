@@ -65,7 +65,15 @@ export default async function SabpayRefundDetailPage({
           <DetailRow label="Reason" value={refund.reason || '—'} />
           <DetailRow
             label="Settlement"
-            value={refund.settlementId ? <MonoSpan>{refund.settlementId}</MonoSpan> : '—'}
+            value={
+              refund.settlementId ? (
+                <Link href={`/sabpay/settlements/${refund.settlementId}`}>
+                  <MonoSpan>{refund.settlementId}</MonoSpan>
+                </Link>
+              ) : (
+                '—'
+              )
+            }
           />
           <DetailRow label="Created" value={new Date(refund.createdAt).toLocaleString()} />
           {refund.processedAt ? (

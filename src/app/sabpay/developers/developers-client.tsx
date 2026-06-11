@@ -12,6 +12,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  EmptyState,
   Field,
   Input,
   Modal,
@@ -153,6 +154,12 @@ export function DevelopersClient({
     setFormError(null);
   }
 
+  const createButton = (
+    <Button variant="primary" iconLeft={<Plus size={15} />} onClick={() => setCreateOpen(true)}>
+      Create key
+    </Button>
+  );
+
   return (
     <>
       <Card>
@@ -165,15 +172,16 @@ export function DevelopersClient({
               stored hashed.
             </CardDescription>
           </div>
-          <Button variant="primary" iconLeft={<Plus size={15} />} onClick={() => setCreateOpen(true)}>
-            Create key
-          </Button>
+          {createButton}
         </CardHeader>
         <CardBody>
           {initialKeys.length === 0 ? (
-            <p style={{ margin: 0, color: 'var(--st-text-muted)' }}>
-              No keys yet — create a test key to make your first API call.
-            </p>
+            <EmptyState
+              icon={<KeyRound size={22} />}
+              title="No secret keys yet"
+              description="Create a secret key to call the SabPay API from your server."
+              action={createButton}
+            />
           ) : (
             <Table>
               <THead>

@@ -105,7 +105,14 @@ export default async function SabpaySubscriptionDetailPage({
           <CardTitle>Plan</CardTitle>
         </CardHeader>
         <CardBody>
-          <DetailRow label="Plan ID" value={<MonoSpan>{subscription.planId}</MonoSpan>} />
+          <DetailRow
+            label="Plan ID"
+            value={
+              <Link href={`/sabpay/plans/${subscription.planId}`}>
+                <MonoSpan>{subscription.planId}</MonoSpan>
+              </Link>
+            }
+          />
           {plan ? (
             <>
               <DetailRow label="Name" value={plan.name} />
@@ -131,7 +138,11 @@ export default async function SabpaySubscriptionDetailPage({
           <CardBody>
             <DetailRow
               label="Customer ID"
-              value={<MonoSpan>{subscription.customerId}</MonoSpan>}
+              value={
+                <Link href={`/sabpay/customers/${subscription.customerId}`}>
+                  <MonoSpan>{subscription.customerId}</MonoSpan>
+                </Link>
+              }
             />
             {customer ? (
               <>

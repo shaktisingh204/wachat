@@ -2,7 +2,16 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { Check, Copy, Plus, RefreshCw } from 'lucide-react';
+import {
+  AlertTriangle,
+  Check,
+  CheckCircle2,
+  Copy,
+  Inbox,
+  Plus,
+  RefreshCw,
+  Webhook,
+} from 'lucide-react';
 
 import {
   Badge,
@@ -13,10 +22,12 @@ import {
   CardHeader,
   CardTitle,
   Checkbox,
+  EmptyState,
   Field,
   Input,
   Modal,
   SelectField,
+  StatCard,
   Switch,
   Table,
   TBody,
@@ -192,6 +203,16 @@ export function WebhooksClient({ initialData }: { initialData: SabpayWebhookData
 
   const shownDeliveries = filtered ?? deliveries;
 
+  const endpointStats = React.useMemo(() => {
+    let active = 0;
+    let failing = 0;
+    for (const ep of endpoints) {
+      if (ep.active) active += 1;
+      if (ep.failureCount > 0) failing += 1;
+    }
+    return { total: endpoints.length, active, failing };
+  }, [endpoints]);
+
   function toggleEvent(event: SabpayWebhookEvent, on: boolean) {
     setEvents((prev) =>
       on ? [...new Set([...prev, event])] : prev.filter((e) => e !== event),
@@ -276,8 +297,30 @@ export function WebhooksClient({ initialData }: { initialData: SabpayWebhookData
     setFormError(null);
   }
 
+  const addEndpointButton = (
+    <Button variant="primary" iconLeft={<Plus size={15} />} onClick={() => setCreateOpen(true)}>
+      Add endpoint
+    </Button>
+  );
+
   return (
     <>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          gap: 'var(--st-space-4, 16px)',
+        }}
+      >
+        <StatCard label="Endpoints" value={endpointStats.total} icon={Webhook} />
+        <StatCard label="Active" value={endpointStats.active} icon={CheckCircle2} />
+        <StatCard
+          label="Failing"
+          value={endpointStats.failing}
+          icon={AlertTriangle}
+        />
+      </div>
+
       <Card>
         <CardHeader>
           <div>
@@ -287,16 +330,16 @@ export function WebhooksClient({ initialData }: { initialData: SabpayWebhookData
               X-SabNode-Signature header on every delivery.
             </CardDescription>
           </div>
-          <Button variant="primary" iconLeft={<Plus size={15} />} onClick={() => setCreateOpen(true)}>
-            Add endpoint
-          </Button>
+          {addEndpointButton}
         </CardHeader>
         <CardBody>
           {endpoints.length === 0 ? (
-            <p style={{ margin: 0, color: 'var(--st-text-muted)' }}>
-              No endpoints yet. Add one and we'll start delivering payment
-              events to it.
-            </p>
+            <EmptyState
+              icon={<Webhook size={22} />}
+              title="No endpoints yet"
+              description="Add an endpoint URL to receive signed event callbacks."
+              action={addEndpointButton}
+            />
           ) : (
             <Table>
               <THead>
@@ -434,11 +477,17 @@ export function WebhooksClient({ initialData }: { initialData: SabpayWebhookData
               Loading deliveries…
             </p>
           ) : shownDeliveries.length === 0 ? (
-            <p style={{ margin: 0, color: 'var(--st-text-muted)' }}>
-              {filtersActive
-                ? 'No deliveries match the current filter.'
-                : 'No deliveries yet — they appear as soon as a payment event fires.'}
-            </p>
+            filtersActive ? (
+              <p style={{ margin: 0, color: 'var(--st-text-muted)' }}>
+                No deliveries match the current filter.
+              </p>
+            ) : (
+              <EmptyState
+                icon={<Inbox size={22} />}
+                title="No deliveries yet"
+                description="Once events fire, delivery attempts and their HTTP responses show up here."
+              />
+            )
           ) : (
             <div
               style={{

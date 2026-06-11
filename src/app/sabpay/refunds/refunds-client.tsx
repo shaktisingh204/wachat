@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { Undo2 } from 'lucide-react';
+import { CheckCircle2, Hourglass, Undo2 } from 'lucide-react';
 
 import {
   Button,
@@ -10,6 +10,7 @@ import {
   CardBody,
   EmptyState,
   SegmentedControl,
+  StatCard,
   Table,
   TBody,
   Td,
@@ -63,6 +64,18 @@ export function RefundsClient({
   const visible =
     filter === 'all' ? refunds : refunds.filter((r) => r.status === filter);
 
+  const summary = React.useMemo(() => {
+    let totalRefunded = 0;
+    let processedCount = 0;
+    let pendingCount = 0;
+    for (const r of refunds) {
+      totalRefunded += r.amount;
+      if (r.status === 'processed') processedCount += 1;
+      else if (r.status === 'pending') pendingCount += 1;
+    }
+    return { totalRefunded, processedCount, pendingCount };
+  }, [refunds]);
+
   async function handleLoadMore() {
     const last = refunds[refunds.length - 1];
     if (!last || loadingMore) return;
@@ -96,6 +109,31 @@ export function RefundsClient({
           />
         }
       />
+
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          gap: 'var(--st-space-4, 16px)',
+        }}
+      >
+        <StatCard
+          label="Total refunded"
+          value={formatSabpayAmount(summary.totalRefunded)}
+          icon={Undo2}
+        />
+        <StatCard label="Processed" value={summary.processedCount} icon={CheckCircle2} />
+        <StatCard
+          label="Pending"
+          value={summary.pendingCount}
+          icon={Hourglass}
+          delta={
+            summary.pendingCount > 0
+              ? { value: 'in progress', tone: 'neutral' }
+              : undefined
+          }
+        />
+      </div>
 
       <Card>
         <CardBody>

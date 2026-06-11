@@ -3,7 +3,14 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Plus, ReceiptText } from 'lucide-react';
+import {
+  CheckCircle2,
+  Hourglass,
+  IndianRupee,
+  Plus,
+  ReceiptText,
+  ShoppingCart,
+} from 'lucide-react';
 
 import {
   Button,
@@ -14,6 +21,7 @@ import {
   Input,
   Modal,
   SegmentedControl,
+  StatCard,
   Table,
   TBody,
   Td,
@@ -75,6 +83,20 @@ export function OrdersClient({
 
   const visible =
     filter === 'all' ? orders : orders.filter((o) => o.status === filter);
+
+  const summary = React.useMemo(() => {
+    let totalOrdered = 0;
+    let collected = 0;
+    let outstanding = 0;
+    let paidCount = 0;
+    for (const o of orders) {
+      totalOrdered += o.amount;
+      collected += o.amountPaid;
+      outstanding += o.amountDue;
+      if (o.status === 'paid') paidCount += 1;
+    }
+    return { totalOrdered, collected, outstanding, paidCount };
+  }, [orders]);
 
   async function handleLoadMore() {
     const last = orders[orders.length - 1];
@@ -151,6 +173,36 @@ export function OrdersClient({
         }
       />
 
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          gap: 'var(--st-space-4, 16px)',
+        }}
+      >
+        <StatCard
+          label="Total ordered"
+          value={formatSabpayAmount(summary.totalOrdered)}
+          icon={ShoppingCart}
+        />
+        <StatCard
+          label="Collected"
+          value={formatSabpayAmount(summary.collected)}
+          icon={IndianRupee}
+        />
+        <StatCard
+          label="Outstanding"
+          value={formatSabpayAmount(summary.outstanding)}
+          icon={Hourglass}
+          delta={
+            summary.outstanding > 0
+              ? { value: 'awaiting payment', tone: 'down' }
+              : undefined
+          }
+        />
+        <StatCard label="Paid orders" value={summary.paidCount} icon={CheckCircle2} />
+      </div>
+
       <Card>
         <CardBody>
           {visible.length === 0 ? (
@@ -171,6 +223,7 @@ export function OrdersClient({
                   <Th>Order id</Th>
                   <Th>Amount</Th>
                   <Th>Amount paid</Th>
+                  <Th>Amount due</Th>
                   <Th>Status</Th>
                   <Th>Receipt</Th>
                   <Th>Created</Th>
@@ -192,6 +245,9 @@ export function OrdersClient({
                     </Td>
                     <Td style={{ fontVariantNumeric: 'tabular-nums' }}>
                       {formatSabpayAmount(o.amountPaid, o.currency)}
+                    </Td>
+                    <Td style={{ fontVariantNumeric: 'tabular-nums' }}>
+                      {formatSabpayAmount(o.amountDue, o.currency)}
                     </Td>
                     <Td>
                       <EntityStatusBadge status={o.status} />

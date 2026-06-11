@@ -57,6 +57,16 @@ export default async function SabpayPaymentDetailPage({
 
   const mono = { fontFamily: 'var(--st-font-mono, monospace)', fontSize: 13 } as const;
 
+  const RELATED: Array<{ label: string; id?: string; href: string }> = [
+    { label: 'Order', id: payment.orderId, href: `/sabpay/orders/${payment.orderId}` },
+    { label: 'Customer', id: payment.customerId, href: `/sabpay/customers/${payment.customerId}` },
+    { label: 'Payment link', id: payment.paymentLinkId, href: `/sabpay/payment-links/${payment.paymentLinkId}` },
+    { label: 'Payment page', id: payment.paymentPageId, href: `/sabpay/payment-pages/${payment.paymentPageId}` },
+    { label: 'Invoice', id: payment.invoiceId, href: `/sabpay/invoices/${payment.invoiceId}` },
+    { label: 'Subscription', id: payment.subscriptionId, href: `/sabpay/subscriptions/${payment.subscriptionId}` },
+    { label: 'QR code', id: payment.qrCodeId, href: `/sabpay/qr-codes/${payment.qrCodeId}` },
+  ];
+
   return (
     <SabpayPage
       breadcrumb={[
@@ -98,11 +108,45 @@ export default async function SabpayPaymentDetailPage({
               value={<CopyCheckoutLink url={payment.checkoutUrl} />}
             />
           ) : null}
+          {payment.fee != null && payment.fee > 0 ? (
+            <Row
+              label="Fee"
+              value={
+                <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+                  {formatSabpayAmount(payment.fee, payment.currency)}
+                  {payment.tax != null && payment.tax > 0
+                    ? ` + ${formatSabpayAmount(payment.tax, payment.currency)} tax`
+                    : ''}
+                </span>
+              }
+            />
+          ) : null}
           {payment.failureReason ? (
             <Row label="Failure reason" value={payment.failureReason} />
           ) : null}
         </CardBody>
       </Card>
+
+      {RELATED.some(({ id }) => id) ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>Related</CardTitle>
+          </CardHeader>
+          <CardBody>
+            {RELATED.filter((r) => r.id).map((r) => (
+              <Row
+                key={r.label}
+                label={r.label}
+                value={
+                  <Link href={r.href} style={mono}>
+                    {r.id}
+                  </Link>
+                }
+              />
+            ))}
+          </CardBody>
+        </Card>
+      ) : null}
 
       <Card>
         <CardHeader>

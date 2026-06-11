@@ -2,11 +2,12 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { CalendarCheck, IndianRupee, Landmark } from 'lucide-react';
+import { Banknote, CalendarCheck, IndianRupee, Landmark } from 'lucide-react';
 
 import {
   Card,
   CardBody,
+  EmptyState,
   StatCard,
   Table,
   TBody,
@@ -111,9 +112,11 @@ export function SettlementsClient({
       <Card>
         <CardBody>
           {settlements.length === 0 ? (
-            <p style={{ margin: 0, color: 'var(--st-text-muted)' }}>
-              No settlements in live mode yet.
-            </p>
+            <EmptyState
+              icon={<Banknote size={22} />}
+              title="No settlements yet"
+              description="Settlements appear here once eligible live payments are batched and paid out."
+            />
           ) : (
             <Table>
               <THead>

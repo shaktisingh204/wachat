@@ -3,18 +3,20 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Plus } from 'lucide-react';
+import { CheckCircle2, PauseCircle, Plus, Repeat, XCircle } from 'lucide-react';
 
 import {
   Button,
   Card,
   CardBody,
   DatePicker,
+  EmptyState,
   Field,
   Input,
   Modal,
   SegmentedControl,
   SelectField,
+  StatCard,
   Table,
   TBody,
   Td,
@@ -112,6 +114,26 @@ export function SubscriptionsClient({
   const subscriptions =
     filter === 'all' ? all : all.filter((s) => s.status === filter);
 
+  const summary = React.useMemo(() => {
+    let active = 0;
+    let paused = 0;
+    let cancelled = 0;
+    let completed = 0;
+    for (const s of all) {
+      if (s.status === 'active') active += 1;
+      else if (s.status === 'paused') paused += 1;
+      else if (s.status === 'cancelled') cancelled += 1;
+      else if (s.status === 'completed') completed += 1;
+    }
+    return { active, paused, cancelled, completed };
+  }, [all]);
+
+  const createButton = (
+    <Button variant="primary" iconLeft={<Plus size={15} />} onClick={() => setCreateOpen(true)}>
+      Create subscription
+    </Button>
+  );
+
   function resetForm() {
     setPlanId(null);
     setCustomerId(null);
@@ -187,19 +209,35 @@ export function SubscriptionsClient({
             onChange={setFilter}
           />
         }
-        actions={
-          <Button variant="primary" iconLeft={<Plus size={15} />} onClick={() => setCreateOpen(true)}>
-            Create subscription
-          </Button>
-        }
+        actions={createButton}
       />
+
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          gap: 'var(--st-space-4, 16px)',
+        }}
+      >
+        <StatCard label="Active" value={summary.active} icon={Repeat} />
+        <StatCard label="Paused" value={summary.paused} icon={PauseCircle} />
+        <StatCard label="Cancelled" value={summary.cancelled} icon={XCircle} />
+        <StatCard label="Completed" value={summary.completed} icon={CheckCircle2} />
+      </div>
 
       <Card>
         <CardBody>
           {subscriptions.length === 0 ? (
-            <p style={{ margin: 0, color: 'var(--st-text-muted)' }}>
-              No {filter === 'all' ? '' : `${filter} `}subscriptions in {mode} mode yet.
-            </p>
+            <EmptyState
+              icon={<Repeat size={22} />}
+              title={
+                filter === 'all'
+                  ? `No subscriptions in ${mode} mode yet`
+                  : `No ${filter} subscriptions in ${mode} mode yet`
+              }
+              description="Subscriptions charge a customer on a plan every cycle automatically. Create your first subscription to start recurring billing."
+              action={createButton}
+            />
           ) : (
             <Table>
               <THead>
@@ -208,6 +246,7 @@ export function SubscriptionsClient({
                   <Th>Plan</Th>
                   <Th>Customer</Th>
                   <Th>Status</Th>
+                  <Th>Cycles</Th>
                   <Th>Next charge</Th>
                   <Th>Created</Th>
                 </Tr>
@@ -248,6 +287,14 @@ export function SubscriptionsClient({
                       </Td>
                       <Td>
                         <EntityStatusBadge status={s.status} />
+                      </Td>
+                      <Td style={{ fontVariantNumeric: 'tabular-nums' }}>
+                        {s.paidCount}/{s.totalCount}
+                        {s.missedCycles > 0 ? (
+                          <span style={{ color: 'var(--st-text-muted)' }}>
+                            {' '}· {s.missedCycles} missed
+                          </span>
+                        ) : null}
                       </Td>
                       <Td>
                         {s.nextChargeAt ? new Date(s.nextChargeAt).toLocaleString() : '—'}

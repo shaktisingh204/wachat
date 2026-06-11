@@ -3,17 +3,19 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { MoreHorizontal, Pencil, Plus, Trash2 } from 'lucide-react';
+import { FileText, Mail, MoreHorizontal, Pencil, Plus, Trash2, Users } from 'lucide-react';
 
 import {
   Button,
   Card,
   CardBody,
+  EmptyState,
   Field,
   Input,
   Menu,
   MenuItem,
   Modal,
+  StatCard,
   Table,
   TBody,
   Td,
@@ -196,6 +198,22 @@ export function CustomersClient({
 
   const trimmedSearch = search.trim();
 
+  const summary = React.useMemo(() => {
+    let withEmail = 0;
+    let withGstin = 0;
+    for (const c of customers) {
+      if (c.email) withEmail += 1;
+      if (c.gstin) withGstin += 1;
+    }
+    return { total: customers.length, withEmail, withGstin };
+  }, [customers]);
+
+  const createButton = (
+    <Button variant="primary" iconLeft={<Plus size={15} />} onClick={openAdd}>
+      Add customer
+    </Button>
+  );
+
   return (
     <>
       <ListToolbar
@@ -210,23 +228,45 @@ export function CustomersClient({
             />
           </div>
         }
-        actions={
-          <Button variant="primary" iconLeft={<Plus size={15} />} onClick={openAdd}>
-            Add customer
-          </Button>
-        }
+        actions={createButton}
       />
+
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          gap: 'var(--st-space-4, 16px)',
+        }}
+      >
+        <StatCard label="Customers" value={summary.total} icon={Users} />
+        <StatCard label="With email" value={summary.withEmail} icon={Mail} />
+        <StatCard label="With GSTIN" value={summary.withGstin} icon={FileText} />
+      </div>
 
       <Card>
         <CardBody>
           {customers.length === 0 ? (
-            <p style={{ margin: 0, color: 'var(--st-text-muted)' }}>
-              {searching
-                ? 'Searching…'
-                : trimmedSearch
-                  ? `No customers match “${trimmedSearch}” in ${mode} mode.`
-                  : `No customers in ${mode} mode yet.`}
-            </p>
+            searching ? (
+              <p style={{ margin: 0, color: 'var(--st-text-muted)' }}>Searching…</p>
+            ) : trimmedSearch ? (
+              <EmptyState
+                icon={<Users size={22} />}
+                title={`No customers match “${trimmedSearch}”`}
+                description={`No ${mode}-mode customer matches your search. Try a different name, email, or phone number.`}
+                action={
+                  <Button variant="ghost" onClick={() => setSearch('')}>
+                    Clear search
+                  </Button>
+                }
+              />
+            ) : (
+              <EmptyState
+                icon={<Users size={22} />}
+                title={`No customers in ${mode} mode yet`}
+                description="Customers store contact and billing details you can attach to payments, subscriptions, and invoices. Add your first one to get started."
+                action={createButton}
+              />
+            )
           ) : (
             <Table>
               <THead>

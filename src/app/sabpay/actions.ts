@@ -47,6 +47,10 @@ export async function getSabpayOverview(): Promise<SabpayOverviewData> {
   return rustClient.sabpay.getOverview();
 }
 
+export async function getSabpayStats(): Promise<SabpayStats> {
+  return rustClient.sabpay.getStats();
+}
+
 /* ── Payments ────────────────────────────────────────────────────────────── */
 
 export async function getSabpayPayments(query: {

@@ -3,16 +3,18 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Plus } from 'lucide-react';
+import { ArrowLeftRight, CheckCircle2, CreditCard, IndianRupee, Plus, Undo2 } from 'lucide-react';
 
 import {
   Button,
   Card,
   CardBody,
+  EmptyState,
   Field,
   Input,
   Modal,
   SegmentedControl,
+  StatCard,
   Table,
   TBody,
   Td,
@@ -26,6 +28,7 @@ import {
   type SabpayMode,
   type SabpayPayment,
   type SabpayPaymentStatus,
+  type SabpayStats,
 } from '@/lib/sabpay/types';
 
 import { createSabpayPayment } from '../actions';
@@ -43,9 +46,11 @@ const FILTERS: Array<{ value: StatusFilter; label: string }> = [
 export function PaymentsClient({
   initialPayments,
   mode,
+  stats,
 }: {
   initialPayments: SabpayPayment[];
   mode: SabpayMode;
+  stats: SabpayStats;
 }) {
   const router = useRouter();
   const [filter, setFilter] = React.useState<StatusFilter>('all');
@@ -60,6 +65,17 @@ export function PaymentsClient({
     filter === 'all'
       ? initialPayments
       : initialPayments.filter((p) => p.status === filter);
+
+  const totalRefunded = React.useMemo(
+    () => initialPayments.reduce((sum, p) => sum + (p.amountRefunded ?? 0), 0),
+    [initialPayments],
+  );
+
+  const createButton = (
+    <Button variant="primary" iconLeft={<Plus size={15} />} onClick={() => setCreateOpen(true)}>
+      Create payment link
+    </Button>
+  );
 
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
@@ -110,23 +126,68 @@ export function PaymentsClient({
           value={filter}
           onChange={setFilter}
         />
-        <Button variant="primary" iconLeft={<Plus size={15} />} onClick={() => setCreateOpen(true)}>
-          Create payment link
-        </Button>
+        {createButton}
+      </div>
+
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          gap: 'var(--st-space-4, 16px)',
+        }}
+      >
+        <StatCard
+          label="Volume collected"
+          value={formatSabpayAmount(stats.totalVolume)}
+          icon={IndianRupee}
+        />
+        <StatCard
+          label="Payments"
+          value={stats.totalCount}
+          icon={ArrowLeftRight}
+          delta={
+            stats.createdCount > 0
+              ? { value: `${stats.createdCount} open`, tone: 'neutral' }
+              : undefined
+          }
+        />
+        <StatCard
+          label="Success rate"
+          value={`${stats.successRate}%`}
+          icon={CheckCircle2}
+          delta={
+            stats.failedCount > 0
+              ? { value: `${stats.failedCount} failed`, tone: 'down' }
+              : undefined
+          }
+        />
+        <StatCard
+          label="Refunded"
+          value={formatSabpayAmount(totalRefunded)}
+          icon={Undo2}
+        />
       </div>
 
       <Card>
         <CardBody>
           {payments.length === 0 ? (
-            <p style={{ margin: 0, color: 'var(--st-text-muted)' }}>
-              No {filter === 'all' ? '' : `${filter} `}payments in {mode} mode yet.
-            </p>
+            <EmptyState
+              icon={<CreditCard size={22} />}
+              title={
+                filter === 'all'
+                  ? `No payments in ${mode} mode yet`
+                  : `No ${filter} payments in ${mode} mode yet`
+              }
+              description="Each payment is a charge created through your API keys or the dashboard — create a payment link to collect your first one."
+              action={createButton}
+            />
           ) : (
             <Table>
               <THead>
                 <Tr>
                   <Th>Payment</Th>
                   <Th>Amount</Th>
+                  <Th>Refunded</Th>
                   <Th>Status</Th>
                   <Th>Customer</Th>
                   <Th>Description</Th>
@@ -146,6 +207,11 @@ export function PaymentsClient({
                     </Td>
                     <Td style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 600 }}>
                       {formatSabpayAmount(p.amount, p.currency)}
+                    </Td>
+                    <Td style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 600 }}>
+                      {(p.amountRefunded ?? 0) > 0
+                        ? formatSabpayAmount(p.amountRefunded ?? 0, p.currency)
+                        : '—'}
                     </Td>
                     <Td>
                       <PaymentStatusBadge status={p.status} />

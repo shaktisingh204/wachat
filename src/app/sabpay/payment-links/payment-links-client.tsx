@@ -3,7 +3,14 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Link2, MoreHorizontal, Plus, XCircle } from 'lucide-react';
+import {
+  CheckCircle2,
+  IndianRupee,
+  Link2,
+  MoreHorizontal,
+  Plus,
+  XCircle,
+} from 'lucide-react';
 
 import {
   Button,
@@ -14,10 +21,12 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  EmptyState,
   Field,
   Input,
   Modal,
   SegmentedControl,
+  StatCard,
   Table,
   TBody,
   Td,
@@ -104,6 +113,30 @@ export function PaymentLinksClient({
 
   const visible =
     filter === 'all' ? links : links.filter((l) => l.status === filter);
+
+  const stats = React.useMemo(() => {
+    let active = 0;
+    let paid = 0;
+    let totalValue = 0;
+    for (const l of links) {
+      if (l.status === 'created') active += 1;
+      if (l.status === 'paid') {
+        paid += 1;
+        totalValue += l.amount;
+      }
+    }
+    return { active, paid, totalValue };
+  }, [links]);
+
+  const createButton = (
+    <Button
+      variant="primary"
+      iconLeft={<Plus size={15} />}
+      onClick={() => setCreateOpen(true)}
+    >
+      Create payment link
+    </Button>
+  );
 
   function resetForm() {
     setAmount('');
@@ -210,23 +243,38 @@ export function PaymentLinksClient({
             onChange={setFilter}
           />
         }
-        actions={
-          <Button
-            variant="primary"
-            iconLeft={<Plus size={15} />}
-            onClick={() => setCreateOpen(true)}
-          >
-            Create payment link
-          </Button>
-        }
+        actions={createButton}
       />
+
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          gap: 'var(--st-space-4, 16px)',
+        }}
+      >
+        <StatCard label="Active" value={stats.active} icon={Link2} />
+        <StatCard label="Paid" value={stats.paid} icon={CheckCircle2} />
+        <StatCard
+          label="Total value"
+          value={formatSabpayAmount(stats.totalValue)}
+          icon={IndianRupee}
+        />
+      </div>
 
       <Card>
         <CardBody>
           {visible.length === 0 ? (
-            <p style={{ margin: 0, color: 'var(--st-text-muted)' }}>
-              No {filter === 'all' ? '' : `${filter} `}payment links in {mode} mode yet.
-            </p>
+            <EmptyState
+              icon={<Link2 size={22} />}
+              title={
+                filter === 'all'
+                  ? `No payment links in ${mode} mode yet`
+                  : `No ${filter} payment links in ${mode} mode yet`
+              }
+              description="A payment link is a shareable hosted checkout URL — create one and we copy its link to your clipboard to share anywhere."
+              action={createButton}
+            />
           ) : (
             <Table>
               <THead>

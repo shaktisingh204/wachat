@@ -3,7 +3,14 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { MoreHorizontal, Plus, QrCode as QrCodeIcon, XCircle } from 'lucide-react';
+import {
+  ArrowLeftRight,
+  IndianRupee,
+  MoreHorizontal,
+  Plus,
+  QrCode as QrCodeIcon,
+  XCircle,
+} from 'lucide-react';
 import QRCode from 'react-qr-code';
 
 import {
@@ -14,10 +21,12 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  EmptyState,
   Field,
   Input,
   Modal,
   SegmentedControl,
+  StatCard,
   Table,
   TBody,
   Td,
@@ -119,6 +128,28 @@ export function QrCodesClient({
   const visible =
     filter === 'all' ? qrCodes : qrCodes.filter((q) => q.status === filter);
 
+  const stats = React.useMemo(() => {
+    let active = 0;
+    let paymentsReceived = 0;
+    let amountReceived = 0;
+    for (const q of qrCodes) {
+      if (q.status === 'active') active += 1;
+      paymentsReceived += q.paymentsCountReceived;
+      amountReceived += q.paymentsAmountReceived;
+    }
+    return { active, paymentsReceived, amountReceived };
+  }, [qrCodes]);
+
+  const createButton = (
+    <Button
+      variant="primary"
+      iconLeft={<Plus size={15} />}
+      onClick={() => setCreateOpen(true)}
+    >
+      Create QR code
+    </Button>
+  );
+
   function resetForm() {
     setName('');
     setAmountType('fixed');
@@ -203,23 +234,42 @@ export function QrCodesClient({
             onChange={setFilter}
           />
         }
-        actions={
-          <Button
-            variant="primary"
-            iconLeft={<Plus size={15} />}
-            onClick={() => setCreateOpen(true)}
-          >
-            Create QR code
-          </Button>
-        }
+        actions={createButton}
       />
+
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          gap: 'var(--st-space-4, 16px)',
+        }}
+      >
+        <StatCard label="Active codes" value={stats.active} icon={QrCodeIcon} />
+        <StatCard
+          label="Payments received"
+          value={stats.paymentsReceived}
+          icon={ArrowLeftRight}
+        />
+        <StatCard
+          label="Amount received"
+          value={formatSabpayAmount(stats.amountReceived)}
+          icon={IndianRupee}
+        />
+      </div>
 
       <Card>
         <CardBody>
           {visible.length === 0 ? (
-            <p style={{ margin: 0, color: 'var(--st-text-muted)' }}>
-              No {filter === 'all' ? '' : `${filter} `}QR codes in {mode} mode yet.
-            </p>
+            <EmptyState
+              icon={<QrCodeIcon size={22} />}
+              title={
+                filter === 'all'
+                  ? `No QR codes in ${mode} mode yet`
+                  : `No ${filter} QR codes in ${mode} mode yet`
+              }
+              description="A QR code is a printable, scan-to-pay collect code — create one to start accepting payments at your counter or on screen."
+              action={createButton}
+            />
           ) : (
             <Table>
               <THead>

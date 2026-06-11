@@ -1,11 +1,14 @@
 import { SabpayPage } from '../_components/sabpay-page';
-import { getSabpayPayments } from '../actions';
+import { getSabpayPayments, getSabpayStats } from '../actions';
 import { PaymentsClient } from './payments-client';
 
 export const dynamic = 'force-dynamic';
 
 export default async function SabpayPaymentsPage() {
-  const { merchant, payments } = await getSabpayPayments({ limit: 50 });
+  const [{ merchant, payments }, stats] = await Promise.all([
+    getSabpayPayments({ limit: 50 }),
+    getSabpayStats(),
+  ]);
 
   return (
     <SabpayPage
@@ -18,7 +21,7 @@ export default async function SabpayPaymentsPage() {
       description={`Every ${merchant.mode === 'live' ? 'live' : 'test'} payment created through your API keys or the dashboard.`}
       width="wide"
     >
-      <PaymentsClient initialPayments={payments} mode={merchant.mode} />
+      <PaymentsClient initialPayments={payments} mode={merchant.mode} stats={stats} />
     </SabpayPage>
   );
 }

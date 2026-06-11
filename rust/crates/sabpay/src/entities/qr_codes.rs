@@ -93,6 +93,7 @@ pub struct ListQuery {
 }
 
 #[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct QrCodeList {
     pub qr_codes: Vec<QrCodeOut>,
 }

@@ -3,16 +3,24 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { FlaskConical } from 'lucide-react';
+import {
+  AlarmClock,
+  FlaskConical,
+  Hourglass,
+  ShieldAlert,
+  XCircle,
+} from 'lucide-react';
 
 import {
   Button,
   Card,
   CardBody,
+  EmptyState,
   Field,
   Input,
   Modal,
   SegmentedControl,
+  StatCard,
   Table,
   TBody,
   Td,
@@ -85,6 +93,23 @@ export function DisputesClient({
       ? allDisputes
       : allDisputes.filter((d) => d.status === filter);
 
+  const stats = React.useMemo(() => {
+    const soon = (d: SabpayDispute) =>
+      d.status === 'open' &&
+      new Date(d.respondBy).getTime() - Date.now() <= 3 * 864e5;
+    let open = 0;
+    let underReview = 0;
+    let respondSoon = 0;
+    let lost = 0;
+    for (const d of allDisputes) {
+      if (d.status === 'open') open += 1;
+      if (d.status === 'under_review') underReview += 1;
+      if (d.status === 'lost') lost += 1;
+      if (soon(d)) respondSoon += 1;
+    }
+    return { open, underReview, respondSoon, lost };
+  }, [allDisputes]);
+
   async function loadMore() {
     const last = allDisputes[allDisputes.length - 1];
     if (!last || loadingMore) return;
@@ -128,8 +153,43 @@ export function DisputesClient({
     router.refresh();
   }
 
+  const simulateButton =
+    mode === 'test' ? (
+      <Button
+        variant="primary"
+        iconLeft={<FlaskConical size={15} />}
+        onClick={() => {
+          setFormError(null);
+          setSimulateOpen(true);
+        }}
+      >
+        Simulate dispute
+      </Button>
+    ) : undefined;
+
   return (
     <>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          gap: 'var(--st-space-4, 16px)',
+        }}
+      >
+        <StatCard label="Open" value={stats.open} icon={ShieldAlert} />
+        <StatCard
+          label="Under review"
+          value={stats.underReview}
+          icon={Hourglass}
+        />
+        <StatCard
+          label="Respond soon"
+          value={stats.respondSoon}
+          icon={AlarmClock}
+        />
+        <StatCard label="Lost" value={stats.lost} icon={XCircle} />
+      </div>
+
       <ListToolbar
         left={
           <SegmentedControl
@@ -139,32 +199,22 @@ export function DisputesClient({
             onChange={setFilter}
           />
         }
-        actions={
-          mode === 'test' ? (
-            <Button
-              variant="primary"
-              iconLeft={<FlaskConical size={15} />}
-              onClick={() => {
-                setFormError(null);
-                setSimulateOpen(true);
-              }}
-            >
-              Simulate dispute
-            </Button>
-          ) : undefined
-        }
+        actions={simulateButton}
       />
 
       <Card>
         <CardBody>
           {disputes.length === 0 ? (
-            <p style={{ margin: 0, color: 'var(--st-text-muted)' }}>
-              No{' '}
-              {filter === 'all'
-                ? ''
-                : `${filter === 'under_review' ? 'under-review' : filter} `}
-              disputes in {mode} mode yet.
-            </p>
+            <EmptyState
+              icon={<ShieldAlert size={22} />}
+              title={`No${
+                filter === 'all'
+                  ? ''
+                  : ` ${filter === 'under_review' ? 'under-review' : filter}`
+              } disputes in ${mode} mode yet`}
+              description="Chargebacks raised by your customers' banks show up here, with the evidence-response deadline for each."
+              action={simulateButton}
+            />
           ) : (
             <Table>
               <THead>

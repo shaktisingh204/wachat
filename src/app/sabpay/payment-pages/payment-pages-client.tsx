@@ -3,7 +3,17 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Copy, MoreHorizontal, Pencil, Plus, Power, Trash2 } from 'lucide-react';
+import {
+  CheckCircle2,
+  Copy,
+  FileText,
+  IndianRupee,
+  MoreHorizontal,
+  Pencil,
+  Plus,
+  Power,
+  Trash2,
+} from 'lucide-react';
 
 import {
   Button,
@@ -14,7 +24,9 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  EmptyState,
   SegmentedControl,
+  StatCard,
   Table,
   TBody,
   Td,
@@ -104,6 +116,25 @@ export function PaymentPagesClient({
       ? pages
       : pages.filter((p) => (filter === 'active' ? p.active : !p.active));
 
+  const stats = React.useMemo(() => {
+    let activeCount = 0;
+    let fixedCount = 0;
+    for (const p of pages) {
+      if (p.active) activeCount += 1;
+      if (p.amountType === 'fixed') fixedCount += 1;
+    }
+    return { total: pages.length, active: activeCount, fixed: fixedCount };
+  }, [pages]);
+
+  const createButton = (
+    <Button variant="primary" asChild>
+      <Link href="/sabpay/payment-pages/new">
+        <Plus size={15} aria-hidden="true" />
+        Create payment page
+      </Link>
+    </Button>
+  );
+
   async function loadMore() {
     const oldest = pages[pages.length - 1];
     if (!oldest) return;
@@ -183,22 +214,34 @@ export function PaymentPagesClient({
             onChange={setFilter}
           />
         }
-        actions={
-          <Button variant="primary" asChild>
-            <Link href="/sabpay/payment-pages/new">
-              <Plus size={15} aria-hidden="true" />
-              Create payment page
-            </Link>
-          </Button>
-        }
+        actions={createButton}
       />
+
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          gap: 'var(--st-space-4, 16px)',
+        }}
+      >
+        <StatCard label="Total pages" value={stats.total} icon={FileText} />
+        <StatCard label="Active" value={stats.active} icon={CheckCircle2} />
+        <StatCard label="Fixed-amount" value={stats.fixed} icon={IndianRupee} />
+      </div>
 
       <Card>
         <CardBody>
           {visible.length === 0 ? (
-            <p style={{ margin: 0, color: 'var(--st-text-muted)' }}>
-              No {filter === 'all' ? '' : `${filter} `}payment pages in {mode} mode yet.
-            </p>
+            <EmptyState
+              icon={<FileText size={22} />}
+              title={
+                filter === 'all'
+                  ? `No payment pages in ${mode} mode yet`
+                  : `No ${filter} payment pages in ${mode} mode yet`
+              }
+              description="A payment page is a hosted, no-code page you can publish at its own URL to collect payments — create your first one to share it."
+              action={createButton}
+            />
           ) : (
             <Table>
               <THead>

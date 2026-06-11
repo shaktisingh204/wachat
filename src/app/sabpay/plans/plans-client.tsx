@@ -2,16 +2,18 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, Trash2 } from 'lucide-react';
+import { Layers, Plus, Repeat, Trash2 } from 'lucide-react';
 
 import {
   Button,
   Card,
   CardBody,
+  EmptyState,
   Field,
   Input,
   Modal,
   SelectField,
+  StatCard,
   Table,
   TBody,
   Td,
@@ -86,6 +88,20 @@ export function PlansClient({
     const seen = new Set(initialPlans.map((p) => p.id));
     return [...initialPlans, ...extra.filter((p) => !seen.has(p.id))];
   }, [initialPlans, extra]);
+
+  const summary = React.useMemo(() => {
+    let monthly = 0;
+    for (const p of plans) {
+      if (p.interval === 'monthly') monthly += 1;
+    }
+    return { total: plans.length, monthly };
+  }, [plans]);
+
+  const createButton = (
+    <Button variant="primary" iconLeft={<Plus size={15} />} onClick={() => setCreateOpen(true)}>
+      Create plan
+    </Button>
+  );
 
   function resetForm() {
     setName('');
@@ -173,19 +189,29 @@ export function PlansClient({
             immutable once created
           </span>
         }
-        actions={
-          <Button variant="primary" iconLeft={<Plus size={15} />} onClick={() => setCreateOpen(true)}>
-            Create plan
-          </Button>
-        }
+        actions={createButton}
       />
+
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          gap: 'var(--st-space-4, 16px)',
+        }}
+      >
+        <StatCard label="Plans" value={summary.total} icon={Layers} />
+        <StatCard label="Monthly-billed" value={summary.monthly} icon={Repeat} />
+      </div>
 
       <Card>
         <CardBody>
           {plans.length === 0 ? (
-            <p style={{ margin: 0, color: 'var(--st-text-muted)' }}>
-              No plans in {mode} mode yet.
-            </p>
+            <EmptyState
+              icon={<Layers size={22} />}
+              title={`No plans in ${mode} mode yet`}
+              description="Plans are reusable billing templates — an amount and an interval you put subscriptions on. Create your first plan to start recurring billing."
+              action={createButton}
+            />
           ) : (
             <Table>
               <THead>
