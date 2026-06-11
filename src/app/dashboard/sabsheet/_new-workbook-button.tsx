@@ -15,7 +15,7 @@ export function NewWorkbookButton() {
       setError(null);
       try {
         const wb = await createSabsheetWorkbook({ title: "Untitled spreadsheet" });
-        router.push(`/dashboard/sabsheet/v2/${wb._id}`);
+        router.push(`/dashboard/sabsheet/${wb._id}`);
       } catch (e) {
         setError(e instanceof Error ? e.message : "Failed to create");
       }

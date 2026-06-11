@@ -1,129 +1,65 @@
-import Link from 'next/link';
-import { FileSpreadsheet, History, Layers, Table2 } from 'lucide-react';
+/**
+ * SabSheet v2 launcher — lists the user's workbooks and opens them in the new IronCalc-backed editor
+ * (persistent + offline-capable). Creating one lands in `/dashboard/sabsheet/[workbookId]`.
+ */
+import Link from "next/link";
+import { listSabsheetWorkbooks } from "@/app/actions/sabsheet.actions";
+import { NewWorkbookButton } from "./_new-workbook-button.tsx";
 
-import {
-  Badge,
-  Button,
-  Card,
-  CardBody,
-  CardHeader,
-  CardTitle,
-  EmptyState,
-  PageActions,
-  PageDescription,
-  PageEyebrow,
-  PageHeader,
-  PageHeaderHeading,
-  PageTitle,
-  StatCard,
-} from '@/components/sabcrm/20ui';
-import { listSabsheetWorkbooks } from '@/app/actions/sabsheet.actions';
-import { NewWorkbookButton } from './_components/new-workbook-button';
+export const dynamic = "force-dynamic";
 
-export const dynamic = 'force-dynamic';
-
-export default async function SabsheetIndexPage() {
-  const workbooks = await listSabsheetWorkbooks();
-
-  const updatedThisWeek = workbooks.filter((wb) => {
-    if (!wb.updatedAt) return false;
-    const week = 7 * 24 * 60 * 60 * 1000;
-    return Date.now() - new Date(wb.updatedAt).getTime() < week;
-  }).length;
+export default async function SabSheetV2LauncherPage() {
+  let workbooks: { _id: string; title: string }[] = [];
+  try {
+    workbooks = await listSabsheetWorkbooks();
+  } catch {
+    workbooks = [];
+  }
 
   return (
-    <div className="20ui mx-auto w-full max-w-6xl space-y-6 p-6">
-      <PageHeader>
-        <PageHeaderHeading>
-          <PageEyebrow>SabSheet</PageEyebrow>
-          <PageTitle>Workbooks</PageTitle>
-          <PageDescription>
-            Collaborative spreadsheets with formulas, named ranges, comments, and
-            version history.
-          </PageDescription>
-        </PageHeaderHeading>
-        <PageActions>
-          <NewWorkbookButton />
-        </PageActions>
-      </PageHeader>
-
-      {workbooks.length > 0 ? (
-        <section
-          aria-label="Workbook overview"
-          className="grid grid-cols-1 gap-4 sm:grid-cols-3"
-        >
-          <StatCard
-            label="Workbooks"
-            value={workbooks.length}
-            icon={Layers}
-            accent="#1f9d55"
-          />
-          <StatCard
-            label="Updated this week"
-            value={updatedThisWeek}
-            icon={History}
-            accent="#3b7af5"
-          />
-          <StatCard
-            label="Latest version"
-            value={`v${Math.max(...workbooks.map((w) => w.version ?? 1))}`}
-            icon={FileSpreadsheet}
-            accent="#7c3aed"
-          />
-        </section>
-      ) : null}
+    <div style={{ maxWidth: 920, margin: "0 auto", padding: "32px 24px", font: "14px -apple-system, system-ui, sans-serif" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
+        <div>
+          <h1 style={{ margin: 0, fontSize: 24, color: "#202124" }}>SabSheet</h1>
+          <p style={{ margin: "4px 0 0", color: "#5f6368" }}>
+            Excel-grade spreadsheets that keep working offline.{" "}
+            <Link href="/dashboard/sabsheet/demo" style={{ color: "#1a73e8" }}>
+              Try the demo →
+            </Link>
+          </p>
+        </div>
+        <NewWorkbookButton />
+      </div>
 
       {workbooks.length === 0 ? (
-        <Card variant="outlined">
-          <EmptyState
-            icon={Table2}
-            title="No workbooks yet"
-            description="Create your first SabSheet workbook to start building spreadsheets."
-            action={<NewWorkbookButton />}
-          />
-        </Card>
+        <div style={{ padding: 48, textAlign: "center", color: "#5f6368", border: "1px dashed #dadce0", borderRadius: 12 }}>
+          No spreadsheets yet. Create one to get started.
+        </div>
       ) : (
-        <section
-          aria-label="Workbooks"
-          className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
-        >
+        <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 16 }}>
           {workbooks.map((wb) => (
-            <Card key={wb._id} variant="outlined" className="flex h-full flex-col">
-              <CardHeader>
-                <div className="flex items-start justify-between gap-3">
-                  <CardTitle className="line-clamp-1 flex items-center gap-2">
-                    <FileSpreadsheet
-                      className="size-4 shrink-0 text-[var(--st-text-secondary)]"
-                      aria-hidden="true"
-                    />
-                    {wb.title}
-                  </CardTitle>
-                  <Badge tone="neutral" kind="soft" className="tabular-nums">
-                    v{wb.version}
-                  </Badge>
+            <li key={wb._id}>
+              <Link
+                href={`/dashboard/sabsheet/${wb._id}`}
+                style={{
+                  display: "block",
+                  height: 140,
+                  padding: 16,
+                  border: "1px solid #dadce0",
+                  borderRadius: 12,
+                  textDecoration: "none",
+                  color: "#202124",
+                  background: "#fff",
+                }}
+              >
+                <div style={{ fontSize: 28 }}>📊</div>
+                <div style={{ marginTop: 12, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  {wb.title || "Untitled spreadsheet"}
                 </div>
-              </CardHeader>
-              <CardBody className="flex flex-1 flex-col justify-between gap-4">
-                <p className="text-xs text-[var(--st-text-secondary)]">
-                  {wb.updatedAt
-                    ? `Updated ${new Date(wb.updatedAt).toLocaleDateString()}`
-                    : 'Not yet edited'}
-                </p>
-                <div className="flex gap-2">
-                  <Button asChild variant="outline" size="sm">
-                    <Link href={`/dashboard/sabsheet/${wb._id}`}>Open</Link>
-                  </Button>
-                  <Button asChild variant="ghost" size="sm">
-                    <Link href={`/dashboard/sabsheet/${wb._id}/history`}>
-                      <History className="size-4" aria-hidden="true" />
-                      History
-                    </Link>
-                  </Button>
-                </div>
-              </CardBody>
-            </Card>
+              </Link>
+            </li>
           ))}
-        </section>
+        </ul>
       )}
     </div>
   );

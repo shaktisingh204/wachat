@@ -9,7 +9,7 @@
  */
 
 interface PrintButtonProps {
-  /** Workbook to print — used to build `/dashboard/sabsheet/v2/<workbookId>/print`. */
+  /** Workbook to print — used to build `/dashboard/sabsheet/<workbookId>/print`. */
   workbookId: string;
   /** Optional active-sheet index to print (defaults to the first sheet, index 0). */
   sheet?: number;
@@ -29,7 +29,7 @@ export function PrintButton({
   title = "Print or save this sheet as PDF",
 }: PrintButtonProps) {
   const href =
-    `/dashboard/sabsheet/v2/${encodeURIComponent(workbookId)}/print` +
+    `/dashboard/sabsheet/${encodeURIComponent(workbookId)}/print` +
     (sheet != null ? `?sheet=${sheet}` : "");
 
   return (

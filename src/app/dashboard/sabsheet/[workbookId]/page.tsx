@@ -1,46 +1,34 @@
-import { notFound } from 'next/navigation';
+/**
+ * SabSheet v2 editor — a real, persistent workbook.
+ *
+ * Because `workbookId` is passed to the Workbench, the IronCalc engine bootstraps from the server
+ * snapshot and every edit autosaves through `/v1/sabsheet/ops` — and works fully offline (queued in
+ * IndexedDB, synced on reconnect). New workbooks created via the launcher start empty here.
+ */
+import { notFound } from "next/navigation";
+import { getSabsheetWorkbook } from "@/app/actions/sabsheet.actions";
+import { Workbench } from "@/components/sabsheet/workbench";
 
-import {
-  getSabsheetWorkbook,
-  listSabsheetCells,
-  listSabsheetComments,
-  listSabsheetNamedRanges,
-  listSabsheetPivotTables,
-  listSabsheetSheets,
-} from '@/app/actions/sabsheet.actions';
-import { WorkbookEditor } from '../_components/workbook-editor';
+export const dynamic = "force-dynamic";
 
-export const dynamic = 'force-dynamic';
-
-interface PageProps {
+export default async function SabSheetV2EditorPage({
+  params,
+}: {
   params: Promise<{ workbookId: string }>;
-}
-
-export default async function SabsheetWorkbookPage({ params }: PageProps) {
+}) {
   const { workbookId } = await params;
-  const workbook = await getSabsheetWorkbook(workbookId);
-  if (!workbook) notFound();
-
-  const sheets = await listSabsheetSheets(workbookId);
-  const activeSheet = sheets.find((s) => s._id === workbook.defaultSheetId) ?? sheets[0];
-  const [cells, comments, namedRanges, pivots] = await Promise.all([
-    activeSheet ? listSabsheetCells(activeSheet._id) : Promise.resolve([]),
-    listSabsheetComments(workbookId, { sheetId: activeSheet?._id }),
-    listSabsheetNamedRanges(workbookId),
-    listSabsheetPivotTables(workbookId),
-  ]);
+  let title = "Untitled spreadsheet";
+  try {
+    const wb = await getSabsheetWorkbook(workbookId);
+    if (!wb) notFound();
+    title = wb.title || title;
+  } catch {
+    notFound();
+  }
 
   return (
-    <div className="20ui flex h-[calc(100vh-3.5rem)] flex-col">
-      <WorkbookEditor
-        workbook={workbook}
-        sheets={sheets}
-        activeSheetId={activeSheet?._id ?? null}
-        initialCells={cells}
-        initialComments={comments}
-        initialNamedRanges={namedRanges}
-        initialPivots={pivots}
-      />
+    <div style={{ position: "fixed", inset: 0 }}>
+      <Workbench name={title} workbookId={workbookId} />
     </div>
   );
 }

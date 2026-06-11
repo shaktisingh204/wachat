@@ -364,7 +364,7 @@ const SAB_APPS_ALL: SabAppDescriptor[] = [
   {
     id: "sabsheet",
     name: "SabSheet",
-    href: "/dashboard/sabsheet/v2",
+    href: "/dashboard/sabsheet",
     Icon: SabSheetIcon,
     migration: "done",
     isActive: (p) => !!p?.startsWith("/dashboard/sabsheet"),

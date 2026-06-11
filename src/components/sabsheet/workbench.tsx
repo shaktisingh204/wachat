@@ -70,7 +70,7 @@ export function Workbench({ name, workbookId, seed }: WorkbenchProps) {
   }, []);
   const closePanel = useCallback(() => setPanel(null), []);
   const print = useCallback(() => {
-    if (workbookId) window.open(`/dashboard/sabsheet/v2/${workbookId}/print?sheet=${activeSheet}`, "_blank");
+    if (workbookId) window.open(`/dashboard/sabsheet/${workbookId}/print?sheet=${activeSheet}`, "_blank");
   }, [workbookId, activeSheet]);
 
   const onSheetsChange = useCallback((list: SheetInfo[], active: number) => {
