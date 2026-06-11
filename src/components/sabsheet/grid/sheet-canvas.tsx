@@ -161,6 +161,8 @@ export const SheetCanvas = forwardRef<SheetCanvasHandle, SheetCanvasProps>(funct
   const valRef = useRef<DataValidationRule[]>([]);
   /** Rows currently hidden by the auto-filter (1-based), so they can be restored. */
   const filterHiddenRef = useRef<number[]>([]);
+  /** Debounce timer for posting this user's cursor to the presence channel. */
+  const presenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [editing, setEditing] = useState<EditState | null>(null);
   const [ready, setReady] = useState(false);
@@ -258,14 +260,32 @@ export const SheetCanvas = forwardRef<SheetCanvasHandle, SheetCanvasProps>(funct
     [refresh, onSaveStateChange],
   );
 
+  /** Broadcast this user's cursor to collaborators (presence). Best-effort, persistent workbooks only. */
+  const postPresence = useCallback(() => {
+    if (!workbookId) return;
+    const sel = selectionRef.current;
+    const box = selectionBox(sel);
+    void fetch("/api/sabsheet/presence", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        workbookId,
+        cursor: { sheet: sheetRef.current, row: sel.active.row, col: sel.active.col, box },
+      }),
+    }).catch(() => {});
+  }, [workbookId]);
+
   const setSelection = useCallback(
     (s: SelectionState) => {
       selectionRef.current = s;
       rendererRef.current?.setSelection(s);
       rendererRef.current?.draw();
       void emitSelection();
+      // Debounced presence broadcast (coalesces drag-selection).
+      if (presenceTimerRef.current) clearTimeout(presenceTimerRef.current);
+      presenceTimerRef.current = setTimeout(() => postPresence(), 300);
     },
-    [emitSelection],
+    [emitSelection, postPresence],
   );
 
   /** Read the worksheet list from the engine and report it to the chrome. */
@@ -512,6 +532,7 @@ export const SheetCanvas = forwardRef<SheetCanvasHandle, SheetCanvasProps>(funct
     // an SSE/WebSocket push can replace the poller later without touching this wiring.
     let sync: RealtimeSync | null = null;
     let closeSse: (() => void) | null = null;
+    let heartbeat: ReturnType<typeof setInterval> | null = null;
     if (workbookId && outbox) {
       const ob = outbox;
       sync = new RealtimeSync({
@@ -604,7 +625,19 @@ export const SheetCanvas = forwardRef<SheetCanvasHandle, SheetCanvasProps>(funct
       if (workbookId && sync) {
         const s = sync;
         const baseSeq = outbox ? await outbox.currentSeq() : 0;
-        closeSse = openOpStream(workbookId, baseSeq, () => void s.poll());
+        closeSse = openOpStream(
+          workbookId,
+          baseSeq,
+          () => void s.poll(),
+          (cursors) => {
+            const r = rendererRef.current;
+            if (!r) return;
+            r.setRemoteCursors(cursors.filter((c) => c.sheet === sheetRef.current));
+            r.draw();
+          },
+        );
+        postPresence(); // announce our cursor on join
+        heartbeat = setInterval(() => postPresence(), 5000); // keep our presence TTL fresh
       }
     })();
 
@@ -613,6 +646,8 @@ export const SheetCanvas = forwardRef<SheetCanvasHandle, SheetCanvasProps>(funct
       ro.disconnect();
       sync?.stop();
       closeSse?.();
+      if (heartbeat) clearInterval(heartbeat);
+      if (presenceTimerRef.current) clearTimeout(presenceTimerRef.current);
       window.removeEventListener("online", onOnline);
       window.removeEventListener("offline", onOffline);
       engine.destroy();

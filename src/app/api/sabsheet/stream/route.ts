@@ -11,12 +11,14 @@
  */
 import { getSession } from "@/app/actions/user.actions";
 import { opsSince } from "@/lib/rust-client/sabsheet-ops";
+import { listPresence } from "@/lib/sabsheet/collab/presence-store.server";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(req: Request): Promise<Response> {
   const session = await getSession();
   if (!session?.user?._id) return new Response("unauthorized", { status: 401 });
+  const userId = String(session.user._id);
 
   const url = new URL(req.url);
   const workbookId = url.searchParams.get("workbookId");
@@ -46,6 +48,13 @@ export async function GET(req: Request): Promise<Response> {
           }
         } catch {
           /* transient — try again next tick */
+        }
+        // Fan out collaborators' cursors (best-effort).
+        try {
+          const cursors = await listPresence(workbookId, userId);
+          send(`event: presence\ndata: ${JSON.stringify(cursors)}\n\n`);
+        } catch {
+          /* best-effort */
         }
       };
 

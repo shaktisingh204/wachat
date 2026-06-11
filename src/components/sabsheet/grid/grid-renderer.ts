@@ -10,6 +10,7 @@
 import { AxisIndex } from "./axis-index.ts";
 import { selectionBox, type SelectionState } from "./selection.ts";
 import type { CellView } from "../../../lib/sabsheet/commands/ops.ts";
+import type { PresenceCursor } from "../../../lib/sabsheet/collab/presence.ts";
 
 export interface GridTheme {
   rowHeaderWidth: number;
@@ -67,6 +68,7 @@ export class GridRenderer {
   private frozenCols = 0;
   private cells = new Map<string, CellView>();
   private selection: SelectionState | null = null;
+  private remoteCursors: PresenceCursor[] = [];
 
   constructor(
     contentCanvas: HTMLCanvasElement,
@@ -122,6 +124,11 @@ export class GridRenderer {
 
   setSelection(s: SelectionState | null): void {
     this.selection = s;
+  }
+
+  /** Live cursors of other collaborators (already filtered to the active sheet). */
+  setRemoteCursors(cursors: PresenceCursor[]): void {
+    this.remoteCursors = cursors;
   }
 
   /** Set frozen pane counts (rows above / columns left that stay pinned while scrolling). */
@@ -426,6 +433,7 @@ export class GridRenderer {
     const ctx = this.overlay;
     const t = this.theme;
     ctx.clearRect(0, 0, this.cssW, this.cssH);
+    this.drawRemoteCursors();
     if (!this.selection) return;
 
     const box = selectionBox(this.selection);
@@ -465,6 +473,38 @@ export class GridRenderer {
     ctx.lineWidth = 1;
     ctx.strokeRect(hx + 0.5, hy + 0.5, size - 1, size - 1);
 
+    ctx.restore();
+  }
+
+  /** Paint other collaborators' selections + name tags on the overlay (clipped to the grid area). */
+  private drawRemoteCursors(): void {
+    if (this.remoteCursors.length === 0) return;
+    const ctx = this.overlay;
+    const t = this.theme;
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(t.rowHeaderWidth, t.colHeaderHeight, this.cssW - t.rowHeaderWidth, this.cssH - t.colHeaderHeight);
+    ctx.clip();
+    ctx.font = "11px -apple-system, system-ui, sans-serif";
+    ctx.textBaseline = "alphabetic";
+    for (const c of this.remoteCursors) {
+      const tl = this.cellRect(c.box.top, c.box.left);
+      const br = this.cellRect(c.box.bottom, c.box.right);
+      const x = tl.x;
+      const y = tl.y;
+      const w = br.x + br.w - tl.x;
+      const h = br.y + br.h - tl.y;
+      ctx.strokeStyle = c.color;
+      ctx.lineWidth = 2;
+      ctx.strokeRect(x + 1, y + 1, w - 2, h - 2);
+      // Name tag above the active cell.
+      const label = c.name.slice(0, 24);
+      const tw = ctx.measureText(label).width;
+      ctx.fillStyle = c.color;
+      ctx.fillRect(x, y - 15, tw + 8, 15);
+      ctx.fillStyle = "#ffffff";
+      ctx.fillText(label, x + 4, y - 4);
+    }
     ctx.restore();
   }
 }
