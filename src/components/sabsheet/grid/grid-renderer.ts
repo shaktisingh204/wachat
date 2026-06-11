@@ -32,7 +32,7 @@ export const DEFAULT_THEME: GridTheme = {
   gridLine: "#e1e3e6",
   headerBg: "#f8f9fa",
   headerText: "#5f6368",
-  headerActiveBg: "#d2e3fc",
+  headerActiveBg: "#d3e3fd",
   cellText: "#202124",
   selectionFill: "rgba(26,115,232,0.10)",
   selectionBorder: "#1a73e8",

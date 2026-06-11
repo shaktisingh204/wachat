@@ -1,9 +1,9 @@
 "use client";
 
 /**
- * Worksheet tab strip (Excel-style). Lists the workbook's sheets, highlights the active one, supports
- * click-to-switch, double-click-to-rename, and a `+` to add a sheet. Hidden sheets are omitted. Drives
- * the grid through `SheetCanvasHandle`.
+ * Worksheet tab strip, styled like Google Sheets' bottom bar: a light strip with a circular `+`
+ * button and tabs where the active sheet is a white tab with a 3px blue underline. Click to switch,
+ * double-click to rename. Hidden sheets are omitted. Drives the grid through `SheetCanvasHandle`.
  */
 import { useState } from "react";
 import type { SheetInfo } from "../../../lib/sabsheet/engine/protocol.ts";
@@ -14,6 +14,39 @@ export interface SheetTabsProps {
   active: number;
   grid: React.RefObject<SheetCanvasHandle | null>;
 }
+
+const CSS = `
+.sbst {
+  display: flex; align-items: stretch; gap: 2px; height: 36px; padding: 0 8px;
+  border-top: 1px solid #e1e3e6; background: #f9fbfd; overflow-x: auto;
+  font: 13px -apple-system, system-ui, sans-serif; scrollbar-width: none;
+}
+.sbst::-webkit-scrollbar { display: none; }
+.sbst-add {
+  align-self: center; width: 28px; height: 28px; flex: none;
+  border: none; border-radius: 50%; background: transparent; color: #444746;
+  font-size: 18px; line-height: 1; cursor: pointer;
+  transition: background 100ms linear, transform 160ms cubic-bezier(.23,1,.32,1);
+}
+@media (hover: hover) and (pointer: fine) { .sbst-add:hover { background: rgba(68,71,70,.1); } }
+.sbst-add:active { transform: scale(.94); }
+.sbst-add:focus-visible { outline: 2px solid #1a73e8; outline-offset: 1px; }
+.sbst-tab {
+  display: flex; align-items: center; padding: 0 16px; cursor: pointer; flex: none;
+  color: #444746; border-bottom: 3px solid transparent; border-top: 3px solid transparent;
+  white-space: nowrap; user-select: none; max-width: 200px;
+  transition: background 100ms linear;
+}
+@media (hover: hover) and (pointer: fine) { .sbst-tab:hover { background: rgba(68,71,70,.06); } }
+.sbst-tab[aria-selected="true"] {
+  background: #fff; color: #0b57d0; font-weight: 600; border-bottom-color: #0b57d0;
+}
+.sbst-tab:focus-visible { outline: 2px solid #1a73e8; outline-offset: -2px; }
+.sbst-rename {
+  width: 96px; height: 22px; border: 1px solid #1a73e8; border-radius: 4px; padding: 0 6px;
+  font: 13px -apple-system, system-ui, sans-serif;
+}
+`;
 
 export function SheetTabs({ sheets, active, grid }: SheetTabsProps) {
   const [renaming, setRenaming] = useState<number | null>(null);
@@ -26,8 +59,9 @@ export function SheetTabs({ sheets, active, grid }: SheetTabsProps) {
   };
 
   return (
-    <div style={bar} role="tablist" aria-label="Worksheets">
-      <button style={addBtn} title="Add sheet" aria-label="Add sheet" onClick={() => void grid.current?.addSheet()}>
+    <div className="sbst" role="tablist" aria-label="Worksheets">
+      <style>{CSS}</style>
+      <button className="sbst-add" title="Add sheet" aria-label="Add sheet" onClick={() => void grid.current?.addSheet()}>
         +
       </button>
       {sheets.map((s, i) =>
@@ -37,20 +71,21 @@ export function SheetTabs({ sheets, active, grid }: SheetTabsProps) {
             role="tab"
             aria-selected={i === active}
             tabIndex={0}
+            className="sbst-tab"
             onClick={() => i !== active && void grid.current?.setActiveSheet(i)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && i !== active) void grid.current?.setActiveSheet(i);
+            }}
             onDoubleClick={() => {
               setRenaming(i);
               setDraft(s.name);
             }}
-            style={{
-              ...tab,
-              ...(i === active ? tabActive : null),
-              ...(s.color ? { borderBottom: `2px solid ${s.color}` } : null),
-            }}
+            style={s.color ? { borderBottomColor: s.color } : undefined}
           >
             {renaming === i ? (
               <input
                 autoFocus
+                className="sbst-rename"
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
                 onBlur={() => void commitRename(i)}
@@ -58,10 +93,9 @@ export function SheetTabs({ sheets, active, grid }: SheetTabsProps) {
                   if (e.key === "Enter") void commitRename(i);
                   else if (e.key === "Escape") setRenaming(null);
                 }}
-                style={renameInput}
               />
             ) : (
-              s.name
+              <span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>{s.name}</span>
             )}
           </div>
         ),
@@ -69,45 +103,3 @@ export function SheetTabs({ sheets, active, grid }: SheetTabsProps) {
     </div>
   );
 }
-
-const bar: React.CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  gap: 2,
-  height: 32,
-  padding: "0 8px",
-  borderTop: "1px solid #e1e3e6",
-  background: "#f8f9fa",
-  overflowX: "auto",
-  font: "13px -apple-system, system-ui, sans-serif",
-};
-const addBtn: React.CSSProperties = {
-  minWidth: 26,
-  height: 24,
-  border: "1px solid transparent",
-  borderRadius: 4,
-  background: "transparent",
-  cursor: "pointer",
-  color: "#5f6368",
-  fontSize: 16,
-};
-const tab: React.CSSProperties = {
-  height: 28,
-  display: "flex",
-  alignItems: "center",
-  padding: "0 12px",
-  cursor: "pointer",
-  color: "#5f6368",
-  borderTopLeftRadius: 4,
-  borderTopRightRadius: 4,
-  whiteSpace: "nowrap",
-};
-const tabActive: React.CSSProperties = { background: "#fff", color: "#1a73e8", fontWeight: 600, boxShadow: "0 -1px 0 #e1e3e6 inset" };
-const renameInput: React.CSSProperties = {
-  width: 90,
-  height: 20,
-  border: "1px solid #1a73e8",
-  borderRadius: 3,
-  font: "13px -apple-system, system-ui, sans-serif",
-  padding: "0 4px",
-};

@@ -4,7 +4,10 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { createSabsheetWorkbook } from "@/app/actions/sabsheet.actions";
 
-/** Creates a fresh persistent v2 workbook and opens it. */
+/**
+ * The "Blank spreadsheet" template card (Google-Sheets-home style): a white card with the
+ * multicolor plus. Creates a fresh workbook and opens it in the editor.
+ */
 export function NewWorkbookButton() {
   const router = useRouter();
   const [pending, start] = useTransition();
@@ -22,25 +25,21 @@ export function NewWorkbookButton() {
     });
 
   return (
-    <div style={{ display: "inline-flex", flexDirection: "column", gap: 4 }}>
-      <button
-        onClick={create}
-        disabled={pending}
-        style={{
-          height: 40,
-          padding: "0 20px",
-          border: "none",
-          borderRadius: 8,
-          background: "#1a73e8",
-          color: "#fff",
-          font: "600 14px -apple-system, system-ui, sans-serif",
-          cursor: pending ? "default" : "pointer",
-          opacity: pending ? 0.7 : 1,
-        }}
-      >
-        {pending ? "Creating…" : "+ New spreadsheet"}
+    <div className="sbsl-tpl">
+      <button className="sbsl-card" onClick={create} disabled={pending} aria-label="Create a blank spreadsheet">
+        {pending ? (
+          <span style={{ color: "#5f6368", font: "13px -apple-system, system-ui, sans-serif" }}>Creating…</span>
+        ) : (
+          <svg width="52" height="52" viewBox="0 0 64 64" aria-hidden>
+            <rect x="8" y="26" width="24" height="12" rx="2" fill="#fbbc04" />
+            <rect x="32" y="26" width="24" height="12" rx="2" fill="#ea4335" />
+            <rect x="26" y="8" width="12" height="24" rx="2" fill="#4285f4" />
+            <rect x="26" y="32" width="12" height="24" rx="2" fill="#34a853" />
+          </svg>
+        )}
       </button>
-      {error && <span style={{ color: "#c5221f", fontSize: 12 }}>{error}</span>}
+      <div className="sbsl-tlabel">Blank spreadsheet</div>
+      {error && <div style={{ color: "#c5221f", fontSize: 12, marginTop: 4 }}>{error}</div>}
     </div>
   );
 }

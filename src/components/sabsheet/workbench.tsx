@@ -20,6 +20,7 @@ import { CFormatPanel } from "./chrome/cformat-panel.tsx";
 import { ValidationPanel } from "./chrome/validation-panel.tsx";
 import { FilterPanel } from "./chrome/filter-panel.tsx";
 import { SharePanel } from "./chrome/share-panel.tsx";
+import { SheetIcon } from "./chrome/sheet-icon.tsx";
 import type { CFRule } from "../../lib/sabsheet/cformat/types.ts";
 import type { DataValidationRule } from "../../lib/sabsheet/validation/types.ts";
 import { exportXlsxAction } from "../../app/actions/sabsheet-ops.actions.ts";
@@ -117,6 +118,27 @@ export function Workbench({ name, workbookId, seed }: WorkbenchProps) {
 
   return (
     <div style={styles.root}>
+      <style>{WORKBENCH_CSS}</style>
+      <div className="sbsw-title">
+        <SheetIcon size={28} />
+        <span className="sbsw-name" title={name}>{name}</span>
+        {!online && (
+          <span className="sbsw-chip" title="You're offline. Edits are saved on this device and sync when you reconnect.">
+            ☁ Offline
+          </span>
+        )}
+        {saveState && workbookId && (
+          <span className="sbsw-save" aria-live="polite">{SAVE_LABEL[saveState]}</span>
+        )}
+        {workbookId && (
+          <button className="sbsw-share" onClick={() => void openPanel("share")} title="Share with collaborators">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+              <path d="M18 8a3 3 0 1 0-2.83-4H15a3 3 0 0 0 .04.49L8.91 7.56a3 3 0 1 0 0 4.88l6.13 3.07A3 3 0 1 0 18 14c-.79 0-1.5.3-2.04.8l-6.13-3.07a3.03 3.03 0 0 0 0-.98l6.13-3.07c.54.5 1.25.8 2.04.8Z" />
+            </svg>
+            Share
+          </button>
+        )}
+      </div>
       {/* xlsx export needs the server, so it's hidden offline (the grid keeps working). */}
       <Ribbon
         grid={gridRef}
@@ -124,10 +146,10 @@ export function Workbench({ name, workbookId, seed }: WorkbenchProps) {
         onOpenPanel={workbookId ? (p) => void openPanel(p) : undefined}
         onPrint={workbookId ? print : undefined}
       />
-      <div style={styles.formulaBar}>
+      <div className="sbsw-fbar">
         <input
           aria-label="Name box — type a cell or range to go to"
-          style={styles.nameBox}
+          className="sbsw-namebox"
           value={nameBox}
           onChange={(e) => setNameBox(e.target.value)}
           onFocus={(e) => e.target.select()}
@@ -140,9 +162,8 @@ export function Workbench({ name, workbookId, seed }: WorkbenchProps) {
             }
           }}
         />
-        <div style={styles.fx} aria-hidden>
-          fx
-        </div>
+        <span className="sbsw-fdiv" aria-hidden />
+        <span className="sbsw-fx" aria-hidden>fx</span>
         <input
           aria-label="Formula or value"
           value={draft}
@@ -155,7 +176,7 @@ export function Workbench({ name, workbookId, seed }: WorkbenchProps) {
               setDraft(activeContent);
             }
           }}
-          style={styles.formulaInput}
+          className="sbsw-finput"
           placeholder="Enter a value or =formula"
         />
       </div>
@@ -226,18 +247,9 @@ export function Workbench({ name, workbookId, seed }: WorkbenchProps) {
 
       {sheets.length > 0 && <SheetTabs sheets={sheets} active={activeSheet} grid={gridRef} />}
 
-      <div style={styles.statusBar}>
-        <span>{name}</span>
-        {!online && (
-          <span style={{ color: "#b06000" }} title="You're offline. Edits are saved on this device and sync when you reconnect.">
-            ● Offline
-          </span>
-        )}
-        {saveState && workbookId && (
-          <span aria-live="polite">{SAVE_LABEL[saveState]}</span>
-        )}
-        {aggregates && <span style={{ marginLeft: "auto", fontVariantNumeric: "tabular-nums" }}>{aggregates}</span>}
-        <span style={{ marginLeft: aggregates ? 16 : "auto" }}>SabSheet v2 · IronCalc engine</span>
+      <div className="sbsw-status">
+        {aggregates && <span style={{ fontVariantNumeric: "tabular-nums" }}>{aggregates}</span>}
+        <span style={{ marginLeft: "auto" }}>SabSheet · IronCalc engine</span>
       </div>
     </div>
   );
@@ -245,44 +257,51 @@ export function Workbench({ name, workbookId, seed }: WorkbenchProps) {
 
 const styles: Record<string, React.CSSProperties> = {
   root: { display: "flex", flexDirection: "column", height: "100%", width: "100%", background: "#fff" },
-  formulaBar: {
-    display: "flex",
-    alignItems: "center",
-    gap: 8,
-    height: 32,
-    padding: "0 8px",
-    borderBottom: "1px solid #e1e3e6",
-    font: "13px -apple-system, system-ui, sans-serif",
-  },
-  nameBox: {
-    minWidth: 72,
-    height: 22,
-    display: "flex",
-    alignItems: "center",
-    padding: "0 8px",
-    border: "1px solid #e1e3e6",
-    borderRadius: 4,
-    color: "#202124",
-  },
-  fx: { color: "#5f6368", fontStyle: "italic", width: 18, textAlign: "center" },
-  formulaInput: {
-    flex: 1,
-    height: 24,
-    border: "none",
-    outline: "none",
-    font: "13px -apple-system, system-ui, sans-serif",
-  },
   gridRow: { flex: 1, minHeight: 0, display: "flex" },
   gridWrap: { flex: 1, minWidth: 0, minHeight: 0, position: "relative" },
-  statusBar: {
-    display: "flex",
-    alignItems: "center",
-    gap: 16,
-    height: 24,
-    padding: "0 12px",
-    borderTop: "1px solid #e1e3e6",
-    background: "#f8f9fa",
-    color: "#5f6368",
-    font: "12px -apple-system, system-ui, sans-serif",
-  },
 };
+
+const WORKBENCH_CSS = `
+.sbsw-title { display: flex; align-items: center; gap: 10px; padding: 10px 16px 2px; background: #fff; }
+.sbsw-name {
+  font: 500 18px -apple-system, system-ui, sans-serif; color: #1f1f1f; letter-spacing: -0.1px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 40vw;
+}
+.sbsw-save { font-size: 12px; color: #5f6368; }
+.sbsw-chip {
+  font-size: 12px; color: #5f6368; background: #f1f3f4; border-radius: 12px; padding: 3px 10px; flex: none;
+}
+.sbsw-share {
+  margin-left: auto; display: inline-flex; align-items: center; gap: 7px; flex: none;
+  height: 36px; padding: 0 20px; border: none; border-radius: 18px;
+  background: #c2e7ff; color: #001d35; font: 600 13.5px -apple-system, system-ui, sans-serif; cursor: pointer;
+  transition: box-shadow 120ms ease, transform 160ms cubic-bezier(.23,1,.32,1);
+}
+@media (hover: hover) and (pointer: fine) { .sbsw-share:hover { box-shadow: 0 1px 3px rgba(0,0,0,.22); } }
+.sbsw-share:active { transform: scale(.97); }
+.sbsw-share:focus-visible { outline: 2px solid #1a73e8; outline-offset: 2px; }
+.sbsw-fbar {
+  display: flex; align-items: center; height: 36px; padding: 0 12px;
+  border-top: 1px solid #eef1f4; border-bottom: 1px solid #e1e3e6; background: #fff;
+  font: 13px -apple-system, system-ui, sans-serif;
+}
+.sbsw-namebox {
+  width: 90px; flex: none; height: 26px; border: none; border-radius: 6px; padding: 0 8px;
+  font: 13px -apple-system, system-ui, sans-serif; color: #1f1f1f; background: transparent;
+}
+@media (hover: hover) and (pointer: fine) { .sbsw-namebox:hover { background: #f1f3f4; } }
+.sbsw-namebox:focus { outline: 2px solid #1a73e8; outline-offset: -1px; background: #fff; }
+.sbsw-fdiv { width: 1px; height: 18px; background: #e1e3e6; margin: 0 10px; flex: none; }
+.sbsw-fx { color: #5f6368; font: italic 600 13px Georgia, "Times New Roman", serif; width: 22px; text-align: center; flex: none; }
+.sbsw-finput {
+  flex: 1; height: 28px; border: none; outline: none; border-radius: 6px; padding: 0 8px;
+  font: 13px -apple-system, system-ui, sans-serif; color: #1f1f1f;
+}
+.sbsw-finput:focus { background: #f8fbff; }
+.sbsw-status {
+  display: flex; align-items: center; gap: 16px; height: 26px; padding: 0 14px;
+  border-top: 1px solid #e1e3e6; background: #f9fbfd; color: #5f6368;
+  font: 12px -apple-system, system-ui, sans-serif;
+}
+@media (prefers-reduced-motion: reduce) { .sbsw-share { transition: none; } }
+`;
