@@ -3,7 +3,7 @@
 /* ===================================================================== */
 /* Alert — tinted notice with a left edge, icon, title, body, dismiss.   */
 /* ===================================================================== */
-:is(.\32 0ui, .sabcrm-twenty) .u-alert {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-alert {
   display: flex;
   align-items: flex-start;
   gap: var(--st-space-3);
@@ -20,71 +20,71 @@
 }
 
 /* tone → tint set, reusing the Badge soft palette. */
-:is(.\32 0ui, .sabcrm-twenty) .u-alert--info,
-:is(.\32 0ui, .sabcrm-twenty) .u-alert--neutral {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-alert--info,
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-alert--neutral {
   --u-alert-bg: #e6f0fd;
   --u-alert-border: color-mix(in srgb, #2b6ef2 22%, transparent);
   --u-alert-edge: #2b6ef2;
   --u-alert-fg: #1d6fd6;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-alert--neutral {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-alert--neutral {
   --u-alert-bg: var(--st-bg-muted);
   --u-alert-border: var(--st-border);
   --u-alert-edge: var(--st-text-tertiary);
   --u-alert-fg: var(--st-text-secondary);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-alert--success {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-alert--success {
   --u-alert-bg: #e7f6ec;
   --u-alert-border: color-mix(in srgb, var(--st-status-ok) 26%, transparent);
   --u-alert-edge: var(--st-status-ok);
   --u-alert-fg: #1f7a37;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-alert--warning {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-alert--warning {
   --u-alert-bg: #fcf4e0;
   --u-alert-border: color-mix(in srgb, var(--st-warn) 30%, transparent);
   --u-alert-edge: var(--st-warn);
   --u-alert-fg: #9a6400;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-alert--danger {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-alert--danger {
   --u-alert-bg: var(--st-danger-soft);
   --u-alert-border: color-mix(in srgb, var(--st-danger) 26%, transparent);
   --u-alert-edge: var(--st-danger);
   --u-alert-fg: var(--st-danger-strong);
 }
 
-:is(.\32 0ui, .sabcrm-twenty) .u-alert__icon {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-alert__icon {
   display: inline-flex;
   flex: 0 0 auto;
   margin-top: 1px;
   color: var(--u-alert-fg);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-alert__content {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-alert__content {
   flex: 1 1 auto;
   min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-alert__title {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-alert__title {
   margin: 0;
   font-size: var(--st-font-size);
   font-weight: var(--st-fw-semibold);
   color: var(--st-text);
   line-height: 1.4;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-alert__body {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-alert__body {
   font-size: var(--st-font-size-sm);
   color: var(--st-text-secondary);
   line-height: 1.5;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-alert__body a {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-alert__body a {
   color: var(--u-alert-fg);
   font-weight: var(--st-fw-medium);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
 
-:is(.\32 0ui, .sabcrm-twenty) .u-alert__close {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-alert__close {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -102,14 +102,14 @@
     color var(--u-dur-fast) var(--u-ease-out),
     transform 80ms var(--u-ease-out);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-alert__close:hover {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-alert__close:hover {
   background: color-mix(in srgb, var(--u-alert-edge) 12%, transparent);
   color: var(--st-text);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-alert__close:active {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-alert__close:active {
   transform: scale(0.92);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-alert__close:focus-visible {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-alert__close:focus-visible {
   outline: none;
   box-shadow: var(--u-focus-ring);
 }
@@ -117,7 +117,7 @@
 /* Compound sub-parts — <Alert><AlertTitle/><AlertDescription/></Alert>.       */
 /* Token-styled, static (no motion). AlertTitle = medium-weight heading line;  */
 /* AlertDescription = secondary body text. Both sit inside .u-alert__body.      */
-:is(.\32 0ui, .sabcrm-twenty) .u-alert-title {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-alert-title {
   margin: 0;
   font-size: var(--st-font-size);
   font-weight: var(--st-fw-medium);
@@ -125,19 +125,19 @@
   line-height: 1.4;
   letter-spacing: -0.01em;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-alert-title + .u-alert-description {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-alert-title + .u-alert-description {
   margin-top: 2px;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-alert-description {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-alert-description {
   font-size: var(--st-font-size-sm);
   color: var(--st-text-secondary);
   line-height: 1.5;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-alert-description p {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-alert-description p {
   margin: 0;
   line-height: 1.5;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-alert-description a {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-alert-description a {
   color: var(--u-alert-fg);
   font-weight: var(--st-fw-medium);
   text-decoration: underline;
@@ -158,7 +158,7 @@
 /* ===================================================================== */
 /* Callout — softer, borderless inline note.                             */
 /* ===================================================================== */
-:is(.\32 0ui, .sabcrm-twenty) .u-callout {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-callout {
   display: flex;
   align-items: flex-start;
   gap: var(--st-space-2);
@@ -169,47 +169,47 @@
   font-size: var(--st-font-size-sm);
   line-height: 1.5;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-callout--neutral {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-callout--neutral {
   --u-callout-bg: var(--st-bg-muted);
   --u-callout-fg: var(--st-text-tertiary);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-callout--info {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-callout--info {
   --u-callout-bg: #e6f0fd;
   --u-callout-fg: #1d6fd6;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-callout--success {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-callout--success {
   --u-callout-bg: #e7f6ec;
   --u-callout-fg: #1f7a37;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-callout--warning {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-callout--warning {
   --u-callout-bg: #fcf4e0;
   --u-callout-fg: #9a6400;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-callout--danger {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-callout--danger {
   --u-callout-bg: var(--st-danger-soft);
   --u-callout-fg: var(--st-danger-strong);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-callout__icon {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-callout__icon {
   display: inline-flex;
   flex: 0 0 auto;
   margin-top: 2px;
   color: var(--u-callout-fg);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-callout__content {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-callout__content {
   min-width: 0;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-callout__title {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-callout__title {
   font-weight: var(--st-fw-semibold);
   color: var(--st-text);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-callout__title + .u-callout__body {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-callout__title + .u-callout__body {
   margin-left: 5px;
 }
 
 /* ===================================================================== */
 /* EmptyState — centred icon chip + title + muted copy + action slot.    */
 /* ===================================================================== */
-:is(.\32 0ui, .sabcrm-twenty) .u-empty {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-empty {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -217,10 +217,10 @@
   gap: var(--st-space-2);
   padding: var(--st-space-6) var(--st-space-4);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-empty--sm {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-empty--sm {
   padding: var(--st-space-4) var(--st-space-3);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-empty__chip {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-empty__chip {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -232,44 +232,44 @@
   color: var(--st-text-tertiary);
   animation: u-empty-chip-in var(--u-dur-slow) var(--u-ease-out);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-empty--sm .u-empty__chip {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-empty--sm .u-empty__chip {
   width: 40px;
   height: 40px;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-empty__chip--info {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-empty__chip--info {
   background: #e6f0fd;
   color: #1d6fd6;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-empty__chip--success {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-empty__chip--success {
   background: #e7f6ec;
   color: #1f7a37;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-empty__chip--warning {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-empty__chip--warning {
   background: #fcf4e0;
   color: #9a6400;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-empty__chip--danger {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-empty__chip--danger {
   background: var(--st-danger-soft);
   color: var(--st-danger-strong);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-empty__title {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-empty__title {
   margin: 0;
   font-size: var(--st-font-size-lg);
   font-weight: var(--st-fw-semibold);
   color: var(--st-text);
   letter-spacing: -0.01em;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-empty--sm .u-empty__title {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-empty--sm .u-empty__title {
   font-size: var(--st-font-size);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-empty__desc {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-empty__desc {
   margin: 0;
   max-width: 38ch;
   font-size: var(--st-font-size-sm);
   color: var(--st-text-secondary);
   line-height: 1.5;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-empty__action {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-empty__action {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -292,13 +292,13 @@
 /* Reduced motion — kill all movement, keep the components legible.      */
 /* ===================================================================== */
 @media (prefers-reduced-motion: reduce) {
-  :is(.\32 0ui, .sabcrm-twenty) .u-alert {
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-alert {
     animation: none;
   }
-  :is(.\32 0ui, .sabcrm-twenty) .u-alert__close:active {
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-alert__close:active {
     transform: none;
   }
-  :is(.\32 0ui, .sabcrm-twenty) .u-empty__chip {
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-empty__chip {
     animation: none;
   }
 }

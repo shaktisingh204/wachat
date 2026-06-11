@@ -1,12 +1,12 @@
 /* 20ui · Tabs — segmented navigation (Radix-driven) */
 
-:is(.\32 0ui, .sabcrm-twenty) .u-tabs {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tabs {
   font-family: var(--st-font);
   color: var(--st-text);
 }
 
 /* ----- List (the trigger rail) ----- */
-:is(.\32 0ui, .sabcrm-twenty) .u-tabs__list {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tabs__list {
   position: relative;
   display: inline-flex;
   align-items: stretch;
@@ -16,7 +16,7 @@
 }
 
 /* ----- Trigger ----- */
-:is(.\32 0ui, .sabcrm-twenty) .u-tabs__trigger {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tabs__trigger {
   position: relative;
   display: inline-flex;
   align-items: center;
@@ -41,24 +41,24 @@
     background var(--u-dur-fast) var(--u-ease-out);
 }
 
-:is(.\32 0ui, .sabcrm-twenty) .u-tabs__trigger:hover {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tabs__trigger:hover {
   color: var(--st-text);
 }
 
-:is(.\32 0ui, .sabcrm-twenty) .u-tabs__trigger[data-state='active'] {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tabs__trigger[data-state='active'] {
   color: var(--st-text);
 }
 
-:is(.\32 0ui, .sabcrm-twenty) .u-tabs__trigger[data-disabled] {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tabs__trigger[data-disabled] {
   pointer-events: none;
   opacity: 0.5;
 }
 
-:is(.\32 0ui, .sabcrm-twenty) .u-tabs__trigger:focus-visible {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tabs__trigger:focus-visible {
   box-shadow: var(--u-focus-ring);
 }
 
-:is(.\32 0ui, .sabcrm-twenty) .u-tabs__trigger-label {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tabs__trigger-label {
   position: relative;
   z-index: 1;
 }
@@ -66,7 +66,7 @@
 /* ----- Active underline indicator ----- */
 /* Sits on the list baseline; hidden (scaled to a point) until the trigger is
    active, then expands. Transform + opacity only — Emil-safe. */
-:is(.\32 0ui, .sabcrm-twenty) .u-tabs__indicator {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tabs__indicator {
   position: absolute;
   left: var(--st-space-2);
   right: var(--st-space-2);
@@ -82,31 +82,31 @@
     opacity var(--u-dur-fast) var(--u-ease-out);
 }
 
-:is(.\32 0ui, .sabcrm-twenty) .u-tabs__trigger[data-state='active'] .u-tabs__indicator {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tabs__trigger[data-state='active'] .u-tabs__indicator {
   opacity: 1;
   transform: scaleX(1);
 }
 
 /* ----- noPill: bare active state (no underline, soft fill) ----- */
-:is(.\32 0ui, .sabcrm-twenty) .u-tabs__trigger--no-pill[data-state='active'] {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tabs__trigger--no-pill[data-state='active'] {
   background: var(--st-accent-soft);
   color: var(--st-text);
 }
 
 /* ----- Content panel ----- */
-:is(.\32 0ui, .sabcrm-twenty) .u-tabs__content {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tabs__content {
   margin-top: var(--st-space-3);
   color: var(--st-text);
   outline: none;
 }
 
-:is(.\32 0ui, .sabcrm-twenty) .u-tabs__content:focus-visible {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tabs__content:focus-visible {
   border-radius: var(--st-radius-sm);
   box-shadow: var(--u-focus-ring);
 }
 
 /* Panel enter: fade + tiny lift, transform + opacity only. */
-:is(.\32 0ui, .sabcrm-twenty) .u-tabs__content[data-state='active'] {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tabs__content[data-state='active'] {
   animation: u-tabs-content-in var(--u-dur) var(--u-ease-out);
 }
 
@@ -123,14 +123,14 @@
 
 /* ----- Reduced motion: no movement, no scale; fade or instant only. ----- */
 @media (prefers-reduced-motion: reduce) {
-  :is(.\32 0ui, .sabcrm-twenty) .u-tabs__indicator {
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tabs__indicator {
     transition: opacity var(--u-dur-fast) ease;
     transform: none;
   }
-  :is(.\32 0ui, .sabcrm-twenty) .u-tabs__trigger[data-state='active'] .u-tabs__indicator {
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tabs__trigger[data-state='active'] .u-tabs__indicator {
     transform: none;
   }
-  :is(.\32 0ui, .sabcrm-twenty) .u-tabs__content[data-state='active'] {
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tabs__content[data-state='active'] {
     animation: u-tabs-fade var(--u-dur-fast) ease;
   }
   @keyframes u-tabs-fade {

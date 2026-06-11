@@ -1,25 +1,25 @@
 /* 20ui · Tabs · TabPanel */
 
-:is(.\32 0ui, .sabcrm-twenty) .u-tabs {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tabs {
   display: flex;
   flex-direction: column;
   min-width: 0;
 }
 
 /* ----- Tablist ----- */
-:is(.\32 0ui, .sabcrm-twenty) .u-tabs__list {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tabs__list {
   position: relative;
   display: flex;
   align-items: stretch;
   gap: var(--st-space-1);
   border-bottom: 1px solid var(--st-border);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-tabs--fitted .u-tabs__list {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tabs--fitted .u-tabs__list {
   gap: 0;
 }
 
 /* ----- Tab ----- */
-:is(.\32 0ui, .sabcrm-twenty) .u-tab {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tab {
   position: relative;
   display: inline-flex;
   align-items: center;
@@ -42,43 +42,43 @@
     color var(--u-dur-fast) var(--u-ease-out),
     background var(--u-dur-fast) var(--u-ease-out);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-tabs--sm .u-tab {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tabs--sm .u-tab {
   height: 32px;
   padding: 0 var(--st-space-2);
   font-size: var(--st-font-size-sm);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-tabs--fitted .u-tab {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tabs--fitted .u-tab {
   flex: 1 1 0;
   justify-content: center;
 }
 
-:is(.\32 0ui, .sabcrm-twenty) .u-tab:hover:not([disabled]) {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tab:hover:not([disabled]) {
   color: var(--st-text);
   background: var(--st-hover);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-tab[data-active='true'] {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tab[data-active='true'] {
   color: var(--st-accent);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-tab[data-active='true']:hover {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tab[data-active='true']:hover {
   background: transparent;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-tab:focus-visible {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tab:focus-visible {
   outline: none;
   box-shadow: var(--u-focus-ring);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-tab[disabled] {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tab[disabled] {
   color: var(--st-text-tertiary);
   opacity: 0.6;
   cursor: not-allowed;
 }
 
-:is(.\32 0ui, .sabcrm-twenty) .u-tab__label {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tab__label {
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 /* Trailing count/status badge. */
-:is(.\32 0ui, .sabcrm-twenty) .u-tab__badge {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tab__badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -95,13 +95,13 @@
     background var(--u-dur-fast) var(--u-ease-out),
     color var(--u-dur-fast) var(--u-ease-out);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-tab[data-active='true'] .u-tab__badge {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tab[data-active='true'] .u-tab__badge {
   background: var(--st-accent-soft);
   color: var(--st-accent-hover);
 }
 
 /* ----- Sliding underline indicator (accent) ----- */
-:is(.\32 0ui, .sabcrm-twenty) .u-tabs__indicator {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tabs__indicator {
   position: absolute;
   left: 0;
   bottom: -1px;
@@ -119,21 +119,21 @@
 }
 
 /* ----- TabPanel ----- */
-:is(.\32 0ui, .sabcrm-twenty) .u-tabpanel {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tabpanel {
   padding-top: var(--st-space-4);
   outline: none;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-tabpanel:focus-visible {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tabpanel:focus-visible {
   outline: none;
   box-shadow: var(--u-focus-ring);
   border-radius: var(--st-radius);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-tabpanel[hidden] {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tabpanel[hidden] {
   display: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  :is(.\32 0ui, .sabcrm-twenty) .u-tabs__indicator {
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tabs__indicator {
     transition: opacity var(--u-dur-fast) var(--u-ease-out);
   }
 }

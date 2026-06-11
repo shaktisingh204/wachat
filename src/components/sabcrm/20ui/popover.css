@@ -2,11 +2,11 @@
 
 /* The portal wrapper only exists to scope tokens in the body portal; it must
    not interfere with Radix's fixed positioning of the panel. */
-:is(.\32 0ui, .sabcrm-twenty).u-popover__portal {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root).u-popover__portal {
   display: contents;
 }
 
-:is(.\32 0ui, .sabcrm-twenty) .u-popover {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-popover {
   z-index: 1000;
   min-width: 180px;
   max-width: min(360px, calc(100vw - var(--st-space-4)));
@@ -25,12 +25,12 @@
      we key the entrance off data-side for a deliberate directional feel. */
   transform-origin: var(--radix-popover-content-transform-origin);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-popover:focus-visible {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-popover:focus-visible {
   box-shadow: var(--u-elev-3), var(--u-focus-ring);
 }
 
 /* ----- Arrow ----- */
-:is(.\32 0ui, .sabcrm-twenty) .u-popover__arrow {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-popover__arrow {
   fill: var(--st-bg);
   /* Radix rotates the arrow per side; the stroke fakes the 1px panel border. */
   stroke: var(--st-border);
@@ -38,24 +38,24 @@
 }
 
 /* ----- Entrance (Emil: transform + opacity only, < 250ms, eased) ----- */
-:is(.\32 0ui, .sabcrm-twenty) .u-popover[data-state='open'] {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-popover[data-state='open'] {
   animation: u-popover-in var(--u-dur) var(--u-ease-out);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-popover[data-state='closed'] {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-popover[data-state='closed'] {
   animation: u-popover-out var(--u-dur-fast) var(--u-ease-out);
 }
 
 /* Directional scale-in: nudge in from the anchored side, then settle. */
-:is(.\32 0ui, .sabcrm-twenty) .u-popover[data-side='top'] {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-popover[data-side='top'] {
   animation-name: u-popover-in-top;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-popover[data-side='bottom'] {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-popover[data-side='bottom'] {
   animation-name: u-popover-in-bottom;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-popover[data-side='left'] {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-popover[data-side='left'] {
   animation-name: u-popover-in-left;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-popover[data-side='right'] {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-popover[data-side='right'] {
   animation-name: u-popover-in-right;
 }
 
@@ -121,12 +121,12 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  :is(.\32 0ui, .sabcrm-twenty) .u-popover[data-state='open'],
-  :is(.\32 0ui, .sabcrm-twenty) .u-popover[data-state='closed'],
-  :is(.\32 0ui, .sabcrm-twenty) .u-popover[data-side='top'],
-  :is(.\32 0ui, .sabcrm-twenty) .u-popover[data-side='bottom'],
-  :is(.\32 0ui, .sabcrm-twenty) .u-popover[data-side='left'],
-  :is(.\32 0ui, .sabcrm-twenty) .u-popover[data-side='right'] {
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-popover[data-state='open'],
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-popover[data-state='closed'],
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-popover[data-side='top'],
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-popover[data-side='bottom'],
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-popover[data-side='left'],
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-popover[data-side='right'] {
     /* Fade only — no movement. */
     animation: u-popover-fade var(--u-dur-fast) ease;
   }

@@ -2,14 +2,14 @@
    Trigger = colour-tinted removable chips; the option list lives in the Popover
    panel (see popover.css for the panel's own entrance + reduced-motion). */
 
-:is(.\32 0ui, .sabcrm-twenty) .u-tagpicker {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tagpicker {
   display: block;
   width: 100%;
   font-family: var(--st-font);
 }
 
 /* ----- Trigger ----- */
-:is(.\32 0ui, .sabcrm-twenty) .u-tagpicker__trigger {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tagpicker__trigger {
   display: flex;
   align-items: center;
   gap: var(--st-space-2);
@@ -28,34 +28,34 @@
     border-color var(--u-dur-fast) var(--u-ease-out),
     box-shadow var(--u-dur-fast) var(--u-ease-out);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-tagpicker__trigger:hover {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tagpicker__trigger:hover {
   border-color: var(--st-border-strong);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-tagpicker__trigger.is-open {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tagpicker__trigger.is-open {
   border-color: var(--st-accent);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-tagpicker__trigger:focus-visible {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tagpicker__trigger:focus-visible {
   outline: none;
   border-color: var(--st-accent);
   box-shadow: var(--u-focus-ring);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-tagpicker__trigger:disabled {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tagpicker__trigger:disabled {
   opacity: 0.55;
   cursor: not-allowed;
 }
 /* Read-only trigger reads as static text, not a control. */
-:is(.\32 0ui, .sabcrm-twenty) .u-tagpicker__trigger.is-readonly {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tagpicker__trigger.is-readonly {
   cursor: default;
   background: transparent;
   border-color: transparent;
   padding-left: 0;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-tagpicker--readonly .u-tagpicker__trigger {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tagpicker--readonly .u-tagpicker__trigger {
   min-height: 0;
 }
 
 /* ----- Chips area (wraps to multiple rows when full) ----- */
-:is(.\32 0ui, .sabcrm-twenty) .u-tagpicker__chips {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tagpicker__chips {
   display: flex;
   flex: 1 1 auto;
   flex-wrap: wrap;
@@ -63,18 +63,18 @@
   gap: 5px;
   min-width: 0;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-tagpicker__placeholder {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tagpicker__placeholder {
   color: var(--st-text-tertiary);
   font-size: var(--st-font-size);
 }
 
-:is(.\32 0ui, .sabcrm-twenty) .u-tagpicker__caret {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tagpicker__caret {
   flex: 0 0 auto;
   color: var(--st-text-tertiary);
 }
 
 /* ----- Selected chip ----- */
-:is(.\32 0ui, .sabcrm-twenty) .u-tagpicker__chip {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tagpicker__chip {
   --u-chip-color: var(--st-text-tertiary);
   display: inline-flex;
   align-items: center;
@@ -91,19 +91,19 @@
   font-weight: var(--st-fw-medium);
   line-height: 1;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-tagpicker__chip-dot {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tagpicker__chip-dot {
   flex: 0 0 auto;
   width: 7px;
   height: 7px;
   border-radius: 50%;
   background: var(--u-chip-color);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-tagpicker__chip-label {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tagpicker__chip-label {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-tagpicker__chip-remove {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tagpicker__chip-remove {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -122,20 +122,20 @@
     color var(--u-dur-fast) var(--u-ease-out),
     transform var(--u-dur-fast) var(--u-ease-out);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-tagpicker__chip-remove:hover {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tagpicker__chip-remove:hover {
   background: color-mix(in srgb, var(--u-chip-color) 22%, transparent);
   color: var(--st-text);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-tagpicker__chip-remove:active {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tagpicker__chip-remove:active {
   transform: scale(0.88);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-tagpicker__chip-remove:focus-visible {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tagpicker__chip-remove:focus-visible {
   outline: none;
   box-shadow: var(--u-focus-ring);
 }
 
 /* ----- Popover panel (overrides the generic popover padding) ----- */
-:is(.\32 0ui, .sabcrm-twenty) .u-popover.u-tagpicker__panel {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-popover.u-tagpicker__panel {
   width: var(--radix-popover-trigger-width);
   min-width: 240px;
   max-width: min(360px, calc(100vw - var(--st-space-4)));
@@ -144,18 +144,18 @@
 }
 
 /* ----- Search ----- */
-:is(.\32 0ui, .sabcrm-twenty) .u-tagpicker__search {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tagpicker__search {
   display: flex;
   align-items: center;
   gap: 6px;
   padding: 8px 10px;
   border-bottom: 1px solid var(--st-border);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-tagpicker__search-icon {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tagpicker__search-icon {
   flex: 0 0 auto;
   color: var(--st-text-tertiary);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-tagpicker__search-input {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tagpicker__search-input {
   flex: 1 1 auto;
   min-width: 0;
   border: none;
@@ -166,20 +166,20 @@
   line-height: 1.4;
   padding: 0;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-tagpicker__search-input::placeholder {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tagpicker__search-input::placeholder {
   color: var(--st-text-tertiary);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-tagpicker__search-input:focus {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tagpicker__search-input:focus {
   outline: none;
 }
 
 /* ----- List ----- */
-:is(.\32 0ui, .sabcrm-twenty) .u-tagpicker__list {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tagpicker__list {
   max-height: 280px;
   overflow-y: auto;
   padding: 4px;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-tagpicker__empty {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tagpicker__empty {
   margin: 0;
   padding: 16px 12px;
   text-align: center;
@@ -188,7 +188,7 @@
 }
 
 /* ----- Option row ----- */
-:is(.\32 0ui, .sabcrm-twenty) .u-tagpicker__option {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tagpicker__option {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -204,14 +204,14 @@
 }
 /* Active = keyboard/pointer highlight. We drive it ourselves (not :hover) so the
    keyboard and pointer share one source of truth (aria-activedescendant). */
-:is(.\32 0ui, .sabcrm-twenty) .u-tagpicker__option.is-active {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tagpicker__option.is-active {
   background: var(--st-hover);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-tagpicker__option:active {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tagpicker__option:active {
   background: var(--st-active);
 }
 
-:is(.\32 0ui, .sabcrm-twenty) .u-tagpicker__check {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tagpicker__check {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -220,25 +220,25 @@
   height: 16px;
   color: var(--st-accent);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-tagpicker__dot {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tagpicker__dot {
   flex: 0 0 auto;
   width: 8px;
   height: 8px;
   border-radius: 50%;
   background: var(--st-text-tertiary);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-tagpicker__option-label {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tagpicker__option-label {
   flex: 1 1 auto;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-tagpicker__option.is-selected .u-tagpicker__option-label {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tagpicker__option.is-selected .u-tagpicker__option-label {
   font-weight: var(--st-fw-medium);
 }
 
 /* ----- Create row ----- */
-:is(.\32 0ui, .sabcrm-twenty) .u-tagpicker__create {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tagpicker__create {
   margin-top: 4px;
   border-top: 1px solid var(--st-border-light);
   border-radius: 0 0 var(--st-radius-sm) var(--st-radius-sm);
@@ -247,16 +247,16 @@
   color: var(--st-accent-hover);
   font-weight: var(--st-fw-medium);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-tagpicker__create .u-tagpicker__check {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tagpicker__create .u-tagpicker__check {
   color: var(--st-accent);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-tagpicker__create-label {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tagpicker__create-label {
   flex: 1 1 auto;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-tagpicker__create-label strong {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tagpicker__create-label strong {
   color: var(--st-text);
   font-weight: var(--st-fw-semibold);
 }
@@ -265,8 +265,8 @@
    under reduced-motion so nothing animates for motion-sensitive users. The
    Popover panel's own entrance is handled in popover.css. */
 @media (prefers-reduced-motion: reduce) {
-  :is(.\32 0ui, .sabcrm-twenty) .u-tagpicker__chip-remove,
-  :is(.\32 0ui, .sabcrm-twenty) .u-tagpicker__chip-remove:active {
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tagpicker__chip-remove,
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tagpicker__chip-remove:active {
     transition: none;
     transform: none;
   }

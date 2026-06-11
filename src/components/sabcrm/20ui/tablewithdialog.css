@@ -10,29 +10,29 @@
    curve, and fully disabled under prefers-reduced-motion (see the block below).
    ========================================================================== */
 
-:is(.\32 0ui, .sabcrm-twenty) .u-table-with-dialog {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-table-with-dialog {
   display: block;
 }
 
 /* Every body row in this context opens a dialog, so reinforce the affordance.
    DataTable already adds .u-tr--clickable (which sets cursor + focus ring) when
    onRowClick is present; this is a gentle press cue layered on top. */
-:is(.\32 0ui, .sabcrm-twenty) .u-table-with-dialog .u-tbody .u-tr--clickable {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-table-with-dialog .u-tbody .u-tr--clickable {
   transition:
     background-color var(--u-dur-fast) var(--u-ease-out),
     transform var(--u-dur-fast) var(--u-ease-out);
 }
 
-:is(.\32 0ui, .sabcrm-twenty) .u-table-with-dialog .u-tbody .u-tr--clickable:active {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-table-with-dialog .u-tbody .u-tr--clickable:active {
   /* A barely-there settle on press — never a layout shift, transform only. */
   transform: translateY(0.5px);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  :is(.\32 0ui, .sabcrm-twenty) .u-table-with-dialog .u-tbody .u-tr--clickable {
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-table-with-dialog .u-tbody .u-tr--clickable {
     transition: none;
   }
-  :is(.\32 0ui, .sabcrm-twenty) .u-table-with-dialog .u-tbody .u-tr--clickable:active {
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-table-with-dialog .u-tbody .u-tr--clickable:active {
     transform: none;
   }
 }

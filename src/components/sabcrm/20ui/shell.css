@@ -9,7 +9,7 @@
    ========================================================================= */
 
 /* ----- Shell grid container --------------------------------------------- */
-:is(.\32 0ui, .ui20, .sabcrm-twenty) .u-shell {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-shell {
   display: grid;
   grid-template-columns: auto auto 1fr;
   grid-template-rows: 100%;
@@ -23,7 +23,7 @@
 }
 
 /* The header-over-main column sits in the last grid track and stacks. */
-:is(.\32 0ui, .ui20, .sabcrm-twenty) .u-shell__column {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-shell__column {
   position: relative;
   display: flex;
   min-width: 0;
@@ -32,7 +32,7 @@
 }
 
 /* ----- Skip link (a11y: first tab stop jumps past the chrome) ----------- */
-:is(.\32 0ui, .ui20, .sabcrm-twenty) .u-shell__skip {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-shell__skip {
   position: absolute;
   top: var(--st-space-2);
   left: var(--st-space-2);
@@ -48,7 +48,7 @@
   box-shadow: var(--u-elev-2);
   transition: transform var(--u-dur) var(--u-ease-out);
 }
-:is(.\32 0ui, .ui20, .sabcrm-twenty) .u-shell__skip:focus-visible {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-shell__skip:focus-visible {
   transform: translateY(0);
   box-shadow: var(--u-focus-ring);
   outline: none;
@@ -57,7 +57,7 @@
 /* =========================================================================
    AppRail — thin vertical icon strip
    ========================================================================= */
-:is(.\32 0ui, .ui20, .sabcrm-twenty) .u-rail {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-rail {
   display: flex;
   height: 100%;
   width: 56px;
@@ -71,7 +71,7 @@
   grid-column: 1;
 }
 
-:is(.\32 0ui, .ui20, .sabcrm-twenty) .u-rail__brand {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-rail__brand {
   display: flex;
   height: 32px;
   width: 32px;
@@ -82,7 +82,7 @@
   color: var(--st-text);
 }
 
-:is(.\32 0ui, .ui20, .sabcrm-twenty) .u-rail__nav {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-rail__nav {
   display: flex;
   min-height: 0;
   flex: 1 1 auto;
@@ -94,11 +94,11 @@
   /* Hide the scrollbar on the rail so the icon column stays clean. */
   scrollbar-width: none;
 }
-:is(.\32 0ui, .ui20, .sabcrm-twenty) .u-rail__nav::-webkit-scrollbar {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-rail__nav::-webkit-scrollbar {
   display: none;
 }
 
-:is(.\32 0ui, .ui20, .sabcrm-twenty) .u-rail__footer {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-rail__footer {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -109,7 +109,7 @@
 }
 
 /* Rail item — a 40px tappable tile holding one icon. */
-:is(.\32 0ui, .ui20, .sabcrm-twenty) .u-rail__item {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-rail__item {
   position: relative;
   display: inline-flex;
   height: 40px;
@@ -128,25 +128,25 @@
     color var(--u-dur-fast) var(--u-ease-out),
     transform var(--u-dur-fast) var(--u-ease-out);
 }
-:is(.\32 0ui, .ui20, .sabcrm-twenty) .u-rail__item:hover {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-rail__item:hover {
   background: var(--st-hover);
   color: var(--st-text);
 }
-:is(.\32 0ui, .ui20, .sabcrm-twenty) .u-rail__item:active {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-rail__item:active {
   transform: scale(0.94);
 }
-:is(.\32 0ui, .ui20, .sabcrm-twenty) .u-rail__item:focus-visible {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-rail__item:focus-visible {
   box-shadow: var(--u-focus-ring);
   outline: none;
 }
 /* Active app — soft accent tile + a crisp accent bar pinned to the rail edge,
    the clearest "you are here" cue at icon-only width. The bar sits in the
    rail's left gutter (within the nav's box, so it is never clipped). */
-:is(.\32 0ui, .ui20, .sabcrm-twenty) .u-rail__item.is-active {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-rail__item.is-active {
   background: var(--st-accent-soft);
   color: var(--st-accent);
 }
-:is(.\32 0ui, .ui20, .sabcrm-twenty) .u-rail__item.is-active::before {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-rail__item.is-active::before {
   content: "";
   position: absolute;
   left: -6px;
@@ -157,18 +157,18 @@
   border-radius: 0 var(--st-radius-pill) var(--st-radius-pill) 0;
   background: var(--st-accent);
 }
-:is(.\32 0ui, .ui20, .sabcrm-twenty) .u-rail__item.is-active:hover {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-rail__item.is-active:hover {
   background: var(--st-accent-soft);
   color: var(--st-accent);
 }
-:is(.\32 0ui, .ui20, .sabcrm-twenty) .u-rail__item svg {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-rail__item svg {
   width: 20px;
   height: 20px;
 }
 
 /* A tiny count badge anchored to the rail tile. The ring in the sidebar
    colour separates it cleanly from the icon underneath. */
-:is(.\32 0ui, .ui20, .sabcrm-twenty) .u-rail__badge {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-rail__badge {
   position: absolute;
   top: -1px;
   right: -1px;
@@ -190,7 +190,7 @@
 /* =========================================================================
    AppSidebar — module nav column
    ========================================================================= */
-:is(.\32 0ui, .ui20, .sabcrm-twenty) .u-sidebar {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar {
   display: flex;
   height: 100%;
   width: 240px;
@@ -201,41 +201,41 @@
   grid-column: 2;
 }
 
-:is(.\32 0ui, .ui20, .sabcrm-twenty) .u-sidebar__head {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar__head {
   display: flex;
   flex-direction: column;
   gap: 2px;
   padding: var(--st-space-4) var(--st-space-4) var(--st-space-3);
 }
-:is(.\32 0ui, .ui20, .sabcrm-twenty) .u-sidebar__heading {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar__heading {
   margin: 0;
   font-size: var(--st-font-size-lg);
   font-weight: var(--st-fw-semibold);
   color: var(--st-text);
 }
-:is(.\32 0ui, .ui20, .sabcrm-twenty) .u-sidebar__caption {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar__caption {
   margin: 0;
   font-size: var(--st-font-size-xs);
   color: var(--st-text-secondary);
 }
 
-:is(.\32 0ui, .ui20, .sabcrm-twenty) .u-sidebar__nav {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar__nav {
   flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
   padding: 0 var(--st-space-2) var(--st-space-4);
 }
 
-:is(.\32 0ui, .ui20, .sabcrm-twenty) .u-sidebar__footer {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar__footer {
   padding: var(--st-space-3);
   border-top: 1px solid var(--st-border-light);
 }
 
 /* Group label (collapsible section heading). */
-:is(.\32 0ui, .ui20, .sabcrm-twenty) .u-sidebar__group {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar__group {
   margin-bottom: var(--st-space-1);
 }
-:is(.\32 0ui, .ui20, .sabcrm-twenty) .u-sidebar__group-trigger {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar__group-trigger {
   display: flex;
   width: 100%;
   align-items: center;
@@ -252,27 +252,27 @@
   letter-spacing: 0.04em;
   cursor: pointer;
 }
-:is(.\32 0ui, .ui20, .sabcrm-twenty) .u-sidebar__group-trigger:hover {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar__group-trigger:hover {
   color: var(--st-text-secondary);
 }
-:is(.\32 0ui, .ui20, .sabcrm-twenty) .u-sidebar__group-trigger:focus-visible {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar__group-trigger:focus-visible {
   box-shadow: var(--u-focus-ring);
   outline: none;
 }
-:is(.\32 0ui, .ui20, .sabcrm-twenty) .u-sidebar__group-chevron {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar__group-chevron {
   width: 12px;
   height: 12px;
   flex-shrink: 0;
   transition: transform var(--u-dur) var(--u-ease-out);
 }
-:is(.\32 0ui, .ui20, .sabcrm-twenty) .u-sidebar__group-trigger[aria-expanded='true'] .u-sidebar__group-chevron {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar__group-trigger[aria-expanded='true'] .u-sidebar__group-chevron {
   transform: rotate(180deg);
 }
 
-:is(.\32 0ui, .ui20, .sabcrm-twenty) .u-sidebar__group-static {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar__group-static {
   margin-bottom: var(--st-space-2);
 }
-:is(.\32 0ui, .ui20, .sabcrm-twenty) .u-sidebar__group-static-label {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar__group-static-label {
   display: block;
   padding: var(--st-space-2) var(--st-space-3) var(--st-space-1);
   font-size: var(--st-font-size-xs);
@@ -282,7 +282,7 @@
   color: var(--st-text-tertiary);
 }
 
-:is(.\32 0ui, .ui20, .sabcrm-twenty) .u-sidebar__items {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar__items {
   display: flex;
   flex-direction: column;
   gap: 1px;
@@ -290,7 +290,7 @@
 }
 
 /* Leaf nav item. */
-:is(.\32 0ui, .ui20, .sabcrm-twenty) .u-sidebar__leaf {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar__leaf {
   display: flex;
   width: 100%;
   align-items: center;
@@ -309,39 +309,39 @@
     background var(--u-dur-fast) var(--u-ease-out),
     color var(--u-dur-fast) var(--u-ease-out);
 }
-:is(.\32 0ui, .ui20, .sabcrm-twenty) .u-sidebar__leaf:hover {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar__leaf:hover {
   background: var(--st-hover);
   color: var(--st-text);
 }
-:is(.\32 0ui, .ui20, .sabcrm-twenty) .u-sidebar__leaf:focus-visible {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar__leaf:focus-visible {
   box-shadow: var(--u-focus-ring);
   outline: none;
 }
-:is(.\32 0ui, .ui20, .sabcrm-twenty) .u-sidebar__leaf.is-active {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar__leaf.is-active {
   background: var(--st-active);
   color: var(--st-text);
   font-weight: var(--st-fw-medium);
 }
-:is(.\32 0ui, .ui20, .sabcrm-twenty) .u-sidebar__leaf--child {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar__leaf--child {
   padding-left: var(--st-space-6);
   font-size: var(--st-font-size-sm);
 }
-:is(.\32 0ui, .ui20, .sabcrm-twenty) .u-sidebar__leaf svg {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar__leaf svg {
   width: 16px;
   height: 16px;
   flex-shrink: 0;
   color: var(--st-text-tertiary);
 }
-:is(.\32 0ui, .ui20, .sabcrm-twenty) .u-sidebar__leaf.is-active svg {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar__leaf.is-active svg {
   color: var(--st-text);
 }
-:is(.\32 0ui, .ui20, .sabcrm-twenty) .u-sidebar__leaf-label {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar__leaf-label {
   flex: 1 1 auto;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-:is(.\32 0ui, .ui20, .sabcrm-twenty) .u-sidebar__leaf-badge {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar__leaf-badge {
   display: inline-flex;
   height: 16px;
   min-width: 16px;
@@ -355,7 +355,7 @@
   font-weight: var(--st-fw-semibold);
   line-height: 1;
 }
-:is(.\32 0ui, .ui20, .sabcrm-twenty) .u-sidebar__leaf-chevron {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar__leaf-chevron {
   width: 12px;
   height: 12px;
   flex-shrink: 0;
@@ -363,13 +363,13 @@
   color: var(--st-text-tertiary);
   transition: transform var(--u-dur) var(--u-ease-out);
 }
-:is(.\32 0ui, .ui20, .sabcrm-twenty) .u-sidebar__leaf[aria-expanded='true'] .u-sidebar__leaf-chevron {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar__leaf[aria-expanded='true'] .u-sidebar__leaf-chevron {
   transform: rotate(180deg);
 }
 
 /* Collapsible body — height is animated by JS-set inline max-height; we keep
    the transition declarative so it respects the reduced-motion block. */
-:is(.\32 0ui, .ui20, .sabcrm-twenty) .u-sidebar__collapse {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar__collapse {
   overflow: hidden;
   transition: height var(--u-dur) var(--u-ease-out);
 }
@@ -377,7 +377,7 @@
 /* =========================================================================
    AppHeader — top bar
    ========================================================================= */
-:is(.\32 0ui, .ui20, .sabcrm-twenty) .u-header {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-header {
   display: flex;
   height: 56px;
   flex-shrink: 0;
@@ -387,47 +387,47 @@
   border-bottom: 1px solid var(--st-border);
   background: var(--st-bg);
 }
-:is(.\32 0ui, .ui20, .sabcrm-twenty) .u-header--sticky {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-header--sticky {
   position: sticky;
   top: 0;
   z-index: 20;
 }
-:is(.\32 0ui, .ui20, .sabcrm-twenty) .u-header__slot {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-header__slot {
   display: flex;
   min-width: 0;
   align-items: center;
   gap: var(--st-space-2);
 }
-:is(.\32 0ui, .ui20, .sabcrm-twenty) .u-header__center {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-header__center {
   margin: 0 auto;
   width: 100%;
   max-width: 36rem;
 }
-:is(.\32 0ui, .ui20, .sabcrm-twenty) .u-header__trailing {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-header__trailing {
   margin-left: auto;
 }
 
 /* Hamburger that reveals the sidebar drawer on small screens. Hidden when
    there is no collapsible sidebar, and on wide screens. */
-:is(.\32 0ui, .ui20, .sabcrm-twenty) .u-header__menu-btn {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-header__menu-btn {
   display: none;
 }
 
 /* =========================================================================
    AppMain — scrollable content region
    ========================================================================= */
-:is(.\32 0ui, .ui20, .sabcrm-twenty) .u-main {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-main {
   flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
   padding: var(--st-space-5) var(--st-space-5);
 }
-:is(.\32 0ui, .ui20, .sabcrm-twenty) .u-main--contained > .u-main__inner {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-main--contained > .u-main__inner {
   margin: 0 auto;
   width: 100%;
   max-width: 72rem;
 }
-:is(.\32 0ui, .ui20, .sabcrm-twenty) .u-main--bleed {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-main--bleed {
   position: relative;
   overflow: hidden;
   padding: 0;
@@ -437,15 +437,15 @@
    Responsive — sidebar collapses to an overlay drawer under md (768px)
    ========================================================================= */
 @media (max-width: 768px) {
-  :is(.\32 0ui, .ui20, .sabcrm-twenty) .u-shell {
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-shell {
     grid-template-columns: auto 1fr;
   }
-  :is(.\32 0ui, .ui20, .sabcrm-twenty) .u-shell__column {
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-shell__column {
     grid-column: 2;
   }
 
   /* The sidebar floats over content as a left drawer; hidden by default. */
-  :is(.\32 0ui, .ui20, .sabcrm-twenty) .u-sidebar {
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar {
     position: fixed;
     top: 0;
     left: 56px;
@@ -456,22 +456,22 @@
     box-shadow: var(--u-elev-3);
     transition: transform var(--u-dur-slow) var(--u-ease-out);
   }
-  :is(.\32 0ui, .ui20, .sabcrm-twenty) .u-sidebar.is-open {
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar.is-open {
     transform: translateX(0);
   }
 
   /* When there is no rail the drawer hugs the viewport edge. */
-  :is(.\32 0ui, .ui20, .sabcrm-twenty) .u-shell--no-rail .u-sidebar {
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-shell--no-rail .u-sidebar {
     left: 0;
     width: min(280px, 92vw);
     transform: translateX(-100%);
   }
-  :is(.\32 0ui, .ui20, .sabcrm-twenty) .u-shell--no-rail .u-sidebar.is-open {
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-shell--no-rail .u-sidebar.is-open {
     transform: translateX(0);
   }
 
   /* Dimming scrim behind the open drawer. */
-  :is(.\32 0ui, .ui20, .sabcrm-twenty) .u-shell__scrim {
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-shell__scrim {
     position: fixed;
     inset: 0;
     z-index: 40;
@@ -481,11 +481,11 @@
     border: none;
   }
 
-  :is(.\32 0ui, .ui20, .sabcrm-twenty) .u-header__menu-btn {
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-header__menu-btn {
     display: inline-flex;
   }
 
-  :is(.\32 0ui, .ui20, .sabcrm-twenty) .u-main {
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-main {
     padding: var(--st-space-4);
   }
 }
@@ -503,19 +503,19 @@
    Reduced motion — disable all movement, keep instant state changes
    ========================================================================= */
 @media (prefers-reduced-motion: reduce) {
-  :is(.\32 0ui, .ui20, .sabcrm-twenty) .u-shell__skip,
-  :is(.\32 0ui, .ui20, .sabcrm-twenty) .u-rail__item,
-  :is(.\32 0ui, .ui20, .sabcrm-twenty) .u-sidebar,
-  :is(.\32 0ui, .ui20, .sabcrm-twenty) .u-sidebar__group-chevron,
-  :is(.\32 0ui, .ui20, .sabcrm-twenty) .u-sidebar__leaf,
-  :is(.\32 0ui, .ui20, .sabcrm-twenty) .u-sidebar__leaf-chevron,
-  :is(.\32 0ui, .ui20, .sabcrm-twenty) .u-sidebar__collapse {
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-shell__skip,
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-rail__item,
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar,
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar__group-chevron,
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar__leaf,
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar__leaf-chevron,
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar__collapse {
     transition: none;
   }
-  :is(.\32 0ui, .ui20, .sabcrm-twenty) .u-rail__item:active {
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-rail__item:active {
     transform: none;
   }
-  :is(.\32 0ui, .ui20, .sabcrm-twenty) .u-shell__scrim {
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-shell__scrim {
     animation: none;
     opacity: 1;
   }

@@ -345,8 +345,14 @@ function SabHomeShellContent({
           />
         </div>
 
+        {/* Page content lives inside the 20ui design-system root (like the
+            rail + header above) so every `.u-*` component class resolves its
+            scoped CSS. Without this, pages that don't self-wrap in `.20ui`
+            render 20ui components completely unstyled. */}
         <main
           className={cn(
+            "20ui",
+            appDark ? "dark" : "light",
             "min-h-0",
             fullBleed
               ? "relative flex-1 overflow-hidden"

@@ -6,7 +6,7 @@
    carrying its own fixed inset; the overlay paints the scrim, the panel floats
    centred on top. pointer-events:none lets overlay clicks reach Radix's overlay
    (Radix alert dialogs intentionally ignore overlay clicks anyway). */
-:is(.\32 0ui, .sabcrm-twenty).u-alert-layer {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root).u-alert-layer {
   position: fixed;
   inset: 0;
   z-index: 1000;
@@ -18,7 +18,7 @@
 }
 
 /* ----- Overlay (dimming scrim) ----- */
-:is(.\32 0ui, .sabcrm-twenty) .u-alert-overlay {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-alert-overlay {
   position: fixed;
   inset: 0;
   z-index: 1000;
@@ -27,17 +27,17 @@
   /* Backdrop fade only — the panel carries the movement. */
   animation: u-alert-overlay-in var(--u-dur) var(--u-ease-out);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-alert-overlay[data-state='closed'] {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-alert-overlay[data-state='closed'] {
   animation: u-alert-overlay-out var(--u-dur-fast) var(--u-ease-out);
 }
 /* Darker scrim over the near-black dark shell. */
-:is(.\32 0ui, .sabcrm-twenty).dark .u-alert-overlay,
-:is(.\32 0ui, .sabcrm-twenty)[data-theme='dark'] .u-alert-overlay {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root).dark .u-alert-overlay,
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root)[data-theme='dark'] .u-alert-overlay {
   background: rgba(0, 0, 0, 0.6);
 }
 
 /* ----- Panel (centred surface) ----- */
-:is(.\32 0ui, .sabcrm-twenty) .u-alert {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-alert {
   position: relative;
   z-index: 1001;
   display: flex;
@@ -59,23 +59,23 @@
   /* Centred scale-in (transform-origin centre). */
   transform-origin: center;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-alert[data-state='open'] {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-alert[data-state='open'] {
   animation: u-alert-in var(--u-dur-slow) var(--u-ease-out);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-alert[data-state='closed'] {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-alert[data-state='closed'] {
   animation: u-alert-out var(--u-dur-fast) var(--u-ease-out);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-alert:focus-visible {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-alert:focus-visible {
   box-shadow: var(--u-elev-3), var(--u-focus-ring);
 }
 
 /* ----- Header ----- */
-:is(.\32 0ui, .sabcrm-twenty) .u-alert__header {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-alert__header {
   display: flex;
   flex-direction: column;
   gap: var(--st-space-2);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-alert__title {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-alert__title {
   margin: 0;
   font-size: var(--st-font-size-lg);
   font-weight: var(--st-fw-semibold);
@@ -83,7 +83,7 @@
   letter-spacing: -0.01em;
   line-height: 1.3;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-alert__desc {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-alert__desc {
   margin: 0;
   font-size: var(--st-font-size);
   color: var(--st-text-secondary);
@@ -91,7 +91,7 @@
 }
 
 /* ----- Footer (action row) ----- */
-:is(.\32 0ui, .sabcrm-twenty) .u-alert__footer {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-alert__footer {
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -100,11 +100,11 @@
 }
 /* Stack the actions full-width on narrow viewports (Cancel under Action). */
 @media (max-width: 480px) {
-  :is(.\32 0ui, .sabcrm-twenty) .u-alert__footer {
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-alert__footer {
     flex-direction: column-reverse;
     align-items: stretch;
   }
-  :is(.\32 0ui, .sabcrm-twenty) .u-alert__footer > .u-btn {
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-alert__footer > .u-btn {
     width: 100%;
   }
 }
@@ -148,12 +148,12 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  :is(.\32 0ui, .sabcrm-twenty) .u-alert[data-state='open'],
-  :is(.\32 0ui, .sabcrm-twenty) .u-alert[data-state='closed'] {
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-alert[data-state='open'],
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-alert[data-state='closed'] {
     /* Fade only — no scale. */
     animation: u-alert-overlay-in var(--u-dur-fast) ease;
   }
-  :is(.\32 0ui, .sabcrm-twenty) .u-alert-overlay[data-state='closed'] {
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-alert-overlay[data-state='closed'] {
     animation: u-alert-overlay-out var(--u-dur-fast) ease;
   }
 }

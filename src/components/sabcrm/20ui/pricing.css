@@ -1,6 +1,6 @@
 /* 20ui · Pricing card + grid */
 
-:is(.\32 0ui, .sabcrm-twenty) .u-pricing {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-pricing {
   position: relative;
   display: flex;
   flex-direction: column;
@@ -14,7 +14,7 @@
 }
 
 /* ----- Highlighted / recommended plan ----- */
-:is(.\32 0ui, .sabcrm-twenty) .u-pricing--highlighted {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-pricing--highlighted {
   border-color: var(--st-accent);
   box-shadow:
     0 0 0 1px var(--st-accent),
@@ -23,7 +23,7 @@
     transform var(--u-dur) var(--u-ease-out),
     box-shadow var(--u-dur) var(--u-ease-out);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-pricing--highlighted:hover {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-pricing--highlighted:hover {
   transform: translateY(-2px);
   box-shadow:
     0 0 0 1px var(--st-accent),
@@ -31,7 +31,7 @@
 }
 
 /* ----- "Most popular" badge ----- */
-:is(.\32 0ui, .sabcrm-twenty) .u-pricing__badge {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-pricing__badge {
   position: absolute;
   top: 0;
   left: 50%;
@@ -40,19 +40,19 @@
 }
 
 /* ----- Header ----- */
-:is(.\32 0ui, .sabcrm-twenty) .u-pricing__head {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-pricing__head {
   display: flex;
   flex-direction: column;
   gap: var(--st-space-1);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-pricing__name {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-pricing__name {
   margin: 0;
   font-size: var(--st-font-size-lg);
   font-weight: var(--st-fw-semibold);
   color: var(--st-text);
   letter-spacing: -0.01em;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-pricing__desc {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-pricing__desc {
   margin: 0;
   font-size: var(--st-font-size-sm);
   color: var(--st-text-secondary);
@@ -60,33 +60,33 @@
 }
 
 /* ----- Price ----- */
-:is(.\32 0ui, .sabcrm-twenty) .u-pricing__price {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-pricing__price {
   display: flex;
   align-items: baseline;
   gap: var(--st-space-1);
   margin: 0;
   flex-wrap: wrap;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-pricing__amount {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-pricing__amount {
   font-size: 32px;
   font-weight: var(--st-fw-semibold);
   color: var(--st-text);
   letter-spacing: -0.02em;
   line-height: 1.05;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-pricing__period {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-pricing__period {
   font-size: var(--st-font-size-sm);
   color: var(--st-text-secondary);
 }
 
 /* ----- CTA ----- */
-:is(.\32 0ui, .sabcrm-twenty) .u-pricing__cta {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-pricing__cta {
   display: flex;
   flex-direction: column;
 }
 
 /* ----- Feature list ----- */
-:is(.\32 0ui, .sabcrm-twenty) .u-pricing__features {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-pricing__features {
   list-style: none;
   margin: 0;
   padding: var(--st-space-4) 0 0;
@@ -95,7 +95,7 @@
   flex-direction: column;
   gap: var(--st-space-3);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-pricing__feature {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-pricing__feature {
   display: flex;
   align-items: flex-start;
   gap: var(--st-space-2);
@@ -103,10 +103,10 @@
   color: var(--st-text);
   line-height: 1.45;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-pricing__feature--off {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-pricing__feature--off {
   color: var(--st-text-tertiary);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-pricing__check {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-pricing__check {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -118,16 +118,16 @@
   background: var(--st-accent-soft);
   color: var(--st-accent);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-pricing__feature--off .u-pricing__check {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-pricing__feature--off .u-pricing__check {
   background: var(--st-bg-muted);
   color: var(--st-text-tertiary);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-pricing__feature-label {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-pricing__feature-label {
   min-width: 0;
 }
 
 /* Visually-hidden inclusion text for assistive tech (not colour-only). */
-:is(.\32 0ui, .sabcrm-twenty) .u-pricing__sr {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-pricing__sr {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -140,32 +140,32 @@
 }
 
 /* ----- Grid ----- */
-:is(.\32 0ui, .sabcrm-twenty) .u-pricing-grid {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-pricing-grid {
   display: grid;
   gap: var(--st-space-4);
   align-items: stretch;
   grid-template-columns: 1fr;
 }
 @media (min-width: 640px) {
-  :is(.\32 0ui, .sabcrm-twenty) .u-pricing-grid--cols-2,
-  :is(.\32 0ui, .sabcrm-twenty) .u-pricing-grid--cols-4 {
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-pricing-grid--cols-2,
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-pricing-grid--cols-4 {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 @media (min-width: 960px) {
-  :is(.\32 0ui, .sabcrm-twenty) .u-pricing-grid--cols-3 {
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-pricing-grid--cols-3 {
     grid-template-columns: repeat(3, 1fr);
   }
-  :is(.\32 0ui, .sabcrm-twenty) .u-pricing-grid--cols-4 {
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-pricing-grid--cols-4 {
     grid-template-columns: repeat(4, 1fr);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  :is(.\32 0ui, .sabcrm-twenty) .u-pricing--highlighted {
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-pricing--highlighted {
     transition: none;
   }
-  :is(.\32 0ui, .sabcrm-twenty) .u-pricing--highlighted:hover {
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-pricing--highlighted:hover {
     transform: none;
   }
 }

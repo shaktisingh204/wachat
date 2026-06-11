@@ -3,7 +3,7 @@
    dresses the trigger button and the menu header (name / email / role). */
 
 /* ----- Trigger ----- */
-:is(.\32 0ui, .sabcrm-twenty) .u-userdrop__trigger {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-userdrop__trigger {
   display: inline-flex;
   align-items: center;
   gap: var(--st-space-2);
@@ -26,46 +26,46 @@
     border-color var(--u-dur-fast) var(--u-ease-out),
     transform var(--u-dur-fast) var(--u-ease-out);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-userdrop__trigger:hover {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-userdrop__trigger:hover {
   background: var(--st-hover);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-userdrop__trigger[data-state='open'] {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-userdrop__trigger[data-state='open'] {
   background: var(--st-hover);
   border-color: var(--st-border);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-userdrop__trigger:active {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-userdrop__trigger:active {
   transform: scale(0.97);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-userdrop__trigger:focus-visible {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-userdrop__trigger:focus-visible {
   box-shadow: var(--u-focus-ring);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-userdrop__trigger--compact {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-userdrop__trigger--compact {
   max-width: none;
   padding: var(--st-space-1);
 }
 
 /* Name + email stack inside the trigger. min-width:0 lets the children ellipsis. */
-:is(.\32 0ui, .sabcrm-twenty) .u-userdrop__triggerbody {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-userdrop__triggerbody {
   display: flex;
   flex-direction: column;
   min-width: 0;
   line-height: 1.2;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-userdrop__triggername {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-userdrop__triggername {
   overflow: hidden;
   font-size: var(--st-font-size);
   font-weight: var(--st-fw-medium);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-userdrop__triggermail {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-userdrop__triggermail {
   overflow: hidden;
   color: var(--st-text-tertiary);
   font-size: var(--st-font-size-xs);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-userdrop__chevron {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-userdrop__chevron {
   flex: 0 0 auto;
   width: 14px;
   height: 14px;
@@ -73,24 +73,24 @@
 }
 
 /* ----- Menu panel sizing ----- */
-:is(.\32 0ui, .sabcrm-twenty) .u-userdrop__menu {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-userdrop__menu {
   min-width: 232px;
 }
 
 /* ----- Header (name / email / role) ----- */
-:is(.\32 0ui, .sabcrm-twenty) .u-userdrop__header {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-userdrop__header {
   display: flex;
   align-items: center;
   gap: var(--st-space-2);
   padding: var(--st-space-2);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-userdrop__headerbody {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-userdrop__headerbody {
   display: flex;
   flex-direction: column;
   min-width: 0;
   gap: 1px;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-userdrop__role {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-userdrop__role {
   overflow: hidden;
   color: var(--st-accent);
   font-size: var(--st-font-size-xs);
@@ -100,7 +100,7 @@
   text-transform: uppercase;
   white-space: nowrap;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-userdrop__name {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-userdrop__name {
   overflow: hidden;
   color: var(--st-text);
   font-size: var(--st-font-size);
@@ -108,7 +108,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-userdrop__mail {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-userdrop__mail {
   overflow: hidden;
   color: var(--st-text-tertiary);
   font-size: var(--st-font-size-xs);
@@ -119,11 +119,11 @@
 /* ----- Item rows ----- */
 /* Anchor rows: strip native link styling; the .u-dropdown__item flex layout
    (from dropdown.css) drives spacing, so we only neutralise colour + decoration. */
-:is(.\32 0ui, .sabcrm-twenty) .u-userdrop__link {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-userdrop__link {
   color: inherit;
   text-decoration: none;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-userdrop__rowlabel {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-userdrop__rowlabel {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -133,10 +133,10 @@
    motion alongside the rest of the system, and the panel entrance lives in
    dropdown.css (which already has its own reduced-motion block). */
 @media (prefers-reduced-motion: reduce) {
-  :is(.\32 0ui, .sabcrm-twenty) .u-userdrop__trigger {
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-userdrop__trigger {
     transition: background var(--u-dur-fast) ease, border-color var(--u-dur-fast) ease;
   }
-  :is(.\32 0ui, .sabcrm-twenty) .u-userdrop__trigger:active {
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-userdrop__trigger:active {
     transform: none;
   }
 }

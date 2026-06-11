@@ -1,7 +1,7 @@
 /* 20ui · Command palette (cmdk) */
 
 /* ----- Root ----- */
-:is(.\32 0ui, .sabcrm-twenty) .u-cmd {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cmd {
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -12,7 +12,7 @@
 }
 
 /* ----- Search row ----- */
-:is(.\32 0ui, .sabcrm-twenty) .u-cmd__input-row {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cmd__input-row {
   display: flex;
   flex: 0 0 auto;
   align-items: center;
@@ -21,11 +21,11 @@
   padding: 0 var(--st-space-4);
   border-bottom: 1px solid var(--st-border);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-cmd__input-icon {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cmd__input-icon {
   flex: 0 0 auto;
   color: var(--st-text-tertiary);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-cmd__input {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cmd__input {
   flex: 1 1 auto;
   width: 100%;
   min-width: 0;
@@ -38,12 +38,12 @@
   line-height: 1;
   outline: none;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-cmd__input::placeholder {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cmd__input::placeholder {
   color: var(--st-text-tertiary);
 }
 
 /* ----- List (scroll region) ----- */
-:is(.\32 0ui, .sabcrm-twenty) .u-cmd__list {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cmd__list {
   flex: 1 1 auto;
   min-height: 0;
   max-height: min(56vh, 420px);
@@ -54,14 +54,14 @@
 }
 
 /* ----- Group ----- */
-:is(.\32 0ui, .sabcrm-twenty) .u-cmd__group {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cmd__group {
   overflow: hidden;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-cmd__group:not(:first-child) {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cmd__group:not(:first-child) {
   margin-top: var(--st-space-2);
 }
 /* cmdk renders the group title in a [cmdk-group-heading] child. */
-:is(.\32 0ui, .sabcrm-twenty) .u-cmd__group [cmdk-group-heading] {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cmd__group [cmdk-group-heading] {
   padding: var(--st-space-1) var(--st-space-2) var(--st-space-2);
   color: var(--st-text-tertiary);
   font-size: var(--st-font-size-xs);
@@ -71,12 +71,12 @@
   user-select: none;
 }
 /* cmdk hides empty groups by collapsing [hidden]; keep that. */
-:is(.\32 0ui, .sabcrm-twenty) .u-cmd__group[hidden] {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cmd__group[hidden] {
   display: none;
 }
 
 /* ----- Item ----- */
-:is(.\32 0ui, .sabcrm-twenty) .u-cmd__item {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cmd__item {
   display: flex;
   align-items: center;
   gap: var(--st-space-2);
@@ -95,49 +95,49 @@
     color var(--u-dur-fast) var(--u-ease-out),
     transform 80ms var(--u-ease-out);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-cmd__item + .u-cmd__item {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cmd__item + .u-cmd__item {
   margin-top: 1px;
 }
 /* Leading icons inside an item read as tertiary, brightening when active. */
-:is(.\32 0ui, .sabcrm-twenty) .u-cmd__item > svg {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cmd__item > svg {
   flex: 0 0 auto;
   color: var(--st-text-tertiary);
 }
 /* The first text node grows so trailing content (shortcut) right-aligns. */
-:is(.\32 0ui, .sabcrm-twenty) .u-cmd__item > :not(.u-cmd__shortcut):not(svg) {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cmd__item > :not(.u-cmd__shortcut):not(svg) {
   flex: 1 1 auto;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 /* cmdk marks the active row with aria-selected="true". */
-:is(.\32 0ui, .sabcrm-twenty) .u-cmd__item[aria-selected='true'] {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cmd__item[aria-selected='true'] {
   background: var(--st-hover);
   color: var(--st-text);
   outline: none;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-cmd__item[aria-selected='true'] > svg {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cmd__item[aria-selected='true'] > svg {
   color: var(--st-accent);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-cmd__item:active {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cmd__item:active {
   transform: scale(0.99);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-cmd__item:focus-visible {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cmd__item:focus-visible {
   outline: none;
   box-shadow: var(--u-focus-ring);
 }
 /* cmdk marks disabled rows with data-disabled="true". */
-:is(.\32 0ui, .sabcrm-twenty) .u-cmd__item[data-disabled='true'] {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cmd__item[data-disabled='true'] {
   color: var(--st-text-tertiary);
   pointer-events: none;
   cursor: not-allowed;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-cmd__item[data-disabled='true'] > svg {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cmd__item[data-disabled='true'] > svg {
   color: var(--st-text-tertiary);
 }
 
 /* ----- Trailing shortcut (Kbd look) ----- */
-:is(.\32 0ui, .sabcrm-twenty) .u-cmd__shortcut {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cmd__shortcut {
   display: inline-flex;
   flex: 0 0 auto;
   align-items: center;
@@ -159,14 +159,14 @@
 }
 
 /* ----- Separator ----- */
-:is(.\32 0ui, .sabcrm-twenty) .u-cmd__sep {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cmd__sep {
   height: 1px;
   margin: var(--st-space-2) 0;
   background: var(--st-border-light);
 }
 
 /* ----- Empty state ----- */
-:is(.\32 0ui, .sabcrm-twenty) .u-cmd__empty {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cmd__empty {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -177,7 +177,7 @@
 }
 
 /* ===================== Dialog (cmd-k overlay) ===================== */
-:is(.\32 0ui, .sabcrm-twenty).u-cmd-overlay {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root).u-cmd-overlay {
   position: fixed;
   inset: 0;
   z-index: 1000;
@@ -190,7 +190,7 @@
   animation: u-cmd-overlay-in var(--u-dur) var(--u-ease-out);
 }
 
-:is(.\32 0ui, .sabcrm-twenty) .u-cmd-dialog {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cmd-dialog {
   width: 100%;
   max-width: 580px;
   max-height: min(72vh, 560px);
@@ -205,7 +205,7 @@
   animation: u-cmd-dialog-in var(--u-dur-slow) var(--u-ease-out);
 }
 /* The Command root fills the dialog and owns the inner scroll. */
-:is(.\32 0ui, .sabcrm-twenty) .u-cmd-dialog .u-cmd {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cmd-dialog .u-cmd {
   min-height: 0;
   max-height: 100%;
 }
@@ -230,11 +230,11 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  :is(.\32 0ui, .sabcrm-twenty).u-cmd-overlay,
-  :is(.\32 0ui, .sabcrm-twenty) .u-cmd-dialog {
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root).u-cmd-overlay,
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cmd-dialog {
     animation: u-cmd-fade var(--u-dur) var(--u-ease-out);
   }
-  :is(.\32 0ui, .sabcrm-twenty) .u-cmd__item:active {
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cmd__item:active {
     transform: none;
   }
   @keyframes u-cmd-fade {

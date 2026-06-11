@@ -7,21 +7,21 @@
    to its value instead of stretching to fill (and breaking) the layout. The
    `--block` modifier (added inside a <Field> or via the `block` prop) makes it
    fill the container, which is what form fields want. */
-:is(.\32 0ui, .sabcrm-twenty) .u-select__anchor {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-select__anchor {
   display: inline-flex;
   max-width: 100%;
   vertical-align: middle;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-select__anchor--block {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-select__anchor--block {
   display: flex;
   width: 100%;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-select__anchor--block .u-select {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-select__anchor--block .u-select {
   width: 100%;
 }
 
 /* ----- Trigger ----- */
-:is(.\32 0ui, .sabcrm-twenty) .u-select {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-select {
   display: flex;
   align-items: center;
   gap: var(--st-space-2);
@@ -41,33 +41,33 @@
     border-color var(--u-dur-fast) var(--u-ease-out),
     box-shadow var(--u-dur-fast) var(--u-ease-out);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-select:hover {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-select:hover {
   border-color: var(--st-border-strong);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-select:focus-visible {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-select:focus-visible {
   outline: none;
   border-color: var(--st-accent);
   box-shadow: var(--u-focus-ring);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-select.is-open {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-select.is-open {
   border-color: var(--st-accent);
   box-shadow: 0 0 0 3px var(--st-accent-soft);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-select:disabled {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-select:disabled {
   background: var(--st-bg-secondary);
   color: var(--st-text-tertiary);
   cursor: not-allowed;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-select.is-invalid {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-select.is-invalid {
   border-color: var(--st-danger);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-select.is-invalid.is-open,
-:is(.\32 0ui, .sabcrm-twenty) .u-select.is-invalid:focus-visible {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-select.is-invalid.is-open,
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-select.is-invalid:focus-visible {
   box-shadow: 0 0 0 3px var(--st-danger-soft);
 }
 
 /* Sizes */
-:is(.\32 0ui, .sabcrm-twenty) .u-select--sm {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-select--sm {
   min-height: 26px;
   padding-left: var(--st-space-2);
   font-size: var(--st-font-size-sm);
@@ -75,31 +75,31 @@
 }
 
 /* Trigger contents */
-:is(.\32 0ui, .sabcrm-twenty) .u-select__value-icon {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-select__value-icon {
   flex: 0 0 auto;
   color: var(--st-text-secondary);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-select__value {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-select__value {
   flex: 1 1 auto;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-select__value.is-placeholder {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-select__value.is-placeholder {
   color: var(--st-text-tertiary);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-select__chevron {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-select__chevron {
   flex: 0 0 auto;
   color: var(--st-text-tertiary);
   transition: transform var(--u-dur) var(--u-ease-out);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-select.is-open .u-select__chevron {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-select.is-open .u-select__chevron {
   transform: rotate(180deg);
 }
 
 /* Inline clear (single-select) */
-:is(.\32 0ui, .sabcrm-twenty) .u-select__clear {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-select__clear {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -113,30 +113,30 @@
     background var(--u-dur-fast) var(--u-ease-out),
     color var(--u-dur-fast) var(--u-ease-out);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-select__clear:hover {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-select__clear:hover {
   background: var(--st-hover);
   color: var(--st-text-secondary);
 }
 
 /* ----- Multi-select trigger ----- */
-:is(.\32 0ui, .sabcrm-twenty) .u-select--multi {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-select--multi {
   min-height: 32px;
   height: auto;
   padding-top: 3px;
   padding-bottom: 3px;
   align-items: center;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-select--multi.u-select--sm {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-select--multi.u-select--sm {
   min-height: 26px;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-select__chips {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-select__chips {
   display: flex;
   flex-wrap: wrap;
   gap: var(--st-space-1);
   flex: 1 1 auto;
   min-width: 0;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-select__chip {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-select__chip {
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -149,16 +149,16 @@
   font-size: var(--st-font-size-sm);
   line-height: 1.2;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-select__chip-icon {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-select__chip-icon {
   flex: 0 0 auto;
   color: var(--st-text-secondary);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-select__chip-label {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-select__chip-label {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-select__chip-remove {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-select__chip-remove {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -172,13 +172,13 @@
     background var(--u-dur-fast) var(--u-ease-out),
     color var(--u-dur-fast) var(--u-ease-out);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-select__chip-remove:hover {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-select__chip-remove:hover {
   background: var(--st-active);
   color: var(--st-text);
 }
 
 /* ----- Panel (portal) ----- */
-:is(.\32 0ui, .sabcrm-twenty) .u-select__panel {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-select__panel {
   display: flex;
   flex-direction: column;
   min-width: 184px;
@@ -191,7 +191,7 @@
 }
 
 /* Search box */
-:is(.\32 0ui, .sabcrm-twenty) .u-select__search {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-select__search {
   display: flex;
   align-items: center;
   gap: var(--st-space-2);
@@ -202,15 +202,15 @@
   border-radius: var(--st-radius);
   background: var(--st-bg-secondary);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-select__search:focus-within {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-select__search:focus-within {
   border-color: var(--st-accent);
   background: var(--st-bg);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-select__search-icon {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-select__search-icon {
   flex: 0 0 auto;
   color: var(--st-text-tertiary);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-select__search-input {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-select__search-input {
   flex: 1 1 auto;
   min-width: 0;
   border: none;
@@ -220,12 +220,12 @@
   font-size: var(--st-font-size);
   outline: none;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-select__search-input::placeholder {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-select__search-input::placeholder {
   color: var(--st-text-tertiary);
 }
 
 /* List */
-:is(.\32 0ui, .sabcrm-twenty) .u-select__list {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-select__list {
   display: flex;
   flex-direction: column;
   gap: 1px;
@@ -233,13 +233,13 @@
   overflow-y: auto;
   outline: none;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-select__list:focus-visible {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-select__list:focus-visible {
   box-shadow: var(--u-focus-ring);
   border-radius: var(--st-radius);
 }
 
 /* Option */
-:is(.\32 0ui, .sabcrm-twenty) .u-select__option {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-select__option {
   display: flex;
   align-items: center;
   gap: var(--st-space-2);
@@ -254,40 +254,40 @@
     background var(--u-dur-fast) var(--u-ease-out),
     transform 80ms var(--u-ease-out);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-select__option.is-active {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-select__option.is-active {
   background: var(--st-hover);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-select__option:active {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-select__option:active {
   transform: scale(0.985);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-select__option.is-selected {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-select__option.is-selected {
   color: var(--st-accent);
   font-weight: var(--st-fw-medium);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-select__option.is-disabled {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-select__option.is-disabled {
   color: var(--st-text-tertiary);
   cursor: not-allowed;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-select__option-icon {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-select__option-icon {
   flex: 0 0 auto;
   color: var(--st-text-tertiary);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-select__option.is-selected .u-select__option-icon {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-select__option.is-selected .u-select__option-icon {
   color: var(--st-accent);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-select__option-label {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-select__option-label {
   flex: 1 1 auto;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-select__option-check {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-select__option-check {
   flex: 0 0 auto;
   color: var(--st-accent);
 }
 
 /* Empty state */
-:is(.\32 0ui, .sabcrm-twenty) .u-select__empty {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-select__empty {
   padding: var(--st-space-3) var(--st-space-2);
   color: var(--st-text-tertiary);
   font-size: var(--st-font-size-sm);
@@ -295,12 +295,12 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  :is(.\32 0ui, .sabcrm-twenty) .u-select__chevron,
-  :is(.\32 0ui, .sabcrm-twenty) .u-select.is-open .u-select__chevron {
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-select__chevron,
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-select.is-open .u-select__chevron {
     transition: none;
     transform: none;
   }
-  :is(.\32 0ui, .sabcrm-twenty) .u-select__option:active {
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-select__option:active {
     transform: none;
   }
 }

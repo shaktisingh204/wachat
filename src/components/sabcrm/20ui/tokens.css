@@ -20,7 +20,8 @@
    calm minimal aesthetic).
    ========================================================================= */
 
-.\32 0ui {
+.\32 0ui,
+.ui20 {
   /* ----- Surfaces ----- */
   --st-bg: #ffffff;
   --st-bg-secondary: #fafafa;
@@ -162,7 +163,10 @@
    theme is authoritative on <html>, so when it is dark every .\32 0ui is dark. */
 .\32 0ui.dark,
 .\32 0ui[data-theme="dark"],
-html.dark .\32 0ui {
+html.dark .\32 0ui,
+.ui20.dark,
+.ui20[data-theme="dark"],
+html.dark .ui20 {
   --st-bg: #181818;
   --st-bg-secondary: #1d1d1d;
   --st-bg-muted: #222222;
@@ -239,23 +243,23 @@ html.dark .\32 0ui {
 }
 
 /* Thin matched scrollbars + accent selection inside the system root. */
-.\32 0ui ::selection {
+:is(.\32 0ui, .ui20) ::selection {
   background: var(--st-accent-soft);
   color: var(--st-accent-hover);
 }
-.\32 0ui *::-webkit-scrollbar {
+:is(.\32 0ui, .ui20) *::-webkit-scrollbar {
   width: 10px;
   height: 10px;
 }
-.\32 0ui *::-webkit-scrollbar-thumb {
+:is(.\32 0ui, .ui20) *::-webkit-scrollbar-thumb {
   background: var(--st-border-strong);
   border: 3px solid var(--st-bg);
   border-radius: var(--st-radius-pill);
 }
-.\32 0ui *::-webkit-scrollbar-thumb:hover {
+:is(.\32 0ui, .ui20) *::-webkit-scrollbar-thumb:hover {
   background: var(--st-text-tertiary);
 }
-.\32 0ui *::-webkit-scrollbar-corner {
+:is(.\32 0ui, .ui20) *::-webkit-scrollbar-corner {
   background: transparent;
 }
 
@@ -264,7 +268,7 @@ html.dark .\32 0ui {
    even on standalone ui20 surfaces where the CRM's sabcrm-twenty.css is NOT
    loaded. The portal root carries `ui20 sabcrm-twenty st-popover` on one element,
    so this is a compound selector. ----- */
-.\32 0ui.st-popover {
+:is(.\32 0ui, .ui20).st-popover {
   z-index: 1200;
   background: var(--st-bg);
   border: 1px solid var(--st-border);
@@ -280,7 +284,7 @@ html.dark .\32 0ui {
   transform-origin: top center;
   animation: u-pop-in var(--u-dur) var(--u-ease-out);
 }
-.\32 0ui.st-popover[data-placement='top'] {
+:is(.\32 0ui, .ui20).st-popover[data-placement='top'] {
   transform-origin: bottom center;
 }
 @keyframes u-pop-in {
@@ -294,7 +298,7 @@ html.dark .\32 0ui {
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .\32 0ui.st-popover {
+  :is(.\32 0ui, .ui20).st-popover {
     animation: none;
   }
 }

@@ -1,17 +1,17 @@
 /* 20ui — Label. Standalone form label, token-styled. */
-:is(.\32 0ui, .sabcrm-twenty) .u-label {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-label {
   display: inline-block;
   font-size: var(--st-font-size-sm);
   font-weight: var(--st-fw-medium);
   line-height: 1.25;
   color: var(--st-text);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-label[data-disabled],
-:is(.\32 0ui, .sabcrm-twenty) .peer:disabled ~ .u-label {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-label[data-disabled],
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .peer:disabled ~ .u-label {
   cursor: not-allowed;
   opacity: 0.5;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-label__req {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-label__req {
   margin-left: 2px;
   color: var(--st-danger);
 }

@@ -3,10 +3,10 @@
 
    Token-only surfaces; one accent for the active row; width animates with the
    custom ease; labels + tooltips use transform/opacity only. Every selector is
-   scoped under :is(.\32 0ui, .sabcrm-twenty) so the --st-* / --u-* tokens resolve.
+   scoped under :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) so the --st-* / --u-* tokens resolve.
    ========================================================================= */
 
-:is(.\32 0ui, .sabcrm-twenty) .u-sidebar {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar {
   --u-sidebar-w: 248px;
   --u-sidebar-w-collapsed: 60px;
 
@@ -25,11 +25,11 @@
   transition: width var(--u-dur-slow) var(--u-ease-out);
 }
 
-:is(.\32 0ui, .sabcrm-twenty) .u-sidebar--collapsed {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar--collapsed {
   width: var(--u-sidebar-w-collapsed);
 }
 
-:is(.\32 0ui, .sabcrm-twenty) .u-sidebar__inner {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar__inner {
   display: flex;
   flex-direction: column;
   /* Pin to the expanded width so children don't reflow during the collapse
@@ -40,7 +40,7 @@
   min-height: 0;
 }
 
-:is(.\32 0ui, .sabcrm-twenty) .u-sidebar__header {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar__header {
   display: flex;
   align-items: center;
   gap: var(--st-space-2);
@@ -54,7 +54,7 @@
   overflow: hidden;
 }
 
-:is(.\32 0ui, .sabcrm-twenty) .u-sidebar__content {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar__content {
   flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
@@ -62,7 +62,7 @@
   padding: var(--st-space-1) var(--st-space-2) var(--st-space-2);
 }
 
-:is(.\32 0ui, .sabcrm-twenty) .u-sidebar__footer {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar__footer {
   flex-shrink: 0;
   margin-top: auto;
   padding: var(--st-space-2);
@@ -71,16 +71,16 @@
 
 /* ----- Groups ----- */
 
-:is(.\32 0ui, .sabcrm-twenty) .u-sidebar__group {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar__group {
   display: flex;
   flex-direction: column;
 }
 
-:is(.\32 0ui, .sabcrm-twenty) .u-sidebar__group + .u-sidebar__group {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar__group + .u-sidebar__group {
   margin-top: var(--st-space-4);
 }
 
-:is(.\32 0ui, .sabcrm-twenty) .u-sidebar__group-label {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar__group-label {
   padding: var(--st-space-3) var(--st-space-2) var(--st-space-1);
   font-size: var(--st-font-size-xs);
   font-weight: var(--st-fw-semibold);
@@ -94,13 +94,13 @@
   transition: opacity var(--u-dur) var(--u-ease-out);
 }
 
-:is(.\32 0ui, .sabcrm-twenty) .u-sidebar--collapsed .u-sidebar__group-label {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar--collapsed .u-sidebar__group-label {
   opacity: 0;
   height: var(--st-space-3);
   pointer-events: none;
 }
 
-:is(.\32 0ui, .sabcrm-twenty) .u-sidebar__menu {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar__menu {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -109,13 +109,13 @@
   gap: 2px;
 }
 
-:is(.\32 0ui, .sabcrm-twenty) .u-sidebar__item {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar__item {
   display: block;
 }
 
 /* ----- Menu button ----- */
 
-:is(.\32 0ui, .sabcrm-twenty) .u-sidebar__button {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar__button {
   box-sizing: border-box;
   display: flex;
   align-items: center;
@@ -141,36 +141,36 @@
     transform var(--u-dur-fast) var(--u-ease-out);
 }
 
-:is(.\32 0ui, .sabcrm-twenty) .u-sidebar__button:hover {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar__button:hover {
   background: var(--st-hover);
   color: var(--st-text);
 }
 
-:is(.\32 0ui, .sabcrm-twenty) .u-sidebar__button:active {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar__button:active {
   transform: scale(0.97);
 }
 
-:is(.\32 0ui, .sabcrm-twenty) .u-sidebar__button:focus-visible {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar__button:focus-visible {
   outline: none;
   box-shadow: var(--u-focus-ring);
 }
 
-:is(.\32 0ui, .sabcrm-twenty) .u-sidebar__button.is-active {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar__button.is-active {
   background: var(--st-accent-soft);
   color: var(--st-accent);
   font-weight: var(--st-fw-semibold);
 }
 
-:is(.\32 0ui, .sabcrm-twenty) .u-sidebar__button.is-active:hover {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar__button.is-active:hover {
   background: var(--st-active);
   color: var(--st-accent-hover);
 }
 
-:is(.\32 0ui, .sabcrm-twenty) .u-sidebar__button-icon {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar__button-icon {
   flex-shrink: 0;
 }
 
-:is(.\32 0ui, .sabcrm-twenty) .u-sidebar__button-label {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar__button-label {
   flex: 1 1 auto;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -179,18 +179,18 @@
 }
 
 /* Collapsed: center the icon, fade out the label (don't reflow it away). */
-:is(.\32 0ui, .sabcrm-twenty) .u-sidebar--collapsed .u-sidebar__button {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar--collapsed .u-sidebar__button {
   gap: 0;
 }
 
-:is(.\32 0ui, .sabcrm-twenty) .u-sidebar--collapsed .u-sidebar__button-label {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar--collapsed .u-sidebar__button-label {
   opacity: 0;
   pointer-events: none;
 }
 
 /* ----- Trigger ----- */
 
-:is(.\32 0ui, .sabcrm-twenty) .u-sidebar__trigger {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar__trigger {
   box-sizing: border-box;
   display: inline-flex;
   align-items: center;
@@ -210,31 +210,31 @@
     transform var(--u-dur-fast) var(--u-ease-out);
 }
 
-:is(.\32 0ui, .sabcrm-twenty) .u-sidebar__trigger:hover {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar__trigger:hover {
   background: var(--st-hover);
   color: var(--st-text);
   border-color: var(--st-border-strong);
 }
 
-:is(.\32 0ui, .sabcrm-twenty) .u-sidebar__trigger:active {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar__trigger:active {
   transform: scale(0.94);
 }
 
-:is(.\32 0ui, .sabcrm-twenty) .u-sidebar__trigger:focus-visible {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar__trigger:focus-visible {
   outline: none;
   box-shadow: var(--u-focus-ring);
 }
 
 /* ----- Collapsed tooltip (portalled to body) ----- */
 
-:is(.\32 0ui, .sabcrm-twenty).u-sidebar-tip__portal {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root).u-sidebar-tip__portal {
   position: fixed;
   inset: 0;
   z-index: 1000;
   pointer-events: none;
 }
 
-:is(.\32 0ui, .sabcrm-twenty) .u-sidebar-tip {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar-tip {
   position: fixed;
   transform: translateY(-50%) scale(0.96);
   transform-origin: left center;
@@ -266,20 +266,20 @@
 
 /* ===== Reduced motion: kill all movement, keep state legible ===== */
 @media (prefers-reduced-motion: reduce) {
-  :is(.\32 0ui, .sabcrm-twenty) .u-sidebar,
-  :is(.\32 0ui, .sabcrm-twenty) .u-sidebar__group-label,
-  :is(.\32 0ui, .sabcrm-twenty) .u-sidebar__button,
-  :is(.\32 0ui, .sabcrm-twenty) .u-sidebar__button-label,
-  :is(.\32 0ui, .sabcrm-twenty) .u-sidebar__trigger {
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar,
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar__group-label,
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar__button,
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar__button-label,
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar__trigger {
     transition: none;
   }
 
-  :is(.\32 0ui, .sabcrm-twenty) .u-sidebar__button:active,
-  :is(.\32 0ui, .sabcrm-twenty) .u-sidebar__trigger:active {
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar__button:active,
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar__trigger:active {
     transform: none;
   }
 
-  :is(.\32 0ui, .sabcrm-twenty) .u-sidebar-tip {
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sidebar-tip {
     animation: none;
     opacity: 1;
     transform: translateY(-50%) scale(1);

@@ -1,10 +1,10 @@
 /* 20ui · FullscreenCalendar
    A full-page month grid with events. Every selector is scoped under
-   :is(.\32 0ui, .sabcrm-twenty) so it works app-wide and inside the CRM. Motion is
+   :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) so it works app-wide and inside the CRM. Motion is
    transform/opacity only with the shared --u-ease-out; one accent, one radius
    system, AA-contrast text. A prefers-reduced-motion block disables movement. */
 
-:is(.\32 0ui, .sabcrm-twenty) .u-fc {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-fc {
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -19,7 +19,7 @@
 }
 
 /* ── Header ─────────────────────────────────────────────────────────────── */
-:is(.\32 0ui, .sabcrm-twenty) .u-fc__header {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-fc__header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -28,46 +28,46 @@
   border-bottom: 1px solid var(--st-border);
   flex: 0 0 auto;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-fc__heading {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-fc__heading {
   display: flex;
   flex-direction: column;
   gap: 2px;
   min-width: 0;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-fc__title {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-fc__title {
   margin: 0;
   font-size: var(--st-font-size-lg);
   font-weight: var(--st-fw-semibold);
   line-height: 1.2;
   color: var(--st-text);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-fc__subtitle {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-fc__subtitle {
   margin: 0;
   font-size: var(--st-font-size-xs);
   color: var(--st-text-tertiary);
 }
 
-:is(.\32 0ui, .sabcrm-twenty) .u-fc__controls {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-fc__controls {
   display: flex;
   align-items: center;
   gap: var(--st-space-3);
   flex: 0 0 auto;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-fc__view-label {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-fc__view-label {
   font-size: var(--st-font-size-xs);
   font-weight: var(--st-fw-medium);
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: var(--st-text-tertiary);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-fc__nav {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-fc__nav {
   display: inline-flex;
   align-items: center;
   gap: var(--st-space-1);
 }
 
 /* ── Grid container ─────────────────────────────────────────────────────── */
-:is(.\32 0ui, .sabcrm-twenty) .u-fc__grid {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-fc__grid {
   display: flex;
   flex-direction: column;
   flex: 1 1 auto;
@@ -75,13 +75,13 @@
 }
 
 /* Weekday header row. */
-:is(.\32 0ui, .sabcrm-twenty) .u-fc__weekdays {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-fc__weekdays {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
   border-bottom: 1px solid var(--st-border);
   flex: 0 0 auto;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-fc__weekday {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-fc__weekday {
   padding: var(--st-space-2) var(--st-space-3);
   font-size: var(--st-font-size-xs);
   font-weight: var(--st-fw-medium);
@@ -92,21 +92,21 @@
 }
 
 /* Weeks fill the remaining height; each week is an equal-height row. */
-:is(.\32 0ui, .sabcrm-twenty) .u-fc__weeks {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-fc__weeks {
   display: grid;
   grid-auto-rows: minmax(0, 1fr);
   flex: 1 1 auto;
   min-height: 0;
   overflow: auto;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-fc__week {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-fc__week {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
   min-height: 96px;
 }
 
 /* ── Day cell ───────────────────────────────────────────────────────────── */
-:is(.\32 0ui, .sabcrm-twenty) .u-fc__cell {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-fc__cell {
   position: relative;
   display: flex;
   flex-direction: column;
@@ -118,16 +118,16 @@
   border-right: 1px solid var(--st-border-light);
 }
 /* Remove the trailing right border on the last column of every row. */
-:is(.\32 0ui, .sabcrm-twenty) .u-fc__cell:nth-child(7n) {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-fc__cell:nth-child(7n) {
   border-right: none;
 }
 /* Remove the bottom border on the final week. */
-:is(.\32 0ui, .sabcrm-twenty) .u-fc__week:last-child .u-fc__cell {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-fc__week:last-child .u-fc__cell {
   border-bottom: none;
 }
 
 /* The date-number button fills the top of the cell and is the day affordance. */
-:is(.\32 0ui, .sabcrm-twenty) .u-fc__day {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-fc__day {
   display: inline-flex;
   align-items: center;
   justify-content: flex-start;
@@ -140,15 +140,15 @@
   outline: none;
   transition: background var(--u-dur-fast) var(--u-ease-out);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-fc__day:hover {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-fc__day:hover {
   background: var(--st-hover);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-fc__day:focus-visible {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-fc__day:focus-visible {
   box-shadow: var(--u-focus-ring);
 }
 
 /* Date numeral — a small chip; today gets the accent fill. */
-:is(.\32 0ui, .sabcrm-twenty) .u-fc__date {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-fc__date {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -162,23 +162,23 @@
   color: var(--st-text);
   transition: transform var(--u-dur-fast) var(--u-ease-out);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-fc__day:active .u-fc__date {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-fc__day:active .u-fc__date {
   transform: scale(0.92);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-fc__day--outside {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-fc__day--outside {
   background: var(--st-bg-secondary);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-fc__day--outside .u-fc__date {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-fc__day--outside .u-fc__date {
   color: var(--st-text-tertiary);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-fc__day--today .u-fc__date {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-fc__day--today .u-fc__date {
   background: var(--st-accent);
   color: #fff;
   font-weight: var(--st-fw-semibold);
 }
 
 /* ── Event chips ────────────────────────────────────────────────────────── */
-:is(.\32 0ui, .sabcrm-twenty) .u-fc__events {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-fc__events {
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -188,10 +188,10 @@
   min-height: 0;
   overflow: hidden;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-fc__event-item {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-fc__event-item {
   min-width: 0;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-fc__event {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-fc__event {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -210,23 +210,23 @@
     background var(--u-dur-fast) var(--u-ease-out),
     transform var(--u-dur-fast) var(--u-ease-out);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-fc__event:hover {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-fc__event:hover {
   background: var(--st-hover);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-fc__event:active {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-fc__event:active {
   transform: scale(0.98);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-fc__event:focus-visible {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-fc__event:focus-visible {
   box-shadow: var(--u-focus-ring);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-fc__event-dot {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-fc__event-dot {
   flex: 0 0 auto;
   width: 6px;
   height: 6px;
   border-radius: var(--st-radius-pill);
   background: var(--st-accent);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-fc__event-title {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-fc__event-title {
   flex: 1 1 auto;
   min-width: 0;
   overflow: hidden;
@@ -235,7 +235,7 @@
 }
 
 /* Overflow "+N more" — a quiet text button that opens the day. */
-:is(.\32 0ui, .sabcrm-twenty) .u-fc__overflow {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-fc__overflow {
   display: inline-flex;
   align-items: center;
   width: 100%;
@@ -252,24 +252,24 @@
   outline: none;
   transition: background var(--u-dur-fast) var(--u-ease-out);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-fc__overflow:hover {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-fc__overflow:hover {
   background: var(--st-hover);
   color: var(--st-text);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-fc__overflow:focus-visible {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-fc__overflow:focus-visible {
   box-shadow: var(--u-focus-ring);
 }
 
 /* ── Reduced motion ─────────────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
-  :is(.\32 0ui, .sabcrm-twenty) .u-fc__day,
-  :is(.\32 0ui, .sabcrm-twenty) .u-fc__date,
-  :is(.\32 0ui, .sabcrm-twenty) .u-fc__event,
-  :is(.\32 0ui, .sabcrm-twenty) .u-fc__overflow {
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-fc__day,
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-fc__date,
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-fc__event,
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-fc__overflow {
     transition: none;
   }
-  :is(.\32 0ui, .sabcrm-twenty) .u-fc__day:active .u-fc__date,
-  :is(.\32 0ui, .sabcrm-twenty) .u-fc__event:active {
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-fc__day:active .u-fc__date,
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-fc__event:active {
     transform: none;
   }
 }

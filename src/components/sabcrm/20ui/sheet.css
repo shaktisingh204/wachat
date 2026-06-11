@@ -2,30 +2,30 @@
 
 /* The portal layer only scopes tokens in the body portal; it must not interfere
    with the fixed positioning of the overlay + panel. */
-:is(.\32 0ui, .sabcrm-twenty).u-sheet__layer {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root).u-sheet__layer {
   display: contents;
 }
 
 /* ----- Overlay (dimming scrim, fade only) ----- */
-:is(.\32 0ui, .sabcrm-twenty) .u-sheet__overlay {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sheet__overlay {
   position: fixed;
   inset: 0;
   z-index: 1000;
   background: rgba(16, 24, 40, 0.35);
 }
-:is(.\32 0ui, .sabcrm-twenty).st-theme-dark .u-sheet__overlay,
-:is(.\32 0ui.dark, .\32 0ui[data-theme='dark']) .u-sheet__overlay {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root).st-theme-dark .u-sheet__overlay,
+:is(.\32 0ui.dark, .\32 0ui[data-theme='dark'], .ui20.dark, .ui20[data-theme='dark']) .u-sheet__overlay {
   background: rgba(0, 0, 0, 0.6);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-sheet__overlay[data-state='open'] {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sheet__overlay[data-state='open'] {
   animation: u-sheet-overlay-in var(--u-dur) var(--u-ease-out);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-sheet__overlay[data-state='closed'] {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sheet__overlay[data-state='closed'] {
   animation: u-sheet-overlay-out var(--u-dur-fast) var(--u-ease-out);
 }
 
 /* ----- Panel (the surface) ----- */
-:is(.\32 0ui, .sabcrm-twenty) .u-sheet {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sheet {
   position: fixed;
   z-index: 1001;
   display: flex;
@@ -37,42 +37,42 @@
   box-shadow: var(--u-elev-3);
   outline: none;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-sheet:focus-visible {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sheet:focus-visible {
   box-shadow: var(--u-elev-3), var(--u-focus-ring);
 }
 
 /* ----- Per-side sizing + placement ----- */
-:is(.\32 0ui, .sabcrm-twenty) .u-sheet--right,
-:is(.\32 0ui, .sabcrm-twenty) .u-sheet--left {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sheet--right,
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sheet--left {
   inset-block: 0;
   width: min(420px, calc(100vw - var(--st-space-6)));
   height: 100dvh;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-sheet--right {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sheet--right {
   inset-inline-end: 0;
   border-inline-start: 1px solid var(--st-border);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-sheet--left {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sheet--left {
   inset-inline-start: 0;
   border-inline-end: 1px solid var(--st-border);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-sheet--top,
-:is(.\32 0ui, .sabcrm-twenty) .u-sheet--bottom {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sheet--top,
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sheet--bottom {
   inset-inline: 0;
   width: 100vw;
   max-height: calc(100dvh - var(--st-space-6));
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-sheet--top {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sheet--top {
   inset-block-start: 0;
   border-block-end: 1px solid var(--st-border);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-sheet--bottom {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sheet--bottom {
   inset-block-end: 0;
   border-block-start: 1px solid var(--st-border);
 }
 
 /* ----- Close button (pinned top-right of the panel) ----- */
-:is(.\32 0ui, .sabcrm-twenty) .u-sheet__x {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sheet__x {
   position: absolute;
   inset-block-start: var(--st-space-4);
   inset-inline-end: var(--st-space-4);
@@ -80,7 +80,7 @@
 }
 
 /* ----- Header ----- */
-:is(.\32 0ui, .sabcrm-twenty) .u-sheet__header {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sheet__header {
   display: flex;
   flex-direction: column;
   gap: var(--st-space-1);
@@ -88,7 +88,7 @@
   padding-inline-end: var(--st-space-6);
   text-align: start;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-sheet__title {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sheet__title {
   margin: 0;
   font-size: var(--st-font-size-lg);
   font-weight: var(--st-fw-semibold);
@@ -96,7 +96,7 @@
   letter-spacing: -0.01em;
   line-height: 1.3;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-sheet__desc {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sheet__desc {
   margin: 0;
   font-size: var(--st-font-size-sm);
   color: var(--st-text-secondary);
@@ -104,7 +104,7 @@
 }
 
 /* ----- Footer ----- */
-:is(.\32 0ui, .sabcrm-twenty) .u-sheet__footer {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sheet__footer {
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -131,28 +131,28 @@
 }
 
 /* Slide-in / slide-out per side — the panel grows out of its anchored edge. */
-:is(.\32 0ui, .sabcrm-twenty) .u-sheet[data-side='right'][data-state='open'] {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sheet[data-side='right'][data-state='open'] {
   animation: u-sheet-in-right var(--u-dur-slow) var(--u-ease-out);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-sheet[data-side='right'][data-state='closed'] {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sheet[data-side='right'][data-state='closed'] {
   animation: u-sheet-out-right var(--u-dur) var(--u-ease-out);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-sheet[data-side='left'][data-state='open'] {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sheet[data-side='left'][data-state='open'] {
   animation: u-sheet-in-left var(--u-dur-slow) var(--u-ease-out);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-sheet[data-side='left'][data-state='closed'] {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sheet[data-side='left'][data-state='closed'] {
   animation: u-sheet-out-left var(--u-dur) var(--u-ease-out);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-sheet[data-side='top'][data-state='open'] {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sheet[data-side='top'][data-state='open'] {
   animation: u-sheet-in-top var(--u-dur-slow) var(--u-ease-out);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-sheet[data-side='top'][data-state='closed'] {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sheet[data-side='top'][data-state='closed'] {
   animation: u-sheet-out-top var(--u-dur) var(--u-ease-out);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-sheet[data-side='bottom'][data-state='open'] {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sheet[data-side='bottom'][data-state='open'] {
   animation: u-sheet-in-bottom var(--u-dur-slow) var(--u-ease-out);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-sheet[data-side='bottom'][data-state='closed'] {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sheet[data-side='bottom'][data-state='closed'] {
   animation: u-sheet-out-bottom var(--u-dur) var(--u-ease-out);
 }
 
@@ -239,10 +239,10 @@
 
 /* ===== Reduced motion: fade only, no movement ===== */
 @media (prefers-reduced-motion: reduce) {
-  :is(.\32 0ui, .sabcrm-twenty) .u-sheet[data-state='open'] {
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sheet[data-state='open'] {
     animation: u-sheet-overlay-in var(--u-dur-fast) ease;
   }
-  :is(.\32 0ui, .sabcrm-twenty) .u-sheet[data-state='closed'] {
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-sheet[data-state='closed'] {
     animation: u-sheet-overlay-out var(--u-dur-fast) ease;
   }
 }

@@ -1,10 +1,10 @@
 /* 20ui · Calendar · DatePicker
    react-day-picker v9, fully skinned with --st-* / --u-* tokens. Every selector
-   is scoped under :is(.\32 0ui, .sabcrm-twenty) so it works app-wide and inside the
+   is scoped under :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) so it works app-wide and inside the
    CRM. The popover mounts to document.body carrying both root classes. */
 
 /* ── Calendar ──────────────────────────────────────────────────────────── */
-:is(.\32 0ui, .sabcrm-twenty) .u-cal {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cal {
   --rdp-cell: 34px;
   display: inline-block;
   padding: var(--st-space-2);
@@ -12,19 +12,19 @@
   font-family: var(--st-font);
   font-size: var(--st-font-size);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-cal__months {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cal__months {
   position: relative;
   display: flex;
   gap: var(--st-space-4);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-cal__month {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cal__month {
   display: flex;
   flex-direction: column;
 }
 
 /* Caption + navigation. The whole month section is `position: relative` so the
    nav can sit on the caption row at either edge. */
-:is(.\32 0ui, .sabcrm-twenty) .u-cal__caption {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cal__caption {
   position: relative;
   display: flex;
   align-items: center;
@@ -32,19 +32,19 @@
   height: 30px;
   margin-bottom: var(--st-space-2);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-cal__caption-label {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cal__caption-label {
   font-size: var(--st-font-size);
   font-weight: var(--st-fw-semibold);
   color: var(--st-text);
 }
 
 /* ----- Month + year dropdowns (captionLayout="dropdown") ----- */
-:is(.\32 0ui, .sabcrm-twenty) .u-cal__dropdowns {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cal__dropdowns {
   display: inline-flex;
   align-items: center;
   gap: var(--st-space-1);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-cal__dropdown-root {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cal__dropdown-root {
   position: relative;
   display: inline-flex;
   align-items: center;
@@ -52,7 +52,7 @@
 }
 /* The native <select> sits invisibly over its label, capturing the click +
    keyboard while the styled label below shows the value. */
-:is(.\32 0ui, .sabcrm-twenty) .u-cal__dropdown {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cal__dropdown {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -66,7 +66,7 @@
   appearance: none;
 }
 /* The visible value, styled as a quiet hoverable pill with the down chevron. */
-:is(.\32 0ui, .sabcrm-twenty) .u-cal__dropdown-root .u-cal__caption-label {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cal__dropdown-root .u-cal__caption-label {
   display: inline-flex;
   align-items: center;
   gap: 1px;
@@ -76,20 +76,20 @@
   cursor: pointer;
   transition: background var(--u-dur-fast) var(--u-ease-out);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-cal__dropdown-root:hover .u-cal__caption-label {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cal__dropdown-root:hover .u-cal__caption-label {
   background: var(--st-hover);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-cal__dropdown:focus-visible + .u-cal__caption-label {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cal__dropdown:focus-visible + .u-cal__caption-label {
   outline: none;
   box-shadow: var(--u-focus-ring);
 }
 /* The native option list inherits the OS menu, but force readable colours so
    the dropdown is legible in dark mode too. */
-:is(.\32 0ui, .sabcrm-twenty) .u-cal__dropdown option {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cal__dropdown option {
   background: var(--st-bg);
   color: var(--st-text);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-cal__nav {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cal__nav {
   position: absolute;
   /* Pin the prev/next arrows to the caption row (height of .u-cal__caption),
      not the full month box, so they flank the month/year dropdowns instead of
@@ -103,7 +103,7 @@
   justify-content: space-between;
   pointer-events: none;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-cal__nav-btn {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cal__nav-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -121,30 +121,30 @@
     color var(--u-dur-fast) var(--u-ease-out),
     transform var(--u-dur-fast) var(--u-ease-out);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-cal__nav-btn:hover:not(:disabled) {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cal__nav-btn:hover:not(:disabled) {
   background: var(--st-hover);
   color: var(--st-text);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-cal__nav-btn:active:not(:disabled) {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cal__nav-btn:active:not(:disabled) {
   transform: scale(0.94);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-cal__nav-btn:disabled {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cal__nav-btn:disabled {
   color: var(--st-text-tertiary);
   cursor: not-allowed;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-cal__nav-btn:focus-visible {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cal__nav-btn:focus-visible {
   outline: none;
   box-shadow: var(--u-focus-ring);
 }
 
 /* Grid + weekday header. */
-:is(.\32 0ui, .sabcrm-twenty) .u-cal__grid {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cal__grid {
   border-collapse: collapse;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-cal__weekdays {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cal__weekdays {
   display: flex;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-cal__weekday {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cal__weekday {
   width: var(--rdp-cell);
   height: 28px;
   font-size: var(--st-font-size-xs);
@@ -154,19 +154,19 @@
   text-transform: uppercase;
   letter-spacing: 0.03em;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-cal__week {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cal__week {
   display: flex;
 }
 
 /* Day cell — the `u-cal__day` is the grid cell, the `u-cal__day-btn` the
    pressable. Range middle tints the whole cell so the band reads continuous. */
-:is(.\32 0ui, .sabcrm-twenty) .u-cal__day {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cal__day {
   width: var(--rdp-cell);
   height: var(--rdp-cell);
   padding: 0;
   text-align: center;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-cal__day-btn {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cal__day-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -185,93 +185,93 @@
     color var(--u-dur-fast) var(--u-ease-out),
     transform var(--u-dur-fast) var(--u-ease-out);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-cal__day-btn:hover {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cal__day-btn:hover {
   background: var(--st-hover);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-cal__day-btn:active {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cal__day-btn:active {
   transform: scale(0.92);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-cal__day-btn:focus-visible {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cal__day-btn:focus-visible {
   outline: none;
   box-shadow: var(--u-focus-ring);
 }
 
 /* Today — accent ring, no fill (so it composes with hover + selection). */
-:is(.\32 0ui, .sabcrm-twenty) .u-cal__day--today .u-cal__day-btn {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cal__day--today .u-cal__day-btn {
   font-weight: var(--st-fw-semibold);
   color: var(--st-accent);
   box-shadow: inset 0 0 0 1px var(--st-accent);
 }
 
 /* Outside / disabled / hidden. */
-:is(.\32 0ui, .sabcrm-twenty) .u-cal__day--outside .u-cal__day-btn {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cal__day--outside .u-cal__day-btn {
   color: var(--st-text-tertiary);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-cal__day--disabled .u-cal__day-btn {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cal__day--disabled .u-cal__day-btn {
   color: var(--st-text-tertiary);
   cursor: not-allowed;
   opacity: 0.5;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-cal__day--disabled .u-cal__day-btn:hover {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cal__day--disabled .u-cal__day-btn:hover {
   background: transparent;
   transform: none;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-cal__day--hidden {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cal__day--hidden {
   visibility: hidden;
 }
 
 /* Selected (single) — accent fill, white numeral. Overrides today's ring. */
-:is(.\32 0ui, .sabcrm-twenty) .u-cal__day--selected .u-cal__day-btn {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cal__day--selected .u-cal__day-btn {
   background: var(--st-accent);
   color: #fff;
   font-weight: var(--st-fw-semibold);
   box-shadow: none;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-cal__day--selected .u-cal__day-btn:hover {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cal__day--selected .u-cal__day-btn:hover {
   background: var(--st-accent-hover);
 }
 
 /* Range — soft band across the middle, solid accent caps on the ends. */
-:is(.\32 0ui, .sabcrm-twenty) .u-cal__day--range-middle {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cal__day--range-middle {
   background: var(--st-accent-soft);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-cal__day--range-middle .u-cal__day-btn {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cal__day--range-middle .u-cal__day-btn {
   background: transparent;
   color: var(--st-accent-hover);
   border-radius: 0;
   box-shadow: none;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-cal__day--range-middle .u-cal__day-btn:hover {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cal__day--range-middle .u-cal__day-btn:hover {
   background: var(--st-active);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-cal__day--range-start {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cal__day--range-start {
   background: linear-gradient(90deg, transparent 50%, var(--st-accent-soft) 50%);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-cal__day--range-end {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cal__day--range-end {
   background: linear-gradient(90deg, var(--st-accent-soft) 50%, transparent 50%);
 }
 /* A start that is also the end (single-day range) needs no band. */
-:is(.\32 0ui, .sabcrm-twenty) .u-cal__day--range-start.u-cal__day--range-end {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cal__day--range-start.u-cal__day--range-end {
   background: transparent;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-cal__day--range-start .u-cal__day-btn,
-:is(.\32 0ui, .sabcrm-twenty) .u-cal__day--range-end .u-cal__day-btn {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cal__day--range-start .u-cal__day-btn,
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cal__day--range-end .u-cal__day-btn {
   background: var(--st-accent);
   color: #fff;
   font-weight: var(--st-fw-semibold);
   box-shadow: none;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-cal__day--range-start .u-cal__day-btn:hover,
-:is(.\32 0ui, .sabcrm-twenty) .u-cal__day--range-end .u-cal__day-btn:hover {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cal__day--range-start .u-cal__day-btn:hover,
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cal__day--range-end .u-cal__day-btn:hover {
   background: var(--st-accent-hover);
 }
 
 /* ── DatePicker trigger ─────────────────────────────────────────────────── */
-:is(.\32 0ui, .sabcrm-twenty) .u-datepicker {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-datepicker {
   display: inline-block;
   width: 100%;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-datepicker__trigger {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-datepicker__trigger {
   display: inline-flex;
   align-items: center;
   gap: var(--st-space-2);
@@ -291,24 +291,24 @@
     border-color var(--u-dur-fast) var(--u-ease-out),
     box-shadow var(--u-dur-fast) var(--u-ease-out);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-datepicker__trigger:hover:not(:disabled) {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-datepicker__trigger:hover:not(:disabled) {
   border-color: var(--st-border-strong);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-datepicker__trigger:focus-visible,
-:is(.\32 0ui, .sabcrm-twenty) .u-datepicker__trigger[aria-expanded='true'] {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-datepicker__trigger:focus-visible,
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-datepicker__trigger[aria-expanded='true'] {
   border-color: var(--st-accent);
   box-shadow: 0 0 0 3px var(--st-accent-soft);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-datepicker__trigger:disabled {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-datepicker__trigger:disabled {
   background: var(--st-bg-secondary);
   color: var(--st-text-tertiary);
   cursor: not-allowed;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-datepicker__icon {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-datepicker__icon {
   flex: 0 0 auto;
   color: var(--st-text-tertiary);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-datepicker__value {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-datepicker__value {
   flex: 1 1 auto;
   min-width: 0;
   overflow: hidden;
@@ -316,20 +316,20 @@
   text-overflow: ellipsis;
 }
 /* Placeholder colour when nothing is chosen (data-placeholder set on trigger). */
-:is(.\32 0ui, .sabcrm-twenty) .u-datepicker__trigger[data-placeholder] .u-datepicker__value {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-datepicker__trigger[data-placeholder] .u-datepicker__value {
   color: var(--st-text-tertiary);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-datepicker__caret {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-datepicker__caret {
   flex: 0 0 auto;
   color: var(--st-text-tertiary);
   transition: transform var(--u-dur) var(--u-ease-out);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-datepicker__trigger[aria-expanded='true'] .u-datepicker__caret {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-datepicker__trigger[aria-expanded='true'] .u-datepicker__caret {
   transform: rotate(180deg);
 }
 
 /* ── Popover surface (mounts on document.body via StPortalPopover) ──────── */
-:is(.\32 0ui, .sabcrm-twenty) .u-datepicker__pop {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-datepicker__pop {
   padding: var(--st-space-2);
   border: 1px solid var(--st-border);
   border-radius: var(--st-radius-lg);
@@ -338,7 +338,7 @@
   transform-origin: top center;
   animation: u-datepicker-in var(--u-dur) var(--u-ease-out);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-datepicker__pop[data-placement='top'] {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-datepicker__pop[data-placement='top'] {
   transform-origin: bottom center;
 }
 
@@ -355,16 +355,16 @@
 
 /* ── Reduced motion ─────────────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
-  :is(.\32 0ui, .sabcrm-twenty) .u-datepicker__pop {
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-datepicker__pop {
     animation: none;
   }
-  :is(.\32 0ui, .sabcrm-twenty) .u-datepicker__caret,
-  :is(.\32 0ui, .sabcrm-twenty) .u-cal__nav-btn,
-  :is(.\32 0ui, .sabcrm-twenty) .u-cal__day-btn {
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-datepicker__caret,
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cal__nav-btn,
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cal__day-btn {
     transition: none;
   }
-  :is(.\32 0ui, .sabcrm-twenty) .u-cal__nav-btn:active:not(:disabled),
-  :is(.\32 0ui, .sabcrm-twenty) .u-cal__day-btn:active {
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cal__nav-btn:active:not(:disabled),
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cal__day-btn:active {
     transform: none;
   }
 }

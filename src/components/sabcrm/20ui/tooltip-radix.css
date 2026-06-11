@@ -2,12 +2,12 @@
 
 /* The portal wrapper only exists to scope tokens in the body portal; it must
    not interfere with Radix's fixed positioning of the bubble. */
-:is(.\32 0ui, .sabcrm-twenty).u-tip__portal {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root).u-tip__portal {
   display: contents;
 }
 
 /* ----- Bubble ----- */
-:is(.\32 0ui, .sabcrm-twenty) .u-tip {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tip {
   z-index: 1100;
   max-width: 260px;
   padding: 5px 8px;
@@ -32,30 +32,30 @@
 }
 
 /* ----- Arrow ----- */
-:is(.\32 0ui, .sabcrm-twenty) .u-tip__arrow {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tip__arrow {
   fill: var(--st-text);
 }
 
 /* ----- Entrance (Emil: transform + opacity only, < 200ms, eased) ----- */
-:is(.\32 0ui, .sabcrm-twenty) .u-tip[data-state='delayed-open'],
-:is(.\32 0ui, .sabcrm-twenty) .u-tip[data-state='instant-open'] {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tip[data-state='delayed-open'],
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tip[data-state='instant-open'] {
   animation: u-tip-in var(--u-dur-fast) var(--u-ease-out);
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-tip[data-state='closed'] {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tip[data-state='closed'] {
   animation: u-tip-out var(--u-dur-fast) var(--u-ease-out);
 }
 
 /* Directional nudge: lean in from the anchored side, then settle. */
-:is(.\32 0ui, .sabcrm-twenty) .u-tip[data-side='top'] {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tip[data-side='top'] {
   animation-name: u-tip-in-top;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-tip[data-side='bottom'] {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tip[data-side='bottom'] {
   animation-name: u-tip-in-bottom;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-tip[data-side='left'] {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tip[data-side='left'] {
   animation-name: u-tip-in-left;
 }
-:is(.\32 0ui, .sabcrm-twenty) .u-tip[data-side='right'] {
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tip[data-side='right'] {
   animation-name: u-tip-in-right;
 }
 
@@ -122,13 +122,13 @@
 
 /* Reduced motion: fade only, no movement or scale. */
 @media (prefers-reduced-motion: reduce) {
-  :is(.\32 0ui, .sabcrm-twenty) .u-tip[data-state='delayed-open'],
-  :is(.\32 0ui, .sabcrm-twenty) .u-tip[data-state='instant-open'],
-  :is(.\32 0ui, .sabcrm-twenty) .u-tip[data-state='closed'],
-  :is(.\32 0ui, .sabcrm-twenty) .u-tip[data-side='top'],
-  :is(.\32 0ui, .sabcrm-twenty) .u-tip[data-side='bottom'],
-  :is(.\32 0ui, .sabcrm-twenty) .u-tip[data-side='left'],
-  :is(.\32 0ui, .sabcrm-twenty) .u-tip[data-side='right'] {
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tip[data-state='delayed-open'],
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tip[data-state='instant-open'],
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tip[data-state='closed'],
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tip[data-side='top'],
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tip[data-side='bottom'],
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tip[data-side='left'],
+  :is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-tip[data-side='right'] {
     animation: u-tip-fade var(--u-dur-fast) ease;
   }
   @keyframes u-tip-fade {
