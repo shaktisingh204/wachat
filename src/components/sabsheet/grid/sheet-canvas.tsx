@@ -127,6 +127,10 @@ export interface SheetCanvasHandle {
   setConditionalFormats(rules: CFRule[]): Promise<void>;
   /** Replace the data-validation rule set (list dropdowns in the editor). */
   setDataValidations(rules: DataValidationRule[]): Promise<void>;
+  /** Hide the given 1-based rows (auto-filter); restores any previously filtered rows first. */
+  applyRowFilter(hiddenRows: number[]): Promise<void>;
+  /** Restore all filter-hidden rows. */
+  clearRowFilter(): Promise<void>;
 }
 
 export const SheetCanvas = forwardRef<SheetCanvasHandle, SheetCanvasProps>(function SheetCanvas(
@@ -154,6 +158,8 @@ export const SheetCanvas = forwardRef<SheetCanvasHandle, SheetCanvasProps>(funct
   const cfRef = useRef<CFRule[]>([]);
   /** Data-validation rules (list dropdowns in the cell editor). */
   const valRef = useRef<DataValidationRule[]>([]);
+  /** Rows currently hidden by the auto-filter (1-based), so they can be restored. */
+  const filterHiddenRef = useRef<number[]>([]);
 
   const [editing, setEditing] = useState<EditState | null>(null);
   const [ready, setReady] = useState(false);
@@ -427,6 +433,18 @@ export const SheetCanvas = forwardRef<SheetCanvasHandle, SheetCanvasProps>(funct
       },
       async setDataValidations(rules: DataValidationRule[]) {
         valRef.current = rules;
+      },
+      async applyRowFilter(hiddenRows: number[]) {
+        // Restore previously filtered rows, then hide the new set (client-side via AxisIndex size 0).
+        for (const r of filterHiddenRef.current) rows.resetSize(r - 1);
+        for (const r of hiddenRows) rows.setSize(r - 1, 0);
+        filterHiddenRef.current = hiddenRows;
+        await refresh();
+      },
+      async clearRowFilter() {
+        for (const r of filterHiddenRef.current) rows.resetSize(r - 1);
+        filterHiddenRef.current = [];
+        await refresh();
       },
     }),
     [applyLocal, refresh, emitSelection, switchSheet, syncSheets, syncFrozen, setSelection, cols, rows],

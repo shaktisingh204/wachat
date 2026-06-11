@@ -18,6 +18,7 @@ import { ChartPanel } from "./charts/chart-panel.tsx";
 import { PivotPanel } from "./pivot/pivot-panel.tsx";
 import { CFormatPanel } from "./chrome/cformat-panel.tsx";
 import { ValidationPanel } from "./chrome/validation-panel.tsx";
+import { FilterPanel } from "./chrome/filter-panel.tsx";
 import type { CFRule } from "../../lib/sabsheet/cformat/types.ts";
 import type { DataValidationRule } from "../../lib/sabsheet/validation/types.ts";
 import { exportXlsxAction } from "../../app/actions/sabsheet-ops.actions.ts";
@@ -54,7 +55,7 @@ export function Workbench({ name, workbookId, seed }: WorkbenchProps) {
   const [chartSel, setChartSel] = useState<{ cells: CellView[]; box: { top: number; left: number; bottom: number; right: number }; sheet: number } | null>(null);
 
   const openPanel = useCallback(async (p: SheetPanel) => {
-    if (p === "charts" || p === "pivot" || p === "cformat" || p === "validation") {
+    if (p === "charts" || p === "pivot" || p === "cformat" || p === "validation" || p === "filter") {
       const sel = await gridRef.current?.getSelection();
       setChartSel(sel ?? null);
     }
@@ -208,6 +209,15 @@ export function Workbench({ name, workbookId, seed }: WorkbenchProps) {
             box={chartSel.box}
             onClose={closePanel}
             onRulesChange={onValidationChange}
+          />
+        )}
+        {panel === "filter" && chartSel && (
+          <FilterPanel
+            cells={chartSel.cells}
+            box={chartSel.box}
+            onApply={(hidden) => void gridRef.current?.applyRowFilter(hidden)}
+            onClear={() => void gridRef.current?.clearRowFilter()}
+            onClose={closePanel}
           />
         )}
       </div>

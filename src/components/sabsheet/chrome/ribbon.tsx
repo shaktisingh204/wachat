@@ -10,7 +10,7 @@ import { useState } from "react";
 import { StylePath } from "../../../lib/sabsheet/commands/ops.ts";
 import type { SheetCanvasHandle } from "../grid/sheet-canvas.tsx";
 
-export type SheetPanel = "ai" | "connections" | "charts" | "forms" | "pivot" | "cformat" | "validation";
+export type SheetPanel = "ai" | "connections" | "charts" | "forms" | "pivot" | "cformat" | "validation" | "filter";
 
 export interface RibbonProps {
   grid: React.RefObject<SheetCanvasHandle | null>;
@@ -157,7 +157,7 @@ export function Ribbon({ grid, onExportXlsx, onOpenPanel, onPrint }: RibbonProps
             <Group label="Sort & Filter">
               <Btn title="Sort A→Z" onClick={() => void g()?.sortSelection(true)}>Sort A↓</Btn>
               <Btn title="Sort Z→A" onClick={() => void g()?.sortSelection(false)}>Sort Z↓</Btn>
-              <Btn title="Filter — coming soon" disabled>Filter</Btn>
+              <Btn title="Filter the selected range" disabled={!onOpenPanel} onClick={() => onOpenPanel?.("filter")}>Filter</Btn>
             </Group>
             <Group label="Data Tools">
               <Btn title="Find & Replace" onClick={() => setFindOpen((v) => !v)}>Find & Replace</Btn>
