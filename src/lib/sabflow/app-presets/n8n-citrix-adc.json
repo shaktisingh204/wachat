@@ -4,28 +4,338 @@
   "description": "Consume Netscaler ADC API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 2,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
-    "type": "header",
-    "credentialType": "http_header_auth"
+    "type": "bearer",
+    "credentialType": "citrix_adc",
+    "baseUrlFromCredential": "baseUrl"
   },
   "baseUrl": "",
   "endpoints": [
     {
-      "id": "certificate_default",
-      "label": "List Certificate",
-      "method": "GET",
-      "path": "/certificate",
-      "fields": []
+      "id": "certificate_create",
+      "label": "Create Certificate",
+      "method": "POST",
+      "path": "/config/sslcert?action=create",
+      "fields": [
+        {
+          "id": "certificateFileName",
+          "label": "Certificate File Name",
+          "type": "text",
+          "required": true,
+          "description": "Name for and, optionally, path to the generated certificate file. /nsconfig/ssl/ is the default path."
+        },
+        {
+          "id": "certificateFormat",
+          "label": "Certificate Format",
+          "type": "select",
+          "required": true,
+          "description": "Format in which the certificate is stored on the appliance",
+          "defaultValue": "PEM",
+          "options": [
+            {
+              "value": "PEM",
+              "label": "PEM"
+            },
+            {
+              "value": "DER",
+              "label": "DER"
+            }
+          ]
+        },
+        {
+          "id": "certificateType",
+          "label": "Certificate Type",
+          "type": "select",
+          "required": true,
+          "defaultValue": "ROOT_CERT",
+          "options": [
+            {
+              "value": "ROOT_CERT",
+              "label": "Root-CA"
+            },
+            {
+              "value": "INTM_CERT",
+              "label": "Intermediate-CA"
+            },
+            {
+              "value": "SRVR_CERT",
+              "label": "Server"
+            },
+            {
+              "value": "CLNT_CERT",
+              "label": "Client"
+            }
+          ]
+        },
+        {
+          "id": "certificateRequestFileName",
+          "label": "Certificate Request File Name",
+          "type": "text",
+          "required": true,
+          "description": "Name for and, optionally, path to the certificate-signing request (CSR). /nsconfig/ssl/ is the default path."
+        },
+        {
+          "id": "caCertificateFileName",
+          "label": "CA Certificate File Name",
+          "type": "text",
+          "required": true,
+          "description": "Name of the CA certificate file that issues and signs the Intermediate-CA certificate or the end-user client and server certificates"
+        },
+        {
+          "id": "caCertificateFileFormat",
+          "label": "CA Certificate File Format",
+          "type": "select",
+          "required": true,
+          "description": "Format of the CA certificate",
+          "defaultValue": "PEM",
+          "options": [
+            {
+              "value": "PEM",
+              "label": "PEM"
+            },
+            {
+              "value": "DER",
+              "label": "DER"
+            }
+          ]
+        },
+        {
+          "id": "caPrivateKeyFileName",
+          "label": "CA Private Key File Name",
+          "type": "text",
+          "required": true,
+          "description": "Private key, associated with the CA certificate that is used to sign the Intermediate-CA certificate or the end-user client and server certificate. If the CA key file is password protected, the user is prompted to enter the pass phrase that was used to encrypt the key."
+        },
+        {
+          "id": "caPrivateKeyFileFormat",
+          "label": "CA Private Key File Format",
+          "type": "select",
+          "required": true,
+          "description": "Format of the CA certificate",
+          "defaultValue": "PEM",
+          "options": [
+            {
+              "value": "PEM",
+              "label": "PEM"
+            },
+            {
+              "value": "DER",
+              "label": "DER"
+            }
+          ]
+        },
+        {
+          "id": "privateKeyFileName",
+          "label": "Private Key File Name",
+          "type": "text",
+          "required": true,
+          "description": "Name for and, optionally, path to the private key. You can either use an existing RSA or DSA key that you own or create a new private key on the Netscaler ADC. This file is required only when creating a self-signed Root-CA certificate. The key file is stored in the /nsconfig/ssl directory by default."
+        },
+        {
+          "id": "caSerialFileNumber",
+          "label": "CA Serial File Number",
+          "type": "text",
+          "required": true,
+          "description": "Serial number file maintained for the CA certificate. This file contains the serial number of the next certificate to be issued or signed by the CA."
+        },
+        {
+          "id": "privateKeyFormat",
+          "label": "Private Key Format",
+          "type": "select",
+          "required": true,
+          "description": "Format in which the key is stored on the appliance",
+          "defaultValue": "PEM",
+          "options": [
+            {
+              "value": "PEM",
+              "label": "PEM"
+            },
+            {
+              "value": "DER",
+              "label": "DER"
+            }
+          ]
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: pempassphrase, subjectaltname, days)"
+        }
+      ],
+      "group": "Certificate",
+      "description": "Create a certificate"
     },
     {
-      "id": "file_default",
-      "label": "List File",
+      "id": "certificate_install",
+      "label": "Install Certificate",
+      "method": "POST",
+      "path": "/config/sslcertkey",
+      "fields": [
+        {
+          "id": "certificateKeyPairName",
+          "label": "Certificate-Key Pair Name",
+          "type": "text",
+          "required": true,
+          "description": "Name for the certificate and private-key pair"
+        },
+        {
+          "id": "certificateFileName",
+          "label": "Certificate File Name",
+          "type": "text",
+          "required": true,
+          "description": "Name of and, optionally, path to the X509 certificate file that is used to form the certificate-key pair. /nsconfig/ssl/ is the default path."
+        },
+        {
+          "id": "privateKeyFileName",
+          "label": "Private Key File Name",
+          "type": "text",
+          "required": true,
+          "description": "Name of and, optionally, path to the X509 certificate file that is used to form the certificate-key pair. /nsconfig/ssl/ is the default path."
+        },
+        {
+          "id": "certificateFormat",
+          "label": "Certificate Format",
+          "type": "select",
+          "required": true,
+          "description": "Input format of the certificate and the private-key files. The three formats supported by the appliance are: PEM - Privacy Enhanced Mail DER - Distinguished Encoding Rule PFX - Personal Information Exchange.",
+          "defaultValue": "PEM",
+          "options": [
+            {
+              "value": "PEM",
+              "label": "PEM"
+            },
+            {
+              "value": "DER",
+              "label": "DER"
+            }
+          ]
+        },
+        {
+          "id": "password",
+          "label": "Password",
+          "type": "password",
+          "required": true,
+          "description": "Input format of the certificate and the private-key files. The three formats supported by the appliance are: PEM - Privacy Enhanced Mail DER - Distinguished Encoding Rule PFX - Personal Information Exchange."
+        },
+        {
+          "id": "notifyExpiration",
+          "label": "Notify When Expires",
+          "type": "toggle",
+          "required": true,
+          "description": "Whether to alert when the certificate is about to expire",
+          "defaultValue": false
+        },
+        {
+          "id": "notificationPeriod",
+          "label": "Notification Period (Days)",
+          "type": "number",
+          "required": true,
+          "description": "Time, in number of days, before certificate expiration, at which to generate an alert that the certificate is about to expire",
+          "defaultValue": 10
+        },
+        {
+          "id": "certificateBundle",
+          "label": "Certificate Bundle",
+          "type": "toggle",
+          "description": "Whether to parse the certificate chain as a single file after linking the server certificate to its issuer's certificate within the file",
+          "defaultValue": false
+        }
+      ],
+      "group": "Certificate",
+      "description": "Install a certificate"
+    },
+    {
+      "id": "file_delete",
+      "label": "Delete File",
+      "method": "DELETE",
+      "path": "/file",
+      "fields": [
+        {
+          "id": "fileLocation",
+          "label": "File Location",
+          "type": "text",
+          "required": true,
+          "defaultValue": "/nsconfig/ssl/"
+        },
+        {
+          "id": "fileName",
+          "label": "File Name",
+          "type": "text",
+          "required": true,
+          "description": "Name of the file. It should not include filepath."
+        }
+      ],
+      "group": "File",
+      "description": "[unverified path] Delete a file"
+    },
+    {
+      "id": "file_download",
+      "label": "Download File",
       "method": "GET",
       "path": "/file",
-      "fields": []
+      "fields": [
+        {
+          "id": "fileLocation",
+          "label": "File Location",
+          "type": "text",
+          "required": true,
+          "defaultValue": "/nsconfig/ssl/"
+        },
+        {
+          "id": "fileName",
+          "label": "File Name",
+          "type": "text",
+          "required": true,
+          "description": "Name of the file. It should not include filepath."
+        },
+        {
+          "id": "binaryProperty",
+          "label": "Put Output in Field",
+          "type": "text",
+          "required": true,
+          "description": "The name of the output field to put the binary file data in",
+          "defaultValue": "data"
+        }
+      ],
+      "group": "File",
+      "description": "[unverified path] Download a file"
+    },
+    {
+      "id": "file_upload",
+      "label": "Upload File",
+      "method": "POST",
+      "path": "/config/systemfile",
+      "fields": [
+        {
+          "id": "fileLocation",
+          "label": "File Location",
+          "type": "text",
+          "required": true,
+          "defaultValue": "/nsconfig/ssl/"
+        },
+        {
+          "id": "binaryProperty",
+          "label": "Input Data Field Name",
+          "type": "text",
+          "required": true,
+          "description": "The name of the incoming field containing the binary file data to be processed",
+          "defaultValue": "data"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: fileName)"
+        }
+      ],
+      "group": "File",
+      "description": "Upload a file"
     }
   ]
 }

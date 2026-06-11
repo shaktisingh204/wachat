@@ -30,6 +30,19 @@ export type AppPresetAuth = {
   scheme?: string;
   /** Query-string parameter name when `type === 'query_token'`. */
   queryParam?: string;
+  /**
+   * Credential data key holding the instance base URL (self-hosted apps,
+   * e.g. `'baseUrl'`). When set and the preset's `baseUrl` is empty (or a
+   * placeholder), the dispatcher resolves the base URL from the connected
+   * credential at run time — see `resolvePresetBaseUrl` in `runtime/exec.ts`.
+   */
+  baseUrlFromCredential?: string;
+  /**
+   * AWS service endpoint prefix for `type === 'aws_sigv4'` presets. The host
+   * is templated as `{awsService}.{region}.amazonaws.com` with `region` read
+   * from the credential data (default `us-east-1`).
+   */
+  awsService?: string;
 };
 
 /** Renderable input types — superset must remain compatible with `ForgeFieldType`. */

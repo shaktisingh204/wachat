@@ -4,35 +4,397 @@
   "description": "Consume Zulip API",
   "category": "communication",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 2,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
-    "type": "header",
-    "credentialType": "http_header_auth"
+    "type": "bearer",
+    "credentialType": "zulip",
+    "baseUrlFromCredential": "baseUrl"
   },
   "baseUrl": "",
   "endpoints": [
     {
-      "id": "message_default",
-      "label": "List Message",
-      "method": "GET",
-      "path": "/message",
-      "fields": []
+      "id": "message_delete",
+      "label": "Delete Message",
+      "method": "DELETE",
+      "path": "/messages/{messageId}",
+      "fields": [
+        {
+          "id": "messageId",
+          "label": "Message ID",
+          "type": "text",
+          "required": true,
+          "description": "Unique identifier for the message",
+          "in": "path"
+        }
+      ],
+      "group": "Message",
+      "description": "Delete a message"
     },
     {
-      "id": "stream_default",
-      "label": "List Stream",
+      "id": "message_get",
+      "label": "Get Message",
       "method": "GET",
-      "path": "/stream",
-      "fields": []
+      "path": "/messages/{messageId}",
+      "fields": [
+        {
+          "id": "messageId",
+          "label": "Message ID",
+          "type": "text",
+          "required": true,
+          "description": "Unique identifier for the message",
+          "in": "path"
+        }
+      ],
+      "group": "Message",
+      "description": "Get a message"
     },
     {
-      "id": "user_default",
-      "label": "List User",
+      "id": "message_send_private",
+      "label": "Send Private Message",
+      "method": "POST",
+      "path": "/messages",
+      "fields": [
+        {
+          "id": "to",
+          "label": "To",
+          "type": "select",
+          "required": true,
+          "description": "The destination stream, or a comma-separated list containing the usernames (emails) of the recipients. Choose from the list, or specify IDs using an expression. (multiple values: comma-separated)"
+        },
+        {
+          "id": "content",
+          "label": "Content",
+          "type": "text",
+          "required": true,
+          "description": "The content of the message"
+        }
+      ],
+      "group": "Message",
+      "description": "Send a private message"
+    },
+    {
+      "id": "message_send_stream",
+      "label": "Send to Stream Message",
+      "method": "POST",
+      "path": "/messages",
+      "fields": [
+        {
+          "id": "stream",
+          "label": "Stream Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The destination stream, or a comma-separated list containing the usernames (emails) of the recipients. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "topic",
+          "label": "Topic Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The topic of the message. Only required if type is stream, ignored otherwise. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "content",
+          "label": "Content",
+          "type": "text",
+          "required": true,
+          "description": "The content of the message"
+        }
+      ],
+      "group": "Message",
+      "description": "Send a message to stream"
+    },
+    {
+      "id": "message_update",
+      "label": "Update Message",
+      "method": "PATCH",
+      "path": "/messages/{messageId}",
+      "fields": [
+        {
+          "id": "messageId",
+          "label": "Message ID",
+          "type": "text",
+          "required": true,
+          "description": "Unique identifier for the message",
+          "in": "path"
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: content, propagateMode, topic)"
+        }
+      ],
+      "group": "Message",
+      "description": "Update a message"
+    },
+    {
+      "id": "message_update_file",
+      "label": "Upload a File Message",
+      "method": "POST",
+      "path": "/user_uploads",
+      "fields": [
+        {
+          "id": "dataBinaryProperty",
+          "label": "Put Output File in Field",
+          "type": "text",
+          "required": true,
+          "defaultValue": "data"
+        }
+      ],
+      "group": "Message",
+      "description": "Upload a file"
+    },
+    {
+      "id": "stream_create",
+      "label": "Create Stream",
+      "method": "POST",
+      "path": "/users/me/subscriptions",
+      "fields": [
+        {
+          "id": "jsonParameters",
+          "label": "JSON Parameters",
+          "type": "toggle",
+          "defaultValue": false
+        },
+        {
+          "id": "additionalFieldsJson",
+          "label": "Additional Fields",
+          "type": "json",
+          "description": "JSON format parameters for stream creation"
+        },
+        {
+          "id": "subscriptions",
+          "label": "Subscriptions",
+          "type": "json",
+          "required": true,
+          "description": "A list of dictionaries containing the the key name and value specifying the name of the stream to subscribe. If the stream does not exist a new stream is created. (JSON object; supported keys: properties, properties.name, properties.description)"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: announce, authorizationErrorsFatal, historyPublicToSubscribers, inviteOnly, principals, streamPostPolicy)"
+        }
+      ],
+      "group": "Stream",
+      "description": "Create a stream"
+    },
+    {
+      "id": "stream_delete",
+      "label": "Delete Stream",
+      "method": "DELETE",
+      "path": "/streams/{streamId}",
+      "fields": [
+        {
+          "id": "streamId",
+          "label": "Stream ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of stream to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Stream",
+      "description": "Delete a stream"
+    },
+    {
+      "id": "stream_get_all",
+      "label": "Get Many Stream",
       "method": "GET",
-      "path": "/user",
-      "fields": []
+      "path": "/streams",
+      "fields": [
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: includeAllActive, includeDefault, includeOwnersubscribed, includePublic, includeSubscribed)"
+        }
+      ],
+      "group": "Stream",
+      "description": "Get many streams"
+    },
+    {
+      "id": "stream_get_subscribed",
+      "label": "Get Subscribed Stream",
+      "method": "GET",
+      "path": "/users/me/subscriptions",
+      "fields": [
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: includeSubscribers)"
+        }
+      ],
+      "group": "Stream",
+      "description": "Get subscribed streams"
+    },
+    {
+      "id": "stream_update",
+      "label": "Update Stream",
+      "method": "PATCH",
+      "path": "/streams/{streamId}",
+      "fields": [
+        {
+          "id": "streamId",
+          "label": "Stream ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of stream to update",
+          "in": "path"
+        },
+        {
+          "id": "jsonParameters",
+          "label": "JSON Parameters",
+          "type": "toggle",
+          "defaultValue": false
+        },
+        {
+          "id": "additionalFieldsJson",
+          "label": "Additional Fields",
+          "type": "json",
+          "description": "JSON format parameters for stream creation"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: isAnnouncementOnly, description, isPrivate, historyPublicToSubscribers, newName, streamPostPolicy)"
+        }
+      ],
+      "group": "Stream",
+      "description": "Update a stream"
+    },
+    {
+      "id": "user_create",
+      "label": "Create User",
+      "method": "POST",
+      "path": "/users",
+      "fields": [
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "required": true,
+          "placeholder": "name@email.com",
+          "description": "The email address of the new user"
+        },
+        {
+          "id": "fullName",
+          "label": "Full Name",
+          "type": "text",
+          "required": true,
+          "description": "The full name of the new user"
+        },
+        {
+          "id": "password",
+          "label": "Password",
+          "type": "password",
+          "required": true,
+          "description": "The password of the new user"
+        },
+        {
+          "id": "shortName",
+          "label": "Short Name",
+          "type": "text",
+          "required": true,
+          "description": "The short name of the new user. Not user-visible."
+        }
+      ],
+      "group": "User",
+      "description": "Create a user"
+    },
+    {
+      "id": "user_deactivate",
+      "label": "Deactivate User",
+      "method": "DELETE",
+      "path": "/users/{userId}",
+      "fields": [
+        {
+          "id": "userId",
+          "label": "User ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of user to deactivate",
+          "in": "path"
+        }
+      ],
+      "group": "User",
+      "description": "Deactivate a user"
+    },
+    {
+      "id": "user_get",
+      "label": "Get User",
+      "method": "GET",
+      "path": "/users/{userId}",
+      "fields": [
+        {
+          "id": "userId",
+          "label": "User ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of user to get",
+          "in": "path"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: clientGravatar, includeCustomProfileFields)"
+        }
+      ],
+      "group": "User",
+      "description": "Get a user"
+    },
+    {
+      "id": "user_get_all",
+      "label": "Get Many User",
+      "method": "GET",
+      "path": "/users",
+      "fields": [
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: clientGravatar, includeCustomProfileFields)"
+        }
+      ],
+      "group": "User",
+      "description": "Get many users"
+    },
+    {
+      "id": "user_update",
+      "label": "Update User",
+      "method": "PATCH",
+      "path": "/users/{userId}",
+      "fields": [
+        {
+          "id": "userId",
+          "label": "User ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of user to update",
+          "in": "path"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: fullName, isAdmin, isGuest, profileData, role)"
+        }
+      ],
+      "group": "User",
+      "description": "Update a user"
     }
   ]
 }

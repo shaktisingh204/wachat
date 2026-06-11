@@ -4,164 +4,632 @@
   "description": "Consume Mautic API",
   "category": "marketing",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 2,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
-    "type": "header",
-    "credentialType": "http_header_auth"
+    "type": "basic",
+    "credentialType": "mautic",
+    "baseUrlFromCredential": "baseUrl"
   },
   "baseUrl": "",
   "endpoints": [
     {
-      "id": "campaign_contact_default",
-      "label": "List CampaignContact",
-      "method": "GET",
-      "path": "/campaignContact",
+      "id": "company_create",
+      "label": "Create Company",
+      "method": "POST",
+      "path": "/companies/new",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "credentials",
-          "options": [
-            {
-              "value": "credentials",
-              "label": "Credentials"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
+          "id": "name",
+          "label": "Company Name",
+          "type": "text",
+          "description": "The name of the company to create"
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: addressUi, annualRevenue, companyEmail, customFieldsUi, description, fax, industry, isPublished, numberOfEmpoyees, overwriteWithBlank, phone, website)"
         }
-      ]
+      ],
+      "group": "Company",
+      "description": "Create a new company"
     },
     {
-      "id": "company_default",
-      "label": "List Company",
-      "method": "GET",
-      "path": "/company",
+      "id": "company_delete",
+      "label": "Delete Company",
+      "method": "DELETE",
+      "path": "/companies/{companyId}/delete",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "credentials",
-          "options": [
-            {
-              "value": "credentials",
-              "label": "Credentials"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
+          "id": "companyId",
+          "label": "Company ID",
+          "type": "text",
+          "description": "The ID of the company to delete",
+          "in": "path"
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
         }
-      ]
+      ],
+      "group": "Company",
+      "description": "Delete a company"
     },
     {
-      "id": "company_contact_default",
-      "label": "List CompanyContact",
+      "id": "company_get",
+      "label": "Get Company",
       "method": "GET",
-      "path": "/companyContact",
+      "path": "/companies/{companyId}",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "credentials",
-          "options": [
-            {
-              "value": "credentials",
-              "label": "Credentials"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
+          "id": "companyId",
+          "label": "Company ID",
+          "type": "text",
+          "description": "The ID of the company to return",
+          "in": "path"
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
         }
-      ]
+      ],
+      "group": "Company",
+      "description": "Get data of a company"
     },
     {
-      "id": "contact_default",
-      "label": "List Contact",
+      "id": "company_get_all",
+      "label": "Get Many Company",
       "method": "GET",
-      "path": "/contact",
+      "path": "/companies",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "credentials",
-          "options": [
-            {
-              "value": "credentials",
-              "label": "Credentials"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 30
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: orderByDir, orderBy, search)"
         }
-      ]
+      ],
+      "group": "Company",
+      "description": "Get data of many companies"
     },
     {
-      "id": "contact_segment_default",
-      "label": "List ContactSegment",
-      "method": "GET",
-      "path": "/contactSegment",
+      "id": "company_update",
+      "label": "Update Company",
+      "method": "PATCH",
+      "path": "/companies/{companyId}/edit",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "credentials",
-          "options": [
-            {
-              "value": "credentials",
-              "label": "Credentials"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
+          "id": "companyId",
+          "label": "Company ID",
+          "type": "text",
+          "description": "The ID of the company to update",
+          "in": "path"
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: addressUi, annualRevenue, companyEmail, name, customFieldsUi, description, fax, industry, isPublished, numberOfEmpoyees, overwriteWithBlank, phone, website)"
         }
-      ]
+      ],
+      "group": "Company",
+      "description": "Update a company"
     },
     {
-      "id": "segment_email_default",
-      "label": "List SegmentEmail",
-      "method": "GET",
-      "path": "/segmentEmail",
+      "id": "contact_create",
+      "label": "Create Contact",
+      "method": "POST",
+      "path": "/contacts/new",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
+          "id": "jsonParameters",
+          "label": "JSON Parameters",
+          "type": "toggle",
+          "defaultValue": false
+        },
+        {
+          "id": "email",
+          "label": "Email",
+          "type": "text",
+          "placeholder": "name@email.com",
+          "description": "Email address of the contact"
+        },
+        {
+          "id": "firstName",
+          "label": "First Name",
+          "type": "text"
+        },
+        {
+          "id": "lastName",
+          "label": "Last Name",
+          "type": "text"
+        },
+        {
+          "id": "company",
+          "label": "Primary Company Name or ID",
           "type": "select",
-          "in": "query",
-          "defaultValue": "credentials",
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "position",
+          "label": "Position",
+          "type": "text"
+        },
+        {
+          "id": "title",
+          "label": "Title",
+          "type": "text"
+        },
+        {
+          "id": "bodyJson",
+          "label": "Body",
+          "type": "json",
+          "description": "Contact parameters"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: addressUi, b2bOrb2c, crmId, customFieldsUi, fax, hasPurchased, ipAddress, lastActive, mobile, ownerId, phone, prospectOrCustomer, sandbox, stage, tags, socialMediaUi, website)"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: search, orderBy, orderByDir, publishedOnly, minimal, rawData)"
+        }
+      ],
+      "group": "Contact",
+      "description": "Create a new contact"
+    },
+    {
+      "id": "contact_delete",
+      "label": "Delete Contact",
+      "method": "DELETE",
+      "path": "/contacts/{contactId}/delete",
+      "fields": [
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "in": "path"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: search, orderBy, orderByDir, publishedOnly, minimal, rawData)"
+        }
+      ],
+      "group": "Contact",
+      "description": "Delete a contact"
+    },
+    {
+      "id": "contact_edit_contact_point",
+      "label": "Edit Contact Points Contact",
+      "method": "POST",
+      "path": "/contacts/{contactId}/points/{path}/{points}",
+      "fields": [
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "in": "path"
+        },
+        {
+          "id": "action",
+          "label": "Action",
+          "type": "select",
+          "defaultValue": "add",
           "options": [
             {
-              "value": "credentials",
-              "label": "Credentials"
+              "value": "add",
+              "label": "Add"
             },
             {
-              "value": "oAuth2",
-              "label": "OAuth2"
+              "value": "remove",
+              "label": "Remove"
             }
           ]
+        },
+        {
+          "id": "points",
+          "label": "Points",
+          "type": "number",
+          "defaultValue": 0,
+          "in": "path"
         }
-      ]
+      ],
+      "group": "Contact",
+      "description": "Edit contact's points"
+    },
+    {
+      "id": "contact_edit_do_not_contact_list",
+      "label": "Edit Do Not Contact List Contact",
+      "method": "POST",
+      "path": "/contacts/{contactId}/dnc/{channel}/{action}",
+      "fields": [
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "in": "path"
+        },
+        {
+          "id": "action",
+          "label": "Action",
+          "type": "select",
+          "defaultValue": "add",
+          "options": [
+            {
+              "value": "add",
+              "label": "Add"
+            },
+            {
+              "value": "remove",
+              "label": "Remove"
+            }
+          ],
+          "in": "path"
+        },
+        {
+          "id": "channel",
+          "label": "Channel",
+          "type": "select",
+          "required": true,
+          "defaultValue": "email",
+          "options": [
+            {
+              "value": "email",
+              "label": "Email"
+            },
+            {
+              "value": "sms",
+              "label": "SMS"
+            }
+          ],
+          "in": "path"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: reason, comments)"
+        }
+      ],
+      "group": "Contact",
+      "description": "Add/remove contacts from/to the do not contact list"
+    },
+    {
+      "id": "contact_get",
+      "label": "Get Contact",
+      "method": "GET",
+      "path": "/contacts/{contactId}",
+      "fields": [
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "in": "path"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: search, orderBy, orderByDir, publishedOnly, minimal, rawData)"
+        }
+      ],
+      "group": "Contact",
+      "description": "Get data of a contact"
+    },
+    {
+      "id": "contact_get_all",
+      "label": "Get Many Contact",
+      "method": "GET",
+      "path": "/contacts",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 30
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: search, orderBy, orderByDir, publishedOnly, minimal, rawData)"
+        }
+      ],
+      "group": "Contact",
+      "description": "Get data of many contacts"
+    },
+    {
+      "id": "contact_send_email",
+      "label": "Send Email Contact",
+      "method": "POST",
+      "path": "/emails/{campaignEmailId}/contact/{contactId}/send",
+      "fields": [
+        {
+          "id": "campaignEmailId",
+          "label": "Campaign Email Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        },
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Contact",
+      "description": "Send email to contact"
+    },
+    {
+      "id": "contact_update",
+      "label": "Update Contact",
+      "method": "PATCH",
+      "path": "/contacts/{contactId}/edit",
+      "fields": [
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "in": "path"
+        },
+        {
+          "id": "jsonParameters",
+          "label": "JSON Parameters",
+          "type": "toggle",
+          "defaultValue": false
+        },
+        {
+          "id": "updateFields",
+          "label": "Update Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: bodyJson, addressUi, b2bOrb2c, crmId, customFieldsUi, email, fax, firstName, hasPurchased, ipAddress, lastActive, lastName, mobile, ownerId, phone, position, company, prospectOrCustomer, sandbox, stage, tags, title, socialMediaUi, website)"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: search, orderBy, orderByDir, publishedOnly, minimal, rawData)"
+        }
+      ],
+      "group": "Contact",
+      "description": "Update a contact"
+    },
+    {
+      "id": "contact_segment_add",
+      "label": "Add Contact Segment",
+      "method": "POST",
+      "path": "/segments/{segmentId}/contact/{contactId}/add",
+      "fields": [
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "segmentId",
+          "label": "Segment Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        }
+      ],
+      "group": "Contact Segment",
+      "description": "Add contact to a segment"
+    },
+    {
+      "id": "contact_segment_remove",
+      "label": "Remove Contact Segment",
+      "method": "POST",
+      "path": "/segments/{segmentId}/contact/{contactId}/remove",
+      "fields": [
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "segmentId",
+          "label": "Segment Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        }
+      ],
+      "group": "Contact Segment",
+      "description": "Remove contact from a segment"
+    },
+    {
+      "id": "campaign_contact_add",
+      "label": "Add Campaign Contact",
+      "method": "POST",
+      "path": "/campaigns/{campaignId}/contact/{contactId}/add",
+      "fields": [
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "campaignId",
+          "label": "Campaign Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        }
+      ],
+      "group": "Campaign Contact",
+      "description": "Add contact to a campaign"
+    },
+    {
+      "id": "campaign_contact_remove",
+      "label": "Remove Campaign Contact",
+      "method": "POST",
+      "path": "/campaigns/{campaignId}/contact/{contactId}/remove",
+      "fields": [
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "campaignId",
+          "label": "Campaign Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        }
+      ],
+      "group": "Campaign Contact",
+      "description": "Remove contact from a campaign"
+    },
+    {
+      "id": "company_contact_add",
+      "label": "Add Company Contact",
+      "method": "POST",
+      "path": "/companies/{companyId}/contact/{contactId}/add",
+      "fields": [
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "description": "The ID of the contact",
+          "in": "path"
+        },
+        {
+          "id": "companyId",
+          "label": "Company ID",
+          "type": "text",
+          "description": "The ID of the company",
+          "in": "path"
+        }
+      ],
+      "group": "Company Contact",
+      "description": "Add contact to a company"
+    },
+    {
+      "id": "company_contact_remove",
+      "label": "Remove Company Contact",
+      "method": "POST",
+      "path": "/companies/{companyId}/contact/{contactId}/remove",
+      "fields": [
+        {
+          "id": "contactId",
+          "label": "Contact ID",
+          "type": "text",
+          "description": "The ID of the contact",
+          "in": "path"
+        },
+        {
+          "id": "companyId",
+          "label": "Company ID",
+          "type": "text",
+          "description": "The ID of the company",
+          "in": "path"
+        }
+      ],
+      "group": "Company Contact",
+      "description": "Remove a contact from a company"
+    },
+    {
+      "id": "segment_email_send",
+      "label": "Send Segment Email",
+      "method": "POST",
+      "path": "/emails/{segmentEmailId}/send",
+      "fields": [
+        {
+          "id": "segmentEmailId",
+          "label": "Segment Email Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        }
+      ],
+      "group": "Segment Email",
+      "description": "Send an email to a segment"
     }
   ]
 }

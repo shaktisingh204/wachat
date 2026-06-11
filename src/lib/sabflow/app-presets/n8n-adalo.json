@@ -4,12 +4,13 @@
   "description": "Consume Adalo API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 6,
+  "version": 7,
   "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
-    "type": "header",
-    "credentialType": "http_header_auth"
+    "type": "bearer",
+    "credentialType": "adalo",
+    "baseUrlFromCredential": "baseUrl"
   },
   "baseUrl": "",
   "endpoints": [

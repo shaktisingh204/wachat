@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-06-11T15:24:44.263Z",
+  "generatedAt": "2026-06-11T18:45:58.565Z",
   "counts": {
-    "live": 141,
+    "live": 145,
     "shadowed-by-forge": 92,
     "shadowed-by-rust": 254,
     "shadowed-by-native": 23,
-    "repairable": 6,
-    "shell": 11
+    "shell": 11,
+    "repairable": 2
   },
   "tierSizes": {
     "presets": 527,
@@ -2907,12 +2907,8 @@
     }
   ],
   "residualRepairIds": [
-    "n8n-aws-certificate-manager",
-    "n8n-citrix-adc",
     "n8n-i-cal",
-    "n8n-microsoft-sql",
-    "n8n-n8n",
-    "n8n-venafi-tls-protect-cloud"
+    "n8n-microsoft-sql"
   ],
   "rows": [
     {
@@ -3972,7 +3968,7 @@
       "category": "misc",
       "status": "draft",
       "endpointCount": 5,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -4081,9 +4077,9 @@
       "name": "AWS Certificate Manager",
       "category": "dev",
       "status": "draft",
-      "endpointCount": 1,
-      "hasBaseUrl": false,
-      "classification": "repairable"
+      "endpointCount": 5,
+      "hasBaseUrl": true,
+      "classification": "live"
     },
     {
       "id": "n8n-aws-cognito",
@@ -4091,8 +4087,8 @@
       "name": "AWS Cognito",
       "category": "dev",
       "status": "draft",
-      "endpointCount": 3,
-      "hasBaseUrl": false,
+      "endpointCount": 13,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-forge"
     },
     {
@@ -4102,7 +4098,7 @@
       "category": "dev",
       "status": "draft",
       "endpointCount": 3,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-forge"
     },
     {
@@ -4111,8 +4107,8 @@
       "name": "AWS DynamoDB",
       "category": "dev",
       "status": "draft",
-      "endpointCount": 1,
-      "hasBaseUrl": false,
+      "endpointCount": 4,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-forge"
     },
     {
@@ -4152,17 +4148,17 @@
       "category": "dev",
       "status": "draft",
       "endpointCount": 1,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-forge"
     },
     {
       "id": "n8n-aws-s3",
       "slug": "awss3",
-      "name": "AwsS3",
+      "name": "AWS S3",
       "category": "storage",
       "status": "draft",
-      "endpointCount": 0,
-      "hasBaseUrl": false,
+      "endpointCount": 12,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-forge"
     },
     {
@@ -4202,7 +4198,7 @@
       "category": "data",
       "status": "draft",
       "endpointCount": 1,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-forge"
     },
     {
@@ -4212,7 +4208,7 @@
       "category": "ai",
       "status": "draft",
       "endpointCount": 4,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-forge"
     },
     {
@@ -4361,9 +4357,9 @@
       "name": "Netscaler ADC",
       "category": "misc",
       "status": "draft",
-      "endpointCount": 2,
-      "hasBaseUrl": false,
-      "classification": "repairable"
+      "endpointCount": 5,
+      "hasBaseUrl": true,
+      "classification": "live"
     },
     {
       "id": "n8n-clearbit",
@@ -4581,8 +4577,8 @@
       "name": "Databricks",
       "category": "misc",
       "status": "draft",
-      "endpointCount": 6,
-      "hasBaseUrl": false,
+      "endpointCount": 36,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -4761,8 +4757,8 @@
       "name": "Elasticsearch",
       "category": "data",
       "status": "draft",
-      "endpointCount": 2,
-      "hasBaseUrl": false,
+      "endpointCount": 9,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -5341,8 +5337,8 @@
       "name": "Home Assistant",
       "category": "dev",
       "status": "draft",
-      "endpointCount": 7,
-      "hasBaseUrl": false,
+      "endpointCount": 14,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -5612,7 +5608,7 @@
       "category": "communication",
       "status": "draft",
       "endpointCount": 1,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -5761,8 +5757,8 @@
       "name": "Matrix",
       "category": "communication",
       "status": "draft",
-      "endpointCount": 6,
-      "hasBaseUrl": false,
+      "endpointCount": 11,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -5781,8 +5777,8 @@
       "name": "Mautic",
       "category": "marketing",
       "status": "draft",
-      "endpointCount": 6,
-      "hasBaseUrl": false,
+      "endpointCount": 20,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -5821,8 +5817,8 @@
       "name": "Metabase",
       "category": "analytics",
       "status": "draft",
-      "endpointCount": 4,
-      "hasBaseUrl": false,
+      "endpointCount": 10,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -6061,9 +6057,9 @@
       "name": "n8n",
       "category": "productivity",
       "status": "draft",
-      "endpointCount": 4,
-      "hasBaseUrl": false,
-      "classification": "repairable"
+      "endpointCount": 15,
+      "hasBaseUrl": true,
+      "classification": "live"
     },
     {
       "id": "n8n-nasa",
@@ -6092,7 +6088,7 @@
       "category": "storage",
       "status": "draft",
       "endpointCount": 17,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -6341,8 +6337,8 @@
       "name": "PostHog",
       "category": "analytics",
       "status": "draft",
-      "endpointCount": 4,
-      "hasBaseUrl": false,
+      "endpointCount": 5,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -6582,7 +6578,7 @@
       "category": "misc",
       "status": "draft",
       "endpointCount": 2,
-      "hasBaseUrl": false,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -6591,8 +6587,8 @@
       "name": "S3",
       "category": "storage",
       "status": "draft",
-      "endpointCount": 3,
-      "hasBaseUrl": false,
+      "endpointCount": 12,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -7182,8 +7178,8 @@
       "category": "dev",
       "status": "draft",
       "endpointCount": 8,
-      "hasBaseUrl": false,
-      "classification": "repairable"
+      "hasBaseUrl": true,
+      "classification": "live"
     },
     {
       "id": "n8n-venafi-tls-protect-datacenter",
@@ -7411,8 +7407,8 @@
       "name": "Zulip",
       "category": "communication",
       "status": "draft",
-      "endpointCount": 3,
-      "hasBaseUrl": false,
+      "endpointCount": 16,
+      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {

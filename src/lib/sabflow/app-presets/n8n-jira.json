@@ -4,7 +4,7 @@
   "description": "Consume Jira Software API",
   "category": "dev",
   "iconName": "LuPackage",
-  "version": 11,
+  "version": 13,
   "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
@@ -16,14 +16,22 @@
       "credentialType": "http_header_auth"
     }
   },
-  "baseUrl": "https://api.atlassian.com",
+  "baseUrl": "https://{host}/rest",
   "endpoints": [
     {
       "id": "issue_changelog",
       "label": "Changelog Issue",
-      "method": "PATCH",
-      "path": "/issue",
+      "method": "GET",
+      "path": "/api/2/issue/{issueKey}/changelog",
       "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Jira Software server, e.g. app.example.com (no https:// prefix)"
+        },
         {
           "id": "jiraVersion",
           "label": "Jira Version",
@@ -48,7 +56,8 @@
           "id": "issueKey",
           "label": "Issue Key",
           "type": "text",
-          "required": true
+          "required": true,
+          "in": "path"
         },
         {
           "id": "returnAll",
@@ -66,14 +75,22 @@
         }
       ],
       "group": "Issue",
-      "description": "[unverified path] Get issue changelog"
+      "description": "Get issue changelog"
     },
     {
       "id": "issue_create",
       "label": "Create Issue",
       "method": "POST",
-      "path": "/issue",
+      "path": "/api/2/issue",
       "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Jira Software server, e.g. app.example.com (no https:// prefix)"
+        },
         {
           "id": "jiraVersion",
           "label": "Jira Version",
@@ -123,14 +140,22 @@
         }
       ],
       "group": "Issue",
-      "description": "[unverified path] Create a new issue"
+      "description": "Create a new issue"
     },
     {
       "id": "issue_delete",
       "label": "Delete Issue",
       "method": "DELETE",
-      "path": "/issue",
+      "path": "/api/2/issue/{issueKey}",
       "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Jira Software server, e.g. app.example.com (no https:// prefix)"
+        },
         {
           "id": "jiraVersion",
           "label": "Jira Version",
@@ -155,7 +180,8 @@
           "id": "issueKey",
           "label": "Issue Key",
           "type": "text",
-          "required": true
+          "required": true,
+          "in": "path"
         },
         {
           "id": "deleteSubtasks",
@@ -166,14 +192,22 @@
         }
       ],
       "group": "Issue",
-      "description": "[unverified path] Delete an issue"
+      "description": "Delete an issue"
     },
     {
       "id": "issue_get",
       "label": "Get Issue",
       "method": "GET",
-      "path": "/issue",
+      "path": "/api/2/issue/{issueKey}",
       "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Jira Software server, e.g. app.example.com (no https:// prefix)"
+        },
         {
           "id": "jiraVersion",
           "label": "Jira Version",
@@ -198,7 +232,8 @@
           "id": "issueKey",
           "label": "Issue Key",
           "type": "text",
-          "required": true
+          "required": true,
+          "in": "path"
         },
         {
           "id": "simplifyOutput",
@@ -216,14 +251,22 @@
         }
       ],
       "group": "Issue",
-      "description": "[unverified path] Get an issue"
+      "description": "Get an issue"
     },
     {
       "id": "issue_get_all",
       "label": "Get Many Issue",
-      "method": "GET",
-      "path": "/issue",
+      "method": "POST",
+      "path": "/api/2/search",
       "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Jira Software server, e.g. app.example.com (no https:// prefix)"
+        },
         {
           "id": "jiraVersion",
           "label": "Jira Version",
@@ -267,14 +310,22 @@
         }
       ],
       "group": "Issue",
-      "description": "[unverified path] Get many issues"
+      "description": "Get many issues"
     },
     {
       "id": "issue_notify",
       "label": "Notify Issue",
       "method": "POST",
-      "path": "/issue",
+      "path": "/api/2/issue/{issueKey}/notify",
       "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Jira Software server, e.g. app.example.com (no https:// prefix)"
+        },
         {
           "id": "jiraVersion",
           "label": "Jira Version",
@@ -299,7 +350,8 @@
           "id": "issueKey",
           "label": "Issue Key",
           "type": "text",
-          "required": true
+          "required": true,
+          "in": "path"
         },
         {
           "id": "jsonParameters",
@@ -342,14 +394,22 @@
         }
       ],
       "group": "Issue",
-      "description": "[unverified path] Create an email notification for an issue and add it to the mail queue"
+      "description": "Create an email notification for an issue and add it to the mail queue"
     },
     {
       "id": "issue_transitions",
       "label": "Status Issue",
       "method": "POST",
-      "path": "/issue",
+      "path": "/api/2/issue/{issueKey}/transitions",
       "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Jira Software server, e.g. app.example.com (no https:// prefix)"
+        },
         {
           "id": "jiraVersion",
           "label": "Jira Version",
@@ -374,7 +434,8 @@
           "id": "issueKey",
           "label": "Issue Key",
           "type": "text",
-          "required": true
+          "required": true,
+          "in": "path"
         },
         {
           "id": "additionalFields",
@@ -385,14 +446,22 @@
         }
       ],
       "group": "Issue",
-      "description": "[unverified path] Return either all transitions or a transition that can be performed by the user on an issue, based on the issue's status"
+      "description": "Return either all transitions or a transition that can be performed by the user on an issue, based on the issue's status"
     },
     {
       "id": "issue_update",
       "label": "Update Issue",
-      "method": "PATCH",
-      "path": "/issue",
+      "method": "POST",
+      "path": "/api/2/issue/{issueKey}/transitions",
       "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Jira Software server, e.g. app.example.com (no https:// prefix)"
+        },
         {
           "id": "jiraVersion",
           "label": "Jira Version",
@@ -417,7 +486,8 @@
           "id": "issueKey",
           "label": "Issue Key",
           "type": "text",
-          "required": true
+          "required": true,
+          "in": "path"
         },
         {
           "id": "updateFields",
@@ -428,14 +498,22 @@
         }
       ],
       "group": "Issue",
-      "description": "[unverified path] Update an issue"
+      "description": "Update an issue"
     },
     {
       "id": "issue_attachment_add",
       "label": "Add Issue Attachment",
       "method": "POST",
-      "path": "/issue-attachment",
+      "path": "/api/{apiVersion}/issue/{issueKey}/attachments",
       "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Jira Software server, e.g. app.example.com (no https:// prefix)"
+        },
         {
           "id": "jiraVersion",
           "label": "Jira Version",
@@ -460,7 +538,8 @@
           "id": "issueKey",
           "label": "Issue Key",
           "type": "text",
-          "required": true
+          "required": true,
+          "in": "path"
         },
         {
           "id": "binaryPropertyName",
@@ -471,14 +550,22 @@
         }
       ],
       "group": "Issue Attachment",
-      "description": "[unverified path] Add attachment to issue"
+      "description": "Add attachment to issue"
     },
     {
       "id": "issue_attachment_get",
       "label": "Get Issue Attachment",
       "method": "GET",
-      "path": "/issue-attachment",
+      "path": "/api/{apiVersion}/attachment/{attachmentId}",
       "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Jira Software server, e.g. app.example.com (no https:// prefix)"
+        },
         {
           "id": "jiraVersion",
           "label": "Jira Version",
@@ -504,7 +591,8 @@
           "label": "Attachment ID",
           "type": "text",
           "required": true,
-          "description": "The ID of the attachment"
+          "description": "The ID of the attachment",
+          "in": "path"
         },
         {
           "id": "download",
@@ -522,14 +610,22 @@
         }
       ],
       "group": "Issue Attachment",
-      "description": "[unverified path] Get an attachment"
+      "description": "Get an attachment"
     },
     {
       "id": "issue_attachment_get_all",
       "label": "Get Many Issue Attachment",
       "method": "GET",
-      "path": "/issue-attachment",
+      "path": "/api/2/issue/{issueKey}",
       "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Jira Software server, e.g. app.example.com (no https:// prefix)"
+        },
         {
           "id": "jiraVersion",
           "label": "Jira Version",
@@ -554,7 +650,8 @@
           "id": "issueKey",
           "label": "Issue Key",
           "type": "text",
-          "required": true
+          "required": true,
+          "in": "path"
         },
         {
           "id": "returnAll",
@@ -586,14 +683,22 @@
         }
       ],
       "group": "Issue Attachment",
-      "description": "[unverified path] Get many attachments"
+      "description": "Get many attachments"
     },
     {
       "id": "issue_attachment_remove",
       "label": "Remove Issue Attachment",
       "method": "DELETE",
-      "path": "/issue-attachment",
+      "path": "/api/{apiVersion}/attachment/{attachmentId}",
       "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Jira Software server, e.g. app.example.com (no https:// prefix)"
+        },
         {
           "id": "jiraVersion",
           "label": "Jira Version",
@@ -619,18 +724,27 @@
           "label": "Attachment ID",
           "type": "text",
           "required": true,
-          "description": "The ID of the attachment"
+          "description": "The ID of the attachment",
+          "in": "path"
         }
       ],
       "group": "Issue Attachment",
-      "description": "[unverified path] Remove an attachment"
+      "description": "Remove an attachment"
     },
     {
       "id": "issue_comment_add",
       "label": "Add Issue Comment",
       "method": "POST",
-      "path": "/issue-comment",
+      "path": "/api/{apiVersion}/issue/{issueKey}/comment",
       "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Jira Software server, e.g. app.example.com (no https:// prefix)"
+        },
         {
           "id": "jiraVersion",
           "label": "Jira Version",
@@ -656,7 +770,8 @@
           "label": "Issue Key",
           "type": "text",
           "required": true,
-          "description": "issueComment Key"
+          "description": "issueComment Key",
+          "in": "path"
         },
         {
           "id": "jsonParameters",
@@ -685,14 +800,22 @@
         }
       ],
       "group": "Issue Comment",
-      "description": "[unverified path] Add comment to issue"
+      "description": "Add comment to issue"
     },
     {
       "id": "issue_comment_get",
       "label": "Get Issue Comment",
       "method": "GET",
-      "path": "/issue-comment",
+      "path": "/api/{apiVersion}/issue/{issueKey}/comment/{commentId}",
       "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Jira Software server, e.g. app.example.com (no https:// prefix)"
+        },
         {
           "id": "jiraVersion",
           "label": "Jira Version",
@@ -718,14 +841,16 @@
           "label": "Issue Key",
           "type": "text",
           "required": true,
-          "description": "The ID or key of the issue"
+          "description": "The ID or key of the issue",
+          "in": "path"
         },
         {
           "id": "commentId",
           "label": "Comment ID",
           "type": "text",
           "required": true,
-          "description": "The ID of the comment"
+          "description": "The ID of the comment",
+          "in": "path"
         },
         {
           "id": "options",
@@ -736,14 +861,22 @@
         }
       ],
       "group": "Issue Comment",
-      "description": "[unverified path] Get a comment"
+      "description": "Get a comment"
     },
     {
       "id": "issue_comment_get_all",
       "label": "Get Many Issue Comment",
       "method": "GET",
-      "path": "/issue-comment",
+      "path": "/api/{apiVersion}/issue/{issueKey}/comment",
       "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Jira Software server, e.g. app.example.com (no https:// prefix)"
+        },
         {
           "id": "jiraVersion",
           "label": "Jira Version",
@@ -769,7 +902,8 @@
           "label": "Issue Key",
           "type": "text",
           "required": true,
-          "description": "The ID or key of the issue"
+          "description": "The ID or key of the issue",
+          "in": "path"
         },
         {
           "id": "returnAll",
@@ -794,14 +928,22 @@
         }
       ],
       "group": "Issue Comment",
-      "description": "[unverified path] Get many comments"
+      "description": "Get many comments"
     },
     {
       "id": "issue_comment_remove",
       "label": "Remove Issue Comment",
       "method": "DELETE",
-      "path": "/issue-comment",
+      "path": "/api/{apiVersion}/issue/{issueKey}/comment/{commentId}",
       "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Jira Software server, e.g. app.example.com (no https:// prefix)"
+        },
         {
           "id": "jiraVersion",
           "label": "Jira Version",
@@ -827,25 +969,35 @@
           "label": "Issue Key",
           "type": "text",
           "required": true,
-          "description": "The ID or key of the issue"
+          "description": "The ID or key of the issue",
+          "in": "path"
         },
         {
           "id": "commentId",
           "label": "Comment ID",
           "type": "text",
           "required": true,
-          "description": "The ID of the comment"
+          "description": "The ID of the comment",
+          "in": "path"
         }
       ],
       "group": "Issue Comment",
-      "description": "[unverified path] Remove a comment"
+      "description": "Remove a comment"
     },
     {
       "id": "issue_comment_update",
       "label": "Update Issue Comment",
-      "method": "PATCH",
-      "path": "/issue-comment",
+      "method": "PUT",
+      "path": "/api/{apiVersion}/issue/{issueKey}/comment/{commentId}",
       "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Jira Software server, e.g. app.example.com (no https:// prefix)"
+        },
         {
           "id": "jiraVersion",
           "label": "Jira Version",
@@ -871,14 +1023,16 @@
           "label": "Issue Key",
           "type": "text",
           "required": true,
-          "description": "The Issue Comment key"
+          "description": "The Issue Comment key",
+          "in": "path"
         },
         {
           "id": "commentId",
           "label": "Comment ID",
           "type": "text",
           "required": true,
-          "description": "The ID of the comment"
+          "description": "The ID of the comment",
+          "in": "path"
         },
         {
           "id": "jsonParameters",
@@ -907,14 +1061,22 @@
         }
       ],
       "group": "Issue Comment",
-      "description": "[unverified path] Update a comment"
+      "description": "Update a comment"
     },
     {
       "id": "user_create",
       "label": "Create User",
       "method": "POST",
-      "path": "/user",
+      "path": "/api/{apiVersion}/user",
       "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Jira Software server, e.g. app.example.com (no https:// prefix)"
+        },
         {
           "id": "jiraVersion",
           "label": "Jira Version",
@@ -962,14 +1124,22 @@
         }
       ],
       "group": "User",
-      "description": "[unverified path] Create a new user"
+      "description": "Create a new user"
     },
     {
       "id": "user_delete",
       "label": "Delete User",
       "method": "DELETE",
-      "path": "/user",
+      "path": "/api/{apiVersion}/user",
       "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Jira Software server, e.g. app.example.com (no https:// prefix)"
+        },
         {
           "id": "jiraVersion",
           "label": "Jira Version",
@@ -998,14 +1168,22 @@
         }
       ],
       "group": "User",
-      "description": "[unverified path] Delete a user"
+      "description": "Delete a user"
     },
     {
       "id": "user_get",
       "label": "Get User",
       "method": "GET",
-      "path": "/user",
+      "path": "/api/{apiVersion}/user",
       "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Jira Software server, e.g. app.example.com (no https:// prefix)"
+        },
         {
           "id": "jiraVersion",
           "label": "Jira Version",
@@ -1041,7 +1219,7 @@
         }
       ],
       "group": "User",
-      "description": "[unverified path] Retrieve a user"
+      "description": "Retrieve a user"
     }
   ]
 }

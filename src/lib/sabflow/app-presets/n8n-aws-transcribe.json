@@ -4,12 +4,13 @@
   "description": "Sends data to AWS Transcribe",
   "category": "ai",
   "iconName": "LuPackage",
-  "version": 3,
+  "version": 4,
   "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
-    "type": "header",
-    "credentialType": "http_header_auth"
+    "type": "aws_sigv4",
+    "credentialType": "aws",
+    "awsService": "transcribe"
   },
   "baseUrl": "",
   "endpoints": [

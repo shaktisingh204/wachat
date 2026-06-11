@@ -26,6 +26,8 @@ import {
   findMissingRequiredFields,
   projectOutput,
   resolvePath,
+  resolvePresetBaseUrl,
+  signAwsRequest,
 } from '@/lib/sabflow/app-presets/runtime/exec';
 import { loadPreset } from '@/lib/sabflow/app-presets/runtime/loader';
 
@@ -77,27 +79,55 @@ async function execute(ctx: ForgeActionContext): Promise<ForgeActionResult> {
     );
   }
 
+  // Base URL: static, credential-sourced (`auth.baseUrlFromCredential`), or
+  // AWS host template (`auth.awsService` + credential region). Throws a clear,
+  // preset-labelled error when the credential lacks the instance URL.
+  const baseUrl = resolvePresetBaseUrl(preset, ctx.credential);
+  if (!baseUrl) {
+    throw new Error(`${preset.name}: preset has no resolvable base URL — it is incomplete`);
+  }
+
   const resolved = resolvePath(
-    preset.baseUrl + endpoint.path,
+    baseUrl + endpoint.path,
     endpoint.fields,
     inputs,
     endpoint,
     preset.auth,
   );
 
-  const authHeaders = buildAuthHeaders(preset.auth, ctx.credential);
+  const isAws = preset.auth.type === 'aws_sigv4';
   const authQuery = buildAuthQuery(preset.auth, ctx.credential);
   const finalUrl = appendQuery(resolved.url, { ...resolved.query, ...authQuery });
 
   const writeMethod =
     endpoint.method === 'POST' || endpoint.method === 'PATCH' || endpoint.method === 'PUT';
 
+  // For SigV4 the signed payload hash must match the exact bytes sent, so the
+  // body is serialised once here and passed through raw.
+  const bodyStr = writeMethod ? JSON.stringify(resolved.body ?? {}) : undefined;
+
+  const authHeaders = isAws
+    ? signAwsRequest({
+        method: endpoint.method,
+        url: finalUrl,
+        body: bodyStr,
+        service: preset.auth.awsService ?? '',
+        credential: ctx.credential,
+        serviceLabel: preset.name,
+      })
+    : buildAuthHeaders(preset.auth, ctx.credential);
+
   const res = await apiRequest({
     service: preset.name,
     method: endpoint.method,
     url: finalUrl,
-    headers: { ...resolved.headers, ...authHeaders },
-    json: writeMethod ? resolved.body ?? {} : undefined,
+    headers: {
+      ...(isAws && bodyStr !== undefined ? { 'Content-Type': 'application/json' } : {}),
+      ...resolved.headers,
+      ...authHeaders,
+    },
+    json: !isAws && writeMethod ? resolved.body ?? {} : undefined,
+    body: isAws ? bodyStr : undefined,
     throwOnError: false,
   });
 

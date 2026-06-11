@@ -4,164 +4,1503 @@
   "description": "Interact with Databricks API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 3,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
-    "type": "header",
-    "credentialType": "http_header_auth"
+    "type": "bearer",
+    "credentialType": "databricks",
+    "baseUrlFromCredential": "baseUrl"
   },
-  "baseUrl": "",
+  "baseUrl": "https://{host}",
   "endpoints": [
     {
-      "id": "databricks_sql_default",
-      "label": "List DatabricksSql",
-      "method": "GET",
-      "path": "/databricksSql",
+      "id": "files_create_directory",
+      "label": "Create Directory File",
+      "method": "PUT",
+      "path": "/api/2.0/fs/directories/Volumes/{catalog}/{schema}/{volume}/{directoryPath}",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Databricks server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "volumePath",
+          "label": "Volume Path",
+          "type": "text",
+          "required": true,
+          "placeholder": "catalog.schema.volume",
+          "description": "Full path to the volume in format: catalog.schema.volume"
+        },
+        {
+          "id": "directoryPath",
+          "label": "Directory Path",
+          "type": "text",
+          "required": true,
+          "placeholder": "folder1",
+          "description": "Path to directory within the volume (e.g. \"folder1\" or \"folder1/subfolder\"). Do not include leading slash.",
+          "in": "path"
         }
-      ]
+      ],
+      "group": "File",
+      "description": "Create a directory in volume"
     },
     {
-      "id": "files_default",
-      "label": "List Files",
+      "id": "files_delete_directory",
+      "label": "Delete Directory File",
+      "method": "DELETE",
+      "path": "/api/2.0/fs/directories/Volumes/{catalog}/{schema}/{volume}/{directoryPath}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Databricks server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "volumePath",
+          "label": "Volume Path",
+          "type": "text",
+          "required": true,
+          "placeholder": "catalog.schema.volume",
+          "description": "Full path to the volume in format: catalog.schema.volume"
+        },
+        {
+          "id": "directoryPath",
+          "label": "Directory Path",
+          "type": "text",
+          "required": true,
+          "placeholder": "folder1",
+          "description": "Path to directory within the volume (e.g. \"folder1\" or \"folder1/subfolder\"). Do not include leading slash.",
+          "in": "path"
+        }
+      ],
+      "group": "File",
+      "description": "Delete a directory in volume"
+    },
+    {
+      "id": "files_delete_file",
+      "label": "Delete File File",
+      "method": "DELETE",
+      "path": "/api/2.0/fs/files/Volumes/{catalog}/{schema}/{volume}/{filePath}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Databricks server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "volumePath",
+          "label": "Volume Path",
+          "type": "text",
+          "required": true,
+          "placeholder": "catalog.schema.volume",
+          "description": "Full path to the volume in format: catalog.schema.volume"
+        },
+        {
+          "id": "filePath",
+          "label": "File Path",
+          "type": "text",
+          "required": true,
+          "placeholder": "folder/file.txt",
+          "description": "Path to the file within the volume (e.g. \"folder/file.txt\" or \"file.txt\"). Do not include leading slash.",
+          "in": "path"
+        }
+      ],
+      "group": "File",
+      "description": "Delete a file from a volume"
+    },
+    {
+      "id": "files_download_file",
+      "label": "Download File File",
+      "method": "GET",
+      "path": "/api/2.0/fs/files/Volumes/{catalog}/{schema}/{volume}/{filePath}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Databricks server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "volumePath",
+          "label": "Volume Path",
+          "type": "text",
+          "required": true,
+          "placeholder": "catalog.schema.volume",
+          "description": "Full path to the volume in format: catalog.schema.volume"
+        },
+        {
+          "id": "filePath",
+          "label": "File Path",
+          "type": "text",
+          "required": true,
+          "placeholder": "folder/file.txt",
+          "description": "Path to the file within the volume (e.g. \"folder/file.txt\" or \"file.txt\"). Do not include leading slash.",
+          "in": "path"
+        }
+      ],
+      "group": "File",
+      "description": "Download file content from a volume"
+    },
+    {
+      "id": "files_get_file_info",
+      "label": "Get File Metadata File",
       "method": "GET",
       "path": "/files",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Databricks server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "volumePath",
+          "label": "Volume Path",
+          "type": "text",
+          "required": true,
+          "placeholder": "catalog.schema.volume",
+          "description": "Full path to the volume in format: catalog.schema.volume"
+        },
+        {
+          "id": "filePath",
+          "label": "File Path",
+          "type": "text",
+          "required": true,
+          "placeholder": "folder/file.txt",
+          "description": "Path to the file within the volume (e.g. \"folder/file.txt\" or \"file.txt\"). Do not include leading slash."
         }
-      ]
+      ],
+      "group": "File",
+      "description": "[unverified path] Get file metadata from a volume"
     },
     {
-      "id": "genie_default",
-      "label": "List Genie",
+      "id": "files_list_directory",
+      "label": "List Directory File",
       "method": "GET",
-      "path": "/genie",
+      "path": "/files",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Databricks server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "volumePath",
+          "label": "Volume Path",
+          "type": "text",
+          "required": true,
+          "placeholder": "catalog.schema.volume",
+          "description": "Full path to the volume in format: catalog.schema.volume"
+        },
+        {
+          "id": "directoryPath",
+          "label": "Directory Path",
+          "type": "text",
+          "placeholder": "folder1",
+          "description": "Path to directory within the volume (e.g. \"folder1\" or \"folder1/subfolder\"). Leave empty to list the volume root. Do not include leading slash."
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: pageSize, pageToken, overwrite)"
         }
-      ]
+      ],
+      "group": "File",
+      "description": "[unverified path] List directory contents in volume"
     },
     {
-      "id": "model_serving_default",
-      "label": "List ModelServing",
-      "method": "GET",
-      "path": "/modelServing",
+      "id": "files_upload_file",
+      "label": "Upload File File",
+      "method": "PUT",
+      "path": "/api/2.0/fs/files/Volumes/{catalog}/{schema}/{volume}/{filePath}",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Databricks server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "volumePath",
+          "label": "Volume Path",
+          "type": "text",
+          "required": true,
+          "placeholder": "catalog.schema.volume",
+          "description": "Full path to the volume in format: catalog.schema.volume"
+        },
+        {
+          "id": "filePath",
+          "label": "File Path",
+          "type": "text",
+          "required": true,
+          "placeholder": "folder/file.txt",
+          "description": "Path to the file within the volume (e.g. \"folder/file.txt\" or \"file.txt\"). Do not include leading slash.",
+          "in": "path"
+        },
+        {
+          "id": "dataFieldName",
+          "label": "Input Data Field Name",
+          "type": "text",
+          "required": true,
+          "description": "Name of the field from input that contains the binary data to be uploaded",
+          "defaultValue": "data"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: pageSize, pageToken, overwrite)"
         }
-      ]
+      ],
+      "group": "File",
+      "description": "Upload a file (up to 5 GiB) to Databricks volumes"
     },
     {
-      "id": "unity_catalog_default",
-      "label": "List UnityCatalog",
-      "method": "GET",
-      "path": "/unityCatalog",
+      "id": "genie_create_message",
+      "label": "Create Conversation Message Genie",
+      "method": "POST",
+      "path": "/api/2.0/genie/spaces/{spaceId}/conversations/{conversationId}/messages",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Databricks server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "spaceId",
+          "label": "Space ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the Genie space",
+          "in": "path"
+        },
+        {
+          "id": "conversationId",
+          "label": "Conversation ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the conversation",
+          "in": "path"
+        },
+        {
+          "id": "message",
+          "label": "Message",
+          "type": "textarea",
+          "required": true,
+          "description": "The message to be sent to Genie Space"
         }
-      ]
+      ],
+      "group": "Genie",
+      "description": "Create a new conversation message"
     },
     {
-      "id": "vector_search_default",
-      "label": "List VectorSearch",
-      "method": "GET",
-      "path": "/vectorSearch",
+      "id": "genie_execute_message_query",
+      "label": "Execute Message SQL Query Genie",
+      "method": "POST",
+      "path": "/api/2.0/genie/spaces/{spaceId}/conversations/{conversationId}/messages/{messageId}/attachments/{attachmentId}/execute-query",
       "fields": [
         {
-          "id": "authentication",
-          "label": "Authentication",
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Databricks server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "spaceId",
+          "label": "Space ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the Genie space",
+          "in": "path"
+        },
+        {
+          "id": "conversationId",
+          "label": "Conversation ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the conversation",
+          "in": "path"
+        },
+        {
+          "id": "messageId",
+          "label": "Message ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the message",
+          "in": "path"
+        },
+        {
+          "id": "attachmentId",
+          "label": "Attachment ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the message attachment",
+          "in": "path"
+        }
+      ],
+      "group": "Genie",
+      "description": "Execute a SQL query from a message attachment"
+    },
+    {
+      "id": "genie_get_message",
+      "label": "Get Conversation Message Genie",
+      "method": "GET",
+      "path": "/api/2.0/genie/spaces/{spaceId}/conversations/{conversationId}/messages/{messageId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Databricks server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "spaceId",
+          "label": "Space ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the Genie space",
+          "in": "path"
+        },
+        {
+          "id": "conversationId",
+          "label": "Conversation ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the conversation",
+          "in": "path"
+        },
+        {
+          "id": "messageId",
+          "label": "Message ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the message",
+          "in": "path"
+        }
+      ],
+      "group": "Genie",
+      "description": "Get a conversation message by ID"
+    },
+    {
+      "id": "genie_get_space",
+      "label": "Get Genie Space Genie",
+      "method": "GET",
+      "path": "/api/2.0/genie/spaces/{spaceId}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Databricks server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "spaceId",
+          "label": "Space ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the Genie space",
+          "in": "path"
+        }
+      ],
+      "group": "Genie",
+      "description": "Get details of a Genie space"
+    },
+    {
+      "id": "genie_get_query_results",
+      "label": "Get Query Results Genie",
+      "method": "GET",
+      "path": "/api/2.0/genie/spaces/{spaceId}/conversations/{conversationId}/messages/{messageId}/attachments/{attachmentId}/query-result",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Databricks server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "spaceId",
+          "label": "Space ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the Genie space",
+          "in": "path"
+        },
+        {
+          "id": "conversationId",
+          "label": "Conversation ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the conversation",
+          "in": "path"
+        },
+        {
+          "id": "messageId",
+          "label": "Message ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the message",
+          "in": "path"
+        },
+        {
+          "id": "attachmentId",
+          "label": "Attachment ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the message attachment",
+          "in": "path"
+        }
+      ],
+      "group": "Genie",
+      "description": "Get results of a SQL query execution"
+    },
+    {
+      "id": "genie_start_conversation",
+      "label": "Start Conversation Genie",
+      "method": "POST",
+      "path": "/api/2.0/genie/spaces/{spaceId}/start-conversation",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Databricks server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "spaceId",
+          "label": "Space ID",
+          "type": "text",
+          "required": true,
+          "description": "The ID of the Genie space",
+          "in": "path"
+        },
+        {
+          "id": "initialMessage",
+          "label": "Initial Message",
+          "type": "textarea",
+          "required": true,
+          "description": "The initial message to start the conversation"
+        }
+      ],
+      "group": "Genie",
+      "description": "Start a new conversation"
+    },
+    {
+      "id": "unity_catalog_create_catalog",
+      "label": "Create Catalog Unity Catalog",
+      "method": "POST",
+      "path": "/api/2.1/unity-catalog/catalogs",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Databricks server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "catalogName",
+          "label": "Catalog",
+          "type": "text",
+          "required": true,
+          "description": "The catalog to use (provide the ID)"
+        },
+        {
+          "id": "comment",
+          "label": "Comment",
+          "type": "text",
+          "placeholder": "Catalog description",
+          "description": "Optional comment or description"
+        }
+      ],
+      "group": "Unity Catalog",
+      "description": "Create a new catalog"
+    },
+    {
+      "id": "unity_catalog_create_function",
+      "label": "Create Function Unity Catalog",
+      "method": "POST",
+      "path": "/api/2.1/unity-catalog/functions",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Databricks server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "catalogName",
+          "label": "Catalog",
+          "type": "text",
+          "required": true,
+          "description": "The catalog to use (provide the ID)"
+        },
+        {
+          "id": "schemaName",
+          "label": "Schema",
+          "type": "text",
+          "required": true,
+          "description": "The schema to use (provide the ID)"
+        },
+        {
+          "id": "functionName",
+          "label": "Function Name",
+          "type": "text",
+          "required": true,
+          "placeholder": "my_function",
+          "description": "Name of the function to create"
+        },
+        {
+          "id": "inputParams",
+          "label": "Input Parameters",
+          "type": "json",
+          "required": true,
+          "placeholder": "[{\"name\": \"param1\", \"type_name\": \"STRING\", \"type_text\": \"STRING\"}]",
+          "description": "Array of input parameters. Each parameter requires name, type_name, and type_text.",
+          "defaultValue": "[]"
+        },
+        {
+          "id": "returnType",
+          "label": "Return Type",
+          "type": "text",
+          "required": true,
+          "placeholder": "STRING",
+          "description": "The return type of the function (e.g., STRING, INT, DOUBLE)",
+          "defaultValue": "STRING"
+        },
+        {
+          "id": "routineBody",
+          "label": "Routine Body",
+          "type": "text",
+          "required": true,
+          "description": "The language of the function body",
+          "defaultValue": "SQL"
+        },
+        {
+          "id": "routineDefinition",
+          "label": "Routine Definition",
+          "type": "textarea",
+          "required": true,
+          "placeholder": "RETURN x + 1",
+          "description": "The function body (SQL expression)"
+        }
+      ],
+      "group": "Unity Catalog",
+      "description": "Create a new function"
+    },
+    {
+      "id": "unity_catalog_create_table",
+      "label": "Create Table Unity Catalog",
+      "method": "POST",
+      "path": "/api/2.1/unity-catalog/tables",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Databricks server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "catalogName",
+          "label": "Catalog",
+          "type": "text",
+          "required": true,
+          "description": "The catalog to use (provide the ID)"
+        },
+        {
+          "id": "schemaName",
+          "label": "Schema",
+          "type": "text",
+          "required": true,
+          "description": "The schema to use (provide the ID)"
+        },
+        {
+          "id": "tableName",
+          "label": "Table Name",
+          "type": "text",
+          "required": true,
+          "placeholder": "my_table",
+          "description": "Name of the table to create"
+        },
+        {
+          "id": "storageLocation",
+          "label": "Storage Location",
+          "type": "text",
+          "required": true,
+          "placeholder": "s3://my-bucket/path/to/table",
+          "description": "External storage root URL for the table. The Create Table API only supports external Delta tables."
+        },
+        {
+          "id": "tableAdditionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: columns, comment)"
+        }
+      ],
+      "group": "Unity Catalog",
+      "description": "Register a new table"
+    },
+    {
+      "id": "unity_catalog_create_volume",
+      "label": "Create Volume Unity Catalog",
+      "method": "POST",
+      "path": "/api/2.1/unity-catalog/volumes",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Databricks server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "catalogName",
+          "label": "Catalog",
+          "type": "text",
+          "required": true,
+          "description": "The catalog to use (provide the ID)"
+        },
+        {
+          "id": "schemaName",
+          "label": "Schema",
+          "type": "text",
+          "required": true,
+          "description": "The schema to use (provide the ID)"
+        },
+        {
+          "id": "volumeName",
+          "label": "Volume Name",
+          "type": "text",
+          "required": true,
+          "placeholder": "my_volume",
+          "description": "Name of the volume"
+        },
+        {
+          "id": "volumeType",
+          "label": "Volume Type",
           "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
+          "required": true,
+          "description": "The type of volume to create",
+          "defaultValue": "MANAGED",
           "options": [
             {
-              "value": "accessToken",
-              "label": "Access Token"
+              "value": "MANAGED",
+              "label": "Managed"
             },
             {
-              "value": "oAuth2",
-              "label": "OAuth2"
+              "value": "EXTERNAL",
+              "label": "External"
             }
           ]
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: comment, storage_location)"
         }
-      ]
+      ],
+      "group": "Unity Catalog",
+      "description": "Create a new volume"
+    },
+    {
+      "id": "unity_catalog_delete_catalog",
+      "label": "Delete Catalog Unity Catalog",
+      "method": "DELETE",
+      "path": "/api/2.1/unity-catalog/catalogs/{catalogName}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Databricks server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "catalogName",
+          "label": "Catalog",
+          "type": "text",
+          "required": true,
+          "description": "The catalog to use (provide the ID)",
+          "in": "path"
+        }
+      ],
+      "group": "Unity Catalog",
+      "description": "Delete a catalog"
+    },
+    {
+      "id": "unity_catalog_delete_function",
+      "label": "Delete Function Unity Catalog",
+      "method": "DELETE",
+      "path": "/api/2.1/unity-catalog/functions/{fullName}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Databricks server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "catalogName",
+          "label": "Catalog",
+          "type": "text",
+          "required": true,
+          "description": "The catalog to use (provide the ID)"
+        },
+        {
+          "id": "schemaName",
+          "label": "Schema",
+          "type": "text",
+          "required": true,
+          "description": "The schema to use (provide the ID)"
+        },
+        {
+          "id": "fullName",
+          "label": "Function",
+          "type": "text",
+          "required": true,
+          "description": "The function to access (provide the ID)",
+          "in": "path"
+        }
+      ],
+      "group": "Unity Catalog",
+      "description": "Delete a function"
+    },
+    {
+      "id": "unity_catalog_delete_table",
+      "label": "Delete Table Unity Catalog",
+      "method": "DELETE",
+      "path": "/api/2.1/unity-catalog/tables/{fullName}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Databricks server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "catalogName",
+          "label": "Catalog",
+          "type": "text",
+          "required": true,
+          "description": "The catalog to use (provide the ID)"
+        },
+        {
+          "id": "schemaName",
+          "label": "Schema",
+          "type": "text",
+          "required": true,
+          "description": "The schema to use (provide the ID)"
+        },
+        {
+          "id": "fullName",
+          "label": "Table",
+          "type": "text",
+          "required": true,
+          "description": "The table to access (provide the ID)",
+          "in": "path"
+        }
+      ],
+      "group": "Unity Catalog",
+      "description": "Delete a table"
+    },
+    {
+      "id": "unity_catalog_delete_volume",
+      "label": "Delete Volume Unity Catalog",
+      "method": "DELETE",
+      "path": "/api/2.1/unity-catalog/volumes/{fullName}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Databricks server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "catalogName",
+          "label": "Catalog",
+          "type": "text",
+          "required": true,
+          "description": "The catalog to use (provide the ID)"
+        },
+        {
+          "id": "schemaName",
+          "label": "Schema",
+          "type": "text",
+          "required": true,
+          "description": "The schema to use (provide the ID)"
+        },
+        {
+          "id": "volumeName",
+          "label": "Volume Name",
+          "type": "text",
+          "required": true,
+          "placeholder": "my_volume",
+          "description": "Name of the volume"
+        }
+      ],
+      "group": "Unity Catalog",
+      "description": "Delete a volume"
+    },
+    {
+      "id": "unity_catalog_get_catalog",
+      "label": "Get Catalog Unity Catalog",
+      "method": "GET",
+      "path": "/api/2.1/unity-catalog/catalogs/{catalogName}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Databricks server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "catalogName",
+          "label": "Catalog",
+          "type": "text",
+          "required": true,
+          "description": "The catalog to use (provide the ID)",
+          "in": "path"
+        }
+      ],
+      "group": "Unity Catalog",
+      "description": "Get catalog information"
+    },
+    {
+      "id": "unity_catalog_get_function",
+      "label": "Get Function Unity Catalog",
+      "method": "GET",
+      "path": "/api/2.1/unity-catalog/functions/{fullName}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Databricks server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "catalogName",
+          "label": "Catalog",
+          "type": "text",
+          "required": true,
+          "description": "The catalog to use (provide the ID)"
+        },
+        {
+          "id": "schemaName",
+          "label": "Schema",
+          "type": "text",
+          "required": true,
+          "description": "The schema to use (provide the ID)"
+        },
+        {
+          "id": "fullName",
+          "label": "Function",
+          "type": "text",
+          "required": true,
+          "description": "The function to access (provide the ID)",
+          "in": "path"
+        }
+      ],
+      "group": "Unity Catalog",
+      "description": "Get function information"
+    },
+    {
+      "id": "unity_catalog_get_table",
+      "label": "Get Table Unity Catalog",
+      "method": "GET",
+      "path": "/api/2.1/unity-catalog/tables/{fullName}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Databricks server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "catalogName",
+          "label": "Catalog",
+          "type": "text",
+          "required": true,
+          "description": "The catalog to use (provide the ID)"
+        },
+        {
+          "id": "schemaName",
+          "label": "Schema",
+          "type": "text",
+          "required": true,
+          "description": "The schema to use (provide the ID)"
+        },
+        {
+          "id": "fullName",
+          "label": "Table",
+          "type": "text",
+          "required": true,
+          "description": "The table to access (provide the ID)",
+          "in": "path"
+        }
+      ],
+      "group": "Unity Catalog",
+      "description": "Get table information"
+    },
+    {
+      "id": "unity_catalog_get_volume",
+      "label": "Get Volume Unity Catalog",
+      "method": "GET",
+      "path": "/api/2.1/unity-catalog/volumes/{fullName}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Databricks server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "catalogName",
+          "label": "Catalog",
+          "type": "text",
+          "required": true,
+          "description": "The catalog to use (provide the ID)"
+        },
+        {
+          "id": "schemaName",
+          "label": "Schema",
+          "type": "text",
+          "required": true,
+          "description": "The schema to use (provide the ID)"
+        },
+        {
+          "id": "volumeName",
+          "label": "Volume Name",
+          "type": "text",
+          "required": true,
+          "placeholder": "my_volume",
+          "description": "Name of the volume"
+        }
+      ],
+      "group": "Unity Catalog",
+      "description": "Get volume information"
+    },
+    {
+      "id": "unity_catalog_list_catalogs",
+      "label": "List Catalogs Unity Catalog",
+      "method": "GET",
+      "path": "/api/2.1/unity-catalog/catalogs",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Databricks server, e.g. app.example.com (no https:// prefix)"
+        }
+      ],
+      "group": "Unity Catalog",
+      "description": "List all catalogs"
+    },
+    {
+      "id": "unity_catalog_list_functions",
+      "label": "List Functions Unity Catalog",
+      "method": "GET",
+      "path": "/api/2.1/unity-catalog/functions",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Databricks server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "catalogName",
+          "label": "Catalog",
+          "type": "text",
+          "description": "Filter by catalog (optional) (provide the ID)"
+        },
+        {
+          "id": "schemaName",
+          "label": "Schema",
+          "type": "text",
+          "description": "Filter by schema (optional, requires catalog) (provide the ID)"
+        }
+      ],
+      "group": "Unity Catalog",
+      "description": "List functions in schema"
+    },
+    {
+      "id": "unity_catalog_list_tables",
+      "label": "List Tables Unity Catalog",
+      "method": "GET",
+      "path": "/api/2.1/unity-catalog/tables",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Databricks server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "catalogName",
+          "label": "Catalog",
+          "type": "text",
+          "description": "Filter by catalog (optional) (provide the ID)"
+        },
+        {
+          "id": "schemaName",
+          "label": "Schema",
+          "type": "text",
+          "description": "Filter by schema (optional, requires catalog) (provide the ID)"
+        }
+      ],
+      "group": "Unity Catalog",
+      "description": "List tables in schema"
+    },
+    {
+      "id": "unity_catalog_list_volumes",
+      "label": "List Volumes Unity Catalog",
+      "method": "GET",
+      "path": "/api/2.1/unity-catalog/volumes",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Databricks server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "catalogName",
+          "label": "Catalog",
+          "type": "text",
+          "description": "Filter by catalog (optional) (provide the ID)"
+        },
+        {
+          "id": "schemaName",
+          "label": "Schema",
+          "type": "text",
+          "description": "Filter by schema (optional, requires catalog) (provide the ID)"
+        }
+      ],
+      "group": "Unity Catalog",
+      "description": "List volumes in schema"
+    },
+    {
+      "id": "unity_catalog_update_catalog",
+      "label": "Update Catalog Unity Catalog",
+      "method": "PATCH",
+      "path": "/api/2.1/unity-catalog/catalogs/{catalogName}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Databricks server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "catalogName",
+          "label": "Catalog",
+          "type": "text",
+          "required": true,
+          "description": "The catalog to use (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "comment",
+          "label": "Comment",
+          "type": "text",
+          "placeholder": "Catalog description",
+          "description": "Optional comment or description"
+        }
+      ],
+      "group": "Unity Catalog",
+      "description": "Update catalog information"
+    },
+    {
+      "id": "databricks_sql_execute_query",
+      "label": "Execute Query Databricks SQL",
+      "method": "POST",
+      "path": "/api/2.0/sql/statements",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Databricks server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "warehouseId",
+          "label": "Warehouse",
+          "type": "text",
+          "required": true,
+          "description": "The SQL warehouse to use (provide the ID)"
+        },
+        {
+          "id": "query",
+          "label": "Query",
+          "type": "textarea",
+          "required": true,
+          "placeholder": "SELECT * FROM my_table LIMIT 10",
+          "description": "SQL query to execute"
+        },
+        {
+          "id": "queryParameters",
+          "label": "Query Parameters",
+          "type": "json",
+          "placeholder": "Add Parameter",
+          "description": "Named parameters for the query. Reference them in your SQL as :name, e.g. WHERE ID = :user_id. (JSON object; supported keys: parameters, parameters.name, parameters.value, parameters.type)"
+        }
+      ],
+      "group": "Databricks SQL",
+      "description": "Execute a SQL query and wait for results"
+    },
+    {
+      "id": "model_serving_query_endpoint",
+      "label": "Query Endpoint Model Serving",
+      "method": "GET",
+      "path": "/api/2.0/serving-endpoints/{endpointName}/openapi",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Databricks server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "endpointName",
+          "label": "Endpoint",
+          "type": "text",
+          "required": true,
+          "description": "The model serving endpoint to query. The input format will be automatically detected from the endpoint schema. The node will fetch the endpoint's OpenAPI schema to determine the correct invocation URL. (provide the ID)",
+          "in": "path"
+        },
+        {
+          "id": "requestBody",
+          "label": "Request Body",
+          "type": "json",
+          "required": true,
+          "placeholder": "Request body will be validated against the endpoint schema",
+          "description": "Request body in JSON format. The node automatically detects the expected format from the endpoint's OpenAPI schema and validates your input at runtime.",
+          "defaultValue": "{\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"Hello!\"\n    }\n  ]\n}"
+        }
+      ],
+      "group": "Model Serving",
+      "description": "Query a serving endpoint. The input format is automatically detected from the endpoint schema."
+    },
+    {
+      "id": "vector_search_create_index",
+      "label": "Create Index Vector Search",
+      "method": "POST",
+      "path": "/api/2.0/vector-search/indexes",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Databricks server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "indexName",
+          "label": "Index Name",
+          "type": "text",
+          "required": true,
+          "description": "Name of the vector search index"
+        },
+        {
+          "id": "endpointName",
+          "label": "Endpoint Name",
+          "type": "text",
+          "required": true,
+          "description": "Name of the vector search endpoint"
+        },
+        {
+          "id": "primaryKey",
+          "label": "Primary Key",
+          "type": "text",
+          "required": true,
+          "placeholder": "ID",
+          "description": "Primary key column of the index"
+        },
+        {
+          "id": "indexType",
+          "label": "Index Type",
+          "type": "select",
+          "required": true,
+          "description": "Type of vector search index to create",
+          "defaultValue": "DELTA_SYNC",
+          "options": [
+            {
+              "value": "DELTA_SYNC",
+              "label": "Delta Sync"
+            },
+            {
+              "value": "DIRECT_ACCESS",
+              "label": "Direct Access"
+            }
+          ]
+        },
+        {
+          "id": "deltaSyncIndexSpec",
+          "label": "Delta Sync Index Spec",
+          "type": "json",
+          "required": true,
+          "description": "Specification for the Delta Sync index",
+          "defaultValue": "{\n  \"source_table\": \"catalog.schema.table\",\n  \"pipeline_type\": \"TRIGGERED\",\n  \"embedding_source_columns\": [{\n    \"name\": \"text\",\n    \"embedding_model_endpoint_name\": \"e5-small-v2\"\n  }],\n  \"columns_to_sync\": [\"id\", \"text\"]\n}"
+        },
+        {
+          "id": "directAccessIndexSpec",
+          "label": "Direct Access Index Spec",
+          "type": "json",
+          "required": true,
+          "description": "Specification for the Direct Access index",
+          "defaultValue": "{\n  \"embedding_vector_columns\": [{\n    \"name\": \"embedding\",\n    \"embedding_dimension\": 1536\n  }],\n  \"schema_json\": \"{}\"\n}"
+        }
+      ],
+      "group": "Vector Search",
+      "description": "Create a new vector search index"
+    },
+    {
+      "id": "vector_search_get_index",
+      "label": "Get Index Vector Search",
+      "method": "GET",
+      "path": "/api/2.0/vector-search/indexes/{indexName}",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Databricks server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "indexName",
+          "label": "Index Name",
+          "type": "text",
+          "required": true,
+          "description": "Name of the vector search index",
+          "in": "path"
+        }
+      ],
+      "group": "Vector Search",
+      "description": "Get details of a vector search index"
+    },
+    {
+      "id": "vector_search_list_indexes",
+      "label": "List Indexes Vector Search",
+      "method": "GET",
+      "path": "/api/2.0/vector-search/indexes",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Databricks server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "endpointName",
+          "label": "Endpoint Name",
+          "type": "text",
+          "required": true,
+          "description": "Name of the vector search endpoint"
+        }
+      ],
+      "group": "Vector Search",
+      "description": "List all vector search indexes"
+    },
+    {
+      "id": "vector_search_query_index",
+      "label": "Query Index Vector Search",
+      "method": "POST",
+      "path": "/api/2.0/vector-search/indexes/{indexName}/query",
+      "fields": [
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Host of your Databricks server, e.g. app.example.com (no https:// prefix)"
+        },
+        {
+          "id": "indexName",
+          "label": "Index Name",
+          "type": "text",
+          "required": true,
+          "description": "Name of the vector search index",
+          "in": "path"
+        },
+        {
+          "id": "queryType",
+          "label": "Query Type",
+          "type": "select",
+          "required": true,
+          "description": "Type of query to perform",
+          "defaultValue": "text",
+          "options": [
+            {
+              "value": "text",
+              "label": "Text Query"
+            },
+            {
+              "value": "vector",
+              "label": "Vector Query"
+            }
+          ]
+        },
+        {
+          "id": "queryText",
+          "label": "Query Text",
+          "type": "text",
+          "required": true,
+          "placeholder": "What is machine learning?",
+          "description": "Text to search for (will be automatically converted to embeddings)"
+        },
+        {
+          "id": "queryVector",
+          "label": "Query Vector",
+          "type": "json",
+          "required": true,
+          "placeholder": "[0.1, 0.2, 0.3, ...]",
+          "description": "Vector embeddings to search for similar vectors (array of numbers)",
+          "defaultValue": "[]"
+        },
+        {
+          "id": "searchMode",
+          "label": "Search Mode",
+          "type": "select",
+          "description": "Search algorithm to use",
+          "defaultValue": "ANN",
+          "options": [
+            {
+              "value": "HYBRID",
+              "label": "Hybrid"
+            },
+            {
+              "value": "ANN",
+              "label": "ANN (Approximate Nearest Neighbor)"
+            }
+          ]
+        },
+        {
+          "id": "columns",
+          "label": "Columns to Return",
+          "type": "text",
+          "required": true,
+          "placeholder": "content, url",
+          "description": "Comma-separated list of column names to return in results (e.g., \"content,URL,title\")"
+        },
+        {
+          "id": "numResults",
+          "label": "Number of Results",
+          "type": "number",
+          "description": "Maximum number of results to return",
+          "defaultValue": 10
+        },
+        {
+          "id": "enableReranking",
+          "label": "Enable Reranking",
+          "type": "toggle",
+          "description": "Whether to rerank results using a reranker model for improved relevance",
+          "defaultValue": false
+        },
+        {
+          "id": "rerankerModel",
+          "label": "Reranker Model",
+          "type": "text",
+          "required": true,
+          "description": "Name of the reranker model to use",
+          "defaultValue": "databricks_reranker"
+        },
+        {
+          "id": "columnsToRerank",
+          "label": "Columns to Rerank",
+          "type": "text",
+          "required": true,
+          "placeholder": "content",
+          "description": "Comma-separated list of columns to use for reranking (e.g., \"content,title\")"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Option",
+          "description": "(JSON object; supported keys: filterExpression, scoreThreshold)"
+        }
+      ],
+      "group": "Vector Search",
+      "description": "Query a vector search index with text or vectors"
     }
   ]
 }

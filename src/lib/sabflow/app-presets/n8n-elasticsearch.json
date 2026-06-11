@@ -4,28 +4,353 @@
   "description": "Consume the Elasticsearch API",
   "category": "data",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 2,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
-    "type": "header",
-    "credentialType": "http_header_auth"
+    "type": "basic",
+    "credentialType": "elasticsearch",
+    "baseUrlFromCredential": "baseUrl"
   },
   "baseUrl": "",
   "endpoints": [
     {
-      "id": "document_default",
-      "label": "List Document",
-      "method": "GET",
-      "path": "/document",
-      "fields": []
+      "id": "document_create",
+      "label": "Create Document",
+      "method": "POST",
+      "path": "/{indexId}/_doc/{documentId}",
+      "fields": [
+        {
+          "id": "indexId",
+          "label": "Index ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the index to add the document to",
+          "in": "path"
+        },
+        {
+          "id": "dataToSend",
+          "label": "Data to Send",
+          "type": "select",
+          "description": "Whether to insert the input data this node receives in the new row",
+          "defaultValue": "defineBelow",
+          "options": [
+            {
+              "value": "defineBelow",
+              "label": "Define Below for Each Column"
+            },
+            {
+              "value": "autoMapInputData",
+              "label": "Auto-Map Input Data to Columns"
+            }
+          ]
+        },
+        {
+          "id": "inputsToIgnore",
+          "label": "Inputs to Ignore",
+          "type": "text",
+          "placeholder": "Enter properties...",
+          "description": "List of input properties to avoid sending, separated by commas. Leave empty to send all properties."
+        },
+        {
+          "id": "fieldsUi",
+          "label": "Fields to Send",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: fieldValues, fieldValues.fieldId, fieldValues.fieldValue)"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: documentId, routing, timeout)"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: bulkOperation, pipeline, refresh)"
+        }
+      ],
+      "group": "Document",
+      "description": "Create a document"
     },
     {
-      "id": "index_default",
-      "label": "List Index",
+      "id": "document_delete",
+      "label": "Delete Document",
+      "method": "DELETE",
+      "path": "/{indexId}/_doc/{documentId}",
+      "fields": [
+        {
+          "id": "indexId",
+          "label": "Index ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the index containing the document to delete",
+          "in": "path"
+        },
+        {
+          "id": "documentId",
+          "label": "Document ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the document to delete",
+          "in": "path"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Option",
+          "description": "(JSON object; supported keys: bulkOperation)"
+        }
+      ],
+      "group": "Document",
+      "description": "Delete a document"
+    },
+    {
+      "id": "document_get",
+      "label": "Get Document",
       "method": "GET",
-      "path": "/index",
-      "fields": []
+      "path": "/{indexId}/_doc/{documentId}",
+      "fields": [
+        {
+          "id": "indexId",
+          "label": "Index ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the index containing the document to retrieve",
+          "in": "path"
+        },
+        {
+          "id": "documentId",
+          "label": "Document ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the document to retrieve",
+          "in": "path"
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: _source_excludes, _source_includes, stored_fields)"
+        }
+      ],
+      "group": "Document",
+      "description": "Get a document"
+    },
+    {
+      "id": "document_get_all",
+      "label": "Get Many Document",
+      "method": "POST",
+      "path": "/{indexId}/_search",
+      "fields": [
+        {
+          "id": "indexId",
+          "label": "Index ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the index containing the documents to retrieve",
+          "in": "path"
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: allow_no_indices, allow_partial_search_results, batched_reduce_size, ccs_minimize_roundtrips, docvalue_fields, expand_wildcards, explain, ignore_throttled, ignore_unavailable, max_concurrent_shard_requests, pre_filter_shard_size, query, request_cache, routing, search_type, seq_no_primary_term, sort, _source_excludes, _source_includes, stats, stored_fields, terminate_after, timeout, track_scores, track_total_hits, version)"
+        }
+      ],
+      "group": "Document",
+      "description": "Get many documents"
+    },
+    {
+      "id": "document_update",
+      "label": "Update Document",
+      "method": "POST",
+      "path": "/{indexId}/_update/{documentId}",
+      "fields": [
+        {
+          "id": "indexId",
+          "label": "Index ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the document to update",
+          "in": "path"
+        },
+        {
+          "id": "documentId",
+          "label": "Document ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the document to update",
+          "in": "path"
+        },
+        {
+          "id": "dataToSend",
+          "label": "Data to Send",
+          "type": "select",
+          "description": "Whether to insert the input data this node receives in the new row",
+          "defaultValue": "defineBelow",
+          "options": [
+            {
+              "value": "defineBelow",
+              "label": "Define Below for Each Column"
+            },
+            {
+              "value": "autoMapInputData",
+              "label": "Auto-Map Input Data to Columns"
+            }
+          ]
+        },
+        {
+          "id": "inputsToIgnore",
+          "label": "Inputs to Ignore",
+          "type": "text",
+          "placeholder": "Enter properties...",
+          "description": "List of input properties to avoid sending, separated by commas. Leave empty to send all properties."
+        },
+        {
+          "id": "fieldsUi",
+          "label": "Fields to Send",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: fieldValues, fieldValues.fieldId, fieldValues.fieldValue)"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: bulkOperation, refresh)"
+        }
+      ],
+      "group": "Document",
+      "description": "Update a document"
+    },
+    {
+      "id": "index_create",
+      "label": "Create Index",
+      "method": "PUT",
+      "path": "/{indexId}",
+      "fields": [
+        {
+          "id": "indexId",
+          "label": "Index ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the index to create",
+          "in": "path"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: aliases, include_type_name, mappings, master_timeout, settings, timeout, wait_for_active_shards)"
+        }
+      ],
+      "group": "Index",
+      "description": "Create an index"
+    },
+    {
+      "id": "index_delete",
+      "label": "Delete Index",
+      "method": "DELETE",
+      "path": "/{indexId}",
+      "fields": [
+        {
+          "id": "indexId",
+          "label": "Index ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the index to delete",
+          "in": "path"
+        }
+      ],
+      "group": "Index",
+      "description": "Delete an index"
+    },
+    {
+      "id": "index_get",
+      "label": "Get Index",
+      "method": "GET",
+      "path": "/{indexId}",
+      "fields": [
+        {
+          "id": "indexId",
+          "label": "Index ID",
+          "type": "text",
+          "required": true,
+          "description": "ID of the index to retrieve",
+          "in": "path"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: allow_no_indices, expand_wildcards, flat_settings, ignore_unavailable, include_defaults, local, master_timeout)"
+        }
+      ],
+      "group": "Index",
+      "description": "Get an index"
+    },
+    {
+      "id": "index_get_all",
+      "label": "Get Many Index",
+      "method": "GET",
+      "path": "/_aliases",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Index",
+      "description": "Get many indices"
     }
   ]
 }

@@ -4,25 +4,26 @@
   "description": "Sends data to AWS Rekognition",
   "category": "dev",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 2,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
-    "type": "none"
+    "type": "aws_sigv4",
+    "credentialType": "aws",
+    "awsService": "rekognition"
   },
   "baseUrl": "",
   "endpoints": [
     {
       "id": "image_analyze",
       "label": "Analyze Image",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/image",
       "fields": [
         {
           "id": "type",
           "label": "Type",
           "type": "select",
-          "in": "query",
           "defaultValue": "detectFaces",
           "options": [
             {
@@ -51,7 +52,6 @@
           "id": "binaryData",
           "label": "Binary File",
           "type": "toggle",
-          "in": "query",
           "required": true,
           "description": "Whether the image to analyze should be taken from binary field",
           "defaultValue": false
@@ -60,7 +60,6 @@
           "id": "binaryPropertyName",
           "label": "Input Binary Field",
           "type": "text",
-          "in": "query",
           "required": true,
           "defaultValue": "data"
         },
@@ -68,7 +67,6 @@
           "id": "bucket",
           "label": "Bucket",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "Name of the S3 bucket"
         },
@@ -76,7 +74,6 @@
           "id": "name",
           "label": "Name",
           "type": "text",
-          "in": "query",
           "required": true,
           "description": "S3 object key name"
         },
@@ -84,10 +81,12 @@
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: regionsOfInterestUi, version, wordFilterUi, maxLabels, minConfidence, attributes)"
         }
-      ]
+      ],
+      "group": "Image",
+      "description": "[unverified path]"
     }
   ]
 }

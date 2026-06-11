@@ -170,12 +170,6 @@ Verified locally 2026-06-11: both cases pass against local Mongo + Redis
 - a populated app-preset catalog (the ≥ 400 apps assertion reads the live
   `/api/sabflow/app-presets` + editor catalog).
 
-## Known issue: cross-file cleanup race
-
-Test files run as separate parallel processes and `seed.cleanup()` sweeps ALL
-`__e2e`-tagged docs — another file's afterAll can delete a sibling file's
-seeded docs mid-test. Symptom: 'workspaces/invites surfaces a seeded incoming
-+ sent invite' fails in full-suite runs but passes solo
-(`tsx --test tests/sabflow-api/smoke.test.ts`). Fix when convenient: tag docs
-with a per-process runId and scope cleanup() to it, or run the api suite with
---test-concurrency=1.
+Seeded docs are tagged with a per-process `__e2eRun` runId and `seed.cleanup()`
+only sweeps its own run's docs, so parallel test files cannot delete each
+other's seeds mid-test (`cleanupAll()` does the global sweep when needed).

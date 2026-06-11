@@ -4,28 +4,38 @@
   "description": "Consume Line API",
   "category": "communication",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 2,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
-    "credentialType": "oauth2"
+    "credentialType": "line_notify",
+    "baseUrlFromCredential": "baseUrl"
   },
   "baseUrl": "",
   "endpoints": [
     {
-      "id": "notification_default",
-      "label": "List Notification",
-      "method": "GET",
+      "id": "notification_send",
+      "label": "Send Notification",
+      "method": "POST",
       "path": "/notification",
       "fields": [
         {
-          "id": "notice",
-          "label": "End of service: LINE Notify will be discontinued from April 1st 2025, You can find more information <a href=\"https://notify-bot.line.me/closing-announce\" target=\"_blank\">here</a>",
+          "id": "message",
+          "label": "Message",
           "type": "text",
-          "in": "query"
+          "required": true
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: imageUi, notificationDisabled, stickerUi)"
         }
-      ]
+      ],
+      "group": "Notification",
+      "description": "[unverified path] Sends notifications to users or groups"
     }
   ]
 }

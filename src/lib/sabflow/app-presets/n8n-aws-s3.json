@@ -1,15 +1,397 @@
 {
   "id": "n8n-aws-s3",
-  "name": "AwsS3",
+  "name": "AWS S3",
   "description": "Sends data to AWS S3",
   "category": "storage",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 2,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
-    "type": "none"
+    "type": "aws_sigv4",
+    "credentialType": "aws",
+    "awsService": "s3"
   },
   "baseUrl": "",
-  "endpoints": []
+  "endpoints": [
+    {
+      "id": "bucket_create",
+      "label": "Create Bucket",
+      "method": "POST",
+      "path": "/bucket",
+      "fields": [
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "A succinct description of the nature, symptoms, cause, or effect of the bucket"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: acl, bucketObjectLockEnabled, grantFullControl, grantRead, grantReadAcp, grantWrite, grantWriteAcp, region)"
+        }
+      ],
+      "group": "Bucket",
+      "description": "[unverified path] Create a bucket"
+    },
+    {
+      "id": "bucket_delete",
+      "label": "Delete Bucket",
+      "method": "DELETE",
+      "path": "/bucket",
+      "fields": [
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "description": "Name of the AWS S3 bucket to delete"
+        }
+      ],
+      "group": "Bucket",
+      "description": "[unverified path] Delete a bucket"
+    },
+    {
+      "id": "bucket_get_all",
+      "label": "Get Many Bucket",
+      "method": "GET",
+      "path": "/bucket",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        }
+      ],
+      "group": "Bucket",
+      "description": "[unverified path] Get many buckets"
+    },
+    {
+      "id": "bucket_search",
+      "label": "Search Bucket",
+      "method": "GET",
+      "path": "/bucket",
+      "fields": [
+        {
+          "id": "bucketName",
+          "label": "Bucket Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: delimiter, encodingType, fetchOwner, prefix, requesterPays, startAfter)"
+        }
+      ],
+      "group": "Bucket",
+      "description": "[unverified path] Search within a bucket"
+    },
+    {
+      "id": "folder_create",
+      "label": "Create Folder",
+      "method": "PUT",
+      "path": "/{basePath}/{folderName}/",
+      "fields": [
+        {
+          "id": "bucketName",
+          "label": "Bucket Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "folderName",
+          "label": "Folder Name",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: parentFolderKey, requesterPays, storageClass)"
+        }
+      ],
+      "group": "Folder",
+      "description": "Create a folder"
+    },
+    {
+      "id": "folder_delete",
+      "label": "Delete Folder",
+      "method": "DELETE",
+      "path": "/{basePath}/{folderKey}",
+      "fields": [
+        {
+          "id": "bucketName",
+          "label": "Bucket Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "folderKey",
+          "label": "Folder Key",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Folder",
+      "description": "Delete a folder"
+    },
+    {
+      "id": "folder_get_all",
+      "label": "Get Many Folder",
+      "method": "GET",
+      "path": "/folder",
+      "fields": [
+        {
+          "id": "bucketName",
+          "label": "Bucket Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: fetchOwner, folderKey)"
+        }
+      ],
+      "group": "Folder",
+      "description": "[unverified path] Get many folders"
+    },
+    {
+      "id": "file_copy",
+      "label": "Copy File",
+      "method": "POST",
+      "path": "/file",
+      "fields": [
+        {
+          "id": "sourcePath",
+          "label": "Source Path",
+          "type": "text",
+          "required": true,
+          "placeholder": "/bucket/my-image.jpg",
+          "description": "The name of the source bucket should start with (/) and key name of the source object, separated by a slash (/)"
+        },
+        {
+          "id": "destinationPath",
+          "label": "Destination Path",
+          "type": "text",
+          "required": true,
+          "placeholder": "/bucket/my-second-image.jpg",
+          "description": "The name of the destination bucket and key name of the destination object, separated by a slash (/)"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: acl, grantFullControl, grantRead, grantReadAcp, grantWriteAcp, lockLegalHold, lockMode, lockRetainUntilDate, metadataDirective, requesterPays, serverSideEncryption, serverSideEncryptionContext, encryptionAwsKmsKeyId, serversideEncryptionCustomerAlgorithm, serversideEncryptionCustomerKey, serversideEncryptionCustomerKeyMD5, storageClass, taggingDirective)"
+        }
+      ],
+      "group": "File",
+      "description": "[unverified path] Copy a file"
+    },
+    {
+      "id": "file_delete",
+      "label": "Delete File",
+      "method": "DELETE",
+      "path": "/{basePath}/{fileKey}",
+      "fields": [
+        {
+          "id": "bucketName",
+          "label": "Bucket Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "fileKey",
+          "label": "File Key",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: versionId)"
+        }
+      ],
+      "group": "File",
+      "description": "Delete a file"
+    },
+    {
+      "id": "file_download",
+      "label": "Download File",
+      "method": "GET",
+      "path": "/{basePath}/{fileKey}",
+      "fields": [
+        {
+          "id": "bucketName",
+          "label": "Bucket Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "fileKey",
+          "label": "File Key",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "binaryPropertyName",
+          "label": "Put Output File in Field",
+          "type": "text",
+          "required": true,
+          "defaultValue": "data"
+        }
+      ],
+      "group": "File",
+      "description": "Download a file"
+    },
+    {
+      "id": "file_get_all",
+      "label": "Get Many File",
+      "method": "GET",
+      "path": "/file",
+      "fields": [
+        {
+          "id": "bucketName",
+          "label": "Bucket Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: fetchOwner, folderKey)"
+        }
+      ],
+      "group": "File",
+      "description": "[unverified path] Get many files"
+    },
+    {
+      "id": "file_upload",
+      "label": "Upload File",
+      "method": "POST",
+      "path": "/{path}?uploads",
+      "fields": [
+        {
+          "id": "bucketName",
+          "label": "Bucket Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "fileName",
+          "label": "File Name",
+          "type": "text",
+          "required": true,
+          "placeholder": "hello.txt"
+        },
+        {
+          "id": "binaryData",
+          "label": "Binary File",
+          "type": "toggle",
+          "description": "Whether the data to upload should be taken from binary field",
+          "defaultValue": true
+        },
+        {
+          "id": "fileContent",
+          "label": "File Content",
+          "type": "text",
+          "description": "The text content of the file to upload"
+        },
+        {
+          "id": "binaryPropertyName",
+          "label": "Input Binary Field",
+          "type": "text",
+          "required": true,
+          "defaultValue": "data"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: acl, grantFullControl, grantRead, grantReadAcp, grantWriteAcp, lockLegalHold, lockMode, lockRetainUntilDate, parentFolderKey, requesterPays, serverSideEncryption, serverSideEncryptionContext, encryptionAwsKmsKeyId, serversideEncryptionCustomerAlgorithm, serversideEncryptionCustomerKey, serversideEncryptionCustomerKeyMD5, storageClass)"
+        },
+        {
+          "id": "tagsUi",
+          "label": "Tags",
+          "type": "json",
+          "placeholder": "Add Tag",
+          "description": "Optional extra headers to add to the message (most headers are allowed) (JSON object; supported keys: tagsValues, tagsValues.key, tagsValues.value)"
+        }
+      ],
+      "group": "File",
+      "description": "Upload a file"
+    }
+  ]
 }

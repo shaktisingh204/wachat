@@ -4,42 +4,161 @@
   "description": "Consume PostHog API",
   "category": "analytics",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 2,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
-    "type": "header",
-    "credentialType": "http_header_auth"
+    "type": "bearer",
+    "credentialType": "post_hog",
+    "baseUrlFromCredential": "baseUrl"
   },
   "baseUrl": "",
   "endpoints": [
     {
-      "id": "alias_default",
-      "label": "List Alias",
-      "method": "GET",
-      "path": "/alias",
-      "fields": []
+      "id": "alias_create",
+      "label": "Create Alias",
+      "method": "POST",
+      "path": "/batch",
+      "fields": [
+        {
+          "id": "alias",
+          "label": "Alias",
+          "type": "text",
+          "required": true,
+          "description": "The name of the alias"
+        },
+        {
+          "id": "distinctId",
+          "label": "Distinct ID",
+          "type": "text",
+          "required": true,
+          "description": "The user's distinct ID"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: contextUi, timestamp)"
+        }
+      ],
+      "group": "Alias",
+      "description": "Create an alias"
     },
     {
-      "id": "event_default",
-      "label": "List Event",
-      "method": "GET",
-      "path": "/event",
-      "fields": []
+      "id": "event_create",
+      "label": "Create Event",
+      "method": "POST",
+      "path": "/capture",
+      "fields": [
+        {
+          "id": "eventName",
+          "label": "Event",
+          "type": "text",
+          "required": true,
+          "description": "The name of the event"
+        },
+        {
+          "id": "distinctId",
+          "label": "Distinct ID",
+          "type": "text",
+          "required": true,
+          "description": "The user's distinct ID"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: propertiesUi, timestamp)"
+        }
+      ],
+      "group": "Event",
+      "description": "Create an event"
     },
     {
-      "id": "identity_default",
-      "label": "List Identity",
-      "method": "GET",
-      "path": "/identity",
-      "fields": []
+      "id": "identity_create",
+      "label": "Create Identity",
+      "method": "POST",
+      "path": "/batch",
+      "fields": [
+        {
+          "id": "distinctId",
+          "label": "Distinct ID",
+          "type": "text",
+          "required": true,
+          "description": "The identity's distinct ID"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: propertiesUi, messageId, timestamp)"
+        }
+      ],
+      "group": "Identity",
+      "description": "Create an identity"
     },
     {
-      "id": "track_default",
-      "label": "List Track",
-      "method": "GET",
+      "id": "track_page",
+      "label": "Page Track",
+      "method": "POST",
       "path": "/track",
-      "fields": []
+      "fields": [
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "distinctId",
+          "label": "Distinct ID",
+          "type": "text",
+          "required": true,
+          "description": "The user's distinct ID"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: category, contextUi, messageId, propertiesUi, timestamp)"
+        }
+      ],
+      "group": "Track",
+      "description": "[unverified path] Track a page"
+    },
+    {
+      "id": "track_screen",
+      "label": "Screen Track",
+      "method": "POST",
+      "path": "/batch",
+      "fields": [
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "distinctId",
+          "label": "Distinct ID",
+          "type": "text",
+          "required": true,
+          "description": "The user's distinct ID"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: category, contextUi, messageId, propertiesUi, timestamp)"
+        }
+      ],
+      "group": "Track",
+      "description": "Track a screen"
     }
   ]
 }

@@ -4,63 +4,311 @@
   "description": "Consume Home Assistant API",
   "category": "dev",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 2,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
-    "type": "header",
-    "credentialType": "http_header_auth"
+    "type": "bearer",
+    "credentialType": "home_assistant",
+    "baseUrlFromCredential": "baseUrl"
   },
   "baseUrl": "",
   "endpoints": [
     {
-      "id": "camera_proxy_default",
-      "label": "List CameraProxy",
+      "id": "camera_proxy_get_screenshot",
+      "label": "Get Screenshot Camera Proxy",
       "method": "GET",
-      "path": "/cameraProxy",
-      "fields": []
+      "path": "/camera_proxy/{cameraEntityId}",
+      "fields": [
+        {
+          "id": "cameraEntityId",
+          "label": "Camera Entity Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        },
+        {
+          "id": "binaryPropertyName",
+          "label": "Put Output File in Field",
+          "type": "text",
+          "required": true,
+          "defaultValue": "data"
+        }
+      ],
+      "group": "Camera Proxy",
+      "description": "Get the camera screenshot"
     },
     {
-      "id": "config_default",
-      "label": "List Config",
+      "id": "config_get",
+      "label": "Get Config",
       "method": "GET",
       "path": "/config",
-      "fields": []
+      "fields": [],
+      "group": "Config",
+      "description": "Get the configuration"
     },
     {
-      "id": "event_default",
-      "label": "List Event",
-      "method": "GET",
-      "path": "/event",
-      "fields": []
+      "id": "config_check",
+      "label": "Check Configuration Config",
+      "method": "POST",
+      "path": "/config/core/check_config",
+      "fields": [],
+      "group": "Config",
+      "description": "Check the configuration"
     },
     {
-      "id": "log_default",
-      "label": "List Log",
-      "method": "GET",
-      "path": "/log",
-      "fields": []
+      "id": "event_create",
+      "label": "Create Event",
+      "method": "POST",
+      "path": "/events/{eventType}",
+      "fields": [
+        {
+          "id": "eventType",
+          "label": "Event Type",
+          "type": "text",
+          "required": true,
+          "description": "The Entity ID for which an event will be created",
+          "in": "path"
+        },
+        {
+          "id": "eventAttributes",
+          "label": "Event Attributes",
+          "type": "json",
+          "placeholder": "Add Attribute",
+          "description": "(JSON object; supported keys: attributes, attributes.name, attributes.value)"
+        }
+      ],
+      "group": "Event",
+      "description": "Create an event"
     },
     {
-      "id": "service_default",
-      "label": "List Service",
+      "id": "event_get_all",
+      "label": "Get Many Event",
       "method": "GET",
-      "path": "/service",
-      "fields": []
+      "path": "/events",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Event",
+      "description": "Get many events"
     },
     {
-      "id": "state_default",
-      "label": "List State",
+      "id": "history_get_all",
+      "label": "Get Many History",
       "method": "GET",
-      "path": "/state",
-      "fields": []
+      "path": "/history/period",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: endTime, entityIds, minimalResponse, significantChangesOnly, startTime)"
+        }
+      ],
+      "group": "History",
+      "description": "Get many state changes"
     },
     {
-      "id": "template_default",
-      "label": "List Template",
+      "id": "log_get_erro_logs",
+      "label": "Get Error Logs Log",
       "method": "GET",
+      "path": "/error_log",
+      "fields": [],
+      "group": "Log",
+      "description": "Get a log for a specific entity"
+    },
+    {
+      "id": "log_get_logbook_entries",
+      "label": "Get Logbook Entries Log",
+      "method": "GET",
+      "path": "/logbook",
+      "fields": [
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: endTime, entityId, startTime)"
+        }
+      ],
+      "group": "Log",
+      "description": "Get all logs"
+    },
+    {
+      "id": "service_call",
+      "label": "Call Service",
+      "method": "POST",
+      "path": "/services/{domain}/{service}",
+      "fields": [
+        {
+          "id": "domain",
+          "label": "Domain Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        },
+        {
+          "id": "service",
+          "label": "Service Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        },
+        {
+          "id": "serviceAttributes",
+          "label": "Service Attributes",
+          "type": "json",
+          "placeholder": "Add Attribute",
+          "description": "(JSON object; supported keys: attributes, attributes.name, attributes.value)"
+        }
+      ],
+      "group": "Service",
+      "description": "Call a service within a specific domain"
+    },
+    {
+      "id": "service_get_all",
+      "label": "Get Many Service",
+      "method": "GET",
+      "path": "/services",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "Service",
+      "description": "Get many services"
+    },
+    {
+      "id": "state_upsert",
+      "label": "Create or Update State",
+      "method": "POST",
+      "path": "/states/{entityId}",
+      "fields": [
+        {
+          "id": "entityId",
+          "label": "Entity Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The entity ID for which a state will be created. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
+        },
+        {
+          "id": "state",
+          "label": "State",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "stateAttributes",
+          "label": "State Attributes",
+          "type": "json",
+          "placeholder": "Add Attribute",
+          "description": "(JSON object; supported keys: attributes, attributes.name, attributes.value)"
+        }
+      ],
+      "group": "State",
+      "description": "Create a new record, or update the current one if it already exists (upsert)"
+    },
+    {
+      "id": "state_get",
+      "label": "Get State",
+      "method": "GET",
+      "path": "/states/{entityId}",
+      "fields": [
+        {
+          "id": "entityId",
+          "label": "Entity Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
+        }
+      ],
+      "group": "State",
+      "description": "Get a state for a specific entity"
+    },
+    {
+      "id": "state_get_all",
+      "label": "Get Many State",
+      "method": "GET",
+      "path": "/states",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 50
+        }
+      ],
+      "group": "State",
+      "description": "Get many states"
+    },
+    {
+      "id": "template_create",
+      "label": "Create Template",
+      "method": "POST",
       "path": "/template",
-      "fields": []
+      "fields": [
+        {
+          "id": "template",
+          "label": "Template",
+          "type": "text",
+          "required": true,
+          "description": "Render a Home Assistant template. See template docs for more information.."
+        }
+      ],
+      "group": "Template",
+      "description": "Create a template"
     }
   ]
 }

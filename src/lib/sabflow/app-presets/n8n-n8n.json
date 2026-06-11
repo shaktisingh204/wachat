@@ -4,42 +4,355 @@
   "description": "Handle events and perform actions on your n8n instance",
   "category": "productivity",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 2,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
-    "credentialType": "http_header_auth"
+    "credentialType": "n8n_api",
+    "header": "X-N8N-API-KEY",
+    "baseUrlFromCredential": "baseUrl"
   },
   "baseUrl": "",
   "endpoints": [
     {
-      "id": "audit_default",
-      "label": "List Audit",
-      "method": "GET",
+      "id": "audit_generate",
+      "label": "Generate Audit",
+      "method": "POST",
       "path": "/audit",
-      "fields": []
+      "fields": [
+        {
+          "id": "additionalOptions",
+          "label": "Additional Options",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: categories, daysAbandonedWorkflow)"
+        }
+      ],
+      "group": "Audit",
+      "description": "Generate a security audit for this n8n instance"
     },
     {
-      "id": "credential_default",
-      "label": "List Credential",
+      "id": "credential_create",
+      "label": "Create Credential",
+      "method": "POST",
+      "path": "/credentials",
+      "fields": [
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "placeholder": "e.g. n8n account",
+          "description": "Name of the new credential"
+        },
+        {
+          "id": "credentialTypeName",
+          "label": "Credential Type",
+          "type": "text",
+          "required": true,
+          "placeholder": "e.g. n8nApi",
+          "description": "The available types depend on nodes installed on the n8n instance. Some built-in types include e.g. 'githubApi', 'notionApi', and 'slackApi'."
+        },
+        {
+          "id": "data",
+          "label": "Data",
+          "type": "json",
+          "required": true,
+          "placeholder": "// e.g. for n8nApi \n{\n  \"apiKey\": \"my-n8n-api-key\",\n  \"baseUrl\": \"https://<name>.app.n8n.cloud/api/v1\",\n}",
+          "description": "A valid JSON object with properties required for this Credential Type. To see the expected format, you can use 'Get Schema' operation."
+        }
+      ],
+      "group": "Credential",
+      "description": "Create a credential"
+    },
+    {
+      "id": "credential_delete",
+      "label": "Delete Credential",
+      "method": "DELETE",
+      "path": "/credentials/{{ {credentialId} }}",
+      "fields": [
+        {
+          "id": "credentialId",
+          "label": "Credential ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Credential",
+      "description": "[unverified path] Delete a credential"
+    },
+    {
+      "id": "credential_get_schema",
+      "label": "Get Schema Credential",
       "method": "GET",
-      "path": "/credential",
-      "fields": []
+      "path": "/credentials/schema/{{ {credentialTypeName} }}",
+      "fields": [
+        {
+          "id": "credentialTypeName",
+          "label": "Credential Type",
+          "type": "text",
+          "required": true,
+          "placeholder": "e.g. n8nApi",
+          "description": "The available types depend on nodes installed on the n8n instance. Some built-in types include e.g. 'githubApi', 'notionApi', and 'slackApi'.",
+          "in": "path"
+        }
+      ],
+      "group": "Credential",
+      "description": "[unverified path] Get credential data schema for type"
     },
     {
-      "id": "execution_default",
-      "label": "List Execution",
+      "id": "execution_get",
+      "label": "Get Execution",
       "method": "GET",
-      "path": "/execution",
-      "fields": []
+      "path": "/executions/{{ {executionId} }}",
+      "fields": [
+        {
+          "id": "executionId",
+          "label": "Execution ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: activeWorkflows)"
+        }
+      ],
+      "group": "Execution",
+      "description": "[unverified path] Get an execution"
     },
     {
-      "id": "workflow_default",
-      "label": "List Workflow",
+      "id": "execution_get_all",
+      "label": "Get Many Execution",
+      "method": "GET",
+      "path": "/executions",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add Filter",
+          "description": "(JSON object; supported keys: workflowId, status)"
+        },
+        {
+          "id": "options",
+          "label": "Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: activeWorkflows)"
+        }
+      ],
+      "group": "Execution",
+      "description": "Get many executions"
+    },
+    {
+      "id": "execution_delete",
+      "label": "Delete Execution",
+      "method": "DELETE",
+      "path": "/executions/{{ {executionId} }}",
+      "fields": [
+        {
+          "id": "executionId",
+          "label": "Execution ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
+      ],
+      "group": "Execution",
+      "description": "[unverified path] Delete an execution"
+    },
+    {
+      "id": "workflow_activate",
+      "label": "Publish Workflow",
+      "method": "POST",
+      "path": "/workflow",
+      "fields": [
+        {
+          "id": "workflowId",
+          "label": "Workflow",
+          "type": "text",
+          "required": true,
+          "description": "Workflow to filter the executions by (provide the ID)"
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: versionId, name, description)"
+        }
+      ],
+      "group": "Workflow",
+      "description": "[unverified path] Publish a workflow"
+    },
+    {
+      "id": "workflow_create",
+      "label": "Create Workflow",
+      "method": "POST",
+      "path": "/workflows",
+      "fields": [
+        {
+          "id": "workflowObject",
+          "label": "Workflow Object",
+          "type": "json",
+          "required": true,
+          "placeholder": "{\n  \"name\": \"My workflow\",\n  \"nodes\": [],\n  \"connections\": {},\n  \"settings\": {}\n}",
+          "description": "A valid JSON object with required fields: 'name', 'nodes', 'connections' and 'settings'. More information can be found in the documentation.",
+          "defaultValue": "{ \"name\": \"My workflow\", \"nodes\": [], \"connections\": {}, \"settings\": {} }"
+        }
+      ],
+      "group": "Workflow",
+      "description": "Create a workflow"
+    },
+    {
+      "id": "workflow_deactivate",
+      "label": "Unpublish Workflow",
+      "method": "DELETE",
+      "path": "/workflow",
+      "fields": [
+        {
+          "id": "workflowId",
+          "label": "Workflow",
+          "type": "text",
+          "required": true,
+          "description": "Workflow to filter the executions by (provide the ID)"
+        }
+      ],
+      "group": "Workflow",
+      "description": "[unverified path] Unpublish a workflow"
+    },
+    {
+      "id": "workflow_delete",
+      "label": "Delete Workflow",
+      "method": "DELETE",
+      "path": "/workflow",
+      "fields": [
+        {
+          "id": "workflowId",
+          "label": "Workflow",
+          "type": "text",
+          "required": true,
+          "description": "Workflow to filter the executions by (provide the ID)"
+        }
+      ],
+      "group": "Workflow",
+      "description": "[unverified path] Delete a workflow"
+    },
+    {
+      "id": "workflow_get",
+      "label": "Get Workflow",
       "method": "GET",
       "path": "/workflow",
-      "fields": []
+      "fields": [
+        {
+          "id": "workflowId",
+          "label": "Workflow",
+          "type": "text",
+          "required": true,
+          "description": "Workflow to filter the executions by (provide the ID)"
+        }
+      ],
+      "group": "Workflow",
+      "description": "[unverified path] Get a workflow"
+    },
+    {
+      "id": "workflow_get_all",
+      "label": "Get Many Workflow",
+      "method": "GET",
+      "path": "/workflows",
+      "fields": [
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": true
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "description": "(JSON object; supported keys: activeWorkflows, tags, name, projectId, excludePinnedData)"
+        }
+      ],
+      "group": "Workflow",
+      "description": "Get many workflows"
+    },
+    {
+      "id": "workflow_get_version",
+      "label": "Get Version Workflow",
+      "method": "GET",
+      "path": "/workflow",
+      "fields": [
+        {
+          "id": "workflowId",
+          "label": "Workflow",
+          "type": "text",
+          "required": true,
+          "description": "Workflow to filter the executions by (provide the ID)"
+        },
+        {
+          "id": "versionId",
+          "label": "Version ID",
+          "type": "text",
+          "required": true,
+          "description": "The version ID to retrieve"
+        }
+      ],
+      "group": "Workflow",
+      "description": "[unverified path] Get a workflow version"
+    },
+    {
+      "id": "workflow_update",
+      "label": "Update Workflow",
+      "method": "PATCH",
+      "path": "/workflow",
+      "fields": [
+        {
+          "id": "workflowId",
+          "label": "Workflow",
+          "type": "text",
+          "required": true,
+          "description": "Workflow to filter the executions by (provide the ID)"
+        },
+        {
+          "id": "workflowObject",
+          "label": "Workflow Object",
+          "type": "json",
+          "required": true,
+          "placeholder": "{\n  \"name\": \"My workflow\",\n  \"nodes\": [],\n  \"connections\": {},\n  \"settings\": {}\n}",
+          "description": "A valid JSON object with required fields: 'name', 'nodes', 'connections' and 'settings'. More information can be found in the documentation."
+        }
+      ],
+      "group": "Workflow",
+      "description": "[unverified path] Update a workflow"
     }
   ]
 }

@@ -4,42 +4,281 @@
   "description": "Use the Metabase API",
   "category": "analytics",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 2,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
-    "credentialType": "http_header_auth"
+    "credentialType": "metabase",
+    "header": "X-Metabase-Session",
+    "baseUrlFromCredential": "baseUrl"
   },
   "baseUrl": "",
   "endpoints": [
     {
-      "id": "alerts_default",
-      "label": "List Alerts",
+      "id": "questions_get",
+      "label": "Get Question",
       "method": "GET",
-      "path": "/alerts",
-      "fields": []
+      "path": "/api/card/{questionId}",
+      "fields": [
+        {
+          "id": "questionId",
+          "label": "Question ID",
+          "type": "text",
+          "required": true,
+          "placeholder": "0",
+          "in": "path"
+        }
+      ],
+      "group": "Question",
+      "description": "Get a specific question"
     },
     {
-      "id": "databases_default",
-      "label": "List Databases",
+      "id": "questions_get_all",
+      "label": "Get Many Question",
       "method": "GET",
-      "path": "/databases",
-      "fields": []
+      "path": "/api/card/",
+      "fields": [],
+      "group": "Question",
+      "description": "Get many questions"
     },
     {
-      "id": "metrics_default",
-      "label": "List Metrics",
-      "method": "GET",
-      "path": "/metrics",
-      "fields": []
+      "id": "questions_result_data",
+      "label": "Result Data Question",
+      "method": "POST",
+      "path": "/api/card/{questionId}/query/{format}",
+      "fields": [
+        {
+          "id": "questionId",
+          "label": "Question ID",
+          "type": "text",
+          "required": true,
+          "placeholder": "0",
+          "in": "path"
+        },
+        {
+          "id": "format",
+          "label": "Format",
+          "type": "select",
+          "required": true,
+          "defaultValue": "csv",
+          "options": [
+            {
+              "value": "csv",
+              "label": "CSV"
+            },
+            {
+              "value": "json",
+              "label": "JSON"
+            },
+            {
+              "value": "xlsx",
+              "label": "XLSX"
+            }
+          ],
+          "in": "path"
+        }
+      ],
+      "group": "Question",
+      "description": "Return the result of the question to a specific file format"
     },
     {
-      "id": "questions_default",
-      "label": "List Questions",
+      "id": "metrics_get",
+      "label": "Get Metric",
       "method": "GET",
-      "path": "/questions",
-      "fields": []
+      "path": "/api/metric/{metricId}",
+      "fields": [
+        {
+          "id": "metricId",
+          "label": "Metric ID",
+          "type": "text",
+          "required": true,
+          "placeholder": "0",
+          "in": "path"
+        }
+      ],
+      "group": "Metric",
+      "description": "Get a specific metric"
+    },
+    {
+      "id": "metrics_get_all",
+      "label": "Get Many Metric",
+      "method": "GET",
+      "path": "/api/metric/",
+      "fields": [],
+      "group": "Metric",
+      "description": "Get many metrics"
+    },
+    {
+      "id": "databases_add_new_datasource",
+      "label": "Add Database",
+      "method": "POST",
+      "path": "/api/database",
+      "fields": [
+        {
+          "id": "engine",
+          "label": "Engine",
+          "type": "select",
+          "required": true,
+          "placeholder": "PostgreSQL",
+          "defaultValue": "postgres",
+          "options": [
+            {
+              "value": "h2",
+              "label": "H2"
+            },
+            {
+              "value": "mongo",
+              "label": "MongoDB"
+            },
+            {
+              "value": "mysql",
+              "label": "Mysql"
+            },
+            {
+              "value": "postgres",
+              "label": "PostgreSQL"
+            },
+            {
+              "value": "redshift",
+              "label": "Redshift"
+            },
+            {
+              "value": "sqlite",
+              "label": "Sqlite"
+            }
+          ],
+          "in": "body"
+        },
+        {
+          "id": "host",
+          "label": "Host",
+          "type": "text",
+          "required": true,
+          "placeholder": "localhost:5432",
+          "in": "body"
+        },
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "placeholder": "Database 1",
+          "in": "body"
+        },
+        {
+          "id": "port",
+          "label": "Port",
+          "type": "number",
+          "required": true,
+          "placeholder": "5432",
+          "defaultValue": 5432,
+          "in": "body"
+        },
+        {
+          "id": "user",
+          "label": "User",
+          "type": "text",
+          "required": true,
+          "placeholder": "Admin",
+          "in": "body"
+        },
+        {
+          "id": "password",
+          "label": "Password",
+          "type": "password",
+          "required": true,
+          "placeholder": "password",
+          "in": "body"
+        },
+        {
+          "id": "dbName",
+          "label": "Database Name",
+          "type": "text",
+          "placeholder": "Users",
+          "in": "body"
+        },
+        {
+          "id": "filePath",
+          "label": "File Path",
+          "type": "text",
+          "required": true,
+          "placeholder": "file:/Users/admin/Desktop/Users",
+          "in": "body"
+        },
+        {
+          "id": "is_full_sync",
+          "label": "Full Sync",
+          "type": "toggle",
+          "required": true,
+          "defaultValue": true,
+          "in": "body"
+        }
+      ],
+      "group": "Database",
+      "description": "Add a new datasource to the metabase instance"
+    },
+    {
+      "id": "databases_get_all",
+      "label": "Get Many Database",
+      "method": "GET",
+      "path": "/api/database/",
+      "fields": [
+        {
+          "id": "simple",
+          "label": "Simplify",
+          "type": "toggle",
+          "description": "Whether to return a simplified version of the response instead of the raw data",
+          "defaultValue": true
+        }
+      ],
+      "group": "Database",
+      "description": "Get many databases"
+    },
+    {
+      "id": "databases_get_fields",
+      "label": "Get Fields Database",
+      "method": "GET",
+      "path": "/api/database/{databaseId}/fields",
+      "fields": [
+        {
+          "id": "databaseId",
+          "label": "Database ID",
+          "type": "text",
+          "required": true,
+          "placeholder": "0",
+          "in": "path"
+        }
+      ],
+      "group": "Database",
+      "description": "Get fields from database"
+    },
+    {
+      "id": "alerts_get",
+      "label": "Get Alert",
+      "method": "GET",
+      "path": "/api/alert/{alertId}",
+      "fields": [
+        {
+          "id": "alertId",
+          "label": "Alert ID",
+          "type": "text",
+          "required": true,
+          "placeholder": "0",
+          "in": "path"
+        }
+      ],
+      "group": "Alert",
+      "description": "Get specific alert"
+    },
+    {
+      "id": "alerts_get_all",
+      "label": "Get Many Alert",
+      "method": "GET",
+      "path": "/api/alert/",
+      "fields": [],
+      "group": "Alert",
+      "description": "Get many alerts"
     }
   ]
 }

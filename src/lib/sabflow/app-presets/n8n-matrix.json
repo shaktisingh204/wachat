@@ -4,56 +4,371 @@
   "description": "Consume Matrix API",
   "category": "communication",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 2,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
-    "type": "header",
-    "credentialType": "http_header_auth"
+    "type": "bearer",
+    "credentialType": "matrix",
+    "baseUrlFromCredential": "homeserverUrl"
   },
   "baseUrl": "",
   "endpoints": [
     {
-      "id": "account_default",
-      "label": "List Account",
-      "method": "GET",
+      "id": "account_me",
+      "label": "Me Account",
+      "method": "POST",
       "path": "/account",
-      "fields": []
+      "fields": [],
+      "group": "Account",
+      "description": "[unverified path] Get current user's account information"
     },
     {
-      "id": "event_default",
-      "label": "List Event",
+      "id": "event_get",
+      "label": "Get Event",
       "method": "GET",
       "path": "/event",
-      "fields": []
+      "fields": [
+        {
+          "id": "roomId",
+          "label": "Room ID",
+          "type": "text",
+          "required": true,
+          "placeholder": "!123abc:matrix.org",
+          "description": "The room related to the event"
+        },
+        {
+          "id": "eventId",
+          "label": "Event ID",
+          "type": "text",
+          "required": true,
+          "placeholder": "$1234abcd:matrix.org",
+          "description": "The room related to the event"
+        }
+      ],
+      "group": "Event",
+      "description": "[unverified path] Get single event by ID"
     },
     {
-      "id": "media_default",
-      "label": "List Media",
-      "method": "GET",
+      "id": "media_upload",
+      "label": "Upload Media",
+      "method": "POST",
       "path": "/media",
-      "fields": []
+      "fields": [
+        {
+          "id": "roomId",
+          "label": "Room Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Room ID to post. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "binaryPropertyName",
+          "label": "Input Binary Field",
+          "type": "text",
+          "required": true,
+          "defaultValue": "data"
+        },
+        {
+          "id": "mediaType",
+          "label": "Media Type",
+          "type": "select",
+          "required": true,
+          "placeholder": "mxc://matrix.org/uploaded-media-uri",
+          "description": "Type of file being uploaded",
+          "defaultValue": "image",
+          "options": [
+            {
+              "value": "file",
+              "label": "File"
+            },
+            {
+              "value": "image",
+              "label": "Image"
+            },
+            {
+              "value": "audio",
+              "label": "Audio"
+            },
+            {
+              "value": "video",
+              "label": "Video"
+            }
+          ]
+        },
+        {
+          "id": "additionalFields",
+          "label": "Additional Fields",
+          "type": "json",
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: fileName)"
+        }
+      ],
+      "group": "Media",
+      "description": "[unverified path] Send media to a chat room"
     },
     {
-      "id": "message_default",
-      "label": "List Message",
+      "id": "message_create",
+      "label": "Create Message",
+      "method": "POST",
+      "path": "/message",
+      "fields": [
+        {
+          "id": "roomId",
+          "label": "Room Name or ID",
+          "type": "select",
+          "required": true,
+          "placeholder": "!123abc:matrix.org",
+          "description": "The channel to send the message to. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "text",
+          "label": "Text",
+          "type": "text",
+          "placeholder": "Hello from n8n!",
+          "description": "The text to send"
+        },
+        {
+          "id": "messageType",
+          "label": "Message Type",
+          "type": "select",
+          "description": "The type of message to send",
+          "defaultValue": "m.text",
+          "options": [
+            {
+              "value": "m.emote",
+              "label": "Emote"
+            },
+            {
+              "value": "m.notice",
+              "label": "Notice"
+            },
+            {
+              "value": "m.text",
+              "label": "Text"
+            }
+          ]
+        },
+        {
+          "id": "messageFormat",
+          "label": "Message Format",
+          "type": "select",
+          "description": "The format of the message's body",
+          "defaultValue": "plain",
+          "options": [
+            {
+              "value": "plain",
+              "label": "Plain Text"
+            },
+            {
+              "value": "org.matrix.custom.html",
+              "label": "HTML"
+            }
+          ]
+        },
+        {
+          "id": "fallbackText",
+          "label": "Fallback Text",
+          "type": "text",
+          "description": "A plain text message to display in case the HTML cannot be rendered by the Matrix client"
+        }
+      ],
+      "group": "Message",
+      "description": "[unverified path] Send a message to a room"
+    },
+    {
+      "id": "message_get_all",
+      "label": "Get Many Message",
       "method": "GET",
       "path": "/message",
-      "fields": []
+      "fields": [
+        {
+          "id": "roomId",
+          "label": "Room Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "The token to start returning events from. This token can be obtained from a prev_batch token returned for each room by the sync API. Choose from the list, or specify an ID using an expression."
+        },
+        {
+          "id": "returnAll",
+          "label": "Return All",
+          "type": "toggle",
+          "required": true,
+          "description": "Whether to return all results or only up to a given limit",
+          "defaultValue": false
+        },
+        {
+          "id": "limit",
+          "label": "Limit",
+          "type": "number",
+          "description": "Max number of results to return",
+          "defaultValue": 100
+        },
+        {
+          "id": "otherOptions",
+          "label": "Other Options",
+          "type": "json",
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: filter)"
+        }
+      ],
+      "group": "Message",
+      "description": "[unverified path] Get many messages from a room"
     },
     {
-      "id": "room_default",
-      "label": "List Room",
-      "method": "GET",
+      "id": "room_create",
+      "label": "Create Room",
+      "method": "POST",
       "path": "/room",
-      "fields": []
+      "fields": [
+        {
+          "id": "roomName",
+          "label": "Room Name",
+          "type": "text",
+          "required": true,
+          "placeholder": "My new room"
+        },
+        {
+          "id": "preset",
+          "label": "Preset",
+          "type": "select",
+          "required": true,
+          "placeholder": "My new room",
+          "defaultValue": "public_chat",
+          "options": [
+            {
+              "value": "private_chat",
+              "label": "Private Chat"
+            },
+            {
+              "value": "public_chat",
+              "label": "Public Chat"
+            }
+          ]
+        },
+        {
+          "id": "roomAlias",
+          "label": "Room Alias",
+          "type": "text",
+          "placeholder": "coolest-room-around"
+        }
+      ],
+      "group": "Room",
+      "description": "[unverified path] New chat room with defined settings"
     },
     {
-      "id": "room_member_default",
-      "label": "List RoomMember",
+      "id": "room_invite",
+      "label": "Invite Room",
+      "method": "POST",
+      "path": "/room",
+      "fields": [
+        {
+          "id": "roomId",
+          "label": "Room Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "userId",
+          "label": "User ID",
+          "type": "text",
+          "required": true,
+          "placeholder": "@cheeky_monkey:matrix.org",
+          "description": "The fully qualified user ID of the invitee"
+        }
+      ],
+      "group": "Room",
+      "description": "[unverified path] Invite a user to a room"
+    },
+    {
+      "id": "room_join",
+      "label": "Join Room",
+      "method": "POST",
+      "path": "/room",
+      "fields": [
+        {
+          "id": "roomIdOrAlias",
+          "label": "Room ID or Alias",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "group": "Room",
+      "description": "[unverified path] Join a new room"
+    },
+    {
+      "id": "room_kick",
+      "label": "Kick Room",
+      "method": "POST",
+      "path": "/room",
+      "fields": [
+        {
+          "id": "roomId",
+          "label": "Room Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "userId",
+          "label": "User ID",
+          "type": "text",
+          "required": true,
+          "placeholder": "@cheeky_monkey:matrix.org",
+          "description": "The fully qualified user ID"
+        },
+        {
+          "id": "reason",
+          "label": "Reason",
+          "type": "text",
+          "placeholder": "Telling unfunny jokes",
+          "description": "Reason for kick"
+        }
+      ],
+      "group": "Room",
+      "description": "[unverified path] Kick a user from a room"
+    },
+    {
+      "id": "room_leave",
+      "label": "Leave Room",
+      "method": "POST",
+      "path": "/room",
+      "fields": [
+        {
+          "id": "roomId",
+          "label": "Room Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        }
+      ],
+      "group": "Room",
+      "description": "[unverified path] Leave a room"
+    },
+    {
+      "id": "room_member_get_all",
+      "label": "Get Many Room Member",
       "method": "GET",
-      "path": "/roomMember",
-      "fields": []
+      "path": "/room-member",
+      "fields": [
+        {
+          "id": "roomId",
+          "label": "Room Name or ID",
+          "type": "select",
+          "required": true,
+          "description": "Choose from the list, or specify an ID using an expression"
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "type": "json",
+          "placeholder": "Add filter",
+          "description": "Filtering options (JSON object; supported keys: notMembership, membership)"
+        }
+      ],
+      "group": "Room Member",
+      "description": "[unverified path] Get many members"
     }
   ]
 }

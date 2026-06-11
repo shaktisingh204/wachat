@@ -86,10 +86,32 @@ type PresetJson = {
   category?: string;
   baseUrl?: string;
   status?: string;
-  auth?: { type?: string; credentialType?: string };
+  auth?: {
+    type?: string;
+    credentialType?: string;
+    baseUrlFromCredential?: string;
+    awsService?: string;
+  };
   endpoints?: Array<{ id: string; path: string }>;
   [k: string]: unknown;
 };
+
+/**
+ * Mirrors `isPresetComplete` in `app-presets/runtime/loader.ts`: a preset's
+ * base URL is resolvable when it is statically set, sourced from the
+ * credential (`auth.baseUrlFromCredential`), or templated from the AWS
+ * service + region (`aws_sigv4` + `auth.awsService`).
+ */
+function hasResolvableBaseUrl(preset: PresetJson): boolean {
+  if (typeof preset.baseUrl === 'string' && preset.baseUrl.length > 0) return true;
+  const auth = preset.auth;
+  if (!auth) return false;
+  if (typeof auth.baseUrlFromCredential === 'string' && auth.baseUrlFromCredential) return true;
+  if (auth.type === 'aws_sigv4' && typeof auth.awsService === 'string' && auth.awsService) {
+    return true;
+  }
+  return false;
+}
 
 function loadPresets(): Array<{ file: string; preset: PresetJson }> {
   const out: Array<{ file: string; preset: PresetJson }> = [];
@@ -191,7 +213,7 @@ function classify(
   if (rustSlugs.has(slug)) return 'shadowed-by-rust';
   if (forgeSlugs.has(slug)) return 'shadowed-by-forge';
   const endpoints = Array.isArray(preset.endpoints) ? preset.endpoints : [];
-  const hasBaseUrl = typeof preset.baseUrl === 'string' && preset.baseUrl.length > 0;
+  const hasBaseUrl = hasResolvableBaseUrl(preset);
   if (hasBaseUrl && endpoints.length > 0) return 'live';
   if (endpoints.length > 0 && !hasBaseUrl) return 'repairable';
   return 'shell';
@@ -326,32 +348,55 @@ type CredField = {
   key: string;
   label: string;
   kind: CredFieldKind;
+  placeholder?: string;
   required?: boolean;
+  helpText?: string;
 };
 
-function schemaForAuthType(authType: string): CredField[] {
-  switch (authType) {
-    case 'basic':
-      return [
-        { key: 'username', label: 'Username', kind: 'text', required: true },
-        { key: 'password', label: 'Password', kind: 'password', required: true },
-      ];
-    case 'oauth2':
-      return [
-        { key: 'accessToken', label: 'Access token', kind: 'password', required: true },
-        { key: 'refreshToken', label: 'Refresh token', kind: 'password' },
-      ];
-    case 'aws_sigv4':
-      return [
-        { key: 'accessKeyId', label: 'Access key ID', kind: 'text', required: true },
-        { key: 'secretAccessKey', label: 'Secret access key', kind: 'password', required: true },
-        { key: 'region', label: 'Region', kind: 'text', required: true },
-      ];
-    // bearer | header | query_token | api_key — single secret read as `apiKey`
-    // by app-presets/runtime/exec.ts.
-    default:
-      return [{ key: 'apiKey', label: 'API key', kind: 'password', required: true }];
+function schemaForAuthType(authType: string, baseUrlKey?: string): CredField[] {
+  const fields: CredField[] = (() => {
+    switch (authType) {
+      case 'basic':
+        return [
+          { key: 'username', label: 'Username', kind: 'text', required: true },
+          { key: 'password', label: 'Password', kind: 'password', required: true },
+        ] as CredField[];
+      case 'oauth2':
+        return [
+          { key: 'accessToken', label: 'Access token', kind: 'password', required: true },
+          { key: 'refreshToken', label: 'Refresh token', kind: 'password' },
+        ] as CredField[];
+      case 'aws_sigv4':
+        return [
+          { key: 'accessKeyId', label: 'Access key ID', kind: 'text', required: true },
+          { key: 'secretAccessKey', label: 'Secret access key', kind: 'password', required: true },
+          {
+            key: 'region',
+            label: 'Region',
+            kind: 'text',
+            required: true,
+            placeholder: 'us-east-1',
+            helpText: 'AWS region — defaults to us-east-1 when left empty',
+          },
+          {
+            key: 'sessionToken',
+            label: 'Session token',
+            kind: 'password',
+            helpText: 'Optional — for temporary credentials (sent as x-amz-security-token)',
+          },
+        ] as CredField[];
+      // bearer | header | query_token | api_key — single secret read as `apiKey`
+      // by app-presets/runtime/exec.ts.
+      default:
+        return [{ key: 'apiKey', label: 'API key', kind: 'password', required: true }] as CredField[];
+    }
+  })();
+  // Presets flagged `auth.baseUrlFromCredential` read the instance URL from
+  // the credential — surface it as the first (required) field.
+  if (baseUrlKey) {
+    fields.unshift({ key: baseUrlKey, label: 'Instance URL', kind: 'text', required: true });
   }
+  return fields;
 }
 
 const CATEGORY_TO_CREDENTIAL_CATEGORY: Record<PresetCategory, string> = {
@@ -392,6 +437,7 @@ function emitCredentials(rows: Row[], entries: Array<{ file: string; preset: Pre
     authType: string;
     label: string;
     category: string;
+    baseUrlKey?: string;
   };
   const pending = new Map<string, Pending>();
 
@@ -414,8 +460,11 @@ function emitCredentials(rows: Row[], entries: Array<{ file: string; preset: Pre
       pending.set(credType, {
         credentialType: credType,
         authType,
-        label: preset?.name ?? credType,
-        category: credentialCategoryFor(preset!),
+        // The shared 'aws' type is used by many AWS presets — a neutral label
+        // beats whichever preset happens to be scanned first.
+        label: credType === 'aws' ? 'AWS' : preset?.name ?? credType,
+        category: credType === 'aws' ? 'code' : credentialCategoryFor(preset!),
+        baseUrlKey: preset?.auth?.baseUrlFromCredential,
       });
     }
   }
@@ -472,14 +521,16 @@ function emitCredentials(rows: Row[], entries: Array<{ file: string; preset: Pre
     'export const PRESET_CREDENTIAL_SCHEMAS: Record<PresetCredentialType, GeneratedCredentialField[]> = {',
   );
   for (const p of sorted) {
-    const fields = schemaForAuthType(p.authType)
+    const fields = schemaForAuthType(p.authType, p.baseUrlKey)
       .map((f) => {
         const parts = [
           `key: '${f.key}'`,
           `label: '${f.label}'`,
           `kind: '${f.kind}'`,
         ];
+        if (f.placeholder) parts.push(`placeholder: ${JSON.stringify(f.placeholder)}`);
         if (f.required) parts.push('required: true');
+        if (f.helpText) parts.push(`helpText: ${JSON.stringify(f.helpText)}`);
         return `{ ${parts.join(', ')} }`;
       })
       .join(', ');
@@ -526,7 +577,7 @@ function main() {
       category: preset.category ?? '',
       status: preset.status ?? 'verified',
       endpointCount: endpoints.length,
-      hasBaseUrl: typeof preset.baseUrl === 'string' && preset.baseUrl.length > 0,
+      hasBaseUrl: hasResolvableBaseUrl(preset),
       classification: classify(preset, slug, nativeSlugs, rustSlugs, forgeSlugs),
     };
   });

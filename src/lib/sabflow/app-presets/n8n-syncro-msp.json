@@ -4,7 +4,7 @@
   "description": "Gets data from SyncroMSP",
   "category": "support",
   "iconName": "LuPackage",
-  "version": 8,
+  "version": 9,
   "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
@@ -17,7 +17,7 @@
       "id": "customer_create",
       "label": "Create Customer",
       "method": "POST",
-      "path": "/customer",
+      "path": "/customers",
       "fields": [
         {
           "id": "subdomain",
@@ -42,13 +42,13 @@
         }
       ],
       "group": "Customer",
-      "description": "[unverified path] Create new customer"
+      "description": "Create new customer"
     },
     {
       "id": "customer_delete",
       "label": "Delete Customer",
       "method": "DELETE",
-      "path": "/customer",
+      "path": "/customers/{id}",
       "fields": [
         {
           "id": "subdomain",
@@ -67,13 +67,13 @@
         }
       ],
       "group": "Customer",
-      "description": "[unverified path] Delete customer"
+      "description": "Delete customer"
     },
     {
       "id": "customer_get",
       "label": "Get Customer",
       "method": "GET",
-      "path": "/customer",
+      "path": "/customers/{id}",
       "fields": [
         {
           "id": "subdomain",
@@ -92,13 +92,13 @@
         }
       ],
       "group": "Customer",
-      "description": "[unverified path] Retrieve customer"
+      "description": "Retrieve customer"
     },
     {
       "id": "customer_get_all",
       "label": "Get Many Customer",
       "method": "GET",
-      "path": "/customer",
+      "path": "/customers",
       "fields": [
         {
           "id": "subdomain",
@@ -131,13 +131,13 @@
         }
       ],
       "group": "Customer",
-      "description": "[unverified path] Retrieve many customers"
+      "description": "Retrieve many customers"
     },
     {
       "id": "customer_update",
       "label": "Update Customer",
-      "method": "PATCH",
-      "path": "/customer",
+      "method": "PUT",
+      "path": "/customers/{id}",
       "fields": [
         {
           "id": "subdomain",
@@ -161,13 +161,13 @@
         }
       ],
       "group": "Customer",
-      "description": "[unverified path] Update customer"
+      "description": "Update customer"
     },
     {
       "id": "ticket_create",
       "label": "Create Ticket",
       "method": "POST",
-      "path": "/ticket",
+      "path": "/tickets",
       "fields": [
         {
           "id": "subdomain",
@@ -198,13 +198,13 @@
         }
       ],
       "group": "Ticket",
-      "description": "[unverified path] Create new ticket"
+      "description": "Create new ticket"
     },
     {
       "id": "ticket_delete",
       "label": "Delete Ticket",
       "method": "DELETE",
-      "path": "/ticket",
+      "path": "/tickets/{id}",
       "fields": [
         {
           "id": "subdomain",
@@ -223,13 +223,13 @@
         }
       ],
       "group": "Ticket",
-      "description": "[unverified path] Delete ticket"
+      "description": "Delete ticket"
     },
     {
       "id": "ticket_get",
       "label": "Get Ticket",
       "method": "GET",
-      "path": "/ticket",
+      "path": "/tickets/{id}",
       "fields": [
         {
           "id": "subdomain",
@@ -247,13 +247,13 @@
         }
       ],
       "group": "Ticket",
-      "description": "[unverified path] Retrieve ticket"
+      "description": "Retrieve ticket"
     },
     {
       "id": "ticket_get_all",
       "label": "Get Many Ticket",
       "method": "GET",
-      "path": "/ticket",
+      "path": "/tickets",
       "fields": [
         {
           "id": "subdomain",
@@ -286,13 +286,13 @@
         }
       ],
       "group": "Ticket",
-      "description": "[unverified path] Retrieve many tickets"
+      "description": "Retrieve many tickets"
     },
     {
       "id": "ticket_update",
       "label": "Update Ticket",
-      "method": "PATCH",
-      "path": "/ticket",
+      "method": "PUT",
+      "path": "/tickets/{id}",
       "fields": [
         {
           "id": "subdomain",
@@ -317,13 +317,13 @@
         }
       ],
       "group": "Ticket",
-      "description": "[unverified path] Update ticket"
+      "description": "Update ticket"
     },
     {
       "id": "contact_create",
       "label": "Create Contact",
       "method": "POST",
-      "path": "/contact",
+      "path": "/contacts",
       "fields": [
         {
           "id": "subdomain",
@@ -354,13 +354,13 @@
         }
       ],
       "group": "Contact",
-      "description": "[unverified path] Create new contact"
+      "description": "Create new contact"
     },
     {
       "id": "contact_delete",
       "label": "Delete Contact",
       "method": "DELETE",
-      "path": "/contact",
+      "path": "/contacts/{id}",
       "fields": [
         {
           "id": "subdomain",
@@ -379,13 +379,13 @@
         }
       ],
       "group": "Contact",
-      "description": "[unverified path] Delete contact"
+      "description": "Delete contact"
     },
     {
       "id": "contact_get",
       "label": "Get Contact",
       "method": "GET",
-      "path": "/contact",
+      "path": "/contacts/{id}",
       "fields": [
         {
           "id": "subdomain",
@@ -404,13 +404,13 @@
         }
       ],
       "group": "Contact",
-      "description": "[unverified path] Retrieve contact"
+      "description": "Retrieve contact"
     },
     {
       "id": "contact_get_all",
       "label": "Get Many Contact",
       "method": "GET",
-      "path": "/contact",
+      "path": "/contacts",
       "fields": [
         {
           "id": "subdomain",
@@ -436,13 +436,13 @@
         }
       ],
       "group": "Contact",
-      "description": "[unverified path] Retrieve many contacts"
+      "description": "Retrieve many contacts"
     },
     {
       "id": "contact_update",
       "label": "Update Contact",
-      "method": "PATCH",
-      "path": "/contact",
+      "method": "PUT",
+      "path": "/contacts/{id}",
       "fields": [
         {
           "id": "subdomain",
@@ -466,13 +466,13 @@
         }
       ],
       "group": "Contact",
-      "description": "[unverified path] Update contact"
+      "description": "Update contact"
     },
     {
       "id": "rmm_create",
       "label": "Create RMM",
       "method": "POST",
-      "path": "/rmm",
+      "path": "/rmm_alerts",
       "fields": [
         {
           "id": "subdomain",
@@ -506,13 +506,13 @@
         }
       ],
       "group": "RMM",
-      "description": "[unverified path] Create new RMM Alert"
+      "description": "Create new RMM Alert"
     },
     {
       "id": "rmm_delete",
       "label": "Delete RMM",
       "method": "DELETE",
-      "path": "/rmm",
+      "path": "/rmm_alerts/{id}",
       "fields": [
         {
           "id": "subdomain",
@@ -531,13 +531,13 @@
         }
       ],
       "group": "RMM",
-      "description": "[unverified path] Delete RMM Alert"
+      "description": "Delete RMM Alert"
     },
     {
       "id": "rmm_get",
       "label": "Get RMM",
       "method": "GET",
-      "path": "/rmm",
+      "path": "/rmm_alerts/{id}",
       "fields": [
         {
           "id": "subdomain",
@@ -556,13 +556,13 @@
         }
       ],
       "group": "RMM",
-      "description": "[unverified path] Retrieve RMM Alert"
+      "description": "Retrieve RMM Alert"
     },
     {
       "id": "rmm_get_all",
       "label": "Get Many RMM",
       "method": "GET",
-      "path": "/rmm",
+      "path": "/rmm_alerts",
       "fields": [
         {
           "id": "subdomain",
@@ -595,13 +595,13 @@
         }
       ],
       "group": "RMM",
-      "description": "[unverified path] Retrieve many RMM Alerts"
+      "description": "Retrieve many RMM Alerts"
     },
     {
       "id": "rmm_mute",
       "label": "Mute RMM",
       "method": "POST",
-      "path": "/rmm",
+      "path": "/rmm_alerts/{id}/mute",
       "fields": [
         {
           "id": "subdomain",
@@ -656,7 +656,7 @@
         }
       ],
       "group": "RMM",
-      "description": "[unverified path] Mute RMM Alert"
+      "description": "Mute RMM Alert"
     }
   ]
 }

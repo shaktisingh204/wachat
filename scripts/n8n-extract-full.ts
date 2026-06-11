@@ -129,6 +129,10 @@ type PresetAuth = {
   header?: string;
   scheme?: string;
   queryParam?: string;
+  /** Credential data key holding the instance base URL (self-hosted apps). */
+  baseUrlFromCredential?: string;
+  /** AWS service signing name (`aws_sigv4` — host templated at run time). */
+  awsService?: string;
   // Curated presets may carry extra keys (provider, fallback) — preserved as-is.
   [k: string]: unknown;
 };
@@ -198,7 +202,9 @@ const BASE_URL_OVERRIDES: Record<string, string> = {
   'n8n-intercom': 'https://api.intercom.io',
   'n8n-mailchimp': 'https://us1.api.mailchimp.com/3.0',
   'n8n-shopify': 'https://shopify.dev/admin/api',
-  'n8n-jira': 'https://api.atlassian.com',
+  // jiraSoftwareCloudApiRequest builds `${domain}/rest${endpoint}` — the
+  // extracted paths (/api/2/…) sit under /rest on the user's own site host.
+  'n8n-jira': 'https://{host}/rest',
   'n8n-salesforce': 'https://login.salesforce.com',
   'n8n-zoom': 'https://api.zoom.us/v2',
   'n8n-dropbox': 'https://api.dropboxapi.com/2',
@@ -222,6 +228,59 @@ const BASE_URL_OVERRIDES: Record<string, string> = {
   'n8n-freshdesk': 'https://{domain}.freshdesk.com/api/v2',
   'n8n-chargebee': 'https://{accountName}.chargebee.com/api/v2',
   'n8n-contentful': 'https://cdn.contentful.com',
+};
+
+/**
+ * Self-hosted / credential-hosted apps with no static base URL: the preset is
+ * emitted with `baseUrl: ''` and `auth.baseUrlFromCredential` set to the
+ * credential data key carrying the instance URL. The runtime
+ * (`app-presets/runtime/exec.ts#resolvePresetBaseUrl`) resolves it per call.
+ * `credentialType` overrides the auto-derived snake(id) when a hand-written
+ * credential schema already exists with a different/known shape.
+ */
+const CREDENTIAL_BASE_URL_APPS: Record<
+  string,
+  { credentialKey: string; credentialType?: string }
+> = {
+  'n8n-adalo': { credentialKey: 'baseUrl' },
+  'n8n-citrix-adc': { credentialKey: 'baseUrl' },
+  'n8n-databricks': { credentialKey: 'baseUrl' },
+  'n8n-elasticsearch': { credentialKey: 'baseUrl' },
+  'n8n-home-assistant': { credentialKey: 'baseUrl' },
+  // hand-written 'line' credential has no URL field → fresh generated type
+  'n8n-line': { credentialKey: 'baseUrl', credentialType: 'line_notify' },
+  // hand-written 'matrix' schema already carries homeserverUrl + accessToken
+  'n8n-matrix': { credentialKey: 'homeserverUrl', credentialType: 'matrix' },
+  // hand-written 'mautic' schema already carries baseUrl + username/password
+  'n8n-mautic': { credentialKey: 'baseUrl', credentialType: 'mautic' },
+  'n8n-metabase': { credentialKey: 'baseUrl' },
+  // hand-written 'n8n' credential is webhook-shaped → fresh generated type
+  'n8n-n8n': { credentialKey: 'baseUrl', credentialType: 'n8n_api' },
+  'n8n-next-cloud': { credentialKey: 'baseUrl' },
+  'n8n-post-hog': { credentialKey: 'baseUrl' },
+  'n8n-rundeck': { credentialKey: 'baseUrl' },
+  'n8n-venafi-tls-protect-cloud': { credentialKey: 'baseUrl' },
+  'n8n-zulip': { credentialKey: 'baseUrl' },
+};
+
+/**
+ * AWS apps signed with SigV4: `auth.awsService` is the signing name, the host
+ * is templated at run time as `{service}.{region}.amazonaws.com` from the
+ * shared `aws` credential ({accessKeyId, secretAccessKey, region[,
+ * sessionToken]}). Only JSON/REST-API services are listed — the query-API
+ * XML services (SES, SQS, ELB) are out of scope for the JSON preset model.
+ */
+const AWS_SERVICE_BY_ID: Record<string, string> = {
+  'n8n-aws-certificate-manager': 'acm',
+  'n8n-aws-cognito': 'cognito-idp',
+  'n8n-aws-comprehend': 'comprehend',
+  'n8n-aws-dynamo-db': 'dynamodb',
+  'n8n-aws-rekognition': 'rekognition',
+  'n8n-aws-s3': 's3',
+  'n8n-aws-textract': 'textract',
+  'n8n-aws-transcribe': 'transcribe',
+  // generic S3-compatible node — signs as s3 against the AWS host template
+  'n8n-s3': 's3',
 };
 
 // ───────────────────────────────────────────────────────────────────────────
@@ -813,6 +872,14 @@ function convertUrlExpr(raw: string, ctx: { resource?: string; operation?: strin
 
   if (!s.startsWith('/')) s = '/' + s;
   s = s.replace(/\/{2,}/g, '/');
+  // `${host}/api/...` style — programmatic helpers often prefix a credential
+  // host themselves (Databricks `${host}/api/2.0/...`); the preset baseUrl
+  // already carries the host, so strip the leading host-ish token.
+  s = s.replace(
+    /^\/\{(?:host|hostname|baseurl|apiurl|url|instanceurl|serverurl|websiteurl|domain|server|instance)\}(?=\/|$)/i,
+    '',
+  );
+  if (!s.startsWith('/')) s = '/' + s;
   return { path: s, verified };
 }
 
@@ -838,26 +905,43 @@ function scanBlockForCall(block: string, ctx: { resource?: string; operation?: s
     const argsRaw = m[1];
     // split top-level args (rough: handle nesting of (), {}, [], ``)
     const args = splitTopLevelArgs(argsRaw);
-    // object form?
-    if (args.length === 1 && args[0].trim().startsWith('{')) {
-      const obj = args[0];
+    // object form — the sole arg OR positional among others, e.g.
+    // `this.helpers.httpRequestWithAuthentication.call(this, credType, { method, url })`
+    const objArg = args.find((a) => a.trim().startsWith('{'));
+    if (objArg) {
+      const obj = objArg.trim();
       const mm = obj.match(/method:\s*['"](\w+)['"]/);
-      const mu = obj.match(/(?:url|uri):\s*([^,}]+)/);
+      // quoted alternatives first: template urls contain `}` (`${host}/...`),
+      // which a bare [^,}]+ would truncate.
+      const mu = obj.match(/(?:url|uri):\s*(`[^`]*`|'[^']*'|"[^"]*"|[^,}\n]+)/);
       if (mm && mu && HTTP_METHODS.has(mm[1].toUpperCase())) {
         const r = resolveUrlArg(mu[1], block, ctx);
-        if (r) candidates.push({ method: mm[1].toUpperCase() as PresetHttpMethod, ...r });
+        if (r) {
+          candidates.push({ method: mm[1].toUpperCase() as PresetHttpMethod, ...r });
+          continue;
+        }
       }
-      continue;
+      if (args.length === 1) continue;
     }
     // positional form: find the first quoted HTTP verb among args
     for (let i = 0; i < args.length; i++) {
       const a = args[i].trim();
       const verb = a.match(/^['"](GET|POST|PUT|PATCH|DELETE)['"]$/i);
-      if (verb && args[i + 1] !== undefined) {
-        const r = resolveUrlArg(args[i + 1], block, ctx);
-        if (r) candidates.push({ method: verb[1].toUpperCase() as PresetHttpMethod, ...r });
-        break;
+      if (!verb) continue;
+      // url usually FOLLOWS the verb…
+      let r = args[i + 1] !== undefined ? resolveUrlArg(args[i + 1], block, ctx) : undefined;
+      // …but some helpers take it BEFORE
+      // (`jiraSoftwareCloudApiRequest.call(this, endpoint, 'GET', …)`).
+      // Only accept a path-looking literal or an url-ish identifier so the
+      // AllItems property-name arg ('issues', 'values', …) can't slip in.
+      if (!r && i > 0) {
+        const prev = args[i - 1].trim();
+        const prevIsPathLiteral = /^["'`]/.test(prev) && prev.includes('/');
+        const prevIsUrlIdent = /^(endpoint|endPoint|uri|url|path|requestPath|resourcePath)$/i.test(prev);
+        if (prevIsPathLiteral || prevIsUrlIdent) r = resolveUrlArg(prev, block, ctx);
       }
+      if (r) candidates.push({ method: verb[1].toUpperCase() as PresetHttpMethod, ...r });
+      break;
     }
   }
   if (!candidates.length) return undefined;
@@ -1052,9 +1136,20 @@ function scanOperationFiles(versionDir: string, map: ProgrammaticMap): void {
         stack.push(full);
         continue;
       }
-      if (!e.isFile() || !e.name.endsWith('.operation.ts')) continue;
-      const operation = e.name.replace(/\.operation\.ts$/, '');
-      const resource = path.basename(path.dirname(full));
+      if (!e.isFile()) continue;
+      let operation: string;
+      let resource: string;
+      if (e.name.endsWith('.operation.ts')) {
+        operation = e.name.replace(/\.operation\.ts$/, '');
+        resource = path.basename(path.dirname(full));
+      } else if (e.name === 'execute.ts') {
+        // actions/<resource>/<operation>/execute.ts (Mattermost/SyncroMSP v1 style)
+        operation = path.basename(path.dirname(full));
+        resource = path.basename(path.dirname(path.dirname(full)));
+        if (resource === 'actions' || operation === 'actions') continue;
+      } else {
+        continue;
+      }
       let text: string;
       try {
         text = fs.readFileSync(full, 'utf-8');
@@ -1070,6 +1165,10 @@ function scanOperationFiles(versionDir: string, map: ProgrammaticMap): void {
         // operation value sometimes differs in case (deleteRecord vs delete)
         const alt = operation.replace(/^delete[A-Z].*$/, 'delete');
         if (alt !== operation && !map.has(mapKey(resource, alt))) map.set(mapKey(resource, alt), call);
+        // folder name `del` ↔ operation value 'delete' (reserved word)
+        if (operation === 'del' && !map.has(mapKey(resource, 'delete'))) {
+          map.set(mapKey(resource, 'delete'), call);
+        }
       }
     }
   }
@@ -1157,7 +1256,7 @@ function buildProgrammaticMap(versionDir: string, appDir: string, resourceValues
 
 function methodHeuristic(operation: string): PresetHttpMethod {
   const o = operation.toLowerCase();
-  if (/^(get|list|search|find|fetch|read|download|lookup|retrieve|view|query|check|count|export)/.test(o)) return 'GET';
+  if (/^(get|list|search|find|fetch|read|download|lookup|retrieve|view|query|check|count|export|changelog)/.test(o)) return 'GET';
   if (/^(getall|getmany)/.test(o)) return 'GET';
   if (/^(delete|remove|del|deactivate|unregister|revoke|unsubscribe|archive)/.test(o)) return 'DELETE';
   if (/^(update|edit|rename|set|patch|modify|change|move|toggle)/.test(o)) return 'PATCH';
@@ -1334,11 +1433,36 @@ function findTemplatedBaseUrl(
       prefixCandidates.set(tpl, (prefixCandidates.get(tpl) ?? 0) + 1);
     }
   }
-  if (!prefixCandidates.size) return undefined;
-  const [baseUrl] = Array.from(prefixCandidates.entries()).sort(
-    (a, b) => b[1] - a[1] || a[0].length - b[0].length,
-  )[0];
-  return { baseUrl, placeholders: ['host'] };
+  if (prefixCandidates.size) {
+    const [baseUrl] = Array.from(prefixCandidates.entries()).sort(
+      (a, b) => b[1] - a[1] || a[0].length - b[0].length,
+    )[0];
+    return { baseUrl, placeholders: ['host'] };
+  }
+
+  // Last resort: apps whose OPERATION files template the credential host into
+  // each request url themselves (Databricks `url: `${host}/api/2.0/...``).
+  // convertUrlExpr strips the leading host token from the endpoint paths, so
+  // the matching base is the bare templated host.
+  let hostHits = 0;
+  for (const file of collectTsFiles(dirs)) {
+    let text: string;
+    try {
+      text = fs.readFileSync(file, 'utf-8');
+    } catch {
+      continue;
+    }
+    for (const m of text.matchAll(/[`]\$\{([^}]{1,80})\}\//g)) {
+      let expr = m[1].replace(/\s+as\s+\w+/g, '').replace(/[()]/g, '').trim();
+      const segs = expr.split('.').map((s) => s.trim());
+      let token = segs[segs.length - 1];
+      if (token === 'credentials' && segs.length > 1) token = segs[segs.length - 2];
+      if (!HOSTY.test(token)) continue;
+      hostHits++;
+    }
+  }
+  if (hostHits >= 2) return { baseUrl: 'https://{host}', placeholders: ['host'] };
+  return undefined;
 }
 
 const DENY_BASE_TOKENS = /^(endpoint|resource|path|uri|url|query|qs|service|method|version|id)$/i;
@@ -1842,9 +1966,24 @@ function main(): void {
       }
     }
 
-    // auth: preserve curated auth wiring when present, else derive
+    // auth: AWS SigV4 services and credential-hosted apps get explicit wiring
+    // (bypassing the preserve-existing rule — their old auth was a generic
+    // placeholder); otherwise preserve curated auth when present, else derive.
     let auth: PresetAuth;
-    if (existing?.auth && existing.auth.type && existing.auth.type !== 'none') {
+    const awsService = AWS_SERVICE_BY_ID[id];
+    const credHosted = CREDENTIAL_BASE_URL_APPS[id];
+    if (awsService) {
+      auth = { type: 'aws_sigv4', credentialType: 'aws', awsService };
+      baseUrl = '';
+      baseUrlSource = 'aws-host-template';
+    } else if (credHosted && !baseUrl) {
+      auth = credName
+        ? deriveAuthFromCredential(credName, id)
+        : { type: 'bearer', credentialType: snake(id.replace(/^n8n-/, '')) };
+      if (credHosted.credentialType) auth.credentialType = credHosted.credentialType;
+      auth.baseUrlFromCredential = credHosted.credentialKey;
+      baseUrlSource = 'credential-baseUrl';
+    } else if (existing?.auth && existing.auth.type && existing.auth.type !== 'none') {
       auth = existing.auth;
     } else if (credName) {
       auth = deriveAuthFromCredential(credName, id);
@@ -1866,7 +2005,13 @@ function main(): void {
       wrote: false,
     };
 
-    if (!baseUrl) {
+    // Presets whose base URL resolves at RUN time (credential instance URL or
+    // AWS service+region host template) are complete without a static baseUrl.
+    const runtimeResolvableBase =
+      Boolean(auth.baseUrlFromCredential) ||
+      (auth.type === 'aws_sigv4' && Boolean(auth.awsService));
+
+    if (!baseUrl && !runtimeResolvableBase) {
       report.skipReason = 'no-resolvable-baseUrl (credential-templated host or undiscoverable)';
       // Repair pollution: if a previous extractor run wrote an unusable
       // placeholder base into this preset, blank it so the audit reclassifies

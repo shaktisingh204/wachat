@@ -4,43 +4,26 @@
   "description": "Access data on Nextcloud",
   "category": "storage",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 2,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
-    "type": "header",
-    "credentialType": "http_header_auth"
+    "type": "basic",
+    "credentialType": "next_cloud",
+    "baseUrlFromCredential": "baseUrl"
   },
   "baseUrl": "",
   "endpoints": [
     {
       "id": "file_copy",
       "label": "Copy File",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/file",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "path",
           "label": "From Path",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "/invoices/original.txt",
           "description": "The path of file or folder to copy. The path should start with \"/\"."
@@ -49,75 +32,42 @@
           "id": "toPath",
           "label": "To Path",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "/invoices/copy.txt",
           "description": "The destination path of file or folder. The path should start with \"/\"."
         }
-      ]
+      ],
+      "group": "File",
+      "description": "[unverified path] Copy a file"
     },
     {
       "id": "file_delete",
       "label": "Delete File",
-      "method": "GET",
-      "path": "/",
+      "method": "DELETE",
+      "path": "/file",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "path",
           "label": "Delete Path",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "/invoices/2019/invoice_1.pdf",
           "description": "The path to delete. Can be a single file or a whole folder. The path should start with \"/\"."
         }
-      ]
+      ],
+      "group": "File",
+      "description": "[unverified path] Delete a file"
     },
     {
       "id": "file_download",
       "label": "Download File",
       "method": "GET",
-      "path": "/",
+      "path": "/file",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "path",
           "label": "File Path",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "/invoices/2019/invoice_1.pdf",
           "description": "The file path of the file to download. Has to contain the full path. The path should start with \"/\"."
@@ -126,40 +76,23 @@
           "id": "binaryPropertyName",
           "label": "Put Output File in Field",
           "type": "text",
-          "in": "query",
           "required": true,
           "defaultValue": "data"
         }
-      ]
+      ],
+      "group": "File",
+      "description": "[unverified path] Download a file"
     },
     {
       "id": "file_move",
       "label": "Move File",
-      "method": "GET",
-      "path": "/",
+      "method": "PATCH",
+      "path": "/file",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "path",
           "label": "From Path",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "/invoices/old_name.txt",
           "description": "The path of file or folder to move. The path should start with \"/\"."
@@ -168,41 +101,24 @@
           "id": "toPath",
           "label": "To Path",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "/invoices/new_name.txt",
           "description": "The new path of file or folder. The path should start with \"/\"."
         }
-      ]
+      ],
+      "group": "File",
+      "description": "[unverified path] Move a file"
     },
     {
       "id": "file_share",
       "label": "Share File",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/file",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "path",
           "label": "File Path",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "/invoices/2019/invoice_1.pdf",
           "description": "The file path of the file to share. Has to contain the full path. The path should start with \"/\"."
@@ -211,23 +127,41 @@
           "id": "shareType",
           "label": "Share Type",
           "type": "select",
-          "in": "query",
           "description": "The share permissions to set",
           "defaultValue": 0,
-          "options": []
+          "options": [
+            {
+              "value": "7",
+              "label": "Circle"
+            },
+            {
+              "value": "4",
+              "label": "Email"
+            },
+            {
+              "value": "1",
+              "label": "Group"
+            },
+            {
+              "value": "3",
+              "label": "Public Link"
+            },
+            {
+              "value": "0",
+              "label": "User"
+            }
+          ]
         },
         {
           "id": "circleId",
           "label": "Circle ID",
           "type": "text",
-          "in": "query",
           "description": "The ID of the circle to share with"
         },
         {
           "id": "email",
           "label": "Email",
           "type": "text",
-          "in": "query",
           "placeholder": "name@email.com",
           "description": "The Email address to share with"
         },
@@ -235,53 +169,35 @@
           "id": "groupId",
           "label": "Group ID",
           "type": "text",
-          "in": "query",
           "description": "The ID of the group to share with"
         },
         {
           "id": "user",
           "label": "User",
           "type": "text",
-          "in": "query",
           "description": "The user to share with"
         },
         {
           "id": "options",
           "label": "Options",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add option"
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: password, permissions)"
         }
-      ]
+      ],
+      "group": "File",
+      "description": "[unverified path] Share a file"
     },
     {
       "id": "file_upload",
       "label": "Upload File",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/file",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "path",
           "label": "File Path",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "/invoices/2019/invoice_1.pdf",
           "description": "The absolute file path of the file to upload. Has to contain the full path. The parent folder has to exist. Existing files get overwritten."
@@ -290,7 +206,6 @@
           "id": "binaryDataUpload",
           "label": "Binary File",
           "type": "toggle",
-          "in": "query",
           "required": true,
           "defaultValue": false
         },
@@ -298,47 +213,29 @@
           "id": "fileContent",
           "label": "File Content",
           "type": "text",
-          "in": "query",
           "description": "The text content of the file to upload"
         },
         {
           "id": "binaryPropertyName",
           "label": "Input Binary Field",
           "type": "text",
-          "in": "query",
           "required": true,
           "defaultValue": "data"
         }
-      ]
+      ],
+      "group": "File",
+      "description": "[unverified path] Upload a file"
     },
     {
       "id": "folder_copy",
       "label": "Copy Folder",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/folder",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "path",
           "label": "From Path",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "/invoices/original.txt",
           "description": "The path of file or folder to copy. The path should start with \"/\"."
@@ -347,142 +244,77 @@
           "id": "toPath",
           "label": "To Path",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "/invoices/copy.txt",
           "description": "The destination path of file or folder. The path should start with \"/\"."
         }
-      ]
+      ],
+      "group": "Folder",
+      "description": "[unverified path] Copy a folder"
     },
     {
       "id": "folder_create",
       "label": "Create Folder",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/folder",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "path",
           "label": "Folder",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "/invoices/2019",
           "description": "The folder to create. The parent folder has to exist. The path should start with \"/\"."
         }
-      ]
+      ],
+      "group": "Folder",
+      "description": "[unverified path] Create a folder"
     },
     {
       "id": "folder_delete",
       "label": "Delete Folder",
-      "method": "GET",
-      "path": "/",
+      "method": "DELETE",
+      "path": "/folder",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "path",
           "label": "Delete Path",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "/invoices/2019/invoice_1.pdf",
           "description": "The path to delete. Can be a single file or a whole folder. The path should start with \"/\"."
         }
-      ]
+      ],
+      "group": "Folder",
+      "description": "[unverified path] Delete a folder"
     },
     {
       "id": "folder_list",
       "label": "List Folder",
       "method": "GET",
-      "path": "/",
+      "path": "/folder",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "path",
           "label": "Folder Path",
           "type": "text",
-          "in": "query",
           "placeholder": "/invoices/2019/",
           "description": "The path of which to list the content. The path should start with \"/\"."
         }
-      ]
+      ],
+      "group": "Folder",
+      "description": "[unverified path] Return the contents of a given folder"
     },
     {
       "id": "folder_move",
       "label": "Move Folder",
-      "method": "GET",
-      "path": "/",
+      "method": "PATCH",
+      "path": "/folder",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "path",
           "label": "From Path",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "/invoices/old_name.txt",
           "description": "The path of file or folder to move. The path should start with \"/\"."
@@ -491,41 +323,24 @@
           "id": "toPath",
           "label": "To Path",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "/invoices/new_name.txt",
           "description": "The new path of file or folder. The path should start with \"/\"."
         }
-      ]
+      ],
+      "group": "Folder",
+      "description": "[unverified path] Move a folder"
     },
     {
       "id": "folder_share",
       "label": "Share Folder",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/ocs/v2.php/apps/files_sharing/api/v1/shares",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "path",
           "label": "File Path",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "/invoices/2019/invoice_1.pdf",
           "description": "The file path of the file to share. Has to contain the full path. The path should start with \"/\"."
@@ -534,23 +349,41 @@
           "id": "shareType",
           "label": "Share Type",
           "type": "select",
-          "in": "query",
           "description": "The share permissions to set",
           "defaultValue": 0,
-          "options": []
+          "options": [
+            {
+              "value": "7",
+              "label": "Circle"
+            },
+            {
+              "value": "4",
+              "label": "Email"
+            },
+            {
+              "value": "1",
+              "label": "Group"
+            },
+            {
+              "value": "3",
+              "label": "Public Link"
+            },
+            {
+              "value": "0",
+              "label": "User"
+            }
+          ]
         },
         {
           "id": "circleId",
           "label": "Circle ID",
           "type": "text",
-          "in": "query",
           "description": "The ID of the circle to share with"
         },
         {
           "id": "email",
           "label": "Email",
           "type": "text",
-          "in": "query",
           "placeholder": "name@email.com",
           "description": "The Email address to share with"
         },
@@ -558,53 +391,35 @@
           "id": "groupId",
           "label": "Group ID",
           "type": "text",
-          "in": "query",
           "description": "The ID of the group to share with"
         },
         {
           "id": "user",
           "label": "User",
           "type": "text",
-          "in": "query",
           "description": "The user to share with"
         },
         {
           "id": "options",
           "label": "Options",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add option"
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: password, permissions)"
         }
-      ]
+      ],
+      "group": "Folder",
+      "description": "Share a folder"
     },
     {
       "id": "user_create",
       "label": "Create User",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/ocs/v1.php/cloud/users",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "userId",
           "label": "Username",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "john",
           "description": "Username the user will have"
@@ -613,7 +428,6 @@
           "id": "email",
           "label": "Email",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "john@email.com",
           "description": "The email of the user to invite"
@@ -622,107 +436,59 @@
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: displayName)"
         }
-      ]
+      ],
+      "group": "User",
+      "description": "Invite a user to a NextCloud organization"
     },
     {
       "id": "user_delete",
       "label": "Delete User",
-      "method": "GET",
-      "path": "/",
+      "method": "DELETE",
+      "path": "/ocs/v1.php/cloud/users/{userid}",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "userId",
           "label": "Username",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "john",
           "description": "Username the user will have"
         }
-      ]
+      ],
+      "group": "User",
+      "description": "Delete a user"
     },
     {
       "id": "user_get",
       "label": "Get User",
       "method": "GET",
-      "path": "/",
+      "path": "/ocs/v1.php/cloud/users/{userid}",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "userId",
           "label": "Username",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "john",
           "description": "Username the user will have"
         }
-      ]
+      ],
+      "group": "User",
+      "description": "Retrieve information about a single user"
     },
     {
       "id": "user_get_all",
       "label": "Get Many User",
       "method": "GET",
-      "path": "/",
+      "path": "/ocs/v1.php/cloud/users",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "returnAll",
           "label": "Return All",
           "type": "toggle",
-          "in": "query",
           "description": "Whether to return all results or only up to a given limit",
           "defaultValue": false
         },
@@ -730,7 +496,6 @@
           "id": "limit",
           "label": "Limit",
           "type": "number",
-          "in": "query",
           "description": "Max number of results to return",
           "defaultValue": 50
         },
@@ -738,39 +503,23 @@
           "id": "options",
           "label": "Options",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add option"
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: search, offset)"
         }
-      ]
+      ],
+      "group": "User",
+      "description": "Retrieve a list of users"
     },
     {
       "id": "user_update",
       "label": "Update User",
-      "method": "GET",
-      "path": "/",
+      "method": "PUT",
+      "path": "/ocs/v1.php/cloud/users/{userid}",
       "fields": [
-        {
-          "id": "authentication",
-          "label": "Authentication",
-          "type": "select",
-          "in": "query",
-          "defaultValue": "accessToken",
-          "options": [
-            {
-              "value": "accessToken",
-              "label": "Access Token"
-            },
-            {
-              "value": "oAuth2",
-              "label": "OAuth2"
-            }
-          ]
-        },
         {
           "id": "userId",
           "label": "Username",
           "type": "text",
-          "in": "query",
           "required": true,
           "placeholder": "john",
           "description": "Username the user will have"
@@ -779,10 +528,12 @@
           "id": "updateFields",
           "label": "Update Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add option"
+          "placeholder": "Add option",
+          "description": "(JSON object; supported keys: field, field.key, field.value)"
         }
-      ]
+      ],
+      "group": "User",
+      "description": "Edit attributes related to a user"
     }
   ]
 }

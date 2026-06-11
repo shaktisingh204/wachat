@@ -8,9 +8,11 @@
  *   - sabflow_workspaces/_members/_invites
  *                                 → src/lib/sabflow/workspaces/db.ts
  *
- * Every seeded doc is tagged `__e2e: true` and name-prefixed `e2e-` so
- * `cleanup()` can sweep them. All docs are scoped to the fixture user
- * (TEST_USER_ID) from ./session.
+ * Every seeded doc is tagged `__e2e: true` + `__e2eRun: RUN_ID` (per
+ * process) and name-prefixed `e2e-` so `cleanup()` can sweep this run's
+ * docs without racing parallel test files; `cleanupAll()` sweeps every
+ * run. All docs are scoped to the fixture user (TEST_USER_ID) from
+ * ./session.
  *
  * Credentials are intentionally NOT seeded here: credential `data` is
  * encrypted at rest by src/lib/sabflow/credentials/encryption.ts
@@ -25,6 +27,15 @@ import { ObjectId, type Db } from 'mongodb';
 import { TEST_USER_ID, TEST_USER_EMAIL } from './session';
 
 export const E2E_PREFIX = 'e2e-';
+
+/**
+ * Per-process run id. Test files run as separate parallel processes, so a
+ * cleanup() that swept ALL `__e2e`-tagged docs could delete a sibling
+ * file's seeds mid-test. Every doc this module seeds is additionally
+ * tagged `__e2eRun: RUN_ID`, and cleanup() only touches this run's docs.
+ * Use cleanupAll() for a global sweep (e.g. from global-setup/teardown).
+ */
+export const RUN_ID = `${process.pid}-${randomBytes(4).toString('hex')}`;
 
 const createId = () => randomUUID();
 
@@ -82,6 +93,7 @@ export async function createFlow(
     createdAt: now,
     updatedAt: now,
     __e2e: true,
+    __e2eRun: RUN_ID,
   };
 
   const res = await db.collection('sabflows').insertOne(doc);
@@ -128,7 +140,7 @@ export async function createEnvVar(
   await db.collection('sabflow_env_vars').updateOne(
     { userId: TEST_USER_ID, key },
     {
-      $set: { value, isSecret, updatedAt: now, __e2e: true },
+      $set: { value, isSecret, updatedAt: now, __e2e: true, __e2eRun: RUN_ID },
       $setOnInsert: { userId: TEST_USER_ID, key },
     },
     { upsert: true },
@@ -151,6 +163,7 @@ export async function createFolder(
     createdAt: now,
     updatedAt: now,
     __e2e: true,
+    __e2eRun: RUN_ID,
   });
   return { folderId: res.insertedId.toHexString(), name: folderName };
 }
@@ -174,6 +187,7 @@ export async function createWorkspace(
     createdAt: now,
     updatedAt: now,
     __e2e: true,
+    __e2eRun: RUN_ID,
   });
   const workspaceId = res.insertedId.toHexString();
   await db.collection('sabflow_workspace_members').insertOne({
@@ -182,6 +196,7 @@ export async function createWorkspace(
     role: 'owner',
     joinedAt: now,
     __e2e: true,
+    __e2eRun: RUN_ID,
   });
   return { workspaceId, name: wsName };
 }
@@ -214,6 +229,7 @@ export async function createWorkspaceInvite(
     expiresAt: new Date(now.getTime() + (opts.ttlMs ?? 7 * 24 * 60 * 60 * 1000)),
     createdAt: now,
     __e2e: true,
+    __e2eRun: RUN_ID,
   });
   return { inviteId: res.insertedId.toHexString(), token, workspaceId, email };
 }
@@ -221,12 +237,66 @@ export async function createWorkspaceInvite(
 /* ── Cleanup ────────────────────────────────────────────────────────── */
 
 /**
- * Delete everything this module (or a test run) seeded. Matches by the
- * `__e2e: true` tag OR the `e2e-` name prefix, always additionally scoped
- * to the fixture user so a stray tag on real data can't be swept.
+ * Delete what THIS process seeded — scoped to `__e2eRun: RUN_ID` (plus the
+ * `__e2e: true` tag and the fixture user) so parallel test files cannot
+ * sweep each other's docs mid-test. Executions are not seeded here, so the
+ * sweep covers (a) executions the app created for this run's flows and
+ * (b) directly-inserted `__e2e` rows without a run tag (worker round-trip).
  * The fixture user itself is kept (cheap, reused across runs).
  */
 export async function cleanup(db: Db): Promise<void> {
+  const run = { __e2e: true, __e2eRun: RUN_ID };
+
+  // Capture this run's flow ids BEFORE deleting the flows, so the app's
+  // execution rows (no tags — created over HTTP) can be matched by flowId.
+  const flowDocs = await db
+    .collection('sabflows')
+    .find({ userId: TEST_USER_ID, ...run })
+    .project({ _id: 1 })
+    .toArray();
+  const flowIds = flowDocs.map((f) => (f._id as ObjectId).toHexString());
+
+  await Promise.all([
+    db.collection('sabflows').deleteMany({ userId: TEST_USER_ID, ...run }),
+    db.collection('sabflow_executions').deleteMany({
+      projectId: TEST_USER_ID,
+      $or: [
+        { __e2eRun: RUN_ID },
+        { __e2e: true, __e2eRun: { $exists: false } },
+        ...(flowIds.length > 0 ? [{ flowId: { $in: flowIds } }] : []),
+      ],
+    }),
+    db.collection('sabflow_env_vars').deleteMany({ userId: TEST_USER_ID, ...run }),
+    db.collection('sabflow_folders').deleteMany({ userId: TEST_USER_ID, ...run }),
+  ]);
+
+  // Workspaces this run seeded → then their members + invites.
+  const wsIds = await db
+    .collection('sabflow_workspaces')
+    .find({ ownerId: TEST_USER_ID, ...run })
+    .project({ _id: 1 })
+    .toArray();
+  const ids = wsIds.map((w) => (w._id as ObjectId).toHexString());
+  if (ids.length > 0) {
+    await Promise.all([
+      db.collection('sabflow_workspace_members').deleteMany({ workspaceId: { $in: ids } }),
+      db.collection('sabflow_workspace_invites').deleteMany({ workspaceId: { $in: ids } }),
+      db.collection('sabflow_workspaces').deleteMany({ _id: { $in: wsIds.map((w) => w._id) } }),
+    ]);
+  }
+  // Invites addressed TO the fixture user (seeded into other workspaces).
+  await db
+    .collection('sabflow_workspace_invites')
+    .deleteMany({ email: TEST_USER_EMAIL, ...run });
+}
+
+/**
+ * Global sweep — the pre-runId behavior: delete EVERY `__e2e`-tagged /
+ * `e2e-`-prefixed doc for the fixture user regardless of which process
+ * seeded it. Only safe when no other test process is running (e.g.
+ * global-setup/teardown or manual cleanup), never from a suite's after().
+ */
+export async function cleanupAll(db: Db): Promise<void> {
   const tagged = { $or: [{ __e2e: true }, { name: { $regex: `^${E2E_PREFIX}` } }] };
 
   await Promise.all([

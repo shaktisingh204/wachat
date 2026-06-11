@@ -4,12 +4,14 @@
   "description": "Consume Venafi TLS Protect Cloud API",
   "category": "dev",
   "iconName": "LuPackage",
-  "version": 3,
+  "version": 4,
   "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "header",
-    "credentialType": "http_header_auth"
+    "credentialType": "venafi_tls_protect_cloud",
+    "header": "tppl-api-key",
+    "baseUrlFromCredential": "baseUrl"
   },
   "baseUrl": "",
   "endpoints": [

@@ -4,48 +4,49 @@
   "description": "Sends data to Amazon Comprehend",
   "category": "dev",
   "iconName": "LuPackage",
-  "version": 1,
-  "lastVerified": "2026-05-17",
+  "version": 2,
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
-    "type": "none"
+    "type": "aws_sigv4",
+    "credentialType": "aws",
+    "awsService": "comprehend"
   },
   "baseUrl": "",
   "endpoints": [
     {
       "id": "text_detect_dominant_language",
       "label": "Detect Dominant Language Text",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/text",
       "fields": [
         {
           "id": "text",
           "label": "Text",
           "type": "text",
-          "in": "query",
           "description": "The text to send"
         },
         {
           "id": "simple",
           "label": "Simplify",
           "type": "toggle",
-          "in": "query",
           "description": "Whether to return a simplified version of the response instead of the raw data",
           "defaultValue": true
         }
-      ]
+      ],
+      "group": "Text",
+      "description": "[unverified path] Identify the dominant language"
     },
     {
       "id": "text_detect_entities",
       "label": "Detect Entities Text",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/text",
       "fields": [
         {
           "id": "languageCode",
           "label": "Language Code",
           "type": "select",
-          "in": "query",
           "description": "The language code for text",
           "defaultValue": "en",
           "options": [
@@ -103,29 +104,29 @@
           "id": "text",
           "label": "Text",
           "type": "text",
-          "in": "query",
           "description": "The text to send"
         },
         {
           "id": "additionalFields",
           "label": "Additional Fields",
           "type": "json",
-          "in": "query",
-          "placeholder": "Add Field"
+          "placeholder": "Add Field",
+          "description": "(JSON object; supported keys: endpointArn)"
         }
-      ]
+      ],
+      "group": "Text",
+      "description": "[unverified path] Inspects text for named entities, and returns information about them"
     },
     {
       "id": "text_detect_sentiment",
       "label": "Detect Sentiment Text",
-      "method": "GET",
-      "path": "/",
+      "method": "POST",
+      "path": "/text",
       "fields": [
         {
           "id": "languageCode",
           "label": "Language Code",
           "type": "select",
-          "in": "query",
           "description": "The language code for text",
           "defaultValue": "en",
           "options": [
@@ -183,10 +184,11 @@
           "id": "text",
           "label": "Text",
           "type": "text",
-          "in": "query",
           "description": "The text to send"
         }
-      ]
+      ],
+      "group": "Text",
+      "description": "[unverified path] Analyse the sentiment of the text"
     }
   ]
 }

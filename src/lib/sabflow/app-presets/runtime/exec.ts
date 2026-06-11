@@ -1,17 +1,22 @@
 /**
- * SabFlow — App preset execution helpers (pure, no node imports).
+ * SabFlow — App preset execution helpers.
  *
  * Used by the `forge_app_preset` block to:
  *   1. Take an endpoint template + user inputs and produce a concrete URL +
  *      query / header / body buckets.
  *   2. Build auth headers (and query-string token) from a preset's auth shape
- *      and the chosen credential.
+ *      and the chosen credential — including AWS Signature V4 signing
+ *      (`signAwsRequest`) and credential-sourced base URLs
+ *      (`resolvePresetBaseUrl`).
  *   3. Project a response payload through a minimal JSONPath (`$`, `$.foo`,
  *      `$.foo[0].bar`).
  *
- * Pure functions only — safe to import from anywhere (including non-server
- * surfaces).
+ * Pure functions (no I/O) — but SigV4 needs `node:crypto`, so this module is
+ * Node-runtime only (it is consumed exclusively by the server-side dispatcher
+ * in `forge/blocks/generic/app_preset.ts`).
  */
+
+import { createHash, createHmac } from 'node:crypto';
 
 import type {
   AppPresetAuth,
@@ -159,6 +164,178 @@ export function resolvePath(
   return { url, query, headers, body: hasBody ? body : undefined };
 }
 
+/* ── Base URL resolution ─────────────────────────────────────────────────── */
+
+/**
+ * Resolve the effective base URL for a preset:
+ *   1. A concrete `https?://` `preset.baseUrl` wins (templated hosts like
+ *      `https://{subdomain}.zendesk.com` also pass through — their tokens are
+ *      substituted by path-located fields in `resolvePath`).
+ *   2. `aws_sigv4` presets with `auth.awsService` template the AWS host from
+ *      the credential's `region` (default `us-east-1`).
+ *   3. `auth.baseUrlFromCredential` reads the instance URL from the credential
+ *      data (trailing slashes trimmed; must parse as an http(s) URL).
+ *
+ * Throws a clear, preset-labelled error when a required credential value is
+ * missing or unusable.
+ */
+export function resolvePresetBaseUrl(
+  preset: { name?: string; baseUrl: string; auth: AppPresetAuth },
+  credential: Record<string, string> | undefined,
+): string {
+  const label = preset.name || 'App preset';
+  const auth = preset.auth ?? { type: 'none' as const };
+  const staticBase = (preset.baseUrl ?? '').trim();
+  const hasStatic = /^https?:\/\//i.test(staticBase);
+  if (hasStatic) return staticBase;
+
+  if (auth.type === 'aws_sigv4' && auth.awsService) {
+    const region = (credential?.region ?? '').trim() || 'us-east-1';
+    return `https://${auth.awsService}.${region}.amazonaws.com`;
+  }
+
+  if (auth.baseUrlFromCredential) {
+    const key = auth.baseUrlFromCredential;
+    const raw = (credential?.[key] ?? '').trim();
+    if (!raw) {
+      throw new Error(
+        `${label}: credential is missing '${key}' (instance URL) — set it on the connection`,
+      );
+    }
+    const cleaned = raw.replace(/\/+$/, '');
+    let parsed: URL;
+    try {
+      parsed = new URL(cleaned);
+    } catch {
+      throw new Error(`${label}: credential '${key}' is not a valid URL: '${raw}'`);
+    }
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+      throw new Error(`${label}: credential '${key}' must be an http(s) URL, got '${raw}'`);
+    }
+    return cleaned;
+  }
+
+  return staticBase;
+}
+
+/* ── AWS Signature V4 ────────────────────────────────────────────────────── */
+
+function hmacSha256(key: Buffer | string, data: string): Buffer {
+  return createHmac('sha256', key).update(data, 'utf-8').digest();
+}
+
+function sha256Hex(data: string): string {
+  return createHash('sha256').update(data, 'utf-8').digest('hex');
+}
+
+/** Strict RFC 3986 percent-encoding (AWS canonical form). */
+function awsUriEncode(s: string): string {
+  return encodeURIComponent(s).replace(
+    /[!'()*]/g,
+    (c) => `%${c.charCodeAt(0).toString(16).toUpperCase()}`,
+  );
+}
+
+export type AwsSignInput = {
+  method: string;
+  /** Fully-resolved request URL, query string included. */
+  url: string;
+  /** Exact request body string that will be sent (omit for body-less calls). */
+  body?: string;
+  /** AWS service signing name, e.g. `dynamodb`, `s3`, `comprehend`. */
+  service: string;
+  /** Credential data: accessKeyId + secretAccessKey + region (+ sessionToken). */
+  credential: Record<string, string> | undefined;
+  /** Label used in error messages (usually the preset name). */
+  serviceLabel?: string;
+};
+
+/**
+ * AWS Signature Version 4 (header-based), implemented from the spec with the
+ * `node:crypto` HMAC chain — no SDK dependency.
+ *
+ * Signs `host`, `x-amz-date`, `x-amz-content-sha256` (always included — it is
+ * mandatory for S3 and harmless elsewhere) and, when the credential carries a
+ * `sessionToken`, `x-amz-security-token`. Returns the headers to merge into
+ * the outgoing request (the `Host` header itself is set by fetch from the URL,
+ * which matches the signed value).
+ */
+export function signAwsRequest(input: AwsSignInput): Record<string, string> {
+  const label = input.serviceLabel ?? 'AWS preset';
+  const cred = input.credential ?? {};
+  const accessKeyId = (cred.accessKeyId ?? '').trim();
+  const secretAccessKey = (cred.secretAccessKey ?? '').trim();
+  const region = (cred.region ?? '').trim() || 'us-east-1';
+  const sessionToken = (cred.sessionToken ?? '').trim();
+  if (!input.service) {
+    throw new Error(`${label}: preset auth is missing 'awsService' — cannot sign request`);
+  }
+  if (!accessKeyId || !secretAccessKey) {
+    throw new Error(
+      `${label}: AWS credential needs accessKeyId + secretAccessKey — set them on the connection`,
+    );
+  }
+
+  let url: URL;
+  try {
+    url = new URL(input.url);
+  } catch {
+    throw new Error(`${label}: cannot sign invalid URL '${input.url}'`);
+  }
+
+  // 20260101T000000Z / 20260101
+  const amzDate = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+  const dateStamp = amzDate.slice(0, 8);
+
+  const payloadHash = sha256Hex(input.body ?? '');
+
+  // Canonical query string: keys+values strictly RFC3986-encoded, sorted.
+  const params: Array<[string, string]> = [];
+  url.searchParams.forEach((v, k) => params.push([awsUriEncode(k), awsUriEncode(v)]));
+  params.sort(([ak, av], [bk, bv]) => (ak < bk ? -1 : ak > bk ? 1 : av < bv ? -1 : av > bv ? 1 : 0));
+  const canonicalQuery = params.map(([k, v]) => `${k}=${v}`).join('&');
+
+  // Canonical URI: the (already percent-encoded) request path.
+  const canonicalUri = url.pathname || '/';
+
+  const headersToSign: Array<[string, string]> = [
+    ['host', url.host],
+    ['x-amz-content-sha256', payloadHash],
+    ['x-amz-date', amzDate],
+  ];
+  if (sessionToken) headersToSign.push(['x-amz-security-token', sessionToken]);
+  headersToSign.sort(([a], [b]) => (a < b ? -1 : 1));
+  const canonicalHeaders = headersToSign.map(([k, v]) => `${k}:${v}\n`).join('');
+  const signedHeaders = headersToSign.map(([k]) => k).join(';');
+
+  const canonicalRequest = [
+    input.method.toUpperCase(),
+    canonicalUri,
+    canonicalQuery,
+    canonicalHeaders,
+    signedHeaders,
+    payloadHash,
+  ].join('\n');
+
+  const scope = `${dateStamp}/${region}/${input.service}/aws4_request`;
+  const stringToSign = ['AWS4-HMAC-SHA256', amzDate, scope, sha256Hex(canonicalRequest)].join('\n');
+
+  // HMAC chain: kSecret → kDate → kRegion → kService → kSigning
+  const kDate = hmacSha256(`AWS4${secretAccessKey}`, dateStamp);
+  const kRegion = hmacSha256(kDate, region);
+  const kService = hmacSha256(kRegion, input.service);
+  const kSigning = hmacSha256(kService, 'aws4_request');
+  const signature = createHmac('sha256', kSigning).update(stringToSign, 'utf-8').digest('hex');
+
+  const out: Record<string, string> = {
+    'x-amz-date': amzDate,
+    'x-amz-content-sha256': payloadHash,
+    Authorization: `AWS4-HMAC-SHA256 Credential=${accessKeyId}/${scope}, SignedHeaders=${signedHeaders}, Signature=${signature}`,
+  };
+  if (sessionToken) out['x-amz-security-token'] = sessionToken;
+  return out;
+}
+
 /* ── Auth ────────────────────────────────────────────────────────────────── */
 
 function toBase64(s: string): string {
@@ -216,9 +393,9 @@ export function buildAuthHeaders(
       return { Authorization: `Bearer ${token}` };
     }
     case 'aws_sigv4':
-      throw new Error(
-        'AWS SigV4 not supported in preset auth yet; use forge_aws_* native ports',
-      );
+      // SigV4 needs the full request (method/url/body), not just the
+      // credential — the dispatcher calls `signAwsRequest` instead.
+      return {};
     default:
       return {};
   }

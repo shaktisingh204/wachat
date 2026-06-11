@@ -4,7 +4,7 @@
   "description": "Sends data to Mattermost",
   "category": "communication",
   "iconName": "LuPackage",
-  "version": 4,
+  "version": 5,
   "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
@@ -17,7 +17,7 @@
       "id": "channel_add_user",
       "label": "Add User Channel",
       "method": "POST",
-      "path": "/channel",
+      "path": "/channels/{channelId}/members",
       "fields": [
         {
           "id": "host",
@@ -32,7 +32,8 @@
           "label": "Channel Name or ID",
           "type": "text",
           "required": true,
-          "description": "The ID of the channel to invite user to. Choose from the list, or specify an ID using an expression."
+          "description": "The ID of the channel to invite user to. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
         },
         {
           "id": "userId",
@@ -43,13 +44,13 @@
         }
       ],
       "group": "Channel",
-      "description": "[unverified path] Add a user to a channel"
+      "description": "Add a user to a channel"
     },
     {
       "id": "channel_create",
       "label": "Create Channel",
       "method": "POST",
-      "path": "/channel",
+      "path": "/channels",
       "fields": [
         {
           "id": "host",
@@ -101,13 +102,13 @@
         }
       ],
       "group": "Channel",
-      "description": "[unverified path] Create a new channel"
+      "description": "Create a new channel"
     },
     {
       "id": "channel_delete",
       "label": "Delete Channel",
       "method": "DELETE",
-      "path": "/channel",
+      "path": "/channels/{channelId}",
       "fields": [
         {
           "id": "host",
@@ -122,17 +123,18 @@
           "label": "Channel Name or ID",
           "type": "text",
           "required": true,
-          "description": "The ID of the channel to soft delete. Choose from the list, or specify an ID using an expression."
+          "description": "The ID of the channel to soft delete. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
         }
       ],
       "group": "Channel",
-      "description": "[unverified path] Soft delete a channel"
+      "description": "Soft delete a channel"
     },
     {
       "id": "channel_members",
       "label": "Member Channel",
       "method": "POST",
-      "path": "/channel",
+      "path": "/users/ids",
       "fields": [
         {
           "id": "host",
@@ -179,13 +181,13 @@
         }
       ],
       "group": "Channel",
-      "description": "[unverified path] Get a page of members for a channel"
+      "description": "Get a page of members for a channel"
     },
     {
       "id": "channel_restore",
       "label": "Restore Channel",
       "method": "POST",
-      "path": "/channel",
+      "path": "/channels/{channelId}/restore",
       "fields": [
         {
           "id": "host",
@@ -200,17 +202,18 @@
           "label": "Channel ID",
           "type": "text",
           "required": true,
-          "description": "The ID of the channel to restore"
+          "description": "The ID of the channel to restore",
+          "in": "path"
         }
       ],
       "group": "Channel",
-      "description": "[unverified path] Restores a soft deleted channel"
+      "description": "Restores a soft deleted channel"
     },
     {
       "id": "channel_search",
       "label": "Search Channel",
-      "method": "GET",
-      "path": "/channel",
+      "method": "POST",
+      "path": "/teams/{teamId}/channels/search",
       "fields": [
         {
           "id": "host",
@@ -225,7 +228,8 @@
           "label": "Team Name or ID",
           "type": "text",
           "required": true,
-          "description": "The Mattermost Team. Choose from the list, or specify an ID using an expression."
+          "description": "The Mattermost Team. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
         },
         {
           "id": "term",
@@ -251,13 +255,13 @@
         }
       ],
       "group": "Channel",
-      "description": "[unverified path] Search for a channel"
+      "description": "Search for a channel"
     },
     {
       "id": "channel_statistics",
       "label": "Statistics Channel",
-      "method": "POST",
-      "path": "/channel",
+      "method": "GET",
+      "path": "/channels/{channelId}/stats",
       "fields": [
         {
           "id": "host",
@@ -272,17 +276,18 @@
           "label": "Channel Name or ID",
           "type": "text",
           "required": true,
-          "description": "The ID of the channel to get the statistics from. Choose from the list, or specify an ID using an expression."
+          "description": "The ID of the channel to get the statistics from. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
         }
       ],
       "group": "Channel",
-      "description": "[unverified path] Get statistics for a channel"
+      "description": "Get statistics for a channel"
     },
     {
       "id": "message_delete",
       "label": "Delete Message",
       "method": "DELETE",
-      "path": "/message",
+      "path": "/posts/{postId}",
       "fields": [
         {
           "id": "host",
@@ -297,17 +302,18 @@
           "label": "Post ID",
           "type": "text",
           "required": true,
-          "description": "ID of the post to delete"
+          "description": "ID of the post to delete",
+          "in": "path"
         }
       ],
       "group": "Message",
-      "description": "[unverified path] Soft delete a post, by marking the post as deleted in the database"
+      "description": "Soft delete a post, by marking the post as deleted in the database"
     },
     {
       "id": "message_post",
       "label": "Post Message",
       "method": "POST",
-      "path": "/message",
+      "path": "/posts",
       "fields": [
         {
           "id": "host",
@@ -346,13 +352,13 @@
         }
       ],
       "group": "Message",
-      "description": "[unverified path] Post a message into a channel"
+      "description": "Post a message into a channel"
     },
     {
       "id": "message_post_ephemeral",
       "label": "Post Ephemeral Message",
       "method": "POST",
-      "path": "/message",
+      "path": "/posts/ephemeral",
       "fields": [
         {
           "id": "host",
@@ -384,13 +390,13 @@
         }
       ],
       "group": "Message",
-      "description": "[unverified path] Post an ephemeral message into a channel"
+      "description": "Post an ephemeral message into a channel"
     },
     {
       "id": "reaction_create",
       "label": "Create Reaction",
       "method": "POST",
-      "path": "/reaction",
+      "path": "/reactions",
       "fields": [
         {
           "id": "host",
@@ -424,13 +430,13 @@
         }
       ],
       "group": "Reaction",
-      "description": "[unverified path] Add a reaction to a post"
+      "description": "Add a reaction to a post"
     },
     {
       "id": "reaction_delete",
       "label": "Delete Reaction",
       "method": "DELETE",
-      "path": "/reaction",
+      "path": "/users/{userId}/posts/{postId}/reactions/{emojiName}",
       "fields": [
         {
           "id": "host",
@@ -445,7 +451,8 @@
           "label": "User Name or ID",
           "type": "text",
           "required": true,
-          "description": "ID of the user whose reaction to delete. Choose from the list, or specify an ID using an expression."
+          "description": "ID of the user whose reaction to delete. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
         },
         {
           "id": "postId",
@@ -453,24 +460,26 @@
           "type": "text",
           "required": true,
           "placeholder": "3moacfqxmbdw38r38fjprh6zsr",
-          "description": "ID of the post whose reaction to delete. Obtainable from the post link: https://mattermost.internal.n8n.io/[server]/pl/[postId]"
+          "description": "ID of the post whose reaction to delete. Obtainable from the post link: https://mattermost.internal.n8n.io/[server]/pl/[postId]",
+          "in": "path"
         },
         {
           "id": "emojiName",
           "label": "Emoji Name",
           "type": "text",
           "required": true,
-          "description": "Name of the emoji to delete"
+          "description": "Name of the emoji to delete",
+          "in": "path"
         }
       ],
       "group": "Reaction",
-      "description": "[unverified path] Remove a reaction from a post"
+      "description": "Remove a reaction from a post"
     },
     {
       "id": "reaction_get_all",
       "label": "Get Many Reaction",
       "method": "GET",
-      "path": "/reaction",
+      "path": "/posts/{postId}/reactions",
       "fields": [
         {
           "id": "host",
@@ -485,7 +494,8 @@
           "label": "Post ID",
           "type": "text",
           "required": true,
-          "description": "One or more (comma-separated) posts to retrieve reactions from"
+          "description": "One or more (comma-separated) posts to retrieve reactions from",
+          "in": "path"
         },
         {
           "id": "returnAll",
@@ -503,13 +513,13 @@
         }
       ],
       "group": "Reaction",
-      "description": "[unverified path] Get many reactions to one or more posts"
+      "description": "Get many reactions to one or more posts"
     },
     {
       "id": "user_create",
       "label": "Create User",
       "method": "POST",
-      "path": "/user",
+      "path": "/users",
       "fields": [
         {
           "id": "host",
@@ -582,13 +592,13 @@
         }
       ],
       "group": "User",
-      "description": "[unverified path] Create a new user"
+      "description": "Create a new user"
     },
     {
       "id": "user_deactive",
       "label": "Deactive User",
-      "method": "POST",
-      "path": "/user",
+      "method": "DELETE",
+      "path": "/users/{userId}",
       "fields": [
         {
           "id": "host",
@@ -603,17 +613,18 @@
           "label": "User ID",
           "type": "text",
           "required": true,
-          "description": "User GUID"
+          "description": "User GUID",
+          "in": "path"
         }
       ],
       "group": "User",
-      "description": "[unverified path] Deactivates the user and revokes all its sessions by archiving its user object"
+      "description": "Deactivates the user and revokes all its sessions by archiving its user object"
     },
     {
       "id": "user_get_by_email",
       "label": "Get By Email User",
       "method": "GET",
-      "path": "/user",
+      "path": "/users/email/{email}",
       "fields": [
         {
           "id": "host",
@@ -629,17 +640,18 @@
           "type": "text",
           "required": true,
           "placeholder": "name@email.com",
-          "description": "User's email"
+          "description": "User's email",
+          "in": "path"
         }
       ],
       "group": "User",
-      "description": "[unverified path] Get a user by email"
+      "description": "Get a user by email"
     },
     {
       "id": "user_get_by_id",
       "label": "Get By ID User",
-      "method": "GET",
-      "path": "/user",
+      "method": "POST",
+      "path": "/users/ids",
       "fields": [
         {
           "id": "host",
@@ -665,13 +677,13 @@
         }
       ],
       "group": "User",
-      "description": "[unverified path] Get a user by ID"
+      "description": "Get a user by ID"
     },
     {
       "id": "user_get_all",
       "label": "Get Many User",
       "method": "GET",
-      "path": "/user",
+      "path": "/users",
       "fields": [
         {
           "id": "host",
@@ -704,13 +716,13 @@
         }
       ],
       "group": "User",
-      "description": "[unverified path] Retrieve many users"
+      "description": "Retrieve many users"
     },
     {
       "id": "user_invite",
       "label": "Invite User",
       "method": "POST",
-      "path": "/user",
+      "path": "/teams/{teamId}/invite/email",
       "fields": [
         {
           "id": "host",
@@ -725,7 +737,8 @@
           "label": "Team Name or ID",
           "type": "select",
           "required": true,
-          "description": "Choose from the list, or specify an ID using an expression"
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
         },
         {
           "id": "emails",
@@ -736,7 +749,7 @@
         }
       ],
       "group": "User",
-      "description": "[unverified path] Invite user to team"
+      "description": "Invite user to team"
     }
   ]
 }

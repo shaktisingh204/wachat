@@ -132,14 +132,24 @@ async function listPresetIds(): Promise<string[]> {
 /* ── Public API ──────────────────────────────────────────────────────────── */
 
 /**
- * A preset is executable only when it has a base URL and at least one
- * endpoint. This is the hard gate for every LISTING surface — incomplete
+ * A preset is executable only when it has a resolvable base URL and at least
+ * one endpoint. This is the hard gate for every LISTING surface — incomplete
  * presets (auto-imported drafts without a baseUrl, empty shells) must never
  * show up in pickers. `status: 'draft'` alone does NOT exclude a preset:
  * a complete draft is listed, flagged `draft: true` in its summary.
+ *
+ * "Resolvable base URL" means any of:
+ *   - a non-empty static `baseUrl`,
+ *   - `auth.baseUrlFromCredential` (instance URL read from the credential at
+ *     run time — self-hosted apps), or
+ *   - `aws_sigv4` auth with `awsService` (host templated from service+region).
  */
 export function isPresetComplete(p: AppPreset): boolean {
-  return p.baseUrl.length > 0 && p.endpoints.length > 0;
+  if (p.endpoints.length === 0) return false;
+  if (p.baseUrl.length > 0) return true;
+  if (p.auth?.baseUrlFromCredential) return true;
+  if (p.auth?.type === 'aws_sigv4' && p.auth.awsService) return true;
+  return false;
 }
 
 export type ListPresetsOptions = {
