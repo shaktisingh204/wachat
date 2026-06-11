@@ -27,8 +27,6 @@ import {
 } from '@/components/sabcrm/20ui';
 import { getCrmContacts } from '@/app/actions/crm.actions';
 
-import { SabbiginNav } from '../_components/sabbigin-shell';
-
 export const dynamic = 'force-dynamic';
 
 interface SearchParams {
@@ -68,8 +66,6 @@ export default async function SabbiginContactsPage({ searchParams }: PageProps) 
                     </Link>
                 </PageActions>
             </PageHeader>
-
-            <SabbiginNav active="/dashboard/sabbigin/contacts" />
 
             {contacts.length === 0 ? (
                 <Card padding="none" className="flex min-h-[280px] items-center justify-center">

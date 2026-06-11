@@ -42,8 +42,6 @@ import {
 import type { FormAnalytics } from '@/lib/rust-client/pagesense-form-analytics';
 import type { PagesenseSite } from '@/lib/rust-client/pagesense-sites';
 
-import { PagesenseSiteNav } from '../_site-nav';
-
 interface Props {
     site: PagesenseSite | null;
     forms: FormAnalytics[];
@@ -108,8 +106,6 @@ export function FormsClient({ site, forms }: Props) {
                     </Button>
                 </PageActions>
             </PageHeader>
-
-            <PagesenseSiteNav siteId={site._id} />
 
             {forms.length === 0 ? (
                 <EmptyState

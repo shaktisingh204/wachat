@@ -33,8 +33,6 @@ import {
 } from '@/components/sabcrm/20ui';
 import { addCrmContact } from '@/app/actions/crm.actions';
 
-import { SabbiginNav } from '../../_components/sabbigin-shell';
-
 const CONTACTS_HREF = '/dashboard/sabbigin/contacts';
 
 export default function SabbiginNewContactPage() {
@@ -79,8 +77,6 @@ export default function SabbiginNewContactPage() {
                     </Button>
                 </PageActions>
             </PageHeader>
-
-            <SabbiginNav active={CONTACTS_HREF} />
 
             <Card padding="none" className="max-w-2xl">
                 <form action={handleSubmit}>

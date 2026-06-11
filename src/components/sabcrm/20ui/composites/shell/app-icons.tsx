@@ -55,6 +55,18 @@ export function WaChatIcon(props: IconProps) {
   );
 }
 
+// Payment card 18×13 at (3,5.5), magstripe at y=9.5, accent dot + amount line.
+export function SabPayIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <rect x="3" y="5.5" width="18" height="13" rx="2" />
+      <path d="M3 9.5h18" />
+      <circle cx="7" cy="15" r="1" fill="currentColor" stroke="none" />
+      <path d="M13 15h4.5" />
+    </svg>
+  );
+}
+
 // Three QR finder squares + WhatsApp chat bubble in the fourth corner.
 export function SabWaIcon(props: IconProps) {
   return (

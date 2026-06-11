@@ -25,6 +25,7 @@ import {
   SabMeetIcon,
   SabMonitorIcon,
   SabOpsIcon,
+  SabPayIcon,
   SabPracticeIcon,
   SabPrepIcon,
   SabPublishIcon,
@@ -196,6 +197,14 @@ const SAB_APPS_ALL: SabAppDescriptor[] = [
     Icon: EmailIcon,
     migration: "done",
     isActive: (p) => !!p?.startsWith("/dashboard/email"),
+  },
+  {
+    id: "sabpay",
+    name: "SabPay",
+    href: "/sabpay",
+    Icon: SabPayIcon,
+    migration: "done",
+    isActive: (p) => p === "/sabpay" || !!p?.startsWith("/sabpay/"),
   },
   {
     id: "sabsms",

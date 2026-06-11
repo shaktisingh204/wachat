@@ -31,7 +31,6 @@ import { DealKanban } from '@/app/dashboard/crm/sales-crm/deals/_components/deal
 import type { DealListRow } from '@/app/dashboard/crm/sales-crm/deals/_components/types';
 import { getSabbiginConfig } from '@/app/actions/sabbigin.actions';
 
-import { SabbiginNav } from '../_components/sabbigin-shell';
 import { formatCurrency } from '../_components/sabbigin-data';
 
 export const dynamic = 'force-dynamic';
@@ -124,8 +123,6 @@ export default async function SabbiginPipelinePage() {
                     </PageDescription>
                 </PageHeaderHeading>
             </PageHeader>
-
-            <SabbiginNav active="/dashboard/sabbigin/pipeline" />
 
             <div className="grid grid-cols-2 gap-3 sm:max-w-md">
                 <StatCard label="Deals on board" value={deals.length} icon={Handshake} accent="#3b7af5" />

@@ -1,0 +1,107 @@
+/* SabpayPage — the single page frame for every SabPay page.
+ * Clone of wachat-page.css: one width, one responsive gutter, one
+ * header→body rhythm, tokens only so light/dark track 20ui. Includes
+ * the module's shared entrance utility (.sabpay-rise) used for the
+ * staggered card reveals on Overview.
+ */
+
+:is(.\32 0ui, .ui20).sabpay-page {
+  width: 100%;
+  min-height: 100%;
+  background: var(--st-bg);
+  color: var(--st-text);
+  font-family: var(--st-font);
+  font-size: var(--st-font-size);
+}
+
+:is(.\32 0ui, .ui20).sabpay-page .sabpay-page__inner {
+  margin-inline: auto;
+  width: 100%;
+  max-width: 1320px;
+  padding-inline: clamp(16px, 4vw, 32px);
+  padding-block: var(--st-space-5) 40px;
+}
+
+:is(.\32 0ui, .ui20).sabpay-page .sabpay-page__inner[data-width='narrow'] {
+  max-width: 880px;
+}
+
+:is(.\32 0ui, .ui20).sabpay-page .sabpay-page__inner[data-width='wide'] {
+  max-width: 1560px;
+}
+
+:is(.\32 0ui, .ui20).sabpay-page .sabpay-page__crumbs {
+  margin-bottom: var(--st-space-4);
+}
+
+:is(.\32 0ui, .ui20).sabpay-page .sabpay-page__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-5);
+  min-width: 0;
+}
+
+:is(.\32 0ui, .ui20).sabpay-page .sabpay-page__body--after-header {
+  margin-top: var(--st-space-5);
+}
+
+:is(.\32 0ui, .ui20).sabpay-page--app {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
+  background: var(--st-bg);
+}
+
+/* ── Shared entrance: a one-shot rise used by Overview/receipt cards.
+ * transform+opacity only, strong ease-out, < 300ms, stagger via
+ * --rise-i set inline. */
+:is(.\32 0ui, .ui20).sabpay-page .sabpay-rise {
+  opacity: 0;
+  transform: translateY(10px);
+  animation: sabpay-rise 280ms cubic-bezier(0.23, 1, 0.32, 1) forwards;
+  animation-delay: calc(var(--rise-i, 0) * 50ms);
+}
+
+@keyframes sabpay-rise {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Sparkline draw-in for the Overview volume chart. */
+:is(.\32 0ui, .ui20).sabpay-page .sabpay-spark__line {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: sabpay-spark-draw 700ms cubic-bezier(0.23, 1, 0.32, 1) 150ms forwards;
+}
+
+:is(.\32 0ui, .ui20).sabpay-page .sabpay-spark__fill {
+  opacity: 0;
+  animation: sabpay-spark-fade 400ms ease 450ms forwards;
+}
+
+@keyframes sabpay-spark-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes sabpay-spark-fade {
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :is(.\32 0ui, .ui20).sabpay-page .sabpay-rise,
+  :is(.\32 0ui, .ui20).sabpay-page .sabpay-spark__line,
+  :is(.\32 0ui, .ui20).sabpay-page .sabpay-spark__fill {
+    animation: none;
+    opacity: 1;
+    transform: none;
+    stroke-dashoffset: 0;
+  }
+}

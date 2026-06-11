@@ -1,0 +1,411 @@
+/* SabPay hosted checkout — standalone public surface.
+ *
+ * Reconstructed stylesheet for checkout-client.tsx (the original WIP file
+ * was lost in a route-conflict cleanup). Self-contained on purpose: the
+ * page is unauthenticated and brand-themed per merchant via `--sp-brand`,
+ * so it does not pull in 20ui chrome.
+ */
+
+.sabpay-checkout {
+  --sp-brand: #4f46e5;
+  --sp-ink: #18181b;
+  --sp-ink-muted: #52525b;
+  --sp-ink-subtle: #a1a1aa;
+  --sp-line: #e4e4e7;
+  --sp-bg: #fafafa;
+  --sp-card: #ffffff;
+  --sp-danger: #dc2626;
+  --sp-ok: #16a34a;
+  --sp-radius: 14px;
+
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  background: var(--sp-bg);
+  color: var(--sp-ink);
+  font-family:
+    var(--font-sab-body, var(--font-sans, ui-sans-serif)),
+    system-ui,
+    sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.sabpay-checkout__frame {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  width: min(880px, 100%);
+  border: 1px solid var(--sp-line);
+  border-radius: calc(var(--sp-radius) + 4px);
+  background: var(--sp-card);
+  box-shadow:
+    0 1px 2px rgba(24, 24, 27, 0.04),
+    0 16px 48px -16px rgba(24, 24, 27, 0.16);
+  overflow: hidden;
+}
+
+/* ── Brand / order summary panel ──────────────────────────────────── */
+
+.sabpay-checkout__summary {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 32px 28px;
+  background:
+    linear-gradient(160deg, color-mix(in srgb, var(--sp-brand) 9%, #ffffff) 0%, #ffffff 65%);
+  border-right: 1px solid var(--sp-line);
+}
+
+.sabpay-checkout__merchant {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.sabpay-checkout__logo {
+  width: 36px;
+  height: 36px;
+  flex: none;
+  border-radius: 10px;
+  object-fit: cover;
+  border: 1px solid var(--sp-line);
+  background: #ffffff;
+}
+
+.sabpay-checkout__logo--initial {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 16px;
+  color: #ffffff;
+  background: var(--sp-brand);
+  border-color: transparent;
+}
+
+.sabpay-checkout__merchant-name {
+  font-weight: 600;
+  font-size: 15px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sabpay-checkout__test-badge {
+  flex: none;
+  margin-left: auto;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #92400e;
+  background: #fef3c7;
+  border: 1px solid #fde68a;
+}
+
+.sabpay-checkout__amount {
+  margin: 16px 0 0;
+  font-size: 34px;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.sabpay-checkout__description {
+  margin: 0;
+  color: var(--sp-ink-muted);
+  overflow-wrap: anywhere;
+}
+
+.sabpay-checkout__summary-foot {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 24px;
+  font-size: 12px;
+  color: var(--sp-ink-subtle);
+}
+
+.sabpay-checkout__lock {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  margin-top: 1px;
+}
+
+.sabpay-checkout__lock svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* ── Action panel ─────────────────────────────────────────────────── */
+
+.sabpay-checkout__panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 32px 28px;
+  min-height: 380px;
+}
+
+.sabpay-checkout__form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.sabpay-checkout__title {
+  margin: 0 0 6px;
+  font-size: 18px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+.sabpay-checkout__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sabpay-checkout__field label {
+  font-size: 12.5px;
+  font-weight: 550;
+  color: var(--sp-ink-muted);
+}
+
+.sabpay-checkout__field input {
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--sp-line);
+  border-radius: 10px;
+  background: #ffffff;
+  color: var(--sp-ink);
+  font: inherit;
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.sabpay-checkout__field input::placeholder {
+  color: var(--sp-ink-subtle);
+}
+
+.sabpay-checkout__field input:focus-visible {
+  outline: none;
+  border-color: var(--sp-brand);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--sp-brand) 18%, transparent);
+}
+
+.sabpay-checkout__error {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 13px;
+  color: var(--sp-danger);
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+}
+
+.sabpay-checkout__pay {
+  height: 44px;
+  border: none;
+  border-radius: 11px;
+  background: var(--sp-brand);
+  color: #ffffff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    filter 150ms ease,
+    transform 80ms ease;
+}
+
+.sabpay-checkout__pay:hover {
+  filter: brightness(1.06);
+}
+
+.sabpay-checkout__pay:active {
+  transform: scale(0.98);
+}
+
+.sabpay-checkout__pay:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px #ffffff,
+    0 0 0 4px var(--sp-brand);
+}
+
+.sabpay-checkout__pay--ghost {
+  background: transparent;
+  color: var(--sp-ink-muted);
+  border: 1px solid var(--sp-line);
+}
+
+.sabpay-checkout__pay--ghost:hover {
+  filter: none;
+  border-color: var(--sp-ink-subtle);
+  color: var(--sp-ink);
+}
+
+.sabpay-checkout__simulate {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sabpay-checkout__simulate-note {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 12.5px;
+  color: #92400e;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+}
+
+.sabpay-checkout__powered {
+  margin: 8px 0 0;
+  font-size: 12px;
+  text-align: center;
+  color: var(--sp-ink-subtle);
+}
+
+.sabpay-checkout__powered strong {
+  font-weight: 600;
+  color: var(--sp-ink-muted);
+}
+
+/* ── Processing / result states ───────────────────────────────────── */
+
+.sabpay-checkout__state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+  padding: 16px 0;
+}
+
+.sabpay-checkout__state h1 {
+  margin: 8px 0 0;
+  font-size: 18px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+.sabpay-checkout__state p {
+  margin: 0;
+  max-width: 34ch;
+  color: var(--sp-ink-muted);
+}
+
+.sabpay-checkout__spinner {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 3px solid var(--sp-line);
+  border-top-color: var(--sp-brand);
+  animation: sabpay-spin 700ms linear infinite;
+}
+
+.sabpay-checkout__status-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+}
+
+.sabpay-checkout__status-icon svg {
+  width: 26px;
+  height: 26px;
+  display: block;
+}
+
+.sabpay-checkout__status-icon--succeeded {
+  color: var(--sp-ok);
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+}
+
+.sabpay-checkout__status-icon--failed {
+  color: var(--sp-danger);
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+}
+
+.sabpay-checkout__tick {
+  stroke-dasharray: 24;
+  stroke-dashoffset: 24;
+  animation: sabpay-tick 360ms cubic-bezier(0.23, 1, 0.32, 1) 120ms forwards;
+}
+
+.sabpay-checkout__receipt-id {
+  font-size: 12px;
+  color: var(--sp-ink-subtle);
+  font-variant-numeric: tabular-nums;
+}
+
+@keyframes sabpay-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes sabpay-tick {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* ── Responsive: stack panels on small screens ────────────────────── */
+
+@media (max-width: 720px) {
+  .sabpay-checkout {
+    padding: 0;
+    align-items: stretch;
+  }
+
+  .sabpay-checkout__frame {
+    grid-template-columns: 1fr;
+    width: 100%;
+    min-height: 100dvh;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .sabpay-checkout__summary {
+    border-right: none;
+    border-bottom: 1px solid var(--sp-line);
+    padding: 24px 20px;
+  }
+
+  .sabpay-checkout__summary-foot {
+    padding-top: 16px;
+  }
+
+  .sabpay-checkout__panel {
+    min-height: 0;
+    padding: 24px 20px 32px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sabpay-checkout__spinner {
+    animation-duration: 1400ms;
+  }
+
+  .sabpay-checkout__tick {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+}

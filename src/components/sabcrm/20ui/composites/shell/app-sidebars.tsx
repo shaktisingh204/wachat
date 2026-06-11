@@ -145,6 +145,7 @@ import {
 } from "lucide-react";
 
 import type { SabSidebarGroup } from "./app-sidebar";
+import { MODULE_SIDEBARS } from "./module-sidebars";
 
 export interface SabAppSidebarConfig {
   prefix: string;
@@ -1704,6 +1705,14 @@ export const SAB_APP_SIDEBARS: SabAppSidebarConfig[] = [
       },
     ],
   },
+
+  /* ─────────────────────────  Suite modules  ────────────────────────
+   *
+   * Per-module sidebar configs live in ./module-sidebars/<module>.tsx
+   * (one file per app — SabDesk, SabCheckout, SabSign, …). They are
+   * spread here so they win over the `/dashboard` catch-all below.
+   */
+  ...MODULE_SIDEBARS,
 
   /* ─────────────────────────────  Home (catch-all)  ─────────────────
    *

@@ -30,7 +30,6 @@ import {
 } from '@/components/sabcrm/20ui';
 import { listCrmActivities } from '@/app/actions/crm-activity.actions';
 
-import { SabbiginNav } from '../_components/sabbigin-shell';
 import { formatDateTime } from '../_components/sabbigin-data';
 
 export const dynamic = 'force-dynamic';
@@ -87,8 +86,6 @@ export default async function SabbiginEmailsPage() {
                     </Link>
                 </PageActions>
             </PageHeader>
-
-            <SabbiginNav active="/dashboard/sabbigin/emails" />
 
             <div className="grid grid-cols-2 gap-3 sm:max-w-md">
                 <StatCard label="Emails logged" value={total} icon={Mail} accent="#3b7af5" />

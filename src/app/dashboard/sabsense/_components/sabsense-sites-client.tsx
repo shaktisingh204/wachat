@@ -140,7 +140,7 @@ export function PagesenseSitesClient({ initialSites }: { initialSites: Pagesense
                                     <Tr key={s._id}>
                                         <Td>
                                             <Link
-                                                href={`/dashboard/pagesense/${s._id}/heatmaps`}
+                                                href={`/dashboard/sabsense/${s._id}/heatmaps`}
                                                 className="font-medium text-[color:var(--st-text)] hover:underline"
                                             >
                                                 {s.name}

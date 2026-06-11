@@ -8,13 +8,12 @@ import {
   PageDescription,
 } from '@/components/sabcrm/20ui';
 
-import { RewardsNav } from './_components/rewards-nav';
-
 /**
  * Rewards module shell. Owns the single page-level header (one h1 for the
- * whole module) plus the section sub-nav, so every page under
- * `/dashboard/sabrewards/*` shares consistent chrome. Section pages render
- * their own toolbars (not headers) to keep one logical heading order.
+ * whole module), so every page under `/dashboard/sabrewards/*` shares
+ * consistent chrome. Section navigation lives in the 20ui shell sidebar
+ * (module-sidebars/sabrewards.tsx). Section pages render their own
+ * toolbars (not headers) to keep one logical heading order.
  */
 export default function RewardsLayout({
   children,
@@ -33,7 +32,6 @@ export default function RewardsLayout({
           </PageDescription>
         </PageHeaderHeading>
       </PageHeader>
-      <RewardsNav />
       <div>{children}</div>
     </div>
   );

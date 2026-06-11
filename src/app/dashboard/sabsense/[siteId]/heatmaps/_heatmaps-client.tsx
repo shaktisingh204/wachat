@@ -28,8 +28,6 @@ import type { PagesenseSite } from '@/lib/rust-client/pagesense-sites';
 import type { HeatmapEventDoc } from '@/lib/rust-client/pagesense-heatmap-events';
 import type { HeatmapSnapshot } from '@/lib/rust-client/pagesense-heatmaps';
 
-import { PagesenseSiteNav } from '../_site-nav';
-
 type DeviceKey = 'desktop' | 'tablet' | 'mobile';
 
 const DEVICE_WIDTHS: Record<DeviceKey, number> = {
@@ -144,8 +142,6 @@ export function HeatmapsClient({
                     </Button>
                 </PageActions>
             </PageHeader>
-
-            <PagesenseSiteNav siteId={site._id} />
 
             <Card>
                 <CardHeader>

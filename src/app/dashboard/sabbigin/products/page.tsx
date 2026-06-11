@@ -27,7 +27,6 @@ import {
 } from '@/components/sabcrm/20ui';
 import { getCrmProducts } from '@/app/actions/crm-products.actions';
 
-import { SabbiginNav } from '../_components/sabbigin-shell';
 import { formatCurrency } from '../_components/sabbigin-data';
 
 export const dynamic = 'force-dynamic';
@@ -69,8 +68,6 @@ export default async function SabbiginProductsPage({ searchParams }: PageProps) 
                     </Link>
                 </PageActions>
             </PageHeader>
-
-            <SabbiginNav active="/dashboard/sabbigin/products" />
 
             {products.length === 0 ? (
                 <Card padding="none" className="flex min-h-[280px] items-center justify-center">

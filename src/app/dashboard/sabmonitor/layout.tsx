@@ -11,12 +11,10 @@ import {
     PageActions,
 } from '@/components/sabcrm/20ui';
 
-import { SabmonitorNav } from './_components/sabmonitor-nav';
-
 /**
- * SabMonitor module shell. Sub-nav per major surface (overview, checks,
- * incidents, alert policies, status pages, scripts, transactions, APM,
- * probes).
+ * SabMonitor module shell. Section navigation lives in the app sidebar
+ * (20ui shell `SABMONITOR_SIDEBAR`); this layout only renders the module
+ * header and page chrome.
  */
 export default function SabmonitorLayout({
     children,
@@ -44,7 +42,6 @@ export default function SabmonitorLayout({
                     </Link>
                 </PageActions>
             </PageHeader>
-            <SabmonitorNav />
             <div>{children}</div>
         </div>
     );

@@ -28,7 +28,6 @@ import {
 } from '@/components/sabcrm/20ui';
 import { listCrmActivities } from '@/app/actions/crm-activity.actions';
 
-import { SabbiginNav } from '../_components/sabbigin-shell';
 import { formatDateTime } from '../_components/sabbigin-data';
 
 export const dynamic = 'force-dynamic';
@@ -85,8 +84,6 @@ export default async function SabbiginCallsPage() {
                     </Link>
                 </PageActions>
             </PageHeader>
-
-            <SabbiginNav active="/dashboard/sabbigin/calls" />
 
             <div className="grid grid-cols-2 gap-3 sm:max-w-md">
                 <StatCard label="Calls logged" value={total} icon={PhoneCall} accent="#3b7af5" />

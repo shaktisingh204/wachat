@@ -45,8 +45,6 @@ import type { Funnel, FunnelStep, StepMatchType } from '@/lib/rust-client/pagese
 import type { FunnelRun } from '@/lib/rust-client/pagesense-funnel-runs';
 import type { PagesenseSite } from '@/lib/rust-client/pagesense-sites';
 
-import { PagesenseSiteNav } from '../_site-nav';
-
 interface Props {
     site: PagesenseSite | null;
     funnels: Funnel[];
@@ -136,8 +134,6 @@ export function FunnelsClient({ site, funnels, runsByFunnel }: Props) {
                     </Button>
                 </PageActions>
             </PageHeader>
-
-            <PagesenseSiteNav siteId={site._id} />
 
             {funnels.length === 0 ? (
                 <EmptyState

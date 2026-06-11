@@ -55,7 +55,7 @@ export async function getPagesenseSite(id: string) {
 export async function createPagesenseSite(input: CreateSiteInput): Promise<ActionResult<{ id: string }>> {
     try {
         const r = await pagesenseSitesApi.create(input);
-        revalidatePath('/dashboard/pagesense');
+        revalidatePath('/dashboard/sabsense');
         return { success: true, data: { id: r.id } };
     } catch (e) {
         return errResult(e, 'Failed to create site');
@@ -65,8 +65,8 @@ export async function createPagesenseSite(input: CreateSiteInput): Promise<Actio
 export async function updatePagesenseSite(id: string, patch: UpdateSiteInput): Promise<ActionResult> {
     try {
         await pagesenseSitesApi.update(id, patch);
-        revalidatePath('/dashboard/pagesense');
-        revalidatePath(`/dashboard/pagesense/${id}`);
+        revalidatePath('/dashboard/sabsense');
+        revalidatePath(`/dashboard/sabsense/${id}`);
         return { success: true };
     } catch (e) {
         return errResult(e, 'Failed to update site');
@@ -76,7 +76,7 @@ export async function updatePagesenseSite(id: string, patch: UpdateSiteInput): P
 export async function deletePagesenseSite(id: string): Promise<ActionResult> {
     try {
         await pagesenseSitesApi.delete(id);
-        revalidatePath('/dashboard/pagesense');
+        revalidatePath('/dashboard/sabsense');
         return { success: true };
     } catch (e) {
         return errResult(e, 'Failed to delete site');
@@ -104,8 +104,8 @@ export async function regenerateHeatmapSnapshot(input: {
 }): Promise<ActionResult<{ id: string; sampleSize: number }>> {
     try {
         const r = await pagesenseHeatmapsApi.regenerate(input);
-        revalidatePath(`/dashboard/pagesense/${input.siteId}/heatmaps`);
-        revalidatePath(`/dashboard/pagesense/${input.siteId}/scroll`);
+        revalidatePath(`/dashboard/sabsense/${input.siteId}/heatmaps`);
+        revalidatePath(`/dashboard/sabsense/${input.siteId}/scroll`);
         return { success: true, data: r };
     } catch (e) {
         return errResult(e, 'Failed to regenerate snapshot');
@@ -148,7 +148,7 @@ export async function createFunnel(input: {
 }): Promise<ActionResult<{ id: string }>> {
     try {
         const r = await pagesenseFunnelsApi.create(input);
-        revalidatePath(`/dashboard/pagesense/${input.siteId}/funnels`);
+        revalidatePath(`/dashboard/sabsense/${input.siteId}/funnels`);
         return { success: true, data: { id: r.id } };
     } catch (e) {
         return errResult(e, 'Failed to create funnel');
@@ -158,7 +158,7 @@ export async function createFunnel(input: {
 export async function deleteFunnel(siteId: string, funnelId: string): Promise<ActionResult> {
     try {
         await pagesenseFunnelsApi.delete(funnelId);
-        revalidatePath(`/dashboard/pagesense/${siteId}/funnels`);
+        revalidatePath(`/dashboard/sabsense/${siteId}/funnels`);
         return { success: true };
     } catch (e) {
         return errResult(e, 'Failed to delete funnel');
@@ -181,7 +181,7 @@ export async function runFunnel(
 ): Promise<ActionResult<{ id: string }>> {
     try {
         const r = await pagesenseFunnelRunsApi.run(body);
-        revalidatePath(`/dashboard/pagesense/${siteId}/funnels`);
+        revalidatePath(`/dashboard/sabsense/${siteId}/funnels`);
         return { success: true, data: { id: r.id } };
     } catch (e) {
         return errResult(e, 'Failed to run funnel');
@@ -234,7 +234,7 @@ export async function upsertFormAnalytics(input: {
 }): Promise<ActionResult<{ id: string }>> {
     try {
         const r = await pagesenseFormAnalyticsApi.upsert(input);
-        revalidatePath(`/dashboard/pagesense/${input.siteId}/forms`);
+        revalidatePath(`/dashboard/sabsense/${input.siteId}/forms`);
         return { success: true, data: { id: r.id } };
     } catch (e) {
         return errResult(e, 'Failed to upsert form analytics');
@@ -244,7 +244,7 @@ export async function upsertFormAnalytics(input: {
 export async function deleteFormAnalytics(siteId: string, id: string): Promise<ActionResult> {
     try {
         await pagesenseFormAnalyticsApi.delete(id);
-        revalidatePath(`/dashboard/pagesense/${siteId}/forms`);
+        revalidatePath(`/dashboard/sabsense/${siteId}/forms`);
         return { success: true };
     } catch (e) {
         return errResult(e, 'Failed to delete form analytics');

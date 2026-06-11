@@ -6,5 +6,5 @@ interface PageProps {
 
 export default async function PagesenseSiteRoot({ params }: PageProps) {
     const { siteId } = await params;
-    redirect(`/dashboard/pagesense/${siteId}/heatmaps`);
+    redirect(`/dashboard/sabsense/${siteId}/heatmaps`);
 }

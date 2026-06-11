@@ -1,7 +1,8 @@
 /**
- * Layout shell for the Scrum/Agile module. Mounts the section nav and lets
- * each page render its own body inside a width-capped column. Async params
- * are Next 16, so we await before reading `projectId`.
+ * Layout shell for the Scrum/Agile module. Section navigation lives in the
+ * 20ui app sidebar (module-sidebars/sabsprints.tsx); each page renders its
+ * own body inside a width-capped column. Async params are Next 16, so we
+ * await before reading `projectId`.
  */
 import {
   PageHeader,
@@ -14,8 +15,6 @@ import {
 } from '@/components/sabcrm/20ui';
 import Link from 'next/link';
 import { Plus } from 'lucide-react';
-
-import { AgileNav } from './_components/agile-nav';
 
 interface AgileLayoutProps {
   children: React.ReactNode;
@@ -46,8 +45,6 @@ export default async function AgileLayout({
           </Button>
         </PageActions>
       </PageHeader>
-
-      <AgileNav projectId={projectId} />
 
       <main>{children}</main>
     </div>

@@ -39,7 +39,6 @@ import {
     formatCurrency,
     startOfMonth,
 } from '../_components/sabbigin-data';
-import { SabbiginNav } from '../_components/sabbigin-shell';
 
 export const dynamic = 'force-dynamic';
 
@@ -82,8 +81,6 @@ export default async function SabbiginDashboardPage() {
                     </Link>
                 </PageActions>
             </PageHeader>
-
-            <SabbiginNav active="/dashboard/sabbigin/dashboard" />
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 <StatCard label="Deals open" value={openDeals} icon={Handshake} accent="#3b7af5" />

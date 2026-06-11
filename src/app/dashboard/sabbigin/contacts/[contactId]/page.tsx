@@ -32,8 +32,6 @@ import {
 } from '@/components/sabcrm/20ui';
 import { getCrmContactById } from '@/app/actions/crm.actions';
 
-import { SabbiginNav } from '../../_components/sabbigin-shell';
-
 export const dynamic = 'force-dynamic';
 
 interface PageProps {
@@ -73,8 +71,6 @@ export default async function SabbiginContactDetailPage({ params }: PageProps) {
                     </Link>
                 </PageActions>
             </PageHeader>
-
-            <SabbiginNav active="/dashboard/sabbigin/contacts" />
 
             <Card padding="none" className="max-w-3xl">
                 <CardHeader>

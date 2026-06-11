@@ -27,7 +27,6 @@ import {
     StatCard,
 } from '@/components/sabcrm/20ui';
 
-import { SabbiginNav } from './_components/sabbigin-shell';
 import {
     sabbiginCount,
     sabbiginRecent,
@@ -133,8 +132,6 @@ export default async function SabbiginHomePage() {
                     </Link>
                 </PageActions>
             </PageHeader>
-
-            <SabbiginNav active="/dashboard/sabbigin" />
 
             {/* KPI strip */}
             <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">

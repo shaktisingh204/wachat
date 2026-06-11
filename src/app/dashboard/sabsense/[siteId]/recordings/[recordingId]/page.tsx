@@ -18,8 +18,6 @@ import {
 
 import { getPagesenseSite, getRecording } from '@/app/actions/sabsense.actions';
 
-import { PagesenseSiteNav } from '../../_site-nav';
-
 export const dynamic = 'force-dynamic';
 
 interface PageProps {
@@ -60,8 +58,6 @@ export default async function RecordingDetailPage({ params }: PageProps) {
                 </PageHeaderHeading>
             </PageHeader>
 
-            <PagesenseSiteNav siteId={site._id} />
-
             <Card>
                 <CardHeader>
                     <CardTitle>Player</CardTitle>
@@ -96,7 +92,7 @@ export default async function RecordingDetailPage({ params }: PageProps) {
             </Card>
 
             <div>
-                <Link href={`/dashboard/pagesense/${site._id}/recordings`}>
+                <Link href={`/dashboard/sabsense/${site._id}/recordings`}>
                     <Button variant="ghost" iconLeft={ArrowLeft}>
                         Back to recordings
                     </Button>

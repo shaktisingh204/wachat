@@ -30,8 +30,6 @@ import {
 import type { PagesenseSite } from '@/lib/rust-client/pagesense-sites';
 import type { Recording } from '@/lib/rust-client/pagesense-recordings';
 
-import { PagesenseSiteNav } from '../_site-nav';
-
 interface Props {
     site: PagesenseSite | null;
     initialUrl: string;
@@ -78,8 +76,6 @@ export function RecordingsClient({
                     </PageDescription>
                 </PageHeaderHeading>
             </PageHeader>
-
-            <PagesenseSiteNav siteId={site._id} />
 
             <Card>
                 <CardHeader>
@@ -152,7 +148,7 @@ export function RecordingsClient({
                                     </Td>
                                     <Td align="right">
                                         <Link
-                                            href={`/dashboard/pagesense/${site._id}/recordings/${r._id}`}
+                                            href={`/dashboard/sabsense/${site._id}/recordings/${r._id}`}
                                         >
                                             <Button size="sm" variant="ghost" iconLeft={Play}>
                                                 Play

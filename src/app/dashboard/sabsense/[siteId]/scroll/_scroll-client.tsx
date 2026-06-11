@@ -25,8 +25,6 @@ import type { PagesenseSite } from '@/lib/rust-client/pagesense-sites';
 import type { HeatmapEventDoc } from '@/lib/rust-client/pagesense-heatmap-events';
 import type { HeatmapSnapshot } from '@/lib/rust-client/pagesense-heatmaps';
 
-import { PagesenseSiteNav } from '../_site-nav';
-
 interface Props {
     site: PagesenseSite | null;
     initialUrl: string;
@@ -90,8 +88,6 @@ export function ScrollClient({ site, initialUrl, snapshots, scrollEvents }: Prop
                     </PageDescription>
                 </PageHeaderHeading>
             </PageHeader>
-
-            <PagesenseSiteNav siteId={site._id} />
 
             <Card>
                 <CardHeader>
