@@ -7,26 +7,41 @@
  *   - the edge midpoint "+" (splicing a node onto an existing connection)
  *   - a drag-from-handle that didn't land on an input
  *   - keyboard shortcut (Tab)
- * Categories are drill-down; search filters across label/description.
+ * Sourced from the unified app catalog (native + rust + forge + preset),
+ * so every executable app is pickable here — not just the static registry.
+ * Categories are drill-down; search filters across label/description/slug.
  * Keyboard: Up/Down to move, Enter to select, Esc to close.
  */
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import { Search, SearchX, X } from 'lucide-react';
-import { Field, Input, IconButton, EmptyState } from '@/components/sabcrm/20ui';
-import { REGISTRY_CATEGORIES, type BlockRegistryEntry } from '@/components/sabflow/editor/blockRegistry';
+import { Icon as IconifyIcon } from '@iconify/react';
+import { Field, Input, IconButton, EmptyState, Badge } from '@/components/sabcrm/20ui';
+import {
+  useAppCatalog,
+  type AppCatalogEntry,
+} from '@/lib/sabflow/editor-catalog/useAppCatalog';
 import type { BlockType } from '@/lib/sabflow/types';
 import type { NodeCreatorState } from './useNodeCreator';
 
 type Props = {
   state: NodeCreatorState;
   onClose: () => void;
-  onPick: (type: BlockType) => void;
+  onPick: (type: BlockType, options?: Record<string, unknown>) => void;
+};
+
+/** Core categories keep their palette accent colors. */
+const GROUP_COLORS: Record<string, string> = {
+  Bubbles: '#6366f1',
+  Inputs: '#0ea5e9',
+  Logic: '#f97316',
 };
 
 export function NodeCreator({ state, onClose, onPick }: Props) {
   const [query, setQuery] = useState('');
   const [activeIndex, setActiveIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const { entries, loading } = useAppCatalog();
 
   useEffect(() => {
     if (state.open) {
@@ -36,41 +51,43 @@ export function NodeCreator({ state, onClose, onPick }: Props) {
     }
   }, [state.open]);
 
+  // Defer filtering so typing stays responsive against ~1.4k entries.
+  const deferredQuery = useDeferredValue(query);
+
   const flatEntries = useMemo(() => {
-    const all = REGISTRY_CATEGORIES.flatMap((c) =>
-      c.entries.map((e) => ({ cat: c.key, catLabel: c.label, catColor: c.color, entry: e })),
-    );
-    const lower = query.trim().toLowerCase();
-    const allowed = state.allow ? new Set(state.allow) : null;
-    return all.filter(({ entry }) => {
-      if (allowed && !allowed.has(entry.type)) return false;
+    const lower = deferredQuery.trim().toLowerCase();
+    const allowed = state.allow ? new Set<string>(state.allow) : null;
+    return entries.filter((entry) => {
+      if (allowed && !allowed.has(entry.blockType)) return false;
       if (!lower) return true;
       return (
         entry.label.toLowerCase().includes(lower) ||
-        entry.description.toLowerCase().includes(lower)
+        entry.description.toLowerCase().includes(lower) ||
+        entry.slug.includes(lower)
       );
     });
-  }, [query, state.allow]);
+  }, [entries, deferredQuery, state.allow]);
 
   const grouped = useMemo(() => {
-    const map = new Map<
-      string,
-      { catLabel: string; catColor: string; entries: BlockRegistryEntry[] }
-    >();
-    for (const row of flatEntries) {
-      const existing = map.get(row.cat);
-      if (existing) existing.entries.push(row.entry);
+    const map = new Map<string, { catLabel: string; catColor: string; entries: AppCatalogEntry[] }>();
+    for (const entry of flatEntries) {
+      const existing = map.get(entry.category);
+      if (existing) existing.entries.push(entry);
       else
-        map.set(row.cat, {
-          catLabel: row.catLabel,
-          catColor: row.catColor,
-          entries: [row.entry],
+        map.set(entry.category, {
+          catLabel: entry.category,
+          catColor: GROUP_COLORS[entry.category] ?? 'var(--st-text-tertiary)',
+          entries: [entry],
         });
     }
     return [...map.values()];
   }, [flatEntries]);
 
-  const flatForNav = flatEntries.map((r) => r.entry);
+  // Keep keyboard order in sync with render order (grouped).
+  const flatForNav = useMemo(
+    () => grouped.flatMap((g) => g.entries),
+    [grouped],
+  );
 
   useEffect(() => {
     if (!state.open) return;
@@ -90,7 +107,7 @@ export function NodeCreator({ state, onClose, onPick }: Props) {
         e.preventDefault();
         const picked = flatForNav[activeIndex];
         if (picked) {
-          onPick(picked.type);
+          onPick(picked.blockType, picked.defaultOptions);
         }
       }
     };
@@ -109,7 +126,7 @@ export function NodeCreator({ state, onClose, onPick }: Props) {
             ref={inputRef}
             inputSize="sm"
             value={query}
-            placeholder="Search nodes"
+            placeholder="Search nodes & apps"
             iconLeft={Search}
             onChange={(e) => {
               setQuery(e.target.value);
@@ -124,12 +141,27 @@ export function NodeCreator({ state, onClose, onPick }: Props) {
           <EmptyState
             size="sm"
             icon={SearchX}
-            title="No nodes found"
-            description={query ? `Nothing matches "${query}".` : 'No nodes available here.'}
+            title={loading ? 'Loading apps...' : 'No nodes found'}
+            description={
+              loading
+                ? undefined
+                : query
+                  ? `Nothing matches "${query}".`
+                  : 'No nodes available here.'
+            }
           />
         ) : (
           grouped.map((group) => (
-            <div key={group.catLabel}>
+            <div
+              key={group.catLabel}
+              // Cheap render skip for offscreen groups — the full catalog is
+              // ~1.4k rows; content-visibility keeps initial paint fast
+              // without restructuring the drill-down DOM for a virtualizer.
+              style={{
+                contentVisibility: 'auto',
+                containIntrinsicSize: `auto ${group.entries.length * 48 + 28}px`,
+              }}
+            >
               <div
                 className="px-2.5 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-[0.06em]"
                 style={{ color: group.catColor }}
@@ -140,9 +172,10 @@ export function NodeCreator({ state, onClose, onPick }: Props) {
                 const Icon = entry.icon;
                 const index = runningIndex++;
                 const isActive = index === activeIndex;
+                const fallbackIcon = <Icon className="h-3.5 w-3.5" aria-hidden="true" />;
                 return (
                   <div
-                    key={entry.type}
+                    key={entry.key}
                     role="option"
                     aria-selected={isActive}
                     tabIndex={0}
@@ -150,17 +183,33 @@ export function NodeCreator({ state, onClose, onPick }: Props) {
                       isActive ? ' bg-[var(--st-bg-secondary)]' : ''
                     }`}
                     onMouseEnter={() => setActiveIndex(index)}
-                    onClick={() => onPick(entry.type)}
+                    onClick={() => onPick(entry.blockType, entry.defaultOptions)}
                   >
                     <span
                       className="flex h-6 w-6 shrink-0 items-center justify-center rounded-[var(--st-radius)]"
                       style={{ backgroundColor: entry.color + '22', color: entry.color }}
                     >
-                      <Icon className="h-3.5 w-3.5" aria-hidden="true" />
+                      {entry.brandIcon ? (
+                        <IconifyIcon
+                          icon={entry.brandIcon}
+                          className="h-3.5 w-3.5"
+                          fallback={fallbackIcon}
+                          aria-hidden
+                        />
+                      ) : (
+                        fallbackIcon
+                      )}
                     </span>
-                    <span>
-                      {entry.label}
-                      <span className="block text-[11px] leading-[1.25] text-[var(--st-text-secondary)]">
+                    <span className="min-w-0 flex-1">
+                      <span className="flex items-center gap-1.5">
+                        <span className="truncate">{entry.label}</span>
+                        {entry.draft && (
+                          <Badge tone="neutral" className="shrink-0 !text-[9px]">
+                            draft
+                          </Badge>
+                        )}
+                      </span>
+                      <span className="block text-[11px] leading-[1.25] text-[var(--st-text-secondary)] truncate">
                         {entry.description}
                       </span>
                     </span>

@@ -211,7 +211,12 @@ const RUST_CATEGORY_META: Record<string, { label: string; color: string; order: 
 let _cache: FetchedDescriptor[] | null = null;
 let _inflight: Promise<FetchedDescriptor[]> | null = null;
 
-async function fetchDescriptors(): Promise<FetchedDescriptor[]> {
+/**
+ * Fetch (once per session) the Rust-side node descriptors. Exported so the
+ * unified editor app catalog (`@/lib/sabflow/editor-catalog`) can reuse the
+ * same cache instead of re-fetching `/api/sabflow/nodes`.
+ */
+export async function fetchDescriptors(): Promise<FetchedDescriptor[]> {
   if (_cache) return _cache;
   if (_inflight) return _inflight;
   _inflight = fetch('/api/sabflow/nodes')
@@ -255,13 +260,16 @@ export function useDescriptorCategories(): UseDescriptorCategoriesResult {
   // include every descriptor and let de-dup happen at search level.
   const buckets = new Map<string, BlockRegistryEntry[]>();
   for (const d of state.data) {
+    // Defensive: the API should only return executable nodes, but never
+    // surface a stub in the palette even if one slips through.
+    if (d.stub) continue;
     const blockCategory = mapCategory(d.category);
     const entry: BlockRegistryEntry = {
       type: d.name as BlockType,
       label: d.displayName,
       icon: iconForDescriptor(d.icon),
       category: blockCategory,
-      description: d.stub ? `${d.description} (coming soon)` : d.description,
+      description: d.description,
       color: d.color || '#94a3b8',
     };
     const arr = buckets.get(d.category) ?? [];

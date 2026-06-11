@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useBlockDnd } from '@/components/sabflow/graph/providers/GraphDndProvider';
 import { Card } from '@/components/sabcrm/20ui';
 import { getRegistryEntry } from './blockRegistry';
+import { getBlockDisplay } from '@/lib/sabflow/blocks';
 
 /**
  * A floating ghost card that follows the mouse cursor while the user is
@@ -12,7 +13,7 @@ import { getRegistryEntry } from './blockRegistry';
  * so it always floats above everything else (z-50, pointer-events-none).
  */
 export function BlockCardOverlay() {
-  const { draggedBlockType } = useBlockDnd();
+  const { draggedBlockType, draggedBlockOptions } = useBlockDnd();
   const [pos, setPos] = useState({ x: -9999, y: -9999 });
   const animFrame = useRef<number>(0);
 
@@ -50,9 +51,16 @@ export function BlockCardOverlay() {
 
   if (!draggedBlockType) return null;
 
+  // Static registry first (richest metadata); otherwise fall back to the
+  // block-aware display helper so rust/forge/preset drags still get a ghost
+  // card (presets carry their brand name in draggedBlockOptions.__label).
   const entry = getRegistryEntry(draggedBlockType);
-  if (!entry) return null;
-  const { icon: Icon, label, color } = entry;
+  const display =
+    entry ?? getBlockDisplay({ type: draggedBlockType, options: draggedBlockOptions });
+  const Icon = display.icon;
+  const label = display.label;
+  const color = display.color || '#9ca3af';
+  if (!Icon) return null;
 
   return (
     <Card

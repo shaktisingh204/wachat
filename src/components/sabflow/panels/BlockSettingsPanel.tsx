@@ -11,6 +11,7 @@
  */
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import dynamic from 'next/dynamic';
 import { ArrowRight, Play } from 'lucide-react';
 import { useGraph } from '@/components/sabflow/graph/providers/GraphProvider';
 import { getBlockLabel, getBlockIcon, getBlockColor } from '@/lib/sabflow/blocks';
@@ -79,6 +80,16 @@ import { SortSettings } from '@/components/sabflow/panels/blocks/logic/SortSetti
 import { TestNodePanel } from '@/components/sabflow/panels/blocks/shared/TestNodePanel';
 import { NodeStatusBadge } from '@/components/sabflow/inspector/NodeStatusBadge';
 import { BlockDocsSection } from './BlockDocsSection';
+
+// App-preset settings panel (forge_app_preset dispatcher). Loaded lazily —
+// most flows never open it, so keep it out of the main editor chunk.
+const AppPresetSettings = dynamic(
+  () =>
+    import('@/components/sabflow/panels/blocks/forge/AppPresetSettings').then(
+      (m) => m.AppPresetSettings,
+    ),
+  { ssr: false },
+);
 
 /* ── Props ───────────────────────────────────────────────────────────────── */
 
@@ -638,6 +649,19 @@ function BlockSettingsBody({ block, variables, variableNames, onUpdate, onCreate
       <PixelSettings
         block={block}
         onBlockChange={(updated) => onUpdate({ options: updated.options })}
+      />
+    );
+  }
+
+  /* ── App presets — the generic `forge_app_preset` dispatcher gets a full
+   *    branded panel (preset picker, action select, per-endpoint fields,
+   *    credential) instead of the raw forge fields below. */
+  if ((block.type as string) === 'forge_app_preset') {
+    return (
+      <AppPresetSettings
+        nodeId={block.id}
+        options={options}
+        onChange={(patch) => onUpdate({ options: { ...options, ...patch } })}
       />
     );
   }

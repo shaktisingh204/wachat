@@ -20,6 +20,14 @@ type DraggedItem = BlockItem & { type: BlockType; blockId: string };
 interface GraphDndContextValue {
   draggedBlockType?: BlockType;
   setDraggedBlockType: Dispatch<SetStateAction<BlockType | undefined>>;
+  /**
+   * Options to seed the dropped block with (parallel to draggedBlockType).
+   * Used by catalog entries that share a generic block type — e.g. app
+   * presets drag `forge_app_preset` + `{ presetId, __label }`. Cleared
+   * wherever draggedBlockType is cleared.
+   */
+  draggedBlockOptions?: Record<string, unknown>;
+  setDraggedBlockOptions: Dispatch<SetStateAction<Record<string, unknown> | undefined>>;
   draggedBlock?: DraggedBlock;
   setDraggedBlock: Dispatch<SetStateAction<DraggedBlock | undefined>>;
   draggedItem?: DraggedItem;
@@ -32,6 +40,7 @@ interface GraphDndContextValue {
 
 const GraphDndContext = createContext<GraphDndContextValue>({
   setDraggedBlockType: () => {},
+  setDraggedBlockOptions: () => {},
   setDraggedBlock: () => {},
   setDraggedItem: () => {},
   setMouseOverGroup: () => {},
@@ -40,6 +49,7 @@ const GraphDndContext = createContext<GraphDndContextValue>({
 
 export const GraphDndProvider = ({ children }: { children: ReactNode }) => {
   const [draggedBlockType, setDraggedBlockType] = useState<BlockType | undefined>();
+  const [draggedBlockOptions, setDraggedBlockOptions] = useState<Record<string, unknown> | undefined>();
   const [draggedBlock, setDraggedBlock] = useState<DraggedBlock | undefined>();
   const [draggedItem, setDraggedItem] = useState<DraggedItem | undefined>();
   const [mouseOverGroup, setMouseOverGroup] = useState<NodeElement | undefined>();
@@ -50,6 +60,8 @@ export const GraphDndProvider = ({ children }: { children: ReactNode }) => {
       value={{
         draggedBlockType,
         setDraggedBlockType,
+        draggedBlockOptions,
+        setDraggedBlockOptions,
         draggedBlock,
         setDraggedBlock,
         draggedItem,

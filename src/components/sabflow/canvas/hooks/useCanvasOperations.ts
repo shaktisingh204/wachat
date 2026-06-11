@@ -39,6 +39,7 @@ type Update = (next: SabFlowDoc) => void;
 function createGroupWithBlock(
   type: BlockType,
   position: Coordinates,
+  options?: Record<string, unknown>,
 ): { group: Group; block: Block } {
   const blockId = createId();
   const groupId = createId();
@@ -47,6 +48,9 @@ function createGroupWithBlock(
     type,
     groupId,
     graphCoordinates: position,
+    // Seed options when the catalog entry carries defaults (e.g. app presets
+    // pass { presetId, __label, inputs }).
+    ...(options ? { options: { ...options } } : {}),
   };
   const group: Group = {
     id: groupId,
@@ -68,8 +72,10 @@ export function useCanvasOperations(
       position: Coordinates;
       connectFrom?: { nodeId: string; handleId: string };
       spliceEdgeId?: string;
+      /** Initial block options (e.g. `{ presetId, __label }` for app presets). */
+      options?: Record<string, unknown>;
     }): string => {
-      const { group, block } = createGroupWithBlock(args.type, args.position);
+      const { group, block } = createGroupWithBlock(args.type, args.position, args.options);
       let next: SabFlowDoc = {
         ...flow,
         groups: [...(flow.groups ?? []), group],

@@ -33,6 +33,7 @@ import {
   regenerateOutputPortsForBlock,
 } from '@/lib/sabflow/ports';
 import { blockRegistryMap } from '@/components/sabflow/editor/blockRegistry';
+import { getBlockDisplay } from '@/lib/sabflow/blocks';
 import {
   DEFAULT_NODE_HEIGHT,
   GRID_SIZE,
@@ -89,7 +90,10 @@ function triggerPorts(): { inputs: NodePort[]; outputs: NodePort[] } {
 
 function blockLabel(block: Block): string {
   const entry = blockRegistryMap.get(block.type);
-  return entry?.label ?? block.type;
+  if (entry) return entry.label;
+  // Block-aware fallback: resolves the global registry label (rust/forge
+  // types) and, for `forge_app_preset`, the brand name in options.__label.
+  return getBlockDisplay(block).label;
 }
 function blockSubtitle(block: Block): string | undefined {
   const opts = (block.options ?? {}) as Record<string, unknown>;

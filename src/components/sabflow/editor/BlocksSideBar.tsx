@@ -4,11 +4,19 @@ import {
   useState,
   useRef,
   useCallback,
+  useMemo,
+  useEffect,
+  useLayoutEffect,
+  useDeferredValue,
   type KeyboardEvent,
 } from 'react';
+import { useVirtualizer } from '@tanstack/react-virtual';
+import { Icon as IconifyIcon } from '@iconify/react';
 import { useBlockDnd } from '@/components/sabflow/graph/providers/GraphDndProvider';
-import { REGISTRY_CATEGORIES, type BlockRegistryEntry } from './blockRegistry';
-import { useDescriptorCategories } from './descriptorRegistry';
+import {
+  useAppCatalog,
+  type AppCatalogEntry,
+} from '@/lib/sabflow/editor-catalog/useAppCatalog';
 import { cn } from '@/lib/utils';
 import {
   Pin,
@@ -18,6 +26,7 @@ import {
   ChevronRight,
   X,
   Clock,
+  LayoutGrid,
 } from 'lucide-react';
 import {
   Button,
@@ -26,52 +35,44 @@ import {
   Badge,
   EmptyState,
 } from '@/components/sabcrm/20ui';
-import type { BlockType } from '@/lib/sabflow/types';
+
+// Avoid the React SSR warning for useLayoutEffect — the measurement only
+// matters in the browser anyway.
+const useIsomorphicLayoutEffect =
+  typeof window !== 'undefined' ? useLayoutEffect : useEffect;
 
 /* ── Constants ──────────────────────────────────────────── */
 
 const LOCK_KEY = 'sabflow:sidebar:locked';
 const RECENT_KEY = 'sabflow:sidebar:recent';
 const COLLAPSED_KEY = 'sabflow:sidebar:collapsed';
+const APPS_EXPANDED_KEY = 'sabflow:sidebar:apps-expanded';
 const MAX_RECENT = 5;
+
+/** Core palette sections (catalog kind 'core'), keyed by catalog category label. */
+const CORE_SECTIONS: { key: string; label: string; color: string }[] = [
+  { key: 'Bubbles', label: 'Bubbles', color: '#6366f1' },
+  { key: 'Inputs', label: 'Inputs', color: '#0ea5e9' },
+  { key: 'Logic', label: 'Logic', color: '#f97316' },
+];
 
 /* ── localStorage helpers ───────────────────────────────── */
 
-function readRecent(): BlockType[] {
+function readStringArray(key: string): string[] {
   if (typeof window === 'undefined') return [];
   try {
-    const raw = localStorage.getItem(RECENT_KEY);
+    const raw = localStorage.getItem(key);
     if (!raw) return [];
     const parsed: unknown = JSON.parse(raw);
-    return Array.isArray(parsed) ? (parsed as BlockType[]) : [];
+    return Array.isArray(parsed) ? (parsed as string[]) : [];
   } catch {
     return [];
   }
 }
 
-function writeRecent(types: BlockType[]): void {
+function writeStringArray(key: string, values: string[]): void {
   try {
-    localStorage.setItem(RECENT_KEY, JSON.stringify(types));
-  } catch {
-    /* noop */
-  }
-}
-
-function readCollapsed(): Set<string> {
-  if (typeof window === 'undefined') return new Set();
-  try {
-    const raw = localStorage.getItem(COLLAPSED_KEY);
-    if (!raw) return new Set();
-    const parsed: unknown = JSON.parse(raw);
-    return Array.isArray(parsed) ? new Set(parsed as string[]) : new Set();
-  } catch {
-    return new Set();
-  }
-}
-
-function writeCollapsed(collapsed: Set<string>): void {
-  try {
-    localStorage.setItem(COLLAPSED_KEY, JSON.stringify([...collapsed]));
+    localStorage.setItem(key, JSON.stringify(values));
   } catch {
     /* noop */
   }
@@ -94,10 +95,19 @@ export function BlocksSideBar() {
     }
   });
   const [query, setQuery] = useState('');
-  const [recentTypes, setRecentTypes] = useState<BlockType[]>(() => readRecent());
-  const [collapsed, setCollapsed] = useState<Set<string>>(() => readCollapsed());
+  // Recent stores catalog entry keys. Old persisted BlockType values remain
+  // valid keys (key === blockType for every non-preset entry).
+  const [recentKeys, setRecentKeys] = useState<string[]>(() => readStringArray(RECENT_KEY));
+  // Core sections: expanded by default, persist the collapsed set.
+  const [collapsed, setCollapsed] = useState<Set<string>>(
+    () => new Set(readStringArray(COLLAPSED_KEY)),
+  );
+  // App categories: collapsed by default, persist the expanded set.
+  const [appsExpanded, setAppsExpanded] = useState<Set<string>>(
+    () => new Set(readStringArray(APPS_EXPANDED_KEY)),
+  );
 
-  const { setDraggedBlockType } = useBlockDnd();
+  const { setDraggedBlockType, setDraggedBlockOptions } = useBlockDnd();
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   const toggleLock = useCallback(() => {
@@ -129,24 +139,26 @@ export function BlocksSideBar() {
 
   /** Called when a block is dragged. Records it in the recent list. */
   const handleDragStart = useCallback(
-    (type: BlockType) => {
-      setDraggedBlockType(type);
-      setRecentTypes((prev) => {
-        const next = [type, ...prev.filter((t) => t !== type)].slice(0, MAX_RECENT);
-        writeRecent(next);
+    (entry: AppCatalogEntry) => {
+      setDraggedBlockType(entry.blockType);
+      setDraggedBlockOptions(entry.defaultOptions);
+      setRecentKeys((prev) => {
+        const next = [entry.key, ...prev.filter((k) => k !== entry.key)].slice(0, MAX_RECENT);
+        writeStringArray(RECENT_KEY, next);
         return next;
       });
     },
-    [setDraggedBlockType],
+    [setDraggedBlockType, setDraggedBlockOptions],
   );
 
   const handleDragEnd = useCallback(() => {
     setDraggedBlockType(undefined);
-  }, [setDraggedBlockType]);
+    setDraggedBlockOptions(undefined);
+  }, [setDraggedBlockType, setDraggedBlockOptions]);
 
   const clearRecent = useCallback(() => {
-    setRecentTypes([]);
-    writeRecent([]);
+    setRecentKeys([]);
+    writeStringArray(RECENT_KEY, []);
   }, []);
 
   const toggleCategory = useCallback((key: string) => {
@@ -157,59 +169,135 @@ export function BlocksSideBar() {
       } else {
         next.add(key);
       }
-      writeCollapsed(next);
+      writeStringArray(COLLAPSED_KEY, [...next]);
+      return next;
+    });
+  }, []);
+
+  const toggleAppCategory = useCallback((key: string) => {
+    setAppsExpanded((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) {
+        next.delete(key);
+      } else {
+        next.add(key);
+      }
+      writeStringArray(APPS_EXPANDED_KEY, [...next]);
       return next;
     });
   }, []);
 
   const isVisible = isLocked;
-  const lowerQuery = query.trim().toLowerCase();
 
-  // Dynamic n8n-parity descriptor categories (fetched from the Rust runtime)
-  const descriptorCats = useDescriptorCategories();
+  // Defer search filtering so typing stays responsive against ~1.4k entries.
+  const deferredQuery = useDeferredValue(query);
+  const lowerQuery = deferredQuery.trim().toLowerCase();
 
-  // De-dup descriptor entries that have the same `type` as a native registry
-  // entry. The hand-written native block wins.
-  const nativeTypes = new Set(
-    REGISTRY_CATEGORIES.flatMap((cat) => cat.entries.map((e) => e.type as string)),
+  // Unified catalog: native + rust + forge + preset, deduped by slug.
+  const { entries, appCount, counts, loading } = useAppCatalog();
+
+  const matches = useCallback(
+    (e: AppCatalogEntry) =>
+      !lowerQuery ||
+      e.label.toLowerCase().includes(lowerQuery) ||
+      e.description.toLowerCase().includes(lowerQuery) ||
+      e.slug.includes(lowerQuery),
+    [lowerQuery],
   );
-  const dynamicCategories = descriptorCats.categories.map((cat) => ({
-    ...cat,
-    entries: cat.entries.filter((e) => !nativeTypes.has(e.type as string)),
-  })).filter((cat) => cat.entries.length > 0);
 
-  // Filter each category's entries by the search query
-  const filterByQuery = <T extends BlockRegistryEntry>(entries: T[]) =>
-    lowerQuery
-      ? entries.filter(
-          (e) =>
-            e.label.toLowerCase().includes(lowerQuery) ||
-            e.description.toLowerCase().includes(lowerQuery),
-        )
-      : entries;
+  /* Core sections (Bubbles / Inputs / Logic). */
+  const coreSections = useMemo(() => {
+    return CORE_SECTIONS.map((meta) => ({
+      ...meta,
+      entries: entries.filter(
+        (e) => e.kind === 'core' && e.category === meta.key && matches(e),
+      ),
+    })).filter((s) => s.entries.length > 0);
+  }, [entries, matches]);
 
-  const filteredCategories = REGISTRY_CATEGORIES.map((cat) => ({
-    ...cat,
-    entries: filterByQuery(cat.entries),
-  })).filter((cat) => cat.entries.length > 0);
+  /* Apps super-section: every non-core entry grouped by category label. */
+  const appCategories = useMemo(() => {
+    const buckets = new Map<string, AppCatalogEntry[]>();
+    for (const e of entries) {
+      if (e.kind === 'core' || !matches(e)) continue;
+      const arr = buckets.get(e.category) ?? [];
+      arr.push(e);
+      buckets.set(e.category, arr);
+    }
+    return [...buckets.entries()]
+      .map(([category, list]) => ({
+        category,
+        entries: list.sort((a, b) => a.label.localeCompare(b.label)),
+      }))
+      .sort((a, b) => a.category.localeCompare(b.category));
+  }, [entries, matches]);
 
-  const filteredDynamicCategories = dynamicCategories
-    .map((cat) => ({ ...cat, entries: filterByQuery(cat.entries) }))
-    .filter((cat) => cat.entries.length > 0);
+  /* Flattened virtual rows for the apps list (headers + 2-up entry rows). */
+  type AppsRow =
+    | { type: 'header'; category: string; count: number; expanded: boolean }
+    | { type: 'entries'; items: AppCatalogEntry[]; category: string; index: number };
+
+  const appRows = useMemo<AppsRow[]>(() => {
+    const rows: AppsRow[] = [];
+    const searching = lowerQuery.length > 0;
+    for (const cat of appCategories) {
+      // Collapsed by default; force-expanded while searching so results show.
+      const expanded = searching || appsExpanded.has(cat.category);
+      rows.push({
+        type: 'header',
+        category: cat.category,
+        count: cat.entries.length,
+        expanded,
+      });
+      if (!expanded) continue;
+      for (let i = 0; i < cat.entries.length; i += 2) {
+        rows.push({
+          type: 'entries',
+          items: cat.entries.slice(i, i + 2),
+          category: cat.category,
+          index: i,
+        });
+      }
+    }
+    return rows;
+  }, [appCategories, appsExpanded, lowerQuery]);
+
+  /* Virtualization. The whole palette shares one scroll container, so the
+   * virtualizer uses `scrollMargin` = the apps wrapper's offset within it
+   * (tracked via layout effect — recent/core sections above change height). */
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const appsAnchorRef = useRef<HTMLDivElement>(null);
+  const [appsOffset, setAppsOffset] = useState(0);
+  useIsomorphicLayoutEffect(() => {
+    const el = appsAnchorRef.current;
+    if (el && el.offsetTop !== appsOffset) setAppsOffset(el.offsetTop);
+  });
+
+  const rowVirtualizer = useVirtualizer({
+    count: appRows.length,
+    getScrollElement: () => scrollRef.current,
+    estimateSize: (i) => (appRows[i]?.type === 'header' ? 30 : 48),
+    overscan: 10,
+    scrollMargin: appsOffset,
+    getItemKey: (i) => {
+      const row = appRows[i];
+      return row.type === 'header'
+        ? `h:${row.category}`
+        : `e:${row.category}:${row.index}`;
+    },
+  });
 
   const hasNoResults =
-    lowerQuery.length > 0 &&
-    filteredCategories.length === 0 &&
-    filteredDynamicCategories.length === 0;
+    lowerQuery.length > 0 && coreSections.length === 0 && appCategories.length === 0;
 
-  // Build recent entries from the full registry (native + dynamic)
-  const allEntries = [
-    ...REGISTRY_CATEGORIES.flatMap((cat) => cat.entries),
-    ...descriptorCats.allEntries.filter((e) => !nativeTypes.has(e.type as string)),
-  ];
-  const recentEntries = recentTypes
-    .map((type) => allEntries.find((e) => e.type === type))
-    .filter((e): e is BlockRegistryEntry => e !== undefined);
+  /* Recently used — resolve stored keys against the catalog. */
+  const recentEntries = useMemo(() => {
+    if (recentKeys.length === 0) return [];
+    const byKey = new Map(entries.map((e) => [e.key, e]));
+    return recentKeys
+      .map((k) => byKey.get(k))
+      .filter((e): e is AppCatalogEntry => e !== undefined);
+  }, [recentKeys, entries]);
 
   return (
     <div className="20ui absolute left-0 top-0 h-full z-20 flex">
@@ -231,8 +319,8 @@ export function BlocksSideBar() {
               ref={searchInputRef}
               type="text"
               inputSize="sm"
-              aria-label="Search blocks"
-              placeholder="Search blocks..."
+              aria-label="Search blocks and apps"
+              placeholder="Search blocks & apps..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={handleSearchKeyDown}
@@ -261,7 +349,7 @@ export function BlocksSideBar() {
         </div>
 
         {/* ── Block list ──────────────────────────────────── */}
-        <div className="flex-1 overflow-y-auto py-2.5 px-2.5 space-y-1">
+        <div ref={scrollRef} className="relative flex-1 overflow-y-auto py-2.5 px-2.5">
 
           {/* Recently used section. Hidden while searching. */}
           {!lowerQuery && recentEntries.length > 0 && (
@@ -273,46 +361,98 @@ export function BlocksSideBar() {
             />
           )}
 
-          {/* Category sections */}
-          {filteredCategories.map((cat) => (
+          {/* Core sections (Bubbles / Inputs / Logic) */}
+          {coreSections.map((cat) => (
             <CategorySection
               key={cat.key}
               catKey={cat.key}
               label={cat.label}
               color={cat.color}
               entries={cat.entries}
-              isCollapsed={collapsed.has(cat.key)}
+              isCollapsed={collapsed.has(cat.key) && !lowerQuery}
               onToggle={toggleCategory}
               onDragStart={handleDragStart}
               onDragEnd={handleDragEnd}
             />
           ))}
 
-          {/* n8n-parity dynamic categories (fetched from Rust) */}
-          {filteredDynamicCategories.length > 0 && (
-            <div className="pt-3 mt-2 border-t border-[var(--st-border)]">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--st-text-tertiary)] mb-2 px-1.5">
-                n8n-parity integrations
+          {/* ── Apps super-section (native + rust + forge + preset) ── */}
+          <div
+            ref={appsAnchorRef}
+            className={cn(
+              'pt-3 mt-2 border-t border-[var(--st-border)]',
+              // Hide entirely when a search has no app hits (core sections
+              // may still match above).
+              lowerQuery && appCategories.length === 0 && 'hidden',
+            )}
+          >
+            <div className="flex items-center gap-2 px-1.5 pb-2">
+              <LayoutGrid
+                className="h-3 w-3 text-[var(--st-text-tertiary)] shrink-0"
+                strokeWidth={2}
+                aria-hidden="true"
+              />
+              <p className="flex-1 text-[10px] font-semibold uppercase tracking-wider text-[var(--st-text-tertiary)]">
+                Apps
               </p>
-              {filteredDynamicCategories.map((cat) => (
-                <CategorySection
-                  key={cat.key}
-                  catKey={cat.key}
-                  label={cat.label}
-                  color={cat.color}
-                  entries={cat.entries}
-                  isCollapsed={collapsed.has(cat.key)}
-                  onToggle={toggleCategory}
-                  onDragStart={handleDragStart}
-                  onDragEnd={handleDragEnd}
-                />
-              ))}
+              {!loading && (
+                <span
+                  className="text-[10px] tabular-nums text-[var(--st-text-tertiary)]"
+                  title={`${counts.native} native · ${counts.rust} rust · ${counts.forge} forge · ${counts.preset} preset`}
+                >
+                  {appCount} apps · {counts.native}/{counts.rust}/{counts.forge}/{counts.preset}
+                </span>
+              )}
             </div>
-          )}
 
-          {descriptorCats.loading && !lowerQuery && (
-            <div className="text-[11px] text-[var(--st-text-tertiary)] px-2 py-2">Loading more integrations...</div>
-          )}
+            {/* Virtualized rows: category headers + 2-up entry rows. */}
+            <div
+              className="relative w-full"
+              style={{ height: rowVirtualizer.getTotalSize() }}
+            >
+              {rowVirtualizer.getVirtualItems().map((vi) => {
+                const row = appRows[vi.index];
+                if (!row) return null;
+                return (
+                  <div
+                    key={vi.key}
+                    data-index={vi.index}
+                    ref={rowVirtualizer.measureElement}
+                    className="absolute left-0 top-0 w-full"
+                    style={{
+                      transform: `translateY(${vi.start - appsOffset}px)`,
+                    }}
+                  >
+                    {row.type === 'header' ? (
+                      <AppCategoryHeader
+                        category={row.category}
+                        count={row.count}
+                        expanded={row.expanded}
+                        onToggle={toggleAppCategory}
+                      />
+                    ) : (
+                      <div className="grid grid-cols-2 gap-1.5 px-0.5 pb-1.5">
+                        {row.items.map((entry) => (
+                          <BlockCard
+                            key={entry.key}
+                            entry={entry}
+                            onDragStart={handleDragStart}
+                            onDragEnd={handleDragEnd}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {loading && !lowerQuery && (
+              <div className="text-[11px] text-[var(--st-text-tertiary)] px-2 py-2">
+                Loading apps...
+              </div>
+            )}
+          </div>
 
           {/* Empty state */}
           {hasNoResults && (
@@ -345,6 +485,52 @@ export function BlocksSideBar() {
   );
 }
 
+/* ── AppCategoryHeader ──────────────────────────────────── */
+function AppCategoryHeader({
+  category,
+  count,
+  expanded,
+  onToggle,
+}: {
+  category: string;
+  count: number;
+  expanded: boolean;
+  onToggle: (key: string) => void;
+}) {
+  return (
+    <Button
+      variant="ghost"
+      size="sm"
+      block
+      onClick={() => onToggle(category)}
+      aria-expanded={expanded}
+      className="!justify-start !px-1.5"
+    >
+      <span className="flex w-full items-center gap-2">
+        <span className="flex-1 text-left text-[11px] font-semibold uppercase tracking-wider text-[var(--st-text-secondary)] truncate">
+          {category}
+        </span>
+        <Badge tone="neutral" className="tabular-nums">
+          {count}
+        </Badge>
+        {expanded ? (
+          <ChevronDown
+            className="h-3 w-3 text-[var(--st-text-tertiary)]"
+            strokeWidth={2.5}
+            aria-hidden="true"
+          />
+        ) : (
+          <ChevronRight
+            className="h-3 w-3 text-[var(--st-text-tertiary)]"
+            strokeWidth={2.5}
+            aria-hidden="true"
+          />
+        )}
+      </span>
+    </Button>
+  );
+}
+
 /* ── RecentSection ──────────────────────────────────────── */
 function RecentSection({
   entries,
@@ -352,9 +538,9 @@ function RecentSection({
   onDragStart,
   onDragEnd,
 }: {
-  entries: BlockRegistryEntry[];
+  entries: AppCatalogEntry[];
   onClear: () => void;
-  onDragStart: (type: BlockType) => void;
+  onDragStart: (entry: AppCatalogEntry) => void;
   onDragEnd: () => void;
 }) {
   return (
@@ -377,7 +563,7 @@ function RecentSection({
       <div className="grid grid-cols-2 gap-1.5 pt-1 pb-1.5 px-0.5">
         {entries.map((entry) => (
           <BlockCard
-            key={`recent-${entry.type}`}
+            key={`recent-${entry.key}`}
             entry={entry}
             onDragStart={onDragStart}
             onDragEnd={onDragEnd}
@@ -388,7 +574,7 @@ function RecentSection({
   );
 }
 
-/* ── CategorySection ────────────────────────────────────── */
+/* ── CategorySection (core: bubbles / inputs / logic) ───── */
 function CategorySection({
   catKey,
   label,
@@ -402,10 +588,10 @@ function CategorySection({
   catKey: string;
   label: string;
   color: string;
-  entries: BlockRegistryEntry[];
+  entries: AppCatalogEntry[];
   isCollapsed: boolean;
   onToggle: (key: string) => void;
-  onDragStart: (type: BlockType) => void;
+  onDragStart: (entry: AppCatalogEntry) => void;
   onDragEnd: () => void;
 }) {
   return (
@@ -455,7 +641,7 @@ function CategorySection({
         <div className="grid grid-cols-2 gap-1.5 pt-1 pb-1.5 px-0.5">
           {entries.map((entry) => (
             <BlockCard
-              key={entry.type}
+              key={entry.key}
               entry={entry}
               onDragStart={onDragStart}
               onDragEnd={onDragEnd}
@@ -473,14 +659,14 @@ function BlockCard({
   onDragStart,
   onDragEnd,
 }: {
-  entry: BlockRegistryEntry;
-  onDragStart: (type: BlockType) => void;
+  entry: AppCatalogEntry;
+  onDragStart: (entry: AppCatalogEntry) => void;
   onDragEnd: () => void;
 }) {
   const [isGrabbing, setIsGrabbing] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
   const tooltipTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
-  const { type, label, icon: Icon, color, description } = entry;
+  const { label, icon: Icon, color, description, brandIcon, draft } = entry;
 
   const handleMouseEnter = useCallback(() => {
     tooltipTimer.current = setTimeout(() => setShowTooltip(true), 600);
@@ -494,6 +680,11 @@ function BlockCard({
     if (isGrabbing) setIsGrabbing(false);
   }, [isGrabbing]);
 
+  // Lucide fallback used both standalone and as the Iconify `fallback`
+  // (Iconify renders nothing for missing icons, so speculative `logos:`
+  // names from getBrandIconForSlug always need this behind them).
+  const fallbackIcon = <Icon className="h-3.5 w-3.5" aria-hidden="true" />;
+
   return (
     <div className="relative">
       <div
@@ -504,7 +695,7 @@ function BlockCard({
           setIsGrabbing(true);
           setShowTooltip(false);
           clearTimeout(tooltipTimer.current);
-          onDragStart(type);
+          onDragStart(entry);
         }}
         onMouseUp={() => {
           setIsGrabbing(false);
@@ -522,19 +713,35 @@ function BlockCard({
             : 'cursor-grab hover:shadow-sm active:cursor-grabbing',
         )}
       >
-        {/* Icon badge. The tint + glyph color are derived from the runtime
-            per-block `color` value. */}
+        {/* Icon badge. Brand logo (full-colour iconify) when resolvable,
+            else the lucide icon tinted by the runtime per-block color. */}
         <div
           className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md"
           style={{ backgroundColor: color + '20', color }}
         >
-          <Icon className="h-3.5 w-3.5" aria-hidden="true" />
+          {brandIcon ? (
+            <IconifyIcon
+              icon={brandIcon}
+              className="h-4 w-4"
+              fallback={fallbackIcon}
+              aria-hidden
+            />
+          ) : (
+            fallbackIcon
+          )}
         </div>
 
         {/* Label */}
-        <span className="text-[12.5px] font-medium text-[var(--st-text)] truncate leading-tight">
+        <span className="min-w-0 flex-1 text-[12.5px] font-medium text-[var(--st-text)] truncate leading-tight">
           {label}
         </span>
+
+        {/* Draft presets (auto-imported, not yet verified) */}
+        {draft && (
+          <Badge tone="neutral" className="shrink-0 !text-[9px]">
+            draft
+          </Badge>
+        )}
       </div>
 
       {/* CSS tooltip. Positioned to the right of the card. */}

@@ -3,7 +3,7 @@
 import { Icon as IconifyIcon } from '@iconify/react';
 import { cn } from '@/lib/utils';
 import type { Block } from '@/lib/sabflow/types';
-import { getBlockIcon, getBlockLabel } from '@/lib/sabflow/blocks';
+import { getBlockDisplay } from '@/lib/sabflow/blocks';
 import { getBlockBrandIcon } from '@/lib/sabflow/blocks/icons';
 
 type Props = {
@@ -13,8 +13,9 @@ type Props = {
 };
 
 export function BlockNodeOverlay({ block, className, style }: Props) {
-  const Icon = getBlockIcon(block.type);
-  const label = getBlockLabel(block.type);
+  // Block-aware display: app presets carry their brand name in
+  // options.__label, so the overlay shows "Vimeo" instead of "App preset".
+  const { icon: Icon, label } = getBlockDisplay(block);
   const brand = getBlockBrandIcon(block.type);
 
   return (

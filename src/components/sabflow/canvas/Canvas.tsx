@@ -69,7 +69,7 @@ type Props = {
 export function Canvas({ flow, onFlowChange, containerRef }: Props) {
   const rf = useReactFlow();
   const { isReadOnly, setOpenedNodeId } = useGraph();
-  const { draggedBlockType, setDraggedBlockType } = useBlockDnd();
+  const { draggedBlockType, setDraggedBlockType, draggedBlockOptions, setDraggedBlockOptions } = useBlockDnd();
 
   const { state: menuState, open: openMenu, close: closeMenu } = useContextMenu();
   const { state: creatorState, open: openCreator, close: closeCreator } = useNodeCreator();
@@ -386,10 +386,11 @@ export function Canvas({ flow, onFlowChange, containerRef }: Props) {
         x: event.clientX,
         y: event.clientY,
       });
-      ops.addBlock({ type: draggedBlockType, position });
+      ops.addBlock({ type: draggedBlockType, position, options: draggedBlockOptions });
       setDraggedBlockType(undefined);
+      setDraggedBlockOptions(undefined);
     },
-    [draggedBlockType, rf, ops, setDraggedBlockType],
+    [draggedBlockType, draggedBlockOptions, rf, ops, setDraggedBlockType, setDraggedBlockOptions],
   );
 
   /* ── Open node settings on double-click ───────────────── */
@@ -402,7 +403,7 @@ export function Canvas({ flow, onFlowChange, containerRef }: Props) {
 
   /* ── Node-creator pick → add or splice ───────────────── */
   const onPickType = useCallback(
-    (type: BlockType) => {
+    (type: BlockType, options?: Record<string, unknown>) => {
       const src = creatorState.source;
       if (!src) return;
 
@@ -420,16 +421,18 @@ export function Canvas({ flow, onFlowChange, containerRef }: Props) {
           type,
           position: { x: pos.x - 30, y: pos.y - 30 },
           connectFrom: { nodeId: src.nodeId, handleId: src.handleId },
+          options,
         });
       } else if (src.kind === 'edge-button') {
         ops.addBlock({
           type,
           position: fallbackPos,
           spliceEdgeId: src.edgeId,
+          options,
         });
       } else if (src.kind === 'canvas-context-menu') {
         const pos = rf.screenToFlowPosition({ x: src.position.x, y: src.position.y });
-        ops.addBlock({ type, position: pos });
+        ops.addBlock({ type, position: pos, options });
       } else {
         /* keyboard / plus-button / catch-all — if a start event exists and
            isn't yet connected, auto-wire the new block to it so the user never
@@ -447,9 +450,10 @@ export function Canvas({ flow, onFlowChange, containerRef }: Props) {
             type,
             position: { x: startPos.x + 260, y: startPos.y },
             connectFrom: { nodeId: start.id, handleId: 'outputs/main/0' },
+            options,
           });
         } else {
-          ops.addBlock({ type, position: fallbackPos });
+          ops.addBlock({ type, position: fallbackPos, options });
         }
       }
       closeCreator();

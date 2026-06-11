@@ -58,6 +58,7 @@ import {
   LuCloud,
   LuPaperclip,
   LuKey,
+  LuPackage,
 } from 'react-icons/lu';
 
 type BlockMeta = {
@@ -134,6 +135,9 @@ const BLOCK_REGISTRY: Record<string, BlockMeta> = {
   forge_github:     { label: 'GitHub',     icon: LuGithub,       category: 'forge', color: '#181717' },
   forge_twilio:     { label: 'Twilio',     icon: LuPhone,        category: 'forge', color: '#f22f46' },
   forge_sendgrid:   { label: 'SendGrid',   icon: LuPaperclip,    category: 'forge', color: '#1a82e2' },
+  // Generic dispatcher for app-preset JSON definitions. Per-instance brand
+  // name lives in options.__label — see getBlockDisplay().
+  forge_app_preset: { label: 'App preset', icon: LuPackage,      category: 'forge', color: '#64748b' },
 
   // ── n8n migration ports (see N8N_MIGRATION_PLAN.md) ──
   // Pilots
@@ -746,6 +750,33 @@ const BLOCK_REGISTRY: Record<string, BlockMeta> = {
 
 export function getBlockLabel(type: string): string {
   return BLOCK_REGISTRY[type]?.label ?? type;
+}
+
+/**
+ * Block-aware display metadata. Unlike the type-keyed getters above, this
+ * reads the block's `options` so generic dispatch blocks can surface their
+ * configured identity — e.g. every `forge_app_preset` instance carries the
+ * preset's brand name in `options.__label` (written by the editor catalog
+ * when the block is created / configured).
+ */
+export function getBlockDisplay(block: {
+  type: string;
+  options?: Record<string, unknown> | null;
+}): { label: string; icon: BlockMeta['icon'] | null; color: string } {
+  if (block.type === 'forge_app_preset') {
+    const raw = block.options?.__label;
+    const label = typeof raw === 'string' && raw.trim() ? raw : 'App preset';
+    return {
+      label,
+      icon: getBlockIcon(block.type),
+      color: getBlockColor(block.type),
+    };
+  }
+  return {
+    label: getBlockLabel(block.type),
+    icon: getBlockIcon(block.type),
+    color: getBlockColor(block.type),
+  };
 }
 
 export function getBlockIcon(type: string) {

@@ -55,6 +55,7 @@ import type { Block, BlockType } from '@/lib/sabflow/types';
 import { WithVariableContent } from './WithVariableContent';
 import type { ComponentType } from 'react';
 import { getBlockBrandIcon } from '@/lib/sabflow/blocks/icons';
+import { getBlockDisplay } from '@/lib/sabflow/blocks';
 
 /* ── icon map ────────────────────────────────────────────────────────────── */
 
@@ -175,8 +176,11 @@ type Props = {
  * - Shows a concise summary line for logic/integration types
  */
 export function BlockNodeContent({ block }: Props) {
-  const FallbackIcon = BLOCK_ICONS[block.type] ?? LuCode;
-  const label = BLOCK_LABELS[block.type] ?? block.type;
+  // Block-aware display fallback: resolves the global registry label and,
+  // for `forge_app_preset`, the per-instance brand name (options.__label).
+  const display = getBlockDisplay(block);
+  const FallbackIcon = BLOCK_ICONS[block.type] ?? display.icon ?? LuCode;
+  const label = BLOCK_LABELS[block.type] ?? display.label;
   const iconColor = getIconColor(block.type);
   const brand = getBlockBrandIcon(block.type);
 

@@ -14,6 +14,7 @@ import { Button, IconButton, Input } from '@/components/sabcrm/20ui';
 import { CanvasHandle } from '../handles/CanvasHandle';
 import { CanvasConnectionMode, type CanvasNode, type CanvasNodeData } from '../types';
 import { blockRegistryMap } from '@/components/sabflow/editor/blockRegistry';
+import { getBlockIcon, getBlockColor } from '@/lib/sabflow/blocks';
 import { cn } from '@/lib/utils';
 
 type Props = NodeProps<CanvasNode> & {
@@ -94,8 +95,12 @@ export const CanvasNodeDefault = memo(function CanvasNodeDefault({
 }: Props) {
   const d = data as CanvasNodeData;
   const entry = d.blockType ? blockRegistryMap.get(d.blockType) : undefined;
-  const Icon = entry?.icon;
-  const accent = entry?.color ?? 'var(--st-accent)';
+  // Fall back to the global block registry (rust/forge/preset types) so the
+  // unified catalog's nodes don't render as a bare circle.
+  const Icon =
+    entry?.icon ?? (d.blockType ? getBlockIcon(d.blockType) ?? undefined : undefined);
+  const accent =
+    entry?.color ?? (d.blockType ? getBlockColor(d.blockType) : 'var(--st-accent)');
 
   const classes = useMemo(
     () =>

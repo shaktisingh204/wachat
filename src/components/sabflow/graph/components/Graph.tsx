@@ -45,7 +45,7 @@ type Props = {
 export function Graph({ flow, onFlowChange, containerRef, onUndo, onRedo }: Props) {
   const { graphPosition, setGraphPosition, setCanvasPosition, connectingIds, connectingIdsRef, setConnectingIds, isReadOnly } =
     useGraph();
-  const { draggedBlockType, setDraggedBlockType } = useBlockDnd();
+  const { draggedBlockType, setDraggedBlockType, draggedBlockOptions, setDraggedBlockOptions } = useBlockDnd();
 
   const isDraggingGraph = useSelectionStore((s) => s.isDraggingGraph);
   const setIsDraggingGraph = useSelectionStore((s) => s.setIsDraggingGraph);
@@ -341,23 +341,28 @@ export function Graph({ flow, onFlowChange, containerRef, onUndo, onRedo }: Prop
               id: newBlockId,
               type: draggedBlockType,
               groupId: newGroupId,
-              options: {},
+              // Seed options from the drag payload (e.g. app presets carry
+              // { presetId, __label }) so generic block types stay configured.
+              options: { ...(draggedBlockOptions ?? {}) },
             },
           ],
         };
         updateElementCoordinates(newGroupId, coords);
         onFlowChange({ groups: [...flow.groups, newGroup] });
         setDraggedBlockType(undefined);
+        setDraggedBlockOptions(undefined);
       }
     },
     [
       // connectingIds intentionally omitted, we use connectingIdsRef.current for fresh reads
       draggedBlockType,
+      draggedBlockOptions,
       projectMouse,
       flow.groups,
       flow.edges,
       onFlowChange,
       setDraggedBlockType,
+      setDraggedBlockOptions,
       updateElementCoordinates,
       setConnectingIds,
     ],

@@ -23,7 +23,7 @@ type Props = {
 };
 
 export function BlockNodesList({ blocks, group, groupIndex, groupRef, edges, onBlocksChange }: Props) {
-  const { draggedBlock, setDraggedBlock, draggedBlockType, setDraggedBlockType, mouseOverGroup } = useBlockDnd();
+  const { draggedBlock, setDraggedBlock, draggedBlockType, setDraggedBlockType, draggedBlockOptions, setDraggedBlockOptions, mouseOverGroup } = useBlockDnd();
   const { isReadOnly, setOpenedNodeId, graphPosition } = useGraph();
   const placeholderRefs = useRef<HTMLDivElement[]>([]);
   const [expandedPlaceholderIndex, setExpandedPlaceholderIndex] = useState<number | undefined>();
@@ -87,15 +87,17 @@ export function BlockNodesList({ blocks, group, groupIndex, groupRef, edges, onB
         id: newBlockId,
         type: draggedBlockType,
         groupId,
-        options: {},
+        // Seed from the drag payload (e.g. app presets carry { presetId, __label }).
+        options: { ...(draggedBlockOptions ?? {}) },
       };
       const newBlocks = [...blocks];
       newBlocks.splice(blockIndex, 0, newBlock);
       onBlocksChange(newBlocks);
       setDraggedBlockType(undefined);
+      setDraggedBlockOptions(undefined);
       setOpenedNodeId(newBlockId);
     }
-  }, [isDraggingOnCurrentGroup, draggedBlock, draggedBlockType, blocks, groupId, onBlocksChange, setDraggedBlock, setDraggedBlockType, setOpenedNodeId]);
+  }, [isDraggingOnCurrentGroup, draggedBlock, draggedBlockType, draggedBlockOptions, blocks, groupId, onBlocksChange, setDraggedBlock, setDraggedBlockType, setDraggedBlockOptions, setOpenedNodeId]);
 
   useEffect(() => {
     const el = groupRef.current;

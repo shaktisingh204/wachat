@@ -255,5 +255,23 @@ export function getBlockBrandIcon(type: string): string | null {
   return BLOCK_BRAND_ICONS[type] ?? deriveBrand(type);
 }
 
+/**
+ * Speculative brand icon for a normalized app-catalog slug (lowercase,
+ * separator-free, e.g. `openai`, `googlesheets`, `webflowtrigger`).
+ *
+ * Returns a `logos:` candidate name. The `logos:` collection is full-colour
+ * official marks, so it is the best-looking guess — but the name is NOT
+ * verified to exist. Callers MUST render it with a fallback (e.g.
+ * `<Icon icon={name} fallback={<LucideIcon/>} />`) because Iconify renders
+ * nothing for missing icons.
+ */
+export function getBrandIconForSlug(slug: string | null | undefined): string | null {
+  if (!slug) return null;
+  // Trigger variants share the provider's mark (`slacktrigger` → `slack`).
+  const base = slug.replace(/trigger$/, '');
+  if (!base || !/^[a-z0-9]+$/.test(base)) return null;
+  return `logos:${base}`;
+}
+
 /** Total count of explicitly-mapped blocks (exposed for tests). */
 export const BRAND_ICON_COUNT = Object.keys(BLOCK_BRAND_ICONS).length;
