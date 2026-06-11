@@ -850,3 +850,19 @@ function buildErrorSignal(
     errorSignal: { kind: 'halt', message: errorText },
   };
 }
+
+/* ── Single-shot forge runner (node testing) ─────────────────────────────── */
+
+/**
+ * Execute one forge block in isolation — used by `POST /api/sabflow/test-forge`
+ * so the editor's "Test this node" panel can run forge/preset blocks (their
+ * `run()` implementations are server-only). No edges, no flow context: error
+ * routing degrades to a halt signal, which the caller surfaces as a failure.
+ */
+export async function runForgeBlockOnce(
+  block: Block,
+  variables: Record<string, string>,
+  ctx?: Pick<ExecuteBlockContext, 'nodeOutputs' | 'envAllowlist' | 'userId'>,
+): Promise<BlockExecutionResult> {
+  return executeForgeBlock(block, variables, [], ctx);
+}

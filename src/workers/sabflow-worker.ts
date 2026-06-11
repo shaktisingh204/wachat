@@ -372,6 +372,21 @@ async function processExecution(job: Job<ExecutionJobPayload>): Promise<void> {
 
   const start = Date.now();
 
+  // ── Forge flows run on the TS engine ─────────────────────────────────────
+  // The Rust engine has no `forge_*` handlers — it records "Unknown node
+  // type" and CONTINUES, so a forge flow (incl. every preset app via
+  // `forge_app_preset`) would falsely succeed with its forge blocks
+  // silently skipped. The TS engine executes the forge registry and
+  // resolves credentials itself.
+  const usesForge = ((job.data.flowSnapshot?.groups ?? []) as Array<{
+    blocks?: Array<{ type?: string }>;
+  }>).some((g) => (g?.blocks ?? []).some((b) => String(b?.type ?? '').startsWith('forge_')));
+  if (usesForge) {
+    console.log(`[sabflow-worker] execution ${executionId} contains forge blocks → TS engine`);
+    await runWithTsEngine(job.data);
+    return;
+  }
+
   // ── Primary path: delegate to the Rust engine ───────────────────────────
   try {
     const result = await rustExecuteFlow(job.data);

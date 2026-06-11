@@ -56,6 +56,50 @@ export type TestNodeResult = {
 
 /* ── Internal helpers ────────────────────────────────────────────────────── */
 
+/**
+ * Run a forge/preset block via `POST /api/sabflow/test-forge` — the engine's
+ * real server-side forge dispatch (credential decryption, app-preset HTTP,
+ * helpers). Mirrors production behaviour exactly, unlike the in-browser
+ * runners above.
+ */
+async function runForgeViaApi(
+  block: Block,
+  vars: Record<string, string>,
+  inputData: Record<string, unknown>,
+  logs: TestLogEntry[],
+): Promise<unknown> {
+  const res = await fetch('/api/sabflow/test-forge', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      block: { id: block.id, type: block.type, options: block.options ?? {} },
+      variables: vars,
+      inputData,
+    }),
+  });
+
+  const json = (await res.json().catch(() => ({}))) as {
+    ok?: boolean;
+    error?: string;
+    output?: unknown;
+    items?: unknown;
+    durationMs?: number;
+  };
+
+  if (!res.ok) {
+    throw new Error(json.error ?? `test-forge returned ${res.status}`);
+  }
+  if (!json.ok) {
+    throw new Error(json.error ?? 'Forge block reported an error');
+  }
+
+  logs.push({
+    level: 'log',
+    message: `Executed on server in ${json.durationMs ?? '?'}ms`,
+  });
+  return json.items ?? json.output ?? null;
+}
+
 /** Stringify any value into the shape expected by substituteVariables(). */
 function toStringMap(
   source: Record<string, unknown>,
@@ -487,6 +531,11 @@ export async function testNode(
         case 'script':
           return runScript(block, effectiveInput, variables, logs);
         default:
+          // Forge/preset blocks have server-only run() implementations —
+          // execute them through the engine's real dispatch on the server.
+          if (block.type.startsWith('forge_')) {
+            return runForgeViaApi(block, vars, effectiveInput, logs);
+          }
           return { skipped: true, reason: `No test runner for "${block.type}"` };
       }
     },

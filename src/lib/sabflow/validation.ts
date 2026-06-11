@@ -11,6 +11,8 @@ import type {
   TextBubbleOptions,
 } from './types';
 
+import { getBlockByType } from './blocks';
+
 /* ── Validation error shape ──────────────────────────────────────────────── */
 
 export type ValidationErrorType =
@@ -19,7 +21,8 @@ export type ValidationErrorType =
   | 'invalid_config'
   | 'orphan_group'
   | 'circular_reference'
-  | 'missing_variable';
+  | 'missing_variable'
+  | 'engine_routing';
 
 export type ValidationSeverity = 'error' | 'warning';
 
@@ -582,6 +585,55 @@ function checkInvalidConfig(groups: Group[]): ValidationError[] {
   return errors;
 }
 
+/* ── Engine routing ──────────────────────────────────────────────────────── */
+
+/**
+ * Flows containing any `forge_*` block run on the TypeScript engine (the
+ * Rust engine has no forge handlers — see the routing pre-scan in
+ * src/workers/sabflow-worker.ts). The TS engine, in turn, silently no-ops
+ * node types it doesn't know (Rust-only n8n nodes). Warn when a flow mixes
+ * the two so the user isn't surprised by skipped nodes.
+ */
+function checkEngineRouting(groups: Group[]): ValidationError[] {
+  const errors: ValidationError[] = [];
+
+  let usesForge = false;
+  const rustOnly: Array<{ type: string; blockId: string; groupId: string }> = [];
+  const seenTypes = new Set<string>();
+
+  for (const group of groups) {
+    for (const block of group.blocks ?? []) {
+      const type = String(block.type ?? '');
+      if (type.startsWith('forge_')) {
+        usesForge = true;
+        continue;
+      }
+      // Known to the TS engine = present in the static block registry.
+      if (!getBlockByType(type) && !seenTypes.has(type)) {
+        seenTypes.add(type);
+        rustOnly.push({ type, blockId: block.id, groupId: group.id });
+      }
+    }
+  }
+
+  if (!usesForge) return errors;
+
+  for (const { type, blockId, groupId } of rustOnly) {
+    errors.push({
+      id: `engine_routing:${groupId}:${blockId}`,
+      severity: 'warning',
+      message:
+        `This flow contains forge/app blocks, so it runs on the TypeScript engine — ` +
+        `"${type}" is only implemented in the Rust engine and will be skipped.`,
+      blockId,
+      groupId,
+      type: 'engine_routing',
+    });
+  }
+
+  return errors;
+}
+
 /* ── Main export ─────────────────────────────────────────────────────────── */
 
 /**
@@ -596,6 +648,7 @@ export function validateFlow(flow: SabFlowDoc): ValidationError[] {
     ...checkMissingVariables(flow.groups, flow.variables),
     ...checkCircularReferences(flow.groups, flow.edges),
     ...checkInvalidConfig(flow.groups),
+    ...checkEngineRouting(flow.groups),
   ];
 
   // Sort: errors before warnings, then alphabetically by id for stable order
