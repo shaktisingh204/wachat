@@ -9,7 +9,7 @@
  */
 import { useCallback, useEffect, useRef, useState } from "react";
 import { SheetCanvas, type SheetCanvasHandle, type SaveState } from "./grid/sheet-canvas.tsx";
-import { Toolbar } from "./chrome/toolbar.tsx";
+import { Ribbon } from "./chrome/ribbon.tsx";
 import { SheetTabs } from "./chrome/sheet-tabs.tsx";
 import { exportXlsxAction } from "../../app/actions/sabsheet-ops.actions.ts";
 import type { SheetInfo } from "../../lib/sabsheet/engine/protocol.ts";
@@ -87,7 +87,7 @@ export function Workbench({ name, workbookId, seed }: WorkbenchProps) {
   return (
     <div style={styles.root}>
       {/* xlsx export needs the server, so it's hidden offline (the grid keeps working). */}
-      <Toolbar grid={gridRef} onExportXlsx={workbookId && online ? exportXlsx : undefined} />
+      <Ribbon grid={gridRef} onExportXlsx={workbookId && online ? exportXlsx : undefined} />
       <div style={styles.formulaBar}>
         <input
           aria-label="Name box — type a cell or range to go to"

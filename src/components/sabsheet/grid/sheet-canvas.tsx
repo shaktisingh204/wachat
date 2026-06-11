@@ -20,6 +20,7 @@ import {
   selectionCount,
   parseRef,
   cellToA1,
+  colToLetters,
   type SelectionState,
   type AxisBounds,
 } from "./selection.ts";
@@ -96,6 +97,25 @@ export interface SheetCanvasHandle {
   renameSheet(index: number, name: string): Promise<void>;
   /** Navigate the selection to a name-box ref ("B7" or "A1:C9"); no-op if invalid. */
   goTo(ref: string): void;
+  /** Insert `count` rows above (or below) the selection. */
+  insertRows(below: boolean, count?: number): Promise<void>;
+  /** Insert `count` columns left of (or right of) the selection. */
+  insertColumns(right: boolean, count?: number): Promise<void>;
+  /** Delete the selected rows / columns. */
+  deleteRows(): Promise<void>;
+  deleteColumns(): Promise<void>;
+  /** Clear the contents of the selection (keep formatting). */
+  clearContents(): Promise<void>;
+  /** Sort the selection by its first column. */
+  sortSelection(ascending: boolean): Promise<void>;
+  /** Replace text across the selection. */
+  replaceAll(find: string, replace: string, matchCase: boolean): Promise<void>;
+  /** Freeze rows above + columns left of the active cell (Excel "Freeze Panes"). */
+  freezeAtActive(): Promise<void>;
+  /** Remove all frozen panes. */
+  unfreeze(): Promise<void>;
+  /** AutoSum: place `=SUM(selection)` just below a multi-cell selection. */
+  autoSum(): Promise<void>;
 }
 
 export const SheetCanvas = forwardRef<SheetCanvasHandle, SheetCanvasProps>(function SheetCanvas(
@@ -287,6 +307,70 @@ export const SheetCanvas = forwardRef<SheetCanvasHandle, SheetCanvasProps>(funct
         }
         setSelection(clamped);
         void refresh();
+      },
+      async insertRows(below: boolean, count = 1) {
+        const box = selectionBox(selectionRef.current);
+        const at = below ? box.bottom + 1 : box.top;
+        await applyLocal([cmd.insertRows(sheetRef.current, at, count)]);
+      },
+      async insertColumns(right: boolean, count = 1) {
+        const box = selectionBox(selectionRef.current);
+        const at = right ? box.right + 1 : box.left;
+        await applyLocal([cmd.insertColumns(sheetRef.current, at, count)]);
+      },
+      async deleteRows() {
+        const box = selectionBox(selectionRef.current);
+        await applyLocal([cmd.deleteRows(sheetRef.current, box.top, box.bottom - box.top + 1)]);
+      },
+      async deleteColumns() {
+        const box = selectionBox(selectionRef.current);
+        await applyLocal([cmd.deleteColumns(sheetRef.current, box.left, box.right - box.left + 1)]);
+      },
+      async clearContents() {
+        const box = selectionBox(selectionRef.current);
+        await applyLocal([
+          cmd.clearContents({ sheet: sheetRef.current, row: box.top, col: box.left, width: box.right - box.left + 1, height: box.bottom - box.top + 1 }),
+        ]);
+      },
+      async sortSelection(ascending: boolean) {
+        const box = selectionBox(selectionRef.current);
+        await applyLocal([
+          cmd.sortRange(
+            { sheet: sheetRef.current, row: box.top, col: box.left, width: box.right - box.left + 1, height: box.bottom - box.top + 1 },
+            0,
+            ascending,
+            false,
+          ),
+        ]);
+      },
+      async replaceAll(find: string, replace: string, matchCase: boolean) {
+        const box = selectionBox(selectionRef.current);
+        const single = box.top === box.bottom && box.left === box.right;
+        // A single-cell selection means "whole used sheet"; approximate with a large window.
+        const range = single
+          ? { sheet: sheetRef.current, row: 1, col: 1, width: 256, height: 100_000 }
+          : { sheet: sheetRef.current, row: box.top, col: box.left, width: box.right - box.left + 1, height: box.bottom - box.top + 1 };
+        await applyLocal([cmd.replaceAll(range, find, replace, matchCase)]);
+      },
+      async freezeAtActive() {
+        const a = selectionRef.current.active;
+        await applyLocal([
+          { type: "setFrozenRows", sheet: sheetRef.current, count: a.row - 1 },
+          { type: "setFrozenColumns", sheet: sheetRef.current, count: a.col - 1 },
+        ]);
+      },
+      async unfreeze() {
+        await applyLocal([
+          { type: "setFrozenRows", sheet: sheetRef.current, count: 0 },
+          { type: "setFrozenColumns", sheet: sheetRef.current, count: 0 },
+        ]);
+      },
+      async autoSum() {
+        const box = selectionBox(selectionRef.current);
+        if (box.top === box.bottom && box.left === box.right) return; // need a range
+        const range = `${colToLetters(box.left)}${box.top}:${colToLetters(box.right)}${box.bottom}`;
+        await applyLocal([cmd.setCell(sheetRef.current, box.bottom + 1, box.left, `=SUM(${range})`)]);
+        setSelection(singleCell(box.bottom + 1, box.left));
       },
     }),
     [applyLocal, refresh, emitSelection, switchSheet, syncSheets, setSelection, cols, rows],
