@@ -1,36 +1,66 @@
 /**
- * SabSheet v2 grid preview (P2). A standalone route that mounts the new IronCalc-backed canvas grid
- * without touching the existing `/dashboard/sabsheet` editor — the "behind a flag" surface for
- * exercising the engine end-to-end. Seeded with a small budget + a SUM so formulas are visible on load.
- *
- * Requires the wasm engine to be published first: `npm run sabsheet:wasm`.
+ * SabSheet v2 launcher — lists the user's workbooks and opens them in the new IronCalc-backed editor
+ * (persistent + offline-capable). Creating one lands in `/dashboard/sabsheet/v2/[workbookId]`.
  */
-import { Workbench } from "@/components/sabsheet/workbench";
-import { cmd, type Command } from "@/lib/sabsheet/commands/ops";
+import Link from "next/link";
+import { listSabsheetWorkbooks } from "@/app/actions/sabsheet.actions";
+import { NewWorkbookButton } from "./_new-workbook-button.tsx";
 
 export const dynamic = "force-dynamic";
 
-const SEED: Command[] = [
-  cmd.setCell(0, 1, 1, "Item"),
-  cmd.setCell(0, 1, 2, "Qty"),
-  cmd.setCell(0, 1, 3, "Price"),
-  cmd.setCell(0, 1, 4, "Total"),
-  cmd.setCell(0, 2, 1, "Widgets"),
-  cmd.setCell(0, 2, 2, "10"),
-  cmd.setCell(0, 2, 3, "2.50"),
-  cmd.setCell(0, 2, 4, "=B2*C2"),
-  cmd.setCell(0, 3, 1, "Gadgets"),
-  cmd.setCell(0, 3, 2, "4"),
-  cmd.setCell(0, 3, 3, "9.99"),
-  cmd.setCell(0, 3, 4, "=B3*C3"),
-  cmd.setCell(0, 4, 1, "Total"),
-  cmd.setCell(0, 4, 4, "=SUM(D2:D3)"),
-];
+export default async function SabSheetV2LauncherPage() {
+  let workbooks: { _id: string; title: string }[] = [];
+  try {
+    workbooks = await listSabsheetWorkbooks();
+  } catch {
+    workbooks = [];
+  }
 
-export default function SabSheetV2PreviewPage() {
   return (
-    <div style={{ position: "fixed", inset: 0 }}>
-      <Workbench name="Untitled spreadsheet" seed={SEED} />
+    <div style={{ maxWidth: 920, margin: "0 auto", padding: "32px 24px", font: "14px -apple-system, system-ui, sans-serif" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
+        <div>
+          <h1 style={{ margin: 0, fontSize: 24, color: "#202124" }}>SabSheet</h1>
+          <p style={{ margin: "4px 0 0", color: "#5f6368" }}>
+            Excel-grade spreadsheets that keep working offline.{" "}
+            <Link href="/dashboard/sabsheet/v2/demo" style={{ color: "#1a73e8" }}>
+              Try the demo →
+            </Link>
+          </p>
+        </div>
+        <NewWorkbookButton />
+      </div>
+
+      {workbooks.length === 0 ? (
+        <div style={{ padding: 48, textAlign: "center", color: "#5f6368", border: "1px dashed #dadce0", borderRadius: 12 }}>
+          No spreadsheets yet. Create one to get started.
+        </div>
+      ) : (
+        <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 16 }}>
+          {workbooks.map((wb) => (
+            <li key={wb._id}>
+              <Link
+                href={`/dashboard/sabsheet/v2/${wb._id}`}
+                style={{
+                  display: "block",
+                  height: 140,
+                  padding: 16,
+                  border: "1px solid #dadce0",
+                  borderRadius: 12,
+                  textDecoration: "none",
+                  color: "#202124",
+                  background: "#fff",
+                }}
+              >
+                <div style={{ fontSize: 28 }}>📊</div>
+                <div style={{ marginTop: 12, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  {wb.title || "Untitled spreadsheet"}
+                </div>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
