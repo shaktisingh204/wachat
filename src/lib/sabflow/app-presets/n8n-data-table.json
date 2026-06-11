@@ -2,7 +2,7 @@
   "id": "n8n-data-table",
   "name": "Data table",
   "description": "Permanently save data across workflow executions in a table",
-  "category": "Input",
+  "category": "productivity",
   "iconName": "LuPackage",
   "version": 1,
   "lastVerified": "2026-05-17",

@@ -2,7 +2,7 @@
   "id": "n8n-sea-table-api",
   "name": "Table Name or ID",
   "description": "The name of SeaTable table to access. Choose from the list, or specify an ID using an <a href=",
-  "category": "Imported (n8n)",
+  "category": "data",
   "iconName": "LuPackage",
   "version": 1,
   "lastVerified": "2026-05-17",

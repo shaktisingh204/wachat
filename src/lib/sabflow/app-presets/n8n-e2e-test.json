@@ -2,7 +2,7 @@
   "id": "n8n-e2e-test",
   "name": "E2E Test",
   "description": "Dummy node used for e2e testing",
-  "category": "Output",
+  "category": "misc",
   "iconName": "LuPackage",
   "version": 1,
   "lastVerified": "2026-05-17",

@@ -2,7 +2,7 @@
   "id": "n8n-raindrop",
   "name": "Raindrop",
   "description": "Consume the Raindrop API",
-  "category": "Transform",
+  "category": "misc",
   "iconName": "LuPackage",
   "version": 1,
   "lastVerified": "2026-05-17",

@@ -2,7 +2,7 @@
   "id": "n8n-venafi-tls-protect-datacenter",
   "name": "Venafi TLS Protect Datacenter",
   "description": "Consume Venafi TLS Protect Datacenter",
-  "category": "Input",
+  "category": "dev",
   "iconName": "LuPackage",
   "version": 1,
   "lastVerified": "2026-05-17",

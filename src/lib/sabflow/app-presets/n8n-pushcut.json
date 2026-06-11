@@ -2,7 +2,7 @@
   "id": "n8n-pushcut",
   "name": "Pushcut",
   "description": "Consume Pushcut API",
-  "category": "Input",
+  "category": "misc",
   "iconName": "LuPackage",
   "version": 1,
   "lastVerified": "2026-05-17",

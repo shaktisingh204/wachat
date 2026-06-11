@@ -2,7 +2,7 @@
   "id": "n8n-function",
   "name": "Function",
   "description": "Run custom function code which gets executed once and allows you to add, remove, change and replace items",
-  "category": "Transform",
+  "category": "misc",
   "iconName": "LuPackage",
   "version": 1,
   "lastVerified": "2026-05-17",

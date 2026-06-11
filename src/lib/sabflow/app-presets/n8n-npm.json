@@ -2,7 +2,7 @@
   "id": "n8n-npm",
   "name": "Npm",
   "description": "Consume NPM registry API",
-  "category": "Input",
+  "category": "misc",
   "iconName": "LuPackage",
   "version": 1,
   "lastVerified": "2026-05-17",

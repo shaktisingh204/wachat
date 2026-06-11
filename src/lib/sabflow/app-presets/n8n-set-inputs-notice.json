@@ -2,7 +2,7 @@
   "id": "n8n-set-inputs-notice",
   "name": "For adding columns from your dataset to the evaluation results. Anything you add here will be displayed in the ‘evaluations’ tab, not on the Google Sheet or Data table.",
   "description": "The expected output defined in your evaluation dataset, used as ground truth",
-  "category": "Imported (n8n)",
+  "category": "data",
   "iconName": "LuPackage",
   "version": 1,
   "lastVerified": "2026-05-17",

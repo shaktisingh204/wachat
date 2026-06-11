@@ -2,7 +2,7 @@
   "id": "n8n-aws-ses",
   "name": "AWS SES",
   "description": "Sends data to AWS SES",
-  "category": "Output",
+  "category": "dev",
   "iconName": "LuPackage",
   "version": 1,
   "lastVerified": "2026-05-17",

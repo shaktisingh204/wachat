@@ -2,7 +2,7 @@
   "id": "n8n-aws-rekognition",
   "name": "AWS Rekognition",
   "description": "Sends data to AWS Rekognition",
-  "category": "Output",
+  "category": "dev",
   "iconName": "LuPackage",
   "version": 1,
   "lastVerified": "2026-05-17",

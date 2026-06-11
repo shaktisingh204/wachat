@@ -2,7 +2,7 @@
   "id": "n8n-go-to-webinar",
   "name": "GoToWebinar",
   "description": "Consume the GoToWebinar API",
-  "category": "Transform",
+  "category": "productivity",
   "iconName": "LuPackage",
   "version": 1,
   "lastVerified": "2026-05-17",

@@ -2,7 +2,7 @@
   "id": "n8n-aws-elb",
   "name": "AWS ELB",
   "description": "Sends data to AWS ELB API",
-  "category": "Output",
+  "category": "dev",
   "iconName": "LuPackage",
   "version": 1,
   "lastVerified": "2026-05-17",

@@ -2,7 +2,7 @@
   "id": "n8n-grafana",
   "name": "Grafana",
   "description": "Consume the Grafana API",
-  "category": "Transform",
+  "category": "analytics",
   "iconName": "LuPackage",
   "version": 1,
   "lastVerified": "2026-05-17",

@@ -2,7 +2,7 @@
   "id": "n8n-perplexity",
   "name": "Perplexity",
   "description": "AI-powered answer engine that provides accurate, trusted, and real-time answers to any question. Supports chat completions, agent responses, web search, and embeddings.",
-  "category": "Transform",
+  "category": "ai",
   "iconName": "LuPackage",
   "version": 1,
   "lastVerified": "2026-05-17",

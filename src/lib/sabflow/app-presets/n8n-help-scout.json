@@ -2,7 +2,7 @@
   "id": "n8n-help-scout",
   "name": "Help Scout",
   "description": "Consume Help Scout API",
-  "category": "Input",
+  "category": "support",
   "iconName": "LuPackage",
   "version": 1,
   "lastVerified": "2026-05-17",

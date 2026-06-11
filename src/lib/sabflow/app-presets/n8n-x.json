@@ -2,7 +2,7 @@
   "id": "n8n-x",
   "name": "Resource",
   "description": "Post, like, and search tweets, send messages, search users, and add users to lists",
-  "category": "Imported (n8n)",
+  "category": "communication",
   "iconName": "LuPackage",
   "version": 1,
   "lastVerified": "2026-05-17",

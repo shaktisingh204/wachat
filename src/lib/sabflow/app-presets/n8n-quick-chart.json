@@ -2,7 +2,7 @@
   "id": "n8n-quick-chart",
   "name": "QuickChart",
   "description": "Create a chart via QuickChart",
-  "category": "Output",
+  "category": "misc",
   "iconName": "LuPackage",
   "version": 1,
   "lastVerified": "2026-05-17",

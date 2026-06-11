@@ -1,0 +1,8172 @@
+{
+  "generatedAt": "2026-06-11T10:22:58.043Z",
+  "counts": {
+    "live": 137,
+    "shadowed-by-forge": 92,
+    "shadowed-by-rust": 252,
+    "shadowed-by-native": 23,
+    "repairable": 10,
+    "shell": 11
+  },
+  "tierSizes": {
+    "presets": 525,
+    "forgeBlocks": 838,
+    "rustNodes": 316,
+    "staticBlockTypes": 57
+  },
+  "collisions": [
+    {
+      "slug": "actionnetwork",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "activecampaign",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "acuityscheduling",
+      "tiers": [
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "adalo",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "affinity",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "aggregate",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "agilecrm",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "airtable",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust",
+        "native"
+      ]
+    },
+    {
+      "slug": "airtop",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "aitransform",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "algolia",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "amqp",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "anthropic",
+      "tiers": [
+        "rust",
+        "native"
+      ]
+    },
+    {
+      "slug": "apitemplateio",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "asana",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "assemblyai",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "autopilot",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "awscognito",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "awscomprehend",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "awsdynamodb",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "awselb",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "awsiam",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "awslambda",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "awsrekognition",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "awss3",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "awsses",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "awssqs",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "awstextract",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "awstranscribe",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "azurecosmosdb",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "azurestorage",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "bamboohr",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "bannerbear",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "baserow",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "beehiiv",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "beeminder",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "bitbucket",
+      "tiers": [
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "bitly",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "bitwarden",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "box",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "brandfetch",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "brevo",
+      "tiers": [
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "bubble",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "bunnycdn",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "buttondown",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "calcom",
+      "tiers": [
+        "preset",
+        "rust",
+        "native"
+      ]
+    },
+    {
+      "slug": "calendly",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "chargebee",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "circleci",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "ciscowebex",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "clearbit",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "clickup",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "clockify",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "cloudflare",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "cloudinary",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "cockpit",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "coda",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "code",
+      "tiers": [
+        "preset",
+        "rust"
+      ]
+    },
+    {
+      "slug": "coingecko",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "comparedatasets",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "compression",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "contentful",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "convertkit",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "converttofile",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "copper",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "cortex",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "cratedb",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "cron",
+      "tiers": [
+        "preset",
+        "rust"
+      ]
+    },
+    {
+      "slug": "crypto",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "currents",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "customerio",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "databricks",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "datatable",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "datetime",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "debughelper",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "deepgram",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "deepl",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "demio",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "dhl",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "digitalocean",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "discord",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust",
+        "native"
+      ]
+    },
+    {
+      "slug": "discourse",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "disqus",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "drift",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "dropbox",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "dropcontact",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "dynamiccredentialcheck",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "e2etest",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "editimage",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "egoi",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "elasticsearch",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "elasticsecurity",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "emailreadimap",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "emailsend",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "emelia",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "erpnext",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "errortrigger",
+      "tiers": [
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "evaluation",
+      "tiers": [
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "executecommand",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "executeworkflow",
+      "tiers": [
+        "preset",
+        "forge",
+        "native"
+      ]
+    },
+    {
+      "slug": "executiondata",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "extractfromfile",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "facebook",
+      "tiers": [
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "facebookleadads",
+      "tiers": [
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "filemaker",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "filter",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust",
+        "native"
+      ]
+    },
+    {
+      "slug": "firecrawl",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "flow",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "flyio",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "form",
+      "tiers": [
+        "preset",
+        "rust"
+      ]
+    },
+    {
+      "slug": "formtrigger",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "freshdesk",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "freshservice",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "freshworkscrm",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "ftp",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "function",
+      "tiers": [
+        "preset",
+        "rust"
+      ]
+    },
+    {
+      "slug": "functionitem",
+      "tiers": [
+        "preset",
+        "rust"
+      ]
+    },
+    {
+      "slug": "getresponse",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "ghost",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "git",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "github",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust",
+        "native"
+      ]
+    },
+    {
+      "slug": "gitlab",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "gmail",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "gong",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "googleads",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "googleanalytics",
+      "tiers": [
+        "preset",
+        "forge",
+        "native"
+      ]
+    },
+    {
+      "slug": "googlebigquery",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "googlebooks",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "googlebusinessprofile",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "googlecalendar",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "googlechat",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "googlecloudstorage",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "googlecontacts",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "googledocs",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "googledrive",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "googleperspective",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "googlesheets",
+      "tiers": [
+        "preset",
+        "rust",
+        "native"
+      ]
+    },
+    {
+      "slug": "googleslides",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "googletasks",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "googletranslate",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "gotify",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "gotowebinar",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "grafana",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "graphql",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "grist",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "gsuiteadmin",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "gumroad",
+      "tiers": [
+        "preset",
+        "rust"
+      ]
+    },
+    {
+      "slug": "hackernews",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "halopsa",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "harvest",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "helpscout",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "heroku",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "highlevel",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "homeassistant",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "html",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "htmlextract",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "httprequest",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "hubspot",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "humanticai",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "hunter",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "icalendar",
+      "tiers": [
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "if",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "intercom",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "interval",
+      "tiers": [
+        "preset",
+        "rust"
+      ]
+    },
+    {
+      "slug": "invoiceninja",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "itemlists",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "iterable",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "jenkins",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "jinaai",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "jira",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "jotform",
+      "tiers": [
+        "preset",
+        "rust"
+      ]
+    },
+    {
+      "slug": "jwt",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "kafka",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "keap",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "kobotoolbox",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "ldap",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "lemlist",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "lemonsqueezy",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "limit",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "line",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "linear",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "lingvanex",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "linkedin",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "linode",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "lonescale",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "magento",
+      "tiers": [
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "mailcheck",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "mailchimp",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "mailerlite",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "mailerlitetrigger",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "mailgun",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "mailjet",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "mandrill",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "manualtrigger",
+      "tiers": [
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "markdown",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "marketstack",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "matrix",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "mattermost",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "mautic",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "medium",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "meilisearch",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "merge",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust",
+        "native"
+      ]
+    },
+    {
+      "slug": "messagebird",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "metabase",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "microsoftdynamicscrm",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "microsoftentra",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "microsoftexcel",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "microsoftgraphsecurity",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "microsoftonedrive",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "microsoftoutlook",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "microsoftsharepoint",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "microsoftteams",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "microsofttodo",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "mindee",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "misp",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "mistralai",
+      "tiers": [
+        "preset",
+        "rust"
+      ]
+    },
+    {
+      "slug": "mocean",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "mondaycom",
+      "tiers": [
+        "preset",
+        "rust"
+      ]
+    },
+    {
+      "slug": "mongodb",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "monicacrm",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "movebinarydata",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "mqtt",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "msg91",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "mysql",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "n8napi",
+      "tiers": [
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "n8ntrainingcustomerdatastore",
+      "tiers": [
+        "preset",
+        "rust"
+      ]
+    },
+    {
+      "slug": "n8ntrainingcustomermessenger",
+      "tiers": [
+        "preset",
+        "rust"
+      ]
+    },
+    {
+      "slug": "n8ntrigger",
+      "tiers": [
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "nasa",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "netlify",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "netscaler",
+      "tiers": [
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "nextcloud",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "nocodb",
+      "tiers": [
+        "preset",
+        "rust",
+        "native"
+      ]
+    },
+    {
+      "slug": "noop",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "notion",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust",
+        "native"
+      ]
+    },
+    {
+      "slug": "npm",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "odoo",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "okta",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "onesimpleapi",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "onfleet",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "openai",
+      "tiers": [
+        "preset",
+        "rust",
+        "native"
+      ]
+    },
+    {
+      "slug": "openthesaurus",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "openweathermap",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "orbit",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "oura",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "paddle",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "pagerduty",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "pandadoc",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "paypal",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "paypaltrigger",
+      "tiers": [
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "peekalink",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "perplexity",
+      "tiers": [
+        "preset",
+        "rust"
+      ]
+    },
+    {
+      "slug": "phantombuster",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "philipshue",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "pinecone",
+      "tiers": [
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "pipedrive",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "plivo",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "postbin",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "postgres",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "posthog",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "postmark",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "profitwell",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "pushbullet",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "pushcut",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "pushover",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "questdb",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "quickbase",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "quickbooks",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "quickchart",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "rabbitmq",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "railway",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "raindrop",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "readbinaryfile",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "readbinaryfiles",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "readpdf",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "readwritefile",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "reddit",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "redis",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "removeduplicates",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "renamekeys",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "render",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "replicate",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "respondtowebhook",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust",
+        "native"
+      ]
+    },
+    {
+      "slug": "rocketchat",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "rssfeedread",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "rundeck",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "s3",
+      "tiers": [
+        "preset",
+        "rust"
+      ]
+    },
+    {
+      "slug": "salesforce",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "salesmate",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "scheduletrigger",
+      "tiers": [
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "seatable",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "securityscorecard",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "segment",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust",
+        "native"
+      ]
+    },
+    {
+      "slug": "sendgrid",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust",
+        "native"
+      ]
+    },
+    {
+      "slug": "sendy",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "sentryio",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "servicenow",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "set",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust",
+        "native"
+      ]
+    },
+    {
+      "slug": "shopify",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "shopifytrigger",
+      "tiers": [
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "signl4",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "simulate",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "slack",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust",
+        "native"
+      ]
+    },
+    {
+      "slug": "slacktrigger",
+      "tiers": [
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "sms77",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "snowflake",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "sort",
+      "tiers": [
+        "preset",
+        "native"
+      ]
+    },
+    {
+      "slug": "splitinbatches",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "splitout",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "splunk",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "spotify",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "spreadsheetfile",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "ssetrigger",
+      "tiers": [
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "ssh",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "stackby",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "stickynote",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "stopanderror",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "storyblok",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "strapi",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "strava",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "stripe",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "stripetrigger",
+      "tiers": [
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "substack",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "summarize",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "supabase",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "switch",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust",
+        "native"
+      ]
+    },
+    {
+      "slug": "syncromsp",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "taiga",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "tally",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "tapfiliate",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "telegram",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "thehive",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "thehiveproject",
+      "tiers": [
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "timesaved",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "timescaledb",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "todoist",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "togetherai",
+      "tiers": [
+        "preset",
+        "native"
+      ]
+    },
+    {
+      "slug": "totp",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "travisci",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "trello",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "twake",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "twilio",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust",
+        "native"
+      ]
+    },
+    {
+      "slug": "twiliotrigger",
+      "tiers": [
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "twist",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "twitter",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "typeform",
+      "tiers": [
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "unleashedsoftware",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "uplead",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "uproc",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "uptimerobot",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "urlscanio",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "venafi",
+      "tiers": [
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "vercelapi",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "vero",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "vonage",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "wait",
+      "tiers": [
+        "preset",
+        "rust",
+        "native"
+      ]
+    },
+    {
+      "slug": "webflow",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "webhook",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust",
+        "native"
+      ]
+    },
+    {
+      "slug": "wekan",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "whatsapp",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "wise",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "woocommerce",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "wordpress",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "workable",
+      "tiers": [
+        "preset",
+        "rust"
+      ]
+    },
+    {
+      "slug": "workflowtrigger",
+      "tiers": [
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "writebinaryfile",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "wufoo",
+      "tiers": [
+        "preset",
+        "rust"
+      ]
+    },
+    {
+      "slug": "xero",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "xml",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "yourls",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "youtube",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "zammad",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "zendesk",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "zohocrm",
+      "tiers": [
+        "preset",
+        "forge"
+      ]
+    },
+    {
+      "slug": "zoom",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    },
+    {
+      "slug": "zulip",
+      "tiers": [
+        "preset",
+        "forge",
+        "rust"
+      ]
+    }
+  ],
+  "residualRepairIds": [
+    "n8n-aws-certificate-manager",
+    "n8n-aws-sns",
+    "n8n-citrix-adc",
+    "n8n-google-firebase-realtime-database",
+    "n8n-i-cal",
+    "n8n-magento2",
+    "n8n-microsoft-sql",
+    "n8n-n8n",
+    "n8n-venafi-tls-protect-cloud",
+    "n8n-venafi-tls-protect-datacenter"
+  ],
+  "rows": [
+    {
+      "id": "adafruit-io",
+      "slug": "adafruitio",
+      "name": "Adafruit IO",
+      "category": "IoT",
+      "status": "verified",
+      "endpointCount": 10,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "adyen",
+      "slug": "adyen",
+      "name": "Adyen",
+      "category": "Fintech",
+      "status": "verified",
+      "endpointCount": 4,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "aftership",
+      "slug": "aftership",
+      "name": "AfterShip",
+      "category": "Shipping",
+      "status": "verified",
+      "endpointCount": 9,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "airvisual",
+      "slug": "airvisual",
+      "name": "IQAir AirVisual",
+      "category": "Weather",
+      "status": "verified",
+      "endpointCount": 6,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "algolia",
+      "slug": "algolia",
+      "name": "Algolia",
+      "category": "Search",
+      "status": "verified",
+      "endpointCount": 7,
+      "hasBaseUrl": true,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "apify",
+      "slug": "apify",
+      "name": "Apify",
+      "category": "Scraping",
+      "status": "verified",
+      "endpointCount": 8,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "apollo-io",
+      "slug": "apolloio",
+      "name": "Apollo.io",
+      "category": "Sales",
+      "status": "verified",
+      "endpointCount": 9,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "ashby",
+      "slug": "ashby",
+      "name": "Ashby",
+      "category": "HR",
+      "status": "verified",
+      "endpointCount": 10,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "assemblyai",
+      "slug": "assemblyai",
+      "name": "AssemblyAI",
+      "category": "AI",
+      "status": "verified",
+      "endpointCount": 7,
+      "hasBaseUrl": true,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "athenahealth",
+      "slug": "athenahealth",
+      "name": "athenahealth",
+      "category": "Healthcare",
+      "status": "verified",
+      "endpointCount": 10,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "aws-iot-rest",
+      "slug": "awsiotrest",
+      "name": "AWS IoT (REST data plane)",
+      "category": "IoT",
+      "status": "verified",
+      "endpointCount": 5,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "bamboohr",
+      "slug": "bamboohr",
+      "name": "BambooHR",
+      "category": "HR",
+      "status": "verified",
+      "endpointCount": 10,
+      "hasBaseUrl": true,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "beehiiv",
+      "slug": "beehiiv",
+      "name": "Beehiiv",
+      "category": "Newsletter",
+      "status": "verified",
+      "endpointCount": 7,
+      "hasBaseUrl": true,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "betterstack",
+      "slug": "betterstack",
+      "name": "BetterStack",
+      "category": "Monitoring",
+      "status": "verified",
+      "endpointCount": 11,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "billingforce",
+      "slug": "billingforce",
+      "name": "BillingForce (Zuora)",
+      "category": "Billing",
+      "status": "verified",
+      "endpointCount": 11,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "bluesky",
+      "slug": "bluesky",
+      "name": "Bluesky",
+      "category": "Social",
+      "status": "verified",
+      "endpointCount": 10,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "brex",
+      "slug": "brex",
+      "name": "Brex",
+      "category": "Fintech",
+      "status": "verified",
+      "endpointCount": 6,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "browserbase",
+      "slug": "browserbase",
+      "name": "Browserbase",
+      "category": "Scraping",
+      "status": "verified",
+      "endpointCount": 7,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "browserless",
+      "slug": "browserless",
+      "name": "Browserless",
+      "category": "Scraping",
+      "status": "verified",
+      "endpointCount": 6,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "bugsnag",
+      "slug": "bugsnag",
+      "name": "Bugsnag",
+      "category": "Monitoring",
+      "status": "verified",
+      "endpointCount": 11,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "bunny-cdn",
+      "slug": "bunnycdn",
+      "name": "Bunny CDN Storage",
+      "category": "CDN",
+      "status": "verified",
+      "endpointCount": 5,
+      "hasBaseUrl": true,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "bunny-stream",
+      "slug": "bunnystream",
+      "name": "Bunny Stream",
+      "category": "Video",
+      "status": "verified",
+      "endpointCount": 5,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "buttondown",
+      "slug": "buttondown",
+      "name": "Buttondown",
+      "category": "Newsletter",
+      "status": "verified",
+      "endpointCount": 8,
+      "hasBaseUrl": true,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "cal-com",
+      "slug": "calcom",
+      "name": "Cal.com",
+      "category": "Scheduling",
+      "status": "verified",
+      "endpointCount": 8,
+      "hasBaseUrl": true,
+      "classification": "shadowed-by-native"
+    },
+    {
+      "id": "calendly-health",
+      "slug": "calendlyhealth",
+      "name": "Calendly (Health)",
+      "category": "Wellness",
+      "status": "verified",
+      "endpointCount": 6,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "calendly",
+      "slug": "calendly",
+      "name": "Calendly",
+      "category": "Scheduling",
+      "status": "verified",
+      "endpointCount": 10,
+      "hasBaseUrl": true,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "cerner-fhir",
+      "slug": "cernerfhir",
+      "name": "Oracle Cerner FHIR",
+      "category": "Healthcare",
+      "status": "verified",
+      "endpointCount": 9,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "chargebee",
+      "slug": "chargebee",
+      "name": "Chargebee",
+      "category": "Billing",
+      "status": "verified",
+      "endpointCount": 13,
+      "hasBaseUrl": true,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "clearbit",
+      "slug": "clearbit",
+      "name": "Clearbit",
+      "category": "Sales",
+      "status": "verified",
+      "endpointCount": 7,
+      "hasBaseUrl": true,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "close-com",
+      "slug": "closecom",
+      "name": "Close",
+      "category": "CRM",
+      "status": "verified",
+      "endpointCount": 10,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "cloudconvert",
+      "slug": "cloudconvert",
+      "name": "CloudConvert",
+      "category": "Document",
+      "status": "verified",
+      "endpointCount": 6,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "cloudflare-workers-kv",
+      "slug": "cloudflareworkerskv",
+      "name": "Cloudflare Workers KV",
+      "category": "KV Store",
+      "status": "verified",
+      "endpointCount": 9,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "cloudinary",
+      "slug": "cloudinary",
+      "name": "Cloudinary",
+      "category": "Media",
+      "status": "verified",
+      "endpointCount": 4,
+      "hasBaseUrl": true,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "cognism",
+      "slug": "cognism",
+      "name": "Cognism",
+      "category": "Sales",
+      "status": "verified",
+      "endpointCount": 6,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "companies-house",
+      "slug": "companieshouse",
+      "name": "UK Companies House",
+      "category": "Government",
+      "status": "verified",
+      "endpointCount": 8,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "convertapi",
+      "slug": "convertapi",
+      "name": "ConvertAPI",
+      "category": "Document",
+      "status": "verified",
+      "endpointCount": 2,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "convertkit",
+      "slug": "convertkit",
+      "name": "ConvertKit",
+      "category": "Email marketing",
+      "status": "verified",
+      "endpointCount": 9,
+      "hasBaseUrl": true,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "datadog",
+      "slug": "datadog",
+      "name": "Datadog",
+      "category": "Monitoring",
+      "status": "verified",
+      "endpointCount": 10,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "deel",
+      "slug": "deel",
+      "name": "Deel",
+      "category": "HR",
+      "status": "verified",
+      "endpointCount": 10,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "deepgram",
+      "slug": "deepgram",
+      "name": "Deepgram",
+      "category": "AI",
+      "status": "verified",
+      "endpointCount": 5,
+      "hasBaseUrl": true,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "dhl",
+      "slug": "dhl",
+      "name": "DHL Express",
+      "category": "Shipping",
+      "status": "verified",
+      "endpointCount": 5,
+      "hasBaseUrl": true,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "diffbot",
+      "slug": "diffbot",
+      "name": "Diffbot",
+      "category": "Scraping",
+      "status": "verified",
+      "endpointCount": 6,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "digitalocean",
+      "slug": "digitalocean",
+      "name": "DigitalOcean",
+      "category": "Cloud",
+      "status": "verified",
+      "endpointCount": 11,
+      "hasBaseUrl": true,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "discord-webhooks",
+      "slug": "discordwebhooks",
+      "name": "Discord Webhooks",
+      "category": "Community",
+      "status": "verified",
+      "endpointCount": 6,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "docusign-extras",
+      "slug": "docusignextras",
+      "name": "DocuSign (extras)",
+      "category": "Legal",
+      "status": "verified",
+      "endpointCount": 10,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "doximity",
+      "slug": "doximity",
+      "name": "Doximity",
+      "category": "Healthcare",
+      "status": "verified",
+      "endpointCount": 5,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "drata",
+      "slug": "drata",
+      "name": "Drata",
+      "category": "Compliance",
+      "status": "verified",
+      "endpointCount": 9,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "drchrono",
+      "slug": "drchrono",
+      "name": "DrChrono",
+      "category": "Healthcare",
+      "status": "verified",
+      "endpointCount": 10,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "dropbox-sign",
+      "slug": "dropboxsign",
+      "name": "Dropbox Sign",
+      "category": "Legal",
+      "status": "verified",
+      "endpointCount": 9,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "easypost",
+      "slug": "easypost",
+      "name": "EasyPost",
+      "category": "Shipping",
+      "status": "verified",
+      "endpointCount": 10,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "elevenlabs-voices",
+      "slug": "elevenlabsvoices",
+      "name": "ElevenLabs (Voices)",
+      "category": "AI",
+      "status": "verified",
+      "endpointCount": 10,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "emailoctopus",
+      "slug": "emailoctopus",
+      "name": "EmailOctopus",
+      "category": "Email marketing",
+      "status": "verified",
+      "endpointCount": 8,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "epic-fhir",
+      "slug": "epicfhir",
+      "name": "Epic on FHIR",
+      "category": "Healthcare",
+      "status": "verified",
+      "endpointCount": 9,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "eu-sanctions",
+      "slug": "eusanctions",
+      "name": "EU Consolidated Sanctions",
+      "category": "Compliance",
+      "status": "verified",
+      "endpointCount": 2,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "fedex",
+      "slug": "fedex",
+      "name": "FedEx",
+      "category": "Shipping",
+      "status": "verified",
+      "endpointCount": 7,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "fillout",
+      "slug": "fillout",
+      "name": "Fillout",
+      "category": "Forms",
+      "status": "verified",
+      "endpointCount": 6,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "firecrawl",
+      "slug": "firecrawl",
+      "name": "FireCrawl",
+      "category": "Scraping",
+      "status": "verified",
+      "endpointCount": 6,
+      "hasBaseUrl": true,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "fly-io",
+      "slug": "flyio",
+      "name": "Fly.io",
+      "category": "DevOps",
+      "status": "verified",
+      "endpointCount": 10,
+      "hasBaseUrl": true,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "formspree",
+      "slug": "formspree",
+      "name": "Formspree",
+      "category": "Forms",
+      "status": "verified",
+      "endpointCount": 5,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "fullstory",
+      "slug": "fullstory",
+      "name": "FullStory",
+      "category": "Monitoring",
+      "status": "verified",
+      "endpointCount": 9,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "garmin-health",
+      "slug": "garminhealth",
+      "name": "Garmin Health",
+      "category": "Wellness",
+      "status": "verified",
+      "endpointCount": 9,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "gohighlevel",
+      "slug": "gohighlevel",
+      "name": "GoHighLevel",
+      "category": "CRM",
+      "status": "verified",
+      "endpointCount": 9,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "google-maps-places",
+      "slug": "googlemapsplaces",
+      "name": "Google Maps Places (new)",
+      "category": "Geo",
+      "status": "verified",
+      "endpointCount": 7,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "grafana-cloud",
+      "slug": "grafanacloud",
+      "name": "Grafana Cloud",
+      "category": "Monitoring",
+      "status": "verified",
+      "endpointCount": 12,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "greenhouse",
+      "slug": "greenhouse",
+      "name": "Greenhouse",
+      "category": "HR",
+      "status": "verified",
+      "endpointCount": 10,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "gumroad",
+      "slug": "gumroad",
+      "name": "Gumroad",
+      "category": "Commerce",
+      "status": "verified",
+      "endpointCount": 9,
+      "hasBaseUrl": true,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "healthie",
+      "slug": "healthie",
+      "name": "Healthie",
+      "category": "Wellness",
+      "status": "verified",
+      "endpointCount": 6,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "here-maps",
+      "slug": "heremaps",
+      "name": "HERE Maps",
+      "category": "Geo",
+      "status": "verified",
+      "endpointCount": 7,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "heroku",
+      "slug": "heroku",
+      "name": "Heroku",
+      "category": "DevOps",
+      "status": "verified",
+      "endpointCount": 11,
+      "hasBaseUrl": true,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "hibob",
+      "slug": "hibob",
+      "name": "HiBob",
+      "category": "HR",
+      "status": "verified",
+      "endpointCount": 9,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "honeybadger",
+      "slug": "honeybadger",
+      "name": "Honeybadger",
+      "category": "Monitoring",
+      "status": "verified",
+      "endpointCount": 10,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "hotjar",
+      "slug": "hotjar",
+      "name": "Hotjar",
+      "category": "Monitoring",
+      "status": "verified",
+      "endpointCount": 8,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "hubspot-crm-extras",
+      "slug": "hubspotcrmextras",
+      "name": "HubSpot CRM Extras",
+      "category": "CRM",
+      "status": "verified",
+      "endpointCount": 10,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "imagekit",
+      "slug": "imagekit",
+      "name": "ImageKit",
+      "category": "Media",
+      "status": "verified",
+      "endpointCount": 4,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "ipstack",
+      "slug": "ipstack",
+      "name": "ipstack",
+      "category": "Geo",
+      "status": "verified",
+      "endpointCount": 4,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "ironclad",
+      "slug": "ironclad",
+      "name": "Ironclad",
+      "category": "Legal",
+      "status": "verified",
+      "endpointCount": 9,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "irs-forms",
+      "slug": "irsforms",
+      "name": "IRS Tax Exempt / Forms",
+      "category": "Government",
+      "status": "verified",
+      "endpointCount": 4,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "jotform",
+      "slug": "jotform",
+      "name": "JotForm",
+      "category": "Forms",
+      "status": "verified",
+      "endpointCount": 8,
+      "hasBaseUrl": true,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "lago",
+      "slug": "lago",
+      "name": "Lago",
+      "category": "Billing",
+      "status": "verified",
+      "endpointCount": 10,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "lemlist",
+      "slug": "lemlist",
+      "name": "Lemlist",
+      "category": "Sales",
+      "status": "verified",
+      "endpointCount": 8,
+      "hasBaseUrl": true,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "lemon-squeezy",
+      "slug": "lemonsqueezy",
+      "name": "Lemon Squeezy",
+      "category": "Commerce",
+      "status": "verified",
+      "endpointCount": 13,
+      "hasBaseUrl": true,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "lever",
+      "slug": "lever",
+      "name": "Lever",
+      "category": "HR",
+      "status": "verified",
+      "endpointCount": 10,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "linkedin",
+      "slug": "linkedin",
+      "name": "LinkedIn",
+      "category": "Social",
+      "status": "verified",
+      "endpointCount": 8,
+      "hasBaseUrl": true,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "linode",
+      "slug": "linode",
+      "name": "Linode",
+      "category": "Cloud",
+      "status": "verified",
+      "endpointCount": 11,
+      "hasBaseUrl": true,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "listmonk",
+      "slug": "listmonk",
+      "name": "Listmonk",
+      "category": "Email marketing",
+      "status": "verified",
+      "endpointCount": 10,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "logrocket",
+      "slug": "logrocket",
+      "name": "LogRocket",
+      "category": "Monitoring",
+      "status": "verified",
+      "endpointCount": 7,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "loom",
+      "slug": "loom",
+      "name": "Loom",
+      "category": "Video",
+      "status": "verified",
+      "endpointCount": 4,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "lusha",
+      "slug": "lusha",
+      "name": "Lusha",
+      "category": "Sales",
+      "status": "verified",
+      "endpointCount": 6,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "mailerlite",
+      "slug": "mailerlite",
+      "name": "MailerLite",
+      "category": "Email marketing",
+      "status": "verified",
+      "endpointCount": 10,
+      "hasBaseUrl": true,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "mailgun",
+      "slug": "mailgun",
+      "name": "Mailgun",
+      "category": "Email",
+      "status": "verified",
+      "endpointCount": 7,
+      "hasBaseUrl": true,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "mailmodo",
+      "slug": "mailmodo",
+      "name": "Mailmodo",
+      "category": "Email marketing",
+      "status": "verified",
+      "endpointCount": 6,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "mandrill",
+      "slug": "mandrill",
+      "name": "Mandrill",
+      "category": "Email",
+      "status": "verified",
+      "endpointCount": 5,
+      "hasBaseUrl": true,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "mapbox",
+      "slug": "mapbox",
+      "name": "Mapbox",
+      "category": "Geo",
+      "status": "verified",
+      "endpointCount": 8,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "mastodon",
+      "slug": "mastodon",
+      "name": "Mastodon",
+      "category": "Social",
+      "status": "verified",
+      "endpointCount": 12,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "matrix",
+      "slug": "matrix",
+      "name": "Matrix",
+      "category": "Community",
+      "status": "verified",
+      "endpointCount": 12,
+      "hasBaseUrl": true,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "maxio",
+      "slug": "maxio",
+      "name": "Maxio (Advanced Billing / Chargify)",
+      "category": "Billing",
+      "status": "verified",
+      "endpointCount": 9,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "maxmind-geoip",
+      "slug": "maxmindgeoip",
+      "name": "MaxMind GeoIP2",
+      "category": "Geo",
+      "status": "verified",
+      "endpointCount": 5,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "meilisearch",
+      "slug": "meilisearch",
+      "name": "Meilisearch",
+      "category": "Search",
+      "status": "verified",
+      "endpointCount": 12,
+      "hasBaseUrl": true,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "mercury",
+      "slug": "mercury",
+      "name": "Mercury",
+      "category": "Fintech",
+      "status": "verified",
+      "endpointCount": 5,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "messagebird",
+      "slug": "messagebird",
+      "name": "MessageBird",
+      "category": "Messaging",
+      "status": "verified",
+      "endpointCount": 6,
+      "hasBaseUrl": true,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "modulr",
+      "slug": "modulr",
+      "name": "Modulr",
+      "category": "Fintech",
+      "status": "verified",
+      "endpointCount": 5,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "mux",
+      "slug": "mux",
+      "name": "Mux",
+      "category": "Video",
+      "status": "verified",
+      "endpointCount": 5,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "myfitnesspal",
+      "slug": "myfitnesspal",
+      "name": "MyFitnessPal",
+      "category": "Wellness",
+      "status": "verified",
+      "endpointCount": 7,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "n8n-action-network",
+      "slug": "actionnetwork",
+      "name": "Action Network",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 7,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-active-campaign",
+      "slug": "activecampaign",
+      "name": "ActiveCampaign",
+      "category": "marketing",
+      "status": "draft",
+      "endpointCount": 12,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-adalo",
+      "slug": "adalo",
+      "name": "Adalo",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 5,
+      "hasBaseUrl": true,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-affinity",
+      "slug": "affinity",
+      "name": "Affinity",
+      "category": "crm",
+      "status": "draft",
+      "endpointCount": 4,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-aggregate",
+      "slug": "aggregate",
+      "name": "Aggregate",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-agile-crm",
+      "slug": "agilecrm",
+      "name": "Agile CRM",
+      "category": "crm",
+      "status": "draft",
+      "endpointCount": 3,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-ai-transform",
+      "slug": "aitransform",
+      "name": "AI Transform",
+      "category": "ai",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-airtable",
+      "slug": "airtable",
+      "name": "Airtable",
+      "category": "data",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-native"
+    },
+    {
+      "id": "n8n-airtop",
+      "slug": "airtop",
+      "name": "Airtop",
+      "category": "data",
+      "status": "draft",
+      "endpointCount": 6,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-amqp",
+      "slug": "amqp",
+      "name": "AMQP Sender",
+      "category": "communication",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-api-template-io",
+      "slug": "apitemplateio",
+      "name": "APITemplate.io",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 3,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-asana",
+      "slug": "asana",
+      "name": "Asana",
+      "category": "productivity",
+      "status": "draft",
+      "endpointCount": 22,
+      "hasBaseUrl": true,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-autopilot",
+      "slug": "autopilot",
+      "name": "Autopilot",
+      "category": "marketing",
+      "status": "draft",
+      "endpointCount": 4,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-aws-certificate-manager",
+      "slug": "awscertificatemanager",
+      "name": "AWS Certificate Manager",
+      "category": "dev",
+      "status": "draft",
+      "endpointCount": 1,
+      "hasBaseUrl": false,
+      "classification": "repairable"
+    },
+    {
+      "id": "n8n-aws-cognito",
+      "slug": "awscognito",
+      "name": "AWS Cognito",
+      "category": "dev",
+      "status": "draft",
+      "endpointCount": 3,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-aws-comprehend",
+      "slug": "awscomprehend",
+      "name": "AWS Comprehend",
+      "category": "dev",
+      "status": "draft",
+      "endpointCount": 3,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-aws-dynamo-db",
+      "slug": "awsdynamodb",
+      "name": "AWS DynamoDB",
+      "category": "dev",
+      "status": "draft",
+      "endpointCount": 1,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-aws-elb",
+      "slug": "awselb",
+      "name": "AWS ELB",
+      "category": "dev",
+      "status": "draft",
+      "endpointCount": 2,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-aws-iam",
+      "slug": "awsiam",
+      "name": "AWS IAM",
+      "category": "dev",
+      "status": "draft",
+      "endpointCount": 2,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-aws-lambda",
+      "slug": "awslambda",
+      "name": "AWS Lambda",
+      "category": "dev",
+      "status": "draft",
+      "endpointCount": 1,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-aws-rekognition",
+      "slug": "awsrekognition",
+      "name": "AWS Rekognition",
+      "category": "dev",
+      "status": "draft",
+      "endpointCount": 1,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-aws-s3",
+      "slug": "awss3",
+      "name": "AwsS3",
+      "category": "storage",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-aws-ses",
+      "slug": "awsses",
+      "name": "AWS SES",
+      "category": "dev",
+      "status": "draft",
+      "endpointCount": 13,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-aws-sns",
+      "slug": "awssns",
+      "name": "AWS SNS",
+      "category": "dev",
+      "status": "draft",
+      "endpointCount": 3,
+      "hasBaseUrl": false,
+      "classification": "repairable"
+    },
+    {
+      "id": "n8n-aws-sqs",
+      "slug": "awssqs",
+      "name": "AWS SQS",
+      "category": "dev",
+      "status": "draft",
+      "endpointCount": 1,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-aws-textract",
+      "slug": "awstextract",
+      "name": "AWS Textract",
+      "category": "data",
+      "status": "draft",
+      "endpointCount": 1,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-aws-transcribe",
+      "slug": "awstranscribe",
+      "name": "AWS Transcribe",
+      "category": "ai",
+      "status": "draft",
+      "endpointCount": 4,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-azure-cosmos-db",
+      "slug": "azurecosmosdb",
+      "name": "Azure Cosmos DB",
+      "category": "dev",
+      "status": "draft",
+      "endpointCount": 2,
+      "hasBaseUrl": true,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-azure-storage",
+      "slug": "azurestorage",
+      "name": "Azure Storage",
+      "category": "storage",
+      "status": "draft",
+      "endpointCount": 2,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-bannerbear",
+      "slug": "bannerbear",
+      "name": "Bannerbear",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 2,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-baserow",
+      "slug": "baserow",
+      "name": "Baserow",
+      "category": "data",
+      "status": "draft",
+      "endpointCount": 8,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-beeminder",
+      "slug": "beeminder",
+      "name": "Beeminder",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 18,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-bitly",
+      "slug": "bitly",
+      "name": "Bitly",
+      "category": "marketing",
+      "status": "draft",
+      "endpointCount": 1,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-bitwarden",
+      "slug": "bitwarden",
+      "name": "Bitwarden",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 4,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-box",
+      "slug": "box",
+      "name": "Box",
+      "category": "storage",
+      "status": "draft",
+      "endpointCount": 2,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-brandfetch",
+      "slug": "brandfetch",
+      "name": "Brandfetch",
+      "category": "marketing",
+      "status": "draft",
+      "endpointCount": 5,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-bubble",
+      "slug": "bubble",
+      "name": "Bubble",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 1,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-chargebee",
+      "slug": "chargebee",
+      "name": "Chargebee",
+      "category": "finance",
+      "status": "draft",
+      "endpointCount": 5,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-circle-ci",
+      "slug": "circleci",
+      "name": "CircleCI",
+      "category": "dev",
+      "status": "draft",
+      "endpointCount": 1,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-cisco-webex",
+      "slug": "ciscowebex",
+      "name": "Webex by Cisco",
+      "category": "communication",
+      "status": "draft",
+      "endpointCount": 2,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-citrix-adc",
+      "slug": "citrixadc",
+      "name": "Netscaler ADC",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 2,
+      "hasBaseUrl": false,
+      "classification": "repairable"
+    },
+    {
+      "id": "n8n-clearbit",
+      "slug": "clearbit",
+      "name": "Clearbit",
+      "category": "crm",
+      "status": "draft",
+      "endpointCount": 2,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-click-up",
+      "slug": "clickup",
+      "name": "ClickUp",
+      "category": "productivity",
+      "status": "draft",
+      "endpointCount": 14,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-clockify",
+      "slug": "clockify",
+      "name": "Clockify",
+      "category": "productivity",
+      "status": "draft",
+      "endpointCount": 7,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-cloudflare",
+      "slug": "cloudflare",
+      "name": "Cloudflare",
+      "category": "dev",
+      "status": "draft",
+      "endpointCount": 1,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-cockpit",
+      "slug": "cockpit",
+      "name": "Cockpit",
+      "category": "productivity",
+      "status": "draft",
+      "endpointCount": 3,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-coda",
+      "slug": "coda",
+      "name": "Coda",
+      "category": "productivity",
+      "status": "draft",
+      "endpointCount": 4,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-code",
+      "slug": "code",
+      "name": "Code",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-coin-gecko",
+      "slug": "coingecko",
+      "name": "CoinGecko",
+      "category": "finance",
+      "status": "draft",
+      "endpointCount": 2,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-compare-datasets",
+      "slug": "comparedatasets",
+      "name": "Compare Datasets",
+      "category": "data",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-compression",
+      "slug": "compression",
+      "name": "Compression",
+      "category": "storage",
+      "status": "draft",
+      "endpointCount": 2,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-contentful",
+      "slug": "contentful",
+      "name": "Contentful",
+      "category": "productivity",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-convert-kit",
+      "slug": "convertkit",
+      "name": "ConvertKit",
+      "category": "marketing",
+      "status": "draft",
+      "endpointCount": 5,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-convert-to-file",
+      "slug": "converttofile",
+      "name": "Convert to File",
+      "category": "storage",
+      "status": "draft",
+      "endpointCount": 10,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-copper",
+      "slug": "copper",
+      "name": "Copper",
+      "category": "crm",
+      "status": "draft",
+      "endpointCount": 8,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-cortex",
+      "slug": "cortex",
+      "name": "Cortex",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 3,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-crate-db",
+      "slug": "cratedb",
+      "name": "CrateDB",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 3,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-cron",
+      "slug": "cron",
+      "name": "Cron",
+      "category": "Trigger",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-crypto",
+      "slug": "crypto",
+      "name": "Crypto",
+      "category": "finance",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-currents",
+      "slug": "currents",
+      "name": "Currents",
+      "category": "analytics",
+      "status": "draft",
+      "endpointCount": 8,
+      "hasBaseUrl": true,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-customer-io",
+      "slug": "customerio",
+      "name": "Customer.io",
+      "category": "marketing",
+      "status": "draft",
+      "endpointCount": 4,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-data-table",
+      "slug": "datatable",
+      "name": "Data table",
+      "category": "productivity",
+      "status": "draft",
+      "endpointCount": 2,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-databricks",
+      "slug": "databricks",
+      "name": "Databricks",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 6,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-date-time",
+      "slug": "datetime",
+      "name": "Date & Time",
+      "category": "productivity",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-debug-helper",
+      "slug": "debughelper",
+      "name": "DebugHelper",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-deep-l",
+      "slug": "deepl",
+      "name": "DeepL",
+      "category": "ai",
+      "status": "draft",
+      "endpointCount": 1,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-default",
+      "slug": "default",
+      "name": "Default",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shell"
+    },
+    {
+      "id": "n8n-demio",
+      "slug": "demio",
+      "name": "Demio",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 2,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-dhl",
+      "slug": "dhl",
+      "name": "DHL",
+      "category": "commerce",
+      "status": "draft",
+      "endpointCount": 1,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-discord",
+      "slug": "discord",
+      "name": "Discord",
+      "category": "communication",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-native"
+    },
+    {
+      "id": "n8n-discourse",
+      "slug": "discourse",
+      "name": "Discourse",
+      "category": "communication",
+      "status": "draft",
+      "endpointCount": 5,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-disqus",
+      "slug": "disqus",
+      "name": "Disqus",
+      "category": "communication",
+      "status": "draft",
+      "endpointCount": 4,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-drift",
+      "slug": "drift",
+      "name": "Drift",
+      "category": "support",
+      "status": "draft",
+      "endpointCount": 1,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-dropbox",
+      "slug": "dropbox",
+      "name": "Dropbox",
+      "category": "storage",
+      "status": "draft",
+      "endpointCount": 11,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-dropcontact",
+      "slug": "dropcontact",
+      "name": "Dropcontact",
+      "category": "crm",
+      "status": "draft",
+      "endpointCount": 2,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-dynamic-credential-check",
+      "slug": "dynamiccredentialcheck",
+      "name": "Check Credential Status",
+      "category": "analytics",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-e2e-test",
+      "slug": "e2etest",
+      "name": "E2E Test",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 3,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-edit-image",
+      "slug": "editimage",
+      "name": "Edit Image",
+      "category": "commerce",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-egoi",
+      "slug": "egoi",
+      "name": "E-goi",
+      "category": "marketing",
+      "status": "draft",
+      "endpointCount": 4,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-elastic-security",
+      "slug": "elasticsecurity",
+      "name": "Elastic Security",
+      "category": "data",
+      "status": "draft",
+      "endpointCount": 4,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-elasticsearch",
+      "slug": "elasticsearch",
+      "name": "Elasticsearch",
+      "category": "data",
+      "status": "draft",
+      "endpointCount": 2,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-email-read-imap",
+      "slug": "emailreadimap",
+      "name": "Email Trigger (IMAP)",
+      "category": "Trigger",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-email-send",
+      "slug": "emailsend",
+      "name": "Send Email",
+      "category": "communication",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-emelia",
+      "slug": "emelia",
+      "name": "Emelia",
+      "category": "marketing",
+      "status": "draft",
+      "endpointCount": 2,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-erp-next",
+      "slug": "erpnext",
+      "name": "ERPNext",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 1,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-execute-command",
+      "slug": "executecommand",
+      "name": "Execute Command",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-execute-workflow",
+      "slug": "executeworkflow",
+      "name": "Execute Sub-workflow",
+      "category": "productivity",
+      "status": "draft",
+      "endpointCount": 1,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-native"
+    },
+    {
+      "id": "n8n-execution-data",
+      "slug": "executiondata",
+      "name": "Execution Data",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 1,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-extract-from-file",
+      "slug": "extractfromfile",
+      "name": "Extract from File",
+      "category": "storage",
+      "status": "draft",
+      "endpointCount": 12,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-facebook-graph-api",
+      "slug": "facebookgraphapi",
+      "name": "Facebook Graph API",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shell"
+    },
+    {
+      "id": "n8n-filemaker",
+      "slug": "filemaker",
+      "name": "FileMaker",
+      "category": "storage",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-filter",
+      "slug": "filter",
+      "name": "Filter",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-native"
+    },
+    {
+      "id": "n8n-flow",
+      "slug": "flow",
+      "name": "Flow",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 1,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-form-trigger",
+      "slug": "formtrigger",
+      "name": "n8n Form Trigger",
+      "category": "Trigger",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-form",
+      "slug": "form",
+      "name": "n8n Form",
+      "category": "productivity",
+      "status": "draft",
+      "endpointCount": 2,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-freshdesk",
+      "slug": "freshdesk",
+      "name": "Freshdesk",
+      "category": "support",
+      "status": "draft",
+      "endpointCount": 5,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-freshservice",
+      "slug": "freshservice",
+      "name": "Freshservice",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 15,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-freshworks-crm",
+      "slug": "freshworkscrm",
+      "name": "Freshworks CRM",
+      "category": "crm",
+      "status": "draft",
+      "endpointCount": 8,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-ftp",
+      "slug": "ftp",
+      "name": "FTP",
+      "category": "storage",
+      "status": "draft",
+      "endpointCount": 5,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-function-item",
+      "slug": "functionitem",
+      "name": "Function Item",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-function",
+      "slug": "function",
+      "name": "Function",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-g-suite-admin",
+      "slug": "gsuiteadmin",
+      "name": "Google Workspace Admin",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 3,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-get-response",
+      "slug": "getresponse",
+      "name": "GetResponse",
+      "category": "marketing",
+      "status": "draft",
+      "endpointCount": 1,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-ghost",
+      "slug": "ghost",
+      "name": "Ghost",
+      "category": "productivity",
+      "status": "draft",
+      "endpointCount": 1,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-git",
+      "slug": "git",
+      "name": "Git",
+      "category": "dev",
+      "status": "draft",
+      "endpointCount": 15,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-github",
+      "slug": "github",
+      "name": "GitHub",
+      "category": "dev",
+      "status": "draft",
+      "endpointCount": 37,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-native"
+    },
+    {
+      "id": "n8n-gitlab",
+      "slug": "gitlab",
+      "name": "GitLab",
+      "category": "dev",
+      "status": "draft",
+      "endpointCount": 18,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-gmail",
+      "slug": "gmail",
+      "name": "Gmail",
+      "category": "communication",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-go-to-webinar",
+      "slug": "gotowebinar",
+      "name": "GoToWebinar",
+      "category": "productivity",
+      "status": "draft",
+      "endpointCount": 6,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-gong",
+      "slug": "gong",
+      "name": "Gong",
+      "category": "crm",
+      "status": "draft",
+      "endpointCount": 2,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-google-ads",
+      "slug": "googleads",
+      "name": "Google Ads",
+      "category": "marketing",
+      "status": "draft",
+      "endpointCount": 1,
+      "hasBaseUrl": true,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-google-analytics",
+      "slug": "googleanalytics",
+      "name": "Google Analytics",
+      "category": "analytics",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-native"
+    },
+    {
+      "id": "n8n-google-big-query",
+      "slug": "googlebigquery",
+      "name": "Google BigQuery",
+      "category": "data",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-google-books",
+      "slug": "googlebooks",
+      "name": "Google Books",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 9,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-google-business-profile",
+      "slug": "googlebusinessprofile",
+      "name": "Google Business Profile",
+      "category": "storage",
+      "status": "draft",
+      "endpointCount": 2,
+      "hasBaseUrl": true,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-google-calendar",
+      "slug": "googlecalendar",
+      "name": "Google Calendar",
+      "category": "productivity",
+      "status": "draft",
+      "endpointCount": 2,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-google-chat",
+      "slug": "googlechat",
+      "name": "Google Chat",
+      "category": "communication",
+      "status": "draft",
+      "endpointCount": 3,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-google-cloud-natural-language",
+      "slug": "googlecloudnaturallanguage",
+      "name": "Google Cloud Natural Language",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 1,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "n8n-google-cloud-storage",
+      "slug": "googlecloudstorage",
+      "name": "Google Cloud Storage",
+      "category": "storage",
+      "status": "draft",
+      "endpointCount": 2,
+      "hasBaseUrl": true,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-google-contacts",
+      "slug": "googlecontacts",
+      "name": "Google Contacts",
+      "category": "crm",
+      "status": "draft",
+      "endpointCount": 1,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-google-docs",
+      "slug": "googledocs",
+      "name": "Google Docs",
+      "category": "productivity",
+      "status": "draft",
+      "endpointCount": 1,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-google-drive",
+      "slug": "googledrive",
+      "name": "Google Drive",
+      "category": "storage",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-google-firebase-cloud-firestore",
+      "slug": "googlefirebasecloudfirestore",
+      "name": "Google Cloud Firestore",
+      "category": "commerce",
+      "status": "draft",
+      "endpointCount": 2,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "n8n-google-firebase-realtime-database",
+      "slug": "googlefirebaserealtimedatabase",
+      "name": "Google Cloud Realtime Database",
+      "category": "data",
+      "status": "draft",
+      "endpointCount": 5,
+      "hasBaseUrl": false,
+      "classification": "repairable"
+    },
+    {
+      "id": "n8n-google-perspective",
+      "slug": "googleperspective",
+      "name": "Google Perspective",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 1,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-google-sheets",
+      "slug": "googlesheets",
+      "name": "Google Sheets",
+      "category": "productivity",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-native"
+    },
+    {
+      "id": "n8n-google-slides",
+      "slug": "googleslides",
+      "name": "Google Slides",
+      "category": "productivity",
+      "status": "draft",
+      "endpointCount": 6,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-google-tasks",
+      "slug": "googletasks",
+      "name": "Google Tasks",
+      "category": "productivity",
+      "status": "draft",
+      "endpointCount": 1,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-google-translate",
+      "slug": "googletranslate",
+      "name": "Google Translate",
+      "category": "ai",
+      "status": "draft",
+      "endpointCount": 1,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-gotify",
+      "slug": "gotify",
+      "name": "Gotify",
+      "category": "communication",
+      "status": "draft",
+      "endpointCount": 3,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-grafana",
+      "slug": "grafana",
+      "name": "Grafana",
+      "category": "analytics",
+      "status": "draft",
+      "endpointCount": 4,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-graphql",
+      "slug": "graphql",
+      "name": "GraphQL",
+      "category": "dev",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-grist",
+      "slug": "grist",
+      "name": "Grist",
+      "category": "data",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-hacker-news",
+      "slug": "hackernews",
+      "name": "Hacker News",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 3,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-halo-psa",
+      "slug": "halopsa",
+      "name": "HaloPSA",
+      "category": "support",
+      "status": "draft",
+      "endpointCount": 4,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-harvest",
+      "slug": "harvest",
+      "name": "Harvest",
+      "category": "finance",
+      "status": "draft",
+      "endpointCount": 10,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-help-scout",
+      "slug": "helpscout",
+      "name": "Help Scout",
+      "category": "support",
+      "status": "draft",
+      "endpointCount": 4,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-high-level",
+      "slug": "highlevel",
+      "name": "HighLevel",
+      "category": "crm",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-home-assistant",
+      "slug": "homeassistant",
+      "name": "Home Assistant",
+      "category": "dev",
+      "status": "draft",
+      "endpointCount": 7,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-html-extract",
+      "slug": "htmlextract",
+      "name": "HTML Extract",
+      "category": "data",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-html",
+      "slug": "html",
+      "name": "HTML",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 3,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-http-basic-auth",
+      "slug": "httpbasicauth",
+      "name": "Authentication",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shell"
+    },
+    {
+      "id": "n8n-http-request",
+      "slug": "httprequest",
+      "name": "HTTP Request",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-http-ssl-auth",
+      "slug": "httpsslauth",
+      "name": "HttpSslAuth",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shell"
+    },
+    {
+      "id": "n8n-hub-spot",
+      "slug": "hubspot",
+      "name": "Authentication",
+      "category": "crm",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-hubspot",
+      "slug": "hubspot",
+      "name": "HubSpot",
+      "category": "crm",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-humantic-ai",
+      "slug": "humanticai",
+      "name": "Humantic AI",
+      "category": "ai",
+      "status": "draft",
+      "endpointCount": 1,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-hunter",
+      "slug": "hunter",
+      "name": "Hunter",
+      "category": "crm",
+      "status": "draft",
+      "endpointCount": 3,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-i-cal",
+      "slug": "ical",
+      "name": "iCalendar",
+      "category": "storage",
+      "status": "draft",
+      "endpointCount": 1,
+      "hasBaseUrl": false,
+      "classification": "repairable"
+    },
+    {
+      "id": "n8n-if",
+      "slug": "if",
+      "name": "If",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-intercom",
+      "slug": "intercom",
+      "name": "Intercom",
+      "category": "support",
+      "status": "draft",
+      "endpointCount": 3,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-interval",
+      "slug": "interval",
+      "name": "Interval",
+      "category": "Trigger",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-invoice-ninja",
+      "slug": "invoiceninja",
+      "name": "Invoice Ninja",
+      "category": "finance",
+      "status": "draft",
+      "endpointCount": 7,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-item-lists",
+      "slug": "itemlists",
+      "name": "Item Lists",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-iterable",
+      "slug": "iterable",
+      "name": "Iterable",
+      "category": "marketing",
+      "status": "draft",
+      "endpointCount": 3,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-jenkins",
+      "slug": "jenkins",
+      "name": "Jenkins",
+      "category": "dev",
+      "status": "draft",
+      "endpointCount": 11,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-jina-ai",
+      "slug": "jinaai",
+      "name": "Jina AI",
+      "category": "ai",
+      "status": "draft",
+      "endpointCount": 3,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-jira",
+      "slug": "jira",
+      "name": "Jira Software",
+      "category": "dev",
+      "status": "draft",
+      "endpointCount": 4,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-jwt",
+      "slug": "jwt",
+      "name": "JWT",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 3,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-kafka",
+      "slug": "kafka",
+      "name": "Kafka",
+      "category": "communication",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-keap",
+      "slug": "keap",
+      "name": "Keap",
+      "category": "crm",
+      "status": "draft",
+      "endpointCount": 8,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-ko-bo-toolbox",
+      "slug": "kobotoolbox",
+      "name": "KoBoToolbox",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 4,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-ldap",
+      "slug": "ldap",
+      "name": "Ldap",
+      "category": "dev",
+      "status": "draft",
+      "endpointCount": 6,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-lemlist",
+      "slug": "lemlist",
+      "name": "Lemlist",
+      "category": "marketing",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-limit",
+      "slug": "limit",
+      "name": "Limit",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-line",
+      "slug": "line",
+      "name": "Line",
+      "category": "communication",
+      "status": "draft",
+      "endpointCount": 1,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-linear",
+      "slug": "linear",
+      "name": "Linear",
+      "category": "dev",
+      "status": "draft",
+      "endpointCount": 2,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-lingva-nex",
+      "slug": "lingvanex",
+      "name": "LingvaNex",
+      "category": "ai",
+      "status": "draft",
+      "endpointCount": 1,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-linked-in",
+      "slug": "linkedin",
+      "name": "LinkedIn",
+      "category": "communication",
+      "status": "draft",
+      "endpointCount": 1,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-lone-scale",
+      "slug": "lonescale",
+      "name": "LoneScale",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 2,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-magento2",
+      "slug": "magento2",
+      "name": "Magento 2",
+      "category": "commerce",
+      "status": "draft",
+      "endpointCount": 4,
+      "hasBaseUrl": false,
+      "classification": "repairable"
+    },
+    {
+      "id": "n8n-mailcheck",
+      "slug": "mailcheck",
+      "name": "Mailcheck",
+      "category": "marketing",
+      "status": "draft",
+      "endpointCount": 1,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-mailchimp",
+      "slug": "mailchimp",
+      "name": "Mailchimp",
+      "category": "marketing",
+      "status": "draft",
+      "endpointCount": 14,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-mailer-lite-trigger",
+      "slug": "mailerlitetrigger",
+      "name": "MailerLite Trigger",
+      "category": "Trigger",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-mailer-lite",
+      "slug": "mailerlite",
+      "name": "MailerLite",
+      "category": "marketing",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-mailgun",
+      "slug": "mailgun",
+      "name": "Mailgun",
+      "category": "communication",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-mailjet",
+      "slug": "mailjet",
+      "name": "Mailjet",
+      "category": "marketing",
+      "status": "draft",
+      "endpointCount": 2,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-mandrill",
+      "slug": "mandrill",
+      "name": "Mandrill",
+      "category": "marketing",
+      "status": "draft",
+      "endpointCount": 2,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-markdown",
+      "slug": "markdown",
+      "name": "Markdown",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-marketstack",
+      "slug": "marketstack",
+      "name": "Marketstack",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 3,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-matrix",
+      "slug": "matrix",
+      "name": "Matrix",
+      "category": "communication",
+      "status": "draft",
+      "endpointCount": 6,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-mattermost",
+      "slug": "mattermost",
+      "name": "Mattermost",
+      "category": "communication",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-mautic",
+      "slug": "mautic",
+      "name": "Mautic",
+      "category": "marketing",
+      "status": "draft",
+      "endpointCount": 6,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-medium",
+      "slug": "medium",
+      "name": "Medium",
+      "category": "communication",
+      "status": "draft",
+      "endpointCount": 2,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-merge",
+      "slug": "merge",
+      "name": "Merge",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-native"
+    },
+    {
+      "id": "n8n-message-bird",
+      "slug": "messagebird",
+      "name": "MessageBird",
+      "category": "communication",
+      "status": "draft",
+      "endpointCount": 2,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-metabase",
+      "slug": "metabase",
+      "name": "Metabase",
+      "category": "analytics",
+      "status": "draft",
+      "endpointCount": 4,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-microsoft-dynamics-crm",
+      "slug": "microsoftdynamicscrm",
+      "name": "Microsoft Dynamics CRM",
+      "category": "crm",
+      "status": "draft",
+      "endpointCount": 1,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-microsoft-entra",
+      "slug": "microsoftentra",
+      "name": "Microsoft Entra ID",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 2,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-microsoft-excel",
+      "slug": "microsoftexcel",
+      "name": "Microsoft Excel 365",
+      "category": "productivity",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-microsoft-graph-security",
+      "slug": "microsoftgraphsecurity",
+      "name": "Microsoft Graph Security",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 2,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-microsoft-one-drive",
+      "slug": "microsoftonedrive",
+      "name": "Microsoft OneDrive",
+      "category": "storage",
+      "status": "draft",
+      "endpointCount": 2,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-microsoft-outlook",
+      "slug": "microsoftoutlook",
+      "name": "Microsoft Outlook",
+      "category": "communication",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-microsoft-share-point",
+      "slug": "microsoftsharepoint",
+      "name": "Microsoft SharePoint",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 3,
+      "hasBaseUrl": true,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-microsoft-sql",
+      "slug": "microsoftsql",
+      "name": "Microsoft SQL",
+      "category": "data",
+      "status": "draft",
+      "endpointCount": 4,
+      "hasBaseUrl": false,
+      "classification": "repairable"
+    },
+    {
+      "id": "n8n-microsoft-teams",
+      "slug": "microsoftteams",
+      "name": "Microsoft Teams",
+      "category": "communication",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-microsoft-to-do",
+      "slug": "microsofttodo",
+      "name": "Microsoft To Do",
+      "category": "productivity",
+      "status": "draft",
+      "endpointCount": 3,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-mindee",
+      "slug": "mindee",
+      "name": "Mindee",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 2,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-misp",
+      "slug": "misp",
+      "name": "MISP",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 11,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-mistral-ai",
+      "slug": "mistralai",
+      "name": "Mistral AI",
+      "category": "ai",
+      "status": "draft",
+      "endpointCount": 1,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-mocean",
+      "slug": "mocean",
+      "name": "Mocean",
+      "category": "communication",
+      "status": "draft",
+      "endpointCount": 2,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-monday-com",
+      "slug": "mondaycom",
+      "name": "Monday.com",
+      "category": "productivity",
+      "status": "draft",
+      "endpointCount": 4,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-mongo-db",
+      "slug": "mongodb",
+      "name": "MongoDB",
+      "category": "data",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-monica-crm",
+      "slug": "monicacrm",
+      "name": "Monica CRM",
+      "category": "crm",
+      "status": "draft",
+      "endpointCount": 12,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-move-binary-data",
+      "slug": "movebinarydata",
+      "name": "Convert to/from binary data",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-mqtt",
+      "slug": "mqtt",
+      "name": "MQTT",
+      "category": "dev",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-msg91",
+      "slug": "msg91",
+      "name": "MSG91",
+      "category": "communication",
+      "status": "draft",
+      "endpointCount": 1,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-my-sql",
+      "slug": "mysql",
+      "name": "MySQL",
+      "category": "data",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-n8n-training-customer-datastore",
+      "slug": "n8ntrainingcustomerdatastore",
+      "name": "Customer Datastore (n8n training)",
+      "category": "commerce",
+      "status": "draft",
+      "endpointCount": 2,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-n8n-training-customer-messenger",
+      "slug": "n8ntrainingcustomermessenger",
+      "name": "Customer Messenger (n8n training)",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-n8n",
+      "slug": "n8n",
+      "name": "n8n",
+      "category": "productivity",
+      "status": "draft",
+      "endpointCount": 4,
+      "hasBaseUrl": false,
+      "classification": "repairable"
+    },
+    {
+      "id": "n8n-nasa",
+      "slug": "nasa",
+      "name": "NASA",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 20,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-netlify",
+      "slug": "netlify",
+      "name": "Netlify",
+      "category": "dev",
+      "status": "draft",
+      "endpointCount": 2,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-next-cloud",
+      "slug": "nextcloud",
+      "name": "Nextcloud",
+      "category": "storage",
+      "status": "draft",
+      "endpointCount": 17,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-no-op",
+      "slug": "noop",
+      "name": "No Operation, do nothing",
+      "category": "Organization",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-noco-db",
+      "slug": "nocodb",
+      "name": "NocoDB",
+      "category": "data",
+      "status": "draft",
+      "endpointCount": 5,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-native"
+    },
+    {
+      "id": "n8n-notion",
+      "slug": "notion",
+      "name": "Notion",
+      "category": "productivity",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-native"
+    },
+    {
+      "id": "n8n-npm",
+      "slug": "npm",
+      "name": "Npm",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 2,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-odoo",
+      "slug": "odoo",
+      "name": "Odoo",
+      "category": "crm",
+      "status": "draft",
+      "endpointCount": 4,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-okta",
+      "slug": "okta",
+      "name": "Okta",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 1,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-one-simple-api",
+      "slug": "onesimpleapi",
+      "name": "One Simple API",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 10,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-onfleet",
+      "slug": "onfleet",
+      "name": "Onfleet",
+      "category": "commerce",
+      "status": "draft",
+      "endpointCount": 9,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-open-ai",
+      "slug": "openai",
+      "name": "OpenAI",
+      "category": "ai",
+      "status": "draft",
+      "endpointCount": 3,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-native"
+    },
+    {
+      "id": "n8n-open-thesaurus",
+      "slug": "openthesaurus",
+      "name": "OpenThesaurus",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 1,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-open-weather-map",
+      "slug": "openweathermap",
+      "name": "OpenWeatherMap",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 2,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-operation",
+      "slug": "operation",
+      "name": "Operation",
+      "category": "productivity",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shell"
+    },
+    {
+      "id": "n8n-orbit",
+      "slug": "orbit",
+      "name": "Orbit",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 4,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-oura",
+      "slug": "oura",
+      "name": "Oura",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 2,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-paddle",
+      "slug": "paddle",
+      "name": "Paddle",
+      "category": "finance",
+      "status": "draft",
+      "endpointCount": 5,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-pager-duty",
+      "slug": "pagerduty",
+      "name": "PagerDuty",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 4,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-pay-pal",
+      "slug": "paypal",
+      "name": "PayPal",
+      "category": "finance",
+      "status": "draft",
+      "endpointCount": 2,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-peekalink",
+      "slug": "peekalink",
+      "name": "Peekalink",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 2,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-perplexity",
+      "slug": "perplexity",
+      "name": "Perplexity",
+      "category": "ai",
+      "status": "draft",
+      "endpointCount": 1,
+      "hasBaseUrl": true,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-phantombuster",
+      "slug": "phantombuster",
+      "name": "Phantombuster",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 1,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-philips-hue",
+      "slug": "philipshue",
+      "name": "Philips Hue",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 1,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-pipedrive",
+      "slug": "pipedrive",
+      "name": "Pipedrive",
+      "category": "crm",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-plivo",
+      "slug": "plivo",
+      "name": "Plivo",
+      "category": "communication",
+      "status": "draft",
+      "endpointCount": 3,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-post-bin",
+      "slug": "postbin",
+      "name": "PostBin",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 2,
+      "hasBaseUrl": true,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-post-hog",
+      "slug": "posthog",
+      "name": "PostHog",
+      "category": "analytics",
+      "status": "draft",
+      "endpointCount": 4,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-postgres",
+      "slug": "postgres",
+      "name": "Postgres",
+      "category": "data",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-profit-well",
+      "slug": "profitwell",
+      "name": "ProfitWell",
+      "category": "finance",
+      "status": "draft",
+      "endpointCount": 2,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-pushbullet",
+      "slug": "pushbullet",
+      "name": "Pushbullet",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 4,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-pushcut",
+      "slug": "pushcut",
+      "name": "Pushcut",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 1,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-pushover",
+      "slug": "pushover",
+      "name": "Pushover",
+      "category": "communication",
+      "status": "draft",
+      "endpointCount": 1,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-quest-db",
+      "slug": "questdb",
+      "name": "QuestDB",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 2,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-quick-chart",
+      "slug": "quickchart",
+      "name": "QuickChart",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-quickbase",
+      "slug": "quickbase",
+      "name": "Quick Base",
+      "category": "data",
+      "status": "draft",
+      "endpointCount": 4,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-quickbooks",
+      "slug": "quickbooks",
+      "name": "QuickBooks Online",
+      "category": "finance",
+      "status": "draft",
+      "endpointCount": 10,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-rabbitmq",
+      "slug": "rabbitmq",
+      "name": "RabbitMQ",
+      "category": "communication",
+      "status": "draft",
+      "endpointCount": 2,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-raindrop",
+      "slug": "raindrop",
+      "name": "Raindrop",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 4,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-read-binary-file",
+      "slug": "readbinaryfile",
+      "name": "Read Binary File",
+      "category": "marketing",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-read-binary-files",
+      "slug": "readbinaryfiles",
+      "name": "Read Binary Files",
+      "category": "marketing",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-read-pdf",
+      "slug": "readpdf",
+      "name": "Read PDF",
+      "category": "marketing",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-read-write-file",
+      "slug": "readwritefile",
+      "name": "Read/Write Files from Disk",
+      "category": "storage",
+      "status": "draft",
+      "endpointCount": 2,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-reddit",
+      "slug": "reddit",
+      "name": "Reddit",
+      "category": "communication",
+      "status": "draft",
+      "endpointCount": 5,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-redis",
+      "slug": "redis",
+      "name": "Redis",
+      "category": "data",
+      "status": "draft",
+      "endpointCount": 10,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-remove-duplicates",
+      "slug": "removeduplicates",
+      "name": "Remove Duplicates",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-rename-keys",
+      "slug": "renamekeys",
+      "name": "Rename Keys",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-resource",
+      "slug": "resource",
+      "name": "Resource",
+      "category": "crm",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shell"
+    },
+    {
+      "id": "n8n-respond-to-webhook",
+      "slug": "respondtowebhook",
+      "name": "Respond to Webhook",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-native"
+    },
+    {
+      "id": "n8n-rocketchat",
+      "slug": "rocketchat",
+      "name": "RocketChat",
+      "category": "communication",
+      "status": "draft",
+      "endpointCount": 1,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-rss-feed-read",
+      "slug": "rssfeedread",
+      "name": "RSS Read",
+      "category": "marketing",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-rundeck",
+      "slug": "rundeck",
+      "name": "Rundeck",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 2,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-s3",
+      "slug": "s3",
+      "name": "S3",
+      "category": "storage",
+      "status": "draft",
+      "endpointCount": 3,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-salesforce",
+      "slug": "salesforce",
+      "name": "Salesforce",
+      "category": "crm",
+      "status": "draft",
+      "endpointCount": 12,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-salesmate",
+      "slug": "salesmate",
+      "name": "Salesmate",
+      "category": "crm",
+      "status": "draft",
+      "endpointCount": 3,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-sea-table-api",
+      "slug": "seatableapi",
+      "name": "Table Name or ID",
+      "category": "data",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shell"
+    },
+    {
+      "id": "n8n-sea-table",
+      "slug": "seatable",
+      "name": "SeaTable",
+      "category": "data",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-security-scorecard",
+      "slug": "securityscorecard",
+      "name": "SecurityScorecard",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 6,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-segment",
+      "slug": "segment",
+      "name": "Segment",
+      "category": "analytics",
+      "status": "draft",
+      "endpointCount": 3,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-native"
+    },
+    {
+      "id": "n8n-send-grid",
+      "slug": "sendgrid",
+      "name": "SendGrid",
+      "category": "communication",
+      "status": "draft",
+      "endpointCount": 3,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-native"
+    },
+    {
+      "id": "n8n-send-in-blue",
+      "slug": "sendinblue",
+      "name": "Brevo",
+      "category": "marketing",
+      "status": "draft",
+      "endpointCount": 4,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "n8n-sendy",
+      "slug": "sendy",
+      "name": "Sendy",
+      "category": "marketing",
+      "status": "draft",
+      "endpointCount": 2,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-sentry-io",
+      "slug": "sentryio",
+      "name": "Sentry.io",
+      "category": "analytics",
+      "status": "draft",
+      "endpointCount": 6,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-service-now",
+      "slug": "servicenow",
+      "name": "ServiceNow",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 10,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-set-inputs-notice",
+      "slug": "setinputsnotice",
+      "name": "For adding columns from your dataset to the evaluation results. Anything you add here will be displayed in the ‘evaluations’ tab, not on the Google Sheet or Data table.",
+      "category": "data",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shell"
+    },
+    {
+      "id": "n8n-set",
+      "slug": "set",
+      "name": "Set",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-native"
+    },
+    {
+      "id": "n8n-shopify",
+      "slug": "shopify",
+      "name": "Shopify",
+      "category": "commerce",
+      "status": "draft",
+      "endpointCount": 2,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-signl4",
+      "slug": "signl4",
+      "name": "SIGNL4",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 2,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-simulate",
+      "slug": "simulate",
+      "name": "Simulate",
+      "category": "Organization",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-slack",
+      "slug": "slack",
+      "name": "Slack",
+      "category": "communication",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-native"
+    },
+    {
+      "id": "n8n-sms77",
+      "slug": "sms77",
+      "name": "seven",
+      "category": "communication",
+      "status": "draft",
+      "endpointCount": 2,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-snowflake",
+      "slug": "snowflake",
+      "name": "Snowflake",
+      "category": "data",
+      "status": "draft",
+      "endpointCount": 3,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-sort",
+      "slug": "sort",
+      "name": "Sort",
+      "category": "commerce",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-native"
+    },
+    {
+      "id": "n8n-split-in-batches",
+      "slug": "splitinbatches",
+      "name": "Split In Batches",
+      "category": "Organization",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-split-out",
+      "slug": "splitout",
+      "name": "Split Out",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-splunk",
+      "slug": "splunk",
+      "name": "Splunk",
+      "category": "analytics",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-spotify",
+      "slug": "spotify",
+      "name": "Spotify",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 30,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-spreadsheet-file",
+      "slug": "spreadsheetfile",
+      "name": "Spreadsheet File",
+      "category": "marketing",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-ssh",
+      "slug": "ssh",
+      "name": "SSH",
+      "category": "dev",
+      "status": "draft",
+      "endpointCount": 3,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-stackby",
+      "slug": "stackby",
+      "name": "Stackby",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 4,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-sticky-note",
+      "slug": "stickynote",
+      "name": "Sticky Note",
+      "category": "productivity",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-stop-and-error",
+      "slug": "stopanderror",
+      "name": "Stop and Error",
+      "category": "productivity",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-storyblok",
+      "slug": "storyblok",
+      "name": "Storyblok",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 1,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-strapi",
+      "slug": "strapi",
+      "name": "Strapi",
+      "category": "productivity",
+      "status": "draft",
+      "endpointCount": 1,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-strava",
+      "slug": "strava",
+      "name": "Strava",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 1,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-stripe",
+      "slug": "stripe",
+      "name": "Stripe",
+      "category": "finance",
+      "status": "draft",
+      "endpointCount": 8,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-summarize",
+      "slug": "summarize",
+      "name": "Summarize",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-supabase",
+      "slug": "supabase",
+      "name": "Supabase",
+      "category": "data",
+      "status": "draft",
+      "endpointCount": 1,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-switch",
+      "slug": "switch",
+      "name": "Switch",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-native"
+    },
+    {
+      "id": "n8n-syncro-msp",
+      "slug": "syncromsp",
+      "name": "SyncroMSP",
+      "category": "support",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-taiga",
+      "slug": "taiga",
+      "name": "Taiga",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 4,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-tapfiliate",
+      "slug": "tapfiliate",
+      "name": "Tapfiliate",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 3,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-telegram",
+      "slug": "telegram",
+      "name": "Telegram",
+      "category": "communication",
+      "status": "draft",
+      "endpointCount": 23,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-the-hive",
+      "slug": "thehive",
+      "name": "TheHive",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 5,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-time-saved",
+      "slug": "timesaved",
+      "name": "Track Time Saved",
+      "category": "Organization",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-timescale-db",
+      "slug": "timescaledb",
+      "name": "TimescaleDB",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 3,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-todoist",
+      "slug": "todoist",
+      "name": "Todoist",
+      "category": "productivity",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-totp",
+      "slug": "totp",
+      "name": "TOTP",
+      "category": "productivity",
+      "status": "draft",
+      "endpointCount": 1,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-travis-ci",
+      "slug": "travisci",
+      "name": "TravisCI",
+      "category": "dev",
+      "status": "draft",
+      "endpointCount": 1,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-trello",
+      "slug": "trello",
+      "name": "Trello",
+      "category": "productivity",
+      "status": "draft",
+      "endpointCount": 8,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-twake",
+      "slug": "twake",
+      "name": "Twake",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 1,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-twilio",
+      "slug": "twilio",
+      "name": "Twilio",
+      "category": "communication",
+      "status": "draft",
+      "endpointCount": 2,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-native"
+    },
+    {
+      "id": "n8n-twist",
+      "slug": "twist",
+      "name": "Twist",
+      "category": "communication",
+      "status": "draft",
+      "endpointCount": 4,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-twitter",
+      "slug": "twitter",
+      "name": "X (Formerly Twitter)",
+      "category": "communication",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-unleashed-software",
+      "slug": "unleashedsoftware",
+      "name": "Unleashed Software",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 2,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-uplead",
+      "slug": "uplead",
+      "name": "Uplead",
+      "category": "crm",
+      "status": "draft",
+      "endpointCount": 2,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-uproc",
+      "slug": "uproc",
+      "name": "uProc",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-uptime-robot",
+      "slug": "uptimerobot",
+      "name": "UptimeRobot",
+      "category": "analytics",
+      "status": "draft",
+      "endpointCount": 1,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-url-scan-io",
+      "slug": "urlscanio",
+      "name": "urlscan.io",
+      "category": "analytics",
+      "status": "draft",
+      "endpointCount": 1,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-use-workflow-timezone",
+      "slug": "useworkflowtimezone",
+      "name": "Use Workflow Timezone",
+      "category": "Trigger",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shell"
+    },
+    {
+      "id": "n8n-venafi-tls-protect-cloud",
+      "slug": "venafitlsprotectcloud",
+      "name": "Venafi TLS Protect Cloud",
+      "category": "dev",
+      "status": "draft",
+      "endpointCount": 2,
+      "hasBaseUrl": false,
+      "classification": "repairable"
+    },
+    {
+      "id": "n8n-venafi-tls-protect-datacenter",
+      "slug": "venafitlsprotectdatacenter",
+      "name": "Venafi TLS Protect Datacenter",
+      "category": "dev",
+      "status": "draft",
+      "endpointCount": 2,
+      "hasBaseUrl": false,
+      "classification": "repairable"
+    },
+    {
+      "id": "n8n-vero",
+      "slug": "vero",
+      "name": "Vero",
+      "category": "marketing",
+      "status": "draft",
+      "endpointCount": 2,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-vonage",
+      "slug": "vonage",
+      "name": "Vonage",
+      "category": "communication",
+      "status": "draft",
+      "endpointCount": 1,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-wait",
+      "slug": "wait",
+      "name": "Wait",
+      "category": "Organization",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-native"
+    },
+    {
+      "id": "n8n-webflow-trigger",
+      "slug": "webflowtrigger",
+      "name": "Webflow Trigger",
+      "category": "Trigger",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shell"
+    },
+    {
+      "id": "n8n-webflow",
+      "slug": "webflow",
+      "name": "Authentication",
+      "category": "productivity",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-webhook",
+      "slug": "webhook",
+      "name": "Webhook",
+      "category": "Trigger",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-native"
+    },
+    {
+      "id": "n8n-wekan",
+      "slug": "wekan",
+      "name": "Wekan",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 6,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-whats-app",
+      "slug": "whatsapp",
+      "name": "WhatsApp Business Cloud",
+      "category": "communication",
+      "status": "draft",
+      "endpointCount": 2,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-wise",
+      "slug": "wise",
+      "name": "Wise",
+      "category": "finance",
+      "status": "draft",
+      "endpointCount": 6,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-woo-commerce",
+      "slug": "woocommerce",
+      "name": "WooCommerce",
+      "category": "commerce",
+      "status": "draft",
+      "endpointCount": 3,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-wordpress",
+      "slug": "wordpress",
+      "name": "Wordpress",
+      "category": "productivity",
+      "status": "draft",
+      "endpointCount": 3,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-write-binary-file",
+      "slug": "writebinaryfile",
+      "name": "Write Binary File",
+      "category": "storage",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-x",
+      "slug": "x",
+      "name": "Resource",
+      "category": "communication",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shell"
+    },
+    {
+      "id": "n8n-xero",
+      "slug": "xero",
+      "name": "Xero",
+      "category": "finance",
+      "status": "draft",
+      "endpointCount": 2,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-xml",
+      "slug": "xml",
+      "name": "XML",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 0,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-you-tube",
+      "slug": "youtube",
+      "name": "YouTube",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 5,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-yourls",
+      "slug": "yourls",
+      "name": "Yourls",
+      "category": "misc",
+      "status": "draft",
+      "endpointCount": 1,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-zammad",
+      "slug": "zammad",
+      "name": "Zammad",
+      "category": "support",
+      "status": "draft",
+      "endpointCount": 4,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-zendesk",
+      "slug": "zendesk",
+      "name": "Zendesk",
+      "category": "support",
+      "status": "draft",
+      "endpointCount": 4,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-zoho-crm",
+      "slug": "zohocrm",
+      "name": "Zoho CRM",
+      "category": "crm",
+      "status": "draft",
+      "endpointCount": 10,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "n8n-zoom",
+      "slug": "zoom",
+      "name": "Zoom",
+      "category": "communication",
+      "status": "draft",
+      "endpointCount": 1,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "n8n-zulip",
+      "slug": "zulip",
+      "name": "Zulip",
+      "category": "communication",
+      "status": "draft",
+      "endpointCount": 3,
+      "hasBaseUrl": false,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "netlify-api",
+      "slug": "netlifyapi",
+      "name": "Netlify",
+      "category": "DevOps",
+      "status": "verified",
+      "endpointCount": 11,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "new-relic",
+      "slug": "newrelic",
+      "name": "New Relic",
+      "category": "Monitoring",
+      "status": "verified",
+      "endpointCount": 10,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "nominatim",
+      "slug": "nominatim",
+      "name": "OSM Nominatim",
+      "category": "Geo",
+      "status": "verified",
+      "endpointCount": 4,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "npi-registry",
+      "slug": "npiregistry",
+      "name": "NPI Registry (NPPES)",
+      "category": "Healthcare",
+      "status": "verified",
+      "endpointCount": 1,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "ofac-sdn",
+      "slug": "ofacsdn",
+      "name": "OFAC SDN (Consolidated Screening)",
+      "category": "Compliance",
+      "status": "verified",
+      "endpointCount": 4,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "onfleet",
+      "slug": "onfleet",
+      "name": "Onfleet",
+      "category": "Logistics",
+      "status": "verified",
+      "endpointCount": 10,
+      "hasBaseUrl": true,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "opencorporates",
+      "slug": "opencorporates",
+      "name": "OpenCorporates",
+      "category": "Government",
+      "status": "verified",
+      "endpointCount": 6,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "openfda",
+      "slug": "openfda",
+      "name": "OpenFDA",
+      "category": "Healthcare",
+      "status": "verified",
+      "endpointCount": 8,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "openweather",
+      "slug": "openweather",
+      "name": "OpenWeather",
+      "category": "Weather",
+      "status": "verified",
+      "endpointCount": 6,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "orb",
+      "slug": "orb",
+      "name": "Orb",
+      "category": "Billing",
+      "status": "verified",
+      "endpointCount": 10,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "outreach",
+      "slug": "outreach",
+      "name": "Outreach",
+      "category": "Sales",
+      "status": "verified",
+      "endpointCount": 9,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "paddle",
+      "slug": "paddle",
+      "name": "Paddle Billing",
+      "category": "Billing",
+      "status": "verified",
+      "endpointCount": 14,
+      "hasBaseUrl": true,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "pandadoc",
+      "slug": "pandadoc",
+      "name": "PandaDoc",
+      "category": "Legal",
+      "status": "verified",
+      "endpointCount": 10,
+      "hasBaseUrl": true,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "paperform",
+      "slug": "paperform",
+      "name": "Paperform",
+      "category": "Forms",
+      "status": "verified",
+      "endpointCount": 7,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "particle-io",
+      "slug": "particleio",
+      "name": "Particle.io",
+      "category": "IoT",
+      "status": "verified",
+      "endpointCount": 9,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "paystack",
+      "slug": "paystack",
+      "name": "Paystack",
+      "category": "Fintech",
+      "status": "verified",
+      "endpointCount": 6,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "personio",
+      "slug": "personio",
+      "name": "Personio",
+      "category": "HR",
+      "status": "verified",
+      "endpointCount": 9,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "pinterest",
+      "slug": "pinterest",
+      "name": "Pinterest",
+      "category": "Social",
+      "status": "verified",
+      "endpointCount": 11,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "pipedrive-extras",
+      "slug": "pipedriveextras",
+      "name": "Pipedrive Extras",
+      "category": "CRM",
+      "status": "verified",
+      "endpointCount": 10,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "plaid",
+      "slug": "plaid",
+      "name": "Plaid",
+      "category": "Fintech",
+      "status": "verified",
+      "endpointCount": 7,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "postmark",
+      "slug": "postmark",
+      "name": "Postmark",
+      "category": "Email",
+      "status": "verified",
+      "endpointCount": 8,
+      "hasBaseUrl": true,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "practice-better",
+      "slug": "practicebetter",
+      "name": "Practice Better",
+      "category": "Wellness",
+      "status": "verified",
+      "endpointCount": 9,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "railway",
+      "slug": "railway",
+      "name": "Railway",
+      "category": "DevOps",
+      "status": "verified",
+      "endpointCount": 5,
+      "hasBaseUrl": true,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "ramp",
+      "slug": "ramp",
+      "name": "Ramp",
+      "category": "Fintech",
+      "status": "verified",
+      "endpointCount": 7,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "razorpay",
+      "slug": "razorpay",
+      "name": "Razorpay",
+      "category": "Fintech",
+      "status": "verified",
+      "endpointCount": 7,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "realtor-com",
+      "slug": "realtorcom",
+      "name": "Realtor.com (RapidAPI)",
+      "category": "Real estate",
+      "status": "verified",
+      "endpointCount": 5,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "recharge",
+      "slug": "recharge",
+      "name": "Recharge",
+      "category": "Subscriptions",
+      "status": "verified",
+      "endpointCount": 10,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "recruitee",
+      "slug": "recruitee",
+      "name": "Recruitee",
+      "category": "HR",
+      "status": "verified",
+      "endpointCount": 9,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "recurly",
+      "slug": "recurly",
+      "name": "Recurly",
+      "category": "Billing",
+      "status": "verified",
+      "endpointCount": 11,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "reddit",
+      "slug": "reddit",
+      "name": "Reddit",
+      "category": "Social",
+      "status": "verified",
+      "endpointCount": 11,
+      "hasBaseUrl": true,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "remote-com",
+      "slug": "remotecom",
+      "name": "Remote.com",
+      "category": "HR",
+      "status": "verified",
+      "endpointCount": 9,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "render",
+      "slug": "render",
+      "name": "Render",
+      "category": "DevOps",
+      "status": "verified",
+      "endpointCount": 10,
+      "hasBaseUrl": true,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "rentcast",
+      "slug": "rentcast",
+      "name": "Rentcast",
+      "category": "Real estate",
+      "status": "verified",
+      "endpointCount": 8,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "replicate",
+      "slug": "replicate",
+      "name": "Replicate",
+      "category": "AI",
+      "status": "verified",
+      "endpointCount": 4,
+      "hasBaseUrl": true,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "rippling",
+      "slug": "rippling",
+      "name": "Rippling",
+      "category": "HR",
+      "status": "verified",
+      "endpointCount": 10,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "rollbar",
+      "slug": "rollbar",
+      "name": "Rollbar",
+      "category": "Monitoring",
+      "status": "verified",
+      "endpointCount": 10,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "runwayml",
+      "slug": "runwayml",
+      "name": "RunwayML",
+      "category": "AI",
+      "status": "verified",
+      "endpointCount": 4,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "salesforce-rest-extras",
+      "slug": "salesforcerestextras",
+      "name": "Salesforce REST Extras",
+      "category": "CRM",
+      "status": "verified",
+      "endpointCount": 10,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "salesloft",
+      "slug": "salesloft",
+      "name": "Salesloft",
+      "category": "Sales",
+      "status": "verified",
+      "endpointCount": 9,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "savvycal",
+      "slug": "savvycal",
+      "name": "SavvyCal",
+      "category": "Scheduling",
+      "status": "verified",
+      "endpointCount": 5,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "scraperapi",
+      "slug": "scraperapi",
+      "name": "ScraperAPI",
+      "category": "Scraping",
+      "status": "verified",
+      "endpointCount": 4,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "scrapingbee",
+      "slug": "scrapingbee",
+      "name": "ScrapingBee",
+      "category": "Scraping",
+      "status": "verified",
+      "endpointCount": 2,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "secureframe",
+      "slug": "secureframe",
+      "name": "Secureframe",
+      "category": "Compliance",
+      "status": "verified",
+      "endpointCount": 9,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "sentry",
+      "slug": "sentry",
+      "name": "Sentry",
+      "category": "Monitoring",
+      "status": "verified",
+      "endpointCount": 12,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "shippo",
+      "slug": "shippo",
+      "name": "Shippo",
+      "category": "Shipping",
+      "status": "verified",
+      "endpointCount": 10,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "shipstation",
+      "slug": "shipstation",
+      "name": "ShipStation",
+      "category": "Shipping",
+      "status": "verified",
+      "endpointCount": 10,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "signal-bridge",
+      "slug": "signalbridge",
+      "name": "Signal Bridge",
+      "category": "Community",
+      "status": "verified",
+      "endpointCount": 9,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "snipcart",
+      "slug": "snipcart",
+      "name": "Snipcart",
+      "category": "Commerce",
+      "status": "verified",
+      "endpointCount": 10,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "square-terminal",
+      "slug": "squareterminal",
+      "name": "Square Terminal",
+      "category": "Fintech",
+      "status": "verified",
+      "endpointCount": 5,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "stability-ai",
+      "slug": "stabilityai",
+      "name": "Stability AI",
+      "category": "AI",
+      "status": "verified",
+      "endpointCount": 6,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "statuspage",
+      "slug": "statuspage",
+      "name": "Atlassian Statuspage",
+      "category": "Status",
+      "status": "verified",
+      "endpointCount": 11,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "stripe-billing",
+      "slug": "stripebilling",
+      "name": "Stripe Billing",
+      "category": "Billing",
+      "status": "verified",
+      "endpointCount": 13,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "substack",
+      "slug": "substack",
+      "name": "Substack",
+      "category": "Newsletter",
+      "status": "verified",
+      "endpointCount": 5,
+      "hasBaseUrl": true,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "synthesia",
+      "slug": "synthesia",
+      "name": "Synthesia",
+      "category": "AI Video",
+      "status": "verified",
+      "endpointCount": 4,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "tally",
+      "slug": "tally",
+      "name": "Tally",
+      "category": "Forms",
+      "status": "verified",
+      "endpointCount": 7,
+      "hasBaseUrl": true,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "telegram-bot",
+      "slug": "telegrambot",
+      "name": "Telegram Bot",
+      "category": "Community",
+      "status": "verified",
+      "endpointCount": 11,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "threads",
+      "slug": "threads",
+      "name": "Threads",
+      "category": "Social",
+      "status": "verified",
+      "endpointCount": 8,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "together-ai",
+      "slug": "togetherai",
+      "name": "Together AI",
+      "category": "AI",
+      "status": "verified",
+      "endpointCount": 8,
+      "hasBaseUrl": true,
+      "classification": "shadowed-by-native"
+    },
+    {
+      "id": "tomorrow-io",
+      "slug": "tomorrowio",
+      "name": "Tomorrow.io",
+      "category": "Weather",
+      "status": "verified",
+      "endpointCount": 6,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "truelayer",
+      "slug": "truelayer",
+      "name": "Truelayer",
+      "category": "Fintech",
+      "status": "verified",
+      "endpointCount": 5,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "ups",
+      "slug": "ups",
+      "name": "UPS",
+      "category": "Shipping",
+      "status": "verified",
+      "endpointCount": 7,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "usps",
+      "slug": "usps",
+      "name": "USPS",
+      "category": "Shipping",
+      "status": "verified",
+      "endpointCount": 6,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "vanta",
+      "slug": "vanta",
+      "name": "Vanta",
+      "category": "Compliance",
+      "status": "verified",
+      "endpointCount": 9,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "vercel-api",
+      "slug": "vercelapi",
+      "name": "Vercel",
+      "category": "DevOps",
+      "status": "verified",
+      "endpointCount": 10,
+      "hasBaseUrl": true,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "vimeo",
+      "slug": "vimeo",
+      "name": "Vimeo",
+      "category": "Video",
+      "status": "verified",
+      "endpointCount": 6,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "wise",
+      "slug": "wise",
+      "name": "Wise",
+      "category": "Fintech",
+      "status": "verified",
+      "endpointCount": 6,
+      "hasBaseUrl": true,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "wistia",
+      "slug": "wistia",
+      "name": "Wistia",
+      "category": "Video",
+      "status": "verified",
+      "endpointCount": 6,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "workable",
+      "slug": "workable",
+      "name": "Workable",
+      "category": "HR",
+      "status": "verified",
+      "endpointCount": 9,
+      "hasBaseUrl": true,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "workday-recruit",
+      "slug": "workdayrecruit",
+      "name": "Workday Recruiting",
+      "category": "HR",
+      "status": "verified",
+      "endpointCount": 8,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "wufoo",
+      "slug": "wufoo",
+      "name": "Wufoo",
+      "category": "Forms",
+      "status": "verified",
+      "endpointCount": 7,
+      "hasBaseUrl": true,
+      "classification": "shadowed-by-rust"
+    },
+    {
+      "id": "x-twitter",
+      "slug": "xtwitter",
+      "name": "X (Twitter)",
+      "category": "Social",
+      "status": "verified",
+      "endpointCount": 13,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "yapily",
+      "slug": "yapily",
+      "name": "Yapily",
+      "category": "Fintech",
+      "status": "verified",
+      "endpointCount": 5,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "youcanbookme",
+      "slug": "youcanbookme",
+      "name": "YouCanBookMe",
+      "category": "Scheduling",
+      "status": "verified",
+      "endpointCount": 5,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "youtube-data-api",
+      "slug": "youtubedataapi",
+      "name": "YouTube Data API",
+      "category": "Social",
+      "status": "verified",
+      "endpointCount": 12,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "zillow",
+      "slug": "zillow",
+      "name": "Zillow Bridge",
+      "category": "Real estate",
+      "status": "verified",
+      "endpointCount": 6,
+      "hasBaseUrl": true,
+      "classification": "live"
+    },
+    {
+      "id": "zoho-crm",
+      "slug": "zohocrm",
+      "name": "Zoho CRM",
+      "category": "CRM",
+      "status": "verified",
+      "endpointCount": 10,
+      "hasBaseUrl": true,
+      "classification": "shadowed-by-forge"
+    },
+    {
+      "id": "zoominfo",
+      "slug": "zoominfo",
+      "name": "ZoomInfo",
+      "category": "Sales",
+      "status": "verified",
+      "endpointCount": 7,
+      "hasBaseUrl": true,
+      "classification": "live"
+    }
+  ]
+}

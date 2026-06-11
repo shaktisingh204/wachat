@@ -2,7 +2,7 @@
   "id": "n8n-monica-crm",
   "name": "Monica CRM",
   "description": "Consume the Monica CRM API",
-  "category": "Transform",
+  "category": "crm",
   "iconName": "LuPackage",
   "version": 1,
   "lastVerified": "2026-05-17",

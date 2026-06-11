@@ -2,7 +2,7 @@
   "id": "n8n-n8n-training-customer-messenger",
   "name": "Customer Messenger (n8n training)",
   "description": "Dummy node used for n8n training",
-  "category": "Transform",
+  "category": "misc",
   "iconName": "LuPackage",
   "version": 1,
   "lastVerified": "2026-05-17",

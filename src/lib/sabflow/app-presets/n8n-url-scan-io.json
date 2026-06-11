@@ -2,7 +2,7 @@
   "id": "n8n-url-scan-io",
   "name": "urlscan.io",
   "description": "Provides various utilities for monitoring websites like health checks or screenshots",
-  "category": "Transform",
+  "category": "analytics",
   "iconName": "LuPackage",
   "version": 1,
   "lastVerified": "2026-05-17",

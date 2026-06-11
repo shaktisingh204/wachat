@@ -113,4 +113,8 @@ export type AppPresetSummary = {
   endpointCount: number;
   lastVerified: string;
   status: AppPresetStatus;
+  /** Present (true) when the preset is `status: 'draft'` but complete enough to list. */
+  draft?: boolean;
+  /** Only present (false) on incomplete presets surfaced via `includeIncomplete`. */
+  complete?: boolean;
 };

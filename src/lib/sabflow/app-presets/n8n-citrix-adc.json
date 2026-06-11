@@ -2,7 +2,7 @@
   "id": "n8n-citrix-adc",
   "name": "Netscaler ADC",
   "description": "Consume Netscaler ADC API",
-  "category": "Output",
+  "category": "misc",
   "iconName": "LuPackage",
   "version": 1,
   "lastVerified": "2026-05-17",

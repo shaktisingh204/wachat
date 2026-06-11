@@ -2,7 +2,7 @@
   "id": "n8n-sms77",
   "name": "seven",
   "description": "Send SMS and make text-to-speech calls",
-  "category": "Transform",
+  "category": "communication",
   "iconName": "LuPackage",
   "version": 1,
   "lastVerified": "2026-05-17",

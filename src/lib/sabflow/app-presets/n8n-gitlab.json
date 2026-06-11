@@ -2,7 +2,7 @@
   "id": "n8n-gitlab",
   "name": "GitLab",
   "description": "Retrieve data from GitLab API",
-  "category": "Input",
+  "category": "dev",
   "iconName": "LuPackage",
   "version": 1,
   "lastVerified": "2026-05-17",

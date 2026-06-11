@@ -2,7 +2,7 @@
   "id": "n8n-airtop",
   "name": "Airtop",
   "description": "Scrape and control any site with Airtop",
-  "category": "Transform",
+  "category": "data",
   "iconName": "LuPackage",
   "version": 1,
   "lastVerified": "2026-05-17",

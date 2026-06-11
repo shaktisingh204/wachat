@@ -2,21 +2,16 @@
   "id": "n8n-google-cloud-natural-language",
   "name": "Google Cloud Natural Language",
   "description": "Consume Google Cloud Natural Language API",
-  "category": "Input",
+  "category": "misc",
   "iconName": "LuPackage",
   "version": 1,
-  "lastVerified": "2026-05-17",
+  "lastVerified": "2026-06-11",
   "status": "draft",
   "auth": {
     "type": "oauth2",
-    "provider": "google",
-    "credentialType": "google_sheets",
-    "fallback": {
-      "type": "oauth2",
-      "credentialType": "oauth2"
-    }
+    "credentialType": "oauth2"
   },
-  "baseUrl": "",
+  "baseUrl": "https://language.googleapis.com",
   "endpoints": [
     {
       "id": "document_analyze_sentiment",

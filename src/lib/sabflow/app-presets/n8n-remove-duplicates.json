@@ -2,7 +2,7 @@
   "id": "n8n-remove-duplicates",
   "name": "Remove Duplicates",
   "description": "Delete items with matching field values",
-  "category": "Transform",
+  "category": "misc",
   "iconName": "LuPackage",
   "version": 1,
   "lastVerified": "2026-05-17",

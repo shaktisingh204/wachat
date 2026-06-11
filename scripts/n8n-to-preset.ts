@@ -15,6 +15,18 @@
  *   npx tsx scripts/n8n-to-preset.ts --dry-run      # count only
  *   npx tsx scripts/n8n-to-preset.ts --limit 50     # cap to first N
  *   npx tsx scripts/n8n-to-preset.ts --overwrite    # overwrite existing
+ *   npx tsx scripts/n8n-to-preset.ts --ids a,b,c    # re-emit ONLY these preset
+ *       ids (implies overwrite; only writes when the rebuilt preset gained a
+ *       non-empty baseUrl, so a failed repair never clobbers a file)
+ *   npx tsx scripts/n8n-to-preset.ts --ids-file scripts/output/sabflow-catalog-audit.json
+ *       # same, reading ids from `residualRepairIds` (or a plain JSON array)
+ *
+ * Base-URL extraction order:
+ *   1. `description.requestDefaults.baseURL` (declarative nodes)
+ *   2. Hardcoded `https://…` constants in sibling non-test .ts files
+ *      (GenericFunctions.ts etc.) on `uri:` / `url:` / `baseURL:` lines —
+ *      template literals are cut at the first `${`; candidates must still
+ *      carry a complete hostname after the cut.
  */
 
 /* eslint-disable no-console */
@@ -106,6 +118,25 @@ const LIMIT = (() => {
   if (i === -1) return Infinity;
   const n = Number(ARGV[i + 1]);
   return Number.isFinite(n) && n > 0 ? n : Infinity;
+})();
+
+/** `--ids a,b,c` / `--ids-file <json>` — re-emit ONLY these preset ids. */
+const ONLY_IDS: Set<string> | null = (() => {
+  const ids: string[] = [];
+  const i = ARGV.indexOf('--ids');
+  if (i !== -1 && ARGV[i + 1]) {
+    ids.push(...ARGV[i + 1].split(',').map((s) => s.trim()).filter(Boolean));
+  }
+  const j = ARGV.indexOf('--ids-file');
+  if (j !== -1 && ARGV[j + 1]) {
+    const raw = JSON.parse(fs.readFileSync(ARGV[j + 1], 'utf-8'));
+    const list = Array.isArray(raw) ? raw : raw.residualRepairIds;
+    if (!Array.isArray(list)) {
+      throw new Error(`--ids-file: expected a JSON array or { residualRepairIds: [...] }`);
+    }
+    ids.push(...list);
+  }
+  return ids.length ? new Set(ids) : null;
 })();
 
 // ───────────────────────────────────────────────────────────────────────────
@@ -694,11 +725,63 @@ function buildEndpoints(parsed: ParsedDescription): PresetEndpoint[] {
   return Array.from(byId.values());
 }
 
-function buildPreset(parsed: ParsedDescription): AppPreset | undefined {
+/**
+ * Fallback base-URL extraction — scan the node's directory (plus a parent
+ * `GenericFunctions.ts`, the common n8n layout) for hardcoded `https://…`
+ * constants on `uri:` / `url:` / `baseURL:` / `baseUrl =` lines. Template
+ * literals are cut at the first `${`; a candidate survives only when the
+ * remaining string still carries a complete hostname. The most frequent
+ * candidate wins.
+ */
+function extractFallbackBaseUrl(nodeFilePath: string): string | undefined {
+  const dir = path.dirname(nodeFilePath);
+  const candidates = new Map<string, number>();
+  const files: string[] = [];
+  try {
+    for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+      if (e.isFile() && e.name.endsWith('.ts') && !/test/i.test(e.name)) {
+        files.push(path.join(dir, e.name));
+      }
+    }
+  } catch {
+    return undefined;
+  }
+  const parentGeneric = path.join(path.dirname(dir), 'GenericFunctions.ts');
+  if (fs.existsSync(parentGeneric)) files.push(parentGeneric);
+
+  const lineRe = /(?:uri|url|baseURL|baseUrl)\s*[:=]/;
+  const urlRe = /[`'"](https:\/\/[^`'"]+)[`'"]/g;
+  for (const file of files) {
+    let text: string;
+    try {
+      text = fs.readFileSync(file, 'utf-8');
+    } catch {
+      continue;
+    }
+    for (const line of text.split('\n')) {
+      const trimmed = line.trim();
+      if (trimmed.startsWith('//') || trimmed.startsWith('*')) continue;
+      if (!lineRe.test(line)) continue;
+      for (const m of line.matchAll(urlRe)) {
+        // Cut template interpolation; what remains must still be a full host.
+        let url = m[1].split('${')[0];
+        if (!/^https:\/\/[a-z0-9][a-z0-9.-]*\.[a-z]{2,}(\/|$)/i.test(url)) continue;
+        url = url.replace(/\/+$/, '');
+        candidates.set(url, (candidates.get(url) ?? 0) + 1);
+      }
+    }
+  }
+  if (!candidates.size) return undefined;
+  return Array.from(candidates.entries()).sort((a, b) => b[1] - a[1])[0][0];
+}
+
+function buildPreset(parsed: ParsedDescription, nodeFilePath: string): AppPreset | undefined {
   const nodeName = parsed.name ?? parsed.displayName;
   if (!nodeName) return undefined;
   const id = `n8n-${kebab(nodeName)}`;
   const today = new Date().toISOString().slice(0, 10);
+  let baseUrl = parsed.baseURL ? sanitizeBaseUrl(parsed.baseURL) : '';
+  if (!baseUrl) baseUrl = extractFallbackBaseUrl(nodeFilePath) ?? '';
   return {
     id,
     name: parsed.displayName ?? titleCase(nodeName),
@@ -709,7 +792,7 @@ function buildPreset(parsed: ParsedDescription): AppPreset | undefined {
     lastVerified: today,
     status: 'draft',
     auth: deriveAuth(parsed),
-    baseUrl: parsed.baseURL ? sanitizeBaseUrl(parsed.baseURL) : '',
+    baseUrl,
     endpoints: buildEndpoints(parsed),
   };
 }
@@ -774,7 +857,7 @@ function main() {
 
     let preset: AppPreset | undefined;
     try {
-      preset = buildPreset(desc);
+      preset = buildPreset(desc, file);
     } catch (err) {
       const reason = `build_error:${(err as Error).message.split('\n')[0]}`;
       failures.push({ file, reason });
@@ -784,6 +867,24 @@ function main() {
     if (!preset) {
       failures.push({ file, reason: 'preset_undefined' });
       reasonCounts.set('preset_undefined', (reasonCounts.get('preset_undefined') ?? 0) + 1);
+      continue;
+    }
+
+    // --ids mode: re-emit only the requested presets, and only when the
+    // rebuild actually produced a usable baseUrl (never clobber otherwise).
+    if (ONLY_IDS) {
+      if (!ONLY_IDS.has(preset.id)) continue;
+      if (!preset.baseUrl) {
+        console.log(`  ✗ ${preset.id} — still no extractable baseUrl, leaving as-is`);
+        skipped++;
+        continue;
+      }
+      if (!DRY_RUN) {
+        const idsOutPath = path.join(PRESETS_DIR, `${preset.id}.json`);
+        fs.writeFileSync(idsOutPath, JSON.stringify(preset, null, 2) + '\n', 'utf-8');
+      }
+      console.log(`  ✓ ${preset.id} — repaired with baseUrl ${preset.baseUrl}`);
+      generated++;
       continue;
     }
 
@@ -797,6 +898,10 @@ function main() {
       fs.writeFileSync(outPath, JSON.stringify(preset, null, 2) + '\n', 'utf-8');
     }
     generated++;
+  }
+
+  if (ONLY_IDS) {
+    console.log(`--ids mode: requested ${ONLY_IDS.size}, repaired ${generated}, unrepairable ${skipped}.`);
   }
 
   console.log('');

@@ -2,7 +2,7 @@
   "id": "n8n-http-basic-auth",
   "name": "Authentication",
   "description": "The way to authenticate",
-  "category": "Imported (n8n)",
+  "category": "misc",
   "iconName": "LuPackage",
   "version": 1,
   "lastVerified": "2026-05-17",

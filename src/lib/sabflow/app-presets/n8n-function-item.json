@@ -2,7 +2,7 @@
   "id": "n8n-function-item",
   "name": "Function Item",
   "description": "Run custom function code which gets executed once per item",
-  "category": "Transform",
+  "category": "misc",
   "iconName": "LuPackage",
   "version": 1,
   "lastVerified": "2026-05-17",

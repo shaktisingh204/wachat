@@ -54,7 +54,11 @@ function validatePreset(raw: unknown): raw is AppPreset {
   if (!isObject(raw)) return false;
   if (typeof raw.id !== 'string' || raw.id.length === 0) return false;
   if (typeof raw.name !== 'string' || raw.name.length === 0) return false;
-  if (typeof raw.baseUrl !== 'string' || raw.baseUrl.length === 0) return false;
+  // NOTE: an EMPTY baseUrl is shape-valid — auto-imported drafts ship without
+  // one. Completeness (non-empty baseUrl + ≥1 endpoint) is enforced at LIST
+  // level via `isPresetComplete`, while per-id loads stay ungated so existing
+  // flows referencing an incomplete preset keep resolving it.
+  if (typeof raw.baseUrl !== 'string') return false;
   if (!Array.isArray(raw.endpoints)) return false;
   if (!isObject(raw.auth) || typeof raw.auth.type !== 'string') return false;
   for (const e of raw.endpoints) {
@@ -127,7 +131,24 @@ async function listPresetIds(): Promise<string[]> {
 
 /* ── Public API ──────────────────────────────────────────────────────────── */
 
-/** Load a single preset by id. Returns `undefined` when missing or invalid. */
+/**
+ * A preset is executable only when it has a base URL and at least one
+ * endpoint. This is the hard gate for every LISTING surface — incomplete
+ * presets (auto-imported drafts without a baseUrl, empty shells) must never
+ * show up in pickers. `status: 'draft'` alone does NOT exclude a preset:
+ * a complete draft is listed, flagged `draft: true` in its summary.
+ */
+export function isPresetComplete(p: AppPreset): boolean {
+  return p.baseUrl.length > 0 && p.endpoints.length > 0;
+}
+
+export type ListPresetsOptions = {
+  /** Admin/debug escape hatch — include incomplete (unexecutable) presets. */
+  includeIncomplete?: boolean;
+};
+
+/** Load a single preset by id. Returns `undefined` when missing or invalid.
+ *  Deliberately ungated — existing flows may reference incomplete presets. */
 export async function loadPreset(id: string): Promise<AppPreset | undefined> {
   if (!id || typeof id !== 'string') return undefined;
   // Defence in depth — prevent path traversal via id.
@@ -135,20 +156,27 @@ export async function loadPreset(id: string): Promise<AppPreset | undefined> {
   return readPresetFromDisk(id);
 }
 
-/** Load every preset on disk. Skips ones that fail validation. */
-export async function listPresets(): Promise<AppPreset[]> {
+/** Load every preset on disk. Skips ones that fail validation; excludes
+ *  incomplete presets unless `includeIncomplete` is set. */
+export async function listPresets(
+  options: ListPresetsOptions = {},
+): Promise<AppPreset[]> {
   const ids = await listPresetIds();
   const presets: AppPreset[] = [];
   for (const id of ids) {
     const preset = await readPresetFromDisk(id);
-    if (preset) presets.push(preset);
+    if (!preset) continue;
+    if (!options.includeIncomplete && !isPresetComplete(preset)) continue;
+    presets.push(preset);
   }
   return presets;
 }
 
 /** Lightweight projection for picker rendering — avoids loading endpoints. */
-export async function listPresetSummaries(): Promise<AppPresetSummary[]> {
-  const presets = await listPresets();
+export async function listPresetSummaries(
+  options: ListPresetsOptions = {},
+): Promise<AppPresetSummary[]> {
+  const presets = await listPresets(options);
   return presets.map((p) => ({
     id: p.id,
     name: p.name,
@@ -157,6 +185,10 @@ export async function listPresetSummaries(): Promise<AppPresetSummary[]> {
     endpointCount: p.endpoints.length,
     lastVerified: p.lastVerified,
     status: p.status ?? 'verified',
+    ...(p.status === 'draft' ? { draft: true as const } : {}),
+    ...(options.includeIncomplete && !isPresetComplete(p)
+      ? { complete: false as const }
+      : {}),
   }));
 }
 

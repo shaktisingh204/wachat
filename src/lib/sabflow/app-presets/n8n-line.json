@@ -2,7 +2,7 @@
   "id": "n8n-line",
   "name": "Line",
   "description": "Consume Line API",
-  "category": "Input",
+  "category": "communication",
   "iconName": "LuPackage",
   "version": 1,
   "lastVerified": "2026-05-17",

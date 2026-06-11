@@ -2,7 +2,7 @@
   "id": "n8n-totp",
   "name": "TOTP",
   "description": "Generate a time-based one-time password",
-  "category": "Transform",
+  "category": "productivity",
   "iconName": "LuPackage",
   "version": 1,
   "lastVerified": "2026-05-17",

@@ -2,7 +2,7 @@
   "id": "n8n-facebook-graph-api",
   "name": "Facebook Graph API",
   "description": "Interacts with Facebook using the Graph API",
-  "category": "Transform",
+  "category": "misc",
   "iconName": "LuPackage",
   "version": 1,
   "lastVerified": "2026-05-17",

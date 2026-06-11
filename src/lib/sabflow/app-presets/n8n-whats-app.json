@@ -2,7 +2,7 @@
   "id": "n8n-whats-app",
   "name": "WhatsApp Business Cloud",
   "description": "Access WhatsApp API",
-  "category": "Output",
+  "category": "communication",
   "iconName": "LuPackage",
   "version": 1,
   "lastVerified": "2026-05-17",

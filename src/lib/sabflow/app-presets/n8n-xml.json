@@ -2,7 +2,7 @@
   "id": "n8n-xml",
   "name": "XML",
   "description": "Convert data from and to XML",
-  "category": "Transform",
+  "category": "misc",
   "iconName": "LuPackage",
   "version": 1,
   "lastVerified": "2026-05-17",

@@ -2,7 +2,7 @@
   "id": "n8n-mqtt",
   "name": "MQTT",
   "description": "Push messages to MQTT",
-  "category": "Input",
+  "category": "dev",
   "iconName": "LuPackage",
   "version": 1,
   "lastVerified": "2026-05-17",

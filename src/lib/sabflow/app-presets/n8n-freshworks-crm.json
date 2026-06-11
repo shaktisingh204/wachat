@@ -2,7 +2,7 @@
   "id": "n8n-freshworks-crm",
   "name": "Freshworks CRM",
   "description": "Consume the Freshworks CRM API",
-  "category": "Transform",
+  "category": "crm",
   "iconName": "LuPackage",
   "version": 1,
   "lastVerified": "2026-05-17",

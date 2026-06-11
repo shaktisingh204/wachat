@@ -2,7 +2,7 @@
   "id": "n8n-discourse",
   "name": "Discourse",
   "description": "Consume Discourse API",
-  "category": "Input",
+  "category": "communication",
   "iconName": "LuPackage",
   "version": 1,
   "lastVerified": "2026-05-17",

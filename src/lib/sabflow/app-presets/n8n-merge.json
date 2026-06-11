@@ -2,7 +2,7 @@
   "id": "n8n-merge",
   "name": "Merge",
   "description": "Merges data of multiple streams once data from both is available",
-  "category": "Transform",
+  "category": "misc",
   "iconName": "LuPackage",
   "version": 1,
   "lastVerified": "2026-05-17",

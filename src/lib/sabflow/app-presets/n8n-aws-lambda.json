@@ -2,7 +2,7 @@
   "id": "n8n-aws-lambda",
   "name": "AWS Lambda",
   "description": "Invoke functions on AWS Lambda",
-  "category": "Output",
+  "category": "dev",
   "iconName": "LuPackage",
   "version": 1,
   "lastVerified": "2026-05-17",

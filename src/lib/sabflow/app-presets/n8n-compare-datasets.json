@@ -2,7 +2,7 @@
   "id": "n8n-compare-datasets",
   "name": "Compare Datasets",
   "description": "Compare two inputs for changes",
-  "category": "Transform",
+  "category": "data",
   "iconName": "LuPackage",
   "version": 1,
   "lastVerified": "2026-05-17",

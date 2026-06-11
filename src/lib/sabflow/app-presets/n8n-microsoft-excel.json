@@ -2,7 +2,7 @@
   "id": "n8n-microsoft-excel",
   "name": "Microsoft Excel 365",
   "description": "Consume Microsoft Excel API",
-  "category": "Input",
+  "category": "productivity",
   "iconName": "LuPackage",
   "version": 1,
   "lastVerified": "2026-05-17",

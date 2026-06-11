@@ -2,7 +2,7 @@
   "id": "n8n-trello",
   "name": "Trello",
   "description": "Create, change and delete boards and cards",
-  "category": "Transform",
+  "category": "productivity",
   "iconName": "LuPackage",
   "version": 1,
   "lastVerified": "2026-05-17",

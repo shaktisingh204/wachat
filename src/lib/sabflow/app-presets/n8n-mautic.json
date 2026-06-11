@@ -2,7 +2,7 @@
   "id": "n8n-mautic",
   "name": "Mautic",
   "description": "Consume Mautic API",
-  "category": "Output",
+  "category": "marketing",
   "iconName": "LuPackage",
   "version": 1,
   "lastVerified": "2026-05-17",

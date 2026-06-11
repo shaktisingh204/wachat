@@ -2,7 +2,7 @@
   "id": "n8n-debug-helper",
   "name": "DebugHelper",
   "description": "Causes problems intentionally and generates useful data for debugging",
-  "category": "Output",
+  "category": "misc",
   "iconName": "LuPackage",
   "version": 1,
   "lastVerified": "2026-05-17",

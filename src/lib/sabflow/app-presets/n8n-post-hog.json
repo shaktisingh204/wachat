@@ -2,7 +2,7 @@
   "id": "n8n-post-hog",
   "name": "PostHog",
   "description": "Consume PostHog API",
-  "category": "Input",
+  "category": "analytics",
   "iconName": "LuPackage",
   "version": 1,
   "lastVerified": "2026-05-17",

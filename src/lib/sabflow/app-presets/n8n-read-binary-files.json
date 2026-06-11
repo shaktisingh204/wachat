@@ -2,7 +2,7 @@
   "id": "n8n-read-binary-files",
   "name": "Read Binary Files",
   "description": "Reads binary files from disk",
-  "category": "Input",
+  "category": "marketing",
   "iconName": "LuPackage",
   "version": 1,
   "lastVerified": "2026-05-17",

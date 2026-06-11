@@ -2,7 +2,7 @@
   "id": "n8n-microsoft-share-point",
   "name": "Microsoft SharePoint",
   "description": "Interact with Microsoft SharePoint API",
-  "category": "Transform",
+  "category": "misc",
   "iconName": "LuPackage",
   "version": 1,
   "lastVerified": "2026-05-17",

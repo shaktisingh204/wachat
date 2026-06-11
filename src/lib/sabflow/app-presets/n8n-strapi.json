@@ -2,7 +2,7 @@
   "id": "n8n-strapi",
   "name": "Strapi",
   "description": "Consume Strapi API",
-  "category": "Input",
+  "category": "productivity",
   "iconName": "LuPackage",
   "version": 1,
   "lastVerified": "2026-05-17",

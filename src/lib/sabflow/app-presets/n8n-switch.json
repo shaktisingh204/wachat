@@ -2,7 +2,7 @@
   "id": "n8n-switch",
   "name": "Switch",
   "description": "Route items depending on defined expression or rules",
-  "category": "Transform",
+  "category": "misc",
   "iconName": "LuPackage",
   "version": 1,
   "lastVerified": "2026-05-17",

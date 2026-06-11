@@ -2,7 +2,7 @@
   "id": "n8n-syncro-msp",
   "name": "SyncroMSP",
   "description": "Manage contacts, tickets and more from Syncro MSP",
-  "category": "Output",
+  "category": "support",
   "iconName": "LuPackage",
   "version": 1,
   "lastVerified": "2026-05-17",

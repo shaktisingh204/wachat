@@ -2,7 +2,7 @@
   "id": "n8n-noco-db",
   "name": "NocoDB",
   "description": "Read, update, write and delete data from NocoDB",
-  "category": "Input",
+  "category": "data",
   "iconName": "LuPackage",
   "version": 1,
   "lastVerified": "2026-05-17",

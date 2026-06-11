@@ -2,7 +2,7 @@
   "id": "n8n-deep-l",
   "name": "DeepL",
   "description": "Translate data using DeepL",
-  "category": "Input",
+  "category": "ai",
   "iconName": "LuPackage",
   "version": 1,
   "lastVerified": "2026-05-17",

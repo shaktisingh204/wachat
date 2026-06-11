@@ -2,7 +2,7 @@
   "id": "n8n-google-big-query",
   "name": "Google BigQuery",
   "description": "Consume Google BigQuery API",
-  "category": "Input",
+  "category": "data",
   "iconName": "LuPackage",
   "version": 1,
   "lastVerified": "2026-05-17",

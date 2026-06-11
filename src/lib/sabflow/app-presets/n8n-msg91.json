@@ -2,7 +2,7 @@
   "id": "n8n-msg91",
   "name": "MSG91",
   "description": "Sends transactional SMS via MSG91",
-  "category": "Transform",
+  "category": "communication",
   "iconName": "LuPackage",
   "version": 1,
   "lastVerified": "2026-05-17",

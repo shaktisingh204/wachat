@@ -2,7 +2,7 @@
   "id": "n8n-elastic-security",
   "name": "Elastic Security",
   "description": "Consume the Elastic Security API",
-  "category": "Transform",
+  "category": "data",
   "iconName": "LuPackage",
   "version": 1,
   "lastVerified": "2026-05-17",

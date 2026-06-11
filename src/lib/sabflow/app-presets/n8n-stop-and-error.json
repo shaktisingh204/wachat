@@ -2,7 +2,7 @@
   "id": "n8n-stop-and-error",
   "name": "Stop and Error",
   "description": "Throw an error in the workflow",
-  "category": "Input",
+  "category": "productivity",
   "iconName": "LuPackage",
   "version": 1,
   "lastVerified": "2026-05-17",

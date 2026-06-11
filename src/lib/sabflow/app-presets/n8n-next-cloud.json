@@ -2,7 +2,7 @@
   "id": "n8n-next-cloud",
   "name": "Nextcloud",
   "description": "Access data on Nextcloud",
-  "category": "Input",
+  "category": "storage",
   "iconName": "LuPackage",
   "version": 1,
   "lastVerified": "2026-05-17",

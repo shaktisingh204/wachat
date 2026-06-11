@@ -2,7 +2,7 @@
   "id": "n8n-active-campaign",
   "name": "ActiveCampaign",
   "description": "Create and edit data in ActiveCampaign",
-  "category": "Transform",
+  "category": "marketing",
   "iconName": "LuPackage",
   "version": 1,
   "lastVerified": "2026-05-17",

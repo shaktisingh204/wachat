@@ -2,7 +2,7 @@
   "id": "n8n-aws-textract",
   "name": "AWS Textract",
   "description": "Sends data to Amazon Textract",
-  "category": "Output",
+  "category": "data",
   "iconName": "LuPackage",
   "version": 1,
   "lastVerified": "2026-05-17",

@@ -2,7 +2,7 @@
   "id": "n8n-cloudflare",
   "name": "Cloudflare",
   "description": "Consume Cloudflare API",
-  "category": "Input",
+  "category": "dev",
   "iconName": "LuPackage",
   "version": 1,
   "lastVerified": "2026-05-17",

@@ -2,7 +2,7 @@
   "id": "n8n-google-drive",
   "name": "Google Drive",
   "description": "Access data on Google Drive",
-  "category": "Input",
+  "category": "storage",
   "iconName": "LuPackage",
   "version": 1,
   "lastVerified": "2026-05-17",

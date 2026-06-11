@@ -2,7 +2,7 @@
   "id": "n8n-sentry-io",
   "name": "Sentry.io",
   "description": "Consume Sentry.io API",
-  "category": "Output",
+  "category": "analytics",
   "iconName": "LuPackage",
   "version": 1,
   "lastVerified": "2026-05-17",

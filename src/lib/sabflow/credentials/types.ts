@@ -7,9 +7,24 @@
  * flow document.
  */
 
+import {
+  PRESET_CREDENTIAL_CATEGORIES,
+  PRESET_CREDENTIAL_LABELS,
+  PRESET_CREDENTIAL_SCHEMAS,
+  PRESET_CREDENTIAL_TYPES,
+  type PresetCredentialType,
+} from './preset-credential-types.generated';
+
 /* ── Supported credential providers ─────────────────────────────────────── */
 
-export type CredentialType =
+/**
+ * Hand-written providers (full bespoke schemas below). App presets reference
+ * additional credential types — those are generated into
+ * `./preset-credential-types.generated.ts` by
+ * `scripts/sabflow-catalog-audit.ts --emit-credentials` and merged into the
+ * exported `CredentialType` union + maps further down.
+ */
+export type KnownCredentialType =
   // ── AI ─────────────────────────────────────────────────────────────
   | 'openai'
   | 'anthropic'
@@ -204,6 +219,12 @@ export type CredentialType =
   | 'oauth2'
   | 'custom';
 
+/**
+ * Every supported credential type — hand-written providers plus the generated
+ * literal union of app-preset credential types (no `string & {}` widening).
+ */
+export type CredentialType = KnownCredentialType | PresetCredentialType;
+
 /** Ordered list of all supported credential providers. */
 export const CREDENTIAL_TYPES: CredentialType[] = [
   // AI
@@ -394,6 +415,8 @@ export const CREDENTIAL_TYPES: CredentialType[] = [
   'http_header_auth',
   'oauth2',
   'custom',
+  // Generated app-preset credential types (see preset-credential-types.generated.ts)
+  ...PRESET_CREDENTIAL_TYPES,
 ];
 
 /* ── Categorisation (drives the picker UI) ──────────────────────────────── */
@@ -628,6 +651,9 @@ export const CREDENTIAL_TYPE_CATEGORY: Record<CredentialType, CredentialCategory
   http_header_auth: 'generic',
   oauth2: 'generic',
   custom: 'generic',
+
+  // Generated app-preset credential types
+  ...PRESET_CREDENTIAL_CATEGORIES,
 };
 
 /* ── Credential record ──────────────────────────────────────────────────── */
@@ -847,6 +873,9 @@ export const CREDENTIAL_TYPE_LABEL: Record<CredentialType, string> = {
   http_header_auth: 'HTTP Header Auth',
   oauth2: 'OAuth 2.0',
   custom: 'Custom',
+
+  // Generated app-preset credential types
+  ...PRESET_CREDENTIAL_LABELS,
 };
 
 /* ── Field schema (drives the create/edit form) ─────────────────────────── */
@@ -1595,6 +1624,9 @@ export const CREDENTIAL_FIELD_SCHEMAS: Record<
     { key: 'tokenUrl', label: 'Token URL', kind: 'url', required: true },
     { key: 'scope', label: 'Scope', kind: 'text' },
   ],
+
+  // ── Generated app-preset credential types ────────────────────────────
+  ...PRESET_CREDENTIAL_SCHEMAS,
 };
 
 /** The value stored in every masked `data` field. */
