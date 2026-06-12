@@ -102,6 +102,25 @@ the AGPL source-offer obligation is easy to satisfy.
   These keep the CLI/publish (bare-path) output intact; revisit when
   custom-domain publishing is wired.
 
+## SabNode chrome on the dashboard (project list)
+
+The SabSites dashboard (project list) is restyled to wear SabNode chrome
+in-process (no iframe, no native rebuild); the editor/canvas stays chromeless.
+- NEW `apps/builder/app/dashboard/sabnode-chrome.tsx` — `SabNodeTopHeader`
+  (SabSites mark + wordmark + "Open SabNode") and a floating macOS-style
+  `SabNodeDock` linking to SabNode apps.
+- `apps/builder/app/dashboard/dashboard.tsx` — wraps the dashboard in a column
+  (header + body) + the dock; sidebar gains a "SabNode" section
+  (`SabNodeNavItems`, plain `<a>` so links escape the /sites basename into the
+  Next.js shell) with Back-to-SabNode + Portfolio/URL-shortener/QR/SEO; removed
+  the empty "Follow us" row.
+- Links to SabNode routes use raw anchors (full-page nav) because the dashboard
+  is on the apex origin; Remix `<Link>` would prepend the /sites basename.
+
+Note: the published-site "Built with SabNode" badge still uses the upstream
+`Webstudio1cIcon` glyph (`packages/sdk/src/core-templates.tsx`) — only renders
+on published output, deferred with the publishing work.
+
 ## Licensing
 
 - Webstudio core: AGPL-3.0-or-later. SabNode offers this modified source

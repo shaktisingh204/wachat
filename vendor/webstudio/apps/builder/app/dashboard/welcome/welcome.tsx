@@ -41,16 +41,10 @@ export const Welcome = ({
           )}
         </Flex>
 
-        <iframe
-          width="560"
-          height="315"
-          src="https://www.youtube-nocookie.com/embed/W43QpuT3fW0?si=eGE-OU8emtIxzKPn"
-          title="YouTube video player"
-          frameBorder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          referrerPolicy="strict-origin-when-cross-origin"
-          allowFullScreen
-        ></iframe>
+        <Text variant="regular" color="subtle" css={{ maxWidth: 460 }} align="center">
+          Build and publish websites visually with SabSites — start from a
+          template or a blank canvas.
+        </Text>
       </Flex>
     </Main>
   );

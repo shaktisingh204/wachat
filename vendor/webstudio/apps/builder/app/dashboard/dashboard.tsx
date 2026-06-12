@@ -10,12 +10,19 @@ import {
   css,
   globalCss,
   theme,
-  Link,
   Separator,
   Grid,
   IconButton,
 } from "@webstudio-is/design-system";
-import { BodyIcon } from "@webstudio-is/icons";
+import {
+  BodyIcon,
+  ArrowLeftIcon,
+  FolderIcon,
+  LinkIcon,
+  ImageIcon,
+  SearchIcon,
+} from "@webstudio-is/icons";
+import { SabNodeTopHeader, SabNodeDock } from "./sabnode-chrome";
 import {
   NavLink,
   useLocation,
@@ -33,7 +40,7 @@ import { ProfileMenu } from "./profile-menu";
 import { Projects } from "./projects/projects";
 import { Welcome } from "./welcome/welcome";
 import { Header } from "./shared/layout";
-import { help, socialLinks } from "~/shared/help";
+import { help } from "~/shared/help";
 import { SearchResults } from "./search/search-results";
 import type { DashboardData } from "./shared/types";
 import { Search } from "./search/search-field";
@@ -155,6 +162,32 @@ const NavigationItems = ({
   );
 };
 
+/**
+ * Sidebar items that link to the SabNode app (outside the /sites basename).
+ * Uses plain <a> so the browser does a full-page navigation rather than a
+ * basename-prefixed Remix client transition.
+ */
+const SabNodeNavItems = ({
+  items,
+}: {
+  items: Array<{ href: string; prefix: ReactNode; children: string }>;
+}) => (
+  <List asChild>
+    <Box>
+      {items.map((item, index) => (
+        <ListItem asChild index={index} key={index}>
+          <a href={item.href} className={sidebarLinkStyle()}>
+            {item.prefix}
+            <Text variant="labels" color="main">
+              {item.children}
+            </Text>
+          </a>
+        </ListItem>
+      ))}
+    </Box>
+  </List>
+);
+
 const $data = atom<DashboardData | undefined>();
 
 export const DashboardSetup = ({ data }: { data: DashboardData }) => {
@@ -253,16 +286,28 @@ export const Dashboard = () => {
     },
   ];
 
+  // SabNode app links — plain hrefs (full-page navigation out of the embedded
+  // /sites app into the Next.js SabNode shell). Remix <Link> would prepend the
+  // /sites basename, so these intentionally use raw anchors.
+  const sabnodeTools = [
+    { href: "/dashboard", prefix: <ArrowLeftIcon />, children: "Back to SabNode" },
+    { href: "/dashboard/portfolio", prefix: <FolderIcon />, children: "Portfolio sites" },
+    { href: "/dashboard/url-shortener", prefix: <LinkIcon />, children: "URL shortener" },
+    { href: "/dashboard/qr-code-maker", prefix: <ImageIcon />, children: "QR codes" },
+    { href: "/dashboard/seo", prefix: <SearchIcon />, children: "SEO projects" },
+  ];
+
   return (
     <TooltipProvider>
-      <Flex css={{ height: "100vh" }}>
+      <Flex direction="column" css={{ height: "100vh" }}>
+        <SabNodeTopHeader />
+        <Flex css={{ flex: 1, minHeight: 0 }}>
         <Grid
           as="aside"
           css={{
             width: theme.sizes.sidebarWidth,
             borderRight: `1px solid ${theme.colors.borderMain}`,
-            position: "sticky",
-            top: 0,
+            height: "100%",
             gridTemplateRows: `auto auto auto 1fr`,
           }}
         >
@@ -307,6 +352,9 @@ export const Dashboard = () => {
                 <NavigationItems items={navItems} />
               </CollapsibleSection>
             )}
+            <CollapsibleSection label="SabNode" fullWidth>
+              <SabNodeNavItems items={sabnodeTools} />
+            </CollapsibleSection>
           </nav>
           <CollapsibleSection label="Help & support" fullWidth>
             <NavigationItems
@@ -317,29 +365,6 @@ export const Dashboard = () => {
                 children: item.label,
               }))}
             />
-            <Flex
-              align="center"
-              gap="2"
-              css={{
-                paddingInline: theme.panel.paddingInline,
-                paddingBlock: theme.spacing[5],
-              }}
-            >
-              <Text variant="labels" color="subtle">
-                Follow us:
-              </Text>
-              {socialLinks.map(({ label, url, icon }) => (
-                <Link
-                  key={url}
-                  href={url}
-                  target="_blank"
-                  color="subtle"
-                  aria-label={label}
-                >
-                  {icon}
-                </Link>
-              ))}
-            </Flex>
           </CollapsibleSection>
         </Grid>
         {view === "projects" && (
@@ -356,7 +381,9 @@ export const Dashboard = () => {
           <Welcome currentWorkspaceId={currentWorkspaceId} />
         )}
         {view === "search" && <SearchResults {...data} />}
+        </Flex>
       </Flex>
+      <SabNodeDock />
       <CloneProject projectToClone={projectToClone} />
       <Toaster />
     </TooltipProvider>
