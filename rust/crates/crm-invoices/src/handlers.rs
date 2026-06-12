@@ -43,7 +43,7 @@ use crm_core::{
     Assignment, Attribution, Audit, Identity, LineageRef, ScopeMode, TenantScope,
     build_lineage_from_parent, sabcrm_project_oid,
 };
-use crm_sales_types::{GstTreatment, Invoice, InvoiceStatus};
+use crm_sales_types::{EmailLog, GstTreatment, Invoice, InvoiceStatus};
 use futures::TryStreamExt;
 use mongodb::options::FindOptions;
 use sabnode_auth::AuthUser;
@@ -420,7 +420,7 @@ pub async fn create_invoice(
         e_invoice: None,
         eway_bill_no: None,
 
-        attachments: Vec::new(),
+        attachments: input.attachments.clone().unwrap_or_default(),
         template_id: None,
         thumbnail_file_id: None,
         signature_image_file_id: None,
@@ -587,10 +587,20 @@ pub async fn update_invoice(
         let b = bson::to_bson(totals)
             .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("encode totals")))?;
         set.insert("totals", b);
-        // Re-derive `balance` from the new totals minus whatever
-        // payments are already applied. We do not re-touch
-        // `amount_paid` here — the payment-receipt application path
-        // owns it.
+    }
+    if let Some(paid) = input.amount_paid {
+        if !paid.is_finite() || paid < 0.0 {
+            return Err(ApiError::Validation(
+                "amountPaid must be a finite number ≥ 0.".to_owned(),
+            ));
+        }
+        set.insert("amountPaid", paid);
+    }
+    if let Some(atts) = input.attachments.as_ref() {
+        let b = bson::to_bson(atts).map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("encode attachments"))
+        })?;
+        set.insert("attachments", b);
     }
     if let Some(tcs) = input.tcs_pct {
         set.insert("tcsPct", tcs as f64);
@@ -615,12 +625,67 @@ pub async fn update_invoice(
         }
     }
 
+    // Append-only email-send audit entries. Converted to the canonical
+    // stored [`EmailLog`] shape (BSON datetime) and `$push`-ed with
+    // `$each` so the existing log is never replaced and concurrent
+    // sends can't clobber each other.
+    let mut push = Document::new();
+    if let Some(entries) = input.email_log_append.as_ref() {
+        if !entries.is_empty() {
+            let logs: Vec<EmailLog> = entries
+                .iter()
+                .map(|e| EmailLog {
+                    sent_at: e.sent_at,
+                    to: e.to.clone(),
+                    status: e.status,
+                    provider_message_id: e.provider_message_id.clone(),
+                    error: e.error.clone(),
+                })
+                .collect();
+            let b = bson::to_bson(&logs).map_err(|e| {
+                ApiError::Internal(anyhow::Error::new(e).context("encode emailLog"))
+            })?;
+            push.insert("emailLog", doc! { "$each": b });
+        }
+    }
+
+    // Re-derive the denormalized `balance` whenever the money side moves
+    // (a new `totals` and/or a new `amountPaid`). The current document is
+    // read for whichever side the patch doesn't carry. A negative balance
+    // is allowed (over-payment held as customer credit).
+    if input.amount_paid.is_some() || input.totals.is_some() {
+        let typed = mongo.collection::<Invoice>(INVOICES_COLL);
+        let mut pre_filter = base_ownership_filter(&scope);
+        pre_filter.insert("_id", inv_oid);
+        let existing = typed
+            .find_one(pre_filter)
+            .await
+            .map_err(|e| {
+                ApiError::Internal(
+                    anyhow::Error::new(e).context("crm_invoices.find_one(pre-update)"),
+                )
+            })?
+            .ok_or_else(|| ApiError::NotFound("invoice".to_owned()))?;
+        let total = input
+            .totals
+            .as_ref()
+            .map(|t| t.total)
+            .unwrap_or(existing.totals.total);
+        let paid = input.amount_paid.unwrap_or(existing.amount_paid);
+        set.insert("balance", total - paid);
+    }
+
     let mut filter = base_ownership_filter(&scope);
     filter.insert("_id", inv_oid);
 
+    let mut update = doc! { "$set": set };
+    if !push.is_empty() {
+        update.insert("$push", push);
+    }
+
     let coll = mongo.collection::<Document>(INVOICES_COLL);
     let res = coll
-        .update_one(filter.clone(), doc! { "$set": set })
+        .update_one(filter.clone(), update)
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_invoices.update_one"))

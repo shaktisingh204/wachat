@@ -22,12 +22,16 @@
 //!
 //! Deferred (not user-editable on create/update; populated by domain
 //! workflows): `e_invoice` envelope (IRP webhook seeds it post-issue),
-//! `bank_details` (tenant default; injected at PDF render), `email_log`
-//! / `whatsapp_send_log` (dispatch handlers append to these),
-//! `pdf_status` / thumbnail / signature ids (render pipeline owns them),
-//! `amount_paid` / `balance` (managed by `applyPaymentReceipt`).
+//! `bank_details` (tenant default; injected at PDF render),
+//! `whatsapp_send_log` (dispatch handlers append to it), `pdf_status` /
+//! thumbnail / signature ids (render pipeline owns them), `amount_paid`
+//! / `balance` (managed by `applyPaymentReceipt`). The `email_log` is
+//! append-only via [`UpdateInvoiceInput::email_log_append`] — the
+//! email-invoice flow records each send; the array can never be
+//! replaced or truncated through the API.
 
-use crm_sales_types::{GstTreatment, LineItem, RecurringConfig, Totals};
+use crm_core::Attachment;
+use crm_sales_types::{DeliveryOutcome, GstTreatment, LineItem, RecurringConfig, Totals};
 use serde::{Deserialize, Serialize};
 
 /// Default page size if the caller doesn't send `limit`.
@@ -150,6 +154,14 @@ pub struct CreateInvoiceInput {
     #[serde(default)]
     pub terms_and_conditions: Option<String>,
 
+    /* ----- attachments (SabFiles pointers; §crm-core policy) ----- */
+    /// Optional SabFiles attachments captured at create time. Each entry
+    /// is a `crm_core::Attachment` (`fileId` + cached name/mime/size).
+    /// Absent ⇒ the document starts with no attachments (unchanged
+    /// legacy behaviour).
+    #[serde(default)]
+    pub attachments: Option<Vec<Attachment>>,
+
     /* ----- recurring config ----- */
     #[serde(default)]
     pub recurring: Option<RecurringConfig>,
@@ -167,6 +179,29 @@ pub struct CreateInvoiceInput {
     /* ----- design ----- */
     #[serde(default)]
     pub design_metadata: Option<serde_json::Value>,
+}
+
+/// One email-send audit entry on the PATCH wire. Mirrors
+/// [`crm_sales_types::EmailLog`] but takes `sent_at` as a plain RFC3339
+/// instant (the canonical struct's BSON-datetime serde helper can't
+/// deserialize JSON request bodies); the handler converts it to the
+/// stored `EmailLog` shape before `$push`-ing.
+#[derive(Debug, Clone, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct EmailLogEntryInput {
+    /// When the email went out (RFC3339).
+    pub sent_at: chrono::DateTime<chrono::Utc>,
+    /// Recipient address.
+    pub to: String,
+    /// Transport outcome: `queued` / `sent` / `delivered` / `failed` /
+    /// `bounced`.
+    pub status: DeliveryOutcome,
+    /// Provider message id (SES, Resend, …) for cross-referencing.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub provider_message_id: Option<String>,
+    /// Failure detail — only meaningful for `failed` / `bounced`.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub error: Option<String>,
 }
 
 /// `PATCH /v1/crm/invoices/:invoiceId` body. Every field is optional;
@@ -214,8 +249,28 @@ pub struct UpdateInvoiceInput {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub terms_and_conditions: Option<String>,
 
+    /// Full replacement of the attachments array (SabFiles pointers).
+    /// Like `items`, the array is re-written atomically when sent.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub attachments: Option<Vec<Attachment>>,
+
+    /// Cumulative amount received against this invoice. Sent by the
+    /// payment-recording flow (which also creates the matching payment
+    /// receipt). When set — or when `totals` changes — the handler
+    /// re-derives the denormalized `balance` as
+    /// `totals.total - amount_paid`. Must be finite and ≥ 0.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub amount_paid: Option<f64>,
+
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub recurring: Option<RecurringConfig>,
+
+    /// Append-only email-send audit entries. `$push`-ed onto the
+    /// document's `emailLog` (never replaces existing entries) so
+    /// concurrent sends can't clobber each other. Sent by the
+    /// email-invoice flow after a successful dispatch.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub email_log_append: Option<Vec<EmailLogEntryInput>>,
 
     /// Workflow status string (e.g. `"draft"`, `"sent"`, `"paid"`,
     /// `"partially_paid"`, `"overdue"`, `"cancelled"`). Validated in the
@@ -245,7 +300,10 @@ impl UpdateInvoiceInput {
             && self.payment_terms.is_none()
             && self.customer_notes.is_none()
             && self.terms_and_conditions.is_none()
+            && self.attachments.is_none()
+            && self.amount_paid.is_none()
             && self.recurring.is_none()
+            && self.email_log_append.is_none()
             && self.status.is_none()
     }
 }
@@ -293,6 +351,106 @@ mod tests {
         assert_eq!(input.tds_pct, Some(2.0));
         assert_eq!(input.payment_terms.as_deref(), Some("Net 30"));
         assert_eq!(input.from_kind.as_deref(), Some("quotation"));
+    }
+
+    #[test]
+    fn create_input_round_trips_attachments() {
+        let json = serde_json::json!({
+            "invoiceNo": "INV-2026-0002",
+            "clientId": "65f00000000000000000abcd",
+            "currency": "INR",
+            "date": "2026-06-12T00:00:00Z",
+            "dueDate": "2026-07-12T00:00:00Z",
+            "items": [{ "qty": 1.0, "rate": 100.0, "total": 100.0 }],
+            "totals": { "subTotal": 100.0, "total": 100.0 },
+            "attachments": [{
+                "fileId": "65f00000000000000000cafe",
+                "name": "po-scan.pdf",
+                "mimeType": "application/pdf",
+                "size": 1024,
+            }],
+        });
+        let input: CreateInvoiceInput = serde_json::from_value(json).unwrap();
+        let atts = input.attachments.expect("attachments parsed");
+        assert_eq!(atts.len(), 1);
+        assert_eq!(atts[0].file_id.to_hex(), "65f00000000000000000cafe");
+        assert_eq!(atts[0].name.as_deref(), Some("po-scan.pdf"));
+        assert_eq!(atts[0].mime_type.as_deref(), Some("application/pdf"));
+        assert_eq!(atts[0].size, Some(1024));
+
+        // Absent ⇒ None (legacy bodies stay valid).
+        let bare: CreateInvoiceInput = serde_json::from_value(serde_json::json!({
+            "invoiceNo": "INV-2026-0003",
+            "clientId": "65f00000000000000000abcd",
+            "currency": "INR",
+            "date": "2026-06-12T00:00:00Z",
+            "dueDate": "2026-07-12T00:00:00Z",
+            "items": [{ "qty": 1.0, "rate": 100.0, "total": 100.0 }],
+            "totals": { "subTotal": 100.0, "total": 100.0 },
+        }))
+        .unwrap();
+        assert!(bare.attachments.is_none());
+    }
+
+    #[test]
+    fn update_input_round_trips_amount_paid_and_attachments() {
+        let json = serde_json::json!({
+            "amountPaid": 450.5,
+            "attachments": [{ "fileId": "65f00000000000000000cafe" }],
+        });
+        let input: UpdateInvoiceInput = serde_json::from_value(json).unwrap();
+        assert_eq!(input.amount_paid, Some(450.5));
+        assert_eq!(input.attachments.as_ref().map(Vec::len), Some(1));
+        assert!(!input.is_empty());
+
+        // amountPaid alone is a valid (non-empty) patch.
+        let paid_only = UpdateInvoiceInput {
+            amount_paid: Some(0.0),
+            ..Default::default()
+        };
+        assert!(!paid_only.is_empty());
+
+        // attachments alone is a valid (non-empty) patch — including the
+        // clear-all `[]` form.
+        let atts_only = UpdateInvoiceInput {
+            attachments: Some(Vec::new()),
+            ..Default::default()
+        };
+        assert!(!atts_only.is_empty());
+    }
+
+    #[test]
+    fn update_input_round_trips_email_log_append() {
+        let json = serde_json::json!({
+            "emailLogAppend": [{
+                "sentAt": "2026-06-12T10:30:00Z",
+                "to": "buyer@example.com",
+                "status": "sent",
+                "providerMessageId": "ses-abc-123",
+            }],
+        });
+        let input: UpdateInvoiceInput = serde_json::from_value(json).unwrap();
+        let entries = input.email_log_append.as_ref().expect("entries parsed");
+        assert_eq!(entries.len(), 1);
+        assert_eq!(entries[0].to, "buyer@example.com");
+        assert!(matches!(entries[0].status, DeliveryOutcome::Sent));
+        assert_eq!(
+            entries[0].provider_message_id.as_deref(),
+            Some("ses-abc-123")
+        );
+        assert!(entries[0].error.is_none());
+        // emailLogAppend alone is a valid (non-empty) patch.
+        assert!(!input.is_empty());
+    }
+
+    #[test]
+    fn email_log_entry_rejects_unknown_status() {
+        let json = serde_json::json!({
+            "sentAt": "2026-06-12T10:30:00Z",
+            "to": "buyer@example.com",
+            "status": "exploded",
+        });
+        assert!(serde_json::from_value::<EmailLogEntryInput>(json).is_err());
     }
 
     #[test]

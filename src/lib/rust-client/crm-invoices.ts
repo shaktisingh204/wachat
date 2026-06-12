@@ -98,6 +98,27 @@ export interface CrmInvoiceEInvoiceEnvelope {
   ackDate: string;
 }
 
+/**
+ * SabFiles attachment pointer — mirrors `crm_core::Attachment`
+ * (camelCase on the wire). `fileId` is the SabFiles node id; the rest
+ * are display caches captured at attach-time.
+ */
+export interface CrmInvoiceAttachment {
+  fileId: string;
+  name?: string;
+  mimeType?: string;
+  size?: number;
+}
+
+/** One sent-email entry — mirrors `crm_sales_types::comm_log::EmailLog`. */
+export interface CrmInvoiceEmailLog {
+  sentAt: string;
+  to: string;
+  status: string;
+  providerMessageId?: string;
+  error?: string;
+}
+
 export interface CrmInvoiceDoc {
   _id: string;
   identity?: {
@@ -159,7 +180,8 @@ export interface CrmInvoiceDoc {
   eInvoice?: CrmInvoiceEInvoiceEnvelope;
   ewayBillNo?: string;
 
-  attachments?: unknown[];
+  attachments?: CrmInvoiceAttachment[];
+  emailLog?: CrmInvoiceEmailLog[];
   templateId?: string;
   thumbnailFileId?: string;
   signatureImageFileId?: string;
@@ -202,6 +224,8 @@ export interface CrmInvoiceCreateInput {
   paymentTerms?: string;
   customerNotes?: string;
   termsAndConditions?: string;
+  /** SabFiles attachment pointers captured at create time. */
+  attachments?: CrmInvoiceAttachment[];
   recurring?: CrmInvoiceRecurringConfig;
   /** Optional lineage parent kind. Whitelisted on the Rust side. */
   fromKind?: 'quotation' | 'salesOrder' | 'proforma' | 'deal' | 'lead';
@@ -214,6 +238,18 @@ export type CrmInvoiceUpdateInput = Partial<
 > & {
   /** Workflow status — only mutable via PATCH. */
   status?: CrmInvoiceStatus | string;
+  /**
+   * Cumulative amount received. Setting it (or `totals`) makes the Rust
+   * handler re-derive the denormalized `balance`.
+   */
+  amountPaid?: number;
+  /**
+   * Append-only email-send audit entries — the Rust handler `$push`es
+   * them onto the document's `emailLog` (existing entries are never
+   * replaced or truncated). `status` must be a `DeliveryOutcome` wire
+   * value: 'queued' | 'sent' | 'delivered' | 'failed' | 'bounced'.
+   */
+  emailLogAppend?: CrmInvoiceEmailLog[];
   designMetadata?: Record<string, unknown>;
 };
 

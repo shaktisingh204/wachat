@@ -280,6 +280,11 @@ export async function createSabcrmInvoice(
   if (!dateIso) return { ok: false, error: 'A valid invoice date is required.' };
   const dueIso = input.dueDate ? toIso(input.dueDate) : dateIso;
   if (!dueIso) return { ok: false, error: 'The due date is invalid.' };
+  // A REAL picked party is required — placeholder ids are never minted
+  // for invoices (they'd render as meaningless ObjectIds forever).
+  if (!input.clientId || !ObjectId.isValid(input.clientId)) {
+    return { ok: false, error: 'Pick a customer for this invoice.' };
+  }
 
   const g = await gate('create', projectId);
   if (!g.ok) return { ok: false, error: g.error };
@@ -289,12 +294,7 @@ export async function createSabcrmInvoice(
       invoiceNo: input.invoiceNo.trim(),
       date: dateIso,
       dueDate: dueIso,
-      // The Rust DTO requires a buyer id; the proving-vertical dialog has
-      // no customer picker yet, so mint a placeholder ObjectId when absent.
-      clientId:
-        input.clientId && ObjectId.isValid(input.clientId)
-          ? input.clientId
-          : new ObjectId().toHexString(),
+      clientId: input.clientId,
       currency: input.currency.trim().toUpperCase(),
       items: [{ qty: 1, rate: amount, total: amount }],
       totals: { subTotal: amount, total: amount },

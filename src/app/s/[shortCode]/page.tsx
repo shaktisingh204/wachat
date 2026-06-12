@@ -1,6 +1,7 @@
 import React from "react";
 import { notFound, redirect } from 'next/navigation';
 import { trackClickAndGetUrl } from '@/app/actions/url-shortener.actions';
+import { getShortLinkBySlug, recordClick } from '@/lib/sabsms/links';
 import { headers } from 'next/headers';
 import { unstable_cache } from 'next/cache';
 import { connectToDatabase } from '@/lib/mongodb';
@@ -39,6 +40,30 @@ async function ShortUrlRedirectPageContent({ params }: { params: Promise<{ short
     }
 
     const headersList = await headers();
+
+    // ── SabSMS short links (V2.4 track B) ────────────────────────────────
+    // SabSMS mints 7-char base62 slugs into `sabsms_short_links`. This
+    // dynamic segment is shared with the legacy URL-shortener module
+    // (`short_urls`) — Next.js forbids a sibling `s/[slug]/route.ts`
+    // (different slug names on one dynamic path, the /pay/[id] trap), so
+    // both shorteners dispatch from here and SabSMS gets first look via a
+    // single indexed findOne. Public, no auth; bots redirect AND count
+    // (UA is stored — filtering happens in analytics later).
+    const sabsmsLink = await getShortLinkBySlug(shortCode);
+    if (sabsmsLink) {
+        // Non-blocking on purpose — never make the redirect wait on click
+        // bookkeeping (self-hosted Node/PM2 keeps running post-response).
+        recordClick({
+            slug: shortCode,
+            ua: headersList.get('user-agent') ?? undefined,
+            ip:
+                headersList.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+                headersList.get('x-real-ip') ||
+                undefined,
+            referer: headersList.get('referer') ?? undefined,
+        }).catch((e) => console.error('[sabsms/links] recordClick failed', e));
+        redirect(sabsmsLink.target);
+    }
 
     // Pass `null` for the hostname to signify a default domain lookup
     const { originalUrl, error, passwordHash, utmParams, isExpired } = await trackClickAndGetUrl(shortCode, null);

@@ -12,6 +12,7 @@ import type {
   SabsmsMessage,
   SabsmsNumber,
   SabsmsProviderAccount,
+  SabsmsSettings,
   SabsmsShortLink,
   SabsmsSuppression,
   SabsmsTemplate,
@@ -43,6 +44,7 @@ export const SABSMS_COLLECTIONS = {
   webhookDeliveries: 'sabsms_webhook_deliveries',
   shortLinks: 'sabsms_short_links',
   linkClicks: 'sabsms_link_clicks',
+  settings: 'sabsms_settings',
 } as const;
 
 export type SabsmsCollectionName =
@@ -62,6 +64,7 @@ export interface SabsmsCollections {
   webhookDeliveries: Collection<SabsmsWebhookDelivery>;
   shortLinks: Collection<SabsmsShortLink>;
   linkClicks: Collection<SabsmsLinkClick>;
+  settings: Collection<SabsmsSettings>;
 }
 
 export async function getSabsmsCollections(): Promise<{
@@ -93,6 +96,7 @@ export async function getSabsmsCollections(): Promise<{
     ),
     shortLinks: db.collection<SabsmsShortLink>(SABSMS_COLLECTIONS.shortLinks),
     linkClicks: db.collection<SabsmsLinkClick>(SABSMS_COLLECTIONS.linkClicks),
+    settings: db.collection<SabsmsSettings>(SABSMS_COLLECTIONS.settings),
   };
   return { db, cols };
 }
@@ -164,6 +168,7 @@ const INDEXES: Record<
     [{ shortLinkId: 1, clickedAt: -1 }],
     [{ workspaceId: 1, campaignId: 1, clickedAt: -1 }],
   ],
+  settings: [[{ workspaceId: 1 }, { unique: true }]],
 };
 
 let indexesEnsured = false;
@@ -399,8 +404,14 @@ export const SabsmsCampaignSchema = z.object({
   templateId: z.string(),
   audience: z.union([
     z.object({ kind: z.literal('segment'), segmentId: z.string() }),
+    z.object({ kind: z.literal('list'), listId: z.string() }),
     z.object({ kind: z.literal('contacts'), contactIds: z.array(z.string()) }),
-    z.object({ kind: z.literal('csv'), sabFileId: z.string() }),
+    z.object({ kind: z.literal('phones'), phones: z.array(z.string()) }),
+    z.object({
+      kind: z.literal('csv'),
+      sabFileId: z.string().optional(),
+      importId: z.string().optional(),
+    }),
   ]),
   schedule: z.union([
     z.object({ kind: z.literal('immediate') }),
@@ -527,5 +538,12 @@ export const SabsmsLinkClickSchema = z.object({
   ip: z.string().optional(),
   userAgent: z.string().optional(),
   clickedAt: z.date(),
+});
+
+export const SabsmsSettingsSchema = z.object({
+  _id: z.instanceof(ObjectId).optional(),
+  workspaceId: z.string(),
+  shortLinkDomain: z.string().optional(),
+  updatedAt: z.date(),
 });
 

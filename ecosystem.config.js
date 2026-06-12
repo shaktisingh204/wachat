@@ -171,6 +171,43 @@ module.exports = {
     },
 
     // ---------------------------------------------------------------------
+    // SabSMS Events Consumer (Node — reads the engine's `sabsms:events`
+    // Redis Stream via consumer group `sabsms-next`; writes the 30-day
+    // event log + inbox poke keys). Same tsx bootstrap as sabflow-worker.
+    // ---------------------------------------------------------------------
+    {
+      name: 'sabsms-events',
+
+      script: './node_modules/.bin/tsx',
+      args: 'scripts/sabsms-events-worker.mjs',
+
+      instances: 1,
+      exec_mode: 'fork',
+
+      watch: false,
+      autorestart: true,
+
+      restart_delay: 5000,
+      max_restarts: 50,
+      kill_timeout: 10000,
+
+      env: {
+        NODE_ENV: 'production',
+
+        MONGODB_URI: process.env.MONGODB_URI || process.env.MONGO_URL,
+        MONGODB_DB: process.env.MONGODB_DB || 'sabnode',
+
+        REDIS_URL: process.env.REDIS_URL,
+        REDIS_HOST: process.env.REDIS_HOST || '127.0.0.1',
+        REDIS_PORT: process.env.REDIS_PORT || '6379',
+        REDIS_PASSWORD: process.env.REDIS_PASSWORD,
+
+        // `server-only` poison-pill → benign stub (see sabflow-worker).
+        NODE_PATH: './src/workers/_stubs',
+      },
+    },
+
+    // ---------------------------------------------------------------------
     // Next.js Frontend
     // ---------------------------------------------------------------------
     {

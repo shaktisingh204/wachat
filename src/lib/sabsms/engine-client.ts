@@ -180,6 +180,49 @@ export const sabsmsEngine = {
   },
 
   /**
+   * Launch a campaign whose recipients were pre-rendered into
+   * `sabsms_campaign_recipients` — flips `draft|scheduled → running`;
+   * the engine's campaign ticker drives the throttled send from there.
+   */
+  async launchCampaign(
+    campaignId: string,
+  ): Promise<{ ok: boolean; recipients: number }> {
+    return engineFetch<{ ok: boolean; recipients: number }>(
+      `/v1/campaigns/${encodeURIComponent(campaignId)}/launch`,
+      { method: 'POST' },
+    );
+  },
+
+  /** Pause a running campaign (in-flight queue items still send). */
+  async pauseCampaign(campaignId: string): Promise<{ ok: boolean }> {
+    return engineFetch<{ ok: boolean }>(
+      `/v1/campaigns/${encodeURIComponent(campaignId)}/pause`,
+      { method: 'POST' },
+    );
+  },
+
+  /** Resume a paused campaign. */
+  async resumeCampaign(campaignId: string): Promise<{ ok: boolean }> {
+    return engineFetch<{ ok: boolean }>(
+      `/v1/campaigns/${encodeURIComponent(campaignId)}/resume`,
+      { method: 'POST' },
+    );
+  },
+
+  /**
+   * Cancel a campaign — the engine also marks remaining
+   * `pending|claimed` recipients as `cancelled`.
+   */
+  async cancelCampaign(
+    campaignId: string,
+  ): Promise<{ ok: boolean; cancelledRecipients?: number }> {
+    return engineFetch<{ ok: boolean; cancelledRecipients?: number }>(
+      `/v1/campaigns/${encodeURIComponent(campaignId)}/cancel`,
+      { method: 'POST' },
+    );
+  },
+
+  /**
    * Tell the engine to drop its cached decrypted credentials for a
    * workspace (called after provider accounts change). Tolerates an
    * unreachable/disabled engine silently — the cache simply expires.

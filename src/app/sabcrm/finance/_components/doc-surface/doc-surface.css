@@ -1,0 +1,543 @@
+/**
+ * SabCRM Finance — doc-surface kit styles.
+ *
+ * Everything rides the 20ui `--st-*` tokens (dark mode comes free) and
+ * the `u-*` component classes; this file only adds the layout glue the
+ * kit needs: KPI strip, list toolbar, totals card, status-flow rail,
+ * line-items editor grid, detail two-column layout, and the
+ * print-friendly invoice "paper".
+ *
+ * Every screen rule is scoped under the 20ui roots
+ * (`:is(.\32 0ui, .ui20)`) so the `fdoc-*` hooks can never leak into
+ * routes that merely loaded this chunk. Portalled UI keeps matching:
+ * DrawerContent's and DropdownMenuContent's portal wrappers both carry
+ * the `20ui` class. The `@media print` block is the one exception — it
+ * keys off `body:has(.fdoc-paper)` because `body` sits above the scope
+ * root (see the print section).
+ */
+
+/* ─── KPI strip ──────────────────────────────────────────────── */
+
+:is(.\32 0ui, .ui20) .fdoc-kpis {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: 16px 0 4px;
+}
+
+@media (max-width: 960px) {
+  :is(.\32 0ui, .ui20) .fdoc-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  :is(.\32 0ui, .ui20) .fdoc-kpis {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ─── List toolbar ───────────────────────────────────────────── */
+
+:is(.\32 0ui, .ui20) .fdoc-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 16px 0 12px;
+}
+
+:is(.\32 0ui, .ui20) .fdoc-toolbar__search {
+  flex: 1 1 220px;
+  min-width: 180px;
+  max-width: 320px;
+}
+
+:is(.\32 0ui, .ui20) .fdoc-toolbar__control {
+  flex: 0 1 auto;
+  min-width: 150px;
+}
+
+:is(.\32 0ui, .ui20) .fdoc-toolbar__spacer {
+  flex: 1 0 auto;
+}
+
+/* Selected-rows bulk bar */
+:is(.\32 0ui, .ui20) .fdoc-bulkbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  margin-bottom: 10px;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg-secondary);
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-secondary);
+}
+
+:is(.\32 0ui, .ui20) .fdoc-bulkbar__count {
+  font-weight: var(--st-fw-semibold);
+  color: var(--st-text);
+}
+
+/* Numbers always tabular in money tables */
+:is(.\32 0ui, .ui20) .fdoc-money {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+:is(.\32 0ui, .ui20) .fdoc-money--muted {
+  color: var(--st-text-tertiary);
+}
+
+:is(.\32 0ui, .ui20) .fdoc-doc-no {
+  font-weight: var(--st-fw-semibold);
+  color: var(--st-text);
+}
+
+:is(.\32 0ui, .ui20) .fdoc-cell-sub {
+  display: block;
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-tertiary);
+  margin-top: 1px;
+}
+
+:is(.\32 0ui, .ui20) .fdoc-unknown-party {
+  color: var(--st-text-tertiary);
+  font-style: italic;
+}
+
+:is(.\32 0ui, .ui20) .fdoc-list-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-tertiary);
+}
+
+/* ─── Status flow rail ───────────────────────────────────────── */
+
+:is(.\32 0ui, .ui20) .fdoc-flow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+:is(.\32 0ui, .ui20) .fdoc-flow__step {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border: 1px solid var(--st-border);
+  border-radius: 999px;
+  background: var(--st-bg);
+  font-size: var(--st-font-size-xs);
+  font-weight: var(--st-fw-semibold);
+  color: var(--st-text-tertiary);
+  white-space: nowrap;
+}
+
+:is(.\32 0ui, .ui20) .fdoc-flow__step--done {
+  color: var(--st-text-secondary);
+  background: var(--st-bg-muted);
+}
+
+:is(.\32 0ui, .ui20) .fdoc-flow__step--current {
+  color: var(--st-accent);
+  border-color: var(--st-accent);
+  background: var(--st-accent-soft);
+}
+
+:is(.\32 0ui, .ui20) .fdoc-flow__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: currentColor;
+  flex: none;
+}
+
+:is(.\32 0ui, .ui20) .fdoc-flow__link {
+  width: 16px;
+  height: 1px;
+  background: var(--st-border-strong);
+  flex: none;
+}
+
+/* ─── Line-items editor ──────────────────────────────────────── */
+
+:is(.\32 0ui, .ui20) .fdoc-lines {
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  overflow: visible;
+}
+
+:is(.\32 0ui, .ui20) .fdoc-lines table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+:is(.\32 0ui, .ui20) .fdoc-lines th {
+  text-align: left;
+  font-size: var(--st-font-size-xs);
+  font-weight: var(--st-fw-semibold);
+  color: var(--st-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--st-border);
+  background: var(--st-bg-secondary);
+}
+
+:is(.\32 0ui, .ui20) .fdoc-lines td {
+  padding: 6px 6px;
+  border-bottom: 1px solid var(--st-border-light);
+  vertical-align: top;
+}
+
+:is(.\32 0ui, .ui20) .fdoc-lines tr:last-child td {
+  border-bottom: none;
+}
+
+:is(.\32 0ui, .ui20) .fdoc-lines col.fdoc-col--item {
+  width: 22%;
+}
+
+:is(.\32 0ui, .ui20) .fdoc-lines col.fdoc-col--qty {
+  width: 72px;
+}
+
+:is(.\32 0ui, .ui20) .fdoc-lines col.fdoc-col--rate {
+  width: 110px;
+}
+
+:is(.\32 0ui, .ui20) .fdoc-lines col.fdoc-col--pct {
+  width: 78px;
+}
+
+:is(.\32 0ui, .ui20) .fdoc-lines col.fdoc-col--amount {
+  width: 120px;
+}
+
+:is(.\32 0ui, .ui20) .fdoc-lines col.fdoc-col--actions {
+  width: 96px;
+}
+
+:is(.\32 0ui, .ui20) .fdoc-lines th.is-num {
+  text-align: right;
+}
+
+:is(.\32 0ui, .ui20) .fdoc-lines__rowactions {
+  display: inline-flex;
+  gap: 2px;
+}
+
+:is(.\32 0ui, .ui20) .fdoc-totals__grand {
+  display: contents;
+}
+
+:is(.\32 0ui, .ui20) .fdoc-lines__total {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  padding: 12px 10px 0 0;
+  color: var(--st-text);
+  white-space: nowrap;
+}
+
+:is(.\32 0ui, .ui20) .fdoc-lines__footer {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px;
+  border-top: 1px solid var(--st-border);
+  background: var(--st-bg-secondary);
+}
+
+:is(.\32 0ui, .ui20) .fdoc-totals {
+  margin-left: auto;
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 4px 24px;
+  font-size: var(--st-font-size-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+:is(.\32 0ui, .ui20) .fdoc-totals__label {
+  color: var(--st-text-tertiary);
+  text-align: right;
+}
+
+:is(.\32 0ui, .ui20) .fdoc-totals__value {
+  text-align: right;
+  color: var(--st-text);
+}
+
+:is(.\32 0ui, .ui20) .fdoc-totals__grand .fdoc-totals__label,
+:is(.\32 0ui, .ui20) .fdoc-totals__grand .fdoc-totals__value {
+  font-weight: var(--st-fw-semibold);
+  font-size: var(--st-font-size);
+  padding-top: 4px;
+  border-top: 1px solid var(--st-border);
+}
+
+/* ─── Form layout ────────────────────────────────────────────── */
+
+/* Wide right-side drawer for the full doc form. (DrawerContent portals
+   to a wrapper that carries the `20ui` class, so the scope still
+   matches.) */
+:is(.\32 0ui, .ui20) .fdoc-form-drawer[data-vaul-drawer-direction='right'] {
+  width: min(860px, 96vw);
+  max-width: min(860px, 96vw);
+  display: flex;
+  flex-direction: column;
+}
+
+:is(.\32 0ui, .ui20) .fdoc-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 16px;
+}
+
+@media (max-width: 720px) {
+  :is(.\32 0ui, .ui20) .fdoc-form-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+:is(.\32 0ui, .ui20) .fdoc-form-grid__full {
+  grid-column: 1 / -1;
+}
+
+:is(.\32 0ui, .ui20) .fdoc-attachments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+/* ─── Detail page ────────────────────────────────────────────── */
+
+:is(.\32 0ui, .ui20) .fdoc-detail {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 20px;
+  align-items: start;
+  margin-top: 16px;
+}
+
+@media (max-width: 1080px) {
+  :is(.\32 0ui, .ui20) .fdoc-detail {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+:is(.\32 0ui, .ui20) .fdoc-detail__meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px 20px;
+  margin-top: 14px;
+}
+
+:is(.\32 0ui, .ui20) .fdoc-detail__meta-label {
+  display: block;
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 2px;
+}
+
+:is(.\32 0ui, .ui20) .fdoc-detail__meta-value {
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text);
+  font-variant-numeric: tabular-nums;
+}
+
+:is(.\32 0ui, .ui20) .fdoc-rail {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+:is(.\32 0ui, .ui20) .fdoc-rail-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+:is(.\32 0ui, .ui20) .fdoc-rail-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 7px 8px;
+  border-radius: var(--st-radius-sm);
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text);
+  text-decoration: none;
+}
+
+:is(.\32 0ui, .ui20) a.fdoc-rail-item:hover {
+  background: var(--st-hover);
+}
+
+:is(.\32 0ui, .ui20) .fdoc-rail-item__kind {
+  display: block;
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-tertiary);
+}
+
+:is(.\32 0ui, .ui20) .fdoc-rail-item__amount {
+  font-variant-numeric: tabular-nums;
+  color: var(--st-text-secondary);
+  white-space: nowrap;
+}
+
+:is(.\32 0ui, .ui20) .fdoc-activity {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+:is(.\32 0ui, .ui20) .fdoc-activity__row {
+  display: flex;
+  gap: 8px;
+  font-size: var(--st-font-size-sm);
+}
+
+:is(.\32 0ui, .ui20) .fdoc-activity__icon {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--st-bg-muted);
+  color: var(--st-text-tertiary);
+}
+
+:is(.\32 0ui, .ui20) .fdoc-activity__meta {
+  display: block;
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-tertiary);
+}
+
+/* ─── Paper (print region) ───────────────────────────────────── */
+
+:is(.\32 0ui, .ui20) .fdoc-paper {
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-bg);
+  padding: 24px;
+}
+
+:is(.\32 0ui, .ui20) .fdoc-paper__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+:is(.\32 0ui, .ui20) .fdoc-paper__title {
+  margin: 0;
+  font-size: var(--st-font-size-xl);
+  font-weight: var(--st-fw-semibold);
+  color: var(--st-text);
+  letter-spacing: -0.01em;
+}
+
+:is(.\32 0ui, .ui20) .fdoc-paper table.fdoc-paper-lines {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+  font-size: var(--st-font-size-sm);
+}
+
+:is(.\32 0ui, .ui20) .fdoc-paper-lines th {
+  text-align: left;
+  font-size: var(--st-font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--st-text-tertiary);
+  border-bottom: 1px solid var(--st-border-strong);
+  padding: 6px 8px;
+}
+
+:is(.\32 0ui, .ui20) .fdoc-paper-lines td {
+  padding: 8px;
+  border-bottom: 1px solid var(--st-border-light);
+  vertical-align: top;
+  color: var(--st-text);
+}
+
+:is(.\32 0ui, .ui20) .fdoc-paper-lines .is-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+:is(.\32 0ui, .ui20) .fdoc-paper__notes {
+  margin-top: 16px;
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-secondary);
+  white-space: pre-wrap;
+}
+
+:is(.\32 0ui, .ui20) .fdoc-paper__notes h4 {
+  margin: 0 0 4px;
+  font-size: var(--st-font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--st-text-tertiary);
+}
+
+/* ─── Print ──────────────────────────────────────────────────── */
+
+/*
+ * Show ONLY the paper region — but ONLY when a paper is actually on
+ * the page. Every rule is gated on `body:has(.fdoc-paper)` so routes
+ * that merely loaded this chunk (the list page, the detail page's
+ * error branch, any later client navigation) print normally instead
+ * of producing a blank sheet. `body` sits above the 20ui scope root,
+ * so these rules deliberately don't take the `:is(.\32 0ui, .ui20)`
+ * prefix.
+ */
+@media print {
+  body:has(.fdoc-paper) * {
+    visibility: hidden !important;
+  }
+
+  body:has(.fdoc-paper) .fdoc-paper,
+  body:has(.fdoc-paper) .fdoc-paper * {
+    visibility: visible !important;
+  }
+
+  body:has(.fdoc-paper) .fdoc-paper {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    border: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+  }
+
+  /* The party link prints as plain text — no link styling on paper. */
+  body:has(.fdoc-paper) .fdoc-paper [data-noprint-link] {
+    color: inherit !important;
+    text-decoration: none !important;
+  }
+}

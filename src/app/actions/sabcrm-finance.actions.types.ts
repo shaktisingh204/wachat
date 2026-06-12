@@ -27,9 +27,9 @@ export interface SabcrmInvoiceFormInput {
   /** Workflow status. Defaults to `draft`. */
   status?: CrmInvoiceStatus;
   /**
-   * Optional buyer account id (24-char hex). The proving-vertical dialog
-   * has no customer picker yet, so the action mints a placeholder id
-   * when absent (the Rust DTO requires one).
+   * Buyer record id (24-char hex) from the records engine. REQUIRED —
+   * the action rejects the create when it's missing or invalid;
+   * placeholder ids are never minted for invoices.
    */
   clientId?: string;
 }

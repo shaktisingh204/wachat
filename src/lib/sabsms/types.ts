@@ -227,15 +227,25 @@ export interface SabsmsTemplate {
   updatedAt: Date;
 }
 
+/**
+ * Campaign audience source. `segment` / `list` resolve at launch time
+ * through the existing segments / lists modules; `phones` is an
+ * explicit pasted list; `csv` points at a completed `sabsms_imports`
+ * doc (`importId`) or a raw SabFile (`sabFileId`).
+ */
+export type SabsmsCampaignAudience =
+  | { kind: 'segment'; segmentId: string }
+  | { kind: 'list'; listId: string }
+  | { kind: 'contacts'; contactIds: string[] }
+  | { kind: 'phones'; phones: string[] }
+  | { kind: 'csv'; sabFileId?: string; importId?: string };
+
 export interface SabsmsCampaign {
   _id?: ObjectId;
   workspaceId: string;
   name: string;
   templateId: string;
-  audience:
-    | { kind: 'segment'; segmentId: string }
-    | { kind: 'contacts'; contactIds: string[] }
-    | { kind: 'csv'; sabFileId: string };
+  audience: SabsmsCampaignAudience;
   schedule:
     | { kind: 'immediate' }
     | { kind: 'scheduled'; sendAt: Date }
@@ -359,6 +369,18 @@ export interface SabsmsLinkClick {
   ip?: string;
   userAgent?: string;
   clickedAt: Date;
+}
+
+/**
+ * Next-owned per-workspace settings (the Rust engine never reads this
+ * collection — it is UX-layer state, like campaigns being composed).
+ */
+export interface SabsmsSettings {
+  _id?: ObjectId;
+  workspaceId: string;
+  /** Branded short-link domain — bare hostname, e.g. "sab.sm". */
+  shortLinkDomain?: string;
+  updatedAt: Date;
 }
 
 // ─── HTTP contract: Next ↔ Rust engine ────────────────────────────────────
