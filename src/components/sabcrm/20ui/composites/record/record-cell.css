@@ -277,3 +277,27 @@
   outline: none;
   box-shadow: var(--u-focus-ring);
 }
+
+/* ----- AI computed fields (FieldType 'AI') ----- */
+:is(.\32 0ui, .ui20) .rc-ai {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-1);
+  min-width: 0;
+}
+:is(.\32 0ui, .ui20) .rc-ai__icon {
+  flex: none;
+  color: var(--st-text-tertiary);
+}
+:is(.\32 0ui, .ui20) .rc-ai__text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+:is(.\32 0ui, .ui20) .rc-ai__err {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  color: var(--st-danger, var(--st-text-tertiary));
+}

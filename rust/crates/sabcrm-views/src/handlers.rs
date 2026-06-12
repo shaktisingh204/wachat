@@ -9,6 +9,8 @@
 //! | `PATCH  /v1/sabcrm/views/{id}`            | `updateView`                  |
 //! | `DELETE /v1/sabcrm/views/{id}`            | `deleteView`                  |
 //! | `POST   /v1/sabcrm/views/{id}/default`    | `setDefaultView`              |
+//! | `GET    /v1/sabcrm/views/{id}/queue`      | (work queues — per-user state)|
+//! | `POST   /v1/sabcrm/views/{id}/queue`      | (work queues — mark a record) |
 //!
 //! ## Tenancy
 //!
@@ -31,8 +33,9 @@ use serde_json::Value;
 use tracing::instrument;
 
 use crate::dto::{
-    CreateViewInput, ListQuery, ListResponse, OkResponse, RunViewInput, RunViewResponse,
-    ScopeQuery, SetDefaultInput, UpdateViewInput, ViewResponse,
+    CreateViewInput, ListQuery, ListResponse, OkResponse, QueueMarkInput, QueueStateQuery,
+    QueueStateResponse, RunViewInput, RunViewResponse, ScopeQuery, SetDefaultInput,
+    UpdateViewInput, ViewResponse,
 };
 
 /// The Mongo collection backing saved views.
@@ -40,6 +43,13 @@ const VIEWS_COLL: &str = "sabcrm_views";
 
 /// The single Mongo collection backing every SabCRM object's records.
 const RECORDS_COLL: &str = "sabcrm_records";
+
+/// The Mongo collection backing per-user work-queue state — one row per
+/// `(projectId, viewId, recordId, userId)`.
+const QUEUE_COLL: &str = "sabcrm_view_queue_state";
+
+/// Hard cap on the queue-state rows returned by `list_queue_state`.
+const QUEUE_LIST_CAP: i64 = 1000;
 
 /// Default page size for `run_view` when no `limit` is supplied.
 const RUN_DEFAULT_LIMIT: u64 = 50;
@@ -605,4 +615,146 @@ pub async fn run_view(
     }
 
     Ok(Json(RunViewResponse { records, total }))
+}
+
+// ===========================================================================
+// /{id}/queue — per-user work-queue state
+// ===========================================================================
+
+/// Load the parent view by `{ projectId, _id }`, returning `404` on a miss —
+/// every queue-state read/write is anchored to a tenant-scoped view.
+async fn require_view(mongo: &MongoHandle, project_id: &str, oid: ObjectId) -> Result<Document> {
+    mongo
+        .collection::<Document>(VIEWS_COLL)
+        .find_one(doc! { "projectId": project_id, "_id": oid })
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabcrm_views.find_one")))?
+        .ok_or_else(|| ApiError::NotFound("view".to_owned()))
+}
+
+/// `GET /v1/sabcrm/views/{id}/queue` — list one user's queue state for a
+/// view. The parent view is loaded first (`404` if missing); every state
+/// filter leads with `{ projectId }` plus the `(viewId, userId)` pair.
+/// Capped at [`QUEUE_LIST_CAP`] rows.
+#[instrument(skip_all, fields(id = %id))]
+pub async fn list_queue_state(
+    _user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Path(id): Path<String>,
+    Query(query): Query<QueueStateQuery>,
+) -> Result<Json<QueueStateResponse>> {
+    let project_id = require_project(&query.project_id)?;
+    let user_id = query.user_id.trim();
+    if user_id.is_empty() {
+        return Err(ApiError::Validation("userId is required.".to_owned()));
+    }
+    let oid = oid_from_str(&id)?;
+    require_view(&mongo, project_id, oid).await?;
+
+    let coll = mongo.collection::<Document>(QUEUE_COLL);
+    let mut cursor = coll
+        .find(doc! {
+            "projectId": project_id,
+            "viewId": oid.to_hex(),
+            "userId": user_id,
+        })
+        .limit(QUEUE_LIST_CAP)
+        .await
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabcrm_view_queue_state.find"))
+        })?;
+
+    let mut states = Vec::new();
+    while let Some(d) = cursor.try_next().await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabcrm_view_queue_state.cursor"))
+    })? {
+        states.push(record_to_wire(d));
+    }
+
+    Ok(Json(QueueStateResponse { states }))
+}
+
+/// `POST /v1/sabcrm/views/{id}/queue` — mark one record's queue state for one
+/// user. Upserts on the `(projectId, viewId, recordId, userId)` identity:
+///
+/// - `done`   ⇒ `$set { doneAt: now, snoozedUntil: null }`;
+/// - `snooze` ⇒ `$set { snoozedUntil: until, doneAt: null }` (`400` when
+///   `until` is missing or not RFC3339);
+/// - `clear`  ⇒ deletes the row.
+///
+/// Returns the single cleaned doc (or `{ "ok": true }` for `clear`).
+#[instrument(skip_all, fields(id = %id))]
+pub async fn mark_queue_state(
+    _user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Path(id): Path<String>,
+    Json(body): Json<QueueMarkInput>,
+) -> Result<Json<Value>> {
+    let project_id = require_project(&body.project_id)?;
+    let user_id = body.user_id.trim();
+    if user_id.is_empty() {
+        return Err(ApiError::Validation("userId is required.".to_owned()));
+    }
+    let record_id = body.record_id.trim();
+    if record_id.is_empty() {
+        return Err(ApiError::Validation("recordId is required.".to_owned()));
+    }
+    let oid = oid_from_str(&id)?;
+    require_view(&mongo, project_id, oid).await?;
+
+    let identity = doc! {
+        "projectId": project_id,
+        "viewId": oid.to_hex(),
+        "recordId": record_id,
+        "userId": user_id,
+    };
+    let coll = mongo.collection::<Document>(QUEUE_COLL);
+    let now = Utc::now().to_rfc3339();
+
+    let set = match body.action.trim() {
+        "done" => doc! { "doneAt": &now, "snoozedUntil": Bson::Null, "updatedAt": &now },
+        "snooze" => {
+            let until = body
+                .until
+                .as_deref()
+                .map(str::trim)
+                .filter(|u| !u.is_empty())
+                .ok_or_else(|| {
+                    ApiError::Validation("`until` is required when action is snooze.".to_owned())
+                })?;
+            if chrono::DateTime::parse_from_rfc3339(until).is_err() {
+                return Err(ApiError::Validation(
+                    "`until` must be an RFC3339 timestamp.".to_owned(),
+                ));
+            }
+            doc! { "snoozedUntil": until, "doneAt": Bson::Null, "updatedAt": &now }
+        }
+        "clear" => {
+            coll.delete_one(identity).await.map_err(|e| {
+                ApiError::Internal(
+                    anyhow::Error::new(e).context("sabcrm_view_queue_state.delete_one"),
+                )
+            })?;
+            return Ok(Json(serde_json::json!({ "ok": true })));
+        }
+        _ => {
+            return Err(ApiError::Validation(
+                "action must be one of done | snooze | clear.".to_owned(),
+            ));
+        }
+    };
+
+    let updated = coll
+        .find_one_and_update(identity, doc! { "$set": set })
+        .upsert(true)
+        .return_document(mongodb::options::ReturnDocument::After)
+        .await
+        .map_err(|e| {
+            ApiError::Internal(
+                anyhow::Error::new(e).context("sabcrm_view_queue_state.find_one_and_update"),
+            )
+        })?
+        .ok_or_else(|| ApiError::NotFound("queue state".to_owned()))?;
+
+    Ok(Json(record_to_wire(updated)))
 }

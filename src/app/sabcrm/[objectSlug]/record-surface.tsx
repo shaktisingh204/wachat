@@ -15,6 +15,9 @@
  *   - bulk delete/update . `bulkDeleteRecordsTw` / `bulkUpdateRecordsTw`
  *   - saved views ........ `listViewsTw` / `createViewTw` / `updateViewTw` /
  *                          `deleteViewTw`
+ *   - work queues ........ `listQueueStateTw` / `markQueueItemTw` (per-user
+ *                          Done/Snooze state for the `queue` presentation;
+ *                          config rides the view doc's additive `queue` key)
  *   - favorites .......... `listSabcrmFavoritesTw` / `addSabcrmFavoriteTw` /
  *                          `removeSabcrmFavoriteTw` (optimistic row star)
  *   - stage gates ........ `checkSabcrmStageMove` → RecordBoard `canMove`
@@ -23,14 +26,23 @@
  * (pure, unit-testable). Rendered by the legacy `page.tsx` when the
  * `NEXT_PUBLIC_SABCRM_RECORD_SURFACE` flag matches the active slug.
  *
- * Shareable URLs: `?view=<id>&vt=<table|board>&page=<n>&q=<text>` round-trip
+ * Shareable URLs: `?view=<id>&vt=<table|board|queue>&page=<n>&q=<text>` round-trip
  * through `parseUrlViewState` / `applyUrlViewState` (replace-state only —
  * filters/sorts/group-by stay in the saved view the `view` param references).
  */
 
 import * as React from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Database, Inbox, Plus, RotateCw, Star, Trash2 } from 'lucide-react';
+import {
+  Bookmark,
+  Database,
+  Inbox,
+  Plus,
+  RotateCw,
+  Settings2,
+  Star,
+  Trash2,
+} from 'lucide-react';
 
 import {
   RecordGrid,
@@ -38,9 +50,15 @@ import {
   GridPagination,
   RecordBoard,
   RecordCell,
+  RecordQueue,
   ViewBar,
   EMPTY_FILTER_GROUP,
+  filterableFields,
+  opsForField,
+  opLabel,
+  isUnaryOp,
   type FilterGroup,
+  type FilterOp,
   type ViewSort,
   type ViewDensity,
   type SavedView,
@@ -49,12 +67,18 @@ import {
   type RecordBoardColumn,
   type RecordBoardGateVerdict,
   type RecordCellProps,
+  type QueueItemState,
 } from '@/components/sabcrm/20ui/composites/record';
-import { Button } from '@/components/sabcrm/20ui/button';
-import { Select } from '@/components/sabcrm/20ui/select';
+import { Button, IconButton } from '@/components/sabcrm/20ui/button';
+import { Select, type SelectOption } from '@/components/sabcrm/20ui/select';
 import { Field, Input } from '@/components/sabcrm/20ui/field';
 import { Alert, EmptyState } from '@/components/sabcrm/20ui/feedback';
 import { Spinner } from '@/components/sabcrm/20ui/loading';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/sabcrm/20ui/popover';
 import {
   Dialog,
   DialogContent,
@@ -91,12 +115,15 @@ import {
   createViewTw,
   updateViewTw,
   deleteViewTw,
+  listQueueStateTw,
+  markQueueItemTw,
 } from '@/app/actions/sabcrm-views.actions';
 import {
   checkSabcrmStageMove,
   requestSabcrmStageApproval,
 } from '@/app/actions/sabcrm-stage-gates.actions';
 import { listPipelinesTw } from '@/app/actions/sabcrm-pipelines.actions';
+import { nlToFilterTw } from '@/app/actions/sabcrm-ai.actions';
 import type {
   SabcrmRustPipeline,
   SabcrmRustPipelineStage,
@@ -110,6 +137,8 @@ import {
   savedViewToWireInput,
   savedViewPatchToWire,
   columnWidthsFromWire,
+  queueConfigFromWire,
+  queueConfigToWire,
   parseUrlViewState,
   applyUrlViewState,
   rustRecordToCrm,
@@ -119,6 +148,7 @@ import {
   countLeaves,
   type ViewStateSnapshot,
   type UrlViewState,
+  type QueueViewConfig,
 } from './record-surface-adapter';
 
 /* -------------------------------------------------------------- constants */
@@ -401,6 +431,240 @@ function CreateRecordDialog({
   );
 }
 
+/* ---------------------------------------------------- queue settings popover */
+
+/** Snooze presets offered by the queue settings (minutes). */
+const SNOOZE_PRESETS: SelectOption[] = [
+  { value: '60', label: '1 hour' },
+  { value: '1440', label: '1 day' },
+  { value: '4320', label: '3 days' },
+  { value: '10080', label: '1 week' },
+];
+
+interface QueueSettingsPopoverProps {
+  object: ObjectMetadata;
+  /** The active view's parsed `queue` config (seeds the draft on open). */
+  config: QueueViewConfig | null;
+  /** Persist the config onto the active view; resolve `true` on success. */
+  onSave: (cfg: QueueViewConfig) => Promise<boolean>;
+}
+
+/**
+ * "Queue settings" — the host-owned popover configuring the active saved
+ * view's work queue (`view.queue`, persisted via `updateViewTw`): the
+ * `doneWhen` rule (same field/op/value vocabulary as a FilterBuilder
+ * ConditionRow), the SLA date field, and the default snooze.
+ */
+function QueueSettingsPopover({
+  object,
+  config,
+  onSave,
+}: QueueSettingsPopoverProps): React.JSX.Element {
+  const [open, setOpen] = React.useState(false);
+  const [doneField, setDoneField] = React.useState<string | null>(null);
+  const [doneOp, setDoneOp] = React.useState<FilterOp>('eq');
+  const [doneValue, setDoneValue] = React.useState('');
+  const [slaField, setSlaField] = React.useState<string | null>(null);
+  const [snooze, setSnooze] = React.useState('1440');
+  const [saving, setSaving] = React.useState(false);
+
+  const usable = React.useMemo(
+    () => filterableFields(object.fields),
+    [object],
+  );
+  const dateFields = React.useMemo(
+    () =>
+      object.fields.filter((f) => f.type === 'DATE' || f.type === 'DATE_TIME'),
+    [object],
+  );
+
+  const handleOpenChange = (next: boolean): void => {
+    if (next) {
+      // Seed the draft from the persisted config.
+      setDoneField(config?.doneWhen?.fieldKey ?? null);
+      setDoneOp(config?.doneWhen?.op ?? 'eq');
+      setDoneValue(config?.doneWhen?.value ?? '');
+      setSlaField(config?.slaFieldKey ?? null);
+      setSnooze(String(config?.snoozeMinutes ?? 1440));
+    }
+    setOpen(next);
+  };
+
+  const field = usable.find((f) => f.key === doneField);
+  const ops = field ? opsForField(field) : [];
+  const effectiveOp: FilterOp = ops.includes(doneOp) ? doneOp : (ops[0] ?? 'eq');
+  const needsValue = !!field && !isUnaryOp(effectiveOp);
+  const canSave = !field || !needsValue || doneValue.trim() !== '';
+
+  const save = (): void => {
+    if (saving || !canSave) return;
+    setSaving(true);
+    void (async () => {
+      const cfg: QueueViewConfig = { snoozeMinutes: Number(snooze) };
+      if (field) {
+        cfg.doneWhen = needsValue
+          ? { fieldKey: field.key, op: effectiveOp, value: doneValue }
+          : { fieldKey: field.key, op: effectiveOp };
+      }
+      if (slaField) cfg.slaFieldKey = slaField;
+      const ok = await onSave(cfg);
+      setSaving(false);
+      if (ok) setOpen(false);
+    })();
+  };
+
+  return (
+    <Popover open={open} onOpenChange={handleOpenChange}>
+      <PopoverTrigger asChild>
+        <IconButton label="Queue settings" icon={Settings2} size="sm" />
+      </PopoverTrigger>
+      <PopoverContent align="end">
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 'var(--st-space-3, 12px)',
+            width: 280,
+          }}
+        >
+          <Field
+            label="Done when"
+            help="Records matching this rule count as done."
+          >
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 'var(--st-space-1, 4px)',
+              }}
+            >
+              <Select
+                size="sm"
+                value={doneField}
+                onChange={(v) => {
+                  setDoneField(v);
+                  const nextField = usable.find((f) => f.key === v);
+                  const nextOps = nextField ? opsForField(nextField) : [];
+                  setDoneOp(nextOps[0] ?? 'eq');
+                  setDoneValue('');
+                }}
+                options={usable.map((f) => ({ value: f.key, label: f.label }))}
+                placeholder="No done rule"
+                clearable
+                searchable={usable.length > 8}
+                block
+                aria-label="Done-when field"
+              />
+              {field ? (
+                <Select
+                  size="sm"
+                  value={effectiveOp}
+                  onChange={(v) => {
+                    if (v) setDoneOp(v as FilterOp);
+                  }}
+                  options={ops.map((o) => ({
+                    value: o,
+                    label: opLabel(field, o),
+                  }))}
+                  block
+                  aria-label="Done-when operator"
+                />
+              ) : null}
+              {needsValue ? (
+                field.type === 'SELECT' || field.type === 'MULTI_SELECT' ? (
+                  <Select
+                    size="sm"
+                    value={doneValue || null}
+                    onChange={(v) => setDoneValue(v ?? '')}
+                    options={(field.options ?? []).map((o) => ({
+                      value: o.value,
+                      label: o.label,
+                    }))}
+                    placeholder="Select…"
+                    block
+                    aria-label="Done-when value"
+                  />
+                ) : field.type === 'BOOLEAN' ? (
+                  <Select
+                    size="sm"
+                    value={doneValue || null}
+                    onChange={(v) => setDoneValue(v ?? '')}
+                    options={[
+                      { value: 'true', label: 'True' },
+                      { value: 'false', label: 'False' },
+                    ]}
+                    placeholder="Select…"
+                    block
+                    aria-label="Done-when value"
+                  />
+                ) : (
+                  <Input
+                    inputSize="sm"
+                    value={doneValue}
+                    onChange={(e) => setDoneValue(e.target.value)}
+                    placeholder="Value"
+                    aria-label="Done-when value"
+                  />
+                )
+              ) : null}
+            </div>
+          </Field>
+
+          <Field label="SLA field" help="Date field driving the due chip.">
+            <Select
+              size="sm"
+              value={slaField}
+              onChange={setSlaField}
+              options={dateFields.map((f) => ({
+                value: f.key,
+                label: f.label,
+              }))}
+              placeholder={dateFields.length === 0 ? 'No date fields' : 'None'}
+              clearable
+              block
+              aria-label="SLA field"
+            />
+          </Field>
+
+          <Field label="Default snooze">
+            <Select
+              size="sm"
+              value={snooze}
+              onChange={(v) => {
+                if (v) setSnooze(v);
+              }}
+              options={SNOOZE_PRESETS}
+              block
+              aria-label="Default snooze"
+            />
+          </Field>
+
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'flex-end',
+              gap: 'var(--st-space-2, 8px)',
+            }}
+          >
+            <Button size="sm" variant="ghost" onClick={() => setOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              size="sm"
+              variant="primary"
+              loading={saving}
+              disabled={!canSave}
+              onClick={save}
+            >
+              Save
+            </Button>
+          </div>
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
 /* ------------------------------------------------------------ RecordSurface */
 
 export function RecordSurface(): React.JSX.Element {
@@ -509,6 +773,14 @@ export function RecordSurface(): React.JSX.Element {
   const viewWidthsRef = React.useRef<Record<string, Record<string, number>>>(
     {},
   );
+  // Per-view persisted work-queue config (`queue` key on the view doc) —
+  // additive like `columnWidths`, parsed defensively by the adapter and
+  // applied/persisted by the host the same way.
+  const viewQueueRef = React.useRef<Record<string, QueueViewConfig | null>>(
+    {},
+  );
+  /** The ACTIVE view's queue config (drives the `queue` presentation). */
+  const [queueCfg, setQueueCfg] = React.useState<QueueViewConfig | null>(null);
 
   const applyView = React.useCallback((view: SavedView) => {
     applyingViewRef.current = true;
@@ -518,18 +790,25 @@ export function RecordSurface(): React.JSX.Element {
     setSorts(view.sorts ?? []);
     setGroupBy(view.groupBy ?? null);
     setColumnWidths(viewWidthsRef.current[view.id] ?? {});
+    setQueueCfg(viewQueueRef.current[view.id] ?? null);
   }, []);
 
   React.useEffect(() => {
     let cancelled = false;
     setActiveViewId(null);
+    setQueueCfg(null);
     void (async () => {
       if (!objectSlug) return;
       const res = await listViewsTw(objectSlug, activeProjectId ?? undefined);
       if (cancelled || !res.ok) return;
       const widths: Record<string, Record<string, number>> = {};
-      for (const wire of res.data) widths[wire.id] = columnWidthsFromWire(wire);
+      const queues: Record<string, QueueViewConfig | null> = {};
+      for (const wire of res.data) {
+        widths[wire.id] = columnWidthsFromWire(wire);
+        queues[wire.id] = queueConfigFromWire(wire);
+      }
       viewWidthsRef.current = widths;
+      viewQueueRef.current = queues;
       const views = res.data.map(savedViewFromWire);
       setSavedViews(views);
       // Deep link: apply the URL's saved view once the list is known. The
@@ -580,9 +859,11 @@ export function RecordSurface(): React.JSX.Element {
         );
         if (!res.ok) return;
         viewWidthsRef.current[res.data.id] = columnWidthsFromWire(res.data);
+        viewQueueRef.current[res.data.id] = queueConfigFromWire(res.data);
         const view = savedViewFromWire(res.data);
         setSavedViews((prev) => [...prev, view]);
         setActiveViewId(view.id);
+        setQueueCfg(viewQueueRef.current[view.id] ?? null);
       })();
     },
     [objectSlug, snapshot, activeProjectId],
@@ -598,6 +879,7 @@ export function RecordSurface(): React.JSX.Element {
         );
         if (!res.ok) return;
         viewWidthsRef.current[id] = columnWidthsFromWire(res.data);
+        viewQueueRef.current[id] = queueConfigFromWire(res.data);
         const view = savedViewFromWire(res.data);
         setSavedViews((prev) => prev.map((v) => (v.id === id ? view : v)));
       })();
@@ -611,12 +893,19 @@ export function RecordSurface(): React.JSX.Element {
         const res = await deleteViewTw(id, activeProjectId ?? undefined);
         if (!res.ok) return;
         delete viewWidthsRef.current[id];
+        delete viewQueueRef.current[id];
         setSavedViews((prev) => prev.filter((v) => v.id !== id));
         setActiveViewId((prev) => (prev === id ? null : prev));
       })();
     },
     [activeProjectId],
   );
+
+  // Queue config is meaningless without an active saved view (queue state is
+  // keyed by viewId) — reset it whenever the active view clears.
+  React.useEffect(() => {
+    if (!activeViewId) setQueueCfg(null);
+  }, [activeViewId]);
 
   // Persist viewType/filters/sorts/groupBy/columnWidths onto the ACTIVE saved
   // view (debounced) whenever the user changes them — Twenty's implicit-save
@@ -644,6 +933,7 @@ export function RecordSurface(): React.JSX.Element {
         );
         if (!res.ok) return;
         viewWidthsRef.current[id] = columnWidthsFromWire(res.data);
+        viewQueueRef.current[id] = queueConfigFromWire(res.data);
         const view = savedViewFromWire(res.data);
         setSavedViews((prev) => prev.map((v) => (v.id === id ? view : v)));
       })();
@@ -678,7 +968,7 @@ export function RecordSurface(): React.JSX.Element {
 
   const canBoard = !!groupField;
   const availableViews = React.useMemo<RecordViewType[]>(
-    () => (canBoard ? ['table', 'board'] : ['table']),
+    () => (canBoard ? ['table', 'board', 'queue'] : ['table', 'queue']),
     [canBoard],
   );
 
@@ -908,6 +1198,32 @@ export function RecordSurface(): React.JSX.Element {
     [object, boardAggregates, currencyField],
   );
 
+  /* ---- work queue (per-user state, keyed by the active saved view) ------- */
+
+  const [queueStates, setQueueStates] = React.useState<QueueItemState[]>([]);
+  const [queueLoading, setQueueLoading] = React.useState(false);
+
+  React.useEffect(() => {
+    if (viewType !== 'queue' || !activeViewId) {
+      setQueueStates([]);
+      return;
+    }
+    let cancelled = false;
+    setQueueLoading(true);
+    void (async () => {
+      const res = await listQueueStateTw(
+        activeViewId,
+        activeProjectId ?? undefined,
+      );
+      if (cancelled) return;
+      if (res.ok) setQueueStates(res.data);
+      setQueueLoading(false);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [viewType, activeViewId, activeProjectId, refreshTick]);
+
   /* ---- relation labels --------------------------------------------------- */
 
   // id → label cache, harvested from enriched pages + relation searches.
@@ -998,6 +1314,71 @@ export function RecordSurface(): React.JSX.Element {
   const records = React.useMemo<CrmRecord[]>(
     () => rustRecords.map(rustRecordToCrm),
     [rustRecords],
+  );
+
+  /* ---- work queue actions (Done / Snooze / Undo + config save) ------------ */
+
+  // Done / Snooze / Undo — optimistic apply, rollback on failure. Queue state
+  // is per-user and non-destructive (separate `sabcrm_view_queue_state`
+  // collection on the Rust views path; the record itself is never touched).
+  const handleQueueMark = React.useCallback(
+    (recordId: string, action: 'done' | 'snooze' | 'clear', until?: string) => {
+      const viewId = activeViewId;
+      if (!viewId) return;
+      const prev = queueStates;
+      setQueueStates((cur) => {
+        const rest = cur.filter((s) => s.recordId !== recordId);
+        if (action === 'clear') return rest;
+        if (action === 'done') {
+          return [
+            ...rest,
+            { recordId, doneAt: new Date().toISOString(), snoozedUntil: null },
+          ];
+        }
+        return [...rest, { recordId, snoozedUntil: until ?? null, doneAt: null }];
+      });
+      setMutationError(null);
+      void (async () => {
+        const res = await markQueueItemTw(
+          viewId,
+          recordId,
+          action,
+          until,
+          activeProjectId ?? undefined,
+        );
+        if (!res.ok) {
+          setQueueStates(prev);
+          setMutationError(res.error);
+        }
+      })();
+    },
+    [activeViewId, queueStates, activeProjectId],
+  );
+
+  // Persist the queue CONFIG (`view.queue`) onto the active saved view —
+  // additive key on the Rust view doc (the `columnWidths` precedent).
+  const handleQueueConfigSave = React.useCallback(
+    async (cfg: QueueViewConfig): Promise<boolean> => {
+      const viewId = activeViewId;
+      if (!viewId) return false;
+      const res = await updateViewTw(
+        viewId,
+        { queue: queueConfigToWire(cfg) },
+        activeProjectId ?? undefined,
+      );
+      if (!res.ok) {
+        setMutationError(res.error);
+        return false;
+      }
+      const parsed = queueConfigFromWire(res.data);
+      viewQueueRef.current[viewId] = parsed;
+      setQueueCfg(parsed);
+      viewWidthsRef.current[viewId] = columnWidthsFromWire(res.data);
+      const view = savedViewFromWire(res.data);
+      setSavedViews((prev) => prev.map((v) => (v.id === viewId ? view : v)));
+      return true;
+    },
+    [activeViewId, activeProjectId],
   );
 
   /* ---- favorites (row star) ----------------------------------------------- */
@@ -1487,6 +1868,7 @@ export function RecordSurface(): React.JSX.Element {
   }
 
   const showBoard = viewType === 'board' && !!groupField;
+  const showQueue = viewType === 'queue';
 
   return (
     <div
@@ -1498,6 +1880,20 @@ export function RecordSurface(): React.JSX.Element {
         fields={object.fields}
         filters={filters}
         onFiltersChange={setFilters}
+        onNlFilter={async (query) => {
+          const res = await nlToFilterTw(
+            objectSlug,
+            query,
+            activeProjectId ?? undefined,
+          );
+          return res.ok
+            ? {
+                ok: true,
+                group: res.data.group,
+                unresolved: res.data.unresolved,
+              }
+            : { ok: false, error: res.error };
+        }}
         sorts={sorts}
         onSortsChange={setSorts}
         groupBy={groupBy}
@@ -1516,14 +1912,23 @@ export function RecordSurface(): React.JSX.Element {
         density={density}
         onDensityChange={setDensity}
         trailing={
-          <Button
-            variant="primary"
-            size="sm"
-            iconLeft={Plus}
-            onClick={() => setCreateOpen(true)}
-          >
-            New {object.labelSingular.toLowerCase()}
-          </Button>
+          <>
+            {showQueue && activeViewId ? (
+              <QueueSettingsPopover
+                object={object}
+                config={queueCfg}
+                onSave={handleQueueConfigSave}
+              />
+            ) : null}
+            <Button
+              variant="primary"
+              size="sm"
+              iconLeft={Plus}
+              onClick={() => setCreateOpen(true)}
+            >
+              New {object.labelSingular.toLowerCase()}
+            </Button>
+          </>
         }
       />
 
@@ -1613,6 +2018,64 @@ export function RecordSurface(): React.JSX.Element {
             </Button>
           </div>
         </Alert>
+      ) : showQueue ? (
+        !activeViewId ? (
+          // Queue state is keyed by viewId — an unsaved queue has nowhere to
+          // persist, so prompt for a saved view first.
+          <EmptyState
+            icon={Bookmark}
+            title="Save this as a view to start a queue"
+            description="A queue remembers your per-person Done and Snooze progress on a saved view. Save the current filters and sort as a view (Views → Save view as…), then switch it to Queue."
+          />
+        ) : (
+          <>
+            <RecordQueue
+              object={object}
+              records={records}
+              fields={columns}
+              states={queueStates}
+              doneWhen={queueCfg?.doneWhen ?? null}
+              slaFieldKey={queueCfg?.slaFieldKey ?? null}
+              snoozeMinutes={queueCfg?.snoozeMinutes ?? null}
+              loading={loadingData || queueLoading}
+              onOpen={(recordId) =>
+                router.push(`/sabcrm/${objectSlug}/${recordId}`)
+              }
+              onMark={handleQueueMark}
+              rowLabel={(record) =>
+                sabcrmRecordLabel(object, { id: record._id, data: record.data })
+              }
+              relationResolver={relationResolver}
+              emptyState={
+                <EmptyState
+                  icon={Inbox}
+                  title={
+                    q || countLeaves(filters) > 0
+                      ? 'No records match'
+                      : `No ${object.labelPlural.toLowerCase()} yet`
+                  }
+                  description={
+                    q || countLeaves(filters) > 0
+                      ? 'Try clearing the search or the view filters.'
+                      : 'Create the first record to get started.'
+                  }
+                />
+              }
+            />
+            {total > pageSize ? (
+              <GridPagination
+                page={page}
+                pageSize={pageSize}
+                total={total}
+                onPageChange={setPage}
+                onPageSizeChange={(size) => {
+                  setPageSize(size);
+                  setPage(1);
+                }}
+              />
+            ) : null}
+          </>
+        )
       ) : (
         <RecordGrid
           object={object}

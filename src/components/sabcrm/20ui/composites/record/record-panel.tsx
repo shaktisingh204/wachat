@@ -48,6 +48,12 @@ export interface RecordPanelProps {
   fmt?: RecordCellFmt;
   /** Field keys to omit (e.g. the title field already shown in the header). */
   excludeKeys?: string[];
+  /**
+   * Optional per-row trailing slot, rendered right-aligned beside the field
+   * label (host concern — e.g. the "Recompute" affordance on AI fields).
+   * Return null/undefined to render nothing for a field.
+   */
+  fieldRowTrailing?: (field: FieldMetadata) => React.ReactNode;
   loading?: boolean;
   className?: string;
 }
@@ -67,6 +73,8 @@ interface PanelRowProps {
   onCancel: () => void;
   relationResolver?: RelationResolver;
   fmt?: RecordCellFmt;
+  /** Right-aligned slot beside the label (see RecordPanelProps). */
+  trailing?: React.ReactNode;
 }
 
 /**
@@ -86,6 +94,7 @@ function PanelRow({
   onCancel,
   relationResolver,
   fmt,
+  trailing,
 }: PanelRowProps): React.JSX.Element {
   const commit = React.useCallback(
     (next: unknown) => onCommit(field.key, next),
@@ -118,6 +127,9 @@ function PanelRow({
         <span className="rd-row__label-text">{field.label}</span>
         {saving ? (
           <Loader2 size={11} className="rd-row__saving" aria-label="Saving" />
+        ) : null}
+        {trailing != null ? (
+          <span className="rd-row__trailing">{trailing}</span>
         ) : null}
       </div>
       {editing ? (
@@ -165,6 +177,7 @@ export function RecordPanel({
   relationResolver,
   fmt,
   excludeKeys,
+  fieldRowTrailing,
   loading = false,
   className,
 }: RecordPanelProps): React.JSX.Element {
@@ -241,6 +254,7 @@ export function RecordPanel({
               onCancel={cancelEdit}
               relationResolver={relationResolver}
               fmt={fmt}
+              trailing={fieldRowTrailing?.(field)}
             />
           ))
         )}

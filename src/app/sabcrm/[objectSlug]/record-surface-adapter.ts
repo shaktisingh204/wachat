@@ -260,6 +260,152 @@ export function wireToFilterGroup(filters: unknown): FilterGroup {
 }
 
 /* -------------------------------------------------------------------------- */
+/* NL filter — model JSON → FilterGroup ("validate, never trust")              */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * The slice of {@link import('@/lib/sabcrm/types').FieldMetadata} the NL
+ * validation walk needs: key membership, the SELECT/MULTI_SELECT label→value
+ * mapping, and nothing else. Kept structural so the server action can pass
+ * Rust-client field metadata without a cast.
+ */
+export interface NlCatalogueField {
+  key: string;
+  type: string;
+  options?: Array<{ value: string; label: string }>;
+}
+
+/** The FilterBuilder's `maxDepth` — sub-groups nested deeper are dropped. */
+const NL_MAX_DEPTH = 3;
+
+/**
+ * Strip markdown code fences (```json … ```) and parse; when the reply embeds
+ * prose around the JSON, fall back to the first `{ … }` slice. `null` when
+ * nothing parses.
+ */
+function extractJsonObject(raw: string): unknown {
+  let text = raw.trim();
+  const fenced = /^```(?:json)?\s*([\s\S]*?)\s*```$/i.exec(text);
+  if (fenced?.[1]) text = fenced[1].trim();
+  try {
+    return JSON.parse(text);
+  } catch {
+    const start = text.indexOf('{');
+    const end = text.lastIndexOf('}');
+    if (start >= 0 && end > start) {
+      try {
+        return JSON.parse(text.slice(start, end + 1));
+      } catch {
+        return null;
+      }
+    }
+    return null;
+  }
+}
+
+/**
+ * Validate an LLM reply into a committed-shape {@link FilterGroup} — the
+ * "validate, never trust" walk behind `nlToFilterTw`:
+ *
+ *   - strips ```json fences / surrounding prose, `JSON.parse`s the rest;
+ *   - recursive walk capped at {@link NL_MAX_DEPTH} (the builder's `maxDepth`);
+ *   - leaves must name a catalogue field (`fieldKey`, `field` accepted as an
+ *     alias) and get their op normalised via {@link normalizeOp};
+ *   - SELECT/MULTI_SELECT leaves map a value matching an option **label** onto
+ *     the option **value** (case-insensitive); non-option values fail closed
+ *     (leaf dropped);
+ *   - anything invalid is dropped; the result is {@link pruneGroup}d.
+ *
+ * Returns `null` when nothing survives (callers surface "Could not turn that
+ * into a filter."). The model's top-level `unresolved` note rides along.
+ */
+export function nlFilterFromModelJson(
+  raw: string,
+  fields: NlCatalogueField[],
+): { group: FilterGroup; unresolved?: string } | null {
+  const parsed = extractJsonObject(raw);
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+    return null;
+  }
+
+  const byKey = new Map(fields.map((f) => [f.key, f]));
+
+  const walkGroup = (
+    node: Record<string, unknown>,
+    depth: number,
+  ): FilterGroup | null => {
+    if (depth > NL_MAX_DEPTH) return null;
+    if (!Array.isArray(node.conditions)) return null;
+    const op: FilterConjunction = node.op === 'or' ? 'or' : 'and';
+    const conditions: FilterNode[] = [];
+    for (const child of node.conditions as unknown[]) {
+      if (!child || typeof child !== 'object' || Array.isArray(child)) continue;
+      const c = child as Record<string, unknown>;
+
+      // Nested sub-group.
+      if (Array.isArray(c.conditions)) {
+        const sub = walkGroup(c, depth + 1);
+        if (sub && sub.conditions.length > 0) conditions.push(sub);
+        continue;
+      }
+
+      // Leaf — `fieldKey` per the schema; `field` accepted as a wire alias.
+      const keyRaw =
+        typeof c.fieldKey === 'string' && c.fieldKey
+          ? c.fieldKey
+          : typeof c.field === 'string'
+            ? c.field
+            : '';
+      const field = byKey.get(keyRaw);
+      if (!field) continue;
+
+      const leafOp = normalizeOp(c.op);
+      if (isUnaryOp(leafOp)) {
+        conditions.push({ fieldKey: field.key, op: leafOp });
+        continue;
+      }
+
+      const rawValue = c.value;
+      if (
+        rawValue === undefined ||
+        rawValue === null ||
+        (typeof rawValue !== 'string' &&
+          typeof rawValue !== 'number' &&
+          typeof rawValue !== 'boolean')
+      ) {
+        continue;
+      }
+      let value = String(rawValue);
+
+      if (field.type === 'SELECT' || field.type === 'MULTI_SELECT') {
+        const lower = value.toLowerCase();
+        const match = (field.options ?? []).find(
+          (o) =>
+            o.value.toLowerCase() === lower || o.label.toLowerCase() === lower,
+        );
+        if (!match) continue; // fails closed — non-option values are dropped
+        value = match.value;
+      }
+
+      conditions.push({ fieldKey: field.key, op: leafOp, value });
+    }
+    return { op, conditions };
+  };
+
+  const group = walkGroup(parsed as Record<string, unknown>, 0);
+  if (!group) return null;
+  const pruned = pruneGroup(group);
+  if (pruned.conditions.length === 0) return null;
+
+  const unresolvedRaw = (parsed as Record<string, unknown>).unresolved;
+  const unresolved =
+    typeof unresolvedRaw === 'string' && unresolvedRaw.trim() !== ''
+      ? unresolvedRaw.trim().slice(0, 300)
+      : undefined;
+  return unresolved ? { group: pruned, unresolved } : { group: pruned };
+}
+
+/* -------------------------------------------------------------------------- */
 /* Sorts                                                                       */
 /* -------------------------------------------------------------------------- */
 
@@ -376,6 +522,98 @@ export function columnWidthsFromWire(
   return out;
 }
 
+/* -------------------------------------------------------------------------- */
+/* Work-queue config (additive `queue` key on the view doc)                   */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * The client-side slice of a saved view's work-queue config. The persisted
+ * wire shape (`view.queue`) is
+ * `{ enabled, doneWhen: { field, op, value? }, slaField, snoozeMinutes }`;
+ * `doneWhen` maps onto the composites' {@link FilterCondition} leaf.
+ */
+export interface QueueViewConfig {
+  /** Leaf condition marking a record as inherently done. */
+  doneWhen?: FilterCondition;
+  /** DATE/DATE_TIME field key driving the SLA chip (overdue when < now). */
+  slaFieldKey?: string;
+  /** Default snooze, minutes. */
+  snoozeMinutes?: number;
+}
+
+/**
+ * Read the persisted `queue` config back off a saved-view document. Like
+ * {@link columnWidthsFromWire}, the key is additive (not in
+ * {@link SabcrmRustView}'s declared shape — the Rust engine round-trips any
+ * extra keys), so it is accessed defensively: non-object payloads return
+ * `null`, a malformed `doneWhen` is dropped (its `op` is normalised via
+ * {@link normalizeOp}), and non-positive / non-numeric `snoozeMinutes` are
+ * ignored.
+ */
+export function queueConfigFromWire(
+  view: SabcrmRustView,
+): QueueViewConfig | null {
+  const raw = (view as unknown as Record<string, unknown>).queue;
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null;
+  const obj = raw as Record<string, unknown>;
+
+  const out: QueueViewConfig = {};
+
+  const doneWhen = obj.doneWhen;
+  if (doneWhen && typeof doneWhen === 'object' && !Array.isArray(doneWhen)) {
+    const leaf = doneWhen as Record<string, unknown>;
+    const field = typeof leaf.field === 'string' ? leaf.field.trim() : '';
+    if (field) {
+      const op = normalizeOp(leaf.op);
+      const condition: FilterCondition = { fieldKey: field, op };
+      if (!isUnaryOp(op)) {
+        const value = leaf.value;
+        condition.value =
+          value === undefined || value === null ? '' : String(value);
+      }
+      out.doneWhen = condition;
+    }
+  }
+
+  if (typeof obj.slaField === 'string' && obj.slaField.trim()) {
+    out.slaFieldKey = obj.slaField.trim();
+  }
+
+  const minutes = Number(obj.snoozeMinutes);
+  if (Number.isFinite(minutes) && minutes > 0) {
+    out.snoozeMinutes = Math.round(minutes);
+  }
+
+  return out;
+}
+
+/**
+ * Serialize a {@link QueueViewConfig} back into the persisted `queue` wire
+ * key for `updateViewTw` (reverse of {@link queueConfigFromWire}).
+ */
+export function queueConfigToWire(
+  cfg: QueueViewConfig,
+): Record<string, unknown> {
+  const out: Record<string, unknown> = { enabled: true };
+  if (cfg.doneWhen?.fieldKey) {
+    const leaf: Record<string, unknown> = {
+      field: cfg.doneWhen.fieldKey,
+      op: cfg.doneWhen.op,
+    };
+    if (!isUnaryOp(cfg.doneWhen.op)) leaf.value = cfg.doneWhen.value ?? '';
+    out.doneWhen = leaf;
+  }
+  if (cfg.slaFieldKey) out.slaField = cfg.slaFieldKey;
+  if (
+    typeof cfg.snoozeMinutes === 'number' &&
+    Number.isFinite(cfg.snoozeMinutes) &&
+    cfg.snoozeMinutes > 0
+  ) {
+    out.snoozeMinutes = Math.round(cfg.snoozeMinutes);
+  }
+  return out;
+}
+
 /** Build the `createViewTw` input for "Save view as…". */
 export function savedViewToWireInput(
   objectSlug: string,
@@ -473,7 +711,7 @@ const URL_PARAM_PAGE = 'page';
 const URL_PARAM_Q = 'q';
 
 /** View types the surface can actually render (and thus encode). */
-const URL_VIEW_TYPES: ReadonlySet<string> = new Set(['table', 'board']);
+const URL_VIEW_TYPES: ReadonlySet<string> = new Set(['table', 'board', 'queue']);
 
 /**
  * Parse a `location.search` string (with or without the leading `?`) into a

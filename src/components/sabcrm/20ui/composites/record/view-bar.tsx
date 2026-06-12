@@ -36,12 +36,14 @@ import {
   GanttChart,
   Kanban,
   ListFilter,
+  ListTodo,
   Map as MapIcon,
   Pencil,
   Plus,
   Rows3,
   Rows4,
   Search,
+  Sparkles,
   Table2,
   Trash2,
   X,
@@ -84,8 +86,18 @@ import './view-bar.css';
 
 /* ------------------------------------------------------------------ types */
 
-/** The record presentations the segmented control can switch between. */
-export type RecordViewType = 'table' | 'board' | 'calendar' | 'map' | 'timeline';
+/**
+ * The record presentations the segmented control can switch between.
+ * `queue` is a PRESENTATION of a saved view (its filters scope the queue,
+ * its multi-sort is the priority order) — it is never a persisted `kind`.
+ */
+export type RecordViewType =
+  | 'table'
+  | 'board'
+  | 'calendar'
+  | 'map'
+  | 'timeline'
+  | 'queue';
 
 /** One entry in the ordered multi-sort list (primary first). */
 export interface ViewSort {
@@ -129,6 +141,14 @@ export interface ViewBarProps {
   filters: FilterGroup;
   /** Fired with the PRUNED next tree when the user applies / clears. */
   onFiltersChange: (next: FilterGroup) => void;
+  /**
+   * NL → filter-tree translator. When set, the Filter popover shows an
+   * "Ask AI" row; results land in the DRAFT for review, never auto-applied.
+   */
+  onNlFilter?: (query: string) => Promise<
+    | { ok: true; group: FilterGroup; unresolved?: string }
+    | { ok: false; error: string }
+  >;
 
   /** Ordered multi-sort (primary first). */
   sorts: ViewSort[];
@@ -176,6 +196,7 @@ const VIEW_TYPE_META: Record<
   calendar: { label: 'Calendar', icon: Calendar },
   map: { label: 'Map', icon: MapIcon },
   timeline: { label: 'Timeline', icon: GanttChart },
+  queue: { label: 'Queue', icon: ListTodo },
 };
 
 const ALL_VIEW_TYPES: RecordViewType[] = [
@@ -184,6 +205,7 @@ const ALL_VIEW_TYPES: RecordViewType[] = [
   'calendar',
   'map',
   'timeline',
+  'queue',
 ];
 
 const SORT_DIR_ITEMS: ReadonlyArray<SegmentedItem<'asc' | 'desc'>> = [
@@ -353,9 +375,20 @@ function FilterControl({
   fields,
   filters,
   onFiltersChange,
-}: Pick<ViewBarProps, 'fields' | 'filters' | 'onFiltersChange'>): React.JSX.Element {
+  onNlFilter,
+}: Pick<
+  ViewBarProps,
+  'fields' | 'filters' | 'onFiltersChange' | 'onNlFilter'
+>): React.JSX.Element {
   const [open, setOpen] = React.useState(false);
   const [draft, setDraft] = React.useState<FilterGroup>(filters);
+
+  // Ask-AI (NL → draft) row state. Results only ever land in the DRAFT — the
+  // user reviews the generated tree and commits through the same Apply path.
+  const [nlQuery, setNlQuery] = React.useState('');
+  const [nlBusy, setNlBusy] = React.useState(false);
+  const [nlError, setNlError] = React.useState<string | null>(null);
+  const [nlNote, setNlNote] = React.useState<string | null>(null);
 
   const activeCount = countConditions(filters);
 
@@ -368,6 +401,9 @@ function FilterControl({
           ? filters
           : { op: 'and', conditions: [defaultCondition(fields)] },
       );
+      setNlQuery('');
+      setNlError(null);
+      setNlNote(null);
     }
     setOpen(next);
   };
@@ -380,6 +416,28 @@ function FilterControl({
   const clear = (): void => {
     onFiltersChange(EMPTY_FILTER_GROUP);
     setOpen(false);
+  };
+
+  const submitNl = async (): Promise<void> => {
+    if (!onNlFilter) return;
+    const q = nlQuery.trim();
+    if (!q || nlBusy) return;
+    setNlBusy(true);
+    setNlError(null);
+    setNlNote(null);
+    try {
+      const res = await onNlFilter(q);
+      if (res.ok) {
+        setDraft(res.group);
+        setNlNote(res.unresolved ?? null);
+      } else {
+        setNlError(res.error);
+      }
+    } catch {
+      setNlError('Could not generate a filter.');
+    } finally {
+      setNlBusy(false);
+    }
   };
 
   return (
@@ -395,6 +453,48 @@ function FilterControl({
         </Button>
       </PopoverTrigger>
       <PopoverContent align="start" className="vb-pop vb-pop--filter">
+        {onNlFilter ? (
+          <div className="vb-nl">
+            <div className="vb-nl__row">
+              <Input
+                className="vb-nl__input"
+                inputSize="sm"
+                value={nlQuery}
+                placeholder="Describe a filter…"
+                aria-label="Describe a filter"
+                disabled={nlBusy}
+                onChange={(e) => setNlQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    void submitNl();
+                  }
+                }}
+              />
+              <IconButton
+                label="Generate filter"
+                icon={Sparkles}
+                size="sm"
+                disabled={nlBusy || nlQuery.trim() === ''}
+                aria-busy={nlBusy || undefined}
+                onClick={() => void submitNl()}
+              />
+            </div>
+            {nlBusy ? (
+              <p className="vb-nl__note" role="status">
+                Generating filter…
+              </p>
+            ) : null}
+            {nlError ? (
+              <p className="vb-nl__error" role="alert">
+                {nlError}
+              </p>
+            ) : null}
+            {!nlBusy && nlNote ? (
+              <p className="vb-nl__note">Could not express: {nlNote}</p>
+            ) : null}
+          </div>
+        ) : null}
         <FilterBuilder fields={fields} value={draft} onChange={setDraft} />
         <div className="vb-pop__foot">
           <Button
@@ -597,6 +697,7 @@ export function ViewBar({
   fields,
   filters,
   onFiltersChange,
+  onNlFilter,
   sorts,
   onSortsChange,
   groupBy,
@@ -676,6 +777,7 @@ export function ViewBar({
         fields={fields}
         filters={filters}
         onFiltersChange={onFiltersChange}
+        onNlFilter={onNlFilter}
       />
       <SortControl fields={fields} sorts={sorts} onSortsChange={onSortsChange} />
 

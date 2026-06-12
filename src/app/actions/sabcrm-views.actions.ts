@@ -37,6 +37,8 @@ import type {
   UpdateViewTwPatch,
   SabcrmViewRunOpts,
   SabcrmViewRunPage,
+  SabcrmQueueState,
+  SabcrmQueueMarkAction,
 } from './sabcrm-views.actions.types';
 
 // ---------------------------------------------------------------------------
@@ -236,5 +238,73 @@ export async function runViewTw(
     return { ok: true, data: { records: res.records, total: res.total } };
   } catch (e) {
     return fail(e, 'Failed to run view.');
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Work-queue state — per-user, per-view (collection `sabcrm_view_queue_state`)
+// ---------------------------------------------------------------------------
+
+/**
+ * Lists the signed-in user's work-queue state for a saved view. The session
+ * user is ALWAYS the queue user — queue state is personal and
+ * non-destructive, so a caller can never read (or write) another member's
+ * queue.
+ */
+export async function listQueueStateTw(
+  viewId: string,
+  projectId?: string,
+): Promise<ActionResult<SabcrmQueueState[]>> {
+  if (!viewId) return { ok: false, error: 'View id is required.' };
+
+  const g = await gate('view', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const data = await sabcrmViewsApi.listQueueState(
+      g.ctx.projectId,
+      viewId,
+      g.ctx.userId,
+    );
+    return { ok: true, data };
+  } catch (e) {
+    return fail(e, 'Failed to load queue state.');
+  }
+}
+
+/**
+ * Marks one record's queue state for the signed-in user: `done` / `snooze`
+ * (requires an RFC3339 `until`) / `clear` (resets both flags). Returns the
+ * upserted state row, or `null` for `clear`.
+ */
+export async function markQueueItemTw(
+  viewId: string,
+  recordId: string,
+  action: SabcrmQueueMarkAction,
+  until?: string,
+  projectId?: string,
+): Promise<ActionResult<SabcrmQueueState | null>> {
+  if (!viewId) return { ok: false, error: 'View id is required.' };
+  if (!recordId) return { ok: false, error: 'Record id is required.' };
+  if (action === 'snooze' && !until) {
+    return { ok: false, error: 'A snooze-until time is required.' };
+  }
+
+  const g = await gate('edit', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const res = await sabcrmViewsApi.markQueueState(g.ctx.projectId, viewId, {
+      userId: g.ctx.userId,
+      recordId,
+      action,
+      until,
+    });
+    return {
+      ok: true,
+      data: 'recordId' in res ? (res as SabcrmQueueState) : null,
+    };
+  } catch (e) {
+    return fail(e, 'Failed to update queue state.');
   }
 }

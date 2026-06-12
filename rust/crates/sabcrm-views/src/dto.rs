@@ -357,3 +357,135 @@ pub struct SavedView {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub updated_at: Option<String>,
 }
+
+// ===========================================================================
+// Work-queue state (per-user, per-view) — `/{id}/queue`
+// ===========================================================================
+//
+// A saved view becomes a prioritized work queue: the view's filters scope the
+// queue, its multi-sort is the priority order, and each record gets per-user,
+// non-destructive work state (Done / Snooze / Skip) persisted in the separate
+// `sabcrm_view_queue_state` collection — one row per
+// `(projectId, viewId, recordId, userId)`. The queue CONFIG (`queue` key on
+// the view document: `enabled` / `doneWhen` / `slaField` / `snoozeMinutes`)
+// rides the existing additive `#[serde(flatten)]` create/update path like
+// `columnWidths` does, so no DTO change is needed for it.
+
+/// `GET /{id}/queue` query params — list one user's queue state for a view.
+#[derive(Debug, Clone, Deserialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct QueueStateQuery {
+    /// Tenant scope — required.
+    pub project_id: String,
+    /// The queue user whose state to list — required.
+    pub user_id: String,
+}
+
+/// `POST /{id}/queue` body — mark one record's queue state for one user.
+#[derive(Debug, Clone, Deserialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct QueueMarkInput {
+    /// Tenant scope — required.
+    pub project_id: String,
+    /// The queue user the state belongs to — required.
+    pub user_id: String,
+    /// The record being marked — required.
+    pub record_id: String,
+    /// "done" | "snooze" | "clear" (clear resets both flags).
+    pub action: String,
+    /// RFC3339 — required when action == "snooze".
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub until: Option<String>,
+}
+
+/// Response body for `GET /{id}/queue` — the user's queue-state rows for the
+/// view (cleaned docs, `_id` → `id`).
+#[derive(Debug, Clone, Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct QueueStateResponse {
+    #[schema(value_type = Vec<Object>)]
+    pub states: Vec<Value>,
+}
+
+// ===========================================================================
+// Serde tests — queue DTO wire shapes
+// ===========================================================================
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::json;
+
+    #[test]
+    fn queue_state_query_deserializes_camel_case() {
+        let q: QueueStateQuery =
+            serde_json::from_value(json!({ "projectId": "p1", "userId": "u1" }))
+                .expect("camelCase keys deserialize");
+        assert_eq!(q.project_id, "p1");
+        assert_eq!(q.user_id, "u1");
+    }
+
+    #[test]
+    fn queue_state_query_rejects_snake_case() {
+        let res = serde_json::from_value::<QueueStateQuery>(
+            json!({ "project_id": "p1", "user_id": "u1" }),
+        );
+        assert!(res.is_err(), "snake_case keys must not deserialize");
+    }
+
+    #[test]
+    fn queue_mark_input_deserializes_snooze_with_until() {
+        let m: QueueMarkInput = serde_json::from_value(json!({
+            "projectId": "p1",
+            "userId": "u1",
+            "recordId": "r1",
+            "action": "snooze",
+            "until": "2026-06-13T09:00:00Z"
+        }))
+        .expect("full snooze body deserializes");
+        assert_eq!(m.project_id, "p1");
+        assert_eq!(m.user_id, "u1");
+        assert_eq!(m.record_id, "r1");
+        assert_eq!(m.action, "snooze");
+        assert_eq!(m.until.as_deref(), Some("2026-06-13T09:00:00Z"));
+    }
+
+    #[test]
+    fn queue_mark_input_until_defaults_to_none() {
+        let m: QueueMarkInput = serde_json::from_value(json!({
+            "projectId": "p1",
+            "userId": "u1",
+            "recordId": "r1",
+            "action": "done"
+        }))
+        .expect("body without `until` deserializes");
+        assert_eq!(m.action, "done");
+        assert!(m.until.is_none());
+    }
+
+    #[test]
+    fn queue_mark_input_requires_identity_keys() {
+        let res = serde_json::from_value::<QueueMarkInput>(json!({
+            "projectId": "p1",
+            "action": "done"
+        }));
+        assert!(res.is_err(), "userId/recordId are required");
+    }
+
+    #[test]
+    fn queue_state_response_serializes_states_array() {
+        let res = QueueStateResponse {
+            states: vec![json!({
+                "id": "abc",
+                "recordId": "r1",
+                "userId": "u1",
+                "snoozedUntil": null,
+                "doneAt": "2026-06-12T10:00:00Z"
+            })],
+        };
+        let v = serde_json::to_value(&res).expect("serializes");
+        assert_eq!(v["states"][0]["recordId"], "r1");
+        assert_eq!(v["states"][0]["doneAt"], "2026-06-12T10:00:00Z");
+        assert!(v["states"][0]["snoozedUntil"].is_null());
+    }
+}

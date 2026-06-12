@@ -20,6 +20,12 @@
  * than crashing the route.
  */
 
+import {
+  GATEWAY_MODEL,
+  ANTHROPIC_MODEL,
+  OPENAI_MODEL,
+} from '@/lib/sabcrm/ai-llm.server';
+
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
@@ -40,10 +46,8 @@ const SYSTEM_PROMPT =
   'practical, and professional. When asked to draft messages or notes, ' +
   'produce ready-to-use copy.';
 
-// Newest Anthropic models (verified against the gateway model list).
-const GATEWAY_MODEL = 'anthropic/claude-sonnet-4.6';
-const ANTHROPIC_MODEL = 'claude-sonnet-4-6';
-const OPENAI_MODEL = 'gpt-4o';
+// Model ids live in `@/lib/sabcrm/ai-llm.server` (shared with the
+// non-streaming helper `generateSabcrmText`) — one place to bump models.
 
 // ---------------------------------------------------------------------------
 // Helpers

@@ -189,6 +189,14 @@
   flex: none;
 }
 
+/* Host-injected per-row affordance (e.g. AI "Recompute"), right-aligned. */
+:is(.\32 0ui, .ui20) .rd-row__trailing {
+  display: inline-flex;
+  align-items: center;
+  margin-left: auto;
+  flex: none;
+}
+
 :is(.\32 0ui, .ui20) .rd-row__value {
   display: flex;
   align-items: center;

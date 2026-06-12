@@ -14,6 +14,7 @@
 import type { FieldType } from '@/lib/sabcrm/types';
 
 import type { FieldDisplayComponent, FieldEditorComponent } from './shared';
+import { AiDisplay, AiEditor } from './ai';
 import { BooleanDisplay, BooleanEditor } from './boolean';
 import {
   AddressDisplay,
@@ -90,6 +91,7 @@ const DISPLAYS: Record<FieldType, FieldDisplayComponent> = {
   RAW_JSON: RawJsonDisplay,
   ACTOR: ActorDisplay,
   RICH_TEXT_V2: RichTextDisplay,
+  AI: AiDisplay,
 };
 
 const EDITORS: Record<FieldType, FieldEditorComponent> = {
@@ -118,6 +120,8 @@ const EDITORS: Record<FieldType, FieldEditorComponent> = {
   // ACTOR is system-written (audit trail) — its "editor" is the display.
   ACTOR: ActorEditor,
   RICH_TEXT_V2: RichTextEditor,
+  // AI is system-computed (LLM) — its "editor" is the display too.
+  AI: AiEditor,
 };
 
 /**
@@ -145,6 +149,7 @@ export function getFieldEditor(
    ========================================================================= */
 
 export * from './shared';
+export * from './ai';
 export * from './boolean';
 export * from './composite';
 export * from './currency';

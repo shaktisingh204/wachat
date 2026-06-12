@@ -43,6 +43,14 @@ import 'server-only';
  *    The step index advances, history is appended, and the enrollment
  *    completes after the last step. Auto-unenroll (reply / stage change)
  *    lives in `src/lib/sabcrm/sequences.server.ts`, not here.
+ * 6. **AI computed fields** (`FieldType: 'AI'`, config in `settings.ai`).
+ *    Discover objects carrying AI fields from `sabcrm_objects`, and for each
+ *    auto-refresh field recompute records whose prompt inputs changed
+ *    (sha256 dirty-hash in `data.__ai.<key>.inputsHash`). Rows are CLAIMED
+ *    single-winner, the project owner's `ai_requests` quota gates each LLM
+ *    call, and writes go DIRECT to Mongo without bumping `updatedAt` (an AI
+ *    write must not reset the idle clocks of passes 3–4 or re-trigger
+ *    record-change workflows). Evaluator: `src/lib/sabcrm/ai-fields.server.ts`.
  *
  * Everything is best-effort and wrapped in try/catch — a downed engine or an
  * unset `RUST_API_URL` must NOT throw out of the cron; it surfaces in the
@@ -76,6 +84,11 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
 import { rustServiceFetch } from '@/lib/rust-client/service-fetch';
 import { dispatchTransactionalEmail } from '@/lib/email-dispatcher';
+import { canUse } from '@/lib/billing/entitlements';
+import { recordUsage } from '@/lib/billing/usage-meter';
+import { aiFieldConfig, type FieldMetadata } from './types';
+import { aiSourceFields, aiSourceValue, aiInputsHash } from './ai-fields';
+import { evaluateAiField } from './ai-fields.server';
 
 // ---------------------------------------------------------------------------
 // Caps — keep one invocation well inside the 300s function budget.
@@ -105,8 +118,21 @@ const MAX_SEQUENCE_ENROLLMENTS_PER_RUN = 50;
  * instead of hot-looping; the success path overwrites it.
  */
 const SEQUENCE_CLAIM_DELAY_MS = 10 * 60_000;
+/** Max `(project, object)` pairs scanned for AI fields per invocation. */
+const MAX_AI_FIELD_OBJECTS_PER_RUN = 10;
+/** Max AI-field LLM calls per tick (~1–3 s each — keep inside the budget). */
+const MAX_AI_FIELD_EVALS_PER_RUN = 20;
+/** Max records scanned per AI field per invocation. */
+const MAX_RECORDS_PER_AI_FIELD = 200;
+/**
+ * How long a claimed (`pending`) AI-field row blocks re-evaluation. If the
+ * tick crashes mid-LLM-call the row retries after this delay instead of
+ * hot-looping (mirrors {@link SEQUENCE_CLAIM_DELAY_MS}).
+ */
+const AI_FIELD_CLAIM_DELAY_MS = 10 * 60_000;
 
 const WORKFLOWS_COLL = 'sabcrm_workflows';
+const OBJECTS_COLL = 'sabcrm_objects';
 const RUNS_COLL = 'sabcrm_workflow_runs';
 const RECORDS_COLL = 'sabcrm_records';
 const PIPELINES_COLL = 'sabcrm_pipelines';
@@ -168,6 +194,18 @@ export interface SequenceItemReport {
     detail?: string;
 }
 
+/** Per-record AI-field outcome line in the report. */
+export interface AiFieldItemReport {
+    projectId: string;
+    objectSlug: string;
+    fieldKey: string;
+    recordId: string;
+    /** `ran` (a value was computed) | `skipped` | `failed`. */
+    status: 'ran' | 'skipped' | 'failed';
+    /** The skip or failure detail. */
+    detail?: string;
+}
+
 /** The report returned by {@link runDueWorkflows}. */
 export interface SchedulerReport {
     /** Total workflows + retries that executed (any step attempted). */
@@ -194,6 +232,11 @@ export interface SchedulerReport {
      * this tick. Additive; absent entries mean nothing was due.
      */
     sequences: SequenceItemReport[];
+    /**
+     * AI computed-field outcomes — one line per record claimed/evaluated this
+     * tick (steady-state in-sync records produce NO line). Additive.
+     */
+    aiFields: AiFieldItemReport[];
     /** Milliseconds spent. */
     durationMs: number;
 }
@@ -1196,6 +1239,7 @@ export async function runDueWorkflows(): Promise<SchedulerReport> {
         timeElapsed: [],
         rotting: [],
         sequences: [],
+        aiFields: [],
         durationMs: 0,
     };
 
@@ -1626,6 +1670,275 @@ export async function runDueWorkflows(): Promise<SchedulerReport> {
         report.failed += 1;
     }
 
+    // --- 6. AI computed fields (FieldType 'AI', settings.ai) ----------------
+    //
+    // Discover objects carrying AI fields straight from `sabcrm_objects` (the
+    // collection holds custom objects AND standard-object extension docs).
+    // Per auto-refresh AI field, scan live records and recompute the ones
+    // whose prompt inputs changed (sha256 dirty-hash). Each row is CLAIMED
+    // single-winner — the claim writes the new hash + a `pending` meta up
+    // front, so a crashed tick retries only after AI_FIELD_CLAIM_DELAY_MS.
+    // The project owner's `ai_requests` quota gates every LLM call; usage is
+    // metered with a deterministic idempotency key. Writes go DIRECT to Mongo
+    // and never bump `updatedAt` (see ai-fields.server.ts).
+    try {
+        const objectDocs = (await db
+            .collection(OBJECTS_COLL)
+            .find({ 'fields.type': 'AI' })
+            .limit(500)
+            .toArray()) as unknown as Array<{
+            projectId?: string;
+            slug?: string;
+            fields?: FieldMetadata[];
+        }>;
+
+        // Group by (projectId, slug): a standard object's extension doc and a
+        // custom object's doc are shaped alike; merging keeps one scan per pair.
+        interface AiGroup {
+            projectId: string;
+            slug: string;
+            aiFields: FieldMetadata[];
+            /** Every field key the docs declare (validates `{{token}}`s). */
+            fieldKeys: Set<string>;
+        }
+        const aiGroups = new Map<string, AiGroup>();
+        for (const doc of objectDocs) {
+            const projectId = String(doc.projectId ?? '');
+            const slug = String(doc.slug ?? '');
+            if (!projectId || !slug) continue;
+            const key = `${projectId} ${slug}`;
+            let group = aiGroups.get(key);
+            if (!group) {
+                group = { projectId, slug, aiFields: [], fieldKeys: new Set() };
+                aiGroups.set(key, group);
+            }
+            for (const f of doc.fields ?? []) {
+                if (!f?.key) continue;
+                group.fieldKeys.add(f.key);
+                if (f.type === 'AI') group.aiFields.push(f);
+            }
+        }
+
+        const ownerByProject = new Map<string, string | undefined>();
+        const nowIso = new Date(now).toISOString();
+        let scannedGroups = 0;
+        let evals = 0;
+
+        groupLoop: for (const group of aiGroups.values()) {
+            if (scannedGroups >= MAX_AI_FIELD_OBJECTS_PER_RUN) break;
+            if (group.aiFields.length === 0) continue;
+            scannedGroups += 1;
+
+            for (const field of group.aiFields) {
+                const cfg = aiFieldConfig(field);
+                if (!cfg || cfg.refresh !== 'auto') continue;
+
+                const records = (await db
+                    .collection(RECORDS_COLL)
+                    .find({
+                        projectId: group.projectId,
+                        object: group.slug,
+                        deletedAt: { $in: [null] },
+                    })
+                    .limit(MAX_RECORDS_PER_AI_FIELD)
+                    .toArray()) as unknown as RecordDoc[];
+
+                for (const rec of records) {
+                    if (evals >= MAX_AI_FIELD_EVALS_PER_RUN) break groupLoop;
+                    const recordId = idHex(rec._id);
+                    const data = rec.data ?? {};
+
+                    // Dirty check: hash the prompt + the raw values of its
+                    // source fields. `{{token}}`s are validated against the
+                    // doc's field keys UNION the record's own data keys (a
+                    // standard object's built-in fields live only in the Rust
+                    // merge, not in the extension doc — the data bag has them).
+                    const keys = new Set<string>(group.fieldKeys);
+                    for (const k of Object.keys(data)) {
+                        if (k !== '__ai') keys.add(k);
+                    }
+                    const sources = aiSourceFields(cfg.prompt, keys);
+                    const values: Record<string, unknown> = {};
+                    for (const token of sources) {
+                        values[token] =
+                            token === 'updatedAt' || token === 'createdAt'
+                                ? data[token] ?? rec[token as 'updatedAt' | 'createdAt']
+                                : aiSourceValue(data, token);
+                    }
+                    const hash = aiInputsHash(cfg.prompt, values);
+
+                    const aiMeta = (data.__ai ?? {}) as Record<
+                        string,
+                        | {
+                              inputsHash?: string;
+                              status?: string;
+                              computedAt?: string;
+                          }
+                        | undefined
+                    >;
+                    const meta = aiMeta[field.key];
+
+                    // Claim filter: single-winner via an optimistic match. For
+                    // an unseen/changed hash the `$ne` guard wins; for a STALE
+                    // `pending` row (crashed tick, same hash) the exact
+                    // computedAt match wins — anything else is in sync
+                    // (`ready`), failed-with-unchanged-inputs (no hot retry),
+                    // or freshly claimed by another tick → skip silently.
+                    let claimFilter: Record<string, unknown> | null = null;
+                    if (meta?.inputsHash === hash) {
+                        const stalePending =
+                            meta.status === 'pending' &&
+                            (parseMs(meta.computedAt) ?? 0) <=
+                                now - AI_FIELD_CLAIM_DELAY_MS;
+                        if (!stalePending) continue;
+                        claimFilter = {
+                            _id: rec._id as ObjectId,
+                            [`data.__ai.${field.key}.status`]: 'pending',
+                            [`data.__ai.${field.key}.computedAt`]: meta.computedAt,
+                        };
+                    } else {
+                        claimFilter = {
+                            _id: rec._id as ObjectId,
+                            [`data.__ai.${field.key}.inputsHash`]: { $ne: hash },
+                        };
+                    }
+
+                    const claim = await db.collection(RECORDS_COLL).updateOne(
+                        claimFilter,
+                        {
+                            $set: {
+                                [`data.__ai.${field.key}`]: {
+                                    inputsHash: hash,
+                                    status: 'pending',
+                                    computedAt: nowIso,
+                                    error: null,
+                                },
+                            },
+                        },
+                    );
+                    if (claim.modifiedCount === 0) {
+                        report.aiFields.push({
+                            projectId: group.projectId,
+                            objectSlug: group.slug,
+                            fieldKey: field.key,
+                            recordId,
+                            status: 'skipped',
+                            detail: 'claimed by a concurrent tick',
+                        });
+                        continue;
+                    }
+
+                    // Bill the project owner's ai_requests quota (the same
+                    // tenant identity the sequences pass sends email as).
+                    if (!ownerByProject.has(group.projectId)) {
+                        ownerByProject.set(
+                            group.projectId,
+                            await resolveProjectOwner(db, group.projectId),
+                        );
+                    }
+                    const ownerId = ownerByProject.get(group.projectId);
+                    const allowed = ownerId
+                        ? await canUse(ownerId, 'ai_requests')
+                        : false;
+                    if (!allowed) {
+                        const error = ownerId
+                            ? 'AI quota exceeded'
+                            : 'project owner not found';
+                        await db.collection(RECORDS_COLL).updateOne(
+                            { _id: rec._id as ObjectId },
+                            {
+                                $set: {
+                                    [`data.__ai.${field.key}`]: {
+                                        inputsHash: hash,
+                                        status: 'failed',
+                                        computedAt: nowIso,
+                                        error,
+                                    },
+                                },
+                            },
+                        );
+                        report.aiFields.push({
+                            projectId: group.projectId,
+                            objectSlug: group.slug,
+                            fieldKey: field.key,
+                            recordId,
+                            status: 'skipped',
+                            detail: error,
+                        });
+                        continue;
+                    }
+
+                    evals += 1;
+                    const result = await evaluateAiField({
+                        db,
+                        projectId: group.projectId,
+                        objectSlug: group.slug,
+                        field,
+                        recordId,
+                        inputsHash: hash,
+                    });
+
+                    if (result.status === 'ready') {
+                        await recordUsage({
+                            tenantId: ownerId as string,
+                            feature: 'ai_requests',
+                            units: 1,
+                            idempotencyKey:
+                                'sabcrm-ai-field:' +
+                                recordId +
+                                ':' +
+                                field.key +
+                                ':' +
+                                hash,
+                            meta: {
+                                feature: 'sabcrm',
+                                op: 'aiField',
+                                object: group.slug,
+                            },
+                        });
+                        report.aiFields.push({
+                            projectId: group.projectId,
+                            objectSlug: group.slug,
+                            fieldKey: field.key,
+                            recordId,
+                            status: 'ran',
+                        });
+                        report.ran += 1;
+                    } else if (result.status === 'failed') {
+                        report.aiFields.push({
+                            projectId: group.projectId,
+                            objectSlug: group.slug,
+                            fieldKey: field.key,
+                            recordId,
+                            status: 'failed',
+                            detail: result.detail,
+                        });
+                        report.failed += 1;
+                    } else {
+                        report.aiFields.push({
+                            projectId: group.projectId,
+                            objectSlug: group.slug,
+                            fieldKey: field.key,
+                            recordId,
+                            status: 'skipped',
+                            detail: result.detail,
+                        });
+                    }
+                }
+            }
+        }
+    } catch (e) {
+        report.aiFields.push({
+            projectId: '-',
+            objectSlug: '-',
+            fieldKey: '-',
+            recordId: '-',
+            status: 'failed',
+            detail: `ai-fields pass error: ${e instanceof Error ? e.message : String(e)}`,
+        });
+        report.failed += 1;
+    }
+
     report.durationMs = Date.now() - startedAt;
     const rotTagged = report.rotting.reduce((n, r) => n + r.tagged, 0);
     const rotUntagged = report.rotting.reduce((n, r) => n + r.untagged, 0);
@@ -1634,7 +1947,8 @@ export async function runDueWorkflows(): Promise<SchedulerReport> {
         `retried ${report.retried.filter((r) => r.status === 'ran').length} failed run(s), ` +
         `fired ${report.timeElapsed.filter((t) => t.status === 'ran').length} time.elapsed run(s), ` +
         `rotting ${rotTagged} tagged / ${rotUntagged} untagged, ` +
-        `sequences ${report.sequences.filter((s) => s.status === 'ran').length} step(s); ` +
+        `sequences ${report.sequences.filter((s) => s.status === 'ran').length} step(s), ` +
+        `AI fields ${report.aiFields.filter((a) => a.status === 'ran').length} computed; ` +
         `${report.ran} ran, ${report.failed} failed` +
         (report.engineReachable ? '' : ' (engine appears unreachable — check RUST_API_URL)');
     return report;

@@ -40,6 +40,11 @@ export {
 } from './record-detail';
 export { RecordPanel, type RecordPanelProps } from './record-panel';
 export {
+  RecordQueue,
+  type RecordQueueProps,
+  type QueueItemState,
+} from './record-queue';
+export {
   RecordTabs,
   TimelineList,
   type RecordTabsProps,
@@ -53,6 +58,8 @@ export {
   countConditions,
   pruneFilterGroup,
   opsForField,
+  opLabel,
+  isUnaryOp,
   filterableFields,
   defaultCondition,
   isFilterGroup,

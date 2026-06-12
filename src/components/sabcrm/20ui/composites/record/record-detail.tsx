@@ -62,6 +62,11 @@ export interface RecordDetailProps {
   onFieldCommit: (key: string, next: unknown) => void | Promise<void>;
   relationResolver?: RelationResolver;
   fmt?: RecordCellFmt;
+  /**
+   * Optional per-row trailing slot beside each field label in the left panel
+   * (e.g. the "Recompute" affordance on AI fields). Forwarded to RecordPanel.
+   */
+  fieldRowTrailing?: (field: FieldMetadata) => React.ReactNode;
   /** Pluggable right-hand tabs. */
   tabs: RecordDetailTab[];
   defaultTabId?: string;
@@ -101,6 +106,7 @@ export function RecordDetail({
   onFieldCommit,
   relationResolver,
   fmt,
+  fieldRowTrailing,
   tabs,
   defaultTabId,
   header,
@@ -272,6 +278,7 @@ export function RecordDetail({
           onFieldCommit={onFieldCommit}
           relationResolver={relationResolver}
           fmt={fmt}
+          fieldRowTrailing={fieldRowTrailing}
         />
         <RecordTabs tabs={tabs} defaultTabId={defaultTabId} />
       </div>

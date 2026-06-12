@@ -1,0 +1,240 @@
+/* =========================================================================
+   RecordQueue — prioritized work-queue list (composites/record).
+
+   Calm, dense, Linear-grade. Tokens only (--st-*); dark mode comes for free
+   through the token layer. Every rule is scoped under the 20ui roots —
+   `:is(.\32 0ui, .ui20)` — NEVER a bare `.20ui.foo` compound (the leading
+   digit breaks the selector; see 20ui scope-rename fallout).
+
+   Class prefix: `.rq-*` (record queue), mirroring RecordBoard's `.rb-*`.
+   ========================================================================= */
+
+:is(.\32 0ui, .ui20) .rq {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-3);
+  min-height: 0;
+  flex: 1;
+  overflow-y: auto;
+  font-family: var(--st-font);
+  font-size: var(--st-font-size);
+  color: var(--st-text);
+}
+
+/* ------------------------------------------------------------ header strip */
+
+:is(.\32 0ui, .ui20) .rq-summary {
+  margin: 0;
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-soft, var(--st-text));
+  font-variant-numeric: tabular-nums;
+}
+
+/* --------------------------------------------------------------- sections */
+
+:is(.\32 0ui, .ui20) .rq-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-2);
+  min-width: 0;
+}
+
+:is(.\32 0ui, .ui20) .rq-section__head {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  align-self: flex-start;
+  margin: 0;
+  padding: var(--st-space-1) var(--st-space-2);
+  border: 0;
+  background: none;
+  border-radius: var(--st-radius-sm);
+  font: inherit;
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text-soft, var(--st-text));
+  cursor: pointer;
+}
+
+:is(.\32 0ui, .ui20) .rq-section__head:hover {
+  background: var(--st-bg-hover, var(--st-bg-secondary));
+  color: var(--st-text);
+}
+
+:is(.\32 0ui, .ui20) .rq-section__head:focus-visible {
+  outline: 2px solid var(--st-accent);
+  outline-offset: 1px;
+}
+
+:is(.\32 0ui, .ui20) .rq-section__count {
+  padding: 0 var(--st-space-2);
+  border-radius: var(--st-radius-full, 999px);
+  background: var(--st-bg-secondary);
+  border: 1px solid var(--st-border);
+  font-size: var(--st-font-size-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------------------------- list */
+
+:is(.\32 0ui, .ui20) .rq-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-bg, transparent);
+  overflow: hidden;
+}
+
+/* -------------------------------------------------------------------- row */
+
+:is(.\32 0ui, .ui20) .rq-row {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-3);
+  min-width: 0;
+  padding: var(--st-space-2) var(--st-space-3);
+  border-bottom: 1px solid var(--st-border);
+}
+
+:is(.\32 0ui, .ui20) .rq-row:last-child {
+  border-bottom: 0;
+}
+
+/* The first up-next row — the one to work on now. */
+:is(.\32 0ui, .ui20) .rq-row--next {
+  background: var(--st-accent-soft, var(--st-bg-secondary));
+  box-shadow: inset 2px 0 0 var(--st-accent);
+}
+
+:is(.\32 0ui, .ui20) .rq-row__pos {
+  flex: none;
+  min-width: 20px;
+  text-align: right;
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-tertiary, var(--st-text-soft));
+  font-variant-numeric: tabular-nums;
+}
+
+:is(.\32 0ui, .ui20) .rq-row__main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-1);
+}
+
+:is(.\32 0ui, .ui20) .rq-row__title-line {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  min-width: 0;
+}
+
+:is(.\32 0ui, .ui20) .rq-row__title {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text);
+  cursor: pointer;
+  text-align: left;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+:is(.\32 0ui, .ui20) .rq-row__title:hover {
+  text-decoration: underline;
+}
+
+:is(.\32 0ui, .ui20) .rq-row__title:focus-visible {
+  outline: 2px solid var(--st-accent);
+  outline-offset: 1px;
+  border-radius: var(--st-radius-sm);
+}
+
+:is(.\32 0ui, .ui20) .rq-row__meta-note {
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-soft, var(--st-text));
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------ field chips */
+
+:is(.\32 0ui, .ui20) .rq-row__chips {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-3);
+  min-width: 0;
+  overflow: hidden;
+}
+
+:is(.\32 0ui, .ui20) .rq-chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--st-space-1);
+  min-width: 0;
+  font-size: var(--st-font-size-xs);
+}
+
+:is(.\32 0ui, .ui20) .rq-chip__label {
+  flex: none;
+  color: var(--st-text-tertiary, var(--st-text-soft));
+}
+
+:is(.\32 0ui, .ui20) .rq-chip__value {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--st-text-soft, var(--st-text));
+}
+
+/* ------------------------------------------------------------ SLA / badges */
+
+:is(.\32 0ui, .ui20) .rq-sla,
+:is(.\32 0ui, .ui20) .rq-next-badge {
+  flex: none;
+  white-space: nowrap;
+}
+
+/* ---------------------------------------------------------------- actions */
+
+:is(.\32 0ui, .ui20) .rq-row__actions {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-1);
+}
+
+/* ----------------------------------------------------- empty / loading rows */
+
+:is(.\32 0ui, .ui20) .rq-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 160px;
+}
+
+:is(.\32 0ui, .ui20) .rq-empty {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  padding: var(--st-space-4);
+  border: 1px dashed var(--st-border);
+  border-radius: var(--st-radius-lg);
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-soft, var(--st-text));
+}
+
+:is(.\32 0ui, .ui20) .rq-empty--clear {
+  color: var(--st-success, var(--st-text-soft));
+}

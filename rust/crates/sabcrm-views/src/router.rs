@@ -22,6 +22,8 @@
 //! DELETE /{id}          — delete_view
 //! POST   /{id}/default  — set_default_view
 //! POST   /{id}/run      — run_view
+//! GET    /{id}/queue    — list_queue_state (per-user work-queue state)
+//! POST   /{id}/queue    — mark_queue_state (done | snooze | clear)
 //! ```
 
 use std::sync::Arc;
@@ -52,4 +54,8 @@ where
         )
         .route("/{id}/default", post(handlers::set_default_view))
         .route("/{id}/run", post(handlers::run_view))
+        .route(
+            "/{id}/queue",
+            get(handlers::list_queue_state).post(handlers::mark_queue_state),
+        )
 }

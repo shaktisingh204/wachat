@@ -176,6 +176,18 @@ const DATE_OP_LABEL: Partial<Record<FilterOp, string>> = {
 
 /** Operators offered for a given field type (legacy semantics, verbatim). */
 export function opsForField(field: FieldMetadata): FilterOp[] {
+  if (field.type === 'AI') {
+    // AI fields store a plain scalar; operators follow settings.ai.outputType.
+    const out = String(
+      (field.settings as { ai?: { outputType?: unknown } } | undefined)?.ai
+        ?.outputType ?? 'TEXT',
+    );
+    if (out === 'NUMBER' || out === 'RATING')
+      return ['eq', 'ne', 'gt', 'lt', 'gte', 'lte', 'isEmpty', 'isNotEmpty'];
+    if (out === 'SELECT' || out === 'BOOLEAN')
+      return ['eq', 'ne', 'isEmpty', 'isNotEmpty'];
+    return ['contains', 'eq', 'ne', 'isEmpty', 'isNotEmpty'];
+  }
   if (field.type === 'SELECT' || field.type === 'MULTI_SELECT') {
     return ['eq', 'ne', 'isEmpty', 'isNotEmpty'];
   }

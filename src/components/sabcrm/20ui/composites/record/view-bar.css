@@ -115,6 +115,38 @@
   justify-content: space-between;
 }
 
+/* ------------------------------------------------ Ask-AI (NL → draft) row */
+
+:is(.\32 0ui, .ui20) .vb-nl {
+  display: grid;
+  gap: var(--st-space-1);
+  padding-bottom: var(--st-space-2);
+  border-bottom: 1px solid var(--st-border-light);
+}
+
+:is(.\32 0ui, .ui20) .vb-nl__row {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+}
+
+:is(.\32 0ui, .ui20) .vb-nl__input {
+  flex: 1;
+  min-width: 0;
+}
+
+:is(.\32 0ui, .ui20) .vb-nl__note {
+  margin: 0;
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-tertiary);
+}
+
+:is(.\32 0ui, .ui20) .vb-nl__error {
+  margin: 0;
+  font-size: var(--st-font-size-sm);
+  color: var(--st-danger);
+}
+
 /* "Save view as…" / "Rename view" inline form. */
 :is(.\32 0ui, .ui20) .vb-name-form {
   display: grid;
