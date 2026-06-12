@@ -104,6 +104,7 @@ function projectMessage(
     createdAt: toIso(doc.createdAt),
     sentAt: toIso(doc.sentAt),
     deliveredAt: toIso(doc.deliveredAt),
+    errorCode: doc.errorCode,
     errorMessage: doc.errorMessage,
   };
 }
@@ -310,11 +311,13 @@ export async function replyToThread(input: {
           lastMessagePreview: input.body.slice(0, 160),
           lastMessageAt: now,
           updatedAt: now,
+          // Replying implies the agent has read the thread.
+          unreadCount: 0,
+          ...({ lastAgentReplyAt: now } as Record<string, unknown>),
           ...((conv as unknown as { firstResponseAt?: Date }).firstResponseAt
             ? {}
             : ({ firstResponseAt: now } as Record<string, unknown>)),
         },
-        $inc: { unreadCount: -conv.unreadCount },
       },
     );
 
@@ -359,6 +362,26 @@ export async function generateAiReply(conversationId: string): Promise<{ ok: tru
     suggestion = "Thanks for following up! One of our agents will be with you momentarily to resolve this.";
   }
   return { ok: true, suggestion };
+}
+
+// ─── Read receipts ────────────────────────────────────────────────────────
+
+/**
+ * Zero the unread counter when an agent opens a thread. The engine owns
+ * incrementing it on inbound; the UI owns clearing it on view.
+ */
+export async function markRead(conversationId: string): Promise<ActionResult> {
+  const ws = await resolveWorkspace();
+  if (!ws.ok) return ws;
+  if (!ObjectId.isValid(conversationId)) {
+    return { ok: false, error: "Invalid conversationId" };
+  }
+  const { cols } = await getSabsmsCollections();
+  await cols.conversations.updateOne(
+    { _id: new ObjectId(conversationId), workspaceId: ws.workspaceId },
+    { $set: { unreadCount: 0, updatedAt: new Date() } },
+  );
+  return { ok: true };
 }
 
 // ─── Notes / assign / status ──────────────────────────────────────────────

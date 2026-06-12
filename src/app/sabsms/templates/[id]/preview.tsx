@@ -4,6 +4,9 @@ import { useMemo } from "react";
 
 import { Badge, Card, CardBody, CardDescription, CardHeader, CardTitle, Progress, Separator } from '@/components/sabcrm/20ui';
 
+import { creditCostFor } from "@/lib/sabsms/credits/rates";
+import { isGsm7, segmentInfo } from "@/lib/sabsms/segments";
+
 import type { TemplateEditorMetadata, VariableDefault } from "./types";
 
 /**
@@ -20,12 +23,16 @@ import type { TemplateEditorMetadata, VariableDefault } from "./types";
  *  - Date-filter helper rendering (#7), mock evaluator only.
  */
 
-// ─── Segment math (mirrors `send/composer.tsx`) ──────────────────────────
-
-const GSM7_REGEX = /^[\x20-\x7E\n\r£¥€§Æ¡¿äöüÄÖÜñÑàèéìòùÇß]*$/;
+// ─── Segment math — engine parity via `@/lib/sabsms/segments` ────────────
+//
+// The counter itself lives in the shared parity module (pinned to the
+// Rust engine by the segment-vectors fixture). This wrapper only keeps
+// the UI conventions: an empty body shows 0 segments (the engine bills
+// an empty body as 1, but you can't send one from here) and the
+// human-facing "GSM-7"/"UCS-2" labels.
 
 export function isGsm(body: string): boolean {
-  return GSM7_REGEX.test(body);
+  return isGsm7(body);
 }
 
 export function segmentCount(body: string): {
@@ -33,17 +40,10 @@ export function segmentCount(body: string): {
   encoding: "GSM-7" | "UCS-2";
 } {
   if (!body) return { segments: 0, encoding: "GSM-7" };
-  if (isGsm(body)) {
-    const len = body.length;
-    return {
-      segments: len <= 160 ? 1 : Math.ceil(len / 153),
-      encoding: "GSM-7",
-    };
-  }
-  const len = [...body].length;
+  const info = segmentInfo(body);
   return {
-    segments: len <= 70 ? 1 : Math.ceil(len / 67),
-    encoding: "UCS-2",
+    segments: info.segments,
+    encoding: info.encoding === "gsm7" ? "GSM-7" : "UCS-2",
   };
 }
 
@@ -199,6 +199,13 @@ export function TemplatePreview({
     () => costEstimateCents(seg.segments, category),
     [seg.segments, category],
   );
+  const credits = useMemo(() => {
+    const segments = Math.max(1, seg.segments);
+    return {
+      domestic: creditCostFor({ segments, destinationCountry: "IN", channel: "sms" }),
+      intl: creditCostFor({ segments, destinationCountry: "", channel: "sms" }),
+    };
+  }, [seg.segments]);
   const spam = useMemo(() => spamScore(interpolated), [interpolated]);
 
   return (
@@ -231,6 +238,17 @@ export function TemplatePreview({
               {cost.toFixed(2)}¢
             </span>{" "}
             per recipient
+          </span>
+          <span className="text-[var(--st-text-secondary)]">·</span>
+          <span>
+            <span className="font-medium text-[var(--st-text)]">
+              {credits.domestic}
+            </span>{" "}
+            credit{credits.domestic === 1 ? "" : "s"} (IN/US) ·{" "}
+            <span className="font-medium text-[var(--st-text)]">
+              {credits.intl}
+            </span>{" "}
+            intl
           </span>
         </div>
 

@@ -50,6 +50,7 @@ import {
   convertCampaignToDrip,
   convertCampaignToTemplate,
   duplicateCampaign,
+  launchCampaignAction,
   pauseCampaign,
   resumeCampaign,
   testSendFromCampaign,
@@ -321,6 +322,14 @@ export function CampaignsTable({
   ];
 
   const rowActions: SabsmsRowAction<CampaignRow>[] = [
+    {
+      label: "Launch",
+      icon: <PlayCircle className="h-3.5 w-3.5" />,
+      onSelect: (row) =>
+        runAction("launch", () =>
+          launchCampaignAction({ campaignId: row.id }),
+        ),
+    },
     {
       label: "Pause",
       icon: <PauseCircle className="h-3.5 w-3.5" />,

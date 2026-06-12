@@ -14,6 +14,20 @@ pub const COL_CONVERSATIONS: &str = "sabsms_conversations";
 pub const COL_TEMPLATES: &str = "sabsms_templates";
 pub const COL_SUPPRESSIONS: &str = "sabsms_suppressions";
 pub const COL_CONSENT_LOG: &str = "sabsms_consent_log";
+pub const COL_KEYWORD_RULES: &str = "sabsms_keyword_rules";
+pub const COL_CAMPAIGNS: &str = "sabsms_campaigns";
+pub const COL_CAMPAIGN_RECIPIENTS: &str = "sabsms_campaign_recipients";
+
+/// True when a Mongo error is an E11000 duplicate-key write error —
+/// used to detect idempotent re-deliveries (webhook retries) and
+/// concurrent suppression upserts.
+pub fn is_duplicate_key_error(e: &mongodb::error::Error) -> bool {
+    matches!(
+        *e.kind,
+        mongodb::error::ErrorKind::Write(mongodb::error::WriteFailure::WriteError(ref we))
+            if we.code == 11000
+    )
+}
 
 pub async fn connect(cfg: &Config) -> Result<Database> {
     let mut opts = ClientOptions::parse(&cfg.mongo_uri)
@@ -97,6 +111,50 @@ pub async fn ensure_indexes(db: &Database) -> Result<()> {
             .build()])
         .await
         .context("creating provider account indexes")?;
+
+    // consent log — latest-event lookup per (workspace, phoneHash)
+    let consent_log = db.collection::<mongodb::bson::Document>(COL_CONSENT_LOG);
+    consent_log
+        .create_indexes(vec![IndexModel::builder()
+            .keys(doc! { "workspaceId": 1, "phoneHash": 1, "createdAt": -1 })
+            .build()])
+        .await
+        .context("creating consent log indexes")?;
+
+    // campaigns — the ticker scans running + due-scheduled docs
+    let campaigns = db.collection::<mongodb::bson::Document>(COL_CAMPAIGNS);
+    campaigns
+        .create_indexes(vec![IndexModel::builder()
+            .keys(doc! { "status": 1, "scheduledAt": 1 })
+            .build()])
+        .await
+        .context("creating campaign indexes")?;
+
+    // campaign recipients — claim scans + the idempotency double-send
+    // guard (unique key `{campaignId}:{contactIdOrPhone}`)
+    let recipients = db.collection::<mongodb::bson::Document>(COL_CAMPAIGN_RECIPIENTS);
+    recipients
+        .create_indexes(vec![
+            IndexModel::builder()
+                .keys(doc! { "campaignId": 1, "chunk": 1, "status": 1 })
+                .build(),
+            IndexModel::builder()
+                .keys(doc! { "idempotencyKey": 1 })
+                .options(IndexOptions::builder().unique(true).build())
+                .build(),
+        ])
+        .await
+        .context("creating campaign recipient indexes")?;
+
+    // keyword rules — single doc per workspace
+    let keyword_rules = db.collection::<mongodb::bson::Document>(COL_KEYWORD_RULES);
+    keyword_rules
+        .create_indexes(vec![IndexModel::builder()
+            .keys(doc! { "workspaceId": 1 })
+            .options(IndexOptions::builder().unique(true).build())
+            .build()])
+        .await
+        .context("creating keyword rules indexes")?;
 
     Ok(())
 }

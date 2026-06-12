@@ -24,7 +24,10 @@ interface LogRow {
   queuedAt?: string;
   sentAt?: string;
   deliveredAt?: string;
+  failedAt?: string;
+  errorCode?: string;
   error?: string;
+  attempts?: Array<{ at?: string; error?: string; status?: string }>;
   rawJson: string;
 }
 
@@ -95,7 +98,18 @@ async function loadLogs(
     deliveredAt: d.deliveredAt
       ? new Date(d.deliveredAt).toISOString()
       : undefined,
+    failedAt: d.failedAt ? new Date(d.failedAt).toISOString() : undefined,
+    errorCode: d.errorCode,
     error: d.errorMessage,
+    attempts: Array.isArray(d.attempts)
+      ? d.attempts.map((a: any) => ({
+          at: a?.at || a?.attemptedAt
+            ? new Date(a.at ?? a.attemptedAt).toISOString()
+            : undefined,
+          error: a?.error ?? a?.errorMessage,
+          status: a?.status != null ? String(a.status) : undefined,
+        }))
+      : undefined,
     rawJson: JSON.stringify(d, null, 2),
   }));
 
@@ -257,9 +271,10 @@ export default async function SabsmsLogsPage({
                     </Td>
                     <Td className="max-w-[420px] truncate text-sm text-[var(--st-text)]">
                       {r.body}
-                      {r.error && (
+                      {(r.errorCode || r.error) && (
                         <span className="ml-2 text-xs text-[var(--st-text)]">
-                          ({r.error})
+                          ({r.errorCode ? `${r.errorCode}: ` : ""}
+                          {r.error ?? "error"})
                         </span>
                       )}
                     </Td>
@@ -286,12 +301,88 @@ export default async function SabsmsLogsPage({
                         </DialogTrigger>
                         <DialogContent className="max-w-2xl max-h-[80vh] flex flex-col">
                           <DialogHeader>
-                            <DialogTitle>Message Payload</DialogTitle>
+                            <DialogTitle>Message detail</DialogTitle>
                           </DialogHeader>
-                          <div className="flex-1 overflow-auto bg-[var(--st-text)] p-4 rounded-md mt-4">
-                            <pre className="text-xs text-white font-mono">
-                              {r.rawJson}
-                            </pre>
+                          <div className="flex-1 overflow-auto mt-4 space-y-4">
+                            <div className="flex flex-wrap items-center gap-2 text-xs">
+                              {statusBadge(r.status)}
+                              <code className="rounded bg-[var(--st-bg-muted)] px-2 py-0.5">{r.id}</code>
+                              <span className="text-[var(--st-text)]">{r.provider}</span>
+                              {r.segments !== undefined && (
+                                <span className="text-[var(--st-text)]">
+                                  {r.segments} segment{r.segments === 1 ? "" : "s"}
+                                </span>
+                              )}
+                            </div>
+
+                            <div className="rounded-md border border-[var(--st-border)] p-3">
+                              <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-[var(--st-text)]">
+                                Timeline
+                              </div>
+                              <dl className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-xs sm:grid-cols-4">
+                                {(
+                                  [
+                                    ["Queued", r.queuedAt],
+                                    ["Sent", r.sentAt],
+                                    ["Delivered", r.deliveredAt],
+                                    ["Failed", r.failedAt],
+                                  ] as const
+                                ).map(([label, iso]) => (
+                                  <div key={label}>
+                                    <dt className="font-medium text-[var(--st-text)]">{label}</dt>
+                                    <dd className="text-[var(--st-text-secondary)]">
+                                      {formatTimestamp(iso)}
+                                    </dd>
+                                  </div>
+                                ))}
+                              </dl>
+                            </div>
+
+                            {(r.errorCode || r.error) && (
+                              <div className="rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 text-xs">
+                                <div className="mb-1 font-semibold uppercase tracking-wide text-[var(--st-text)]">
+                                  Error
+                                </div>
+                                {r.errorCode && (
+                                  <div>
+                                    <span className="font-medium">Code:</span>{" "}
+                                    <code>{r.errorCode}</code>
+                                  </div>
+                                )}
+                                {r.error && <div className="mt-0.5">{r.error}</div>}
+                              </div>
+                            )}
+
+                            {r.attempts && r.attempts.length > 0 && (
+                              <div className="rounded-md border border-[var(--st-border)] p-3 text-xs">
+                                <div className="mb-2 font-semibold uppercase tracking-wide text-[var(--st-text)]">
+                                  Attempts ({r.attempts.length})
+                                </div>
+                                <ol className="space-y-1">
+                                  {r.attempts.map((a, i) => (
+                                    <li key={i} className="flex flex-wrap gap-2">
+                                      <span className="font-medium">#{i + 1}</span>
+                                      <span>{formatTimestamp(a.at)}</span>
+                                      {a.status && <span>status: {a.status}</span>}
+                                      {a.error && (
+                                        <span className="text-[var(--st-text-secondary)]">{a.error}</span>
+                                      )}
+                                    </li>
+                                  ))}
+                                </ol>
+                              </div>
+                            )}
+
+                            <details>
+                              <summary className="cursor-pointer text-xs font-medium text-[var(--st-text)]">
+                                Raw document
+                              </summary>
+                              <div className="mt-2 overflow-auto bg-[var(--st-text)] p-4 rounded-md">
+                                <pre className="text-xs text-white font-mono">
+                                  {r.rawJson}
+                                </pre>
+                              </div>
+                            </details>
                           </div>
                         </DialogContent>
                       </Dialog>

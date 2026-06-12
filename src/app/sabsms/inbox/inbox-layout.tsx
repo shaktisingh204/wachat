@@ -28,8 +28,9 @@
  *  17. Add-to-suppression from thread       -> `<ThreadView>` More menu.
  *  18. Search by body / contact / date      -> `<SabsmsFilterBar>` (URL state).
  *  19. Keyboard shortcuts (j/k/e/r/n)       -> `useKeyboardShortcuts` below.
- *  20. Live updates                         -> 5 s polling via SabsmsRefreshButton.
- *                                             TODO: replace with SSE channel.
+ *  20. Live updates                         -> always-on 5 s poll (wachat
+ *                                             convention); SabsmsRefreshButton
+ *                                             adds manual refresh on top.
  */
 
 import * as React from "react";
@@ -54,6 +55,7 @@ import {
 import {
   loadConversations,
   loadThread,
+  markRead,
 } from "./actions";
 import { ConversationList } from "./conversation-list";
 import { ThreadView } from "./thread-view";
@@ -138,7 +140,8 @@ export function InboxLayout({
     };
   }, [workspaceId, filters]);
 
-  // Re-fetch thread when the selection changes.
+  // Re-fetch thread when the selection changes, and mark it read —
+  // opening a thread zeroes its unread counter (server + local badge).
   React.useEffect(() => {
     let cancelled = false;
     if (!selectedId) {
@@ -147,7 +150,16 @@ export function InboxLayout({
     }
     void (async () => {
       const next = await loadThread(workspaceId, selectedId);
-      if (!cancelled) setThread(next);
+      if (cancelled) return;
+      setThread(next);
+      if (next && next.conversation.unreadCount > 0) {
+        void markRead(selectedId);
+        setConversations((prev) =>
+          prev.map((c) =>
+            c.id === selectedId ? { ...c, unreadCount: 0 } : c,
+          ),
+        );
+      }
     })();
     return () => {
       cancelled = true;
@@ -207,31 +219,28 @@ export function InboxLayout({
     url.setOne("scope", next ?? null);
   }
 
-  // TODO: Phase 2 - replace the 5 s poll with the SabSMS engine SSE
-  // stream at `/api/sabsms/sse/inbox` once it's wired through. The
-  // engine already publishes the events; we just need to subscribe and
-  // patch the conversation list / thread in-place.
   const onRefresh = React.useCallback(() => {
     void refresh();
   }, [refresh]);
 
+  // Live updates: lightweight 5 s polling of the active list + thread,
+  // matching the WaChat inbox convention (`ui20-chat-client.tsx` —
+  // setInterval poll, no SSE/WebSocket). Skips ticks while the tab is
+  // hidden and pauses while a refetch is still in flight. The events
+  // worker also bumps `sabsms:inbox:poke:{workspaceId}` on inbound, so
+  // a cheap "anything new?" precheck can land here later without
+  // changing this shape.
   React.useEffect(() => {
-    let ws: WebSocket;
-    const wsUrl = process.env.NEXT_PUBLIC_WS_URL || 'wss://echo.websocket.events';
-    try {
-      ws = new WebSocket(wsUrl);
-      ws.onmessage = (event) => {
-        // In a real implementation we would inspect the event and selectively update
-        // but for now we refresh the data when a message is received.
-        onRefresh();
-      };
-    } catch (err) {
-      console.warn('Failed to establish WebSocket', err);
-    }
-    return () => {
-      if (ws) ws.close();
-    };
-  }, [onRefresh]);
+    let inFlight = false;
+    const handle = window.setInterval(() => {
+      if (document.visibilityState === "hidden" || inFlight) return;
+      inFlight = true;
+      void Promise.resolve(refresh()).finally(() => {
+        inFlight = false;
+      });
+    }, 5_000);
+    return () => window.clearInterval(handle);
+  }, [refresh]);
 
   const filterBar = (
     <div className="space-y-2">
@@ -276,7 +285,9 @@ export function InboxLayout({
         trailing={
           <div className="flex items-center gap-2">
             <SabsmsKbdHint shortcuts={SHORTCUTS} />
-            <SabsmsRefreshButton onRefresh={onRefresh} defaultInterval={5} />
+            {/* The layout owns the always-on 5 s poll above; this button
+                stays for manual refresh + optional faster/slower ticks. */}
+            <SabsmsRefreshButton onRefresh={onRefresh} defaultInterval="off" />
           </div>
         }
       />
@@ -306,7 +317,7 @@ export function InboxLayout({
             <code>e</code> opens the close dialog for the current thread.
           </li>
           <li>
-            Live updates poll every 5 s (SSE wire-up in Phase 2).
+            Live updates poll every 5 s automatically.
           </li>
         </ul>
       }

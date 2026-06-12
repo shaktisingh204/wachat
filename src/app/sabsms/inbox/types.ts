@@ -41,6 +41,7 @@ export interface InboxMessageView {
   createdAt?: string;
   sentAt?: string;
   deliveredAt?: string;
+  errorCode?: string;
   errorMessage?: string;
 }
 

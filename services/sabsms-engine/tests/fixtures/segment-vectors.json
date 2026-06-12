@@ -1,0 +1,164 @@
+[
+  {
+    "note": "empty body — engine bills 1 GSM-7 segment",
+    "body": "",
+    "segments": 1,
+    "encoding": "gsm7"
+  },
+  {
+    "note": "short ascii",
+    "body": "hello world",
+    "segments": 1,
+    "encoding": "gsm7"
+  },
+  {
+    "note": "exactly 160 GSM chars — 1 segment",
+    "body": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "segments": 1,
+    "encoding": "gsm7"
+  },
+  {
+    "note": "161 GSM chars — splits to 2 x 153",
+    "body": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "segments": 2,
+    "encoding": "gsm7"
+  },
+  {
+    "note": "305 GSM chars — still 2 segments",
+    "body": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "segments": 2,
+    "encoding": "gsm7"
+  },
+  {
+    "note": "306 GSM chars (153*2) — exactly 2 segments",
+    "body": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "segments": 2,
+    "encoding": "gsm7"
+  },
+  {
+    "note": "307 GSM chars — 3 segments",
+    "body": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "segments": 3,
+    "encoding": "gsm7"
+  },
+  {
+    "note": "459 GSM chars (153*3 boundary) — exactly 3 segments",
+    "body": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "segments": 3,
+    "encoding": "gsm7"
+  },
+  {
+    "note": "460 GSM chars — 4 segments",
+    "body": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "segments": 4,
+    "encoding": "gsm7"
+  },
+  {
+    "note": "hindi short — UCS-2, 6 code points",
+    "body": "नमस्ते",
+    "segments": 1,
+    "encoding": "ucs2"
+  },
+  {
+    "note": "exactly 70 UCS-2 chars — 1 segment",
+    "body": "अअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअ",
+    "segments": 1,
+    "encoding": "ucs2"
+  },
+  {
+    "note": "71 UCS-2 chars — splits to 2 x 67",
+    "body": "अअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअ",
+    "segments": 2,
+    "encoding": "ucs2"
+  },
+  {
+    "note": "single emoji (astral plane, 1 code point)",
+    "body": "🎉",
+    "segments": 1,
+    "encoding": "ucs2"
+  },
+  {
+    "note": "mixed gsm + emoji short — 7 code points, UCS-2",
+    "body": "Hello 🎉",
+    "segments": 1,
+    "encoding": "ucs2"
+  },
+  {
+    "note": "emoji + 70 ascii = 71 code points — 2 segments",
+    "body": "🎉aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "segments": 2,
+    "encoding": "ucs2"
+  },
+  {
+    "note": "69 ascii + emoji = 70 code points — 1 segment",
+    "body": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa🎉",
+    "segments": 1,
+    "encoding": "ucs2"
+  },
+  {
+    "note": "GSM extension chars count as 1 char each (engine billing rule)",
+    "body": "€[]{}~^|\\",
+    "segments": 1,
+    "encoding": "gsm7"
+  },
+  {
+    "note": "160 euro signs — engine counts € as one char, 1 segment",
+    "body": "€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€€",
+    "segments": 1,
+    "encoding": "gsm7"
+  },
+  {
+    "note": "newline is GSM-7",
+    "body": "line one\nline two",
+    "segments": 1,
+    "encoding": "gsm7"
+  },
+  {
+    "note": "CR LF are GSM-7",
+    "body": "\r\n",
+    "segments": 1,
+    "encoding": "gsm7"
+  },
+  {
+    "note": "GSM core accents @£$¥èéùìòÇØøÅåÆæßÉ",
+    "body": "@£$¥èéùìòÇØøÅåÆæßÉ",
+    "segments": 1,
+    "encoding": "gsm7"
+  },
+  {
+    "note": "GSM core accents ÄÖÑÜ§¡äöñüà",
+    "body": "ÄÖÑÜ§¡äöñüà",
+    "segments": 1,
+    "encoding": "gsm7"
+  },
+  {
+    "note": "backtick is NOT GSM-7 — UCS-2 fallback",
+    "body": "`backtick`",
+    "segments": 1,
+    "encoding": "ucs2"
+  },
+  {
+    "note": "inverted question mark is NOT in the engine set — UCS-2",
+    "body": "¿Hola?",
+    "segments": 1,
+    "encoding": "ucs2"
+  },
+  {
+    "note": "134 UCS-2 chars (67*2 boundary) — exactly 2 segments",
+    "body": "अअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअ",
+    "segments": 2,
+    "encoding": "ucs2"
+  },
+  {
+    "note": "135 UCS-2 chars — 3 segments",
+    "body": "अअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअअ",
+    "segments": 3,
+    "encoding": "ucs2"
+  },
+  {
+    "note": "72 astral emoji — 72 code points, 2 segments",
+    "body": "🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀",
+    "segments": 2,
+    "encoding": "ucs2"
+  }
+]

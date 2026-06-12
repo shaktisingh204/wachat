@@ -5,6 +5,10 @@ edition = "2021"
 description = "SabSMS — multi-provider SMS/MMS/RCS engine (Phase 1: Twilio + Mongo + Redis)"
 publish = false
 
+[lib]
+name = "sabsms_engine"
+path = "src/lib.rs"
+
 [[bin]]
 name = "sabsms-engine"
 path = "src/main.rs"
@@ -28,6 +32,7 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 serde_urlencoded = "0.7"
 chrono = { version = "0.4", features = ["serde"] }
+chrono-tz = "0.10"
 uuid = { version = "1", features = ["v4", "serde"] }
 
 # Crypto for Twilio signature verification + credential decryption

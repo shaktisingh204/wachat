@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 
 import { getCachedSession } from "@/lib/server-cache";
 import { getSabsmsCollections } from "@/lib/sabsms/db/collections";
+import { extractVariables } from "@/lib/sabsms/render";
 import type {
   SabsmsTemplate,
   SabsmsTemplateBody,
@@ -46,16 +47,26 @@ export type SaveResult =
 
 // ─── Helpers ─────────────────────────────────────────────────────────────
 
+/**
+ * Auto-extract template variables on save via the shared renderer
+ * (`@/lib/sabsms/render`). Named vars keep their key (fallbacks
+ * stripped, `now` is a built-in — excluded); DLT `{#var#}` slots are
+ * recorded as `#1`…`#n` so the send path knows how many positional
+ * values a campaign must supply.
+ */
 function extractVariableNames(bodies: SabsmsTemplateBody[]): string[] {
   const set = new Set<string>();
+  let maxPositional = 0;
   for (const b of bodies) {
-    const matches = b.body.match(/\{\{\s*([\w.]+)\s*\}\}/g) ?? [];
-    for (const m of matches) {
-      const inner = m.replace(/[{}]/g, "").trim();
-      if (inner && inner !== "now") set.add(inner);
+    const { named, positionalCount } = extractVariables(b.body);
+    for (const name of named) {
+      if (name !== "now") set.add(name);
     }
+    maxPositional = Math.max(maxPositional, positionalCount);
   }
-  return [...set];
+  const out = [...set];
+  for (let i = 1; i <= maxPositional; i++) out.push(`#${i}`);
+  return out;
 }
 
 function buildDocPatch(input: SaveTemplateInput, status: SabsmsTemplateStatus) {

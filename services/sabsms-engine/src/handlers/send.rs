@@ -10,6 +10,7 @@ use mongodb::bson::{doc, oid::ObjectId};
 use crate::{
     compliance, db,
     errors::{EngineError, EngineResult},
+    events::{self, EngineEvent},
     providers,
     queue,
     state::AppState,
@@ -39,11 +40,10 @@ pub async fn enqueue(
 
     let to = normalise_e164(&input.to)?;
 
-    // Compliance pre-checks (suppression list, future: quiet hours).
-    if let compliance::Verdict::Block { code, reason } =
-        compliance::pre_send_checks(&state, &input.workspace_id, &to).await?
-    {
-        tracing::info!(code = %code, reason = %reason, "send blocked by compliance");
+    // Cheap synchronous suppression check only — the full compliance
+    // kernel (quiet hours, consent, 10DLC) runs in the worker.
+    if compliance::is_suppressed(&state, &input.workspace_id, &to).await? {
+        tracing::info!(workspace = %input.workspace_id, "send blocked: recipient suppressed");
         return Ok(Json(EnqueueSendResult {
             id: String::new(),
             status: MessageStatus::Suppressed,
@@ -102,6 +102,16 @@ pub async fn enqueue(
     // Enqueue for the worker.
     let mut redis = state.redis.clone();
     queue::enqueue_send(&mut redis, &id).await?;
+
+    // Event-stream bridge — best-effort, never fails the request.
+    events::emit(
+        &mut redis,
+        &EngineEvent::MessageQueued {
+            workspace_id: input.workspace_id.clone(),
+            message_id: id.clone(),
+        },
+    )
+    .await;
 
     Ok(Json(EnqueueSendResult {
         id,

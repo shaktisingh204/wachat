@@ -65,6 +65,7 @@ import {
 } from "@/components/sabcrm/20ui";
 import { SabFilePickerButton, type SabFilePick } from "@/components/sabfiles";
 import { SabsmsDetailDrawer } from "@/components/sabsms/page-toolkit";
+import { segmentInfo } from "@/lib/sabsms/segments";
 
 import {
   addInternalNote,
@@ -560,14 +561,17 @@ export function ThreadView({
               </div>
             )}
             <div className="flex items-center justify-between">
-              <SabFilePickerButton
-                variant="ghost"
-                onPick={(pick) =>
-                  setAttachments((prev) => [...prev, pick])
-                }
-              >
-                <Paperclip className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" /> Attach
-              </SabFilePickerButton>
+              <div className="flex items-center gap-3">
+                <SabFilePickerButton
+                  variant="ghost"
+                  onPick={(pick) =>
+                    setAttachments((prev) => [...prev, pick])
+                  }
+                >
+                  <Paperclip className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" /> Attach
+                </SabFilePickerButton>
+                <SegmentCounter body={composerBody} />
+              </div>
               <Button
                 onClick={send}
                 disabled={busy || !composerBody.trim()}
@@ -734,6 +738,9 @@ export function ThreadView({
               label="Delivered"
               value={detailMessage.deliveredAt ?? "-"}
             />
+            {detailMessage.errorCode && (
+              <DetailRow label="Error code" value={detailMessage.errorCode} />
+            )}
             {detailMessage.errorMessage && (
               <DetailRow
                 label="Error"
@@ -927,6 +934,18 @@ function MessageBubble({ message, onReact, onInspect }: MessageBubbleProps) {
           </span>
           {!isNote && !isInbound && <DeliveryTicks status={message.status} />}
         </div>
+        {!isNote &&
+          !isInbound &&
+          (message.status === "failed" ||
+            message.status === "rejected" ||
+            message.status === "undelivered") &&
+          (message.errorCode || message.errorMessage) && (
+            <div className="rounded bg-[var(--st-bg)] px-1.5 py-0.5 text-[10px] text-[var(--st-danger)]">
+              {message.errorCode ? <code>{message.errorCode}</code> : null}
+              {message.errorCode && message.errorMessage ? " — " : null}
+              {message.errorMessage}
+            </div>
+          )}
         {message.reactions.length > 0 && (
           <div className="flex flex-wrap gap-1 pt-1">
             {message.reactions.map((r, i) => (
@@ -972,6 +991,26 @@ function MessageBubble({ message, onReact, onInspect }: MessageBubbleProps) {
         )}
       </div>
     </div>
+  );
+}
+
+/**
+ * Live char / segment counter for the reply composer — engine-parity
+ * math via `segmentInfo` (GSM-7 160/153, UCS-2 70/67).
+ */
+function SegmentCounter({ body }: { body: string }) {
+  const info = React.useMemo(() => segmentInfo(body), [body]);
+  if (!body) return null;
+  return (
+    <p
+      className="text-[11px] tabular-nums text-[var(--st-text-secondary)]"
+      aria-live="polite"
+    >
+      {info.length} chars · {info.segments}{" "}
+      {info.segments === 1 ? "segment" : "segments"} ·{" "}
+      {info.encoding === "gsm7" ? "GSM-7" : "Unicode"} ({info.perSegment}
+      /seg)
+    </p>
   );
 }
 

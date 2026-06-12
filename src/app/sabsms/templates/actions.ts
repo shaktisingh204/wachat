@@ -231,6 +231,34 @@ export async function submitTemplatesForApproval(
   return { ok: true };
 }
 
+/** V2.1 — submit a single draft/rejected template for approval. */
+export async function submitTemplateAction(
+  id: string,
+): Promise<TemplateActionResult> {
+  return submitTemplatesForApproval([id]);
+}
+
+/** V2.1 — delete a template (workspace-scoped, hard delete). */
+export async function deleteTemplateAction(
+  id: string,
+): Promise<TemplateActionResult> {
+  const ws = await resolveWorkspace();
+  if (!ws.ok) return ws;
+  const oid = await asObjectId(id);
+  if (!oid) return { ok: false, error: "invalid template id" };
+
+  const { cols } = await getSabsmsCollections();
+  const res = await cols.templates.deleteOne({
+    _id: oid,
+    workspaceId: ws.workspaceId,
+  });
+  if (res.deletedCount === 0) {
+    return { ok: false, error: "template not found" };
+  }
+  revalidatePath("/sabsms/templates");
+  return { ok: true };
+}
+
 /** Feature 12 — withdraw a submitted template back to draft. */
 export async function withdrawSubmission(
   id: string,

@@ -246,7 +246,7 @@ mod tests {
     use super::*;
     use aes_gcm::aead::{Aead, KeyInit, Payload};
     use aes_gcm::{Aes256Gcm, Nonce};
-    use base64::Engine as _;
+    // `base64::Engine` is already in scope via `use super::*`.
 
     fn fixed_key() -> [u8; 32] {
         let hexkey = "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f";

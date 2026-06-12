@@ -27,6 +27,7 @@ import {
   Send,
   ShieldCheck,
   Tags,
+  Trash2,
   Upload,
   Workflow,
   XCircle,
@@ -49,6 +50,7 @@ import { SabFilePickerButton, fetchSabFilePickAsFile } from "@/components/sabfil
 import { Badge, Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Textarea, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger, useToast } from '@/components/sabcrm/20ui';
 
 import {
+  deleteTemplateAction,
   duplicateTemplate,
   exportTemplateBundle,
   importTemplates,
@@ -177,6 +179,15 @@ export function TemplatesTable({ workspaceId: _workspaceId, initialRows, totalCo
       res,
       row.deprecated ? `Restored "${row.name}"` : `Deprecated "${row.name}"`,
     );
+  }
+
+  async function handleDelete(row: TemplateRow) {
+    const confirmed = window.confirm(
+      `Delete template "${row.name}"? This cannot be undone.`,
+    );
+    if (!confirmed) return;
+    const res = await deleteTemplateAction(row.id);
+    notifyResult(res, `Deleted "${row.name}"`);
   }
 
   async function openAudit(row: TemplateRow) {
@@ -453,6 +464,11 @@ export function TemplatesTable({ workspaceId: _workspaceId, initialRows, totalCo
       label: "Audit history",
       icon: <History className="h-4 w-4" />,
       onSelect: openAudit,
+    },
+    {
+      label: "Delete",
+      icon: <Trash2 className="h-4 w-4" />,
+      onSelect: handleDelete,
     },
   ];
 

@@ -117,6 +117,14 @@ pub fn adapter_for(provider: ProviderId, http: reqwest::Client) -> Option<Box<dy
 /// GSM-7 / UCS-2 segment counter. Returns the number of SMS segments
 /// the carrier will bill for. The split sizes are universal — 160/153
 /// for GSM-7, 70/67 for UCS-2.
+///
+/// NOTE: this is the SHARED simplified counter — it counts Unicode code
+/// points and treats GSM extension-table chars as 1 (real GSM packing
+/// bills them as 2 septets, and UCS-2 is sized in UTF-16 units). The TS
+/// counterpart (`src/lib/sabsms/segments.ts`) implements the SAME
+/// simplification, and `tests/fixtures/segment-vectors.json` is the
+/// anti-drift contract both must satisfy — change either side only via
+/// a coordinated fixture update.
 pub fn estimate_segments(body: &str) -> u32 {
     let is_gsm = body.chars().all(is_gsm7_char);
     let len = body.chars().count();
@@ -133,10 +141,22 @@ pub fn estimate_segments(body: &str) -> u32 {
     }
 }
 
+/// The encoding the carrier will use for `body`: `"gsm7"` when every
+/// char is representable in GSM 03.38 (per the shared simplified table
+/// in [`is_gsm7_char`]), else `"ucs2"`.
+pub fn encoding_of(body: &str) -> &'static str {
+    if body.chars().all(is_gsm7_char) {
+        "gsm7"
+    } else {
+        "ucs2"
+    }
+}
+
 fn is_gsm7_char(c: char) -> bool {
     // Core GSM-7 alphabet + the extension table. Anything else triggers
     // a UCS-2 fallback. Close-enough for billing — exact GSM packing
-    // edge cases are deferred.
+    // edge cases are deferred. Kept byte-for-byte in sync with the TS
+    // table (anti-drift fixture: tests/fixtures/segment-vectors.json).
     matches!(
         c,
         '@' | '£' | '$' | '¥' | 'è' | 'é' | 'ù' | 'ì' | 'ò' | 'Ç'
@@ -181,5 +201,35 @@ mod tests {
     fn unicode_long_multiple_segments() {
         let body = "नमस्ते ".repeat(40);
         assert!(estimate_segments(&body) > 1);
+    }
+
+    #[test]
+    fn extension_chars_count_like_base_chars_per_shared_contract() {
+        // Shared simplified counter: 160 '€' code points → 1 segment,
+        // 161 → 2 (matches segment-vectors.json; real GSM packing would
+        // bill ext chars at 2 septets — coordinated fix later).
+        assert_eq!(estimate_segments(&"€".repeat(160)), 1);
+        assert_eq!(estimate_segments(&"€".repeat(161)), 2);
+    }
+
+    #[test]
+    fn emoji_counts_as_one_code_point_per_shared_contract() {
+        // Code-point counting: 70 emoji → 1 segment, 71 → 2.
+        assert_eq!(estimate_segments(&"🙂".repeat(70)), 1);
+        assert_eq!(estimate_segments(&"🙂".repeat(71)), 2);
+    }
+
+    #[test]
+    fn encoding_of_classifies_gsm7_vs_ucs2() {
+        assert_eq!(encoding_of("hello world"), "gsm7");
+        assert_eq!(encoding_of("price: €5 {today}"), "gsm7");
+        assert_eq!(encoding_of("नमस्ते"), "ucs2");
+        assert_eq!(encoding_of("hi 🙂"), "ucs2");
+        // Smart quote forces UCS-2.
+        assert_eq!(encoding_of("it\u{2019}s"), "ucs2");
+        // '¿' is outside the shared table (TS parity) → UCS-2.
+        assert_eq!(encoding_of("¿Hola?"), "ucs2");
+        // Empty body defaults to GSM-7.
+        assert_eq!(encoding_of(""), "gsm7");
     }
 }

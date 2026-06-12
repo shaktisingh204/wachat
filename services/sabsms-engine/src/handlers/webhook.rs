@@ -14,6 +14,8 @@ use serde_json::{json, Value};
 use crate::{
     creds, db,
     errors::{EngineError, EngineResult},
+    events::{self, EngineEvent},
+    keywords,
     providers::{self, ProviderCreds, SmsProvider},
     state::AppState,
     types::{Channel, Direction, MessageStatus, ProviderId},
@@ -230,8 +232,55 @@ async fn handle_inbound(
     if let Some(account_id) = &provider_account_id {
         msg.insert("providerAccountId", account_id);
     }
-    // Idempotent on providerMessageId via the unique partial index.
-    let _ = messages.insert_one(msg).await;
+    // Idempotent on providerMessageId via the unique partial index — a
+    // duplicate-key no-op means this is a provider webhook RETRY, so we
+    // must skip the event emit + keyword side effects too.
+    match messages.insert_one(msg).await {
+        Ok(inserted) => {
+            let message_id = inserted
+                .inserted_id
+                .as_object_id()
+                .map(|oid| oid.to_hex())
+                .unwrap_or_default();
+
+            // 6. Event-stream bridge (best-effort).
+            let mut redis = state.redis.clone();
+            events::emit(
+                &mut redis,
+                &EngineEvent::MessageInbound {
+                    workspace_id: workspace_id.clone(),
+                    message_id,
+                    conversation_id: conversation_id.clone().unwrap_or_default(),
+                    from: parsed.from.clone(),
+                    body: parsed.body.clone(),
+                },
+            )
+            .await;
+
+            // 7. STOP/START/HELP keyword interceptor — failures must
+            // never fail the webhook ack.
+            if let Err(e) = keywords::handle_inbound_keywords(
+                state,
+                &workspace_id,
+                &parsed.from,
+                &parsed.to,
+                &number_doc,
+                provider_id,
+                &parsed.body,
+            )
+            .await
+            {
+                tracing::warn!(?e, workspace = %workspace_id, "keyword interceptor failed");
+            }
+        }
+        Err(e) if db::is_duplicate_key_error(&e) => {
+            tracing::debug!(
+                provider_message_id = %parsed.provider_message_id,
+                "duplicate inbound webhook delivery; skipping side effects"
+            );
+        }
+        Err(e) => return Err(e.into()),
+    }
     Ok(Json(json!({ "ok": true, "kind": "inbound" })))
 }
 
@@ -287,7 +336,9 @@ async fn handle_dlr(
     )
     .await?;
 
-    // 4. Apply the status update.
+    // 4. Apply the status update. The `$ne` status guard makes carrier
+    //    DLR retries idempotent — a repeat of the same status modifies
+    //    nothing, so campaign stats below can't double-count.
     let now = mongodb::bson::DateTime::from_millis(Utc::now().timestamp_millis());
     let mut set = doc! {
         "status": evt.status.as_str(),
@@ -304,12 +355,52 @@ async fn handle_dlr(
     if let Some(msg) = evt.error_message {
         set.insert("errorMessage", msg);
     }
-    messages
+    let update_res = messages
         .update_one(
-            doc! { "providerMessageId": &evt.provider_message_id },
+            doc! {
+                "providerMessageId": &evt.provider_message_id,
+                "status": { "$ne": evt.status.as_str() },
+            },
             doc! { "$set": set },
         )
         .await?;
+
+    // Campaign stats denormalisation: a DLR moves the message out of
+    // the `sent` bucket into `delivered` / `failed`. Only bump when the
+    // update actually transitioned the doc AND it was sitting in `sent`
+    // beforehand (so out-of-order or repeated DLRs can't skew counts).
+    if update_res.modified_count == 1 {
+        if let Ok(campaign_id) = original.get_str("campaignId") {
+            let was_sent = matches!(original.get_str("status"), Ok("sent") | Ok("sending"));
+            if was_sent {
+                let bucket = match evt.status {
+                    MessageStatus::Delivered => Some("delivered"),
+                    MessageStatus::Failed | MessageStatus::Undelivered => Some("failed"),
+                    _ => None,
+                };
+                if let Some(bucket) = bucket {
+                    crate::campaigns::bump_stats(state, campaign_id, Some("sent"), bucket).await;
+                }
+            }
+        }
+    }
+
+    // Event-stream bridge (best-effort).
+    if matches!(evt.status, MessageStatus::Delivered) {
+        let message_id = original
+            .get_object_id("_id")
+            .map(|oid| oid.to_hex())
+            .unwrap_or_default();
+        let mut redis = state.redis.clone();
+        events::emit(
+            &mut redis,
+            &EngineEvent::MessageDelivered {
+                workspace_id: workspace_id.clone(),
+                message_id,
+            },
+        )
+        .await;
+    }
     Ok(Json(json!({ "ok": true, "kind": "dlr", "matched": true })))
 }
 

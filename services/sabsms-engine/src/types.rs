@@ -193,6 +193,19 @@ pub struct CreditReserveResponse {
     pub reason: Option<String>,
 }
 
+/// Body for the Next credits callback `op=reserve-batch` — one
+/// affordability gate covering a claimed campaign batch.
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CampaignBatchReserveRequest {
+    pub workspace_id: String,
+    pub campaign_id: String,
+    pub count: u32,
+    pub segments_total: u32,
+    pub estimated_cost: i64,
+    pub category: MessageCategory,
+}
+
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CreditFinaliseRequest {

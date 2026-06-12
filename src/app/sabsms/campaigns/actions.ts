@@ -13,16 +13,40 @@
  */
 
 import { ObjectId, type Filter, type WithId } from "mongodb";
+import { z } from "zod";
 
+import { connectToDatabase } from "@/lib/mongodb";
 import { getCachedSession } from "@/lib/server-cache";
 import { getSabsmsCollections } from "@/lib/sabsms/db/collections";
 import { sabsmsEngine, SabsmsEngineError } from "@/lib/sabsms/engine-client";
 import type {
   SabsmsCampaign,
+  SabsmsCampaignAudience,
   SabsmsCampaignStatus,
   SabsmsDrip,
   SabsmsTemplate,
 } from "@/lib/sabsms/types";
+
+import {
+  evaluatePredicate,
+  type SegmentContact,
+  type SegmentNode,
+} from "../segments/new/evaluate";
+import {
+  buildRecipientDocs,
+  chunkArray,
+  csvRowsToContacts,
+  dedupeContacts,
+  estimateForContacts,
+  parseCsv,
+  resolveAudience,
+  type AudienceContact,
+  type AudienceDeps,
+  type CampaignEstimate,
+  type CampaignRecipientDoc,
+  MAX_RECIPIENTS,
+  RECIPIENT_CHUNK_SIZE,
+} from "./launch-helpers";
 
 export type ActionResult<T> =
   | ({ ok: true } & T)
@@ -312,16 +336,74 @@ async function setStatus(
   return { ok: true };
 }
 
+/** True when the engine is intentionally off (local dev fallback). */
+function engineDisabled(e: unknown): boolean {
+  return (
+    e instanceof SabsmsEngineError &&
+    e.status === 503 &&
+    e.message.includes("disabled")
+  );
+}
+
+/**
+ * Pause/resume/cancel go THROUGH the engine — it owns the status flip
+ * (status-guarded, race-safe) plus side effects (recipient cancellation,
+ * `campaignPaused` events). When the engine is disabled (dev), fall
+ * back to a plain status write so the UI stays usable.
+ */
+async function engineStatusAction(
+  campaignId: string,
+  call: (id: string) => Promise<unknown>,
+  fallback: SabsmsCampaignStatus,
+): Promise<VoidActionResult> {
+  const ws = await resolveWorkspace();
+  if (!ws.ok) return ws;
+  if (!ObjectId.isValid(campaignId)) {
+    return { ok: false, error: "Invalid campaignId" };
+  }
+  // Ownership check before touching the engine (the engine endpoint is
+  // workspace-agnostic behind the service token).
+  const { cols } = await getSabsmsCollections();
+  const owned = await cols.campaigns.findOne(
+    { _id: new ObjectId(campaignId), workspaceId: ws.workspaceId },
+    { projection: { _id: 1 } },
+  );
+  if (!owned) return { ok: false, error: "Campaign not found" };
+
+  try {
+    await call(campaignId);
+    return { ok: true };
+  } catch (e) {
+    if (engineDisabled(e)) return setStatus(campaignId, fallback);
+    if (e instanceof SabsmsEngineError) {
+      return { ok: false, error: e.message };
+    }
+    return { ok: false, error: (e as Error).message ?? "engine call failed" };
+  }
+}
+
 export async function pauseCampaign(input: { campaignId: string }): Promise<VoidActionResult> {
-  return setStatus(input.campaignId, "paused");
+  return engineStatusAction(
+    input.campaignId,
+    (id) => sabsmsEngine.pauseCampaign(id),
+    "paused",
+  );
 }
 
 export async function resumeCampaign(input: { campaignId: string }): Promise<VoidActionResult> {
-  return setStatus(input.campaignId, "running");
+  return engineStatusAction(
+    input.campaignId,
+    (id) => sabsmsEngine.resumeCampaign(id),
+    "running",
+  );
 }
 
 export async function cancelCampaign(input: { campaignId: string }): Promise<VoidActionResult> {
-  return setStatus(input.campaignId, "cancelled");
+  return engineStatusAction(
+    input.campaignId,
+    (id) => sabsmsEngine.cancelCampaign(id),
+    "cancelled",
+  );
 }
 
 export async function archiveCampaign(input: { campaignId: string }): Promise<VoidActionResult> {
@@ -608,6 +690,415 @@ export async function compareCampaigns(input: {
       stats,
     },
   };
+}
+
+// ─── V2.3: create / estimate / launch ─────────────────────────────────────
+
+const AudienceSchema = z.union([
+  z.object({ kind: z.literal("segment"), segmentId: z.string().min(1) }),
+  z.object({ kind: z.literal("list"), listId: z.string().min(1) }),
+  z.object({
+    kind: z.literal("contacts"),
+    contactIds: z.array(z.string()).min(1),
+  }),
+  z.object({
+    kind: z.literal("phones"),
+    phones: z.array(z.string()).min(1).max(MAX_RECIPIENTS),
+  }),
+  z.object({
+    kind: z.literal("csv"),
+    importId: z.string().min(1),
+    sabFileId: z.string().optional(),
+  }),
+]);
+
+const ScheduleSchema = z.union([
+  z.object({ kind: z.literal("now") }),
+  z.object({
+    kind: z.literal("scheduledAt"),
+    at: z.string().refine((s) => !Number.isNaN(new Date(s).getTime()), {
+      message: "Invalid scheduledAt timestamp",
+    }),
+  }),
+]);
+
+const CreateCampaignSchema = z
+  .object({
+    name: z.string().trim().min(1).max(200),
+    templateId: z.string().optional(),
+    /** Inline body for quick broadcasts without a saved template. */
+    body: z.string().max(1600).optional(),
+    /** Campaign-level template vars applied to every recipient. */
+    vars: z.record(z.string(), z.union([z.string(), z.number()])).optional(),
+    category: z.enum(["transactional", "otp", "marketing", "alert", "service"]),
+    audience: AudienceSchema,
+    schedule: ScheduleSchema,
+    throttlePerSec: z.number().int().min(1).max(100).optional(),
+    from: z.string().optional(),
+    senderNumberIds: z.array(z.string()).optional(),
+  })
+  .refine((v) => Boolean(v.templateId || v.body?.trim()), {
+    message: "Pick a template or write a message body",
+  });
+
+export type CreateCampaignInput = z.infer<typeof CreateCampaignSchema>;
+
+/** Campaign doc extras not (yet) in the canonical schema. */
+interface CampaignLaunchExtras {
+  bodyOverride?: string;
+  templateVars?: Record<string, string | number>;
+  defaultFrom?: string;
+  recipientCount?: number;
+  statusReason?: string;
+}
+
+/**
+ * Create a campaign doc in `draft` status from a validated wizard
+ * payload. Launch is a separate, explicit step
+ * ([`launchCampaignAction`]) so review/estimate can sit in between.
+ */
+export async function createCampaignAction(
+  input: CreateCampaignInput,
+): Promise<ActionResult<{ id: string }>> {
+  const ws = await resolveWorkspace();
+  if (!ws.ok) return ws;
+
+  const parsed = CreateCampaignSchema.safeParse(input);
+  if (!parsed.success) {
+    return {
+      ok: false,
+      error: parsed.error.issues.map((i) => i.message).join("; "),
+    };
+  }
+  const v = parsed.data;
+  const now = new Date();
+  const scheduledAt =
+    v.schedule.kind === "scheduledAt" ? new Date(v.schedule.at) : undefined;
+
+  const doc: Omit<SabsmsCampaign, "_id"> & CampaignLaunchExtras = {
+    workspaceId: ws.workspaceId,
+    name: v.name,
+    templateId: v.templateId ?? "",
+    audience: v.audience as SabsmsCampaignAudience,
+    schedule: scheduledAt
+      ? { kind: "scheduled", sendAt: scheduledAt }
+      : { kind: "immediate" },
+    throttlePerSecond: v.throttlePerSec ?? 10,
+    senderStrategy: "single",
+    senderNumberIds: v.senderNumberIds,
+    category: v.category,
+    status: "draft",
+    stats: {
+      total: 0,
+      queued: 0,
+      sent: 0,
+      delivered: 0,
+      failed: 0,
+      replied: 0,
+      clicked: 0,
+      unsubscribed: 0,
+    },
+    scheduledAt,
+    createdAt: now,
+    updatedAt: now,
+    ...(v.body?.trim() ? { bodyOverride: v.body.trim() } : {}),
+    ...(v.vars ? { templateVars: v.vars } : {}),
+    ...(v.from ? { defaultFrom: v.from } : {}),
+  };
+
+  const { cols } = await getSabsmsCollections();
+  const res = await cols.campaigns.insertOne(doc as SabsmsCampaign);
+  return { ok: true, id: res.insertedId.toHexString() };
+}
+
+// ── Audience data sources (the AudienceDeps implementation) ──────────────
+
+function contactToAudience(c: SegmentContact & { _id?: unknown }): AudienceContact {
+  const vars: Record<string, string | number> = {};
+  for (const [k, val] of Object.entries(c)) {
+    if (k === "_id" || k === "workspaceId") continue;
+    if (typeof val === "string" || typeof val === "number") vars[k] = val;
+  }
+  if (typeof c.name === "string" && !vars.first_name) {
+    vars.first_name = c.name.split(/\s+/)[0];
+  }
+  return {
+    to: (c.e164 ?? c.phone ?? "").trim(),
+    contactId: c._id ? String(c._id) : undefined,
+    vars,
+  };
+}
+
+interface SegmentDocLite {
+  _id?: ObjectId;
+  workspaceId: string;
+  kind: "static" | "dynamic";
+  predicate: SegmentNode | null;
+  contactIds?: string[];
+}
+
+function audienceDepsFor(workspaceId: string): AudienceDeps {
+  return {
+    async loadSegmentContacts(segmentId) {
+      if (!ObjectId.isValid(segmentId)) {
+        throw new Error("Invalid segment id");
+      }
+      const { db } = await connectToDatabase();
+      const segment = await db
+        .collection<SegmentDocLite>("sabsms_segments")
+        .findOne({ _id: new ObjectId(segmentId), workspaceId });
+      if (!segment) throw new Error("Segment not found");
+
+      const contactsCol = db.collection<SegmentContact>("sabsms_contacts");
+      if (segment.kind === "static") {
+        const ids = (segment.contactIds ?? [])
+          .filter((id) => ObjectId.isValid(id))
+          .map((id) => new ObjectId(id));
+        if (ids.length === 0) return [];
+        const contacts = await contactsCol
+          .find({ workspaceId, _id: { $in: ids } } as never)
+          .limit(MAX_RECIPIENTS)
+          .toArray();
+        return contacts.map(contactToAudience);
+      }
+      // Dynamic — same evaluator + scan cap as the segments module.
+      const contacts = await contactsCol
+        .find({ workspaceId } as never)
+        .limit(MAX_RECIPIENTS)
+        .toArray();
+      return contacts
+        .filter((c) => evaluatePredicate(segment.predicate, c))
+        .map(contactToAudience);
+    },
+
+    async loadListPhones(listId) {
+      if (!ObjectId.isValid(listId)) throw new Error("Invalid list id");
+      const { db } = await connectToDatabase();
+      const list = await db
+        .collection<{ workspaceId: string; members?: string[] }>("sabsms_lists")
+        .findOne({ _id: new ObjectId(listId), workspaceId } as never);
+      if (!list) throw new Error("List not found");
+      return list.members ?? [];
+    },
+
+    async loadContactsByIds(contactIds) {
+      const ids = contactIds
+        .filter((id) => ObjectId.isValid(id))
+        .map((id) => new ObjectId(id));
+      if (ids.length === 0) return [];
+      const { db } = await connectToDatabase();
+      const contacts = await db
+        .collection<SegmentContact>("sabsms_contacts")
+        .find({ workspaceId, _id: { $in: ids } } as never)
+        .limit(MAX_RECIPIENTS)
+        .toArray();
+      return contacts.map(contactToAudience);
+    },
+
+    async loadImportContacts(importId) {
+      if (!ObjectId.isValid(importId)) throw new Error("Invalid import id");
+      const { db } = await connectToDatabase();
+      const imp = await db
+        .collection<{ workspaceId: string; sabFileUrl?: string; mapping?: { phone?: string; name?: string; email?: string; tags?: string } }>(
+          "sabsms_imports",
+        )
+        .findOne({ _id: new ObjectId(importId), workspaceId } as never);
+      if (!imp) throw new Error("Import not found");
+      if (!imp.sabFileUrl) throw new Error("Import has no source file");
+      const res = await fetch(imp.sabFileUrl);
+      if (!res.ok) throw new Error(`Failed to fetch import CSV (${res.status})`);
+      const text = await res.text();
+      return csvRowsToContacts(parseCsv(text), imp.mapping ?? {});
+    },
+  };
+}
+
+/** Resolve the body to render: saved template first, inline override second. */
+async function resolveTemplateBody(
+  workspaceId: string,
+  templateId: string | undefined,
+  bodyOverride: string | undefined,
+): Promise<{ ok: true; body: string } | { ok: false; error: string }> {
+  if (templateId && ObjectId.isValid(templateId)) {
+    const { cols } = await getSabsmsCollections();
+    const tpl = await cols.templates.findOne({
+      _id: new ObjectId(templateId),
+      workspaceId,
+    });
+    const body = tpl?.bodies?.[0]?.body;
+    if (body) return { ok: true, body };
+  }
+  if (bodyOverride?.trim()) return { ok: true, body: bodyOverride.trim() };
+  return { ok: false, error: "Campaign has no template body" };
+}
+
+export interface EstimateCampaignInput {
+  templateId?: string;
+  body?: string;
+  vars?: Record<string, string | number>;
+  category: SabsmsCampaign["category"];
+  audience: SabsmsCampaignAudience;
+}
+
+/**
+ * Resolve the audience (via the SAME deps launch uses) and price the
+ * campaign: exact recipient count, engine-parity segment math, the
+ * credit rate card per destination country, plus quiet-hours /
+ * missing-vars warnings. Read-only — nothing is persisted.
+ */
+export async function estimateCampaignAction(
+  input: EstimateCampaignInput,
+): Promise<ActionResult<{ estimate: CampaignEstimate }>> {
+  const ws = await resolveWorkspace();
+  if (!ws.ok) return ws;
+
+  const audience = AudienceSchema.safeParse(input.audience);
+  if (!audience.success) return { ok: false, error: "Invalid audience" };
+
+  const body = await resolveTemplateBody(ws.workspaceId, input.templateId, input.body);
+  if (!body.ok) return body;
+
+  try {
+    const contacts = await resolveAudience(
+      audience.data as SabsmsCampaignAudience,
+      audienceDepsFor(ws.workspaceId),
+    );
+    const estimate = estimateForContacts(
+      contacts,
+      body.body,
+      input.category,
+      input.vars,
+    );
+    return { ok: true, estimate };
+  } catch (e) {
+    return { ok: false, error: (e as Error).message ?? "estimate failed" };
+  }
+}
+
+/**
+ * Launch a draft/scheduled campaign:
+ *
+ *  1. resolve the audience to concrete contacts (dedupe + E.164),
+ *  2. render the template PER RECIPIENT (`render.ts`, contact vars),
+ *  3. bulk-insert `sabsms_campaign_recipients` in 1000-doc chunks with
+ *     chunk numbers and `{campaignId}:{contactIdOrPhone}` idempotency
+ *     keys (unordered inserts — duplicate keys from a previous partial
+ *     launch are skipped, making relaunch-after-failure safe),
+ *  4. immediate → `POST /v1/campaigns/{id}/launch`; future-dated →
+ *     leave status `scheduled` for the engine ticker to promote.
+ */
+export async function launchCampaignAction(input: {
+  campaignId: string;
+}): Promise<ActionResult<{ recipients: number; scheduled: boolean }>> {
+  const ws = await resolveWorkspace();
+  if (!ws.ok) return ws;
+  if (!ObjectId.isValid(input.campaignId)) {
+    return { ok: false, error: "Invalid campaignId" };
+  }
+
+  const { db } = await connectToDatabase();
+  const { cols } = await getSabsmsCollections();
+  const campaign = (await cols.campaigns.findOne({
+    _id: new ObjectId(input.campaignId),
+    workspaceId: ws.workspaceId,
+  })) as (WithId<SabsmsCampaign> & CampaignLaunchExtras) | null;
+  if (!campaign) return { ok: false, error: "Campaign not found" };
+  if (campaign.status !== "draft" && campaign.status !== "scheduled") {
+    return {
+      ok: false,
+      error: `Campaign is ${campaign.status} — only draft or scheduled campaigns can launch`,
+    };
+  }
+
+  const body = await resolveTemplateBody(
+    ws.workspaceId,
+    campaign.templateId,
+    campaign.bodyOverride,
+  );
+  if (!body.ok) return body;
+
+  let contacts: AudienceContact[];
+  try {
+    contacts = await resolveAudience(
+      campaign.audience,
+      audienceDepsFor(ws.workspaceId),
+    );
+  } catch (e) {
+    return { ok: false, error: (e as Error).message ?? "audience resolution failed" };
+  }
+  if (contacts.length === 0) {
+    return { ok: false, error: "Audience resolved to zero valid recipients" };
+  }
+
+  const recipientDocs: CampaignRecipientDoc[] = buildRecipientDocs(contacts, {
+    campaignId: input.campaignId,
+    workspaceId: ws.workspaceId,
+    templateBody: body.body,
+    category: campaign.category,
+    from: campaign.defaultFrom,
+    baseVars: campaign.templateVars,
+  });
+
+  // Bulk insert, 1000 docs per insertMany. `ordered: false` lets Mongo
+  // keep going past E11000 duplicates (idempotency keys from a previous
+  // partial launch) — those recipients already exist and are skipped.
+  const recipientsCol = db.collection<CampaignRecipientDoc>(
+    "sabsms_campaign_recipients",
+  );
+  for (const chunk of chunkArray(recipientDocs, RECIPIENT_CHUNK_SIZE)) {
+    try {
+      await recipientsCol.insertMany(chunk, { ordered: false });
+    } catch (e) {
+      const isDup =
+        typeof e === "object" &&
+        e !== null &&
+        "code" in e &&
+        ((e as { code?: number }).code === 11000 ||
+          /E11000/.test(String((e as Error).message)));
+      if (!isDup) {
+        return {
+          ok: false,
+          error: (e as Error).message ?? "recipient insert failed",
+        };
+      }
+    }
+  }
+
+  const scheduled =
+    campaign.schedule?.kind === "scheduled" &&
+    Boolean(campaign.scheduledAt) &&
+    campaign.scheduledAt!.getTime() > Date.now();
+
+  await cols.campaigns.updateOne(
+    { _id: campaign._id },
+    {
+      $set: {
+        "stats.total": recipientDocs.length,
+        recipientCount: recipientDocs.length,
+        ...(scheduled ? { status: "scheduled" as const } : {}),
+        updatedAt: new Date(),
+      } as never,
+    },
+  );
+
+  if (scheduled) {
+    // The engine's campaign ticker promotes `scheduled` campaigns when
+    // `scheduledAt` comes due — no launch call needed.
+    return { ok: true, recipients: recipientDocs.length, scheduled: true };
+  }
+
+  try {
+    const res = await sabsmsEngine.launchCampaign(input.campaignId);
+    return { ok: true, recipients: res.recipients, scheduled: false };
+  } catch (e) {
+    if (e instanceof SabsmsEngineError) {
+      return {
+        ok: false,
+        error: `Engine launch failed: ${e.message}. The campaign stays ${campaign.status}; relaunching is safe (duplicate recipients are skipped).`,
+      };
+    }
+    return { ok: false, error: (e as Error).message ?? "launch failed" };
+  }
 }
 
 // ─── Misc ─────────────────────────────────────────────────────────────────

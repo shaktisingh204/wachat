@@ -29,9 +29,13 @@
 
 import { randomUUID } from "node:crypto";
 
+import { ObjectId } from "mongodb";
+
 import { connectToDatabase } from "@/lib/mongodb";
 import { getCachedSession } from "@/lib/server-cache";
 import { getSabsmsCollections } from "@/lib/sabsms/db/collections";
+
+import { cancelCampaign } from "../campaigns/actions";
 
 import {
   HOLIDAYS,
@@ -199,7 +203,6 @@ export async function loadScheduledSends(
   }));
 
   const merged = [...camp, ...ex];
-  if (merged.length === 0) return seedScheduled(workspaceId, range);
   return merged.sort(
     (a, b) => new Date(a.sendAt).getTime() - new Date(b.sendAt).getTime(),
   );
@@ -230,94 +233,6 @@ export async function loadUnscheduledTray(
     createdAt: dateField(c.createdAt).toISOString(),
     updatedAt: dateField(c.updatedAt).toISOString(),
   }));
-}
-
-function seedScheduled(
-  workspaceId: string,
-  range: { from: Date; to: Date },
-): ScheduledSend[] {
-  const out: ScheduledSend[] = [];
-  const start = new Date(range.from);
-  start.setHours(9, 0, 0, 0);
-  const seedRows = [
-    {
-      name: "Friday promo blast",
-      offsetDays: 1,
-      hour: 9,
-      tz: "America/Los_Angeles",
-      country: "US",
-      count: 4200,
-      sender: "shortcode-78462",
-    },
-    {
-      name: "Welcome drip — step 2",
-      offsetDays: 1,
-      hour: 14,
-      tz: "Asia/Kolkata",
-      country: "IN",
-      count: 880,
-      sender: "long-+1-415-555",
-    },
-    {
-      name: "Cart-abandon weekly",
-      offsetDays: 3,
-      hour: 18,
-      tz: "Europe/London",
-      country: "UK",
-      count: 2104,
-      sender: "shortcode-78462",
-    },
-    {
-      name: "Loyalty insider check-in",
-      offsetDays: 6,
-      hour: 10,
-      tz: "America/New_York",
-      country: "US",
-      count: 1502,
-      sender: "long-+1-212-555",
-    },
-    {
-      name: "Monday flash",
-      offsetDays: 7,
-      hour: 9,
-      tz: "America/Los_Angeles",
-      country: "US",
-      count: 6400,
-      sender: "shortcode-78462",
-    },
-    {
-      name: "Quiet-hours test",
-      offsetDays: 2,
-      hour: 23,
-      tz: "Europe/Berlin",
-      country: "EU",
-      count: 102,
-      sender: "long-+49-30-555",
-    },
-  ];
-  const now = new Date();
-  seedRows.forEach((r, i) => {
-    const d = new Date(start);
-    d.setDate(d.getDate() + r.offsetDays);
-    d.setHours(r.hour, 0, 0, 0);
-    if (d < range.from || d > range.to) return;
-    out.push({
-      id: `seed-${i}-${r.name.replace(/\s+/g, "-")}`,
-      workspaceId,
-      kind: i === 1 ? "drip" : "campaign",
-      name: r.name,
-      sendAt: d.toISOString(),
-      recipientTz: r.tz,
-      country: r.country,
-      senderId: r.sender,
-      recipientCount: r.count,
-      status: "scheduled",
-      quietHours: { start: 21, end: 8 },
-      createdAt: now.toISOString(),
-      updatedAt: now.toISOString(),
-    });
-  });
-  return out;
 }
 
 // ─── Audit ────────────────────────────────────────────────────────────────
@@ -379,6 +294,15 @@ export async function loadAuditLog(
 
 // ─── Writes ───────────────────────────────────────────────────────────────
 
+/**
+ * Campaign `_id`s are ObjectIds — the previous string-typed filter
+ * (`_id: sendId as never`) could never match, so campaign rows silently
+ * no-oped. Resolve to a real ObjectId when the id is valid.
+ */
+function campaignObjectId(sendId: string): ObjectId | null {
+  return ObjectId.isValid(sendId) ? new ObjectId(sendId) : null;
+}
+
 export async function rescheduleSend(
   sendId: string,
   newSendAt: string,
@@ -391,13 +315,34 @@ export async function rescheduleSend(
   }
   try {
     const { db } = await connectToDatabase();
-    // Try both collections — we don't know up-front whether the row is
-    // a campaign or an ad-hoc scheduled send.
-    const camp = await db.collection("sabsms_campaigns").updateOne(
-      { _id: sendId as unknown as never, workspaceId: ws.workspaceId },
-      { $set: { scheduledAt: when, updatedAt: new Date() } },
-    );
-    if (camp.matchedCount === 0) {
+    // Campaign rows first — only `scheduled` campaigns may move (a
+    // running campaign's timing is owned by the engine ticker).
+    const oid = campaignObjectId(sendId);
+    let matchedCampaign = false;
+    if (oid) {
+      const camp = await db.collection("sabsms_campaigns").updateOne(
+        {
+          _id: oid as never,
+          workspaceId: ws.workspaceId,
+          status: "scheduled",
+        },
+        { $set: { scheduledAt: when, updatedAt: new Date() } },
+      );
+      matchedCampaign = camp.matchedCount > 0;
+      if (!matchedCampaign) {
+        const existing = await db.collection("sabsms_campaigns").findOne(
+          { _id: oid as never, workspaceId: ws.workspaceId },
+          { projection: { status: 1 } },
+        );
+        if (existing) {
+          return {
+            ok: false,
+            error: `Campaign is ${String((existing as { status?: string }).status ?? "unknown")} — only scheduled campaigns can be rescheduled.`,
+          };
+        }
+      }
+    }
+    if (!matchedCampaign) {
       await db.collection("sabsms_scheduled_sends").updateOne(
         { _id: sendId as unknown as never, workspaceId: ws.workspaceId },
         { $set: { sendAt: when, updatedAt: new Date() } },
@@ -423,10 +368,21 @@ export async function cancelScheduledSend(
   if (!ws.ok) return ws;
   try {
     const { db } = await connectToDatabase();
-    await db.collection("sabsms_campaigns").updateOne(
-      { _id: sendId as unknown as never, workspaceId: ws.workspaceId },
-      { $set: { status: "cancelled", updatedAt: new Date() } },
-    );
+    const oid = campaignObjectId(sendId);
+    if (oid) {
+      const campaign = await db.collection("sabsms_campaigns").findOne(
+        { _id: oid as never, workspaceId: ws.workspaceId },
+        { projection: { _id: 1 } },
+      );
+      if (campaign) {
+        // Route campaign cancellation through the engine so remaining
+        // pending/claimed recipients are cancelled too (V2.3).
+        const res = await cancelCampaign({ campaignId: sendId });
+        if (!res.ok) return res;
+        await recordAudit(ws.workspaceId, sendId, "cancel");
+        return { ok: true };
+      }
+    }
     await db.collection("sabsms_scheduled_sends").updateOne(
       { _id: sendId as unknown as never, workspaceId: ws.workspaceId },
       { $set: { status: "cancelled", updatedAt: new Date() } },
@@ -457,12 +413,15 @@ export async function bulkRescheduleByWindow(
   for (const id of sendIds) {
     try {
       const { db } = await connectToDatabase();
-      const camp = await db
-        .collection<Record<string, unknown>>("sabsms_campaigns")
-        .findOne({
-          _id: id as unknown as never,
-          workspaceId: ws.workspaceId,
-        });
+      const campOid = campaignObjectId(id);
+      const camp = campOid
+        ? await db
+            .collection<Record<string, unknown>>("sabsms_campaigns")
+            .findOne({
+              _id: campOid as never,
+              workspaceId: ws.workspaceId,
+            })
+        : null;
       const ex = camp
         ? null
         : await db

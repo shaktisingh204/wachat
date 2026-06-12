@@ -4,7 +4,8 @@ use chrono::Utc;
 use mongodb::bson::{doc, oid::ObjectId};
 
 use crate::{
-    compliance, creds, credits, db, delayed,
+    campaigns, compliance, creds, credits, db, delayed,
+    events::{self, EngineEvent},
     providers::{self, ProviderCreds, SendRequest},
     queue,
     state::AppState,
@@ -90,6 +91,7 @@ async fn process_one(state: &Arc<AppState>, msg_id: &str) -> anyhow::Result<()> 
         .get_str("providerAccountId")
         .ok()
         .map(|s| s.to_string());
+    let campaign_id = doc.get_str("campaignId").ok().map(|s| s.to_string());
     let attempts = doc
         .get_i32("attempts")
         .ok()
@@ -109,9 +111,13 @@ async fn process_one(state: &Arc<AppState>, msg_id: &str) -> anyhow::Result<()> 
     let provider = match select_provider(&doc_provider) {
         Some(p) => p,
         None => {
-            mark_failed(
+            fail_and_emit(
+                state,
                 &messages,
                 &oid,
+                msg_id,
+                &workspace_id,
+                campaign_id.as_deref(),
                 "unsupported_provider",
                 &format!("provider '{doc_provider}' has no engine adapter"),
             )
@@ -120,23 +126,102 @@ async fn process_one(state: &Arc<AppState>, msg_id: &str) -> anyhow::Result<()> 
         }
     };
 
-    // Compliance re-check BEFORE reserving credits — campaigns will
-    // enqueue straight to the queue, so the API-side check is not enough.
-    match compliance::pre_send_checks(state, &workspace_id, &to).await? {
-        compliance::Verdict::Allow => {}
+    // Full compliance kernel BEFORE reserving credits — campaigns will
+    // enqueue straight to the queue, so the API-side check is not
+    // enough; and because no credit hold exists yet, a Reschedule
+    // verdict never needs a release.
+    let country = country_of(&to);
+    let ctx = compliance::MessageContext {
+        workspace_id: &workspace_id,
+        to_e164: &to,
+        country: &country,
+        category,
+        provider,
+        provider_account_id: provider_account_id.as_deref(),
+        opt_out_confirmation: doc.get_bool("optOutConfirmation").unwrap_or(false),
+    };
+    let (verdict, trace) = compliance::pre_send_checks(state, &ctx).await?;
+    // The trace is persisted regardless of the outcome.
+    let trace_bson = mongodb::bson::to_bson(&trace)
+        .unwrap_or_else(|_| mongodb::bson::Bson::Array(Vec::new()));
+    match verdict {
+        compliance::Verdict::Allow => {
+            let _ = messages
+                .update_one(
+                    doc! { "_id": &oid },
+                    doc! { "$set": { "complianceTrace": trace_bson } },
+                )
+                .await;
+        }
         compliance::Verdict::Block { code, reason } => {
+            let now = mongodb::bson::DateTime::from_millis(Utc::now().timestamp_millis());
+            let status = if code == "suppressed" {
+                MessageStatus::Suppressed
+            } else {
+                MessageStatus::Rejected
+            };
+            messages
+                .update_one(
+                    doc! { "_id": &oid },
+                    doc! { "$set": {
+                        "status": status.as_str(),
+                        "errorCode": &code,
+                        "errorMessage": &reason,
+                        "complianceTrace": trace_bson,
+                        "updatedAt": now,
+                    }},
+                )
+                .await?;
+            if let Some(cid) = campaign_id.as_deref() {
+                campaigns::bump_stats(state, cid, Some("queued"), "failed").await;
+            }
+            let mut redis = state.redis.clone();
+            events::emit(
+                &mut redis,
+                &EngineEvent::ComplianceBlocked {
+                    workspace_id: workspace_id.clone(),
+                    message_id: msg_id.to_string(),
+                    code,
+                },
+            )
+            .await;
+            return Ok(());
+        }
+        compliance::Verdict::Reschedule {
+            until_epoch_secs,
+            code,
+        } => {
             let now = mongodb::bson::DateTime::from_millis(Utc::now().timestamp_millis());
             messages
                 .update_one(
                     doc! { "_id": &oid },
                     doc! { "$set": {
-                        "status": MessageStatus::Suppressed.as_str(),
-                        "errorCode": &code,
-                        "errorMessage": &reason,
+                        // Status stays queued — the delayed ticker re-enqueues it.
+                        "status": MessageStatus::Queued.as_str(),
+                        "complianceTrace": trace_bson,
+                        "rescheduledUntil": mongodb::bson::DateTime::from_millis(
+                            until_epoch_secs.saturating_mul(1000),
+                        ),
+                        "rescheduleCode": &code,
                         "updatedAt": now,
                     }},
                 )
                 .await?;
+            let mut redis = state.redis.clone();
+            if let Err(e) =
+                delayed::schedule(&mut redis, msg_id, until_epoch_secs.max(0) as u64).await
+            {
+                tracing::error!(?e, msg_id, "failed to schedule compliance reschedule");
+            }
+            events::emit(
+                &mut redis,
+                &EngineEvent::ComplianceRescheduled {
+                    workspace_id: workspace_id.clone(),
+                    message_id: msg_id.to_string(),
+                    until_epoch: until_epoch_secs,
+                },
+            )
+            .await;
             return Ok(());
         }
     }
@@ -148,18 +233,38 @@ async fn process_one(state: &Arc<AppState>, msg_id: &str) -> anyhow::Result<()> 
         segments,
         estimated_cost: 0,
         category,
-        destination_country: country_of(&to),
+        destination_country: country.clone(),
     };
     let reservation = match credits::reserve(state, &reserve_req).await {
         Ok(r) if r.approved => r,
         Ok(r) => {
             let reason = r.reason.unwrap_or_else(|| "rejected".into());
-            mark_failed(&messages, &oid, "credit_rejected", &reason).await?;
+            fail_and_emit(
+                state,
+                &messages,
+                &oid,
+                msg_id,
+                &workspace_id,
+                campaign_id.as_deref(),
+                "credit_rejected",
+                &reason,
+            )
+            .await?;
             return Ok(());
         }
         Err(e) => {
             tracing::warn!(?e, "credit reserve failed; marking message failed");
-            mark_failed(&messages, &oid, "credit_callback_error", &e.to_string()).await?;
+            fail_and_emit(
+                state,
+                &messages,
+                &oid,
+                msg_id,
+                &workspace_id,
+                campaign_id.as_deref(),
+                "credit_callback_error",
+                &e.to_string(),
+            )
+            .await?;
             return Ok(());
         }
     };
@@ -178,7 +283,17 @@ async fn process_one(state: &Arc<AppState>, msg_id: &str) -> anyhow::Result<()> 
         from
     };
     if resolved_from.is_empty() {
-        mark_failed(&messages, &oid, "no_sender", "no sender configured").await?;
+        fail_and_emit(
+            state,
+            &messages,
+            &oid,
+            msg_id,
+            &workspace_id,
+            campaign_id.as_deref(),
+            "no_sender",
+            "no sender configured",
+        )
+        .await?;
         let _ = credits::finalise(state, &release(reservation.reservation_token)).await;
         return Ok(());
     }
@@ -193,7 +308,17 @@ async fn process_one(state: &Arc<AppState>, msg_id: &str) -> anyhow::Result<()> 
             Ok(r) => Some(r),
             Err(e) => {
                 tracing::warn!(?e, workspace = %workspace_id, "credential resolution failed");
-                mark_failed(&messages, &oid, "no_credentials", &e.to_string()).await?;
+                fail_and_emit(
+                    state,
+                    &messages,
+                    &oid,
+                    msg_id,
+                    &workspace_id,
+                    campaign_id.as_deref(),
+                    "no_credentials",
+                    &e.to_string(),
+                )
+                .await?;
                 let _ = credits::finalise(state, &release(reservation.reservation_token)).await;
                 return Ok(());
             }
@@ -210,7 +335,17 @@ async fn process_one(state: &Arc<AppState>, msg_id: &str) -> anyhow::Result<()> 
     let adapter = match providers::adapter_for(provider, state.http.clone()) {
         Some(a) => a,
         None => {
-            mark_failed(&messages, &oid, "unsupported_provider", provider.as_str()).await?;
+            fail_and_emit(
+                state,
+                &messages,
+                &oid,
+                msg_id,
+                &workspace_id,
+                campaign_id.as_deref(),
+                "unsupported_provider",
+                provider.as_str(),
+            )
+            .await?;
             let _ = credits::finalise(state, &release(reservation.reservation_token)).await;
             return Ok(());
         }
@@ -242,14 +377,30 @@ async fn process_one(state: &Arc<AppState>, msg_id: &str) -> anyhow::Result<()> 
             let _ = messages
                 .update_one(doc! { "_id": &oid }, doc! { "$set": set })
                 .await?;
+            // Campaign stats: queued → sent (delivered/failed move again
+            // on the DLR path in `handlers/webhook.rs`).
+            if let Some(cid) = campaign_id.as_deref() {
+                campaigns::bump_stats(state, cid, Some("queued"), "sent").await;
+            }
             let _ = credits::finalise(
                 state,
                 &CreditFinaliseRequest {
-                    workspace_id,
+                    workspace_id: workspace_id.clone(),
                     message_id: msg_id.to_string(),
                     reservation_token: reservation.reservation_token,
                     actual_cost: r.cost.unwrap_or(0),
                     charge: true,
+                },
+            )
+            .await;
+            let mut redis = state.redis.clone();
+            events::emit(
+                &mut redis,
+                &EngineEvent::MessageSent {
+                    workspace_id: workspace_id.clone(),
+                    message_id: msg_id.to_string(),
+                    provider: provider.as_str().to_string(),
+                    segments: r.segments,
                 },
             )
             .await;
@@ -280,10 +431,50 @@ async fn process_one(state: &Arc<AppState>, msg_id: &str) -> anyhow::Result<()> 
             } else {
                 "provider_error"
             };
-            mark_failed(&messages, &oid, code, &e.to_string()).await?;
+            fail_and_emit(
+                state,
+                &messages,
+                &oid,
+                msg_id,
+                &workspace_id,
+                campaign_id.as_deref(),
+                code,
+                &e.to_string(),
+            )
+            .await?;
             let _ = credits::finalise(state, &release(reservation.reservation_token)).await;
         }
     }
+    Ok(())
+}
+
+/// Terminal failure: mark the doc failed, emit `MessageFailed` to the
+/// event stream (best-effort), and — for campaign messages — move the
+/// recipient from the `queued` to the `failed` stat bucket.
+async fn fail_and_emit(
+    state: &Arc<AppState>,
+    messages: &mongodb::Collection<mongodb::bson::Document>,
+    oid: &ObjectId,
+    msg_id: &str,
+    workspace_id: &str,
+    campaign_id: Option<&str>,
+    code: &str,
+    message: &str,
+) -> anyhow::Result<()> {
+    mark_failed(messages, oid, code, message).await?;
+    if let Some(cid) = campaign_id {
+        campaigns::bump_stats(state, cid, Some("queued"), "failed").await;
+    }
+    let mut redis = state.redis.clone();
+    events::emit(
+        &mut redis,
+        &EngineEvent::MessageFailed {
+            workspace_id: workspace_id.to_string(),
+            message_id: msg_id.to_string(),
+            error_code: code.to_string(),
+        },
+    )
+    .await;
     Ok(())
 }
 

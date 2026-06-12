@@ -10,22 +10,7 @@ use axum::Router;
 use tokio::signal;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
 
-mod auth;
-mod compliance;
-mod config;
-mod creds;
-mod credits;
-mod db;
-mod delayed;
-mod errors;
-mod handlers;
-mod providers;
-mod queue;
-mod state;
-mod types;
-mod worker;
-
-use crate::state::AppState;
+use sabsms_engine::{campaigns, config, creds, db, delayed, handlers, queue, state::AppState, worker};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -69,6 +54,13 @@ async fn main() -> anyhow::Result<()> {
     let ticker_state = state.clone();
     tokio::spawn(async move {
         delayed::run_ticker(ticker_state).await;
+    });
+
+    // Campaign ticker — promotes due scheduled campaigns and drains
+    // running campaigns' recipient chunks at the configured throttle.
+    let campaign_state = state.clone();
+    tokio::spawn(async move {
+        campaigns::run_ticker(campaign_state).await;
     });
 
     let app: Router = handlers::router(state.clone())

@@ -27,12 +27,31 @@ import {
 } from "lucide-react"
 
 import Link from "next/link"
-import { PageHeader, Alert, AlertDescription, AlertTitle, Card, CardHeader, CardTitle, CardDescription, CardBody, CardFooter, Accordion, AccordionItem, AccordionTrigger, AccordionContent, Button, Input, Label, Textarea, Switch, Badge, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, cn } from '@/components/sabcrm/20ui';const MOCK_SEGMENTS = [
-  { id: 'seg-1', name: 'High Value Customers', count: 12450, lastSync: '2 hours ago', type: 'Dynamic', engagement: 'High' },
-  { id: 'seg-2', name: 'Churn Risk (30 days)', count: 3200, lastSync: '5 hours ago', type: 'Dynamic', engagement: 'Low' },
-  { id: 'seg-3', name: 'Beta Testers', count: 450, lastSync: '1 day ago', type: 'Static', engagement: 'Very High' },
-  { id: 'seg-4', name: 'All Subscribers', count: 89000, lastSync: '10 mins ago', type: 'Dynamic', engagement: 'Medium' },
-]
+import { useRouter } from "next/navigation"
+import { PageHeader, Alert, AlertDescription, AlertTitle, Card, CardHeader, CardTitle, CardDescription, CardBody, CardFooter, Accordion, AccordionItem, AccordionTrigger, AccordionContent, Button, Input, Label, Textarea, Switch, Badge, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, cn } from '@/components/sabcrm/20ui';
+
+import { listSegments, type SegmentListRow } from "../../segments/actions"
+import {
+  createCampaignAction,
+  estimateCampaignAction,
+  launchCampaignAction,
+} from "../actions"
+import { segmentInfo } from "@/lib/sabsms/segments"
+import type { CampaignEstimate } from "../launch-helpers"
+import type { SabsmsMessageCategory } from "@/lib/sabsms/types"
+
+/** Compact "x ago" formatter for the segment cards. */
+function timeAgo(iso?: string): string {
+  if (!iso) return "never"
+  const ms = Date.now() - new Date(iso).getTime()
+  if (ms < 60_000) return "just now"
+  const mins = Math.floor(ms / 60_000)
+  if (mins < 60) return `${mins} min${mins === 1 ? "" : "s"} ago`
+  const hours = Math.floor(mins / 60)
+  if (hours < 24) return `${hours} hour${hours === 1 ? "" : "s"} ago`
+  const days = Math.floor(hours / 24)
+  return `${days} day${days === 1 ? "" : "s"} ago`
+}
 
 const STEPS = [
   { id: 1, title: 'Basics', icon: Settings2, description: 'Core details' },
@@ -42,18 +61,119 @@ const STEPS = [
 ]
 
 export default function CreateCampaignPage() {
+  const router = useRouter()
   const [step, setStep] = useState(1)
-  
+
   // Form State
   const [campaignName, setCampaignName] = useState("")
   const [senderId, setSenderId] = useState("SABNODE")
   const [campaignType, setCampaignType] = useState("marketing")
-  const [selectedSegment, setSelectedSegment] = useState<string>("seg-1")
+  const [selectedSegment, setSelectedSegment] = useState<string>("")
   const [message, setMessage] = useState("Hi {{first_name}}, check out our new offers!")
   const [scheduleType, setScheduleType] = useState("now")
+  const [scheduledAt, setScheduledAt] = useState("")
   const [smartRouting, setSmartRouting] = useState(true)
   const [abTest, setAbTest] = useState(false)
   const [isMounted, setIsMounted] = useState(false)
+
+  // Real data wiring (V2.3)
+  const [segments, setSegments] = useState<SegmentListRow[]>([])
+  const [segmentsLoading, setSegmentsLoading] = useState(true)
+  const [segmentsError, setSegmentsError] = useState<string | null>(null)
+  const [estimate, setEstimate] = useState<CampaignEstimate | null>(null)
+  const [estimateLoading, setEstimateLoading] = useState(false)
+  const [launching, setLaunching] = useState(false)
+  const [launchError, setLaunchError] = useState<string | null>(null)
+
+  // Load real segments (existing segments module actions).
+  useEffect(() => {
+    let alive = true
+    setSegmentsLoading(true)
+    listSegments({ pageSize: 50 })
+      .then((res) => {
+        if (!alive) return
+        if (res.ok) {
+          setSegments(res.rows)
+          setSelectedSegment((prev) => prev || res.rows[0]?.id || "")
+        } else {
+          setSegmentsError(res.error)
+        }
+      })
+      .catch((e) => alive && setSegmentsError((e as Error).message))
+      .finally(() => alive && setSegmentsLoading(false))
+    return () => {
+      alive = false
+    }
+  }, [])
+
+  // Server-side estimate when reaching review (exact audience count,
+  // engine-parity segments, country-aware credit pricing, quiet-hours
+  // warnings).
+  useEffect(() => {
+    if (step !== 4 || !selectedSegment) return
+    let alive = true
+    setEstimateLoading(true)
+    estimateCampaignAction({
+      body: message,
+      category: campaignType as SabsmsMessageCategory,
+      audience: { kind: "segment", segmentId: selectedSegment },
+    })
+      .then((res) => {
+        if (!alive) return
+        setEstimate(res.ok ? res.estimate : null)
+      })
+      .catch(() => alive && setEstimate(null))
+      .finally(() => alive && setEstimateLoading(false))
+    return () => {
+      alive = false
+    }
+  }, [step, selectedSegment, message, campaignType])
+
+  async function handleLaunch() {
+    setLaunchError(null)
+    if (!selectedSegment) {
+      setLaunchError("Pick a target segment first.")
+      return
+    }
+    if (!message.trim()) {
+      setLaunchError("Write a message body first.")
+      return
+    }
+    if (scheduleType === "later" && !scheduledAt) {
+      setLaunchError("Pick a date and time for the scheduled send.")
+      return
+    }
+    setLaunching(true)
+    try {
+      const created = await createCampaignAction({
+        name: campaignName.trim() || "Untitled Campaign",
+        body: message,
+        category: campaignType as SabsmsMessageCategory,
+        audience: { kind: "segment", segmentId: selectedSegment },
+        schedule:
+          scheduleType === "later"
+            ? { kind: "scheduledAt", at: new Date(scheduledAt).toISOString() }
+            : { kind: "now" },
+        throttlePerSec: 10,
+        from: senderId,
+      })
+      if (!created.ok) {
+        setLaunchError(created.error)
+        return
+      }
+      const launched = await launchCampaignAction({ campaignId: created.id })
+      if (!launched.ok) {
+        setLaunchError(launched.error)
+        return
+      }
+      localStorage.removeItem("sabsms_quick_campaign_draft")
+      router.push("/sabsms/campaigns")
+    } catch (e) {
+      setLaunchError((e as Error).message ?? "Launch failed")
+    } finally {
+      setLaunching(false)
+    }
+  }
 
   // Load from local storage
   useEffect(() => {
@@ -69,6 +189,7 @@ export default function CreateCampaignPage() {
         if (parsed.selectedSegment) setSelectedSegment(parsed.selectedSegment)
         if (parsed.message !== undefined) setMessage(parsed.message)
         if (parsed.scheduleType) setScheduleType(parsed.scheduleType)
+        if (parsed.scheduledAt) setScheduledAt(parsed.scheduledAt)
         if (parsed.smartRouting !== undefined) setSmartRouting(parsed.smartRouting)
         if (parsed.abTest !== undefined) setAbTest(parsed.abTest)
       } catch (e) {
@@ -81,26 +202,25 @@ export default function CreateCampaignPage() {
   useEffect(() => {
     if (!isMounted) return
     const draft = {
-      step, campaignName, senderId, campaignType, selectedSegment, message, scheduleType, smartRouting, abTest
+      step, campaignName, senderId, campaignType, selectedSegment, message, scheduleType, scheduledAt, smartRouting, abTest
     }
     localStorage.setItem("sabsms_quick_campaign_draft", JSON.stringify(draft))
-  }, [isMounted, step, campaignName, senderId, campaignType, selectedSegment, message, scheduleType, smartRouting, abTest])
+  }, [isMounted, step, campaignName, senderId, campaignType, selectedSegment, message, scheduleType, scheduledAt, smartRouting, abTest])
 
-  // Template Variable Validation
-  const ALLOWED_VARIABLES = ["first_name", "last_name", "order_id", "opt_out_link", "company"]
-  const extractVariables = (text: string) => {
-    const matches = text.match(/{{([^}]+)}}/g) || []
-    return matches.map(m => m.replace(/^{{|}}$/g, ''))
-  }
-  
-  const usedVariables = extractVariables(message)
-  const invalidVariables = [...new Set(usedVariables.filter(v => !ALLOWED_VARIABLES.includes(v)))]
+  // Template variables — resolved per-recipient from contact fields at
+  // launch time; unresolved ones surface in the server estimate's
+  // warnings on the review step.
+  const usedVariables = [...new Set(
+    (message.match(/{{([^}]+)}}/g) || []).map(m => m.replace(/^{{|}}$/g, '').split('|')[0].trim())
+  )]
 
-  // Cost Estimation
-  const segmentCount = Math.ceil(message.length / 160) || 1
-  const targetUsers = MOCK_SEGMENTS.find(s => s.id === selectedSegment)?.count || 0
-  const costPerSegment = 0.012
-  const estimatedCost = (targetUsers * segmentCount * costPerSegment).toFixed(2)
+  // Live local counter (engine-parity GSM-7/UCS-2 math); the review
+  // step swaps in the exact server-side estimate.
+  const info = segmentInfo(message)
+  const segmentCount = info.segments
+  const selectedSegmentRow = segments.find(s => s.id === selectedSegment)
+  const targetUsers = estimate?.recipients ?? selectedSegmentRow?.size ?? 0
+  const estimatedCredits = estimate?.credits ?? targetUsers * segmentCount
 
   const handleNext = () => setStep(s => Math.min(4, s + 1))
   const handlePrev = () => setStep(s => Math.max(1, s - 1))
@@ -124,7 +244,11 @@ export default function CreateCampaignPage() {
               </Button>
             </Link>
             <Button variant="secondary" onClick={() => localStorage.removeItem("sabsms_quick_campaign_draft")}>Clear Draft</Button>
-            {isLastStep && <Button variant="premium">Launch Campaign <Send className="ml-2 h-4 w-4" /></Button>}
+            {isLastStep && (
+              <Button variant="premium" onClick={handleLaunch} disabled={launching}>
+                {launching ? "Launching…" : "Launch Campaign"} <Send className="ml-2 h-4 w-4" />
+              </Button>
+            )}
           </div>
         }
       />
@@ -271,13 +395,30 @@ export default function CreateCampaignPage() {
                   <CardBody className="space-y-6">
                     <div className="flex items-center justify-between">
                       <Label className="text-base">Target Segments</Label>
-                      <Button variant="outline" size="sm"><Plus className="h-4 w-4 mr-1" /> Create New</Button>
+                      <Link href="/sabsms/segments/new">
+                        <Button variant="outline" size="sm"><Plus className="h-4 w-4 mr-1" /> Create New</Button>
+                      </Link>
                     </div>
-                    
+
+                    {segmentsLoading && (
+                      <p className="text-sm text-[var(--st-text-secondary)]">Loading segments…</p>
+                    )}
+                    {segmentsError && (
+                      <Alert variant="destructive" className="py-2 px-3">
+                        <AlertTriangle className="h-4 w-4" />
+                        <AlertDescription className="text-xs">{segmentsError}</AlertDescription>
+                      </Alert>
+                    )}
+                    {!segmentsLoading && !segmentsError && segments.length === 0 && (
+                      <p className="text-sm text-[var(--st-text-secondary)]">
+                        No segments yet — <Link href="/sabsms/segments/new" className="underline">create one</Link> to target this campaign.
+                      </p>
+                    )}
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {MOCK_SEGMENTS.map(seg => (
-                        <Card 
-                          key={seg.id} 
+                      {segments.map(seg => (
+                        <Card
+                          key={seg.id}
                           variant={selectedSegment === seg.id ? "interactive" : "default"}
                           className={cn(
                             "cursor-pointer transition-all",
@@ -288,11 +429,11 @@ export default function CreateCampaignPage() {
                           <div className="p-4 space-y-3">
                             <div className="flex items-center justify-between">
                               <h4 className="font-semibold">{seg.name}</h4>
-                              <Badge variant={seg.type === 'Dynamic' ? 'prism' : 'secondary'}>{seg.type}</Badge>
+                              <Badge variant={seg.kind === 'dynamic' ? 'prism' : 'secondary'}>{seg.kind === 'dynamic' ? 'Dynamic' : 'Static'}</Badge>
                             </div>
                             <div className="flex items-center justify-between text-sm text-[var(--st-text-secondary)]">
-                              <span className="flex items-center gap-1"><Users className="h-3 w-3" /> {seg.count.toLocaleString()}</span>
-                              <span className="flex items-center gap-1"><RefreshCw className="h-3 w-3" /> {seg.lastSync}</span>
+                              <span className="flex items-center gap-1"><Users className="h-3 w-3" /> {seg.size.toLocaleString()}</span>
+                              <span className="flex items-center gap-1"><RefreshCw className="h-3 w-3" /> {timeAgo(seg.lastRefreshedAt)}</span>
                             </div>
                           </div>
                         </Card>
@@ -347,17 +488,18 @@ export default function CreateCampaignPage() {
                         className="min-h-[150px] resize-none font-mono text-sm"
                       />
                       <div className="flex items-center justify-between text-xs text-[var(--st-text-secondary)]">
-                        <span>Encoding: <strong className="text-[var(--st-text)]">GSM-7</strong></span>
-                        <span>{message.length} characters • {segmentCount} segment(s)</span>
+                        <span>Encoding: <strong className="text-[var(--st-text)]">{info.encoding === 'gsm7' ? 'GSM-7' : 'UCS-2'}</strong></span>
+                        <span>{info.length} characters • {segmentCount} segment(s)</span>
                       </div>
-                      
-                      {invalidVariables.length > 0 && (
-                        <Alert variant="destructive" className="mt-2 py-2 px-3">
-                          <AlertTriangle className="h-4 w-4" />
-                          <AlertTitle className="text-sm font-semibold mb-1">Invalid Variables Detected</AlertTitle>
+
+                      {usedVariables.length > 0 && (
+                        <Alert className="mt-2 py-2 px-3">
+                          <Info className="h-4 w-4" />
+                          <AlertTitle className="text-sm font-semibold mb-1">Personalisation variables</AlertTitle>
                           <AlertDescription className="text-xs">
-                            Unknown variables: <strong>{invalidVariables.map(v => `{{${v}}}`).join(', ')}</strong>. 
-                            Allowed variables are: {ALLOWED_VARIABLES.map(v => `{{${v}}}`).join(', ')}.
+                            {usedVariables.map(v => `{{${v}}}`).join(', ')} will be filled
+                            from each contact&apos;s fields at launch. Recipients missing a
+                            value keep the literal placeholder — the review step flags them.
                           </AlertDescription>
                         </Alert>
                       )}
@@ -419,21 +561,19 @@ export default function CreateCampaignPage() {
                     {scheduleType === 'later' && (
                       <div className="grid grid-cols-2 gap-4 p-4 border rounded-lg bg-[var(--st-bg-muted)]/20 animate-in fade-in zoom-in-95">
                         <div className="space-y-2">
-                          <Label>Date & Time</Label>
-                          <Input type="datetime-local" />
+                          <Label htmlFor="scheduled-at">Date &amp; Time</Label>
+                          <Input
+                            id="scheduled-at"
+                            type="datetime-local"
+                            value={scheduledAt}
+                            onChange={(e) => setScheduledAt(e.target.value)}
+                          />
                         </div>
                         <div className="space-y-2">
                           <Label>Timezone</Label>
-                          <Select defaultValue="utc">
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="utc">UTC (Coordinated Universal Time)</SelectItem>
-                              <SelectItem value="est">EST (Eastern Standard Time)</SelectItem>
-                              <SelectItem value="ist">IST (Indian Standard Time)</SelectItem>
-                            </SelectContent>
-                          </Select>
+                          <p className="flex h-9 items-center text-sm text-[var(--st-text-secondary)]">
+                            Your local time ({Intl.DateTimeFormat().resolvedOptions().timeZone})
+                          </p>
                         </div>
                       </div>
                     )}
@@ -452,19 +592,44 @@ export default function CreateCampaignPage() {
                         <div className="flex items-center justify-between text-sm">
                           <span className="text-[var(--st-text-secondary)]">Target Audience</span>
                           <span className="font-medium">
-                            {MOCK_SEGMENTS.find(s => s.id === selectedSegment)?.name} 
-                            <Badge variant="secondary" className="ml-2">{MOCK_SEGMENTS.find(s => s.id === selectedSegment)?.count.toLocaleString()} users</Badge>
+                            {selectedSegmentRow?.name ?? "No segment selected"}
+                            <Badge variant="secondary" className="ml-2">{targetUsers.toLocaleString()} recipients</Badge>
                           </span>
                         </div>
                         <div className="flex items-center justify-between text-sm">
                           <span className="text-[var(--st-text-secondary)]">Estimated Cost</span>
                           <div className="text-right">
-                            <span className="font-medium text-[var(--st-text)] block">~${estimatedCost}</span>
-                            <span className="text-[10px] text-[var(--st-text-secondary)]">{segmentCount} segment(s) × {targetUsers.toLocaleString()} users @ ${costPerSegment}/seg</span>
+                            <span className="font-medium text-[var(--st-text)] block">
+                              {estimateLoading ? "Estimating…" : `~${estimatedCredits.toLocaleString()} credits`}
+                            </span>
+                            <span className="text-[10px] text-[var(--st-text-secondary)]">
+                              {estimate
+                                ? `${estimate.segmentsTotal.toLocaleString()} billable segment(s) across ${estimate.recipients.toLocaleString()} recipients`
+                                : `${segmentCount} segment(s) × ${targetUsers.toLocaleString()} recipients`}
+                            </span>
                           </div>
                         </div>
                       </div>
+
+                      {estimate && estimate.warnings.length > 0 && (
+                        <div className="space-y-2 border-t pt-3">
+                          {estimate.warnings.map((w) => (
+                            <div key={w} className="flex items-start gap-2 text-xs text-[var(--st-text-secondary)]">
+                              <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                              <span>{w}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
+
+                    {launchError && (
+                      <Alert variant="destructive" className="py-2 px-3">
+                        <AlertTriangle className="h-4 w-4" />
+                        <AlertTitle className="text-sm font-semibold mb-1">Launch failed</AlertTitle>
+                        <AlertDescription className="text-xs">{launchError}</AlertDescription>
+                      </Alert>
+                    )}
                   </CardBody>
                 </Card>
               )}
@@ -486,8 +651,14 @@ export default function CreateCampaignPage() {
                 Continue <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             ) : (
-              <Button variant="premium" size="lg" className="w-40 font-bold">
-                Launch <Send className="ml-2 h-4 w-4" />
+              <Button
+                variant="premium"
+                size="lg"
+                className="w-40 font-bold"
+                onClick={handleLaunch}
+                disabled={launching}
+              >
+                {launching ? "Launching…" : "Launch"} <Send className="ml-2 h-4 w-4" />
               </Button>
             )}
           </div>

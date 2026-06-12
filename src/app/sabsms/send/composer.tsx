@@ -3,15 +3,24 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AlertCircle, AlertTriangle, CheckCircle2, Info } from "lucide-react";
 
-import { Badge, Button, Input, Label, Progress, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Textarea } from '@/components/sabcrm/20ui';
+import { Badge, Button, Input, Label, Progress, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Switch, Textarea } from '@/components/sabcrm/20ui';
 
+import { creditCostFor } from "@/lib/sabsms/credits/rates";
+import { countryFromE164 } from "@/lib/sabsms/phone";
+import { renderTemplate } from "@/lib/sabsms/render";
+import { isGsm7, isGsm7Char, segmentInfo } from "@/lib/sabsms/segments";
 import type {
   SabsmsMessage,
   SabsmsMessageCategory,
   SabsmsMessageStatus,
 } from "@/lib/sabsms/types";
 
-import { fetchSendStatus, submitSend } from "./actions";
+import {
+  fetchSendStatus,
+  listSendableTemplates,
+  sendSmsAction,
+  type SendableTemplate,
+} from "./actions";
 
 const TERMINAL: SabsmsMessageStatus[] = [
   "delivered",
@@ -28,24 +37,19 @@ function statusVariant(s: SabsmsMessageStatus) {
   return "secondary" as const;
 }
 
-// Mirror of the GSM-7 / UCS-2 segment math in the Rust engine.
+// GSM-7 / UCS-2 segment math — engine parity via `@/lib/sabsms/segments`
+// (pinned to the Rust engine by the shared segment-vectors fixture).
+// UI convention only: an empty body shows 0 segments.
 function isGsm(body: string): boolean {
-  return /^[\x20-\x7E\n\r£¥€§Æ¡¿äöüÄÖÜñÑàèéìòùÇß]*$/.test(body);
+  return isGsm7(body);
 }
 
 function segmentCount(body: string): { segments: number; encoding: "GSM-7" | "UCS-2" } {
   if (!body) return { segments: 0, encoding: "GSM-7" };
-  if (isGsm(body)) {
-    const len = body.length;
-    return {
-      segments: len <= 160 ? 1 : Math.ceil(len / 153),
-      encoding: "GSM-7",
-    };
-  }
-  const len = [...body].length;
+  const info = segmentInfo(body);
   return {
-    segments: len <= 70 ? 1 : Math.ceil(len / 67),
-    encoding: "UCS-2",
+    segments: info.segments,
+    encoding: info.encoding === "gsm7" ? "GSM-7" : "UCS-2",
   };
 }
 
@@ -125,7 +129,6 @@ function useDeliverabilityScore(body: string, category: SabsmsMessageCategory, e
 
 function SmsPreview({ body }: { body: string }) {
   const chars = Array.from(body);
-  const GSM_REGEX_CHAR = /^[\x20-\x7E\n\r£¥€§Æ¡¿äöüÄÖÜñÑàèéìòùÇß]$/;
   const hasUnicode = !isGsm(body);
 
   return (
@@ -139,7 +142,7 @@ function SmsPreview({ body }: { body: string }) {
           {body ? (
             <div className="relative rounded-2xl rounded-tr-sm bg-[var(--st-text)] px-3 py-2 text-[13px] leading-relaxed text-white shadow-sm max-w-[85%] break-words whitespace-pre-wrap">
               {chars.map((char, i) => {
-                const isNonGsm = char !== '\n' && char !== '\r' && !GSM_REGEX_CHAR.test(char);
+                const isNonGsm = !isGsm7Char(char);
                 return (
                   <span
                     key={i}
@@ -168,10 +171,16 @@ function SmsPreview({ body }: { body: string }) {
   );
 }
 
+const NO_TEMPLATE = "__none__";
+
 export function SabsmsSendComposer() {
   const [to, setTo] = useState("");
   const [body, setBody] = useState("");
   const [category, setCategory] = useState<SabsmsMessageCategory>("transactional");
+  const [templates, setTemplates] = useState<SendableTemplate[]>([]);
+  const [templateId, setTemplateId] = useState<string>(NO_TEMPLATE);
+  const [vars, setVars] = useState<Record<string, string>>({});
+  const [shortenLinks, setShortenLinks] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [messageId, setMessageId] = useState<string | null>(null);
   const [status, setStatus] = useState<SabsmsMessageStatus | null>(null);
@@ -179,11 +188,60 @@ export function SabsmsSendComposer() {
   const [error, setError] = useState<string | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const seg = useMemo(() => segmentCount(body), [body]);
-  const deliverability = useDeliverabilityScore(body, category, seg.encoding, seg.segments);
+  useEffect(() => {
+    let cancelled = false;
+    listSendableTemplates().then((rows) => {
+      if (!cancelled) setTemplates(rows);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const template = useMemo(
+    () => templates.find((t) => t.id === templateId) ?? null,
+    [templates, templateId],
+  );
+
+  /** Named `{{vars}}` of the selected template (positional `#n` slots
+   *  surface as numbered inputs too — keyed by their `#n` marker). */
+  const templateVarNames = template?.variables ?? [];
+
+  // What will actually go over the wire — the rendered template, or the
+  // free-form body. Drives the counter, the preview, and the estimate.
+  const effectiveBody = useMemo(() => {
+    if (!template) return body;
+    const positional = templateVarNames
+      .filter((v) => v.startsWith("#"))
+      .map((v) => vars[v] ?? "");
+    return renderTemplate(template.body, vars, {
+      positional: positional.some((p) => p !== "") ? positional : undefined,
+    }).text;
+  }, [template, body, vars, templateVarNames]);
+
+  const seg = useMemo(() => segmentCount(effectiveBody), [effectiveBody]);
+  const deliverability = useDeliverabilityScore(effectiveBody, category, seg.encoding, seg.segments);
+
+  const destinationCountry = useMemo(() => countryFromE164(to), [to]);
+  const creditEstimate = useMemo(
+    () =>
+      seg.segments === 0
+        ? 0
+        : creditCostFor({
+            segments: seg.segments,
+            destinationCountry,
+            channel: "sms",
+          }),
+    [seg.segments, destinationCountry],
+  );
+
+  function handleTemplateChange(next: string) {
+    setTemplateId(next);
+    setVars({});
+  }
 
   const MAX_CHARS = 1600;
-  const isOverLimit = body.length > MAX_CHARS;
+  const isOverLimit = effectiveBody.length > MAX_CHARS;
 
   useEffect(
     () => () => {
@@ -201,7 +259,23 @@ export function SabsmsSendComposer() {
     setStatus(null);
     setSubmitting(true);
 
-    const res = await submitSend({ to, body, category });
+    const res = await sendSmsAction({
+      to,
+      body: template ? undefined : body,
+      templateId: template ? template.id : undefined,
+      // Blank inputs are dropped so the server's missing-variable check
+      // fires instead of silently sending empty values.
+      vars: template
+        ? Object.fromEntries(
+            Object.entries(vars).filter(([k, v]) => !k.startsWith("#") && v !== ""),
+          )
+        : undefined,
+      positional: template
+        ? templateVarNames.filter((v) => v.startsWith("#")).map((v) => vars[v] ?? "")
+        : undefined,
+      category,
+      shortenLinks,
+    });
     setSubmitting(false);
     if (!res.ok) {
       setError(res.error);
@@ -271,20 +345,85 @@ export function SabsmsSendComposer() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="sabsms-send-body">Message body</Label>
+            <Label htmlFor="sabsms-send-template">Template (optional)</Label>
+            <Select value={templateId} onValueChange={handleTemplateChange}>
+              <SelectTrigger id="sabsms-send-template">
+                <SelectValue placeholder="No template — free-form body" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={NO_TEMPLATE}>No template — free-form body</SelectItem>
+                {templates.map((t) => (
+                  <SelectItem key={t.id} value={t.id}>
+                    <span className="flex items-center gap-2">
+                      <span>{t.name}</span>
+                      <span className="text-[11px] text-[var(--st-text)]">
+                        {t.status} · {t.category}
+                      </span>
+                    </span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {template && templateVarNames.length > 0 && (
+            <div className="space-y-2 rounded border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3">
+              <div className="flex flex-wrap items-center gap-1.5">
+                <span className="text-xs font-medium text-[var(--st-text)]">Variables:</span>
+                {templateVarNames.map((name) => (
+                  <Badge key={name} variant={vars[name] ? "default" : "secondary"}>
+                    {name}
+                  </Badge>
+                ))}
+              </div>
+              <div className="grid gap-3 md:grid-cols-2">
+                {templateVarNames.map((name) => (
+                  <div key={name} className="space-y-1">
+                    <Label htmlFor={`sabsms-var-${name}`} className="text-xs">
+                      {name.startsWith("#") ? `DLT slot ${name}` : `{{${name}}}`}
+                    </Label>
+                    <Input
+                      id={`sabsms-var-${name}`}
+                      value={vars[name] ?? ""}
+                      onChange={(e) =>
+                        setVars((prev) => ({ ...prev, [name]: e.target.value }))
+                      }
+                      placeholder={name.startsWith("#") ? "value" : name}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="space-y-2">
+            <Label htmlFor="sabsms-send-body">
+              {template ? "Rendered message (from template)" : "Message body"}
+            </Label>
             <Textarea
               id="sabsms-send-body"
-              required
+              required={!template}
               rows={6}
-              value={body}
+              value={template ? effectiveBody : body}
               onChange={(e) => setBody(e.target.value)}
               placeholder="Type your message…"
-              className={isOverLimit ? "border-[var(--st-border)] focus-visible:ring-[var(--st-border)]" : ""}
+              readOnly={!!template}
+              className={
+                (isOverLimit ? "border-[var(--st-border)] focus-visible:ring-[var(--st-border)] " : "") +
+                (template ? "opacity-80" : "")
+              }
             />
+            {template && (
+              <p className="text-xs text-[var(--st-text-secondary)]">
+                The body comes from the template — clear the template to edit
+                freely. Unfilled variables stay as literal placeholders and
+                block the send.
+              </p>
+            )}
             <div className="flex flex-wrap items-center justify-between text-xs">
               <div className="flex flex-wrap items-center gap-3 text-[var(--st-text)]">
                 <span className={isOverLimit ? "font-semibold text-[var(--st-text)]" : ""}>
-                  {body.length} / {MAX_CHARS} chars
+                  {effectiveBody.length} / {MAX_CHARS} chars
                 </span>
                 <span>·</span>
                 <span className={seg.encoding === "UCS-2" ? "font-medium text-[var(--st-text)]" : ""}>
@@ -293,6 +432,11 @@ export function SabsmsSendComposer() {
                 <span>·</span>
                 <span>
                   {seg.segments} segment{seg.segments === 1 ? "" : "s"}
+                </span>
+                <span>·</span>
+                <span>
+                  {creditEstimate} credit{creditEstimate === 1 ? "" : "s"}
+                  {destinationCountry ? ` (${destinationCountry})` : " (intl rate)"}
                 </span>
               </div>
               <span className="text-[var(--st-text-secondary)]">
@@ -304,12 +448,28 @@ export function SabsmsSendComposer() {
                 Message exceeds the {MAX_CHARS} character limit.
               </p>
             )}
+            <div className="flex flex-wrap items-center gap-2 pt-1">
+              <Switch
+                id="sabsms-shorten-links"
+                checked={shortenLinks}
+                onCheckedChange={setShortenLinks}
+              />
+              <Label
+                htmlFor="sabsms-shorten-links"
+                className="cursor-pointer text-xs font-normal"
+              >
+                Shorten links
+              </Label>
+              <span className="text-[11px] text-[var(--st-text-secondary)]">
+                http(s) URLs become tracked short links at send time
+              </span>
+            </div>
           </div>
 
           <Separator />
 
           <div className="flex flex-wrap items-center gap-3">
-            <Button type="submit" disabled={submitting || !to || !body || isOverLimit}>
+            <Button type="submit" disabled={submitting || !to || !effectiveBody || isOverLimit}>
               {submitting ? "Sending…" : "Send message"}
             </Button>
             {status && (
@@ -387,7 +547,7 @@ export function SabsmsSendComposer() {
         </div>
 
         <div className="flex justify-center pt-2">
-          <SmsPreview body={body} />
+          <SmsPreview body={effectiveBody} />
         </div>
       </div>
     </div>

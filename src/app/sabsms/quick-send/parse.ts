@@ -18,9 +18,11 @@
  * carries that row's variables; later duplicates record a `duplicate`
  * parse error pointing back at the first hit's line number.
  *
- * NOTE: This file is intentionally dependency-free so the tests can run
- * under `tsx --test` without the Next.js server boot path.
+ * NOTE: This file only imports pure modules (no `server-only`) so the
+ * tests can run under `tsx --test` without the Next.js server boot path.
  */
+
+import { segmentInfo } from "@/lib/sabsms/segments";
 
 export interface RecipientRow {
   /** E.164 phone (e.g. "+15551234567"). */
@@ -270,26 +272,18 @@ export function interpolateBody(
 }
 
 /**
- * Mirror of the GSM-7 / UCS-2 segment math used in composer.tsx — kept
- * here so quick-send can compute a live total without importing the
- * client component.
+ * GSM-7 / UCS-2 segment math — delegates to the engine-parity module
+ * (`@/lib/sabsms/segments`, pinned to the Rust engine by the shared
+ * segment-vectors fixture). UI convention: an empty body shows 0.
  */
 export function segmentCount(body: string): {
   segments: number;
   encoding: "GSM-7" | "UCS-2";
 } {
   if (!body) return { segments: 0, encoding: "GSM-7" };
-  const isGsm = /^[\x20-\x7E\n\r£¥€§Æ¡¿äöüÄÖÜñÑàèéìòùÇß]*$/.test(body);
-  if (isGsm) {
-    const len = body.length;
-    return {
-      segments: len <= 160 ? 1 : Math.ceil(len / 153),
-      encoding: "GSM-7",
-    };
-  }
-  const len = [...body].length;
+  const info = segmentInfo(body);
   return {
-    segments: len <= 70 ? 1 : Math.ceil(len / 67),
-    encoding: "UCS-2",
+    segments: info.segments,
+    encoding: info.encoding === "gsm7" ? "GSM-7" : "UCS-2",
   };
 }
