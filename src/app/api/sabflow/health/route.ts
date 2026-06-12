@@ -99,40 +99,50 @@ async function probeRedis(): Promise<ProbeResult> {
   // ioredis isn't a hard dependency for every SabFlow install — dynamic
   // import + try/catch lets us report "down" instead of crashing the route
   // when the package or env vars are missing.
-  let client: { ping: () => Promise<string>; quit: () => Promise<unknown>; disconnect?: () => void } | null = null;
+  let client: { connect: () => Promise<void>; ping: () => Promise<string>; quit: () => Promise<unknown>; disconnect?: () => void } | null = null;
   try {
     const mod: unknown = await import('ioredis');
     const Redis =
       (mod as { default?: unknown }).default ??
       (mod as { Redis?: unknown }).Redis ??
       mod;
-    const host = process.env.REDIS_HOST;
-    const port = process.env.REDIS_PORT ? Number(process.env.REDIS_PORT) : 6379;
-    const password = process.env.REDIS_PASSWORD;
-    if (!host) {
-      return { ok: false, error: 'REDIS_HOST not configured' };
-    }
-    const RedisCtor = Redis as unknown as new (opts: Record<string, unknown>) => {
+    // Match the rest of the stack (workers, queue producers): REDIS_URL
+    // wins when set; otherwise host/port with localhost defaults. `.env`
+    // commonly declares `REDIS_HOST=` as an EMPTY string, which must mean
+    // "default", not "unconfigured" — use `||`, never `??`/truthy-gating.
+    const url = process.env.REDIS_URL || '';
+    const host = process.env.REDIS_HOST || 'localhost';
+    const port = Number(process.env.REDIS_PORT || 6379);
+    const password = process.env.REDIS_PASSWORD || undefined;
+    const RedisCtor = Redis as unknown as new (
+      urlOrOpts: string | Record<string, unknown>,
+      opts?: Record<string, unknown>,
+    ) => {
+      connect: () => Promise<void>;
       ping: () => Promise<string>;
       quit: () => Promise<unknown>;
       disconnect?: () => void;
       on: (evt: string, cb: (e: unknown) => void) => void;
     };
-    client = new RedisCtor({
-      host,
-      port,
-      password,
-      lazyConnect: false,
+    // lazyConnect + explicit connect(): with the offline queue disabled,
+    // an eager constructor races ping() against the handshake and fails
+    // with "Stream isn't writeable" even when Redis is healthy.
+    const connOpts = {
+      lazyConnect: true,
       maxRetriesPerRequest: 1,
       enableOfflineQueue: false,
       retryStrategy: () => null,
-    });
+    };
+    client = url
+      ? new RedisCtor(url, connOpts)
+      : new RedisCtor({ host, port, password, ...connOpts });
     // Silence error events so an unreachable Redis doesn't spam unhandled
     // error logs while we're still racing the timeout.
     (client as unknown as { on: (evt: string, cb: (e: unknown) => void) => void }).on(
       'error',
       () => {},
     );
+    await client.connect();
     const pong = await client.ping();
     if (pong !== 'PONG') {
       return {
