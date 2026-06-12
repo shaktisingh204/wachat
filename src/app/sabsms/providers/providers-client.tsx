@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { ChevronRight, ServerCog, Activity, ExternalLink, ActivitySquare, CheckCircle2, XCircle, AlertCircle, Zap, Globe, ShieldCheck, RefreshCw, ShoppingBag } from "lucide-react";
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import { ServerCog, RefreshCw, Globe, Copy, Check } from "lucide-react";
+import { toast } from "sonner";
+
 import { SabsmsPageShell } from "@/components/sabsms/page-toolkit/sabsms-page-shell";
 import { SabsmsDataTable, SabsmsColumn } from "@/components/sabsms/page-toolkit/sabsms-data-table";
-import { SabsmsDetailDrawer } from "@/components/sabsms/page-toolkit/sabsms-detail-drawer";
-import { SabsmsFilterBar } from "@/components/sabsms/page-toolkit/sabsms-filter-bar";
 import {
   Badge,
   Button,
@@ -15,20 +16,28 @@ import {
   CardDescription,
   CardBody,
   CardFooter,
-  Table,
-  THead,
-  TBody,
-  Tr,
-  Th,
-  Td,
+  Checkbox,
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
+  DialogFooter,
+  Input,
+  Label,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/sabcrm/20ui";
-import type { LucideIcon } from "lucide-react";
-import { pingProvidersAction } from "./actions";
+import {
+  pingProvidersAction,
+  saveProviderAccountAction,
+  deleteProviderAccountAction,
+  setDefaultProviderAccountAction,
+  testProviderConnectionAction,
+} from "./actions";
 
 export interface ProviderRow {
   id: string;
@@ -37,10 +46,8 @@ export interface ProviderRow {
   isDefault: boolean;
   status: string;
   lastError?: string;
-  lastSuccessfulSend?: string;
-  sendVolume24h?: number;
-  pricingTier?: string;
-  webhookUrl?: string;
+  createdAt: string;
+  webhookUrls: { inbound: string; dlr: string } | null;
 }
 
 export interface ProviderCatalogItem {
@@ -52,104 +59,81 @@ export interface ProviderCatalogItem {
 
 type StatusTone = "success" | "warning" | "danger" | "neutral";
 
-function statusPresentation(status: string): { icon: LucideIcon; label: string; tone: StatusTone } {
-  if (status === "active") return { icon: CheckCircle2, label: "Operational", tone: "success" };
-  if (status === "degraded") return { icon: AlertCircle, label: "Degraded", tone: "warning" };
-  if (status === "outage") return { icon: XCircle, label: "Outage", tone: "danger" };
-  return { icon: CheckCircle2, label: "Unknown", tone: "neutral" };
+function statusTone(status: string): StatusTone {
+  if (status === "active") return "success";
+  if (status === "disabled") return "warning";
+  if (status === "error") return "danger";
+  return "neutral";
 }
 
-function RealConnectionStatuses({ rows, isPinging }: { rows: ProviderRow[]; isPinging: boolean }) {
-  if (!rows || rows.length === 0) return null;
+interface CredentialField {
+  key: string;
+  label: string;
+  required?: boolean;
+  secret?: boolean;
+  placeholder?: string;
+}
 
+const PROVIDER_FIELDS: Record<string, CredentialField[]> = {
+  twilio: [
+    { key: "accountSid", label: "Account SID", required: true, placeholder: "AC..." },
+    { key: "authToken", label: "Auth token", required: true, secret: true },
+  ],
+  telnyx: [
+    { key: "apiKey", label: "API key", required: true, secret: true, placeholder: "KEY..." },
+    {
+      key: "publicKey",
+      label: "Ed25519 public key — for webhook signature verification (optional)",
+    },
+    { key: "messagingProfileId", label: "Messaging profile ID (optional)" },
+  ],
+  msg91: [
+    { key: "authKey", label: "Auth key", required: true, secret: true },
+    { key: "senderId", label: "Sender ID (optional)", placeholder: "e.g. SABSMS" },
+    { key: "dltEntityId", label: "DLT entity ID (optional)" },
+  ],
+  gupshup: [
+    { key: "userid", label: "User ID", required: true },
+    { key: "password", label: "Password", required: true, secret: true },
+  ],
+};
+
+const PROVIDER_NAMES: Record<string, string> = {
+  twilio: "Twilio",
+  telnyx: "Telnyx",
+  msg91: "MSG91",
+  gupshup: "Gupshup",
+};
+
+function CopyField({ label, value }: { label: string; value: string }) {
+  const [copied, setCopied] = useState(false);
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopied(true);
+      toast.success(`${label} URL copied`);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast.error("Copy failed");
+    }
+  };
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-      {rows.map((r) => {
-        const { icon: Icon, label, tone } = statusPresentation(r.status);
-        return (
-          <Card
-            key={r.id}
-            padding="none"
-            className={`p-4 flex items-center justify-between transition-opacity ${isPinging ? "opacity-50" : "opacity-100"}`}
-          >
-            <div className="flex items-center gap-3">
-              <span className="p-2 rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)]" aria-hidden="true">
-                <Icon className="h-5 w-5 text-[var(--st-text)]" />
-              </span>
-              <div>
-                <div className="text-sm font-medium text-[var(--st-text)]">{r.provider}</div>
-                <div className="text-xs text-[var(--st-text-secondary)]">
-                  {r.status === "active" ? "Latency: <50ms" : r.lastError || "Connection issues"}
-                </div>
-              </div>
-            </div>
-            <Badge tone={tone}>{label}</Badge>
-          </Card>
-        );
-      })}
-    </div>
-  );
-}
-
-interface CapabilityRow {
-  icon: LucideIcon;
-  capability: string;
-  twilio: string;
-  nexmo: string;
-}
-
-const CAPABILITY_ROWS: CapabilityRow[] = [
-  { icon: Globe, capability: "Global SMS", twilio: "Supported", nexmo: "Supported" },
-  { icon: ActivitySquare, capability: "WhatsApp Business", twilio: "Supported", nexmo: "Supported" },
-  { icon: ShieldCheck, capability: "10DLC Registration", twilio: "Native API", nexmo: "Manual Process" },
-  { icon: ServerCog, capability: "Alphanumeric Sender ID", twilio: "Supported", nexmo: "Supported" },
-  { icon: Activity, capability: "Delivery Receipts", twilio: "Real-time Webhooks", nexmo: "Real-time Webhooks" },
-  { icon: Zap, capability: "Omnichannel Routing", twilio: "Conversations API", nexmo: "Messages API" },
-];
-
-function FeatureGrid() {
-  return (
-    <Card padding="none" className="overflow-hidden mt-6">
-      <CardHeader className="p-6 bg-[var(--st-bg-secondary)]">
-        <CardTitle className="text-lg font-semibold flex items-center gap-2">
-          <Zap className="h-5 w-5 text-[var(--st-accent)]" aria-hidden="true" />
-          Provider Capabilities Matrix
-        </CardTitle>
-        <CardDescription>Detailed comparison of feature support across primary SMS gateways.</CardDescription>
-      </CardHeader>
-      <div className="overflow-x-auto">
-        <Table className="min-w-[600px]">
-          <THead>
-            <Tr>
-              <Th width="33.33%">Capability</Th>
-              <Th width="33.33%">Twilio</Th>
-              <Th width="33.33%">Nexmo (Vonage)</Th>
-            </Tr>
-          </THead>
-          <TBody>
-            {CAPABILITY_ROWS.map((row) => {
-              const RowIcon = row.icon;
-              return (
-                <Tr key={row.capability}>
-                  <Td>
-                    <span className="font-medium flex items-center gap-2">
-                      <RowIcon className="h-4 w-4 text-[var(--st-text-secondary)]" aria-hidden="true" />
-                      {row.capability}
-                    </span>
-                  </Td>
-                  <Td>
-                    <Badge tone="neutral">{row.twilio}</Badge>
-                  </Td>
-                  <Td>
-                    <Badge tone="neutral">{row.nexmo}</Badge>
-                  </Td>
-                </Tr>
-              );
-            })}
-          </TBody>
-        </Table>
+    <div className="space-y-1">
+      <div className="text-xs font-medium text-[var(--st-text-secondary)]">{label}</div>
+      <div className="flex items-center gap-2">
+        <code className="flex-1 truncate rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 py-1.5 font-mono text-xs text-[var(--st-text)]">
+          {value}
+        </code>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleCopy}
+          aria-label={`Copy ${label} URL`}
+        >
+          {copied ? <Check className="h-3.5 w-3.5" aria-hidden="true" /> : <Copy className="h-3.5 w-3.5" aria-hidden="true" />}
+        </Button>
       </div>
-    </Card>
+    </div>
   );
 }
 
@@ -160,12 +144,34 @@ export function ProvidersClient({
   initialRows: ProviderRow[];
   catalog: ProviderCatalogItem[];
 }) {
+  const router = useRouter();
   const [rows, setRows] = useState<ProviderRow[]>(initialRows);
-  const [selectedProvider, setSelectedProvider] = useState<ProviderRow | null>(null);
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [addDialogOpen, setAddDialogOpen] = useState(false);
-  const [query] = useState("");
   const [isPinging, setIsPinging] = useState(false);
+  const [testingId, setTestingId] = useState<string | null>(null);
+
+  // Add-account dialog state
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [formProvider, setFormProvider] = useState<string>("twilio");
+  const [formCreds, setFormCreds] = useState<Record<string, string>>({});
+  const [formRegion, setFormRegion] = useState("");
+  const [formIsDefault, setFormIsDefault] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [savedWebhookUrls, setSavedWebhookUrls] = useState<{ inbound: string; dlr: string } | null>(null);
+
+  // Delete confirm state
+  const [deleteTarget, setDeleteTarget] = useState<ProviderRow | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const availableProviders = catalog.filter((c) => c.available);
+
+  const openAddDialog = (provider?: string) => {
+    setFormProvider(provider && PROVIDER_FIELDS[provider] ? provider : "twilio");
+    setFormCreds({});
+    setFormRegion("");
+    setFormIsDefault(false);
+    setSavedWebhookUrls(null);
+    setAddDialogOpen(true);
+  };
 
   const handleRefreshStatuses = async () => {
     setIsPinging(true);
@@ -173,80 +179,171 @@ export function ProvidersClient({
       const res = await pingProvidersAction();
       if (res.success && res.rows) {
         setRows(res.rows);
+        toast.success("Provider statuses refreshed");
+      } else if (!res.success) {
+        toast.error(res.error ?? "Refresh failed");
       }
-    } catch (err) {
-      console.error(err);
+    } catch {
+      toast.error("Refresh failed");
     } finally {
       setIsPinging(false);
     }
   };
 
-  useEffect(() => {
-    // Background job to ping statuses every 30 seconds.
-    const interval = setInterval(() => {
-      handleRefreshStatuses();
-    }, 30000);
-    return () => clearInterval(interval);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const handleTestConnection = async (row: ProviderRow) => {
+    setTestingId(row.id);
+    try {
+      const res = await testProviderConnectionAction(row.id);
+      if (res.ok) {
+        toast.success(`${PROVIDER_NAMES[row.provider] ?? row.provider}: connection OK${res.detail ? ` — ${res.detail}` : ""}`);
+        setRows((prev) =>
+          prev.map((r) => (r.id === row.id ? { ...r, status: "active", lastError: undefined } : r)),
+        );
+      } else {
+        toast.error(`${PROVIDER_NAMES[row.provider] ?? row.provider}: ${res.error ?? "connection test failed"}`);
+        if (res.error !== "engine unreachable") {
+          setRows((prev) =>
+            prev.map((r) => (r.id === row.id ? { ...r, status: "error", lastError: res.error } : r)),
+          );
+        }
+      }
+    } catch {
+      toast.error("Connection test failed");
+    } finally {
+      setTestingId(null);
+    }
+  };
+
+  const handleSetDefault = async (row: ProviderRow) => {
+    const res = await setDefaultProviderAccountAction(row.id);
+    if (res.success) {
+      toast.success(`${PROVIDER_NAMES[row.provider] ?? row.provider} set as default`);
+      setRows((prev) =>
+        prev.map((r) =>
+          r.provider === row.provider ? { ...r, isDefault: r.id === row.id } : r,
+        ),
+      );
+    } else {
+      toast.error(res.error ?? "Failed to set default");
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
+    try {
+      const res = await deleteProviderAccountAction(deleteTarget.id);
+      if (res.success) {
+        toast.success("Provider account deleted");
+        setRows((prev) => prev.filter((r) => r.id !== deleteTarget.id));
+        setDeleteTarget(null);
+      } else {
+        toast.error(res.error ?? "Delete failed");
+      }
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleSave = async () => {
+    const fields = PROVIDER_FIELDS[formProvider] ?? [];
+    const missing = fields.filter((f) => f.required && !(formCreds[f.key] ?? "").trim());
+    if (missing.length > 0) {
+      toast.error(`Missing: ${missing.map((f) => f.label).join(", ")}`);
+      return;
+    }
+    // Strip optional fields the user left empty (the action rejects empty values).
+    const credentials = Object.fromEntries(
+      fields
+        .map((f) => [f.key, (formCreds[f.key] ?? "").trim()] as const)
+        .filter(([, v]) => v.length > 0),
+    );
+
+    setIsSaving(true);
+    try {
+      const res = await saveProviderAccountAction({
+        provider: formProvider,
+        credentials,
+        region: formRegion.trim() || undefined,
+        isDefault: formIsDefault,
+      });
+      if (res.success) {
+        toast.success("Provider account saved");
+        setSavedWebhookUrls(res.webhookUrls ?? null);
+        router.refresh();
+        // Refresh the table rows from the server list.
+        const ping = await pingProvidersAction();
+        if (ping.success && ping.rows) setRows(ping.rows);
+      } else {
+        toast.error(res.error ?? "Save failed");
+      }
+    } catch {
+      toast.error("Save failed");
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const columns: SabsmsColumn<ProviderRow>[] = [
     {
       id: "provider",
       header: "Provider",
       render: (r) => (
-        <div className="font-medium flex items-center gap-2">
-          {r.provider}
+        <div className="font-medium flex items-center gap-2 capitalize">
+          {PROVIDER_NAMES[r.provider] ?? r.provider}
           {r.isDefault && <Badge tone="accent">Default</Badge>}
         </div>
       ),
     },
     {
-      id: "status",
-      header: "Status",
-      render: (r) => {
-        const { tone } = statusPresentation(r.status);
-        return <Badge tone={tone}>{r.status}</Badge>;
-      },
-    },
-    {
       id: "region",
       header: "Region",
-      render: (r) => r.region || "Global",
+      render: (r) => r.region || "—",
     },
     {
-      id: "volume",
-      header: "24h Volume",
-      render: (r) => r.sendVolume24h?.toLocaleString() || "0",
+      id: "status",
+      header: "Status",
+      render: (r) => (
+        <div className="flex items-center gap-2">
+          <Badge tone={statusTone(r.status)}>
+            {testingId === r.id ? "Testing..." : r.status}
+          </Badge>
+          {r.lastError && (
+            <span className="max-w-[240px] truncate text-xs text-[var(--st-danger)]" title={r.lastError}>
+              {r.lastError}
+            </span>
+          )}
+        </div>
+      ),
     },
     {
-      id: "lastSuccess",
-      header: "Last Success",
-      render: (r) => r.lastSuccessfulSend || "Never",
+      id: "created",
+      header: "Created",
+      render: (r) => (r.createdAt ? new Date(r.createdAt).toLocaleDateString() : "—"),
     },
   ];
 
   const rowActions = [
     {
       label: "Test connection",
-      onSelect: () => alert("Testing connection..."),
-    },
-    {
-      label: "Edit credentials",
-      onSelect: () => alert("Edit dialog..."),
+      onSelect: (r: ProviderRow) => handleTestConnection(r),
     },
     {
       label: "Set as default",
-      onSelect: () => alert("Set as default..."),
+      onSelect: (r: ProviderRow) => handleSetDefault(r),
     },
     {
-      label: "Disable account",
+      label: "View details",
+      onSelect: (r: ProviderRow) => router.push(`/sabsms/providers/${r.id}`),
+    },
+    {
+      label: "Delete",
       destructive: true,
-      onSelect: () => alert("Disable..."),
+      onSelect: (r: ProviderRow) => setDeleteTarget(r),
     },
   ];
 
-  const filteredRows = rows.filter((r) => r.provider.toLowerCase().includes(query.toLowerCase()));
+  const formFields = PROVIDER_FIELDS[formProvider] ?? [];
 
   return (
     <SabsmsPageShell
@@ -256,49 +353,64 @@ export function ProvidersClient({
       breadcrumbs={[{ label: "Providers" }]}
       primaryAction={{
         label: "Add Provider",
-        onClick: () => setAddDialogOpen(true),
+        onClick: () => openAddDialog(),
       }}
       secondaryActions={[
-        { label: "Refresh Status", icon: <RefreshCw className={`h-4 w-4 ${isPinging ? "animate-spin" : ""}`} aria-hidden="true" />, onSelectAction: handleRefreshStatuses },
-        { label: "Failover priority", icon: <ActivitySquare className="h-4 w-4" aria-hidden="true" />, onSelectAction: () => alert("Failover priority modal") },
+        {
+          label: "Refresh statuses",
+          icon: (
+            <RefreshCw
+              className={`h-4 w-4 ${isPinging ? "animate-spin" : ""}`}
+              aria-hidden="true"
+            />
+          ),
+          onSelectAction: handleRefreshStatuses,
+        },
         { label: "Audit log", onSelectHref: "/sabsms/logs?type=audit" },
       ]}
       helpTitle="Provider accounts"
-      helpBody="Manage your SMS gateway credentials. Phase 1 supports Twilio. Multi-provider routing in Phase 7."
+      helpBody="Connect Twilio, Telnyx, MSG91 or Gupshup credentials. Credentials are encrypted per workspace; the engine routes sends through the default account per provider."
     >
-      <RealConnectionStatuses rows={rows} isPinging={isPinging} />
-
       <Card padding="none" className="p-4 flex flex-col gap-4 mb-6">
         <CardHeader className="px-2">
-          <CardTitle className="text-lg font-semibold">Configured Accounts</CardTitle>
-          <CardDescription>Active and disabled SMS gateway connections.</CardDescription>
+          <div className="flex items-center justify-between gap-2">
+            <div>
+              <CardTitle className="text-lg font-semibold">Configured Accounts</CardTitle>
+              <CardDescription>Connected SMS gateway accounts for this workspace.</CardDescription>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleRefreshStatuses}
+              disabled={isPinging}
+            >
+              <RefreshCw
+                className={`mr-2 h-4 w-4 ${isPinging ? "animate-spin" : ""}`}
+                aria-hidden="true"
+              />
+              {isPinging ? "Refreshing..." : "Refresh"}
+            </Button>
+          </div>
         </CardHeader>
-        <SabsmsFilterBar searchKey="q" searchPlaceholder="Search providers..." />
         <div>
           <SabsmsDataTable
-            rows={filteredRows}
+            rows={rows}
             columns={columns}
             rowKey={(r) => r.id}
             rowActions={rowActions}
-            onRowClick={(r) => {
-              setSelectedProvider(r);
-              setDrawerOpen(true);
-            }}
+            onRowClick={(r) => router.push(`/sabsms/providers/${r.id}`)}
             emptyIcon={<ServerCog className="h-10 w-10 text-[var(--st-text-secondary)]" aria-hidden="true" />}
             emptyTitle="No providers configured"
             emptyDescription="Add a provider account to start sending messages."
-            emptyAction={{ label: "Add Provider", onClick: () => setAddDialogOpen(true) }}
+            emptyAction={{ label: "Add Provider", onClick: () => openAddDialog() }}
           />
         </div>
       </Card>
 
       <Card padding="none" className="p-4 flex flex-col gap-4">
         <CardHeader className="px-2 mb-2">
-          <CardTitle className="text-lg font-semibold flex items-center gap-2">
-            <ShoppingBag className="h-5 w-5 text-[var(--st-text)]" aria-hidden="true" />
-            Aggregator Marketplace
-          </CardTitle>
-          <CardDescription>Discover and configure new SMS and communication providers for your workspace.</CardDescription>
+          <CardTitle className="text-lg font-semibold">Provider Catalog</CardTitle>
+          <CardDescription>Supported SMS gateways. Twilio, Telnyx, MSG91 and Gupshup are available today.</CardDescription>
         </CardHeader>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 px-2">
           {catalog.map((p) => (
@@ -306,7 +418,9 @@ export function ProvidersClient({
               <CardBody className="p-0">
                 <div className="flex justify-between items-start mb-2">
                   <div className="font-semibold text-[var(--st-text)]">{p.name}</div>
-                  <Badge tone={p.available ? "success" : "neutral"}>{p.available ? "Available" : "Coming Soon"}</Badge>
+                  <Badge tone={p.available ? "success" : "neutral"}>
+                    {p.available ? "Available" : "Coming Soon"}
+                  </Badge>
                 </div>
                 <div className="text-xs text-[var(--st-text-secondary)] mb-6 flex items-center gap-1">
                   <Globe className="h-3 w-3" aria-hidden="true" /> {p.region}
@@ -318,9 +432,9 @@ export function ProvidersClient({
                   disabled={!p.available}
                   size="sm"
                   block
-                  onClick={() => alert(`Configure ${p.name}`)}
+                  onClick={() => openAddDialog(p.id)}
                 >
-                  {p.available ? "Configure" : "Join Waitlist"}
+                  {p.available ? "Configure" : "Coming Soon"}
                 </Button>
               </CardFooter>
             </Card>
@@ -328,82 +442,124 @@ export function ProvidersClient({
         </div>
       </Card>
 
-      <FeatureGrid />
-
-      <SabsmsDetailDrawer
-        open={drawerOpen}
-        onOpenChange={setDrawerOpen}
-        title={selectedProvider?.provider || "Provider Details"}
-        description={`Workspace ID mapping for ${selectedProvider?.provider}`}
+      {/* Add-account dialog */}
+      <Dialog
+        open={addDialogOpen}
+        onOpenChange={(open) => {
+          setAddDialogOpen(open);
+          if (!open) setSavedWebhookUrls(null);
+        }}
       >
-        {selectedProvider && (
-          <div className="space-y-6">
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <div className="font-medium text-[var(--st-text)] mb-1">Status</div>
-                <Badge tone={statusPresentation(selectedProvider.status).tone}>{selectedProvider.status}</Badge>
+        <DialogContent className="max-w-lg">
+          {savedWebhookUrls ? (
+            <>
+              <DialogHeader>
+                <DialogTitle>Webhook URLs</DialogTitle>
+                <DialogDescription>
+                  Paste these URLs into your {PROVIDER_NAMES[formProvider] ?? formProvider} dashboard
+                  so inbound messages and delivery receipts reach SabSMS.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 py-2">
+                <CopyField label="Inbound" value={savedWebhookUrls.inbound} />
+                <CopyField label="Delivery reports (DLR)" value={savedWebhookUrls.dlr} />
+                <p className="text-xs text-[var(--st-text-secondary)]">
+                  These URLs contain a secret used to authenticate webhooks — keep them private.
+                </p>
               </div>
-              <div>
-                <div className="font-medium text-[var(--st-text)] mb-1">Pricing Tier</div>
-                <div className="text-[var(--st-text-secondary)]">{selectedProvider.pricingTier || "Standard"}</div>
-              </div>
-              <div>
-                <div className="font-medium text-[var(--st-text)] mb-1">Last Error</div>
-                <div className={selectedProvider.lastError ? "text-[var(--st-danger)]" : "text-[var(--st-text-secondary)]"}>
-                  {selectedProvider.lastError || "None"}
+              <DialogFooter>
+                <Button onClick={() => setAddDialogOpen(false)}>Done</Button>
+              </DialogFooter>
+            </>
+          ) : (
+            <>
+              <DialogHeader>
+                <DialogTitle>Add provider account</DialogTitle>
+                <DialogDescription>
+                  Credentials are encrypted with a workspace-bound key before storage.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 py-2">
+                <div className="space-y-2">
+                  <Label>Provider</Label>
+                  <Select value={formProvider} onValueChange={(v) => { setFormProvider(v); setFormCreds({}); }}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select provider" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availableProviders.map((p) => (
+                        <SelectItem key={p.id} value={p.id}>
+                          {p.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                {formFields.map((f) => (
+                  <div key={f.key} className="space-y-2">
+                    <Label htmlFor={`cred-${f.key}`}>{f.label}</Label>
+                    <Input
+                      id={`cred-${f.key}`}
+                      type={f.secret ? "password" : "text"}
+                      autoComplete="off"
+                      placeholder={f.placeholder}
+                      value={formCreds[f.key] ?? ""}
+                      onChange={(e) =>
+                        setFormCreds((prev) => ({ ...prev, [f.key]: e.target.value }))
+                      }
+                    />
+                  </div>
+                ))}
+                <div className="space-y-2">
+                  <Label htmlFor="provider-region">Region (optional)</Label>
+                  <Input
+                    id="provider-region"
+                    placeholder="e.g. us1, eu, in"
+                    value={formRegion}
+                    onChange={(e) => setFormRegion(e.target.value)}
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id="provider-default"
+                    checked={formIsDefault}
+                    onChange={(e) => setFormIsDefault(e.target.checked)}
+                  />
+                  <Label htmlFor="provider-default">Set as default for this provider</Label>
                 </div>
               </div>
-              <div>
-                <div className="font-medium text-[var(--st-text)] mb-1">Webhook URL</div>
-                <div className="font-mono text-xs text-[var(--st-text-secondary)]">
-                  {selectedProvider.webhookUrl || `https://api.sabsms.io/webhooks/${selectedProvider.provider}`}
-                </div>
-              </div>
-            </div>
-            <Card padding="none" className="p-4">
-              <div className="font-medium mb-4 flex items-center justify-between text-[var(--st-text)]">
-                Cost vs Margin
-                <Activity className="h-4 w-4 text-[var(--st-text-secondary)]" aria-hidden="true" />
-              </div>
-              <div className="h-32 bg-[var(--st-bg-secondary)] rounded-[var(--st-radius)] border border-[var(--st-border)] flex items-center justify-center text-[var(--st-text-secondary)] text-sm">
-                Chart placeholder (S16)
-              </div>
-            </Card>
-            <div className="flex flex-col gap-2">
-              <Button variant="outline" block className="justify-between" iconRight={ChevronRight} onClick={() => alert("Routing override...")}>
-                Per-country routing override
-              </Button>
-              <Button variant="outline" block className="justify-between" iconRight={ExternalLink} onClick={() => alert("Docs link")}>
-                Provider documentation
-              </Button>
-              <Button variant="outline" block className="justify-between" iconRight={ActivitySquare} onClick={() => alert("Health monitor")}>
-                Health monitor
-              </Button>
-            </div>
-          </div>
-        )}
-      </SabsmsDetailDrawer>
-
-      <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Provider Catalog</DialogTitle>
-            <DialogDescription>Select a provider to configure your workspace credentials.</DialogDescription>
-          </DialogHeader>
-          <div className="grid grid-cols-2 gap-3 max-h-[60vh] overflow-y-auto p-1">
-            {catalog.map((p) => (
-              <Card key={p.id} variant="interactive" padding="none" className="p-3 flex flex-col justify-between">
-                <div className="flex justify-between items-start mb-2">
-                  <div className="font-medium text-[var(--st-text)]">{p.name}</div>
-                  <Badge tone={p.available ? "success" : "neutral"}>{p.available ? "Available" : "Phase 7"}</Badge>
-                </div>
-                <div className="text-xs text-[var(--st-text-secondary)] mb-4">{p.region}</div>
-                <Button disabled={!p.available} size="sm" block onClick={() => alert(`Add ${p.name}`)}>
-                  Configure
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setAddDialogOpen(false)} disabled={isSaving}>
+                  Cancel
                 </Button>
-              </Card>
-            ))}
-          </div>
+                <Button onClick={handleSave} disabled={isSaving}>
+                  {isSaving ? "Saving..." : "Save account"}
+                </Button>
+              </DialogFooter>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete confirm dialog */}
+      <Dialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Delete provider account</DialogTitle>
+            <DialogDescription>
+              {deleteTarget
+                ? `Remove the ${PROVIDER_NAMES[deleteTarget.provider] ?? deleteTarget.provider} account? Sends routed through it will stop immediately.`
+                : ""}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteTarget(null)} disabled={isDeleting}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleDelete} disabled={isDeleting}>
+              {isDeleting ? "Deleting..." : "Delete"}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </SabsmsPageShell>

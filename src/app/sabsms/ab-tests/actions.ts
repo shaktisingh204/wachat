@@ -82,7 +82,7 @@ export async function computeSegmentLifts(test: AbTestRow) {
   return _computeSegmentLifts(test);
 }
 
-export type ActionResult<T = Record<string, never>> =
+export type ActionResult<T = Record<never, never>> =
   | ({ ok: true } & T)
   | { ok: false; error: string };
 
@@ -557,4 +557,195 @@ export async function exportEventLog(
     csv: [header, ...lines].join("\n"),
     filename: `ab-test-${testId}.csv`,
   };
+}
+
+// ─── V2.9 — Journey A/B steps ─────────────────────────────────────────────
+//
+// Journeys carry their own A/B arms (`steps[].abVariants` with
+// deterministic assignment + auto-winner promotion in
+// `@/lib/sabsms/journeys/ab`). This section surfaces every journey A/B
+// step — running or already promoted — with per-variant stats from run
+// history + message-tag aggregation.
+
+export interface JourneyAbVariantRow {
+  templateId: string;
+  templateName: string;
+  weight: number;
+  sent: number;
+  delivered: number;
+  replied: number;
+  clicked: number;
+  replyRate: number;
+  clickRate: number;
+  isWinner: boolean;
+}
+
+export interface JourneyAbRow {
+  journeyId: string;
+  journeyName: string;
+  journeyStatus: string;
+  stepId: string;
+  stepIndex: number;
+  sampleThreshold: number;
+  variants: JourneyAbVariantRow[];
+  winner?: {
+    templateId: string;
+    templateName: string;
+    metric: "reply" | "click";
+    rate: number;
+    samples: number;
+    decidedAtIso: string;
+    note: string;
+  };
+}
+
+export async function loadJourneyAbRows(): Promise<JourneyAbRow[]> {
+  const ws = await resolveWorkspace();
+  if (!ws.ok) return [];
+
+  const { connectToDatabase: connect } = await import("@/lib/mongodb");
+  const { db } = await connect();
+  const { createMongoJourneyStore } = await import("@/lib/sabsms/journeys/store");
+  const { DEFAULT_AB_SAMPLE_THRESHOLD } = await import("@/lib/sabsms/journeys/ab");
+  const { SABSMS_JOURNEYS_COLLECTION } = await import("@/lib/sabsms/journeys/types");
+
+  const store = createMongoJourneyStore(db);
+  const journeys = await db
+    .collection(SABSMS_JOURNEYS_COLLECTION)
+    .find({
+      workspaceId: ws.workspaceId,
+      $or: [
+        { "steps.abVariants.1": { $exists: true } },
+        { "ab.winners": { $exists: true, $ne: {} } },
+      ],
+    })
+    .limit(100)
+    .toArray();
+
+  // Template id → name lookup for labels.
+  const templateNames = new Map<string, string>();
+  const tplDocs = await db
+    .collection("sabsms_templates")
+    .find({ workspaceId: ws.workspaceId })
+    .project({ name: 1 })
+    .limit(500)
+    .toArray();
+  for (const t of tplDocs) templateNames.set(String(t._id), (t as { name?: string }).name ?? "");
+  const nameOf = (id: string) => templateNames.get(id) || `Template ${id.slice(-6)}`;
+
+  const rows: JourneyAbRow[] = [];
+  for (const j of journeys) {
+    const journey = j as unknown as import("@/lib/sabsms/journeys/types").SabsmsJourney;
+    const winners = journey.ab?.winners ?? {};
+    const threshold = journey.ab?.sampleThreshold ?? DEFAULT_AB_SAMPLE_THRESHOLD;
+
+    for (let i = 0; i < journey.steps.length; i++) {
+      const step = journey.steps[i];
+      if (step.kind !== "send") continue;
+      const winner = winners[step.id];
+      const arms = step.abVariants ?? [];
+      if (arms.length < 2 && !winner) continue;
+
+      // Promoted steps lose `abVariants` — reconstruct arms from the
+      // recorded stats so the page still shows the full comparison.
+      const variantIds =
+        arms.length >= 2
+          ? arms.map((a) => a.templateId)
+          : Array.from(
+              new Set([
+                step.templateId,
+                ...(winner ? [winner.templateId] : []),
+              ]),
+            );
+      const stats = await store.collectVariantStats(String(journey._id), step.id, variantIds);
+      const byId = new Map(stats.map((s) => [s.templateId, s]));
+
+      rows.push({
+        journeyId: String(journey._id),
+        journeyName: journey.name,
+        journeyStatus: journey.status,
+        stepId: step.id,
+        stepIndex: i,
+        sampleThreshold: threshold,
+        variants: variantIds.map((id) => {
+          const s = byId.get(id);
+          const sent = s?.sent ?? 0;
+          return {
+            templateId: id,
+            templateName: nameOf(id),
+            weight: arms.find((a) => a.templateId === id)?.weight ?? 1,
+            sent,
+            delivered: s?.delivered ?? 0,
+            replied: s?.replied ?? 0,
+            clicked: s?.clicked ?? 0,
+            replyRate: sent > 0 ? (s?.replied ?? 0) / sent : 0,
+            clickRate: sent > 0 ? (s?.clicked ?? 0) / sent : 0,
+            isWinner: winner?.templateId === id,
+          };
+        }),
+        ...(winner
+          ? {
+              winner: {
+                templateId: winner.templateId,
+                templateName: nameOf(winner.templateId),
+                metric: winner.metric,
+                rate: winner.rate,
+                samples: winner.samples,
+                decidedAtIso: new Date(winner.decidedAt).toISOString(),
+                note: winner.note,
+              },
+            }
+          : {}),
+      });
+    }
+  }
+  return rows;
+}
+
+/**
+ * Manual "promote now" for a journey A/B step — same math as the
+ * automatic sweep; `force` skips the sample gate.
+ */
+export async function promoteJourneyWinnerAction(
+  journeyId: string,
+  stepId: string,
+  force = false,
+): Promise<ActionResult<{ templateId: string }>> {
+  const ws = await resolveWorkspace();
+  if (!ws.ok) return ws;
+
+  const { connectToDatabase: connect } = await import("@/lib/mongodb");
+  const { db } = await connect();
+  const { ObjectId: OID } = await import("mongodb");
+  if (!OID.isValid(journeyId)) return { ok: false, error: "invalid_id" };
+
+  const { SABSMS_JOURNEYS_COLLECTION } = await import("@/lib/sabsms/journeys/types");
+  const doc = await db
+    .collection(SABSMS_JOURNEYS_COLLECTION)
+    .findOne({ _id: new OID(journeyId), workspaceId: ws.workspaceId });
+  if (!doc) return { ok: false, error: "not_found" };
+
+  const { createMongoJourneyStore } = await import("@/lib/sabsms/journeys/store");
+  const { maybePromoteWinner } = await import("@/lib/sabsms/journeys/ab");
+  const store = createMongoJourneyStore(db);
+  const res = await maybePromoteWinner(
+    store,
+    doc as unknown as import("@/lib/sabsms/journeys/types").SabsmsJourney,
+    stepId,
+    { force },
+  );
+  if (!res.promoted) {
+    const messages: Record<string, string> = {
+      no_ab: "This step has no A/B variants.",
+      already_promoted: "A winner is already promoted.",
+      insufficient_sample: "Not enough sends per variant yet.",
+      no_signal: "No replies or clicks to decide on yet.",
+      not_found: "Step not found.",
+    };
+    return { ok: false, error: messages[res.reason] ?? res.reason };
+  }
+  const { revalidatePath: revalidate } = await import("next/cache");
+  revalidate("/sabsms/ab-tests");
+  revalidate(`/sabsms/drips/${journeyId}`);
+  return { ok: true, templateId: res.winner.templateId };
 }

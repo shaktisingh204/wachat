@@ -1,0 +1,109 @@
+{
+  "ApplicationId": "abcd1234efgh5678ijkl9012mnop3456",
+  "Id": "0a1b2c3d4e5f60718293a4b5c6d7e8f9",
+  "Name": "Win-back 30d (mixed channel)",
+  "State": "PAUSED",
+  "CreationDate": "2025-08-14T12:00:00.000Z",
+  "LastModifiedDate": "2026-01-08T16:45:30.000Z",
+  "StartActivity": "holdout",
+  "Activities": {
+    "holdout": {
+      "Description": "5% holdout",
+      "Holdout": {
+        "Percentage": 5,
+        "NextActivity": "winbackEmail"
+      }
+    },
+    "winbackEmail": {
+      "Description": "Win-back email",
+      "EMAIL": {
+        "TemplateName": "acme-winback-email",
+        "NextActivity": "waitUntilBlackFriday"
+      }
+    },
+    "waitUntilBlackFriday": {
+      "Description": "Hold for Black Friday",
+      "Wait": {
+        "WaitTime": {
+          "WaitUntil": "2026-11-27T08:00:00Z"
+        },
+        "NextActivity": "engagementSplit"
+      }
+    },
+    "engagementSplit": {
+      "Description": "Opened the email?",
+      "ConditionalSplit": {
+        "Condition": {
+          "Operator": "ANY",
+          "Conditions": [
+            {
+              "EventCondition": {
+                "MessageActivity": "winbackEmail",
+                "Dimensions": {
+                  "EventType": {
+                    "DimensionType": "INCLUSIVE",
+                    "Values": ["_email.open"]
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "TrueActivity": "discountSms",
+        "FalseActivity": "randomCopyTest"
+      }
+    },
+    "discountSms": {
+      "Description": "Discount SMS",
+      "SMS": {
+        "MessageConfig": {
+          "MessageType": "PROMOTIONAL",
+          "OriginationNumber": "+18445550123",
+          "Body": "We miss you! Here is 25% off your next order: https://acme.example/comeback"
+        },
+        "TemplateName": "acme-winback-discount-sms",
+        "NextActivity": null
+      }
+    },
+    "randomCopyTest": {
+      "Description": "Random copy A/B",
+      "RandomSplit": {
+        "Branches": [
+          { "NextActivity": "copyA", "Percentage": 50 },
+          { "NextActivity": "copyB", "Percentage": 50 }
+        ]
+      }
+    },
+    "copyA": {
+      "Description": "Copy A",
+      "SMS": {
+        "MessageConfig": {
+          "MessageType": "PROMOTIONAL",
+          "OriginationNumber": "+18445550123",
+          "Body": "Come back and save 15% today only."
+        },
+        "TemplateName": "acme-winback-copy-a",
+        "NextActivity": null
+      }
+    },
+    "copyB": {
+      "Description": "Copy B",
+      "SMS": {
+        "MessageConfig": {
+          "MessageType": "PROMOTIONAL",
+          "OriginationNumber": "+18445550123",
+          "Body": "Your cart misses you - 15% off ends tonight."
+        },
+        "TemplateName": "acme-winback-copy-b",
+        "NextActivity": null
+      }
+    },
+    "orphanedPush": {
+      "Description": "Old push step (disconnected)",
+      "PUSH": {
+        "TemplateName": "acme-winback-push",
+        "NextActivity": null
+      }
+    }
+  }
+}

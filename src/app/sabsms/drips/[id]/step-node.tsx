@@ -1,411 +1,453 @@
 "use client";
 
 /**
- * Single node renderer for the drip canvas.
+ * Journey builder — one step card (V2.9).
  *
- * Each node sits on a vertical rail (top → bottom). The builder keeps
- * the layout intentionally simple — no heavyweight graph library — so
- * we can fit on Vercel / self-hosted with the same React-only DOM.
- *
- * Branch nodes draw two outgoing labelled paths ("yes" / "no") that
- * the parent canvas wires up with absolute-positioned SVG paths.
+ * Renders the per-kind config UI for a step in the vertical builder:
+ * send (template picker + optional A/B arms), wait (duration), waitUntil
+ * (event + timeout + jump targets), branch (vars condition + true/false
+ * targets), exit. Pure controlled component — all state lives in the
+ * builder.
  */
 
 import * as React from "react";
-import Link from "next/link";
 import {
-  AlertCircle,
-  ArrowRight,
-  BarChart3,
-  Bell,
+  ArrowDown,
+  ArrowUp,
   Clock,
+  FlaskConical,
   GitBranch,
-  Mail,
-  PauseCircle,
-  PlayCircle,
-  Settings2,
-  Sparkles,
+  Hourglass,
+  LogOut,
+  Plus,
+  Send,
   Trash2,
-  Zap,
+  Trophy,
+  X,
 } from "lucide-react";
 
-import { Badge, Button, Card, CardBody, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Switch } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  Input,
+  Label,
+  SelectField,
+  type SelectOption,
+} from "@/components/sabcrm/20ui";
+import type { JourneyAbWinner, JourneyStep } from "@/lib/sabsms/journeys/types";
 
-import type { DraftDripNode } from "./validate";
+import type { TemplateOption } from "./actions";
 
-interface TemplateOption {
-  id: string;
-  name: string;
-  category: string;
+export const STEP_KIND_META: Record<
+  JourneyStep["kind"],
+  { label: string; icon: React.ReactNode; blurb: string }
+> = {
+  send: { label: "Send SMS", icon: <Send className="h-4 w-4" />, blurb: "Send a template" },
+  wait: { label: "Wait", icon: <Clock className="h-4 w-4" />, blurb: "Pause for a duration" },
+  waitUntil: {
+    label: "Wait for event",
+    icon: <Hourglass className="h-4 w-4" />,
+    blurb: "Branch on reply/click vs timeout",
+  },
+  branch: {
+    label: "Branch",
+    icon: <GitBranch className="h-4 w-4" />,
+    blurb: "If/else on a contact variable",
+  },
+  exit: { label: "Exit", icon: <LogOut className="h-4 w-4" />, blurb: "Leave the journey" },
+};
+
+const DURATION_UNITS: SelectOption[] = [
+  { value: "minutes", label: "minutes" },
+  { value: "hours", label: "hours" },
+  { value: "days", label: "days" },
+];
+
+const UNIT_MS: Record<string, number> = {
+  minutes: 60_000,
+  hours: 3_600_000,
+  days: 86_400_000,
+};
+
+function msToParts(ms: number): { value: number; unit: string } {
+  if (ms > 0 && ms % UNIT_MS.days === 0) return { value: ms / UNIT_MS.days, unit: "days" };
+  if (ms > 0 && ms % UNIT_MS.hours === 0) return { value: ms / UNIT_MS.hours, unit: "hours" };
+  return { value: Math.max(Math.round(ms / UNIT_MS.minutes), 0), unit: "minutes" };
+}
+
+function DurationInput({
+  ms,
+  onChange,
+  idPrefix,
+}: {
+  ms: number;
+  onChange: (ms: number) => void;
+  idPrefix: string;
+}) {
+  const parts = msToParts(ms);
+  return (
+    <div className="flex items-center gap-2">
+      <Input
+        id={`${idPrefix}-value`}
+        type="number"
+        min={1}
+        className="w-24"
+        value={String(parts.value)}
+        onChange={(e) => {
+          const v = Math.max(Number(e.target.value) || 0, 0);
+          onChange(v * UNIT_MS[parts.unit]);
+        }}
+        aria-label="Duration value"
+      />
+      <SelectField
+        value={parts.unit}
+        options={DURATION_UNITS}
+        onChange={(unit) => {
+          if (!unit) return;
+          onChange(parts.value * UNIT_MS[unit]);
+        }}
+        aria-label="Duration unit"
+      />
+    </div>
+  );
 }
 
 export interface StepNodeProps {
-  node: DraftDripNode;
+  step: JourneyStep;
+  index: number;
+  total: number;
+  steps: JourneyStep[];
   templates: TemplateOption[];
-  errors: string[];
-  dripId: string;
-  onChange: (next: DraftDripNode) => void;
-  onDelete: () => void;
-  onSuggest?: () => void;
+  winner?: JourneyAbWinner;
+  onChange: (step: JourneyStep) => void;
+  onRemove: () => void;
+  onMove: (direction: -1 | 1) => void;
 }
 
-const KIND_LABEL: Record<DraftDripNode["kind"], string> = {
-  start: "Start",
-  message: "Send message",
-  wait: "Wait",
-  branch: "Branch",
-  exit: "Exit",
-};
-
-const KIND_ICON: Record<DraftDripNode["kind"], React.ComponentType<{ className?: string }>> = {
-  start: PlayCircle,
-  message: Mail,
-  wait: Clock,
-  branch: GitBranch,
-  exit: PauseCircle,
-};
-
 export function StepNode({
-  node,
+  step,
+  index,
+  total,
+  steps,
   templates,
-  errors,
-  dripId,
+  winner,
   onChange,
-  onDelete,
-  onSuggest,
+  onRemove,
+  onMove,
 }: StepNodeProps) {
-  const Icon = KIND_ICON[node.kind];
-  const hasError = errors.length > 0;
-  const isTerminal = node.kind === "start" || node.kind === "exit";
+  const meta = STEP_KIND_META[step.kind];
+  const templateOptions: SelectOption[] = templates.map((t) => ({
+    value: t.value,
+    label: t.label,
+  }));
+  const targetOptions: SelectOption[] = steps
+    .filter((s) => s.id !== step.id)
+    .map((s) => ({
+      value: s.id,
+      label: `${steps.indexOf(s) + 1}. ${STEP_KIND_META[s.kind].label}`,
+    }));
 
   return (
-    <Card
-      className={
-        hasError
-          ? "border-[var(--st-border)] bg-[var(--st-bg-muted)]/50 transition"
-          : "border-[var(--st-border)] transition hover:border-[var(--st-border)]"
-      }
-    >
-      <div className="flex items-center justify-between border-b border-[var(--st-border)] px-4 py-2.5">
-        <div className="flex items-center gap-2">
-          <span
-            className={
-              hasError
-                ? "rounded-md bg-[var(--st-bg-muted)] p-1.5 text-[var(--st-text)]"
-                : "rounded-md bg-[var(--st-bg-muted)] p-1.5 text-[var(--st-text)]"
-            }
-          >
-            <Icon className="h-3.5 w-3.5" />
-          </span>
-          <span className="text-sm font-medium text-[var(--st-text)]">
-            {KIND_LABEL[node.kind]}
-          </span>
-          <Badge variant="secondary" className="text-[10px]">
-            {node.id}
-          </Badge>
-        </div>
-        <div className="flex items-center gap-1">
-          {onSuggest && !isTerminal && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-7 w-7"
-              onClick={onSuggest}
-              aria-label="Suggest next step"
-              title="Suggest next step"
-            >
-              <Sparkles className="h-3.5 w-3.5" />
-            </Button>
-          )}
-          <Button asChild variant="ghost" size="icon" className="h-7 w-7" title="Analytics">
-            <Link href={`/sabsms/analytics?dripId=${dripId}&stepId=${node.id}`}>
-              <BarChart3 className="h-3.5 w-3.5" />
-            </Link>
-          </Button>
-          {!isTerminal && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-7 w-7 text-[var(--st-text)] hover:text-[var(--st-text)]"
-              onClick={onDelete}
-              aria-label="Delete step"
-              title="Delete"
-            >
-              <Trash2 className="h-3.5 w-3.5" />
-            </Button>
-          )}
-        </div>
-      </div>
-
+    <Card className="border-[var(--st-border)] shadow-sm">
       <CardBody className="space-y-3 p-4">
-        {node.kind === "message" && (
-          <div className="space-y-2">
-            <Label htmlFor={`tpl-${node.id}`} className="text-xs font-medium text-[var(--st-text)]">
-              Template
-            </Label>
-            <Select
-              value={node.templateId ?? ""}
-              onValueChange={(v) => onChange({ ...node, templateId: v })}
-            >
-              <SelectTrigger id={`tpl-${node.id}`}>
-                <SelectValue placeholder="Pick template…" />
-              </SelectTrigger>
-              <SelectContent>
-                {templates.map((t) => (
-                  <SelectItem key={t.id} value={t.id}>
-                    {t.name}{" "}
-                    <span className="ml-1 text-[10px] text-[var(--st-text)]">({t.category})</span>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <span className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-[var(--st-border)] bg-[var(--st-bg-muted)] text-xs font-semibold text-[var(--st-text)]">
+              {index + 1}
+            </span>
+            <span className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--st-text)]">
+              {meta.icon}
+              {meta.label}
+            </span>
+            {winner && (
+              <Badge className="text-[10px]">
+                <Trophy className="mr-1 h-3 w-3" />
+                Winner promoted
+              </Badge>
+            )}
           </div>
-        )}
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onMove(-1)}
+              disabled={index === 0}
+              aria-label="Move step up"
+            >
+              <ArrowUp className="h-3.5 w-3.5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onMove(1)}
+              disabled={index === total - 1}
+              aria-label="Move step down"
+            >
+              <ArrowDown className="h-3.5 w-3.5" />
+            </Button>
+            <Button variant="ghost" size="sm" onClick={onRemove} aria-label="Remove step">
+              <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger,#b91c1c)]" />
+            </Button>
+          </div>
+        </div>
 
-        {node.kind === "wait" && (
+        {step.kind === "send" && (
           <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              {/* Segmented buttons — no tab UI primitive. */}
-              <Button
-                size="sm"
-                variant={node.waitMode !== "absolute" ? "default" : "outline"}
-                onClick={() => onChange({ ...node, waitMode: "relative" })}
-              >
-                Relative
-              </Button>
-              <Button
-                size="sm"
-                variant={node.waitMode === "absolute" ? "default" : "outline"}
-                onClick={() => onChange({ ...node, waitMode: "absolute" })}
-              >
-                Absolute
-              </Button>
+            <div className="space-y-1.5">
+              <Label>Template</Label>
+              <SelectField
+                value={step.templateId || null}
+                options={templateOptions}
+                searchable
+                placeholder={templates.length === 0 ? "No templates yet" : "Pick a template"}
+                onChange={(v) => onChange({ ...step, templateId: v ?? "" })}
+              />
+              {step.templateId && (
+                <p className="line-clamp-2 text-xs text-[var(--st-text-secondary)]">
+                  {templates.find((t) => t.value === step.templateId)?.body}
+                </p>
+              )}
             </div>
-            {node.waitMode === "absolute" ? (
-              <div className="space-y-1.5">
-                <Label className="text-xs">Wait until</Label>
-                <Input
-                  type="datetime-local"
-                  value={node.waitAbsoluteAt ?? ""}
-                  onChange={(e) => onChange({ ...node, waitAbsoluteAt: e.target.value })}
-                />
-              </div>
-            ) : (
-              <div className="space-y-1.5">
-                <Label className="text-xs">Wait (seconds)</Label>
-                <Input
-                  type="number"
-                  min={0}
-                  value={node.waitSeconds ?? 0}
-                  onChange={(e) =>
-                    onChange({ ...node, waitSeconds: Number.parseInt(e.target.value, 10) || 0 })
+
+            {winner ? (
+              <p className="text-xs text-[var(--st-text-secondary)]">
+                {winner.note} — the step now always sends the winning template.
+              </p>
+            ) : step.abVariants ? (
+              <div className="space-y-2 rounded-md border border-dashed border-[var(--st-border)] p-2.5">
+                <div className="flex items-center justify-between">
+                  <span className="inline-flex items-center gap-1 text-xs font-medium text-[var(--st-text)]">
+                    <FlaskConical className="h-3.5 w-3.5" /> A/B variants (deterministic split)
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      const { abVariants: _drop, ...rest } = step;
+                      onChange(rest);
+                    }}
+                  >
+                    <X className="mr-1 h-3 w-3" /> Remove test
+                  </Button>
+                </div>
+                {step.abVariants.map((v, vi) => (
+                  <div key={vi} className="flex items-center gap-2">
+                    <SelectField
+                      value={v.templateId || null}
+                      options={templateOptions}
+                      searchable
+                      placeholder={`Variant ${vi + 1} template`}
+                      onChange={(val) => {
+                        const abVariants = step.abVariants!.map((x, xi) =>
+                          xi === vi ? { ...x, templateId: val ?? "" } : x,
+                        );
+                        onChange({ ...step, abVariants });
+                      }}
+                    />
+                    <Input
+                      type="number"
+                      min={1}
+                      className="w-20"
+                      value={String(v.weight)}
+                      aria-label={`Variant ${vi + 1} weight`}
+                      onChange={(e) => {
+                        const abVariants = step.abVariants!.map((x, xi) =>
+                          xi === vi
+                            ? { ...x, weight: Math.max(Number(e.target.value) || 0, 0) }
+                            : x,
+                        );
+                        onChange({ ...step, abVariants });
+                      }}
+                    />
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      aria-label={`Remove variant ${vi + 1}`}
+                      onClick={() => {
+                        const abVariants = step.abVariants!.filter((_, xi) => xi !== vi);
+                        if (abVariants.length > 0) {
+                          onChange({ ...step, abVariants });
+                        } else {
+                          const { abVariants: _d, ...rest } = step;
+                          onChange(rest);
+                        }
+                      }}
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+                  </div>
+                ))}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    onChange({
+                      ...step,
+                      abVariants: [...(step.abVariants ?? []), { templateId: "", weight: 1 }],
+                    })
                   }
-                />
-                <p className="text-[11px] text-[var(--st-text)]">
-                  e.g. 86400 = 24h, 604800 = 7 days.
+                >
+                  <Plus className="mr-1 h-3 w-3" /> Add variant
+                </Button>
+                <p className="text-[11px] text-[var(--st-text-secondary)]">
+                  Once every arm reaches the sample threshold, the best reply rate (click rate as
+                  fallback) is promoted automatically.
                 </p>
               </div>
+            ) : (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  onChange({
+                    ...step,
+                    abVariants: [
+                      { templateId: step.templateId || "", weight: 1 },
+                      { templateId: "", weight: 1 },
+                    ],
+                  })
+                }
+              >
+                <FlaskConical className="mr-1 h-3 w-3" /> A/B test this step
+              </Button>
             )}
           </div>
         )}
 
-        {node.kind === "branch" && (
-          <div className="space-y-2">
-            <Label className="text-xs">Branch on</Label>
-            <Select
-              value={node.branchOn ?? "replied"}
-              onValueChange={(v) =>
-                onChange({ ...node, branchOn: v as DraftDripNode["branchOn"] })
-              }
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="replied">Replied</SelectItem>
-                <SelectItem value="clicked">Clicked a link</SelectItem>
-                <SelectItem value="opened">Opened (carrier read receipt)</SelectItem>
-              </SelectContent>
-            </Select>
-            <Label className="text-xs">Within (seconds)</Label>
-            <Input
-              type="number"
-              min={0}
-              value={node.branchWithinSeconds ?? 86400}
-              onChange={(e) =>
-                onChange({
-                  ...node,
-                  branchWithinSeconds: Number.parseInt(e.target.value, 10) || 0,
-                })
-              }
+        {step.kind === "wait" && (
+          <div className="space-y-1.5">
+            <Label>Wait for</Label>
+            <DurationInput
+              ms={step.durationMs}
+              idPrefix={`wait-${step.id}`}
+              onChange={(durationMs) => onChange({ ...step, durationMs })}
             />
-            <div className="flex items-center gap-2 pt-1 text-[11px] text-[var(--st-text)]">
-              <ArrowRight className="h-3 w-3" />
-              True → first outgoing edge · False → second.
-            </div>
           </div>
         )}
 
-        {!isTerminal && (
-          <>
-            <Separator />
-            <details className="group">
-              <summary className="flex cursor-pointer items-center gap-1.5 text-[11px] font-medium text-[var(--st-text)] hover:text-[var(--st-text)]">
-                <Settings2 className="h-3 w-3" /> Advanced
-              </summary>
-              <div className="mt-3 space-y-3">
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <Label className="text-[11px]">Quiet hours start</Label>
-                    <Input
-                      type="time"
-                      value={node.quietHours?.start ?? ""}
-                      onChange={(e) =>
-                        onChange({
-                          ...node,
-                          quietHours: {
-                            ...(node.quietHours ?? { start: "", end: "" }),
-                            start: e.target.value,
-                          },
-                        })
-                      }
-                    />
-                  </div>
-                  <div>
-                    <Label className="text-[11px]">Quiet hours end</Label>
-                    <Input
-                      type="time"
-                      value={node.quietHours?.end ?? ""}
-                      onChange={(e) =>
-                        onChange({
-                          ...node,
-                          quietHours: {
-                            ...(node.quietHours ?? { start: "", end: "" }),
-                            end: e.target.value,
-                          },
-                        })
-                      }
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <Label className="text-[11px]">Send window start</Label>
-                    <Input
-                      type="time"
-                      value={node.timeWindow?.start ?? ""}
-                      onChange={(e) =>
-                        onChange({
-                          ...node,
-                          timeWindow: {
-                            ...(node.timeWindow ?? { start: "", end: "" }),
-                            start: e.target.value,
-                          },
-                        })
-                      }
-                    />
-                  </div>
-                  <div>
-                    <Label className="text-[11px]">Send window end</Label>
-                    <Input
-                      type="time"
-                      value={node.timeWindow?.end ?? ""}
-                      onChange={(e) =>
-                        onChange({
-                          ...node,
-                          timeWindow: {
-                            ...(node.timeWindow ?? { start: "", end: "" }),
-                            end: e.target.value,
-                          },
-                        })
-                      }
-                    />
-                  </div>
-                </div>
-                <label className="flex items-center justify-between text-xs">
-                  <span className="text-[var(--st-text)]">Skip on weekends</span>
-                  <Switch
-                    checked={!!node.skipOnWeekend}
-                    onCheckedChange={(v) => onChange({ ...node, skipOnWeekend: !!v })}
-                  />
-                </label>
-                <div>
-                  <Label className="text-[11px]">
-                    <Zap className="mr-1 inline h-3 w-3" /> Throttle (msgs/sec)
-                  </Label>
-                  <Input
-                    type="number"
-                    min={0}
-                    value={node.throttlePerSecond ?? ""}
-                    onChange={(e) =>
-                      onChange({
-                        ...node,
-                        throttlePerSecond:
-                          e.target.value === ""
-                            ? undefined
-                            : Number.parseInt(e.target.value, 10) || 0,
-                      })
-                    }
-                  />
-                </div>
-                <div>
-                  <Label className="text-[11px]">
-                    <Bell className="mr-1 inline h-3 w-3" /> Provider override
-                  </Label>
-                  <Input
-                    value={node.providerOverride ?? ""}
-                    onChange={(e) => onChange({ ...node, providerOverride: e.target.value || undefined })}
-                    placeholder="twilio / msg91 / vonage…"
-                  />
-                </div>
-                {node.kind === "message" && (
-                  <div className="space-y-1.5 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2">
-                    <div className="text-[11px] font-medium text-[var(--st-text)]">A/B split</div>
-                    <Input
-                      placeholder="Variant B templateId"
-                      value={node.abSplit?.variantBTemplateId ?? ""}
-                      onChange={(e) =>
-                        onChange({
-                          ...node,
-                          abSplit: {
-                            variantBTemplateId: e.target.value,
-                            bPercent: node.abSplit?.bPercent ?? 50,
-                          },
-                        })
-                      }
-                    />
-                    <Input
-                      type="number"
-                      min={0}
-                      max={100}
-                      placeholder="% to B"
-                      value={node.abSplit?.bPercent ?? ""}
-                      onChange={(e) =>
-                        onChange({
-                          ...node,
-                          abSplit: {
-                            variantBTemplateId: node.abSplit?.variantBTemplateId ?? "",
-                            bPercent: Number.parseInt(e.target.value, 10) || 0,
-                          },
-                        })
-                      }
-                    />
-                  </div>
-                )}
+        {step.kind === "waitUntil" && (
+          <div className="space-y-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <Label>Wait until the contact…</Label>
+                <SelectField
+                  value={step.event}
+                  options={[
+                    { value: "replied", label: "replies" },
+                    { value: "clicked", label: "clicks a tracked link" },
+                  ]}
+                  onChange={(v) => v && onChange({ ...step, event: v as "replied" | "clicked" })}
+                />
               </div>
-            </details>
-          </>
-        )}
-
-        {hasError && (
-          <div className="flex items-start gap-1.5 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-2 py-1.5 text-[11px] text-[var(--st-text)]">
-            <AlertCircle className="mt-0.5 h-3 w-3 shrink-0" />
-            <div className="space-y-0.5">
-              {errors.map((e, i) => (
-                <div key={i}>{e}</div>
-              ))}
+              <div className="space-y-1.5">
+                <Label>Give up after</Label>
+                <DurationInput
+                  ms={step.timeoutMs}
+                  idPrefix={`wu-${step.id}`}
+                  onChange={(timeoutMs) => onChange({ ...step, timeoutMs })}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <Label>On event, go to</Label>
+                <SelectField
+                  value={step.onEventStepId ?? null}
+                  options={targetOptions}
+                  clearable
+                  placeholder="Next step (default)"
+                  onChange={(v) => onChange({ ...step, onEventStepId: v ?? undefined })}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label>On timeout, go to</Label>
+                <SelectField
+                  value={step.onTimeoutStepId ?? null}
+                  options={targetOptions}
+                  clearable
+                  placeholder="Next step (default)"
+                  onChange={(v) => onChange({ ...step, onTimeoutStepId: v ?? undefined })}
+                />
+              </div>
             </div>
           </div>
+        )}
+
+        {step.kind === "branch" && (
+          <div className="space-y-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+              <div className="space-y-1.5">
+                <Label htmlFor={`branch-field-${step.id}`}>Variable</Label>
+                <Input
+                  id={`branch-field-${step.id}`}
+                  placeholder="plan"
+                  value={step.condition.field === "__pinpoint_unmapped" ? "" : step.condition.field}
+                  onChange={(e) =>
+                    onChange({ ...step, condition: { ...step.condition, field: e.target.value } })
+                  }
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Operator</Label>
+                <SelectField
+                  value={step.condition.op}
+                  options={[
+                    { value: "eq", label: "equals" },
+                    { value: "ne", label: "does not equal" },
+                    { value: "contains", label: "contains" },
+                    { value: "gt", label: "greater than" },
+                    { value: "lt", label: "less than" },
+                  ]}
+                  onChange={(v) =>
+                    v &&
+                    onChange({
+                      ...step,
+                      condition: { ...step.condition, op: v as typeof step.condition.op },
+                    })
+                  }
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor={`branch-value-${step.id}`}>Value</Label>
+                <Input
+                  id={`branch-value-${step.id}`}
+                  placeholder="pro"
+                  value={step.condition.value}
+                  onChange={(e) =>
+                    onChange({ ...step, condition: { ...step.condition, value: e.target.value } })
+                  }
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <Label>If true, go to</Label>
+                <SelectField
+                  value={step.trueStepId || null}
+                  options={targetOptions}
+                  placeholder="Pick a step"
+                  onChange={(v) => onChange({ ...step, trueStepId: v ?? "" })}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label>If false, go to</Label>
+                <SelectField
+                  value={step.falseStepId || null}
+                  options={targetOptions}
+                  placeholder="Pick a step"
+                  onChange={(v) => onChange({ ...step, falseStepId: v ?? "" })}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {step.kind === "exit" && (
+          <p className="text-xs text-[var(--st-text-secondary)]">
+            The contact leaves the journey here. Useful as a branch / wait target.
+          </p>
         )}
       </CardBody>
     </Card>

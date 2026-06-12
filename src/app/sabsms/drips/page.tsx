@@ -1,37 +1,35 @@
-import { GitBranch, PlayCircle, Users, Zap, Activity, BarChart3, Workflow } from "lucide-react";
-import { getCachedSession } from "@/lib/server-cache";
-import { getSabsmsCollections } from "@/lib/sabsms/db/collections";
-import { SabsmsPageShell } from "@/components/sabsms/page-toolkit";
-import { Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
+/**
+ * `/sabsms/drips` — journeys list (V2.9).
+ *
+ * Backed by `sabsms_journeys` + live-run counts from
+ * `sabsms_journey_runs`. The executor that advances these runs lives in
+ * the `sabsms-events` PM2 worker (5 s tick).
+ */
 
+import { Activity, GitBranch, PlayCircle, Send, Users } from "lucide-react";
+
+import { Card, CardBody, CardHeader, CardTitle } from "@/components/sabcrm/20ui";
+import { SabsmsPageShell } from "@/components/sabsms/page-toolkit";
+import { getCachedSession } from "@/lib/server-cache";
+import type { JourneyStatus } from "@/lib/sabsms/journeys/types";
+
+import { loadJourneys, type JourneyListFilters } from "./actions";
 import { DripsTable } from "./drips-table";
-import {
-  loadDrips,
-  loadTemplateFacetOptions,
-  type DripListFilters,
-} from "./actions";
+import { PinpointImportButton } from "./pinpoint-import";
 
 export const dynamic = "force-dynamic";
 
 interface SabsmsDripsPageProps {
   searchParams: Promise<{
     q?: string;
-    enabled?: string;
-    trigger?: string | string[];
-    templateId?: string;
-    withErrors?: string;
+    status?: string;
     sort?: string;
   }>;
 }
 
-function asArray(v: string | string[] | undefined): string[] | undefined {
-  if (!v) return undefined;
-  return Array.isArray(v) ? v : [v];
-}
+const STATUSES: ReadonlyArray<JourneyStatus> = ["draft", "active", "paused", "archived"];
 
-export default async function SabsmsDripsPage({
-  searchParams,
-}: SabsmsDripsPageProps) {
+export default async function SabsmsDripsPage({ searchParams }: SabsmsDripsPageProps) {
   const sp = await searchParams;
   const session = await getCachedSession();
   const workspaceId = String(
@@ -42,8 +40,8 @@ export default async function SabsmsDripsPage({
     return (
       <SabsmsPageShell
         eyebrow="SabSMS"
-        title="Drip sequences"
-        description="Sign in to view your drip sequences."
+        title="Drips & journeys"
+        description="Sign in to view your journeys."
         breadcrumbs={[{ label: "Drips" }]}
       >
         <div className="rounded-md border border-dashed border-[var(--st-border)] bg-white p-10 text-center text-sm text-[var(--st-text)]">
@@ -53,158 +51,126 @@ export default async function SabsmsDripsPage({
     );
   }
 
-  await getSabsmsCollections();
-
-  const filters: DripListFilters = {
+  const filters: JourneyListFilters = {
     q: sp.q,
-    enabled:
-      sp.enabled === "enabled"
-        ? "enabled"
-        : sp.enabled === "disabled"
-          ? "disabled"
-          : "all",
-    trigger: asArray(sp.trigger)?.filter(
-      (t): t is "manual" | "segment_join" | "event" =>
-        t === "manual" || t === "segment_join" || t === "event",
-    ),
-    templateId: sp.templateId,
-    withErrors: sp.withErrors === "1",
-    sort: (sp.sort as DripListFilters["sort"]) ?? "newest",
+    status: STATUSES.includes(sp.status as JourneyStatus)
+      ? (sp.status as JourneyStatus)
+      : "all",
+    sort: (sp.sort as JourneyListFilters["sort"]) ?? "newest",
   };
 
-  const [rows, templateOptions] = await Promise.all([
-    loadDrips(workspaceId, filters),
-    loadTemplateFacetOptions(workspaceId),
-  ]);
+  const rows = await loadJourneys(workspaceId, filters);
 
-  // Success Metrics & Active Nodes calculations
-  const totalDrips = rows.length;
-  const activeDrips = rows.filter((r) => r.enabled).length;
-  const totalActiveNodes = rows.reduce((sum, r) => sum + r.stepCount + r.branchCount, 0);
-  const totalActiveRecipients = rows.reduce((sum, r) => sum + r.activeRecipients, 0);
-  const avgConversion = totalDrips > 0 
-    ? rows.reduce((sum, r) => sum + r.conversionRate, 0) / totalDrips 
-    : 0;
-  const totalThroughput = rows.reduce((sum, r) => sum + r.throughputPerMin, 0);
+  const activeJourneys = rows.filter((r) => r.status === "active").length;
+  const totalActiveRuns = rows.reduce((sum, r) => sum + r.activeRuns, 0);
+  const totalSends = rows.reduce((sum, r) => sum + r.stats.sends, 0);
+  const totalReplies = rows.reduce((sum, r) => sum + r.stats.replies, 0);
+  const replyRate = totalSends > 0 ? (totalReplies / totalSends) * 100 : 0;
 
   return (
     <SabsmsPageShell
       eyebrow="SabSMS · Outbound"
-      title="Drip sequences"
-      description="Time-based and event-driven messaging journeys. Filter by status, trigger, template, or error state — then build new drips with the visual canvas."
+      title="Drips & journeys"
+      description="Multi-step messaging journeys driven by the event stream: timed waits, reply/click branches, A/B arms with auto-winner, and always-on unsubscribe exits."
       breadcrumbs={[{ label: "Drips" }]}
-      primaryAction={{ label: "New drip", href: "/sabsms/drips/new" }}
-      helpTitle="What is a drip?"
+      primaryAction={{ label: "New drip", href: "/sabsms/drips/create" }}
+      toolbar={<PinpointImportButton />}
+      helpTitle="What is a journey?"
       helpBody={
         <div className="space-y-2">
           <p>
-            A drip is a multi-step messaging journey that auto-advances on a
-            timer or in response to contact activity (replied / clicked /
-            opened).
+            A journey enrols a contact and walks them through send / wait /
+            wait-for-event / branch steps. Runs survive worker restarts —
+            every step executes exactly once per contact.
           </p>
           <p>
-            Use the table to pause noisy drips, duplicate winners, or run a
-            test enrolment without affecting your real audience.
+            Unsubscribes always exit a contact immediately. Optional exit-on-reply
+            stops a sequence the moment someone answers.
           </p>
         </div>
       }
     >
-      {/* BULKY DATA-RICH DASHBOARD HEADER */}
-      <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="bg-gradient-to-br from-[var(--st-text)] to-[var(--st-text)] text-white shadow-xl">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-white text-sm font-medium flex items-center gap-2">
-              <Workflow className="h-4 w-4 text-[var(--st-text-secondary)]" />
-              Active Nodes
-            </CardTitle>
-          </CardHeader>
-          <CardBody>
-            <div className="text-4xl font-bold tracking-tight">{totalActiveNodes}</div>
-            <p className="mt-1 text-xs text-[var(--st-text-secondary)] flex items-center gap-1">
-              Across {activeDrips} running drips
-            </p>
-          </CardBody>
-        </Card>
-
-        <Card className="shadow-md border-[var(--st-border)]/60">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-[var(--st-text)] text-sm font-medium flex items-center gap-2">
-              <Users className="h-4 w-4 text-[var(--st-text)]" />
-              Active Enrolments
-            </CardTitle>
-          </CardHeader>
-          <CardBody>
-            <div className="text-4xl font-bold tracking-tight text-[var(--st-text)]">{totalActiveRecipients.toLocaleString()}</div>
-            <p className="mt-1 text-xs text-[var(--st-text)] flex items-center gap-1">
-              Contacts currently flowing
-            </p>
-          </CardBody>
-        </Card>
-
-        <Card className="shadow-md border-[var(--st-border)]/60">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-[var(--st-text)] text-sm font-medium flex items-center gap-2">
-              <Activity className="h-4 w-4 text-[var(--st-text)]" />
-              Global Throughput
-            </CardTitle>
-          </CardHeader>
-          <CardBody>
-            <div className="text-4xl font-bold tracking-tight text-[var(--st-text)]">{totalThroughput.toFixed(1)}</div>
-            <p className="mt-1 text-xs text-[var(--st-text)] flex items-center gap-1">
-              Messages per minute
-            </p>
-          </CardBody>
-        </Card>
-
-        <Card className="shadow-md border-[var(--st-border)]/60 bg-gradient-to-br from-[var(--st-bg-muted)]/50 to-white">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-[var(--st-text)] text-sm font-medium flex items-center gap-2">
-              <BarChart3 className="h-4 w-4 text-[var(--st-text)]" />
-              Avg Conversion
-            </CardTitle>
-          </CardHeader>
-          <CardBody>
-            <div className="text-4xl font-bold tracking-tight text-[var(--st-text)]">
-              {(avgConversion * 100).toFixed(1)}%
-            </div>
-            <p className="mt-1 text-xs text-[var(--st-text)]/70 flex items-center gap-1">
-              End-to-end success rate
-            </p>
-          </CardBody>
-        </Card>
+      <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          icon={<PlayCircle className="h-4 w-4" />}
+          label="Active journeys"
+          value={activeJourneys.toLocaleString()}
+          hint={`${rows.length} total`}
+        />
+        <StatCard
+          icon={<Users className="h-4 w-4" />}
+          label="Contacts in flight"
+          value={totalActiveRuns.toLocaleString()}
+          hint="Live runs right now"
+        />
+        <StatCard
+          icon={<Send className="h-4 w-4" />}
+          label="Journey sends"
+          value={totalSends.toLocaleString()}
+          hint="All time"
+        />
+        <StatCard
+          icon={<Activity className="h-4 w-4" />}
+          label="Reply rate"
+          value={`${replyRate.toFixed(1)}%`}
+          hint={`${totalReplies.toLocaleString()} replies`}
+        />
       </div>
 
-      {rows.length === 0 && Object.values(filters).every((v) => !v || v === "all") ? (
-        <EmptyHero />
-      ) : (
-        <div className="rounded-xl border border-[var(--st-border)] bg-white shadow-sm overflow-hidden">
-          <div className="p-1 border-b border-[var(--st-border)] bg-[var(--st-bg-muted)]/50">
-            <DripsTable rows={rows} templateOptions={templateOptions} />
-          </div>
-        </div>
-      )}
+      {rows.length === 0 && !sp.q && !sp.status ? <EmptyHero /> : <DripsTable rows={rows} />}
     </SabsmsPageShell>
+  );
+}
+
+function StatCard({
+  icon,
+  label,
+  value,
+  hint,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  hint: string;
+}) {
+  return (
+    <Card className="shadow-sm">
+      <CardHeader className="pb-2">
+        <CardTitle className="flex items-center gap-2 text-sm font-medium text-[var(--st-text)]">
+          {icon}
+          {label}
+        </CardTitle>
+      </CardHeader>
+      <CardBody>
+        <div className="text-3xl font-bold tracking-tight text-[var(--st-text)]">{value}</div>
+        <p className="mt-1 text-xs text-[var(--st-text-secondary)]">{hint}</p>
+      </CardBody>
+    </Card>
   );
 }
 
 function EmptyHero() {
   return (
     <div className="rounded-2xl border border-dashed border-[var(--st-border)] bg-white p-12 text-center shadow-sm">
-      <div className="mx-auto mb-4 inline-flex h-14 w-14 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)] border border-[var(--st-border)] shadow-sm">
+      <div className="mx-auto mb-4 inline-flex h-14 w-14 items-center justify-center rounded-full border border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)] shadow-sm">
         <GitBranch className="h-6 w-6" />
       </div>
-      <h2 className="text-lg font-semibold text-[var(--st-text)] tracking-tight">No drips yet</h2>
-      <p className="mx-auto mt-2 max-w-md text-sm text-[var(--st-text)] leading-relaxed">
-        Build your first drip to nudge replies, recover abandoned carts, or
-        send a welcome series. The visual builder ships with templates,
-        branches, and a dry-run mode.
+      <h2 className="text-lg font-semibold tracking-tight text-[var(--st-text)]">
+        No journeys yet
+      </h2>
+      <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-[var(--st-text)]">
+        Build a welcome series, a reply-branch nurture, or a win-back drip — or
+        bring an existing journey over from AWS Pinpoint before it sunsets.
       </p>
-      <a
-        href="/sabsms/drips/new"
-        className="mt-6 inline-flex items-center rounded-lg bg-[var(--st-text)] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[var(--st-text)] transition-colors"
-      >
-        <PlayCircle className="mr-2 h-4 w-4" /> Create First Drip
-      </a>
+      <div className="mt-6 flex items-center justify-center gap-3">
+        <a
+          href="/sabsms/drips/create"
+          className="inline-flex items-center rounded-lg bg-[var(--st-text)] px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors"
+        >
+          <PlayCircle className="mr-2 h-4 w-4" /> Create your first drip
+        </a>
+        <PinpointImportButton />
+      </div>
     </div>
   );
 }

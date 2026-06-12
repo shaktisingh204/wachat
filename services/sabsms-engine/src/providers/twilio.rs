@@ -6,17 +6,32 @@ use sha1::Sha1;
 use std::collections::HashMap;
 
 use super::{
-    DlrEvent, InboundMessage, ProviderCreds, ProviderError, SendRequest, SendResult, SmsProvider,
+    DlrEvent, InboundMessage, ProviderCreds, ProviderError, SendOptions, SendRequest, SendResult,
+    SmsProvider,
 };
 use crate::types::{MessageStatus, ProviderId};
 
+const DEFAULT_BASE_URL: &str = "https://api.twilio.com";
+
 pub struct TwilioProvider {
     http: reqwest::Client,
+    base_url: String,
 }
 
 impl TwilioProvider {
     pub fn new(http: reqwest::Client) -> Self {
-        Self { http }
+        Self {
+            http,
+            base_url: DEFAULT_BASE_URL.to_string(),
+        }
+    }
+
+    /// Test-only constructor pointing the adapter at a wiremock server.
+    pub fn with_base_url(http: reqwest::Client, base_url: impl Into<String>) -> Self {
+        Self {
+            http,
+            base_url: base_url.into(),
+        }
     }
 
     fn creds(creds: &ProviderCreds) -> Result<(String, String), ProviderError> {
@@ -45,19 +60,27 @@ impl SmsProvider for TwilioProvider {
     async fn send(
         &self,
         req: SendRequest<'_>,
+        opts: &SendOptions,
         creds: &ProviderCreds,
     ) -> Result<SendResult, ProviderError> {
         let (sid, token) = Self::creds(creds)?;
         let url = format!(
-            "https://api.twilio.com/2010-04-01/Accounts/{}/Messages.json",
-            sid
+            "{}/2010-04-01/Accounts/{}/Messages.json",
+            self.base_url, sid
         );
 
-        let form = vec![
+        let mut form = vec![
             ("From", req.from.to_string()),
             ("To", req.to.to_string()),
             ("Body", req.body.to_string()),
         ];
+        // MMS: repeated MediaUrl params, one per attachment.
+        for media_url in &opts.media_urls {
+            form.push(("MediaUrl", media_url.clone()));
+        }
+        if let Some(cb) = &opts.callback_url {
+            form.push(("StatusCallback", cb.clone()));
+        }
 
         let resp = self
             .http
@@ -85,10 +108,15 @@ impl SmsProvider for TwilioProvider {
             });
         }
         if !status.is_success() {
-            return Err(ProviderError::Rejected(format!(
-                "twilio {}: {}",
-                status, raw
-            )));
+            // Error body: {"code": 21211, "message": "...", "status": 400}.
+            let code = serde_json::from_str::<serde_json::Value>(&raw)
+                .ok()
+                .and_then(|v| v.get("code").and_then(|c| c.as_i64()))
+                .map(|c| c.to_string());
+            return Err(ProviderError::Rejected {
+                code,
+                message: format!("twilio {}: {}", status, raw),
+            });
         }
 
         #[derive(Deserialize)]
@@ -243,6 +271,24 @@ fn map_status(s: &str) -> MessageStatus {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use wiremock::matchers::{body_string_contains, method, path};
+    use wiremock::{Mock, MockServer, ResponseTemplate};
+
+    fn creds() -> ProviderCreds {
+        ProviderCreds {
+            blob: serde_json::json!({ "accountSid": "ACxxxx", "authToken": "tok" }),
+        }
+    }
+
+    fn req(body: &str) -> SendRequest<'_> {
+        SendRequest {
+            from: "+15550001111",
+            to: "+15552223333",
+            body,
+            channel: crate::types::Channel::Sms,
+            category: crate::types::MessageCategory::Transactional,
+        }
+    }
 
     #[test]
     fn status_maps_known_values() {
@@ -274,6 +320,15 @@ mod tests {
     }
 
     #[test]
+    fn parses_dlr_error_code() {
+        let p = TwilioProvider::new(reqwest::Client::new());
+        let body = b"MessageSid=SM999&MessageStatus=undelivered&ErrorCode=30003";
+        let dlr = p.parse_dlr(body).unwrap();
+        assert_eq!(dlr.status, MessageStatus::Undelivered);
+        assert_eq!(dlr.error_code.as_deref(), Some("30003"));
+    }
+
+    #[test]
     fn verifies_signature_with_canonical_twilio_example() {
         // Canonical Twilio signing example (from their docs): URL +
         // sorted params, HMAC-SHA1 with auth token, base64.
@@ -293,5 +348,79 @@ mod tests {
         let mut headers = HashMap::new();
         headers.insert("X-Twilio-Signature".to_string(), expected);
         assert!(p.verify_webhook_signature(url, body, &headers, &creds));
+    }
+
+    #[tokio::test]
+    async fn send_happy_path_with_media_urls() {
+        let server = MockServer::start().await;
+        Mock::given(method("POST"))
+            .and(path("/2010-04-01/Accounts/ACxxxx/Messages.json"))
+            .and(body_string_contains("MediaUrl=https%3A%2F%2Fr2.example.com%2Fa.jpg"))
+            .and(body_string_contains("StatusCallback="))
+            .respond_with(ResponseTemplate::new(201).set_body_raw(
+                r#"{"sid":"SM42","status":"queued","num_segments":"1","price":"-0.0075"}"#,
+                "application/json",
+            ))
+            .mount(&server)
+            .await;
+
+        let p = TwilioProvider::with_base_url(reqwest::Client::new(), server.uri());
+        let opts = SendOptions {
+            media_urls: vec!["https://r2.example.com/a.jpg".into()],
+            dlt: None,
+            callback_url: Some("https://app.example.com/cb".into()),
+        };
+        let r = p.send(req("hello"), &opts, &creds()).await.unwrap();
+        assert_eq!(r.provider_message_id, "SM42");
+        assert_eq!(r.status, MessageStatus::Queued);
+        assert_eq!(r.segments, 1);
+        assert_eq!(r.cost, Some(1));
+    }
+
+    #[tokio::test]
+    async fn send_error_carries_twilio_code() {
+        let server = MockServer::start().await;
+        Mock::given(method("POST"))
+            .and(path("/2010-04-01/Accounts/ACxxxx/Messages.json"))
+            .respond_with(ResponseTemplate::new(400).set_body_raw(
+                r#"{"code":21211,"message":"The 'To' number is not a valid phone number.","status":400}"#,
+                "application/json",
+            ))
+            .mount(&server)
+            .await;
+
+        let p = TwilioProvider::with_base_url(reqwest::Client::new(), server.uri());
+        let e = p
+            .send(req("hello"), &SendOptions::default(), &creds())
+            .await
+            .unwrap_err();
+        assert_eq!(e.provider_code(), Some("21211"));
+        assert!(!e.is_retryable());
+    }
+
+    #[tokio::test]
+    async fn send_429_maps_to_throttled() {
+        let server = MockServer::start().await;
+        Mock::given(method("POST"))
+            .and(path("/2010-04-01/Accounts/ACxxxx/Messages.json"))
+            .respond_with(
+                ResponseTemplate::new(429)
+                    .insert_header("retry-after", "7")
+                    .set_body_raw(r#"{"code":20429,"message":"rate limited"}"#, "application/json"),
+            )
+            .mount(&server)
+            .await;
+
+        let p = TwilioProvider::with_base_url(reqwest::Client::new(), server.uri());
+        let e = p
+            .send(req("hello"), &SendOptions::default(), &creds())
+            .await
+            .unwrap_err();
+        assert!(matches!(
+            e,
+            ProviderError::Throttled {
+                retry_after_secs: Some(7)
+            }
+        ));
     }
 }

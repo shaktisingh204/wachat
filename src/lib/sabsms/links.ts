@@ -16,6 +16,7 @@ import 'server-only';
 import type { Filter } from 'mongodb';
 
 import { getSabsmsCollections, ensureSabsmsIndexes } from './db/collections';
+import { emitLinkClickedEvent } from './events/emit';
 import type { SabsmsLinkClick, SabsmsShortLink } from './types';
 import {
   extractUrls,
@@ -205,6 +206,17 @@ export async function recordClick(input: RecordClickInput): Promise<boolean> {
   };
   await cols.linkClicks.insertOne(click);
   await cols.shortLinks.updateOne({ _id: link._id }, { $inc: { clickCount: 1 } });
+
+  // V2.9 — `linkClicked` pseudo-event for the journeys consumer
+  // (waitUntil('clicked') wakes). Fire-and-forget: never fails the click.
+  void emitLinkClickedEvent({
+    workspaceId: link.workspaceId,
+    slug: link.slug,
+    messageId: (link as { messageId?: string }).messageId,
+    contactId: link.contactId,
+    campaignId: link.campaignId,
+  });
+
   return true;
 }
 

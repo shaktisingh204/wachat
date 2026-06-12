@@ -38,6 +38,7 @@ async fn main() -> anyhow::Result<()> {
             .build()
             .context("building reqwest client")?,
         creds_cache: creds::CredsCache::default(),
+        routing_cache: Default::default(),
     });
 
     // Background send worker — single instance per process; pool size

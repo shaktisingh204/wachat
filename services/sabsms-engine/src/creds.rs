@@ -44,6 +44,9 @@ pub struct ResolvedCreds {
     pub account_id: Option<String>,
     pub provider: ProviderId,
     pub creds: ProviderCreds,
+    /// Per-account webhook secret (plain on the account doc, generated
+    /// Next-side) — used to mint `?secret=` DLR callback URLs.
+    pub webhook_secret: Option<String>,
 }
 
 /// 60s-TTL credential cache, keyed `"{workspace}:{provider}:{account|default}"`.
@@ -177,6 +180,11 @@ async fn resolve_uncached(
             account_id: Some(account_id.to_string()),
             provider,
             creds,
+            webhook_secret: account
+                .get_str("webhookSecret")
+                .ok()
+                .filter(|s| !s.is_empty())
+                .map(|s| s.to_string()),
         });
     }
 
@@ -207,6 +215,11 @@ async fn resolve_uncached(
             account_id,
             provider,
             creds,
+            webhook_secret: account
+                .get_str("webhookSecret")
+                .ok()
+                .filter(|s| !s.is_empty())
+                .map(|s| s.to_string()),
         });
     }
 
@@ -223,6 +236,7 @@ async fn resolve_uncached(
                 creds: ProviderCreds {
                     blob: serde_json::json!({ "accountSid": sid, "authToken": token }),
                 },
+                webhook_secret: None,
             });
         }
     }

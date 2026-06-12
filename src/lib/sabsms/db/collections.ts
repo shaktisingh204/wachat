@@ -45,6 +45,7 @@ export const SABSMS_COLLECTIONS = {
   shortLinks: 'sabsms_short_links',
   linkClicks: 'sabsms_link_clicks',
   settings: 'sabsms_settings',
+  routingPolicies: 'sabsms_routing_policies',
 } as const;
 
 export type SabsmsCollectionName =
@@ -65,6 +66,7 @@ export interface SabsmsCollections {
   shortLinks: Collection<SabsmsShortLink>;
   linkClicks: Collection<SabsmsLinkClick>;
   settings: Collection<SabsmsSettings>;
+  routingPolicies: Collection<SabsmsRoutingPolicyDoc>;
 }
 
 export async function getSabsmsCollections(): Promise<{
@@ -97,6 +99,9 @@ export async function getSabsmsCollections(): Promise<{
     shortLinks: db.collection<SabsmsShortLink>(SABSMS_COLLECTIONS.shortLinks),
     linkClicks: db.collection<SabsmsLinkClick>(SABSMS_COLLECTIONS.linkClicks),
     settings: db.collection<SabsmsSettings>(SABSMS_COLLECTIONS.settings),
+    routingPolicies: db.collection<SabsmsRoutingPolicyDoc>(
+      SABSMS_COLLECTIONS.routingPolicies,
+    ),
   };
   return { db, cols };
 }
@@ -169,6 +174,7 @@ const INDEXES: Record<
     [{ workspaceId: 1, campaignId: 1, clickedAt: -1 }],
   ],
   settings: [[{ workspaceId: 1 }, { unique: true }]],
+  routingPolicies: [[{ workspaceId: 1 }, { unique: true }]],
 };
 
 let indexesEnsured = false;
@@ -293,8 +299,26 @@ export const SabsmsNumberSchema = z.object({
   monthlyCost: z.number().optional(),
   webhookUrl: z.string().optional(),
   routingUrl: z.string().optional(),
+  senderId: z.string().optional(),
+  dltHeaderId: z.string().optional(),
   createdAt: z.date(),
   releasedAt: z.date().optional(),
+});
+
+/** Mirrors `SabsmsAvailableNumber` — one `POST /v1/numbers/search` result. */
+export const SabsmsAvailableNumberSchema = z.object({
+  phoneNumber: z.string(),
+  friendlyName: z.string().nullable().optional(),
+  region: z.string().nullable().optional(),
+  type: z.enum(['longcode', 'tollfree', 'mobile']),
+  capabilities: z.object({
+    sms: z.boolean(),
+    mms: z.boolean(),
+    rcs: z.boolean(),
+    voice: z.boolean(),
+  }),
+  monthlyCost: z.number().nullable().optional(),
+  currency: z.string().nullable().optional(),
 });
 
 export const SabsmsProviderAccountSchema = z.object({
@@ -304,6 +328,7 @@ export const SabsmsProviderAccountSchema = z.object({
   credentialsCipher: z.string(),
   region: z.string().optional(),
   isDefault: z.boolean(),
+  webhookSecret: z.string().optional(),
   status: z.enum(['active', 'disabled', 'error']),
   lastErrorAt: z.date().optional(),
   lastError: z.string().optional(),
@@ -327,9 +352,11 @@ export const SabsmsMessageSchema = z.object({
   to: z.string(),
   body: z.string(),
   media: z.array(SabsmsMediaSchema).optional(),
+  mediaUrls: z.array(z.string()).optional(),
   category: SabsmsMessageCategorySchema,
   status: SabsmsMessageStatusSchema,
   errorCode: z.string().optional(),
+  normalizedCode: z.string().optional(),
   errorMessage: z.string().optional(),
   provider: SabsmsProviderIdSchema,
   providerAccountId: z.string().optional(),
@@ -339,6 +366,9 @@ export const SabsmsMessageSchema = z.object({
   conversationId: z.string().optional(),
   contactId: z.string().optional(),
   eventKey: z.string().optional(),
+  senderId: z.string().optional(),
+  dltEntityId: z.string().optional(),
+  dltTemplateId: z.string().optional(),
   segmentsCount: z.number().optional(),
   price: z.number().optional(),
   cost: z.number().optional(),
@@ -546,4 +576,60 @@ export const SabsmsSettingsSchema = z.object({
   shortLinkDomain: z.string().optional(),
   updatedAt: z.date(),
 });
+
+// ---------------------------------------------------------------------------
+// V2.6 cross-provider routing policies (`sabsms_routing_policies`).
+//
+// These zod schemas mirror the Rust structs in
+// `services/sabsms-engine/src/routing/policy.rs` EXACTLY (camelCase
+// wire form; the rule's conditions live under the literal key `match`).
+// Change either side only together — the engine deserializes what the
+// routing page writes.
+// ---------------------------------------------------------------------------
+
+export const SabsmsPoolStrategySchema = z.enum([
+  'round_robin',
+  'sticky',
+  'least_used',
+]);
+
+export const SabsmsRoutingPoolSchema = z.object({
+  /** `sabsms_numbers` ids the matched rule's sends pick a `from` out of. */
+  numberIds: z.array(z.string()).default([]),
+  strategy: SabsmsPoolStrategySchema,
+});
+
+export const SabsmsRoutingRouteSchema = z.object({
+  providerAccountId: z.string().min(1),
+  /** Higher weight = earlier in the failover order. */
+  weight: z.number().int().min(0).max(1_000_000),
+});
+
+/** Present fields must ALL match; absent fields are wildcards. */
+export const SabsmsRoutingMatchSchema = z.object({
+  /** ISO-3166 alpha-2 (e.g. "US"). */
+  country: z.string().min(2).max(2).optional(),
+  category: SabsmsMessageCategorySchema.optional(),
+  channel: SabsmsChannelSchema.optional(),
+  /** E.164 string prefix (e.g. "+9198"). */
+  prefix: z.string().min(1).max(16).optional(),
+});
+
+export const SabsmsRoutingRuleSchema = z.object({
+  id: z.string().min(1),
+  match: SabsmsRoutingMatchSchema.default({}),
+  routes: z.array(SabsmsRoutingRouteSchema).min(1),
+  stickySender: z.boolean().default(false),
+  pool: SabsmsRoutingPoolSchema.optional(),
+});
+
+export const SabsmsRoutingPolicySchema = z.object({
+  _id: z.instanceof(ObjectId).optional(),
+  workspaceId: z.string(),
+  rules: z.array(SabsmsRoutingRuleSchema).default([]),
+  updatedAt: z.date(),
+});
+
+export type SabsmsRoutingRule = z.infer<typeof SabsmsRoutingRuleSchema>;
+export type SabsmsRoutingPolicyDoc = z.infer<typeof SabsmsRoutingPolicySchema>;
 

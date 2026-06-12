@@ -2,591 +2,877 @@
 
 import * as React from "react";
 import {
-  Network,
-  Plus,
-  Wand2,
-  ArrowRightLeft,
   Activity,
   AlertTriangle,
-  History,
-  Upload,
-  ArrowUp,
   ArrowDown,
-  X,
+  ArrowUp,
   CheckCircle2,
+  Network,
+  Plus,
+  Search,
+  Trash2,
+  X,
   XCircle,
-  Search
 } from "lucide-react";
 import { SabsmsPageShell } from "@/components/sabsms/page-toolkit";
-import { SabsmsFilterBar, type SabsmsSortOption } from "@/components/sabsms/page-toolkit/sabsms-filter-bar";
 import { SabsmsDataTable, type SabsmsColumn } from "@/components/sabsms/page-toolkit/sabsms-data-table";
 import { SabsmsDetailDrawer } from "@/components/sabsms/page-toolkit/sabsms-detail-drawer";
-import { useSabsmsUrlState } from "@/components/sabsms/page-toolkit/use-sabsms-url-state";
-import { SabsmsSavedViews } from "@/components/sabsms/page-toolkit/sabsms-saved-views";
-import { SabsmsPagination } from "@/components/sabsms/page-toolkit/sabsms-pagination";
 import { SabsmsRefreshButton } from "@/components/sabsms/page-toolkit/sabsms-refresh-button";
-import { SabsmsExportMenu, rowsToCsv } from "@/components/sabsms/page-toolkit/sabsms-export-menu";
-import { SabsmsColumnPicker } from "@/components/sabsms/page-toolkit/sabsms-column-picker";
-import { SabsmsKbdHint } from "@/components/sabsms/page-toolkit/sabsms-kbd-hint";
+import { SabsmsEmpty, SabsmsErrorState, SabsmsTableSkeleton } from "@/components/sabsms/page-toolkit/sabsms-states";
 
 import {
   Badge,
   Button,
-  IconButton,
-  Switch,
   Card,
   CardBody,
+  CardDescription,
   CardHeader,
   CardTitle,
-  CardDescription,
   Field,
+  IconButton,
   Input,
   Select,
+  SelectContent,
+  SelectItem,
   SelectTrigger,
   SelectValue,
-  SelectContent,
-  SelectItem
-} from '@/components/sabcrm/20ui';
+  Switch,
+} from "@/components/sabcrm/20ui";
 
-/** Mock data for Routing Rules */
-const MOCK_RULES = [
-  { id: "r1", name: "US Marketing Primary", priority: 1, destination: "US (+1)", category: "Marketing", timeOfDay: "Any", provider: "Twilio", status: "active", tags: ["us", "marketing"], costEst: "$0.0079", deliverabilityEst: "99.1%" },
-  { id: "r2", name: "UK OTP High Priority", priority: 2, destination: "UK (+44)", category: "OTP", timeOfDay: "Any", provider: "Vonage", status: "active", tags: ["uk", "otp"], costEst: "$0.0400", deliverabilityEst: "99.9%" },
-  { id: "r3", name: "IN Promo Night Shift", priority: 3, destination: "IN (+91)", category: "Marketing", timeOfDay: "20:00 - 08:00", provider: "Plivo", status: "inactive", tags: ["in", "promo"], costEst: "$0.0020", deliverabilityEst: "95.0%" },
-  { id: "r4", name: "Global Alert Fallback", priority: 4, destination: "Global", category: "Alert", timeOfDay: "Any", provider: "Sinch", status: "active", tags: ["fallback"], costEst: "$0.0150", deliverabilityEst: "98.5%" },
+import {
+  getRoutingHealthAction,
+  getRoutingPolicyAction,
+  previewRouteAction,
+  saveRoutingPolicyAction,
+  type RoutingRuleInput,
+} from "./actions";
+import { listProviderAccountsAction } from "../providers/actions";
+import type {
+  SabsmsProviderHealthAccount,
+  SabsmsRoutePreviewCandidate,
+} from "@/lib/sabsms/engine-client";
+
+/** Wildcard sentinel for the 20ui Select (it can't hold ""). */
+const ANY = "__any__";
+
+const COUNTRIES = [
+  { value: "US", label: "United States (+1)" },
+  { value: "CA", label: "Canada (+1)" },
+  { value: "GB", label: "United Kingdom (+44)" },
+  { value: "IN", label: "India (+91)" },
+  { value: "AU", label: "Australia (+61)" },
+  { value: "DE", label: "Germany (+49)" },
+  { value: "FR", label: "France (+33)" },
+  { value: "BR", label: "Brazil (+55)" },
+  { value: "AE", label: "UAE (+971)" },
+  { value: "SG", label: "Singapore (+65)" },
 ];
 
-const SORT_OPTIONS: SabsmsSortOption[] = [
-  { id: "priority_asc", label: "Priority (High to Low)", field: "priority", direction: "asc" },
-  { id: "priority_desc", label: "Priority (Low to High)", field: "priority", direction: "desc" },
-  { id: "name_asc", label: "Name (A-Z)", field: "name", direction: "asc" },
-];
+const CATEGORIES = ["transactional", "otp", "marketing", "alert", "service"];
+const CHANNELS = ["sms", "mms", "rcs"];
 
-function FallbackFlowBuilder() {
-  const [flow, setFlow] = React.useState([
-    { id: "1", type: "primary", provider: "Twilio" },
-    { id: "2", type: "fallback", provider: "Vonage" },
-    { id: "3", type: "fallback", provider: "Sinch" }
-  ]);
+interface AccountRow {
+  id: string;
+  provider: string;
+  isDefault: boolean;
+  status: string;
+}
 
-  const moveUp = (index: number) => {
-    if (index <= 1) return;
-    const newFlow = [...flow];
-    [newFlow[index - 1], newFlow[index]] = [newFlow[index], newFlow[index - 1]];
-    setFlow(newFlow);
+/** Client-side mirror of the engine score: Laplace smoothing + min-volume neutrality. */
+function scoreOf(delivered: number, failed: number): number {
+  const volume = delivered + failed;
+  if (volume < 20) return 1.0;
+  return (delivered + 1) / (volume + 2);
+}
+
+function accountHealth(
+  health: SabsmsProviderHealthAccount[],
+  accountId: string,
+  country?: string,
+): { score: number; circuit: "closed" | "open" | "half_open"; hasTraffic: boolean } {
+  const acct = health.find((h) => h.accountId === accountId);
+  if (!acct || acct.byCountry.length === 0) {
+    return { score: 1.0, circuit: "closed", hasTraffic: false };
+  }
+  if (country) {
+    const row = acct.byCountry.find((c) => c.country.toUpperCase() === country.toUpperCase());
+    if (!row) return { score: 1.0, circuit: "closed", hasTraffic: false };
+    return { score: row.score, circuit: row.circuit, hasTraffic: row.sent + row.delivered + row.failed > 0 };
+  }
+  let delivered = 0;
+  let failed = 0;
+  let worst: "closed" | "open" | "half_open" = "closed";
+  for (const row of acct.byCountry) {
+    delivered += row.delivered;
+    failed += row.failed;
+    if (row.circuit === "open") worst = "open";
+    else if (row.circuit === "half_open" && worst === "closed") worst = "half_open";
+  }
+  return { score: scoreOf(delivered, failed), circuit: worst, hasTraffic: delivered + failed > 0 };
+}
+
+function CircuitChip({ circuit }: { circuit: "closed" | "open" | "half_open" }) {
+  if (circuit === "open") {
+    return (
+      <Badge tone="danger" kind="outline">
+        <XCircle className="h-3 w-3 mr-1" aria-hidden="true" />
+        open
+      </Badge>
+    );
+  }
+  if (circuit === "half_open") {
+    return (
+      <Badge tone="warning" kind="outline">
+        <AlertTriangle className="h-3 w-3 mr-1" aria-hidden="true" />
+        probing
+      </Badge>
+    );
+  }
+  return (
+    <Badge tone="success" kind="outline">
+      <CheckCircle2 className="h-3 w-3 mr-1" aria-hidden="true" />
+      closed
+    </Badge>
+  );
+}
+
+function HealthBadge({
+  health,
+  accountId,
+  country,
+}: {
+  health: SabsmsProviderHealthAccount[];
+  accountId: string;
+  country?: string;
+}) {
+  const { score, circuit, hasTraffic } = accountHealth(health, accountId, country);
+  if (circuit !== "closed") return <CircuitChip circuit={circuit} />;
+  if (!hasTraffic) {
+    return (
+      <Badge tone="neutral" kind="outline">
+        no traffic
+      </Badge>
+    );
+  }
+  const pct = Math.round(score * 100);
+  const tone = score >= 0.95 ? "success" : score >= 0.85 ? "warning" : "danger";
+  return (
+    <Badge tone={tone} kind="outline">
+      {pct}% DLR
+    </Badge>
+  );
+}
+
+function matchSummary(rule: RoutingRuleInput): string {
+  const parts: string[] = [];
+  if (rule.match.country) parts.push(`country=${rule.match.country}`);
+  if (rule.match.category) parts.push(`category=${rule.match.category}`);
+  if (rule.match.channel) parts.push(`channel=${rule.match.channel}`);
+  if (rule.match.prefix) parts.push(`prefix=${rule.match.prefix}`);
+  return parts.length ? parts.join(" · ") : "All traffic";
+}
+
+function newRuleId(): string {
+  return `rule_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function emptyRule(): RoutingRuleInput {
+  return { id: newRuleId(), match: {}, routes: [], stickySender: false };
+}
+
+/* ------------------------------------------------------------------ */
+/* Rule editor (detail drawer body)                                   */
+/* ------------------------------------------------------------------ */
+
+function RuleEditor({
+  draft,
+  setDraft,
+  accounts,
+  health,
+}: {
+  draft: RoutingRuleInput;
+  setDraft: (r: RoutingRuleInput) => void;
+  accounts: AccountRow[];
+  health: SabsmsProviderHealthAccount[];
+}) {
+  const setMatch = (key: keyof RoutingRuleInput["match"], value: string | undefined) => {
+    const match = { ...draft.match };
+    if (!value) delete match[key];
+    else match[key] = value;
+    setDraft({ ...draft, match });
   };
 
-  const moveDown = (index: number) => {
-    if (index === 0 || index === flow.length - 1) return;
-    const newFlow = [...flow];
-    [newFlow[index + 1], newFlow[index]] = [newFlow[index], newFlow[index + 1]];
-    setFlow(newFlow);
+  const setRoute = (idx: number, patch: Partial<{ providerAccountId: string; weight: number }>) => {
+    const routes = draft.routes.map((r, i) => (i === idx ? { ...r, ...patch } : r));
+    setDraft({ ...draft, routes });
   };
 
-  const remove = (index: number) => {
-    if (index === 0) return;
-    const newFlow = [...flow];
-    newFlow.splice(index, 1);
-    setFlow(newFlow);
+  const moveRoute = (idx: number, dir: -1 | 1) => {
+    const target = idx + dir;
+    if (target < 0 || target >= draft.routes.length) return;
+    const routes = [...draft.routes];
+    [routes[idx], routes[target]] = [routes[target], routes[idx]];
+    setDraft({ ...draft, routes });
   };
 
-  const addFallback = () => {
-    setFlow([...flow, { id: Date.now().toString(), type: "fallback", provider: "Plivo" }]);
-  };
+  const accountLabel = (a: AccountRow) =>
+    `${a.provider}${a.isDefault ? " (default)" : ""} · ${a.id.slice(-6)}`;
 
   return (
-    <div className="space-y-3 bg-[var(--st-bg-secondary)] p-4 rounded-[var(--st-radius)] border border-[var(--st-border)] mt-2">
-      {flow.map((node, i) => (
-        <div key={node.id} className="relative flex items-center gap-3">
-          {i > 0 && (
-            <div className="absolute left-[11px] -top-[16px] bottom-1/2 w-px bg-[var(--st-border)]" />
-          )}
-          <div className={`relative z-10 flex h-6 w-6 items-center justify-center rounded-full text-xs font-medium border bg-[var(--st-bg-secondary)] border-[var(--st-border)] text-[var(--st-text)] ${i === 0 ? "" : "shadow-sm"}`}>
-            {i + 1}
+    <div className="space-y-6 py-4">
+      <div className="pt-1">
+        <h4 className="text-sm font-medium mb-3">Conditions</h4>
+        <p className="text-xs text-[var(--st-text-secondary)] mb-3">
+          Every set condition must match. Leave a field on “Any” to wildcard it.
+        </p>
+        <div className="grid grid-cols-2 gap-3">
+          <Field label="Destination country">
+            <Select
+              value={draft.match.country ?? ANY}
+              onValueChange={(v) => setMatch("country", v === ANY ? undefined : v)}
+            >
+              <SelectTrigger aria-label="Destination country">
+                <SelectValue placeholder="Any" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ANY}>Any</SelectItem>
+                {COUNTRIES.map((c) => (
+                  <SelectItem key={c.value} value={c.value}>
+                    {c.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Field>
+          <Field label="Category">
+            <Select
+              value={draft.match.category ?? ANY}
+              onValueChange={(v) => setMatch("category", v === ANY ? undefined : v)}
+            >
+              <SelectTrigger aria-label="Category">
+                <SelectValue placeholder="Any" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ANY}>Any</SelectItem>
+                {CATEGORIES.map((c) => (
+                  <SelectItem key={c} value={c}>
+                    {c}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Field>
+          <Field label="Channel">
+            <Select
+              value={draft.match.channel ?? ANY}
+              onValueChange={(v) => setMatch("channel", v === ANY ? undefined : v)}
+            >
+              <SelectTrigger aria-label="Channel">
+                <SelectValue placeholder="Any" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ANY}>Any</SelectItem>
+                {CHANNELS.map((c) => (
+                  <SelectItem key={c} value={c}>
+                    {c.toUpperCase()}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Field>
+          <Field label="Number prefix (E.164)">
+            <Input
+              type="text"
+              placeholder="+9198"
+              value={draft.match.prefix ?? ""}
+              onChange={(e) => setMatch("prefix", e.target.value.trim() || undefined)}
+            />
+          </Field>
+        </div>
+      </div>
+
+      <div className="pt-4 border-t border-[var(--st-border)]">
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <h4 className="text-sm font-medium">Routes</h4>
+            <p className="text-xs text-[var(--st-text-secondary)] mt-1">
+              Highest weight sends first; the rest are failover targets in order.
+            </p>
           </div>
-          <div className="flex-1 flex items-center justify-between p-2.5 border rounded-[var(--st-radius)] shadow-sm bg-[var(--st-bg-secondary)] border-[var(--st-border)]">
-            <div className="flex flex-col gap-0.5">
-              <span className="text-[10px] font-medium text-[var(--st-text-secondary)] uppercase tracking-wider">{i === 0 ? "Primary Provider" : `Fallback ${i}`}</span>
-              <span className="text-sm font-medium text-[var(--st-text)]">{node.provider}</span>
-            </div>
-            {i > 0 && (
-              <div className="flex items-center gap-0.5">
-                <IconButton
-                  label="Move provider up"
-                  icon={ArrowUp}
-                  size="sm"
-                  onClick={() => moveUp(i)}
-                  disabled={i === 1}
-                />
-                <IconButton
-                  label="Move provider down"
-                  icon={ArrowDown}
-                  size="sm"
-                  onClick={() => moveDown(i)}
-                  disabled={i === flow.length - 1}
-                />
-                <div className="w-px h-4 bg-[var(--st-border)] mx-1" />
-                <IconButton
-                  label="Remove fallback provider"
-                  icon={X}
-                  size="sm"
-                  onClick={() => remove(i)}
-                />
+          <Button
+            variant="ghost"
+            size="sm"
+            iconLeft={Plus}
+            disabled={accounts.length === 0}
+            onClick={() =>
+              setDraft({
+                ...draft,
+                routes: [
+                  ...draft.routes,
+                  { providerAccountId: accounts[0]?.id ?? "", weight: 100 },
+                ],
+              })
+            }
+          >
+            Add route
+          </Button>
+        </div>
+
+        {draft.routes.length === 0 ? (
+          <div className="text-sm text-[var(--st-text-secondary)] border border-dashed border-[var(--st-border)] rounded-[var(--st-radius)] p-4">
+            No routes yet — add at least one provider account.
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {draft.routes.map((route, i) => (
+              <div
+                key={`${route.providerAccountId}-${i}`}
+                className="flex items-center gap-2 p-2.5 border rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] border-[var(--st-border)]"
+              >
+                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-medium border bg-[var(--st-bg-secondary)] border-[var(--st-border)] text-[var(--st-text)]">
+                  {i + 1}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <Select
+                    value={route.providerAccountId || undefined}
+                    onValueChange={(v) => setRoute(i, { providerAccountId: v })}
+                  >
+                    <SelectTrigger aria-label={`Route ${i + 1} provider account`}>
+                      <SelectValue placeholder="Select account" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {accounts.map((a) => (
+                        <SelectItem key={a.id} value={a.id}>
+                          {accountLabel(a)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="w-20">
+                  <Input
+                    type="number"
+                    min={0}
+                    aria-label={`Route ${i + 1} weight`}
+                    value={String(route.weight)}
+                    onChange={(e) =>
+                      setRoute(i, { weight: Math.max(0, Number(e.target.value) || 0) })
+                    }
+                  />
+                </div>
+                {route.providerAccountId ? (
+                  <HealthBadge
+                    health={health}
+                    accountId={route.providerAccountId}
+                    country={draft.match.country}
+                  />
+                ) : null}
+                <div className="flex items-center gap-0.5">
+                  <IconButton
+                    label={`Move route ${i + 1} up`}
+                    icon={ArrowUp}
+                    size="sm"
+                    onClick={() => moveRoute(i, -1)}
+                    disabled={i === 0}
+                  />
+                  <IconButton
+                    label={`Move route ${i + 1} down`}
+                    icon={ArrowDown}
+                    size="sm"
+                    onClick={() => moveRoute(i, 1)}
+                    disabled={i === draft.routes.length - 1}
+                  />
+                  <IconButton
+                    label={`Remove route ${i + 1}`}
+                    icon={X}
+                    size="sm"
+                    onClick={() =>
+                      setDraft({ ...draft, routes: draft.routes.filter((_, j) => j !== i) })
+                    }
+                  />
+                </div>
               </div>
-            )}
+            ))}
           </div>
+        )}
+      </div>
+
+      <div className="pt-4 border-t border-[var(--st-border)] flex items-center justify-between">
+        <div>
+          <h4 className="text-sm font-medium">Sticky sender</h4>
+          <p className="text-xs text-[var(--st-text-secondary)] mt-1">
+            Pin each contact to the account + number that last reached them (30 days).
+          </p>
         </div>
-      ))}
-      <div className="relative flex items-center gap-3 pt-1">
-        <div className="absolute left-[11px] -top-3 bottom-1/2 w-px border-l-2 border-dashed border-[var(--st-border)]" />
-        <div className="relative z-10 flex h-6 w-6 items-center justify-center rounded-full bg-[var(--st-bg-secondary)] border-2 border-dashed border-[var(--st-border)] text-[var(--st-text-secondary)]">
-          <Plus className="h-3 w-3" aria-hidden="true" />
-        </div>
-        <Button variant="ghost" size="sm" iconLeft={Plus} onClick={addFallback}>
-          Add Fallback Route
-        </Button>
+        <Switch
+          checked={draft.stickySender}
+          onCheckedChange={(v) => setDraft({ ...draft, stickySender: !!v })}
+          aria-label="Sticky sender"
+        />
       </div>
     </div>
   );
 }
 
-function RouteTraceTool() {
+/* ------------------------------------------------------------------ */
+/* Route trace tool — engine-backed preview                            */
+/* ------------------------------------------------------------------ */
+
+function RouteTraceTool({ accounts }: { accounts: AccountRow[] }) {
   const [phoneNumber, setPhoneNumber] = React.useState("");
-  const [category, setCategory] = React.useState("Any");
-  const [traceLog, setTraceLog] = React.useState<any[] | null>(null);
+  const [category, setCategory] = React.useState<string>("transactional");
+  const [channel, setChannel] = React.useState<string>("sms");
+  const [candidates, setCandidates] = React.useState<SabsmsRoutePreviewCandidate[] | null>(null);
+  const [country, setCountry] = React.useState<string | null>(null);
+  const [error, setError] = React.useState<string | null>(null);
   const [isTracing, setIsTracing] = React.useState(false);
 
-  const handleTrace = () => {
+  const providerOf = (c: SabsmsRoutePreviewCandidate) => {
+    if (!c.providerAccountId) return `${c.provider} (workspace default)`;
+    const acct = accounts.find((a) => a.id === c.providerAccountId);
+    return acct
+      ? `${acct.provider} · ${acct.id.slice(-6)}`
+      : `${c.provider} · ${c.providerAccountId.slice(-6)}`;
+  };
+
+  const handleTrace = async () => {
     setIsTracing(true);
-    setTimeout(() => {
-      const logs = [];
-      let matchedRule = null;
-      for (const rule of MOCK_RULES) {
-        if (rule.status === "inactive") {
-          logs.push({ rule, status: "skipped", reason: "Rule is inactive" });
-          continue;
-        }
-
-        let isMatch = true;
-        let mismatchReason = "";
-
-        if (rule.destination.includes("US") && !phoneNumber.startsWith("+1")) {
-          isMatch = false;
-          mismatchReason = "Destination mismatch (Not US)";
-        } else if (rule.destination.includes("UK") && !phoneNumber.startsWith("+44")) {
-          isMatch = false;
-          mismatchReason = "Destination mismatch (Not UK)";
-        } else if (rule.destination.includes("IN") && !phoneNumber.startsWith("+91")) {
-          isMatch = false;
-          mismatchReason = "Destination mismatch (Not IN)";
-        }
-
-        if (isMatch && rule.category !== "Any" && category !== "Any" && rule.category !== category) {
-          isMatch = false;
-          mismatchReason = `Category mismatch (${category} != ${rule.category})`;
-        }
-
-        if (isMatch) {
-          logs.push({ rule, status: "matched", reason: "All conditions met" });
-          matchedRule = rule;
-          break;
-        } else {
-          logs.push({ rule, status: "skipped", reason: mismatchReason || "Conditions not met" });
-        }
-      }
-
-      if (!matchedRule) {
-        logs.push({
-          rule: { name: "Global Fallback", provider: "Sinch", priority: 999 },
-          status: "matched",
-          reason: "Fell back to default provider"
-        });
-      }
-
-      setTraceLog(logs);
-      setIsTracing(false);
-    }, 800);
+    setError(null);
+    setCandidates(null);
+    const res = await previewRouteAction({ to: phoneNumber.trim(), category, channel });
+    if (res.success) {
+      setCandidates(res.preview.candidates);
+      setCountry(res.preview.country);
+    } else {
+      setError(res.error);
+    }
+    setIsTracing(false);
   };
 
   return (
     <Card>
       <CardHeader>
         <CardTitle className="text-base flex items-center gap-2">
-          <Search className="h-4 w-4" aria-hidden="true" /> Routing Trace Tool
+          <Search className="h-4 w-4" aria-hidden="true" /> Routing trace
         </CardTitle>
-        <CardDescription>Input a number to explain exactly which provider will be used and why.</CardDescription>
+        <CardDescription>
+          Where would this message route? Runs the engine&apos;s real selector — nothing is sent.
+        </CardDescription>
       </CardHeader>
       <CardBody className="space-y-4">
-        <Field label="Test Number">
+        <Field label="Destination number">
           <Input
             type="text"
-            placeholder="+1 234 567 8900"
+            placeholder="+1 415 555 2671"
             value={phoneNumber}
             onChange={(e) => setPhoneNumber(e.target.value)}
           />
         </Field>
-        <Field label="Message Category">
-          <Select value={category} onValueChange={setCategory}>
-            <SelectTrigger aria-label="Message category">
-              <SelectValue placeholder="Select a category" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Any">Any</SelectItem>
-              <SelectItem value="Marketing">Marketing</SelectItem>
-              <SelectItem value="OTP">OTP</SelectItem>
-              <SelectItem value="Alert">Alert</SelectItem>
-            </SelectContent>
-          </Select>
-        </Field>
-        <Button variant="outline" block onClick={handleTrace} disabled={isTracing || !phoneNumber}>
-          {isTracing ? "Tracing..." : "Run Trace"}
+        <div className="grid grid-cols-2 gap-3">
+          <Field label="Category">
+            <Select value={category} onValueChange={setCategory}>
+              <SelectTrigger aria-label="Trace category">
+                <SelectValue placeholder="Category" />
+              </SelectTrigger>
+              <SelectContent>
+                {CATEGORIES.map((c) => (
+                  <SelectItem key={c} value={c}>
+                    {c}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Field>
+          <Field label="Channel">
+            <Select value={channel} onValueChange={setChannel}>
+              <SelectTrigger aria-label="Trace channel">
+                <SelectValue placeholder="Channel" />
+              </SelectTrigger>
+              <SelectContent>
+                {CHANNELS.map((c) => (
+                  <SelectItem key={c} value={c}>
+                    {c.toUpperCase()}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Field>
+        </div>
+        <Button variant="outline" block onClick={handleTrace} disabled={isTracing || !phoneNumber.trim()}>
+          {isTracing ? "Tracing…" : "Run trace"}
         </Button>
 
-        {traceLog && (
-          <div className="mt-4 space-y-2 border-t border-[var(--st-border)] pt-4">
-            <h4 className="text-sm font-semibold mb-3">Trace Results</h4>
-            {traceLog.map((log, i) => (
-              <div key={i} className={`p-3 rounded-[var(--st-radius)] text-sm border bg-[var(--st-bg-secondary)] border-[var(--st-border)] ${log.status === "matched" ? "" : "opacity-75"}`}>
-                <div className="flex items-center gap-2 font-medium mb-1">
-                  {log.status === "matched" ? (
-                    <CheckCircle2 className="h-4 w-4 text-[var(--st-status-ok)]" aria-hidden="true" />
-                  ) : (
-                    <XCircle className="h-4 w-4 text-[var(--st-text-secondary)]" aria-hidden="true" />
-                  )}
-                  <span className="text-[var(--st-text)]">
-                    {log.rule.name}
-                  </span>
-                  <Badge variant="outline" className="ml-auto text-[10px]">{log.rule.provider}</Badge>
-                </div>
-                <div className="text-xs text-[var(--st-text-secondary)] ml-6">
-                  {log.reason}
-                </div>
-              </div>
-            ))}
+        {error ? (
+          <div className="text-sm text-[var(--st-danger)] flex items-start gap-2">
+            <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" aria-hidden="true" />
+            <span>{error}</span>
           </div>
-        )}
+        ) : null}
+
+        {candidates ? (
+          <div className="mt-2 space-y-2 border-t border-[var(--st-border)] pt-4">
+            <h4 className="text-sm font-semibold mb-1">
+              Candidate order{country ? ` · ${country}` : ""}
+            </h4>
+            {candidates.length === 0 ? (
+              <div className="text-sm text-[var(--st-text-secondary)]">
+                No candidates — the destination provider has no adapter and no rule matched.
+              </div>
+            ) : (
+              candidates.map((c, i) => (
+                <div
+                  key={`${c.providerAccountId ?? "default"}-${i}`}
+                  className="p-3 rounded-[var(--st-radius)] text-sm border bg-[var(--st-bg-secondary)] border-[var(--st-border)]"
+                >
+                  <div className="flex items-center gap-2 font-medium mb-1">
+                    {i === 0 ? (
+                      <CheckCircle2 className="h-4 w-4 text-[var(--st-status-ok)]" aria-hidden="true" />
+                    ) : (
+                      <span className="flex h-4 w-4 items-center justify-center text-[10px] text-[var(--st-text-secondary)]">
+                        {i + 1}
+                      </span>
+                    )}
+                    <span className="text-[var(--st-text)] truncate">{providerOf(c)}</span>
+                    <span className="ml-auto flex items-center gap-1">
+                      <Badge variant="outline" className="text-[10px]">
+                        {c.source}
+                      </Badge>
+                      <CircuitChip circuit={c.circuit} />
+                    </span>
+                  </div>
+                  <div className="text-xs text-[var(--st-text-secondary)] ml-6">
+                    {c.score != null ? `health ${(c.score * 100).toFixed(0)}%` : "no health window"}
+                    {c.fromOverride ? ` · from ${c.fromOverride}` : ""}
+                    {c.ruleId ? ` · rule ${c.ruleId}` : ""}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        ) : null}
       </CardBody>
     </Card>
   );
 }
 
+/* ------------------------------------------------------------------ */
+/* Page                                                                */
+/* ------------------------------------------------------------------ */
+
 export default function RoutingPage() {
-  const urlState = useSabsmsUrlState();
+  const [rules, setRules] = React.useState<RoutingRuleInput[]>([]);
+  const [accounts, setAccounts] = React.useState<AccountRow[]>([]);
+  const [health, setHealth] = React.useState<SabsmsProviderHealthAccount[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [loadError, setLoadError] = React.useState<string | null>(null);
+  const [saveError, setSaveError] = React.useState<string | null>(null);
+  const [saving, setSaving] = React.useState(false);
 
-  const [selectedRuleId, setSelectedRuleId] = React.useState<string | null>(null);
-  const [selectedRows, setSelectedRows] = React.useState<Set<string>>(new Set());
+  const [editingId, setEditingId] = React.useState<string | null>(null);
+  const [draft, setDraft] = React.useState<RoutingRuleInput>(emptyRule());
 
-  // F1: Rule Editor (mocked via detail drawer)
-  // F2: Visual Rule Chain (represented by the table order)
-  // F3: Conflict Detection (mocked alert in the UI)
-  // F4: Priority drag-reorder (represented by a drag handle icon on rows)
-  // F5: Per-rule cost preview (column in table)
-  // F6: Per-rule deliverability simulation (column in table)
-  // F7: Default fallback editor (mocked via secondary action)
-  // F8: Per-country failover order (mocked in rule details)
-  // F9: Per-category routing (mocked in rules data)
-  // F10: Per-time-of-day routing (mocked in rules data)
-  // F11: Test routing against sample (mocked button)
-  // F12: Rule history with diff (mocked action)
-  // F13: Activate / deactivate rule (switch in table)
-  // F14: Tag / label (badges in table)
-  // F15: AI: "Optimize routing for cost / deliverability" (mocked button)
-  // F16: Compare two routing configs (mocked action)
-  // F17: Per-rule analytics (mocked action)
-  // F18: Export rule set JSON (mocked via export menu)
-  // F19: Import rule set (mocked action)
-  // F20: Audit log (mocked action)
+  const load = React.useCallback(async () => {
+    setLoadError(null);
+    const [policyRes, accountsRes, healthRes] = await Promise.all([
+      getRoutingPolicyAction(),
+      listProviderAccountsAction(),
+      getRoutingHealthAction(),
+    ]);
+    if (policyRes.success) setRules(policyRes.rules);
+    else setLoadError(policyRes.error);
+    if (accountsRes.success) {
+      setAccounts(
+        accountsRes.accounts.map((a) => ({
+          id: a.id,
+          provider: a.provider,
+          isDefault: a.isDefault,
+          status: a.status,
+        })),
+      );
+    }
+    if (healthRes.success) setHealth(healthRes.accounts);
+    setLoading(false);
+  }, []);
 
-  const columns: SabsmsColumn<typeof MOCK_RULES[0]>[] = [
-    {
-      id: "drag",
-      header: "",
-      render: () => <Plus className="h-4 w-4 text-[var(--st-text-secondary)] rotate-45 cursor-move" aria-hidden="true" />,
-      width: "40px"
+  React.useEffect(() => {
+    void load();
+  }, [load]);
+
+  // Live health badges: refresh on an interval (best-effort).
+  React.useEffect(() => {
+    const interval = setInterval(async () => {
+      if (document.hidden) return;
+      const res = await getRoutingHealthAction();
+      if (res.success) setHealth(res.accounts);
+    }, 15_000);
+    return () => clearInterval(interval);
+  }, []);
+
+  /** Persist a full new rule list (order IS priority). */
+  const persist = React.useCallback(
+    async (next: RoutingRuleInput[]): Promise<boolean> => {
+      setSaving(true);
+      setSaveError(null);
+      const prev = rules;
+      setRules(next); // optimistic
+      const res = await saveRoutingPolicyAction(next);
+      setSaving(false);
+      if (!res.success) {
+        setRules(prev);
+        setSaveError(res.error);
+        return false;
+      }
+      return true;
     },
+    [rules],
+  );
+
+  const moveRule = (idx: number, dir: -1 | 1) => {
+    const target = idx + dir;
+    if (target < 0 || target >= rules.length) return;
+    const next = [...rules];
+    [next[idx], next[target]] = [next[target], next[idx]];
+    void persist(next);
+  };
+
+  const deleteRule = (id: string) => {
+    void persist(rules.filter((r) => r.id !== id));
+  };
+
+  const openEditor = (rule: RoutingRuleInput | null) => {
+    if (rule) {
+      setDraft(JSON.parse(JSON.stringify(rule)) as RoutingRuleInput);
+      setEditingId(rule.id);
+    } else {
+      setDraft(emptyRule());
+      setEditingId("new");
+    }
+  };
+
+  const saveDraft = async () => {
+    if (draft.routes.length === 0 || draft.routes.some((r) => !r.providerAccountId)) {
+      setSaveError("Every route needs a provider account (at least one route per rule).");
+      return;
+    }
+    const next =
+      editingId === "new"
+        ? [...rules, draft]
+        : rules.map((r) => (r.id === editingId ? draft : r));
+    const ok = await persist(next);
+    if (ok) setEditingId(null);
+  };
+
+  const accountLabel = (id: string) => {
+    const a = accounts.find((x) => x.id === id);
+    return a ? `${a.provider} · ${id.slice(-6)}` : `account · ${id.slice(-6)}`;
+  };
+
+  const columns: SabsmsColumn<RoutingRuleInput>[] = [
     {
-      id: "name",
-      header: "Rule Name",
-      render: (row) => (
-        <div>
-          <div className="font-medium">{row.name}</div>
-          <div className="text-xs text-[var(--st-text-secondary)] flex gap-1 mt-1">
-            {row.tags.map(t => <Badge key={t} variant="secondary" className="text-[10px] px-1 py-0">{t}</Badge>)}
+      id: "priority",
+      header: "Priority",
+      width: "90px",
+      render: (row) => {
+        const idx = rules.findIndex((r) => r.id === row.id);
+        return (
+          <div className="flex items-center gap-1">
+            <span className="w-5 text-sm font-medium text-[var(--st-text-secondary)]">{idx + 1}</span>
+            <IconButton
+              label={`Move rule ${idx + 1} up`}
+              icon={ArrowUp}
+              size="sm"
+              onClick={() => moveRule(idx, -1)}
+              disabled={idx === 0 || saving}
+            />
+            <IconButton
+              label={`Move rule ${idx + 1} down`}
+              icon={ArrowDown}
+              size="sm"
+              onClick={() => moveRule(idx, 1)}
+              disabled={idx === rules.length - 1 || saving}
+            />
           </div>
-        </div>
-      )
+        );
+      },
     },
     {
       id: "conditions",
       header: "Conditions",
+      render: (row) => <span className="text-sm">{matchSummary(row)}</span>,
+    },
+    {
+      id: "routes",
+      header: "Routes (weight)",
       render: (row) => (
-        <div className="text-sm">
-          <div><span className="text-[var(--st-text-secondary)]">Dest:</span> {row.destination}</div>
-          <div><span className="text-[var(--st-text-secondary)]">Cat:</span> {row.category}</div>
-          {row.timeOfDay !== "Any" && <div><span className="text-[var(--st-text-secondary)]">Time:</span> {row.timeOfDay}</div>}
+        <div className="flex flex-col gap-1">
+          {row.routes.map((rt, i) => (
+            <div key={`${rt.providerAccountId}-${i}`} className="flex items-center gap-2 text-sm">
+              <span className="text-xs text-[var(--st-text-secondary)] w-4">{i + 1}.</span>
+              <span className="truncate">{accountLabel(rt.providerAccountId)}</span>
+              <Badge variant="secondary" className="text-[10px] px-1 py-0">
+                w{rt.weight}
+              </Badge>
+              <HealthBadge
+                health={health}
+                accountId={rt.providerAccountId}
+                country={row.match.country}
+              />
+            </div>
+          ))}
         </div>
-      )
-    },
-    {
-      id: "provider",
-      header: "Routes To",
-      render: (row) => <Badge variant="outline">{row.provider}</Badge>,
-    },
-    {
-      id: "simulation",
-      header: "Simulation",
-      render: (row) => (
-        <div className="text-sm">
-          <div><span className="text-[var(--st-text-secondary)]">Cost:</span> {row.costEst}/msg</div>
-          <div><span className="text-[var(--st-text-secondary)]">DLR:</span> {row.deliverabilityEst}</div>
-        </div>
-      )
-    },
-    {
-      id: "status",
-      header: "Status",
-      render: (row) => (
-        <Switch
-          checked={row.status === "active"}
-          onCheckedChange={() => {}}
-          aria-label="Toggle rule active status"
-        />
       ),
-    }
+    },
+    {
+      id: "sticky",
+      header: "Sticky",
+      width: "90px",
+      render: (row) =>
+        row.stickySender ? (
+          <Badge tone="accent" kind="outline">
+            sticky
+          </Badge>
+        ) : (
+          <span className="text-xs text-[var(--st-text-secondary)]">—</span>
+        ),
+    },
   ];
-
-  const columnDefs = columns.map(c => ({ id: c.id, label: typeof c.header === "string" ? c.header : c.id }));
-  const [visibleCols, setVisibleCols] = React.useState(columns.map(c => c.id));
-  const [density, setDensity] = React.useState<"compact" | "comfortable" | "cosy">("comfortable");
 
   return (
     <SabsmsPageShell
       title="Routing Rules"
       eyebrow="Infrastructure"
-      description="Manage SMS routing and failover strategies across multiple providers."
+      description="Cross-provider failover routing: ordered rules pick weighted provider accounts per destination; unhealthy accounts are skipped automatically."
       breadcrumbs={[{ label: "Infrastructure" }, { label: "Routing" }]}
-      primaryAction={{ label: "Create Rule", onClick: () => setSelectedRuleId("new") }}
-      secondaryActions={[
-        { label: "AI Optimization", icon: <Wand2 className="h-4 w-4" aria-hidden="true" /> },
-        { label: "Import Rule Set", icon: <Upload className="h-4 w-4" aria-hidden="true" /> },
-        { label: "Default Fallbacks", icon: <ArrowRightLeft className="h-4 w-4" aria-hidden="true" /> },
-        { label: "Compare Configs", icon: <Network className="h-4 w-4" aria-hidden="true" /> },
-        { label: "Audit Log", icon: <History className="h-4 w-4" aria-hidden="true" /> },
-      ]}
-      helpTitle="About Routing Rules"
-      helpBody="Routing rules allow you to define conditional logic for sending messages. Rules are evaluated top-to-bottom. The first matching rule determines the provider."
+      primaryAction={{ label: "Create Rule", onClick: () => openEditor(null) }}
+      helpTitle="About routing rules"
+      helpBody="Rules are evaluated top-to-bottom; the first rule whose conditions all match wins. Its routes are tried highest-weight first, failing over on synchronous provider rejections. Messages without a matching rule use the workspace default account — they never fail for lack of a policy."
       toolbar={
-        <div className="flex items-center gap-2 mb-4 flex-wrap">
-          <SabsmsFilterBar
-            searchPlaceholder="Search rules..."
-            sortOptions={SORT_OPTIONS}
-            defaultSort="priority_asc"
-            facets={[
-              {
-                key: "status",
-                label: "Status",
-                options: [
-                  { label: "Active", value: "active" },
-                  { label: "Inactive", value: "inactive" }
-                ],
-                multi: true
-              },
-              {
-                key: "category",
-                label: "Category",
-                options: [
-                  { label: "Marketing", value: "Marketing" },
-                  { label: "OTP", value: "OTP" },
-                  { label: "Alert", value: "Alert" }
-                ],
-                multi: true
-              }
-            ]}
-          />
-          <SabsmsSavedViews scope="routing" />
-          <SabsmsColumnPicker
-            columns={columnDefs}
-            visible={visibleCols}
-            onChange={setVisibleCols}
-          />
-          <SabsmsExportMenu
-            onExportCsv={() => console.log(rowsToCsv(MOCK_RULES, columns))}
-            onExportExcel={() => {}}
-            onExportJson={() => {}}
-          />
-          <SabsmsRefreshButton
-            isRefreshing={false}
-            onRefresh={() => {}}
-          />
+        <div className="flex items-center gap-2 mb-4">
+          <SabsmsRefreshButton onRefresh={load} />
+          {saving ? (
+            <span className="text-xs text-[var(--st-text-secondary)]">Saving…</span>
+          ) : null}
         </div>
       }
     >
-      <SabsmsKbdHint
-        shortcuts={[
-          { key: "c", description: "Create new rule" },
-          { key: "/", description: "Search rules" },
-          { key: "?", description: "Show keyboard shortcuts" }
-        ]}
-      />
+      {saveError ? (
+        <div className="mb-4">
+          <SabsmsErrorState message={saveError} onRetry={() => setSaveError(null)} />
+        </div>
+      ) : null}
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="md:col-span-3 space-y-4">
-          {/* F3: Conflict Detection Mock */}
-          <Card className="bg-[var(--st-bg-secondary)] border-[var(--st-border)] shadow-none">
-            <div className="flex items-start p-4 gap-3">
-              <AlertTriangle className="h-5 w-5 text-[var(--st-warn)] mt-0.5" aria-hidden="true" />
-              <div>
-                <h4 className="text-sm font-semibold text-[var(--st-text)]">Rule Conflict Detected</h4>
-                <p className="text-sm text-[var(--st-text-secondary)]">"US Marketing Primary" fully shadows "Global Alert Fallback" for US destinations.</p>
-              </div>
-            </div>
-          </Card>
-
-          <Card>
-            <SabsmsDataTable
-              columns={columns}
-              visibleColumnIds={visibleCols}
-              density={density}
-              selectable
-              rowKey={(r) => r.id}
-              selectedIds={Array.from(selectedRows)}
-              onSelectionChange={(ids) => setSelectedRows(new Set(ids))}
-              bulkActions={[
-                { label: "Activate", onSelect: () => {} },
-                { label: "Deactivate", onSelect: () => {} },
-                { label: "Delete", onSelect: () => {}, destructive: true }
-              ]}
-              rows={MOCK_RULES}
-              onRowClick={(row) => setSelectedRuleId(row.id)}
-              rowActions={[
-                { label: "Edit Rule", onSelect: (r) => setSelectedRuleId(r.id) },
-                { label: "Test Rule", onSelect: () => {} },
-                { label: "Rule Analytics", onSelect: () => {} },
-                { label: "View History", onSelect: () => {} },
-                { label: "Delete", onSelect: () => {}, destructive: true }
-              ]}
+          {loading ? (
+            <SabsmsTableSkeleton columns={4} rows={4} />
+          ) : loadError ? (
+            <SabsmsErrorState message={loadError} onRetry={load} />
+          ) : rules.length === 0 ? (
+            <SabsmsEmpty
+              icon={<Network />}
+              title="No routing rules yet"
+              description="All traffic currently uses each message's provider account (workspace default). Create a rule to route by country, category or prefix with cross-provider failover."
+              action={{ label: "Create rule", onClick: () => openEditor(null) }}
             />
-            <div className="p-4 border-t border-[var(--st-border)] flex justify-between items-center">
-              <div className="flex items-center gap-4">
-                <div className="text-sm text-[var(--st-text-secondary)]">Visual Rule Chain matches table order</div>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-[var(--st-text-secondary)]">Density:</span>
-                  <Select value={density} onValueChange={(v) => setDensity(v as "compact" | "comfortable" | "cosy")}>
-                    <SelectTrigger aria-label="Table density" className="h-8 w-36">
-                      <SelectValue placeholder="Density" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="compact">Compact</SelectItem>
-                      <SelectItem value="comfortable">Comfortable</SelectItem>
-                      <SelectItem value="cosy">Cosy</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <SabsmsPagination
-                page={parseInt(urlState.get("page") || "0", 10)}
-                pageSize={parseInt(urlState.get("pageSize") || "25", 10)}
-                total={100}
-                onPageChange={(p) => urlState.setOne("page", p)}
-                onPageSizeChange={(s) => urlState.setOne("pageSize", s)}
+          ) : (
+            <Card>
+              <SabsmsDataTable
+                columns={columns}
+                rows={rules}
+                rowKey={(r) => r.id}
+                onRowClick={(row) => openEditor(row)}
+                rowActions={[
+                  { label: "Edit rule", onSelect: (r) => openEditor(r) },
+                  {
+                    label: "Delete",
+                    onSelect: (r) => deleteRule(r.id),
+                    destructive: true,
+                  },
+                ]}
               />
-            </div>
-          </Card>
+              <div className="p-4 border-t border-[var(--st-border)] text-sm text-[var(--st-text-secondary)]">
+                Rules are evaluated top-to-bottom — the first match wins. Reorder with the arrows.
+              </div>
+            </Card>
+          )}
         </div>
 
         <div className="space-y-6">
-          <RouteTraceTool />
+          <RouteTraceTool accounts={accounts} />
 
           <Card>
             <CardHeader>
               <CardTitle className="text-base flex items-center gap-2">
-                <Activity className="h-4 w-4" aria-hidden="true" /> Global Fallbacks
+                <Activity className="h-4 w-4" aria-hidden="true" /> Fallback
               </CardTitle>
             </CardHeader>
-            <CardBody className="space-y-4">
-              <div className="text-sm text-[var(--st-text-secondary)]">If no rules match, messages will route using default fallbacks.</div>
-              <Button variant="outline" block>Edit Fallbacks</Button>
+            <CardBody className="space-y-3">
+              <div className="text-sm text-[var(--st-text-secondary)]">
+                When no rule matches, messages use their own provider account (or the workspace
+                default for that provider) — the pre-routing behaviour. Sends never fail for lack
+                of a policy.
+              </div>
+              {accounts.length === 0 ? (
+                <div className="text-sm text-[var(--st-warn)] flex items-start gap-2">
+                  <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" aria-hidden="true" />
+                  <span>
+                    No provider accounts configured yet — add one under Providers before creating
+                    rules.
+                  </span>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-1">
+                  {accounts.map((a) => (
+                    <div key={a.id} className="flex items-center gap-2 text-sm">
+                      <span className="truncate">
+                        {a.provider} · {a.id.slice(-6)}
+                      </span>
+                      {a.isDefault ? (
+                        <Badge variant="secondary" className="text-[10px] px-1 py-0">
+                          default
+                        </Badge>
+                      ) : null}
+                      <HealthBadge health={health} accountId={a.id} />
+                    </div>
+                  ))}
+                </div>
+              )}
             </CardBody>
           </Card>
         </div>
       </div>
 
       <SabsmsDetailDrawer
-        open={selectedRuleId !== null}
-        onOpenChange={(open) => { if (!open) setSelectedRuleId(null); }}
-        title={selectedRuleId === "new" ? "Create Rule" : "Edit Rule"}
-        description="Configure conditions, routing priority, and failovers."
-        footer={
-          <div className="flex gap-2 justify-end w-full">
-            <Button variant="outline" onClick={() => setSelectedRuleId(null)}>Cancel</Button>
-            <Button onClick={() => setSelectedRuleId(null)}>Save Rule</Button>
-          </div>
-        }
+        open={editingId !== null}
+        onOpenChange={(open) => {
+          if (!open) setEditingId(null);
+        }}
+        title={editingId === "new" ? "Create rule" : "Edit rule"}
+        description="Conditions, weighted failover routes, and sticky-sender behaviour."
       >
-        <div className="space-y-6 py-4">
-          {/* Rule Editor fields mock */}
-          <div className="space-y-4">
-            <Field label="Rule Name">
-              <Input
-                type="text"
-                defaultValue={selectedRuleId !== "new" ? MOCK_RULES.find(r => r.id === selectedRuleId)?.name : ""}
-              />
-            </Field>
-
-            <div className="pt-4 border-t border-[var(--st-border)]">
-              <h4 className="text-sm font-medium mb-3">Conditions</h4>
-              <div className="space-y-3">
-                <div className="grid grid-cols-2 gap-3">
-                  <Field label="Destination Country">
-                    <Select defaultValue="Any">
-                      <SelectTrigger aria-label="Destination country">
-                        <SelectValue placeholder="Select a country" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Any">Any</SelectItem>
-                        <SelectItem value="US (+1)">US (+1)</SelectItem>
-                        <SelectItem value="UK (+44)">UK (+44)</SelectItem>
-                        <SelectItem value="IN (+91)">IN (+91)</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </Field>
-                  <Field label="Category">
-                    <Select defaultValue="Any">
-                      <SelectTrigger aria-label="Category">
-                        <SelectValue placeholder="Select a category" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Any">Any</SelectItem>
-                        <SelectItem value="Marketing">Marketing</SelectItem>
-                        <SelectItem value="OTP">OTP</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </Field>
-                </div>
-                <Field label="Time of Day (Sender TZ)">
-                  <Select defaultValue="Any Time">
-                    <SelectTrigger aria-label="Time of day">
-                      <SelectValue placeholder="Select a window" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Any Time">Any Time</SelectItem>
-                      <SelectItem value="Business Hours (09:00 - 17:00)">Business Hours (09:00 - 17:00)</SelectItem>
-                      <SelectItem value="Night Shift (20:00 - 08:00)">Night Shift (20:00 - 08:00)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </Field>
-              </div>
-            </div>
-
-            <div className="pt-4 border-t border-[var(--st-border)]">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h4 className="text-sm font-medium">Routing Flow</h4>
-                  <p className="text-xs text-[var(--st-text-secondary)] mt-1">Define primary and fallback providers visually.</p>
-                </div>
-              </div>
-              <FallbackFlowBuilder />
-            </div>
+        <RuleEditor draft={draft} setDraft={setDraft} accounts={accounts} health={health} />
+        <div className="flex gap-2 justify-between w-full pt-4 mt-2 border-t border-[var(--st-border)]">
+          {editingId !== "new" && editingId ? (
+            <Button
+              variant="ghost"
+              iconLeft={Trash2}
+              onClick={() => {
+                deleteRule(editingId);
+                setEditingId(null);
+              }}
+            >
+              Delete
+            </Button>
+          ) : (
+            <span />
+          )}
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => setEditingId(null)}>
+              Cancel
+            </Button>
+            <Button onClick={saveDraft} disabled={saving}>
+              {saving ? "Saving…" : "Save rule"}
+            </Button>
           </div>
         </div>
       </SabsmsDetailDrawer>

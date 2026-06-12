@@ -10,8 +10,8 @@ use serde::Deserialize;
 use std::collections::HashMap;
 
 use super::{
-    estimate_segments, DlrEvent, InboundMessage, ProviderCreds, ProviderError, SendRequest,
-    SendResult, SmsProvider,
+    estimate_segments, DlrEvent, InboundMessage, ProviderCreds, ProviderError, SendOptions,
+    SendRequest, SendResult, SmsProvider,
 };
 use crate::types::{MessageStatus, ProviderId};
 
@@ -33,10 +33,14 @@ impl SmsProvider for MockProvider {
     async fn send(
         &self,
         req: SendRequest<'_>,
+        _opts: &SendOptions,
         _creds: &ProviderCreds,
     ) -> Result<SendResult, ProviderError> {
         if req.body.contains("[FAIL]") {
-            return Err(ProviderError::Rejected("mock forced failure".into()));
+            return Err(ProviderError::Rejected {
+                code: None,
+                message: "mock forced failure".into(),
+            });
         }
         if req.body.contains("[RETRY]") {
             return Err(ProviderError::Network("mock network error".into()));
@@ -142,7 +146,10 @@ mod tests {
     #[tokio::test]
     async fn send_ok_returns_mock_message_id() {
         let p = MockProvider::new();
-        let r = p.send(req("hello"), &creds()).await.unwrap();
+        let r = p
+            .send(req("hello"), &SendOptions::default(), &creds())
+            .await
+            .unwrap();
         assert!(r.provider_message_id.starts_with("mock-"));
         assert_eq!(r.status, MessageStatus::Sent);
         assert_eq!(r.segments, 1);
@@ -152,15 +159,21 @@ mod tests {
     #[tokio::test]
     async fn send_fail_marker_rejects() {
         let p = MockProvider::new();
-        let e = p.send(req("please [FAIL] now"), &creds()).await.unwrap_err();
-        assert!(matches!(e, ProviderError::Rejected(_)));
+        let e = p
+            .send(req("please [FAIL] now"), &SendOptions::default(), &creds())
+            .await
+            .unwrap_err();
+        assert!(matches!(e, ProviderError::Rejected { .. }));
         assert!(!e.is_retryable());
     }
 
     #[tokio::test]
     async fn send_retry_marker_is_retryable_network() {
         let p = MockProvider::new();
-        let e = p.send(req("x [RETRY] x"), &creds()).await.unwrap_err();
+        let e = p
+            .send(req("x [RETRY] x"), &SendOptions::default(), &creds())
+            .await
+            .unwrap_err();
         assert!(matches!(e, ProviderError::Network(_)));
         assert!(e.is_retryable());
     }
@@ -168,7 +181,10 @@ mod tests {
     #[tokio::test]
     async fn send_throttle_marker_is_retryable_throttled() {
         let p = MockProvider::new();
-        let e = p.send(req("x [THROTTLE] x"), &creds()).await.unwrap_err();
+        let e = p
+            .send(req("x [THROTTLE] x"), &SendOptions::default(), &creds())
+            .await
+            .unwrap_err();
         assert!(matches!(
             e,
             ProviderError::Throttled {

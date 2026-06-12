@@ -21,7 +21,8 @@ import { getCachedSession } from "@/lib/server-cache";
 import { SabsmsPageShell } from "@/components/sabsms/page-toolkit";
 
 import { AbTestsTable } from "./ab-tests-table";
-import { loadAbTests } from "./actions";
+import { loadAbTests, loadJourneyAbRows } from "./actions";
+import { JourneyAbList } from "./journey-ab-list";
 
 export const dynamic = "force-dynamic";
 
@@ -43,7 +44,10 @@ async function SabsmsAbTestsPageContent() {
     );
   }
 
-  const rows = await loadAbTests(workspaceId);
+  const [rows, journeyRows] = await Promise.all([
+    loadAbTests(workspaceId),
+    loadJourneyAbRows(),
+  ]);
 
   return (
     <SabsmsPageShell
@@ -74,6 +78,19 @@ async function SabsmsAbTestsPageContent() {
         </>
       }
     >
+      <section className="mb-8 space-y-3">
+        <div>
+          <h2 className="text-base font-semibold tracking-tight text-[var(--st-text)]">
+            Journey A/B steps
+          </h2>
+          <p className="text-xs text-[var(--st-text-secondary)]">
+            Variants on drip send-steps: deterministic split, auto-winner by reply rate
+            (click rate fallback) once every arm clears its sample gate.
+          </p>
+        </div>
+        <JourneyAbList rows={journeyRows} />
+      </section>
+
       <AbTestsTable rows={rows} />
     </SabsmsPageShell>
   );

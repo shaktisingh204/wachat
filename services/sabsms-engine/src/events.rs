@@ -39,6 +39,15 @@ pub enum EngineEvent {
         workspace_id: String,
         message_id: String,
     },
+    /// The V2.6 router advanced past a candidate — `from_account`
+    /// failed (or was circuit-skipped) and `to_account` is being tried.
+    RouteFailover {
+        workspace_id: String,
+        message_id: String,
+        from_account: String,
+        to_account: String,
+        reason: String,
+    },
     MessageInbound {
         workspace_id: String,
         message_id: String,
@@ -83,6 +92,7 @@ impl EngineEvent {
             EngineEvent::MessageSent { .. } => "messageSent",
             EngineEvent::MessageFailed { .. } => "messageFailed",
             EngineEvent::MessageDelivered { .. } => "messageDelivered",
+            EngineEvent::RouteFailover { .. } => "routeFailover",
             EngineEvent::MessageInbound { .. } => "messageInbound",
             EngineEvent::ContactUnsubscribed { .. } => "contactUnsubscribed",
             EngineEvent::ComplianceBlocked { .. } => "complianceBlocked",
@@ -158,6 +168,13 @@ mod tests {
                 workspace_id: "w".into(),
                 message_id: "m".into(),
             },
+            EngineEvent::RouteFailover {
+                workspace_id: "w".into(),
+                message_id: "m".into(),
+                from_account: "a1".into(),
+                to_account: "a2".into(),
+                reason: "blocked_by_carrier".into(),
+            },
             EngineEvent::MessageInbound {
                 workspace_id: "w".into(),
                 message_id: "m".into(),
@@ -209,6 +226,22 @@ mod tests {
         assert_eq!(v["kind"], "campaignPaused");
         assert_eq!(v["workspaceId"], "ws1");
         assert_eq!(v["campaignId"], "c1");
+    }
+
+    #[test]
+    fn route_failover_serializes_camel_case_accounts() {
+        let e = EngineEvent::RouteFailover {
+            workspace_id: "ws1".into(),
+            message_id: "m1".into(),
+            from_account: "acctA".into(),
+            to_account: "acctB".into(),
+            reason: "spam_filtered".into(),
+        };
+        let v = serde_json::to_value(&e).unwrap();
+        assert_eq!(v["kind"], "routeFailover");
+        assert_eq!(v["fromAccount"], "acctA");
+        assert_eq!(v["toAccount"], "acctB");
+        assert_eq!(v["reason"], "spam_filtered");
     }
 
     #[test]

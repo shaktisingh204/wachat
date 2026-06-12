@@ -156,6 +156,16 @@ pub struct EnqueueSendInput {
     pub event_key: Option<String>,
     #[serde(default)]
     pub media: Option<Vec<Media>>,
+    /// Resolved public URLs (R2) for MMS attachments — produced by the
+    /// Next side at enqueue time. The SabFiles metadata stays in `media`.
+    #[serde(default)]
+    pub media_urls: Option<Vec<String>>,
+    /// India DLT principal-entity id (PE_ID) for this message.
+    #[serde(default)]
+    pub dlt_entity_id: Option<String>,
+    /// India DLT content-template id (TE_ID) for this message.
+    #[serde(default)]
+    pub dlt_template_id: Option<String>,
     #[serde(default)]
     pub idempotency_key: Option<String>,
     #[serde(default)]
@@ -231,12 +241,19 @@ pub struct MessageDoc {
     pub body: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub media: Option<Vec<Media>>,
+    /// Resolved public URLs for MMS — mirror of `EnqueueSendInput.mediaUrls`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub media_urls: Option<Vec<String>>,
     pub category: MessageCategory,
     pub status: MessageStatus,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub error_code: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub error_message: Option<String>,
+    /// Provider-agnostic error code from `errors_map::normalize_error`,
+    /// stored alongside the raw provider `errorCode`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub normalized_code: Option<String>,
     pub provider: ProviderId,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub provider_account_id: Option<String>,
@@ -244,6 +261,13 @@ pub struct MessageDoc {
     pub provider_message_id: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub template_id: Option<String>,
+    /// Alphanumeric sender id (doubles as the DLT header for IN routes).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub sender_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub dlt_entity_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub dlt_template_id: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub campaign_id: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]

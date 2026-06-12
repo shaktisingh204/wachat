@@ -4,7 +4,11 @@ use std::collections::HashMap;
 
 use crate::types::{Channel, MessageCategory, MessageStatus, ProviderId};
 
+pub mod gupshup;
 pub mod mock;
+pub mod msg91;
+pub mod registry;
+pub mod telnyx;
 pub mod twilio;
 
 /// Decrypted provider credentials. The encrypted blob lives in
@@ -23,6 +27,31 @@ pub struct SendRequest<'a> {
     pub body: &'a str,
     pub channel: Channel,
     pub category: MessageCategory,
+}
+
+/// India DLT parameters attached to a send (MSG91 / Gupshup routes).
+#[derive(Clone, Debug, Default, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DltParams {
+    /// Principal-entity id (PE_ID).
+    pub entity_id: Option<String>,
+    /// Content-template id (TE_ID).
+    pub template_id: Option<String>,
+    /// Registered DLT header (sender id).
+    pub header: Option<String>,
+}
+
+/// Per-send options threaded through every adapter. Built by the worker
+/// from message-doc fields; adapters use what applies and ignore the rest.
+#[derive(Clone, Debug, Default, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SendOptions {
+    /// Resolved public media URLs (MMS). Twilio maps these to `MediaUrl`
+    /// form params; Telnyx to `media_urls`; MSG91/Gupshup ignore them.
+    pub media_urls: Vec<String>,
+    pub dlt: Option<DltParams>,
+    /// Per-message status-callback URL (when the provider supports one).
+    pub callback_url: Option<String>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -58,6 +87,7 @@ pub trait SmsProvider: Send + Sync {
     async fn send(
         &self,
         req: SendRequest<'_>,
+        opts: &SendOptions,
         creds: &ProviderCreds,
     ) -> Result<SendResult, ProviderError>;
 
@@ -84,8 +114,13 @@ pub enum ProviderError {
     InvalidCredentials,
     #[error("bad request: {0}")]
     BadRequest(String),
-    #[error("provider rejected: {0}")]
-    Rejected(String),
+    #[error("provider rejected ({}): {message}", code.as_deref().unwrap_or("-"))]
+    Rejected {
+        /// Raw provider error code (e.g. Twilio "21211") when one was
+        /// returned — feeds `errors_map::normalize_error`.
+        code: Option<String>,
+        message: String,
+    },
     #[error("network: {0}")]
     Network(String),
     #[error("throttled by provider")]
@@ -102,15 +137,13 @@ impl ProviderError {
             ProviderError::Network(_) | ProviderError::Throttled { .. }
         )
     }
-}
 
-/// Build the adapter for a provider id. Returns `None` for providers
-/// that don't have an engine implementation yet.
-pub fn adapter_for(provider: ProviderId, http: reqwest::Client) -> Option<Box<dyn SmsProvider>> {
-    match provider {
-        ProviderId::Twilio => Some(Box::new(twilio::TwilioProvider::new(http))),
-        ProviderId::Mock => Some(Box::new(mock::MockProvider::new())),
-        _ => None,
+    /// Raw provider error code, when the failure carried one.
+    pub fn provider_code(&self) -> Option<&str> {
+        match self {
+            ProviderError::Rejected { code, .. } => code.as_deref(),
+            _ => None,
+        }
     }
 }
 
@@ -174,6 +207,36 @@ fn is_gsm7_char(c: char) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn send_options_serialize_camel_case() {
+        let opts = SendOptions {
+            media_urls: vec!["https://r2.example.com/a.jpg".into()],
+            dlt: Some(DltParams {
+                entity_id: Some("PE1".into()),
+                template_id: Some("TE1".into()),
+                header: Some("SABNDE".into()),
+            }),
+            callback_url: Some("https://cb.example.com".into()),
+        };
+        let v = serde_json::to_value(&opts).unwrap();
+        assert_eq!(v["mediaUrls"][0], "https://r2.example.com/a.jpg");
+        assert_eq!(v["dlt"]["entityId"], "PE1");
+        assert_eq!(v["dlt"]["templateId"], "TE1");
+        assert_eq!(v["dlt"]["header"], "SABNDE");
+        assert_eq!(v["callbackUrl"], "https://cb.example.com");
+    }
+
+    #[test]
+    fn rejected_error_exposes_provider_code() {
+        let e = ProviderError::Rejected {
+            code: Some("21211".into()),
+            message: "invalid To".into(),
+        };
+        assert_eq!(e.provider_code(), Some("21211"));
+        assert!(!e.is_retryable());
+        assert!(ProviderError::Network("x".into()).provider_code().is_none());
+    }
 
     #[test]
     fn gsm_short_one_segment() {

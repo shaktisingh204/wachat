@@ -17,6 +17,7 @@ pub const COL_CONSENT_LOG: &str = "sabsms_consent_log";
 pub const COL_KEYWORD_RULES: &str = "sabsms_keyword_rules";
 pub const COL_CAMPAIGNS: &str = "sabsms_campaigns";
 pub const COL_CAMPAIGN_RECIPIENTS: &str = "sabsms_campaign_recipients";
+pub const COL_ROUTING_POLICIES: &str = "sabsms_routing_policies";
 
 /// True when a Mongo error is an E11000 duplicate-key write error —
 /// used to detect idempotent re-deliveries (webhook retries) and
@@ -155,6 +156,16 @@ pub async fn ensure_indexes(db: &Database) -> Result<()> {
             .build()])
         .await
         .context("creating keyword rules indexes")?;
+
+    // routing policies — single doc per workspace (V2.6 router)
+    let routing_policies = db.collection::<mongodb::bson::Document>(COL_ROUTING_POLICIES);
+    routing_policies
+        .create_indexes(vec![IndexModel::builder()
+            .keys(doc! { "workspaceId": 1 })
+            .options(IndexOptions::builder().unique(true).build())
+            .build()])
+        .await
+        .context("creating routing policy indexes")?;
 
     Ok(())
 }

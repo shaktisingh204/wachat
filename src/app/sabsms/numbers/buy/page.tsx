@@ -1,132 +1,187 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { 
-  Search, Filter, PhoneCall, MessageSquare, 
-  Image as ImageIcon, Globe, RefreshCcw, 
-  ShoppingCart, Info, CheckCircle2, ChevronDown, 
-  SlidersHorizontal, MapPin
+import React, { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import {
+  Search,
+  PhoneCall,
+  MessageSquare,
+  Image as ImageIcon,
+  RefreshCcw,
+  ShoppingCart,
+  MapPin,
+  BadgeCheck,
 } from "lucide-react";
-import { Button, Input, Card, CardBody, CardHeader, CardTitle, CardDescription, CardFooter, Badge, Checkbox, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/sabcrm/20ui';
 import { toast } from "sonner";
-import { searchNumbers, getRecommendedNumbers, checkoutNumbers, PhoneNumber } from "./actions";
+
+import {
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+  Checkbox,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  Input,
+  Label,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+} from "@/components/sabcrm/20ui";
+import type { SabsmsAvailableNumber } from "@/lib/sabsms/types";
+
+import {
+  searchAvailableNumbersAction,
+  provisionNumberAction,
+  registerSenderIdAction,
+} from "./actions";
+
+const COUNTRIES: Array<{ value: string; label: string }> = [
+  { value: "US", label: "🇺🇸 United States (+1)" },
+  { value: "CA", label: "🇨🇦 Canada (+1)" },
+  { value: "GB", label: "🇬🇧 United Kingdom (+44)" },
+  { value: "AU", label: "🇦🇺 Australia (+61)" },
+  { value: "IN", label: "🇮🇳 India (+91)" },
+];
+
+function formatMonthlyCost(cents: number | null | undefined, currency?: string | null): string {
+  if (cents === null || cents === undefined) return "—";
+  const amount = (cents / 100).toFixed(2);
+  const cur = currency ?? "USD";
+  return cur === "USD" ? `$${amount}` : `${amount} ${cur}`;
+}
+
+const TYPE_LABELS: Record<string, string> = {
+  longcode: "Longcode",
+  tollfree: "Toll-free",
+  mobile: "Mobile",
+};
 
 export default function BuyNumbersPage() {
-  const [isSearching, setIsSearching] = useState(false);
-  const [results, setResults] = useState<PhoneNumber[]>([]);
-  const [selectedNumbers, setSelectedNumbers] = useState<Set<string>>(new Set());
-  const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
-  const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const router = useRouter();
 
-  // Filters State
-  const [country, setCountry] = useState("us");
-  const [numberType, setNumberType] = useState("any");
-  const [searchPhrase, setSearchPhrase] = useState("");
-  const [matchCriteria, setMatchCriteria] = useState("anywhere");
-  
-  const [capVoice, setCapVoice] = useState(true);
+  // Search state
+  const [provider, setProvider] = useState<"twilio" | "telnyx">("twilio");
+  const [country, setCountry] = useState("US");
   const [capSms, setCapSms] = useState(true);
   const [capMms, setCapMms] = useState(false);
+  const [capVoice, setCapVoice] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
+  const [results, setResults] = useState<SabsmsAvailableNumber[]>([]);
 
-  useEffect(() => {
-    // Recommend numbers based on user's highest traffic regions on load
-    async function fetchRecommended() {
-      setIsSearching(true);
-      try {
-        const recommended = await getRecommendedNumbers();
-        setResults(recommended);
-      } catch (err) {
-        toast.error("Failed to fetch recommended numbers.");
-      } finally {
-        setIsSearching(false);
-      }
-    }
-    fetchRecommended();
-  }, []);
+  // Buy confirm state
+  const [buyTarget, setBuyTarget] = useState<SabsmsAvailableNumber | null>(null);
+  const [isBuying, setIsBuying] = useState(false);
+
+  // Sender ID registration state
+  const [sidProvider, setSidProvider] = useState<"msg91" | "gupshup">("msg91");
+  const [sidValue, setSidValue] = useState("");
+  const [sidDltHeaderId, setSidDltHeaderId] = useState("");
+  const [sidCountry, setSidCountry] = useState("IN");
+  const [isRegistering, setIsRegistering] = useState(false);
 
   const handleSearch = async () => {
     setIsSearching(true);
-    setSelectedNumbers(new Set()); // Reset selections on new search
     try {
-      const searchResults = await searchNumbers({
+      const capabilities = [
+        ...(capSms ? ["sms"] : []),
+        ...(capMms ? ["mms"] : []),
+        ...(capVoice ? ["voice"] : []),
+      ];
+      const res = await searchAvailableNumbersAction({
+        provider,
         country,
-        type: numberType,
-        contains: searchPhrase,
-        matchType: matchCriteria,
-        capabilities: {
-          voice: capVoice,
-          sms: capSms,
-          mms: capMms,
-        }
+        ...(capabilities.length > 0 ? { capabilities } : {}),
       });
-      setResults(searchResults);
-      if (searchResults.length === 0) {
-        toast.info("No numbers found matching your criteria.");
+      setHasSearched(true);
+      if (res.success) {
+        setResults(res.numbers);
+        if (res.numbers.length === 0) {
+          toast.info("No numbers found matching your criteria.");
+        }
+      } else {
+        setResults([]);
+        toast.error(res.error);
       }
-    } catch (err) {
-      toast.error("Failed to perform search.");
+    } catch {
+      toast.error("Search failed.");
     } finally {
       setIsSearching(false);
     }
   };
 
-  const handleClearFilters = () => {
-    setCountry("us");
-    setNumberType("any");
-    setSearchPhrase("");
-    setMatchCriteria("anywhere");
-    setCapVoice(true);
-    setCapSms(true);
-    setCapMms(false);
-  };
-
-  const toggleNumberSelection = (id: string) => {
-    const newSelection = new Set(selectedNumbers);
-    if (newSelection.has(id)) {
-      newSelection.delete(id);
-    } else {
-      newSelection.add(id);
-    }
-    setSelectedNumbers(newSelection);
-  };
-
-  const selectAll = () => {
-    if (selectedNumbers.size === results.length) {
-      setSelectedNumbers(new Set());
-    } else {
-      setSelectedNumbers(new Set(results.map(r => r.id)));
-    }
-  };
-
-  const handleCheckout = async () => {
-    setIsCheckingOut(true);
+  const handleBuy = async () => {
+    if (!buyTarget) return;
+    setIsBuying(true);
     try {
-      const response = await checkoutNumbers(Array.from(selectedNumbers));
-      if (response.success) {
-        toast.success(response.message);
-        setIsCheckoutModalOpen(false);
-        setSelectedNumbers(new Set());
-        // Optionally refresh inventory
-        handleSearch();
+      const res = await provisionNumberAction({
+        provider,
+        phoneNumber: buyTarget.phoneNumber,
+      });
+      if (res.success) {
+        toast.success(`Provisioned ${res.e164}`, {
+          action: { label: "View numbers", onClick: () => router.push("/sabsms/numbers") },
+        });
+        setBuyTarget(null);
+        setResults((prev) => prev.filter((n) => n.phoneNumber !== buyTarget.phoneNumber));
       } else {
-        toast.error(response.message);
+        toast.error(res.error);
       }
-    } catch (err) {
-      toast.error("Failed to checkout selected numbers.");
+    } catch {
+      toast.error("Failed to provision number.");
     } finally {
-      setIsCheckingOut(false);
+      setIsBuying(false);
     }
   };
 
-  const selectedTotalMonthly = Array.from(selectedNumbers).reduce((acc, id) => {
-    const num = results.find(r => r.id === id);
-    return acc + (num?.monthlyPrice || 0);
-  }, 0);
+  const handleRegisterSenderId = async () => {
+    setIsRegistering(true);
+    try {
+      const res = await registerSenderIdAction({
+        provider: sidProvider,
+        senderId: sidValue,
+        dltHeaderId: sidDltHeaderId.trim() || undefined,
+        country: sidCountry,
+      });
+      if (res.success) {
+        toast.success(`Sender ID ${res.senderId} registered`, {
+          action: { label: "View numbers", onClick: () => router.push("/sabsms/numbers") },
+        });
+        setSidValue("");
+        setSidDltHeaderId("");
+      } else {
+        toast.error(res.error);
+      }
+    } catch {
+      toast.error("Failed to register sender ID.");
+    } finally {
+      setIsRegistering(false);
+    }
+  };
 
-  const selectedTotalSetup = Array.from(selectedNumbers).reduce((acc, id) => {
-    const num = results.find(r => r.id === id);
-    return acc + (num?.setupFee || 0);
-  }, 0);
+  const capChip = (label: string, on: boolean) => (
+    <Badge variant={on ? "default" : "secondary"} className="text-[10px]">
+      {label}
+    </Badge>
+  );
 
   return (
     <div className="flex flex-col gap-6 p-6 min-h-screen bg-[var(--st-bg)]">
@@ -134,245 +189,165 @@ export default function BuyNumbersPage() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-[var(--st-text)]">Buy Numbers</h1>
           <p className="text-[var(--st-text-secondary)] mt-1">
-            Search and provision phone numbers from over 100 countries.
+            Search and provision phone numbers through your connected Twilio or Telnyx account.
           </p>
         </div>
-        <div className="flex items-center gap-3">
-          <Button variant="outline" className="gap-2" onClick={handleSearch} disabled={isSearching}>
-            <RefreshCcw className={`h-4 w-4 ${isSearching ? 'animate-spin' : ''}`} />
-            Refresh Inventory
-          </Button>
-          <Button 
-            className="gap-2" 
-            disabled={selectedNumbers.size === 0}
-            onClick={() => setIsCheckoutModalOpen(true)}
-          >
-            <ShoppingCart className="h-4 w-4" />
-            Buy Selected ({selectedNumbers.size})
-          </Button>
-        </div>
+        <Button variant="outline" asChild>
+          <Link href="/sabsms/numbers">Back to numbers</Link>
+        </Button>
       </div>
 
-      {/* Dense Search Interface */}
-      <Card className="border-[var(--st-border)] dark:border-[var(--st-border)] shadow-sm">
-        <CardHeader className="pb-4">
-          <div className="flex items-center gap-2">
-            <SlidersHorizontal className="h-5 w-5 text-[var(--st-text)]" />
-            <CardTitle className="text-lg">Advanced Search</CardTitle>
-          </div>
-          <CardDescription>Use granular filters to find the exact numbers you need.</CardDescription>
+      {/* Search */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Search available numbers</CardTitle>
+          <CardDescription>
+            Inventory is fetched live from the provider with your workspace credentials.
+          </CardDescription>
         </CardHeader>
         <CardBody>
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="space-y-3">
+              <Label>Provider</Label>
+              <Select value={provider} onValueChange={(v) => setProvider(v as "twilio" | "telnyx")}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select provider" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="twilio">Twilio</SelectItem>
+                  <SelectItem value="telnyx">Telnyx</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
             <div className="space-y-3">
               <Label>Country</Label>
               <Select value={country} onValueChange={setCountry}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select Country" />
+                  <SelectValue placeholder="Select country" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="us">🇺🇸 United States (+1)</SelectItem>
-                  <SelectItem value="gb">🇬🇧 United Kingdom (+44)</SelectItem>
-                  <SelectItem value="au">🇦🇺 Australia (+61)</SelectItem>
-                  <SelectItem value="ca">🇨🇦 Canada (+1)</SelectItem>
-                  <SelectItem value="in">🇮🇳 India (+91)</SelectItem>
+                  {COUNTRIES.map((c) => (
+                    <SelectItem key={c.value} value={c.value}>
+                      {c.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
-            
             <div className="space-y-3">
-              <Label>Number Type</Label>
-              <Select value={numberType} onValueChange={setNumberType}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Any Type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="any">Any Type</SelectItem>
-                  <SelectItem value="local">Local</SelectItem>
-                  <SelectItem value="mobile">Mobile</SelectItem>
-                  <SelectItem value="toll-free">Toll-Free</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-3">
-              <Label>Search by Digits or Phrases</Label>
-              <div className="flex w-full items-center space-x-2">
-                <Input 
-                  type="text" 
-                  placeholder="e.g. 415 or CODE" 
-                  className="flex-1" 
-                  value={searchPhrase}
-                  onChange={(e) => setSearchPhrase(e.target.value)}
-                />
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <Label>Match Criteria</Label>
-              <Select value={matchCriteria} onValueChange={setMatchCriteria}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Match Anywhere" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="anywhere">Match Anywhere</SelectItem>
-                  <SelectItem value="start">Starts With</SelectItem>
-                  <SelectItem value="end">Ends With</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <div className="mt-6 pt-6 border-t border-[var(--st-border)] dark:border-[var(--st-border)]">
-            <Label className="mb-3 block">Required Capabilities</Label>
-            <div className="flex flex-wrap gap-6">
-              <div className="flex items-center space-x-2">
-                <Checkbox id="cap-voice" checked={capVoice} onCheckedChange={(c) => setCapVoice(c as boolean)} />
-                <label
-                  htmlFor="cap-voice"
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center gap-2"
-                >
-                  <PhoneCall className="h-4 w-4 text-[var(--st-text)]" />
-                  Voice
-                </label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Checkbox id="cap-sms" checked={capSms} onCheckedChange={(c) => setCapSms(c as boolean)} />
-                <label
-                  htmlFor="cap-sms"
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center gap-2"
-                >
-                  <MessageSquare className="h-4 w-4 text-[var(--st-text)]" />
-                  SMS
-                </label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Checkbox id="cap-mms" checked={capMms} onCheckedChange={(c) => setCapMms(c as boolean)} />
-                <label
-                  htmlFor="cap-mms"
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center gap-2"
-                >
-                  <ImageIcon className="h-4 w-4 text-[var(--st-text)]" />
-                  MMS
-                </label>
+              <Label>Required capabilities</Label>
+              <div className="flex flex-wrap gap-5 pt-1">
+                <div className="flex items-center space-x-2">
+                  <Checkbox id="cap-sms" checked={capSms} onChange={(e) => setCapSms(e.target.checked)} />
+                  <label htmlFor="cap-sms" className="text-sm font-medium flex items-center gap-2">
+                    <MessageSquare className="h-4 w-4 text-[var(--st-text)]" aria-hidden="true" />
+                    SMS
+                  </label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox id="cap-mms" checked={capMms} onChange={(e) => setCapMms(e.target.checked)} />
+                  <label htmlFor="cap-mms" className="text-sm font-medium flex items-center gap-2">
+                    <ImageIcon className="h-4 w-4 text-[var(--st-text)]" aria-hidden="true" />
+                    MMS
+                  </label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox id="cap-voice" checked={capVoice} onChange={(e) => setCapVoice(e.target.checked)} />
+                  <label htmlFor="cap-voice" className="text-sm font-medium flex items-center gap-2">
+                    <PhoneCall className="h-4 w-4 text-[var(--st-text)]" aria-hidden="true" />
+                    Voice
+                  </label>
+                </div>
               </div>
             </div>
           </div>
         </CardBody>
-        <CardFooter className="bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/50 flex justify-between items-center py-4 border-t border-[var(--st-border)] dark:border-[var(--st-border)] rounded-b-xl">
-          <Button variant="ghost" className="text-[var(--st-text)]" onClick={handleClearFilters}>
-            Clear Filters
-          </Button>
+        <CardFooter className="flex justify-end border-t border-[var(--st-border)] py-4">
           <Button onClick={handleSearch} disabled={isSearching} className="gap-2 min-w-[120px]">
             {isSearching ? (
-              <RefreshCcw className="h-4 w-4 animate-spin" />
+              <RefreshCcw className="h-4 w-4 animate-spin" aria-hidden="true" />
             ) : (
-              <Search className="h-4 w-4" />
+              <Search className="h-4 w-4" aria-hidden="true" />
             )}
             Search
           </Button>
         </CardFooter>
       </Card>
 
-      {/* Results Table */}
-      <Card className="border-[var(--st-border)] dark:border-[var(--st-border)] shadow-sm overflow-hidden">
-        <CardHeader className="bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/50 border-b border-[var(--st-border)] dark:border-[var(--st-border)] pb-4">
-          <div className="flex justify-between items-center">
-            <div>
-              <CardTitle className="text-lg">Available Inventory</CardTitle>
-              <CardDescription>Showing {results.length} results matching your criteria.</CardDescription>
-            </div>
-          </div>
+      {/* Results */}
+      <Card className="overflow-hidden">
+        <CardHeader className="border-b border-[var(--st-border)] pb-4">
+          <CardTitle className="text-lg">Available inventory</CardTitle>
+          <CardDescription>
+            {hasSearched
+              ? `${results.length} result${results.length === 1 ? "" : "s"} from ${provider === "twilio" ? "Twilio" : "Telnyx"}.`
+              : "Run a search to load live inventory."}
+          </CardDescription>
         </CardHeader>
         <div className="overflow-x-auto">
           <Table>
             <THead>
-              <Tr className="bg-[var(--st-bg-muted)]/50 dark:bg-[var(--st-text)]/20 hover:bg-[var(--st-bg-muted)]/50 dark:hover:bg-[var(--st-text)]/20">
-                <Th className="w-[50px]">
-                  <Checkbox 
-                    checked={selectedNumbers.size === results.length && results.length > 0}
-                    onCheckedChange={selectAll}
-                  />
-                </Th>
+              <Tr>
                 <Th>Number</Th>
                 <Th>Type</Th>
                 <Th>Region</Th>
                 <Th>Capabilities</Th>
-                <Th className="text-right">Price (Monthly)</Th>
+                <Th className="text-right">Monthly cost</Th>
                 <Th className="w-[100px]"></Th>
               </Tr>
             </THead>
             <TBody>
               {results.length === 0 ? (
                 <Tr>
-                  <Td colSpan={7} className="text-center h-32 text-[var(--st-text)]">
-                    {isSearching ? "Searching..." : "No numbers found matching your criteria."}
+                  <Td colSpan={6} className="text-center h-32 text-[var(--st-text-secondary)]">
+                    {isSearching
+                      ? "Searching..."
+                      : hasSearched
+                        ? "No numbers found matching your criteria."
+                        : "No results yet — choose a provider and country, then search."}
                   </Td>
                 </Tr>
               ) : (
                 results.map((item) => (
-                  <Tr key={item.id} className="group">
+                  <Tr key={item.phoneNumber}>
                     <Td>
-                      <Checkbox 
-                        checked={selectedNumbers.has(item.id)}
-                        onCheckedChange={() => toggleNumberSelection(item.id)}
-                      />
-                    </Td>
-                    <Td>
-                      <div className="font-medium text-[var(--st-text)] dark:text-white flex items-center gap-2">
-                        {item.friendlyName}
+                      <div className="font-mono font-medium text-[var(--st-text)]">
+                        {item.phoneNumber}
                       </div>
-                      <div className="text-xs text-[var(--st-text)] flex items-center gap-1 mt-1">
-                        <Globe className="h-3 w-3" />
-                        {item.country}
-                      </div>
-                    </Td>
-                    <Td>
-                      <Badge variant="secondary" className="font-normal text-xs">
-                        {item.type}
-                      </Badge>
-                    </Td>
-                    <Td>
-                      <div className="flex items-center gap-1.5 text-sm text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
-                        <MapPin className="h-3.5 w-3.5" />
-                        {item.region}
-                      </div>
-                    </Td>
-                    <Td>
-                      <div className="flex gap-2">
-                        {item.capabilities.voice && (
-                          <div className="bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/30 dark:text-[var(--st-text-secondary)] p-1.5 rounded-md" title="Voice">
-                            <PhoneCall className="h-3.5 w-3.5" />
-                          </div>
-                        )}
-                        {item.capabilities.sms && (
-                          <div className="bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/30 dark:text-[var(--st-text-secondary)] p-1.5 rounded-md" title="SMS">
-                            <MessageSquare className="h-3.5 w-3.5" />
-                          </div>
-                        )}
-                        {item.capabilities.mms && (
-                          <div className="bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/30 dark:text-[var(--st-text-secondary)] p-1.5 rounded-md" title="MMS">
-                            <ImageIcon className="h-3.5 w-3.5" />
-                          </div>
-                        )}
-                      </div>
-                    </Td>
-                    <Td className="text-right">
-                      <div className="font-medium">${item.monthlyPrice.toFixed(2)}</div>
-                      {item.setupFee > 0 && (
-                        <div className="text-xs text-[var(--st-text)]">
-                          +${item.setupFee.toFixed(2)} setup
+                      {item.friendlyName && (
+                        <div className="text-xs text-[var(--st-text-secondary)] mt-0.5">
+                          {item.friendlyName}
                         </div>
                       )}
                     </Td>
                     <Td>
-                      <Button 
-                        variant={selectedNumbers.has(item.id) ? "secondary" : "default"} 
-                        size="sm" 
-                        className="w-full"
-                        onClick={() => toggleNumberSelection(item.id)}
-                      >
-                        {selectedNumbers.has(item.id) ? "Selected" : "Add"}
+                      <Badge variant="secondary" className="font-normal text-xs">
+                        {TYPE_LABELS[item.type] ?? item.type}
+                      </Badge>
+                    </Td>
+                    <Td>
+                      <div className="flex items-center gap-1.5 text-sm text-[var(--st-text)]">
+                        <MapPin className="h-3.5 w-3.5" aria-hidden="true" />
+                        {item.region ?? "—"}
+                      </div>
+                    </Td>
+                    <Td>
+                      <div className="flex flex-wrap gap-1">
+                        {capChip("SMS", item.capabilities.sms)}
+                        {capChip("MMS", item.capabilities.mms)}
+                        {capChip("RCS", item.capabilities.rcs)}
+                        {capChip("Voice", item.capabilities.voice)}
+                      </div>
+                    </Td>
+                    <Td className="text-right">
+                      <span className="font-medium">
+                        {formatMonthlyCost(item.monthlyCost, item.currency)}
+                      </span>
+                    </Td>
+                    <Td>
+                      <Button size="sm" className="w-full gap-1" onClick={() => setBuyTarget(item)}>
+                        <ShoppingCart className="h-3.5 w-3.5" aria-hidden="true" />
+                        Buy
                       </Button>
                     </Td>
                   </Tr>
@@ -383,35 +358,107 @@ export default function BuyNumbersPage() {
         </div>
       </Card>
 
-      <Dialog open={isCheckoutModalOpen} onOpenChange={setIsCheckoutModalOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Confirm Purchase</DialogTitle>
-            <DialogDescription>
-              You are about to purchase {selectedNumbers.size} number(s).
-            </DialogDescription>
-          </DialogHeader>
-          <div className="py-4">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-sm font-medium">Monthly Recurring:</span>
-              <span className="font-semibold">${selectedTotalMonthly.toFixed(2)}</span>
+      {/* Alphanumeric sender ID registration */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg flex items-center gap-2">
+            <BadgeCheck className="h-5 w-5 text-[var(--st-text)]" aria-hidden="true" />
+            Register an alphanumeric sender ID (MSG91 / Gupshup)
+          </CardTitle>
+          <CardDescription>
+            Sender IDs are approved by the provider (and DLT in India) — register the approved ID
+            here so SabSMS can route sends with it.
+          </CardDescription>
+        </CardHeader>
+        <CardBody>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="space-y-3">
+              <Label>Provider</Label>
+              <Select value={sidProvider} onValueChange={(v) => setSidProvider(v as "msg91" | "gupshup")}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select provider" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="msg91">MSG91</SelectItem>
+                  <SelectItem value="gupshup">Gupshup</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-            <div className="flex justify-between items-center text-[var(--st-text)] text-sm">
-              <span>One-time Setup Fees:</span>
-              <span>${selectedTotalSetup.toFixed(2)}</span>
+            <div className="space-y-3">
+              <Label htmlFor="sid-value">Sender ID</Label>
+              <Input
+                id="sid-value"
+                placeholder="e.g. SABSMS (3-11 alphanumeric)"
+                value={sidValue}
+                onChange={(e) => setSidValue(e.target.value)}
+                maxLength={11}
+              />
             </div>
-            <div className="border-t mt-4 pt-4 flex justify-between items-center">
-              <span className="text-sm font-bold">Total Due Today:</span>
-              <span className="font-bold text-lg">${(selectedTotalMonthly + selectedTotalSetup).toFixed(2)}</span>
+            <div className="space-y-3">
+              <Label htmlFor="sid-dlt">DLT header ID (India)</Label>
+              <Input
+                id="sid-dlt"
+                placeholder="Optional"
+                value={sidDltHeaderId}
+                onChange={(e) => setSidDltHeaderId(e.target.value)}
+              />
+            </div>
+            <div className="space-y-3">
+              <Label>Country</Label>
+              <Select value={sidCountry} onValueChange={setSidCountry}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select country" />
+                </SelectTrigger>
+                <SelectContent>
+                  {COUNTRIES.map((c) => (
+                    <SelectItem key={c.value} value={c.value}>
+                      {c.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
+        </CardBody>
+        <CardFooter className="flex justify-end border-t border-[var(--st-border)] py-4">
+          <Button onClick={handleRegisterSenderId} disabled={isRegistering || !sidValue.trim()}>
+            {isRegistering ? "Registering..." : "Register sender ID"}
+          </Button>
+        </CardFooter>
+      </Card>
+
+      {/* Buy confirm dialog */}
+      <Dialog open={!!buyTarget} onOpenChange={(open) => { if (!open) setBuyTarget(null); }}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Confirm purchase</DialogTitle>
+            <DialogDescription>
+              Provision {buyTarget?.phoneNumber} via{" "}
+              {provider === "twilio" ? "Twilio" : "Telnyx"}?
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-2 space-y-2 text-sm">
+            <div className="flex justify-between">
+              <span className="text-[var(--st-text-secondary)]">Monthly cost</span>
+              <span className="font-medium">
+                {formatMonthlyCost(buyTarget?.monthlyCost, buyTarget?.currency)}
+              </span>
+            </div>
+            <p className="text-xs text-[var(--st-text-secondary)]">
+              Billed monthly by the provider to your connected account.
+            </p>
+          </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsCheckoutModalOpen(false)} disabled={isCheckingOut}>
+            <Button variant="outline" onClick={() => setBuyTarget(null)} disabled={isBuying}>
               Cancel
             </Button>
-            <Button onClick={handleCheckout} disabled={isCheckingOut} className="gap-2">
-              {isCheckingOut ? <RefreshCcw className="h-4 w-4 animate-spin" /> : <ShoppingCart className="h-4 w-4" />}
-              {isCheckingOut ? "Processing..." : "Confirm Purchase"}
+            <Button onClick={handleBuy} disabled={isBuying} className="gap-2">
+              {isBuying ? (
+                <RefreshCcw className="h-4 w-4 animate-spin" aria-hidden="true" />
+              ) : (
+                <ShoppingCart className="h-4 w-4" aria-hidden="true" />
+              )}
+              {isBuying ? "Provisioning..." : "Confirm purchase"}
             </Button>
           </DialogFooter>
         </DialogContent>

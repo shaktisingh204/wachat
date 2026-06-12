@@ -31,6 +31,11 @@ import os from 'node:os';
 import Redis from 'ioredis';
 import { MongoClient, type Collection, type Db } from 'mongodb';
 
+// V2.9 — journeys ride the same worker process (handlers + 5 s ticker).
+import { tickJourneys } from '../journeys/executor';
+import { registerJourneyEventHandlers } from '../journeys/handlers';
+import { createMongoJourneyStore, ensureJourneyIndexes } from '../journeys/store';
+
 // ─── Constants (mirror services/sabsms-engine/src/events.rs) ─────────────
 
 export const SABSMS_EVENTS_STREAM = 'sabsms:events';
@@ -139,6 +144,12 @@ export interface HandlerContext {
   redis: Pick<Redis, 'set'>;
   eventLog: Pick<Collection, 'updateOne'>;
   log: (message: string, extra?: Record<string, unknown>) => void;
+  /**
+   * Mongo handle for handlers that need their own collections (V2.9
+   * journeys). Optional — pure-router unit tests omit it and the
+   * journey handlers no-op without it.
+   */
+  db?: Db;
 }
 
 export type SabsmsEventHandler = (
@@ -235,6 +246,10 @@ export function createDefaultRouter(): SabsmsEventRouter {
     );
   });
 
+  // V2.9 — journey reactions (wake/exit/enrol). Additive: each handler
+  // no-ops when `ctx.db` is absent, so V2.2 behaviour is unchanged.
+  registerJourneyEventHandlers(router);
+
   return router;
 }
 
@@ -247,6 +262,10 @@ export interface SabsmsEventsConsumerOptions {
   blockMs?: number;
   batchSize?: number;
   autoclaimIntervalMs?: number;
+  /** V2.9 journey executor tick interval (default 5 s). */
+  journeyTickMs?: number;
+  /** Disable the in-process journey ticker (tests / secondary consumers). */
+  disableJourneyTicker?: boolean;
 }
 
 export interface SabsmsEventsConsumer {
@@ -347,6 +366,35 @@ export async function runSabsmsEventsConsumer(
   let running = true;
   let lastAutoclaimAt = 0;
 
+  // ─── V2.9 journey ticker ────────────────────────────────────────────
+  // The journey executor shares this worker process (it already owns the
+  // Mongo handle + lifecycle): a 5 s interval claims due runs and sweeps
+  // A/B promotions. Overlap-guarded so a slow tick never stacks.
+  let journeyTicker: ReturnType<typeof setInterval> | null = null;
+  if (!options.disableJourneyTicker) {
+    await ensureJourneyIndexes(db);
+    const journeyStore = createMongoJourneyStore(db);
+    let journeyTickInFlight = false;
+    journeyTicker = setInterval(() => {
+      if (journeyTickInFlight || !running) return;
+      journeyTickInFlight = true;
+      tickJourneys({ store: journeyStore, log })
+        .then((res) => {
+          if (res.claimed > 0 || res.promotedWinners > 0) {
+            log('journey tick', { ...res });
+          }
+        })
+        .catch((err) => {
+          log('journey tick failed', {
+            error: err instanceof Error ? err.message : String(err),
+          });
+        })
+        .finally(() => {
+          journeyTickInFlight = false;
+        });
+    }, options.journeyTickMs ?? 5_000);
+  }
+
   async function handleEntries(entries: StreamEntry[]): Promise<void> {
     for (const [id, fields] of entries) {
       const parsed = parseStreamEntry(id, fields);
@@ -362,6 +410,7 @@ export async function runSabsmsEventsConsumer(
           redis,
           eventLog,
           log,
+          db,
         });
         await redis.xack(SABSMS_EVENTS_STREAM, SABSMS_EVENTS_GROUP, id);
       } catch (err) {
@@ -437,6 +486,7 @@ export async function runSabsmsEventsConsumer(
       }
     }
 
+    if (journeyTicker) clearInterval(journeyTicker);
     redis.disconnect();
     await mongoClient.close().catch(() => undefined);
     log('consumer stopped');

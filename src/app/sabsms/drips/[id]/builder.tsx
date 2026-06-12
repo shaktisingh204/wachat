@@ -1,51 +1,33 @@
 "use client";
 
 /**
- * Drip builder - interactive canvas.
+ * Journey builder — linear-with-branches editor (V2.9).
  *
- * Page 13 of `plans/sabsms-pages-catalog.md`. Implements all
- * twenty page-specific features alongside the toolkit-supplied shared
- * features. Persistence, dry-run, AI-suggest and clone go through the
- * server actions in `./actions.ts`. Validation is a pure call into
- * `./validate.ts` so it can also run in `node:test`.
+ * A deliberately simple vertical step list (no SabFlow canvas): add-step
+ * menu between cards, per-step config, live validation, trigger / exit
+ * rules / goal / A/B threshold settings, and the lifecycle controls
+ * (save draft, activate, pause, archive, test enrol).
  */
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import {
-  AlertTriangle,
-  ArrowDown,
-  CheckCircle2,
-  Clock,
-  Copy,
-  Download,
-  FlaskConical,
-  GitBranch,
-  History,
-  Mail,
+  Archive,
+  ChevronDown,
+  CircleCheck,
   PauseCircle,
   PlayCircle,
   Plus,
-  Sparkles,
-  Users,
+  Save,
+  TriangleAlert,
+  UserPlus,
 } from "lucide-react";
 
 import {
-  Alert,
-  AlertDescription,
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
   Badge,
   Button,
   Card,
   CardBody,
-  CardDescription,
   CardHeader,
   CardTitle,
   Dialog,
@@ -54,909 +36,488 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  EmptyState,
-  Field,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
   Input,
-  Kbd,
-  ScrollArea,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  Separator,
+  Label,
+  SelectField,
   Switch,
+  useToast,
 } from "@/components/sabcrm/20ui";
-import {
-  SabsmsKbdHint,
-  SabsmsRefreshButton,
-} from "@/components/sabsms/page-toolkit";
+import type { JourneyStep } from "@/lib/sabsms/journeys/types";
 
-import { StepNode } from "./step-node";
 import {
-  cloneStepsFromDrip,
-  dryRunDrip,
-  getLiveEnrolCount,
-  rollbackToVersion,
-  saveDrip,
-  setDripEnabled,
-  suggestNextStep,
-  type DripDoc,
-  type DryRunStep,
+  activateJourney,
+  archiveJourney,
+  pauseJourney,
+  saveJourneyDraft,
+  testEnrolJourney,
+  type JourneyDetail,
+  type TemplateOption,
 } from "./actions";
-import {
-  validateDrip,
-  type DraftDrip,
-  type DraftDripEdge,
-  type DraftDripNode,
-} from "./validate";
+import { STEP_KIND_META, StepNode } from "./step-node";
+import { validateJourney, type JourneyDraft } from "./validate";
 
-interface TemplateOption {
-  id: string;
-  name: string;
-  category: string;
+let stepCounter = 0;
+function newStepId(kind: string): string {
+  stepCounter += 1;
+  return `${kind}_${Date.now().toString(36)}_${stepCounter}`;
 }
 
-interface OtherDripOption {
-  id: string;
-  name: string;
-}
-
-export interface DripBuilderProps {
-  drip: DripDoc;
-  templates: TemplateOption[];
-  otherDrips: OtherDripOption[];
-}
-
-function genId(prefix: string): string {
-  return `${prefix}_${Math.random().toString(36).slice(2, 9)}`;
-}
-
-/** Append a node after `afterId` on the trunk. Returns updated draft. */
-function appendAfter(
-  draft: DraftDrip,
-  afterId: string,
-  node: DraftDripNode,
-): DraftDrip {
-  // The existing edge from `afterId` to its successor (if any) is
-  // re-routed: afterId -> newNode -> successor.
-  const outgoing = draft.edges.find((e) => e.from === afterId && !e.branchValue);
-  const nodes = [...draft.nodes, node];
-  const edges: DraftDripEdge[] = draft.edges.filter(
-    (e) => !(e.from === afterId && !e.branchValue),
-  );
-  edges.push({ id: `${afterId}->${node.id}`, from: afterId, to: node.id });
-  if (outgoing) {
-    edges.push({ id: `${node.id}->${outgoing.to}`, from: node.id, to: outgoing.to });
-  }
-  return { ...draft, nodes, edges };
-}
-
-function removeNode(draft: DraftDrip, nodeId: string): DraftDrip {
-  // Stitch the predecessor straight to the successor.
-  const before = draft.edges.find((e) => e.to === nodeId);
-  const after = draft.edges.find((e) => e.from === nodeId && !e.branchValue);
-  const nodes = draft.nodes.filter((n) => n.id !== nodeId);
-  let edges = draft.edges.filter((e) => e.from !== nodeId && e.to !== nodeId);
-  if (before && after) {
-    edges = [
-      ...edges,
-      {
-        id: `${before.from}->${after.to}`,
-        from: before.from,
-        to: after.to,
-      },
-    ];
-  }
-  return { ...draft, nodes, edges };
-}
-
-export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
-  const router = useRouter();
-  const [draft, setDraft] = React.useState<DraftDrip>(drip.draft);
-  const [saving, setSaving] = React.useState(false);
-  const [lastSavedAt, setLastSavedAt] = React.useState<string | null>(drip.updatedAt);
-  const [enabled, setEnabled] = React.useState<boolean>(drip.enabled);
-  const [enrolCount, setEnrolCount] = React.useState<number>(drip.activeRecipients);
-
-  // dialogs
-  const [addOpen, setAddOpen] = React.useState<{ afterId: string } | null>(null);
-  const [historyOpen, setHistoryOpen] = React.useState(false);
-  const [dryRunOpen, setDryRunOpen] = React.useState(false);
-  const [cloneOpen, setCloneOpen] = React.useState(false);
-  const [confirmDelete, setConfirmDelete] = React.useState<string | null>(null);
-
-  const validation = React.useMemo(() => validateDrip(draft), [draft]);
-
-  // Per-node error mapping
-  const errorsByNode = React.useMemo(() => {
-    const map = new Map<string, string[]>();
-    for (const err of validation.errors) {
-      const match = /"([^"]+)"/.exec(err);
-      if (match) {
-        const id = match[1]!;
-        if (!map.has(id)) map.set(id, []);
-        map.get(id)!.push(err);
-      }
-    }
-    return map;
-  }, [validation.errors]);
-
-  const globalErrors = validation.errors.filter((e) => !/"([^"]+)"/.test(e));
-
-  // Cmd+S save
-  React.useEffect(() => {
-    function onKey(e: KeyboardEvent) {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "s") {
-        e.preventDefault();
-        void handleSave();
-      }
-    }
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [draft]);
-
-  async function handleSave() {
-    setSaving(true);
-    try {
-      const res = await saveDrip(drip.id, draft);
-      if (res.ok) {
-        setLastSavedAt(new Date().toISOString());
-      } else if (res.validationErrors) {
-        // Leave validation rendering to the side panel.
-      }
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  async function handleToggleEnabled(next: boolean) {
-    setEnabled(next);
-    await setDripEnabled(drip.id, next);
-    router.refresh();
-  }
-
-  async function handleRefreshEnrol() {
-    const res = await getLiveEnrolCount(drip.id);
-    if (res.ok) setEnrolCount(res.count);
-  }
-
-  // Add step
-  function addNode(kind: DraftDripNode["kind"], afterId: string) {
-    const id = genId(kind);
-    let node: DraftDripNode = { id, kind };
-    if (kind === "wait") {
-      node = { ...node, waitMode: "relative", waitSeconds: 86_400 };
-    } else if (kind === "branch") {
-      node = { ...node, branchOn: "replied", branchWithinSeconds: 3600 };
-    }
-    let next = appendAfter(draft, afterId, node);
-    if (kind === "branch") {
-      // Branch needs two outgoing edges: pre-wire a tiny exit on the
-      // false side so the validator does not immediately complain.
-      const falseExit: DraftDripNode = { id: genId("exit"), kind: "exit" };
-      next = {
-        ...next,
-        nodes: [...next.nodes, falseExit],
-        edges: next.edges.map((e) =>
-          e.from === id && !e.branchValue
-            ? { ...e, branchValue: "true" }
-            : e,
-        ),
+function blankStep(kind: JourneyStep["kind"]): JourneyStep {
+  const id = newStepId(kind);
+  switch (kind) {
+    case "send":
+      return { id, kind: "send", templateId: "" };
+    case "wait":
+      return { id, kind: "wait", durationMs: 24 * 3_600_000 };
+    case "waitUntil":
+      return { id, kind: "waitUntil", event: "replied", timeoutMs: 24 * 3_600_000 };
+    case "branch":
+      return {
+        id,
+        kind: "branch",
+        condition: { field: "", op: "eq", value: "" },
+        trueStepId: "",
+        falseStepId: "",
       };
-      next.edges.push({
-        id: `${id}->${falseExit.id}`,
-        from: id,
-        to: falseExit.id,
-        branchValue: "false",
+    case "exit":
+      return { id, kind: "exit" };
+  }
+}
+
+const STATUS_BADGE: Record<string, { label: string; variant?: "secondary" | "outline" }> = {
+  draft: { label: "Draft", variant: "secondary" },
+  active: { label: "Active" },
+  paused: { label: "Paused", variant: "outline" },
+  archived: { label: "Archived", variant: "secondary" },
+};
+
+export interface JourneyBuilderProps {
+  /** null → creating a new journey. */
+  journey: JourneyDetail | null;
+  templates: TemplateOption[];
+}
+
+export function JourneyBuilder({ journey, templates }: JourneyBuilderProps) {
+  const router = useRouter();
+  const { toast } = useToast();
+
+  const [draft, setDraft] = React.useState<JourneyDraft>(
+    journey?.draft ?? {
+      name: "",
+      trigger: { kind: "manual" },
+      steps: [blankStep("send")],
+      exitRules: { onUnsubscribe: true },
+    },
+  );
+  const [dirty, setDirty] = React.useState(journey === null);
+  const [busy, setBusy] = React.useState(false);
+  const [enrolOpen, setEnrolOpen] = React.useState(false);
+  const [enrolPhone, setEnrolPhone] = React.useState("");
+
+  const validation = React.useMemo(() => validateJourney(draft), [draft]);
+  const status = journey?.status ?? "draft";
+
+  const update = (next: Partial<JourneyDraft>) => {
+    setDraft((d) => ({ ...d, ...next }));
+    setDirty(true);
+  };
+
+  const updateStep = (index: number, step: JourneyStep) => {
+    update({ steps: draft.steps.map((s, i) => (i === index ? step : s)) });
+  };
+
+  const insertStep = (kind: JourneyStep["kind"], at: number) => {
+    const steps = [...draft.steps];
+    steps.splice(at, 0, blankStep(kind));
+    update({ steps });
+  };
+
+  const removeStep = (index: number) => {
+    update({ steps: draft.steps.filter((_, i) => i !== index) });
+  };
+
+  const moveStep = (index: number, dir: -1 | 1) => {
+    const target = index + dir;
+    if (target < 0 || target >= draft.steps.length) return;
+    const steps = [...draft.steps];
+    [steps[index], steps[target]] = [steps[target], steps[index]];
+    update({ steps });
+  };
+
+  const save = async (): Promise<string | null> => {
+    setBusy(true);
+    const res = await saveJourneyDraft(journey?.id ?? null, draft);
+    setBusy(false);
+    if (!res.ok) {
+      toast({ title: "Save failed", description: res.error, variant: "destructive" });
+      return null;
+    }
+    setDirty(false);
+    if (!journey) {
+      router.replace(`/sabsms/drips/${res.id}`);
+    } else {
+      router.refresh();
+    }
+    toast({ title: "Draft saved" });
+    return res.id;
+  };
+
+  const activate = async () => {
+    if (!validation.ok) {
+      toast({
+        title: "Fix validation errors first",
+        description: validation.errors[0],
+        variant: "destructive",
+      });
+      return;
+    }
+    setBusy(true);
+    const id = dirty || !journey ? await save() : journey.id;
+    if (!id) {
+      setBusy(false);
+      return;
+    }
+    const res = await activateJourney(id);
+    setBusy(false);
+    if (res.ok) {
+      toast({ title: "Journey activated" });
+      router.refresh();
+    } else {
+      toast({
+        title: "Activation refused",
+        description: res.errors?.[0] ?? res.error,
+        variant: "destructive",
       });
     }
-    setDraft(next);
-    setAddOpen(null);
-  }
+  };
 
-  // Suggest next step
-  async function handleSuggest(afterId: string) {
-    const res = await suggestNextStep(draft);
-    addNode(res.kind, afterId);
-  }
-
-  // Clone
-  async function handleClone(sourceId: string) {
-    const res = await cloneStepsFromDrip(drip.id, sourceId, draft);
-    if (res.ok && res.draft) {
-      setDraft(res.draft);
-      setCloneOpen(false);
+  const lifecycle = async (fn: (id: string) => Promise<{ ok: boolean; error?: string }>, done: string) => {
+    if (!journey) return;
+    setBusy(true);
+    const res = await fn(journey.id);
+    setBusy(false);
+    if (res.ok) {
+      toast({ title: done });
+      router.refresh();
+    } else {
+      toast({ title: "Action failed", description: res.error, variant: "destructive" });
     }
-  }
-
-  // Export
-  function handleExport() {
-    const blob = new Blob([JSON.stringify(draft, null, 2)], {
-      type: "application/json",
-    });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `sabsms-drip-${draft.name.replace(/\s+/g, "-").toLowerCase()}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  }
-
-  // Render: traverse trunk in order.
-  // For visual simplicity we render the trunk top-down. Branches get
-  // rendered as two horizontally-stacked sub-columns underneath.
-  const start = draft.nodes.find((n) => n.kind === "start");
+  };
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
-      {/* Canvas */}
-      <div className="space-y-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between gap-3 space-y-0">
-            <div>
-              <CardTitle>Canvas</CardTitle>
-              <CardDescription>
-                Vertical flow, each card is a step. Add waits, branches, or
-                messages between any two nodes.
-              </CardDescription>
-            </div>
-            <div className="flex items-center gap-2">
-              <SabsmsKbdHint
-                shortcuts={[
-                  { keys: ["Cmd", "S"], description: "Save drip" },
-                  { keys: ["?"], description: "Open this dialog" },
-                ]}
-              />
-            </div>
-          </CardHeader>
-          <CardBody className="px-4 pb-6">
-            <ScrollArea className="max-h-[68vh] pr-3">
-              <div className="mx-auto max-w-md space-y-2">
-                {start ? (
-                  <CanvasTrunk
-                    startId={start.id}
-                    draft={draft}
-                    templates={templates}
-                    errorsByNode={errorsByNode}
-                    dripId={drip.id}
-                    onChange={(nextNode) =>
-                      setDraft((d) => ({
-                        ...d,
-                        nodes: d.nodes.map((n) => (n.id === nextNode.id ? nextNode : n)),
-                      }))
-                    }
-                    onDelete={(id) => setConfirmDelete(id)}
-                    onAdd={(afterId) => setAddOpen({ afterId })}
-                    onSuggest={handleSuggest}
-                  />
-                ) : (
-                  <Alert tone="warning" icon={AlertTriangle} title="Empty drip">
-                    <AlertDescription>
-                      No start node. Reset the drip JSON or import a valid
-                      definition.
-                    </AlertDescription>
-                  </Alert>
-                )}
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+      {/* ── Step rail ──────────────────────────────────────────────── */}
+      <div className="space-y-1">
+        <Card className="mb-4 shadow-sm">
+          <CardBody className="space-y-3 p-4">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex-1 space-y-1.5">
+                <Label htmlFor="journey-name">Journey name</Label>
+                <Input
+                  id="journey-name"
+                  value={draft.name}
+                  placeholder="Welcome series"
+                  onChange={(e) => update({ name: e.target.value })}
+                />
               </div>
-            </ScrollArea>
+              <Badge variant={STATUS_BADGE[status].variant}>{STATUS_BADGE[status].label}</Badge>
+            </div>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <Label>Trigger</Label>
+                <SelectField
+                  value={draft.trigger.kind}
+                  options={[
+                    { value: "manual", label: "Manual enrolment" },
+                    { value: "contact_added", label: "Contact added" },
+                    { value: "inbound_keyword", label: "Inbound keyword" },
+                    { value: "campaign_completed", label: "Campaign completed" },
+                  ]}
+                  onChange={(v) => {
+                    if (!v) return;
+                    if (v === "inbound_keyword") {
+                      update({ trigger: { kind: "inbound_keyword", keyword: "" } });
+                    } else if (v === "campaign_completed") {
+                      update({ trigger: { kind: "campaign_completed" } });
+                    } else {
+                      update({ trigger: { kind: v as "manual" | "contact_added" } });
+                    }
+                  }}
+                />
+              </div>
+              {draft.trigger.kind === "inbound_keyword" && (
+                <div className="space-y-1.5">
+                  <Label htmlFor="trigger-keyword">Keyword</Label>
+                  <Input
+                    id="trigger-keyword"
+                    placeholder="JOIN"
+                    value={draft.trigger.keyword}
+                    onChange={(e) =>
+                      update({ trigger: { kind: "inbound_keyword", keyword: e.target.value } })
+                    }
+                  />
+                </div>
+              )}
+            </div>
           </CardBody>
         </Card>
+
+        {draft.steps.map((step, i) => (
+          <React.Fragment key={step.id}>
+            <AddStepDivider onAdd={(kind) => insertStep(kind, i)} />
+            <StepNode
+              step={step}
+              index={i}
+              total={draft.steps.length}
+              steps={draft.steps}
+              templates={templates}
+              winner={journey?.winners?.[step.id]}
+              onChange={(s) => updateStep(i, s)}
+              onRemove={() => removeStep(i)}
+              onMove={(dir) => moveStep(i, dir)}
+            />
+          </React.Fragment>
+        ))}
+        <AddStepDivider onAdd={(kind) => insertStep(kind, draft.steps.length)} prominent />
       </div>
 
-      {/* Side rail */}
-      <aside className="space-y-4">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Drip settings</CardTitle>
-          </CardHeader>
-          <CardBody className="space-y-3">
-            <Field label="Name" id="drip-name">
-              <Input
-                value={draft.name}
-                onChange={(e) => setDraft({ ...draft, name: e.target.value })}
-              />
-            </Field>
-            <Field label="Entry trigger" id="drip-entry-trigger">
-              <Select
-                value={draft.entryTrigger.kind}
-                onValueChange={(v) => {
-                  if (v === "manual") {
-                    setDraft({ ...draft, entryTrigger: { kind: "manual" } });
-                  } else if (v === "segment_join") {
-                    setDraft({
-                      ...draft,
-                      entryTrigger: { kind: "segment_join", segmentId: "" },
-                    });
-                  } else if (v === "event") {
-                    setDraft({
-                      ...draft,
-                      entryTrigger: { kind: "event", eventKey: "" },
-                    });
-                  }
-                }}
+      {/* ── Side panel ─────────────────────────────────────────────── */}
+      <div className="space-y-4">
+        <Card className="shadow-sm">
+          <CardBody className="space-y-2 p-4">
+            <Button block disabled={busy} onClick={() => void save()}>
+              <Save className="mr-1.5 h-4 w-4" />
+              {journey ? (dirty ? "Save draft" : "Saved") : "Create draft"}
+            </Button>
+            {status !== "active" && status !== "archived" && (
+              <Button block variant="secondary" disabled={busy} onClick={() => void activate()}>
+                <PlayCircle className="mr-1.5 h-4 w-4" /> Activate
+              </Button>
+            )}
+            {status === "active" && (
+              <Button
+                block
+                variant="outline"
+                disabled={busy}
+                onClick={() => void lifecycle(pauseJourney, "Journey paused")}
               >
-                <SelectTrigger aria-label="Entry trigger">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="manual">Manual enrol</SelectItem>
-                  <SelectItem value="segment_join">Segment join</SelectItem>
-                  <SelectItem value="event">Custom event</SelectItem>
-                </SelectContent>
-              </Select>
-            </Field>
-            {draft.entryTrigger.kind === "segment_join" && (
-              <Field label="Segment" id="drip-segment-id">
-                <Input
-                  placeholder="segmentId"
-                  value={draft.entryTrigger.segmentId}
-                  onChange={(e) =>
-                    setDraft({
-                      ...draft,
-                      entryTrigger: { kind: "segment_join", segmentId: e.target.value },
-                    })
-                  }
-                />
-              </Field>
+                <PauseCircle className="mr-1.5 h-4 w-4" /> Pause
+              </Button>
             )}
-            {draft.entryTrigger.kind === "event" && (
-              <Field label="Event key" id="drip-event-key">
-                <Input
-                  placeholder="event_key e.g. checkout.completed"
-                  value={draft.entryTrigger.eventKey}
-                  onChange={(e) =>
-                    setDraft({
-                      ...draft,
-                      entryTrigger: { kind: "event", eventKey: e.target.value },
-                    })
-                  }
-                />
-              </Field>
+            {journey && status !== "archived" && (
+              <Button
+                block
+                variant="ghost"
+                disabled={busy}
+                onClick={() => void lifecycle(archiveJourney, "Journey archived")}
+              >
+                <Archive className="mr-1.5 h-4 w-4" /> Archive
+              </Button>
             )}
-            <Separator />
-            <div className="flex items-center justify-between text-sm">
-              <span className="flex items-center gap-1.5 text-[var(--st-text)]">
-                {enabled ? (
-                  <PlayCircle className="h-3.5 w-3.5 text-[var(--st-text)]" aria-hidden="true" />
-                ) : (
-                  <PauseCircle className="h-3.5 w-3.5 text-[var(--st-text)]" aria-hidden="true" />
-                )}
-                {enabled ? "Running" : "Paused"}
-              </span>
+            {journey && (
+              <Button block variant="outline" disabled={busy} onClick={() => setEnrolOpen(true)}>
+                <UserPlus className="mr-1.5 h-4 w-4" /> Test enrol
+              </Button>
+            )}
+          </CardBody>
+        </Card>
+
+        <Card className="shadow-sm">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm">Validation</CardTitle>
+          </CardHeader>
+          <CardBody className="space-y-1.5 p-4 pt-0">
+            {validation.ok && validation.warnings.length === 0 ? (
+              <p className="flex items-center gap-1.5 text-xs text-[var(--st-text)]">
+                <CircleCheck className="h-3.5 w-3.5 text-emerald-600" /> Ready to activate.
+              </p>
+            ) : (
+              <>
+                {validation.errors.map((e, i) => (
+                  <p key={`e${i}`} className="flex items-start gap-1.5 text-xs text-[var(--st-danger,#b91c1c)]">
+                    <TriangleAlert className="mt-0.5 h-3.5 w-3.5 shrink-0" /> {e}
+                  </p>
+                ))}
+                {validation.warnings.map((w, i) => (
+                  <p key={`w${i}`} className="flex items-start gap-1.5 text-xs text-amber-600">
+                    <TriangleAlert className="mt-0.5 h-3.5 w-3.5 shrink-0" /> {w}
+                  </p>
+                ))}
+              </>
+            )}
+          </CardBody>
+        </Card>
+
+        <Card className="shadow-sm">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm">Rules</CardTitle>
+          </CardHeader>
+          <CardBody className="space-y-3 p-4 pt-0">
+            <div className="flex items-center justify-between gap-2">
+              <div>
+                <p className="text-xs font-medium text-[var(--st-text)]">Exit on unsubscribe</p>
+                <p className="text-[11px] text-[var(--st-text-secondary)]">Always on.</p>
+              </div>
+              <Switch checked disabled aria-label="Exit on unsubscribe (always on)" />
+            </div>
+            <div className="flex items-center justify-between gap-2">
+              <div>
+                <p className="text-xs font-medium text-[var(--st-text)]">Exit on reply</p>
+                <p className="text-[11px] text-[var(--st-text-secondary)]">
+                  Any inbound reply removes the contact.
+                </p>
+              </div>
               <Switch
-                checked={enabled}
-                onCheckedChange={handleToggleEnabled}
-                aria-label={enabled ? "Pause drip" : "Resume drip"}
+                checked={!!draft.exitRules.onReply}
+                onCheckedChange={(v) =>
+                  update({ exitRules: { onUnsubscribe: true, onReply: !!v } })
+                }
+                aria-label="Exit on reply"
               />
             </div>
-            <div className="flex items-center justify-between rounded-[var(--st-radius)] bg-[var(--st-bg-muted)] px-3 py-2 text-xs">
-              <span className="flex items-center gap-1.5 text-[var(--st-text)]">
-                <Users className="h-3 w-3" aria-hidden="true" /> Live enrolments
-              </span>
-              <span className="font-semibold text-[var(--st-text)]">{enrolCount}</span>
+            <div className="space-y-1.5">
+              <Label htmlFor="ab-threshold">A/B sample per arm</Label>
+              <Input
+                id="ab-threshold"
+                type="number"
+                min={1}
+                placeholder="200"
+                value={draft.abSampleThreshold ? String(draft.abSampleThreshold) : ""}
+                onChange={(e) => {
+                  const n = Number(e.target.value);
+                  update({ abSampleThreshold: Number.isFinite(n) && n > 0 ? n : undefined });
+                }}
+              />
+              <p className="text-[11px] text-[var(--st-text-secondary)]">
+                Sends per variant before the auto-winner promotes (default 200).
+              </p>
             </div>
-            <SabsmsRefreshButton onRefresh={handleRefreshEnrol} defaultInterval={30} />
           </CardBody>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Exit conditions</CardTitle>
-            <CardDescription>
-              Auto-exit a contact when any of these become true.
-            </CardDescription>
-          </CardHeader>
-          <CardBody className="space-y-2">
-            {(
-              [
-                ["replied", "When contact replies"],
-                ["clicked", "When contact clicks a link"],
-                ["converted", "When contact converts"],
-                ["unsubscribed", "When contact unsubscribes"],
-              ] as const
-            ).map(([key, label]) => (
-              <div
-                key={key}
-                className="flex items-center justify-between text-xs text-[var(--st-text)]"
-              >
-                <span>{label}</span>
-                <Switch
-                  checked={!!draft.exitConditions?.[key]}
-                  onCheckedChange={(v) =>
-                    setDraft({
-                      ...draft,
-                      exitConditions: { ...(draft.exitConditions ?? {}), [key]: !!v },
-                    })
-                  }
-                  aria-label={label}
-                />
-              </div>
-            ))}
-          </CardBody>
-        </Card>
+        {journey && (
+          <Card className="shadow-sm">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">Stats</CardTitle>
+            </CardHeader>
+            <CardBody className="grid grid-cols-2 gap-2 p-4 pt-0 text-xs">
+              <Stat label="Active runs" value={journey.activeRuns} />
+              <Stat label="Started" value={journey.stats.started} />
+              <Stat label="Sends" value={journey.stats.sends} />
+              <Stat label="Replies" value={journey.stats.replies} />
+              <Stat label="Clicks" value={journey.stats.clicks} />
+              <Stat label="Completed" value={journey.stats.completed} />
+              <Stat label="Exited" value={journey.stats.exited} />
+              <Stat label="Goals" value={journey.stats.goals} />
+            </CardBody>
+          </Card>
+        )}
+      </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Validation</CardTitle>
-          </CardHeader>
-          <CardBody>
-            {validation.ok ? (
-              <div className="flex items-center gap-2 text-sm text-[var(--st-text)]">
-                <CheckCircle2 className="h-4 w-4" aria-hidden="true" /> No issues.
-              </div>
-            ) : (
-              <div className="space-y-1.5">
-                <div className="flex items-center gap-2 text-sm font-medium text-[var(--st-text)]">
-                  <AlertTriangle className="h-4 w-4" aria-hidden="true" />
-                  {validation.errors.length} issue{validation.errors.length === 1 ? "" : "s"}
-                </div>
-                <ul className="ml-2 list-disc space-y-0.5 text-[11px] text-[var(--st-text)]">
-                  {validation.errors.slice(0, 6).map((e, i) => (
-                    <li key={i}>{e}</li>
-                  ))}
-                </ul>
-                {globalErrors.length === 0 && validation.errors.length > 6 && (
-                  <div className="text-[11px] text-[var(--st-text)]">
-                    and {validation.errors.length - 6} more (see node cards).
-                  </div>
-                )}
-              </div>
-            )}
-          </CardBody>
-        </Card>
-
-        <div className="grid grid-cols-2 gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            iconLeft={History}
-            onClick={() => setHistoryOpen(true)}
-          >
-            History
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            iconLeft={FlaskConical}
-            onClick={() => setDryRunOpen(true)}
-          >
-            Dry-run
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            iconLeft={Copy}
-            onClick={() => setCloneOpen(true)}
-          >
-            Clone from
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            iconLeft={Download}
-            onClick={handleExport}
-          >
-            Export JSON
-          </Button>
-        </div>
-
-        <div className="flex items-center justify-between rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3 text-xs text-[var(--st-text)]">
-          <span>
-            Last saved{" "}
-            {lastSavedAt ? new Date(lastSavedAt).toLocaleString() : "never"}
-          </span>
-          <Button size="sm" onClick={handleSave} disabled={saving || !validation.ok}>
-            {saving ? "Saving..." : "Save"}
-          </Button>
-        </div>
-        <div className="text-[11px] text-[var(--st-text)]">
-          Tip: press <Kbd>Cmd</Kbd>
-          <Kbd>S</Kbd> to save without leaving the canvas.
-        </div>
-      </aside>
-
-      {/* Add step dialog */}
-      <Dialog open={!!addOpen} onOpenChange={(o) => !o && setAddOpen(null)}>
+      {/* ── Test enrol dialog ──────────────────────────────────────── */}
+      <Dialog open={enrolOpen} onOpenChange={setEnrolOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Add a step</DialogTitle>
+            <DialogTitle>Test enrol</DialogTitle>
             <DialogDescription>
-              Pick the kind of step to insert after this node.
+              Start a single run for a phone number — works on drafts too. Suppression and
+              one-run-per-contact rules still apply.
             </DialogDescription>
           </DialogHeader>
-          <div className="grid grid-cols-1 gap-2">
-            <AddOptionButton
-              icon={<Mail className="h-4 w-4" aria-hidden="true" />}
-              label="Send message"
-              description="Send a template-driven SMS / MMS."
-              onClick={() => addOpen && addNode("message", addOpen.afterId)}
-            />
-            <AddOptionButton
-              icon={<Clock className="h-4 w-4" aria-hidden="true" />}
-              label="Wait"
-              description="Wait a relative duration or an absolute timestamp."
-              onClick={() => addOpen && addNode("wait", addOpen.afterId)}
-            />
-            <AddOptionButton
-              icon={<GitBranch className="h-4 w-4" aria-hidden="true" />}
-              label="Branch"
-              description="Split the path based on replied / clicked / opened."
-              onClick={() => addOpen && addNode("branch", addOpen.afterId)}
-            />
-            <AddOptionButton
-              icon={<Sparkles className="h-4 w-4" aria-hidden="true" />}
-              label="Let AI suggest"
-              description="Pick the most likely next step."
-              onClick={() => addOpen && handleSuggest(addOpen.afterId)}
+          <div className="space-y-1.5 py-1">
+            <Label htmlFor="test-phone">Phone (E.164)</Label>
+            <Input
+              id="test-phone"
+              placeholder="+15551234567"
+              value={enrolPhone}
+              onChange={(e) => setEnrolPhone(e.target.value)}
             />
           </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* History dialog */}
-      <Dialog open={historyOpen} onOpenChange={setHistoryOpen}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Version history</DialogTitle>
-            <DialogDescription>
-              Rolling back creates a fresh save, you can roll forward again.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="max-h-[55vh] space-y-2 overflow-y-auto">
-            {drip.versions.length === 0 ? (
-              <EmptyState
-                icon={History}
-                title="No prior versions yet"
-                description="Save once to create the first snapshot."
-                size="sm"
-              />
-            ) : (
-              drip.versions
-                .slice()
-                .reverse()
-                .map((v) => (
-                  <div
-                    key={v.versionId}
-                    className="flex items-center justify-between rounded-[var(--st-radius)] border border-[var(--st-border)] px-3 py-2 text-sm"
-                  >
-                    <div className="space-y-0.5">
-                      <div className="font-medium text-[var(--st-text)]">
-                        {new Date(v.savedAt).toLocaleString()}
-                      </div>
-                      <div className="text-[11px] text-[var(--st-text-secondary)]">
-                        {v.draft.nodes.length} nodes, {v.draft.edges.length} edges
-                      </div>
-                    </div>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={async () => {
-                        await rollbackToVersion(drip.id, v.versionId);
-                        router.refresh();
-                        setHistoryOpen(false);
-                      }}
-                    >
-                      Roll back
-                    </Button>
-                  </div>
-                ))
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Dry-run dialog */}
-      <DryRunDialog
-        open={dryRunOpen}
-        onOpenChange={setDryRunOpen}
-        dripId={drip.id}
-        templates={templates}
-      />
-
-      {/* Clone dialog */}
-      <Dialog open={cloneOpen} onOpenChange={setCloneOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Clone steps from another drip</DialogTitle>
-            <DialogDescription>
-              Pick a source drip, its middle steps are appended after the
-              current ones with a fresh id prefix.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-2">
-            {otherDrips.length === 0 ? (
-              <EmptyState
-                icon={Copy}
-                title="No other drips to clone from"
-                size="sm"
-              />
-            ) : (
-              otherDrips.map((d) => (
-                <Button
-                  key={d.id}
-                  variant="outline"
-                  block
-                  iconRight={ArrowDown}
-                  className="justify-between"
-                  onClick={() => handleClone(d.id)}
-                >
-                  {d.name}
-                </Button>
-              ))
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Confirm delete */}
-      <AlertDialog
-        open={!!confirmDelete}
-        onOpenChange={(o) => !o && setConfirmDelete(null)}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete this step?</AlertDialogTitle>
-            <AlertDialogDescription>
-              The predecessor will be stitched directly to the successor.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => {
-                if (confirmDelete) {
-                  setDraft((d) => removeNode(d, confirmDelete));
-                  setConfirmDelete(null);
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setEnrolOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              disabled={busy || !enrolPhone.trim()}
+              onClick={async () => {
+                if (!journey) return;
+                setBusy(true);
+                const res = await testEnrolJourney(journey.id, enrolPhone);
+                setBusy(false);
+                if (res.ok) {
+                  toast({ title: "Run started" });
+                  setEnrolOpen(false);
+                  router.refresh();
+                } else {
+                  toast({ title: "Could not enrol", description: res.error, variant: "destructive" });
                 }
               }}
             >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </div>
-  );
-}
-
-// Subcomponents
-
-function AddOptionButton({
-  icon,
-  label,
-  description,
-  onClick,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  description: string;
-  onClick: () => void;
-}) {
-  return (
-    <Button
-      variant="outline"
-      block
-      onClick={onClick}
-      className="h-auto items-start gap-3 px-3 py-3 text-left [&>.u-btn__label]:flex [&>.u-btn__label]:items-start [&>.u-btn__label]:gap-3"
-    >
-      <span className="rounded-[var(--st-radius)] bg-[var(--st-bg-muted)] p-1.5 text-[var(--st-text)]">
-        {icon}
-      </span>
-      <span className="space-y-0.5">
-        <span className="block text-sm font-medium text-[var(--st-text)]">{label}</span>
-        <span className="block text-xs text-[var(--st-text-secondary)]">{description}</span>
-      </span>
-    </Button>
-  );
-}
-
-function CanvasTrunk({
-  startId,
-  draft,
-  templates,
-  errorsByNode,
-  dripId,
-  onChange,
-  onDelete,
-  onAdd,
-  onSuggest,
-}: {
-  startId: string;
-  draft: DraftDrip;
-  templates: TemplateOption[];
-  errorsByNode: Map<string, string[]>;
-  dripId: string;
-  onChange: (n: DraftDripNode) => void;
-  onDelete: (id: string) => void;
-  onAdd: (afterId: string) => void;
-  onSuggest: (afterId: string) => Promise<void>;
-}) {
-  // Pre-order trunk: follow first non-branch outgoing edge. Branch
-  // nodes show both children in a horizontally-stacked pair.
-  const elements: React.ReactNode[] = [];
-  const seen = new Set<string>();
-  function render(nodeId: string) {
-    if (seen.has(nodeId)) return;
-    seen.add(nodeId);
-    const node = draft.nodes.find((n) => n.id === nodeId);
-    if (!node) return;
-    elements.push(
-      <React.Fragment key={node.id}>
-        <StepNode
-          node={node}
-          templates={templates}
-          errors={errorsByNode.get(node.id) ?? []}
-          dripId={dripId}
-          onChange={onChange}
-          onDelete={() => onDelete(node.id)}
-          onSuggest={() => onSuggest(node.id)}
-        />
-        {node.kind !== "exit" && (
-          <div className="flex flex-col items-center gap-1 py-1">
-            <ArrowDown className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" aria-hidden="true" />
-            <Button
-              variant="outline"
-              size="sm"
-              iconLeft={Plus}
-              className="h-7 text-[11px]"
-              onClick={() => onAdd(node.id)}
-            >
-              Add step
+              Start run
             </Button>
-            <ArrowDown className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" aria-hidden="true" />
-          </div>
-        )}
-      </React.Fragment>,
-    );
-    if (node.kind === "branch") {
-      const tEdge = draft.edges.find((e) => e.from === node.id && e.branchValue === "true");
-      const fEdge = draft.edges.find((e) => e.from === node.id && e.branchValue === "false");
-      elements.push(
-        <div
-          key={`${node.id}-branch`}
-          className="grid grid-cols-2 gap-3 rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] p-2"
-        >
-          <div>
-            <div className="mb-1 flex items-center gap-1 text-[10px] font-semibold text-[var(--st-text)]">
-              <Badge tone="success" className="h-4 px-1 text-[9px]">YES</Badge>
-            </div>
-            {tEdge && <CanvasSub edgeTo={tEdge.to} draft={draft} templates={templates} errorsByNode={errorsByNode} dripId={dripId} onChange={onChange} onDelete={onDelete} onAdd={onAdd} onSuggest={onSuggest} seen={seen} />}
-          </div>
-          <div>
-            <div className="mb-1 flex items-center gap-1 text-[10px] font-semibold text-[var(--st-text)]">
-              <Badge tone="neutral" className="h-4 px-1 text-[9px]">NO</Badge>
-            </div>
-            {fEdge && <CanvasSub edgeTo={fEdge.to} draft={draft} templates={templates} errorsByNode={errorsByNode} dripId={dripId} onChange={onChange} onDelete={onDelete} onAdd={onAdd} onSuggest={onSuggest} seen={seen} />}
-          </div>
-        </div>,
-      );
-      return;
-    }
-    const next = draft.edges.find((e) => e.from === node.id && !e.branchValue);
-    if (next) render(next.to);
-  }
-  render(startId);
-  return <>{elements}</>;
-}
-
-function CanvasSub(props: {
-  edgeTo: string;
-  draft: DraftDrip;
-  templates: TemplateOption[];
-  errorsByNode: Map<string, string[]>;
-  dripId: string;
-  onChange: (n: DraftDripNode) => void;
-  onDelete: (id: string) => void;
-  onAdd: (afterId: string) => void;
-  onSuggest: (afterId: string) => Promise<void>;
-  seen: Set<string>;
-}) {
-  const { edgeTo, draft, templates, errorsByNode, dripId, onChange, onDelete, onAdd, onSuggest, seen } = props;
-  if (seen.has(edgeTo)) return null;
-  const node = draft.nodes.find((n) => n.id === edgeTo);
-  if (!node) return null;
-  seen.add(edgeTo);
-  return (
-    <div className="space-y-2">
-      <StepNode
-        node={node}
-        templates={templates}
-        errors={errorsByNode.get(node.id) ?? []}
-        dripId={dripId}
-        onChange={onChange}
-        onDelete={() => onDelete(node.id)}
-        onSuggest={() => onSuggest(node.id)}
-      />
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
 
-function DryRunDialog({
-  open,
-  onOpenChange,
-  dripId,
-  templates,
-}: {
-  open: boolean;
-  onOpenChange: (v: boolean) => void;
-  dripId: string;
-  templates: TemplateOption[];
-}) {
-  const [phone, setPhone] = React.useState("+15555550100");
-  const [firstName, setFirstName] = React.useState("Sample");
-  const [steps, setSteps] = React.useState<DryRunStep[] | null>(null);
-  const [busy, setBusy] = React.useState(false);
-
-  async function run() {
-    setBusy(true);
-    try {
-      const res = await dryRunDrip(dripId, { phoneE164: phone, firstName });
-      if (res.ok) setSteps(res.steps);
-    } finally {
-      setBusy(false);
-    }
-  }
-
+function Stat({ label, value }: { label: string; value: number }) {
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-xl">
-        <DialogHeader>
-          <DialogTitle>Dry-run with a sample contact</DialogTitle>
-          <DialogDescription>
-            No messages are actually sent. The engine simulates the schedule.
-          </DialogDescription>
-        </DialogHeader>
-        <div className="grid grid-cols-2 gap-2">
-          <Field label="Phone (E.164)" id="dryrun-phone">
-            <Input value={phone} onChange={(e) => setPhone(e.target.value)} />
-          </Field>
-          <Field label="First name" id="dryrun-first-name">
-            <Input value={firstName} onChange={(e) => setFirstName(e.target.value)} />
-          </Field>
-        </div>
-        {steps && (
-          <div className="mt-3 max-h-72 space-y-1.5 overflow-y-auto rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2 text-xs">
-            {steps.length === 0 && (
-              <div className="text-[var(--st-text-secondary)]">No steps simulated.</div>
-            )}
-            {steps.map((s) => {
-              const tpl = templates.find((t) => t.id === s.templateId);
-              return (
-                <div
-                  key={`${s.index}-${s.templateId}`}
-                  className="flex items-center justify-between rounded-[var(--st-radius)] bg-[var(--st-bg)] px-2 py-1.5 shadow-sm"
-                >
-                  <div>
-                    <div className="font-medium text-[var(--st-text)]">
-                      #{s.index + 1} {tpl?.name ?? s.templateId}
-                    </div>
-                    <div className="text-[11px] text-[var(--st-text-secondary)]">
-                      Scheduled {new Date(s.scheduledAt).toLocaleString()}
-                    </div>
-                  </div>
-                  {s.skipped && (
-                    <Badge tone="neutral" className="text-[10px]">
-                      skipped
-                    </Badge>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        )}
-        <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)}>
-            Close
-          </Button>
-          <Button onClick={run} disabled={busy}>
-            {busy ? "Simulating..." : "Run"}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+    <div className="rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)]/40 px-2.5 py-1.5">
+      <p className="text-[11px] text-[var(--st-text-secondary)]">{label}</p>
+      <p className="font-mono text-sm font-semibold text-[var(--st-text)]">
+        {value.toLocaleString()}
+      </p>
+    </div>
+  );
+}
+
+function AddStepDivider({
+  onAdd,
+  prominent,
+}: {
+  onAdd: (kind: JourneyStep["kind"]) => void;
+  prominent?: boolean;
+}) {
+  return (
+    <div className={`flex items-center justify-center ${prominent ? "py-3" : "py-1.5"}`}>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          {prominent ? (
+            <Button variant="outline">
+              <Plus className="mr-1.5 h-4 w-4" /> Add step
+              <ChevronDown className="ml-1 h-3.5 w-3.5" />
+            </Button>
+          ) : (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-6 px-2 text-[11px] text-[var(--st-text-secondary)]"
+              aria-label="Insert step here"
+            >
+              <Plus className="mr-1 h-3 w-3" /> Insert
+            </Button>
+          )}
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="center">
+          {(Object.keys(STEP_KIND_META) as Array<JourneyStep["kind"]>).map((kind) => (
+            <DropdownMenuItem key={kind} onSelect={() => onAdd(kind)}>
+              <span className="mr-2">{STEP_KIND_META[kind].icon}</span>
+              <span>
+                <span className="block text-sm">{STEP_KIND_META[kind].label}</span>
+                <span className="block text-[11px] text-[var(--st-text-secondary)]">
+                  {STEP_KIND_META[kind].blurb}
+                </span>
+              </span>
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
   );
 }

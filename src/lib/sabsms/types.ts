@@ -114,8 +114,32 @@ export interface SabsmsNumber {
   monthlyCost?: number; // in cents, USD
   webhookUrl?: string;
   routingUrl?: string;
+  /** Alphanumeric sender ID (msg91/gupshup) — mirrors `e164` for those docs. */
+  senderId?: string;
+  /** India DLT header ID registered for this sender. */
+  dltHeaderId?: string;
   createdAt: Date;
   releasedAt?: Date;
+}
+
+/**
+ * One purchasable number returned by `POST /v1/numbers/search`
+ * (Twilio / Telnyx inventory; msg91/gupshup register sender IDs manually).
+ */
+export interface SabsmsAvailableNumber {
+  phoneNumber: string;
+  friendlyName?: string | null;
+  region?: string | null;
+  type: 'longcode' | 'tollfree' | 'mobile';
+  capabilities: {
+    sms: boolean;
+    mms: boolean;
+    rcs: boolean;
+    voice: boolean;
+  };
+  /** Monthly rental in cents (USD). */
+  monthlyCost?: number | null;
+  currency?: string | null;
 }
 
 export interface SabsmsProviderAccount {
@@ -127,6 +151,12 @@ export interface SabsmsProviderAccount {
   region?: string;
   /** When true, this account is the default sender for the provider. */
   isDefault: boolean;
+  /**
+   * Plain (non-ciphered) shared secret embedded in the provider's
+   * inbound/DLR webhook URLs (`?secret=` param). Generated server-side
+   * on account creation.
+   */
+  webhookSecret?: string;
   status: 'active' | 'disabled' | 'error';
   lastErrorAt?: Date;
   lastError?: string;
@@ -152,9 +182,13 @@ export interface SabsmsMessage {
   to: string;
   body: string;
   media?: SabsmsMedia[];
+  /** Resolved public media URLs (R2) sent as MMS attachments. */
+  mediaUrls?: string[];
   category: SabsmsMessageCategory;
   status: SabsmsMessageStatus;
   errorCode?: string;
+  /** Provider-agnostic normalized error code (engine taxonomy). */
+  normalizedCode?: string;
   errorMessage?: string;
   provider: SabsmsProviderId;
   providerAccountId?: string;
@@ -165,6 +199,12 @@ export interface SabsmsMessage {
   contactId?: string;
   /** Generic correlation key, e.g. for CRM dispatches. */
   eventKey?: string;
+  /** Alphanumeric sender ID used for this send (msg91/gupshup). */
+  senderId?: string;
+  /** India DLT principal entity ID. */
+  dltEntityId?: string;
+  /** India DLT template ID. */
+  dltTemplateId?: string;
   segmentsCount?: number;
   /** Customer-facing price in cents (USD). */
   price?: number;
@@ -402,6 +442,12 @@ export interface EnqueueSendInput {
   contactId?: string;
   eventKey?: string;
   media?: SabsmsMedia[];
+  /** Resolved public media URLs (R2) for MMS — pre-resolved Next-side. */
+  mediaUrls?: string[];
+  /** India DLT principal entity ID. */
+  dltEntityId?: string;
+  /** India DLT template ID. */
+  dltTemplateId?: string;
   idempotencyKey?: string;
   tags?: string[];
 }

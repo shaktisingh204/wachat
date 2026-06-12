@@ -1,69 +1,63 @@
 "use server";
 
 /**
- * Drips list — server actions.
+ * Drips (journeys) list — server actions (V2.9).
  *
- * Backs Page 12 §B.2 of `plans/sabsms-pages-catalog.md` (`/sabsms/drips`).
+ * `/sabsms/drips` is backed by `sabsms_journeys` + `sabsms_journey_runs`
+ * (the V2.9 executor collections). Workspace scope is always resolved
+ * from `getCachedSession()`; the client passes filters and ids only.
  *
- * Workspace scope is always resolved from `getCachedSession()` — the
- * client passes filter parameters only, never the workspace id. Reads
- * use the typed `getSabsmsCollections()` accessor and write paths use
- * the same `{ workspaceId, _id }` filter pattern so a stolen drip id
- * from another workspace can never be mutated.
+ * Includes the Pinpoint importer action: parse the export (pure
+ * `@/lib/sabsms/import/pinpoint`), create template drafts for every SMS
+ * activity, swap the `ref:<n>` placeholders for the real template ids,
+ * and insert the journey as a draft.
  */
 
 import { revalidatePath } from "next/cache";
-import { ObjectId, type Filter } from "mongodb";
+import { ObjectId } from "mongodb";
 
+import { connectToDatabase } from "@/lib/mongodb";
 import { getCachedSession } from "@/lib/server-cache";
+import { parsePinpointJourney, TEMPLATE_REF_PREFIX } from "@/lib/sabsms/import/pinpoint";
+import { createMongoJourneyStore, ensureJourneyIndexes } from "@/lib/sabsms/journeys/store";
+import { startJourneyRun } from "@/lib/sabsms/journeys/triggers";
 import {
-  SABSMS_COLLECTIONS,
-  getSabsmsCollections,
-} from "@/lib/sabsms/db/collections";
-import type { SabsmsDrip } from "@/lib/sabsms/types";
-
-import type { DraftDrip } from "./[id]/validate";
+  emptyJourneyStats,
+  LIVE_RUN_STATUSES,
+  SABSMS_JOURNEYS_COLLECTION,
+  SABSMS_JOURNEY_RUNS_COLLECTION,
+  type JourneyStats,
+  type JourneyStatus,
+  type SabsmsJourney,
+} from "@/lib/sabsms/journeys/types";
+import { extractVariables } from "@/lib/sabsms/render";
 
 // ─── Types ────────────────────────────────────────────────────────────────
 
-export interface DripListFilters {
+export interface JourneyListFilters {
   q?: string;
-  enabled?: "enabled" | "disabled" | "all";
-  trigger?: Array<"manual" | "segment_join" | "event">;
-  templateId?: string;
-  withErrors?: boolean;
-  sort?: "newest" | "oldest" | "name" | "active_recipients";
+  status?: JourneyStatus | "all";
+  sort?: "newest" | "oldest" | "name" | "active_runs";
 }
 
-export interface DripRow {
+export interface JourneyRow {
   id: string;
   name: string;
-  enabled: boolean;
-  trigger: "manual" | "segment_join" | "event";
+  status: JourneyStatus;
+  triggerKind: SabsmsJourney["trigger"]["kind"];
   triggerLabel: string;
   stepCount: number;
+  sendCount: number;
   branchCount: number;
-  templateIds: string[];
-  /** Active recipients currently enroled in the drip. */
-  activeRecipients: number;
-  /** Throughput — messages per minute over the trailing window. */
-  throughputPerMin: number;
-  /** End-to-end conversion rate (0..1). */
-  conversionRate: number;
-  /** Drop-off chart series (per-step delivered counts). */
-  stageDropoff: Array<{ step: number; delivered: number }>;
-  /** Cohort attribution string surfaced in the list. */
-  cohort?: string;
-  /** Auto-pause-on-error toggle state. */
-  autoPauseOnError: boolean;
-  /** Count of errored runs in the last 24h. */
-  errorCount: number;
-  scheduleSummary: string;
+  hasAb: boolean;
+  winnerCount: number;
+  activeRuns: number;
+  stats: JourneyStats;
   updatedAt: string;
 }
 
-export type DripActionResult =
-  | { ok: true }
+export type DripActionResult<T = Record<never, never>> =
+  | ({ ok: true } & T)
   | { ok: false; error: string };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────
@@ -77,349 +71,242 @@ async function resolveWorkspace(): Promise<
   return { ok: true, workspaceId: String(userId) };
 }
 
-function toObjectIdOrNull(id: string): ObjectId | null {
-  try {
-    return new ObjectId(id);
-  } catch {
-    return null;
-  }
-}
+const TRIGGER_LABELS: Record<SabsmsJourney["trigger"]["kind"], string> = {
+  manual: "Manual",
+  contact_added: "Contact added",
+  inbound_keyword: "Inbound keyword",
+  campaign_completed: "Campaign completed",
+};
 
-function triggerLabel(t: "manual" | "segment_join" | "event"): string {
-  switch (t) {
-    case "manual":
-      return "Manual";
-    case "segment_join":
-      return "Segment join";
-    case "event":
-      return "Event";
-  }
-}
-
-/**
- * Tease a `DripRow` out of a raw drip doc. Tolerant of half-built drips
- * where the engine has not yet stamped operational counters.
- */
-function toRow(d: SabsmsDrip & Record<string, unknown>): DripRow {
-  const draft = (d as unknown as { draft?: DraftDrip }).draft;
-  const branchCount = draft
-    ? draft.nodes.filter((n) => n.kind === "branch").length
-    : 0;
-  const templateIds = draft
-    ? draft.nodes.filter((n) => n.kind === "message" && n.templateId).map((n) => n.templateId!)
-    : d.steps.map((s) => s.templateId);
+function toRow(doc: SabsmsJourney, activeRuns: number): JourneyRow {
+  const steps = doc.steps ?? [];
   return {
-    id: String(d._id),
-    name: d.name,
-    enabled: !!d.enabled,
-    trigger: d.entryTrigger.kind,
-    triggerLabel: triggerLabel(d.entryTrigger.kind),
-    stepCount: draft ? draft.nodes.length : d.steps.length,
-    branchCount,
-    templateIds,
-    activeRecipients:
-      typeof (d as { activeRecipients?: number }).activeRecipients === "number"
-        ? (d as { activeRecipients?: number }).activeRecipients!
-        : 0,
-    throughputPerMin:
-      typeof (d as { throughputPerMin?: number }).throughputPerMin === "number"
-        ? (d as { throughputPerMin?: number }).throughputPerMin!
-        : 0,
-    conversionRate:
-      typeof (d as { conversionRate?: number }).conversionRate === "number"
-        ? (d as { conversionRate?: number }).conversionRate!
-        : 0,
-    stageDropoff:
-      ((d as { stageDropoff?: Array<{ step: number; delivered: number }> }).stageDropoff) ??
-      d.steps.map((_, i) => ({ step: i + 1, delivered: 0 })),
-    cohort: (d as { cohort?: string }).cohort,
-    autoPauseOnError:
-      typeof (d as { autoPauseOnError?: boolean }).autoPauseOnError === "boolean"
-        ? (d as { autoPauseOnError?: boolean }).autoPauseOnError!
-        : false,
-    errorCount:
-      typeof (d as { errorCount?: number }).errorCount === "number"
-        ? (d as { errorCount?: number }).errorCount!
-        : 0,
-    scheduleSummary: (d as { scheduleSummary?: string }).scheduleSummary ?? "—",
-    updatedAt: new Date(d.updatedAt).toISOString(),
+    id: String(doc._id),
+    name: doc.name,
+    status: doc.status,
+    triggerKind: doc.trigger.kind,
+    triggerLabel:
+      doc.trigger.kind === "inbound_keyword"
+        ? `Keyword "${doc.trigger.keyword}"`
+        : TRIGGER_LABELS[doc.trigger.kind],
+    stepCount: steps.length,
+    sendCount: steps.filter((s) => s.kind === "send").length,
+    branchCount: steps.filter((s) => s.kind === "branch" || s.kind === "waitUntil").length,
+    hasAb: steps.some((s) => s.kind === "send" && (s.abVariants?.length ?? 0) >= 2),
+    winnerCount: Object.keys(doc.ab?.winners ?? {}).length,
+    activeRuns,
+    stats: doc.stats ?? emptyJourneyStats(),
+    updatedAt: new Date(doc.updatedAt).toISOString(),
   };
 }
 
 // ─── Reads ────────────────────────────────────────────────────────────────
 
-/**
- * Load drips for the list table. Filtering happens server-side so the
- * URL-state round-trips cleanly across page boundaries.
- */
-export async function loadDrips(
+export async function loadJourneys(
   workspaceId: string,
-  filters: DripListFilters,
-): Promise<DripRow[]> {
-  const { cols } = await getSabsmsCollections();
-
-  const query: Filter<SabsmsDrip> = { workspaceId };
-  if (filters.enabled === "enabled") query.enabled = true;
-  if (filters.enabled === "disabled") query.enabled = false;
-  if (filters.trigger && filters.trigger.length > 0) {
-    query["entryTrigger.kind"] = { $in: filters.trigger } as unknown as never;
-  }
-  if (filters.templateId) {
-    query["steps.templateId"] = filters.templateId as unknown as never;
-  }
-  if (filters.q && filters.q.trim().length > 0) {
-    // Anchored regex on `name` — cheap and avoids $text index hassle.
-    const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    query.name = { $regex: escape(filters.q.trim()), $options: "i" } as unknown as never;
-  }
-  if (filters.withErrors) {
-    (query as Record<string, unknown>).errorCount = { $gt: 0 };
-  }
-
-  let sort: [string, 1 | -1][] = [["updatedAt", -1]];
-  if (filters.sort === "oldest") sort = [["createdAt", 1]];
-  if (filters.sort === "name") sort = [["name", 1]];
-  if (filters.sort === "active_recipients")
-    sort = [["activeRecipients", -1]];
-
-  const docs = await cols.drips
-    .find(query)
-    .sort(Object.fromEntries(sort))
-    .limit(250)
-    .toArray();
-
-  return docs.map((d) => toRow(d as SabsmsDrip & Record<string, unknown>));
-}
-
-/**
- * Surface the workspace's templates so the "Filter by template usage"
- * facet has stable options.
- */
-export async function loadTemplateFacetOptions(
-  workspaceId: string,
-): Promise<Array<{ value: string; label: string }>> {
-  const { cols } = await getSabsmsCollections();
-  const docs = await cols.templates
-    .find({ workspaceId })
-    .project({ name: 1 })
-    .sort({ name: 1 })
-    .limit(200)
-    .toArray();
-  return docs.map((d) => ({
-    value: String(d._id),
-    label: (d as unknown as { name: string }).name,
-  }));
-}
-
-// ─── Mutations ────────────────────────────────────────────────────────────
-
-export async function setDripEnabledFromList(
-  id: string,
-  enabled: boolean,
-): Promise<DripActionResult> {
+  filters: JourneyListFilters = {},
+): Promise<JourneyRow[]> {
+  // "use server" exports are network-callable — never trust the passed
+  // workspace id, even though the page resolves it from the session too.
   const ws = await resolveWorkspace();
-  if (!ws.ok) return { ok: false, error: ws.error };
-  const oid = toObjectIdOrNull(id);
-  if (!oid) return { ok: false, error: "invalid_id" };
-  const { cols } = await getSabsmsCollections();
-  const res = await cols.drips.updateOne(
-    { _id: oid, workspaceId: ws.workspaceId } as never,
-    { $set: { enabled, updatedAt: new Date() } },
-  );
-  if (res.matchedCount === 0) return { ok: false, error: "not_found" };
+  if (!ws.ok || ws.workspaceId !== workspaceId) return [];
+
+  const { db } = await connectToDatabase();
+  await ensureJourneyIndexes(db);
+  const col = db.collection<SabsmsJourney>(SABSMS_JOURNEYS_COLLECTION);
+
+  const query: Record<string, unknown> = { workspaceId };
+  if (filters.status && filters.status !== "all") query.status = filters.status;
+  else query.status = { $ne: "archived" };
+  if (filters.q?.trim()) {
+    const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    query.name = { $regex: escape(filters.q.trim()), $options: "i" };
+  }
+
+  let sort: Record<string, 1 | -1> = { updatedAt: -1 };
+  if (filters.sort === "oldest") sort = { createdAt: 1 };
+  if (filters.sort === "name") sort = { name: 1 };
+
+  const docs = await col.find(query as never).sort(sort).limit(250).toArray();
+
+  // Live-run counts in one aggregation, not N queries.
+  const counts = await db
+    .collection(SABSMS_JOURNEY_RUNS_COLLECTION)
+    .aggregate<{ _id: string; n: number }>([
+      { $match: { workspaceId, status: { $in: LIVE_RUN_STATUSES } } },
+      { $group: { _id: "$journeyId", n: { $sum: 1 } } },
+    ])
+    .toArray();
+  const byJourney = new Map(counts.map((c) => [c._id, c.n]));
+
+  let rows = docs.map((d) => toRow(d, byJourney.get(String(d._id)) ?? 0));
+  if (filters.sort === "active_runs") rows = rows.sort((a, b) => b.activeRuns - a.activeRuns);
+  return rows;
+}
+
+// ─── Status mutations (list surface) ──────────────────────────────────────
+
+export async function setJourneyStatusFromList(
+  id: string,
+  to: Extract<JourneyStatus, "active" | "paused" | "archived">,
+): Promise<DripActionResult> {
+  // Activation must pass through the validation gate in [id]/actions.
+  const { activateJourney, pauseJourney, archiveJourney } = await import("./[id]/actions");
+  const res =
+    to === "active"
+      ? await activateJourney(id)
+      : to === "paused"
+        ? await pauseJourney(id)
+        : await archiveJourney(id);
+  if (!res.ok) {
+    return {
+      ok: false,
+      error: res.errors?.length ? `Fix before activating: ${res.errors[0]}` : res.error,
+    };
+  }
   revalidatePath("/sabsms/drips");
   return { ok: true };
 }
 
-export async function duplicateDrip(id: string): Promise<DripActionResult & { id?: string }> {
+export async function duplicateJourney(
+  id: string,
+): Promise<DripActionResult<{ id: string }>> {
   const ws = await resolveWorkspace();
-  if (!ws.ok) return { ok: false, error: ws.error };
-  const oid = toObjectIdOrNull(id);
-  if (!oid) return { ok: false, error: "invalid_id" };
-  const { cols } = await getSabsmsCollections();
-  const doc = await cols.drips.findOne(
-    { _id: oid, workspaceId: ws.workspaceId } as never,
-  );
+  if (!ws.ok) return ws;
+  if (!ObjectId.isValid(id)) return { ok: false, error: "invalid_id" };
+  const { db } = await connectToDatabase();
+  const col = db.collection<SabsmsJourney>(SABSMS_JOURNEYS_COLLECTION);
+  const doc = await col.findOne({ _id: new ObjectId(id), workspaceId: ws.workspaceId } as never);
   if (!doc) return { ok: false, error: "not_found" };
+
   const now = new Date();
   const newId = new ObjectId();
-  await cols.drips.insertOne({
-    ...(doc as object),
+  const { _id: _drop, ab: _abDrop, ...rest } = doc;
+  await col.insertOne({
+    ...rest,
     _id: newId,
     name: `${doc.name} (copy)`,
-    enabled: false,
+    status: "draft",
+    stats: emptyJourneyStats(),
+    ...(doc.ab?.sampleThreshold ? { ab: { sampleThreshold: doc.ab.sampleThreshold } } : {}),
     createdAt: now,
     updatedAt: now,
-  } as unknown as SabsmsDrip);
+  } as SabsmsJourney);
   revalidatePath("/sabsms/drips");
-  return { ok: true, id: newId.toHexString() };
+  return { ok: true, id: String(newId) };
 }
 
-export async function setAutoPauseOnError(
-  id: string,
-  enabled: boolean,
-): Promise<DripActionResult> {
+/** Manual enrolment from the list (suppression + dedupe inside). */
+export async function enrolContactFromList(
+  journeyId: string,
+  phone: string,
+): Promise<DripActionResult<{ runId: string }>> {
   const ws = await resolveWorkspace();
-  if (!ws.ok) return { ok: false, error: ws.error };
-  const oid = toObjectIdOrNull(id);
-  if (!oid) return { ok: false, error: "invalid_id" };
-  const { cols } = await getSabsmsCollections();
-  await cols.drips.updateOne(
-    { _id: oid, workspaceId: ws.workspaceId } as never,
-    { $set: { autoPauseOnError: enabled, updatedAt: new Date() } },
-  );
+  if (!ws.ok) return ws;
+  if (!ObjectId.isValid(journeyId)) return { ok: false, error: "invalid_id" };
+  const { db } = await connectToDatabase();
+  await ensureJourneyIndexes(db);
+
+  const owned = await db
+    .collection(SABSMS_JOURNEYS_COLLECTION)
+    .findOne(
+      { _id: new ObjectId(journeyId), workspaceId: ws.workspaceId },
+      { projection: { _id: 1 } },
+    );
+  if (!owned) return { ok: false, error: "not_found" };
+
+  const store = createMongoJourneyStore(db);
+  const res = await startJourneyRun(store, journeyId, { phone: phone.trim() });
+  if (!res.started) return { ok: false, error: res.reason };
   revalidatePath("/sabsms/drips");
-  return { ok: true };
+  return { ok: true, runId: res.runId };
 }
 
-export async function editSchedule(
-  id: string,
-  scheduleSummary: string,
-): Promise<DripActionResult> {
-  const ws = await resolveWorkspace();
-  if (!ws.ok) return { ok: false, error: ws.error };
-  const oid = toObjectIdOrNull(id);
-  if (!oid) return { ok: false, error: "invalid_id" };
-  const { cols } = await getSabsmsCollections();
-  await cols.drips.updateOne(
-    { _id: oid, workspaceId: ws.workspaceId } as never,
-    { $set: { scheduleSummary, updatedAt: new Date() } },
-  );
-  revalidatePath("/sabsms/drips");
-  return { ok: true };
+// ─── Pinpoint import ──────────────────────────────────────────────────────
+
+export interface PinpointImportSummary {
+  journeyId: string;
+  journeyName: string;
+  stepCount: number;
+  templatesCreated: number;
+  warnings: string[];
 }
 
-export async function exportDripJson(
-  id: string,
-): Promise<{ ok: boolean; json?: string; error?: string }> {
+export async function importPinpointJourneyAction(
+  jsonText: string,
+): Promise<DripActionResult<{ summary: PinpointImportSummary }>> {
   const ws = await resolveWorkspace();
-  if (!ws.ok) return { ok: false, error: ws.error };
-  const oid = toObjectIdOrNull(id);
-  if (!oid) return { ok: false, error: "invalid_id" };
-  const { cols } = await getSabsmsCollections();
-  const doc = await cols.drips.findOne(
-    { _id: oid, workspaceId: ws.workspaceId } as never,
-  );
-  if (!doc) return { ok: false, error: "not_found" };
-  const draft = (doc as unknown as { draft?: DraftDrip }).draft;
+  if (!ws.ok) return ws;
+
+  let parsed: ReturnType<typeof parsePinpointJourney>;
+  try {
+    parsed = parsePinpointJourney(jsonText);
+  } catch (e) {
+    return { ok: false, error: (e as Error).message };
+  }
+
+  const { db } = await connectToDatabase();
+  await ensureJourneyIndexes(db);
+  const templatesCol = db.collection("sabsms_templates");
+  const now = new Date();
+
+  // Create one template draft per SMS activity; `{workspaceId, name}` is
+  // unique, so collisions get a numeric suffix.
+  const refToId = new Map<string, string>();
+  for (const tpl of parsed.templates) {
+    let inserted: ObjectId | null = null;
+    for (let attempt = 0; attempt < 20 && !inserted; attempt++) {
+      const name = attempt === 0 ? tpl.name : `${tpl.name} (${attempt + 1})`;
+      try {
+        const res = await templatesCol.insertOne({
+          workspaceId: ws.workspaceId,
+          name,
+          category: "marketing",
+          bodies: [{ locale: "en", body: tpl.body }],
+          variables: extractVariables(tpl.body).named,
+          status: "draft",
+          reviewerNotes: "Imported from AWS Pinpoint journey export.",
+          createdAt: now,
+          updatedAt: now,
+        });
+        inserted = res.insertedId;
+      } catch (e) {
+        if ((e as { code?: number })?.code === 11000) continue; // name taken — suffix and retry
+        throw e;
+      }
+    }
+    if (!inserted) return { ok: false, error: "template_name_conflict" };
+    refToId.set(tpl.ref, String(inserted));
+  }
+
+  // Swap ref placeholders for real template ids.
+  const steps = parsed.journey.steps.map((step) => {
+    if (step.kind !== "send") return step;
+    const real = step.templateId.startsWith(TEMPLATE_REF_PREFIX)
+      ? refToId.get(step.templateId)
+      : undefined;
+    return { ...step, templateId: real ?? step.templateId };
+  });
+
+  const journeyId = new ObjectId();
+  await db.collection(SABSMS_JOURNEYS_COLLECTION).insertOne({
+    _id: journeyId,
+    workspaceId: ws.workspaceId,
+    ...parsed.journey,
+    steps,
+    createdAt: now,
+    updatedAt: now,
+  });
+
+  revalidatePath("/sabsms/drips");
   return {
     ok: true,
-    json: JSON.stringify(
-      {
-        name: doc.name,
-        enabled: doc.enabled,
-        entryTrigger: doc.entryTrigger,
-        steps: doc.steps,
-        draft,
-      },
-      null,
-      2,
-    ),
+    summary: {
+      journeyId: String(journeyId),
+      journeyName: parsed.journey.name,
+      stepCount: steps.length,
+      templatesCreated: parsed.templates.length,
+      warnings: parsed.warnings,
+    },
   };
-}
-
-export async function importDripJson(
-  json: string,
-): Promise<DripActionResult & { id?: string }> {
-  const ws = await resolveWorkspace();
-  if (!ws.ok) return { ok: false, error: ws.error };
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(json);
-  } catch {
-    return { ok: false, error: "invalid_json" };
-  }
-  const p = parsed as Partial<SabsmsDrip & { draft?: DraftDrip }>;
-  if (!p || typeof p !== "object" || typeof p.name !== "string") {
-    return { ok: false, error: "shape_invalid" };
-  }
-  const { cols } = await getSabsmsCollections();
-  const now = new Date();
-  const newId = new ObjectId();
-  await cols.drips.insertOne({
-    _id: newId,
-    workspaceId: ws.workspaceId,
-    name: p.name,
-    enabled: false,
-    entryTrigger: p.entryTrigger ?? { kind: "manual" },
-    steps: Array.isArray(p.steps) ? p.steps : [],
-    draft: p.draft,
-    createdAt: now,
-    updatedAt: now,
-  } as unknown as SabsmsDrip);
-  revalidatePath("/sabsms/drips");
-  return { ok: true, id: newId.toHexString() };
-}
-
-export async function testEnrolContact(
-  dripId: string,
-  contact: { phoneE164: string; firstName?: string },
-): Promise<DripActionResult> {
-  const ws = await resolveWorkspace();
-  if (!ws.ok) return { ok: false, error: ws.error };
-  const oid = toObjectIdOrNull(dripId);
-  if (!oid) return { ok: false, error: "invalid_id" };
-  // Phase 4 of the engine owns the actual enrolment write; we record
-  // a placeholder doc so the UI can show "queued".
-  const { cols } = await getSabsmsCollections();
-  await cols.drips.updateOne(
-    { _id: oid, workspaceId: ws.workspaceId } as never,
-    {
-      $push: {
-        testEnrolments: {
-          $each: [{ contact, enroledAt: new Date() }],
-          $slice: -25,
-        },
-      } as never,
-    },
-  );
-  revalidatePath("/sabsms/drips");
-  return { ok: true };
-}
-
-export async function bulkEnrolFromSegment(
-  dripIds: string[],
-  segmentId: string,
-): Promise<DripActionResult> {
-  const ws = await resolveWorkspace();
-  if (!ws.ok) return { ok: false, error: ws.error };
-  const oids = dripIds
-    .map(toObjectIdOrNull)
-    .filter((x): x is ObjectId => x !== null);
-  if (oids.length === 0) return { ok: false, error: "no_valid_ids" };
-  const { cols } = await getSabsmsCollections();
-  await cols.drips.updateMany(
-    { _id: { $in: oids }, workspaceId: ws.workspaceId } as never,
-    {
-      $push: {
-        pendingBulkEnrolments: {
-          $each: [{ segmentId, queuedAt: new Date() }],
-          $slice: -100,
-        },
-      } as never,
-    },
-  );
-  revalidatePath("/sabsms/drips");
-  return { ok: true };
-}
-
-export async function massExit(
-  dripIds: string[],
-): Promise<DripActionResult> {
-  const ws = await resolveWorkspace();
-  if (!ws.ok) return { ok: false, error: ws.error };
-  const oids = dripIds
-    .map(toObjectIdOrNull)
-    .filter((x): x is ObjectId => x !== null);
-  if (oids.length === 0) return { ok: false, error: "no_valid_ids" };
-  const { cols } = await getSabsmsCollections();
-  await cols.drips.updateMany(
-    { _id: { $in: oids }, workspaceId: ws.workspaceId } as never,
-    {
-      $set: { activeRecipients: 0, updatedAt: new Date() },
-      $push: { massExitEvents: { at: new Date() } } as never,
-    },
-  );
-  revalidatePath("/sabsms/drips");
-  return { ok: true };
 }

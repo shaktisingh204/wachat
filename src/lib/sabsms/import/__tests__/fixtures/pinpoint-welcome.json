@@ -1,0 +1,94 @@
+{
+  "ApplicationId": "abcd1234efgh5678ijkl9012mnop3456",
+  "Id": "9f8e7d6c5b4a39281706f5e4d3c2b1a0",
+  "Name": "Welcome Series (SMS)",
+  "State": "ACTIVE",
+  "CreationDate": "2025-11-03T18:22:41.000Z",
+  "LastModifiedDate": "2026-02-19T09:11:05.000Z",
+  "Schedule": {
+    "Timezone": "America/New_York"
+  },
+  "StartCondition": {
+    "Description": "New signups segment",
+    "SegmentStartCondition": {
+      "SegmentId": "d4c3b2a1f0e9d8c7b6a5948372615049"
+    }
+  },
+  "Limits": {
+    "DailyCap": 5000,
+    "MessagesPerSecond": 50
+  },
+  "StartActivity": "welcomeSms",
+  "Activities": {
+    "welcomeSms": {
+      "Description": "Welcome message",
+      "SMS": {
+        "MessageConfig": {
+          "MessageType": "PROMOTIONAL",
+          "OriginationNumber": "+18445550123",
+          "Body": "Welcome to Acme, {{firstName|friend}}! Reply HELP for help, STOP to opt out."
+        },
+        "TemplateName": "acme-welcome-sms",
+        "TemplateVersion": "3",
+        "NextActivity": "wait24h"
+      }
+    },
+    "wait24h": {
+      "Description": "Wait one day",
+      "Wait": {
+        "WaitTime": {
+          "WaitFor": "PT24H"
+        },
+        "NextActivity": "planSplit"
+      }
+    },
+    "planSplit": {
+      "Description": "Pro plan split",
+      "ConditionalSplit": {
+        "Condition": {
+          "Operator": "ALL",
+          "Conditions": [
+            {
+              "SegmentDimensions": {
+                "Attributes": {
+                  "plan": {
+                    "AttributeType": "INCLUSIVE",
+                    "Values": ["pro"]
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "EvaluationWaitTime": {
+          "WaitFor": "PT1H"
+        },
+        "TrueActivity": "proTipsSms",
+        "FalseActivity": "upgradeSms"
+      }
+    },
+    "proTipsSms": {
+      "Description": "Pro tips",
+      "SMS": {
+        "MessageConfig": {
+          "MessageType": "PROMOTIONAL",
+          "OriginationNumber": "+18445550123"
+        },
+        "TemplateName": "acme-pro-tips-sms",
+        "NextActivity": null
+      }
+    },
+    "upgradeSms": {
+      "Description": "Upgrade nudge",
+      "SMS": {
+        "MessageConfig": {
+          "MessageType": "PROMOTIONAL",
+          "OriginationNumber": "+18445550123",
+          "Body": "You are on the free plan. Upgrade this week and get 20% off: https://acme.example/upgrade"
+        },
+        "TemplateName": "acme-upgrade-sms",
+        "NextActivity": null
+      }
+    }
+  }
+}

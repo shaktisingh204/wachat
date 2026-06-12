@@ -3,8 +3,10 @@ import 'server-only';
 import type {
   EnqueueSendInput,
   EnqueueSendResult,
+  SabsmsAvailableNumber,
   SabsmsMessage,
   SabsmsMessageStatus,
+  SabsmsProviderId,
 } from './types';
 
 /**
@@ -31,6 +33,43 @@ function getEngineToken(): string {
 
 function isEngineEnabled(): boolean {
   return (process.env.SABSMS_ENABLED ?? 'false').toLowerCase() === 'true';
+}
+
+/** One destination-country row from `GET /v1/health/providers`. */
+export interface SabsmsProviderHealthCountry {
+  country: string;
+  sent: number;
+  delivered: number;
+  failed: number;
+  /** Laplace-smoothed delivery score in [0, 1]; 1.0 = neutral/no data. */
+  score: number;
+  lastDlrMs: number | null;
+  circuit: 'closed' | 'open' | 'half_open';
+}
+
+/** Per-account health from `GET /v1/health/providers`. */
+export interface SabsmsProviderHealthAccount {
+  accountId: string;
+  provider: string;
+  isDefault: boolean;
+  status: string;
+  byCountry: SabsmsProviderHealthCountry[];
+}
+
+/** One ordered candidate from `POST /v1/internal/routing/preview`. */
+export interface SabsmsRoutePreviewCandidate {
+  providerAccountId: string | null;
+  provider: string;
+  fromOverride: string | null;
+  source: 'sticky' | 'rule' | 'fallback';
+  ruleId: string | null;
+  score: number | null;
+  circuit: 'closed' | 'open' | 'half_open';
+}
+
+export interface SabsmsRoutePreview {
+  country: string;
+  candidates: SabsmsRoutePreviewCandidate[];
 }
 
 export class SabsmsEngineError extends Error {
@@ -223,6 +262,68 @@ export const sabsmsEngine = {
   },
 
   /**
+   * Live-test a stored provider account's credentials against the
+   * provider API (`POST /v1/internal/providers/test`).
+   */
+  async testProviderConnection(input: {
+    workspaceId: string;
+    accountId: string;
+  }): Promise<{ ok: boolean; provider?: string; detail?: string; error?: string }> {
+    return engineFetch<{ ok: boolean; provider?: string; detail?: string; error?: string }>(
+      '/v1/internal/providers/test',
+      { method: 'POST', json: input },
+    );
+  },
+
+  /**
+   * Search purchasable inventory (`POST /v1/numbers/search`) — Twilio /
+   * Telnyx only; msg91/gupshup return a 400 (sender IDs are registered
+   * manually for those providers).
+   */
+  async searchNumbers(input: {
+    workspaceId: string;
+    provider: SabsmsProviderId;
+    country: string;
+    capabilities?: string[];
+  }): Promise<{ numbers: SabsmsAvailableNumber[] }> {
+    return engineFetch<{ numbers: SabsmsAvailableNumber[] }>('/v1/numbers/search', {
+      method: 'POST',
+      json: input,
+      timeoutMs: 30_000,
+    });
+  },
+
+  /**
+   * Buy a number through the provider (`POST /v1/numbers/provision`).
+   * The engine inserts the `sabsms_numbers` doc itself — callers must
+   * NOT insert again Next-side.
+   */
+  async provisionNumber(input: {
+    workspaceId: string;
+    provider: SabsmsProviderId;
+    phoneNumber: string;
+    providerAccountId?: string;
+  }): Promise<{
+    ok: boolean;
+    numberId: string;
+    e164: string;
+    providerNumberId?: string | null;
+    capabilities: { sms: boolean; mms: boolean; rcs: boolean; voice: boolean };
+  }> {
+    return engineFetch<{
+      ok: boolean;
+      numberId: string;
+      e164: string;
+      providerNumberId?: string | null;
+      capabilities: { sms: boolean; mms: boolean; rcs: boolean; voice: boolean };
+    }>('/v1/numbers/provision', {
+      method: 'POST',
+      json: input,
+      timeoutMs: 30_000,
+    });
+  },
+
+  /**
    * Tell the engine to drop its cached decrypted credentials for a
    * workspace (called after provider accounts change). Tolerates an
    * unreachable/disabled engine silently — the cache simply expires.
@@ -238,6 +339,55 @@ export const sabsmsEngine = {
     } catch {
       return false;
     }
+  },
+
+  /**
+   * Per-account rolling delivery health + circuit state
+   * (`GET /v1/health/providers`) — feeds the /sabsms/health page and
+   * the live badges on the routing rule builder.
+   */
+  async getProviderHealth(
+    workspaceId: string,
+  ): Promise<{ accounts: SabsmsProviderHealthAccount[] }> {
+    const search = new URLSearchParams({ workspaceId });
+    return engineFetch<{ accounts: SabsmsProviderHealthAccount[] }>(
+      `/v1/health/providers?${search.toString()}`,
+    );
+  },
+
+  /**
+   * Drop the engine's cached routing policy for a workspace (called
+   * after every policy save). Tolerates an unreachable/disabled engine
+   * silently — the 60s cache simply expires.
+   */
+  async invalidateRouting(workspaceId: string): Promise<boolean> {
+    try {
+      await engineFetch('/v1/internal/routing/invalidate', {
+        method: 'POST',
+        json: { workspaceId },
+        timeoutMs: 5_000,
+      });
+      return true;
+    } catch {
+      return false;
+    }
+  },
+
+  /**
+   * Dry-run the router (`POST /v1/internal/routing/preview`): "where
+   * would this message route?" Returns the ordered candidates with
+   * health scores + circuit states; nothing is sent.
+   */
+  async previewRoute(input: {
+    workspaceId: string;
+    to: string;
+    category?: string;
+    channel?: string;
+  }): Promise<SabsmsRoutePreview> {
+    return engineFetch<SabsmsRoutePreview>('/v1/internal/routing/preview', {
+      method: 'POST',
+      json: input,
+    });
   },
 };
 
