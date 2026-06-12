@@ -24,6 +24,8 @@ export interface RibbonProps {
   onOpenPanel?: (panel: SheetPanel) => void;
   /** Opens the print/PDF view (persistent workbooks only). */
   onPrint?: () => void;
+  /** Opens the searchable function browser (Formulas tab). */
+  onInsertFunction?: () => void;
 }
 
 type Tab = "Home" | "Insert" | "Formulas" | "Data" | "View";
@@ -93,7 +95,7 @@ const CSS = `
 }
 `;
 
-export function Ribbon({ grid, onExportXlsx, onOpenPanel, onPrint }: RibbonProps) {
+export function Ribbon({ grid, onExportXlsx, onOpenPanel, onPrint, onInsertFunction }: RibbonProps) {
   const [tab, setTab] = useState<Tab>("Home");
   const [findOpen, setFindOpen] = useState(false);
   const [find, setFind] = useState("");
@@ -185,9 +187,10 @@ export function Ribbon({ grid, onExportXlsx, onOpenPanel, onPrint }: RibbonProps
         {tab === "Formulas" && (
           <>
             <Btn title="AutoSum a selected range" onClick={() => void g()?.autoSum()}>Σ AutoSum</Btn>
+            <Btn title="Browse + insert any function" disabled={!onInsertFunction} onClick={() => onInsertFunction?.()}>ƒx Insert function</Btn>
             <Btn title="Named ranges — coming soon" disabled>Name Manager</Btn>
             <Sep />
-            <span className="sbsr-hint">343 functions — type “=” in any cell (SUM, VLOOKUP, XLOOKUP, IF, TEXTJOIN…)</span>
+            <span className="sbsr-hint">390+ functions — type “=” in any cell and autocomplete will guide you</span>
           </>
         )}
 

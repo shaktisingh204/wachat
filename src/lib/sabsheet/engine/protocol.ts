@@ -25,6 +25,7 @@ export type EngineRequest =
   | { kind: "content"; sheet: number; row: number; col: number }
   | { kind: "sheetList" }
   | { kind: "frozen"; sheet: number }
+  | { kind: "functionCatalog" }
   | { kind: "toSnapshot" }
   | { kind: "status" };
 
@@ -45,6 +46,7 @@ export type EngineResult =
   | { kind: "content"; text: string }
   | { kind: "sheetList"; sheets: SheetInfo[] }
   | { kind: "frozen"; rows: number; cols: number }
+  | { kind: "functionCatalog"; names: string[] }
   | { kind: "toSnapshot"; snapshot: Uint8Array }
   | { kind: "status"; status: EngineStatus };
 

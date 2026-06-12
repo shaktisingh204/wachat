@@ -38,6 +38,7 @@ interface WasmModule {
   WasmEngine: {
     new (name: string): WasmEngineLike;
     fromSnapshot(bytes: Uint8Array): WasmEngineLike;
+    functionCatalog(): unknown;
   };
 }
 
@@ -114,6 +115,10 @@ async function dispatch(req: RequestMessage["req"]): Promise<Extract<ResponseMes
     case "frozen": {
       const f = engine!.frozen(req.sheet);
       return { kind: "frozen", rows: f[0] ?? 0, cols: f[1] ?? 0 };
+    }
+    case "functionCatalog": {
+      const m = await loadModule();
+      return { kind: "functionCatalog", names: m.WasmEngine.functionCatalog() as never };
     }
     case "toSnapshot": {
       return { kind: "toSnapshot", snapshot: engine!.toSnapshot() };

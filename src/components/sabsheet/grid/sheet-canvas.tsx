@@ -132,6 +132,8 @@ export interface SheetCanvasHandle {
   applyRowFilter(hiddenRows: number[]): Promise<void>;
   /** Restore all filter-hidden rows. */
   clearRowFilter(): Promise<void>;
+  /** Names of every formula function the engine accepts (autocomplete / browser catalog). */
+  functionCatalog(): Promise<string[]>;
 }
 
 export const SheetCanvas = forwardRef<SheetCanvasHandle, SheetCanvasProps>(function SheetCanvas(
@@ -466,6 +468,10 @@ export const SheetCanvas = forwardRef<SheetCanvasHandle, SheetCanvasProps>(funct
         for (const r of filterHiddenRef.current) rows.resetSize(r - 1);
         filterHiddenRef.current = [];
         await refresh();
+      },
+      async functionCatalog() {
+        const e = engineRef.current;
+        return e ? e.functionCatalog() : [];
       },
     }),
     [applyLocal, refresh, emitSelection, switchSheet, syncSheets, syncFrozen, setSelection, cols, rows],

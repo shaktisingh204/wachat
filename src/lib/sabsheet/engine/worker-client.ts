@@ -119,6 +119,14 @@ export class CalcEngineClient {
     return { rows: res.rows, cols: res.cols };
   }
 
+  /** Canonical names of every formula function the engine implements (autocomplete catalog). */
+  async functionCatalog(): Promise<string[]> {
+    await this.ready;
+    const res = await this.call({ kind: "functionCatalog" });
+    if (res.kind !== "functionCatalog") throw new Error("unexpected result");
+    return res.names;
+  }
+
   /** Full-workbook snapshot (autosave / version history). */
   async toSnapshot(): Promise<Uint8Array> {
     await this.ready;

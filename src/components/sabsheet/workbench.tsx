@@ -21,6 +21,9 @@ import { ValidationPanel } from "./chrome/validation-panel.tsx";
 import { FilterPanel } from "./chrome/filter-panel.tsx";
 import { SharePanel } from "./chrome/share-panel.tsx";
 import { SheetIcon } from "./chrome/sheet-icon.tsx";
+import { FormulaAssist } from "./formula/formula-assist.tsx";
+import { FunctionBrowser } from "./formula/function-browser.tsx";
+import { matchFunctionPrefix, filterFunctions, activeCall, acceptCompletion } from "./formula/assist.ts";
 import type { CFRule } from "../../lib/sabsheet/cformat/types.ts";
 import type { DataValidationRule } from "../../lib/sabsheet/validation/types.ts";
 import { exportXlsxAction } from "../../app/actions/sabsheet-ops.actions.ts";
@@ -55,6 +58,62 @@ export function Workbench({ name, workbookId, seed }: WorkbenchProps) {
   const [aggregates, setAggregates] = useState<string | null>(null);
   const [panel, setPanel] = useState<SheetPanel | null>(null);
   const [chartSel, setChartSel] = useState<{ cells: CellView[]; box: { top: number; left: number; bottom: number; right: number }; sheet: number } | null>(null);
+
+  // ── Formula assist (autocomplete + signature help) ────────────────────────
+  const formulaRef = useRef<HTMLInputElement>(null);
+  const [fnNames, setFnNames] = useState<string[]>([]);
+  const [caret, setCaret] = useState(0);
+  const [assistIdx, setAssistIdx] = useState(0);
+  const [assistDismissed, setAssistDismissed] = useState(false);
+  const [browserOpen, setBrowserOpen] = useState(false);
+
+  const loadFnNames = useCallback(async () => {
+    if (fnNames.length) return;
+    try {
+      const names = (await gridRef.current?.functionCatalog()) ?? [];
+      setFnNames(names);
+    } catch {
+      /* engine not ready yet — retried on next focus */
+    }
+  }, [fnNames.length]);
+
+  const prefixMatch = assistDismissed ? null : matchFunctionPrefix(draft, caret);
+  const assistList = prefixMatch ? filterFunctions(fnNames, prefixMatch.prefix) : [];
+  const callCtx = assistList.length === 0 ? activeCall(draft, caret) : null;
+
+  const acceptFn = useCallback(
+    (name: string) => {
+      if (!prefixMatch) return;
+      const r = acceptCompletion(draft, caret, prefixMatch.start, name);
+      setDraft(r.draft);
+      setCaret(r.caret);
+      setAssistIdx(0);
+      requestAnimationFrame(() => {
+        formulaRef.current?.focus();
+        formulaRef.current?.setSelectionRange(r.caret, r.caret);
+      });
+    },
+    [draft, caret, prefixMatch],
+  );
+
+  const insertFromBrowser = useCallback((name: string) => {
+    setBrowserOpen(false);
+    setDraft((d) => {
+      const base = d.startsWith("=") ? d : "=";
+      const next = `${base}${name}(`;
+      requestAnimationFrame(() => {
+        formulaRef.current?.focus();
+        formulaRef.current?.setSelectionRange(next.length, next.length);
+        setCaret(next.length);
+      });
+      return next;
+    });
+  }, []);
+
+  const openBrowser = useCallback(async () => {
+    await loadFnNames();
+    setBrowserOpen(true);
+  }, [loadFnNames]);
 
   const openPanel = useCallback(async (p: SheetPanel) => {
     if (p === "charts" || p === "pivot" || p === "cformat" || p === "validation" || p === "filter") {
@@ -145,6 +204,7 @@ export function Workbench({ name, workbookId, seed }: WorkbenchProps) {
         onExportXlsx={workbookId && online ? exportXlsx : undefined}
         onOpenPanel={workbookId ? (p) => void openPanel(p) : undefined}
         onPrint={workbookId ? print : undefined}
+        onInsertFunction={() => void openBrowser()}
       />
       <div className="sbsw-fbar">
         <input
@@ -165,10 +225,40 @@ export function Workbench({ name, workbookId, seed }: WorkbenchProps) {
         <span className="sbsw-fdiv" aria-hidden />
         <span className="sbsw-fx" aria-hidden>fx</span>
         <input
+          ref={formulaRef}
           aria-label="Formula or value"
           value={draft}
-          onChange={(e) => setDraft(e.target.value)}
+          onFocus={() => void loadFnNames()}
+          onChange={(e) => {
+            setDraft(e.target.value);
+            setCaret(e.target.selectionStart ?? e.target.value.length);
+            setAssistIdx(0);
+            setAssistDismissed(false);
+          }}
+          onSelect={(e) => setCaret((e.target as HTMLInputElement).selectionStart ?? 0)}
           onKeyDown={(e) => {
+            if (assistList.length > 0) {
+              if (e.key === "ArrowDown") {
+                e.preventDefault();
+                setAssistIdx((i) => (i + 1) % assistList.length);
+                return;
+              }
+              if (e.key === "ArrowUp") {
+                e.preventDefault();
+                setAssistIdx((i) => (i - 1 + assistList.length) % assistList.length);
+                return;
+              }
+              if (e.key === "Tab" || e.key === "Enter") {
+                e.preventDefault();
+                acceptFn(assistList[Math.min(assistIdx, assistList.length - 1)]);
+                return;
+              }
+              if (e.key === "Escape") {
+                e.preventDefault();
+                setAssistDismissed(true);
+                return;
+              }
+            }
             if (e.key === "Enter") {
               e.preventDefault();
               void commit();
@@ -180,6 +270,14 @@ export function Workbench({ name, workbookId, seed }: WorkbenchProps) {
           placeholder="Enter a value or =formula"
         />
       </div>
+      <FormulaAssist list={assistList} selected={assistIdx} onPick={acceptFn} call={callCtx} />
+      {browserOpen && (
+        <FunctionBrowser
+          names={fnNames}
+          onInsert={insertFromBrowser}
+          onClose={() => setBrowserOpen(false)}
+        />
+      )}
 
       <div style={styles.gridRow}>
         <div style={styles.gridWrap}>
