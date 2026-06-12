@@ -23,9 +23,10 @@ import { AnimatePresence, m, useReducedMotion } from "motion/react";
 import { Pin, PinOff, Search } from "lucide-react";
 
 import { cn } from "../lib/cn";
-import { SAB_APPS, type SabAppDescriptor } from "./apps";
+import { SAB_APPS, isWindowableApp, type SabAppDescriptor } from "./apps";
 import { SabAppLogo } from "./app-logos";
 import { useDockApps } from "./use-dock-apps";
+import { useDesktopWindows } from "./window-store";
 
 const EASE_OUT = [0.23, 1, 0.32, 1] as const;
 
@@ -38,6 +39,9 @@ export function SabLaunchpad({ open, onClose }: SabLaunchpadProps) {
   const reduceMotion = useReducedMotion();
   const dock = useDockApps();
   const router = useRouter();
+  // Open apps as live desktop windows (state preserved). Null if rendered
+  // outside the desktop host — then fall back to navigation.
+  const wm = useDesktopWindows();
   const [query, setQuery] = React.useState("");
   const searchRef = React.useRef<HTMLInputElement>(null);
   const restoreFocusRef = React.useRef<HTMLElement | null>(null);
@@ -71,7 +75,11 @@ export function SabLaunchpad({ open, onClose }: SabLaunchpadProps) {
 
   function openApp(app: SabAppDescriptor) {
     onClose();
-    router.push(app.href);
+    if (!wm || !isWindowableApp(app)) {
+      router.push(app.href);
+      return;
+    }
+    wm.openWindow(app.id);
   }
 
   return (

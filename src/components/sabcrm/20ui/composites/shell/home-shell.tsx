@@ -25,7 +25,6 @@ import { cn } from "../lib/cn";
 // empty namespace object — rendering it then throws "Element type is
 // invalid ... got: object" on every dashboard route. The relative path breaks it.
 import { AppHeader } from "../../shell";
-import { SabAppDock } from "./app-dock";
 import { useHtmlDark, AppThemeToggle } from "./app-theme";
 import {
   SabAppSidebar,
@@ -268,12 +267,11 @@ function SabHomeShellContent({
 
   return (
     <div className="flex h-[100dvh] w-full overflow-hidden bg-[var(--st-bg)] text-[var(--st-text)]">
-      {/* App switching — macOS-style auto-hiding dock + Launchpad. Fixed
-          position, so it takes no layout space; the theme-synced wrapper
-          only provides the `.20ui` token scope. */}
-      <div className={`20ui ${appDark ? "dark" : "light"}`}>
-        <SabAppDock />
-      </div>
+      {/* App switching lives in the macOS-style dock, which is now promoted to
+          the persistent DesktopHost (mounted once in the root layout) so open
+          app windows survive navigation. The shell no longer renders its own
+          dock. Inside a desktop app-window iframe this whole shell renders
+          chromeless (the host detects the frame and shows no dock there). */}
       {!fullBleed && !sidebarless && (
         <SabAppSidebar
           heading={resolvedHeading}

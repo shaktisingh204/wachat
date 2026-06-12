@@ -29,7 +29,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import {
   AnimatePresence,
   m,
@@ -46,12 +46,14 @@ import {
   Pin,
   PinOff,
   RotateCcw,
+  X,
 } from "lucide-react";
 
 import { cn } from "../lib/cn";
-import { SAB_APPS, type SabAppDescriptor } from "./apps";
+import { SAB_APPS, isWindowableApp, type SabAppDescriptor } from "./apps";
 import { SabAppLogo } from "./app-logos";
 import { useDockApps, useDockAutoHide } from "./use-dock-apps";
+import { useDesktopWindows } from "./window-store";
 import { SabLaunchpad } from "./launchpad";
 
 /* Compact geometry (px). BASE tile, MAX under the cursor, RANGE of influence. */
@@ -67,10 +69,13 @@ type MenuState =
   | { kind: "dock" };
 
 export function SabAppDock({ className }: { className?: string }) {
-  const pathname = usePathname();
+  const router = useRouter();
   const reduceMotion = useReducedMotion();
   const dock = useDockApps();
   const hiding = useDockAutoHide();
+  // The desktop window store drives "what's open" + "what's focused". Null only
+  // if the dock is ever rendered outside the desktop host (then it stays inert).
+  const wm = useDesktopWindows();
 
   const [finePointer, setFinePointer] = React.useState(false);
   const [visible, setVisible] = React.useState(true);
@@ -132,7 +137,8 @@ export function SabAppDock({ className }: { className?: string }) {
     }, HIDE_DELAY_MS);
   }, [cancelHide]);
 
-  /* Resolve the dock's app list: pinned, plus the active app if unpinned. */
+  /* Resolve the dock's app list: pinned apps, plus any OPEN window that isn't
+     pinned (macOS "running app" behaviour, now driven by real open windows). */
   const byId = React.useMemo(
     () => new Map(SAB_APPS.map((app) => [app.id, app])),
     [],
@@ -144,12 +150,30 @@ export function SabAppDock({ className }: { className?: string }) {
         .filter((a): a is SabAppDescriptor => Boolean(a)),
     [dock.pinnedIds, byId],
   );
-  const activeApp = React.useMemo(
-    () => SAB_APPS.find((app) => app.isActive(pathname)) ?? null,
-    [pathname],
+  const openUnpinned = React.useMemo(
+    () =>
+      (wm?.windows ?? [])
+        .map((w) => byId.get(w.id))
+        .filter((a): a is SabAppDescriptor => Boolean(a))
+        .filter((a) => !dock.pinnedIds.includes(a.id)),
+    [wm?.windows, byId, dock.pinnedIds],
   );
-  const runningUnpinned =
-    activeApp && !dock.pinnedIds.includes(activeApp.id) ? activeApp : null;
+
+  /* Open (or focus) an app as a desktop window — or hard-navigate the apps that
+     aren't windowable (SabCRM, SabSites). Also dismisses the menu and, on touch
+     with hiding on, tucks the dock away. */
+  const activateApp = React.useCallback(
+    (app: SabAppDescriptor) => {
+      setMenu(null);
+      if (hiding.autoHide && !finePointer) setVisible(false);
+      if (!wm || !isWindowableApp(app)) {
+        router.push(app.href);
+        return;
+      }
+      wm.openWindow(app.id);
+    },
+    [wm, router, hiding.autoHide, finePointer],
+  );
 
   /* Close the context menu on outside press / Escape. */
   React.useEffect(() => {
@@ -196,7 +220,7 @@ export function SabAppDock({ className }: { className?: string }) {
   const hiddenStyle = reduceMotion ? { opacity: 0 } : { y: 88, opacity: 0 };
   const shownStyle = reduceMotion ? { opacity: 1 } : { y: 0, opacity: 1 };
 
-  if (!dock.hydrated || !hiding.hydrated) return null;
+  if (!dock.hydrated || !hiding.hydrated || !wm || !wm.hydrated) return null;
 
   return (
     <>
@@ -299,37 +323,37 @@ export function SabAppDock({ className }: { className?: string }) {
               key={app.id}
               label={app.name}
               appId={app.id}
-              href={app.href}
-              active={app.isActive(pathname)}
+              active={wm.isOpen(app.id)}
+              focused={wm.activeId === app.id}
               mouseX={mouseX}
               magnify={magnify}
               menuOpen={menu?.kind === "app" && menu.appId === app.id}
+              onActivate={() => activateApp(app)}
               onContextMenu={() =>
                 setMenu({ kind: "app", appId: app.id, pinned: true })
               }
-              onNavigate={() => {
-                setMenu(null);
-                if (hiding.autoHide && !finePointer) setVisible(false);
-              }}
             />
           ))}
 
-          {runningUnpinned && (
+          {openUnpinned.length > 0 && (
             <>
               <DockSeparator />
-              <DockTile
-                label={runningUnpinned.name}
-                appId={runningUnpinned.id}
-                href={runningUnpinned.href}
-                active
-                mouseX={mouseX}
-                magnify={magnify}
-                menuOpen={menu?.kind === "app" && menu.appId === runningUnpinned.id}
-                onContextMenu={() =>
-                  setMenu({ kind: "app", appId: runningUnpinned.id, pinned: false })
-                }
-                onNavigate={() => setMenu(null)}
-              />
+              {openUnpinned.map((app) => (
+                <DockTile
+                  key={app.id}
+                  label={app.name}
+                  appId={app.id}
+                  active
+                  focused={wm.activeId === app.id}
+                  mouseX={mouseX}
+                  magnify={magnify}
+                  menuOpen={menu?.kind === "app" && menu.appId === app.id}
+                  onActivate={() => activateApp(app)}
+                  onContextMenu={() =>
+                    setMenu({ kind: "app", appId: app.id, pinned: false })
+                  }
+                />
+              ))}
             </>
           )}
         </nav>
@@ -345,6 +369,16 @@ export function SabAppDock({ className }: { className?: string }) {
                 app={menu.kind === "app" ? (byId.get(menu.appId) ?? null) : null}
                 autoHide={hiding.autoHide}
                 reduceMotion={Boolean(reduceMotion)}
+                windowOpen={menu.kind === "app" ? wm.isOpen(menu.appId) : false}
+                onOpen={() => {
+                  const app =
+                    menu.kind === "app" ? byId.get(menu.appId) : undefined;
+                  if (app) activateApp(app);
+                }}
+                onCloseWindow={() => {
+                  if (menu.kind === "app") wm.closeWindow(menu.appId);
+                  setMenu(null);
+                }}
                 onPinToggle={() => {
                   if (menu.kind === "app") dock.toggle(menu.appId);
                   setMenu(null);
@@ -387,7 +421,10 @@ interface DockTileProps {
   /** App id — picks the full macOS-style logo (gradient + glyph). */
   appId: string;
   href?: string;
+  /** App has an open window (running-app dot). */
   active?: boolean;
+  /** App's window is the focused one (brighter dot). */
+  focused?: boolean;
   mouseX: MotionValue<number>;
   magnify: boolean;
   menuOpen?: boolean;
@@ -405,6 +442,7 @@ function DockTile({
   appId,
   href,
   active,
+  focused,
   mouseX,
   magnify,
   menuOpen,
@@ -505,12 +543,16 @@ function DockTile({
         </button>
       )}
 
-      {/* Active indicator dot, like the macOS running-app dot. */}
+      {/* Running-app dot — brighter + larger for the focused window. */}
       <span
         aria-hidden="true"
         className={cn(
-          "mt-[2px] h-1 w-1 rounded-full transition-opacity duration-150",
-          active ? "bg-[var(--st-text)]/70 opacity-100" : "opacity-0",
+          "mt-[2px] rounded-full transition-all duration-150",
+          focused
+            ? "h-1.5 w-1.5 bg-[var(--st-text)] opacity-100"
+            : active
+              ? "h-1 w-1 bg-[var(--st-text)]/70 opacity-100"
+              : "h-1 w-1 opacity-0",
         )}
       />
     </div>
@@ -522,6 +564,10 @@ interface DockContextMenuProps {
   app: SabAppDescriptor | null;
   autoHide: boolean;
   reduceMotion: boolean;
+  /** The menu's app currently has an open window. */
+  windowOpen: boolean;
+  onOpen: () => void;
+  onCloseWindow: () => void;
   onPinToggle: () => void;
   onToggleHiding: () => void;
   onResetDock: () => void;
@@ -533,12 +579,14 @@ function DockContextMenu({
   app,
   autoHide,
   reduceMotion,
+  windowOpen,
+  onOpen,
+  onCloseWindow,
   onPinToggle,
   onToggleHiding,
   onResetDock,
   onClose,
 }: DockContextMenuProps) {
-  const router = useRouter();
   if (menu.kind === "app" && !app) return null;
 
   return (
@@ -564,12 +612,19 @@ function DockContextMenu({
         <>
           <DockMenuItem
             icon={<ArrowUpRight aria-hidden="true" className="size-3.5" />}
-            label="Open"
+            label={windowOpen ? "Switch to" : "Open"}
             onSelect={() => {
               onClose();
-              router.push(app.href);
+              onOpen();
             }}
           />
+          {windowOpen && (
+            <DockMenuItem
+              icon={<X aria-hidden="true" className="size-3.5" />}
+              label="Close Window"
+              onSelect={onCloseWindow}
+            />
+          )}
           <DockMenuItem
             icon={
               menu.pinned ? (

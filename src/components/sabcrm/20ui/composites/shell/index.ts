@@ -32,3 +32,18 @@ export {
   SabHomeShell,
   type SabHomeShellProps,
 } from "./home-shell";
+// macOS-style desktop window system — many apps open at once, state preserved
+// on switch. DesktopHost mounts once in the root layout.
+export { DesktopHost } from "./desktop-host";
+export {
+  DesktopWindowsProvider,
+  useDesktopWindows,
+  MAX_LIVE_WINDOWS,
+  type DesktopWindows,
+  type DesktopWindow,
+} from "./window-store";
+export {
+  useIsEmbedded,
+  hasChromelessParam,
+  withChromeless,
+} from "./use-chromeless";

@@ -17,6 +17,11 @@ import { MotionProvider } from '@/components/motion';
 // 20ui toast system, mounted app-wide so migrated files' useToast() has a
 // provider (coexists with the Ui20 Toaster during the migration).
 import { ToastProvider as Ui20ToastProvider, Toaster as Ui20Toaster } from '@/components/sabcrm/20ui';
+// macOS-style desktop: the single persistent host for open app windows. Lives
+// here (the only subtree that survives every cross-app navigation) so switching
+// apps preserves each app's state. Self-gates to authenticated app routes and
+// renders null everywhere else (public/marketing/auth).
+import { DesktopHost } from '@/components/sabcrm/20ui/composites/shell/desktop-host';
 
 export const metadata: Metadata = {
   title: 'SabNode',
@@ -110,6 +115,7 @@ export default function RootLayout({
               <Ui20ToastProvider>
                 {children}
                 <Ui20Toaster />
+                <DesktopHost />
               </Ui20ToastProvider>
             </TooltipProvider>
           </SessionProvider>

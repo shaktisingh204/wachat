@@ -55,6 +55,16 @@ import {
 
 export type SabAppMigrationStatus = "done" | "partial" | "pending";
 
+/**
+ * How the desktop opens an app from the dock / launchpad:
+ *   - "window"   — open as a live, state-preserving desktop window (default).
+ *   - "hard-nav" — a full browser navigation instead of a window. Used for
+ *                  surfaces that can't (or shouldn't) live in a chromeless
+ *                  iframe: SabCRM (its own outer shell) and SabSites (a
+ *                  route-handler proxy, not a React page).
+ */
+export type SabAppRenderMode = "window" | "hard-nav";
+
 export interface SabAppDescriptor {
   id: string;
   name: string;
@@ -62,6 +72,13 @@ export interface SabAppDescriptor {
   Icon: ComponentType<SVGProps<SVGSVGElement>>;
   migration: SabAppMigrationStatus;
   isActive: (pathname: string | null) => boolean;
+  /** Defaults to "window" when omitted. */
+  renderMode?: SabAppRenderMode;
+}
+
+/** True when the app opens as a live desktop window (vs a hard navigation). */
+export function isWindowableApp(app: SabAppDescriptor): boolean {
+  return app.renderMode !== "hard-nav";
 }
 
 /**
@@ -169,6 +186,9 @@ const SAB_APPS_ALL: SabAppDescriptor[] = [
     Icon: CrmIcon,
     migration: "done",
     isActive: (p) => p === "/sabcrm" || !!p?.startsWith("/sabcrm/"),
+    // SabCRM has its own outer shell (app rail, no dock) — open it as a full
+    // navigation, not a chromeless desktop window.
+    renderMode: "hard-nav",
   },
   {
     id: "hrm",
@@ -375,6 +395,9 @@ const SAB_APPS_ALL: SabAppDescriptor[] = [
     migration: "done",
     isActive: (p) =>
       !!p?.startsWith("/sites") || !!p?.startsWith("/dashboard/website-builder"),
+    // SabSites is served by a route handler (raw Response, not a React page),
+    // so it can't render chromeless in a window — navigate to it instead.
+    renderMode: "hard-nav",
   },
   {
     id: "sabshow",

@@ -10,6 +10,16 @@
           }
         ]
       }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "b=$(git symbolic-ref --quiet --short HEAD) || exit 0; case \"$b\" in main|master) exit 0;; esac; git add -- src/components/sabcrm/20ui/composites/shell src/app/layout.tsx .claude/settings.json next.config.js 2>/dev/null; git diff --cached --quiet && exit 0; git commit -q -m \"checkpoint(shell): dock windowing auto-commit\" -m \"Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>\" || true"
+          }
+        ]
+      }
     ]
   }
 }
