@@ -71,28 +71,37 @@ const handle = async (request: NextRequest): Promise<Response> => {
 
     // The builder builds absolute public URLs (OAuth redirects + the
     // p-<projectId> subdomains) from request.url, so it MUST see the external
-    // origin — never the internal bind port. We can't infer this from
-    // x-forwarded-* headers (Next sets x-forwarded-proto=http even in local
-    // dev), so production declares its canonical host explicitly:
-    //   SABSITES_PUBLIC_HOST=sabnode.com  (+ optional SABSITES_PUBLIC_PROTO,
-    //   default https). The incoming p-<projectId> label is preserved and the
-    //   apex + any internal port are normalized to the public host.
-    // When SABSITES_PUBLIC_HOST is unset we're in local dev (direct to :3002)
-    // and keep the forwarded host:port verbatim.
+    // origin — never the internal bind port (3002). x-forwarded-* can't gate
+    // this (Next sets x-forwarded-proto=http even in local dev), and the port
+    // can reach us through the Host header (proxy mis-forward, or the browser
+    // hitting :3002 directly). So:
+    //   - a real domain (sabnode.com, p-<id>.sabnode.com) is always public:
+    //     force https + drop any port; optionally remap the apex to
+    //     SABSITES_PUBLIC_HOST (+ SABSITES_PUBLIC_PROTO, default https).
+    //   - localhost / an IP is local dev: keep host:port verbatim.
     const fwdHost = firstHeaderValue(
         request.headers.get('x-forwarded-host') ?? request.headers.get('host')
     );
+    const hostname = (fwdHost ?? url.hostname).split(':')[0];
     const publicHost = process.env.SABSITES_PUBLIC_HOST;
-    if (publicHost) {
-        const incomingHostname = (fwdHost ?? '').split(':')[0];
-        const projectLabel = incomingHostname.match(/^(p-[0-9a-fA-F-]+)\./)?.[1];
+    const isLocal =
+        hostname === 'localhost' ||
+        hostname.endsWith('.localhost') ||
+        /^\d+\.\d+\.\d+\.\d+$/.test(hostname);
+    if (isLocal && publicHost === undefined) {
+        if (fwdHost) {
+            url.host = fwdHost;
+        }
+    } else {
+        const projectLabel = hostname.match(/^(p-[0-9a-fA-F-]+)\./)?.[1];
         url.protocol = `${process.env.SABSITES_PUBLIC_PROTO ?? 'https'}:`;
-        url.hostname = projectLabel
-            ? `${projectLabel}.${publicHost}`
-            : publicHost;
+        url.hostname =
+            publicHost === undefined
+                ? hostname
+                : projectLabel
+                  ? `${projectLabel}.${publicHost}`
+                  : publicHost;
         url.port = '';
-    } else if (fwdHost) {
-        url.host = fwdHost;
     }
 
     const handler = await loadHandler();
