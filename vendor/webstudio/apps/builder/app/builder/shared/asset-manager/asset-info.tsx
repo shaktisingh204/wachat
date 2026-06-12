@@ -658,7 +658,7 @@ const AssetInfoContent = ({
               <IconButton
                 as="a"
                 download={formatAssetName(asset)}
-                href={getAssetUrl(asset, window.location.origin).href}
+                href={getAssetUrl(asset, window.location.origin, "/sites").href}
               >
                 <DownloadIcon />
               </IconButton>

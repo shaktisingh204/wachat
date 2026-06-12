@@ -253,7 +253,7 @@ export const loader = async (loaderArgs: LoaderFunctionArgs) => {
       // blob: workers can only be created from JS already running in this page, so the
       // attack surface is no wider than allowing eval.
       "Content-Security-Policy",
-      `frame-src ${url.origin}/canvas https://app.goentri.com/ https://help.webstudio.is/; worker-src blob:`
+      `frame-src ${url.origin}/sites/canvas https://app.goentri.com/; worker-src blob:`
     );
 
     return json(

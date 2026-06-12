@@ -6,7 +6,8 @@ export const isBuilder = (request: Request): boolean => {
 
 export const isCanvas = (request: Request): boolean => {
   const url = new URL(request.url);
-  if (isBuilderUrl(url.origin) && url.pathname === "/canvas") {
+  // The builder is mounted under the /sites basename inside SabNode.
+  if (isBuilderUrl(url.origin) && url.pathname === "/sites/canvas") {
     return true;
   }
 

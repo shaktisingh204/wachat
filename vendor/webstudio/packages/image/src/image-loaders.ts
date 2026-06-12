@@ -29,13 +29,21 @@ export const wsImageLoader: ImageLoader = (props) => {
     );
   }
 
-  // support both "/cgi/asset/name" and "name" as inputs
+  // support both "/cgi/asset/name" and "name" as inputs.
+  // SabNode: the builder is mounted under /sites, so the asset base is
+  // "/sites/cgi/asset/" there. Detect the prefix from the input and emit the
+  // matching image base so both the embedded builder and the (bare-path)
+  // CLI/publish output stay correct.
   let src = props.src;
-  if (src.startsWith("/cgi/asset")) {
+  let basePath = "";
+  if (src.startsWith("/sites/cgi/asset")) {
+    basePath = "/sites";
+    src = src.slice("/sites/cgi/asset".length);
+  } else if (src.startsWith("/cgi/asset")) {
     src = src.slice("/cgi/asset".length);
   }
 
-  const resultUrl = new URL("/cgi/image/", NON_EXISTING_DOMAIN);
+  const resultUrl = new URL(`${basePath}/cgi/image/`, NON_EXISTING_DOMAIN);
 
   if (props.format !== "raw") {
     resultUrl.searchParams.set("width", width.toString());
@@ -64,8 +72,13 @@ export const wsImageLoader: ImageLoader = (props) => {
 export type VideoLoader = (options: { src: string }) => string;
 
 export const wsVideoLoader: VideoLoader = ({ src }) => {
-  if (src.startsWith("/cgi/asset/")) {
+  // SabNode: mirror wsImageLoader — keep the /sites prefix when present.
+  let basePath = "";
+  if (src.startsWith("/sites/cgi/asset/")) {
+    basePath = "/sites";
+    src = src.slice("/sites/cgi/asset/".length);
+  } else if (src.startsWith("/cgi/asset/")) {
     src = src.slice("/cgi/asset/".length);
   }
-  return `/cgi/video/${src}`;
+  return `${basePath}/cgi/video/${src}`;
 };

@@ -87,6 +87,20 @@ the AGPL source-offer obligation is easy to satisfy.
   kept for flexibility.
 - `apps/builder/.env.development` — local standalone-dev values
   (sabsites Postgres/PostgREST, dev login).
+- Basename leaks that broke the canvas/images (browser-facing paths the first
+  pass missed):
+  - `apps/builder/app/routes/_ui.(builder).tsx` — CSP `frame-src` →
+    `${origin}/sites/canvas`; dropped `help.webstudio.is`.
+  - `apps/builder/app/shared/router-utils/is-canvas.ts` — `isCanvas` pathname
+    check → `/sites/canvas` (else the canvas route 404s under the basename).
+  - `packages/image/src/image-loaders.ts` — `wsImageLoader`/`wsVideoLoader`
+    detect a `/sites/cgi/asset` prefix on input and emit the matching
+    `/sites/cgi/image|video/` base (bare `/cgi/...` still works for the CLI).
+  - `packages/sdk/src/assets.ts` — `getAssetUrl` gained an optional
+    `basePath=""`; builder callsite `asset-manager/asset-info.tsx` passes
+    `"/sites"` so download/preview links resolve.
+  These keep the CLI/publish (bare-path) output intact; revisit when
+  custom-domain publishing is wired.
 
 ## Licensing
 

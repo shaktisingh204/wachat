@@ -421,15 +421,21 @@ export const decodePathFragment = (fragment: string): string => {
  * @param origin - Origin to prepend (e.g., "https://example.com"). When provided, returns an absolute URL.
  * @returns A URL object. Use .pathname for relative paths, .href for absolute URLs
  */
-export const getAssetUrl = (asset: Asset, origin: string): URL => {
+export const getAssetUrl = (
+  asset: Asset,
+  origin: string,
+  // SabNode: the embedded builder serves /cgi/* under the /sites basename, so
+  // it passes basePath="/sites". CLI/publish callers keep the default "".
+  basePath = ""
+): URL => {
   let path: string;
   const assetType = detectAssetType(asset.name);
 
   if (assetType === "image") {
-    path = `/cgi/image/${asset.name}?format=raw`;
+    path = `${basePath}/cgi/image/${asset.name}?format=raw`;
   } else {
     // Videos, audio, fonts, documents all use /cgi/asset/
-    path = `/cgi/asset/${asset.name}?format=raw`;
+    path = `${basePath}/cgi/asset/${asset.name}?format=raw`;
   }
 
   return new URL(path, origin);
