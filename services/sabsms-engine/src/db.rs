@@ -18,6 +18,12 @@ pub const COL_KEYWORD_RULES: &str = "sabsms_keyword_rules";
 pub const COL_CAMPAIGNS: &str = "sabsms_campaigns";
 pub const COL_CAMPAIGN_RECIPIENTS: &str = "sabsms_campaign_recipients";
 pub const COL_ROUTING_POLICIES: &str = "sabsms_routing_policies";
+pub const COL_OTP_CONFIGS: &str = "sabsms_otp_configs";
+pub const COL_FRAUD_BLOCKS: &str = "sabsms_fraud_blocks";
+pub const COL_DLT_ENTITIES: &str = "sabsms_dlt_entities";
+pub const COL_DLT_HEADERS: &str = "sabsms_dlt_headers";
+pub const COL_DLT_TEMPLATES: &str = "sabsms_dlt_templates";
+pub const COL_DLT_CHAINS: &str = "sabsms_dlt_chains";
 
 /// True when a Mongo error is an E11000 duplicate-key write error —
 /// used to detect idempotent re-deliveries (webhook retries) and
@@ -166,6 +172,76 @@ pub async fn ensure_indexes(db: &Database) -> Result<()> {
             .build()])
         .await
         .context("creating routing policy indexes")?;
+
+    // OTP configs — single doc per workspace (V2.7)
+    let otp_configs = db.collection::<mongodb::bson::Document>(COL_OTP_CONFIGS);
+    otp_configs
+        .create_indexes(vec![IndexModel::builder()
+            .keys(doc! { "workspaceId": 1 })
+            .options(IndexOptions::builder().unique(true).build())
+            .build()])
+        .await
+        .context("creating otp config indexes")?;
+
+    // fraud blocks — prefix lookup on every OTP send + Mongo TTL expiry
+    // (expireAfterSeconds = 0 → docs die exactly at their `expiresAt`).
+    let fraud_blocks = db.collection::<mongodb::bson::Document>(COL_FRAUD_BLOCKS);
+    fraud_blocks
+        .create_indexes(vec![
+            IndexModel::builder()
+                .keys(doc! { "workspaceId": 1, "prefix": 1 })
+                .build(),
+            IndexModel::builder()
+                .keys(doc! { "expiresAt": 1 })
+                .options(
+                    IndexOptions::builder()
+                        .expire_after(std::time::Duration::from_secs(0))
+                        .partial_filter_expression(doc! { "expiresAt": { "$type": "date" } })
+                        .build(),
+                )
+                .build(),
+        ])
+        .await
+        .context("creating fraud block indexes")?;
+
+    // DLT registries (V2.8) — headers unique per (workspace, header
+    // string); templates unique per (workspace, templateId); entities
+    // unique per (workspace, peId); chains single doc per workspace.
+    let dlt_headers = db.collection::<mongodb::bson::Document>(COL_DLT_HEADERS);
+    dlt_headers
+        .create_indexes(vec![IndexModel::builder()
+            .keys(doc! { "workspaceId": 1, "header": 1 })
+            .options(IndexOptions::builder().unique(true).build())
+            .build()])
+        .await
+        .context("creating dlt header indexes")?;
+
+    let dlt_templates = db.collection::<mongodb::bson::Document>(COL_DLT_TEMPLATES);
+    dlt_templates
+        .create_indexes(vec![IndexModel::builder()
+            .keys(doc! { "workspaceId": 1, "templateId": 1 })
+            .options(IndexOptions::builder().unique(true).build())
+            .build()])
+        .await
+        .context("creating dlt template indexes")?;
+
+    let dlt_entities = db.collection::<mongodb::bson::Document>(COL_DLT_ENTITIES);
+    dlt_entities
+        .create_indexes(vec![IndexModel::builder()
+            .keys(doc! { "workspaceId": 1, "peId": 1 })
+            .options(IndexOptions::builder().unique(true).build())
+            .build()])
+        .await
+        .context("creating dlt entity indexes")?;
+
+    let dlt_chains = db.collection::<mongodb::bson::Document>(COL_DLT_CHAINS);
+    dlt_chains
+        .create_indexes(vec![IndexModel::builder()
+            .keys(doc! { "workspaceId": 1 })
+            .options(IndexOptions::builder().unique(true).build())
+            .build()])
+        .await
+        .context("creating dlt chain indexes")?;
 
     Ok(())
 }

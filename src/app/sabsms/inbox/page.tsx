@@ -7,12 +7,14 @@ import { SABSMS_COLLECTIONS } from "@/lib/sabsms/db/collections";
 import {
   loadAgents,
   loadConversations,
+  loadInboxInsights,
   loadTemplates,
   loadThread,
 } from "./actions";
 import type { InboxFilters } from "./types";
 
 import { Card, CardTitle, CardDescription } from '@/components/sabcrm/20ui';
+import { InboxInsightsStrip } from "./insights-card";
 import { InboxLayout } from "./inbox-layout";
 
 export const dynamic = "force-dynamic";
@@ -65,10 +67,12 @@ export default async function SabsmsInboxPage({
     to: sp.to,
   };
 
-  const [conversations, agents, templates] = await Promise.all([
+  const [conversations, agents, templates, insights] = await Promise.all([
     loadConversations(workspaceId, filters),
     loadAgents(workspaceId),
     loadTemplates(workspaceId),
+    // V2.12 — insights strip; null until the nightly miner has run.
+    loadInboxInsights(workspaceId).catch(() => null),
   ]);
 
   const initialThreadId = sp.conversationId ?? conversations[0]?.id ?? null;
@@ -78,6 +82,7 @@ export default async function SabsmsInboxPage({
     // InboxLayout reads `useSearchParams()` (via useSabsmsUrlState) — it must
     // sit under a Suspense boundary or Next.js bails the whole route to an error.
     <Suspense fallback={null}>
+      <InboxInsightsStrip insights={insights} />
       <InboxLayout
         workspaceId={workspaceId}
         initialConversations={conversations}

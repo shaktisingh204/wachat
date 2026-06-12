@@ -2,10 +2,16 @@
 
 import Link from "next/link";
 
-import { CHART_PALETTE, Card, CardBody, CardDescription, CardHeader, CardTitle, Recharts, ChartContainer, ChartTooltip } from '@/components/sabcrm/20ui';
+import { CHART_PALETTE, Card, CardBody, CardDescription, CardHeader, CardTitle, Recharts, ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from '@/components/sabcrm/20ui';
 
 import { TileActions } from "./tile-actions";
 import type { SabsmsTimeSeriesPoint } from "../aggregations";
+
+const chartConfig = {
+  sent: { label: "Sent", color: CHART_PALETTE[0] },
+  delivered: { label: "Delivered", color: CHART_PALETTE[1] },
+  failed: { label: "Failed", color: CHART_PALETTE[3] },
+} satisfies ChartConfig;
 
 export interface TimeSeriesTileProps {
   data: SabsmsTimeSeriesPoint[];
@@ -47,7 +53,7 @@ export function TimeSeriesTile({
             No traffic in this window.
           </p>
         ) : (
-          <ChartContainer height={260}>
+          <ChartContainer config={chartConfig} className="h-[260px] w-full">
             <Recharts.LineChart
               data={data}
               margin={{ top: 8, right: 16, bottom: 0, left: -16 }}
@@ -67,7 +73,7 @@ export function TimeSeriesTile({
                 tickLine={false}
                 axisLine={false}
               />
-              <Recharts.Tooltip content={<ChartTooltip />} />
+              <ChartTooltip content={<ChartTooltipContent indicator="dot" />} />
               <Recharts.Legend wrapperStyle={{ fontSize: 12 }} />
               <Recharts.Line
                 type="monotone"

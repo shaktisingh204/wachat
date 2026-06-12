@@ -2,10 +2,16 @@
 
 import Link from "next/link";
 
-import { CHART_PALETTE, Card, CardBody, CardDescription, CardHeader, CardTitle, Recharts, ChartContainer, ChartTooltip } from '@/components/sabcrm/20ui';
+import { CHART_PALETTE, Card, CardBody, CardDescription, CardHeader, CardTitle, Recharts, ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from '@/components/sabcrm/20ui';
 
 import { TileActions } from "./tile-actions";
 import type { SabsmsCostPoint } from "../aggregations";
+
+const chartConfig = {
+  cost: { label: "Cost", color: CHART_PALETTE[3] },
+  revenue: { label: "Revenue", color: CHART_PALETTE[0] },
+  margin: { label: "Margin", color: CHART_PALETTE[0] },
+} satisfies ChartConfig;
 
 export interface CostVsRevenueTileProps {
   data: SabsmsCostPoint[];
@@ -55,7 +61,7 @@ export function CostVsRevenueTile({
             populated by the engine after a real send.
           </p>
         ) : (
-          <ChartContainer height={260}>
+          <ChartContainer config={chartConfig} className="h-[260px] w-full">
             {variant === "margin" ? (
               <Recharts.BarChart
                 data={data}
@@ -76,7 +82,7 @@ export function CostVsRevenueTile({
                   tickLine={false}
                   axisLine={false}
                 />
-                <Recharts.Tooltip content={<ChartTooltip />} />
+                <ChartTooltip content={<ChartTooltipContent indicator="dot" />} />
                 <Recharts.Legend wrapperStyle={{ fontSize: 12 }} />
                 <Recharts.Bar
                   dataKey="cost"
@@ -111,7 +117,7 @@ export function CostVsRevenueTile({
                   tickLine={false}
                   axisLine={false}
                 />
-                <Recharts.Tooltip content={<ChartTooltip />} />
+                <ChartTooltip content={<ChartTooltipContent indicator="dot" />} />
                 <Recharts.Legend wrapperStyle={{ fontSize: 12 }} />
                 <Recharts.Line
                   type="monotone"

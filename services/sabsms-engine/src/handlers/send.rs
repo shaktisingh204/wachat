@@ -20,7 +20,8 @@ use crate::{
     },
 };
 
-fn normalise_e164(raw: &str) -> EngineResult<String> {
+/// Parse + validate a phone into E.164 (shared with `otp::*`).
+pub fn normalise_e164(raw: &str) -> EngineResult<String> {
     use phonenumber::country;
     let parsed = phonenumber::parse(Some(country::Id::US), raw)
         .map_err(|e| EngineError::BadRequest(format!("invalid phone: {e}")))?;
@@ -34,6 +35,18 @@ pub async fn enqueue(
     State(state): State<Arc<AppState>>,
     Json(input): Json<EnqueueSendInput>,
 ) -> EngineResult<Json<EnqueueSendResult>> {
+    Ok(Json(enqueue_message(&state, input).await?))
+}
+
+/// Insert the message doc + LPUSH it onto the worker queue + emit
+/// `MessageQueued`. The single enqueue path — the `/v1/messages`
+/// handler wraps it, and `otp::send`/`otp::resend` reuse it so OTP
+/// traffic flows through the NORMAL worker pipeline (compliance,
+/// credits, routing, retries — nothing bespoke).
+pub async fn enqueue_message(
+    state: &Arc<AppState>,
+    input: EnqueueSendInput,
+) -> EngineResult<EnqueueSendResult> {
     if input.workspace_id.is_empty() || input.body.is_empty() {
         return Err(EngineError::BadRequest("workspaceId + body required".into()));
     }
@@ -44,12 +57,12 @@ pub async fn enqueue(
     // kernel (quiet hours, consent, 10DLC) runs in the worker.
     if compliance::is_suppressed(&state, &input.workspace_id, &to).await? {
         tracing::info!(workspace = %input.workspace_id, "send blocked: recipient suppressed");
-        return Ok(Json(EnqueueSendResult {
+        return Ok(EnqueueSendResult {
             id: String::new(),
             status: MessageStatus::Suppressed,
             segments: None,
             estimated_cost: None,
-        }));
+        });
     }
 
     let provider = input.provider.unwrap_or(ProviderId::Twilio);
@@ -118,14 +131,14 @@ pub async fn enqueue(
     )
     .await;
 
-    Ok(Json(EnqueueSendResult {
+    Ok(EnqueueSendResult {
         id,
         status: MessageStatus::Queued,
         segments: Some(segments),
         // Cost estimation lives in Phase 7 (pricing tables); phase-1
         // returns None so the customer is charged actual cost.
         estimated_cost: None,
-    }))
+    })
 }
 
 pub async fn get_one(

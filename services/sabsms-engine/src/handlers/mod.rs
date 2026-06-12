@@ -2,8 +2,9 @@ use std::sync::Arc;
 
 use axum::{middleware, routing::post, Router};
 
-use crate::{auth, campaigns, state::AppState};
+use crate::{auth, campaigns, otp, state::AppState};
 
+pub mod dlt;
 pub mod health;
 pub mod internal;
 pub mod numbers;
@@ -25,6 +26,15 @@ pub fn router(state: Arc<AppState>) -> Router {
         .route("/v1/campaigns/:id/cancel", post(campaigns::cancel))
         .route("/v1/numbers/search", post(numbers::search))
         .route("/v1/numbers/provision", post(numbers::provision))
+        // V2.7 — engine-native OTP/Verify + fraud guard + lookup.
+        .route("/v1/otp/send", post(otp::send))
+        .route("/v1/otp/verify", post(otp::verify))
+        .route("/v1/otp/resend", post(otp::resend))
+        .route("/v1/otp/stats", axum::routing::get(otp::stats))
+        .route("/v1/lookup", post(otp::lookup))
+        // V2.8 — India DLT scrub preview + registry cache invalidation.
+        .route("/v1/dlt/scrub-preview", post(dlt::scrub_preview))
+        .route("/v1/internal/dlt/invalidate", post(dlt::invalidate))
         .route(
             "/v1/internal/creds/invalidate",
             post(internal::invalidate_creds),
@@ -36,6 +46,10 @@ pub fn router(state: Arc<AppState>) -> Router {
         .route(
             "/v1/internal/routing/invalidate",
             post(internal::invalidate_routing),
+        )
+        .route(
+            "/v1/internal/otp/configs/invalidate",
+            post(internal::invalidate_otp_config),
         )
         .route(
             "/v1/internal/routing/preview",

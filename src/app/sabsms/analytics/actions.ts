@@ -114,6 +114,80 @@ export async function exportTilePdf(
   return { ok: false, error: "PDF export ships in Phase 11" };
 }
 
+// ─── V2.10 — rollup reconciliation ("Recompute" button) ───────────────────
+
+export interface RecomputeStatsResult {
+  daysChecked: number;
+  daysWithDrift: number;
+  docsReplaced: number;
+  docsRemoved: number;
+  /** First few human-readable drift lines for the inline report. */
+  samples: string[];
+}
+
+/** Hard cap on the recompute window (one query set per day). */
+const RECOMPUTE_MAX_DAYS = 31;
+
+/**
+ * Recompute `sabsms_stats_daily` from the raw collections for a day
+ * range (inclusive UTC `YYYY-MM-DD` keys). Each drifted day's rollup
+ * docs are REPLACED with the recomputed truth (`reconcileDay`). Capped
+ * at 31 days per click so the action stays bounded.
+ */
+export async function recomputeStatsAction(input: {
+  fromDate: string;
+  toDate: string;
+}): Promise<ActionResult<RecomputeStatsResult>> {
+  const workspaceId = await requireWorkspaceId();
+  if (!workspaceId) return { ok: false, error: "Not authenticated." };
+
+  const from = new Date(`${input.fromDate}T00:00:00.000Z`);
+  const to = new Date(`${input.toDate}T00:00:00.000Z`);
+  if (Number.isNaN(from.getTime()) || Number.isNaN(to.getTime()) || from > to) {
+    return { ok: false, error: "Invalid date range." };
+  }
+
+  try {
+    const { reconcileDay } = await import("@/lib/sabsms/analytics/reconcile");
+    const { db } = await connectToDatabase();
+
+    const result: RecomputeStatsResult = {
+      daysChecked: 0,
+      daysWithDrift: 0,
+      docsReplaced: 0,
+      docsRemoved: 0,
+      samples: [],
+    };
+
+    const cursor = new Date(to); // newest first — recent days drift most
+    while (cursor >= from && result.daysChecked < RECOMPUTE_MAX_DAYS) {
+      const date = cursor.toISOString().slice(0, 10);
+      const day = await reconcileDay(db, workspaceId, date);
+      result.daysChecked += 1;
+      if (day.drift.length > 0) {
+        result.daysWithDrift += 1;
+        result.docsReplaced += day.replaced;
+        result.docsRemoved += day.removed;
+        for (const d of day.drift.slice(0, 3)) {
+          if (result.samples.length < 6) {
+            result.samples.push(
+              `${date} ${d.dimsKey} ${d.field}: ${d.actual} → ${d.expected}`,
+            );
+          }
+        }
+      }
+      cursor.setUTCDate(cursor.getUTCDate() - 1);
+    }
+
+    return { ok: true, data: result };
+  } catch (err) {
+    return {
+      ok: false,
+      error: (err as Error)?.message ?? "Recompute failed.",
+    };
+  }
+}
+
 export interface AiExplainInput {
   metric: string;
   from: string;

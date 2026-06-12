@@ -8,22 +8,40 @@ import { SabsmsPageShell } from "@/components/sabsms/page-toolkit";
 import { connectToDatabase } from "@/lib/mongodb";
 import { getCachedSession } from "@/lib/server-cache";
 
+import { ObjectId } from "mongodb";
+
 import {
-  MAX_BUCKETS,
   buildLogsDrilldownHref,
   runCohort,
   runCostVsRevenue,
-  runFunnel,
+  runErrorPareto,
   runGroupBy,
-  runKpiCounts,
   runProviderScorecard,
+  runRecentRiskEvents,
   runTemplateReplyRates,
-  runTimeSeries,
   runTopContacts,
   runTopCountries,
   type SabsmsAnalyticsFilter,
   type SabsmsAnalyticsGroupBy,
+  type SabsmsErrorParetoRow,
+  type SabsmsFunnelStep,
+  type SabsmsGroupedRow,
+  type SabsmsRiskEvent,
+  type SabsmsTimeSeriesPoint,
 } from "./aggregations";
+// V2.10 — KPI / series / group-by / funnel read the `sabsms_stats_daily`
+// rollups (written live by the events consumer; backfilled by
+// `scripts/sabsms-backfill-stats.mjs`) instead of aggregating raw
+// messages on every page load.
+import {
+  groupRowsByDim,
+  kpisFromRows,
+  queryDailyStats,
+  seriesFromRows,
+  utcDateKey,
+  type SabsmsStatsKpis,
+} from "@/lib/sabsms/analytics/rollups";
+import { RecomputeButton } from "./recompute-button";
 import { DashboardGrid } from "./dashboard-grid";
 import { AnalyticsToolbar } from "./toolbar";
 import { CohortTile } from "./tiles/cohort-tile";
@@ -123,11 +141,13 @@ function parseGroupBy(
 
 interface PageData {
   filter: SabsmsAnalyticsFilter;
-  kpi: Awaited<ReturnType<typeof runKpiCounts>>;
-  compareKpi?: Awaited<ReturnType<typeof runKpiCounts>>;
-  timeSeries: Awaited<ReturnType<typeof runTimeSeries>>;
-  grouped: Awaited<ReturnType<typeof runGroupBy>>;
-  funnel: Awaited<ReturnType<typeof runFunnel>>;
+  kpi: SabsmsStatsKpis;
+  compareKpi?: SabsmsStatsKpis;
+  timeSeries: SabsmsTimeSeriesPoint[];
+  grouped: SabsmsGroupedRow[];
+  funnel: SabsmsFunnelStep[];
+  errorPareto: SabsmsErrorParetoRow[];
+  riskEvents: SabsmsRiskEvent[];
   cohort: Awaited<ReturnType<typeof runCohort>>;
   providerScores: Awaited<ReturnType<typeof runProviderScorecard>>;
   countries: Awaited<ReturnType<typeof runTopCountries>>;
@@ -136,14 +156,20 @@ interface PageData {
   templateReplies: Awaited<ReturnType<typeof runTemplateReplyRates>>;
 }
 
-const EMPTY_KPI = {
+const EMPTY_KPI: SabsmsStatsKpis = {
+  queued: 0,
   sent: 0,
   delivered: 0,
   failed: 0,
-  replied: 0,
-  clicked: 0,
-  optOut: 0,
-} as const;
+  inbound: 0,
+  optOuts: 0,
+  clicks: 0,
+  segments: 0,
+  costCents: 0,
+  creditsSpent: 0,
+  deliveryRatePct: 0,
+  ctrPct: 0,
+};
 
 const EMPTY_DATA: PageData = {
   filter: {
@@ -155,6 +181,8 @@ const EMPTY_DATA: PageData = {
   timeSeries: [],
   grouped: [],
   funnel: [],
+  errorPareto: [],
+  riskEvents: [],
   cohort: [],
   providerScores: [],
   countries: [],
@@ -163,14 +191,55 @@ const EMPTY_DATA: PageData = {
   templateReplies: [],
 };
 
+/** Funnel from rollup totals: sent → delivered → clicked (drop-off %). */
+function funnelFromKpis(kpi: SabsmsStatsKpis): SabsmsFunnelStep[] {
+  const raw = [
+    { step: "Sent", value: kpi.sent },
+    { step: "Delivered", value: kpi.delivered },
+    { step: "Clicked", value: kpi.clicks },
+  ];
+  return raw.map((s, i) => {
+    if (i === 0) return { ...s, drop: 0 };
+    const prev = raw[i - 1].value;
+    const drop = prev > 0 ? Math.round(((prev - s.value) / prev) * 100) : 0;
+    return { ...s, drop };
+  });
+}
+
+/** Hydrate campaign-id buckets into names (single `$in` roundtrip). */
+async function campaignNames(
+  db: Awaited<ReturnType<typeof connectToDatabase>>["db"],
+  workspaceId: string,
+  ids: string[],
+): Promise<Map<string, string>> {
+  const objectIds = ids.filter((id) => ObjectId.isValid(id)).map((id) => new ObjectId(id));
+  if (objectIds.length === 0) return new Map();
+  const docs = await db
+    .collection<{ _id: ObjectId; name?: string }>("sabsms_campaigns")
+    .find({ _id: { $in: objectIds }, workspaceId } as never)
+    .project<{ _id: ObjectId; name?: string }>({ name: 1 })
+    .toArray();
+  return new Map(docs.map((d) => [String(d._id), d.name ?? String(d._id)]));
+}
+
 async function loadAll(filter: SabsmsAnalyticsFilter): Promise<PageData> {
   const { db } = await connectToDatabase();
+  const groupBy = filter.groupBy ?? "provider";
+  const range = {
+    workspaceId: filter.workspaceId,
+    fromDate: utcDateKey(filter.from.getTime()),
+    toDate: utcDateKey(filter.to.getTime()),
+  };
+  const rollupDim = groupBy === "campaign" ? ("campaignId" as const) : ("provider" as const);
+  const rollupGrouped = groupBy === "provider" || groupBy === "campaign";
+
   const [
-    kpi,
-    compareKpi,
-    timeSeries,
-    grouped,
-    funnel,
+    totalRows,
+    compareRows,
+    dimRows,
+    rawGrouped,
+    errorPareto,
+    riskEvents,
     cohort,
     providerScores,
     countries,
@@ -178,13 +247,23 @@ async function loadAll(filter: SabsmsAnalyticsFilter): Promise<PageData> {
     costSeries,
     templateReplies,
   ] = await Promise.all([
-    runKpiCounts(db, filter),
+    queryDailyStats(db, { ...range, dim: "total" }),
     filter.compareFrom && filter.compareTo
-      ? runKpiCounts(db, filter, "compare")
+      ? queryDailyStats(db, {
+          ...range,
+          fromDate: utcDateKey(filter.compareFrom.getTime()),
+          toDate: utcDateKey(filter.compareTo.getTime()),
+          dim: "total",
+        })
       : Promise.resolve(undefined),
-    runTimeSeries(db, filter),
-    runGroupBy(db, filter),
-    runFunnel(db, filter),
+    rollupGrouped
+      ? queryDailyStats(db, { ...range, dim: rollupDim })
+      : Promise.resolve([]),
+    // country / sender / template group-bys have no rollup dim (the
+    // fan-out is bounded to provider+campaign) — keep the raw path.
+    rollupGrouped ? Promise.resolve([]) : runGroupBy(db, filter),
+    runErrorPareto(db, filter.workspaceId),
+    runRecentRiskEvents(db, filter.workspaceId),
     runCohort(db, filter),
     runProviderScorecard(db, filter),
     runTopCountries(db, filter),
@@ -192,13 +271,40 @@ async function loadAll(filter: SabsmsAnalyticsFilter): Promise<PageData> {
     runCostVsRevenue(db, filter),
     runTemplateReplyRates(db, filter),
   ]);
+
+  const kpi = kpisFromRows(totalRows);
+  const timeSeries = seriesFromRows(totalRows, range.fromDate, range.toDate).map(
+    (p) => ({ date: p.date, sent: p.sent, delivered: p.delivered, failed: p.failed }),
+  );
+
+  let grouped: SabsmsGroupedRow[];
+  if (rollupGrouped) {
+    const buckets = groupRowsByDim(dimRows, rollupDim);
+    const names =
+      rollupDim === "campaignId"
+        ? await campaignNames(db, filter.workspaceId, buckets.map((b) => b.bucket))
+        : new Map<string, string>();
+    grouped = buckets.map(({ bucket, counters }) => ({
+      bucket: names.get(bucket) ?? bucket,
+      sent: counters.sent,
+      delivered: counters.delivered,
+      failed: counters.failed,
+      deliveryRate:
+        counters.sent > 0 ? Math.round((counters.delivered / counters.sent) * 100) : 0,
+    }));
+  } else {
+    grouped = rawGrouped;
+  }
+
   return {
     filter,
     kpi,
-    compareKpi,
+    compareKpi: compareRows ? kpisFromRows(compareRows) : undefined,
     timeSeries,
     grouped,
-    funnel,
+    funnel: funnelFromKpis(kpi),
+    errorPareto,
+    riskEvents,
     cohort,
     providerScores,
     countries,
@@ -274,22 +380,35 @@ async function SabsmsAnalyticsPageContent({
     failed: p.failed,
   }));
 
-  const kpiTiles = [
+  // Rollup counter semantics: `sent` counts every messageSent event
+  // (later-delivered ones included), so it IS the send volume — no
+  // status-bucket summing like the old raw-aggregation path.
+  const kpiTiles: Array<{
+    metric: string;
+    label: string;
+    value: number;
+    previous?: number;
+    invertDelta?: boolean;
+    suffix?: string;
+  }> = [
     {
       metric: "sent",
       label: "Sent",
-      value: data.kpi.sent + data.kpi.delivered + data.kpi.failed,
-      previous: data.compareKpi
-        ? data.compareKpi.sent +
-          data.compareKpi.delivered +
-          data.compareKpi.failed
-        : undefined,
+      value: data.kpi.sent,
+      previous: data.compareKpi?.sent,
     },
     {
       metric: "delivered",
       label: "Delivered",
       value: data.kpi.delivered,
       previous: data.compareKpi?.delivered,
+    },
+    {
+      metric: "deliveryRate",
+      label: "Delivery rate",
+      value: data.kpi.deliveryRatePct,
+      previous: data.compareKpi?.deliveryRatePct,
+      suffix: "%",
     },
     {
       metric: "failed",
@@ -300,21 +419,28 @@ async function SabsmsAnalyticsPageContent({
     },
     {
       metric: "replied",
-      label: "Replied",
-      value: data.kpi.replied,
-      previous: data.compareKpi?.replied,
+      label: "Replies",
+      value: data.kpi.inbound,
+      previous: data.compareKpi?.inbound,
     },
     {
       metric: "clicked",
-      label: "Clicked",
-      value: data.kpi.clicked,
-      previous: data.compareKpi?.clicked,
+      label: "Clicks",
+      value: data.kpi.clicks,
+      previous: data.compareKpi?.clicks,
+    },
+    {
+      metric: "ctr",
+      label: "CTR",
+      value: data.kpi.ctrPct,
+      previous: data.compareKpi?.ctrPct,
+      suffix: "%",
     },
     {
       metric: "optOut",
-      label: "Opt-out",
-      value: data.kpi.optOut,
-      previous: data.compareKpi?.optOut,
+      label: "Opt-outs",
+      value: data.kpi.optOuts,
+      previous: data.compareKpi?.optOuts,
       invertDelta: true,
     },
   ];
@@ -433,27 +559,41 @@ async function SabsmsAnalyticsPageContent({
       helpTitle="How analytics works"
       helpBody={
         <>
-          Every chart reads directly from{" "}
+          KPIs, the day series, the funnel, and the provider/campaign
+          group-bys read the{" "}
+          <code className="rounded bg-[var(--st-bg-muted)] px-1">
+            sabsms_stats_daily
+          </code>{" "}
+          rollups (written live by the events consumer; backfilled with{" "}
+          <code className="rounded bg-[var(--st-bg-muted)] px-1">
+            scripts/sabsms-backfill-stats.mjs
+          </code>
+          ). The live counters are at-least-once — if a number looks off,
+          &quot;Recompute&quot; rebuilds the visible day range from the raw
+          collections. The long-tail tiles still aggregate{" "}
           <code className="rounded bg-[var(--st-bg-muted)] px-1">
             sabsms_messages
           </code>{" "}
-          and friends — there is no precomputed materialised view, so
-          numbers stay correct without a backfill. Each tile has an
-          &quot;Open in logs&quot; link for drill-down and an AI button for
-          context. Max {MAX_BUCKETS} buckets per aggregation.
+          directly. Each tile has an &quot;Open in logs&quot; drill-down.
         </>
       }
       toolbar={
-        <AnalyticsToolbar
-          csvRows={csvRows}
-          providers={providerOptions}
-          countries={countryOptions}
-          campaigns={campaignOptions}
-        />
+        <div className="flex flex-wrap items-center justify-end gap-3">
+          <RecomputeButton
+            fromDate={utcDateKey(filter.from.getTime())}
+            toDate={utcDateKey(filter.to.getTime())}
+          />
+          <AnalyticsToolbar
+            csvRows={csvRows}
+            providers={providerOptions}
+            countries={countryOptions}
+            campaigns={campaignOptions}
+          />
+        </div>
       }
     >
-      {/* KPI strip — 6 Ui20StatCards. */}
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
+      {/* KPI strip — 8 rollup-backed Ui20StatCards. */}
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-8">
         {kpiTiles.map((k) => (
           <KpiTile
             key={k.metric}
@@ -461,6 +601,7 @@ async function SabsmsAnalyticsPageContent({
             label={k.label}
             value={k.value}
             previous={k.previous}
+            suffix={k.suffix}
             drilldownHref={buildLogsDrilldownHref(filter, {
               status:
                 k.metric === "delivered"
@@ -537,66 +678,113 @@ async function SabsmsAnalyticsPageContent({
 
       <DashboardGrid items={gridItems} workspaceId={workspaceId || "anon"} />
 
-      {/* CTR + conversions tables — surfaced as inline cards so the layout
-          stays predictable even when these collections are empty. */}
+      {/* V2.10 — error Pareto (7d, normalizedCode) + routing/fraud feed. */}
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>CTR per link</CardTitle>
+            <CardTitle>Error Pareto — last 7 days</CardTitle>
             <CardDescription>
-              Click-through rate per short link. Populated when the engine
-              writes to{" "}
-              <code className="rounded bg-[var(--st-bg-muted)] px-1 text-xs">
-                sabsms_link_clicks
-              </code>
-              .
+              Top normalized failure codes across all providers (fixed 7-day
+              window — &quot;what is breaking right now&quot;).
             </CardDescription>
           </CardHeader>
-          <CardBody>
-            <p className="text-sm text-[var(--st-text-secondary)]">
-              No link clicks yet in this window. Once you send a campaign
-              with a tracked short link, this table fills automatically.
-            </p>
+          <CardBody className="p-0">
+            {data.errorPareto.length === 0 ? (
+              <p className="px-6 py-8 text-center text-sm text-[var(--st-text-secondary)]">
+                No failures in the last 7 days.
+              </p>
+            ) : (
+              <Table>
+                <THead>
+                  <Tr>
+                    <Th>Code</Th>
+                    <Th className="text-right">Failures</Th>
+                    <Th className="text-right">Share</Th>
+                    <Th className="text-right">Cumulative</Th>
+                  </Tr>
+                </THead>
+                <TBody>
+                  {data.errorPareto.map((row) => (
+                    <Tr key={row.code}>
+                      <Td className="font-mono text-xs">
+                        <Link
+                          href={buildLogsDrilldownHref(filter, {
+                            status: "failed",
+                            code: row.code,
+                          })}
+                          className="hover:underline"
+                        >
+                          {row.code}
+                        </Link>
+                      </Td>
+                      <Td className="text-right text-xs">
+                        {row.count.toLocaleString()}
+                      </Td>
+                      <Td className="text-right text-xs">{row.pct}%</Td>
+                      <Td className="text-right text-xs">
+                        <Badge
+                          variant={
+                            row.cumulativePct >= 80 ? "secondary" : "default"
+                          }
+                        >
+                          {row.cumulativePct}%
+                        </Badge>
+                      </Td>
+                    </Tr>
+                  ))}
+                </TBody>
+              </Table>
+            )}
           </CardBody>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>Conversions</CardTitle>
+            <CardTitle>Routing &amp; fraud incidents</CardTitle>
             <CardDescription>
-              Server pixel + on-site JS. Shows columns even with no data so
-              you can wire the pixel.
+              Recent{" "}
+              <code className="rounded bg-[var(--st-bg-muted)] px-1 text-xs">
+                routeFailover
+              </code>{" "}
+              /{" "}
+              <code className="rounded bg-[var(--st-bg-muted)] px-1 text-xs">
+                fraudBlocked
+              </code>{" "}
+              events from the consumer&apos;s 30-day event log.
             </CardDescription>
           </CardHeader>
-          <CardBody className="p-0">
-            <Table>
-              <THead>
-                <Tr>
-                  <Th>Event</Th>
-                  <Th className="text-right">
-                    Conversions
-                  </Th>
-                  <Th className="text-right">Revenue</Th>
-                </Tr>
-              </THead>
-              <TBody>
-                <Tr>
-                  <Td
-                    colSpan={3}
-                    className="px-6 py-8 text-center text-sm text-[var(--st-text-secondary)]"
+          <CardBody>
+            {data.riskEvents.length === 0 ? (
+              <p className="py-8 text-center text-sm text-[var(--st-text-secondary)]">
+                No failovers or fraud blocks in the last 30 days.
+              </p>
+            ) : (
+              <ul className="space-y-3">
+                {data.riskEvents.map((e, i) => (
+                  <li
+                    key={`${e.kind}-${e.at}-${i}`}
+                    className="flex items-start justify-between gap-3 text-sm"
                   >
-                    No conversions tracked yet.{" "}
-                    <Link
-                      href="/sabsms/settings"
-                      className="underline underline-offset-2"
+                    <div className="flex items-start gap-2">
+                      <Badge
+                        variant={
+                          e.kind === "fraudBlocked" ? "secondary" : "default"
+                        }
+                      >
+                        {e.kind === "fraudBlocked" ? "Fraud" : "Failover"}
+                      </Badge>
+                      <span className="text-[var(--st-text)]">{e.summary}</span>
+                    </div>
+                    <time
+                      dateTime={e.at}
+                      className="shrink-0 text-xs text-[var(--st-text-secondary)]"
                     >
-                      Configure pixel
-                    </Link>
-                    .
-                  </Td>
-                </Tr>
-              </TBody>
-            </Table>
+                      {e.at ? new Date(e.at).toLocaleString() : "—"}
+                    </time>
+                  </li>
+                ))}
+              </ul>
+            )}
           </CardBody>
         </Card>
       </div>

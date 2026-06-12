@@ -67,7 +67,14 @@ function hashPhone(phone: string): string {
 }
 
 function projectConversation(
-  doc: SabsmsConversation & { _id?: ObjectId; notes?: unknown[]; firstResponseAt?: Date },
+  doc: SabsmsConversation & {
+    _id?: ObjectId;
+    notes?: unknown[];
+    firstResponseAt?: Date;
+    /** V2.12 — written by the agent runtime / guardrail (worker side). */
+    aiSuggestion?: { body?: string; at?: Date; inboundMessageId?: string };
+    aiFlags?: { possibleOptOut?: boolean; handoff?: boolean };
+  },
 ): InboxConversationView {
   return {
     id: String(doc._id),
@@ -81,6 +88,21 @@ function projectConversation(
     snoozedUntil: toIso(doc.snoozedUntil),
     firstResponseAt: toIso(doc.firstResponseAt),
     createdAt: toIso(doc.createdAt),
+    aiSuggestion:
+      doc.aiSuggestion && typeof doc.aiSuggestion.body === "string"
+        ? {
+            body: doc.aiSuggestion.body,
+            at: toIso(doc.aiSuggestion.at),
+            inboundMessageId: doc.aiSuggestion.inboundMessageId,
+          }
+        : undefined,
+    aiFlags:
+      doc.aiFlags && (doc.aiFlags.possibleOptOut || doc.aiFlags.handoff)
+        ? {
+            possibleOptOut: Boolean(doc.aiFlags.possibleOptOut),
+            handoff: Boolean(doc.aiFlags.handoff),
+          }
+        : undefined,
   };
 }
 
@@ -318,6 +340,9 @@ export async function replyToThread(input: {
             ? {}
             : ({ firstResponseAt: now } as Record<string, unknown>)),
         },
+        // V2.12 — a human reply consumes any pending AI suggestion
+        // (whether or not it was used).
+        $unset: { aiSuggestion: "" },
       },
     );
 
@@ -683,6 +708,82 @@ export async function addToSegment(_input: {
   // TODO: Segments ship in Phase 18 — when the segments collection
   // lands, swap this for a real upsert against the membership doc.
   return { ok: false, error: "Segments ship in Phase 18" };
+}
+
+// ─── V2.12 — AI suggestions + insights ────────────────────────────────────
+
+/**
+ * Clear a pending AI suggested reply from the conversation. Used by the
+ * suggestion card's "Dismiss" button; `replyToThread` also unsets it on
+ * every human send.
+ */
+export async function dismissSuggestion(input: {
+  conversationId: string;
+}): Promise<ActionResult> {
+  const ws = await resolveWorkspace();
+  if (!ws.ok) return ws;
+  if (!ObjectId.isValid(input.conversationId)) {
+    return { ok: false, error: "Invalid conversationId" };
+  }
+  const { cols } = await getSabsmsCollections();
+  await cols.conversations.updateOne(
+    { _id: new ObjectId(input.conversationId), workspaceId: ws.workspaceId },
+    { $unset: { aiSuggestion: "" }, $set: { updatedAt: new Date() } },
+  );
+  return { ok: true };
+}
+
+/**
+ * Accept a suggestion. The textarea fill happens client-side from the
+ * already-loaded suggestion body; server-side the suggestion stays on
+ * the doc until the send (replyToThread unsets it), so a page reload
+ * before sending re-offers it. This action exists for auditability — it
+ * stamps when the suggestion was accepted.
+ */
+export async function acceptSuggestion(input: {
+  conversationId: string;
+}): Promise<ActionResult> {
+  const ws = await resolveWorkspace();
+  if (!ws.ok) return ws;
+  if (!ObjectId.isValid(input.conversationId)) {
+    return { ok: false, error: "Invalid conversationId" };
+  }
+  const { cols } = await getSabsmsCollections();
+  await cols.conversations.updateOne(
+    { _id: new ObjectId(input.conversationId), workspaceId: ws.workspaceId },
+    { $set: { "aiSuggestion.acceptedAt": new Date(), updatedAt: new Date() } },
+  );
+  return { ok: true };
+}
+
+/**
+ * Top conversation topics for the inbox insights strip — latest
+ * `sabsms_conversation_insights` doc (written by
+ * `scripts/sabsms-insights-nightly.mjs`) with trend arrows vs the
+ * previous run. Returns null when no insights exist yet.
+ */
+export async function loadInboxInsights(
+  workspaceId: string,
+): Promise<import("./types").InboxInsightsView | null> {
+  const { loadInsightsWithTrend, topicTrend } = await import(
+    "@/lib/sabsms/insights/mining"
+  );
+  const { db } = await connectToDatabase();
+  const { current, previous } = await loadInsightsWithTrend(db, workspaceId);
+  if (!current) return null;
+  return {
+    totalConversations: current.totalConversations,
+    computedAt:
+      current.computedAt instanceof Date
+        ? current.computedAt.toISOString()
+        : undefined,
+    topics: current.topics.slice(0, 5).map((t) => ({
+      label: t.label,
+      count: t.count,
+      sentiment: t.sentiment,
+      trend: topicTrend(t.label, current.topics, previous?.topics),
+    })),
+  };
 }
 
 // ─── Misc ─────────────────────────────────────────────────────────────────

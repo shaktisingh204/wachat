@@ -578,6 +578,7 @@ export const smsMenuItems: MenuItem[] = [
     { href: '/sabsms/suppressions', label: 'Suppressions', icon: ShieldCheck, permissionKey: 'sabsms_suppressions' },
     { href: '/sabsms/compliance', label: 'Compliance', icon: ShieldCheck, permissionKey: 'sabsms_compliance' },
     { href: '/sabsms/analytics', label: 'Analytics', icon: BarChart, permissionKey: 'sabsms_analytics' },
+    { href: '/sabsms/otp', label: 'OTP / Verify', icon: ShieldCheck, permissionKey: 'sabsms_otp' },
     { href: '/sabsms/webhooks', label: 'Webhooks', icon: Webhook, permissionKey: 'sabsms_webhooks' },
     { href: '/sabsms/api-keys', label: 'API Keys', icon: Key, permissionKey: 'sabsms_api_keys' },
     { href: '/sabsms/settings', label: 'Settings', icon: Settings, permissionKey: 'sabsms_settings' },

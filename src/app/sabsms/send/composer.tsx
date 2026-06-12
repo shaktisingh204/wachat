@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { AlertCircle, AlertTriangle, CheckCircle2, Info } from "lucide-react";
+import { AlertCircle, AlertTriangle, CheckCircle2, Info, Loader2, Sparkles } from "lucide-react";
 
-import { Badge, Button, Input, Label, Progress, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Switch, Textarea } from '@/components/sabcrm/20ui';
+import { Badge, Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, Input, Label, Progress, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Switch, Textarea } from '@/components/sabcrm/20ui';
 
 import { creditCostFor } from "@/lib/sabsms/credits/rates";
 import { countryFromE164 } from "@/lib/sabsms/phone";
@@ -21,6 +21,14 @@ import {
   sendSmsAction,
   type SendableTemplate,
 } from "./actions";
+import { aiAssistAction, type AiAssistMode } from "./ai-assist";
+
+const AI_ASSIST_MODES: { mode: AiAssistMode; label: string }[] = [
+  { mode: "shorter", label: "Rewrite shorter" },
+  { mode: "friendlier", label: "Friendlier tone" },
+  { mode: "add_cta", label: "Add a call to action" },
+  { mode: "translate_hindi", label: "Translate to Hindi" },
+];
 
 const TERMINAL: SabsmsMessageStatus[] = [
   "delivered",
@@ -187,6 +195,22 @@ export function SabsmsSendComposer() {
   const [message, setMessage] = useState<SabsmsMessage | null>(null);
   const [error, setError] = useState<string | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // V2.12 — AI copy-assist (free-form bodies only; templates are locked).
+  const [aiBusy, setAiBusy] = useState(false);
+  const [aiProposal, setAiProposal] = useState<string | null>(null);
+  const [aiError, setAiError] = useState<string | null>(null);
+
+  async function runAiAssist(mode: AiAssistMode) {
+    if (!body.trim() || aiBusy) return;
+    setAiBusy(true);
+    setAiError(null);
+    setAiProposal(null);
+    const res = await aiAssistAction({ body, mode });
+    setAiBusy(false);
+    if (res.ok) setAiProposal(res.body);
+    else setAiError(res.error);
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -397,9 +421,80 @@ export function SabsmsSendComposer() {
           )}
 
           <div className="space-y-2">
-            <Label htmlFor="sabsms-send-body">
-              {template ? "Rendered message (from template)" : "Message body"}
-            </Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="sabsms-send-body">
+                {template ? "Rendered message (from template)" : "Message body"}
+              </Label>
+              {!template && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="ghost"
+                      disabled={aiBusy || !body.trim()}
+                      iconLeft={aiBusy ? undefined : Sparkles}
+                    >
+                      {aiBusy ? (
+                        <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" aria-hidden="true" />
+                      ) : null}
+                      AI assist
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>Rewrite with AI</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    {AI_ASSIST_MODES.map((m) => (
+                      <DropdownMenuItem
+                        key={m.mode}
+                        onSelect={() => void runAiAssist(m.mode)}
+                      >
+                        {m.label}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+            </div>
+            {aiProposal !== null && (
+              <div
+                className="space-y-2 rounded border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3"
+                role="region"
+                aria-label="AI rewrite proposal"
+              >
+                <div className="text-xs font-medium text-[var(--st-text-secondary)]">
+                  AI rewrite — replace your message?
+                </div>
+                <p className="whitespace-pre-wrap break-words text-sm text-[var(--st-text)]">
+                  {aiProposal}
+                </p>
+                <div className="flex items-center gap-2">
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() => {
+                      setBody(aiProposal);
+                      setAiProposal(null);
+                    }}
+                  >
+                    Replace
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => setAiProposal(null)}
+                  >
+                    Discard
+                  </Button>
+                </div>
+              </div>
+            )}
+            {aiError && (
+              <p className="rounded border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2 text-xs text-[var(--st-text)]">
+                {aiError}
+              </p>
+            )}
             <Textarea
               id="sabsms-send-body"
               required={!template}

@@ -52,6 +52,24 @@ pub async fn invalidate_routing(
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
+pub struct InvalidateOtpConfigBody {
+    pub workspace_id: String,
+}
+
+/// POST /v1/internal/otp/configs/invalidate — drop the cached OTP
+/// config for a workspace (the TS side calls this after every
+/// `sabsms_otp_configs` save so dashboard edits apply on the NEXT send,
+/// not one 60s cache TTL later).
+pub async fn invalidate_otp_config(
+    State(_state): State<Arc<AppState>>,
+    Json(body): Json<InvalidateOtpConfigBody>,
+) -> EngineResult<Json<Value>> {
+    crate::otp::store::invalidate_config(&body.workspace_id).await;
+    Ok(Json(json!({ "ok": true })))
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct PreviewRouteBody {
     pub workspace_id: String,
     /// Destination number (E.164 or close enough to parse).
