@@ -6,10 +6,9 @@ use axum::{
 };
 use chrono::Utc;
 use mongodb::bson::{doc, oid::ObjectId};
-use sha2::{Digest, Sha256};
 
 use crate::{
-    db,
+    compliance, db,
     errors::{EngineError, EngineResult},
     providers,
     queue,
@@ -19,13 +18,6 @@ use crate::{
         ProviderId,
     },
 };
-
-/// Hash a phone for the suppression list. SHA-256 lowercase hex.
-fn hash_phone(e164: &str) -> String {
-    let mut hasher = Sha256::new();
-    hasher.update(e164.as_bytes());
-    hex::encode(hasher.finalize())
-}
 
 fn normalise_e164(raw: &str) -> EngineResult<String> {
     use phonenumber::country;
@@ -46,15 +38,12 @@ pub async fn enqueue(
     }
 
     let to = normalise_e164(&input.to)?;
-    let phone_hash = hash_phone(&to);
 
-    // Suppression check.
-    let supp = state.mongo.collection::<mongodb::bson::Document>(db::COL_SUPPRESSIONS);
-    if supp
-        .find_one(doc! { "workspaceId": &input.workspace_id, "phoneHash": &phone_hash })
-        .await?
-        .is_some()
+    // Compliance pre-checks (suppression list, future: quiet hours).
+    if let compliance::Verdict::Block { code, reason } =
+        compliance::pre_send_checks(&state, &input.workspace_id, &to).await?
     {
+        tracing::info!(code = %code, reason = %reason, "send blocked by compliance");
         return Ok(Json(EnqueueSendResult {
             id: String::new(),
             status: MessageStatus::Suppressed,

@@ -178,6 +178,24 @@ export const sabsmsEngine = {
   async health(): Promise<{ ok: boolean; version?: string }> {
     return engineFetch<{ ok: boolean; version?: string }>('/health');
   },
+
+  /**
+   * Tell the engine to drop its cached decrypted credentials for a
+   * workspace (called after provider accounts change). Tolerates an
+   * unreachable/disabled engine silently — the cache simply expires.
+   */
+  async invalidateCreds(workspaceId: string): Promise<boolean> {
+    try {
+      await engineFetch('/v1/internal/creds/invalidate', {
+        method: 'POST',
+        json: { workspaceId },
+        timeoutMs: 5_000,
+      });
+      return true;
+    } catch {
+      return false;
+    }
+  },
 };
 
 export type SabsmsEngine = typeof sabsmsEngine;

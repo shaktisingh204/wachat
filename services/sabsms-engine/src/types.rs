@@ -61,6 +61,8 @@ pub enum MessageCategory {
 #[serde(rename_all = "snake_case")]
 pub enum ProviderId {
     Twilio,
+    /// Test-only provider used by e2e suites (`SABSMS_PROVIDER_MOCK=true`).
+    Mock,
     Vonage,
     Messagebird,
     Plivo,
@@ -79,6 +81,7 @@ impl ProviderId {
     pub fn as_str(self) -> &'static str {
         match self {
             ProviderId::Twilio => "twilio",
+            ProviderId::Mock => "mock",
             ProviderId::Vonage => "vonage",
             ProviderId::Messagebird => "messagebird",
             ProviderId::Plivo => "plivo",
@@ -92,6 +95,27 @@ impl ProviderId {
             ProviderId::Kaleyra => "kaleyra",
             ProviderId::Karix => "karix",
         }
+    }
+
+    /// Parse the lowercase wire / Mongo string form back to an id.
+    pub fn parse(s: &str) -> Option<ProviderId> {
+        Some(match s {
+            "twilio" => ProviderId::Twilio,
+            "mock" => ProviderId::Mock,
+            "vonage" => ProviderId::Vonage,
+            "messagebird" => ProviderId::Messagebird,
+            "plivo" => ProviderId::Plivo,
+            "sinch" => ProviderId::Sinch,
+            "infobip" => ProviderId::Infobip,
+            "aws_sns" => ProviderId::AwsSns,
+            "telnyx" => ProviderId::Telnyx,
+            "msg91" => ProviderId::Msg91,
+            "gupshup" => ProviderId::Gupshup,
+            "textlocal" => ProviderId::Textlocal,
+            "kaleyra" => ProviderId::Kaleyra,
+            "karix" => ProviderId::Karix,
+            _ => return None,
+        })
     }
 }
 

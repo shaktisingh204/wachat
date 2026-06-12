@@ -1,6 +1,6 @@
 # SabSMS — World-Class SMS / MMS / RCS Platform
 
-> **Status:** Draft / not started.
+> **Status:** SUPERSEDED 2026-06-12 by `plans/sabsms-v2-beyond-world-class.md`. Phase 0+1 of this plan shipped (with deviations: Rust engine at `services/sabsms-engine/` instead of Node/BullMQ worker; 20ui instead of ZoruUI). All further work follows the v2 plan.
 > **Owner:** TBD. **Target tree:** `src/app/sabsms/`, `src/lib/sabsms/`, `services/sabsms-worker/`.
 > **Sister modules:** SabWa (personal WhatsApp), Wachat (WhatsApp Cloud API), SabFlow (automation), SabCRM (contacts/segments). SabSMS reuses **Contacts**, **Segments**, **Templates**, **Credits**, **RBAC**, and **SabFiles** plumbing — do not duplicate any of those.
 >

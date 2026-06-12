@@ -30,6 +30,16 @@ pub enum EngineError {
     Internal(#[from] anyhow::Error),
 }
 
+impl From<crate::creds::CredsError> for EngineError {
+    fn from(e: crate::creds::CredsError) -> Self {
+        use crate::creds::CredsError as CE;
+        match e {
+            CE::NoCredentials | CE::AccountNotFound => EngineError::BadRequest(e.to_string()),
+            other => EngineError::Internal(anyhow::anyhow!(other)),
+        }
+    }
+}
+
 impl IntoResponse for EngineError {
     fn into_response(self) -> Response {
         let (status, body) = match &self {

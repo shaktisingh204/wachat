@@ -4,6 +4,7 @@ use std::collections::HashMap;
 
 use crate::types::{Channel, MessageCategory, MessageStatus, ProviderId};
 
+pub mod mock;
 pub mod twilio;
 
 /// Decrypted provider credentials. The encrypted blob lives in
@@ -86,9 +87,31 @@ pub enum ProviderError {
     #[error("provider rejected: {0}")]
     Rejected(String),
     #[error("network: {0}")]
-    Network(#[from] reqwest::Error),
+    Network(String),
+    #[error("throttled by provider")]
+    Throttled { retry_after_secs: Option<u64> },
     #[error("decode: {0}")]
     Decode(String),
+}
+
+impl ProviderError {
+    /// Transient failures the worker should retry with backoff.
+    pub fn is_retryable(&self) -> bool {
+        matches!(
+            self,
+            ProviderError::Network(_) | ProviderError::Throttled { .. }
+        )
+    }
+}
+
+/// Build the adapter for a provider id. Returns `None` for providers
+/// that don't have an engine implementation yet.
+pub fn adapter_for(provider: ProviderId, http: reqwest::Client) -> Option<Box<dyn SmsProvider>> {
+    match provider {
+        ProviderId::Twilio => Some(Box::new(twilio::TwilioProvider::new(http))),
+        ProviderId::Mock => Some(Box::new(mock::MockProvider::new())),
+        _ => None,
+    }
 }
 
 /// GSM-7 / UCS-2 segment counter. Returns the number of SMS segments

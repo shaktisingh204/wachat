@@ -5,6 +5,7 @@ use axum::{middleware, routing::post, Router};
 use crate::{auth, state::AppState};
 
 pub mod health;
+pub mod internal;
 pub mod send;
 pub mod webhook;
 
@@ -14,6 +15,10 @@ pub fn router(state: Arc<AppState>) -> Router {
     let service = Router::new()
         .route("/v1/messages", post(send::enqueue))
         .route("/v1/messages/{id}", axum::routing::get(send::get_one))
+        .route(
+            "/v1/internal/creds/invalidate",
+            post(internal::invalidate_creds),
+        )
         .route_layer(middleware::from_fn_with_state(
             state.clone(),
             auth::require_service_token,

@@ -11,9 +11,12 @@ use tokio::signal;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
 
 mod auth;
+mod compliance;
 mod config;
+mod creds;
 mod credits;
 mod db;
+mod delayed;
 mod errors;
 mod handlers;
 mod providers;
@@ -49,6 +52,7 @@ async fn main() -> anyhow::Result<()> {
             .timeout(std::time::Duration::from_secs(30))
             .build()
             .context("building reqwest client")?,
+        creds_cache: creds::CredsCache::default(),
     });
 
     // Background send worker — single instance per process; pool size
@@ -58,6 +62,13 @@ async fn main() -> anyhow::Result<()> {
         if let Err(e) = worker::run(worker_state).await {
             tracing::error!(?e, "send worker exited with error");
         }
+    });
+
+    // Delayed-queue ticker — promotes due retries from the ZSET to the
+    // main send list every second.
+    let ticker_state = state.clone();
+    tokio::spawn(async move {
+        delayed::run_ticker(ticker_state).await;
     });
 
     let app: Router = handlers::router(state.clone())

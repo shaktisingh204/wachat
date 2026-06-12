@@ -70,5 +70,33 @@ pub async fn ensure_indexes(db: &Database) -> Result<()> {
         .await
         .context("creating suppression indexes")?;
 
+    // conversations — one thread per (workspace, peer phone, channel)
+    let conversations = db.collection::<mongodb::bson::Document>(COL_CONVERSATIONS);
+    conversations
+        .create_indexes(vec![IndexModel::builder()
+            .keys(doc! { "workspaceId": 1, "phone": 1, "channel": 1 })
+            .options(IndexOptions::builder().unique(true).build())
+            .build()])
+        .await
+        .context("creating conversation indexes")?;
+
+    // numbers — inbound webhooks resolve workspace by destination e164
+    let numbers = db.collection::<mongodb::bson::Document>(COL_NUMBERS);
+    numbers
+        .create_indexes(vec![IndexModel::builder()
+            .keys(doc! { "e164": 1 })
+            .build()])
+        .await
+        .context("creating number indexes")?;
+
+    // provider accounts — default-account resolution per workspace
+    let provider_accounts = db.collection::<mongodb::bson::Document>(COL_PROVIDER_ACCOUNTS);
+    provider_accounts
+        .create_indexes(vec![IndexModel::builder()
+            .keys(doc! { "workspaceId": 1, "provider": 1, "isDefault": 1 })
+            .build()])
+        .await
+        .context("creating provider account indexes")?;
+
     Ok(())
 }

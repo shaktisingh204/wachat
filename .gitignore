@@ -160,6 +160,9 @@ src/config/site.ts
 # /src/components/wabasimplify/webhook-logs.tsx
 # /src/app/dashboard/crm/hr-payroll/settings/page.tsx
 .gitignore
+# Rust build artifacts (per-service engines)
+/services/sabsms-engine/target/
+
 # SabCRM: vendored Twenty CRM (reference only, NOT deployed) + scratch artifacts
 /twenty/
 /services/sabcrm/

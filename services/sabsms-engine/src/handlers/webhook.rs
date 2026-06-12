@@ -7,31 +7,48 @@ use axum::{
     Json,
 };
 use chrono::Utc;
-use mongodb::bson::doc;
+use mongodb::bson::{doc, Document};
+use mongodb::options::ReturnDocument;
 use serde_json::{json, Value};
 
 use crate::{
-    db,
+    creds, db,
     errors::{EngineError, EngineResult},
-    providers::{self, twilio::TwilioProvider, SmsProvider},
+    providers::{self, ProviderCreds, SmsProvider},
     state::AppState,
     types::{Channel, Direction, MessageStatus, ProviderId},
 };
 
+fn unsigned_webhooks_allowed() -> bool {
+    std::env::var("SABSMS_ALLOW_UNSIGNED_WEBHOOKS").unwrap_or_default() == "true"
+}
+
+fn mock_mode() -> bool {
+    std::env::var("SABSMS_PROVIDER_MOCK").unwrap_or_default() == "true"
+}
+
 /// Public POST endpoint that carriers invoke.
 ///
-/// Phase-1 supports Twilio only; other providers route 501.
+/// Twilio-only for now (multi-provider lands in a later phase); the mock
+/// path is accepted when `SABSMS_PROVIDER_MOCK=true`.
 pub async fn handle(
     State(state): State<Arc<AppState>>,
     Path((provider, direction)): Path<(String, String)>,
     headers: HeaderMap,
     body: Bytes,
 ) -> EngineResult<Json<Value>> {
-    if provider != "twilio" {
-        return Err(EngineError::BadRequest(format!(
-            "provider '{provider}' not yet supported in phase 1"
-        )));
-    }
+    let provider_id = match provider.as_str() {
+        "twilio" => ProviderId::Twilio,
+        "mock" if mock_mode() => ProviderId::Mock,
+        other => {
+            return Err(EngineError::BadRequest(format!(
+                "provider '{other}' not supported on webhooks yet"
+            )))
+        }
+    };
+
+    let adapter = providers::adapter_for(provider_id, state.http.clone())
+        .ok_or_else(|| EngineError::BadRequest("provider has no adapter".into()))?;
 
     let header_map: HashMap<String, String> = headers
         .iter()
@@ -41,77 +58,236 @@ pub async fn handle(
     // For signature verification we need the public URL — Next forwards
     // the original under X-Forwarded-Url, else fall back to a stub. In
     // dev we accept either.
-    let url = header_map
-        .get("x-forwarded-url")
-        .cloned()
-        .unwrap_or_else(|| format!("{}/webhook/twilio/{direction}", state.cfg.app_callback_url));
-
-    // Phase-1 lookup: the engine doesn't yet have a "default Twilio
-    // creds per workspace" lookup wired in (that's Phase-1 + half of
-    // Phase-7). For the smoke path we read creds from env so the admin
-    // debug page works end-to-end with a single Twilio account.
-    let creds = providers::ProviderCreds {
-        blob: serde_json::json!({
-            "accountSid": std::env::var("SABSMS_TWILIO_ACCOUNT_SID").unwrap_or_default(),
-            "authToken":  std::env::var("SABSMS_TWILIO_AUTH_TOKEN").unwrap_or_default(),
-        }),
-    };
-
-    let twilio = TwilioProvider::new(state.http.clone());
-
-    let signature_ok = twilio.verify_webhook_signature(&url, &body, &header_map, &creds);
-    if !signature_ok
-        && std::env::var("SABSMS_ALLOW_UNSIGNED_WEBHOOKS").unwrap_or_default() != "true"
-    {
-        return Err(EngineError::Unauthorized);
-    }
+    let url = header_map.get("x-forwarded-url").cloned().unwrap_or_else(|| {
+        format!(
+            "{}/webhook/{}/{direction}",
+            state.cfg.app_callback_url,
+            provider_id.as_str()
+        )
+    });
 
     match direction.as_str() {
-        "inbound" => handle_inbound(&state, &twilio, &body).await,
-        "dlr" => handle_dlr(&state, &twilio, &body).await,
+        "inbound" => {
+            handle_inbound(&state, provider_id, adapter.as_ref(), &url, &header_map, &body).await
+        }
+        "dlr" => handle_dlr(&state, provider_id, adapter.as_ref(), &url, &header_map, &body).await,
         _ => Err(EngineError::NotFound),
     }
 }
 
+/// Resolve creds + verify the provider signature. Bypassed entirely when
+/// `SABSMS_ALLOW_UNSIGNED_WEBHOOKS=true` (dev). The mock provider checks
+/// its own header and never needs stored creds.
+#[allow(clippy::too_many_arguments)]
+async fn verify_signature(
+    state: &Arc<AppState>,
+    provider_id: ProviderId,
+    adapter: &dyn SmsProvider,
+    url: &str,
+    headers: &HashMap<String, String>,
+    body: &[u8],
+    workspace_id: &str,
+    provider_account_id: Option<&str>,
+) -> EngineResult<()> {
+    if unsigned_webhooks_allowed() {
+        return Ok(());
+    }
+    let empty_creds = ProviderCreds {
+        blob: serde_json::json!({}),
+    };
+    let resolved;
+    let provider_creds = if provider_id == ProviderId::Mock {
+        &empty_creds
+    } else {
+        resolved = creds::resolve(state, workspace_id, provider_id, provider_account_id)
+            .await
+            .map_err(|e| {
+                tracing::warn!(?e, workspace = %workspace_id, "webhook creds resolution failed");
+                EngineError::Unauthorized
+            })?;
+        &resolved.creds
+    };
+    if !adapter.verify_webhook_signature(url, body, headers, provider_creds) {
+        return Err(EngineError::Unauthorized);
+    }
+    Ok(())
+}
+
+/// E.164 lookup candidates: exact, plus normalized variants with and
+/// without a leading "+".
+fn e164_variants(raw: &str) -> Vec<String> {
+    let mut out = vec![raw.to_string()];
+    if let Some(stripped) = raw.strip_prefix('+') {
+        out.push(stripped.to_string());
+    } else {
+        out.push(format!("+{raw}"));
+    }
+    out
+}
+
 async fn handle_inbound(
     state: &Arc<AppState>,
-    twilio: &TwilioProvider,
+    provider_id: ProviderId,
+    adapter: &dyn SmsProvider,
+    url: &str,
+    headers: &HashMap<String, String>,
     body: &[u8],
 ) -> EngineResult<Json<Value>> {
-    let parsed = twilio
+    // 1. Parse first — parsing never needs creds.
+    let parsed = adapter
         .parse_inbound(body)
         .map_err(|e| EngineError::Provider(e.to_string()))?;
 
-    let messages = state.mongo.collection::<mongodb::bson::Document>(db::COL_MESSAGES);
+    // 2. Resolve the workspace from the destination number.
+    let numbers = state.mongo.collection::<Document>(db::COL_NUMBERS);
+    let number_doc = numbers
+        .find_one(doc! { "e164": { "$in": e164_variants(&parsed.to) } })
+        .await?;
+    let number_doc = match number_doc {
+        Some(d) => d,
+        None => {
+            tracing::warn!(to = %parsed.to, provider = provider_id.as_str(), "inbound webhook for unknown destination number");
+            return Err(EngineError::BadRequest("unknown destination number".into()));
+        }
+    };
+    let workspace_id = number_doc.get_str("workspaceId").unwrap_or("").to_string();
+    if workspace_id.is_empty() {
+        return Err(EngineError::BadRequest("unknown destination number".into()));
+    }
+    let provider_account_id = number_doc
+        .get_str("providerAccountId")
+        .ok()
+        .map(|s| s.to_string());
+
+    // 3. Verify the signature with the workspace's creds.
+    verify_signature(
+        state,
+        provider_id,
+        adapter,
+        url,
+        headers,
+        body,
+        &workspace_id,
+        provider_account_id.as_deref(),
+    )
+    .await?;
+
     let now = Utc::now();
-    let doc = doc! {
-        "workspaceId": std::env::var("SABSMS_DEFAULT_WORKSPACE").unwrap_or_else(|_| "default".into()),
+    let now_bson = mongodb::bson::DateTime::from_millis(now.timestamp_millis());
+
+    // 4. Upsert the conversation thread for this peer.
+    let preview: String = parsed.body.chars().take(160).collect();
+    let conversations = state.mongo.collection::<Document>(db::COL_CONVERSATIONS);
+    let convo = conversations
+        .find_one_and_update(
+            doc! {
+                "workspaceId": &workspace_id,
+                "phone": &parsed.from,
+                "channel": Channel::Sms.serialize_as_str(),
+            },
+            doc! {
+                "$set": {
+                    "lastMessagePreview": &preview,
+                    "lastMessageAt": now_bson,
+                    "updatedAt": now_bson,
+                },
+                "$inc": { "unreadCount": 1 },
+                "$setOnInsert": {
+                    "workspaceId": &workspace_id,
+                    "phone": &parsed.from,
+                    "channel": Channel::Sms.serialize_as_str(),
+                    "status": "open",
+                    "createdAt": now_bson,
+                },
+            },
+        )
+        .upsert(true)
+        .return_document(ReturnDocument::After)
+        .await?;
+    let conversation_id = convo
+        .as_ref()
+        .and_then(|c| c.get_object_id("_id").ok())
+        .map(|oid| oid.to_hex());
+
+    // 5. Insert the inbound message with the REAL workspace id.
+    let messages = state.mongo.collection::<Document>(db::COL_MESSAGES);
+    let mut msg = doc! {
+        "workspaceId": &workspace_id,
         "direction": Direction::Inbound.serialize_as_str(),
         "channel": Channel::Sms.serialize_as_str(),
         "from": &parsed.from,
         "to": &parsed.to,
         "body": &parsed.body,
         "status": MessageStatus::Delivered.as_str(),
-        "provider": ProviderId::Twilio.as_str(),
+        "provider": provider_id.as_str(),
         "providerMessageId": &parsed.provider_message_id,
-        "createdAt": mongodb::bson::DateTime::from_millis(now.timestamp_millis()),
-        "updatedAt": mongodb::bson::DateTime::from_millis(now.timestamp_millis()),
+        "createdAt": now_bson,
+        "updatedAt": now_bson,
     };
+    if let Some(cid) = &conversation_id {
+        msg.insert("conversationId", cid);
+    }
+    if let Some(account_id) = &provider_account_id {
+        msg.insert("providerAccountId", account_id);
+    }
     // Idempotent on providerMessageId via the unique partial index.
-    let _ = messages.insert_one(doc).await;
+    let _ = messages.insert_one(msg).await;
     Ok(Json(json!({ "ok": true, "kind": "inbound" })))
 }
 
 async fn handle_dlr(
     state: &Arc<AppState>,
-    twilio: &TwilioProvider,
+    provider_id: ProviderId,
+    adapter: &dyn SmsProvider,
+    url: &str,
+    headers: &HashMap<String, String>,
     body: &[u8],
 ) -> EngineResult<Json<Value>> {
-    let evt = twilio
+    // 1. Parse first.
+    let evt = adapter
         .parse_dlr(body)
         .map_err(|e| EngineError::Provider(e.to_string()))?;
 
-    let messages = state.mongo.collection::<mongodb::bson::Document>(db::COL_MESSAGES);
+    // 2. Find the original outbound message to learn its workspace.
+    let messages = state.mongo.collection::<Document>(db::COL_MESSAGES);
+    let original = messages
+        .find_one(doc! { "providerMessageId": &evt.provider_message_id })
+        .await?;
+    let original = match original {
+        Some(d) => d,
+        None => {
+            // Carriers retry on 5xx — acknowledge unknown ids instead.
+            tracing::warn!(provider_message_id = %evt.provider_message_id, "DLR for unknown providerMessageId");
+            return Ok(Json(json!({ "ok": true, "kind": "dlr", "matched": false })));
+        }
+    };
+    let workspace_id = original.get_str("workspaceId").unwrap_or("").to_string();
+    let provider_account_id = original
+        .get_str("providerAccountId")
+        .ok()
+        .map(|s| s.to_string());
+    // Prefer the provider recorded on the doc (covers SABSMS_PROVIDER_MOCK
+    // test mode where the path may differ from the doc field).
+    let doc_provider = original
+        .get_str("provider")
+        .ok()
+        .and_then(ProviderId::parse)
+        .unwrap_or(provider_id);
+
+    // 3. Verify with the owning workspace's creds.
+    verify_signature(
+        state,
+        doc_provider,
+        adapter,
+        url,
+        headers,
+        body,
+        &workspace_id,
+        provider_account_id.as_deref(),
+    )
+    .await?;
+
+    // 4. Apply the status update.
     let now = mongodb::bson::DateTime::from_millis(Utc::now().timestamp_millis());
     let mut set = doc! {
         "status": evt.status.as_str(),
@@ -130,11 +306,11 @@ async fn handle_dlr(
     }
     messages
         .update_one(
-            doc! { "provider": ProviderId::Twilio.as_str(), "providerMessageId": &evt.provider_message_id },
+            doc! { "providerMessageId": &evt.provider_message_id },
             doc! { "$set": set },
         )
         .await?;
-    Ok(Json(json!({ "ok": true, "kind": "dlr" })))
+    Ok(Json(json!({ "ok": true, "kind": "dlr", "matched": true })))
 }
 
 // Small helpers so we can write the enum to BSON as a plain string
@@ -154,5 +330,16 @@ impl Channel {
             Channel::Mms => "mms",
             Channel::Rcs => "rcs",
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn e164_variants_cover_plus_and_bare() {
+        assert_eq!(e164_variants("+15551234567"), vec!["+15551234567", "15551234567"]);
+        assert_eq!(e164_variants("15551234567"), vec!["15551234567", "+15551234567"]);
     }
 }

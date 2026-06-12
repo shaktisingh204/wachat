@@ -65,11 +65,25 @@ impl SmsProvider for TwilioProvider {
             .basic_auth(&sid, Some(&token))
             .form(&form)
             .send()
-            .await?;
+            .await
+            .map_err(|e| ProviderError::Network(e.to_string()))?;
 
         let status = resp.status();
-        let raw = resp.text().await?;
+        let retry_after = resp
+            .headers()
+            .get("retry-after")
+            .and_then(|v| v.to_str().ok())
+            .and_then(|s| s.parse::<u64>().ok());
+        let raw = resp
+            .text()
+            .await
+            .map_err(|e| ProviderError::Network(e.to_string()))?;
 
+        if status.as_u16() == 429 {
+            return Err(ProviderError::Throttled {
+                retry_after_secs: retry_after,
+            });
+        }
         if !status.is_success() {
             return Err(ProviderError::Rejected(format!(
                 "twilio {}: {}",
