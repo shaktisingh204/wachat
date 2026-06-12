@@ -25,12 +25,15 @@
 //! the RFQ still saves.
 
 use axum::{
-    Json,
+    Extension, Json,
     extract::{Path, Query, State},
 };
 use bson::{Bson, Document, doc, oid::ObjectId};
 use chrono::Utc;
-use crm_core::{Audit, Identity, LineageRef, build_lineage_from_parent};
+use crm_core::{
+    Audit, Identity, LineageRef, ScopeMode, TenantScope, build_lineage_from_parent,
+    sabcrm_project_oid,
+};
 use crm_extras_types::{Rfq, RfqStatus};
 use futures::TryStreamExt;
 use mongodb::options::FindOptions;
@@ -39,7 +42,7 @@ use sabnode_common::{ApiError, Result};
 use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
 use tracing::{instrument, warn};
 
-use crate::dto::{CreateRfqInput, DEFAULT_LIMIT, ListQuery, MAX_LIMIT, UpdateRfqInput};
+use crate::dto::{CreateRfqInput, DEFAULT_LIMIT, ListQuery, MAX_LIMIT, ScopeQuery, UpdateRfqInput};
 
 /// Mongo collection name. Must match the canonical collection literal in
 /// `crm-extras-types::rfq` so the Rust BFF and the legacy Next.js action
@@ -60,6 +63,20 @@ fn user_oid(user: &AuthUser) -> Result<ObjectId> {
         .map_err(|_| ApiError::Unauthorized("subject is not a valid ObjectId".to_owned()))
 }
 
+/// Resolve the per-request [`TenantScope`] from the mount's
+/// [`ScopeMode`]: legacy mounts filter by the JWT's `userId`, SabCRM
+/// mounts by the caller-supplied (required) `projectId`.
+fn resolve_scope(
+    mode: ScopeMode,
+    user: &AuthUser,
+    project_id: Option<&str>,
+) -> Result<TenantScope> {
+    match mode {
+        ScopeMode::User => Ok(TenantScope::User(user_oid(user)?)),
+        ScopeMode::Project => Ok(TenantScope::Project(sabcrm_project_oid(project_id)?)),
+    }
+}
+
 /// Clamp `requested` page-size into `[1, MAX_LIMIT]`, defaulting to
 /// [`DEFAULT_LIMIT`] when absent. Returns an `i64` to match the
 /// `mongodb` driver's `FindOptions::limit` signature.
@@ -71,14 +88,13 @@ fn clamp_limit(requested: Option<u32>) -> i64 {
 }
 
 /// Materialize the base ownership filter:
-/// `{ userId, archived: { $ne: true } }`. Soft-deleted rows
+/// `{ <userId|projectId>, archived: { $ne: true } }`. Soft-deleted rows
 /// (`archived = true`) are excluded by default; callers that want to
 /// surface them must build their own filter.
-fn base_ownership_filter(user: ObjectId) -> Document {
-    doc! {
-        "userId": user,
-        "archived": { "$ne": true },
-    }
+fn base_ownership_filter(scope: &TenantScope) -> Document {
+    let mut filter = scope.filter();
+    filter.insert("archived", doc! { "$ne": true });
+    filter
 }
 
 /// Map a parent `kind` string to the Mongo collection that holds it.
@@ -117,12 +133,12 @@ fn parse_oid_vec(ids: &[String]) -> Result<Vec<ObjectId>> {
         .collect()
 }
 
-/// Fetch the parent document (scoped by `userId`) and build the lineage
-/// chain a freshly-created RFQ should inherit. Returns `Ok(None)` if the
-/// parent doesn't exist or isn't owned by the caller.
+/// Fetch the parent document (scoped by the request's tenant scope) and
+/// build the lineage chain a freshly-created RFQ should inherit. Returns
+/// `Ok(None)` if the parent doesn't exist or isn't owned by the caller.
 async fn seed_lineage_from_parent(
     mongo: &MongoHandle,
-    user_oid_v: ObjectId,
+    scope: &TenantScope,
     parent_kind: &str,
     parent_id_hex: &str,
 ) -> Result<Option<(Vec<LineageRef>, ObjectId, &'static str)>> {
@@ -132,8 +148,10 @@ async fn seed_lineage_from_parent(
     };
     let parent_oid = oid_from_str(parent_id_hex)?;
     let parents = mongo.collection::<Document>(coll_name);
+    let mut parent_filter = scope.filter();
+    parent_filter.insert("_id", parent_oid);
     let parent = match parents
-        .find_one(doc! { "_id": parent_oid, "userId": user_oid_v })
+        .find_one(parent_filter)
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_rfqs.parent.find_one"))
@@ -173,12 +191,13 @@ async fn seed_lineage_from_parent(
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn list_rfqs(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Query(q): Query<ListQuery>,
 ) -> Result<Json<Vec<Rfq>>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, q.project_id.as_deref())?;
 
-    let mut filter = base_ownership_filter(user_id);
+    let mut filter = base_ownership_filter(&scope);
     if let Some(needle) = q.q.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
         let regex = doc! { "$regex": needle, "$options": "i" };
         filter.insert(
@@ -227,13 +246,15 @@ pub async fn list_rfqs(
 #[instrument(skip_all, fields(user_id = %user.user_id, rfq_id = %rfq_id))]
 pub async fn get_rfq(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(rfq_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
 ) -> Result<Json<Rfq>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let rfq_oid = oid_from_str(&rfq_id)?;
 
-    let mut filter = base_ownership_filter(user_id);
+    let mut filter = base_ownership_filter(&scope);
     filter.insert("_id", rfq_oid);
 
     let coll = mongo.collection::<Rfq>(RFQS_COLL);
@@ -265,6 +286,7 @@ pub async fn get_rfq(
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn create_rfq(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Json(input): Json<CreateRfqInput>,
 ) -> Result<Json<Rfq>> {
@@ -278,12 +300,19 @@ pub async fn create_rfq(
     }
 
     let user_id = user_oid(&user)?;
-    let project_id = match input.project_id.as_deref().filter(|s| !s.is_empty()) {
-        Some(s) => oid_from_str(s)?,
-        // Match the legacy TS behaviour: stamp a freshly-minted id when
-        // the caller doesn't pass one. Production callers SHOULD send
-        // the real projectId.
-        None => ObjectId::new(),
+    // In project mode the body's `projectId` IS the tenant scope and is
+    // therefore mandatory (4xx when absent) — `resolve_scope` enforces
+    // that. In legacy user mode the scope is the JWT subject and the
+    // body `projectId` stays optional, exactly as before.
+    let scope = resolve_scope(mode, &user, input.project_id.as_deref())?;
+    let project_id = match scope {
+        TenantScope::Project(p) => p,
+        TenantScope::User(_) => match input.project_id.as_deref().filter(|s| !s.is_empty()) {
+            Some(s) => oid_from_str(s)?,
+            // Match the legacy TS behaviour: stamp a freshly-minted id
+            // when the caller doesn't pass one.
+            None => ObjectId::new(),
+        },
     };
 
     let vendors_invited = parse_oid_vec(&input.vendors_invited)?;
@@ -293,7 +322,7 @@ pub async fn create_rfq(
     let mut parent_back_link: Option<(&'static str, ObjectId)> = None;
     if let (Some(kind), Some(parent_id)) = (input.from_kind.as_deref(), input.from_id.as_deref()) {
         if !kind.is_empty() && !parent_id.is_empty() {
-            match seed_lineage_from_parent(&mongo, user_id, kind, parent_id).await {
+            match seed_lineage_from_parent(&mongo, &scope, kind, parent_id).await {
                 Ok(Some((chain, parent_oid, coll_name))) => {
                     lineage_chain = chain;
                     parent_back_link = Some((coll_name, parent_oid));
@@ -344,9 +373,11 @@ pub async fn create_rfq(
     // Best-effort back-link onto the parent's lineage (non-fatal).
     if let Some((parent_coll, parent_oid)) = parent_back_link {
         let parents = mongo.collection::<Document>(parent_coll);
+        let mut backlink_filter = scope.filter();
+        backlink_filter.insert("_id", parent_oid);
         let _ = parents
             .update_one(
-                doc! { "_id": parent_oid, "userId": user_id },
+                backlink_filter,
                 doc! {
                     "$push": { "lineage": { "kind": "rfq", "id": new_oid } },
                     "$set":  { "updatedAt": bson::DateTime::from_chrono(now) },
@@ -370,8 +401,10 @@ pub async fn create_rfq(
 #[instrument(skip_all, fields(user_id = %user.user_id, rfq_id = %rfq_id))]
 pub async fn update_rfq(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(rfq_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
     Json(input): Json<UpdateRfqInput>,
 ) -> Result<Json<Rfq>> {
     if input.is_empty() {
@@ -387,6 +420,7 @@ pub async fn update_rfq(
         }
     }
 
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let user_id = user_oid(&user)?;
     let rfq_oid = oid_from_str(&rfq_id)?;
 
@@ -435,7 +469,7 @@ pub async fn update_rfq(
         set.insert("attachments", bson_att);
     }
 
-    let mut filter = base_ownership_filter(user_id);
+    let mut filter = base_ownership_filter(&scope);
     filter.insert("_id", rfq_oid);
 
     let coll = mongo.collection::<Document>(RFQS_COLL);
@@ -472,13 +506,16 @@ pub async fn update_rfq(
 #[instrument(skip_all, fields(user_id = %user.user_id, rfq_id = %rfq_id))]
 pub async fn delete_rfq(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(rfq_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
 ) -> Result<Json<serde_json::Value>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let rfq_oid = oid_from_str(&rfq_id)?;
 
-    let filter = doc! { "_id": rfq_oid, "userId": user_id };
+    let mut filter = scope.filter();
+    filter.insert("_id", rfq_oid);
 
     let coll = mongo.collection::<Document>(RFQS_COLL);
     let res = coll
@@ -518,10 +555,33 @@ mod tests {
     #[test]
     fn base_filter_excludes_archived() {
         let oid = ObjectId::new();
-        let f = base_ownership_filter(oid);
+        let f = base_ownership_filter(&TenantScope::User(oid));
         assert_eq!(f.get_object_id("userId").unwrap(), oid);
+        assert!(!f.contains_key("projectId"));
         let archived = f.get_document("archived").unwrap();
         assert!(archived.contains_key("$ne"));
+    }
+
+    #[test]
+    fn base_filter_scopes_by_project_on_sabcrm_mounts() {
+        let oid = ObjectId::new();
+        let f = base_ownership_filter(&TenantScope::Project(oid));
+        assert_eq!(f.get_object_id("projectId").unwrap(), oid);
+        assert!(!f.contains_key("userId"));
+        assert!(f.get_document("archived").unwrap().contains_key("$ne"));
+    }
+
+    #[test]
+    fn resolve_scope_project_requires_project_id() {
+        let user = AuthUser {
+            user_id: ObjectId::new().to_hex(),
+            tenant_id: String::new(),
+            roles: Vec::new(),
+        };
+        assert!(resolve_scope(ScopeMode::Project, &user, None).is_err());
+        let p = ObjectId::new();
+        let scope = resolve_scope(ScopeMode::Project, &user, Some(&p.to_hex())).unwrap();
+        assert_eq!(scope, TenantScope::Project(p));
     }
 
     #[test]

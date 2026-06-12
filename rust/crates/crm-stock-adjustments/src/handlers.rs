@@ -1,7 +1,7 @@
 //! HTTP handlers for the Stock Adjustment entity.
 
 use axum::{
-    Json,
+    Extension, Json,
     extract::{Path, Query, State},
 };
 use bson::{Bson, DateTime as BsonDateTime, Document, doc, oid::ObjectId};
@@ -12,6 +12,7 @@ use crm_common::{
     search::build_q_filter,
     tenant::user_oid,
 };
+use crm_core::{ScopeMode, TenantScope, sabcrm_project_oid};
 use futures::TryStreamExt;
 use mongodb::options::FindOptions;
 use sabnode_auth::AuthUser;
@@ -21,7 +22,7 @@ use tracing::instrument;
 
 use crate::dto::{
     ApprovalInput, CreateStockAdjustmentInput, CreateStockAdjustmentResponse,
-    DeleteStockAdjustmentResponse, LineInput, ListQuery, UpdateStockAdjustmentInput,
+    DeleteStockAdjustmentResponse, LineInput, ListQuery, ScopeQuery, UpdateStockAdjustmentInput,
 };
 use crate::types::{CrmStockAdjustment, CrmStockAdjustmentLine};
 
@@ -34,15 +35,29 @@ fn parse_iso(s: &str) -> Option<BsonDateTime> {
         .map(|dt| BsonDateTime::from_chrono(dt.with_timezone(&Utc)))
 }
 
+/// Resolve the per-request tenant scope from the mount's [`ScopeMode`]:
+/// legacy mounts filter by the JWT's `userId`, SabCRM mounts by the
+/// caller-supplied (required) `projectId`.
+fn resolve_scope(
+    mode: ScopeMode,
+    user: &AuthUser,
+    project_id: Option<&str>,
+) -> Result<TenantScope> {
+    match mode {
+        ScopeMode::User => Ok(TenantScope::User(user_oid(user)?)),
+        ScopeMode::Project => Ok(TenantScope::Project(sabcrm_project_oid(project_id)?)),
+    }
+}
+
 fn list_filter(
-    user_id: ObjectId,
+    scope: &TenantScope,
     status: Option<&str>,
     warehouse_id: Option<&str>,
     product_id: Option<&str>,
     date_from: Option<&str>,
     date_to: Option<&str>,
 ) -> Document {
-    let mut filter = doc! { "userId": user_id };
+    let mut filter = scope.filter();
     if let Some(s) = status
         .map(str::trim)
         .filter(|s| !s.is_empty() && *s != "all")
@@ -68,8 +83,10 @@ fn list_filter(
     filter
 }
 
-fn ownership_filter(user_id: ObjectId, oid: ObjectId) -> Document {
-    doc! { "_id": oid, "userId": user_id }
+fn ownership_filter(scope: &TenantScope, oid: ObjectId) -> Document {
+    let mut filter = scope.filter();
+    filter.insert("_id", oid);
+    filter
 }
 
 fn line_input_to_line(input: LineInput) -> Option<CrmStockAdjustmentLine> {
@@ -107,6 +124,7 @@ fn from_create(input: CreateStockAdjustmentInput, user_id: ObjectId) -> Result<C
     Ok(CrmStockAdjustment {
         id: None,
         user_id,
+        project_id: None,
         adjustment_number: input.adjustment_number,
         date,
         reason: input.reason,
@@ -198,12 +216,13 @@ pub struct ListResponse {
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn list_adjustments(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Query(q): Query<ListQuery>,
 ) -> Result<Json<ListResponse>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, q.project_id.as_deref())?;
     let mut filter = list_filter(
-        user_id,
+        &scope,
         q.status.as_deref(),
         q.warehouse_id.as_deref(),
         q.product_id.as_deref(),
@@ -249,15 +268,17 @@ pub async fn list_adjustments(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %adjustment_id))]
 pub async fn get_adjustment(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(adjustment_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
 ) -> Result<Json<CrmStockAdjustment>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&adjustment_id)?;
 
     let coll = mongo.collection::<CrmStockAdjustment>(COLL);
     let row = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_stock_adjustments.find_one"))
@@ -269,15 +290,22 @@ pub async fn get_adjustment(
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn create_adjustment(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Json(input): Json<CreateStockAdjustmentInput>,
 ) -> Result<Json<CreateStockAdjustmentResponse>> {
+    // `userId` is always stamped from the JWT; `projectId` is stamped
+    // only on SabCRM (project) mounts, where it is mandatory.
+    let scope = resolve_scope(mode, &user, input.project_id.as_deref())?;
     let user_id = user_oid(&user)?;
     if input.reason.trim().is_empty() {
         return Err(ApiError::Validation("reason is required".to_owned()));
     }
 
     let mut entity = from_create(input, user_id)?;
+    if let TenantScope::Project(project_oid) = scope {
+        entity.project_id = Some(project_oid);
+    }
     let coll = mongo.collection::<CrmStockAdjustment>(COLL);
     let inserted = coll.insert_one(&entity).await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("crm_stock_adjustments.insert"))
@@ -302,16 +330,18 @@ pub async fn create_adjustment(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %adjustment_id))]
 pub async fn update_adjustment(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(adjustment_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
     Json(patch): Json<UpdateStockAdjustmentInput>,
 ) -> Result<Json<CrmStockAdjustment>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&adjustment_id)?;
 
     let coll = mongo.collection::<CrmStockAdjustment>(COLL);
     let before = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_stock_adjustments.find_one"))
@@ -320,7 +350,7 @@ pub async fn update_adjustment(
 
     let update = build_update_doc(patch);
     let result = coll
-        .update_one(ownership_filter(user_id, oid), update)
+        .update_one(ownership_filter(&scope, oid), update)
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_stock_adjustments.update"))
@@ -330,7 +360,7 @@ pub async fn update_adjustment(
     }
 
     let after = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_stock_adjustments.refetch"))
@@ -354,10 +384,15 @@ pub async fn update_adjustment(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %adjustment_id))]
 pub async fn approval_decision(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(adjustment_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
     Json(input): Json<ApprovalInput>,
 ) -> Result<Json<CrmStockAdjustment>> {
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
+    // The approver is always the JWT subject, whichever mount served the
+    // request — `approvedBy` is an audit field, not the tenant scope.
     let user_id = user_oid(&user)?;
     let oid = oid_from_str(&adjustment_id)?;
 
@@ -382,7 +417,7 @@ pub async fn approval_decision(
         set.insert("approvalNotes", n);
     }
     let result = coll
-        .update_one(ownership_filter(user_id, oid), doc! { "$set": set })
+        .update_one(ownership_filter(&scope, oid), doc! { "$set": set })
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_stock_adjustments.approve"))
@@ -392,7 +427,7 @@ pub async fn approval_decision(
     }
 
     let after = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_stock_adjustments.refetch"))
@@ -411,15 +446,17 @@ pub async fn approval_decision(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %adjustment_id))]
 pub async fn delete_adjustment(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(adjustment_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
 ) -> Result<Json<DeleteStockAdjustmentResponse>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&adjustment_id)?;
 
     let coll = mongo.collection::<CrmStockAdjustment>(COLL);
     let result = coll
-        .delete_one(ownership_filter(user_id, oid))
+        .delete_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_stock_adjustments.delete"))
@@ -445,7 +482,7 @@ mod tests {
         let wid = ObjectId::new();
         let pid = ObjectId::new();
         let f = list_filter(
-            uid,
+            &TenantScope::User(uid),
             Some("approved"),
             Some(&wid.to_hex()),
             Some(&pid.to_hex()),
@@ -455,13 +492,36 @@ mod tests {
         assert_eq!(f.get_str("status").unwrap(), "approved");
         assert!(f.get("warehouseId").is_some());
         assert!(f.get("productId").is_some());
+        assert_eq!(f.get_object_id("userId").unwrap(), uid);
+        assert!(!f.contains_key("projectId"));
     }
 
     #[test]
     fn list_filter_all_omits_status_clause() {
         let uid = ObjectId::new();
-        let f = list_filter(uid, Some("all"), None, None, None, None);
+        let f = list_filter(&TenantScope::User(uid), Some("all"), None, None, None, None);
         assert!(!f.contains_key("status"));
+    }
+
+    #[test]
+    fn list_filter_scopes_by_project_on_sabcrm_mounts() {
+        let oid = ObjectId::new();
+        let f = list_filter(&TenantScope::Project(oid), None, None, None, None, None);
+        assert_eq!(f.get_object_id("projectId").unwrap(), oid);
+        assert!(!f.contains_key("userId"));
+    }
+
+    #[test]
+    fn resolve_scope_project_requires_project_id() {
+        let user = AuthUser {
+            user_id: ObjectId::new().to_hex(),
+            tenant_id: String::new(),
+            roles: Vec::new(),
+        };
+        assert!(resolve_scope(ScopeMode::Project, &user, None).is_err());
+        let p = ObjectId::new();
+        let scope = resolve_scope(ScopeMode::Project, &user, Some(&p.to_hex())).unwrap();
+        assert_eq!(scope, TenantScope::Project(p));
     }
 
     #[test]

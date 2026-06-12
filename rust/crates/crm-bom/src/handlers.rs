@@ -1,7 +1,7 @@
 //! HTTP handlers for the BOM entity.
 
 use axum::{
-    Json,
+    Extension, Json,
     extract::{Path, Query, State},
 };
 use bson::{DateTime as BsonDateTime, Document, doc, oid::ObjectId};
@@ -12,6 +12,7 @@ use crm_common::{
     search::build_q_filter,
     tenant::user_oid,
 };
+use crm_core::{ScopeMode, TenantScope, sabcrm_project_oid};
 use futures::TryStreamExt;
 use mongodb::options::FindOptions;
 use sabnode_auth::AuthUser;
@@ -19,14 +20,30 @@ use sabnode_common::{ApiError, Result};
 use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
 use tracing::instrument;
 
-use crate::dto::{CreateBomInput, CreateBomResponse, DeleteBomResponse, ListQuery, UpdateBomInput};
+use crate::dto::{
+    CreateBomInput, CreateBomResponse, DeleteBomResponse, ListQuery, ScopeQuery, UpdateBomInput,
+};
 use crate::types::CrmBom;
 
 const COLL: &str = "crm_boms";
 const ENTITY_KIND: &str = "bom";
 
-fn list_filter(user_id: ObjectId, status: Option<&str>, fg_id: Option<&str>) -> Document {
-    let mut filter = doc! { "userId": user_id };
+/// Resolve the per-request tenant scope from the mount's [`ScopeMode`]:
+/// legacy mounts filter by the JWT's `userId`, SabCRM mounts by the
+/// caller-supplied (required) `projectId`.
+fn resolve_scope(
+    mode: ScopeMode,
+    user: &AuthUser,
+    project_id: Option<&str>,
+) -> Result<TenantScope> {
+    match mode {
+        ScopeMode::User => Ok(TenantScope::User(user_oid(user)?)),
+        ScopeMode::Project => Ok(TenantScope::Project(sabcrm_project_oid(project_id)?)),
+    }
+}
+
+fn list_filter(scope: &TenantScope, status: Option<&str>, fg_id: Option<&str>) -> Document {
+    let mut filter = scope.filter();
     match status.unwrap_or("active_visible") {
         "all" => {}
         "archived" => {
@@ -51,8 +68,10 @@ fn list_filter(user_id: ObjectId, status: Option<&str>, fg_id: Option<&str>) -> 
     filter
 }
 
-fn ownership_filter(user_id: ObjectId, oid: ObjectId) -> Document {
-    doc! { "_id": oid, "userId": user_id }
+fn ownership_filter(scope: &TenantScope, oid: ObjectId) -> Document {
+    let mut filter = scope.filter();
+    filter.insert("_id", oid);
+    filter
 }
 
 fn parse_date(s: &str) -> Option<BsonDateTime> {
@@ -83,6 +102,7 @@ fn bom_from_create(input: CreateBomInput, user_id: ObjectId) -> Result<CrmBom> {
     Ok(CrmBom {
         id: None,
         user_id,
+        project_id: None,
         bom_no: input.bom_no.trim().to_owned(),
         finished_good_name: input.finished_good_name.trim().to_owned(),
         finished_good_id: fg,
@@ -173,11 +193,12 @@ pub struct ListResponse {
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn list_boms(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Query(q): Query<ListQuery>,
 ) -> Result<Json<ListResponse>> {
-    let user_id = user_oid(&user)?;
-    let mut filter = list_filter(user_id, q.status.as_deref(), q.finished_good_id.as_deref());
+    let scope = resolve_scope(mode, &user, q.project_id.as_deref())?;
+    let mut filter = list_filter(&scope, q.status.as_deref(), q.finished_good_id.as_deref());
     if let Some(needle) = q.q.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
         let or = build_q_filter(needle, &["bomNo", "finishedGoodName", "notes", "version"]);
         if let Ok(arr) = or.get_array("$or") {
@@ -216,14 +237,16 @@ pub async fn list_boms(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %bom_id))]
 pub async fn get_bom(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(bom_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
 ) -> Result<Json<CrmBom>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&bom_id)?;
     let coll = mongo.collection::<CrmBom>(COLL);
     let row = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_boms.find_one")))?
         .ok_or_else(|| ApiError::NotFound("bom".to_owned()))?;
@@ -233,11 +256,18 @@ pub async fn get_bom(
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn create_bom(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Json(input): Json<CreateBomInput>,
 ) -> Result<Json<CreateBomResponse>> {
+    // `userId` is always stamped from the JWT; `projectId` is stamped
+    // only on SabCRM (project) mounts, where it is mandatory.
+    let scope = resolve_scope(mode, &user, input.project_id.as_deref())?;
     let user_id = user_oid(&user)?;
     let mut entity = bom_from_create(input, user_id)?;
+    if let TenantScope::Project(project_oid) = scope {
+        entity.project_id = Some(project_oid);
+    }
     let coll = mongo.collection::<CrmBom>(COLL);
     let inserted = coll
         .insert_one(&entity)
@@ -261,28 +291,30 @@ pub async fn create_bom(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %bom_id))]
 pub async fn update_bom(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(bom_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
     Json(patch): Json<UpdateBomInput>,
 ) -> Result<Json<CrmBom>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&bom_id)?;
     let coll = mongo.collection::<CrmBom>(COLL);
     let before = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_boms.find_one")))?
         .ok_or_else(|| ApiError::NotFound("bom".to_owned()))?;
     let update = build_update_doc(patch);
     let result = coll
-        .update_one(ownership_filter(user_id, oid), update)
+        .update_one(ownership_filter(&scope, oid), update)
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_boms.update")))?;
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("bom".to_owned()));
     }
     let after = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_boms.refetch")))?
         .ok_or_else(|| ApiError::NotFound("bom".to_owned()))?;
@@ -301,15 +333,17 @@ pub async fn update_bom(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %bom_id))]
 pub async fn delete_bom(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(bom_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
 ) -> Result<Json<DeleteBomResponse>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&bom_id)?;
     let coll = mongo.collection::<CrmBom>(COLL);
     let result = coll
         .update_one(
-            ownership_filter(user_id, oid),
+            ownership_filter(&scope, oid),
             doc! { "$set": {
                 "status": "archived",
                 "active": false,
@@ -334,8 +368,31 @@ mod tests {
     #[test]
     fn list_filter_excludes_archived_by_default() {
         let oid = ObjectId::new();
-        let f = list_filter(oid, None, None);
+        let f = list_filter(&TenantScope::User(oid), None, None);
         assert!(f.contains_key("status"));
+        assert_eq!(f.get_object_id("userId").unwrap(), oid);
+        assert!(!f.contains_key("projectId"));
+    }
+
+    #[test]
+    fn list_filter_scopes_by_project_on_sabcrm_mounts() {
+        let oid = ObjectId::new();
+        let f = list_filter(&TenantScope::Project(oid), None, None);
+        assert_eq!(f.get_object_id("projectId").unwrap(), oid);
+        assert!(!f.contains_key("userId"));
+    }
+
+    #[test]
+    fn resolve_scope_project_requires_project_id() {
+        let user = AuthUser {
+            user_id: ObjectId::new().to_hex(),
+            tenant_id: String::new(),
+            roles: Vec::new(),
+        };
+        assert!(resolve_scope(ScopeMode::Project, &user, None).is_err());
+        let p = ObjectId::new();
+        let scope = resolve_scope(ScopeMode::Project, &user, Some(&p.to_hex())).unwrap();
+        assert_eq!(scope, TenantScope::Project(p));
     }
 
     #[test]

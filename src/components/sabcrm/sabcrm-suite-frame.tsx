@@ -288,6 +288,16 @@ export function SabcrmSuiteFrame({ children }: { children: React.ReactNode }) {
       { group: 'finance', id: 'gst', label: 'GST', href: '/sabcrm/finance/gst', icon: Percent },
       { group: 'finance', id: 'eway-bills', label: 'E-way bills', href: '/sabcrm/finance/eway-bills', icon: FileText },
       { group: 'finance', id: 'tds', label: 'TDS', href: '/sabcrm/finance/tds', icon: Percent },
+      { group: 'supply', id: 'items', label: 'Items', href: '/sabcrm/supply/items', icon: Database },
+      { group: 'supply', id: 'warehouses', label: 'Warehouses', href: '/sabcrm/supply/warehouses', icon: Building2 },
+      { group: 'supply', id: 'stock-adjustments', label: 'Stock adjustments', href: '/sabcrm/supply/stock-adjustments', icon: CheckSquare },
+      { group: 'supply', id: 'purchase-orders', label: 'Purchase orders', href: '/sabcrm/supply/purchase-orders', icon: FileText },
+      { group: 'supply', id: 'grn', label: 'GRN', href: '/sabcrm/supply/grn', icon: CheckSquare },
+      { group: 'supply', id: 'vendors', label: 'Vendors', href: '/sabcrm/supply/vendors', icon: Users },
+      { group: 'supply', id: 'rfqs', label: 'RFQs', href: '/sabcrm/supply/rfqs', icon: FileText },
+      { group: 'supply', id: 'vendor-bids', label: 'Vendor bids', href: '/sabcrm/supply/vendor-bids', icon: FileText },
+      { group: 'supply', id: 'bom', label: 'Bill of materials', href: '/sabcrm/supply/bom', icon: BookOpen },
+      { group: 'supply', id: 'production-orders', label: 'Production orders', href: '/sabcrm/supply/production-orders', icon: Workflow },
       { group: 'insights', id: 'forecast', label: 'Forecast', href: '/sabcrm/forecast', icon: TrendingUp },
       { group: 'insights', id: 'dashboards', label: 'Dashboards', href: '/sabcrm/dashboard', icon: LayoutDashboard },
       { group: 'insights', id: 'reports', label: 'Reports', href: '/sabcrm/reports', icon: BarChart3 },
@@ -349,6 +359,11 @@ export function SabcrmSuiteFrame({ children }: { children: React.ReactNode }) {
       id: 'finance',
       label: 'Finance',
       items: entries.filter((e) => e.group === 'finance').map(toLeaf),
+    });
+    result.push({
+      id: 'supply',
+      label: 'Supply',
+      items: entries.filter((e) => e.group === 'supply').map(toLeaf),
     });
     result.push({
       id: 'insights',

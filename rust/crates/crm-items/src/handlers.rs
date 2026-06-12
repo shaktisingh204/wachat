@@ -5,7 +5,7 @@
 //! `entityKind == "item"`.
 
 use axum::{
-    Json,
+    Extension, Json,
     extract::{Path, Query, State},
 };
 use bson::{Bson, DateTime as BsonDateTime, Document, doc, oid::ObjectId};
@@ -16,6 +16,7 @@ use crm_common::{
     search::build_q_filter,
     tenant::user_oid,
 };
+use crm_core::{ScopeMode, TenantScope, sabcrm_project_oid};
 use futures::TryStreamExt;
 use mongodb::options::FindOptions;
 use sabnode_auth::AuthUser;
@@ -24,7 +25,8 @@ use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
 use tracing::instrument;
 
 use crate::dto::{
-    CreateItemInput, CreateItemResponse, DeleteItemResponse, ListQuery, UpdateItemInput,
+    CreateItemInput, CreateItemResponse, DeleteItemResponse, ListQuery, ScopeQuery,
+    UpdateItemInput,
 };
 use crate::types::{CrmProduct, ProductDimensions, ProductWeight};
 
@@ -33,16 +35,32 @@ const ENTITY_KIND: &str = "item";
 
 // ─── Filter helpers ──────────────────────────────────────────────────────
 
+/// Resolve the per-request tenant scope from the mount's [`ScopeMode`]:
+/// legacy mounts filter by the JWT's `userId`, SabCRM mounts by the
+/// caller-supplied (required) `projectId`.
+fn resolve_scope(
+    mode: ScopeMode,
+    user: &AuthUser,
+    project_id: Option<&str>,
+) -> Result<TenantScope> {
+    match mode {
+        ScopeMode::User => Ok(TenantScope::User(user_oid(user)?)),
+        ScopeMode::Project => Ok(TenantScope::Project(sabcrm_project_oid(project_id)?)),
+    }
+}
+
 /// Base tenant filter. `crm_products` has no `archived` / `status` field on
 /// the TS side, so list is a flat tenant filter — search is the only further
 /// narrowing.
-fn list_filter(user_id: ObjectId) -> Document {
-    doc! { "userId": user_id }
+fn list_filter(scope: &TenantScope) -> Document {
+    scope.filter()
 }
 
 /// Tenant-scoped filter for get / update / delete by id.
-fn ownership_filter(user_id: ObjectId, item_oid: ObjectId) -> Document {
-    doc! { "_id": item_oid, "userId": user_id }
+fn ownership_filter(scope: &TenantScope, item_oid: ObjectId) -> Document {
+    let mut filter = scope.filter();
+    filter.insert("_id", item_oid);
+    filter
 }
 
 // ─── Mapping helpers ────────────────────────────────────────────────────
@@ -69,6 +87,7 @@ fn item_from_create(
     Ok(CrmProduct {
         id: None,
         user_id,
+        project_id: None,
         name: input.name,
         sku: input.sku,
         description: input.description,
@@ -187,12 +206,13 @@ fn doc_for_audit(item: &CrmProduct) -> Document {
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn list_items(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Query(q): Query<ListQuery>,
 ) -> Result<Json<ListResponse>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, q.project_id.as_deref())?;
 
-    let mut filter = list_filter(user_id);
+    let mut filter = list_filter(&scope);
     if let Some(needle) = q.q.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
         // Search across the canonical fields plus the legacy `barcode` /
         // `hsn` fields some installs persist (per spec).
@@ -248,15 +268,17 @@ pub struct ListResponse {
 #[instrument(skip_all, fields(user_id = %user.user_id, item_id = %item_id))]
 pub async fn get_item(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(item_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
 ) -> Result<Json<CrmProduct>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&item_id)?;
 
     let coll = mongo.collection::<CrmProduct>(ITEMS_COLL);
     let row = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_products.find_one")))?
         .ok_or_else(|| ApiError::NotFound("item".to_owned()))?;
@@ -268,9 +290,13 @@ pub async fn get_item(
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn create_item(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Json(input): Json<CreateItemInput>,
 ) -> Result<Json<CreateItemResponse>> {
+    // `userId` is always stamped from the JWT; `projectId` is stamped
+    // only on SabCRM (project) mounts, where it is mandatory.
+    let scope = resolve_scope(mode, &user, input.project_id.as_deref())?;
     let user_id = user_oid(&user)?;
     if input.name.trim().is_empty() {
         return Err(ApiError::Validation("name is required".to_owned()));
@@ -282,8 +308,10 @@ pub async fn create_item(
     let coll = mongo.collection::<CrmProduct>(ITEMS_COLL);
 
     // SKU uniqueness within tenant — mirrors the TS legacy path.
+    let mut dup_filter = scope.filter();
+    dup_filter.insert("sku", input.sku.as_str());
     let dup = coll
-        .find_one(doc! { "userId": user_id, "sku": &input.sku })
+        .find_one(dup_filter)
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_products.find_one")))?;
     if dup.is_some() {
@@ -291,6 +319,9 @@ pub async fn create_item(
     }
 
     let mut item = item_from_create(input, user_id)?;
+    if let TenantScope::Project(project_oid) = scope {
+        item.project_id = Some(project_oid);
+    }
     let inserted = coll
         .insert_one(&item)
         .await
@@ -316,23 +347,25 @@ pub async fn create_item(
 #[instrument(skip_all, fields(user_id = %user.user_id, item_id = %item_id))]
 pub async fn update_item(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(item_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
     Json(patch): Json<UpdateItemInput>,
 ) -> Result<Json<CrmProduct>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&item_id)?;
 
     let coll = mongo.collection::<CrmProduct>(ITEMS_COLL);
     let before = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_products.find_one")))?
         .ok_or_else(|| ApiError::NotFound("item".to_owned()))?;
 
     let update = build_update_doc(patch)?;
     let result = coll
-        .update_one(ownership_filter(user_id, oid), update)
+        .update_one(ownership_filter(&scope, oid), update)
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_products.update")))?;
     if result.matched_count == 0 {
@@ -340,7 +373,7 @@ pub async fn update_item(
     }
 
     let after = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_products.refetch")))?
         .ok_or_else(|| ApiError::NotFound("item".to_owned()))?;
@@ -366,15 +399,17 @@ pub async fn update_item(
 #[instrument(skip_all, fields(user_id = %user.user_id, item_id = %item_id))]
 pub async fn delete_item(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(item_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
 ) -> Result<Json<DeleteItemResponse>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&item_id)?;
 
     let coll = mongo.collection::<CrmProduct>(ITEMS_COLL);
     let result = coll
-        .delete_one(ownership_filter(user_id, oid))
+        .delete_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_products.delete")))?;
     if result.deleted_count == 0 {
@@ -396,20 +431,42 @@ mod tests {
     #[test]
     fn list_filter_contains_user_id() {
         let oid = ObjectId::new();
-        let f = list_filter(oid);
+        let f = list_filter(&TenantScope::User(oid));
         assert!(f.contains_key("userId"));
+        assert!(!f.contains_key("projectId"));
         // No archived/status field — TS shape has no soft-delete column.
         assert!(!f.contains_key("status"));
         assert!(!f.contains_key("archived"));
     }
 
     #[test]
+    fn list_filter_scopes_by_project_on_sabcrm_mounts() {
+        let oid = ObjectId::new();
+        let f = list_filter(&TenantScope::Project(oid));
+        assert_eq!(f.get_object_id("projectId").unwrap(), oid);
+        assert!(!f.contains_key("userId"));
+    }
+
+    #[test]
     fn ownership_filter_scopes_both_id_and_user() {
         let user = ObjectId::new();
         let item = ObjectId::new();
-        let f = ownership_filter(user, item);
+        let f = ownership_filter(&TenantScope::User(user), item);
         assert!(f.contains_key("_id"));
         assert!(f.contains_key("userId"));
+    }
+
+    #[test]
+    fn resolve_scope_project_requires_project_id() {
+        let user = AuthUser {
+            user_id: ObjectId::new().to_hex(),
+            tenant_id: String::new(),
+            roles: Vec::new(),
+        };
+        assert!(resolve_scope(ScopeMode::Project, &user, None).is_err());
+        let p = ObjectId::new();
+        let scope = resolve_scope(ScopeMode::Project, &user, Some(&p.to_hex())).unwrap();
+        assert_eq!(scope, TenantScope::Project(p));
     }
 
     #[test]

@@ -62,6 +62,19 @@ pub struct ListQuery {
     /// "shortlisted", "awarded", "rejected", "withdrawn").
     #[serde(default)]
     pub status: Option<String>,
+    /// SabCRM suite scope — required on `/v1/sabcrm/supply/*` mounts,
+    /// ignored on the legacy `userId` mount.
+    #[serde(default)]
+    pub project_id: Option<String>,
+}
+
+/// Query for single-document routes (`GET`/`PATCH`/`DELETE /{id}`) —
+/// carries the SabCRM `projectId` on project-scoped mounts.
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ScopeQuery {
+    #[serde(default)]
+    pub project_id: Option<String>,
 }
 
 /// `POST /v1/crm/vendor-bids` body. Required: `rfqId`, `vendorId`,

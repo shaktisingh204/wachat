@@ -1,7 +1,7 @@
 //! HTTP handlers for the Warehouse inventory-tier entity.
 
 use axum::{
-    Json,
+    Extension, Json,
     extract::{Path, Query, State},
 };
 use bson::{DateTime as BsonDateTime, Document, doc, oid::ObjectId};
@@ -12,6 +12,7 @@ use crm_common::{
     search::build_q_filter,
     tenant::user_oid,
 };
+use crm_core::{ScopeMode, TenantScope, sabcrm_project_oid};
 use futures::TryStreamExt;
 use mongodb::options::FindOptions;
 use sabnode_auth::AuthUser;
@@ -20,7 +21,7 @@ use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
 use tracing::instrument;
 
 use crate::dto::{
-    CreateWarehouseInput, CreateWarehouseResponse, DeleteWarehouseResponse, ListQuery,
+    CreateWarehouseInput, CreateWarehouseResponse, DeleteWarehouseResponse, ListQuery, ScopeQuery,
     UpdateWarehouseInput,
 };
 use crate::types::CrmWarehouse;
@@ -28,13 +29,27 @@ use crate::types::CrmWarehouse;
 const COLL: &str = "crm_warehouses";
 const ENTITY_KIND: &str = "warehouse";
 
+/// Resolve the per-request tenant scope from the mount's [`ScopeMode`]:
+/// legacy mounts filter by the JWT's `userId`, SabCRM mounts by the
+/// caller-supplied (required) `projectId`.
+fn resolve_scope(
+    mode: ScopeMode,
+    user: &AuthUser,
+    project_id: Option<&str>,
+) -> Result<TenantScope> {
+    match mode {
+        ScopeMode::User => Ok(TenantScope::User(user_oid(user)?)),
+        ScopeMode::Project => Ok(TenantScope::Project(sabcrm_project_oid(project_id)?)),
+    }
+}
+
 fn list_filter(
-    user_id: ObjectId,
+    scope: &TenantScope,
     status: Option<&str>,
     kind: Option<&str>,
     city: Option<&str>,
 ) -> Document {
-    let mut filter = doc! { "userId": user_id };
+    let mut filter = scope.filter();
     match status.unwrap_or("active_visible") {
         "all" => {}
         "archived" => {
@@ -59,8 +74,10 @@ fn list_filter(
     filter
 }
 
-fn ownership_filter(user_id: ObjectId, oid: ObjectId) -> Document {
-    doc! { "_id": oid, "userId": user_id }
+fn ownership_filter(scope: &TenantScope, oid: ObjectId) -> Document {
+    let mut filter = scope.filter();
+    filter.insert("_id", oid);
+    filter
 }
 
 fn from_create(input: CreateWarehouseInput, user_id: ObjectId) -> CrmWarehouse {
@@ -71,6 +88,7 @@ fn from_create(input: CreateWarehouseInput, user_id: ObjectId) -> CrmWarehouse {
     CrmWarehouse {
         id: None,
         user_id,
+        project_id: None,
         name: input.name,
         code: input.code,
         kind: input.kind,
@@ -171,12 +189,13 @@ pub struct ListResponse {
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn list_warehouses(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Query(q): Query<ListQuery>,
 ) -> Result<Json<ListResponse>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, q.project_id.as_deref())?;
     let mut filter = list_filter(
-        user_id,
+        &scope,
         q.status.as_deref(),
         q.kind.as_deref(),
         q.city.as_deref(),
@@ -222,15 +241,17 @@ pub async fn list_warehouses(
 #[instrument(skip_all, fields(user_id = %user.user_id, warehouse_id = %warehouse_id))]
 pub async fn get_warehouse(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(warehouse_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
 ) -> Result<Json<CrmWarehouse>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&warehouse_id)?;
 
     let coll = mongo.collection::<CrmWarehouse>(COLL);
     let row = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_warehouses.find_one")))?
         .ok_or_else(|| ApiError::NotFound("warehouse".to_owned()))?;
@@ -240,15 +261,22 @@ pub async fn get_warehouse(
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn create_warehouse(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Json(input): Json<CreateWarehouseInput>,
 ) -> Result<Json<CreateWarehouseResponse>> {
+    // `userId` is always stamped from the JWT; `projectId` is stamped
+    // only on SabCRM (project) mounts, where it is mandatory.
+    let scope = resolve_scope(mode, &user, input.project_id.as_deref())?;
     let user_id = user_oid(&user)?;
     if input.name.trim().is_empty() {
         return Err(ApiError::Validation("name is required".to_owned()));
     }
 
     let mut entity = from_create(input, user_id);
+    if let TenantScope::Project(project_oid) = scope {
+        entity.project_id = Some(project_oid);
+    }
     let coll = mongo.collection::<CrmWarehouse>(COLL);
     let inserted = coll
         .insert_one(&entity)
@@ -274,23 +302,25 @@ pub async fn create_warehouse(
 #[instrument(skip_all, fields(user_id = %user.user_id, warehouse_id = %warehouse_id))]
 pub async fn update_warehouse(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(warehouse_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
     Json(patch): Json<UpdateWarehouseInput>,
 ) -> Result<Json<CrmWarehouse>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&warehouse_id)?;
 
     let coll = mongo.collection::<CrmWarehouse>(COLL);
     let before = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_warehouses.find_one")))?
         .ok_or_else(|| ApiError::NotFound("warehouse".to_owned()))?;
 
     let update = build_update_doc(patch);
     let result = coll
-        .update_one(ownership_filter(user_id, oid), update)
+        .update_one(ownership_filter(&scope, oid), update)
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_warehouses.update")))?;
     if result.matched_count == 0 {
@@ -298,7 +328,7 @@ pub async fn update_warehouse(
     }
 
     let after = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_warehouses.refetch")))?
         .ok_or_else(|| ApiError::NotFound("warehouse".to_owned()))?;
@@ -320,16 +350,18 @@ pub async fn update_warehouse(
 #[instrument(skip_all, fields(user_id = %user.user_id, warehouse_id = %warehouse_id))]
 pub async fn delete_warehouse(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(warehouse_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
 ) -> Result<Json<DeleteWarehouseResponse>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&warehouse_id)?;
 
     let coll = mongo.collection::<CrmWarehouse>(COLL);
     let result = coll
         .update_one(
-            ownership_filter(user_id, oid),
+            ownership_filter(&scope, oid),
             doc! { "$set": {
                 "status": "archived",
                 "archived": true,
@@ -356,9 +388,51 @@ mod tests {
     #[test]
     fn list_filter_with_kind_and_city() {
         let oid = ObjectId::new();
-        let f = list_filter(oid, None, Some("warehouse"), Some("Bangalore"));
+        let f = list_filter(
+            &TenantScope::User(oid),
+            None,
+            Some("warehouse"),
+            Some("Bangalore"),
+        );
         assert_eq!(f.get_str("type").unwrap(), "warehouse");
         assert_eq!(f.get_str("city").unwrap(), "Bangalore");
+        assert_eq!(f.get_object_id("userId").unwrap(), oid);
+        assert!(!f.contains_key("projectId"));
+    }
+
+    #[test]
+    fn list_filter_scopes_by_project_on_sabcrm_mounts() {
+        let oid = ObjectId::new();
+        let f = list_filter(&TenantScope::Project(oid), None, None, None);
+        assert_eq!(f.get_object_id("projectId").unwrap(), oid);
+        assert!(!f.contains_key("userId"));
+    }
+
+    #[test]
+    fn ownership_filter_scopes_both_id_and_tenant() {
+        let user = ObjectId::new();
+        let id = ObjectId::new();
+        let f = ownership_filter(&TenantScope::User(user), id);
+        assert_eq!(f.get_object_id("_id").unwrap(), id);
+        assert_eq!(f.get_object_id("userId").unwrap(), user);
+
+        let project = ObjectId::new();
+        let f = ownership_filter(&TenantScope::Project(project), id);
+        assert_eq!(f.get_object_id("projectId").unwrap(), project);
+        assert!(!f.contains_key("userId"));
+    }
+
+    #[test]
+    fn resolve_scope_project_requires_project_id() {
+        let user = AuthUser {
+            user_id: ObjectId::new().to_hex(),
+            tenant_id: String::new(),
+            roles: Vec::new(),
+        };
+        assert!(resolve_scope(ScopeMode::Project, &user, None).is_err());
+        let p = ObjectId::new();
+        let scope = resolve_scope(ScopeMode::Project, &user, Some(&p.to_hex())).unwrap();
+        assert_eq!(scope, TenantScope::Project(p));
     }
 
     #[test]

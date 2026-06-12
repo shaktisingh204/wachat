@@ -416,6 +416,20 @@ pub fn build(state: AppState) -> Router {
     let sabcrm_finance_account_groups = crm_account_groups::project_router::<AppState>();
     let sabcrm_finance_journal_entries = crm_voucher_entries::project_router::<AppState>();
     let sabcrm_finance_tds = crm_tds::project_router::<AppState>();
+    // SabCRM Supply suite — project-scoped re-mounts of the legacy
+    // inventory + purchasing crates (same handlers, same collections;
+    // tenant key flips from `userId` to a required `projectId` via
+    // `crm_core::ScopeMode::Project`).
+    let sabcrm_supply_items = crm_items::project_router::<AppState>();
+    let sabcrm_supply_warehouses = crm_warehouses::project_router::<AppState>();
+    let sabcrm_supply_stock_adjustments = crm_stock_adjustments::project_router::<AppState>();
+    let sabcrm_supply_purchase_orders = crm_purchase_orders::project_router::<AppState>();
+    let sabcrm_supply_grns = crm_grns::project_router::<AppState>();
+    let sabcrm_supply_vendors = crm_vendors::project_router::<AppState>();
+    let sabcrm_supply_rfqs = crm_rfqs::project_router::<AppState>();
+    let sabcrm_supply_vendor_bids = crm_vendor_bids::project_router::<AppState>();
+    let sabcrm_supply_bom = crm_bom::project_router::<AppState>();
+    let sabcrm_supply_production_orders = crm_production_orders::project_router::<AppState>();
     let crm_sales_orders = crm_sales_orders::router::<AppState>();
     let crm_purchase_orders = crm_purchase_orders::router::<AppState>();
     let crm_payment_receipts = crm_payment_receipts::router::<AppState>();
@@ -770,6 +784,25 @@ pub fn build(state: AppState) -> Router {
             sabcrm_finance_journal_entries,
         )
         .nest("/v1/sabcrm/finance/tds", sabcrm_finance_tds)
+        .nest("/v1/sabcrm/supply/items", sabcrm_supply_items)
+        .nest("/v1/sabcrm/supply/warehouses", sabcrm_supply_warehouses)
+        .nest(
+            "/v1/sabcrm/supply/stock-adjustments",
+            sabcrm_supply_stock_adjustments,
+        )
+        .nest(
+            "/v1/sabcrm/supply/purchase-orders",
+            sabcrm_supply_purchase_orders,
+        )
+        .nest("/v1/sabcrm/supply/grn", sabcrm_supply_grns)
+        .nest("/v1/sabcrm/supply/vendors", sabcrm_supply_vendors)
+        .nest("/v1/sabcrm/supply/rfqs", sabcrm_supply_rfqs)
+        .nest("/v1/sabcrm/supply/vendor-bids", sabcrm_supply_vendor_bids)
+        .nest("/v1/sabcrm/supply/bom", sabcrm_supply_bom)
+        .nest(
+            "/v1/sabcrm/supply/production-orders",
+            sabcrm_supply_production_orders,
+        )
         .nest("/v1/sabcrm/forms", sabcrm_forms)
         .nest("/v1/sabcrm/form-submissions", sabcrm_form_submissions)
         .nest("/v1/crm/quotations", crm_quotations)

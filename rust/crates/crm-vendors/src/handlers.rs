@@ -5,7 +5,7 @@
 //! `entityKind: "vendor"`.
 
 use axum::{
-    Json,
+    Extension, Json,
     extract::{Path, Query, State},
 };
 use bson::{Bson, DateTime as BsonDateTime, Document, doc, oid::ObjectId};
@@ -16,6 +16,7 @@ use crm_common::{
     search::build_q_filter,
     tenant::user_oid,
 };
+use crm_core::{ScopeMode, TenantScope, sabcrm_project_oid};
 use futures::TryStreamExt;
 use mongodb::options::FindOptions;
 use sabnode_auth::AuthUser;
@@ -24,7 +25,8 @@ use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
 use tracing::instrument;
 
 use crate::dto::{
-    CreateVendorInput, CreateVendorResponse, DeleteVendorResponse, ListQuery, UpdateVendorInput,
+    CreateVendorInput, CreateVendorResponse, DeleteVendorResponse, ListQuery, ScopeQuery,
+    UpdateVendorInput,
 };
 use crate::types::CrmVendor;
 
@@ -33,15 +35,31 @@ const ENTITY_KIND: &str = "vendor";
 
 // ─── Filter helpers ──────────────────────────────────────────────────────
 
+/// Resolve the per-request tenant scope from the mount's [`ScopeMode`]:
+/// legacy mounts filter by the JWT's `userId`, SabCRM mounts by the
+/// caller-supplied (required) `projectId`.
+fn resolve_scope(
+    mode: ScopeMode,
+    user: &AuthUser,
+    project_id: Option<&str>,
+) -> Result<TenantScope> {
+    match mode {
+        ScopeMode::User => Ok(TenantScope::User(user_oid(user)?)),
+        ScopeMode::Project => Ok(TenantScope::Project(sabcrm_project_oid(project_id)?)),
+    }
+}
+
 /// Base tenant filter. `CrmVendor` has no status/archived column, so this
 /// is the bare tenant scope.
-fn list_filter(user_id: ObjectId) -> Document {
-    doc! { "userId": user_id }
+fn list_filter(scope: &TenantScope) -> Document {
+    scope.filter()
 }
 
 /// Filter targeting a single owned doc.
-fn ownership_filter(user_id: ObjectId, vendor_oid: ObjectId) -> Document {
-    doc! { "_id": vendor_oid, "userId": user_id }
+fn ownership_filter(scope: &TenantScope, vendor_oid: ObjectId) -> Document {
+    let mut filter = scope.filter();
+    filter.insert("_id", vendor_oid);
+    filter
 }
 
 // ─── Mapping helpers ────────────────────────────────────────────────────
@@ -60,6 +78,7 @@ fn vendor_from_create(input: CreateVendorInput, user_id: ObjectId) -> Result<Crm
     Ok(CrmVendor {
         id: None,
         user_id,
+        project_id: None,
         name: input.name,
         display_name: input.display_name,
         industry: input.industry,
@@ -176,12 +195,13 @@ fn doc_for_audit(vendor: &CrmVendor) -> Document {
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn list_vendors(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Query(q): Query<ListQuery>,
 ) -> Result<Json<ListResponse>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, q.project_id.as_deref())?;
 
-    let mut filter = list_filter(user_id);
+    let mut filter = list_filter(&scope);
     if let Some(needle) = q.q.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
         let or = build_q_filter(needle, &["name", "gstin", "email", "phone"]);
         if let Ok(arr) = or.get_array("$or") {
@@ -235,15 +255,17 @@ pub struct ListResponse {
 #[instrument(skip_all, fields(user_id = %user.user_id, vendor_id = %vendor_id))]
 pub async fn get_vendor(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(vendor_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
 ) -> Result<Json<CrmVendor>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&vendor_id)?;
 
     let coll = mongo.collection::<CrmVendor>(VENDORS_COLL);
     let row = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_vendors.find_one")))?
         .ok_or_else(|| ApiError::NotFound("vendor".to_owned()))?;
@@ -255,15 +277,22 @@ pub async fn get_vendor(
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn create_vendor(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Json(input): Json<CreateVendorInput>,
 ) -> Result<Json<CreateVendorResponse>> {
+    // `userId` is always stamped from the JWT; `projectId` is stamped
+    // only on SabCRM (project) mounts, where it is mandatory.
+    let scope = resolve_scope(mode, &user, input.project_id.as_deref())?;
     let user_id = user_oid(&user)?;
     if input.name.trim().is_empty() {
         return Err(ApiError::Validation("name is required".to_owned()));
     }
 
     let mut vendor = vendor_from_create(input, user_id)?;
+    if let TenantScope::Project(project_oid) = scope {
+        vendor.project_id = Some(project_oid);
+    }
     let coll = mongo.collection::<CrmVendor>(VENDORS_COLL);
     let inserted = coll
         .insert_one(&vendor)
@@ -291,23 +320,25 @@ pub async fn create_vendor(
 #[instrument(skip_all, fields(user_id = %user.user_id, vendor_id = %vendor_id))]
 pub async fn update_vendor(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(vendor_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
     Json(patch): Json<UpdateVendorInput>,
 ) -> Result<Json<CrmVendor>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&vendor_id)?;
 
     let coll = mongo.collection::<CrmVendor>(VENDORS_COLL);
     let before = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_vendors.find_one")))?
         .ok_or_else(|| ApiError::NotFound("vendor".to_owned()))?;
 
     let update = build_update_doc(patch)?;
     let result = coll
-        .update_one(ownership_filter(user_id, oid), update)
+        .update_one(ownership_filter(&scope, oid), update)
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_vendors.update")))?;
     if result.matched_count == 0 {
@@ -315,7 +346,7 @@ pub async fn update_vendor(
     }
 
     let after = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_vendors.refetch")))?
         .ok_or_else(|| ApiError::NotFound("vendor".to_owned()))?;
@@ -341,15 +372,17 @@ pub async fn update_vendor(
 #[instrument(skip_all, fields(user_id = %user.user_id, vendor_id = %vendor_id))]
 pub async fn delete_vendor(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(vendor_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
 ) -> Result<Json<DeleteVendorResponse>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&vendor_id)?;
 
     let coll = mongo.collection::<CrmVendor>(VENDORS_COLL);
     let result = coll
-        .delete_one(ownership_filter(user_id, oid))
+        .delete_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_vendors.delete")))?;
     if result.deleted_count == 0 {
@@ -371,20 +404,42 @@ mod tests {
     #[test]
     fn list_filter_is_scoped_to_tenant() {
         let oid = ObjectId::new();
-        let f = list_filter(oid);
+        let f = list_filter(&TenantScope::User(oid));
         assert_eq!(f.get_object_id("userId").unwrap(), oid);
+        assert!(!f.contains_key("projectId"));
         // Vendor has no status column — filter has no status clause.
         assert!(!f.contains_key("status"));
         assert!(!f.contains_key("archived"));
     }
 
     #[test]
+    fn list_filter_scopes_by_project_on_sabcrm_mounts() {
+        let oid = ObjectId::new();
+        let f = list_filter(&TenantScope::Project(oid));
+        assert_eq!(f.get_object_id("projectId").unwrap(), oid);
+        assert!(!f.contains_key("userId"));
+    }
+
+    #[test]
     fn ownership_filter_pins_both_id_and_user() {
         let user_id = ObjectId::new();
         let vendor_id = ObjectId::new();
-        let f = ownership_filter(user_id, vendor_id);
+        let f = ownership_filter(&TenantScope::User(user_id), vendor_id);
         assert_eq!(f.get_object_id("userId").unwrap(), user_id);
         assert_eq!(f.get_object_id("_id").unwrap(), vendor_id);
+    }
+
+    #[test]
+    fn resolve_scope_project_requires_project_id() {
+        let user = AuthUser {
+            user_id: ObjectId::new().to_hex(),
+            tenant_id: String::new(),
+            roles: Vec::new(),
+        };
+        assert!(resolve_scope(ScopeMode::Project, &user, None).is_err());
+        let p = ObjectId::new();
+        let scope = resolve_scope(ScopeMode::Project, &user, Some(&p.to_hex())).unwrap();
+        assert_eq!(scope, TenantScope::Project(p));
     }
 
     #[test]

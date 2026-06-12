@@ -17,12 +17,28 @@ pub struct ListQuery {
     pub status: Option<String>,
     #[serde(default)]
     pub finished_good_id: Option<String>,
+    /// SabCRM suite scope — required on `/v1/sabcrm/supply/*` mounts,
+    /// ignored on the legacy `userId` mount.
+    #[serde(default)]
+    pub project_id: Option<String>,
+}
+
+/// Query for single-document routes (`GET`/`PATCH`/`DELETE /{id}`) —
+/// carries the SabCRM `projectId` on project-scoped mounts.
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ScopeQuery {
+    #[serde(default)]
+    pub project_id: Option<String>,
 }
 
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CreateBomInput {
     pub bom_no: String,
+    /// SabCRM suite scope — required on project-scoped mounts.
+    #[serde(default)]
+    pub project_id: Option<String>,
     pub finished_good_name: String,
     #[serde(default)]
     pub finished_good_id: Option<String>,

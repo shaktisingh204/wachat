@@ -24,4 +24,4 @@ pub mod handlers;
 pub mod router;
 pub mod types;
 
-pub use router::router;
+pub use router::{project_router, router};

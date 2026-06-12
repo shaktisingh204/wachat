@@ -23,12 +23,15 @@
 //! mis-scoped parent quietly skips the seed and still saves the PO.
 
 use axum::{
-    Json,
+    Extension, Json,
     extract::{Path, Query, State},
 };
 use bson::{Bson, Document, doc, oid::ObjectId};
 use chrono::Utc;
-use crm_core::{Assignment, Audit, Identity, LineageRef, build_lineage_from_parent};
+use crm_core::{
+    Assignment, Audit, Identity, LineageRef, ScopeMode, TenantScope, build_lineage_from_parent,
+    sabcrm_project_oid,
+};
 use crm_purchases_types::{PurchaseOrder, PurchaseOrderStatus};
 use futures::TryStreamExt;
 use mongodb::options::FindOptions;
@@ -38,7 +41,7 @@ use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
 use tracing::{instrument, warn};
 
 use crate::dto::{
-    ALLOWED_STATUSES, CreatePurchaseOrderInput, DEFAULT_LIMIT, ListQuery, MAX_LIMIT,
+    ALLOWED_STATUSES, CreatePurchaseOrderInput, DEFAULT_LIMIT, ListQuery, MAX_LIMIT, ScopeQuery,
     UpdatePurchaseOrderInput,
 };
 
@@ -62,6 +65,20 @@ fn user_oid(user: &AuthUser) -> Result<ObjectId> {
         .map_err(|_| ApiError::Unauthorized("subject is not a valid ObjectId".to_owned()))
 }
 
+/// Resolve the per-request [`TenantScope`] from the mount's
+/// [`ScopeMode`]: legacy mounts filter by the JWT's `userId`, SabCRM
+/// mounts by the caller-supplied (required) `projectId`.
+fn resolve_scope(
+    mode: ScopeMode,
+    user: &AuthUser,
+    project_id: Option<&str>,
+) -> Result<TenantScope> {
+    match mode {
+        ScopeMode::User => Ok(TenantScope::User(user_oid(user)?)),
+        ScopeMode::Project => Ok(TenantScope::Project(sabcrm_project_oid(project_id)?)),
+    }
+}
+
 /// Clamp `requested` page-size into `[1, MAX_LIMIT]`, defaulting to
 /// [`DEFAULT_LIMIT`] when absent. Returns an `i64` to match the
 /// `mongodb` driver's `FindOptions::limit` signature.
@@ -73,13 +90,12 @@ fn clamp_limit(requested: Option<u32>) -> i64 {
 }
 
 /// Materialize the base ownership filter:
-/// `{ userId, archived: { $ne: true } }`. Soft-deleted rows
+/// `{ <userId|projectId>, archived: { $ne: true } }`. Soft-deleted rows
 /// (`archived = true`) are excluded by default.
-fn base_ownership_filter(user: ObjectId) -> Document {
-    doc! {
-        "userId": user,
-        "archived": { "$ne": true },
-    }
+fn base_ownership_filter(scope: &TenantScope) -> Document {
+    let mut filter = scope.filter();
+    filter.insert("archived", doc! { "$ne": true });
+    filter
 }
 
 /// Optional-string update helper. PATCH semantics — absent ≠ `null`.
@@ -117,13 +133,13 @@ fn parent_collection(kind: &str) -> Option<&'static str> {
     }
 }
 
-/// Fetch the parent record (scoped by `userId`) and build the lineage
-/// chain a freshly-created PO should inherit. Returns `Ok(None)` if the
-/// parent doesn't exist, isn't owned by the caller, or `kind` isn't a
-/// recognised PO lineage parent.
+/// Fetch the parent record (scoped by the request's tenant scope) and
+/// build the lineage chain a freshly-created PO should inherit. Returns
+/// `Ok(None)` if the parent doesn't exist, isn't owned by the caller, or
+/// `kind` isn't a recognised PO lineage parent.
 async fn seed_lineage_from_parent(
     mongo: &MongoHandle,
-    user_oid: ObjectId,
+    scope: &TenantScope,
     parent_kind: &str,
     parent_id_hex: &str,
 ) -> Result<Option<(Vec<LineageRef>, ObjectId, &'static str)>> {
@@ -133,8 +149,10 @@ async fn seed_lineage_from_parent(
     };
     let parent_oid = oid_from_str(parent_id_hex)?;
     let coll = mongo.collection::<Document>(coll_name);
+    let mut parent_filter = scope.filter();
+    parent_filter.insert("_id", parent_oid);
     let parent = match coll
-        .find_one(doc! { "_id": parent_oid, "userId": user_oid })
+        .find_one(parent_filter)
         .await
         .map_err(|e| {
             ApiError::Internal(
@@ -175,12 +193,13 @@ async fn seed_lineage_from_parent(
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn list_purchase_orders(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Query(q): Query<ListQuery>,
 ) -> Result<Json<Vec<PurchaseOrder>>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, q.project_id.as_deref())?;
 
-    let mut filter = base_ownership_filter(user_id);
+    let mut filter = base_ownership_filter(&scope);
     if let Some(needle) = q.q.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
         filter.insert("poNo", doc! { "$regex": needle, "$options": "i" });
     }
@@ -228,13 +247,15 @@ pub async fn list_purchase_orders(
 #[instrument(skip_all, fields(user_id = %user.user_id, po_id = %po_id))]
 pub async fn get_purchase_order(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(po_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
 ) -> Result<Json<PurchaseOrder>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let po_oid = oid_from_str(&po_id)?;
 
-    let mut filter = base_ownership_filter(user_id);
+    let mut filter = base_ownership_filter(&scope);
     filter.insert("_id", po_oid);
 
     let coll = mongo.collection::<PurchaseOrder>(PURCHASE_ORDERS_COLL);
@@ -266,6 +287,7 @@ pub async fn get_purchase_order(
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn create_purchase_order(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Json(input): Json<CreatePurchaseOrderInput>,
 ) -> Result<Json<PurchaseOrder>> {
@@ -283,12 +305,19 @@ pub async fn create_purchase_order(
     }
 
     let user_id = user_oid(&user)?;
-    let project_id = match input.project_id.as_deref().filter(|s| !s.is_empty()) {
-        Some(s) => oid_from_str(s)?,
-        // Match the §2.2 spec — projectId is required, but we mint a
-        // fresh OID for legacy single-tenant callers that omit it. The
-        // UI is expected to supply a real projectId in production.
-        None => ObjectId::new(),
+    // In project mode the body's `projectId` IS the tenant scope and is
+    // therefore mandatory (4xx when absent) — `resolve_scope` enforces
+    // that. In legacy user mode the scope is the JWT subject and the
+    // body `projectId` stays optional, exactly as before.
+    let scope = resolve_scope(mode, &user, input.project_id.as_deref())?;
+    let project_id = match scope {
+        TenantScope::Project(p) => p,
+        TenantScope::User(_) => match input.project_id.as_deref().filter(|s| !s.is_empty()) {
+            Some(s) => oid_from_str(s)?,
+            // Match the §2.2 spec — projectId is required, but we mint a
+            // fresh OID for legacy single-tenant callers that omit it.
+            None => ObjectId::new(),
+        },
     };
     let vendor_oid = oid_from_str(&input.vendor_id)?;
     let ship_to_warehouse_oid = match input
@@ -319,7 +348,7 @@ pub async fn create_purchase_order(
             .map(str::trim)
             .filter(|s| !s.is_empty()),
     ) {
-        match seed_lineage_from_parent(&mongo, user_id, kind, parent_id).await {
+        match seed_lineage_from_parent(&mongo, &scope, kind, parent_id).await {
             Ok(Some((lineage, parent_oid, parent_coll))) => {
                 lineage_array = Some(
                     lineage
@@ -414,9 +443,11 @@ pub async fn create_purchase_order(
     // returns the freshly-created PO.
     if let Some((parent_oid, parent_coll)) = parent_backlink {
         let parent = mongo.collection::<Document>(parent_coll);
+        let mut backlink_filter = scope.filter();
+        backlink_filter.insert("_id", parent_oid);
         let _ = parent
             .update_one(
-                doc! { "_id": parent_oid, "userId": user_id },
+                backlink_filter,
                 doc! {
                     "$push": { "lineage": { "kind": "purchaseOrder", "id": new_oid } },
                     "$set":  { "updatedAt": now },
@@ -427,8 +458,10 @@ pub async fn create_purchase_order(
 
     // Re-read via the typed collection so the response shape is stable.
     let typed = mongo.collection::<PurchaseOrder>(PURCHASE_ORDERS_COLL);
+    let mut reread_filter = scope.filter();
+    reread_filter.insert("_id", new_oid);
     let po = typed
-        .find_one(doc! { "_id": new_oid, "userId": user_id })
+        .find_one(reread_filter)
         .await
         .map_err(|e| {
             ApiError::Internal(
@@ -478,8 +511,10 @@ fn default_status_str(s: PurchaseOrderStatus) -> &'static str {
 #[instrument(skip_all, fields(user_id = %user.user_id, po_id = %po_id))]
 pub async fn update_purchase_order(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(po_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
     Json(input): Json<UpdatePurchaseOrderInput>,
 ) -> Result<Json<PurchaseOrder>> {
     if input.is_empty() {
@@ -488,6 +523,7 @@ pub async fn update_purchase_order(
         ));
     }
 
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let user_id = user_oid(&user)?;
     let po_oid = oid_from_str(&po_id)?;
 
@@ -545,7 +581,7 @@ pub async fn update_purchase_order(
         set.insert("status", status);
     }
 
-    let mut filter = base_ownership_filter(user_id);
+    let mut filter = base_ownership_filter(&scope);
     filter.insert("_id", po_oid);
 
     let coll = mongo.collection::<Document>(PURCHASE_ORDERS_COLL);
@@ -585,13 +621,16 @@ pub async fn update_purchase_order(
 #[instrument(skip_all, fields(user_id = %user.user_id, po_id = %po_id))]
 pub async fn delete_purchase_order(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(po_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
 ) -> Result<Json<serde_json::Value>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let po_oid = oid_from_str(&po_id)?;
 
-    let filter = doc! { "_id": po_oid, "userId": user_id };
+    let mut filter = scope.filter();
+    filter.insert("_id", po_oid);
 
     let coll = mongo.collection::<Document>(PURCHASE_ORDERS_COLL);
     let res = coll.delete_one(filter).await.map_err(|e| {
@@ -630,10 +669,33 @@ mod tests {
     #[test]
     fn base_filter_excludes_archived() {
         let oid = ObjectId::new();
-        let f = base_ownership_filter(oid);
+        let f = base_ownership_filter(&TenantScope::User(oid));
         assert_eq!(f.get_object_id("userId").unwrap(), oid);
+        assert!(!f.contains_key("projectId"));
         let archived = f.get_document("archived").unwrap();
         assert!(archived.contains_key("$ne"));
+    }
+
+    #[test]
+    fn base_filter_scopes_by_project_on_sabcrm_mounts() {
+        let oid = ObjectId::new();
+        let f = base_ownership_filter(&TenantScope::Project(oid));
+        assert_eq!(f.get_object_id("projectId").unwrap(), oid);
+        assert!(!f.contains_key("userId"));
+        assert!(f.get_document("archived").unwrap().contains_key("$ne"));
+    }
+
+    #[test]
+    fn resolve_scope_project_requires_project_id() {
+        let user = AuthUser {
+            user_id: ObjectId::new().to_hex(),
+            tenant_id: String::new(),
+            roles: Vec::new(),
+        };
+        assert!(resolve_scope(ScopeMode::Project, &user, None).is_err());
+        let p = ObjectId::new();
+        let scope = resolve_scope(ScopeMode::Project, &user, Some(&p.to_hex())).unwrap();
+        assert_eq!(scope, TenantScope::Project(p));
     }
 
     #[test]

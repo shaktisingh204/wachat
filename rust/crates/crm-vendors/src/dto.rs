@@ -19,6 +19,19 @@ pub struct ListQuery {
     /// Free-text. Searched across `name`, `gstin`, `email`, `phone`.
     #[serde(default)]
     pub q: Option<String>,
+    /// SabCRM suite scope — required on `/v1/sabcrm/supply/*` mounts,
+    /// ignored on the legacy `userId` mount.
+    #[serde(default)]
+    pub project_id: Option<String>,
+}
+
+/// Query for single-document routes (`GET`/`PATCH`/`DELETE /{id}`) —
+/// carries the SabCRM `projectId` on project-scoped mounts.
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ScopeQuery {
+    #[serde(default)]
+    pub project_id: Option<String>,
 }
 
 /// `POST /v1/crm/vendors` body.
@@ -26,6 +39,9 @@ pub struct ListQuery {
 #[serde(rename_all = "camelCase")]
 pub struct CreateVendorInput {
     pub name: String,
+    /// SabCRM suite scope — required on project-scoped mounts.
+    #[serde(default)]
+    pub project_id: Option<String>,
     #[serde(default)]
     pub display_name: Option<String>,
     #[serde(default)]

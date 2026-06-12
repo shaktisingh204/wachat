@@ -13,16 +13,16 @@
 
 use std::sync::Arc;
 
-use axum::{Router, extract::FromRef, routing::get};
+use axum::{Extension, Router, extract::FromRef, routing::get};
+use crm_core::ScopeMode;
 use sabnode_auth::AuthConfig;
 use sabnode_db::mongo::MongoHandle;
 
 use crate::handlers;
 
-/// Build the router.
+/// The shared CRUD route table (no scope attached yet).
 ///
-/// Routes (mounted relative — caller nests under
-/// `/v1/crm/purchase-orders`):
+/// Routes (mounted relative):
 ///
 /// ```text
 /// GET    /                  — list_purchase_orders
@@ -31,13 +31,7 @@ use crate::handlers;
 /// PATCH  /{poId}            — update_purchase_order
 /// DELETE /{poId}            — delete_purchase_order
 /// ```
-///
-/// `S` is the caller's outer application state. Handlers need a
-/// [`MongoHandle`] (data access) and `Arc<AuthConfig>` (the JWT
-/// verifier the `AuthUser` extractor reads). Both are pulled via
-/// [`FromRef`] so this crate stays decoupled from the orchestrator's
-/// concrete `AppState`.
-pub fn router<S>() -> Router<S>
+fn crud_routes<S>() -> Router<S>
 where
     S: Clone + Send + Sync + 'static,
     MongoHandle: FromRef<S>,
@@ -54,4 +48,27 @@ where
                 .patch(handlers::update_purchase_order)
                 .delete(handlers::delete_purchase_order),
         )
+}
+
+/// Legacy `userId`-scoped router — mount under `/v1/crm/purchase-orders`.
+pub fn router<S>() -> Router<S>
+where
+    S: Clone + Send + Sync + 'static,
+    MongoHandle: FromRef<S>,
+    Arc<AuthConfig>: FromRef<S>,
+{
+    crud_routes().layer(Extension(ScopeMode::User))
+}
+
+/// SabCRM Supply `projectId`-scoped router — mount under
+/// `/v1/sabcrm/supply/purchase-orders`. Same handlers, same collection;
+/// every request must carry `projectId` (query for `GET`/`PATCH`/
+/// `DELETE`, body for `POST`) or it is rejected 4xx.
+pub fn project_router<S>() -> Router<S>
+where
+    S: Clone + Send + Sync + 'static,
+    MongoHandle: FromRef<S>,
+    Arc<AuthConfig>: FromRef<S>,
+{
+    crud_routes().layer(Extension(ScopeMode::Project))
 }

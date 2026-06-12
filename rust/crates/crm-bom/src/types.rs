@@ -26,6 +26,14 @@ pub struct CrmBom {
     pub id: Option<ObjectId>,
     #[serde(rename = "userId")]
     pub user_id: ObjectId,
+    /// SabCRM suite scope — stamped on documents created through the
+    /// project-scoped `/v1/sabcrm/supply/*` mount; absent on legacy rows.
+    #[serde(
+        rename = "projectId",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub project_id: Option<ObjectId>,
 
     pub bom_no: String,
     pub finished_good_name: String,
