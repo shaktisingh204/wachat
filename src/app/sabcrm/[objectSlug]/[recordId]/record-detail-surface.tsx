@@ -36,11 +36,15 @@ import { useParams, useRouter } from 'next/navigation';
 import {
   Activity,
   CheckCircle2,
+  ChevronDown,
+  ChevronUp,
   Database,
   Link2,
   Mail,
   MessageCircle,
+  MoreHorizontal,
   Paperclip,
+  Pencil,
   Plus,
   RefreshCw,
   StickyNote,
@@ -56,9 +60,10 @@ import {
   type RecordCellProps,
 } from '@/components/sabcrm/20ui/composites/record';
 import { Button, IconButton } from '@/components/sabcrm/20ui/button';
-import { Select } from '@/components/sabcrm/20ui/select';
-import { Input, Textarea } from '@/components/sabcrm/20ui/field';
+import { Select, type SelectOption } from '@/components/sabcrm/20ui/select';
+import { Field, Input } from '@/components/sabcrm/20ui/field';
 import { Checkbox } from '@/components/sabcrm/20ui/choice';
+import { DatePicker } from '@/components/sabcrm/20ui/datepicker';
 import { Alert, EmptyState } from '@/components/sabcrm/20ui/feedback';
 import { Spinner } from '@/components/sabcrm/20ui/loading';
 import {
@@ -70,14 +75,33 @@ import {
   DialogFooter,
 } from '@/components/sabcrm/20ui/dialog';
 import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogAction,
+  AlertDialogCancel,
+} from '@/components/sabcrm/20ui/alertdialog';
+import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
 } from '@/components/sabcrm/20ui/dropdown';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
+// Editor composite — imported by its direct path on purpose (NOT through the
+// 20ui barrel index; barrel self-cycle gotcha).
+import {
+  RichTextEditor,
+  isHtmlBody,
+  isRichTextEmpty,
+  plainTextOfBody,
+  sanitizeRichText,
+} from '@/components/sabcrm/20ui/composites/editor/rich-text';
 
-import { useProject } from '@/context/project-context';
+import { useProject, useCan } from '@/context/project-context';
 import { sabcrmRecordLabel } from '@/lib/sabcrm/record-label';
 import type { ObjectMetadata, CrmRecord, FieldMetadata } from '@/lib/sabcrm/types';
 import { recomputeAiFieldTw } from '@/app/actions/sabcrm-ai.actions';
@@ -91,6 +115,7 @@ import {
   listSabcrmActivitiesTw,
   createSabcrmActivityTw,
   updateSabcrmActivityTw,
+  deleteSabcrmActivityTw,
   listSabcrmFavoritesTw,
   addSabcrmFavoriteTw,
   removeSabcrmFavoriteTw,
@@ -101,6 +126,7 @@ import type {
   SabcrmActivityKind,
   SabcrmAttachment,
   RecordRelation,
+  UpdateSabcrmActivityTwPatch,
 } from '@/app/actions/sabcrm-twenty.actions.types';
 
 import {
@@ -140,13 +166,19 @@ const EXCERPT_MAX = 140;
 
 /**
  * Best-effort plain-text excerpt from an activity body. Bodies may be plain
- * text or rich-text JSON (BlockNote-ish) — for JSON we collect `text` string
- * leaves; unparseable JSON degrades to an empty excerpt.
+ * text, sanitized rich-text HTML (the RichTextEditor composite) or legacy
+ * rich-text JSON (BlockNote-ish) — HTML excerpts come from the sanitized text
+ * content, JSON from collected `text` string leaves; unparseable JSON
+ * degrades to an empty excerpt.
  */
 function bodyExcerpt(body?: string): string {
   if (!body) return '';
   const trimmed = body.trim();
   if (!trimmed) return '';
+  if (isHtmlBody(trimmed)) {
+    const text = plainTextOfBody(trimmed).replace(/\s+/g, ' ').trim();
+    return text.length > EXCERPT_MAX ? `${text.slice(0, EXCERPT_MAX)}…` : text;
+  }
   if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
     try {
       const collected: string[] = [];
@@ -209,7 +241,63 @@ interface NewActivityInput {
   title: string;
   body?: string;
   status?: string;
+  assigneeId?: string;
+  dueAt?: string;
   attachments?: SabcrmAttachment[];
+}
+
+/** A workspace member resolved from the `workspaceMembers` directory object. */
+interface MemberInfo {
+  name: string;
+  avatarUrl?: string;
+}
+
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+/**
+ * Normalize an activity body for the rich-text editor: sanitized HTML passes
+ * through the sanitizer again (defensive), plain text becomes escaped `<p>`
+ * lines. Legacy JSON bodies degrade to their plain-text projection.
+ */
+function toEditorHtml(body?: string): string {
+  if (!body || !body.trim()) return '';
+  const trimmed = body.trim();
+  if (isHtmlBody(trimmed)) return sanitizeRichText(trimmed);
+  const text =
+    trimmed.startsWith('{') || trimmed.startsWith('[')
+      ? bodyExcerpt(trimmed)
+      : trimmed;
+  return text
+    .split('\n')
+    .map((line) => `<p>${escapeHtml(line)}</p>`)
+    .join('');
+}
+
+/** Local calendar date → RFC3339 instant at 09:00 local time (for `dueAt`). */
+function dueAtIso(d: Date): string {
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return new Date(`${yyyy}-${mm}-${dd}T09:00:00`).toISOString();
+}
+
+/** Parse a persisted RFC3339 `dueAt` into a Date (undefined when invalid). */
+function dueAtDate(iso?: string): Date | undefined {
+  if (!iso) return undefined;
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? undefined : d;
+}
+
+/** Overdue = due in the past on a task that is not done. */
+function isOverdue(task: SabcrmRustActivity): boolean {
+  if (!task.dueAt || task.status === 'DONE') return false;
+  const due = new Date(task.dueAt).getTime();
+  return Number.isFinite(due) && due < Date.now();
 }
 
 /* --------------------------------------------------------- shared styles */
@@ -238,59 +326,95 @@ interface ActivityComposerProps {
   onCreate: (input: NewActivityInput) => Promise<boolean>;
 }
 
-/** Quick "log activity" mini-form: kind select + text → create activity. */
+/**
+ * Quick "log activity" mini-form: kind select + text → create activity. The
+ * single-line quick log stays primary; an optional "Add details" disclosure
+ * mounts the rich-text editor and submits the sanitized HTML as `body`.
+ */
 function ActivityComposer({ onCreate }: ActivityComposerProps): React.JSX.Element {
   const [kind, setKind] = React.useState<SabcrmActivityKind>('NOTE');
   const [text, setText] = React.useState('');
+  const [showDetails, setShowDetails] = React.useState(false);
+  const [details, setDetails] = React.useState('');
   const [busy, setBusy] = React.useState(false);
 
   const submit = React.useCallback(() => {
     const title = text.trim();
     if (!title || busy) return;
+    const body =
+      showDetails && !isRichTextEmpty(details) ? details : undefined;
     setBusy(true);
     void (async () => {
       const ok = await onCreate({
         type: kind,
         title,
+        body,
         status: kind === 'TASK' ? 'TODO' : undefined,
       });
       setBusy(false);
-      if (ok) setText('');
+      if (ok) {
+        setText('');
+        setDetails('');
+        setShowDetails(false);
+      }
     })();
-  }, [text, busy, kind, onCreate]);
+  }, [text, busy, kind, showDetails, details, onCreate]);
 
   return (
-    <div style={rowStyle}>
-      <Select
-        size="sm"
-        value={kind}
-        onChange={(v) => {
-          if (v) setKind(v as SabcrmActivityKind);
-        }}
-        options={LOG_KINDS}
-        aria-label="Activity kind"
-      />
-      <span style={{ flex: 1, minWidth: 0 }}>
-        <Input
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          placeholder="Log an activity…"
-          aria-label="Activity title"
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') submit();
+    <div style={{ ...stackStyle, gap: 'var(--st-space-2, 8px)' }}>
+      <div style={rowStyle}>
+        <Select
+          size="sm"
+          value={kind}
+          onChange={(v) => {
+            if (v) setKind(v as SabcrmActivityKind);
           }}
+          options={LOG_KINDS}
+          aria-label="Activity kind"
         />
-      </span>
-      <Button
-        size="sm"
-        variant="primary"
-        iconLeft={Plus}
-        loading={busy}
-        disabled={!text.trim()}
-        onClick={submit}
-      >
-        Log
-      </Button>
+        <span style={{ flex: 1, minWidth: 0 }}>
+          <Input
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            placeholder="Log an activity…"
+            aria-label="Activity title"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') submit();
+            }}
+          />
+        </span>
+        <Button
+          size="sm"
+          variant="primary"
+          iconLeft={Plus}
+          loading={busy}
+          disabled={!text.trim()}
+          onClick={submit}
+        >
+          Log
+        </Button>
+      </div>
+      <div>
+        <Button
+          size="sm"
+          variant="ghost"
+          iconLeft={showDetails ? ChevronUp : ChevronDown}
+          aria-expanded={showDetails}
+          onClick={() => setShowDetails((v) => !v)}
+        >
+          {showDetails ? 'Hide details' : 'Add details'}
+        </Button>
+      </div>
+      {showDetails ? (
+        <RichTextEditor
+          value={details}
+          onChange={setDetails}
+          onSubmit={submit}
+          placeholder="Add details…"
+          ariaLabel="Activity details"
+          disabled={busy}
+        />
+      ) : null}
     </div>
   );
 }
@@ -300,23 +424,40 @@ function ActivityComposer({ onCreate }: ActivityComposerProps): React.JSX.Elemen
 interface NotesTabProps {
   notes: SabcrmRustActivity[];
   onCreate: (input: NewActivityInput) => Promise<boolean>;
+  /** RBAC: hides the composer when the user cannot create. */
+  canCreate: boolean;
+  /** Resolves an activity's author chip (member map; undefined = omitted). */
+  actorFor: (a: SabcrmRustActivity) => MemberInfo | undefined;
+  /** Per-row edit/delete affordances (undefined = none). */
+  rowActions: (a: SabcrmRustActivity) => React.ReactNode;
 }
 
-function NotesTab({ notes, onCreate }: NotesTabProps): React.JSX.Element {
-  const [text, setText] = React.useState('');
+function NotesTab({
+  notes,
+  onCreate,
+  canCreate,
+  actorFor,
+  rowActions,
+}: NotesTabProps): React.JSX.Element {
+  // Sanitized rich-text HTML from the editor composite (stored as the
+  // activity `body` — the same format the legacy detail writes).
+  const [body, setBody] = React.useState('');
   const [busy, setBusy] = React.useState(false);
 
+  const empty = isRichTextEmpty(body);
+
   const submit = React.useCallback(() => {
-    const body = text.trim();
-    if (!body || busy) return;
-    const firstLine = body.split('\n', 1)[0].slice(0, 80) || 'Note';
+    if (busy || isRichTextEmpty(body)) return;
+    // Title = first line of the PLAIN text projection of the rich body.
+    const plain = plainTextOfBody(body);
+    const firstLine = plain.split('\n', 1)[0].trim().slice(0, 80) || 'Note';
     setBusy(true);
     void (async () => {
       const ok = await onCreate({ type: 'NOTE', title: firstLine, body });
       setBusy(false);
-      if (ok) setText('');
+      if (ok) setBody('');
     })();
-  }, [text, busy, onCreate]);
+  }, [body, busy, onCreate]);
 
   const items = React.useMemo<TimelineItem[]>(
     () =>
@@ -326,33 +467,38 @@ function NotesTab({ notes, onCreate }: NotesTabProps): React.JSX.Element {
         title: a.title,
         meta: bodyExcerpt(a.body) || undefined,
         at: a.createdAt,
+        actor: actorFor(a),
+        actions: rowActions(a),
       })),
-    [notes],
+    [notes, actorFor, rowActions],
   );
 
   return (
     <div style={stackStyle}>
-      <div style={stackStyle}>
-        <Textarea
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          placeholder="Write a note…"
-          aria-label="New note"
-          rows={3}
-        />
-        <div style={{ ...rowStyle, justifyContent: 'flex-end' }}>
-          <Button
-            size="sm"
-            variant="primary"
-            iconLeft={Plus}
-            loading={busy}
-            disabled={!text.trim()}
-            onClick={submit}
-          >
-            Add note
-          </Button>
+      {canCreate ? (
+        <div style={stackStyle}>
+          <RichTextEditor
+            value={body}
+            onChange={setBody}
+            onSubmit={submit}
+            placeholder="Write a note…"
+            ariaLabel="New note"
+            disabled={busy}
+          />
+          <div style={{ ...rowStyle, justifyContent: 'flex-end' }}>
+            <Button
+              size="sm"
+              variant="primary"
+              iconLeft={Plus}
+              loading={busy}
+              disabled={empty}
+              onClick={submit}
+            >
+              Add note
+            </Button>
+          </div>
         </div>
-      </div>
+      ) : null}
       <TimelineList
         items={items}
         emptyState={
@@ -374,10 +520,28 @@ interface TasksTabProps {
   tasks: SabcrmRustActivity[];
   onCreate: (input: NewActivityInput) => Promise<boolean>;
   onToggle: (task: SabcrmRustActivity) => void;
+  /** RBAC: hides the quick-add row when the user cannot create. */
+  canCreate: boolean;
+  /** Member directory (workspaceMembers) — id → display info. */
+  members: Map<string, MemberInfo>;
+  /** `{ value: memberId, label: name }` options for the assignee picker. */
+  memberOptions: SelectOption[];
+  /** Per-row edit/delete affordances (undefined = none). */
+  rowActions: (a: SabcrmRustActivity) => React.ReactNode;
 }
 
-function TasksTab({ tasks, onCreate, onToggle }: TasksTabProps): React.JSX.Element {
+function TasksTab({
+  tasks,
+  onCreate,
+  onToggle,
+  canCreate,
+  members,
+  memberOptions,
+  rowActions,
+}: TasksTabProps): React.JSX.Element {
   const [text, setText] = React.useState('');
+  const [assignee, setAssignee] = React.useState<string | null>(null);
+  const [due, setDue] = React.useState<Date | undefined>(undefined);
   const [busy, setBusy] = React.useState(false);
 
   const submit = React.useCallback(() => {
@@ -385,37 +549,66 @@ function TasksTab({ tasks, onCreate, onToggle }: TasksTabProps): React.JSX.Eleme
     if (!title || busy) return;
     setBusy(true);
     void (async () => {
-      const ok = await onCreate({ type: 'TASK', title, status: 'TODO' });
+      const ok = await onCreate({
+        type: 'TASK',
+        title,
+        status: 'TODO',
+        assigneeId: assignee ?? undefined,
+        dueAt: due ? dueAtIso(due) : undefined,
+      });
       setBusy(false);
-      if (ok) setText('');
+      if (ok) {
+        setText('');
+        setAssignee(null);
+        setDue(undefined);
+      }
     })();
-  }, [text, busy, onCreate]);
+  }, [text, busy, assignee, due, onCreate]);
 
   return (
     <div style={stackStyle}>
-      <div style={rowStyle}>
-        <span style={{ flex: 1, minWidth: 0 }}>
-          <Input
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            placeholder="Add a task…"
-            aria-label="New task"
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') submit();
-            }}
+      {canCreate ? (
+        <div style={{ ...rowStyle, flexWrap: 'wrap' }}>
+          <span style={{ flex: 1, minWidth: 160 }}>
+            <Input
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              placeholder="Add a task…"
+              aria-label="New task"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') submit();
+              }}
+            />
+          </span>
+          <Select
+            size="sm"
+            value={assignee}
+            onChange={setAssignee}
+            options={memberOptions}
+            placeholder="Assignee…"
+            clearable
+            searchable={memberOptions.length > 8}
+            disabled={memberOptions.length === 0}
+            aria-label="Task assignee"
           />
-        </span>
-        <Button
-          size="sm"
-          variant="primary"
-          iconLeft={Plus}
-          loading={busy}
-          disabled={!text.trim()}
-          onClick={submit}
-        >
-          Add task
-        </Button>
-      </div>
+          <DatePicker
+            value={due}
+            onChange={setDue}
+            placeholder="Due date"
+            aria-label="Task due date"
+          />
+          <Button
+            size="sm"
+            variant="primary"
+            iconLeft={Plus}
+            loading={busy}
+            disabled={!text.trim()}
+            onClick={submit}
+          >
+            Add task
+          </Button>
+        </div>
+      ) : null}
 
       {tasks.length === 0 ? (
         <EmptyState
@@ -436,6 +629,10 @@ function TasksTab({ tasks, onCreate, onToggle }: TasksTabProps): React.JSX.Eleme
         >
           {tasks.map((task) => {
             const done = task.status === 'DONE';
+            const assigneeInfo = task.assigneeId
+              ? members.get(task.assigneeId)
+              : undefined;
+            const overdue = isOverdue(task);
             return (
               <li
                 key={task.id}
@@ -470,15 +667,40 @@ function TasksTab({ tasks, onCreate, onToggle }: TasksTabProps): React.JSX.Eleme
                 >
                   {task.title}
                 </span>
+                {assigneeInfo ? (
+                  <span
+                    style={{
+                      ...mutedStyle,
+                      padding: '1px 6px',
+                      border: '1px solid var(--st-border)',
+                      borderRadius: 999,
+                      whiteSpace: 'nowrap',
+                    }}
+                    title={`Assigned to ${assigneeInfo.name}`}
+                  >
+                    {assigneeInfo.name}
+                  </span>
+                ) : null}
                 {task.dueAt ? (
-                  <span style={mutedStyle}>
+                  <span
+                    style={
+                      overdue
+                        ? {
+                            ...mutedStyle,
+                            color: 'var(--st-danger, #dc2626)',
+                          }
+                        : mutedStyle
+                    }
+                  >
                     Due{' '}
                     {new Date(task.dueAt).toLocaleDateString(undefined, {
                       month: 'short',
                       day: 'numeric',
                     })}
+                    {overdue ? ' · overdue' : ''}
                   </span>
                 ) : null}
+                {rowActions(task)}
               </li>
             );
           })}
@@ -493,6 +715,8 @@ function TasksTab({ tasks, onCreate, onToggle }: TasksTabProps): React.JSX.Eleme
 interface FilesTabProps {
   activities: SabcrmRustActivity[];
   onCreate: (input: NewActivityInput) => Promise<boolean>;
+  /** RBAC: hides the attach affordance when the user cannot create. */
+  canCreate: boolean;
 }
 
 /**
@@ -500,7 +724,11 @@ interface FilesTabProps {
  * legacy detail's model — there is no separate attachment store). The attach
  * affordance posts a NOTE activity carrying the picked file.
  */
-function FilesTab({ activities, onCreate }: FilesTabProps): React.JSX.Element {
+function FilesTab({
+  activities,
+  onCreate,
+  canCreate,
+}: FilesTabProps): React.JSX.Element {
   const files = React.useMemo(
     () =>
       activities.flatMap((a) =>
@@ -526,9 +754,11 @@ function FilesTab({ activities, onCreate }: FilesTabProps): React.JSX.Element {
 
   return (
     <div style={stackStyle}>
-      <div>
-        <SabFilePickerButton onPick={attach}>Attach file</SabFilePickerButton>
-      </div>
+      {canCreate ? (
+        <div>
+          <SabFilePickerButton onPick={attach}>Attach file</SabFilePickerButton>
+        </div>
+      ) : null}
 
       {files.length === 0 ? (
         <EmptyState
@@ -605,6 +835,140 @@ function FilesTab({ activities, onCreate }: FilesTabProps): React.JSX.Element {
         </ul>
       )}
     </div>
+  );
+}
+
+/* ----------------------------------------------------- edit-activity dialog */
+
+interface EditActivityDialogProps {
+  activity: SabcrmRustActivity;
+  /** `{ value: memberId, label: name }` options for the assignee picker. */
+  memberOptions: SelectOption[];
+  /** Persist the patch; resolve `true` on success (the dialog then closes). */
+  onSave: (patch: UpdateSabcrmActivityTwPatch) => Promise<boolean>;
+  onClose: () => void;
+}
+
+/**
+ * Per-activity edit dialog (work item: per-activity edit/delete): title
+ * `Input`, rich-text `body`, and — for TASK activities — the assignee/due
+ * controls. Submits through the gated `updateSabcrmActivityTw`.
+ */
+function EditActivityDialog({
+  activity,
+  memberOptions,
+  onSave,
+  onClose,
+}: EditActivityDialogProps): React.JSX.Element {
+  const [title, setTitle] = React.useState(activity.title);
+  const [body, setBody] = React.useState(() => toEditorHtml(activity.body));
+  const [assignee, setAssignee] = React.useState<string | null>(
+    activity.assigneeId ?? null,
+  );
+  const [due, setDue] = React.useState<Date | undefined>(() =>
+    dueAtDate(activity.dueAt),
+  );
+  const [saving, setSaving] = React.useState(false);
+
+  const isTask = activity.type === 'TASK';
+
+  const submit = React.useCallback(() => {
+    const nextTitle = title.trim();
+    if (!nextTitle || saving) return;
+    const patch: UpdateSabcrmActivityTwPatch = {
+      title: nextTitle,
+      body: isRichTextEmpty(body) ? '' : body,
+    };
+    if (isTask) {
+      // The patch shape can only SET values (absent keys are unchanged) —
+      // clearing assignee/due is not supported in this phase.
+      if (assignee) patch.assigneeId = assignee;
+      if (due) patch.dueAt = dueAtIso(due);
+    }
+    setSaving(true);
+    void (async () => {
+      const ok = await onSave(patch);
+      setSaving(false);
+      if (ok) onClose();
+    })();
+  }, [title, body, assignee, due, isTask, saving, onSave, onClose]);
+
+  return (
+    <Dialog
+      open
+      onOpenChange={(open) => {
+        if (!open && !saving) onClose();
+      }}
+    >
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Edit {activity.type.toLowerCase()}</DialogTitle>
+          <DialogDescription>
+            Update this timeline entry. Changes save to the record's history.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div style={{ ...stackStyle, padding: 'var(--st-space-2, 8px) 0' }}>
+          <Field label="Title" required>
+            <Input
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Title"
+              autoFocus
+            />
+          </Field>
+          <Field label="Details">
+            <RichTextEditor
+              value={body}
+              onChange={setBody}
+              onSubmit={submit}
+              placeholder="Details…"
+              ariaLabel="Activity details"
+              disabled={saving}
+            />
+          </Field>
+          {isTask ? (
+            <div style={{ ...rowStyle, alignItems: 'flex-end', flexWrap: 'wrap' }}>
+              <Field label="Assignee">
+                <Select
+                  size="sm"
+                  value={assignee}
+                  onChange={setAssignee}
+                  options={memberOptions}
+                  placeholder="Assignee…"
+                  clearable
+                  searchable={memberOptions.length > 8}
+                  disabled={memberOptions.length === 0}
+                  aria-label="Task assignee"
+                />
+              </Field>
+              <Field label="Due date">
+                <DatePicker
+                  value={due}
+                  onChange={setDue}
+                  placeholder="Due date"
+                  aria-label="Task due date"
+                />
+              </Field>
+            </div>
+          ) : null}
+        </div>
+
+        <DialogFooter>
+          <Button variant="ghost" onClick={onClose} disabled={saving}>
+            Cancel
+          </Button>
+          <Button
+            variant="primary"
+            loading={saving}
+            disabled={!title.trim()}
+            onClick={submit}
+          >
+            Save changes
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -730,6 +1094,12 @@ export function RecordDetailSurface(): React.JSX.Element {
   const recordId = params?.recordId ?? '';
   const router = useRouter();
   const { activeProjectId } = useProject();
+
+  // RBAC affordance gating (client-side only — `gate()` in the server
+  // actions stays authoritative).
+  const canCreate = useCan('sabcrm', 'create');
+  const canEdit = useCan('sabcrm', 'edit');
+  const canDelete = useCan('sabcrm', 'delete');
 
   /* ---- object metadata + record ------------------------------------------ */
 
@@ -1026,6 +1396,57 @@ export function RecordDetailSurface(): React.JSX.Element {
     };
   }, [objectSlug, recordId, activeProjectId]);
 
+  /* ---- members (timeline actor names + assignee picker) ------------------- */
+
+  // `workspaceMembers` records are upserted with `_id = users._id`, so an
+  // activity's `authorId`/`assigneeId` IS a member record id. Failure
+  // degrades silently (no actor chips) — never an error banner.
+  const [members, setMembers] = React.useState<Map<string, MemberInfo>>(
+    () => new Map(),
+  );
+
+  React.useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      const res = await listSabcrmRecordsTw(
+        'workspaceMembers',
+        { limit: 200 },
+        activeProjectId ?? undefined,
+      );
+      if (cancelled || !res.ok) return;
+      const map = new Map<string, MemberInfo>();
+      for (const r of res.data.records) {
+        const name = String(r.data?.name ?? '').trim();
+        if (!name) continue;
+        map.set(r.id, {
+          name,
+          avatarUrl:
+            typeof r.data?.avatarUrl === 'string' && r.data.avatarUrl
+              ? r.data.avatarUrl
+              : undefined,
+        });
+      }
+      setMembers(map);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [activeProjectId]);
+
+  const memberOptions = React.useMemo<SelectOption[]>(
+    () => Array.from(members, ([id, m]) => ({ value: id, label: m.name })),
+    [members],
+  );
+
+  /** Actor chip for an activity (system WhatsApp sentinel → "WhatsApp"). */
+  const actorFor = React.useCallback(
+    (a: SabcrmRustActivity): MemberInfo | undefined =>
+      a.type === 'WHATSAPP' && a.authorId?.startsWith('system:')
+        ? { name: 'WhatsApp' }
+        : members.get(a.authorId),
+    [members],
+  );
+
   const createActivity = React.useCallback(
     async (input: NewActivityInput): Promise<boolean> => {
       setMutationError(null);
@@ -1076,6 +1497,98 @@ export function RecordDetailSurface(): React.JSX.Element {
       })();
     },
     [activeProjectId],
+  );
+
+  /* ---- per-activity edit / delete ------------------------------------------ */
+
+  const [editTarget, setEditTarget] = React.useState<SabcrmRustActivity | null>(
+    null,
+  );
+  const [deleteTarget, setDeleteTarget] =
+    React.useState<SabcrmRustActivity | null>(null);
+
+  /** Persist an edit patch; resolves `true` on success. */
+  const updateActivity = React.useCallback(
+    async (
+      id: string,
+      patch: UpdateSabcrmActivityTwPatch,
+    ): Promise<boolean> => {
+      setMutationError(null);
+      const res = await updateSabcrmActivityTw(
+        id,
+        patch,
+        activeProjectId ?? undefined,
+      );
+      if (!res.ok) {
+        setMutationError(res.error);
+        return false;
+      }
+      setActivities((prev) => prev.map((x) => (x.id === id ? res.data : x)));
+      return true;
+    },
+    [activeProjectId],
+  );
+
+  /** Optimistic removal with rollback on failure (mirrors `toggleTask`). */
+  const deleteActivity = React.useCallback(
+    (activity: SabcrmRustActivity) => {
+      const snapshot = activities;
+      setActivities((prev) => prev.filter((a) => a.id !== activity.id));
+      setMutationError(null);
+      void (async () => {
+        const res = await deleteSabcrmActivityTw(
+          activity.id,
+          activeProjectId ?? undefined,
+        );
+        if (!res.ok) {
+          setActivities(snapshot); // rollback
+          setMutationError(res.error);
+        }
+      })();
+    },
+    [activities, activeProjectId],
+  );
+
+  /**
+   * Per-row edit/delete menu — hover/focus-revealed via the TimelineItem
+   * `actions` slot (and appended to bespoke task rows). Items are gated on
+   * the edit/delete permissions; no permission → no menu at all.
+   */
+  const activityRowActions = React.useCallback(
+    (a: SabcrmRustActivity): React.ReactNode => {
+      if (!canEdit && !canDelete) return undefined;
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <IconButton
+              label={`Actions for “${a.title}”`}
+              icon={MoreHorizontal}
+              size="sm"
+            />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            {canEdit ? (
+              <DropdownMenuItem
+                iconLeft={Pencil}
+                onSelect={() => setEditTarget(a)}
+              >
+                Edit
+              </DropdownMenuItem>
+            ) : null}
+            {canDelete ? (
+              <DropdownMenuItem
+                variant="danger"
+                iconLeft={Trash2}
+                onSelect={() => setDeleteTarget(a)}
+              >
+                Delete
+              </DropdownMenuItem>
+            ) : null}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      );
+    },
+    [canEdit, canDelete],
   );
 
   /* ---- related records ----------------------------------------------------- */
@@ -1174,8 +1687,10 @@ export function RecordDetailSurface(): React.JSX.Element {
         title: a.title,
         meta: bodyExcerpt(a.body) || undefined,
         at: a.createdAt,
+        actor: actorFor(a),
+        actions: activityRowActions(a),
       })),
-    [activities],
+    [activities, actorFor, activityRowActions],
   );
 
   const tabs = React.useMemo<RecordDetailTab[]>(
@@ -1187,7 +1702,7 @@ export function RecordDetailSurface(): React.JSX.Element {
         badge: activities.length > 0 ? activities.length : undefined,
         content: (
           <div style={stackStyle}>
-            <ActivityComposer onCreate={createActivity} />
+            {canCreate ? <ActivityComposer onCreate={createActivity} /> : null}
             {activitiesError ? (
               <Alert tone="danger" title="Could not load the timeline">
                 {activitiesError}
@@ -1203,7 +1718,15 @@ export function RecordDetailSurface(): React.JSX.Element {
         label: 'Notes',
         icon: StickyNote,
         badge: notes.length > 0 ? notes.length : undefined,
-        content: <NotesTab notes={notes} onCreate={createActivity} />,
+        content: (
+          <NotesTab
+            notes={notes}
+            onCreate={createActivity}
+            canCreate={canCreate}
+            actorFor={actorFor}
+            rowActions={activityRowActions}
+          />
+        ),
       },
       {
         id: 'tasks',
@@ -1211,7 +1734,15 @@ export function RecordDetailSurface(): React.JSX.Element {
         icon: CheckCircle2,
         badge: tasks.length > 0 ? tasks.length : undefined,
         content: (
-          <TasksTab tasks={tasks} onCreate={createActivity} onToggle={toggleTask} />
+          <TasksTab
+            tasks={tasks}
+            onCreate={createActivity}
+            onToggle={toggleTask}
+            canCreate={canCreate}
+            members={members}
+            memberOptions={memberOptions}
+            rowActions={activityRowActions}
+          />
         ),
       },
       {
@@ -1219,7 +1750,13 @@ export function RecordDetailSurface(): React.JSX.Element {
         label: 'Files',
         icon: Paperclip,
         badge: fileCount > 0 ? fileCount : undefined,
-        content: <FilesTab activities={activities} onCreate={createActivity} />,
+        content: (
+          <FilesTab
+            activities={activities}
+            onCreate={createActivity}
+            canCreate={canCreate}
+          />
+        ),
       },
       {
         id: 'related',
@@ -1280,6 +1817,11 @@ export function RecordDetailSurface(): React.JSX.Element {
       allObjects,
       createActivity,
       toggleTask,
+      canCreate,
+      members,
+      memberOptions,
+      actorFor,
+      activityRowActions,
       hasPhoneField,
       hasEmailField,
       activeProjectId,
@@ -1381,6 +1923,7 @@ export function RecordDetailSurface(): React.JSX.Element {
           onFieldCommit={handleFieldCommit}
           relationResolver={relationResolver}
           fieldRowTrailing={aiFieldRowTrailing}
+          readOnly={!canEdit}
           tabs={tabs}
           defaultTabId="timeline"
           header={{
@@ -1395,7 +1938,7 @@ export function RecordDetailSurface(): React.JSX.Element {
             ),
             isFavorite,
             onToggleFavorite: toggleFavorite,
-            actions: (
+            actions: canDelete ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button size="sm" variant="secondary">
@@ -1412,7 +1955,7 @@ export function RecordDetailSurface(): React.JSX.Element {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-            ),
+            ) : undefined,
           }}
         />
       </div>
@@ -1453,6 +1996,48 @@ export function RecordDetailSurface(): React.JSX.Element {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+      ) : null}
+
+      {editTarget ? (
+        <EditActivityDialog
+          key={editTarget.id}
+          activity={editTarget}
+          memberOptions={memberOptions}
+          onSave={(patch) => updateActivity(editTarget.id, patch)}
+          onClose={() => setEditTarget(null)}
+        />
+      ) : null}
+
+      {deleteTarget ? (
+        <AlertDialog
+          open
+          onOpenChange={(open) => {
+            if (!open) setDeleteTarget(null);
+          }}
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>
+                Delete this {deleteTarget.type.toLowerCase()}?
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                “{deleteTarget.title}” is removed from this record's timeline.
+                This cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => {
+                  deleteActivity(deleteTarget);
+                  setDeleteTarget(null);
+                }}
+              >
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       ) : null}
     </div>
   );

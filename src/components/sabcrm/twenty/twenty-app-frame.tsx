@@ -30,8 +30,8 @@ import '@/components/sabcrm/20ui/surface-crm-base.css';
 import './twenty-activity.css';
 import './notifications.css';
 
-import { TwentyCommandMenu } from './twenty-command-menu';
-import { TwentyWorkspaceSwitcher } from './twenty-workspace-switcher';
+import { CommandMenu } from '../command-menu';
+import { WorkspaceSwitcher } from '../workspace-switcher';
 import { NotificationsBell } from './notifications-bell';
 import { ProjectsSidebarNav } from './projects-sidebar-nav';
 import {
@@ -355,14 +355,14 @@ export function TwentyAppFrame({ children }: TwentyAppFrameProps): React.JSX.Ele
   return (
     <SabcrmSettingsProvider value={settingsValue}>
     <div className={rootClassName}>
-      <TwentyCommandMenu open={commandMenuOpen} onOpenChange={setCommandMenuOpen} />
+      <CommandMenu open={commandMenuOpen} onOpenChange={setCommandMenuOpen} />
       <div className="st-shell">
         <SidebarProvider>
           <Sidebar aria-label="SabCRM navigation">
             <SidebarHeader className="st-crm-sidehead">
               {/* Workspace (project) switcher + notifications bell */}
               <div className="st-sidebar__header">
-                <TwentyWorkspaceSwitcher />
+                <WorkspaceSwitcher />
                 <NotificationsBell />
               </div>
 

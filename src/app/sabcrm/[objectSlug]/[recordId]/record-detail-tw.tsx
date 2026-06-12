@@ -147,7 +147,7 @@ import './attachments.css';
 import './detail-polish.css';
 import './relations-edit.css';
 import './comments.css';
-import './rich-text.css';
+import '@/components/sabcrm/20ui/composites/editor/rich-text.css'; // moved with the promoted editor composite
 import './show-widgets.css';
 import './detail-tags.css';
 import './composer-templates.css';

@@ -47,6 +47,7 @@ import {
   handleSendMessage,
 } from '@/app/actions/whatsapp.actions';
 import type { ActionResult, ObjectMetadata } from '@/lib/sabcrm/types';
+import { digitsOnly, firstRecordPhone, toWaId } from '@/lib/sabcrm/phone';
 import type { SabcrmRustActivity } from './sabcrm-twenty.actions.types';
 import type {
   SabcrmWhatsappMessage,
@@ -134,89 +135,15 @@ function errorMessage(e: unknown, fallback: string): string {
 // ---------------------------------------------------------------------------
 // Phone resolution — first PHONE / PHONES value on the record
 // ---------------------------------------------------------------------------
+// `phoneFromValue` / `firstRecordPhone` / `toWaId` moved to the shared
+// `@/lib/sabcrm/phone` module (imported above) so the inbound-WhatsApp bridge
+// and record write-time normalization share ONE parser.
 
 /** Narrow an unknown to a plain object record. */
 function asRecord(v: unknown): Record<string, unknown> | null {
   return v && typeof v === 'object' && !Array.isArray(v)
     ? (v as Record<string, unknown>)
     : null;
-}
-
-/** First non-empty string among the candidates. */
-function firstString(...candidates: unknown[]): string {
-  for (const c of candidates) {
-    if (typeof c === 'string' && c.trim()) return c.trim();
-  }
-  return '';
-}
-
-/**
- * Pull ONE dialable phone string out of a PHONE / PHONES field value.
- * Tolerates plain strings, arrays of strings / objects and Twenty's
- * `{ primaryPhoneNumber, primaryPhoneCallingCode, additionalPhones[] }`
- * composite (the same shapes `parsePhones` in the 20ui field renderers
- * accepts).
- */
-function phoneFromValue(value: unknown): string {
-  if (typeof value === 'string') return value.trim();
-  if (Array.isArray(value)) {
-    for (const item of value) {
-      const p = phoneFromValue(item);
-      if (p) return p;
-    }
-    return '';
-  }
-  const rec = asRecord(value);
-  if (!rec) return '';
-  const number = firstString(
-    rec.number,
-    rec.primaryPhoneNumber,
-    rec.phoneNumber,
-    rec.value,
-  );
-  if (!number) {
-    const extra = rec.additionalPhones ?? rec.additionalPhoneNumbers;
-    return Array.isArray(extra) ? phoneFromValue(extra) : '';
-  }
-  const calling = firstString(
-    rec.callingCode,
-    rec.primaryPhoneCallingCode,
-    rec.countryCode,
-    rec.primaryPhoneCountryCode,
-  );
-  if (!calling) return number;
-  const prefix = calling.startsWith('+')
-    ? calling
-    : `+${calling.replace(/[^\d]/g, '')}`;
-  return `${prefix} ${number}`;
-}
-
-/**
- * The record's first phone: object metadata decides which `data.*` keys are
- * PHONE / PHONES fields (in field order); the common bare keys `phone` /
- * `phones` are the fallback for objects without typed phone fields.
- */
-function firstRecordPhone(
-  object: ObjectMetadata | null,
-  data: Record<string, unknown>,
-): string {
-  const keys: string[] = [];
-  for (const f of object?.fields ?? []) {
-    if (f.type === 'PHONE' || f.type === 'PHONES') keys.push(f.key);
-  }
-  for (const k of ['phone', 'phones']) {
-    if (!keys.includes(k)) keys.push(k);
-  }
-  for (const key of keys) {
-    const p = phoneFromValue(data[key]);
-    if (p) return p;
-  }
-  return '';
-}
-
-/** Digits-only WhatsApp id from a display phone. */
-function toWaId(phone: string): string {
-  return (phone || '').replace(/[^\d]/g, '');
 }
 
 // ---------------------------------------------------------------------------
@@ -302,7 +229,14 @@ async function resolveThread(
   }
   const record = await sabcrmRecordsApi.get(objectSlug, recordId, ctx.projectId);
   const phone = firstRecordPhone(object, record.data ?? {});
-  const waId = toWaId(phone);
+  // E.164 normalization (country-code defaulting for bare national numbers)
+  // is opt-in via SABCRM_NORMALIZE_PHONES=1 — default OFF keeps the legacy
+  // digits-only behavior byte-for-byte. The `< 8` guard covers both paths
+  // (the new `toWaId` also returns null for sub-8-digit input).
+  const waId =
+    process.env.SABCRM_NORMALIZE_PHONES === '1'
+      ? toWaId(phone)
+      : digitsOnly(phone);
   if (!waId || waId.length < 8) {
     return {
       connected: false,

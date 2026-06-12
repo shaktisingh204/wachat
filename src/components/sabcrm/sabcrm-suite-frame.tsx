@@ -15,10 +15,14 @@
  * here as suites ship (Supply / Commerce / People); entries must point at
  * routes that exist.
  *
- * Lives OUTSIDE the 20ui barrel tree on purpose: it imports Twenty pieces
- * (command menu, settings context) which themselves import the 20ui barrel,
- * so re-exporting this file from the barrel would form the self-cycle that
- * Turbopack resolves to an empty object.
+ * Lives OUTSIDE the 20ui barrel tree on purpose: it imports sibling pieces
+ * (command menu, workspace switcher, settings context) which themselves import
+ * the 20ui barrel, so re-exporting this file from the barrel would form the
+ * self-cycle that Turbopack resolves to an empty object.
+ *
+ * Command menu + workspace switcher are the 20ui rebuilds
+ * (`@/components/sabcrm/command-menu`, `@/components/sabcrm/workspace-switcher`);
+ * the Twenty originals are retired (deprecation aliases live in `twenty/index.ts`).
  */
 
 import * as React from 'react';
@@ -65,9 +69,9 @@ import {
   type SabSidebarGroup,
   type SabSidebarLeaf,
 } from '@/components/sabcrm/20ui/composites/shell/app-sidebar';
-import { TwentyCommandMenu } from '@/components/sabcrm/twenty/twenty-command-menu';
+import { CommandMenu } from '@/components/sabcrm/command-menu';
 import { useCommandMenu } from '@/components/sabcrm/twenty/use-command-menu';
-import { TwentyWorkspaceSwitcher } from '@/components/sabcrm/twenty/twenty-workspace-switcher';
+import { WorkspaceSwitcher } from '@/components/sabcrm/workspace-switcher';
 import {
   SabcrmSettingsProvider,
   buildSabcrmFormatters,
@@ -400,7 +404,11 @@ export function SabcrmSuiteFrame({ children }: { children: React.ReactNode }) {
   return (
     <SabcrmSettingsProvider value={settingsValue}>
       <div className={rootClassName}>
-        <TwentyCommandMenu open={commandMenuOpen} onOpenChange={setCommandMenuOpen} />
+        <CommandMenu
+          open={commandMenuOpen}
+          onOpenChange={setCommandMenuOpen}
+          projectId={activeProjectId ?? undefined}
+        />
         <div className="st-shell">
           {/* Workspace switcher lives in the footer slot: the heading slot
               renders inside a <p>, and the switcher's root is a <div>. */}
@@ -409,7 +417,7 @@ export function SabcrmSuiteFrame({ children }: { children: React.ReactNode }) {
             caption={settingsValue.general.workspaceName || 'Suite workspace'}
             groups={groups}
             searchPlaceholder="Filter navigation…"
-            footer={<TwentyWorkspaceSwitcher />}
+            footer={<WorkspaceSwitcher />}
           />
           <main className="st-main">{children}</main>
         </div>

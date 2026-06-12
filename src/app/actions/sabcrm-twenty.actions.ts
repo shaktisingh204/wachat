@@ -51,6 +51,7 @@ import type {
 } from '@/lib/rust-client/sabcrm-activities';
 import type { SabcrmRustFavorite } from '@/lib/rust-client/sabcrm-favorites';
 import { ensureStandardObjects } from '@/lib/sabcrm/objects.server';
+import { normalizePhoneFields } from '@/lib/sabcrm/phone';
 import type { ActionResult, ObjectMetadata } from '@/lib/sabcrm/types';
 import type {
   ListSabcrmRecordsTwParams,
@@ -406,6 +407,26 @@ export async function getRecordRelationsTw(
   }
 }
 
+/**
+ * Write-time E.164 normalization for plain-string PHONE fields. OPT-IN via
+ * `SABCRM_NORMALIZE_PHONES=1` (default OFF — normalizing changes the stored
+ * data shape, which could break automations/segments filtering on formatted
+ * phone strings). Best-effort: unreadable metadata leaves the patch untouched.
+ */
+async function maybeNormalizePhones(
+  object: string,
+  projectId: string,
+  data: Record<string, unknown>,
+): Promise<Record<string, unknown>> {
+  if (process.env.SABCRM_NORMALIZE_PHONES !== '1') return data;
+  try {
+    const meta = await sabcrmObjectsApi.get(object, projectId);
+    return normalizePhoneFields(meta?.fields, data);
+  } catch {
+    return data;
+  }
+}
+
 /** Creates a new record on the given object. */
 export async function createSabcrmRecordTw(
   object: string,
@@ -418,6 +439,7 @@ export async function createSabcrmRecordTw(
   if (!g.ok) return { ok: false, error: g.error };
 
   try {
+    data = await maybeNormalizePhones(object, g.ctx.projectId, data ?? {});
     // Stamp Twenty-style ACTOR metadata (who created/updated this record).
     // No display name is exposed by the gate/session, so fall back to the
     // userId for `name`. Only fill fields the caller didn't already supply.
@@ -481,6 +503,7 @@ export async function updateSabcrmRecordTw(
   if (!g.ok) return { ok: false, error: g.error };
 
   try {
+    data = await maybeNormalizePhones(object, g.ctx.projectId, data ?? {});
     // Stamp Twenty-style ACTOR metadata on the update (who last touched it).
     // Fall back to the userId for `name` (no display name in the gate/session);
     // don't clobber an `updatedBy` the caller explicitly supplied.

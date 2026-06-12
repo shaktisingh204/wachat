@@ -1,9 +1,14 @@
 export { TwentyAppFrame, default as TwentyAppFrameDefault } from './twenty-app-frame';
 export { TwentyAppRail, default as TwentyAppRailDefault } from './twenty-app-rail';
+/**
+ * @deprecated The workspace switcher moved to
+ * `@/components/sabcrm/workspace-switcher` (export `WorkspaceSwitcher`).
+ * These aliases remain for one release — import the new path directly.
+ */
 export {
-  TwentyWorkspaceSwitcher,
+  WorkspaceSwitcher as TwentyWorkspaceSwitcher,
   default as TwentyWorkspaceSwitcherDefault,
-} from './twenty-workspace-switcher';
+} from '../workspace-switcher';
 export {
   TwentyButton,
   TwentyChip,
@@ -19,11 +24,16 @@ export type {
   TwentyAvatarShape,
   TwentyPageHeaderProps,
 } from './twenty-primitives';
+/**
+ * @deprecated The command menu moved to `@/components/sabcrm/command-menu`
+ * (export `CommandMenu`, data layer in `command-menu-data.ts`). These aliases
+ * remain for one release — import the new path directly.
+ */
 export {
-  TwentyCommandMenu,
+  CommandMenu as TwentyCommandMenu,
   default as TwentyCommandMenuDefault,
-} from './twenty-command-menu';
-export type { TwentyCommandMenuProps } from './twenty-command-menu';
+} from '../command-menu';
+export type { CommandMenuProps as TwentyCommandMenuProps } from '../command-menu';
 export { useCommandMenu, default as useCommandMenuDefault } from './use-command-menu';
 export type { UseCommandMenuResult } from './use-command-menu';
 export {

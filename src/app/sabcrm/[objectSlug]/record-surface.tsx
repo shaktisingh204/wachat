@@ -35,6 +35,8 @@ import * as React from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import {
   Bookmark,
+  ChevronDown,
+  ChevronUp,
   Database,
   Inbox,
   Plus,
@@ -88,7 +90,7 @@ import {
   DialogFooter,
 } from '@/components/sabcrm/20ui/dialog';
 
-import { useProject } from '@/context/project-context';
+import { useProject, useCan } from '@/context/project-context';
 import { sabcrmRecordLabel } from '@/lib/sabcrm/record-label';
 import type { ObjectMetadata, FieldMetadata, CrmRecord } from '@/lib/sabcrm/types';
 import {
@@ -156,6 +158,41 @@ import {
 const DEFAULT_PAGE_SIZE = 50;
 const SEARCH_DEBOUNCE_MS = 300;
 const VIEW_PERSIST_DEBOUNCE_MS = 800;
+
+/** localStorage key prefix for the no-active-view column-set fallback. */
+const COLS_LS_PREFIX = 'sabcrm:cols:v1:';
+
+/** Read the per-object visible-column fallback (guarded; null = default). */
+function readStoredColumns(objectSlug: string): string[] | null {
+  if (!objectSlug || typeof window === 'undefined') return null;
+  try {
+    const raw = window.localStorage.getItem(`${COLS_LS_PREFIX}${objectSlug}`);
+    if (!raw) return null;
+    const parsed: unknown = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return null;
+    const keys = parsed.filter(
+      (k): k is string => typeof k === 'string' && k !== '',
+    );
+    return keys.length > 0 ? keys : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Persist (or clear) the per-object visible-column fallback (guarded). */
+function writeStoredColumns(objectSlug: string, cols: string[] | null): void {
+  if (!objectSlug || typeof window === 'undefined') return;
+  try {
+    const key = `${COLS_LS_PREFIX}${objectSlug}`;
+    if (cols && cols.length > 0) {
+      window.localStorage.setItem(key, JSON.stringify(cols));
+    } else {
+      window.localStorage.removeItem(key);
+    }
+  } catch {
+    /* storage unavailable — column choice stays session-only */
+  }
+}
 
 type RelationResolver = NonNullable<RecordCellProps['relationResolver']>;
 
@@ -273,9 +310,59 @@ interface CreateRecordDialogProps {
   onCreated: () => void;
 }
 
+interface CreateDialogFieldRowProps {
+  field: FieldMetadata;
+  value: unknown;
+  relationResolver: RelationResolver;
+  onCommit: (key: string, next: unknown) => void;
+}
+
+/** One label-over-editor row of the create dialog (shared by both lists). */
+function CreateDialogFieldRow({
+  field,
+  value,
+  relationResolver,
+  onCommit,
+}: CreateDialogFieldRowProps): React.JSX.Element {
+  return (
+    <label
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 'var(--st-space-1, 4px)',
+        fontSize: 'var(--st-font-size-sm, 12px)',
+        color: 'var(--st-text-soft, var(--st-text))',
+      }}
+    >
+      <span>
+        {field.label}
+        {field.required ? (
+          <span
+            aria-hidden="true"
+            style={{ color: 'var(--st-danger, currentColor)' }}
+          >
+            {' '}
+            *
+          </span>
+        ) : null}
+      </span>
+      <RecordCell
+        field={field}
+        value={value}
+        mode="edit"
+        relationResolver={relationResolver}
+        onCommit={(next) => onCommit(field.key, next)}
+        onCancel={() => {}}
+      />
+    </label>
+  );
+}
+
 /**
- * Minimal "New record" dialog: RecordCell editors for the object's required +
- * in-table fields, submitted through the gated `createSabcrmRecordTw`.
+ * "New record" dialog: RecordCell editors for the object's required +
+ * in-table fields up front, with a "Show all fields" disclosure exposing the
+ * FULL non-system field set (world-class directive — no minimal dialogs).
+ * Submitted through the gated `createSabcrmRecordTw`.
  */
 function CreateRecordDialog({
   object,
@@ -284,16 +371,24 @@ function CreateRecordDialog({
   onClose,
   onCreated,
 }: CreateRecordDialogProps): React.JSX.Element {
-  const fields = React.useMemo(
+  const primaryFields = React.useMemo(
     () =>
       object.fields.filter((f) => !f.system && (f.required || f.inTable)),
     [object],
   );
+  const extraFields = React.useMemo(
+    () =>
+      object.fields.filter((f) => !f.system && !(f.required || f.inTable)),
+    [object],
+  );
+  const [showAll, setShowAll] = React.useState(false);
 
   const [draft, setDraft] = React.useState<Record<string, unknown>>(() => {
     const seed: Record<string, unknown> = {};
-    for (const f of fields) {
-      if (f.defaultValue !== undefined) seed[f.key] = f.defaultValue;
+    // Seed defaults for ALL non-system fields (not just the primary list) so
+    // a collapsed extra field still posts its default.
+    for (const f of object.fields) {
+      if (!f.system && f.defaultValue !== undefined) seed[f.key] = f.defaultValue;
     }
     return seed;
   });
@@ -315,12 +410,12 @@ function CreateRecordDialog({
 
   const missingRequired = React.useMemo(
     () =>
-      fields.filter((f) => {
+      primaryFields.filter((f) => {
         if (!f.required) return false;
         const v = draft[f.key];
         return v === undefined || v === null || v === '';
       }),
-    [fields, draft],
+    [primaryFields, draft],
   );
 
   const submit = async (): Promise<void> => {
@@ -372,44 +467,51 @@ function CreateRecordDialog({
             overflowY: 'auto',
           }}
         >
-          {fields.length === 0 ? (
+          {primaryFields.length === 0 && extraFields.length === 0 ? (
             <EmptyState
               size="sm"
               icon={Inbox}
               title="No editable fields"
-              description="This object has no required or in-table fields to fill."
+              description="This object has no editable fields to fill."
             />
           ) : (
-            fields.map((field) => (
-              <label
-                key={field.key}
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 'var(--st-space-1, 4px)',
-                  fontSize: 'var(--st-font-size-sm, 12px)',
-                  color: 'var(--st-text-soft, var(--st-text))',
-                }}
-              >
-                <span>
-                  {field.label}
-                  {field.required ? (
-                    <span aria-hidden="true" style={{ color: 'var(--st-danger, currentColor)' }}>
-                      {' '}
-                      *
-                    </span>
-                  ) : null}
-                </span>
-                <RecordCell
+            <>
+              {primaryFields.map((field) => (
+                <CreateDialogFieldRow
+                  key={field.key}
                   field={field}
                   value={draft[field.key]}
-                  mode="edit"
                   relationResolver={relationResolver}
-                  onCommit={(next) => setFieldValue(field.key, next)}
-                  onCancel={() => {}}
+                  onCommit={setFieldValue}
                 />
-              </label>
-            ))
+              ))}
+              {extraFields.length > 0 ? (
+                <div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    iconLeft={showAll ? ChevronUp : ChevronDown}
+                    aria-expanded={showAll}
+                    onClick={() => setShowAll((v) => !v)}
+                  >
+                    {showAll
+                      ? 'Show fewer fields'
+                      : `Show all fields (${extraFields.length} more)`}
+                  </Button>
+                </div>
+              ) : null}
+              {showAll
+                ? extraFields.map((field) => (
+                    <CreateDialogFieldRow
+                      key={field.key}
+                      field={field}
+                      value={draft[field.key]}
+                      relationResolver={relationResolver}
+                      onCommit={setFieldValue}
+                    />
+                  ))
+                : null}
+            </>
           )}
         </div>
 
@@ -673,6 +775,12 @@ export function RecordSurface(): React.JSX.Element {
   const router = useRouter();
   const { activeProjectId } = useProject();
 
+  // RBAC affordance gating (client-side only — `gate()` in the server
+  // actions stays authoritative).
+  const canCreate = useCan('sabcrm', 'create');
+  const canEdit = useCan('sabcrm', 'edit');
+  const canDelete = useCan('sabcrm', 'delete');
+
   /* ---- URL view-state hydration ------------------------------------------ */
 
   // One-shot read of `?view/vt/page/q` (see the adapter codec) so the state
@@ -738,6 +846,14 @@ export function RecordSurface(): React.JSX.Element {
   const [columnWidths, setColumnWidths] = React.useState<
     Record<string, number>
   >({});
+  /**
+   * Ordered visible-column keys; `null` = the object's default (`inTable`)
+   * set. Hydrates from the per-object localStorage fallback at mount and on
+   * slug change; the active saved view's `viewFields` win via `applyView`.
+   */
+  const [visibleColumns, setVisibleColumns] = React.useState<string[] | null>(
+    () => readStoredColumns(objectSlug),
+  );
 
   // Reset transient state when the object CHANGES (not on mount — the mount
   // values may carry hydrated URL state).
@@ -752,6 +868,7 @@ export function RecordSurface(): React.JSX.Element {
     setSearchQuery('');
     setQ('');
     setColumnWidths({});
+    setVisibleColumns(readStoredColumns(objectSlug));
   }, [objectSlug]);
 
   // Debounce quick search into the server `q` param.
@@ -789,6 +906,7 @@ export function RecordSurface(): React.JSX.Element {
     setFilters(view.filters ?? EMPTY_FILTER_GROUP);
     setSorts(view.sorts ?? []);
     setGroupBy(view.groupBy ?? null);
+    setVisibleColumns(view.visibleColumns ?? null);
     setColumnWidths(viewWidthsRef.current[view.id] ?? {});
     setQueueCfg(viewQueueRef.current[view.id] ?? null);
   }, []);
@@ -838,8 +956,15 @@ export function RecordSurface(): React.JSX.Element {
   }, [objectSlug, activeProjectId, applyView]);
 
   const snapshot = React.useCallback(
-    (): ViewStateSnapshot => ({ viewType, filters, sorts, groupBy, columnWidths }),
-    [viewType, filters, sorts, groupBy, columnWidths],
+    (): ViewStateSnapshot => ({
+      viewType,
+      filters,
+      sorts,
+      groupBy,
+      columnWidths,
+      visibleColumns,
+    }),
+    [viewType, filters, sorts, groupBy, columnWidths, visibleColumns],
   );
 
   const handleSelectView = React.useCallback(
@@ -923,6 +1048,7 @@ export function RecordSurface(): React.JSX.Element {
       sorts,
       groupBy,
       columnWidths,
+      visibleColumns,
     };
     const t = setTimeout(() => {
       void (async () => {
@@ -940,15 +1066,28 @@ export function RecordSurface(): React.JSX.Element {
     }, VIEW_PERSIST_DEBOUNCE_MS);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [viewType, filters, sorts, groupBy, columnWidths, activeViewId, activeProjectId]);
+  }, [viewType, filters, sorts, groupBy, columnWidths, visibleColumns, activeViewId, activeProjectId]);
+
+  // No-active-view fallback: the column choice persists per object in
+  // localStorage (`sabcrm:cols:v1:<slug>`) so it survives reloads.
+  React.useEffect(() => {
+    if (activeViewId) return;
+    writeStoredColumns(objectSlug, visibleColumns);
+  }, [visibleColumns, activeViewId, objectSlug]);
 
   /* ---- derived fields ---------------------------------------------------- */
 
   const columns = React.useMemo<FieldMetadata[]>(() => {
     if (!object) return [];
     const inTable = object.fields.filter((f) => f.inTable);
-    return inTable.length > 0 ? inTable : object.fields.slice(0, 6);
-  }, [object]);
+    const defaults = inTable.length > 0 ? inTable : object.fields.slice(0, 6);
+    if (!visibleColumns) return defaults;
+    const byKey = new Map(object.fields.map((f) => [f.key, f] as const));
+    const picked = visibleColumns
+      .map((k) => byKey.get(k))
+      .filter((f): f is FieldMetadata => f !== undefined);
+    return picked.length > 0 ? picked : defaults;
+  }, [object, visibleColumns]);
 
   // The SELECT field the board buckets by: explicit Group-by wins, the
   // object's BoardConfig is the fallback, then the first SELECT field.
@@ -1495,7 +1634,7 @@ export function RecordSurface(): React.JSX.Element {
               : { display: 'block', width: '100%' }
           }
           onDoubleClick={(e) => {
-            if (field.system) return;
+            if (field.system || !canEdit) return;
             e.stopPropagation();
             setEditing({ recordId: record._id, fieldKey: field.key });
           }}
@@ -1541,7 +1680,7 @@ export function RecordSurface(): React.JSX.Element {
         </span>
       );
     },
-    [editing, relationResolver, commitFieldEdit, firstColumnKey, favoriteIds, toggleFavorite],
+    [editing, relationResolver, commitFieldEdit, firstColumnKey, favoriteIds, toggleFavorite, canEdit],
   );
 
   // Commit a finished resize gesture into the working width set; the active
@@ -1674,7 +1813,7 @@ export function RecordSurface(): React.JSX.Element {
 
   const handleBoardMove = React.useCallback(
     (recordId: string, toColumnId: string) => {
-      if (!groupField) return;
+      if (!groupField || !canEdit) return;
       const current = boardRust.find((r) => r.id === recordId);
       const prev = current?.data?.[groupField.key];
       const prevLostReason = current?.data?.lostReason;
@@ -1703,7 +1842,7 @@ export function RecordSurface(): React.JSX.Element {
         }
       })();
     },
-    [groupField, boardRust, patchLocal, objectSlug, activeProjectId],
+    [groupField, boardRust, patchLocal, objectSlug, activeProjectId, canEdit],
   );
 
   const canMove = React.useCallback(
@@ -1711,6 +1850,14 @@ export function RecordSurface(): React.JSX.Element {
       record: CrmRecord,
       toColumnId: string,
     ): Promise<RecordBoardGateVerdict> => {
+      // Client-side RBAC affordance (the server action re-checks regardless).
+      if (!canEdit) {
+        return {
+          ok: false,
+          reason: 'You do not have edit permission.',
+          kind: 'permission',
+        };
+      }
       const v = await checkSabcrmStageMove(
         activeProjectId ?? undefined,
         objectSlug,
@@ -1767,7 +1914,7 @@ export function RecordSurface(): React.JSX.Element {
 
       return { ok: true };
     },
-    [activeProjectId, objectSlug, governingPipelineFor, groupField],
+    [activeProjectId, objectSlug, governingPipelineFor, groupField, canEdit],
   );
 
   const submitApprovalRequest = React.useCallback(() => {
@@ -1799,7 +1946,30 @@ export function RecordSurface(): React.JSX.Element {
 
   /* ---- create ------------------------------------------------------------ */
 
-  const [createOpen, setCreateOpen] = React.useState(false);
+  // `?new=1` deep link (the command menu's "Create …" rows navigate here) —
+  // open the dialog at mount when the param is present.
+  const [createOpen, setCreateOpen] = React.useState(
+    () =>
+      typeof window !== 'undefined' &&
+      new URLSearchParams(window.location.search).get('new') === '1',
+  );
+
+  const closeCreate = React.useCallback(() => {
+    setCreateOpen(false);
+    // Strip the consumed `new` param (replace-state — no navigation, no
+    // scroll; mirrors the shareable-URL effect's pattern).
+    if (typeof window === 'undefined') return;
+    const sp = new URLSearchParams(window.location.search);
+    if (sp.has('new')) {
+      sp.delete('new');
+      const s = sp.toString();
+      window.history.replaceState(
+        window.history.state,
+        '',
+        `${window.location.pathname}${s ? `?${s}` : ''}${window.location.hash}`,
+      );
+    }
+  }, []);
 
   /* ---- navigation -------------------------------------------------------- */
 
@@ -1898,6 +2068,8 @@ export function RecordSurface(): React.JSX.Element {
         onSortsChange={setSorts}
         groupBy={groupBy}
         onGroupByChange={setGroupBy}
+        visibleColumns={columns.map((c) => c.key)}
+        onVisibleColumnsChange={setVisibleColumns}
         savedViews={savedViews}
         activeViewId={activeViewId}
         onSelectView={handleSelectView}
@@ -1912,23 +2084,27 @@ export function RecordSurface(): React.JSX.Element {
         density={density}
         onDensityChange={setDensity}
         trailing={
-          <>
-            {showQueue && activeViewId ? (
-              <QueueSettingsPopover
-                object={object}
-                config={queueCfg}
-                onSave={handleQueueConfigSave}
-              />
-            ) : null}
-            <Button
-              variant="primary"
-              size="sm"
-              iconLeft={Plus}
-              onClick={() => setCreateOpen(true)}
-            >
-              New {object.labelSingular.toLowerCase()}
-            </Button>
-          </>
+          (showQueue && activeViewId) || canCreate ? (
+            <>
+              {showQueue && activeViewId ? (
+                <QueueSettingsPopover
+                  object={object}
+                  config={queueCfg}
+                  onSave={handleQueueConfigSave}
+                />
+              ) : null}
+              {canCreate ? (
+                <Button
+                  variant="primary"
+                  size="sm"
+                  iconLeft={Plus}
+                  onClick={() => setCreateOpen(true)}
+                >
+                  New {object.labelSingular.toLowerCase()}
+                </Button>
+              ) : null}
+            </>
+          ) : undefined
         }
       />
 
@@ -1991,14 +2167,16 @@ export function RecordSurface(): React.JSX.Element {
                 title={`No ${object.labelPlural.toLowerCase()} yet`}
                 description="Create the first record to populate this board."
                 action={
-                  <Button
-                    variant="primary"
-                    size="sm"
-                    iconLeft={Plus}
-                    onClick={() => setCreateOpen(true)}
-                  >
-                    New {object.labelSingular.toLowerCase()}
-                  </Button>
+                  canCreate ? (
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      iconLeft={Plus}
+                      onClick={() => setCreateOpen(true)}
+                    >
+                      New {object.labelSingular.toLowerCase()}
+                    </Button>
+                  ) : undefined
                 }
               />
             }
@@ -2108,14 +2286,16 @@ export function RecordSurface(): React.JSX.Element {
                   : 'Create the first record to get started.'
               }
               action={
-                <Button
-                  variant="primary"
-                  size="sm"
-                  iconLeft={Plus}
-                  onClick={() => setCreateOpen(true)}
-                >
-                  New {object.labelSingular.toLowerCase()}
-                </Button>
+                canCreate ? (
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    iconLeft={Plus}
+                    onClick={() => setCreateOpen(true)}
+                  >
+                    New {object.labelSingular.toLowerCase()}
+                  </Button>
+                ) : undefined
               }
             />
           }
@@ -2139,7 +2319,7 @@ export function RecordSurface(): React.JSX.Element {
         onClear={() => setSelected(new Set())}
         label={selected.size === 1 ? 'record selected' : 'records selected'}
       >
-        {groupField ? (
+        {groupField && canEdit ? (
           <Select
             size="sm"
             value={null}
@@ -2152,23 +2332,25 @@ export function RecordSurface(): React.JSX.Element {
             aria-label={`Set ${groupField.label} for selected records`}
           />
         ) : null}
-        <Button
-          variant="danger"
-          size="sm"
-          iconLeft={Trash2}
-          loading={bulkBusy}
-          onClick={handleBulkDelete}
-        >
-          Delete
-        </Button>
+        {canDelete ? (
+          <Button
+            variant="danger"
+            size="sm"
+            iconLeft={Trash2}
+            loading={bulkBusy}
+            onClick={handleBulkDelete}
+          >
+            Delete
+          </Button>
+        ) : null}
       </BulkBar>
 
-      {createOpen ? (
+      {createOpen && canCreate ? (
         <CreateRecordDialog
           object={object}
           projectId={activeProjectId}
           relationResolver={relationResolver}
-          onClose={() => setCreateOpen(false)}
+          onClose={closeCreate}
           onCreated={refresh}
         />
       ) : null}
