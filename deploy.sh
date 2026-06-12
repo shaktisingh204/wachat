@@ -16,8 +16,11 @@ BUILD_RUST="${BUILD_RUST:-1}"
 # hard-resetting to origin/main (useful for hotfix/manual deploys).
 DEPLOY_GIT_RESET="${DEPLOY_GIT_RESET:-1}"
 # TCP ports the services bind to (sabnode-web, sabwa-node, sabsms-engine,
-# sabnode-api). Freed before restart to clear stale/orphaned listeners.
-SERVICE_PORTS="${SERVICE_PORTS:-3002 4001 4002 ${SABNODE_PORT:-8080}}"
+# sabsites-postgrest, sabnode-api). Freed before restart to clear
+# stale/orphaned listeners.
+SERVICE_PORTS="${SERVICE_PORTS:-3002 4001 4002 4006 ${SABNODE_PORT:-8080}}"
+# Set BUILD_SABSITES=0 to skip the SabSites (vendored Webstudio) build.
+BUILD_SABSITES="${BUILD_SABSITES:-1}"
 # FORCE_RESTART=1 → hard restart (delete PM2 apps + kill the ports + fresh
 # start). Default does a zero-downtime `pm2 startOrReload` but still frees
 # any orphaned ports first.
@@ -120,6 +123,39 @@ if [ "$BUILD_RUST" = "1" ]; then
   fi
 else
   echo "⏭️  Skipping SabSheet wasm build (BUILD_RUST=0)."
+fi
+
+# 3c.6 SabSites — the vendored Webstudio builder (vendor/webstudio), compiled
+# into the app at /sites. Build artifacts are gitignored, so every deploy must
+# rebuild them: server bundle stays in vendor/, client assets land in
+# public/sites/. Needs Node >= 22 semantics via corepack pnpm. Best-effort so
+# a toolchain hiccup can't block the whole app — but /sites won't load until
+# it's rebuilt (npm run build:sabsites). See docs/sabsites/README.md.
+if [ "$BUILD_SABSITES" = "1" ] && [ -f vendor/webstudio/package.json ]; then
+  echo "🌐 Building SabSites (vendored Webstudio)..."
+  export COREPACK_ENABLE_DOWNLOAD_PROMPT=0
+  if ! command -v corepack >/dev/null 2>&1; then
+    npm install -g corepack || true
+  fi
+  if ( cd vendor/webstudio && corepack pnpm install --frozen-lockfile ); then
+    # Postgres schema for the sabsites DB (idempotent journal-based runner).
+    SABSITES_DB_URL="$(grep -E '^SABSITES_DATABASE_URL=.+' .env 2>/dev/null | tail -1 | cut -d= -f2- || true)"
+    if [ -n "${SABSITES_DB_URL:-}" ]; then
+      echo "🗄️  Applying SabSites Postgres migrations..."
+      ( cd vendor/webstudio \
+        && DATABASE_URL="$SABSITES_DB_URL" DIRECT_URL="$SABSITES_DB_URL" \
+           corepack pnpm --filter=./packages/prisma-client migrations migrate --cwd ../../apps/builder ) \
+        || echo "⚠️  SabSites migrations failed — /sites may misbehave until they run."
+    else
+      echo "⏭️  SABSITES_DATABASE_URL not set in .env — skipping SabSites migrations."
+    fi
+    npm run build:sabsites \
+      || echo "⚠️  SabSites build failed — /sites won't load until it's rebuilt (npm run build:sabsites)."
+  else
+    echo "⚠️  SabSites pnpm install failed — /sites won't load until it's built (npm run build:sabsites)."
+  fi
+else
+  echo "⏭️  Skipping SabSites build (BUILD_SABSITES=$BUILD_SABSITES)."
 fi
 
 # 3d. Next.js application (Turbopack). Raise the heap cap to avoid OOM kills.
