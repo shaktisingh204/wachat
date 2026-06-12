@@ -1,0 +1,30 @@
+{
+  "extends": "./tsconfig.json",
+  "include": [],
+  "files": [
+    "next-env.d.ts",
+    "src/app/actions/sabcrm-finance-payment-receipts.actions.ts",
+    "src/app/actions/sabcrm-finance-payment-receipts.actions.types.ts",
+    "src/app/actions/sabcrm-finance-payment-accounts.actions.ts",
+    "src/app/actions/sabcrm-finance-payment-accounts.actions.types.ts",
+    "src/app/actions/sabcrm-finance-bank-transactions.actions.ts",
+    "src/app/actions/sabcrm-finance-bank-transactions.actions.types.ts",
+    "src/app/actions/sabcrm-finance-recurring-invoices.actions.ts",
+    "src/app/actions/sabcrm-finance-recurring-invoices.actions.types.ts",
+    "src/app/sabcrm/finance/payment-receipts/page.tsx",
+    "src/app/sabcrm/finance/payment-receipts/receipt-config.ts",
+    "src/app/sabcrm/finance/payment-receipts/receipt-form-extras.tsx",
+    "src/app/sabcrm/finance/payment-receipts/payment-receipts-client.tsx",
+    "src/app/sabcrm/finance/payment-receipts/[id]/page.tsx",
+    "src/app/sabcrm/finance/payment-receipts/[id]/payment-receipt-detail-client.tsx",
+    "src/app/sabcrm/finance/payment-accounts/page.tsx",
+    "src/app/sabcrm/finance/payment-accounts/payment-account-config.ts",
+    "src/app/sabcrm/finance/payment-accounts/payment-accounts-client.tsx",
+    "src/app/sabcrm/finance/bank-transactions/page.tsx",
+    "src/app/sabcrm/finance/bank-transactions/bank-transaction-config.ts",
+    "src/app/sabcrm/finance/bank-transactions/bank-transactions-client.tsx",
+    "src/app/sabcrm/finance/recurring-invoices/page.tsx",
+    "src/app/sabcrm/finance/recurring-invoices/recurring-invoice-config.ts",
+    "src/app/sabcrm/finance/recurring-invoices/recurring-invoices-client.tsx"
+  ]
+}

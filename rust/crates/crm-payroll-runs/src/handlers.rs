@@ -1,17 +1,18 @@
 //! HTTP handlers for the §9.6 Payroll Run entity.
 //!
-//! Eight handlers — five standard CRUD plus three lifecycle verbs:
+//! Nine handlers — five standard CRUD plus four lifecycle verbs:
 //!
-//! | Method  | Path                 | Function                      |
-//! |---------|----------------------|-------------------------------|
-//! | `GET`   | `/`                  | [`list_payroll_runs`]         |
-//! | `GET`   | `/:runId`            | [`get_payroll_run`]           |
-//! | `POST`  | `/`                  | [`create_payroll_run`]        |
-//! | `PATCH` | `/:runId`            | [`update_payroll_run`]        |
-//! | `DELETE`| `/:runId`            | [`delete_payroll_run`]        |
-//! | `POST`  | `/:runId/compute`    | [`compute_payroll_run`]       |
-//! | `POST`  | `/:runId/approve`    | [`approve_payroll_run`]       |
-//! | `POST`  | `/:runId/disburse`   | [`disburse_payroll_run`]      |
+//! | Method  | Path                          | Function                 |
+//! |---------|-------------------------------|--------------------------|
+//! | `GET`   | `/`                           | [`list_payroll_runs`]    |
+//! | `GET`   | `/:runId`                     | [`get_payroll_run`]      |
+//! | `POST`  | `/`                           | [`create_payroll_run`]   |
+//! | `PATCH` | `/:runId`                     | [`update_payroll_run`]   |
+//! | `DELETE`| `/:runId`                     | [`delete_payroll_run`]   |
+//! | `POST`  | `/:runId/compute`             | [`compute_payroll_run`]  |
+//! | `POST`  | `/:runId/approve`             | [`approve_payroll_run`]  |
+//! | `POST`  | `/:runId/disburse`            | [`disburse_payroll_run`] |
+//! | `POST`  | `/:runId/generate-payslips`   | [`generate_payslips`]    |
 //!
 //! Every handler scopes its Mongo query by the mount's
 //! [`crm_core::ScopeMode`] (attached as an axum `Extension` by the
@@ -44,6 +45,11 @@ use hrm_payroll_types::{
     ApprovalStep, BankFileFormat, CalcKind, ComponentType, DeductionLine, EarningLine, Employee,
     EmployeeRunRow, EmploymentStatus, PayrollRun, PayrollRunStatus, PayrollTotals,
     ReimbursementLine, SalaryComponent, SalaryStructure,
+    payslip::{
+        DeductionLine as PayslipDeductionLine, EarningLine as PayslipEarningLine, Payslip,
+        PayslipAttendanceSummary, PayslipBankInfo, PayslipEmployee, PayslipHeader, PayslipYtd,
+        ReimbursementLine as PayslipReimbursementLine,
+    },
 };
 use mongodb::options::FindOptions;
 use sabnode_auth::AuthUser;
@@ -64,6 +70,15 @@ const EMPLOYEES_COLL: &str = "crm_employees";
 /// Mongo collection — read by [`compute_payroll_run`] to resolve each
 /// employee's salary structure into earning / deduction lines.
 const SALARY_STRUCTURES_COLL: &str = "crm_salary_structures";
+/// Mongo collection — written by [`generate_payslips`] (one rich
+/// `hrm_payroll_types::Payslip` per employee run row).
+const PAYSLIPS_COLL: &str = "crm_payslips";
+/// Mongo collection — read by [`generate_payslips`] for the tenant's
+/// `companyName` (payslip PDF header).
+const PAYROLL_SETTINGS_COLL: &str = "crm_payroll_settings";
+/// Mongo collection — read by [`generate_payslips`] to resolve the
+/// employee's department label for the frozen snapshot.
+const DEPARTMENTS_COLL: &str = "crm_departments";
 
 // =========================================================================
 // Helpers
@@ -1203,6 +1218,411 @@ pub async fn disburse_payroll_run(
 }
 
 // =========================================================================
+// POST /:runId/generate-payslips — generate_payslips (people-suite WI-7)
+// =========================================================================
+
+/// Spell out a non-negative integer in the Indian numbering system
+/// (crore / lakh / thousand / hundred), title-cased words.
+fn int_to_indian_words(n: u64) -> String {
+    const ONES: [&str; 20] = [
+        "", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten",
+        "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen",
+        "Nineteen",
+    ];
+    const TENS: [&str; 10] = [
+        "", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety",
+    ];
+
+    fn below_100(n: u64) -> String {
+        debug_assert!(n < 100);
+        if n < 20 {
+            ONES[n as usize].to_owned()
+        } else if n % 10 == 0 {
+            TENS[(n / 10) as usize].to_owned()
+        } else {
+            format!("{} {}", TENS[(n / 10) as usize], ONES[(n % 10) as usize])
+        }
+    }
+
+    fn below_1000(n: u64) -> String {
+        debug_assert!(n < 1000);
+        if n < 100 {
+            below_100(n)
+        } else if n % 100 == 0 {
+            format!("{} Hundred", ONES[(n / 100) as usize])
+        } else {
+            format!("{} Hundred {}", ONES[(n / 100) as usize], below_100(n % 100))
+        }
+    }
+
+    if n == 0 {
+        return "Zero".to_owned();
+    }
+    let mut parts: Vec<String> = Vec::new();
+    let crore = n / 10_000_000;
+    let lakh = (n / 100_000) % 100;
+    let thousand = (n / 1_000) % 100;
+    let rest = n % 1_000;
+    if crore > 0 {
+        // Recurse so 100+ crore reads naturally ("One Hundred Crore").
+        parts.push(format!("{} Crore", int_to_indian_words(crore)));
+    }
+    if lakh > 0 {
+        parts.push(format!("{} Lakh", below_100(lakh)));
+    }
+    if thousand > 0 {
+        parts.push(format!("{} Thousand", below_100(thousand)));
+    }
+    if rest > 0 {
+        parts.push(below_1000(rest));
+    }
+    parts.join(" ")
+}
+
+/// Indian-format spelled-out rupee amount for
+/// `Payslip.net_pay_in_words`, e.g. `98_000.0` →
+/// `"Ninety Eight Thousand Rupees Only"`. Paise are rounded to the
+/// nearest rupee; negative amounts (pathological, but representable
+/// with f64 money) are prefixed `"Minus"` rather than panicking.
+fn rupees_in_words(amount: f64) -> String {
+    let negative = amount < 0.0;
+    let n = amount.abs().round() as u64;
+    let words = int_to_indian_words(n);
+    if negative {
+        format!("Minus {words} Rupees Only")
+    } else {
+        format!("{words} Rupees Only")
+    }
+}
+
+/// Mask a bank account number for the frozen payslip snapshot — only
+/// the last four characters survive (`"XXXXXX1234"`), matching the
+/// privacy convention on `PayslipBankInfo.account_no_masked`.
+fn mask_account_no(account_no: &str) -> String {
+    let trimmed = account_no.trim();
+    if trimmed.is_empty() {
+        return String::new();
+    }
+    let chars: Vec<char> = trimmed.chars().collect();
+    let keep = chars.len().min(4);
+    let tail: String = chars[chars.len() - keep..].iter().collect();
+    format!("XXXXXX{tail}")
+}
+
+/// Human period label for the payslip header, e.g. `"April 2026"`.
+fn period_label_for(period_from: &chrono::DateTime<Utc>) -> String {
+    period_from.format("%B %Y").to_string()
+}
+
+/// Display name for the employee snapshot: `displayName` when set,
+/// otherwise `"first last"`.
+fn employee_display_name(emp: &Employee) -> String {
+    emp.personal
+        .display_name
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+        .map(str::to_owned)
+        .unwrap_or_else(|| {
+            format!(
+                "{} {}",
+                emp.personal.first_name.trim(),
+                emp.personal.last_name.trim()
+            )
+            .trim()
+            .to_owned()
+        })
+}
+
+/// Response for [`generate_payslips`].
+#[derive(Debug, Clone, serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GeneratePayslipsResponse {
+    /// Employee rows processed (upserted or refreshed).
+    pub generated: u32,
+    /// Employee rows skipped (missing employee document).
+    pub skipped: u32,
+    /// `_id`s of every payslip belonging to this run (hex), after the
+    /// upsert pass.
+    pub payslip_ids: Vec<String>,
+}
+
+/// `POST /v1/hrm/payroll-runs/:runId/generate-payslips` (people-suite
+/// WI-7) — freeze one rich [`Payslip`] per [`EmployeeRunRow`] into
+/// `crm_payslips`.
+///
+/// **Status guard:** the run must be `approved` or `disbursed`.
+///
+/// **Snapshot sources:**
+/// - employee snapshot (name, designation, department label, PAN/UAN/
+///   ESIC, joining date) from `crm_employees` (+ `crm_departments` for
+///   the label), read under the SAME resolved scope as the run — a
+///   Project-mounted generate only sees that project's roster (§3.3);
+/// - header `companyName` from the scope's `crm_payroll_settings`
+///   document (fallback `"Company"`);
+/// - `netPayInWords` via [`rupees_in_words`];
+/// - bank snapshot from `Employee.personal.bank` with the account
+///   number masked at write-time ([`mask_account_no`]).
+///
+/// **Idempotency:** upsert keyed on
+/// `{<scope>, runId, employeeId}` — re-invoking refreshes the frozen
+/// snapshot instead of minting duplicates. Rows whose employee document
+/// has vanished are skipped with a warning (never a 500).
+#[instrument(skip_all, fields(user_id = %user.user_id, run_id = %run_id))]
+pub async fn generate_payslips(
+    user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
+    State(mongo): State<MongoHandle>,
+    Path(run_id): Path<String>,
+    Query(scope_q): Query<ScopeQuery>,
+) -> Result<Json<GeneratePayslipsResponse>> {
+    let scope = resolve_scope(mode, &user, scope_q.project_id.as_deref())?;
+    let user_id = user_oid(&user)?;
+    let run_oid = oid_from_str(&run_id)?;
+
+    // ---- Load + status guard --------------------------------------
+    let runs = mongo.collection::<PayrollRun>(RUNS_COLL);
+    let mut filter = base_ownership_filter(&scope);
+    filter.insert("_id", run_oid);
+    let run = runs
+        .find_one(filter)
+        .await
+        .map_err(|e| {
+            ApiError::Internal(
+                anyhow::Error::new(e).context("crm_payroll_runs.find_one(generate-payslips)"),
+            )
+        })?
+        .ok_or_else(|| ApiError::NotFound("payrollRun".to_owned()))?;
+    if !matches!(
+        run.status,
+        PayrollRunStatus::Approved | PayrollRunStatus::Disbursed
+    ) {
+        return Err(ApiError::Conflict(format!(
+            "payroll run is '{}' — generate-payslips requires 'approved' or 'disbursed'",
+            status_str(run.status)
+        )));
+    }
+
+    // ---- Tenant context: settings (header) ------------------------
+    // Cross-collection read — scoped (never a hardcoded userId).
+    let settings_coll = mongo.collection::<Document>(PAYROLL_SETTINGS_COLL);
+    let mut settings_filter = scope.filter();
+    settings_filter.insert("status", doc! { "$ne": "archived" });
+    let company_name = settings_coll
+        .find_one(settings_filter)
+        .await
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("crm_payroll_settings.find_one"))
+        })?
+        .and_then(|d| d.get_str("companyName").ok().map(str::to_owned))
+        .filter(|s| !s.trim().is_empty())
+        .unwrap_or_else(|| "Company".to_owned());
+    let period_label = period_label_for(&run.period_from);
+
+    // ---- Roster snapshot -------------------------------------------
+    let employee_ids: Vec<ObjectId> = run.employees.iter().map(|r| r.employee_id).collect();
+    let employees_coll = mongo.collection::<Employee>(EMPLOYEES_COLL);
+    let mut emp_filter = scope.filter();
+    emp_filter.insert("_id", doc! { "$in": employee_ids.clone() });
+    let cursor = employees_coll
+        .find(emp_filter)
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_employees.find")))?;
+    let employees: Vec<Employee> = cursor
+        .try_collect()
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_employees.collect")))?;
+    let by_id: std::collections::HashMap<ObjectId, &Employee> = employees
+        .iter()
+        .map(|e| (e.identity.id, e))
+        .collect();
+
+    // Department labels (scoped read; misses resolve to None).
+    let departments_coll = mongo.collection::<Document>(DEPARTMENTS_COLL);
+    let mut department_labels: std::collections::HashMap<ObjectId, String> =
+        std::collections::HashMap::new();
+    for emp in &employees {
+        let dep_id = emp.employment.department_id;
+        if department_labels.contains_key(&dep_id) {
+            continue;
+        }
+        let mut dep_filter = scope.filter();
+        dep_filter.insert("_id", dep_id);
+        if let Ok(Some(dep)) = departments_coll.find_one(dep_filter).await {
+            if let Ok(name) = dep.get_str("name") {
+                department_labels.insert(dep_id, name.to_owned());
+            }
+        }
+    }
+
+    // ---- Upsert one rich payslip per run row -----------------------
+    let payslips_coll = mongo.collection::<Document>(PAYSLIPS_COLL);
+    let mut generated: u32 = 0;
+    let mut skipped: u32 = 0;
+    for row in &run.employees {
+        let Some(emp) = by_id.get(&row.employee_id) else {
+            tracing::warn!(
+                employee_id = %row.employee_id,
+                "run row references a missing employee; skipping payslip",
+            );
+            skipped += 1;
+            continue;
+        };
+
+        let bank_info = match &emp.personal.bank {
+            Some(b) => PayslipBankInfo {
+                bank_name: b.bank_name.clone(),
+                account_no_masked: mask_account_no(&b.account_no),
+                ifsc: b.ifsc.clone(),
+                name_on_account: b.name_on_account.clone(),
+            },
+            None => PayslipBankInfo {
+                bank_name: String::new(),
+                account_no_masked: String::new(),
+                ifsc: String::new(),
+                name_on_account: String::new(),
+            },
+        };
+        let tax_paid: f64 = row
+            .deductions
+            .iter()
+            .filter(|d| d.code.eq_ignore_ascii_case("TDS"))
+            .map(|d| d.amount)
+            .sum();
+
+        let payslip = Payslip {
+            identity: Identity {
+                id: ObjectId::new(),
+                // The run's own project scope — equals the resolved
+                // request scope on the project mount.
+                project_id: run.identity.project_id,
+                // Stamped `userId` is the caller (auditing) on the
+                // project mount; on the legacy mount it equals the
+                // tenant root, preserving user-scope visibility.
+                user_id,
+                tenant_id: None,
+            },
+            audit: Audit::new(Some(user_id)),
+            run_id: run.identity.id,
+            employee_id: row.employee_id,
+            period_from: run.period_from,
+            period_to: run.period_to,
+            header: PayslipHeader {
+                company_name: company_name.clone(),
+                company_logo_file_id: None,
+                period_label: period_label.clone(),
+            },
+            employee_snapshot: PayslipEmployee {
+                employee_id: row.employee_id,
+                name: employee_display_name(emp),
+                designation: Some(emp.employment.designation.clone())
+                    .filter(|s| !s.trim().is_empty()),
+                department: department_labels.get(&emp.employment.department_id).cloned(),
+                employment_id: emp.employment.employee_id.clone(),
+                joining_date: Some(emp.employment.joining_date),
+                pan: emp.personal.identity_docs.pan.clone(),
+                uan: emp.personal.uan.clone(),
+                esic: emp.personal.esic_no.clone(),
+            },
+            earnings: row
+                .earnings
+                .iter()
+                .map(|l| PayslipEarningLine {
+                    code: l.code.clone(),
+                    label: l.label.clone(),
+                    amount: l.amount,
+                })
+                .collect(),
+            deductions: row
+                .deductions
+                .iter()
+                .map(|l| PayslipDeductionLine {
+                    code: l.code.clone(),
+                    label: l.label.clone(),
+                    amount: l.amount,
+                })
+                .collect(),
+            reimbursements: row
+                .reimbursements
+                .iter()
+                .map(|l| PayslipReimbursementLine {
+                    category: l.category.clone(),
+                    amount: l.amount,
+                    claim_id: l.claim_id,
+                })
+                .collect(),
+            net_pay: row.net,
+            net_pay_in_words: rupees_in_words(row.net),
+            // Initial cut: current-period rollup (a true FY aggregate
+            // needs the year's other runs — separate work item).
+            ytd: PayslipYtd {
+                gross: row.gross,
+                net: row.net,
+                tax_paid,
+            },
+            attendance_summary: PayslipAttendanceSummary::default(),
+            leave_balance_snapshot: serde_json::Value::Null,
+            bank_info_snapshot: bank_info,
+            signature_file_id: None,
+            watermark_file_id: None,
+            locked: true,
+            sent: false,
+            sent_at: None,
+            downloaded_log: Vec::new(),
+        };
+
+        let mut payslip_doc = bson::to_document(&payslip).map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("crm_payslips.bson(payslip)"))
+        })?;
+        // Idempotency: identity + creation stamps survive a re-run.
+        let mut set_on_insert = Document::new();
+        for key in ["_id", "createdAt", "createdBy"] {
+            if let Some(v) = payslip_doc.remove(key) {
+                set_on_insert.insert(key, v);
+            }
+        }
+        let mut upsert_filter = scope.filter();
+        upsert_filter.insert("runId", run.identity.id);
+        upsert_filter.insert("employeeId", row.employee_id);
+        payslips_coll
+            .update_one(
+                upsert_filter,
+                doc! { "$set": payslip_doc, "$setOnInsert": set_on_insert },
+            )
+            .upsert(true)
+            .await
+            .map_err(|e| {
+                ApiError::Internal(anyhow::Error::new(e).context("crm_payslips.upsert"))
+            })?;
+        generated += 1;
+    }
+
+    // ---- Collect the run's payslip ids ------------------------------
+    let mut ids_filter = scope.filter();
+    ids_filter.insert("runId", run.identity.id);
+    let cursor = payslips_coll
+        .find(ids_filter)
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_payslips.find(ids)")))?;
+    let docs: Vec<Document> = cursor
+        .try_collect()
+        .await
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("crm_payslips.collect(ids)"))
+        })?;
+    let payslip_ids: Vec<String> = docs
+        .iter()
+        .filter_map(|d| d.get_object_id("_id").ok().map(|o| o.to_hex()))
+        .collect();
+
+    Ok(Json(GeneratePayslipsResponse {
+        generated,
+        skipped,
+        payslip_ids,
+    }))
+}
+
+// =========================================================================
 // Tests
 // =========================================================================
 
@@ -1280,6 +1700,49 @@ mod tests {
             resolve_scope(ScopeMode::Project, &user, Some(&project.to_hex())).unwrap(),
             TenantScope::Project(project)
         );
+    }
+
+    #[test]
+    fn rupees_in_words_speaks_indian_format() {
+        // WI-7: the fixture suite (§6) asserts `netPayInWords` is
+        // non-empty and correct for the canonical run rows.
+        assert_eq!(rupees_in_words(0.0), "Zero Rupees Only");
+        assert_eq!(
+            rupees_in_words(98_000.0),
+            "Ninety Eight Thousand Rupees Only"
+        );
+        assert_eq!(
+            rupees_in_words(48_000.0),
+            "Forty Eight Thousand Rupees Only"
+        );
+        assert_eq!(
+            rupees_in_words(1_23_45_678.0),
+            "One Crore Twenty Three Lakh Forty Five Thousand Six Hundred Seventy Eight Rupees Only"
+        );
+        assert_eq!(rupees_in_words(100.0), "One Hundred Rupees Only");
+        assert_eq!(
+            rupees_in_words(59_700.0),
+            "Fifty Nine Thousand Seven Hundred Rupees Only"
+        );
+        // Paise round to the nearest rupee; negatives don't panic.
+        assert_eq!(rupees_in_words(10.4), "Ten Rupees Only");
+        assert_eq!(rupees_in_words(-200.0), "Minus Two Hundred Rupees Only");
+    }
+
+    #[test]
+    fn mask_account_no_keeps_last_four() {
+        assert_eq!(mask_account_no("12345678901234"), "XXXXXX1234");
+        assert_eq!(mask_account_no("9876"), "XXXXXX9876");
+        assert_eq!(mask_account_no("42"), "XXXXXX42");
+        assert_eq!(mask_account_no("   "), "");
+    }
+
+    #[test]
+    fn period_label_formats_month_year() {
+        let d = chrono::DateTime::parse_from_rfc3339("2026-04-01T00:00:00Z")
+            .unwrap()
+            .with_timezone(&Utc);
+        assert_eq!(period_label_for(&d), "April 2026");
     }
 
     #[test]

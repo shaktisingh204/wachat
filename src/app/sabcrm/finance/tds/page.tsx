@@ -1,52 +1,42 @@
 /**
- * SabCRM Finance — TDS records (`/sabcrm/finance/tds`), 20ui.
+ * SabCRM Finance — TDS records (`/sabcrm/finance/tds`).
  *
- * Server entry: lists the active project's quarterly TDS deduction
- * records through the gated `listSabcrmTdsRecords` action (crate
- * `crm-tds`, `/v1/sabcrm/finance/tds` — this crate previously had NO
- * `/v1/crm` mount; only the project router is mounted). Renders via
- * the shared {@link FinanceLedgerClient}.
+ * Server entry for the doc-surface-kit adopter (spec §3.19). Fetches
+ * page 1 of display-ready rows plus the FY-scoped KPI strip in
+ * parallel through the gated actions, then hands everything to the
+ * kit-driven client (full dialog form with the people picker, FY +
+ * quarter filters, deposit → file workflow, bulk transitions, CSV).
+ *
+ * Auth / onboarding / RBAC are enforced by the parent SabCRM layout;
+ * every action re-runs the full session → project → RBAC → plan gate.
  */
 
 import * as React from 'react';
 
-import { listSabcrmTdsRecords } from '@/app/actions/sabcrm-finance.actions';
 import {
-  FinanceLedgerClient,
-  type LedgerRow,
-} from '../_components/finance-ledger-client';
+  getSabcrmTdsKpis,
+  listSabcrmTdsRecordsPage,
+} from '@/app/actions/sabcrm-finance-tds.actions';
+import { TdsClient } from './tds-client';
 
 export const dynamic = 'force-dynamic';
 
 export const metadata = {
-  title: 'TDS records — SabCRM Finance',
+  title: 'TDS — SabCRM Finance',
 };
 
 export default async function SabcrmFinanceTdsPage(): Promise<React.JSX.Element> {
-  const res = await listSabcrmTdsRecords({ limit: 100 });
-
-  const rows: LedgerRow[] = res.ok
-    ? res.data.map((doc) => ({
-        id: doc._id,
-        label: `${doc.employeeName} ${doc.financialYear} ${doc.quarter}`,
-        status: doc.status ?? 'pending',
-        currency: 'INR',
-        cells: {
-          employeeName: doc.employeeName,
-          financialYear: doc.financialYear,
-          quarter: doc.quarter,
-          grossAmount: doc.grossAmount ?? 0,
-          tdsAmount: doc.tdsAmount ?? 0,
-          challan: doc.depositChallanNumber ?? '',
-        },
-      }))
-    : [];
+  const [pageRes, kpiRes] = await Promise.all([
+    listSabcrmTdsRecordsPage({ page: 1 }),
+    getSabcrmTdsKpis(),
+  ]);
 
   return (
-    <FinanceLedgerClient
-      kind="tds"
-      initialRows={rows}
-      initialError={res.ok ? null : res.error}
+    <TdsClient
+      initialRows={pageRes.ok ? pageRes.data.rows : []}
+      initialHasMore={pageRes.ok ? pageRes.data.hasMore : false}
+      initialError={pageRes.ok ? null : pageRes.error}
+      kpis={kpiRes.ok ? kpiRes.data : null}
     />
   );
 }

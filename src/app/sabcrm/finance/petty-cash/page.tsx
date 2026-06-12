@@ -1,19 +1,22 @@
 /**
- * SabCRM Finance — Petty cash (`/sabcrm/finance/petty-cash`), 20ui.
+ * SabCRM Finance — Petty cash (`/sabcrm/finance/petty-cash`).
  *
- * Server entry: lists the active project's petty cash floats through the
- * gated `listSabcrmPettyCashFloats` action (crate `crm-petty-cash`,
- * `/v1/sabcrm/finance/petty-cash`). Renders via the shared
- * {@link FinanceLedgerClient}.
+ * Server entry for the doc-surface petty-cash vertical (spec §3.15).
+ * Fetches page 1 of display-ready rows (custodian labels resolved
+ * server-side — no ObjectIds reach the client) plus the KPI strip in
+ * parallel through the gated actions.
+ *
+ * NB: crate `crm-petty-cash` pages are 0-indexed and its entity wire
+ * carries extended JSON — both traps are owned by the actions file.
  */
 
 import * as React from 'react';
 
-import { listSabcrmPettyCashFloats } from '@/app/actions/sabcrm-finance.actions';
 import {
-  FinanceLedgerClient,
-  type LedgerRow,
-} from '../_components/finance-ledger-client';
+  getSabcrmPettyCashKpis,
+  listSabcrmPettyCashPage,
+} from '@/app/actions/sabcrm-finance-petty-cash.actions';
+import { PettyCashClient } from './petty-cash-client';
 
 export const dynamic = 'force-dynamic';
 
@@ -22,28 +25,17 @@ export const metadata = {
 };
 
 export default async function SabcrmFinancePettyCashPage(): Promise<React.JSX.Element> {
-  const res = await listSabcrmPettyCashFloats();
-
-  const rows: LedgerRow[] = res.ok
-    ? res.data.map((doc) => ({
-        id: doc._id,
-        label: doc.branchName || doc.custodianName || `…${doc._id.slice(-8)}`,
-        status: doc.status ?? 'active',
-        currency: doc.currency ?? 'INR',
-        cells: {
-          branch: doc.branchName ?? '',
-          custodian: doc.custodianName ?? '',
-          openingBalance: doc.openingBalance,
-          currentBalance: doc.currentBalance ?? doc.openingBalance,
-        },
-      }))
-    : [];
+  const [pageRes, kpiRes] = await Promise.all([
+    listSabcrmPettyCashPage({ page: 1 }),
+    getSabcrmPettyCashKpis(),
+  ]);
 
   return (
-    <FinanceLedgerClient
-      kind="petty-cash"
-      initialRows={rows}
-      initialError={res.ok ? null : res.error}
+    <PettyCashClient
+      initialRows={pageRes.ok ? pageRes.data.rows : []}
+      initialHasMore={pageRes.ok ? pageRes.data.hasMore : false}
+      initialError={pageRes.ok ? null : pageRes.error}
+      kpis={kpiRes.ok ? kpiRes.data : null}
     />
   );
 }

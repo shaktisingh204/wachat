@@ -9,6 +9,13 @@
  *   - GSTR-3B — outward tax vs ITC (vendor-bill line taxes) and the
  *     resulting net payable.
  *
+ * Statements enrichment (finance-rollout §4):
+ *   - The summary cards carry prev-month Δ% badges (second action call
+ *     for the prior period, fetched in parallel).
+ *   - GSTR-1 rows drill into the period's invoices; the 3B ITC row
+ *     drills into the period's bills.
+ *   - CSV export (GSTR-1 + 3B rows) + print.
+ *
  * GSTR-2B (portal JSON import + reconciliation) is intentionally out
  * of scope for this read surface — noted inline.
  */
@@ -18,11 +25,18 @@ import * as React from 'react';
 import { Card, CardBody, CardDescription, CardHeader, CardTitle, StatCard, Table, TBody, Td, TFoot, Th, THead, Tr } from '@/components/sabcrm/20ui';
 import { getSabcrmGstSummary } from '@/app/actions/sabcrm-statements.actions';
 import {
+  deltaPct,
+  DrillLink,
   formatINR,
+  monthBounds,
   PeriodSwitcher,
   ReportEmpty,
   ReportShell,
 } from '../_components/finance-report';
+import {
+  StatementExportButton,
+  StatementPrintButton,
+} from '../_components/statement-export-button';
 
 export const dynamic = 'force-dynamic';
 
@@ -81,8 +95,16 @@ export default async function SabcrmGstPage({
   const year =
     Number.isFinite(reqYear) && reqYear >= 2017 ? reqYear : now.getUTCFullYear();
 
-  const res = await getSabcrmGstSummary({ month, year });
+  // Prior return period — feeds the Δ% badges on the summary cards.
+  const prevMonth = month === 1 ? 12 : month - 1;
+  const prevYear = month === 1 ? year - 1 : year;
+
+  const [res, prevRes] = await Promise.all([
+    getSabcrmGstSummary({ month, year }),
+    getSabcrmGstSummary({ month: prevMonth, year: prevYear }),
+  ]);
   const data = res.ok ? res.data : null;
+  const prev = prevRes.ok ? prevRes.data : null;
 
   const periodLinks = recentPeriods(4).map((p) => ({
     label: `${MONTH_NAMES[p.month - 1]} ${p.year}`,
@@ -90,13 +112,84 @@ export default async function SabcrmGstPage({
     active: p.month === month && p.year === year,
   }));
 
+  const { from, to } = monthBounds(year, month);
+  const invoicesHref = `/sabcrm/finance/invoices?from=${from}&to=${to}`;
+  const billsHref = `/sabcrm/finance/bills?from=${from}&to=${to}`;
+  const prevLabel = `${MONTH_NAMES[prevMonth - 1]} ${prevYear}`;
+
+  const gstDelta = (
+    current: number,
+    previous: number | undefined,
+  ): { value: string; tone: 'up' | 'down' | 'neutral' } | undefined => {
+    const d = deltaPct(current, previous);
+    return d ? { value: `${d.value} vs ${prevLabel}`, tone: d.tone } : undefined;
+  };
+
+  const csvRows = data
+    ? [
+        ...data.gstr1Rows.map((row) => ({
+          Section: 'GSTR-1',
+          Head: TREATMENT_LABEL[row.treatment] ?? row.treatment,
+          Invoices: row.invoiceCount,
+          'Taxable value': row.taxableValue,
+          IGST: row.igst,
+          CGST: row.cgst,
+          SGST: row.sgst,
+          Cess: row.cess,
+          Total: '',
+        })),
+        {
+          Section: 'GSTR-3B',
+          Head: '3.1 Outward taxable supplies',
+          Invoices: data.invoiceCount,
+          'Taxable value': data.outwardTaxable,
+          IGST: data.outwardIgst,
+          CGST: data.outwardCgst,
+          SGST: data.outwardSgst,
+          Cess: data.outwardCess,
+          Total: data.outwardTotalTax,
+        },
+        {
+          Section: 'GSTR-3B',
+          Head: '4 Eligible ITC (from bills)',
+          Invoices: data.billCount,
+          'Taxable value': '',
+          IGST: data.itcIgst,
+          CGST: data.itcCgst,
+          SGST: data.itcSgst,
+          Cess: data.itcCess,
+          Total: data.itcTotal,
+        },
+        {
+          Section: 'GSTR-3B',
+          Head: 'Net tax payable',
+          Invoices: '',
+          'Taxable value': '',
+          IGST: '',
+          CGST: '',
+          SGST: '',
+          Cess: '',
+          Total: data.netPayable,
+        },
+      ]
+    : [];
+
   return (
     <ReportShell
       title="GST"
       description="GSTR-1 outward summary and GSTR-3B tax-vs-ITC readout for the period — part of the SabCRM Finance suite."
-      actions={<PeriodSwitcher links={periodLinks} label="Return period" />}
+      actions={
+        <>
+          <PeriodSwitcher links={periodLinks} label="Return period" />
+          <StatementExportButton
+            rows={csvRows}
+            fileName={`gst-${data?.period ?? `${String(month).padStart(2, '0')}-${year}`}.csv`}
+          />
+          <StatementPrintButton />
+        </>
+      }
       error={res.ok ? null : res.error}
-      methodology="Computed from this workspace's invoices (outward) and vendor bills (ITC) dated in the period — drafts and cancelled excluded; tax amounts come from line-item CGST/SGST/IGST/cess. GSTR-2B requires a GST-portal JSON import and is not part of this read-only summary."
+      methodology="Computed from this workspace's invoices (outward) and vendor bills (ITC) dated in the period — drafts and cancelled excluded; tax amounts come from line-item CGST/SGST/IGST/cess. Summary-card deltas compare against the prior return period. GSTR-2B requires a GST-portal JSON import and is not part of this read-only summary."
     >
       {data ? (
         data.invoiceCount === 0 && data.billCount === 0 ? (
@@ -109,13 +202,23 @@ export default async function SabcrmGstPage({
               <StatCard
                 label={`Outward taxable (${data.period})`}
                 value={formatINR(data.outwardTaxable)}
+                delta={gstDelta(data.outwardTaxable, prev?.outwardTaxable)}
               />
               <StatCard
                 label="Outward tax"
                 value={formatINR(data.outwardTotalTax)}
+                delta={gstDelta(data.outwardTotalTax, prev?.outwardTotalTax)}
               />
-              <StatCard label="ITC (from bills)" value={formatINR(data.itcTotal)} />
-              <StatCard label="Net payable" value={formatINR(data.netPayable)} />
+              <StatCard
+                label="ITC (from bills)"
+                value={formatINR(data.itcTotal)}
+                delta={gstDelta(data.itcTotal, prev?.itcTotal)}
+              />
+              <StatCard
+                label="Net payable"
+                value={formatINR(data.netPayable)}
+                delta={gstDelta(data.netPayable, prev?.netPayable)}
+              />
             </div>
 
             <Card variant="outlined">
@@ -144,7 +247,12 @@ export default async function SabcrmGstPage({
                     {data.gstr1Rows.map((row) => (
                       <Tr key={row.treatment}>
                         <Td>
-                          {TREATMENT_LABEL[row.treatment] ?? row.treatment}
+                          <DrillLink
+                            href={invoicesHref}
+                            title={`Invoices dated in ${data.period}`}
+                          >
+                            {TREATMENT_LABEL[row.treatment] ?? row.treatment}
+                          </DrillLink>
                         </Td>
                         <Td align="right">{row.invoiceCount}</Td>
                         <Td align="right">{formatINR(row.taxableValue)}</Td>
@@ -193,7 +301,14 @@ export default async function SabcrmGstPage({
                   </THead>
                   <TBody>
                     <Tr>
-                      <Td>3.1 Outward taxable supplies</Td>
+                      <Td>
+                        <DrillLink
+                          href={invoicesHref}
+                          title={`Invoices dated in ${data.period}`}
+                        >
+                          3.1 Outward taxable supplies
+                        </DrillLink>
+                      </Td>
                       <Td align="right">{formatINR(data.outwardIgst)}</Td>
                       <Td align="right">{formatINR(data.outwardCgst)}</Td>
                       <Td align="right">{formatINR(data.outwardSgst)}</Td>
@@ -201,7 +316,14 @@ export default async function SabcrmGstPage({
                       <Td align="right">{formatINR(data.outwardTotalTax)}</Td>
                     </Tr>
                     <Tr>
-                      <Td>4 Eligible ITC (from bills)</Td>
+                      <Td>
+                        <DrillLink
+                          href={billsHref}
+                          title={`Bills dated in ${data.period}`}
+                        >
+                          4 Eligible ITC (from bills)
+                        </DrillLink>
+                      </Td>
                       <Td align="right">{formatINR(data.itcIgst)}</Td>
                       <Td align="right">{formatINR(data.itcCgst)}</Td>
                       <Td align="right">{formatINR(data.itcSgst)}</Td>

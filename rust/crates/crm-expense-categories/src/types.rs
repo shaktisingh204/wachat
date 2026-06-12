@@ -14,6 +14,12 @@ pub struct CrmExpenseCategory {
     pub id: Option<ObjectId>,
     #[serde(rename = "userId")]
     pub user_id: ObjectId,
+    /// SabCRM tenancy key (finance-rollout gap G5) — populated only on
+    /// documents created through the project-scoped mount. Legacy
+    /// documents never carried it, so it is optional + defaulted and
+    /// they deserialize unchanged.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub project_id: Option<ObjectId>,
 
     /// Display name. Unique per tenant among non-archived categories.
     pub name: String,

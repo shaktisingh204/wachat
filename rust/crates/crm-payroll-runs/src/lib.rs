@@ -58,6 +58,7 @@
 //! | `/{id}/compute`                        | Resolve roster + structures, populate `employees[]` + `totals`            |
 //! | `/{id}/approve`                        | Append an `ApprovalStep`, flip to `approved` once the chain is complete   |
 //! | `/{id}/disburse`                       | Stub-generate the bank file, set `bankFileId`, flip to `disbursed`        |
+//! | `/{id}/generate-payslips`              | Freeze one rich `hrm_payroll_types::Payslip` per row into `crm_payslips` (approved/disbursed only, idempotent per employee) |
 //!
 //! See the function-level docs in [`handlers`] for the rules each
 //! endpoint enforces (legal source statuses, idempotency, etc.).

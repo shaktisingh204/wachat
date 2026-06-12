@@ -1,19 +1,25 @@
 /**
- * SabCRM Finance — Quotations (`/sabcrm/finance/quotations`), 20ui.
+ * SabCRM Finance — Quotations (`/sabcrm/finance/quotations`).
  *
- * Server entry: lists the active project's quotations through the gated
- * `listSabcrmQuotations` action (session → project → RBAC → plan gate,
- * then the project-scoped Rust mount `/v1/sabcrm/finance/quotations`).
- * Renders via the shared {@link FinanceDocClient}.
+ * Server entry for the doc-surface quotation vertical (finance-rollout
+ * spec §3.1). Fetches page 1 of display-ready rows (party labels
+ * resolved server-side — no ObjectIds reach the client) plus the KPI
+ * strip in parallel through the gated actions, then hands everything to
+ * the kit-driven client.
+ *
+ * Auth / onboarding / RBAC are enforced by the parent SabCRM layout;
+ * every action re-runs the full session → project → RBAC → plan gate.
+ * The Rust engine may be down at dev time — that normalises into an
+ * inline error state instead of crashing the route.
  */
 
 import * as React from 'react';
 
-import { listSabcrmQuotations } from '@/app/actions/sabcrm-finance.actions';
 import {
-  FinanceDocClient,
-  type FinanceDocRow,
-} from '../_components/finance-doc-client';
+  getSabcrmQuotationKpis,
+  listSabcrmQuotationsPage,
+} from '@/app/actions/sabcrm-finance-quotations.actions';
+import { QuotationsClient } from './quotations-client';
 
 export const dynamic = 'force-dynamic';
 
@@ -22,29 +28,17 @@ export const metadata = {
 };
 
 export default async function SabcrmFinanceQuotationsPage(): Promise<React.JSX.Element> {
-  const res = await listSabcrmQuotations();
-
-  const rows: FinanceDocRow[] = res.ok
-    ? res.data.map((doc) => ({
-        id: doc._id,
-        number: doc.quotationNo,
-        party: doc.clientId ?? '',
-        date: doc.date,
-        // Quotation totals are server-derived and may be zero on fresh
-        // dialog-created docs — fall back to the line-item sum.
-        amount:
-          doc.totals?.total ||
-          (doc.items ?? []).reduce((sum, it) => sum + (it.total ?? 0), 0),
-        currency: doc.currency,
-        status: doc.status ?? 'draft',
-      }))
-    : [];
+  const [pageRes, kpiRes] = await Promise.all([
+    listSabcrmQuotationsPage({ page: 1 }),
+    getSabcrmQuotationKpis(),
+  ]);
 
   return (
-    <FinanceDocClient
-      kind="quotations"
-      initialRows={rows}
-      initialError={res.ok ? null : res.error}
+    <QuotationsClient
+      initialRows={pageRes.ok ? pageRes.data.rows : []}
+      initialHasMore={pageRes.ok ? pageRes.data.hasMore : false}
+      initialError={pageRes.ok ? null : pageRes.error}
+      kpis={kpiRes.ok ? kpiRes.data : null}
     />
   );
 }

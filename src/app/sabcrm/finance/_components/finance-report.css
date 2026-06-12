@@ -1,0 +1,63 @@
+/**
+ * SabCRM Finance — statement-report styles (drill-down links + print).
+ *
+ * Scoped under `.fin-report` (the ReportShell root). The `@media print`
+ * block copies the doc-surface paper pattern: it keys off
+ * `body:has(.fin-report)` because `body` sits above the 20ui scope
+ * root, hides everything except the report, and drops the
+ * `[data-print-hide]` actions row (switchers / export buttons).
+ */
+
+/* ─── Drill-down links (aggregate cell → filtered source list) ── */
+
+.fin-report .fin-drill {
+  color: inherit;
+  text-decoration: underline dotted;
+  text-decoration-color: var(--ui20-color-border, #d1d5db);
+  text-underline-offset: 3px;
+  border-radius: 2px;
+}
+
+.fin-report .fin-drill:hover,
+.fin-report .fin-drill:focus-visible {
+  color: var(--ui20-color-accent, #2563eb);
+  text-decoration-style: solid;
+  text-decoration-color: currentColor;
+}
+
+/* Secondary drill links rendered under an amount (e.g. Bills · Claims). */
+.fin-report .fin-cell-links {
+  display: block;
+  margin-top: 2px;
+  font-size: 11px;
+  line-height: 1.3;
+  color: var(--ui20-color-text-muted, #6b7280);
+  white-space: nowrap;
+}
+
+/* ─── Print (window.print from StatementPrintButton) ──────────── */
+
+@media print {
+  body:has(.fin-report) * {
+    visibility: hidden !important;
+  }
+
+  body:has(.fin-report) .fin-report,
+  body:has(.fin-report) .fin-report * {
+    visibility: visible !important;
+  }
+
+  body:has(.fin-report) .fin-report {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+  }
+
+  body:has(.fin-report) .fin-report [data-print-hide],
+  body:has(.fin-report) .fin-report [data-print-hide] * {
+    display: none !important;
+    visibility: hidden !important;
+  }
+}

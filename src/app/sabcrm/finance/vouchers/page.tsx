@@ -1,21 +1,24 @@
 /**
- * SabCRM Finance — Voucher books (`/sabcrm/finance/vouchers`), 20ui.
+ * SabCRM Finance — Voucher books (`/sabcrm/finance/vouchers`).
  *
- * Server entry: lists the active project's voucher numbering series
- * through the gated `listSabcrmVoucherBooks` action (crate
- * `crm-vouchers`, `/v1/sabcrm/finance/vouchers`). NB: this crate stores
- * the BOOKS (prefix + counter series); line-based journal voucher
- * ENTRIES live in `crm-voucher-entries` and are a follow-up surface.
- * Renders via the shared {@link FinanceLedgerClient}.
+ * Server entry for the doc-surface-kit adopter (spec §3.13). Fetches
+ * page 1 of display-ready rows plus the KPI strip in parallel through
+ * the gated actions, then hands everything to the kit-driven client
+ * (full-field dialog form, type filter, bulk archive/restore, CSV).
+ *
+ * Auth / onboarding / RBAC are enforced by the parent SabCRM layout;
+ * every action re-runs the full session → project → RBAC → plan gate.
+ * The Rust engine may be down at dev time — that normalises into an
+ * inline error state instead of crashing the route.
  */
 
 import * as React from 'react';
 
-import { listSabcrmVoucherBooks } from '@/app/actions/sabcrm-finance.actions';
 import {
-  FinanceLedgerClient,
-  type LedgerRow,
-} from '../_components/finance-ledger-client';
+  getSabcrmVoucherBookKpis,
+  listSabcrmVoucherBooksPage,
+} from '@/app/actions/sabcrm-finance-vouchers.actions';
+import { VouchersClient } from './vouchers-client';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,38 +26,18 @@ export const metadata = {
   title: 'Voucher books — SabCRM Finance',
 };
 
-const TYPE_LABEL: Record<string, string> = {
-  journal: 'Journal',
-  payment: 'Payment',
-  receipt: 'Receipt',
-  contra: 'Contra',
-  purchase: 'Purchase',
-  sales: 'Sales',
-};
-
 export default async function SabcrmFinanceVouchersPage(): Promise<React.JSX.Element> {
-  const res = await listSabcrmVoucherBooks();
-
-  const rows: LedgerRow[] = res.ok
-    ? res.data.map((doc) => ({
-        id: doc._id,
-        label: doc.name,
-        status: doc.status ?? (doc.isActive === false ? 'archived' : 'active'),
-        currency: 'INR',
-        cells: {
-          name: doc.name,
-          type: TYPE_LABEL[doc.type] ?? doc.type,
-          prefix: doc.prefix ?? '',
-          startingNumber: doc.startingNumber ?? 1,
-        },
-      }))
-    : [];
+  const [pageRes, kpiRes] = await Promise.all([
+    listSabcrmVoucherBooksPage({ page: 1 }),
+    getSabcrmVoucherBookKpis(),
+  ]);
 
   return (
-    <FinanceLedgerClient
-      kind="vouchers"
-      initialRows={rows}
-      initialError={res.ok ? null : res.error}
+    <VouchersClient
+      initialRows={pageRes.ok ? pageRes.data.rows : []}
+      initialHasMore={pageRes.ok ? pageRes.data.hasMore : false}
+      initialError={pageRes.ok ? null : pageRes.error}
+      kpis={kpiRes.ok ? kpiRes.data : null}
     />
   );
 }

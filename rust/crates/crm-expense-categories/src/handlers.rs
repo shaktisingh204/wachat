@@ -1,7 +1,7 @@
 //! HTTP handlers for the ExpenseCategory entity.
 
 use axum::{
-    Json,
+    Extension, Json,
     extract::{Path, Query, State},
 };
 use bson::{DateTime as BsonDateTime, Document, doc, oid::ObjectId};
@@ -12,6 +12,7 @@ use crm_common::{
     search::build_q_filter,
     tenant::user_oid,
 };
+use crm_core::{ScopeMode, TenantScope, sabcrm_project_oid};
 use futures::TryStreamExt;
 use mongodb::options::FindOptions;
 use sabnode_auth::AuthUser;
@@ -21,22 +22,36 @@ use tracing::instrument;
 
 use crate::dto::{
     CreateExpenseCategoryInput, CreateExpenseCategoryResponse, DeleteExpenseCategoryResponse,
-    ListQuery, UpdateExpenseCategoryInput,
+    ListQuery, ScopeQuery, UpdateExpenseCategoryInput,
 };
 use crate::types::CrmExpenseCategory;
 
 const COLL: &str = "crm_expense_categories";
 const ENTITY_KIND: &str = "expense_category";
 
+/// Resolve the per-request tenant scope from the mount's [`ScopeMode`]:
+/// legacy mounts filter by the JWT's `userId`, SabCRM mounts by the
+/// caller-supplied (required) `projectId` (finance-rollout gap G5).
+fn resolve_scope(
+    mode: ScopeMode,
+    user: &AuthUser,
+    project_id: Option<&str>,
+) -> Result<TenantScope> {
+    match mode {
+        ScopeMode::User => Ok(TenantScope::User(user_oid(user)?)),
+        ScopeMode::Project => Ok(TenantScope::Project(sabcrm_project_oid(project_id)?)),
+    }
+}
+
 fn list_filter(
-    user_id: ObjectId,
+    scope: &TenantScope,
     status: Option<&str>,
     is_active: Option<bool>,
     is_billable: Option<bool>,
     is_reimbursable: Option<bool>,
     parent_id: Option<&str>,
 ) -> Document {
-    let mut filter = doc! { "userId": user_id };
+    let mut filter = scope.filter();
     match status.unwrap_or("active") {
         "all" => {}
         "archived" => {
@@ -66,18 +81,18 @@ fn list_filter(
     filter
 }
 
-fn ownership_filter(user_id: ObjectId, oid: ObjectId) -> Document {
-    doc! { "_id": oid, "userId": user_id }
+fn ownership_filter(scope: &TenantScope, oid: ObjectId) -> Document {
+    let mut filter = scope.filter();
+    filter.insert("_id", oid);
+    filter
 }
 
 /// Non-archived doc with the same name for this tenant — used for unique-name
 /// enforcement on create and rename.
-fn duplicate_name_filter(user_id: ObjectId, name: &str, exclude: Option<ObjectId>) -> Document {
-    let mut filter = doc! {
-        "userId": user_id,
-        "name": name,
-        "status": { "$ne": "archived" },
-    };
+fn duplicate_name_filter(scope: &TenantScope, name: &str, exclude: Option<ObjectId>) -> Document {
+    let mut filter = scope.filter();
+    filter.insert("name", name);
+    filter.insert("status", doc! { "$ne": "archived" });
     if let Some(oid) = exclude {
         filter.insert("_id", doc! { "$ne": oid });
     }
@@ -109,6 +124,9 @@ fn category_from_create(
     Ok(CrmExpenseCategory {
         id: None,
         user_id,
+        // Stamped by the create handler when the request arrived on a
+        // project-scoped mount (finance-rollout gap G5).
+        project_id: None,
         name: name.to_owned(),
         code: input
             .code
@@ -223,12 +241,13 @@ pub struct ListResponse {
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn list_categories(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Query(q): Query<ListQuery>,
 ) -> Result<Json<ListResponse>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, q.project_id.as_deref())?;
     let mut filter = list_filter(
-        user_id,
+        &scope,
         q.status.as_deref(),
         q.is_active,
         q.is_billable,
@@ -274,14 +293,16 @@ pub async fn list_categories(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %category_id))]
 pub async fn get_category(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(category_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
 ) -> Result<Json<CrmExpenseCategory>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&category_id)?;
     let coll = mongo.collection::<CrmExpenseCategory>(COLL);
     let row = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_expense_categories.find_one"))
@@ -293,17 +314,24 @@ pub async fn get_category(
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn create_category(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Json(input): Json<CreateExpenseCategoryInput>,
 ) -> Result<Json<CreateExpenseCategoryResponse>> {
     let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, input.project_id.as_deref())?;
     let mut entity = category_from_create(input, user_id)?;
+    // On project-scoped mounts the tenancy key is the projectId
+    // (finance-rollout gap G5). `userId` still records the creator.
+    if let TenantScope::Project(project_oid) = scope {
+        entity.project_id = Some(project_oid);
+    }
 
     let coll = mongo.collection::<CrmExpenseCategory>(COLL);
 
     // Unique-name guard (scoped to non-archived categories for this tenant).
     let dup = coll
-        .find_one(duplicate_name_filter(user_id, &entity.name, None))
+        .find_one(duplicate_name_filter(&scope, &entity.name, None))
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_expense_categories.dup_check"))
@@ -338,16 +366,18 @@ pub async fn create_category(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %category_id))]
 pub async fn update_category(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(category_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
     Json(patch): Json<UpdateExpenseCategoryInput>,
 ) -> Result<Json<CrmExpenseCategory>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&category_id)?;
 
     let coll = mongo.collection::<CrmExpenseCategory>(COLL);
     let before = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_expense_categories.find_one"))
@@ -361,7 +391,7 @@ pub async fn update_category(
         }
         if new_name != before.name {
             let dup = coll
-                .find_one(duplicate_name_filter(user_id, new_name, Some(oid)))
+                .find_one(duplicate_name_filter(&scope, new_name, Some(oid)))
                 .await
                 .map_err(|e| {
                     ApiError::Internal(
@@ -378,7 +408,7 @@ pub async fn update_category(
 
     let update = build_update_doc(patch)?;
     let result = coll
-        .update_one(ownership_filter(user_id, oid), update)
+        .update_one(ownership_filter(&scope, oid), update)
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_expense_categories.update"))
@@ -388,7 +418,7 @@ pub async fn update_category(
     }
 
     let after = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_expense_categories.refetch"))
@@ -411,16 +441,18 @@ pub async fn update_category(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %category_id))]
 pub async fn delete_category(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(category_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
 ) -> Result<Json<DeleteExpenseCategoryResponse>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&category_id)?;
 
     let coll = mongo.collection::<CrmExpenseCategory>(COLL);
     let result = coll
         .update_one(
-            ownership_filter(user_id, oid),
+            ownership_filter(&scope, oid),
             doc! { "$set": {
                 "status": "archived",
                 "isActive": false,
@@ -449,9 +481,32 @@ mod tests {
     #[test]
     fn list_filter_excludes_archived_by_default() {
         let oid = ObjectId::new();
-        let f = list_filter(oid, None, None, None, None, None);
+        let f = list_filter(&TenantScope::User(oid), None, None, None, None, None);
         let status = f.get_document("status").unwrap();
         assert_eq!(status.get_str("$ne").unwrap(), "archived");
+    }
+
+    /// G5 — project-scoped mounts filter by `projectId`, never `userId`.
+    #[test]
+    fn list_filter_project_scope_filters_project_id() {
+        let project = ObjectId::new();
+        let f = list_filter(&TenantScope::Project(project), None, None, None, None, None);
+        assert_eq!(f.get_object_id("projectId").unwrap(), project);
+        assert!(!f.contains_key("userId"));
+    }
+
+    /// G5 — ownership checks follow the tenant scope on both mounts.
+    #[test]
+    fn ownership_filter_matches_scope_kind() {
+        let tenant = ObjectId::new();
+        let id = ObjectId::new();
+        let user_f = ownership_filter(&TenantScope::User(tenant), id);
+        assert_eq!(user_f.get_object_id("userId").unwrap(), tenant);
+        assert_eq!(user_f.get_object_id("_id").unwrap(), id);
+        let proj_f = ownership_filter(&TenantScope::Project(tenant), id);
+        assert_eq!(proj_f.get_object_id("projectId").unwrap(), tenant);
+        assert_eq!(proj_f.get_object_id("_id").unwrap(), id);
+        assert!(!proj_f.contains_key("userId"));
     }
 
     #[test]
@@ -484,7 +539,7 @@ mod tests {
     #[test]
     fn duplicate_name_filter_scopes_to_user_and_excludes_archived() {
         let user_id = ObjectId::new();
-        let f = duplicate_name_filter(user_id, "Travel", None);
+        let f = duplicate_name_filter(&TenantScope::User(user_id), "Travel", None);
         assert_eq!(f.get_object_id("userId").unwrap(), user_id);
         assert_eq!(f.get_str("name").unwrap(), "Travel");
         let status = f.get_document("status").unwrap();
@@ -496,8 +551,68 @@ mod tests {
     fn duplicate_name_filter_excludes_self_when_renaming() {
         let user_id = ObjectId::new();
         let self_id = ObjectId::new();
-        let f = duplicate_name_filter(user_id, "Travel", Some(self_id));
+        let f = duplicate_name_filter(&TenantScope::User(user_id), "Travel", Some(self_id));
         let id_clause = f.get_document("_id").unwrap();
         assert_eq!(id_clause.get_object_id("$ne").unwrap(), self_id);
+    }
+
+    /// G5 — the unique-name guard is per-PROJECT on sabcrm mounts, so
+    /// two workspaces may both have a "Travel" category.
+    #[test]
+    fn duplicate_name_filter_scopes_to_project_on_sabcrm_mounts() {
+        let project = ObjectId::new();
+        let f = duplicate_name_filter(&TenantScope::Project(project), "Travel", None);
+        assert_eq!(f.get_object_id("projectId").unwrap(), project);
+        assert!(!f.contains_key("userId"));
+    }
+
+    /// G5 — `resolve_scope` requires `projectId` on project mounts and
+    /// ignores it on legacy mounts.
+    #[test]
+    fn resolve_scope_modes() {
+        let user_id = ObjectId::new();
+        let project_id = ObjectId::new();
+        let user = AuthUser {
+            user_id: user_id.to_hex(),
+            tenant_id: String::new(),
+            roles: vec![],
+        };
+        // Legacy mount → userId scope, projectId ignored.
+        let s = resolve_scope(ScopeMode::User, &user, Some(project_id.to_hex().as_str())).unwrap();
+        assert!(matches!(s, TenantScope::User(u) if u == user_id));
+        // Project mount → projectId scope, required.
+        let s =
+            resolve_scope(ScopeMode::Project, &user, Some(project_id.to_hex().as_str())).unwrap();
+        assert!(matches!(s, TenantScope::Project(p) if p == project_id));
+        assert!(resolve_scope(ScopeMode::Project, &user, None).is_err());
+        assert!(resolve_scope(ScopeMode::Project, &user, Some("garbage")).is_err());
+    }
+
+    /// G5 — legacy documents (no `projectId`) deserialize unchanged;
+    /// project-stamped documents round-trip the camelCase `projectId`
+    /// key through BSON the same way the Mongo driver will.
+    #[test]
+    fn entity_project_id_serde_round_trip() {
+        let legacy = doc! {
+            "userId": ObjectId::new(),
+            "name": "Travel",
+            "status": "active",
+            "createdAt": BsonDateTime::from_chrono(Utc::now()),
+        };
+        let cat: CrmExpenseCategory = bson::from_document(legacy).unwrap();
+        assert!(cat.project_id.is_none());
+        // Legacy docs never serialize a `projectId` key back out.
+        let out = bson::to_document(&cat).unwrap();
+        assert!(!out.contains_key("projectId"));
+
+        let project = ObjectId::new();
+        let with_project = CrmExpenseCategory {
+            project_id: Some(project),
+            ..cat
+        };
+        let out = bson::to_document(&with_project).unwrap();
+        assert_eq!(out.get_object_id("projectId").unwrap(), project);
+        let back: CrmExpenseCategory = bson::from_document(out).unwrap();
+        assert_eq!(back.project_id, Some(project));
     }
 }

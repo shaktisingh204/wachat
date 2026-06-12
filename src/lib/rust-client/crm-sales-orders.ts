@@ -63,6 +63,17 @@ export interface CrmSalesOrderTotals {
   total: number;
 }
 
+/** Mirrors `crm_sales_types::Address` (all fields optional). */
+export interface CrmSalesOrderAddress {
+  line1?: string;
+  line2?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  pincode?: string;
+  label?: string;
+}
+
 export interface CrmSalesOrderDoc {
   _id: string;
   identity?: {
@@ -97,13 +108,21 @@ export interface CrmSalesOrderDoc {
   expectedShipmentDate?: string;
   deliveryMethod?: CrmSalesOrderDeliveryMethod;
   paymentTerms?: string;
-  shippingAddress?: unknown;
+  shippingAddress?: CrmSalesOrderAddress;
   currency: string;
   exchangeRate?: number;
   items: CrmSalesOrderLineItem[];
   totals: CrmSalesOrderTotals;
   customerNotes?: string;
   internalNotes?: string;
+  /** SabFiles pointers (model-only today — the write DTOs don't accept
+   *  them yet; rendered read-only on the detail rail). */
+  attachments?: {
+    fileId: string;
+    name?: string;
+    mimeType?: string;
+    size?: number;
+  }[];
   status: CrmSalesOrderStatus;
   linkedDeliveryIds?: string[];
   linkedInvoiceIds?: string[];
@@ -133,6 +152,8 @@ export interface CrmSalesOrderCreateInput {
   expectedShipmentDate?: string;
   deliveryMethod?: CrmSalesOrderDeliveryMethod;
   paymentTerms?: string;
+  /** Accepted by the Rust DTO since the finance-rollout G7 fix. */
+  shippingAddress?: CrmSalesOrderAddress;
   currency: string;
   exchangeRate?: number;
   items: CrmSalesOrderLineItem[];
@@ -153,6 +174,8 @@ export interface CrmSalesOrderUpdateInput {
   expectedShipmentDate?: string;
   deliveryMethod?: CrmSalesOrderDeliveryMethod;
   paymentTerms?: string;
+  /** Accepted by the Rust DTO since the finance-rollout G7 fix. */
+  shippingAddress?: CrmSalesOrderAddress;
   currency?: string;
   exchangeRate?: number;
   items?: CrmSalesOrderLineItem[];

@@ -1,19 +1,21 @@
 /**
- * SabCRM Finance — Budgets (`/sabcrm/finance/budgets`), 20ui.
+ * SabCRM Finance — Budgets (`/sabcrm/finance/budgets`).
  *
- * Server entry: lists the active project's budgets through the gated
- * `listSabcrmBudgets` action (crate `crm-budgets`,
- * `/v1/sabcrm/finance/budgets`). Renders via the shared
- * {@link FinanceLedgerClient}.
+ * Server entry for the doc-surface budgets vertical (spec §3.16).
+ * Fetches page 1 of display-ready rows plus the KPI strip in parallel
+ * through the gated actions.
+ *
+ * NB: crate `crm-budgets` pages are 0-indexed and its entity wire
+ * carries extended JSON — both traps are owned by the actions file.
  */
 
 import * as React from 'react';
 
-import { listSabcrmBudgets } from '@/app/actions/sabcrm-finance.actions';
 import {
-  FinanceLedgerClient,
-  type LedgerRow,
-} from '../_components/finance-ledger-client';
+  getSabcrmBudgetKpis,
+  listSabcrmBudgetsPage,
+} from '@/app/actions/sabcrm-finance-budgets.actions';
+import { BudgetsClient } from './budgets-client';
 
 export const dynamic = 'force-dynamic';
 
@@ -22,29 +24,17 @@ export const metadata = {
 };
 
 export default async function SabcrmFinanceBudgetsPage(): Promise<React.JSX.Element> {
-  const res = await listSabcrmBudgets();
-
-  const rows: LedgerRow[] = res.ok
-    ? res.data.map((doc) => ({
-        id: doc._id,
-        label: doc.budgetHead,
-        status: doc.status ?? 'draft',
-        currency: doc.currency ?? 'INR',
-        cells: {
-          budgetHead: doc.budgetHead,
-          department: doc.department ?? '',
-          period: doc.period ?? '',
-          plannedAmount: doc.plannedAmount,
-          actualAmount: doc.actualAmount ?? 0,
-        },
-      }))
-    : [];
+  const [pageRes, kpiRes] = await Promise.all([
+    listSabcrmBudgetsPage({ page: 1 }),
+    getSabcrmBudgetKpis(),
+  ]);
 
   return (
-    <FinanceLedgerClient
-      kind="budgets"
-      initialRows={rows}
-      initialError={res.ok ? null : res.error}
+    <BudgetsClient
+      initialRows={pageRes.ok ? pageRes.data.rows : []}
+      initialHasMore={pageRes.ok ? pageRes.data.hasMore : false}
+      initialError={pageRes.ok ? null : pageRes.error}
+      kpis={kpiRes.ok ? kpiRes.data : null}
     />
   );
 }

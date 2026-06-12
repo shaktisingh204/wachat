@@ -1,20 +1,24 @@
 /**
- * SabCRM Finance — Payment receipts (`/sabcrm/finance/payment-receipts`),
- * 20ui.
+ * SabCRM Finance — Payment receipts (`/sabcrm/finance/payment-receipts`).
  *
- * Server entry: lists the active project's payment receipts through the
- * gated `listSabcrmPaymentReceipts` action (session → project → RBAC →
- * plan gate, then `/v1/sabcrm/finance/payment-receipts`). Renders via the
- * shared {@link FinanceDocClient}.
+ * Server entry for the doc-surface vertical (finance-rollout spec
+ * §3.7). Fetches page 1 of display-ready rows (customer + account
+ * labels resolved server-side — no ObjectIds reach the client), the
+ * KPI strip and the payment-account options for the form, all through
+ * the gated actions. Parses `searchParams` (`q`, `status`, `partyId`,
+ * `from`, `to`) into the kit's `initialFilters` so statement
+ * drill-downs (cash-flow inflow) deep-link into a filtered list.
  */
 
 import * as React from 'react';
 
-import { listSabcrmPaymentReceipts } from '@/app/actions/sabcrm-finance.actions';
 import {
-  FinanceDocClient,
-  type FinanceDocRow,
-} from '../_components/finance-doc-client';
+  getSabcrmPaymentReceiptKpis,
+  listSabcrmPaymentReceiptsPage,
+} from '@/app/actions/sabcrm-finance-payment-receipts.actions';
+import { listSabcrmPaymentAccountOptions } from '@/app/actions/sabcrm-finance-invoices.actions';
+import type { CrmReceiptStatus } from '@/lib/rust-client/crm-payment-receipts';
+import { PaymentReceiptsClient } from './payment-receipts-client';
 
 export const dynamic = 'force-dynamic';
 
@@ -22,26 +26,49 @@ export const metadata = {
   title: 'Payment receipts — SabCRM Finance',
 };
 
-export default async function SabcrmFinancePaymentReceiptsPage(): Promise<React.JSX.Element> {
-  const res = await listSabcrmPaymentReceipts();
+interface PageProps {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
 
-  const rows: FinanceDocRow[] = res.ok
-    ? res.data.map((doc) => ({
-        id: doc._id,
-        number: doc.receiptNo,
-        party: doc.clientId ?? '',
-        date: doc.date,
-        amount: doc.amount ?? 0,
-        currency: doc.currency,
-        status: doc.status ?? 'received',
-      }))
-    : [];
+function first(v: string | string[] | undefined): string | undefined {
+  return Array.isArray(v) ? v[0] : v;
+}
+
+export default async function SabcrmFinancePaymentReceiptsPage({
+  searchParams,
+}: PageProps): Promise<React.JSX.Element> {
+  const params = await searchParams;
+  const q = first(params.q) ?? '';
+  const status = first(params.status) ?? '';
+  const partyId = first(params.partyId) ?? '';
+  const from = first(params.from);
+  const to = first(params.to);
+
+  const [pageRes, kpiRes, accountsRes] = await Promise.all([
+    listSabcrmPaymentReceiptsPage({
+      page: 1,
+      q: q || undefined,
+      status: (status as CrmReceiptStatus | '') || '',
+      clientId: partyId || undefined,
+      from,
+      to,
+    }),
+    getSabcrmPaymentReceiptKpis(),
+    listSabcrmPaymentAccountOptions(),
+  ]);
 
   return (
-    <FinanceDocClient
-      kind="payment-receipts"
-      initialRows={rows}
-      initialError={res.ok ? null : res.error}
+    <PaymentReceiptsClient
+      initialRows={pageRes.ok ? pageRes.data.rows : []}
+      initialHasMore={pageRes.ok ? pageRes.data.hasMore : false}
+      initialError={pageRes.ok ? null : pageRes.error}
+      kpis={kpiRes.ok ? kpiRes.data : null}
+      accounts={accountsRes.ok ? accountsRes.data : []}
+      initialFilters={
+        q || status || partyId || from || to
+          ? { q, status, partyId, from, to }
+          : undefined
+      }
     />
   );
 }

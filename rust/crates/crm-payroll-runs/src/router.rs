@@ -69,6 +69,10 @@ where
         .route("/{runId}/compute", post(handlers::compute_payroll_run))
         .route("/{runId}/approve", post(handlers::approve_payroll_run))
         .route("/{runId}/disburse", post(handlers::disburse_payroll_run))
+        .route(
+            "/{runId}/generate-payslips",
+            post(handlers::generate_payslips),
+        )
 }
 
 /// Legacy `userId`-scoped router — mount under `/v1/hrm/payroll-runs`.

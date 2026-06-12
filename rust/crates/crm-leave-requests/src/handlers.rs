@@ -446,7 +446,7 @@ mod tests {
     #[test]
     fn list_filter_excludes_archived_by_default() {
         let oid = ObjectId::new();
-        let f = list_filter(oid, None, None, None);
+        let f = list_filter(&TenantScope::User(oid), None, None, None);
         let status = f.get("status").expect("status present");
         let inner = status.as_document().expect("status is a doc");
         assert_eq!(inner.get_str("$ne").unwrap(), "archived");
@@ -456,6 +456,7 @@ mod tests {
     fn request_from_create_defaults_status_pending() {
         let user_id = ObjectId::new();
         let input = CreateLeaveRequestInput {
+            project_id: None,
             employee_id: ObjectId::new().to_hex(),
             employee_name: Some("Jane".into()),
             leave_type: Some("Casual".into()),
@@ -467,10 +468,29 @@ mod tests {
             status: None,
             comments: None,
         };
-        let r = request_from_create(input, user_id).expect("ok");
+        let r = request_from_create(input, user_id, None).expect("ok");
         assert_eq!(r.status, "Pending");
         assert_eq!(r.days, 3.0);
         assert!(r.approver_id.is_none());
+        assert!(r.project_id.is_none());
+    }
+
+    #[test]
+    fn request_from_create_stamps_project_scope() {
+        let user_id = ObjectId::new();
+        let project_id = ObjectId::new();
+        let input = CreateLeaveRequestInput {
+            employee_id: ObjectId::new().to_hex(),
+            start_date: "2026-05-10".into(),
+            end_date: "2026-05-12".into(),
+            days: 1.0,
+            ..Default::default()
+        };
+        let r = request_from_create(input, user_id, Some(project_id)).expect("ok");
+        assert_eq!(r.project_id, Some(project_id));
+        // `projectId` lands camelCase on the wire/document.
+        let json = serde_json::to_value(&r).unwrap();
+        assert_eq!(json["projectId"]["$oid"], project_id.to_hex());
     }
 
     #[test]
@@ -484,7 +504,7 @@ mod tests {
             days: 1.0,
             ..Default::default()
         };
-        assert!(request_from_create(bad_eid, user_id).is_err());
+        assert!(request_from_create(bad_eid, user_id, None).is_err());
         // Zero days
         let zero_days = CreateLeaveRequestInput {
             employee_id: ObjectId::new().to_hex(),
@@ -493,7 +513,7 @@ mod tests {
             days: 0.0,
             ..Default::default()
         };
-        assert!(request_from_create(zero_days, user_id).is_err());
+        assert!(request_from_create(zero_days, user_id, None).is_err());
         // End before start
         let bad_range = CreateLeaveRequestInput {
             employee_id: ObjectId::new().to_hex(),
@@ -502,6 +522,54 @@ mod tests {
             days: 1.0,
             ..Default::default()
         };
-        assert!(request_from_create(bad_range, user_id).is_err());
+        assert!(request_from_create(bad_range, user_id, None).is_err());
+    }
+
+    /// Test-only [`AuthUser`] with a valid 24-hex subject.
+    fn fake_user(oid: &ObjectId) -> AuthUser {
+        AuthUser {
+            user_id: oid.to_hex(),
+            tenant_id: String::new(),
+            roles: Vec::new(),
+        }
+    }
+
+    #[test]
+    fn resolve_scope_project_rejects_missing_project_id() {
+        // The `project_router` mount attaches `ScopeMode::Project`; a
+        // request without `projectId` must 4xx (mirrors the
+        // `crm-core::scope` tests).
+        let user = fake_user(&ObjectId::new());
+        assert!(matches!(
+            resolve_scope(ScopeMode::Project, &user, None).unwrap_err(),
+            ApiError::Validation(_)
+        ));
+        assert!(matches!(
+            resolve_scope(ScopeMode::Project, &user, Some("not-an-oid")).unwrap_err(),
+            ApiError::Validation(_)
+        ));
+    }
+
+    #[test]
+    fn resolve_scope_resolves_both_modes() {
+        let user_oid = ObjectId::new();
+        let user = fake_user(&user_oid);
+        assert_eq!(
+            resolve_scope(ScopeMode::User, &user, None).unwrap(),
+            TenantScope::User(user_oid)
+        );
+        let project = ObjectId::new();
+        assert_eq!(
+            resolve_scope(ScopeMode::Project, &user, Some(&project.to_hex())).unwrap(),
+            TenantScope::Project(project)
+        );
+    }
+
+    #[test]
+    fn project_scope_filters_project_id_only() {
+        let project = ObjectId::new();
+        let f = list_filter(&TenantScope::Project(project), None, None, None);
+        assert_eq!(f.get_object_id("projectId").unwrap(), project);
+        assert!(!f.contains_key("userId"));
     }
 }

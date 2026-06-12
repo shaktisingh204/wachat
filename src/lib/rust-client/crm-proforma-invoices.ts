@@ -25,11 +25,22 @@ export interface CrmProformaLineItem {
 export interface CrmProformaInvoiceDoc {
   _id: string;
   userId?: string;
+  /** SabCRM workspace scope; absent on legacy (userId-scoped) docs. */
+  projectId?: string;
   proformaNumber: string;
   accountId?: string;
   proformaDate: string;
   validTillDate?: string;
   currency?: string;
+  /* ----- canonical advance fields (finance-rollout gap G3) ------ */
+  /** Linked Sales Order — set when the proforma is an advance request. */
+  linkedSoId?: string;
+  /** Advance %, 0–100. */
+  advancePct?: number;
+  /** Absolute advance ask (derived from `advancePct` when absent). */
+  advanceAmount?: number;
+  paymentDueDate?: string;
+  expectedDelivery?: string;
   lineItems: CrmProformaLineItem[];
   subtotal: number;
   total: number;
@@ -64,6 +75,17 @@ export interface CrmProformaCreateInput {
   proformaDate: string;
   validTillDate?: string;
   currency?: string;
+  /* ----- canonical advance fields (finance-rollout gap G3) ------ */
+  /** Hex `ObjectId` of the linked Sales Order. */
+  linkedSoId?: string;
+  /** Advance %, finite, 0–100. Without `advanceAmount` the handler
+   * derives `advanceAmount = total × advancePct / 100`. */
+  advancePct?: number;
+  advanceAmount?: number;
+  /** RFC3339 date string. */
+  paymentDueDate?: string;
+  /** RFC3339 date string. */
+  expectedDelivery?: string;
   lineItems: CrmProformaLineItem[];
   termsAndConditions?: string[];
   notes?: string;

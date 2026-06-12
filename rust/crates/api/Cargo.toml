@@ -222,6 +222,7 @@ crm-expense-categories = { path = "../crm-expense-categories" }
 crm-custom-fields = { path = "../crm-custom-fields" }
 crm-company-profile = { path = "../crm-company-profile" }
 crm-shift-rotations = { path = "../crm-shift-rotations" }
+crm-shift-change-requests = { path = "../crm-shift-change-requests" }
 crm-one-on-ones = { path = "../crm-one-on-ones" }
 crm-project-categories = { path = "../crm-project-categories" }
 crm-task-labels = { path = "../crm-task-labels" }

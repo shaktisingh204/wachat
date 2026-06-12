@@ -1,20 +1,24 @@
 /**
  * SabCRM Finance — Recurring invoices
- * (`/sabcrm/finance/recurring-invoices`), 20ui.
+ * (`/sabcrm/finance/recurring-invoices`).
  *
- * Server entry: lists the active project's invoice schedules through the
- * gated `listSabcrmRecurringInvoices` action. Renders via the shared
- * {@link FinanceLedgerClient}; the row action toggles a schedule between
- * `active` and `paused` (`updateSabcrmRecurringInvoice`).
+ * Server entry for the doc-surface vertical (finance-rollout spec
+ * §3.11). Fetches page 1 of display-ready rows (customer + template
+ * labels resolved server-side — no ObjectIds reach the client) plus
+ * the KPI strip through the gated actions. Parses `searchParams`
+ * (`q`, `status`, `from`, `to`) into the kit's `initialFilters` for
+ * deep links. NB: crm-common-style crate — the actions translate the
+ * kit's 1-indexed pages onto the crate's 0-indexed wire.
  */
 
 import * as React from 'react';
 
-import { listSabcrmRecurringInvoices } from '@/app/actions/sabcrm-finance.actions';
 import {
-  FinanceLedgerClient,
-  type LedgerRow,
-} from '../_components/finance-ledger-client';
+  getSabcrmRecurringInvoiceKpis,
+  listSabcrmRecurringInvoicesPage,
+} from '@/app/actions/sabcrm-finance-recurring-invoices.actions';
+import type { CrmRecurringInvoiceStatus } from '@/lib/rust-client/crm-recurring-invoices';
+import { RecurringInvoicesClient } from './recurring-invoices-client';
 
 export const dynamic = 'force-dynamic';
 
@@ -22,37 +26,43 @@ export const metadata = {
   title: 'Recurring invoices — SabCRM Finance',
 };
 
-const FREQUENCY_LABEL: Record<string, string> = {
-  daily: 'Daily',
-  weekly: 'Weekly',
-  monthly: 'Monthly',
-  quarterly: 'Quarterly',
-  yearly: 'Yearly',
-};
+interface PageProps {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
 
-export default async function SabcrmFinanceRecurringInvoicesPage(): Promise<React.JSX.Element> {
-  const res = await listSabcrmRecurringInvoices();
+function first(v: string | string[] | undefined): string | undefined {
+  return Array.isArray(v) ? v[0] : v;
+}
 
-  const rows: LedgerRow[] = res.ok
-    ? res.data.map((doc) => ({
-        id: doc._id,
-        label: doc.title || `…${doc._id.slice(-8)}`,
-        status: doc.status,
-        currency: 'INR',
-        cells: {
-          title: doc.title ?? '',
-          frequency: FREQUENCY_LABEL[doc.frequency] ?? doc.frequency,
-          startDate: doc.startDate ?? '',
-          nextRunAt: doc.nextRunAt ?? '',
-        },
-      }))
-    : [];
+export default async function SabcrmFinanceRecurringInvoicesPage({
+  searchParams,
+}: PageProps): Promise<React.JSX.Element> {
+  const params = await searchParams;
+  const q = first(params.q) ?? '';
+  const status = first(params.status) ?? '';
+  const from = first(params.from);
+  const to = first(params.to);
+
+  const [pageRes, kpiRes] = await Promise.all([
+    listSabcrmRecurringInvoicesPage({
+      page: 1,
+      q: q || undefined,
+      status: (status as CrmRecurringInvoiceStatus | '') || '',
+      from,
+      to,
+    }),
+    getSabcrmRecurringInvoiceKpis(),
+  ]);
 
   return (
-    <FinanceLedgerClient
-      kind="recurring-invoices"
-      initialRows={rows}
-      initialError={res.ok ? null : res.error}
+    <RecurringInvoicesClient
+      initialRows={pageRes.ok ? pageRes.data.rows : []}
+      initialHasMore={pageRes.ok ? pageRes.data.hasMore : false}
+      initialError={pageRes.ok ? null : pageRes.error}
+      kpis={kpiRes.ok ? kpiRes.data : null}
+      initialFilters={
+        q || status || from || to ? { q, status, from, to } : undefined
+      }
     />
   );
 }

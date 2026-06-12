@@ -37,6 +37,11 @@ export interface SabcrmTrialBalance {
   balanced: boolean;
   /** Posted journal entries folded in (drafts/archived excluded). */
   entryCount: number;
+  /**
+   * `YYYY-MM-DD` cut-off the movement was filtered to (entries dated
+   * after it are excluded); absent ⇒ all posted entries (today).
+   */
+  asOf?: string;
 }
 
 /* ─── Profit & loss ───────────────────────────────────────────── */
@@ -46,12 +51,18 @@ export interface SabcrmPnlMonth {
   month: string;
   revenue: number;
   expenses: number;
+  /** Vendor-bill share of `expenses` (drill-down split). */
+  bills: number;
+  /** Approved/reimbursed expense-claim share of `expenses`. */
+  claims: number;
   net: number;
 }
 
 export interface SabcrmPnl {
   /** Indian FY label, e.g. `2026-27`. */
   fyLabel: string;
+  /** FY starting calendar year (`2026` ⇒ FY 2026-27) — drill-link math. */
+  fyStartYear: number;
   months: SabcrmPnlMonth[];
   /** Σ invoice totals (non-draft, non-cancelled) in the FY. */
   totalRevenue: number;
@@ -61,6 +72,8 @@ export interface SabcrmPnl {
   totalExpenseClaims: number;
   totalExpenses: number;
   netProfit: number;
+  /** Prior FY over the same dataset; present when compare requested. */
+  previous?: Omit<SabcrmPnl, 'previous'>;
 }
 
 /* ─── Balance sheet ───────────────────────────────────────────── */
@@ -103,6 +116,8 @@ export interface SabcrmCashFlow {
   totalInflow: number;
   totalOutflow: number;
   closingCash: number;
+  /** Prior calendar year over the same dataset; present when compared. */
+  previous?: Omit<SabcrmCashFlow, 'previous'>;
 }
 
 /* ─── GST (GSTR-1 / GSTR-3B style summaries) ──────────────────── */

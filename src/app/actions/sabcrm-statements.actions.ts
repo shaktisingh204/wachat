@@ -199,6 +199,25 @@ function parseDate(iso: string | undefined): Date | null {
 /** Documents excluded from every statement. */
 const EXCLUDED_DOC_STATUSES = new Set(['draft', 'cancelled', 'archived']);
 
+/** Strict `YYYY-MM-DD`; everything else is treated as "no cut-off". */
+const DAY_KEY_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+/** Normalise an `asOf` page param; `undefined` when absent/garbage. */
+function asOfDayKey(asOf: string | undefined): string | undefined {
+  return asOf && DAY_KEY_RE.test(asOf) ? asOf : undefined;
+}
+
+/**
+ * UTC day-key cut-off check. Docs without a parsable date are KEPT
+ * (matching the all-time behaviour, where undated docs still count).
+ */
+function onOrBefore(iso: string | undefined, asOfDay: string | undefined): boolean {
+  if (!asOfDay) return true;
+  if (!iso) return true;
+  const day = iso.slice(0, 10);
+  return !DAY_KEY_RE.test(day) || day <= asOfDay;
+}
+
 function invoiceCounts(inv: SabcrmInvoiceDoc): boolean {
   return !EXCLUDED_DOC_STATUSES.has(String(inv.status ?? ''));
 }
@@ -311,18 +330,26 @@ const BALANCE_TOLERANCE = 0.01;
 /**
  * Trial balance over the project's chart of accounts: each ledger
  * head's opening balance plus its posted journal-entry movement.
+ * `asOf` (`YYYY-MM-DD`) excludes journal entries dated after the
+ * cut-off — the month-end PeriodSwitcher on the report page.
  */
 export async function getSabcrmTrialBalance(
+  asOf?: string,
   projectId?: string,
 ): Promise<ActionResult<SabcrmTrialBalance>> {
   const g = await gate('view', projectId);
   if (!g.ok) return { ok: false, error: g.error };
 
+  const asOfDay = asOfDayKey(asOf);
+
   try {
-    const [accounts, entries] = await Promise.all([
+    const [accounts, allEntries] = await Promise.all([
       fetchAccounts(g.ctx.projectId),
       fetchPostedEntries(g.ctx.projectId),
     ]);
+    const entries = asOfDay
+      ? allEntries.filter((e) => onOrBefore(e.date, asOfDay))
+      : allEntries;
 
     const debits = new Map<string, number>();
     const credits = new Map<string, number>();
@@ -375,6 +402,7 @@ export async function getSabcrmTrialBalance(
         totalCredit,
         balanced: Math.abs(totalDebit - totalCredit) <= BALANCE_TOLERANCE,
         entryCount: entries.length,
+        asOf: asOfDay,
       },
     };
   } catch (e) {
@@ -395,12 +423,101 @@ function fyLabelFor(startYear: number): string {
   return `${startYear}-${String((startYear + 1) % 100).padStart(2, '0')}`;
 }
 
+/** One FY's P&L over already-fetched documents (sync, reusable for compare). */
+function computePnlForFy(
+  startYear: number,
+  invoices: SabcrmInvoiceDoc[],
+  bills: SabcrmBillDoc[],
+  expenses: SabcrmExpenseClaimDoc[],
+): Omit<SabcrmPnl, 'previous'> {
+  // 12 buckets Apr..Mar.
+  const months: SabcrmPnlMonth[] = Array.from({ length: 12 }, (_, i) => {
+    const m = (3 + i) % 12; // Apr = index 3
+    const y = m >= 3 ? startYear : startYear + 1;
+    return {
+      month: `${MONTHS[m]} ${y}`,
+      revenue: 0,
+      expenses: 0,
+      bills: 0,
+      claims: 0,
+      net: 0,
+    };
+  });
+
+  const bucketIndex = (d: Date): number => {
+    if (fyStartYear(d) !== startYear) return -1;
+    const m = d.getUTCMonth(); // 0-11
+    return m >= 3 ? m - 3 : m + 9;
+  };
+
+  let totalRevenue = 0;
+  for (const inv of invoices) {
+    if (!invoiceCounts(inv)) continue;
+    const d = parseDate(inv.date);
+    if (!d) continue;
+    const idx = bucketIndex(d);
+    if (idx < 0) continue;
+    const amt = num(inv.totals?.total);
+    months[idx].revenue += amt;
+    totalRevenue += amt;
+  }
+
+  let totalBills = 0;
+  for (const bill of bills) {
+    if (!billCounts(bill)) continue;
+    const d = parseDate(bill.billDate);
+    if (!d) continue;
+    const idx = bucketIndex(d);
+    if (idx < 0) continue;
+    const amt = num(bill.totals?.total);
+    months[idx].expenses += amt;
+    months[idx].bills += amt;
+    totalBills += amt;
+  }
+
+  let totalExpenseClaims = 0;
+  for (const e of expenses) {
+    if (!expenseCounts(e)) continue;
+    const d = expenseDate(e);
+    if (!d) continue;
+    const idx = bucketIndex(d);
+    if (idx < 0) continue;
+    const amt = num(e.amount);
+    months[idx].expenses += amt;
+    months[idx].claims += amt;
+    totalExpenseClaims += amt;
+  }
+
+  for (const m of months) {
+    m.revenue = round2(m.revenue);
+    m.expenses = round2(m.expenses);
+    m.bills = round2(m.bills);
+    m.claims = round2(m.claims);
+    m.net = round2(m.revenue - m.expenses);
+  }
+
+  const totalExpenses = round2(totalBills + totalExpenseClaims);
+  return {
+    fyLabel: fyLabelFor(startYear),
+    fyStartYear: startYear,
+    months,
+    totalRevenue: round2(totalRevenue),
+    totalBills: round2(totalBills),
+    totalExpenseClaims: round2(totalExpenseClaims),
+    totalExpenses,
+    netProfit: round2(totalRevenue - totalExpenses),
+  };
+}
+
 /**
  * P&L for an Indian financial year. `fyStart` is the FY's starting
  * calendar year (e.g. `2026` ⇒ FY 2026-27); defaults to the running FY.
+ * `opts.compare` folds the PRIOR FY (same dataset, one fetch) into
+ * `data.previous` for the report page's Δ% column.
  */
 export async function getSabcrmPnl(
   fyStart?: number,
+  opts?: { compare?: boolean },
   projectId?: string,
 ): Promise<ActionResult<SabcrmPnl>> {
   const g = await gate('view', projectId);
@@ -416,74 +533,14 @@ export async function getSabcrmPnl(
       fetchExpenses(g.ctx.projectId),
     ]);
 
-    // 12 buckets Apr..Mar.
-    const months: SabcrmPnlMonth[] = Array.from({ length: 12 }, (_, i) => {
-      const m = (3 + i) % 12; // Apr = index 3
-      const y = m >= 3 ? startYear : startYear + 1;
-      return { month: `${MONTHS[m]} ${y}`, revenue: 0, expenses: 0, net: 0 };
-    });
-
-    const bucketIndex = (d: Date): number => {
-      if (fyStartYear(d) !== startYear) return -1;
-      const m = d.getUTCMonth(); // 0-11
-      return m >= 3 ? m - 3 : m + 9;
-    };
-
-    let totalRevenue = 0;
-    for (const inv of invoices) {
-      if (!invoiceCounts(inv)) continue;
-      const d = parseDate(inv.date);
-      if (!d) continue;
-      const idx = bucketIndex(d);
-      if (idx < 0) continue;
-      const amt = num(inv.totals?.total);
-      months[idx].revenue += amt;
-      totalRevenue += amt;
-    }
-
-    let totalBills = 0;
-    for (const bill of bills) {
-      if (!billCounts(bill)) continue;
-      const d = parseDate(bill.billDate);
-      if (!d) continue;
-      const idx = bucketIndex(d);
-      if (idx < 0) continue;
-      const amt = num(bill.totals?.total);
-      months[idx].expenses += amt;
-      totalBills += amt;
-    }
-
-    let totalExpenseClaims = 0;
-    for (const e of expenses) {
-      if (!expenseCounts(e)) continue;
-      const d = expenseDate(e);
-      if (!d) continue;
-      const idx = bucketIndex(d);
-      if (idx < 0) continue;
-      const amt = num(e.amount);
-      months[idx].expenses += amt;
-      totalExpenseClaims += amt;
-    }
-
-    for (const m of months) {
-      m.revenue = round2(m.revenue);
-      m.expenses = round2(m.expenses);
-      m.net = round2(m.revenue - m.expenses);
-    }
-
-    const totalExpenses = round2(totalBills + totalExpenseClaims);
-    return {
-      ok: true,
-      data: {
-        fyLabel: fyLabelFor(startYear),
-        months,
-        totalRevenue: round2(totalRevenue),
-        totalBills: round2(totalBills),
-        totalExpenseClaims: round2(totalExpenseClaims),
-        totalExpenses,
-        netProfit: round2(totalRevenue - totalExpenses),
-      },
-    };
+    const current = computePnlForFy(startYear, invoices, bills, expenses);
+    const data: SabcrmPnl = opts?.compare
+      ? {
+          ...current,
+          previous: computePnlForFy(startYear - 1, invoices, bills, expenses),
+        }
+      : current;
+    return { ok: true, data };
   } catch (e) {
     return fail(e, 'Failed to compute the profit & loss statement.');
   }
@@ -497,22 +554,45 @@ export async function getSabcrmPnl(
  * Simplified balance sheet over the project's finance documents.
  * Retained earnings is presented as the derived balancing figure
  * (assets − liabilities), which by construction equals the same docs'
- * lifetime net position.
+ * lifetime net position. `asOf` (`YYYY-MM-DD`) excludes documents dated
+ * after the cut-off (AR/AP open balances remain current-state fields —
+ * an approximation the page's methodology note documents).
  */
 export async function getSabcrmBalanceSheet(
+  asOf?: string,
   projectId?: string,
 ): Promise<ActionResult<SabcrmBalanceSheet>> {
   const g = await gate('view', projectId);
   if (!g.ok) return { ok: false, error: g.error };
 
+  const asOfDay = asOfDayKey(asOf);
+
   try {
-    const [invoices, bills, receipts, payouts, expenses] = await Promise.all([
-      fetchInvoices(g.ctx.projectId),
-      fetchBills(g.ctx.projectId),
-      fetchReceipts(g.ctx.projectId),
-      fetchPayouts(g.ctx.projectId),
-      fetchExpenses(g.ctx.projectId),
-    ]);
+    const [allInvoices, allBills, allReceipts, allPayouts, allExpenses] =
+      await Promise.all([
+        fetchInvoices(g.ctx.projectId),
+        fetchBills(g.ctx.projectId),
+        fetchReceipts(g.ctx.projectId),
+        fetchPayouts(g.ctx.projectId),
+        fetchExpenses(g.ctx.projectId),
+      ]);
+    const invoices = asOfDay
+      ? allInvoices.filter((d) => onOrBefore(d.date, asOfDay))
+      : allInvoices;
+    const bills = asOfDay
+      ? allBills.filter((d) => onOrBefore(d.billDate, asOfDay))
+      : allBills;
+    const receipts = asOfDay
+      ? allReceipts.filter((d) => onOrBefore(d.date, asOfDay))
+      : allReceipts;
+    const payouts = asOfDay
+      ? allPayouts.filter((d) => onOrBefore(d.date, asOfDay))
+      : allPayouts;
+    const expenses = asOfDay
+      ? allExpenses.filter((d) =>
+          onOrBefore(d.expense_date ?? d.createdAt, asOfDay),
+        )
+      : allExpenses;
 
     const totalReceipts = receipts
       .filter(receiptCounts)
@@ -552,7 +632,9 @@ export async function getSabcrmBalanceSheet(
     return {
       ok: true,
       data: {
-        asOf: new Date().toISOString(),
+        asOf: asOfDay
+          ? `${asOfDay}T23:59:59.999Z`
+          : new Date().toISOString(),
         assets: [
           {
             label: 'Cash & bank',
@@ -593,9 +675,78 @@ export async function getSabcrmBalanceSheet(
 // Cash flow (calendar year)
 // ---------------------------------------------------------------------------
 
-/** Monthly cash flow for a calendar year; defaults to the current year. */
+/** One calendar year's cash flow over already-fetched documents. */
+function computeCashFlowForYear(
+  y: number,
+  receipts: SabcrmPaymentReceiptDoc[],
+  payouts: SabcrmPayoutDoc[],
+  expenses: SabcrmExpenseClaimDoc[],
+): Omit<SabcrmCashFlow, 'previous'> {
+  const months: SabcrmCashFlowMonth[] = MONTHS.map((m) => ({
+    month: `${m} ${y}`,
+    inflow: 0,
+    outflow: 0,
+    net: 0,
+    closing: 0,
+  }));
+  let openingCash = 0;
+
+  const apply = (d: Date | null, amount: number, inflow: boolean): void => {
+    if (!d || amount === 0) return;
+    if (d.getUTCFullYear() < y) {
+      openingCash += inflow ? amount : -amount;
+      return;
+    }
+    if (d.getUTCFullYear() !== y) return;
+    const bucket = months[d.getUTCMonth()];
+    if (inflow) bucket.inflow += amount;
+    else bucket.outflow += amount;
+  };
+
+  for (const r of receipts) {
+    if (!receiptCounts(r)) continue;
+    apply(parseDate(r.date), num(r.amount), true);
+  }
+  for (const p of payouts) {
+    apply(parseDate(p.date), num(p.amount), false);
+  }
+  for (const e of expenses) {
+    if (!expenseCounts(e)) continue;
+    apply(expenseDate(e), num(e.amount), false);
+  }
+
+  openingCash = round2(openingCash);
+  let running = openingCash;
+  let totalInflow = 0;
+  let totalOutflow = 0;
+  for (const m of months) {
+    m.inflow = round2(m.inflow);
+    m.outflow = round2(m.outflow);
+    m.net = round2(m.inflow - m.outflow);
+    running = round2(running + m.net);
+    m.closing = running;
+    totalInflow += m.inflow;
+    totalOutflow += m.outflow;
+  }
+
+  return {
+    year: y,
+    openingCash,
+    months,
+    totalInflow: round2(totalInflow),
+    totalOutflow: round2(totalOutflow),
+    closingCash: running,
+  };
+}
+
+/**
+ * Monthly cash flow for a calendar year; defaults to the current year.
+ * `opts.compare` folds the PRIOR year (same dataset, one fetch) into
+ * `data.previous` for the report page's Δ% column.
+ */
 export async function getSabcrmCashFlow(
   year?: number,
+  opts?: { compare?: boolean },
   projectId?: string,
 ): Promise<ActionResult<SabcrmCashFlow>> {
   const g = await gate('view', projectId);
@@ -611,64 +762,14 @@ export async function getSabcrmCashFlow(
       fetchExpenses(g.ctx.projectId),
     ]);
 
-    const months: SabcrmCashFlowMonth[] = MONTHS.map((m) => ({
-      month: `${m} ${y}`,
-      inflow: 0,
-      outflow: 0,
-      net: 0,
-      closing: 0,
-    }));
-    let openingCash = 0;
-
-    const apply = (d: Date | null, amount: number, inflow: boolean): void => {
-      if (!d || amount === 0) return;
-      if (d.getUTCFullYear() < y) {
-        openingCash += inflow ? amount : -amount;
-        return;
-      }
-      if (d.getUTCFullYear() !== y) return;
-      const bucket = months[d.getUTCMonth()];
-      if (inflow) bucket.inflow += amount;
-      else bucket.outflow += amount;
-    };
-
-    for (const r of receipts) {
-      if (!receiptCounts(r)) continue;
-      apply(parseDate(r.date), num(r.amount), true);
-    }
-    for (const p of payouts) {
-      apply(parseDate(p.date), num(p.amount), false);
-    }
-    for (const e of expenses) {
-      if (!expenseCounts(e)) continue;
-      apply(expenseDate(e), num(e.amount), false);
-    }
-
-    openingCash = round2(openingCash);
-    let running = openingCash;
-    let totalInflow = 0;
-    let totalOutflow = 0;
-    for (const m of months) {
-      m.inflow = round2(m.inflow);
-      m.outflow = round2(m.outflow);
-      m.net = round2(m.inflow - m.outflow);
-      running = round2(running + m.net);
-      m.closing = running;
-      totalInflow += m.inflow;
-      totalOutflow += m.outflow;
-    }
-
-    return {
-      ok: true,
-      data: {
-        year: y,
-        openingCash,
-        months,
-        totalInflow: round2(totalInflow),
-        totalOutflow: round2(totalOutflow),
-        closingCash: running,
-      },
-    };
+    const current = computeCashFlowForYear(y, receipts, payouts, expenses);
+    const data: SabcrmCashFlow = opts?.compare
+      ? {
+          ...current,
+          previous: computeCashFlowForYear(y - 1, receipts, payouts, expenses),
+        }
+      : current;
+    return { ok: true, data };
   } catch (e) {
     return fail(e, 'Failed to compute the cash-flow statement.');
   }

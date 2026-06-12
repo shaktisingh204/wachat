@@ -54,6 +54,58 @@ export interface CrmQuotationTotals {
   total: number;
 }
 
+/** Mirrors `crm_sales_types::Address` (all fields optional). */
+export interface CrmQuotationAddress {
+  line1?: string;
+  line2?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  pincode?: string;
+  /** Human label for shipping addresses ("Office", "Warehouse-A", …). */
+  label?: string;
+}
+
+/** Mirrors `crm_core::Attachment` (SabFiles pointer + cached meta). */
+export interface CrmQuotationAttachment {
+  fileId: string;
+  name?: string;
+  mimeType?: string;
+  size?: number;
+}
+
+/** Mirrors `crm_core::LineageRef` (hex id on the wire). */
+export interface CrmQuotationLineageRef {
+  kind: string;
+  id: string;
+}
+
+/** Mirrors `crm_sales_types::EmailLog`. */
+export interface CrmQuotationEmailLog {
+  sentAt: string;
+  to: string;
+  status: string;
+  providerMessageId?: string;
+  error?: string;
+}
+
+/** Mirrors `crm_sales_types::WhatsAppSendLog`. */
+export interface CrmQuotationWhatsAppLog {
+  sentAt: string;
+  to: string;
+  status: string;
+  wamid?: string;
+  error?: string;
+}
+
+/** Mirrors `crm_sales_types::QuotationRevision` (snapshot left loose). */
+export interface CrmQuotationRevision {
+  revisedAt: string;
+  revisedBy?: string;
+  note?: string;
+  snapshot?: unknown;
+}
+
 export type CrmQuotationStatus =
   | 'draft'
   | 'sent'
@@ -104,16 +156,36 @@ export interface CrmQuotationDoc {
   exchangeRate?: number;
   placeOfSupply?: string;
 
+  /* ----- addresses (G2) ----- */
+  billingAddress?: CrmQuotationAddress;
+  shippingAddress?: CrmQuotationAddress;
+
   /* ----- doc body ----- */
   items?: CrmQuotationLineItem[];
   totals?: CrmQuotationTotals;
   termsAndConditions?: string;
   customerNotes?: string;
+  /** SabFiles attachments (G1). */
+  attachments?: CrmQuotationAttachment[];
+
+  /* ----- render plumbing (server-managed) ----- */
+  templateId?: string;
+  thumbnailFileId?: string;
+  signatureImageFileId?: string;
+
+  /* ----- comm logs (server-managed, append-only) ----- */
+  emailLog?: CrmQuotationEmailLog[];
+  whatsappSendLog?: CrmQuotationWhatsAppLog[];
 
   /* ----- workflow ----- */
   status?: CrmQuotationStatus;
   pdfStatus?: string;
   designMetadata?: Record<string, unknown>;
+
+  /* ----- lineage + revisions (server-managed) ----- */
+  convertedTo?: CrmQuotationLineageRef[];
+  lineage?: CrmQuotationLineageRef[];
+  revisionHistory?: CrmQuotationRevision[];
 
   /* ----- custom fields + audit ----- */
   customFields?: Record<string, unknown>;
@@ -140,14 +212,31 @@ export interface CrmQuotationCreateInput {
   /** ISO-8601 timestamp. */
   validUntil: string;
   clientId: string;
+  /** Free-form customer/internal reference number (G2). */
+  referenceNo?: string;
+  /** Hex `ObjectId` of the credited agent (G2). */
+  salesAgentId?: string;
+  /** Hex `ObjectId` of the originating deal (G2). */
+  dealId?: string;
   currency: string;
+  /** FX rate vs the tenant base currency — finite, > 0 (G2). */
+  exchangeRate?: number;
   placeOfSupply?: string;
+  billingAddress?: CrmQuotationAddress;
+  shippingAddress?: CrmQuotationAddress;
   subject?: string;
   termsAndConditions?: string;
   /** Persisted server-side as `customerNotes` — the Rust DTO accepts
    * `notes` and aliases it onto the canonical field. */
   notes?: string;
+  /** SabFiles attachments captured at create time (G1). */
+  attachments?: CrmQuotationAttachment[];
   items: CrmQuotationLineItem[];
+  /** Document totals (G1) — when absent the handler derives them from
+   * `items[]` (Σ line totals) instead of persisting zeros. */
+  totals?: CrmQuotationTotals;
+  /** Initial workflow status (G1) — lowercase literal, default `draft`. */
+  status?: CrmQuotationStatus;
   fromKind?: 'lead' | 'deal';
   fromId?: string;
   designMetadata?: Record<string, unknown>;
@@ -158,13 +247,24 @@ export interface CrmQuotationUpdateInput {
   date?: string;
   validUntil?: string;
   clientId?: string;
+  referenceNo?: string;
+  salesAgentId?: string;
+  dealId?: string;
   currency?: string;
+  exchangeRate?: number;
   placeOfSupply?: string;
+  billingAddress?: CrmQuotationAddress;
+  shippingAddress?: CrmQuotationAddress;
   subject?: string;
   termsAndConditions?: string;
   notes?: string;
   status?: CrmQuotationStatus | string;
   items?: CrmQuotationLineItem[];
+  /** Replace the document totals (G1) — send recomputed totals
+   * alongside any `items` patch so the two stay consistent. */
+  totals?: CrmQuotationTotals;
+  /** Full replacement of the attachments array (G1); `[]` clears. */
+  attachments?: CrmQuotationAttachment[];
   designMetadata?: Record<string, unknown>;
 }
 

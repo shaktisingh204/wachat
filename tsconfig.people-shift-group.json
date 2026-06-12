@@ -1,0 +1,28 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "incremental": false
+  },
+  "include": [
+    "next-env.d.ts",
+    "src/types/**/*.d.ts",
+    "src/lib/rust-client/sabcrm-people-hr-pickers.ts",
+    "src/lib/rust-client/sabcrm-people-leave.ts",
+    "src/lib/rust-client/sabcrm-people-shifts.ts",
+    "src/lib/rust-client/sabcrm-people-shift-rotations.ts",
+    "src/lib/rust-client/sabcrm-people-shift-changes.ts",
+    "src/app/actions/sabcrm-people-leave.actions.ts",
+    "src/app/actions/sabcrm-people-leave.actions.types.ts",
+    "src/app/actions/sabcrm-people-shifts.actions.ts",
+    "src/app/actions/sabcrm-people-shifts.actions.types.ts",
+    "src/app/actions/sabcrm-people-shift-rotations.actions.ts",
+    "src/app/actions/sabcrm-people-shift-rotations.actions.types.ts",
+    "src/app/actions/sabcrm-people-shift-changes.actions.ts",
+    "src/app/actions/sabcrm-people-shift-changes.actions.types.ts",
+    "src/app/sabcrm/people/leave/**/*",
+    "src/app/sabcrm/people/shifts/**/*",
+    "src/app/sabcrm/people/shift-rotations/**/*",
+    "src/app/sabcrm/people/shift-changes/**/*"
+  ]
+}

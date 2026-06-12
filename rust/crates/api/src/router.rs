@@ -467,6 +467,20 @@ pub fn build(state: AppState) -> Router {
     let sabcrm_people_leaves = crm_leaves::project_router::<AppState>();
     let sabcrm_people_payroll_runs = crm_payroll_runs::project_router::<AppState>();
     let sabcrm_people_holidays = crm_holidays::project_router::<AppState>();
+    // … and of the gen-2 HR crates (their documents gained an optional
+    // `projectId` — `tenantProjectId` for time-logs, whose `projectId`
+    // already means the WORK project; see crm-time-logs crate docs).
+    let sabcrm_people_payslips = crm_payslips::project_router::<AppState>();
+    let sabcrm_people_salary_structures = crm_salary_structures::project_router::<AppState>();
+    let sabcrm_people_payroll_settings = crm_payroll_settings::project_router::<AppState>();
+    let sabcrm_people_shifts = crm_shifts::project_router::<AppState>();
+    let sabcrm_people_shift_rotations = crm_shift_rotations::project_router::<AppState>();
+    let sabcrm_people_shift_change_requests =
+        crm_shift_change_requests::project_router::<AppState>();
+    let sabcrm_people_time_logs = crm_time_logs::project_router::<AppState>();
+    // First-ever mount of crm-shift-change-requests (people-suite
+    // WI-12): the crate existed but was never nested anywhere.
+    let crm_shift_change_requests_router = crm_shift_change_requests::router::<AppState>();
     // Legacy-alias fix (people-suite §2.1.1): the TS rust-clients
     // (`src/lib/rust-client/crm-employees.ts` / `crm-attendance.ts` /
     // `crm-leaves.ts`) call `/v1/crm/employees|attendance|leaves`, but
@@ -965,6 +979,32 @@ pub fn build(state: AppState) -> Router {
             sabcrm_people_payroll_runs,
         )
         .nest("/v1/sabcrm/people/holidays", sabcrm_people_holidays)
+        .nest("/v1/sabcrm/people/payslips", sabcrm_people_payslips)
+        .nest(
+            "/v1/sabcrm/people/salary-structures",
+            sabcrm_people_salary_structures,
+        )
+        .nest(
+            "/v1/sabcrm/people/payroll-settings",
+            sabcrm_people_payroll_settings,
+        )
+        .nest("/v1/sabcrm/people/shifts", sabcrm_people_shifts)
+        .nest(
+            "/v1/sabcrm/people/shift-rotations",
+            sabcrm_people_shift_rotations,
+        )
+        .nest(
+            "/v1/sabcrm/people/shift-change-requests",
+            sabcrm_people_shift_change_requests,
+        )
+        .nest("/v1/sabcrm/people/time-logs", sabcrm_people_time_logs)
+        // Missing legacy mount (people-suite WI-12): the TS client
+        // `src/lib/rust-client/crm-shift-change-requests.ts` has always
+        // pointed here, but the crate was never nested (dead code).
+        .nest(
+            "/v1/crm/shift-change-requests",
+            crm_shift_change_requests_router,
+        )
         // The crm-departments crate contributes BOTH `/departments/*` and
         // `/designations/*` subtrees (see crate docstring) — mount it at
         // `/v1/crm` so the resulting paths are `/v1/crm/departments` and

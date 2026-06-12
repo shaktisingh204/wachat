@@ -7,6 +7,9 @@
  * consignment threshold that still need one. Generation against the
  * NIC e-way portal is a transactional flow and out of scope for this
  * read surface.
+ *
+ * Statements enrichment (finance-rollout §4): every row drills into
+ * its invoice detail page; CSV export + print.
  */
 
 import * as React from 'react';
@@ -14,11 +17,16 @@ import * as React from 'react';
 import { Badge, Card, CardBody, CardDescription, CardHeader, CardTitle, StatCard, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
 import { getSabcrmEwayReadiness } from '@/app/actions/sabcrm-statements.actions';
 import {
+  DrillLink,
   formatINR,
   formatReportDate,
   ReportEmpty,
   ReportShell,
 } from '../_components/finance-report';
+import {
+  StatementExportButton,
+  StatementPrintButton,
+} from '../_components/statement-export-button';
 import type { SabcrmEwayRow } from '@/app/actions/sabcrm-statements.actions.types';
 
 export const dynamic = 'force-dynamic';
@@ -48,7 +56,14 @@ function InvoiceTable({
       <TBody>
         {rows.map((row) => (
           <Tr key={row.invoiceId}>
-            <Td>{row.invoiceNo}</Td>
+            <Td>
+              <DrillLink
+                href={`/sabcrm/finance/invoices/${encodeURIComponent(row.invoiceId)}`}
+                title={`Open invoice ${row.invoiceNo}`}
+              >
+                {row.invoiceNo}
+              </DrillLink>
+            </Td>
             <Td>{row.date ? formatReportDate(row.date) : '—'}</Td>
             <Td align="right">{formatINR(row.total)}</Td>
             <Td>{row.status ?? '—'}</Td>
@@ -72,12 +87,33 @@ export default async function SabcrmEwayBillsPage(): Promise<React.JSX.Element> 
   const res = await getSabcrmEwayReadiness();
   const data = res.ok ? res.data : null;
 
+  const toCsvRow = (row: SabcrmEwayRow, bucket: string) => ({
+    Bucket: bucket,
+    Invoice: row.invoiceNo,
+    Date: row.date ? row.date.slice(0, 10) : '',
+    Total: row.total,
+    Status: row.status ?? '',
+    'E-way bill no.': row.ewayBillNo ?? '',
+  });
+  const csvRows = data
+    ? [
+        ...data.pending.map((r) => toCsvRow(r, 'Pending')),
+        ...data.withEway.map((r) => toCsvRow(r, 'Covered')),
+      ]
+    : [];
+
   return (
     <ReportShell
       title="E-way bills"
       description="Consignment compliance over this workspace's invoices — part of the SabCRM Finance suite."
+      actions={
+        <>
+          <StatementExportButton rows={csvRows} fileName="eway-bills.csv" />
+          <StatementPrintButton />
+        </>
+      }
       error={res.ok ? null : res.error}
-      methodology={`Invoices (drafts and cancelled excluded) are split by their e-way bill number; invoices at or above ${data ? formatINR(data.threshold) : '₹50,000'} without one are flagged. Generating e-way bills against the NIC portal is a follow-up transactional flow.`}
+      methodology={`Invoices (drafts and cancelled excluded) are split by their e-way bill number; invoices at or above ${data ? formatINR(data.threshold) : '₹50,000'} without one are flagged. Rows drill into the invoice detail page. Generating e-way bills against the NIC portal is a follow-up transactional flow.`}
     >
       {data ? (
         data.withEway.length === 0 && data.pending.length === 0 ? (

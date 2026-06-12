@@ -24,6 +24,7 @@ anyhow = "1.0"
 
 crm-common = { path = "../crm-common" }
 crm-core = { path = "../crm-core" }
+hrm-payroll-types = { path = "../hrm-payroll-types" }
 sabnode-auth = { path = "../auth" }
 sabnode-common = { path = "../common" }
 sabnode-db = { path = "../db" }

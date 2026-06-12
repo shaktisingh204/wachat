@@ -1,32 +1,27 @@
 'use client';
 
 /**
- * SabCRM Finance — Payment accounts list client
- * (`/sabcrm/finance/payment-accounts`), 20ui.
+ * SabCRM Finance — Payment accounts client
+ * (`/sabcrm/finance/payment-accounts`).
  *
- * Same shape as the shared finance-doc client but with account-flavoured
- * columns (name, type, opening balance, default flag, status) and a
- * "New account" dialog (name, type, opening balance, currency) →
- * `createSabcrmPaymentAccount`. Delete is a crm-common-style archive.
+ * Doc-surface adopter (finance-rollout spec §3.9): KPI strip (total
+ * opening balance / computed current balance / active accounts), the
+ * config-driven DocListPage and a FULL-field 20ui Dialog form — name,
+ * type, status, opening balance + date, currency, default flag and the
+ * bank-details section (bank name / account number / IFSC / branch /
+ * holder, shown for bank-type accounts).
  *
- * ONLY `@/components/sabcrm/20ui` barrel imports (repo rule); every
- * action re-runs the full session → project → RBAC → plan gate.
+ * No detail route: a row click deep-links to `?edit=<id>` and opens the
+ * edit dialog seeded from the row (the rows carry the full editable
+ * field set, so no second fetch).
  */
 
 import * as React from 'react';
-import { useRouter } from 'next/navigation';
-import { Landmark, Plus, Trash2 } from 'lucide-react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { Archive, IndianRupee, Landmark, Plus, Wallet } from 'lucide-react';
 
 import {
   Alert,
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  Badge,
   Button,
   Dialog,
   DialogClose,
@@ -35,74 +30,97 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  EmptyState,
   Field,
   Input,
-  PageActions,
-  PageDescription,
-  PageHeader,
-  PageHeaderHeading,
-  PageTitle,
   SelectField,
-  Table,
-  TBody,
-  Td,
-  Th,
-  THead,
-  Tr,
-  type BadgeTone,
+  Switch,
+  toast,
   type SelectOption,
 } from '@/components/sabcrm/20ui';
+import { KpiCard } from '@/components/sabcrm/20ui/composites/charts';
 
 import {
-  createSabcrmPaymentAccount,
-  deleteSabcrmPaymentAccount,
-} from '@/app/actions/sabcrm-finance.actions';
+  DocListPage,
+  formatDocMoney,
+  type DocListColumn,
+  type DocListPageConfig,
+} from '../_components/doc-surface';
+import {
+  ACCOUNT_STATUSES,
+  ACCOUNT_TYPES,
+  ACCOUNTS_PATH,
+  accountTypeLabel,
+  toAccountFilters,
+} from './payment-account-config';
 
-import '@/components/sabcrm/20ui/surface-crm-base.css';
+import {
+  createSabcrmPaymentAccountFull,
+  exportSabcrmPaymentAccountRows,
+  listSabcrmPaymentAccountsPage,
+  updateSabcrmPaymentAccountFull,
+} from '@/app/actions/sabcrm-finance-payment-accounts.actions';
+import type {
+  SabcrmPaymentAccountKpis,
+  SabcrmPaymentAccountListRow,
+} from '@/app/actions/sabcrm-finance-payment-accounts.actions.types';
+import type {
+  CrmPaymentAccountStatus,
+  CrmPaymentAccountType,
+} from '@/lib/rust-client/crm-payment-accounts';
+import { safeNum } from '@/lib/sabcrm/finance-doc-math';
 
-// ---------------------------------------------------------------------------
-// Types + display helpers
-// ---------------------------------------------------------------------------
+/* ─── Columns (full field coverage on the list) ───────────────── */
 
-/** Flat row shape the server page narrows account documents into. */
-export interface PaymentAccountRow {
-  id: string;
-  name: string;
-  type: string;
-  openingBalance: number;
-  currency: string;
-  isDefault: boolean;
-  status: string;
-}
-
-const STATUS_TONE: Record<string, BadgeTone> = {
-  active: 'success',
-  inactive: 'neutral',
-  archived: 'neutral',
-};
-
-const STATUS_LABEL: Record<string, string> = {
-  active: 'Active',
-  inactive: 'Inactive',
-  archived: 'Archived',
-};
-
-const TYPE_LABEL: Record<string, string> = {
-  bank: 'Bank',
-  cash: 'Cash',
-  upi: 'UPI',
-  wallet: 'Wallet',
-  employee: 'Employee',
-};
-
-const TYPE_OPTIONS: SelectOption[] = [
-  { value: 'bank', label: 'Bank' },
-  { value: 'cash', label: 'Cash' },
-  { value: 'upi', label: 'UPI' },
-  { value: 'wallet', label: 'Wallet' },
-  { value: 'employee', label: 'Employee' },
+const COLUMNS: DocListColumn<SabcrmPaymentAccountListRow>[] = [
+  {
+    key: 'accountName',
+    header: 'Account',
+    kind: 'text',
+    value: (r) => r.accountName,
+  },
+  {
+    key: 'accountType',
+    header: 'Type',
+    kind: 'badge',
+    value: (r) => accountTypeLabel(r.accountType),
+    tone: () => 'neutral',
+  },
+  {
+    key: 'openingBalance',
+    header: 'Opening balance',
+    kind: 'money',
+    value: (r) => r.openingBalance,
+    currency: (r) => r.currency,
+  },
+  {
+    key: 'openingBalanceDate',
+    header: 'As of',
+    kind: 'date',
+    value: (r) => r.openingBalanceDate,
+  },
+  {
+    key: 'currency',
+    header: 'Currency',
+    kind: 'text',
+    value: (r) => r.currency,
+  },
+  {
+    key: 'isDefault',
+    header: 'Default',
+    kind: 'badge',
+    value: (r) => (r.isDefault ? 'Default' : ''),
+    tone: () => 'info',
+    csv: (r) => (r.isDefault ? 'yes' : 'no'),
+  },
+  {
+    key: 'status',
+    header: 'Status',
+    kind: 'status',
+    value: (r) => r.status,
+  },
 ];
+
+/* ─── Dialog form ─────────────────────────────────────────────── */
 
 const CURRENCY_OPTIONS: SelectOption[] = [
   { value: 'INR', label: 'INR — Indian Rupee' },
@@ -112,152 +130,293 @@ const CURRENCY_OPTIONS: SelectOption[] = [
   { value: 'AED', label: 'AED — UAE Dirham' },
 ];
 
-function formatAmount(amount: number, currency: string): string {
-  try {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency,
-      maximumFractionDigits: 2,
-    }).format(amount);
-  } catch {
-    return `${currency} ${amount.toFixed(2)}`;
-  }
+interface AccountFormState {
+  accountName: string;
+  accountType: string | null;
+  status: string | null;
+  openingBalance: string;
+  openingBalanceDate: string;
+  currency: string | null;
+  isDefault: boolean;
+  bankName: string;
+  accountNumber: string;
+  ifsc: string;
+  branch: string;
+  accountHolder: string;
 }
 
-// ---------------------------------------------------------------------------
-// New-account dialog
-// ---------------------------------------------------------------------------
+function todayKey(): string {
+  const d = new Date();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${d.getFullYear()}-${m}-${day}`;
+}
 
-interface NewAccountDialogProps {
+function emptyForm(): AccountFormState {
+  return {
+    accountName: '',
+    accountType: 'bank',
+    status: 'active',
+    openingBalance: '',
+    openingBalanceDate: todayKey(),
+    currency: 'INR',
+    isDefault: false,
+    bankName: '',
+    accountNumber: '',
+    ifsc: '',
+    branch: '',
+    accountHolder: '',
+  };
+}
+
+function rowToForm(row: SabcrmPaymentAccountListRow): AccountFormState {
+  return {
+    accountName: row.accountName,
+    accountType: row.accountType || 'bank',
+    status: row.status,
+    openingBalance: String(row.openingBalance ?? ''),
+    openingBalanceDate: row.openingBalanceDate.slice(0, 10),
+    currency: row.currency || 'INR',
+    isDefault: row.isDefault,
+    bankName: row.bankDetails?.bankName ?? '',
+    accountNumber: row.bankDetails?.accountNumber ?? '',
+    ifsc: row.bankDetails?.ifsc ?? '',
+    branch: row.bankDetails?.branch ?? '',
+    accountHolder: row.bankDetails?.accountHolder ?? '',
+  };
+}
+
+interface AccountDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onCreated: () => void;
+  /** Null ⇒ create; a row ⇒ edit. */
+  editing: SabcrmPaymentAccountListRow | null;
+  onDone: () => void;
 }
 
-function NewAccountDialog({
+function AccountDialog({
   open,
   onOpenChange,
-  onCreated,
-}: NewAccountDialogProps): React.JSX.Element {
-  const [name, setName] = React.useState('');
-  const [type, setType] = React.useState<string | null>('bank');
-  const [openingBalance, setOpeningBalance] = React.useState('');
-  const [currency, setCurrency] = React.useState<string | null>('INR');
+  editing,
+  onDone,
+}: AccountDialogProps): React.JSX.Element {
+  const [form, setForm] = React.useState<AccountFormState>(emptyForm());
   const [error, setError] = React.useState<string | null>(null);
   const [pending, startTransition] = React.useTransition();
 
-  const reset = React.useCallback(() => {
-    setName('');
-    setType('bank');
-    setOpeningBalance('');
-    setCurrency('INR');
+  React.useEffect(() => {
+    if (!open) return;
+    setForm(editing ? rowToForm(editing) : emptyForm());
     setError(null);
-  }, []);
+  }, [open, editing]);
 
-  const handleOpenChange = (next: boolean): void => {
-    if (!next) reset();
-    onOpenChange(next);
-  };
+  const patch = (p: Partial<AccountFormState>): void =>
+    setForm((f) => ({ ...f, ...p }));
 
-  const handleSubmit = (): void => {
-    if (!name.trim()) {
+  const submit = (): void => {
+    if (!form.accountName.trim()) {
       setError('An account name is required.');
       return;
     }
-    if (!type) {
+    if (!form.accountType) {
       setError('Pick an account type.');
       return;
     }
-    const parsedBalance =
-      openingBalance.trim() === '' ? 0 : Number(openingBalance);
-    if (!Number.isFinite(parsedBalance)) {
-      setError('Opening balance must be a number.');
-      return;
-    }
     setError(null);
-
     startTransition(async () => {
-      const res = await createSabcrmPaymentAccount({
-        accountName: name.trim(),
-        accountType: type,
-        openingBalance: parsedBalance,
-        currency: currency ?? undefined,
-      });
+      const bankDetails =
+        form.accountType === 'bank'
+          ? {
+              bankName: form.bankName || undefined,
+              accountNumber: form.accountNumber || undefined,
+              ifsc: form.ifsc || undefined,
+              branch: form.branch || undefined,
+              accountHolder: form.accountHolder || undefined,
+            }
+          : undefined;
+      const payload = {
+        accountName: form.accountName,
+        accountType: form.accountType as CrmPaymentAccountType,
+        openingBalance: form.openingBalance
+          ? safeNum(form.openingBalance)
+          : undefined,
+        openingBalanceDate: form.openingBalanceDate || undefined,
+        currency: form.currency ?? 'INR',
+        isDefault: form.isDefault,
+        bankDetails,
+      };
+      const res = editing
+        ? await updateSabcrmPaymentAccountFull(editing.id, {
+            ...payload,
+            status: (form.status ?? 'active') as CrmPaymentAccountStatus,
+          })
+        : await createSabcrmPaymentAccountFull(payload);
       if (!res.ok) {
         setError(res.error);
         return;
       }
-      reset();
+      toast.success(
+        editing
+          ? `${res.data.accountName} updated.`
+          : `${res.data.accountName} created.`,
+      );
       onOpenChange(false);
-      onCreated();
+      onDone();
     });
   };
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent aria-describedby="new-payment-account-desc">
+    <Dialog open={open} onOpenChange={(next) => !pending && onOpenChange(next)}>
+      <DialogContent aria-describedby="pacct-desc">
         <DialogHeader>
-          <DialogTitle>New payment account</DialogTitle>
-          <DialogDescription id="new-payment-account-desc">
-            Add a bank, cash, UPI, or wallet account to track money in
-            this workspace.
+          <DialogTitle>
+            {editing ? `Edit ${editing.accountName}` : 'New payment account'}
+          </DialogTitle>
+          <DialogDescription id="pacct-desc">
+            {editing
+              ? 'Update the account details. Receipts and payouts keep pointing at this account.'
+              : 'Accounts are where receipts land and payouts leave from.'}
           </DialogDescription>
         </DialogHeader>
-
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            handleSubmit();
+            submit();
           }}
         >
           <div className="flex flex-col gap-3 pb-2 pt-1">
             <Field label="Account name" required>
               <Input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="HDFC Current"
+                value={form.accountName}
+                onChange={(e) => patch({ accountName: e.target.value })}
+                placeholder="HDFC Current A/C"
                 autoFocus
                 disabled={pending}
               />
             </Field>
-
-            <Field label="Account type" required>
-              <SelectField
-                value={type}
-                onChange={setType}
-                options={TYPE_OPTIONS}
-                disabled={pending}
-              />
-            </Field>
-
-            <Field label="Opening balance">
-              <Input
-                type="number"
-                inputMode="decimal"
-                step="0.01"
-                value={openingBalance}
-                onChange={(e) => setOpeningBalance(e.target.value)}
-                placeholder="0.00"
-                disabled={pending}
-              />
-            </Field>
-
-            <Field label="Currency">
-              <SelectField
-                value={currency}
-                onChange={setCurrency}
-                options={CURRENCY_OPTIONS}
-                disabled={pending}
-              />
-            </Field>
-
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Type" required>
+                <SelectField
+                  value={form.accountType}
+                  onChange={(v) => patch({ accountType: v })}
+                  options={ACCOUNT_TYPES.map((t) => ({
+                    value: t.value,
+                    label: t.label,
+                  }))}
+                  disabled={pending}
+                />
+              </Field>
+              <Field label="Currency">
+                <SelectField
+                  value={form.currency}
+                  onChange={(v) => patch({ currency: v })}
+                  options={CURRENCY_OPTIONS}
+                  disabled={pending}
+                />
+              </Field>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Opening balance">
+                <Input
+                  type="number"
+                  inputMode="decimal"
+                  step="0.01"
+                  value={form.openingBalance}
+                  onChange={(e) => patch({ openingBalance: e.target.value })}
+                  placeholder="0.00"
+                  disabled={pending}
+                />
+              </Field>
+              <Field label="As of">
+                <Input
+                  type="date"
+                  value={form.openingBalanceDate}
+                  onChange={(e) =>
+                    patch({ openingBalanceDate: e.target.value })
+                  }
+                  disabled={pending}
+                  aria-label="Opening balance date"
+                />
+              </Field>
+            </div>
+            {editing ? (
+              <Field label="Status">
+                <SelectField
+                  value={form.status}
+                  onChange={(v) => patch({ status: v })}
+                  options={ACCOUNT_STATUSES.map((s) => ({
+                    value: s.value,
+                    label: s.label,
+                  }))}
+                  disabled={pending}
+                />
+              </Field>
+            ) : null}
+            <Switch
+              checked={form.isDefault}
+              onCheckedChange={(checked) => patch({ isDefault: checked })}
+              disabled={pending}
+              label="Default account for new receipts and payouts"
+            />
+            {form.accountType === 'bank' ? (
+              <fieldset className="flex flex-col gap-3 rounded-[var(--st-radius)] border border-[var(--st-border)] p-3">
+                <legend className="px-1 text-xs font-medium text-[var(--st-text-secondary)]">
+                  Bank details
+                </legend>
+                <div className="grid grid-cols-2 gap-3">
+                  <Field label="Bank name">
+                    <Input
+                      value={form.bankName}
+                      onChange={(e) => patch({ bankName: e.target.value })}
+                      placeholder="HDFC Bank"
+                      disabled={pending}
+                    />
+                  </Field>
+                  <Field label="Branch">
+                    <Input
+                      value={form.branch}
+                      onChange={(e) => patch({ branch: e.target.value })}
+                      placeholder="Fort, Mumbai"
+                      disabled={pending}
+                    />
+                  </Field>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <Field label="Account number">
+                    <Input
+                      value={form.accountNumber}
+                      onChange={(e) =>
+                        patch({ accountNumber: e.target.value })
+                      }
+                      placeholder="50100123456789"
+                      disabled={pending}
+                    />
+                  </Field>
+                  <Field label="IFSC">
+                    <Input
+                      value={form.ifsc}
+                      onChange={(e) => patch({ ifsc: e.target.value })}
+                      placeholder="HDFC0000001"
+                      disabled={pending}
+                    />
+                  </Field>
+                </div>
+                <Field label="Account holder">
+                  <Input
+                    value={form.accountHolder}
+                    onChange={(e) => patch({ accountHolder: e.target.value })}
+                    placeholder="Acme Pvt Ltd"
+                    disabled={pending}
+                  />
+                </Field>
+              </fieldset>
+            ) : null}
             {error ? (
               <Alert tone="danger" role="alert">
                 {error}
               </Alert>
             ) : null}
           </div>
-
           <DialogFooter>
             <DialogClose asChild>
               <Button type="button" variant="secondary" disabled={pending}>
@@ -265,7 +424,7 @@ function NewAccountDialog({
               </Button>
             </DialogClose>
             <Button type="submit" variant="primary" loading={pending}>
-              Create account
+              {editing ? 'Save changes' : 'Create account'}
             </Button>
           </DialogFooter>
         </form>
@@ -274,191 +433,167 @@ function NewAccountDialog({
   );
 }
 
-// ---------------------------------------------------------------------------
-// Page client
-// ---------------------------------------------------------------------------
+/* ─── Main client ─────────────────────────────────────────────── */
 
 export interface PaymentAccountsClientProps {
-  initialRows: PaymentAccountRow[];
-  /** Non-null when the list fetch failed (e.g. the Rust engine is down). */
+  initialRows: SabcrmPaymentAccountListRow[];
+  initialHasMore: boolean;
   initialError: string | null;
+  kpis: SabcrmPaymentAccountKpis | null;
 }
 
 export function PaymentAccountsClient({
   initialRows,
+  initialHasMore,
   initialError,
+  kpis,
 }: PaymentAccountsClientProps): React.JSX.Element {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const [refreshToken, setRefreshToken] = React.useState(0);
   const [dialogOpen, setDialogOpen] = React.useState(false);
-  const [confirmDelete, setConfirmDelete] =
-    React.useState<PaymentAccountRow | null>(null);
-  const [deleteError, setDeleteError] = React.useState<string | null>(null);
-  const [deleting, startDelete] = React.useTransition();
+  const [editing, setEditing] =
+    React.useState<SabcrmPaymentAccountListRow | null>(null);
 
-  const refresh = React.useCallback(() => {
+  // Latest loaded rows — the `?edit=<id>` deep link resolves against them.
+  const rowsRef = React.useRef<SabcrmPaymentAccountListRow[]>(initialRows);
+
+  const editId = searchParams.get('edit');
+  React.useEffect(() => {
+    if (!editId) return;
+    const row = rowsRef.current.find((r) => r.id === editId);
+    if (row) {
+      setEditing(row);
+      setDialogOpen(true);
+    }
+    // Strip the param either way so closing doesn't re-trigger.
+    router.replace(pathname, { scroll: false });
+  }, [editId, pathname, router]);
+
+  const config = React.useMemo<DocListPageConfig<SabcrmPaymentAccountListRow>>(
+    () => ({
+      title: 'Payment accounts',
+      description:
+        'Bank, cash, UPI and wallet accounts — where receipts land and payouts leave from.',
+      icon: Landmark,
+      entity: { singular: 'account', plural: 'accounts' },
+      columns: COLUMNS,
+      statuses: ACCOUNT_STATUSES,
+      fetchPage: async (filters) => {
+        const res = await listSabcrmPaymentAccountsPage(
+          toAccountFilters(filters),
+        );
+        if (res.ok) rowsRef.current = res.data.rows;
+        return res.ok
+          ? {
+              ok: true,
+              data: { rows: res.data.rows, hasMore: res.data.hasMore },
+            }
+          : res;
+      },
+      fetchAllForCsv: (filters) =>
+        exportSabcrmPaymentAccountRows(toAccountFilters(filters)),
+      csvFileName: 'payment-accounts.csv',
+      // Row click opens the edit dialog via a shareable deep link.
+      rowHref: (row) => `${ACCOUNTS_PATH}?edit=${encodeURIComponent(row.id)}`,
+      rowLabel: (row) => `account ${row.accountName}`,
+      bulkActions: [
+        {
+          key: 'archive',
+          label: 'Archive',
+          icon: Archive,
+          tone: 'danger',
+          confirm: {
+            title: 'Archive the selected accounts?',
+            description:
+              'Archived accounts are hidden from pickers; existing receipts and payouts keep their history.',
+            actionLabel: 'Archive accounts',
+          },
+          run: async (rows) => {
+            for (const row of rows) {
+              const res = await updateSabcrmPaymentAccountFull(row.id, {
+                status: 'archived',
+              });
+              if (!res.ok) return res;
+            }
+            return { ok: true, data: null };
+          },
+        },
+      ],
+    }),
+    [],
+  );
+
+  const kpiStrip = kpis ? (
+    <>
+      <KpiCard
+        label="Opening balance"
+        icon={IndianRupee}
+        value={formatDocMoney(kpis.totalOpeningBalance, kpis.currency)}
+        delta={`Across ${kpis.count} ${kpis.count === 1 ? 'account' : 'accounts'}`}
+      />
+      <KpiCard
+        label="Current balance"
+        icon={Wallet}
+        value={formatDocMoney(kpis.currentBalance, kpis.currency)}
+        delta={
+          kpis.sampled
+            ? 'Computed from the latest transactions (sampled)'
+            : 'Opening + recorded transactions'
+        }
+      />
+      <KpiCard
+        label="Active accounts"
+        icon={Landmark}
+        value={String(kpis.activeCount)}
+        delta={`of ${kpis.count} total`}
+      />
+      <KpiCard
+        label="Default account"
+        icon={Landmark}
+        value={kpis.defaultAccountName ?? '—'}
+        delta={
+          kpis.defaultAccountName ? 'Used for new receipts' : 'None flagged'
+        }
+      />
+    </>
+  ) : null;
+
+  const handleDone = (): void => {
+    setRefreshToken((t) => t + 1);
     router.refresh();
-  }, [router]);
-
-  const handleDelete = (): void => {
-    const target = confirmDelete;
-    if (!target) return;
-    setDeleteError(null);
-    startDelete(async () => {
-      const res = await deleteSabcrmPaymentAccount(target.id);
-      if (!res.ok) {
-        setDeleteError(res.error);
-        return;
-      }
-      setConfirmDelete(null);
-      refresh();
-    });
   };
 
   return (
-    <div className="mx-auto w-full max-w-[1040px] px-6 pb-12 pt-6">
-      <PageHeader>
-        <PageHeaderHeading>
-          <PageTitle>Payment accounts</PageTitle>
-          <PageDescription>
-            Bank, cash, UPI, and wallet accounts for this workspace — part
-            of the SabCRM Finance suite.
-          </PageDescription>
-        </PageHeaderHeading>
-        <PageActions>
+    <>
+      <DocListPage
+        config={config}
+        kpis={kpiStrip}
+        primaryAction={
           <Button
             variant="primary"
             iconLeft={Plus}
-            onClick={() => setDialogOpen(true)}
+            onClick={() => {
+              setEditing(null);
+              setDialogOpen(true);
+            }}
           >
             New account
           </Button>
-        </PageActions>
-      </PageHeader>
-
-      {initialError ? (
-        <div className="my-4">
-          <Alert tone="danger" role="alert">
-            Couldn&apos;t load payment accounts: {initialError}
-          </Alert>
-        </div>
-      ) : null}
-
-      {!initialError && initialRows.length === 0 ? (
-        <div className="mt-12">
-          <EmptyState
-            icon={Landmark}
-            title="No payment accounts yet"
-            description="Add your first account to start tracking money movement in this workspace."
-            action={
-              <Button
-                variant="primary"
-                iconLeft={Plus}
-                onClick={() => setDialogOpen(true)}
-              >
-                New account
-              </Button>
-            }
-          />
-        </div>
-      ) : null}
-
-      {initialRows.length > 0 ? (
-        <div className="mt-4">
-          <Table hover>
-            <THead>
-              <Tr>
-                <Th>Name</Th>
-                <Th>Type</Th>
-                <Th align="right">Opening balance</Th>
-                <Th>Status</Th>
-                <Th align="right" width={64}>
-                  <span className="sr-only">Actions</span>
-                </Th>
-              </Tr>
-            </THead>
-            <TBody>
-              {initialRows.map((row) => (
-                <Tr key={row.id}>
-                  <Td>
-                    {row.name}
-                    {row.isDefault ? (
-                      <span className="ml-2 align-middle">
-                        <Badge tone="info">Default</Badge>
-                      </span>
-                    ) : null}
-                  </Td>
-                  <Td>{TYPE_LABEL[row.type] ?? row.type}</Td>
-                  <Td align="right">
-                    {formatAmount(row.openingBalance, row.currency)}
-                  </Td>
-                  <Td>
-                    <Badge tone={STATUS_TONE[row.status] ?? 'neutral'} dot>
-                      {STATUS_LABEL[row.status] ?? row.status}
-                    </Badge>
-                  </Td>
-                  <Td align="right">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      iconLeft={Trash2}
-                      aria-label={`Archive account ${row.name}`}
-                      onClick={() => {
-                        setDeleteError(null);
-                        setConfirmDelete(row);
-                      }}
-                    >
-                      Archive
-                    </Button>
-                  </Td>
-                </Tr>
-              ))}
-            </TBody>
-          </Table>
-        </div>
-      ) : null}
-
-      <NewAccountDialog
-        open={dialogOpen}
-        onOpenChange={setDialogOpen}
-        onCreated={refresh}
+        }
+        initialRows={initialRows}
+        initialHasMore={initialHasMore}
+        initialError={initialError}
+        refreshToken={refreshToken}
       />
 
-      <AlertDialog
-        open={confirmDelete !== null}
-        onOpenChange={(next) => {
-          if (!next && !deleting) {
-            setConfirmDelete(null);
-            setDeleteError(null);
-          }
-        }}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>
-              Archive {confirmDelete?.name ?? 'this account'}?
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              The account is hidden from pickers and lists. Its history is
-              preserved and an admin can restore it later.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          {deleteError ? (
-            <Alert tone="danger" role="alert">
-              {deleteError}
-            </Alert>
-          ) : null}
-          <AlertDialogFooter>
-            <AlertDialogCancel asChild>
-              <Button variant="secondary" disabled={deleting}>
-                Cancel
-              </Button>
-            </AlertDialogCancel>
-            <Button variant="danger" loading={deleting} onClick={handleDelete}>
-              Archive account
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </div>
+      <AccountDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        editing={editing}
+        onDone={handleDone}
+      />
+    </>
   );
 }
