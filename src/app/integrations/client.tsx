@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { ArrowRight, Check, Search, Webhook, Zap, Code } from 'lucide-react';
 import { MarketingShell, PageHero, SectionWrap } from '@/components/landing-v2/marketing-shell';
+import { SLUG_BRAND_LOGOS } from '@/lib/sabflow/blocks/brand-logos.generated';
 import {
     Badge,
     Card,
@@ -20,75 +21,77 @@ interface Integration {
     name: string;
     cat: string;
     blurb: string;
+    /** Key into SLUG_BRAND_LOGOS (scraped SVGs in public/brand-logos/). */
+    slug?: string;
 }
 
 const CATEGORIES = ['All', 'Communication', 'Payments', 'Commerce', 'Marketing', 'AI', 'Data', 'Productivity', 'Developer', 'Identity'];
 
 const INTEGRATIONS: Integration[] = [
     // Communication
-    { name: 'WhatsApp Business API', cat: 'Communication', blurb: 'Send/receive templates, broadcast, chatbot.' },
-    { name: 'Twilio', cat: 'Communication', blurb: 'SMS + voice fallback routes.' },
-    { name: 'Gmail', cat: 'Communication', blurb: 'Two-way inbox + send via OAuth.' },
-    { name: 'Outlook', cat: 'Communication', blurb: 'Microsoft 365 mailbox sync.' },
-    { name: 'Slack', cat: 'Communication', blurb: 'Notifications, slash commands, paging.' },
-    { name: 'Telegram', cat: 'Communication', blurb: 'Bots, channels, groups, payments.' },
-    { name: 'Discord', cat: 'Communication', blurb: 'Webhook posts + slash bots.' },
-    { name: 'Zoom', cat: 'Communication', blurb: 'Auto-create meetings + transcripts.' },
+    { name: 'WhatsApp Business API', cat: 'Communication', blurb: 'Send/receive templates, broadcast, chatbot.', slug: 'whatsapp' },
+    { name: 'Twilio', cat: 'Communication', blurb: 'SMS + voice fallback routes.', slug: 'twilio' },
+    { name: 'Gmail', cat: 'Communication', blurb: 'Two-way inbox + send via OAuth.', slug: 'gmail' },
+    { name: 'Outlook', cat: 'Communication', blurb: 'Microsoft 365 mailbox sync.', slug: 'outlook' },
+    { name: 'Slack', cat: 'Communication', blurb: 'Notifications, slash commands, paging.', slug: 'slack' },
+    { name: 'Telegram', cat: 'Communication', blurb: 'Bots, channels, groups, payments.', slug: 'telegram' },
+    { name: 'Discord', cat: 'Communication', blurb: 'Webhook posts + slash bots.', slug: 'discord' },
+    { name: 'Zoom', cat: 'Communication', blurb: 'Auto-create meetings + transcripts.', slug: 'zoom' },
     // Payments
-    { name: 'Razorpay', cat: 'Payments', blurb: 'UPI, cards, EMI, subscriptions.' },
-    { name: 'Stripe', cat: 'Payments', blurb: 'Global cards + subs + connect.' },
-    { name: 'Cashfree', cat: 'Payments', blurb: 'UPI + payouts API.' },
-    { name: 'PayPal', cat: 'Payments', blurb: 'Express checkout + webhooks.' },
-    { name: 'PhonePe', cat: 'Payments', blurb: 'UPI deep links + recon.' },
+    { name: 'Razorpay', cat: 'Payments', blurb: 'UPI, cards, EMI, subscriptions.', slug: 'razorpay' },
+    { name: 'Stripe', cat: 'Payments', blurb: 'Global cards + subs + connect.', slug: 'stripe' },
+    { name: 'Cashfree', cat: 'Payments', blurb: 'UPI + payouts API.', slug: 'cashfree' },
+    { name: 'PayPal', cat: 'Payments', blurb: 'Express checkout + webhooks.', slug: 'paypal' },
+    { name: 'PhonePe', cat: 'Payments', blurb: 'UPI deep links + recon.', slug: 'phonepe' },
     // Commerce
-    { name: 'Shopify', cat: 'Commerce', blurb: 'Sync orders, customers, products.' },
-    { name: 'WooCommerce', cat: 'Commerce', blurb: 'Order + cart-abandon events.' },
-    { name: 'Magento', cat: 'Commerce', blurb: 'Bulk catalog sync.' },
-    { name: 'Delhivery', cat: 'Commerce', blurb: 'Live courier rates + waybills.' },
-    { name: 'Shiprocket', cat: 'Commerce', blurb: 'Multi-carrier shipping ops.' },
-    { name: 'Razorpay Magic', cat: 'Commerce', blurb: '1-click checkout.' },
+    { name: 'Shopify', cat: 'Commerce', blurb: 'Sync orders, customers, products.', slug: 'shopify' },
+    { name: 'WooCommerce', cat: 'Commerce', blurb: 'Order + cart-abandon events.', slug: 'woocommerce' },
+    { name: 'Magento', cat: 'Commerce', blurb: 'Bulk catalog sync.', slug: 'magento' },
+    { name: 'Delhivery', cat: 'Commerce', blurb: 'Live courier rates + waybills.', slug: 'delhivery' },
+    { name: 'Shiprocket', cat: 'Commerce', blurb: 'Multi-carrier shipping ops.', slug: 'shiprocket' },
+    { name: 'Razorpay Magic', cat: 'Commerce', blurb: '1-click checkout.', slug: 'razorpay' },
     // Marketing
-    { name: 'Meta Ads', cat: 'Marketing', blurb: 'Custom audiences + CAPI.' },
-    { name: 'Google Ads', cat: 'Marketing', blurb: 'Conversion uploads + audiences.' },
-    { name: 'TikTok Ads', cat: 'Marketing', blurb: 'Events API + lead forms.' },
-    { name: 'Mailchimp', cat: 'Marketing', blurb: 'Two-way contact sync.' },
-    { name: 'HubSpot', cat: 'Marketing', blurb: 'Deal + contact mirror.' },
-    { name: 'Salesforce', cat: 'Marketing', blurb: 'Bidirectional CRM sync.' },
+    { name: 'Meta Ads', cat: 'Marketing', blurb: 'Custom audiences + CAPI.', slug: 'meta' },
+    { name: 'Google Ads', cat: 'Marketing', blurb: 'Conversion uploads + audiences.', slug: 'google' },
+    { name: 'TikTok Ads', cat: 'Marketing', blurb: 'Events API + lead forms.', slug: 'tiktok' },
+    { name: 'Mailchimp', cat: 'Marketing', blurb: 'Two-way contact sync.', slug: 'mailchimp' },
+    { name: 'HubSpot', cat: 'Marketing', blurb: 'Deal + contact mirror.', slug: 'hubspot' },
+    { name: 'Salesforce', cat: 'Marketing', blurb: 'Bidirectional CRM sync.', slug: 'salesforce' },
     // AI
-    { name: 'OpenAI', cat: 'AI', blurb: 'GPT-4, embeddings, tool-use.' },
-    { name: 'Anthropic', cat: 'AI', blurb: 'Claude models + structured output.' },
-    { name: 'Google Gemini', cat: 'AI', blurb: 'Multi-modal + grounding.' },
-    { name: 'Ollama', cat: 'AI', blurb: 'Local model runtime.' },
-    { name: 'Pinecone', cat: 'AI', blurb: 'Vector store for RAG.' },
-    { name: 'Weaviate', cat: 'AI', blurb: 'Embedding + hybrid search.' },
+    { name: 'OpenAI', cat: 'AI', blurb: 'GPT-4, embeddings, tool-use.', slug: 'openai' },
+    { name: 'Anthropic', cat: 'AI', blurb: 'Claude models + structured output.', slug: 'anthropic' },
+    { name: 'Google Gemini', cat: 'AI', blurb: 'Multi-modal + grounding.', slug: 'googlegemini' },
+    { name: 'Ollama', cat: 'AI', blurb: 'Local model runtime.', slug: 'ollama' },
+    { name: 'Pinecone', cat: 'AI', blurb: 'Vector store for RAG.', slug: 'pinecone' },
+    { name: 'Weaviate', cat: 'AI', blurb: 'Embedding + hybrid search.', slug: 'weaviate' },
     // Data
-    { name: 'Postgres', cat: 'Data', blurb: 'Native connector + signed reads.' },
-    { name: 'MongoDB', cat: 'Data', blurb: 'Collection sync + watch.' },
-    { name: 'MySQL', cat: 'Data', blurb: 'Read replica + writeback.' },
-    { name: 'BigQuery', cat: 'Data', blurb: 'Scheduled exports + queries.' },
-    { name: 'Snowflake', cat: 'Data', blurb: 'Warehouse pushdown.' },
-    { name: 'Redshift', cat: 'Data', blurb: 'Bulk loads + ad-hoc.' },
-    { name: 'AWS S3', cat: 'Data', blurb: 'Bucket sync + presigned URLs.' },
-    { name: 'Cloudflare R2', cat: 'Data', blurb: 'Egress-free object store.' },
+    { name: 'Postgres', cat: 'Data', blurb: 'Native connector + signed reads.', slug: 'postgres' },
+    { name: 'MongoDB', cat: 'Data', blurb: 'Collection sync + watch.', slug: 'mongodb' },
+    { name: 'MySQL', cat: 'Data', blurb: 'Read replica + writeback.', slug: 'mysql' },
+    { name: 'BigQuery', cat: 'Data', blurb: 'Scheduled exports + queries.', slug: 'bigquery' },
+    { name: 'Snowflake', cat: 'Data', blurb: 'Warehouse pushdown.', slug: 'snowflake' },
+    { name: 'Redshift', cat: 'Data', blurb: 'Bulk loads + ad-hoc.', slug: 'redshift' },
+    { name: 'AWS S3', cat: 'Data', blurb: 'Bucket sync + presigned URLs.', slug: 'awss3' },
+    { name: 'Cloudflare R2', cat: 'Data', blurb: 'Egress-free object store.', slug: 'cloudflare' },
     // Productivity
-    { name: 'Google Calendar', cat: 'Productivity', blurb: 'Two-way calendar + bookings.' },
-    { name: 'Notion', cat: 'Productivity', blurb: 'Database read/write.' },
-    { name: 'Linear', cat: 'Productivity', blurb: 'Issue mirror + status.' },
-    { name: 'Jira', cat: 'Productivity', blurb: 'Project + sprint sync.' },
-    { name: 'Asana', cat: 'Productivity', blurb: 'Task + project sync.' },
-    { name: 'Google Sheets', cat: 'Productivity', blurb: 'Bidirectional sheet sync.' },
+    { name: 'Google Calendar', cat: 'Productivity', blurb: 'Two-way calendar + bookings.', slug: 'googlecalendar' },
+    { name: 'Notion', cat: 'Productivity', blurb: 'Database read/write.', slug: 'notion' },
+    { name: 'Linear', cat: 'Productivity', blurb: 'Issue mirror + status.', slug: 'linear' },
+    { name: 'Jira', cat: 'Productivity', blurb: 'Project + sprint sync.', slug: 'jira' },
+    { name: 'Asana', cat: 'Productivity', blurb: 'Task + project sync.', slug: 'asana' },
+    { name: 'Google Sheets', cat: 'Productivity', blurb: 'Bidirectional sheet sync.', slug: 'googlesheets' },
     // Developer
-    { name: 'GitHub', cat: 'Developer', blurb: 'PR + issue events.' },
-    { name: 'GitLab', cat: 'Developer', blurb: 'CI + MR events.' },
-    { name: 'Vercel', cat: 'Developer', blurb: 'Deploy events + logs.' },
-    { name: 'PagerDuty', cat: 'Developer', blurb: 'Incident paging.' },
-    { name: 'Datadog', cat: 'Developer', blurb: 'Metrics + alerts mirror.' },
-    { name: 'Sentry', cat: 'Developer', blurb: 'Error stream + grouping.' },
+    { name: 'GitHub', cat: 'Developer', blurb: 'PR + issue events.', slug: 'github' },
+    { name: 'GitLab', cat: 'Developer', blurb: 'CI + MR events.', slug: 'gitlab' },
+    { name: 'Vercel', cat: 'Developer', blurb: 'Deploy events + logs.', slug: 'vercel' },
+    { name: 'PagerDuty', cat: 'Developer', blurb: 'Incident paging.', slug: 'pagerduty' },
+    { name: 'Datadog', cat: 'Developer', blurb: 'Metrics + alerts mirror.', slug: 'datadog' },
+    { name: 'Sentry', cat: 'Developer', blurb: 'Error stream + grouping.', slug: 'sentry' },
     // Identity
-    { name: 'Okta', cat: 'Identity', blurb: 'SAML SSO + SCIM.' },
-    { name: 'Azure AD', cat: 'Identity', blurb: 'Entra ID + groups.' },
-    { name: 'Google Workspace', cat: 'Identity', blurb: 'OAuth + directory.' },
-    { name: 'Auth0', cat: 'Identity', blurb: 'OIDC + social logins.' },
+    { name: 'Okta', cat: 'Identity', blurb: 'SAML SSO + SCIM.', slug: 'okta' },
+    { name: 'Azure AD', cat: 'Identity', blurb: 'Entra ID + groups.', slug: 'azure' },
+    { name: 'Google Workspace', cat: 'Identity', blurb: 'OAuth + directory.', slug: 'googleworkspace' },
+    { name: 'Auth0', cat: 'Identity', blurb: 'OIDC + social logins.', slug: 'auth0' },
 ];
 
 export function IntegrationsClient({ session }: { session?: { user?: unknown } | null }) {
@@ -161,7 +164,9 @@ export function IntegrationsClient({ session }: { session?: { user?: unknown } |
                     </div>
                 ) : (
                     <div className="20ui mt-10 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                        {visible.map((it, i) => (
+                        {visible.map((it, i) => {
+                            const logo = it.slug ? SLUG_BRAND_LOGOS[it.slug] : undefined;
+                            return (
                             <m.div
                                 key={it.name}
                                 initial={{ opacity: 0, y: 6 }}
@@ -173,7 +178,21 @@ export function IntegrationsClient({ session }: { session?: { user?: unknown } |
                                     <CardBody className="p-4">
                                         <div className="flex items-center gap-3">
                                             <div className="grid h-10 w-10 place-items-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-sm font-bold text-[var(--st-text)]">
-                                                {it.name[0]}
+                                                {logo ? (
+                                                    // eslint-disable-next-line @next/next/no-img-element -- static same-origin SVG
+                                                    <img
+                                                        src={logo}
+                                                        alt=""
+                                                        aria-hidden
+                                                        width={24}
+                                                        height={24}
+                                                        loading="lazy"
+                                                        decoding="async"
+                                                        className="max-h-6 max-w-6 object-contain"
+                                                    />
+                                                ) : (
+                                                    it.name[0]
+                                                )}
                                             </div>
                                             <div className="min-w-0 flex-1">
                                                 <div className="flex items-center gap-1.5">
@@ -187,7 +206,8 @@ export function IntegrationsClient({ session }: { session?: { user?: unknown } |
                                     </CardBody>
                                 </Card>
                             </m.div>
-                        ))}
+                            );
+                        })}
                     </div>
                 )}
             </SectionWrap>

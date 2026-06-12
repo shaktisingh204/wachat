@@ -1,6 +1,6 @@
 'use client';
 
-import { Icon as IconifyIcon } from '@iconify/react';
+import { BrandIcon } from '@/components/sabflow/BrandIcon';
 import { cn } from '@/lib/utils';
 import type { Block } from '@/lib/sabflow/types';
 import { getBlockDisplay } from '@/lib/sabflow/blocks';
@@ -34,7 +34,7 @@ export function BlockNodeOverlay({ block, className, style }: Props) {
         )}
       >
         {brand ? (
-          <IconifyIcon icon={brand} className="h-5 w-5" aria-hidden />
+          <BrandIcon icon={brand} className="h-5 w-5" aria-hidden />
         ) : Icon ? (
           <Icon className="h-3.5 w-3.5" />
         ) : (

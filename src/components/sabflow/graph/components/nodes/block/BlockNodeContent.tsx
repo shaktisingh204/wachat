@@ -50,7 +50,7 @@ import {
   LuMessageCircleReply,
   LuPin,
 } from 'react-icons/lu';
-import { Icon } from '@iconify/react';
+import { BrandIcon } from '@/components/sabflow/BrandIcon';
 import type { Block, BlockType } from '@/lib/sabflow/types';
 import { WithVariableContent } from './WithVariableContent';
 import type { ComponentType } from 'react';
@@ -192,7 +192,7 @@ export function BlockNodeContent({ block }: Props) {
         // transparent tile so the official multi-colour brand mark reads
         // clearly. Matches n8n's canvas exactly.
         <div className="flex h-7 w-7 shrink-0 items-center justify-center mt-0.5">
-          <Icon icon={brand} className="h-5 w-5" aria-hidden />
+          <BrandIcon icon={brand} className="h-5 w-5" aria-hidden />
         </div>
       ) : (
         // Generic Lucide icon for built-in primitives + unmapped providers,

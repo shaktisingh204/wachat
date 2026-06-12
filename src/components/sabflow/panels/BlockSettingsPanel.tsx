@@ -16,7 +16,7 @@ import { ArrowRight, Play } from 'lucide-react';
 import { useGraph } from '@/components/sabflow/graph/providers/GraphProvider';
 import { getBlockLabel, getBlockIcon, getBlockColor } from '@/lib/sabflow/blocks';
 import { getBlockBrandIcon } from '@/lib/sabflow/blocks/icons';
-import { Icon as IconifyIcon } from '@iconify/react';
+import { BrandIcon } from '@/components/sabflow/BrandIcon';
 import type { Block, SabFlowDoc, SabFlowEvent, Variable } from '@/lib/sabflow/types';
 import { cn } from '@/lib/utils';
 import {
@@ -259,7 +259,7 @@ function PanelHeader({
       {/* Block / event icon - brand logo when available, else tinted Lucide */}
       {brand ? (
         <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[var(--st-bg-secondary)]">
-          <IconifyIcon icon={brand} className="h-4 w-4" aria-hidden />
+          <BrandIcon icon={brand} className="h-4 w-4" aria-hidden />
         </div>
       ) : Icon ? (
         <div

@@ -14,7 +14,7 @@
  */
 import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import { Search, SearchX, X } from 'lucide-react';
-import { Icon as IconifyIcon } from '@iconify/react';
+import { BrandIcon } from '@/components/sabflow/BrandIcon';
 import { Field, Input, IconButton, EmptyState, Badge } from '@/components/sabcrm/20ui';
 import {
   useAppCatalog,
@@ -194,7 +194,7 @@ export function NodeCreator({ state, onClose, onPick }: Props) {
                       style={{ backgroundColor: entry.color + '22', color: entry.color }}
                     >
                       {entry.brandIcon ? (
-                        <IconifyIcon
+                        <BrandIcon
                           icon={entry.brandIcon}
                           className="h-3.5 w-3.5"
                           fallback={fallbackIcon}

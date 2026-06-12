@@ -11,7 +11,7 @@ import {
   type KeyboardEvent,
 } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { Icon as IconifyIcon } from '@iconify/react';
+import { BrandIcon } from '@/components/sabflow/BrandIcon';
 import { useBlockDnd } from '@/components/sabflow/graph/providers/GraphDndProvider';
 import {
   useAppCatalog,
@@ -721,7 +721,7 @@ function BlockCard({
           style={{ backgroundColor: color + '20', color }}
         >
           {brandIcon ? (
-            <IconifyIcon
+            <BrandIcon
               icon={brandIcon}
               className="h-4 w-4"
               fallback={fallbackIcon}

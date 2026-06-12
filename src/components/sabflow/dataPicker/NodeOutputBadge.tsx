@@ -1,6 +1,6 @@
 'use client';
 
-import { Icon as IconifyIcon } from '@iconify/react';
+import { BrandIcon } from '@/components/sabflow/BrandIcon';
 import { ChevronRight } from 'lucide-react';
 
 import { Badge, Button, Dot } from '@/components/sabcrm/20ui';
@@ -59,7 +59,7 @@ export function NodeOutputBadge({
         style={brand ? undefined : { background: `${color}22`, color }}
       >
         {brand ? (
-          <IconifyIcon icon={brand} className="h-3.5 w-3.5" aria-hidden />
+          <BrandIcon icon={brand} className="h-3.5 w-3.5" aria-hidden />
         ) : (
           Icon && <Icon className="h-3.5 w-3.5" aria-hidden />
         )}

@@ -10,7 +10,7 @@ import {
 } from '@/lib/sabflow/blocks';
 import { getBlockBrandIcon } from '@/lib/sabflow/blocks/icons';
 import { cn } from '@/lib/utils';
-import { Icon as IconifyIcon } from '@iconify/react';
+import { BrandIcon } from '@/components/sabflow/BrandIcon';
 import { X } from 'lucide-react';
 import { useGraph } from '@/components/sabflow/graph/providers/GraphProvider';
 
@@ -74,7 +74,7 @@ export function BlockPropertiesPanel({ block, onUpdate, variables = [] }: Props)
           style={brand ? undefined : { background: `${color}22`, color }}
         >
           {brand ? (
-            <IconifyIcon icon={brand} className="h-4 w-4" aria-hidden />
+            <BrandIcon icon={brand} className="h-4 w-4" aria-hidden />
           ) : (
             Icon && <Icon className="h-4 w-4" aria-hidden="true" />
           )}

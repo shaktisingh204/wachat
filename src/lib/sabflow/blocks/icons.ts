@@ -25,6 +25,8 @@
  *   3. `null` — caller falls back to the existing Lucide icon
  */
 
+import { SLUG_BRAND_LOGOS } from './brand-logos.generated';
+
 /* ── Explicit overrides — prefer `logos:` (full-colour) ──────────────────── */
 
 const BLOCK_BRAND_ICONS: Record<string, string> = {
@@ -252,7 +254,19 @@ function deriveBrand(type: string): string | null {
  * Lucide icon when this returns null.
  */
 export function getBlockBrandIcon(type: string): string | null {
-  return BLOCK_BRAND_ICONS[type] ?? deriveBrand(type);
+  const explicit = BLOCK_BRAND_ICONS[type] ?? deriveBrand(type);
+  if (explicit) return explicit;
+  // Locally vendored logo scraped by scripts/fetch-brand-logos.mjs —
+  // keyed by normalized slug (lowercase, separator-free, no version/trigger
+  // suffix). Covers forge providers beyond the explicit table above.
+  if (type.startsWith('forge_')) {
+    const slug = type
+      .replace(/^forge_/, '')
+      .replace(/_(v\d+|trigger|node|ext)$/g, '')
+      .replace(/_/g, '');
+    return SLUG_BRAND_LOGOS[slug] ?? null;
+  }
+  return null;
 }
 
 /**
@@ -269,6 +283,10 @@ export function getBrandIconForSlug(slug: string | null | undefined): string | n
   if (!slug) return null;
   // Trigger variants share the provider's mark (`slacktrigger` → `slack`).
   const base = slug.replace(/trigger$/, '');
+  // Locally vendored logo (scripts/fetch-brand-logos.mjs) — verified to
+  // exist on disk, so no fallback gymnastics needed for these.
+  const local = SLUG_BRAND_LOGOS[base] ?? SLUG_BRAND_LOGOS[slug];
+  if (local) return local;
   if (!base || !/^[a-z0-9]+$/.test(base)) return null;
   return `logos:${base}`;
 }
