@@ -74,7 +74,9 @@ export interface SabAppDescriptor {
  * Modules hidden from ALL navigation per product decision (their code + routes
  * stay intact, they're just no longer surfaced).
  */
-const HIDDEN_APP_IDS = new Set(["sabwa", "crm", "sabcrm", "hrm", "seo"]);
+// `sabcrm` was un-hidden when it became the suite that absorbs the legacy
+// `crm` module (which stays hidden until its P9 deletion).
+const HIDDEN_APP_IDS = new Set(["sabwa", "crm", "hrm", "seo"]);
 
 const SAB_APPS_ALL: SabAppDescriptor[] = [
   {
