@@ -63,18 +63,36 @@ const loadHandler = async (): Promise<RemixHandler> => {
     return handlerPromise;
 };
 
+const firstHeaderValue = (value: string | null): string | undefined =>
+    value === null ? undefined : value.split(',')[0].trim();
+
 const handle = async (request: NextRequest): Promise<Response> => {
     const url = new URL(request.url);
 
-    // Preserve the original host (p-<projectId> builder subdomains matter).
-    const host =
-        request.headers.get('x-forwarded-host') ?? request.headers.get('host');
-    if (host) {
-        url.host = host;
-        const proto = request.headers.get('x-forwarded-proto');
-        if (proto) {
-            url.protocol = `${proto}:`;
-        }
+    // The builder builds absolute public URLs (OAuth redirects + the
+    // p-<projectId> subdomains) from request.url, so it MUST see the external
+    // origin — never the internal bind port. We can't infer this from
+    // x-forwarded-* headers (Next sets x-forwarded-proto=http even in local
+    // dev), so production declares its canonical host explicitly:
+    //   SABSITES_PUBLIC_HOST=sabnode.com  (+ optional SABSITES_PUBLIC_PROTO,
+    //   default https). The incoming p-<projectId> label is preserved and the
+    //   apex + any internal port are normalized to the public host.
+    // When SABSITES_PUBLIC_HOST is unset we're in local dev (direct to :3002)
+    // and keep the forwarded host:port verbatim.
+    const fwdHost = firstHeaderValue(
+        request.headers.get('x-forwarded-host') ?? request.headers.get('host')
+    );
+    const publicHost = process.env.SABSITES_PUBLIC_HOST;
+    if (publicHost) {
+        const incomingHostname = (fwdHost ?? '').split(':')[0];
+        const projectLabel = incomingHostname.match(/^(p-[0-9a-fA-F-]+)\./)?.[1];
+        url.protocol = `${process.env.SABSITES_PUBLIC_PROTO ?? 'https'}:`;
+        url.hostname = projectLabel
+            ? `${projectLabel}.${publicHost}`
+            : publicHost;
+        url.port = '';
+    } else if (fwdHost) {
+        url.host = fwdHost;
     }
 
     const handler = await loadHandler();
