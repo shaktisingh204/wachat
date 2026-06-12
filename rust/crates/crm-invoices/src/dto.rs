@@ -353,6 +353,114 @@ mod tests {
         assert_eq!(input.from_kind.as_deref(), Some("quotation"));
     }
 
+    /// The doc-surface form now writes the header totals modifiers
+    /// (overall discount / shipping / adjustment / round-off). They ride
+    /// the existing `Totals` shape — pin the camelCase round-trip so the
+    /// TS `buildWireMoney` payload can never silently drop them.
+    #[test]
+    fn create_input_round_trips_totals_modifiers() {
+        let json = serde_json::json!({
+            "invoiceNo": "INV-2026-0010",
+            "clientId": "65f00000000000000000abcd",
+            "currency": "INR",
+            "date": "2026-06-12T00:00:00Z",
+            "dueDate": "2026-07-12T00:00:00Z",
+            "items": [{ "qty": 1.0, "rate": 1000.0, "taxRatePct": 18.0, "total": 1180.0 }],
+            "totals": {
+                "subTotal": 1000.0,
+                "discountOverall": 50.0,
+                "shippingCharge": 120.0,
+                "adjustment": -10.5,
+                "roundOff": 0.5,
+                "total": 1240.0,
+            },
+        });
+        let input: CreateInvoiceInput = serde_json::from_value(json).unwrap();
+        assert_eq!(input.totals.sub_total, 1000.0);
+        assert_eq!(input.totals.discount_overall, Some(50.0));
+        assert_eq!(input.totals.shipping_charge, Some(120.0));
+        assert_eq!(input.totals.adjustment, Some(-10.5));
+        assert_eq!(input.totals.round_off, Some(0.5));
+        assert_eq!(input.totals.total, 1240.0);
+
+        // Modifier-less totals stay `None` (legacy wire shape intact).
+        let bare: CreateInvoiceInput = serde_json::from_value(serde_json::json!({
+            "invoiceNo": "INV-2026-0011",
+            "clientId": "65f00000000000000000abcd",
+            "currency": "INR",
+            "date": "2026-06-12T00:00:00Z",
+            "dueDate": "2026-07-12T00:00:00Z",
+            "items": [{ "qty": 1.0, "rate": 100.0, "total": 100.0 }],
+            "totals": { "subTotal": 100.0, "total": 100.0 },
+        }))
+        .unwrap();
+        assert!(bare.totals.discount_overall.is_none());
+        assert!(bare.totals.shipping_charge.is_none());
+        assert!(bare.totals.adjustment.is_none());
+        assert!(bare.totals.round_off.is_none());
+    }
+
+    /// The full edit form PATCHes the GST header (place of supply,
+    /// treatment, TCS/TDS %) alongside recomputed items + totals — pin
+    /// the wire names and the non-empty detection for each field.
+    #[test]
+    fn update_input_round_trips_gst_header_and_modifiers() {
+        let json = serde_json::json!({
+            "placeOfSupply": "Maharashtra",
+            "gstTreatment": "sez_without_payment",
+            "tcsPct": 1.0,
+            "tdsPct": 2.0,
+            "items": [{ "qty": 2.0, "rate": 500.0, "total": 1000.0 }],
+            "totals": {
+                "subTotal": 1000.0,
+                "shippingCharge": 49.5,
+                "roundOff": 0.5,
+                "total": 1050.0,
+            },
+        });
+        let input: UpdateInvoiceInput = serde_json::from_value(json).unwrap();
+        assert_eq!(input.place_of_supply.as_deref(), Some("Maharashtra"));
+        assert!(matches!(
+            input.gst_treatment,
+            Some(GstTreatment::SezWithoutPayment)
+        ));
+        assert_eq!(input.tcs_pct, Some(1.0));
+        assert_eq!(input.tds_pct, Some(2.0));
+        let totals = input.totals.as_ref().expect("totals parsed");
+        assert_eq!(totals.shipping_charge, Some(49.5));
+        assert_eq!(totals.round_off, Some(0.5));
+        assert_eq!(totals.total, 1050.0);
+        assert!(!input.is_empty());
+
+        // Each GST-header field alone is a valid (non-empty) patch.
+        for patch in [
+            UpdateInvoiceInput {
+                place_of_supply: Some("Karnataka".into()),
+                ..Default::default()
+            },
+            UpdateInvoiceInput {
+                gst_treatment: Some(GstTreatment::Consumer),
+                ..Default::default()
+            },
+            UpdateInvoiceInput {
+                tcs_pct: Some(0.1),
+                ..Default::default()
+            },
+            UpdateInvoiceInput {
+                tds_pct: Some(10.0),
+                ..Default::default()
+            },
+        ] {
+            assert!(!patch.is_empty());
+        }
+    }
+
+    #[test]
+    fn update_input_rejects_unknown_gst_treatment() {
+        let json = serde_json::json!({ "gstTreatment": "intergalactic" });
+        assert!(serde_json::from_value::<UpdateInvoiceInput>(json).is_err());
+    }
+
     #[test]
     fn create_input_round_trips_attachments() {
         let json = serde_json::json!({

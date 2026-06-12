@@ -51,12 +51,23 @@ export interface DocDetailParty {
   /** Route to the CRM record (null when the record is gone). */
   href: string | null;
   meta?: string | null;
+  /**
+   * Bill-to address lines resolved from the linked CRM record's
+   * ADDRESS field (street / street 2 / city-state-postcode / country).
+   * Rendered on the paper under "Billed to" and on the party card.
+   */
+  addressLines?: string[];
 }
 
 export interface DocDetailTotals {
   subTotal: number;
   discountTotal?: number;
   taxTotal?: number;
+  /** Header-level modifiers (rows render only when non-zero). */
+  discountOverall?: number;
+  shippingCharge?: number;
+  adjustment?: number;
+  roundOff?: number;
   total: number;
   amountPaid?: number;
   balance?: number;
@@ -197,6 +208,15 @@ export function DocDetailPage({
               {party?.meta ? (
                 <span className="fdoc-cell-sub">{party.meta}</span>
               ) : null}
+              {party?.addressLines?.length ? (
+                <span className="fdoc-paper__addr">
+                  {party.addressLines.map((line, i) => (
+                    <span key={i} className="fdoc-cell-sub">
+                      {line}
+                    </span>
+                  ))}
+                </span>
+              ) : null}
             </div>
           </div>
 
@@ -281,6 +301,40 @@ export function DocDetailPage({
                   </dd>
                 </>
               ) : null}
+              {totals.discountOverall ? (
+                <>
+                  <dt className="fdoc-totals__label">Discount</dt>
+                  <dd className="fdoc-totals__value">
+                    −{formatDocMoney(totals.discountOverall, currency)}
+                  </dd>
+                </>
+              ) : null}
+              {totals.shippingCharge ? (
+                <>
+                  <dt className="fdoc-totals__label">Shipping</dt>
+                  <dd className="fdoc-totals__value">
+                    {formatDocMoney(totals.shippingCharge, currency)}
+                  </dd>
+                </>
+              ) : null}
+              {totals.adjustment ? (
+                <>
+                  <dt className="fdoc-totals__label">Adjustment</dt>
+                  <dd className="fdoc-totals__value">
+                    {totals.adjustment < 0 ? '−' : ''}
+                    {formatDocMoney(Math.abs(totals.adjustment), currency)}
+                  </dd>
+                </>
+              ) : null}
+              {totals.roundOff ? (
+                <>
+                  <dt className="fdoc-totals__label">Round off</dt>
+                  <dd className="fdoc-totals__value">
+                    {totals.roundOff < 0 ? '−' : '+'}
+                    {formatDocMoney(Math.abs(totals.roundOff), currency)}
+                  </dd>
+                </>
+              ) : null}
               <div className="fdoc-totals__grand">
                 <dt className="fdoc-totals__label">Total</dt>
                 <dd className="fdoc-totals__value">
@@ -343,6 +397,15 @@ export function DocDetailPage({
                   )}
                   {party.meta ? (
                     <span className="fdoc-cell-sub">{party.meta}</span>
+                  ) : null}
+                  {party.addressLines?.length ? (
+                    <span className="fdoc-paper__addr">
+                      {party.addressLines.map((line, i) => (
+                        <span key={i} className="fdoc-cell-sub">
+                          {line}
+                        </span>
+                      ))}
+                    </span>
                   ) : null}
                 </>
               ) : (

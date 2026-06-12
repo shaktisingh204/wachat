@@ -16,12 +16,14 @@
 
 import * as React from 'react';
 import { ArrowDown, ArrowUp, Plus, Trash2 } from 'lucide-react';
-import { Button, IconButton, Input } from '@/components/sabcrm/20ui';
+import { Button, Checkbox, IconButton, Input } from '@/components/sabcrm/20ui';
 import {
+  computeDocGrandTotals,
   computeDocLine,
-  computeDocTotals,
   isBlankDocLine,
   safeNum,
+  signedNum,
+  type DocTotalsModifiersInput,
 } from '@/lib/sabcrm/finance-doc-math';
 import { EntityPicker } from './entity-picker';
 import type { DocItemOption, DocLineDraft } from './types';
@@ -59,6 +61,20 @@ export interface LineItemsEditorProps {
   /** Item-catalog search; omit to make all rows free-text. */
   searchItems?: (q: string) => Promise<DocItemOption[]>;
   disabled?: boolean;
+  /**
+   * Compact HSN/SAC + unit inputs on rows WITHOUT a picked catalog item
+   * (picked items keep sourcing both from the catalog and render them
+   * as read-only sub-text).
+   */
+  lineExtras?: boolean;
+  /**
+   * Header totals modifiers (overall discount / shipping / adjustment /
+   * round-off). Providing BOTH props enables the footer section and
+   * folds the modifiers into the live total preview via the shared
+   * `computeDocGrandTotals` — the same math the server persists.
+   */
+  modifiers?: DocTotalsModifiersInput;
+  onModifiersChange?: (modifiers: DocTotalsModifiersInput) => void;
 }
 
 export function LineItemsEditor({
@@ -67,6 +83,9 @@ export function LineItemsEditor({
   currency,
   searchItems,
   disabled = false,
+  lineExtras = false,
+  modifiers,
+  onModifiersChange,
 }: LineItemsEditorProps): React.JSX.Element {
   const itemCacheRef = React.useRef(new Map<string, DocItemOption>());
 
@@ -106,7 +125,14 @@ export function LineItemsEditor({
     [searchItems],
   );
 
-  const totals = computeDocTotals(lines.filter((l) => !isBlankDocLine(l)));
+  const withModifiers = !!modifiers && !!onModifiersChange;
+  const patchModifiers = (p: Partial<DocTotalsModifiersInput>): void =>
+    onModifiersChange?.({ ...modifiers, ...p });
+
+  const totals = computeDocGrandTotals(
+    lines.filter((l) => !isBlankDocLine(l)),
+    withModifiers ? modifiers : undefined,
+  );
 
   return (
     <div className="fdoc-lines">
@@ -189,6 +215,41 @@ export function LineItemsEditor({
                     disabled={disabled}
                     aria-label={`Line ${n} description`}
                   />
+                  {lineExtras && !line.itemId ? (
+                    <span className="fdoc-lines__extras">
+                      <Input
+                        value={line.hsnSac ?? ''}
+                        onChange={(e) =>
+                          patchRow(line.rowId, {
+                            hsnSac: e.target.value || undefined,
+                          })
+                        }
+                        placeholder="HSN/SAC"
+                        disabled={disabled}
+                        aria-label={`Line ${n} HSN or SAC code`}
+                      />
+                      <Input
+                        value={line.unit ?? ''}
+                        onChange={(e) =>
+                          patchRow(line.rowId, {
+                            unit: e.target.value || undefined,
+                          })
+                        }
+                        placeholder="Unit (nos, kg…)"
+                        disabled={disabled}
+                        aria-label={`Line ${n} unit of measure`}
+                      />
+                    </span>
+                  ) : lineExtras && (line.hsnSac || line.unit) ? (
+                    <span className="fdoc-cell-sub">
+                      {[
+                        line.hsnSac ? `HSN/SAC ${line.hsnSac}` : null,
+                        line.unit || null,
+                      ]
+                        .filter(Boolean)
+                        .join(' · ')}
+                    </span>
+                  ) : null}
                 </td>
                 <td>
                   <Input
@@ -324,9 +385,114 @@ export function LineItemsEditor({
           ) : null}
           <dt className="fdoc-totals__label">Tax</dt>
           <dd className="fdoc-totals__value">{fmt(totals.taxTotal, currency)}</dd>
+          {withModifiers ? (
+            <>
+              <dt className="fdoc-totals__label">
+                <label htmlFor="fdoc-mod-discount">Overall discount</label>
+              </dt>
+              <dd className="fdoc-totals__value">
+                <Input
+                  id="fdoc-mod-discount"
+                  type="number"
+                  inputMode="decimal"
+                  min={0}
+                  step="0.01"
+                  className="fdoc-totals__input"
+                  value={
+                    modifiers?.discountOverall === undefined
+                      ? ''
+                      : String(modifiers.discountOverall)
+                  }
+                  onChange={(e) =>
+                    patchModifiers({
+                      discountOverall:
+                        e.target.value === ''
+                          ? undefined
+                          : safeNum(e.target.value),
+                    })
+                  }
+                  placeholder="0.00"
+                  disabled={disabled}
+                />
+              </dd>
+              <dt className="fdoc-totals__label">
+                <label htmlFor="fdoc-mod-shipping">Shipping</label>
+              </dt>
+              <dd className="fdoc-totals__value">
+                <Input
+                  id="fdoc-mod-shipping"
+                  type="number"
+                  inputMode="decimal"
+                  min={0}
+                  step="0.01"
+                  className="fdoc-totals__input"
+                  value={
+                    modifiers?.shippingCharge === undefined
+                      ? ''
+                      : String(modifiers.shippingCharge)
+                  }
+                  onChange={(e) =>
+                    patchModifiers({
+                      shippingCharge:
+                        e.target.value === ''
+                          ? undefined
+                          : safeNum(e.target.value),
+                    })
+                  }
+                  placeholder="0.00"
+                  disabled={disabled}
+                />
+              </dd>
+              <dt className="fdoc-totals__label">
+                <label htmlFor="fdoc-mod-adjustment">Adjustment</label>
+              </dt>
+              <dd className="fdoc-totals__value">
+                <Input
+                  id="fdoc-mod-adjustment"
+                  type="number"
+                  inputMode="decimal"
+                  step="0.01"
+                  className="fdoc-totals__input"
+                  value={
+                    modifiers?.adjustment === undefined
+                      ? ''
+                      : String(modifiers.adjustment)
+                  }
+                  onChange={(e) =>
+                    patchModifiers({
+                      adjustment:
+                        e.target.value === ''
+                          ? undefined
+                          : signedNum(e.target.value),
+                    })
+                  }
+                  placeholder="±0.00"
+                  disabled={disabled}
+                />
+              </dd>
+              <dt className="fdoc-totals__label">
+                <Checkbox
+                  size="sm"
+                  label="Round off"
+                  checked={!!modifiers?.roundOff}
+                  onChange={(e) =>
+                    patchModifiers({ roundOff: e.target.checked })
+                  }
+                  disabled={disabled}
+                />
+              </dt>
+              <dd className="fdoc-totals__value">
+                {totals.roundOff !== 0
+                  ? `${totals.roundOff > 0 ? '+' : '−'}${fmt(Math.abs(totals.roundOff), currency)}`
+                  : '—'}
+              </dd>
+            </>
+          ) : null}
           <div className="fdoc-totals__grand">
             <dt className="fdoc-totals__label">Total</dt>
-            <dd className="fdoc-totals__value">{fmt(totals.total, currency)}</dd>
+            <dd className="fdoc-totals__value">
+              {fmt(withModifiers ? totals.grandTotal : totals.total, currency)}
+            </dd>
           </div>
         </dl>
       </div>

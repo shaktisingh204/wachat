@@ -44,6 +44,7 @@ import {
   type SabcrmInvoiceUpdateInput,
 } from '@/lib/rust-client/sabcrm-finance';
 import type {
+  CrmInvoiceGstTreatment,
   CrmInvoiceLineItem,
   CrmInvoiceStatus,
   CrmInvoiceTotals,
@@ -53,10 +54,11 @@ import { sabcrmRecordsApi } from '@/lib/rust-client/sabcrm-records';
 import { sabcrmObjectsApi } from '@/lib/rust-client/sabcrm-objects';
 import { sabcrmRecordLabel } from '@/lib/sabcrm/record-label';
 import {
-  computeDocTotals,
+  computeDocGrandTotals,
   isBlankDocLine,
   round2,
   type DocLineInput,
+  type DocTotalsModifiersInput,
 } from '@/lib/sabcrm/finance-doc-math';
 import { sendSabcrmEmail } from './sabcrm-email.actions';
 import type { ActionResult } from '@/lib/sabcrm/types';
@@ -173,6 +175,50 @@ function extractEmail(data: Record<string, unknown> | undefined): string | null 
     }
   }
   return null;
+}
+
+/** Field-metadata slice we need for address resolution. */
+interface AddressFieldDef {
+  key: string;
+  type: string;
+}
+
+/** First non-empty string among Twenty-/native-shaped address parts. */
+function firstAddrString(...vals: unknown[]): string {
+  for (const v of vals) {
+    if (typeof v === 'string' && v.trim()) return v.trim();
+  }
+  return '';
+}
+
+/**
+ * Resolves the record's ADDRESS field into display lines (street /
+ * street 2 / "city, state postcode" / country). Tolerates both the
+ * Twenty composite sub-keys (`addressStreet1`, …) and plain keys
+ * (`street`, `city`, …); a bare string value renders as one line.
+ */
+function extractAddressLines(
+  fields: AddressFieldDef[] | undefined,
+  data: Record<string, unknown> | undefined,
+): string[] {
+  if (!data) return [];
+  const addressField = (fields ?? []).find((f) => f.type === 'ADDRESS');
+  if (!addressField) return [];
+  const value = data[addressField.key];
+  if (!value) return [];
+  if (typeof value === 'string') {
+    return value.trim() ? [value.trim()] : [];
+  }
+  if (typeof value !== 'object' || Array.isArray(value)) return [];
+  const rec = value as Record<string, unknown>;
+  const street = firstAddrString(rec.street, rec.addressStreet1);
+  const street2 = firstAddrString(rec.street2, rec.addressStreet2);
+  const city = firstAddrString(rec.city, rec.addressCity);
+  const state = firstAddrString(rec.state, rec.addressState);
+  const postcode = firstAddrString(rec.postcode, rec.addressPostcode, rec.zip);
+  const country = firstAddrString(rec.country, rec.addressCountry);
+  const cityLine = [city, state, postcode].filter(Boolean).join(', ');
+  return [street, street2, cityLine, country].filter(Boolean);
 }
 
 /**
@@ -300,6 +346,10 @@ export async function getSabcrmFinancePartyContact(
             label: sabcrmRecordLabel(object, record),
             objectSlug: slug,
             email: extractEmail(record.data as Record<string, unknown>),
+            addressLines: extractAddressLines(
+              object.fields,
+              record.data as Record<string, unknown>,
+            ),
           },
         };
       } catch {
@@ -630,14 +680,21 @@ export async function exportSabcrmInvoiceRows(
 
 /* ─── Full-form create / update ────────────────────────────────── */
 
-/** Builds the wire `items` + `totals` from form lines (authoritative). */
-function buildWireMoney(lines: DocLineInput[]): {
+/**
+ * Builds the wire `items` + `totals` from form lines + optional header
+ * modifiers (authoritative — mirrors `crm_sales_types::Totals` exactly
+ * via the shared `computeDocGrandTotals`).
+ */
+function buildWireMoney(
+  lines: DocLineInput[],
+  modifiers?: DocTotalsModifiersInput,
+): {
   items: CrmInvoiceLineItem[];
   totals: CrmInvoiceTotals;
 } | null {
   const meaningful = lines.filter((l) => !isBlankDocLine(l));
   if (meaningful.length === 0) return null;
-  const computed = computeDocTotals(meaningful);
+  const computed = computeDocGrandTotals(meaningful, modifiers);
   return {
     items: computed.lines.map((l) => ({
       itemId:
@@ -653,9 +710,43 @@ function buildWireMoney(lines: DocLineInput[]): {
     })),
     totals: {
       subTotal: computed.subTotal,
-      total: computed.total,
+      // Optional modifiers stay absent (not 0) when unused so legacy
+      // documents and modifier-less surfaces keep their wire shape.
+      discountOverall: computed.discountOverall || undefined,
+      shippingCharge: computed.shippingCharge || undefined,
+      adjustment: computed.adjustment || undefined,
+      roundOff: computed.roundOff || undefined,
+      total: computed.grandTotal,
     },
   };
+}
+
+/** Crate vocabulary for `gstTreatment` (mirrors `GstTreatment`). */
+const GST_TREATMENTS: ReadonlySet<CrmInvoiceGstTreatment> = new Set([
+  'registered',
+  'composition',
+  'unregistered',
+  'overseas',
+  'sez_with_payment',
+  'sez_without_payment',
+  'deemed_export',
+  'consumer',
+]);
+
+/**
+ * Validates an optional percentage field (TCS/TDS). Returns the cleaned
+ * value, or an error string when out of range.
+ */
+function cleanPct(
+  v: number | undefined,
+  label: string,
+): { ok: true; value: number | undefined } | { ok: false; error: string } {
+  if (v === undefined) return { ok: true, value: undefined };
+  const n = Number(v);
+  if (!Number.isFinite(n) || n < 0 || n > 100) {
+    return { ok: false, error: `${label} must be between 0 and 100.` };
+  }
+  return { ok: true, value: round2(n) };
 }
 
 /** Validates + narrows the attachments payload (SabFiles pointers only). */
@@ -695,10 +786,23 @@ export async function createSabcrmInvoiceFull(
   if (!dateIso) return { ok: false, error: 'A valid invoice date is required.' };
   const dueIso = input.dueDate ? toIso(input.dueDate) : dateIso;
   if (!dueIso) return { ok: false, error: 'The due date is invalid.' };
-  const money = buildWireMoney(input.lines ?? []);
+  const money = buildWireMoney(input.lines ?? [], input.totalsModifiers);
   if (!money) {
     return { ok: false, error: 'Add at least one line item.' };
   }
+  if (money.totals.total < 0) {
+    return {
+      ok: false,
+      error: 'The adjustments push the total below zero.',
+    };
+  }
+  if (input.gstTreatment !== undefined && !GST_TREATMENTS.has(input.gstTreatment)) {
+    return { ok: false, error: 'Pick a valid GST treatment.' };
+  }
+  const tcs = cleanPct(input.tcsPct, 'TCS %');
+  if (!tcs.ok) return { ok: false, error: tcs.error };
+  const tds = cleanPct(input.tdsPct, 'TDS %');
+  if (!tds.ok) return { ok: false, error: tds.error };
 
   const g = await gate('create', projectId);
   if (!g.ok) return { ok: false, error: g.error };
@@ -712,6 +816,10 @@ export async function createSabcrmInvoiceFull(
       currency: input.currency.trim().toUpperCase(),
       items: money.items,
       totals: money.totals,
+      placeOfSupply: input.placeOfSupply?.trim() || undefined,
+      gstTreatment: input.gstTreatment,
+      tcsPct: tcs.value,
+      tdsPct: tds.value,
       paymentTerms: input.paymentTerms?.trim() || undefined,
       customerNotes: input.customerNotes?.trim() || undefined,
       termsAndConditions: input.termsAndConditions?.trim() || undefined,
@@ -780,10 +888,42 @@ export async function updateSabcrmInvoiceFull(
     wire.dueDate = iso;
   }
   if (patch.lines !== undefined) {
-    const money = buildWireMoney(patch.lines);
+    // Header modifiers ride with the lines — the totals are recomputed
+    // from both in one pass (the form always submits them together).
+    const money = buildWireMoney(patch.lines, patch.totalsModifiers);
     if (!money) return { ok: false, error: 'Add at least one line item.' };
+    if (money.totals.total < 0) {
+      return {
+        ok: false,
+        error: 'The adjustments push the total below zero.',
+      };
+    }
     wire.items = money.items;
     wire.totals = money.totals;
+  } else if (patch.totalsModifiers !== undefined) {
+    return {
+      ok: false,
+      error: 'Totals modifiers can only be updated together with line items.',
+    };
+  }
+  if (patch.placeOfSupply !== undefined) {
+    wire.placeOfSupply = patch.placeOfSupply.trim();
+  }
+  if (patch.gstTreatment !== undefined) {
+    if (!GST_TREATMENTS.has(patch.gstTreatment)) {
+      return { ok: false, error: 'Pick a valid GST treatment.' };
+    }
+    wire.gstTreatment = patch.gstTreatment;
+  }
+  if (patch.tcsPct !== undefined) {
+    const tcs = cleanPct(patch.tcsPct, 'TCS %');
+    if (!tcs.ok) return { ok: false, error: tcs.error };
+    wire.tcsPct = tcs.value;
+  }
+  if (patch.tdsPct !== undefined) {
+    const tds = cleanPct(patch.tdsPct, 'TDS %');
+    if (!tds.ok) return { ok: false, error: tds.error };
+    wire.tdsPct = tds.value;
   }
   if (patch.paymentTerms !== undefined) wire.paymentTerms = patch.paymentTerms;
   if (patch.customerNotes !== undefined) {

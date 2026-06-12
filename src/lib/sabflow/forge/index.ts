@@ -17,6 +17,8 @@ import './blocks/discord';
 import './blocks/github';
 import './blocks/twilio';
 import './blocks/sendgrid';
+// SabSMS V2.9 — first-party send + wait-for-reply (journeys synergy).
+import './blocks/sabsms';
 import './blocks/agent-run';
 import './blocks/agent-tool';
 import './blocks/agent-conditional';

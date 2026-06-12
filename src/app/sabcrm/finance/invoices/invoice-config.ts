@@ -6,7 +6,10 @@
  * Mirrors `crm_sales_types::InvoiceStatus` exactly.
  */
 
-import type { CrmInvoiceStatus } from '@/lib/rust-client/crm-invoices';
+import type {
+  CrmInvoiceGstTreatment,
+  CrmInvoiceStatus,
+} from '@/lib/rust-client/crm-invoices';
 import type {
   DocListFilters,
   DocStatusDef,
@@ -21,6 +24,35 @@ export const INVOICE_STATUSES: (DocStatusDef & { value: CrmInvoiceStatus })[] = 
   { value: 'overdue', label: 'Overdue', tone: 'danger' },
   { value: 'cancelled', label: 'Cancelled', tone: 'neutral' },
 ];
+
+/**
+ * GST treatment vocabulary — mirrors `crm_sales_types::GstTreatment`
+ * exactly (snake_case wire values). Feeds the DocForm `taxFields`
+ * Select and the detail meta row.
+ */
+export const INVOICE_GST_TREATMENTS: {
+  value: CrmInvoiceGstTreatment;
+  label: string;
+}[] = [
+  { value: 'registered', label: 'Registered business' },
+  { value: 'composition', label: 'Composition scheme' },
+  { value: 'unregistered', label: 'Unregistered business' },
+  { value: 'overseas', label: 'Overseas (export)' },
+  { value: 'sez_with_payment', label: 'SEZ — with IGST payment' },
+  { value: 'sez_without_payment', label: 'SEZ — without IGST payment' },
+  { value: 'deemed_export', label: 'Deemed export' },
+  { value: 'consumer', label: 'Consumer (B2C)' },
+];
+
+/** Display label for a stored treatment value. */
+export function gstTreatmentLabel(
+  value: CrmInvoiceGstTreatment | undefined,
+): string | null {
+  if (!value) return null;
+  return (
+    INVOICE_GST_TREATMENTS.find((t) => t.value === value)?.label ?? value
+  );
+}
 
 /** Happy path for the StatusFlow rail (exceptions render as a pill). */
 export const INVOICE_FLOW: CrmInvoiceStatus[] = ['draft', 'sent', 'paid'];

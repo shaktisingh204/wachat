@@ -58,7 +58,11 @@ import {
   type SelectOption,
 } from '@/components/sabcrm/20ui';
 
-import type { CrmInvoiceDoc, CrmInvoiceStatus } from '@/lib/rust-client/crm-invoices';
+import type {
+  CrmInvoiceDoc,
+  CrmInvoiceGstTreatment,
+  CrmInvoiceStatus,
+} from '@/lib/rust-client/crm-invoices';
 import {
   emailSabcrmInvoice,
   recordSabcrmInvoicePayment,
@@ -92,7 +96,9 @@ import {
 import {
   INVOICES_PATH,
   INVOICE_FLOW,
+  INVOICE_GST_TREATMENTS,
   INVOICE_STATUSES,
+  gstTreatmentLabel,
   partyRecordHref,
 } from '../invoice-config';
 
@@ -150,6 +156,16 @@ function toFormValues(
       mimeType: a.mimeType,
       size: a.size,
     })),
+    placeOfSupply: doc.placeOfSupply ?? '',
+    gstTreatment: doc.gstTreatment ?? null,
+    tcsPct: doc.tcsPct,
+    tdsPct: doc.tdsPct,
+    modifiers: {
+      discountOverall: doc.totals?.discountOverall || undefined,
+      shippingCharge: doc.totals?.shippingCharge || undefined,
+      adjustment: doc.totals?.adjustment || undefined,
+      roundOff: !!doc.totals?.roundOff,
+    },
   };
 }
 
@@ -501,6 +517,14 @@ export function InvoiceDetailClient({
   const subTotal = invoice.totals?.subTotal ?? total;
   const amountPaid = invoice.amountPaid ?? 0;
   const balance = invoice.balance ?? total - amountPaid;
+  // Σ line totals − subTotal = Σ per-line tax (each line.total is
+  // taxable + tax while subTotal is Σ taxable) — exact regardless of
+  // any header-level modifiers folded into totals.total.
+  const lineTotalSum = (invoice.items ?? []).reduce(
+    (s, item) => s + (item.total ?? 0),
+    0,
+  );
+  const taxTotal = Math.max(0, lineTotalSum - subTotal);
 
   const transition = (next: CrmInvoiceStatus, success: string): void => {
     startTransition(async () => {
@@ -626,13 +650,46 @@ export function InvoiceDetailClient({
     total: item.total,
   }));
 
-  const meta = [
+  const treatmentLabel = gstTreatmentLabel(invoice.gstTreatment);
+  const meta: { label: string; value: React.ReactNode }[] = [
     { label: 'Invoice date', value: formatDocDate(invoice.date) },
     { label: 'Due date', value: formatDocDate(invoice.dueDate) },
     ...(invoice.paymentTerms
       ? [{ label: 'Payment terms', value: invoice.paymentTerms }]
       : []),
     { label: 'Currency', value: invoice.currency },
+    ...(invoice.placeOfSupply
+      ? [{ label: 'Place of supply', value: invoice.placeOfSupply }]
+      : []),
+    ...(treatmentLabel
+      ? [{ label: 'GST treatment', value: treatmentLabel }]
+      : []),
+    ...(invoice.tcsPct
+      ? [{ label: 'TCS', value: `${invoice.tcsPct}%` }]
+      : []),
+    ...(invoice.tdsPct
+      ? [{ label: 'TDS', value: `${invoice.tdsPct}%` }]
+      : []),
+    // E-invoice envelope + e-way bill — read-only compliance refs,
+    // rendered only once the IRP / transport workflows populate them.
+    ...(invoice.eInvoice?.irn
+      ? [{ label: 'IRN', value: invoice.eInvoice.irn }]
+      : []),
+    ...(invoice.eInvoice?.ackNo
+      ? [
+          {
+            label: 'E-invoice ack',
+            value: `${invoice.eInvoice.ackNo}${
+              invoice.eInvoice.ackDate
+                ? ` · ${formatDocDate(invoice.eInvoice.ackDate)}`
+                : ''
+            }`,
+          },
+        ]
+      : []),
+    ...(invoice.ewayBillNo
+      ? [{ label: 'E-way bill', value: invoice.ewayBillNo }]
+      : []),
   ];
 
   /* ---- activity ---- */
@@ -686,6 +743,7 @@ export function InvoiceDetailClient({
                 label: contact.label,
                 href: partyRecordHref(contact.objectSlug, contact.id),
                 meta: contact.email,
+                addressLines: contact.addressLines,
               }
             : null
         }
@@ -694,7 +752,11 @@ export function InvoiceDetailClient({
         lines={lines}
         totals={{
           subTotal,
-          taxTotal: Math.max(0, (total - subTotal) || 0),
+          taxTotal,
+          discountOverall: invoice.totals?.discountOverall,
+          shippingCharge: invoice.totals?.shippingCharge,
+          adjustment: invoice.totals?.adjustment,
+          roundOff: invoice.totals?.roundOff,
           total,
           amountPaid,
           balance,
@@ -751,6 +813,13 @@ export function InvoiceDetailClient({
               description: item.description ?? item.name,
             }));
           },
+          taxFields: {
+            placeOfSupply: true,
+            gstTreatments: INVOICE_GST_TREATMENTS,
+            withholding: true,
+          },
+          totalsModifiers: true,
+          lineExtras: true,
         }}
         onSubmit={async (values) => {
           const res = await updateSabcrmInvoiceFull(invoice._id, {
@@ -760,6 +829,13 @@ export function InvoiceDetailClient({
             date: values.date,
             dueDate: values.dueDate,
             lines: values.lines.filter((l) => !isBlankDocLine(l)),
+            totalsModifiers: values.modifiers ?? {},
+            placeOfSupply: values.placeOfSupply ?? '',
+            gstTreatment:
+              (values.gstTreatment as CrmInvoiceGstTreatment | null) ??
+              undefined,
+            tcsPct: values.tcsPct,
+            tdsPct: values.tdsPct,
             paymentTerms: values.paymentTerms,
             customerNotes: values.customerNotes,
             termsAndConditions: values.termsAndConditions,

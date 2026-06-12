@@ -62,6 +62,42 @@ export interface DocTotalsComputed {
   total: number;
 }
 
+/**
+ * Header-level totals modifiers (the editable side of
+ * `crm_sales_types::line_item::Totals`'s optional fields). Applied AFTER
+ * the line rollup, in the model's documented order:
+ *
+ *   total = subTotal + taxTotal − discountOverall + shippingCharge
+ *           + adjustment + roundOff
+ *
+ * `roundOff` is a *flag* here — when enabled the actual signed delta is
+ * derived (`round(total) − total`) so the stored value can never drift
+ * from the math.
+ */
+export interface DocTotalsModifiersInput {
+  /** Overall (header-level) discount amount, ≥ 0. */
+  discountOverall?: number;
+  /** Shipping / freight charge, ≥ 0. */
+  shippingCharge?: number;
+  /** Free-form signed adjustment ("write-off", "courtesy credit", …). */
+  adjustment?: number;
+  /** Round the grand total to the nearest whole currency unit. */
+  roundOff?: boolean;
+}
+
+/** Line rollup + header modifiers, fully resolved. */
+export interface DocGrandTotalsComputed extends DocTotalsComputed {
+  /** Applied overall discount (clamped to the pre-modifier total). */
+  discountOverall: number;
+  shippingCharge: number;
+  /** Signed adjustment as applied. */
+  adjustment: number;
+  /** Signed round-off delta actually applied (0 when disabled). */
+  roundOff: number;
+  /** The final payable amount — the wire `totals.total`. */
+  grandTotal: number;
+}
+
 /** Round to 2 decimals, guarding against `-0` and FP dust. */
 export function round2(n: number): number {
   const r = Math.round((n + Number.EPSILON) * 100) / 100;
@@ -72,6 +108,12 @@ export function round2(n: number): number {
 export function safeNum(v: unknown, fallback = 0): number {
   const n = typeof v === 'string' ? Number(v) : (v as number);
   return Number.isFinite(n) && n >= 0 ? n : fallback;
+}
+
+/** Like {@link safeNum} but preserves sign (for adjustments / deltas). */
+export function signedNum(v: unknown, fallback = 0): number {
+  const n = typeof v === 'string' ? Number(v) : (v as number);
+  return Number.isFinite(n) ? n : fallback;
 }
 
 /** Compute one line's money fields. */
@@ -112,6 +154,36 @@ export function computeDocTotals(lines: DocLineInput[]): DocTotalsComputed {
     discountTotal,
     taxTotal,
     total: round2(subTotal + taxTotal),
+  };
+}
+
+/**
+ * Roll lines + header modifiers up into the FINAL document totals —
+ * the exact math the server action persists as the wire `totals`
+ * (the model's `Totals` shape). The kit's live preview and the
+ * server recompute both call this, so they can never disagree.
+ */
+export function computeDocGrandTotals(
+  lines: DocLineInput[],
+  modifiers?: DocTotalsModifiersInput,
+): DocGrandTotalsComputed {
+  const base = computeDocTotals(lines);
+  // Clamp the overall discount so it can never push the total negative
+  // on its own (mirrors how the legacy form treated header discounts).
+  const discountOverall = round2(
+    Math.min(safeNum(modifiers?.discountOverall), base.total),
+  );
+  const shippingCharge = round2(safeNum(modifiers?.shippingCharge));
+  const adjustment = round2(signedNum(modifiers?.adjustment));
+  const raw = round2(base.total - discountOverall + shippingCharge + adjustment);
+  const roundOff = modifiers?.roundOff ? round2(Math.round(raw) - raw) : 0;
+  return {
+    ...base,
+    discountOverall,
+    shippingCharge,
+    adjustment,
+    roundOff,
+    grandTotal: round2(raw + roundOff),
   };
 }
 

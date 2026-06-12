@@ -39,6 +39,7 @@ import {
   type DocListPageConfig,
 } from '../_components/doc-surface';
 import {
+  INVOICE_GST_TREATMENTS,
   INVOICE_STATUSES,
   invoiceDetailHref,
   toInvoiceFilters,
@@ -279,6 +280,13 @@ export function InvoicesClient({
             const res = await getNextSabcrmInvoiceNumber();
             return res.ok ? res.data : null;
           },
+          taxFields: {
+            placeOfSupply: true,
+            gstTreatments: INVOICE_GST_TREATMENTS,
+            withholding: true,
+          },
+          totalsModifiers: true,
+          lineExtras: true,
         }}
         onSubmit={async (values, { issue }) => {
           const res = await createSabcrmInvoiceFull({
@@ -288,6 +296,14 @@ export function InvoicesClient({
             date: values.date,
             dueDate: values.dueDate,
             lines: values.lines.filter((l) => !isBlankDocLine(l)),
+            totalsModifiers: values.modifiers,
+            placeOfSupply: values.placeOfSupply || undefined,
+            gstTreatment:
+              (values.gstTreatment as
+                | (typeof INVOICE_GST_TREATMENTS)[number]['value']
+                | null) ?? undefined,
+            tcsPct: values.tcsPct,
+            tdsPct: values.tdsPct,
             paymentTerms: values.paymentTerms || undefined,
             customerNotes: values.customerNotes || undefined,
             termsAndConditions: values.termsAndConditions || undefined,

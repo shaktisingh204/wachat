@@ -238,6 +238,18 @@
   gap: 2px;
 }
 
+/* Compact HSN/SAC + unit inputs under the description (free-text rows) */
+:is(.\32 0ui, .ui20) .fdoc-lines__extras {
+  display: flex;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+:is(.\32 0ui, .ui20) .fdoc-lines__extras > * {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
 :is(.\32 0ui, .ui20) .fdoc-totals__grand {
   display: contents;
 }
@@ -285,6 +297,16 @@
   font-size: var(--st-font-size);
   padding-top: 4px;
   border-top: 1px solid var(--st-border);
+}
+
+/* Inline totals-modifier inputs (overall discount / shipping / adjustment) */
+:is(.\32 0ui, .ui20) .fdoc-totals__value .fdoc-totals__input {
+  width: 110px;
+  text-align: right;
+}
+
+:is(.\32 0ui, .ui20) .fdoc-totals__label label {
+  cursor: inherit;
 }
 
 /* ─── Form layout ────────────────────────────────────────────── */
@@ -358,6 +380,8 @@
   font-size: var(--st-font-size-sm);
   color: var(--st-text);
   font-variant-numeric: tabular-nums;
+  /* Long compliance refs (64-char IRN) wrap instead of breaking the grid. */
+  overflow-wrap: anywhere;
 }
 
 :is(.\32 0ui, .ui20) .fdoc-rail {
@@ -487,6 +511,12 @@
   text-align: right;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
+}
+
+/* Bill-to address block (paper head + party card) */
+:is(.\32 0ui, .ui20) .fdoc-paper__addr {
+  display: block;
+  margin-top: 4px;
 }
 
 :is(.\32 0ui, .ui20) .fdoc-paper__notes {

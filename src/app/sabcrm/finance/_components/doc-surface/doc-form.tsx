@@ -38,7 +38,7 @@ import {
   type SelectOption,
 } from '@/components/sabcrm/20ui';
 import { SabFilePickerButton } from '@/components/sabfiles';
-import { isBlankDocLine } from '@/lib/sabcrm/finance-doc-math';
+import { isBlankDocLine, safeNum } from '@/lib/sabcrm/finance-doc-math';
 
 import { EntityPicker } from './entity-picker';
 import { LineItemsEditor, blankDocLine } from './line-items-editor';
@@ -78,6 +78,11 @@ export function emptyDocFormValues(): DocFormValues {
     customerNotes: '',
     termsAndConditions: '',
     attachments: [],
+    placeOfSupply: '',
+    gstTreatment: null,
+    tcsPct: undefined,
+    tdsPct: undefined,
+    modifiers: {},
   };
 }
 
@@ -290,6 +295,80 @@ export function DocForm({
                 />
               </Field>
 
+              {config.taxFields?.placeOfSupply ? (
+                <Field
+                  label="Place of supply"
+                  help="The buyer's state — drives CGST+SGST vs IGST."
+                >
+                  <Input
+                    value={values.placeOfSupply ?? ''}
+                    onChange={(e) => patch({ placeOfSupply: e.target.value })}
+                    placeholder="Maharashtra"
+                    disabled={busy}
+                  />
+                </Field>
+              ) : null}
+
+              {config.taxFields?.gstTreatments?.length ? (
+                <Field label="GST treatment">
+                  <SelectField
+                    value={values.gstTreatment ?? null}
+                    onChange={(v) => patch({ gstTreatment: v })}
+                    options={config.taxFields.gstTreatments.map((t) => ({
+                      value: t.value,
+                      label: t.label,
+                    }))}
+                    placeholder="Select treatment"
+                    disabled={busy}
+                  />
+                </Field>
+              ) : null}
+
+              {config.taxFields?.withholding ? (
+                <>
+                  <Field label="TCS %" help="Tax collected at source.">
+                    <Input
+                      type="number"
+                      inputMode="decimal"
+                      min={0}
+                      max={100}
+                      step="0.01"
+                      value={values.tcsPct === undefined ? '' : String(values.tcsPct)}
+                      onChange={(e) =>
+                        patch({
+                          tcsPct:
+                            e.target.value === ''
+                              ? undefined
+                              : Math.min(safeNum(e.target.value), 100),
+                        })
+                      }
+                      placeholder="0"
+                      disabled={busy}
+                    />
+                  </Field>
+                  <Field label="TDS %" help="Tax deducted at source.">
+                    <Input
+                      type="number"
+                      inputMode="decimal"
+                      min={0}
+                      max={100}
+                      step="0.01"
+                      value={values.tdsPct === undefined ? '' : String(values.tdsPct)}
+                      onChange={(e) =>
+                        patch({
+                          tdsPct:
+                            e.target.value === ''
+                              ? undefined
+                              : Math.min(safeNum(e.target.value), 100),
+                        })
+                      }
+                      placeholder="0"
+                      disabled={busy}
+                    />
+                  </Field>
+                </>
+              ) : null}
+
               <div className="fdoc-form-grid__full">
                 <Field label="Line items" required>
                   <LineItemsEditor
@@ -298,6 +377,17 @@ export function DocForm({
                     currency={values.currency}
                     searchItems={config.searchItems}
                     disabled={busy}
+                    lineExtras={config.lineExtras}
+                    modifiers={
+                      config.totalsModifiers
+                        ? (values.modifiers ?? {})
+                        : undefined
+                    }
+                    onModifiersChange={
+                      config.totalsModifiers
+                        ? (modifiers) => patch({ modifiers })
+                        : undefined
+                    }
                   />
                 </Field>
               </div>

@@ -7,8 +7,14 @@
  * convention.
  */
 
-import type { CrmInvoiceStatus } from '@/lib/rust-client/crm-invoices';
-import type { DocLineInput } from '@/lib/sabcrm/finance-doc-math';
+import type {
+  CrmInvoiceGstTreatment,
+  CrmInvoiceStatus,
+} from '@/lib/rust-client/crm-invoices';
+import type {
+  DocLineInput,
+  DocTotalsModifiersInput,
+} from '@/lib/sabcrm/finance-doc-math';
 
 /* ─── Parties (records-engine companies / people) ─────────────── */
 
@@ -36,6 +42,12 @@ export interface SabcrmPartyRef {
 /** Full contact details for the email flow + the detail party card. */
 export interface SabcrmPartyContact extends SabcrmPartyRef {
   email: string | null;
+  /**
+   * Bill-to address lines resolved from the record's ADDRESS field
+   * (street / street 2 / "city, state postcode" / country). Empty when
+   * the record has no address field or it's blank.
+   */
+  addressLines?: string[];
 }
 
 /* ─── Items (sabcrm-supply catalog) ───────────────────────────── */
@@ -78,6 +90,20 @@ export interface SabcrmInvoiceFullInput {
   /** `YYYY-MM-DD`. */
   dueDate: string;
   lines: DocLineInput[];
+  /**
+   * Header totals modifiers (overall discount / shipping / adjustment /
+   * round-off flag). Folded into the recomputed wire `totals` via the
+   * shared `computeDocGrandTotals` — never trusted from a client total.
+   */
+  totalsModifiers?: DocTotalsModifiersInput;
+  /** Place of supply — free-text state name (legacy convention). */
+  placeOfSupply?: string;
+  /** GST treatment wire value (validated against the crate vocabulary). */
+  gstTreatment?: CrmInvoiceGstTreatment;
+  /** TCS %, 0–100. */
+  tcsPct?: number;
+  /** TDS %, 0–100. */
+  tdsPct?: number;
   paymentTerms?: string;
   customerNotes?: string;
   termsAndConditions?: string;

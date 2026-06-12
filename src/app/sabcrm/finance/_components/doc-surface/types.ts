@@ -11,7 +11,10 @@
 import type * as React from 'react';
 import type { LucideIcon } from 'lucide-react';
 import type { BadgeTone } from '@/components/sabcrm/20ui';
-import type { DocLineInput } from '@/lib/sabcrm/finance-doc-math';
+import type {
+  DocLineInput,
+  DocTotalsModifiersInput,
+} from '@/lib/sabcrm/finance-doc-math';
 import type { SabcrmDocAttachmentInput } from '@/app/actions/sabcrm-finance-invoices.actions.types';
 
 /* ─── Results ─────────────────────────────────────────────────── */
@@ -170,6 +173,17 @@ export interface DocFormValues {
   customerNotes: string;
   termsAndConditions: string;
   attachments: SabcrmDocAttachmentInput[];
+  /* ---- tax header (rendered when `config.taxFields` is set) ---- */
+  /** Place of supply — free-text state name (legacy convention). */
+  placeOfSupply?: string;
+  /** GST treatment wire value (from `config.taxFields.gstTreatments`). */
+  gstTreatment?: string | null;
+  /** TCS %, 0–100. `undefined` = not applicable. */
+  tcsPct?: number;
+  /** TDS %, 0–100. `undefined` = not applicable. */
+  tdsPct?: number;
+  /* ---- header totals modifiers (`config.totalsModifiers`) ------ */
+  modifiers?: DocTotalsModifiersInput;
 }
 
 export interface DocFormConfig {
@@ -189,6 +203,35 @@ export interface DocFormConfig {
   suggestNumber?: () => Promise<string | null>;
 
   currencies?: { value: string; label: string }[];
+
+  /**
+   * Tax-header capability. Renders a place-of-supply input (free-text
+   * state name per the legacy convention), a treatment Select fed by
+   * the entity's wire vocabulary, and — when `withholding` — TCS/TDS %
+   * inputs. Omit for entities without a tax header.
+   */
+  taxFields?: {
+    placeOfSupply?: boolean;
+    /** Treatment vocabulary (wire value + label). Omit to hide. */
+    gstTreatments?: { value: string; label: string }[];
+    /** TCS % + TDS % inputs. */
+    withholding?: boolean;
+  };
+
+  /**
+   * Header totals modifiers capability: overall discount, shipping,
+   * adjustment and an auto round-off toggle, edited inline in the
+   * line-items footer with a live grand-total preview (same math the
+   * server persists — `computeDocGrandTotals`).
+   */
+  totalsModifiers?: boolean;
+
+  /**
+   * Free-text line extras capability: compact HSN/SAC + unit inputs on
+   * rows without a picked catalog item (picked items keep sourcing both
+   * from the catalog).
+   */
+  lineExtras?: boolean;
 }
 
 /* ─── Detail page ─────────────────────────────────────────────── */
