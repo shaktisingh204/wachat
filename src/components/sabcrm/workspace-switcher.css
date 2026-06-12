@@ -1,0 +1,185 @@
+/* ==========================================================================
+   SabCRM WorkspaceSwitcher — `.crm-ws` namespace.
+
+   Ported off the Twenty-era `.st-workspace-switcher` / `.st-ws*` rules
+   (surface-crm-base.css base + surface-shell.css accent layer +
+   tokens-motion.css transitions). Expressed in shared `--st-*` / `--u-*`
+   tokens only. Class map:
+     .st-ws                        → .crm-ws
+     .st-workspace-switcher        → .crm-ws__trigger
+     .st-workspace-switcher__*     → .crm-ws__trigger-*
+     .st-ws-menu__*                → .crm-ws__menu-* / .crm-ws__item-*
+     .st-ws-logo                   → .crm-ws__logo
+     .st-ws-form                   → .crm-ws__form
+
+   Selectors are bare (the namespace is unique) so they hold inside the
+   body-portalled 20ui Menu popover and Modal; tokens resolve from the
+   `.sabcrm-twenty` / `.ui20` class the portal roots carry.
+   ========================================================================== */
+
+.crm-ws {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* ----- Trigger (sidebar footer / header button) ----- */
+.crm-ws__trigger {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  width: 100%;
+  padding: 6px var(--st-space-2);
+  margin-bottom: var(--st-space-2);
+  border: none;
+  border-radius: var(--st-radius-lg);
+  background: transparent;
+  color: var(--st-text);
+  font-family: inherit;
+  font-size: var(--st-font-size);
+  font-weight: var(--st-fw-medium);
+  cursor: pointer;
+  text-align: left;
+  transition:
+    background var(--u-dur-fast) var(--u-ease-out),
+    box-shadow var(--u-dur-fast) var(--u-ease-out);
+}
+
+.crm-ws__trigger:hover {
+  background: var(--st-accent-soft);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--st-accent) 14%, transparent);
+}
+
+.crm-ws__trigger:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}
+
+.crm-ws__trigger-avatar {
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--st-radius-sm);
+  background: var(--st-accent);
+  color: var(--st-text-inverted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--st-font-size-xs);
+  font-weight: var(--st-fw-semibold);
+  text-transform: uppercase;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, #fff 14%, transparent);
+}
+
+.crm-ws__trigger-name {
+  flex: 1 1 auto;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.crm-ws__trigger-chevron {
+  flex: 0 0 auto;
+  color: var(--st-text-tertiary);
+  transition:
+    color var(--u-dur-fast) var(--u-ease-out),
+    transform var(--u-dur-fast) var(--u-ease-out);
+}
+
+.crm-ws__trigger:hover .crm-ws__trigger-chevron {
+  color: var(--st-accent);
+}
+
+/* Legacy Twenty frame host: the switcher sits in the sidebar header row next
+   to the notifications bell; neutralise the trigger's own bottom margin so
+   both align on a single baseline (was notifications.css's
+   `.st-sidebar__header .st-workspace-switcher` rule). */
+.st-sidebar__header .crm-ws__trigger {
+  margin-bottom: 0;
+}
+
+/* ----- Dropdown content (inside the 20ui Menu popover) ----- */
+.crm-ws__menu-header {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  padding: 6px var(--st-space-2);
+  margin-bottom: var(--st-space-1);
+}
+
+.crm-ws__menu-avatar,
+.crm-ws__item-avatar {
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--st-radius-sm);
+  background: var(--st-accent);
+  color: var(--st-text-inverted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--st-font-size-xs);
+  font-weight: var(--st-fw-semibold);
+  text-transform: uppercase;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, #fff 14%, transparent);
+}
+
+.crm-ws__menu-title {
+  flex: 1 1 auto;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: var(--st-font-size);
+  font-weight: var(--st-fw-semibold);
+  color: var(--st-text);
+}
+
+/* Project rows render their avatar + name inside the 20ui MenuItem's single
+   label slot, so they need their own flex row to keep the tile and the name
+   evenly spaced and vertically centred (the label slot is not a flex box). */
+.crm-ws__item-row {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  min-width: 0;
+}
+
+.crm-ws__item-name {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.crm-ws__menu-empty {
+  padding: 6px var(--st-space-2);
+  color: var(--st-text-tertiary);
+  font-size: var(--st-font-size-sm);
+}
+
+.crm-ws__check {
+  flex: 0 0 auto;
+  color: var(--st-accent);
+}
+
+/* Project logo image inside the square avatar tiles (trigger + menu rows). */
+.crm-ws__logo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+  display: block;
+}
+
+/* ----- Create/edit project form: stacked fields, comfortable spacing ----- */
+.crm-ws__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .crm-ws__trigger,
+  .crm-ws__trigger-chevron {
+    transition: none;
+  }
+}

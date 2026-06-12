@@ -491,9 +491,12 @@ async fn seed_lineage_from_parent(
 /// and `updatedBy` are always refreshed. Fails with 404 if the receipt
 /// doesn't exist OR isn't owned by the caller.
 ///
-/// Note: financial fields (`amount`, `applyTo`, `mode`, `clientId`)
-/// are not patchable — see the doc on
-/// [`UpdatePaymentReceiptInput`](crate::dto::UpdatePaymentReceiptInput).
+/// Financial fields (`amount`, `mode`, `applyTo`, `clientId`,
+/// `currency`, `exchangeRate`, `excessAsAdvance`) ARE patchable
+/// (finance-rollout gap G4) — see the contract note on
+/// [`UpdatePaymentReceiptInput`](crate::dto::UpdatePaymentReceiptInput):
+/// the action layer owns re-running linked-invoice status flips after
+/// an allocation change.
 #[instrument(skip_all, fields(user_id = %user.user_id, receipt_id = %receipt_id))]
 pub async fn update_payment_receipt(
     user: AuthUser,
@@ -507,6 +510,35 @@ pub async fn update_payment_receipt(
         return Err(ApiError::BadRequest(
             "no fields to update; supply at least one mutable field".to_owned(),
         ));
+    }
+    // ---- G4 financial-field validation ---------------------------------
+    if let Some(amount) = input.amount {
+        if !amount.is_finite() || amount <= 0.0 {
+            return Err(ApiError::Validation(
+                "amount must be a positive finite number.".to_owned(),
+            ));
+        }
+    }
+    if let Some(currency) = input.currency.as_deref() {
+        if currency.trim().is_empty() {
+            return Err(ApiError::Validation(
+                "currency cannot be blank when provided.".to_owned(),
+            ));
+        }
+    }
+    if let Some(rate) = input.exchange_rate {
+        if !rate.is_finite() || rate <= 0.0 {
+            return Err(ApiError::Validation(
+                "exchangeRate must be a positive finite number.".to_owned(),
+            ));
+        }
+    }
+    if let Some(rows) = input.apply_to.as_ref() {
+        if rows.iter().any(|r| !r.amount.is_finite() || r.amount < 0.0) {
+            return Err(ApiError::Validation(
+                "applyTo amounts must be non-negative finite numbers.".to_owned(),
+            ));
+        }
     }
 
     let user_id = user_oid(&user)?;
@@ -524,11 +556,47 @@ pub async fn update_payment_receipt(
     set_opt_str(&mut set, "reference", input.reference.as_ref());
     set_opt_str(&mut set, "notes", input.notes.as_ref());
     set_opt_oid(&mut set, "bankAccountId", input.bank_account_id.as_ref())?;
+    set_opt_oid(&mut set, "clientId", input.client_id.as_ref())?;
     if let Some(when) = input.date {
         set.insert("date", bson::DateTime::from_chrono(when));
     }
     if let Some(when) = input.cheque_date {
         set.insert("chequeDate", bson::DateTime::from_chrono(when));
+    }
+    // ---- G4 financial fields -------------------------------------------
+    if let Some(amount) = input.amount {
+        set.insert("amount", amount);
+    }
+    if let Some(currency) = input.currency.as_deref() {
+        set.insert("currency", currency.trim());
+    }
+    if let Some(rate) = input.exchange_rate {
+        set.insert("exchangeRate", rate);
+    }
+    if let Some(pm) = input.mode.as_ref() {
+        // Serialize via serde so the lowercase tag matches
+        // `PaymentMode`'s wire shape.
+        let b = bson::to_bson(pm).map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("serialize PaymentMode"))
+        })?;
+        set.insert("mode", b);
+    }
+    if let Some(rows) = input.apply_to.as_ref() {
+        // Full replacement — `[]` deliberately clears all allocations.
+        let b = bson::to_bson(rows).map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("serialize applyTo"))
+        })?;
+        set.insert("applyTo", b);
+    }
+    if let Some(excess) = input.excess_as_advance {
+        set.insert("excessAsAdvance", excess);
+    }
+    if let Some(att) = input.attachments.as_ref() {
+        // Full replacement — `[]` deliberately clears all attachments.
+        let b = bson::to_bson(att).map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("serialize attachments"))
+        })?;
+        set.insert("attachments", b);
     }
     if let Some(tds) = input.tds_deducted {
         set.insert("tdsDeducted", tds);

@@ -13,7 +13,7 @@
 //! `#[serde(rename_all = "camelCase")]` so JSON requests round-trip
 //! with the TS clients.
 
-use crm_sales_types::{DeliveryMethod, LineItem, SalesOrderStatus, Totals};
+use crm_sales_types::{Address, DeliveryMethod, LineItem, SalesOrderStatus, Totals};
 use serde::{Deserialize, Serialize};
 
 /// Default page size if the caller doesn't send `limit`.
@@ -79,8 +79,9 @@ pub struct ScopeQuery {
 /// `totals`.
 ///
 /// **Optional doc body:** `quotationRef`, `poNo`, `poDate`,
-/// `expectedShipmentDate`, `deliveryMethod`, `paymentTerms`,
-/// `customerNotes`, `internalNotes`, `status`, `exchangeRate`.
+/// `expectedShipmentDate`, `deliveryMethod`, `shippingAddress`,
+/// `paymentTerms`, `customerNotes`, `internalNotes`, `status`,
+/// `exchangeRate`.
 ///
 /// **Deferred:** `linkedDeliveryIds`, `linkedInvoiceIds` — server-managed
 /// during conversion flows. Sending these on create is a no-op.
@@ -115,6 +116,10 @@ pub struct CreateSalesOrderInput {
     pub expected_shipment_date: Option<chrono::DateTime<chrono::Utc>>,
     #[serde(default)]
     pub delivery_method: Option<DeliveryMethod>,
+    /// Ship-to address (finance-rollout gap G7). Optional — absent keeps
+    /// the legacy behaviour (no shipping address on the doc).
+    #[serde(default)]
+    pub shipping_address: Option<Address>,
     #[serde(default)]
     pub payment_terms: Option<String>,
 
@@ -179,6 +184,9 @@ pub struct UpdateSalesOrderInput {
     pub expected_shipment_date: Option<chrono::DateTime<chrono::Utc>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub delivery_method: Option<DeliveryMethod>,
+    /// Replace the ship-to address (finance-rollout gap G7).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub shipping_address: Option<Address>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub payment_terms: Option<String>,
 
@@ -214,6 +222,7 @@ impl UpdateSalesOrderInput {
             && self.po_date.is_none()
             && self.expected_shipment_date.is_none()
             && self.delivery_method.is_none()
+            && self.shipping_address.is_none()
             && self.payment_terms.is_none()
             && self.currency.is_none()
             && self.exchange_rate.is_none()
@@ -259,6 +268,46 @@ mod tests {
         assert_eq!(input.from_kind.as_deref(), Some("quotation"));
     }
 
+    /// G7 — `shippingAddress` round-trips on the create body.
+    #[test]
+    fn create_input_round_trips_shipping_address() {
+        let json = serde_json::json!({
+            "soNo": "SO-00043",
+            "date": "2026-06-01T00:00:00Z",
+            "clientId": "507f1f77bcf86cd799439011",
+            "currency": "INR",
+            "items": [],
+            "totals": { "subTotal": 0.0, "total": 0.0 },
+            "shippingAddress": {
+                "line1": "Plot 9, MIDC",
+                "city": "Nashik",
+                "state": "MH",
+                "pincode": "422007",
+                "label": "Warehouse-A",
+            },
+        });
+        let input: CreateSalesOrderInput = serde_json::from_value(json).unwrap();
+        let addr = input.shipping_address.as_ref().expect("address parsed");
+        assert_eq!(addr.line1.as_deref(), Some("Plot 9, MIDC"));
+        assert_eq!(addr.city.as_deref(), Some("Nashik"));
+        assert_eq!(addr.label.as_deref(), Some("Warehouse-A"));
+    }
+
+    /// G7 — legacy bodies without `shippingAddress` keep deserialising.
+    #[test]
+    fn create_input_shipping_address_defaults_to_none() {
+        let json = serde_json::json!({
+            "soNo": "SO-1",
+            "date": "2026-06-01T00:00:00Z",
+            "clientId": "507f1f77bcf86cd799439011",
+            "currency": "INR",
+            "items": [],
+            "totals": { "subTotal": 0.0, "total": 0.0 },
+        });
+        let input: CreateSalesOrderInput = serde_json::from_value(json).unwrap();
+        assert!(input.shipping_address.is_none());
+    }
+
     #[test]
     fn update_input_is_empty_detects_all_unset() {
         let empty = UpdateSalesOrderInput::default();
@@ -269,6 +318,28 @@ mod tests {
             ..Default::default()
         };
         assert!(!with_field.is_empty());
+    }
+
+    /// G7 — a shipping-address-only PATCH must not 400 as "empty".
+    #[test]
+    fn update_input_is_empty_sees_shipping_address() {
+        let with_addr = UpdateSalesOrderInput {
+            shipping_address: Some(Address::default()),
+            ..Default::default()
+        };
+        assert!(!with_addr.is_empty());
+    }
+
+    /// G7 — `shippingAddress` round-trips on the patch body.
+    #[test]
+    fn update_input_round_trips_shipping_address() {
+        let json = serde_json::json!({
+            "shippingAddress": { "city": "Pune", "pincode": "411001" },
+        });
+        let patch: UpdateSalesOrderInput = serde_json::from_value(json).unwrap();
+        let addr = patch.shipping_address.as_ref().expect("address parsed");
+        assert_eq!(addr.city.as_deref(), Some("Pune"));
+        assert_eq!(addr.pincode.as_deref(), Some("411001"));
     }
 
     #[test]

@@ -83,7 +83,18 @@ export function emptyDocFormValues(): DocFormValues {
     tcsPct: undefined,
     tdsPct: undefined,
     modifiers: {},
+    extras: {},
   };
+}
+
+/**
+ * Guarantees `extras` is present on seeded values so `extraFields`
+ * renderers can read `values.extras` without per-call fallbacks
+ * (pre-extension callers' seeds don't carry the bag).
+ */
+function withExtras(values: DocFormValues | undefined): DocFormValues {
+  if (!values) return emptyDocFormValues();
+  return values.extras ? values : { ...values, extras: {} };
 }
 
 /** `YYYY-MM-DD` ⇄ local `Date` for the DatePicker. */
@@ -127,8 +138,8 @@ export function DocForm({
   initialValues,
   onSubmit,
 }: DocFormProps): React.JSX.Element {
-  const [values, setValues] = React.useState<DocFormValues>(
-    initialValues ?? emptyDocFormValues(),
+  const [values, setValues] = React.useState<DocFormValues>(() =>
+    withExtras(initialValues),
   );
   const [error, setError] = React.useState<string | null>(null);
   const [pending, setPending] = React.useState<false | 'draft' | 'issue'>(false);
@@ -140,7 +151,7 @@ export function DocForm({
   // Reset + (re)seed when the drawer opens.
   React.useEffect(() => {
     if (!open) return;
-    setValues(initialValues ?? emptyDocFormValues());
+    setValues(withExtras(initialValues));
     setError(null);
     seededNumber.current = false;
   }, [open, initialValues]);
@@ -169,11 +180,13 @@ export function DocForm({
       return `Pick a ${config.partyLabel.toLowerCase()}.`;
     }
     if (!values.date) return `${config.dateLabel} is required.`;
-    if (!values.dueDate) return `${config.dueDateLabel} is required.`;
-    if (values.dueDate < values.date) {
-      return `${config.dueDateLabel} can't be before the ${config.dateLabel.toLowerCase()}.`;
+    if (!config.hideDueDate) {
+      if (!values.dueDate) return `${config.dueDateLabel} is required.`;
+      if (values.dueDate < values.date) {
+        return `${config.dueDateLabel} can't be before the ${config.dateLabel.toLowerCase()}.`;
+      }
     }
-    if (values.lines.every(isBlankDocLine)) {
+    if (!config.hideLines && values.lines.every(isBlankDocLine)) {
       return 'Add at least one line item.';
     }
     return null;
@@ -217,8 +230,12 @@ export function DocForm({
           </DrawerTitle>
           <DrawerDescription id="fdoc-form-desc">
             {mode === 'create'
-              ? `Pick the ${config.partyLabel.toLowerCase()}, add line items and save as a draft or issue it right away.`
-              : `Update the ${entityLower}'s details. Money fields are recomputed from the line items.`}
+              ? config.hideLines
+                ? `Pick the ${config.partyLabel.toLowerCase()}, fill in the details and save.`
+                : `Pick the ${config.partyLabel.toLowerCase()}, add line items and save as a draft or issue it right away.`
+              : config.hideLines
+                ? `Update the ${entityLower}'s details.`
+                : `Update the ${entityLower}'s details. Money fields are recomputed from the line items.`}
           </DrawerDescription>
         </DrawerHeader>
 
@@ -267,15 +284,17 @@ export function DocForm({
                 />
               </Field>
 
-              <Field label={config.dueDateLabel} required>
-                <DatePicker
-                  value={keyToDate(values.dueDate)}
-                  onChange={(d) => patch({ dueDate: dateToKey(d) })}
-                  placeholder="Pick a date"
-                  disabled={busy}
-                  aria-label={config.dueDateLabel}
-                />
-              </Field>
+              {config.hideDueDate ? null : (
+                <Field label={config.dueDateLabel} required>
+                  <DatePicker
+                    value={keyToDate(values.dueDate)}
+                    onChange={(d) => patch({ dueDate: dateToKey(d) })}
+                    placeholder="Pick a date"
+                    disabled={busy}
+                    aria-label={config.dueDateLabel}
+                  />
+                </Field>
+              )}
 
               <Field label="Currency" required>
                 <SelectField
@@ -286,14 +305,20 @@ export function DocForm({
                 />
               </Field>
 
-              <Field label="Payment terms" help="Printed on the document.">
-                <Input
-                  value={values.paymentTerms}
-                  onChange={(e) => patch({ paymentTerms: e.target.value })}
-                  placeholder="Net 30"
-                  disabled={busy}
-                />
-              </Field>
+              {config.hidePaymentTerms ? null : (
+                <Field label="Payment terms" help="Printed on the document.">
+                  <Input
+                    value={values.paymentTerms}
+                    onChange={(e) => patch({ paymentTerms: e.target.value })}
+                    placeholder="Net 30"
+                    disabled={busy}
+                  />
+                </Field>
+              )}
+
+              {config.extraFields
+                ? config.extraFields({ values, patch, busy })
+                : null}
 
               {config.taxFields?.placeOfSupply ? (
                 <Field
@@ -369,30 +394,32 @@ export function DocForm({
                 </>
               ) : null}
 
-              <div className="fdoc-form-grid__full">
-                <Field label="Line items" required>
-                  <LineItemsEditor
-                    lines={values.lines}
-                    onChange={(lines) => patch({ lines })}
-                    currency={values.currency}
-                    searchItems={config.searchItems}
-                    disabled={busy}
-                    lineExtras={config.lineExtras}
-                    modifiers={
-                      config.totalsModifiers
-                        ? (values.modifiers ?? {})
-                        : undefined
-                    }
-                    onModifiersChange={
-                      config.totalsModifiers
-                        ? (modifiers) => patch({ modifiers })
-                        : undefined
-                    }
-                  />
-                </Field>
-              </div>
+              {config.hideLines ? null : (
+                <div className="fdoc-form-grid__full">
+                  <Field label="Line items" required>
+                    <LineItemsEditor
+                      lines={values.lines}
+                      onChange={(lines) => patch({ lines })}
+                      currency={values.currency}
+                      searchItems={config.searchItems}
+                      disabled={busy}
+                      lineExtras={config.lineExtras}
+                      modifiers={
+                        config.totalsModifiers
+                          ? (values.modifiers ?? {})
+                          : undefined
+                      }
+                      onModifiersChange={
+                        config.totalsModifiers
+                          ? (modifiers) => patch({ modifiers })
+                          : undefined
+                      }
+                    />
+                  </Field>
+                </div>
+              )}
 
-              <Field label="Customer notes">
+              <Field label={config.notesLabel ?? 'Customer notes'}>
                 <Textarea
                   value={values.customerNotes}
                   onChange={(e) => patch({ customerNotes: e.target.value })}

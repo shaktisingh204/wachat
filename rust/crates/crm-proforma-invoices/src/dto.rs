@@ -45,6 +45,23 @@ pub struct CreateProformaInput {
     pub valid_till_date: Option<String>,
     #[serde(default)]
     pub currency: Option<String>,
+    /* ----- canonical advance fields (finance-rollout gap G3) ------ */
+    /// Hex `ObjectId` of the linked Sales Order.
+    #[serde(default)]
+    pub linked_so_id: Option<String>,
+    /// Advance %. Must be a finite number in `[0, 100]` when present.
+    /// When sent without `advanceAmount`, the handler computes
+    /// `advanceAmount = total × advancePct / 100`.
+    #[serde(default)]
+    pub advance_pct: Option<f64>,
+    #[serde(default)]
+    pub advance_amount: Option<f64>,
+    /// RFC3339 date string.
+    #[serde(default)]
+    pub payment_due_date: Option<String>,
+    /// RFC3339 date string.
+    #[serde(default)]
+    pub expected_delivery: Option<String>,
     #[serde(default)]
     pub line_items: Vec<ProformaLineItem>,
     #[serde(default)]
@@ -72,6 +89,21 @@ pub struct UpdateProformaInput {
     pub valid_till_date: Option<String>,
     #[serde(default)]
     pub currency: Option<String>,
+    /* ----- canonical advance fields (finance-rollout gap G3) ------ */
+    /// Hex `ObjectId` of the linked Sales Order.
+    #[serde(default)]
+    pub linked_so_id: Option<String>,
+    /// Advance %. Must be a finite number in `[0, 100]` when present.
+    #[serde(default)]
+    pub advance_pct: Option<f64>,
+    #[serde(default)]
+    pub advance_amount: Option<f64>,
+    /// RFC3339 date string.
+    #[serde(default)]
+    pub payment_due_date: Option<String>,
+    /// RFC3339 date string.
+    #[serde(default)]
+    pub expected_delivery: Option<String>,
     #[serde(default)]
     pub line_items: Option<Vec<ProformaLineItem>>,
     #[serde(default)]

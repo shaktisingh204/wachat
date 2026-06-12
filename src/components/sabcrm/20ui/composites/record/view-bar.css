@@ -89,6 +89,29 @@
   max-width: min(460px, calc(100vw - var(--st-space-4)));
 }
 
+:is(.\32 0ui, .ui20) .vb-pop--fields {
+  width: min(260px, calc(100vw - var(--st-space-4)));
+  max-width: min(260px, calc(100vw - var(--st-space-4)));
+}
+
+/* The per-column show/hide checklist (FieldsControl). */
+:is(.\32 0ui, .ui20) .vb-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+:is(.\32 0ui, .ui20) .vb-fields__row {
+  padding: 3px var(--st-space-1);
+  border-radius: var(--st-radius-sm);
+}
+
+:is(.\32 0ui, .ui20) .vb-fields__row:hover {
+  background: var(--st-hover);
+}
+
 :is(.\32 0ui, .ui20) .vb-pop__title {
   margin: 0;
   font-size: var(--st-font-size-sm);

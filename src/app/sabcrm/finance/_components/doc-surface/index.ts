@@ -20,6 +20,18 @@ export {
 } from './line-items-editor';
 export { DocForm, emptyDocFormValues, type DocFormProps } from './doc-form';
 export {
+  AllocationsEditor,
+  blankAllocationRow,
+  type AllocationRow,
+  type AllocationsEditorProps,
+} from './allocations-editor';
+export {
+  JournalLinesEditor,
+  blankJournalLeg,
+  type JournalLeg,
+  type JournalLinesEditorProps,
+} from './journal-lines-editor';
+export {
   DocDetailPage,
   type DocDetailPageProps,
   type DocDetailParty,

@@ -173,7 +173,42 @@ export interface SabcrmViewCreateInput {
 
 /** `PATCH /{id}` body sans `projectId` — a partial view document. */
 export interface SabcrmViewUpdateInput {
+  /**
+   * Work-queue config (additive key on the view doc — flattened/`$set`
+   * verbatim like `columnWidths`): `enabled` / `doneWhen` / `slaField` /
+   * `snoozeMinutes`. See `rust/crates/sabcrm-views/src/lib.rs` (Work queues).
+   */
+  queue?: Record<string, unknown>;
   [key: string]: unknown;
+}
+
+/**
+ * One per-user work-queue state row (`GET/POST /{id}/queue`, collection
+ * `sabcrm_view_queue_state`, cleaned `_id` → `id`). A record with no row is
+ * "up next"; `doneAt` marks it done; a future `snoozedUntil` parks it.
+ */
+export interface SabcrmQueueState {
+  id: string;
+  recordId: string;
+  userId: string;
+  /** RFC3339 — snoozed until this instant (null/absent ⇒ not snoozed). */
+  snoozedUntil?: string | null;
+  /** RFC3339 — marked done at this instant (null/absent ⇒ not done). */
+  doneAt?: string | null;
+}
+
+/** `POST /{id}/queue` action verbs (clear resets both flags). */
+export type SabcrmQueueMarkAction = 'done' | 'snooze' | 'clear';
+
+/** `POST /{id}/queue` body sans `projectId`. */
+export interface SabcrmQueueMarkInput {
+  /** The queue user the state belongs to. */
+  userId: string;
+  /** The record being marked. */
+  recordId: string;
+  action: SabcrmQueueMarkAction;
+  /** RFC3339 — required when `action === 'snooze'`. */
+  until?: string;
 }
 
 /** Raw `{ views }` envelope from `GET /`. */
@@ -265,6 +300,37 @@ export const sabcrmViewsApi = {
       { method: 'POST', body: JSON.stringify({ projectId }) },
     );
     return res.view;
+  },
+
+  /**
+   * `GET /v1/sabcrm/views/{id}/queue` — list one user's work-queue state for
+   * a saved view (rows are per `(projectId, viewId, recordId, userId)`).
+   */
+  async listQueueState(
+    projectId: string,
+    viewId: string,
+    userId: string,
+  ): Promise<SabcrmQueueState[]> {
+    const res = await rustFetch<{ states: SabcrmQueueState[] }>(
+      `${BASE}/${encodeURIComponent(viewId)}/queue${qs({ projectId, userId })}`,
+    );
+    return res.states;
+  },
+
+  /**
+   * `POST /v1/sabcrm/views/{id}/queue` — mark one record's queue state
+   * (`done` / `snooze` / `clear`). Returns the upserted state row, or
+   * `{ ok: true }` for `clear`.
+   */
+  markQueueState(
+    projectId: string,
+    viewId: string,
+    input: SabcrmQueueMarkInput,
+  ): Promise<SabcrmQueueState | { ok: boolean }> {
+    return rustFetch<SabcrmQueueState | { ok: boolean }>(
+      `${BASE}/${encodeURIComponent(viewId)}/queue`,
+      { method: 'POST', body: JSON.stringify({ projectId, ...input }) },
+    );
   },
 
   /**

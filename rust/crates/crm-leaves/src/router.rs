@@ -1,10 +1,21 @@
-//! Mountable router for the §9.4 Leave Management endpoints.
+//! Mountable routers for the §9.4 Leave Management endpoints.
 //!
-//! Mount under `/v1/crm/leaves` from the host `api` crate:
+//! Two constructors share one handler set; the only difference is the
+//! [`ScopeMode`] each attaches as an axum `Extension`, which decides the
+//! per-request tenant filter key (see `crm_core::scope`):
+//!
+//! - [`router`] — the legacy `userId`-scoped surface. Mount under
+//!   `/v1/hrm/leaves` (and the `/v1/crm/leaves` alias). Behaviour is
+//!   unchanged.
+//! - [`project_router`] — the SabCRM People suite surface, scoped by a
+//!   required `projectId`. Mount under `/v1/sabcrm/people/leaves`. The
+//!   approve action is included on BOTH mounts — it is tenant-safe
+//!   because the handlers are scope-aware.
 //!
 //! ```ignore
 //! use crm_leaves;
-//! .nest("/v1/crm/leaves", crm_leaves::router::<AppState>())
+//! .nest("/v1/hrm/leaves", crm_leaves::router::<AppState>())
+//! .nest("/v1/sabcrm/people/leaves", crm_leaves::project_router::<AppState>())
 //! ```
 //!
 //! State requirements: any state from which a [`MongoHandle`] and
@@ -14,18 +25,19 @@
 use std::sync::Arc;
 
 use axum::{
-    Router,
+    Extension, Router,
     extract::FromRef,
     routing::{get, post},
 };
+use crm_core::ScopeMode;
 use sabnode_auth::AuthConfig;
 use sabnode_db::mongo::MongoHandle;
 
 use crate::handlers;
 
-/// Build the router.
+/// The shared route table (no scope attached yet).
 ///
-/// Routes (mounted relative — caller nests under `/v1/crm/leaves`):
+/// Routes (mounted relative):
 ///
 /// ```text
 /// GET    /types                                — list_leave_types
@@ -42,13 +54,7 @@ use crate::handlers;
 ///
 /// POST   /applications/{applicationId}/approve — approve_leave_application
 /// ```
-///
-/// `S` is the caller's outer application state. Handlers need a
-/// [`MongoHandle`] (data access) and `Arc<AuthConfig>` (the JWT
-/// verifier the `AuthUser` extractor reads). Both are pulled via
-/// [`FromRef`] so this crate stays decoupled from the orchestrator's
-/// concrete `AppState`.
-pub fn router<S>() -> Router<S>
+fn crud_routes<S>() -> Router<S>
 where
     S: Clone + Send + Sync + 'static,
     MongoHandle: FromRef<S>,
@@ -88,4 +94,35 @@ where
     Router::new()
         .nest("/types", types)
         .nest("/applications", applications)
+}
+
+/// Legacy `userId`-scoped router — mount under `/v1/hrm/leaves`
+/// (and the `/v1/crm/leaves` alias).
+///
+/// `S` is the caller's outer application state. Handlers need a
+/// [`MongoHandle`] (data access) and `Arc<AuthConfig>` (the JWT
+/// verifier the `AuthUser` extractor reads). Both are pulled via
+/// [`FromRef`] so this crate stays decoupled from the orchestrator's
+/// concrete `AppState`.
+pub fn router<S>() -> Router<S>
+where
+    S: Clone + Send + Sync + 'static,
+    MongoHandle: FromRef<S>,
+    Arc<AuthConfig>: FromRef<S>,
+{
+    crud_routes().layer(Extension(ScopeMode::User))
+}
+
+/// SabCRM People `projectId`-scoped router — mount under
+/// `/v1/sabcrm/people/leaves`. Same handlers, same `crm_leave_types` +
+/// `crm_leave_applications` collections; every request must carry
+/// `projectId` (query for `GET`/`PATCH`/`DELETE`, body for `POST`) or
+/// it is rejected 4xx.
+pub fn project_router<S>() -> Router<S>
+where
+    S: Clone + Send + Sync + 'static,
+    MongoHandle: FromRef<S>,
+    Arc<AuthConfig>: FromRef<S>,
+{
+    crud_routes().layer(Extension(ScopeMode::Project))
 }

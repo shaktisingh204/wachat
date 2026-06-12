@@ -166,6 +166,12 @@ export interface TimelineItem {
   meta?: React.ReactNode;
   at: string | Date;
   actor?: { name: string; avatarUrl?: string };
+  /**
+   * Right-aligned row actions (e.g. an edit/delete menu). Always in the tab
+   * order; only VISUALLY revealed on row hover / focus-within (see
+   * `.rd-timeline__actions` in record-detail.css).
+   */
+  actions?: React.ReactNode;
 }
 
 export interface TimelineListProps {
@@ -256,6 +262,9 @@ export function TimelineList({
                   >
                     {stamp}
                   </time>
+                ) : null}
+                {item.actions != null ? (
+                  <span className="rd-timeline__actions">{item.actions}</span>
                 ) : null}
               </div>
               {item.meta != null ? (

@@ -6,8 +6,25 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
+/// Query string for the single-document routes (`GET` / `PATCH` /
+/// `DELETE /{requestId}`). Carries only the SabCRM tenant scope —
+/// **required** under `ScopeMode::Project` (the
+/// `/v1/sabcrm/people/shift-change-requests` mount), ignored on the
+/// legacy `userId`-scoped mount. The key stays camelCase (`projectId`)
+/// even though this crate's entity wire is snake_case — the tenant key
+/// is uniform across the suite.
+#[derive(Debug, Clone, Default, Deserialize)]
+pub struct ScopeQuery {
+    /// SabCRM tenant scope (24-char hex `ObjectId`).
+    #[serde(default, rename = "projectId")]
+    pub project_id: Option<String>,
+}
+
 #[derive(Debug, Clone, Default, Deserialize)]
 pub struct ListQuery {
+    /// SabCRM tenant scope — required under `ScopeMode::Project`.
+    #[serde(default, rename = "projectId")]
+    pub project_id: Option<String>,
     #[serde(default)]
     pub page: Option<u32>,
     #[serde(default)]
@@ -22,6 +39,11 @@ pub struct ListQuery {
 
 #[derive(Debug, Clone, Default, Deserialize)]
 pub struct CreateShiftChangeRequestInput {
+    /// SabCRM tenant scope — required (in the body) under
+    /// `ScopeMode::Project`; optional on the legacy user mount.
+    /// camelCase key on purpose (uniform tenant key).
+    #[serde(default, rename = "projectId")]
+    pub project_id: Option<String>,
     pub employee_id: String,
     #[serde(default)]
     pub employee_name: Option<String>,

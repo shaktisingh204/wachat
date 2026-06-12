@@ -13,16 +13,28 @@
 //! | `POST`  | `/:runId/approve`    | [`approve_payroll_run`]       |
 //! | `POST`  | `/:runId/disburse`   | [`disburse_payroll_run`]      |
 //!
-//! Every handler scopes its Mongo query by `userId == AuthUser.user_id`
-//! — the CRM tenant root from `crm-core::Identity`.
+//! Every handler scopes its Mongo query by the mount's
+//! [`crm_core::ScopeMode`] (attached as an axum `Extension` by the
+//! router constructors in [`crate::router`]):
+//!
+//! - `/v1/hrm/payroll-runs` (legacy) — `userId == AuthUser.user_id`,
+//!   the CRM tenant root from `crm-core::Identity`. Unchanged
+//!   behaviour.
+//! - `/v1/sabcrm/people/payroll-runs` (SabCRM People suite) —
+//!   `projectId == ?projectId` / body `projectId`, required per-request
+//!   (4xx when absent). Membership is validated by the Next.js action
+//!   gate before the request reaches Rust. Cross-collection reads
+//!   inside compute (`crm_employees`, `crm_salary_structures`) use the
+//!   same resolved scope, so a Project-mounted compute only sees that
+//!   project's roster.
 
 use axum::{
-    Json,
+    Extension, Json,
     extract::{Path, Query, State},
 };
 use bson::{Document, doc, oid::ObjectId};
 use chrono::Utc;
-use crm_core::{Audit, Identity};
+use crm_core::{Audit, Identity, ScopeMode, TenantScope, sabcrm_project_oid};
 use futures::TryStreamExt;
 // `EmploymentStatus` is referenced only in test code today (the production
 // query filters on a string projection rather than the enum). Keep it in
@@ -40,7 +52,8 @@ use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
 use tracing::instrument;
 
 use crate::dto::{
-    ApproveInput, CreatePayrollRunInput, DEFAULT_LIMIT, ListQuery, MAX_LIMIT, UpdatePayrollRunInput,
+    ApproveInput, CreatePayrollRunInput, DEFAULT_LIMIT, ListQuery, MAX_LIMIT, ScopeQuery,
+    UpdatePayrollRunInput,
 };
 
 /// Mongo collection name (this crate).
@@ -71,14 +84,34 @@ fn clamp_limit(requested: Option<u32>) -> i64 {
     }
 }
 
-/// Materialize the base ownership filter:
-/// `{ userId, archived: { $ne: true } }`. Soft-deleted rows
-/// (`archived = true`) are excluded by default.
-fn base_ownership_filter(user: ObjectId) -> Document {
-    doc! {
-        "userId": user,
-        "archived": { "$ne": true },
+/// Resolve the per-request [`TenantScope`] from the mount's
+/// [`ScopeMode`] (attached as an axum `Extension` by the router
+/// constructor):
+///
+/// - `ScopeMode::User` (legacy mount) — scope by the verified JWT
+///   subject. Identical to the historical behaviour.
+/// - `ScopeMode::Project` (`/v1/sabcrm/people/payroll-runs`) — scope by
+///   the caller-supplied `projectId`, 4xx when absent/invalid. The
+///   Next.js action gate has already validated project membership
+///   before the request reaches Rust.
+fn resolve_scope(
+    mode: ScopeMode,
+    user: &AuthUser,
+    project_id: Option<&str>,
+) -> Result<TenantScope> {
+    match mode {
+        ScopeMode::User => Ok(TenantScope::User(user_oid(user)?)),
+        ScopeMode::Project => Ok(TenantScope::Project(sabcrm_project_oid(project_id)?)),
     }
+}
+
+/// Materialize the base ownership filter for the resolved scope:
+/// `{ <userId|projectId>, archived: { $ne: true } }`. Soft-deleted rows
+/// (`archived = true`) are excluded by default.
+fn base_ownership_filter(scope: &TenantScope) -> Document {
+    let mut f = scope.filter();
+    f.insert("archived", doc! { "$ne": true });
+    f
 }
 
 /// Lower-case wire form of [`PayrollRunStatus`]. `serde_json::to_value`
@@ -146,12 +179,13 @@ fn bank_file_format_str(f: BankFileFormat) -> &'static str {
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn list_payroll_runs(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Query(q): Query<ListQuery>,
 ) -> Result<Json<Vec<PayrollRun>>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, q.project_id.as_deref())?;
 
-    let mut filter = base_ownership_filter(user_id);
+    let mut filter = base_ownership_filter(&scope);
     if let Some(status) = parse_status(q.status.as_ref())? {
         filter.insert("status", status_str(status));
     }
@@ -188,13 +222,15 @@ pub async fn list_payroll_runs(
 #[instrument(skip_all, fields(user_id = %user.user_id, run_id = %run_id))]
 pub async fn get_payroll_run(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(run_id): Path<String>,
+    Query(scope_q): Query<ScopeQuery>,
 ) -> Result<Json<PayrollRun>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, scope_q.project_id.as_deref())?;
     let run_oid = oid_from_str(&run_id)?;
 
-    let mut filter = base_ownership_filter(user_id);
+    let mut filter = base_ownership_filter(&scope);
     filter.insert("_id", run_oid);
 
     let coll = mongo.collection::<PayrollRun>(RUNS_COLL);
@@ -223,6 +259,7 @@ pub async fn get_payroll_run(
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn create_payroll_run(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Json(input): Json<CreatePayrollRunInput>,
 ) -> Result<Json<PayrollRun>> {
@@ -233,12 +270,21 @@ pub async fn create_payroll_run(
     }
 
     let user_id = user_oid(&user)?;
-    let project_id = match input.project_id.as_deref().filter(|s| !s.is_empty()) {
-        Some(s) => oid_from_str(s)?,
-        // The §9 spec requires a project scope, but the legacy TS
-        // single-tenant callers omitted it — mint a fresh OID so
-        // existing UI keeps working during the migration window.
-        None => ObjectId::new(),
+    // In project mode the body's `projectId` IS the tenant scope and is
+    // therefore mandatory (4xx when absent) — `resolve_scope` enforces
+    // that. In legacy user mode the scope is the JWT subject and the
+    // body `projectId` stays optional, exactly as before. The stamped
+    // `userId` is always `AuthUser.user_id` (auditing).
+    let scope = resolve_scope(mode, &user, input.project_id.as_deref())?;
+    let project_id = match scope {
+        TenantScope::Project(p) => p,
+        TenantScope::User(_) => match input.project_id.as_deref().filter(|s| !s.is_empty()) {
+            Some(s) => oid_from_str(s)?,
+            // The §9 spec requires a project scope, but the legacy TS
+            // single-tenant callers omitted it — mint a fresh OID so
+            // existing UI keeps working during the migration window.
+            None => ObjectId::new(),
+        },
     };
 
     let bank_file_format = match input.bank_file_format.as_deref().filter(|s| !s.is_empty()) {
@@ -289,8 +335,10 @@ pub async fn create_payroll_run(
 #[instrument(skip_all, fields(user_id = %user.user_id, run_id = %run_id))]
 pub async fn update_payroll_run(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(run_id): Path<String>,
+    Query(scope_q): Query<ScopeQuery>,
     Json(input): Json<UpdatePayrollRunInput>,
 ) -> Result<Json<PayrollRun>> {
     if input.is_empty() {
@@ -299,12 +347,13 @@ pub async fn update_payroll_run(
         ));
     }
 
+    let scope = resolve_scope(mode, &user, scope_q.project_id.as_deref())?;
     let user_id = user_oid(&user)?;
     let run_oid = oid_from_str(&run_id)?;
 
     // Guard: only `draft` runs are editable from PATCH.
     let typed = mongo.collection::<PayrollRun>(RUNS_COLL);
-    let mut load_filter = base_ownership_filter(user_id);
+    let mut load_filter = base_ownership_filter(&scope);
     load_filter.insert("_id", run_oid);
     let existing = typed
         .find_one(load_filter.clone())
@@ -388,13 +437,16 @@ pub async fn update_payroll_run(
 #[instrument(skip_all, fields(user_id = %user.user_id, run_id = %run_id))]
 pub async fn delete_payroll_run(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(run_id): Path<String>,
+    Query(scope_q): Query<ScopeQuery>,
 ) -> Result<Json<serde_json::Value>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, scope_q.project_id.as_deref())?;
     let run_oid = oid_from_str(&run_id)?;
 
-    let filter = doc! { "_id": run_oid, "userId": user_id };
+    let mut filter = scope.filter();
+    filter.insert("_id", run_oid);
 
     let coll = mongo.collection::<Document>(RUNS_COLL);
     let res = coll.delete_one(filter).await.map_err(|e| {
@@ -419,10 +471,11 @@ pub async fn delete_payroll_run(
 /// - `PercentBasic { pct }` — `pct/100 * basic`.
 /// - `PercentCtc { pct }` — `pct/100 * ctc`.
 /// - `Formula { expr }` — evaluated by [`eval_formula`]. Supports
-///   `+ - * / ( )`, decimal literals, and the bound identifiers
-///   `basic`, `ctc`, `monthlyCtc` (alias for `ctc`), and `annualCtc`
-///   (`ctc * 12`). On parse / evaluation failure the formula returns
-///   `0.0` and logs a warning, matching the prior stub's behaviour.
+///   `+ - * / ( )`, decimal literals, the `min(a, b, …)` / `max(a, b, …)`
+///   functions, and the bound identifiers `basic`, `ctc`, `monthlyCtc`
+///   (alias for `ctc`), and `annualCtc` (`ctc * 12`). On parse /
+///   evaluation failure the formula returns `0.0` and logs a warning,
+///   matching the prior stub's behaviour.
 ///
 /// `min_cap` and `max_cap` are honoured.
 fn resolve_amount(component: &SalaryComponent, basic: f64, ctc: f64) -> f64 {
@@ -464,9 +517,14 @@ fn resolve_amount(component: &SalaryComponent, basic: f64, ctc: f64) -> f64 {
 }
 
 /// Evaluate a salary-component formula expression. Supports decimal
-/// literals, `+ - * /`, parentheses, unary minus, and the bound
+/// literals, `+ - * /`, parentheses, unary minus, the variadic
+/// `min(a, b, …)` / `max(a, b, …)` functions, and the bound
 /// identifiers `basic`, `ctc`, `monthlyCtc` (alias for `ctc`), and
-/// `annualCtc` (`= ctc * 12`). Identifiers are case-insensitive.
+/// `annualCtc` (`= ctc * 12`). Identifiers and function names are
+/// case-insensitive. `min`/`max` cover the canonical statutory PF
+/// formula `min(BASIC, 15000) * 0.12` from
+/// `hrm-payroll-types::salary_structure` (P7 WI-6 — previously these
+/// silently resolved to `0.0`, understating deductions).
 ///
 /// This is a deliberately small recursive-descent parser — payroll
 /// formulas in production are typically a single multiplication or
@@ -580,7 +638,9 @@ impl<'a> FormulaParser<'a> {
         }
     }
 
-    /// atom := number | identifier | '(' expr ')'
+    /// atom := number | identifier | function-call | '(' expr ')'
+    ///
+    /// function-call := ('min' | 'max') '(' expr (',' expr)* ')'
     fn parse_atom(&mut self) -> std::result::Result<f64, String> {
         match self.peek() {
             Some('(') => {
@@ -596,6 +656,37 @@ impl<'a> FormulaParser<'a> {
             Some(c) => Err(format!("unexpected character '{c}'")),
             None => Err("unexpected end of expression".to_string()),
         }
+    }
+
+    /// Parse the parenthesised, comma-separated argument list of a
+    /// `min` / `max` call (the name has already been consumed) and fold
+    /// it with the supplied combiner. Requires at least two arguments —
+    /// a 1-arg `min(x)` is almost certainly a typo in a payroll formula
+    /// and silently passing it through would mask the mistake.
+    fn parse_fn_args(
+        &mut self,
+        name: &str,
+        fold: fn(f64, f64) -> f64,
+    ) -> std::result::Result<f64, String> {
+        match self.bump() {
+            Some('(') => {}
+            _ => return Err(format!("expected '(' after function '{name}'")),
+        }
+        let mut acc = self.parse_expr()?;
+        let mut arg_count = 1usize;
+        while self.peek() == Some(',') {
+            self.bump();
+            acc = fold(acc, self.parse_expr()?);
+            arg_count += 1;
+        }
+        match self.bump() {
+            Some(')') => {}
+            _ => return Err(format!("expected ')' to close '{name}(…'")),
+        }
+        if arg_count < 2 {
+            return Err(format!("{name}() requires at least two arguments"));
+        }
+        Ok(acc)
     }
 
     fn parse_number(&mut self) -> std::result::Result<f64, String> {
@@ -631,6 +722,13 @@ impl<'a> FormulaParser<'a> {
         }
         let ident = std::str::from_utf8(&self.src[start..self.pos]).map_err(|e| e.to_string())?;
         match ident.to_ascii_lowercase().as_str() {
+            // Function calls — the canonical statutory PF formula is
+            // `min(BASIC, 15000) * 0.12` (see
+            // hrm-payroll-types::salary_structure), so `min`/`max`
+            // MUST resolve to real values, never the silent-zero
+            // fallback (P7 WI-6 / risk R2).
+            "min" => self.parse_fn_args("min", f64::min),
+            "max" => self.parse_fn_args("max", f64::max),
             "basic" => Ok(self.basic),
             "ctc" | "monthlyctc" => Ok(self.ctc),
             "annualctc" => Ok(self.ctc * 12.0),
@@ -736,18 +834,29 @@ fn compute_employee_row(
 ///
 /// Failures mid-flight leave the run in `processing` so the operator
 /// can re-invoke compute idempotently.
+///
+/// **Schema-collision resilience (P7 §2.1.2):** `crm_salary_structures`
+/// holds two shapes — the rich [`SalaryStructure`] this compute needs,
+/// and the legacy FLAT `CrmSalaryStructure` written by the gen-2
+/// `crm-salary-structures` CRUD. Structures are therefore read as raw
+/// `Document`s and decoded per-doc via `bson::from_document`; a shape
+/// mismatch logs a warning and SKIPS that employee instead of 500-ing
+/// the whole run.
 #[instrument(skip_all, fields(user_id = %user.user_id, run_id = %run_id))]
 pub async fn compute_payroll_run(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(run_id): Path<String>,
+    Query(scope_q): Query<ScopeQuery>,
 ) -> Result<Json<PayrollRun>> {
+    let scope = resolve_scope(mode, &user, scope_q.project_id.as_deref())?;
     let user_id = user_oid(&user)?;
     let run_oid = oid_from_str(&run_id)?;
 
     // ---- Load + status guard --------------------------------------
     let runs = mongo.collection::<PayrollRun>(RUNS_COLL);
-    let mut filter = base_ownership_filter(user_id);
+    let mut filter = base_ownership_filter(&scope);
     filter.insert("_id", run_oid);
     let run = runs
         .find_one(filter.clone())
@@ -785,12 +894,13 @@ pub async fn compute_payroll_run(
         })?;
 
     // ---- Stream active employees ----------------------------------
+    // Cross-collection read — MUST use the resolved scope filter (not
+    // a hardcoded userId) so a Project-mounted compute only sees that
+    // project's roster (P7 §3.3).
     let employees_coll = mongo.collection::<Employee>(EMPLOYEES_COLL);
-    let emp_filter = doc! {
-        "userId": user_id,
-        "archived": { "$ne": true },
-        "status": "active",
-    };
+    let mut emp_filter = scope.filter();
+    emp_filter.insert("archived", doc! { "$ne": true });
+    emp_filter.insert("status", "active");
     let cursor = employees_coll
         .find(emp_filter)
         .await
@@ -801,23 +911,40 @@ pub async fn compute_payroll_run(
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_employees.collect")))?;
 
     // ---- Resolve each employee's structure + math -----------------
-    let structures_coll = mongo.collection::<SalaryStructure>(SALARY_STRUCTURES_COLL);
+    // Structures are fetched as raw `Document`s and decoded per-doc:
+    // `crm_salary_structures` also holds legacy FLAT `CrmSalaryStructure`
+    // docs (gen-2 CRUD) that fail rich-shape BSON deserialization
+    // (missing `name`/`effectiveDate`). One such doc must skip its
+    // employee with a warning — never 500 the whole run (§2.1.2 / R1).
+    let structures_coll = mongo.collection::<Document>(SALARY_STRUCTURES_COLL);
     let mut rows: Vec<EmployeeRunRow> = Vec::with_capacity(employees.len());
     for emp in &employees {
         let struct_oid = emp.employment.salary_structure_id;
-        let structure = structures_coll
-            .find_one(doc! { "_id": struct_oid, "userId": user_id })
-            .await
-            .map_err(|e| {
-                ApiError::Internal(anyhow::Error::new(e).context("crm_salary_structures.find_one"))
-            })?;
-        let Some(structure) = structure else {
+        let mut struct_filter = scope.filter();
+        struct_filter.insert("_id", struct_oid);
+        let raw = structures_coll.find_one(struct_filter).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("crm_salary_structures.find_one"))
+        })?;
+        let Some(raw) = raw else {
             tracing::warn!(
                 employee_id = %emp.identity.id,
                 salary_structure_id = %struct_oid,
                 "employee references a missing salary structure; skipping",
             );
             continue;
+        };
+        let structure: SalaryStructure = match bson::from_document(raw) {
+            Ok(s) => s,
+            Err(e) => {
+                tracing::warn!(
+                    employee_id = %emp.identity.id,
+                    salary_structure_id = %struct_oid,
+                    error = %e,
+                    "salary structure is not the rich SalaryStructure shape \
+                     (legacy flat CrmSalaryStructure doc?); skipping employee",
+                );
+                continue;
+            }
         };
         let annual_ctc = emp.employment.ctc.unwrap_or(0.0);
         rows.push(compute_employee_row(
@@ -893,17 +1020,29 @@ pub async fn compute_payroll_run(
 #[instrument(skip_all, fields(user_id = %user.user_id, run_id = %run_id))]
 pub async fn approve_payroll_run(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(run_id): Path<String>,
+    Query(scope_q): Query<ScopeQuery>,
     Json(input): Json<ApproveInput>,
 ) -> Result<Json<PayrollRun>> {
+    // Project mode requires `projectId` — accepted on the body or the
+    // query string (the body wins when both are present).
+    let scope = resolve_scope(
+        mode,
+        &user,
+        input
+            .project_id
+            .as_deref()
+            .or(scope_q.project_id.as_deref()),
+    )?;
     let user_id = user_oid(&user)?;
     let run_oid = oid_from_str(&run_id)?;
     let approver_oid = oid_from_str(&input.approver_id)?;
 
     // ---- Load + status guard --------------------------------------
     let runs = mongo.collection::<PayrollRun>(RUNS_COLL);
-    let mut filter = base_ownership_filter(user_id);
+    let mut filter = base_ownership_filter(&scope);
     filter.insert("_id", run_oid);
     let run = runs
         .find_one(filter.clone())
@@ -995,15 +1134,18 @@ pub async fn approve_payroll_run(
 #[instrument(skip_all, fields(user_id = %user.user_id, run_id = %run_id))]
 pub async fn disburse_payroll_run(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(run_id): Path<String>,
+    Query(scope_q): Query<ScopeQuery>,
 ) -> Result<Json<PayrollRun>> {
+    let scope = resolve_scope(mode, &user, scope_q.project_id.as_deref())?;
     let user_id = user_oid(&user)?;
     let run_oid = oid_from_str(&run_id)?;
 
     // ---- Load + status guard --------------------------------------
     let runs = mongo.collection::<PayrollRun>(RUNS_COLL);
-    let mut filter = base_ownership_filter(user_id);
+    let mut filter = base_ownership_filter(&scope);
     filter.insert("_id", run_oid);
     let run = runs
         .find_one(filter.clone())
@@ -1084,13 +1226,83 @@ mod tests {
         assert_eq!(clamp_limit(Some(0)), 1);
     }
 
+    /// Test-only [`AuthUser`] with a valid 24-hex subject.
+    fn fake_user(oid: &ObjectId) -> AuthUser {
+        AuthUser {
+            user_id: oid.to_hex(),
+            tenant_id: String::new(),
+            roles: Vec::new(),
+        }
+    }
+
     #[test]
-    fn base_filter_excludes_archived() {
+    fn base_filter_excludes_archived_user_scope() {
         let oid = ObjectId::new();
-        let f = base_ownership_filter(oid);
+        let f = base_ownership_filter(&TenantScope::User(oid));
         assert_eq!(f.get_object_id("userId").unwrap(), oid);
+        assert!(!f.contains_key("projectId"));
         let archived = f.get_document("archived").unwrap();
         assert!(archived.contains_key("$ne"));
+    }
+
+    #[test]
+    fn base_filter_excludes_archived_project_scope() {
+        let oid = ObjectId::new();
+        let f = base_ownership_filter(&TenantScope::Project(oid));
+        assert_eq!(f.get_object_id("projectId").unwrap(), oid);
+        assert!(!f.contains_key("userId"));
+        let archived = f.get_document("archived").unwrap();
+        assert!(archived.contains_key("$ne"));
+    }
+
+    #[test]
+    fn resolve_scope_project_rejects_missing_project_id() {
+        // The `project_router` mount attaches `ScopeMode::Project`; a
+        // request without `projectId` must 4xx (mirrors the
+        // `crm-core::scope` tests).
+        let user = fake_user(&ObjectId::new());
+        let err = resolve_scope(ScopeMode::Project, &user, None).unwrap_err();
+        assert!(matches!(err, ApiError::Validation(_)));
+        let err = resolve_scope(ScopeMode::Project, &user, Some("not-an-oid")).unwrap_err();
+        assert!(matches!(err, ApiError::Validation(_)));
+    }
+
+    #[test]
+    fn resolve_scope_resolves_both_modes() {
+        let user_oid = ObjectId::new();
+        let user = fake_user(&user_oid);
+        assert_eq!(
+            resolve_scope(ScopeMode::User, &user, None).unwrap(),
+            TenantScope::User(user_oid)
+        );
+        let project = ObjectId::new();
+        assert_eq!(
+            resolve_scope(ScopeMode::Project, &user, Some(&project.to_hex())).unwrap(),
+            TenantScope::Project(project)
+        );
+    }
+
+    #[test]
+    fn legacy_flat_structure_doc_fails_rich_deserialization() {
+        // The graceful-skip in compute() relies on the flat gen-2
+        // `CrmSalaryStructure` shape FAILING `bson::from_document::<
+        // SalaryStructure>` (missing `name` / `effectiveDate`). Lock
+        // that contract in so a future model change that silently
+        // accepts the flat shape (and mis-computes) trips this test.
+        let flat = doc! {
+            "_id": ObjectId::new(),
+            "userId": ObjectId::new(),
+            "employeeId": ObjectId::new(),
+            "basic": 20_000.0,
+            "hra": 10_000.0,
+            "da": 0.0,
+            "otherAllowances": 5_000.0,
+            "pfEmployer": 1_800.0,
+            "pfEmployee": 1_800.0,
+            "status": "active",
+        };
+        let res = bson::from_document::<SalaryStructure>(flat);
+        assert!(res.is_err(), "flat doc must NOT decode as the rich shape");
     }
 
     #[test]
@@ -1211,9 +1423,10 @@ mod tests {
     }
 
     #[test]
-    fn resolve_amount_formula_unsupported_returns_zero() {
-        // Function calls aren't supported by the parser — `min(...)` is
-        // a parse error, the warning fires, and we fall through to 0.
+    fn resolve_amount_formula_min_pf_is_positive_and_exact() {
+        // WI-6 / risk R2: the canonical statutory PF formula MUST
+        // resolve to a real (non-zero) deduction. With basic = 40,000:
+        // min(40000, 15000) * 0.12 = 1,800.
         let comp = SalaryComponent {
             name: "PF".into(),
             code: "PF".into(),
@@ -1225,10 +1438,50 @@ mod tests {
             statutory: true,
             prorate: false,
             frequency: Frequency::Monthly,
-            max_cap: None,
+            max_cap: Some(1_800.0),
             min_cap: None,
         };
-        assert_eq!(resolve_amount(&comp, 40_000.0, 80_000.0), 0.0);
+        let pf = resolve_amount(&comp, 40_000.0, 80_000.0);
+        // The fixture-verification suite (§6) fails loudly on
+        // silent-zero formulas — assert pf > 0 first, then exactness.
+        assert!(pf > 0.0, "PF must never silently resolve to zero");
+        assert!((pf - 1_800.0).abs() < 1e-9);
+    }
+
+    #[test]
+    fn formula_min_function_evaluates() {
+        // min picks the smaller argument on either side.
+        let v = eval_formula("min(BASIC, 15000) * 0.12", 40_000.0, 0.0).unwrap();
+        assert!((v - 1_800.0).abs() < 1e-9);
+        let v = eval_formula("min(basic, 15000) * 0.12", 10_000.0, 0.0).unwrap();
+        assert!((v - 1_200.0).abs() < 1e-9);
+    }
+
+    #[test]
+    fn formula_max_function_evaluates() {
+        let v = eval_formula("max(basic, 25000)", 10_000.0, 0.0).unwrap();
+        assert!((v - 25_000.0).abs() < 1e-9);
+        let v = eval_formula("max(basic, 25000)", 60_000.0, 0.0).unwrap();
+        assert!((v - 60_000.0).abs() < 1e-9);
+    }
+
+    #[test]
+    fn formula_min_max_variadic_and_nested() {
+        let v = eval_formula("min(3, 1, 2)", 0.0, 0.0).unwrap();
+        assert!((v - 1.0).abs() < 1e-9);
+        let v = eval_formula("max(min(basic, 15000), 500) + 1", 40_000.0, 0.0).unwrap();
+        assert!((v - 15_001.0).abs() < 1e-9);
+    }
+
+    #[test]
+    fn formula_min_max_reject_malformed_calls() {
+        // Missing '(' after the function name.
+        assert!(eval_formula("min 3, 4", 0.0, 0.0).is_err());
+        // Unclosed argument list.
+        assert!(eval_formula("min(3, 4", 0.0, 0.0).is_err());
+        // Single-argument calls are almost certainly typos in payroll
+        // formulas — rejected rather than passed through.
+        assert!(eval_formula("min(3)", 0.0, 0.0).is_err());
     }
 
     #[test]

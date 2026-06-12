@@ -11,6 +11,13 @@ pub struct CrmLeaveRequest {
     #[serde(rename = "userId")]
     pub user_id: ObjectId,
 
+    /// SabCRM tenant scope. Stamped on rows created through the
+    /// project-scoped mount; absent on legacy user-scoped rows — which
+    /// are therefore invisible on the project mount (accepted
+    /// clean-start per people-suite §2.1.7; no `userId` fallback).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub project_id: Option<ObjectId>,
+
     /// Employee whose leave this request belongs to.
     pub employee_id: ObjectId,
     #[serde(default, skip_serializing_if = "Option::is_none")]

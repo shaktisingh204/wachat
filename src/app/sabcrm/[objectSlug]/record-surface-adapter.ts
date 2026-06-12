@@ -464,6 +464,7 @@ export function savedViewFromWire(view: SabcrmRustView): SavedView {
     filters: wireToFilterGroup(view.filters),
     sorts: viewSortsFromWire(view),
     groupBy: view.groupByField ?? null,
+    visibleColumns: visibleColumnsFromWire(view),
     isDefault: view.isDefault === true,
   };
 }
@@ -476,6 +477,12 @@ export interface ViewStateSnapshot {
   groupBy: string | null;
   /** Table column widths (px) keyed by field key — RecordGrid resize state. */
   columnWidths?: Record<string, number>;
+  /**
+   * Ordered field keys shown as table columns; `null`/absent = the object's
+   * default (`inTable`) set. Persists on the CANONICAL saved-view
+   * `viewFields` channel (`{ fieldKey, position, isVisible, size? }`).
+   */
+  visibleColumns?: string[] | null;
 }
 
 /** Serialize a snapshot's view dimensions into the wire view document keys. */
@@ -494,11 +501,53 @@ function snapshotToWireKeys(snap: ViewStateSnapshot): Record<string, unknown> {
       direction: s.dir,
       position: i,
     })),
+    // Column visibility/order rides the engine's TYPED `viewFields` channel.
+    // Entries must stay EXACTLY `{ fieldKey, position, isVisible, size? }` —
+    // the Rust deserializer may reject malformed shapes on read. An empty
+    // array means "default columns" and round-trips as such.
+    viewFields: snap.visibleColumns
+      ? snap.visibleColumns.map((fieldKey, i) => ({
+          fieldKey,
+          position: i,
+          isVisible: true,
+          ...(snap.columnWidths?.[fieldKey]
+            ? { size: Math.round(snap.columnWidths[fieldKey]) }
+            : {}),
+        }))
+      : [],
     // Extra additive key — the Rust view handlers `#[serde(flatten)]` the
     // body, so unknown keys persist on the document and round-trip on read.
     // An empty map (widths reset) round-trips the same way `filters` does.
+    // Kept alongside `viewFields.size` for back-compat with the legacy page.
     columnWidths: snap.columnWidths ?? {},
   };
+}
+
+/**
+ * Read the ordered visible-column key list off a saved-view document's typed
+ * `viewFields` channel: entries with `isVisible !== false`, sorted by
+ * `position`, mapped to `fieldKey`. Returns `null` when the array is absent,
+ * empty, or yields no usable keys — callers fall back to the object's
+ * default (`inTable`) column set.
+ */
+export function visibleColumnsFromWire(view: SabcrmRustView): string[] | null {
+  const raw = view.viewFields;
+  if (!Array.isArray(raw) || raw.length === 0) return null;
+  const keys = raw
+    .filter(
+      (f) =>
+        !!f &&
+        typeof f.fieldKey === 'string' &&
+        f.fieldKey !== '' &&
+        f.isVisible !== false,
+    )
+    .sort(
+      (a, b) =>
+        (typeof a.position === 'number' ? a.position : 0) -
+        (typeof b.position === 'number' ? b.position : 0),
+    )
+    .map((f) => f.fieldKey);
+  return keys.length > 0 ? keys : null;
 }
 
 /**

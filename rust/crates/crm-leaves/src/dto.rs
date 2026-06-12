@@ -23,6 +23,19 @@ pub const DEFAULT_LIMIT: i64 = 20;
 /// the Rust BFF (clamped to keep large-result-set DoS attempts bounded).
 pub const MAX_LIMIT: i64 = 100;
 
+/// Query string for the single-document routes (`GET` / `PATCH` /
+/// `DELETE` on `/types/{typeId}` + `/applications/{applicationId}`).
+/// Carries only the SabCRM tenant scope — **required** under
+/// `ScopeMode::Project` (the `/v1/sabcrm/people/leaves` mount), ignored
+/// on the legacy `userId`-scoped mounts.
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ScopeQuery {
+    /// SabCRM tenant scope (24-char hex `ObjectId`).
+    #[serde(default)]
+    pub project_id: Option<String>,
+}
+
 // =========================================================================
 // LeaveType — catalog DTOs
 // =========================================================================
@@ -31,6 +44,11 @@ pub const MAX_LIMIT: i64 = 100;
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ListLeaveTypesQuery {
+    /// SabCRM tenant scope (24-char hex `ObjectId`). **Required** when
+    /// the router is mounted in `ScopeMode::Project`; ignored on the
+    /// legacy `userId`-scoped mounts.
+    #[serde(default)]
+    pub project_id: Option<String>,
     /// 1-indexed page (matches TS). Defaults to `1`.
     #[serde(default)]
     pub page: Option<u32>,
@@ -153,6 +171,11 @@ impl UpdateLeaveTypeInput {
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ListLeaveApplicationsQuery {
+    /// SabCRM tenant scope (24-char hex `ObjectId`). **Required** when
+    /// the router is mounted in `ScopeMode::Project`; ignored on the
+    /// legacy `userId`-scoped mounts.
+    #[serde(default)]
+    pub project_id: Option<String>,
     /// 1-indexed page. Defaults to `1`.
     #[serde(default)]
     pub page: Option<u32>,
@@ -196,12 +219,13 @@ pub struct CreateLeaveApplicationInput {
     /// 24-char hex of the parent `LeaveType`. Required.
     pub leave_type_id: String,
 
-    /// Inclusive start of the requested range. Required.
-    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
+    /// Inclusive start of the requested range. Required. ISO-8601
+    /// datetime on the JSON wire (plain chrono serde — bson's
+    /// `DateTime` deserializer only accepts extended JSON, which the
+    /// TS clients never send).
     pub from: DateTime<Utc>,
 
     /// Inclusive end of the requested range. Required. Must be `>= from`.
-    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub to: DateTime<Utc>,
 
     /// Whether this is a half-day request. Defaults to `false`.
@@ -235,17 +259,9 @@ pub struct CreateLeaveApplicationInput {
 pub struct UpdateLeaveApplicationInput {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub leave_type_id: Option<String>,
-    #[serde(
-        default,
-        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub from: Option<DateTime<Utc>>,
-    #[serde(
-        default,
-        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub to: Option<DateTime<Utc>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub half_day: Option<bool>,
@@ -274,6 +290,11 @@ impl UpdateLeaveApplicationInput {
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ApproveLeaveApplicationInput {
+    /// SabCRM tenant scope (24-char hex `ObjectId`). **Required** when
+    /// the router is mounted in `ScopeMode::Project`; ignored on the
+    /// legacy `userId`-scoped mounts.
+    #[serde(default)]
+    pub project_id: Option<String>,
     #[serde(default)]
     pub comment: Option<String>,
 }
@@ -362,5 +383,43 @@ mod tests {
         let input: ApproveLeaveApplicationInput =
             serde_json::from_value(serde_json::json!({})).unwrap();
         assert!(input.comment.is_none());
+        assert!(input.project_id.is_none());
+    }
+
+    #[test]
+    fn approve_input_parses_camel_case_project_id() {
+        let input: ApproveLeaveApplicationInput = serde_json::from_value(serde_json::json!({
+            "projectId": "507f1f77bcf86cd799439099",
+            "comment": "ok",
+        }))
+        .unwrap();
+        assert_eq!(input.project_id.as_deref(), Some("507f1f77bcf86cd799439099"));
+    }
+
+    #[test]
+    fn list_queries_parse_camel_case_project_id() {
+        let q: ListLeaveTypesQuery = serde_json::from_value(serde_json::json!({
+            "projectId": "507f1f77bcf86cd799439099",
+        }))
+        .unwrap();
+        assert_eq!(q.project_id.as_deref(), Some("507f1f77bcf86cd799439099"));
+
+        let q: ListLeaveApplicationsQuery = serde_json::from_value(serde_json::json!({
+            "projectId": "507f1f77bcf86cd799439099",
+        }))
+        .unwrap();
+        assert_eq!(q.project_id.as_deref(), Some("507f1f77bcf86cd799439099"));
+    }
+
+    #[test]
+    fn scope_query_parses_camel_case_project_id() {
+        let q: ScopeQuery = serde_json::from_value(serde_json::json!({
+            "projectId": "507f1f77bcf86cd799439099",
+        }))
+        .unwrap();
+        assert_eq!(q.project_id.as_deref(), Some("507f1f77bcf86cd799439099"));
+
+        let empty: ScopeQuery = serde_json::from_value(serde_json::json!({})).unwrap();
+        assert!(empty.project_id.is_none());
     }
 }

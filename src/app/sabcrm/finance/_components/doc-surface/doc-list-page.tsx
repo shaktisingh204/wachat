@@ -102,6 +102,24 @@ function toDayKey(d: Date): string {
   return `${y}-${m}-${day}`;
 }
 
+/** `YYYY-MM-DD` → local `Date` (calendar day, not UTC). */
+function dayKeyToDate(key: string | undefined): Date | undefined {
+  if (!key) return undefined;
+  const [y, m, d] = key.split('-').map(Number);
+  if (!y || !m || !d) return undefined;
+  return new Date(y, m - 1, d);
+}
+
+/** Seed the date-range picker from `initialFilters.from/to`. */
+function seedRange(
+  filters: Partial<DocListFilters> | undefined,
+): DateRange | undefined {
+  const from = dayKeyToDate(filters?.from);
+  const to = dayKeyToDate(filters?.to);
+  if (!from && !to) return undefined;
+  return { from: from ?? to, to: to ?? from };
+}
+
 /* ─── Cell renderer ───────────────────────────────────────────── */
 
 function renderCell<R>(
@@ -208,6 +226,15 @@ export interface DocListPageProps<R extends { id: string }> {
   initialError: string | null;
   /** Bumped by the parent to force a refetch (after create). */
   refreshToken?: number;
+  /**
+   * Seeds the toolbar filters ONCE on mount (`q`, `status`, `partyId`,
+   * `from`/`to` → date range) — the statements drill-down deep links.
+   * The server page must parse the same `searchParams` into its initial
+   * `fetchPage` call: seeding only aligns the visible controls, it does
+   * NOT trigger a client refetch on first render. `page` is ignored
+   * (lists always seed on page 1). Omit for today's behaviour.
+   */
+  initialFilters?: Partial<DocListFilters>;
 }
 
 export function DocListPage<R extends { id: string }>({
@@ -218,6 +245,7 @@ export function DocListPage<R extends { id: string }>({
   initialHasMore,
   initialError,
   refreshToken = 0,
+  initialFilters,
 }: DocListPageProps<R>): React.JSX.Element {
   const router = useRouter();
   const statusMap = React.useMemo(
@@ -230,11 +258,17 @@ export function DocListPage<R extends { id: string }>({
   const [hasMore, setHasMore] = React.useState(initialHasMore);
   const [error, setError] = React.useState<string | null>(initialError);
   const [page, setPage] = React.useState(1);
-  const [q, setQ] = React.useState('');
-  const [status, setStatus] = React.useState<string | null>('');
-  const [partyId, setPartyId] = React.useState<string | null>(null);
+  const [q, setQ] = React.useState(initialFilters?.q ?? '');
+  const [status, setStatus] = React.useState<string | null>(
+    initialFilters?.status ?? '',
+  );
+  const [partyId, setPartyId] = React.useState<string | null>(
+    initialFilters?.partyId || null,
+  );
   const [partyLabel, setPartyLabel] = React.useState<string | null>(null);
-  const [range, setRange] = React.useState<DateRange | undefined>(undefined);
+  const [range, setRange] = React.useState<DateRange | undefined>(() =>
+    seedRange(initialFilters),
+  );
   const [loading, startLoad] = React.useTransition();
   const [exporting, setExporting] = React.useState(false);
 

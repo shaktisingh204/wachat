@@ -1,9 +1,12 @@
 //! HTTP handlers for the Time Log entity.
 //!
-//! Collection: `crm_time_logs`. All queries are scoped by
-//! `userId == AuthUser.user_id` (tenant root). Soft-delete is performed
-//! by setting `status = "archived"`; the list endpoint hides archived
-//! rows by default.
+//! Collection: `crm_time_logs`. Queries are scoped by the mount's
+//! [`crm_core::ScopeMode`]: `userId == AuthUser.user_id` on the legacy
+//! mount, and — **WI-13 exception** — `tenantProjectId == required
+//! ?tenantProjectId` on the SabCRM People mount (`projectId` on this
+//! entity is the WORK project FK, not the tenant; see crate docs).
+//! Soft-delete is performed by setting `status = "archived"`; the list
+//! endpoint hides archived rows by default.
 //!
 //! Validation rule on insert/update:
 //!   `duration_minutes > 0` OR (`ended_at is None` AND `status == "running"`).
@@ -13,7 +16,7 @@
 //!     `approvedBy` if the patch supplies it).
 
 use axum::{
-    Json,
+    Extension, Json,
     extract::{Path, Query, State},
 };
 use bson::{DateTime as BsonDateTime, Document, doc, oid::ObjectId};
@@ -24,6 +27,7 @@ use crm_common::{
     search::build_q_filter,
     tenant::user_oid,
 };
+use crm_core::{ScopeMode, TenantScope, sabcrm_project_oid};
 use futures::TryStreamExt;
 use mongodb::options::FindOptions;
 use sabnode_auth::AuthUser;
@@ -32,7 +36,8 @@ use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
 use tracing::instrument;
 
 use crate::dto::{
-    CreateTimeLogInput, CreateTimeLogResponse, DeleteTimeLogResponse, ListQuery, UpdateTimeLogInput,
+    CreateTimeLogInput, CreateTimeLogResponse, DeleteTimeLogResponse, ListQuery, ScopeQuery,
+    UpdateTimeLogInput,
 };
 use crate::types::CrmTimeLog;
 
@@ -43,14 +48,49 @@ const ENTITY_KIND: &str = "time_log";
 // Helpers
 // =========================================================================
 
+/// Resolve the per-request [`TenantScope`] from the mount's
+/// [`ScopeMode`]. **WI-13 exception**: in Project mode the scope value
+/// comes from `tenantProjectId` (NOT `projectId` — that's the WORK
+/// project FK on this entity). The error message is remapped so callers
+/// passing only `projectId` aren't misled.
+fn resolve_scope(
+    mode: ScopeMode,
+    user: &AuthUser,
+    tenant_project_id: Option<&str>,
+) -> Result<TenantScope> {
+    match mode {
+        ScopeMode::User => Ok(TenantScope::User(user_oid(user)?)),
+        ScopeMode::Project => sabcrm_project_oid(tenant_project_id)
+            .map(TenantScope::Project)
+            .map_err(|_| {
+                ApiError::Validation(
+                    "tenantProjectId is required and must be a 24-character hex ObjectId \
+                     (time-logs scope exception: `projectId` on this entity is the WORK \
+                     project, not the tenant)"
+                        .to_owned(),
+                )
+            }),
+    }
+}
+
+/// The base ownership filter for the resolved scope. **WI-13
+/// exception**: Project scope filters `tenantProjectId`, not
+/// `projectId` (which is the WORK project FK on this entity).
+fn scope_filter(scope: &TenantScope) -> Document {
+    match scope {
+        TenantScope::User(u) => doc! { "userId": u },
+        TenantScope::Project(p) => doc! { "tenantProjectId": p },
+    }
+}
+
 fn list_filter(
-    user_id: ObjectId,
+    scope: &TenantScope,
     status: Option<&str>,
     project_id: Option<ObjectId>,
     task_id: Option<ObjectId>,
     entity_kind: Option<&str>,
 ) -> Document {
-    let mut filter = doc! { "userId": user_id };
+    let mut filter = scope_filter(scope);
     match status.unwrap_or("active_visible") {
         "all" => {}
         "archived" => {
@@ -75,8 +115,10 @@ fn list_filter(
     filter
 }
 
-fn ownership_filter(user_id: ObjectId, oid: ObjectId) -> Document {
-    doc! { "_id": oid, "userId": user_id }
+fn ownership_filter(scope: &TenantScope, oid: ObjectId) -> Document {
+    let mut f = scope_filter(scope);
+    f.insert("_id", oid);
+    f
 }
 
 fn parse_date(s: &str) -> Option<BsonDateTime> {
@@ -116,7 +158,11 @@ fn validate_duration(
     Ok(())
 }
 
-fn log_from_create(input: CreateTimeLogInput, user_id: ObjectId) -> Result<CrmTimeLog> {
+fn log_from_create(
+    input: CreateTimeLogInput,
+    user_id: ObjectId,
+    tenant_project_id: Option<ObjectId>,
+) -> Result<CrmTimeLog> {
     let now = BsonDateTime::from_chrono(Utc::now());
     let started_at = input
         .started_at
@@ -145,6 +191,7 @@ fn log_from_create(input: CreateTimeLogInput, user_id: ObjectId) -> Result<CrmTi
     Ok(CrmTimeLog {
         id: None,
         user_id,
+        tenant_project_id,
         user_log_id: parse_oid_opt(input.user_log_id.as_deref()),
         project_id: parse_oid_opt(input.project_id.as_deref()),
         task_id: parse_oid_opt(input.task_id.as_deref()),
@@ -274,10 +321,11 @@ pub struct ListResponse {
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn list_time_logs(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Query(q): Query<ListQuery>,
 ) -> Result<Json<ListResponse>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, q.tenant_project_id.as_deref())?;
     let project_oid = match q.project_id.as_deref().filter(|s| !s.is_empty()) {
         Some(s) => Some(oid_from_str(s)?),
         None => None,
@@ -288,7 +336,7 @@ pub async fn list_time_logs(
     };
 
     let mut filter = list_filter(
-        user_id,
+        &scope,
         q.status.as_deref(),
         project_oid,
         task_oid,
@@ -336,14 +384,16 @@ pub async fn list_time_logs(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %log_id))]
 pub async fn get_time_log(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(log_id): Path<String>,
+    Query(scope_q): Query<ScopeQuery>,
 ) -> Result<Json<CrmTimeLog>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, scope_q.tenant_project_id.as_deref())?;
     let oid = oid_from_str(&log_id)?;
     let coll = mongo.collection::<CrmTimeLog>(COLL);
     let row = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_time_logs.find_one")))?
         .ok_or_else(|| ApiError::NotFound("time_log".to_owned()))?;
@@ -357,11 +407,26 @@ pub async fn get_time_log(
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn create_time_log(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Json(input): Json<CreateTimeLogInput>,
 ) -> Result<Json<CreateTimeLogResponse>> {
     let user_id = user_oid(&user)?;
-    let mut entity = log_from_create(input, user_id)?;
+    // Project mode: body `tenantProjectId` IS the tenant scope
+    // (mandatory, WI-13 exception). User mode: scope is the JWT
+    // subject, body `tenantProjectId` optional. `userId` is always
+    // stamped for auditing.
+    let scope = resolve_scope(mode, &user, input.tenant_project_id.as_deref())?;
+    let tenant_project_id = match scope {
+        TenantScope::Project(p) => Some(p),
+        TenantScope::User(_) => input
+            .tenant_project_id
+            .as_deref()
+            .map(str::trim)
+            .filter(|s| !s.is_empty())
+            .and_then(|s| ObjectId::parse_str(s).ok()),
+    };
+    let mut entity = log_from_create(input, user_id, tenant_project_id)?;
     let coll = mongo.collection::<CrmTimeLog>(COLL);
     let inserted = coll
         .insert_one(&entity)
@@ -389,28 +454,30 @@ pub async fn create_time_log(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %log_id))]
 pub async fn update_time_log(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(log_id): Path<String>,
+    Query(scope_q): Query<ScopeQuery>,
     Json(patch): Json<UpdateTimeLogInput>,
 ) -> Result<Json<CrmTimeLog>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, scope_q.tenant_project_id.as_deref())?;
     let oid = oid_from_str(&log_id)?;
     let coll = mongo.collection::<CrmTimeLog>(COLL);
     let before = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_time_logs.find_one")))?
         .ok_or_else(|| ApiError::NotFound("time_log".to_owned()))?;
     let update = build_update_doc(patch, &before)?;
     let result = coll
-        .update_one(ownership_filter(user_id, oid), update)
+        .update_one(ownership_filter(&scope, oid), update)
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_time_logs.update")))?;
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("time_log".to_owned()));
     }
     let after = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_time_logs.refetch")))?
         .ok_or_else(|| ApiError::NotFound("time_log".to_owned()))?;
@@ -433,15 +500,17 @@ pub async fn update_time_log(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %log_id))]
 pub async fn delete_time_log(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(log_id): Path<String>,
+    Query(scope_q): Query<ScopeQuery>,
 ) -> Result<Json<DeleteTimeLogResponse>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, scope_q.tenant_project_id.as_deref())?;
     let oid = oid_from_str(&log_id)?;
     let coll = mongo.collection::<CrmTimeLog>(COLL);
     let result = coll
         .update_one(
-            ownership_filter(user_id, oid),
+            ownership_filter(&scope, oid),
             doc! { "$set": {
                 "status": "archived",
                 "updatedAt": BsonDateTime::from_chrono(Utc::now()),
@@ -469,10 +538,11 @@ mod tests {
     #[test]
     fn list_filter_excludes_archived_by_default() {
         let oid = ObjectId::new();
-        let f = list_filter(oid, None, None, None, None);
+        let f = list_filter(&TenantScope::User(oid), None, None, None, None);
         assert!(f.contains_key("status"));
         let s = f.get_document("status").unwrap();
         assert_eq!(s.get_str("$ne").unwrap(), "archived");
+        assert_eq!(f.get_object_id("userId").unwrap(), oid);
     }
 
     #[test]
@@ -496,8 +566,93 @@ mod tests {
             status: Some("approved".into()),
             ..Default::default()
         };
-        let log = log_from_create(input, user_id).unwrap();
+        let log = log_from_create(input, user_id, None).unwrap();
         assert_eq!(log.status, "approved");
         assert!(log.approved_at.is_some());
+        assert!(log.tenant_project_id.is_none());
+    }
+
+    #[test]
+    fn log_from_create_stamps_tenant_project_id_not_project_id() {
+        let user_id = ObjectId::new();
+        let tenant = ObjectId::new();
+        let work_project = ObjectId::new();
+        let input = CreateTimeLogInput {
+            duration_minutes: Some(30.0),
+            project_id: Some(work_project.to_hex()),
+            ..Default::default()
+        };
+        let log = log_from_create(input, user_id, Some(tenant)).unwrap();
+        // WI-13: the tenant scope and the WORK project are distinct fields.
+        assert_eq!(log.tenant_project_id, Some(tenant));
+        assert_eq!(log.project_id, Some(work_project));
+        let json = serde_json::to_value(&log).unwrap();
+        assert_eq!(json["tenantProjectId"]["$oid"], tenant.to_hex());
+        assert_eq!(json["projectId"]["$oid"], work_project.to_hex());
+    }
+
+    /// Test-only [`AuthUser`] with a valid 24-hex subject.
+    fn fake_user(oid: &ObjectId) -> AuthUser {
+        AuthUser {
+            user_id: oid.to_hex(),
+            tenant_id: String::new(),
+            roles: Vec::new(),
+        }
+    }
+
+    #[test]
+    fn resolve_scope_project_rejects_missing_tenant_project_id() {
+        let user = fake_user(&ObjectId::new());
+        for bad in [None, Some("  "), Some("not-an-oid")] {
+            let err = resolve_scope(ScopeMode::Project, &user, bad).unwrap_err();
+            match err {
+                ApiError::Validation(msg) => {
+                    assert!(msg.contains("tenantProjectId"), "msg names the exception key");
+                }
+                other => panic!("expected Validation, got {other:?}"),
+            }
+        }
+    }
+
+    #[test]
+    fn resolve_scope_resolves_both_modes() {
+        let user_oid = ObjectId::new();
+        let user = fake_user(&user_oid);
+        assert_eq!(
+            resolve_scope(ScopeMode::User, &user, None).unwrap(),
+            TenantScope::User(user_oid)
+        );
+        let tenant = ObjectId::new();
+        assert_eq!(
+            resolve_scope(ScopeMode::Project, &user, Some(&tenant.to_hex())).unwrap(),
+            TenantScope::Project(tenant)
+        );
+    }
+
+    #[test]
+    fn project_scope_filters_tenant_project_id_only() {
+        let tenant = ObjectId::new();
+        let f = scope_filter(&TenantScope::Project(tenant));
+        assert_eq!(f.get_object_id("tenantProjectId").unwrap(), tenant);
+        assert!(!f.contains_key("projectId"), "WI-13: must not touch the WORK project key");
+        assert!(!f.contains_key("userId"));
+        let f = ownership_filter(&TenantScope::Project(tenant), ObjectId::new());
+        assert_eq!(f.get_object_id("tenantProjectId").unwrap(), tenant);
+        assert!(!f.contains_key("projectId"));
+        assert!(!f.contains_key("userId"));
+    }
+
+    #[test]
+    fn scope_query_parses_camel_case_tenant_project_id() {
+        let q: ScopeQuery = serde_json::from_value(serde_json::json!({
+            "tenantProjectId": "507f1f77bcf86cd799439099"
+        }))
+        .unwrap();
+        assert_eq!(
+            q.tenant_project_id.as_deref(),
+            Some("507f1f77bcf86cd799439099")
+        );
+        let empty: ScopeQuery = serde_json::from_value(serde_json::json!({})).unwrap();
+        assert!(empty.tenant_project_id.is_none());
     }
 }

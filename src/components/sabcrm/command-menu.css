@@ -1,0 +1,125 @@
+/* ==========================================================================
+   SabCRM CommandMenu — host-level chrome on top of the 20ui command palette.
+   The palette itself (overlay, panel, input, list, groups, items) is styled by
+   20ui `command.css`; this file only adds the row anatomy the CRM menu needs
+   (record avatars, right-aligned meta), the status rows, the footer hint bar
+   and the shortcuts-help dialog body. Tokens only — no raw colours.
+
+   Scoping matches command.css's `:is()` net so these rules tie, then win by
+   order, against the generic `.u-cmd__item > :not(...)` flex rule. Never write
+   bare `.20ui.foo` compounds (scope-rename fallout).
+   ========================================================================== */
+
+/* ----- Row anatomy -----
+   command.css's generic `.u-cmd__item > :not(.u-cmd__shortcut):not(svg)` rule
+   carries (0,3,1) specificity; the `span.` prefix below ties it so these
+   loaded-later rules win for the avatar/meta slots. */
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cmd__item > span.crm-cmd__avatar {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+}
+
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cmd__item > span.crm-cmd__label {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-cmd__item > span.crm-cmd__meta {
+  flex: 0 0 auto;
+  margin-left: auto;
+  color: var(--st-text-tertiary);
+  font-size: var(--st-font-size-sm);
+}
+
+/* ----- Status rows (searching / error) ----- */
+.crm-cmd__status {
+  padding: var(--st-space-3) var(--st-space-2);
+  color: var(--st-text-tertiary);
+  font-size: var(--st-font-size-sm);
+  text-align: center;
+}
+
+.crm-cmd__status--error {
+  color: var(--st-danger);
+}
+
+/* ----- Footer hint bar ----- */
+.crm-cmd__footer {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: var(--st-space-3);
+  padding: var(--st-space-2) var(--st-space-3);
+  border-top: 1px solid var(--st-border);
+  color: var(--st-text-tertiary);
+  font-size: var(--st-font-size-sm);
+}
+
+.crm-cmd__footer-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-1);
+}
+
+.crm-cmd__footer-help {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-1);
+  margin-left: auto;
+  padding: 2px var(--st-space-1);
+  border: none;
+  border-radius: var(--st-radius-sm);
+  background: transparent;
+  color: var(--st-text-tertiary);
+  font-family: inherit;
+  font-size: var(--st-font-size-sm);
+  cursor: pointer;
+  transition: background var(--u-dur-fast) var(--u-ease-out),
+    color var(--u-dur-fast) var(--u-ease-out);
+}
+
+.crm-cmd__footer-help:hover {
+  background: var(--st-hover);
+  color: var(--st-text);
+}
+
+.crm-cmd__footer-help:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}
+
+/* ----- Shortcuts help (Modal body) ----- */
+.crm-cmd-help {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-2);
+}
+
+.crm-cmd-help__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--st-space-3);
+}
+
+.crm-cmd-help__label {
+  color: var(--st-text);
+  font-size: var(--st-font-size);
+}
+
+.crm-cmd-help__keys {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .crm-cmd__footer-help {
+    transition: none;
+  }
+}

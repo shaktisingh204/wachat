@@ -1,15 +1,14 @@
 'use client';
 
 /**
- * TwentyWorkspaceSwitcher — SabCRM's project switcher + creator.
+ * WorkspaceSwitcher — SabCRM's project switcher + creator (20ui).
  *
- * A faithful clone of upstream Twenty's `MultiWorkspaceDropdown`
- * (twenty-front `.../MultiWorkspaceDropdown/*`), mapping Twenty's
- * "workspace" onto SabNode's "project". It owns the sidebar header's
- * clickable trigger (avatar + active-project name + chevron), a dropdown
- * listing every project (click to switch, check on the active one), and a
- * "Create project" action that opens a Twenty-styled dialog — the analogue
- * of Twenty's `signUpInNewWorkspace` "Create Workspace" flow.
+ * Re-homed from `twenty/twenty-workspace-switcher.tsx`. It maps Twenty's
+ * "workspace" onto SabNode's "project": the sidebar footer's clickable
+ * trigger (avatar + active-project name + chevron), a dropdown listing every
+ * CRM project (click to switch, check on the active one), and a
+ * "Create project" action that opens a 20ui Modal — the analogue of Twenty's
+ * `signUpInNewWorkspace` "Create Workspace" flow.
  *
  * Selecting a project writes through `useProject().setActiveProjectId`
  * (persisted to localStorage by the context) so every project-scoped
@@ -21,7 +20,9 @@
  * UI: the dropdown is a 20ui `Menu` (keyboard + Escape + outside-click for
  * free) and the create/edit dialog is a 20ui `Modal` with `Field`/`Input`/
  * `Textarea`. The SabFiles logo picker and all project create/update logic
- * (including the standalone CRM-only project filter) are unchanged.
+ * (including the standalone CRM-only project filter) are unchanged. Styles
+ * live in `./workspace-switcher.css` under the `.crm-ws` namespace (the old
+ * `.st-ws*` / `.st-workspace-switcher` Twenty classes are retired here).
  */
 
 import * as React from 'react';
@@ -47,15 +48,17 @@ import {
   Textarea,
 } from '@/components/sabcrm/20ui';
 
+import './workspace-switcher.css';
+
 /** First glyph of a name, for the square avatar tile. */
 function avatarLetter(name: string | null | undefined): string {
   const ch = (name ?? '').trim().charAt(0);
   return ch ? ch.toUpperCase() : 'S';
 }
 
-const FORM_ID = 'st-ws-dialog-form';
+const FORM_ID = 'crm-ws-dialog-form';
 
-export function TwentyWorkspaceSwitcher(): React.JSX.Element {
+export function WorkspaceSwitcher(): React.JSX.Element {
   const router = useRouter();
   const {
     projects,
@@ -192,43 +195,43 @@ export function TwentyWorkspaceSwitcher(): React.JSX.Element {
   };
 
   return (
-    <div className="st-ws">
+    <div className="crm-ws">
       <Menu
         align="start"
         label={`Workspace: ${displayName}`}
         trigger={
           <button
             type="button"
-            className="st-workspace-switcher"
+            className="crm-ws__trigger"
             aria-label={`Workspace: ${displayName}`}
           >
-            <span className="st-workspace-switcher__avatar" aria-hidden="true">
+            <span className="crm-ws__trigger-avatar" aria-hidden="true">
               {activeLogo ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={activeLogo} alt="" className="st-ws-logo" />
+                <img src={activeLogo} alt="" className="crm-ws__logo" />
               ) : (
                 avatarLetter(displayName)
               )}
             </span>
-            <span className="st-workspace-switcher__name">{displayName}</span>
+            <span className="crm-ws__trigger-name">{displayName}</span>
             <ChevronDown
-              className="st-workspace-switcher__chevron"
+              className="crm-ws__trigger-chevron"
               size={14}
               aria-hidden="true"
             />
           </button>
         }
       >
-        <div className="st-ws-menu__header">
-          <span className="st-ws-menu__avatar" aria-hidden="true">
+        <div className="crm-ws__menu-header">
+          <span className="crm-ws__menu-avatar" aria-hidden="true">
             {activeLogo ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={activeLogo} alt="" className="st-ws-logo" />
+              <img src={activeLogo} alt="" className="crm-ws__logo" />
             ) : (
               avatarLetter(displayName)
             )}
           </span>
-          <span className="st-ws-menu__title">{displayName}</span>
+          <span className="crm-ws__menu-title">{displayName}</span>
         </div>
 
         {activeIsCrm && (
@@ -238,7 +241,7 @@ export function TwentyWorkspaceSwitcher(): React.JSX.Element {
         )}
 
         {crmProjects.length === 0 ? (
-          <div className="st-ws-menu__empty">No CRM projects yet</div>
+          <div className="crm-ws__menu-empty">No CRM projects yet</div>
         ) : (
           crmProjects.map((project) => {
             const id = project.id;
@@ -252,20 +255,20 @@ export function TwentyWorkspaceSwitcher(): React.JSX.Element {
                 onSelect={() => handleSelect(id)}
                 hint={
                   selected ? (
-                    <Check className="st-ws-menu__check" size={15} aria-hidden="true" />
+                    <Check className="crm-ws__check" size={15} aria-hidden="true" />
                   ) : undefined
                 }
               >
-                <span className="st-ws-menu__item-row">
-                  <span className="st-ws-menu__item-avatar" aria-hidden="true">
+                <span className="crm-ws__item-row">
+                  <span className="crm-ws__item-avatar" aria-hidden="true">
                     {logo ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={logo} alt="" className="st-ws-logo" />
+                      <img src={logo} alt="" className="crm-ws__logo" />
                     ) : (
                       avatarLetter(project.name)
                     )}
                   </span>
-                  <span className="st-ws-menu__item-name">{project.name || 'Untitled'}</span>
+                  <span className="crm-ws__item-name">{project.name || 'Untitled'}</span>
                 </span>
               </MenuItem>
             );
@@ -307,7 +310,7 @@ export function TwentyWorkspaceSwitcher(): React.JSX.Element {
           </>
         }
       >
-        <form id={FORM_ID} className="st-ws-form" onSubmit={handleSubmit}>
+        <form id={FORM_ID} className="crm-ws__form" onSubmit={handleSubmit}>
           <Field label="Project name" error={error ?? undefined}>
             <Input
               ref={inputRef}
@@ -369,4 +372,4 @@ export function TwentyWorkspaceSwitcher(): React.JSX.Element {
   );
 }
 
-export default TwentyWorkspaceSwitcher;
+export default WorkspaceSwitcher;

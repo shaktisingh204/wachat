@@ -4,9 +4,24 @@ use serde::{Deserialize, Serialize};
 
 use crate::types::CrmLeaveRequest;
 
+/// Query string for the single-document routes (`GET` / `PATCH` /
+/// `DELETE /{requestId}`). Carries only the SabCRM tenant scope —
+/// **required** under `ScopeMode::Project`, ignored on the legacy
+/// `userId`-scoped mount.
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ScopeQuery {
+    /// SabCRM tenant scope (24-char hex `ObjectId`).
+    #[serde(default)]
+    pub project_id: Option<String>,
+}
+
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ListQuery {
+    /// SabCRM tenant scope — required under `ScopeMode::Project`.
+    #[serde(default)]
+    pub project_id: Option<String>,
     #[serde(default)]
     pub page: Option<u32>,
     #[serde(default)]
@@ -24,6 +39,10 @@ pub struct ListQuery {
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CreateLeaveRequestInput {
+    /// SabCRM tenant scope — required (in the body) under
+    /// `ScopeMode::Project`; optional on the legacy user mount.
+    #[serde(default)]
+    pub project_id: Option<String>,
     pub employee_id: String,
     #[serde(default)]
     pub employee_name: Option<String>,

@@ -13,16 +13,25 @@
 //! | `POST`  | `/punch-in`         | [`punch_in`]          |
 //! | `POST`  | `/punch-out`        | [`punch_out`]         |
 //!
-//! Every handler scopes its Mongo query by `userId == AuthUser.user_id`
-//! — the CRM tenant root from `crm-core::Identity`.
+//! Every handler scopes its Mongo query by the mount's
+//! [`crm_core::ScopeMode`] (attached as an axum `Extension` by the
+//! router constructors in [`crate::router`]):
+//!
+//! - `/v1/hrm/attendance` + `/v1/crm/attendance` (legacy) —
+//!   `userId == AuthUser.user_id`, the CRM tenant root from
+//!   `crm-core::Identity`. Unchanged behaviour.
+//! - `/v1/sabcrm/people/attendance` (SabCRM People suite) —
+//!   `projectId == ?projectId` / body `projectId`, required per-request
+//!   (4xx when absent). Membership is validated by the Next.js action
+//!   gate before the request reaches Rust.
 
 use axum::{
-    Json,
+    Extension, Json,
     extract::{Path, Query, State},
 };
 use bson::{Bson, Document, doc, oid::ObjectId};
 use chrono::{Datelike, TimeZone, Utc};
-use crm_core::{Audit, Identity};
+use crm_core::{Audit, Identity, ScopeMode, TenantScope, sabcrm_project_oid};
 use futures::TryStreamExt;
 use hrm_payroll_types::{Attendance, AttendanceSource, AttendanceStatus, PunchPoint};
 use mongodb::options::FindOptions;
@@ -32,7 +41,8 @@ use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
 use tracing::instrument;
 
 use crate::dto::{
-    CreateAttendanceInput, DEFAULT_LIMIT, ListQuery, MAX_LIMIT, PunchInput, UpdateAttendanceInput,
+    CreateAttendanceInput, DEFAULT_LIMIT, ListQuery, MAX_LIMIT, PunchInput, ScopeQuery,
+    UpdateAttendanceInput,
 };
 
 /// Mongo collection name. Must match the TS `crm-attendance.actions.ts`
@@ -60,14 +70,34 @@ fn clamp_limit(requested: Option<u32>) -> i64 {
     }
 }
 
-/// Materialize the base ownership filter:
-/// `{ userId, archived: { $ne: true } }`. Soft-deleted rows
-/// (`archived = true`) are excluded by default.
-fn base_ownership_filter(user: ObjectId) -> Document {
-    doc! {
-        "userId": user,
-        "archived": { "$ne": true },
+/// Resolve the per-request [`TenantScope`] from the mount's
+/// [`ScopeMode`] (attached as an axum `Extension` by the router
+/// constructor):
+///
+/// - `ScopeMode::User` (legacy mounts) — scope by the verified JWT
+///   subject. Identical to the historical behaviour.
+/// - `ScopeMode::Project` (`/v1/sabcrm/people/attendance`) — scope by
+///   the caller-supplied `projectId`, 4xx when absent/invalid. The
+///   Next.js action gate has already validated project membership
+///   before the request reaches Rust.
+fn resolve_scope(
+    mode: ScopeMode,
+    user: &AuthUser,
+    project_id: Option<&str>,
+) -> Result<TenantScope> {
+    match mode {
+        ScopeMode::User => Ok(TenantScope::User(user_oid(user)?)),
+        ScopeMode::Project => Ok(TenantScope::Project(sabcrm_project_oid(project_id)?)),
     }
+}
+
+/// Materialize the base ownership filter for the resolved scope:
+/// `{ <userId|projectId>, archived: { $ne: true } }`. Soft-deleted rows
+/// (`archived = true`) are excluded by default.
+fn base_ownership_filter(scope: &TenantScope) -> Document {
+    let mut f = scope.filter();
+    f.insert("archived", doc! { "$ne": true });
+    f
 }
 
 /// Optional-string update helper — see `crm-leads`.
@@ -117,12 +147,13 @@ fn day_window_utc(now: chrono::DateTime<Utc>) -> (chrono::DateTime<Utc>, chrono:
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn list_attendance(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Query(q): Query<ListQuery>,
 ) -> Result<Json<Vec<Attendance>>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, q.project_id.as_deref())?;
 
-    let mut filter = base_ownership_filter(user_id);
+    let mut filter = base_ownership_filter(&scope);
 
     if let Some(emp) = q.employee_id.as_deref().filter(|s| !s.is_empty()) {
         let emp_oid = oid_from_str(emp)?;
@@ -179,13 +210,15 @@ pub async fn list_attendance(
 #[instrument(skip_all, fields(user_id = %user.user_id, attendance_id = %attendance_id))]
 pub async fn get_attendance(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(attendance_id): Path<String>,
+    Query(scope_q): Query<ScopeQuery>,
 ) -> Result<Json<Attendance>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, scope_q.project_id.as_deref())?;
     let att_oid = oid_from_str(&attendance_id)?;
 
-    let mut filter = base_ownership_filter(user_id);
+    let mut filter = base_ownership_filter(&scope);
     filter.insert("_id", att_oid);
 
     let coll = mongo.collection::<Attendance>(ATTENDANCE_COLL);
@@ -211,6 +244,7 @@ pub async fn get_attendance(
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn create_attendance(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Json(input): Json<CreateAttendanceInput>,
 ) -> Result<Json<Attendance>> {
@@ -219,11 +253,20 @@ pub async fn create_attendance(
     }
 
     let user_id = user_oid(&user)?;
-    let project_id = match input.project_id.as_deref().filter(|s| !s.is_empty()) {
-        Some(s) => oid_from_str(s)?,
-        // Match `crm-leads`: stamp a fresh OID when absent so the legacy
-        // single-tenant TS callers keep working during the migration.
-        None => ObjectId::new(),
+    // In project mode the body's `projectId` IS the tenant scope and is
+    // therefore mandatory (4xx when absent) — `resolve_scope` enforces
+    // that. In legacy user mode the scope is the JWT subject and the
+    // body `projectId` stays optional, exactly as before. The stamped
+    // `userId` is always `AuthUser.user_id` (auditing).
+    let scope = resolve_scope(mode, &user, input.project_id.as_deref())?;
+    let project_id = match scope {
+        TenantScope::Project(p) => p,
+        TenantScope::User(_) => match input.project_id.as_deref().filter(|s| !s.is_empty()) {
+            Some(s) => oid_from_str(s)?,
+            // Match `crm-leads`: stamp a fresh OID when absent so the legacy
+            // single-tenant TS callers keep working during the migration.
+            None => ObjectId::new(),
+        },
     };
     let employee_oid = oid_from_str(input.employee_id.trim())?;
     let shift_oid = match input.shift_id.as_deref().filter(|s| !s.is_empty()) {
@@ -279,8 +322,10 @@ pub async fn create_attendance(
 #[instrument(skip_all, fields(user_id = %user.user_id, attendance_id = %attendance_id))]
 pub async fn update_attendance(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(attendance_id): Path<String>,
+    Query(scope_q): Query<ScopeQuery>,
     Json(input): Json<UpdateAttendanceInput>,
 ) -> Result<Json<Attendance>> {
     if input.is_empty() {
@@ -289,6 +334,7 @@ pub async fn update_attendance(
         ));
     }
 
+    let scope = resolve_scope(mode, &user, scope_q.project_id.as_deref())?;
     let user_id = user_oid(&user)?;
     let att_oid = oid_from_str(&attendance_id)?;
 
@@ -333,7 +379,7 @@ pub async fn update_attendance(
         set.insert("source", to_bson_val("source", &src)?);
     }
 
-    let mut filter = base_ownership_filter(user_id);
+    let mut filter = base_ownership_filter(&scope);
     filter.insert("_id", att_oid);
 
     let coll = mongo.collection::<Document>(ATTENDANCE_COLL);
@@ -374,13 +420,17 @@ pub async fn update_attendance(
 #[instrument(skip_all, fields(user_id = %user.user_id, attendance_id = %attendance_id))]
 pub async fn delete_attendance(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(attendance_id): Path<String>,
+    Query(scope_q): Query<ScopeQuery>,
 ) -> Result<Json<serde_json::Value>> {
+    let scope = resolve_scope(mode, &user, scope_q.project_id.as_deref())?;
     let user_id = user_oid(&user)?;
     let att_oid = oid_from_str(&attendance_id)?;
 
-    let filter = doc! { "_id": att_oid, "userId": user_id };
+    let mut filter = scope.filter();
+    filter.insert("_id", att_oid);
 
     let update = doc! {
         "$set": {
@@ -425,6 +475,7 @@ enum PunchKind {
 ///    return the full document.
 async fn punch_impl(
     user: AuthUser,
+    mode: ScopeMode,
     mongo: MongoHandle,
     input: PunchInput,
     kind: PunchKind,
@@ -434,6 +485,17 @@ async fn punch_impl(
     }
 
     let user_id = user_oid(&user)?;
+    // In project mode the body's `projectId` IS the tenant scope and is
+    // therefore mandatory (4xx when absent); legacy user-mode behaviour
+    // is unchanged (scope = JWT subject, minted projectId on insert).
+    let scope = resolve_scope(mode, &user, input.project_id.as_deref())?;
+    let project_id = match scope {
+        TenantScope::Project(p) => p,
+        TenantScope::User(_) => match input.project_id.as_deref().filter(|s| !s.is_empty()) {
+            Some(s) => oid_from_str(s)?,
+            None => ObjectId::new(),
+        },
+    };
     let employee_oid = oid_from_str(input.employee_id.trim())?;
     let selfie_oid = match input.selfie_file_id.as_deref().filter(|s| !s.is_empty()) {
         Some(s) => Some(oid_from_str(s)?),
@@ -455,7 +517,7 @@ async fn punch_impl(
     let source = input.source.unwrap_or(AttendanceSource::Mobile);
 
     // Find today's row for this employee.
-    let mut filter = base_ownership_filter(user_id);
+    let mut filter = base_ownership_filter(&scope);
     filter.insert("employeeId", employee_oid);
     filter.insert(
         "date",
@@ -475,7 +537,7 @@ async fn punch_impl(
         let attendance = Attendance {
             identity: Identity {
                 id: ObjectId::new(),
-                project_id: ObjectId::new(),
+                project_id,
                 user_id,
                 tenant_id: None,
             },
@@ -583,10 +645,11 @@ async fn punch_impl(
 #[instrument(skip_all, fields(user_id = %user.user_id, employee_id = %input.employee_id))]
 pub async fn punch_in(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Json(input): Json<PunchInput>,
 ) -> Result<Json<Attendance>> {
-    punch_impl(user, mongo, input, PunchKind::In).await
+    punch_impl(user, mode, mongo, input, PunchKind::In).await
 }
 
 /// `POST /v1/crm/attendance/punch-out` — stamp today's punch-out.
@@ -599,10 +662,11 @@ pub async fn punch_in(
 #[instrument(skip_all, fields(user_id = %user.user_id, employee_id = %input.employee_id))]
 pub async fn punch_out(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Json(input): Json<PunchInput>,
 ) -> Result<Json<Attendance>> {
-    punch_impl(user, mongo, input, PunchKind::Out).await
+    punch_impl(user, mode, mongo, input, PunchKind::Out).await
 }
 
 // =========================================================================
@@ -632,13 +696,60 @@ mod tests {
         assert_eq!(clamp_limit(Some(0)), 1);
     }
 
+    /// Test-only [`AuthUser`] with a valid 24-hex subject.
+    fn fake_user(oid: &ObjectId) -> AuthUser {
+        AuthUser {
+            user_id: oid.to_hex(),
+            tenant_id: String::new(),
+            roles: Vec::new(),
+        }
+    }
+
     #[test]
-    fn base_filter_excludes_archived() {
+    fn base_filter_excludes_archived_user_scope() {
         let oid = ObjectId::new();
-        let f = base_ownership_filter(oid);
+        let f = base_ownership_filter(&TenantScope::User(oid));
         assert_eq!(f.get_object_id("userId").unwrap(), oid);
+        assert!(!f.contains_key("projectId"));
         let archived = f.get_document("archived").unwrap();
         assert!(archived.contains_key("$ne"));
+    }
+
+    #[test]
+    fn base_filter_excludes_archived_project_scope() {
+        let oid = ObjectId::new();
+        let f = base_ownership_filter(&TenantScope::Project(oid));
+        assert_eq!(f.get_object_id("projectId").unwrap(), oid);
+        assert!(!f.contains_key("userId"));
+        let archived = f.get_document("archived").unwrap();
+        assert!(archived.contains_key("$ne"));
+    }
+
+    #[test]
+    fn resolve_scope_project_rejects_missing_project_id() {
+        // The `project_router` mount attaches `ScopeMode::Project`; a
+        // request without `projectId` must 4xx (mirrors the
+        // `crm-core::scope` tests).
+        let user = fake_user(&ObjectId::new());
+        let err = resolve_scope(ScopeMode::Project, &user, None).unwrap_err();
+        assert!(matches!(err, ApiError::Validation(_)));
+        let err = resolve_scope(ScopeMode::Project, &user, Some("not-an-oid")).unwrap_err();
+        assert!(matches!(err, ApiError::Validation(_)));
+    }
+
+    #[test]
+    fn resolve_scope_resolves_both_modes() {
+        let user_oid = ObjectId::new();
+        let user = fake_user(&user_oid);
+        assert_eq!(
+            resolve_scope(ScopeMode::User, &user, None).unwrap(),
+            TenantScope::User(user_oid)
+        );
+        let project = ObjectId::new();
+        assert_eq!(
+            resolve_scope(ScopeMode::Project, &user, Some(&project.to_hex())).unwrap(),
+            TenantScope::Project(project)
+        );
     }
 
     #[test]

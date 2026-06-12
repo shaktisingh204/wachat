@@ -21,6 +21,19 @@ pub const DEFAULT_LIMIT: i64 = 20;
 /// the Rust BFF (clamped to keep large-result-set DoS attempts bounded).
 pub const MAX_LIMIT: i64 = 100;
 
+/// Query string for the single-document routes (`GET` / `PATCH` /
+/// `DELETE /{attendanceId}`). Carries only the SabCRM tenant scope —
+/// **required** under `ScopeMode::Project` (the
+/// `/v1/sabcrm/people/attendance` mount), ignored on the legacy
+/// `userId`-scoped mounts.
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ScopeQuery {
+    /// SabCRM tenant scope (24-char hex `ObjectId`).
+    #[serde(default)]
+    pub project_id: Option<String>,
+}
+
 /// `GET /v1/crm/attendance` query string.
 ///
 /// Filtering is intentionally narrow because attendance is high-volume —
@@ -30,6 +43,12 @@ pub const MAX_LIMIT: i64 = 100;
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ListQuery {
+    /// SabCRM tenant scope (24-char hex `ObjectId`). **Required** when
+    /// the router is mounted in `ScopeMode::Project` (the
+    /// `/v1/sabcrm/people/attendance` mount); ignored on the legacy
+    /// `userId`-scoped mounts.
+    #[serde(default)]
+    pub project_id: Option<String>,
     /// 1-indexed page (matches TS). Defaults to `1`.
     #[serde(default)]
     pub page: Option<u32>,
@@ -40,17 +59,13 @@ pub struct ListQuery {
     /// employee-self-service timesheet views.
     #[serde(default)]
     pub employee_id: Option<String>,
-    /// Inclusive lower bound on `date`. ISO-8601 datetime.
-    #[serde(
-        default,
-        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional"
-    )]
+    /// Inclusive lower bound on `date`. ISO-8601 datetime (plain chrono
+    /// serde — the wire is JSON/query-string, not BSON; the handler
+    /// converts via `bson::DateTime::from_chrono` for the Mongo filter).
+    #[serde(default)]
     pub date_from: Option<DateTime<Utc>>,
     /// Inclusive upper bound on `date`. ISO-8601 datetime.
-    #[serde(
-        default,
-        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional"
-    )]
+    #[serde(default)]
     pub date_to: Option<DateTime<Utc>>,
     /// Filter to a single attendance verdict (e.g. `"absent"`,
     /// `"half_day"`). Wire format must match the snake_case
@@ -81,8 +96,10 @@ pub struct CreateAttendanceInput {
 
     /* ----- required ★ ----- */
     /// Calendar day this record covers. Server actions normalize to
-    /// start-of-day in the tenant timezone before persisting.
-    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
+    /// start-of-day in the tenant timezone before persisting. ISO-8601
+    /// datetime on the JSON wire (plain chrono serde — bson's
+    /// `DateTime` deserializer only accepts extended JSON, which the
+    /// TS clients never send).
     pub date: DateTime<Utc>,
     /// Employee `_id` (24-char hex). FK into `crm_employees`.
     pub employee_id: String,
@@ -137,11 +154,7 @@ pub struct CreateAttendanceInput {
 #[derive(Debug, Clone, Default, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct UpdateAttendanceInput {
-    #[serde(
-        default,
-        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub date: Option<DateTime<Utc>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub employee_id: Option<String>,
@@ -213,16 +226,21 @@ impl UpdateAttendanceInput {
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PunchInput {
+    /// SabCRM tenant scope (24-char hex `ObjectId`). **Required** when
+    /// the router is mounted in `ScopeMode::Project` (the
+    /// `/v1/sabcrm/people/attendance` mount); ignored on the legacy
+    /// `userId`-scoped mounts.
+    #[serde(default)]
+    pub project_id: Option<String>,
+
     /// Employee `_id` (24-char hex). Must be supplied — the punch
     /// endpoints do not (yet) read employee identity from the JWT
     /// claims because employee != user in the SabNode model.
     pub employee_id: String,
 
     /// Optional override of the punch instant. Defaults to `Utc::now()`.
-    #[serde(
-        default,
-        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional"
-    )]
+    /// ISO-8601 datetime (plain chrono serde).
+    #[serde(default)]
     pub at: Option<DateTime<Utc>>,
     #[serde(default)]
     pub lat: Option<f64>,
@@ -301,5 +319,37 @@ mod tests {
         assert_eq!(input.employee_id, "507f1f77bcf86cd799439011");
         assert!(input.at.is_none());
         assert!(input.source.is_none());
+        assert!(input.project_id.is_none());
+    }
+
+    #[test]
+    fn punch_input_parses_camel_case_project_id() {
+        let json = serde_json::json!({
+            "employeeId": "507f1f77bcf86cd799439011",
+            "projectId": "507f1f77bcf86cd799439099",
+        });
+        let input: PunchInput = serde_json::from_value(json).unwrap();
+        assert_eq!(input.project_id.as_deref(), Some("507f1f77bcf86cd799439099"));
+    }
+
+    #[test]
+    fn list_query_parses_camel_case_project_id() {
+        let q: ListQuery = serde_json::from_value(serde_json::json!({
+            "projectId": "507f1f77bcf86cd799439099",
+        }))
+        .unwrap();
+        assert_eq!(q.project_id.as_deref(), Some("507f1f77bcf86cd799439099"));
+    }
+
+    #[test]
+    fn scope_query_parses_camel_case_project_id() {
+        let q: ScopeQuery = serde_json::from_value(serde_json::json!({
+            "projectId": "507f1f77bcf86cd799439099",
+        }))
+        .unwrap();
+        assert_eq!(q.project_id.as_deref(), Some("507f1f77bcf86cd799439099"));
+
+        let empty: ScopeQuery = serde_json::from_value(serde_json::json!({})).unwrap();
+        assert!(empty.project_id.is_none());
     }
 }

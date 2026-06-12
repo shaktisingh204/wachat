@@ -1,7 +1,16 @@
 //! HTTP handlers for the ShiftRotation entity.
+//!
+//! Every handler scopes its Mongo query by the mount's
+//! [`crm_core::ScopeMode`] (attached as an axum `Extension` by the
+//! router constructors in [`crate::router`]):
+//!
+//! - `/v1/crm/shift-rotations` (legacy) — `userId == AuthUser.user_id`.
+//! - `/v1/sabcrm/people/shift-rotations` (SabCRM People suite) —
+//!   `projectId == ?projectId` / body `projectId`, required per-request
+//!   (4xx when absent).
 
 use axum::{
-    Json,
+    Extension, Json,
     extract::{Path, Query, State},
 };
 use bson::{DateTime as BsonDateTime, Document, doc, oid::ObjectId};
@@ -12,6 +21,7 @@ use crm_common::{
     search::build_q_filter,
     tenant::user_oid,
 };
+use crm_core::{ScopeMode, TenantScope, sabcrm_project_oid};
 use futures::TryStreamExt;
 use mongodb::options::FindOptions;
 use sabnode_auth::AuthUser;
@@ -20,7 +30,7 @@ use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
 use tracing::instrument;
 
 use crate::dto::{
-    CreateRotationInput, CreateRotationResponse, DeleteRotationResponse, ListQuery,
+    CreateRotationInput, CreateRotationResponse, DeleteRotationResponse, ListQuery, ScopeQuery,
     UpdateRotationInput,
 };
 use crate::types::CrmShiftRotation;
@@ -28,15 +38,29 @@ use crate::types::CrmShiftRotation;
 const COLL: &str = "crm_shift_rotations";
 const ENTITY_KIND: &str = "shift_rotation";
 
+/// Resolve the per-request [`TenantScope`] from the mount's
+/// [`ScopeMode`] — `userId` (JWT subject) on the legacy mount, required
+/// `projectId` on the SabCRM People mount (4xx when absent/invalid).
+fn resolve_scope(
+    mode: ScopeMode,
+    user: &AuthUser,
+    project_id: Option<&str>,
+) -> Result<TenantScope> {
+    match mode {
+        ScopeMode::User => Ok(TenantScope::User(user_oid(user)?)),
+        ScopeMode::Project => Ok(TenantScope::Project(sabcrm_project_oid(project_id)?)),
+    }
+}
+
 fn list_filter(
-    user_id: ObjectId,
+    scope: &TenantScope,
     status: Option<&str>,
     employee_id: Option<&str>,
     department_id: Option<&str>,
     team_id: Option<&str>,
     is_active: Option<bool>,
 ) -> Document {
-    let mut filter = doc! { "userId": user_id };
+    let mut filter = scope.filter();
     match status.unwrap_or("active_visible") {
         "all" => {}
         "archived" => {
@@ -76,8 +100,10 @@ fn list_filter(
     filter
 }
 
-fn ownership_filter(user_id: ObjectId, oid: ObjectId) -> Document {
-    doc! { "_id": oid, "userId": user_id }
+fn ownership_filter(scope: &TenantScope, oid: ObjectId) -> Document {
+    let mut f = scope.filter();
+    f.insert("_id", oid);
+    f
 }
 
 fn parse_date(s: &str) -> Option<BsonDateTime> {
@@ -93,7 +119,11 @@ fn parse_oid(s: &Option<String>) -> Option<ObjectId> {
         .and_then(|s| ObjectId::parse_str(s).ok())
 }
 
-fn rotation_from_create(input: CreateRotationInput, user_id: ObjectId) -> Result<CrmShiftRotation> {
+fn rotation_from_create(
+    input: CreateRotationInput,
+    user_id: ObjectId,
+    project_id: Option<ObjectId>,
+) -> Result<CrmShiftRotation> {
     if input.name.trim().is_empty() {
         return Err(ApiError::Validation("name is required".to_owned()));
     }
@@ -124,6 +154,7 @@ fn rotation_from_create(input: CreateRotationInput, user_id: ObjectId) -> Result
     Ok(CrmShiftRotation {
         id: None,
         user_id,
+        project_id,
         name: input.name.trim().to_owned(),
         description: input
             .description
@@ -222,12 +253,13 @@ pub struct ListResponse {
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn list_rotations(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Query(q): Query<ListQuery>,
 ) -> Result<Json<ListResponse>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, q.project_id.as_deref())?;
     let mut filter = list_filter(
-        user_id,
+        &scope,
         q.status.as_deref(),
         q.employee_id.as_deref(),
         q.department_id.as_deref(),
@@ -269,14 +301,16 @@ pub async fn list_rotations(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %rotation_id))]
 pub async fn get_rotation(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(rotation_id): Path<String>,
+    Query(scope_q): Query<ScopeQuery>,
 ) -> Result<Json<CrmShiftRotation>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, scope_q.project_id.as_deref())?;
     let oid = oid_from_str(&rotation_id)?;
     let coll = mongo.collection::<CrmShiftRotation>(COLL);
     let row = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_shift_rotations.find_one"))
@@ -288,11 +322,20 @@ pub async fn get_rotation(
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn create_rotation(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Json(input): Json<CreateRotationInput>,
 ) -> Result<Json<CreateRotationResponse>> {
     let user_id = user_oid(&user)?;
-    let mut entity = rotation_from_create(input, user_id)?;
+    // Project mode: body `projectId` IS the tenant scope (mandatory).
+    // User mode: scope is the JWT subject, body `projectId` optional
+    // (behaviour freeze). `userId` is always stamped for auditing.
+    let scope = resolve_scope(mode, &user, input.project_id.as_deref())?;
+    let project_id = match scope {
+        TenantScope::Project(p) => Some(p),
+        TenantScope::User(_) => parse_oid(&input.project_id),
+    };
+    let mut entity = rotation_from_create(input, user_id, project_id)?;
     let coll = mongo.collection::<CrmShiftRotation>(COLL);
     let inserted = coll.insert_one(&entity).await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("crm_shift_rotations.insert"))
@@ -315,15 +358,17 @@ pub async fn create_rotation(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %rotation_id))]
 pub async fn update_rotation(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(rotation_id): Path<String>,
+    Query(scope_q): Query<ScopeQuery>,
     Json(patch): Json<UpdateRotationInput>,
 ) -> Result<Json<CrmShiftRotation>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, scope_q.project_id.as_deref())?;
     let oid = oid_from_str(&rotation_id)?;
     let coll = mongo.collection::<CrmShiftRotation>(COLL);
     let before = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_shift_rotations.find_one"))
@@ -331,7 +376,7 @@ pub async fn update_rotation(
         .ok_or_else(|| ApiError::NotFound("shift_rotation".to_owned()))?;
     let update = build_update_doc(patch)?;
     let result = coll
-        .update_one(ownership_filter(user_id, oid), update)
+        .update_one(ownership_filter(&scope, oid), update)
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_shift_rotations.update"))
@@ -340,7 +385,7 @@ pub async fn update_rotation(
         return Err(ApiError::NotFound("shift_rotation".to_owned()));
     }
     let after = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_shift_rotations.refetch"))
@@ -361,15 +406,17 @@ pub async fn update_rotation(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %rotation_id))]
 pub async fn delete_rotation(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(rotation_id): Path<String>,
+    Query(scope_q): Query<ScopeQuery>,
 ) -> Result<Json<DeleteRotationResponse>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, scope_q.project_id.as_deref())?;
     let oid = oid_from_str(&rotation_id)?;
     let coll = mongo.collection::<CrmShiftRotation>(COLL);
     let result = coll
         .update_one(
-            ownership_filter(user_id, oid),
+            ownership_filter(&scope, oid),
             doc! { "$set": {
                 "status": "archived",
                 "isActive": false,
@@ -406,7 +453,7 @@ mod tests {
     #[test]
     fn rotation_from_create_accepts_valid_input_and_defaults() {
         let user_id = ObjectId::new();
-        let entity = rotation_from_create(base_valid_input(), user_id).unwrap();
+        let entity = rotation_from_create(base_valid_input(), user_id, None).unwrap();
         assert_eq!(entity.name, "Weekly Rotation");
         assert_eq!(entity.cycle_days, 7);
         assert_eq!(entity.status, "active");
@@ -414,6 +461,7 @@ mod tests {
         assert!(entity.employee_id.is_some());
         assert!(entity.pattern.is_empty());
         assert!(entity.end_date.is_none());
+        assert!(entity.project_id.is_none());
     }
 
     #[test]
@@ -424,25 +472,25 @@ mod tests {
             name: "   ".into(),
             ..base_valid_input()
         };
-        assert!(rotation_from_create(bad_name, user_id).is_err());
+        assert!(rotation_from_create(bad_name, user_id, None).is_err());
 
         let bad_cycle = CreateRotationInput {
             cycle_days: 0,
             ..base_valid_input()
         };
-        assert!(rotation_from_create(bad_cycle, user_id).is_err());
+        assert!(rotation_from_create(bad_cycle, user_id, None).is_err());
 
         let neg_cycle = CreateRotationInput {
             cycle_days: -1,
             ..base_valid_input()
         };
-        assert!(rotation_from_create(neg_cycle, user_id).is_err());
+        assert!(rotation_from_create(neg_cycle, user_id, None).is_err());
 
         let bad_date = CreateRotationInput {
             start_date: "not-a-date".into(),
             ..base_valid_input()
         };
-        assert!(rotation_from_create(bad_date, user_id).is_err());
+        assert!(rotation_from_create(bad_date, user_id, None).is_err());
     }
 
     #[test]
@@ -457,7 +505,7 @@ mod tests {
             team_id: None,
             ..Default::default()
         };
-        assert!(rotation_from_create(no_target, user_id).is_err());
+        assert!(rotation_from_create(no_target, user_id, None).is_err());
 
         let with_dept = CreateRotationInput {
             name: "Weekly".into(),
@@ -466,8 +514,82 @@ mod tests {
             department_id: Some(ObjectId::new().to_hex()),
             ..Default::default()
         };
-        let entity = rotation_from_create(with_dept, user_id).unwrap();
+        let entity = rotation_from_create(with_dept, user_id, None).unwrap();
         assert!(entity.department_id.is_some());
         assert!(entity.employee_id.is_none());
+    }
+
+    #[test]
+    fn rotation_from_create_stamps_project_scope() {
+        let user_id = ObjectId::new();
+        let project_id = ObjectId::new();
+        let entity =
+            rotation_from_create(base_valid_input(), user_id, Some(project_id)).unwrap();
+        assert_eq!(entity.project_id, Some(project_id));
+        let json = serde_json::to_value(&entity).unwrap();
+        assert_eq!(json["projectId"]["$oid"], project_id.to_hex());
+    }
+
+    /// Test-only [`AuthUser`] with a valid 24-hex subject.
+    fn fake_user(oid: &ObjectId) -> AuthUser {
+        AuthUser {
+            user_id: oid.to_hex(),
+            tenant_id: String::new(),
+            roles: Vec::new(),
+        }
+    }
+
+    #[test]
+    fn resolve_scope_project_rejects_missing_project_id() {
+        let user = fake_user(&ObjectId::new());
+        assert!(matches!(
+            resolve_scope(ScopeMode::Project, &user, None).unwrap_err(),
+            ApiError::Validation(_)
+        ));
+        assert!(matches!(
+            resolve_scope(ScopeMode::Project, &user, Some("  ")).unwrap_err(),
+            ApiError::Validation(_)
+        ));
+        assert!(matches!(
+            resolve_scope(ScopeMode::Project, &user, Some("not-an-oid")).unwrap_err(),
+            ApiError::Validation(_)
+        ));
+    }
+
+    #[test]
+    fn resolve_scope_resolves_both_modes() {
+        let user_oid = ObjectId::new();
+        let user = fake_user(&user_oid);
+        assert_eq!(
+            resolve_scope(ScopeMode::User, &user, None).unwrap(),
+            TenantScope::User(user_oid)
+        );
+        let project = ObjectId::new();
+        assert_eq!(
+            resolve_scope(ScopeMode::Project, &user, Some(&project.to_hex())).unwrap(),
+            TenantScope::Project(project)
+        );
+    }
+
+    #[test]
+    fn project_scope_filters_project_id_only() {
+        let project = ObjectId::new();
+        let f = list_filter(&TenantScope::Project(project), None, None, None, None, None);
+        assert_eq!(f.get_object_id("projectId").unwrap(), project);
+        assert!(!f.contains_key("userId"));
+        let f = ownership_filter(&TenantScope::Project(project), ObjectId::new());
+        assert_eq!(f.get_object_id("projectId").unwrap(), project);
+        assert!(!f.contains_key("userId"));
+    }
+
+    #[test]
+    fn scope_query_parses_camel_case_project_id() {
+        let q: ScopeQuery = serde_json::from_value(serde_json::json!({
+            "projectId": "507f1f77bcf86cd799439099"
+        }))
+        .unwrap();
+        assert_eq!(q.project_id.as_deref(), Some("507f1f77bcf86cd799439099"));
+        let empty: ScopeQuery = serde_json::from_value(serde_json::json!({})).unwrap();
+        assert!(empty.project_id.is_none());
     }
 }

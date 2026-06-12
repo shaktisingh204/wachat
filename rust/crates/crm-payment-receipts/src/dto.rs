@@ -14,6 +14,7 @@
 //! round-trip with the TS clients.
 
 use chrono::{DateTime, Utc};
+use crm_core::Attachment;
 use crm_sales_types::{InvoiceApplication, PaymentMode, ReceiptStatus};
 use serde::{Deserialize, Serialize};
 
@@ -159,11 +160,13 @@ pub struct CreatePaymentReceiptInput {
 /// document. The handler always refreshes `updatedAt` regardless of
 /// which fields are set.
 ///
-/// **Note:** financial fields (`amount`, `applyTo`, `mode`, `clientId`)
-/// are intentionally NOT settable here — the TS action's contract is
-/// that mutating those would require unwinding paid-amount mutations
-/// on linked invoices, which is out of scope. Use a void+recreate flow
-/// for amount changes.
+/// **Financial fields** (`amount`, `mode`, `applyTo`, `clientId`,
+/// `currency`, `exchangeRate`, `excessAsAdvance`) ARE patchable here
+/// (finance-rollout gap G4 — the previous "void+recreate" contract is
+/// gone). Reconciling paid-amount mutations on linked invoices stays
+/// the **action layer's** responsibility: the Next.js action that
+/// patches `amount`/`applyTo` re-runs the invoice status flip the same
+/// way `recordSabcrmInvoicePayment` does on create.
 #[derive(Debug, Clone, Default, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct UpdatePaymentReceiptInput {
@@ -174,6 +177,14 @@ pub struct UpdatePaymentReceiptInput {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub bank_account_id: Option<String>,
 
+    /* ----- parties + mode (G4) ----- */
+    /// Re-point the receipt at a different client (24-char hex).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub client_id: Option<String>,
+    /// Change the payment mode (`cash`/`cheque`/`upi`/…).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub mode: Option<PaymentMode>,
+
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub cheque_no: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -183,6 +194,24 @@ pub struct UpdatePaymentReceiptInput {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub reference: Option<String>,
 
+    /* ----- amounts (G4) ----- */
+    /// New receipt amount. Must be a positive finite number.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub amount: Option<f64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub currency: Option<String>,
+    /// Must be a positive finite number when present.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub exchange_rate: Option<f64>,
+
+    /* ----- allocation (G4) ----- */
+    /// Full replacement of the allocation table. Sending `[]` clears
+    /// all allocations.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub apply_to: Option<Vec<InvoiceApplication>>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub excess_as_advance: Option<bool>,
+
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub tds_deducted: Option<f64>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -190,6 +219,10 @@ pub struct UpdatePaymentReceiptInput {
 
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub notes: Option<String>,
+    /// Full replacement of the attachments array (SabFiles pointers).
+    /// Sending `[]` clears all attachments.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub attachments: Option<Vec<Attachment>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub status: Option<ReceiptStatus>,
 }
@@ -201,13 +234,21 @@ impl UpdatePaymentReceiptInput {
         self.receipt_no.is_none()
             && self.date.is_none()
             && self.bank_account_id.is_none()
+            && self.client_id.is_none()
+            && self.mode.is_none()
             && self.cheque_no.is_none()
             && self.cheque_date.is_none()
             && self.txn_id.is_none()
             && self.reference.is_none()
+            && self.amount.is_none()
+            && self.currency.is_none()
+            && self.exchange_rate.is_none()
+            && self.apply_to.is_none()
+            && self.excess_as_advance.is_none()
             && self.tds_deducted.is_none()
             && self.bank_charges.is_none()
             && self.notes.is_none()
+            && self.attachments.is_none()
             && self.status.is_none()
     }
 }
@@ -261,6 +302,81 @@ mod tests {
         let json = serde_json::json!({ "status": "cleared" });
         let p: UpdatePaymentReceiptInput = serde_json::from_value(json).unwrap();
         assert_eq!(p.status, Some(ReceiptStatus::Cleared));
+    }
+
+    /// G4 — the PATCH body now accepts the financial fields the spec
+    /// flagged as un-patchable: `amount`, `mode`, `applyTo`, `clientId`
+    /// (+ `currency`, `exchangeRate`, `excessAsAdvance`, `attachments`).
+    #[test]
+    fn update_input_round_trips_g4_financial_fields() {
+        let json = serde_json::json!({
+            "amount": 9999.5,
+            "mode": "cheque",
+            "clientId": "65b0a0a0a0a0a0a0a0a0a0a9",
+            "currency": "INR",
+            "exchangeRate": 1.0,
+            "applyTo": [
+                { "invoiceId": "65b0a0a0a0a0a0a0a0a0a0a2", "amount": 5000.0 },
+                { "invoiceId": "65b0a0a0a0a0a0a0a0a0a0a3", "amount": 4999.5 },
+            ],
+            "excessAsAdvance": true,
+            "attachments": [
+                { "fileId": "65b0a0a0a0a0a0a0a0a0a0a4", "name": "advice.pdf" }
+            ],
+        });
+        let p: UpdatePaymentReceiptInput = serde_json::from_value(json).unwrap();
+        assert_eq!(p.amount, Some(9999.5));
+        assert_eq!(p.mode, Some(PaymentMode::Cheque));
+        assert_eq!(p.client_id.as_deref(), Some("65b0a0a0a0a0a0a0a0a0a0a9"));
+        assert_eq!(p.currency.as_deref(), Some("INR"));
+        assert_eq!(p.exchange_rate, Some(1.0));
+        let apply_to = p.apply_to.as_ref().expect("applyTo parsed");
+        assert_eq!(apply_to.len(), 2);
+        assert_eq!(apply_to[1].amount, 4999.5);
+        assert_eq!(p.excess_as_advance, Some(true));
+        assert_eq!(p.attachments.as_ref().map(Vec::len), Some(1));
+    }
+
+    /// G4 — each financial field must individually defeat `is_empty()`.
+    #[test]
+    fn update_input_is_empty_sees_g4_fields() {
+        let cases: Vec<UpdatePaymentReceiptInput> = vec![
+            UpdatePaymentReceiptInput {
+                amount: Some(1.0),
+                ..Default::default()
+            },
+            UpdatePaymentReceiptInput {
+                mode: Some(PaymentMode::Cash),
+                ..Default::default()
+            },
+            UpdatePaymentReceiptInput {
+                client_id: Some("65b0a0a0a0a0a0a0a0a0a0a9".into()),
+                ..Default::default()
+            },
+            UpdatePaymentReceiptInput {
+                apply_to: Some(vec![]),
+                ..Default::default()
+            },
+            UpdatePaymentReceiptInput {
+                excess_as_advance: Some(false),
+                ..Default::default()
+            },
+            UpdatePaymentReceiptInput {
+                currency: Some("INR".into()),
+                ..Default::default()
+            },
+            UpdatePaymentReceiptInput {
+                exchange_rate: Some(83.0),
+                ..Default::default()
+            },
+            UpdatePaymentReceiptInput {
+                attachments: Some(vec![]),
+                ..Default::default()
+            },
+        ];
+        for (i, case) in cases.iter().enumerate() {
+            assert!(!case.is_empty(), "case {i} should not be empty");
+        }
     }
 
     #[test]

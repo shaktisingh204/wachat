@@ -21,12 +21,15 @@
 //!   `LeaveApplication` from `hrm-payroll-types`; we never redeclare
 //!   them here).
 //! - Handlers live in [`handlers`] and read [`sabnode_auth::AuthUser`] as
-//!   their authenticated principal. Every query is scoped by
-//!   `userId == AuthUser.user_id` (the CRM "tenant root" — see
-//!   `crm-core::Identity`).
-//! - The [`router`] module exposes a state-generic [`router::router`]
-//!   that the host `api` crate mounts under `/v1/crm/leaves`. The router
-//!   nests two trees plus an action endpoint:
+//!   their authenticated principal. Every query is scoped by the mount's
+//!   `crm_core::ScopeMode` — `userId == AuthUser.user_id` on the legacy
+//!   mounts, a required `projectId` on the SabCRM People suite mount.
+//! - The [`router`] module exposes two state-generic constructors:
+//!   [`router::router`] (legacy `userId` scope, mounted under
+//!   `/v1/hrm/leaves` + the `/v1/crm/leaves` alias) and
+//!   [`router::project_router`] (SabCRM People `projectId` scope,
+//!   mounted under `/v1/sabcrm/people/leaves`). Both nest two trees
+//!   plus an action endpoint:
 //!
 //!   ```text
 //!   /types/*            — LeaveType CRUD
@@ -61,4 +64,4 @@ pub mod dto;
 pub mod handlers;
 pub mod router;
 
-pub use router::router;
+pub use router::{project_router, router};

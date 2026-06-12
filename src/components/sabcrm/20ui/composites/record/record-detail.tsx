@@ -67,6 +67,12 @@ export interface RecordDetailProps {
    * (e.g. the "Recompute" affordance on AI fields). Forwarded to RecordPanel.
    */
   fieldRowTrailing?: (field: FieldMetadata) => React.ReactNode;
+  /**
+   * View-only mode (RBAC affordance gating — never security): the panel rows
+   * and the header title lose their inline-edit affordances; everything
+   * renders in display mode. Server actions stay authoritative regardless.
+   */
+  readOnly?: boolean;
   /** Pluggable right-hand tabs. */
   tabs: RecordDetailTab[];
   defaultTabId?: string;
@@ -107,6 +113,7 @@ export function RecordDetail({
   relationResolver,
   fmt,
   fieldRowTrailing,
+  readOnly = false,
   tabs,
   defaultTabId,
   header,
@@ -151,8 +158,11 @@ export function RecordDetail({
   const cancelTitle = React.useCallback(() => setEditingTitle(false), []);
 
   const startTitleEdit = React.useCallback(() => {
+    if (readOnly) return;
     if (titleField && !titleField.system) setEditingTitle(true);
-  }, [titleField]);
+  }, [titleField, readOnly]);
+
+  const titleEditable = !!titleField && !titleField.system && !readOnly;
 
   const onTitleKeyDown = React.useCallback(
     (e: React.KeyboardEvent<HTMLSpanElement>) => {
@@ -217,7 +227,7 @@ export function RecordDetail({
           ) : null}
           <div className="rd-header__titlerow">
             <Avatar name={title} size="sm" shape="square" />
-            {titleField && editingTitle ? (
+            {titleField && editingTitle && !readOnly ? (
               <span className="rd-header__title-editor">
                 <RecordCell
                   field={titleField}
@@ -234,17 +244,17 @@ export function RecordDetail({
               <span
                 className={cn(
                   'rd-header__title',
-                  titleField && !titleField.system && 'is-editable',
+                  titleEditable && 'is-editable',
                 )}
-                role={titleField && !titleField.system ? 'button' : undefined}
-                tabIndex={titleField && !titleField.system ? 0 : undefined}
+                role={titleEditable ? 'button' : undefined}
+                tabIndex={titleEditable ? 0 : undefined}
                 title={
-                  titleField && !titleField.system
+                  titleEditable && titleField
                     ? `Edit ${titleField.label.toLowerCase()}`
                     : undefined
                 }
-                onClick={startTitleEdit}
-                onKeyDown={onTitleKeyDown}
+                onClick={titleEditable ? startTitleEdit : undefined}
+                onKeyDown={titleEditable ? onTitleKeyDown : undefined}
               >
                 {title}
                 {pendingTitle ? (
@@ -279,6 +289,7 @@ export function RecordDetail({
           relationResolver={relationResolver}
           fmt={fmt}
           fieldRowTrailing={fieldRowTrailing}
+          readOnly={readOnly}
         />
         <RecordTabs tabs={tabs} defaultTabId={defaultTabId} />
       </div>
