@@ -113,4 +113,10 @@ impl WasmEngine {
     pub fn sheet_list(&self) -> Result<JsValue, String> {
         serde_wasm_bindgen::to_value(&self.inner.sheet_list()).map_err(|e| e.to_string())
     }
+
+    /// Canonical names of every implemented formula function (sorted) — autocomplete catalog.
+    #[wasm_bindgen(js_name = functionCatalog)]
+    pub fn function_catalog() -> Result<JsValue, String> {
+        serde_wasm_bindgen::to_value(&SabEngine::function_names()).map_err(|e| e.to_string())
+    }
 }

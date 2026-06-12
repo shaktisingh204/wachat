@@ -271,6 +271,15 @@ impl SabEngine {
         (r, c)
     }
 
+    /// Canonical names of every formula function the engine implements (sorted). Drives the
+    /// formula-bar autocomplete catalog and the function-parity audit.
+    pub fn function_names() -> Vec<String> {
+        let mut names = ironcalc_base::get_function_names();
+        names.sort();
+        names.dedup();
+        names
+    }
+
     /// Ordered worksheet metadata; the index in this list is the command `sheet` index.
     pub fn sheet_list(&self) -> Vec<SheetInfo> {
         self.model
@@ -563,6 +572,20 @@ mod tests {
         assert_eq!(e.formatted(0, 1, 1).unwrap(), "Hi");
         assert_eq!(e.formatted(0, 2, 1).unwrap(), "Hi world");
         assert_eq!(e.formatted(0, 3, 1).unwrap(), "nope");
+    }
+
+    #[test]
+    fn function_names_catalog() {
+        let names = SabEngine::function_names();
+        assert!(names.len() >= 300, "expected 300+ functions, got {}", names.len());
+        for expected in ["SUM", "IF", "VLOOKUP", "XLOOKUP", "TEXTJOIN", "ROUND"] {
+            assert!(names.iter().any(|n| n == expected), "missing {expected}");
+        }
+        // Sorted + deduped.
+        let mut sorted = names.clone();
+        sorted.sort();
+        sorted.dedup();
+        assert_eq!(names, sorted);
     }
 
     #[test]

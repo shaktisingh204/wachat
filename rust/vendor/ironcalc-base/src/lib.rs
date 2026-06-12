@@ -65,3 +65,12 @@ pub use user_model::BorderArea;
 pub use user_model::ClipboardData;
 pub use user_model::UserModel;
 pub use utils::get_all_timezones;
+
+/// SabNode vendored addition: canonical (English) names of every implemented function.
+/// Powers the formula-bar autocomplete catalog and the function-parity audit.
+pub fn get_function_names() -> Vec<String> {
+    let lang = language::get_default_language();
+    functions::Function::into_iter()
+        .map(|f| f.to_localized_name(lang))
+        .collect()
+}
