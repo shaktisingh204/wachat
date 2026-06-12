@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
 import dynamic from 'next/dynamic';
 import { GraphProvider, useGraph } from '@/components/sabflow/graph/providers/GraphProvider';
 import { GraphDndProvider } from '@/components/sabflow/graph/providers/GraphDndProvider';
+import { ReactFlowProvider } from '@xyflow/react';
 import { WorkflowCanvas } from '@/components/sabflow/canvas/WorkflowCanvas';
 import { BlocksSideBar } from './BlocksSideBar';
 import { BlockCardOverlay } from './BlockCardOverlay';
@@ -441,7 +442,12 @@ function EditorContent({ flow: initialFlow }: Props) {
         />
       </FlowEditorHeader>
 
-      {/* ── Main area ─────────────────────────────────────────────────── */}
+      {/* ── Main area ─────────────────────────────────────────────────────
+         One ReactFlowProvider spans the canvas AND the right-rail panels:
+         panel hooks (useContextVariables → useReactFlow) must read the same
+         store the canvas writes; mounting them outside the provider throws
+         React Flow error #001. WorkflowCanvas no longer creates its own. */}
+      <ReactFlowProvider>
       <div className="flex flex-1 min-h-0 relative overflow-clip">
 
         {/* Left sidebar: block palette */}
@@ -566,6 +572,7 @@ function EditorContent({ flow: initialFlow }: Props) {
         )}
         </EditorErrorBoundary>
       </div>
+      </ReactFlowProvider>
 
       {/* Drag overlay rendered at root level so it escapes stacking contexts */}
       <BlockCardOverlay />

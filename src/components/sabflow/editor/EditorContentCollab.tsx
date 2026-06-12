@@ -42,6 +42,7 @@ import {
 } from 'react';
 import * as Y from 'yjs';
 import { useGraph } from '@/components/sabflow/graph/providers/GraphProvider';
+import { ReactFlowProvider } from '@xyflow/react';
 import { WorkflowCanvas } from '@/components/sabflow/canvas/WorkflowCanvas';
 import { BlocksSideBar } from './BlocksSideBar';
 import { BlockCardOverlay } from './BlockCardOverlay';
@@ -586,6 +587,10 @@ export function EditorContentCollab({ flow: initialFlow }: Props) {
         />
       </FlowEditorHeader>
 
+      {/* One ReactFlowProvider spans canvas + right-rail panels — panel hooks
+         call useReactFlow() and must share the canvas's store (RF error #001
+         otherwise). WorkflowCanvas no longer creates its own provider. */}
+      <ReactFlowProvider>
       <div className="flex flex-1 min-h-0 relative overflow-clip">
         <BlocksSideBar />
 
@@ -666,6 +671,7 @@ export function EditorContentCollab({ flow: initialFlow }: Props) {
           />
         )}
       </div>
+      </ReactFlowProvider>
 
       <BlockCardOverlay />
     </div>
