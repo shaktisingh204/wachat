@@ -42,7 +42,9 @@ export type FieldType =
   /** Audit actor composite — `{ source, workspaceMemberId, name }`. */
   | 'ACTOR'
   /** Twenty's rich text v2 composite — `{ blocknote, markdown }`. */
-  | 'RICH_TEXT_V2';
+  | 'RICH_TEXT_V2'
+  /** LLM-computed field. Config in settings.ai; value is a plain scalar in data. */
+  | 'AI';
 
 /** A single option for SELECT / MULTI_SELECT fields. */
 export interface FieldOption {
@@ -84,6 +86,57 @@ export interface FieldMetadata {
   defaultValue?: unknown;
   /** System fields cannot be edited or removed by users. */
   system?: boolean;
+  /** Type-discriminated per-field settings blob (Twenty parity; AI fields use settings.ai). */
+  settings?: Record<string, unknown>;
+}
+
+// ---------------------------------------------------------------------------
+// AI computed fields (FieldType 'AI')
+// ---------------------------------------------------------------------------
+
+/** What an AI field produces. Drives coercion, display and filter operators. */
+export type AiOutputType = 'TEXT' | 'NUMBER' | 'BOOLEAN' | 'SELECT' | 'RATING';
+
+/** Every recognised {@link AiOutputType} (validates persisted blobs). */
+export const AI_OUTPUT_TYPES: ReadonlySet<string> = new Set<AiOutputType>([
+  'TEXT',
+  'NUMBER',
+  'BOOLEAN',
+  'SELECT',
+  'RATING',
+]);
+
+/** `settings.ai` blob on a FieldMetadata of type 'AI'. */
+export interface AiFieldConfig {
+  /** Prompt template; `{{fieldKey}}` tokens interpolate sibling data values. */
+  prompt: string;
+  /** Output coercion target. SELECT requires `field.options`. */
+  outputType: AiOutputType;
+  /** 'auto' = scheduler recomputes when inputs change; 'manual' = only on demand. */
+  refresh: 'auto' | 'manual';
+}
+
+/**
+ * Parse a field's `settings.ai` defensively; null when absent/malformed.
+ * Returns null unless `field.type === 'AI'` and `settings.ai.prompt` is a
+ * non-empty string. `outputType` falls back to `'TEXT'` when not one of the
+ * five literals; `refresh` falls back to `'auto'`.
+ */
+export function aiFieldConfig(field: FieldMetadata): AiFieldConfig | null {
+  if (field.type !== 'AI') return null;
+  const settings = field.settings;
+  if (!settings || typeof settings !== 'object') return null;
+  const ai = (settings as { ai?: unknown }).ai;
+  if (!ai || typeof ai !== 'object' || Array.isArray(ai)) return null;
+  const blob = ai as { prompt?: unknown; outputType?: unknown; refresh?: unknown };
+  if (typeof blob.prompt !== 'string' || blob.prompt.trim().length === 0) {
+    return null;
+  }
+  const outputType: AiOutputType = AI_OUTPUT_TYPES.has(String(blob.outputType))
+    ? (blob.outputType as AiOutputType)
+    : 'TEXT';
+  const refresh: 'auto' | 'manual' = blob.refresh === 'manual' ? 'manual' : 'auto';
+  return { prompt: blob.prompt, outputType, refresh };
 }
 
 /** A board (kanban) configuration derived from a SELECT field. */
