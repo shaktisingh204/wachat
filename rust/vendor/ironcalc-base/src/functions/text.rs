@@ -1270,4 +1270,167 @@ impl<'a> Model<'a> {
         };
         CalcResult::String(text)
     }
+
+    // CHAR(number)
+    // Returns the character for the given code. Excel documents codes 1-255;
+    // we also tolerate any valid Unicode scalar value above that range.
+    pub(crate) fn fn_char(&mut self, args: &[Node], cell: CellReferenceIndex) -> CalcResult {
+        if args.len() != 1 {
+            return CalcResult::new_args_number_error(cell);
+        }
+        let number = match self.get_number(&args[0], cell) {
+            Ok(f) => f.trunc(),
+            Err(s) => return s,
+        };
+        if number < 1.0 || number > 1_114_111.0 {
+            return CalcResult::new_error(
+                Error::VALUE,
+                cell,
+                "CHAR code must be between 1 and 1114111".to_string(),
+            );
+        }
+        match char::from_u32(number as u32) {
+            Some(c) => CalcResult::String(c.to_string()),
+            None => CalcResult::new_error(
+                Error::VALUE,
+                cell,
+                "Invalid character code for CHAR".to_string(),
+            ),
+        }
+    }
+
+    // CODE(text)
+    // Returns the numeric code of the first character of the text.
+    pub(crate) fn fn_code(&mut self, args: &[Node], cell: CellReferenceIndex) -> CalcResult {
+        if args.len() != 1 {
+            return CalcResult::new_args_number_error(cell);
+        }
+        let s = match self.get_string(&args[0], cell) {
+            Ok(s) => s,
+            Err(error) => return error,
+        };
+        match s.chars().next() {
+            Some(c) => CalcResult::Number((c as u32) as f64),
+            None => CalcResult::new_error(
+                Error::VALUE,
+                cell,
+                "CODE of empty text".to_string(),
+            ),
+        }
+    }
+
+    // UNICHAR(number)
+    // Returns the Unicode character for the given code point.
+    pub(crate) fn fn_unichar(&mut self, args: &[Node], cell: CellReferenceIndex) -> CalcResult {
+        if args.len() != 1 {
+            return CalcResult::new_args_number_error(cell);
+        }
+        let number = match self.get_number(&args[0], cell) {
+            Ok(f) => f.trunc(),
+            Err(s) => return s,
+        };
+        if number < 1.0 || number > 1_114_111.0 {
+            return CalcResult::new_error(
+                Error::VALUE,
+                cell,
+                "UNICHAR code point out of range".to_string(),
+            );
+        }
+        // Surrogate code points (0xD800-0xDFFF) are not valid scalar values
+        match char::from_u32(number as u32) {
+            Some(c) => CalcResult::String(c.to_string()),
+            None => CalcResult::new_error(
+                Error::VALUE,
+                cell,
+                "Invalid Unicode code point for UNICHAR".to_string(),
+            ),
+        }
+    }
+
+    // CLEAN(text)
+    // Removes the non printable characters with codes below 32.
+    pub(crate) fn fn_clean(&mut self, args: &[Node], cell: CellReferenceIndex) -> CalcResult {
+        if args.len() != 1 {
+            return CalcResult::new_args_number_error(cell);
+        }
+        let s = match self.get_string(&args[0], cell) {
+            Ok(s) => s,
+            Err(error) => return error,
+        };
+        let cleaned: String = s.chars().filter(|c| (*c as u32) >= 32).collect();
+        CalcResult::String(cleaned)
+    }
+
+    // PROPER(text)
+    // Capitalizes the first letter of each word (any letter that follows a
+    // non-letter character) and lowercases all other letters.
+    pub(crate) fn fn_proper(&mut self, args: &[Node], cell: CellReferenceIndex) -> CalcResult {
+        if args.len() != 1 {
+            return CalcResult::new_args_number_error(cell);
+        }
+        let s = match self.get_string(&args[0], cell) {
+            Ok(s) => s,
+            Err(error) => return error,
+        };
+        let mut result = String::with_capacity(s.len());
+        let mut previous_is_letter = false;
+        for c in s.chars() {
+            if c.is_alphabetic() {
+                if previous_is_letter {
+                    result.extend(c.to_lowercase());
+                } else {
+                    result.extend(c.to_uppercase());
+                }
+                previous_is_letter = true;
+            } else {
+                result.push(c);
+                previous_is_letter = false;
+            }
+        }
+        CalcResult::String(result)
+    }
+
+    // REPLACE(old_text, start_num, num_chars, new_text)
+    // Replaces num_chars characters of old_text, starting at start_num (1-based,
+    // counted in characters, not bytes), with new_text.
+    pub(crate) fn fn_replace(&mut self, args: &[Node], cell: CellReferenceIndex) -> CalcResult {
+        if args.len() != 4 {
+            return CalcResult::new_args_number_error(cell);
+        }
+        let old_text = match self.get_string(&args[0], cell) {
+            Ok(s) => s,
+            Err(error) => return error,
+        };
+        let start_num = match self.get_number(&args[1], cell) {
+            Ok(f) => f.trunc(),
+            Err(s) => return s,
+        };
+        let num_chars = match self.get_number(&args[2], cell) {
+            Ok(f) => f.trunc(),
+            Err(s) => return s,
+        };
+        let new_text = match self.get_string(&args[3], cell) {
+            Ok(s) => s,
+            Err(error) => return error,
+        };
+        if start_num < 1.0 || num_chars < 0.0 {
+            return CalcResult::new_error(
+                Error::VALUE,
+                cell,
+                "Invalid start_num or num_chars in REPLACE".to_string(),
+            );
+        }
+        let start = (start_num as usize) - 1;
+        let count = num_chars as usize;
+        let chars: Vec<char> = old_text.chars().collect();
+        let mut result = String::new();
+        for c in chars.iter().take(start) {
+            result.push(*c);
+        }
+        result.push_str(&new_text);
+        for c in chars.iter().skip(start.saturating_add(count)) {
+            result.push(*c);
+        }
+        CalcResult::String(result)
+    }
 }

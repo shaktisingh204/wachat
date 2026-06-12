@@ -421,6 +421,37 @@ pub enum Function {
     Intercept,
     Slope,
     Steyx,
+
+    // Wave 1 additions (SabNode)
+    // Text
+    Char,
+    Code,
+    Unichar,
+    Clean,
+    Proper,
+    Replace,
+    // Mathematical
+    Sumproduct,
+    Seriessum,
+    Multinomial,
+    // Statistical
+    PercentileInc,
+    PercentileExc,
+    QuartileInc,
+    QuartileExc,
+    Countunique,
+    // Lookup and reference
+    Address,
+    Hyperlink,
+    // Financial
+    Fvschedule,
+    // Legacy statistical functions whose argument lists differ from the
+    // modern dotted equivalents, so they need their own implementations.
+    TDistCompat,
+    LogNormDistCompat,
+    BetaDistCompat,
+    NegbinomDistCompat,
+    HypGeomDistCompat,
 }
 
 macro_rules! impl_function_lookup {
@@ -815,6 +846,76 @@ impl_function_lookup! {
     intercept => Intercept,
     slope     => Slope,
     steyx     => Steyx,
+
+    // Wave 1 additions (SabNode)
+    char          => Char,
+    code          => Code,
+    unichar       => Unichar,
+    clean         => Clean,
+    proper        => Proper,
+    replace       => Replace,
+    sumproduct    => Sumproduct,
+    seriessum     => Seriessum,
+    multinomial   => Multinomial,
+    percentileinc => PercentileInc,
+    percentileexc => PercentileExc,
+    quartileinc   => QuartileInc,
+    quartileexc   => QuartileExc,
+    countunique   => Countunique,
+    address       => Address,
+    hyperlink     => Hyperlink,
+    fvschedule    => Fvschedule,
+    tdist_compat        => TDistCompat,
+    lognormdist_compat  => LogNormDistCompat,
+    betadist_compat     => BetaDistCompat,
+    negbinomdist_compat => NegbinomDistCompat,
+    hypgeomdist_compat  => HypGeomDistCompat,
+
+    // Wave 1 legacy-name aliases: extra lookup names that resolve to existing
+    // variants because the documented argument semantics are identical.
+    stdev_compat        => StDevS,
+    stdevp_compat       => StDevP,
+    stdevs_compat       => StDevS,
+    var_compat          => VarS,
+    varp_compat         => VarP,
+    vars_compat         => VarS,
+    covar_compat        => CovarianceP,
+    covariancep_compat  => CovarianceP,
+    covariances_compat  => CovarianceS,
+    confidence_compat   => ConfidenceNorm,
+    chitest_compat      => ChisqTest,
+    ftest_compat        => FTest,
+    ttest_compat        => TTest,
+    ztest_compat        => ZTest,
+    chidist_compat      => ChisqDistRT,
+    chidistrt_compat    => ChisqDistRT,
+    chiinv_compat       => ChisqInvRT,
+    chiinvrt_compat     => ChisqInvRT,
+    fdist_compat        => FDistRT,
+    fdistrt_compat      => FDistRT,
+    finv_compat         => FInvRT,
+    finvrt_compat       => FInvRT,
+    tdist2t_compat      => TDist2T,
+    tdistrt_compat      => TDistRT,
+    tinv_compat         => TInv2T,
+    tinv2t_compat       => TInv2T,
+    normdist_compat     => NormDist,
+    norminv_compat      => NormInv,
+    normsinv_compat     => NormSInv,
+    loginv_compat       => LogNormInv,
+    gammadist_compat    => GammaDist,
+    gammainv_compat     => GammaInv,
+    betainv_compat      => BetaInv,
+    expondist_compat    => ExponDist,
+    poisson_compat      => PoissonDist,
+    poissondist_compat  => PoissonDist,
+    weibull_compat      => WeibullDist,
+    weibulldist_compat  => WeibullDist,
+    binomdist_compat    => BinomDist,
+    critbinom_compat    => BinomInv,
+    skewp_compat        => SkewP,
+    percentile_compat   => PercentileInc,
+    quartile_compat     => QuartileInc,
 }
 
 impl Function {
@@ -1166,9 +1267,32 @@ impl Function {
             Function::Intercept => functions.intercept.clone(),
             Function::Slope => functions.slope.clone(),
             Function::Steyx => functions.steyx.clone(),
+            // Wave 1 additions (SabNode)
+            Function::Char => functions.char.clone(),
+            Function::Code => functions.code.clone(),
+            Function::Unichar => functions.unichar.clone(),
+            Function::Clean => functions.clean.clone(),
+            Function::Proper => functions.proper.clone(),
+            Function::Replace => functions.replace.clone(),
+            Function::Sumproduct => functions.sumproduct.clone(),
+            Function::Seriessum => functions.seriessum.clone(),
+            Function::Multinomial => functions.multinomial.clone(),
+            Function::PercentileInc => functions.percentileinc.clone(),
+            Function::PercentileExc => functions.percentileexc.clone(),
+            Function::QuartileInc => functions.quartileinc.clone(),
+            Function::QuartileExc => functions.quartileexc.clone(),
+            Function::Countunique => functions.countunique.clone(),
+            Function::Address => functions.address.clone(),
+            Function::Hyperlink => functions.hyperlink.clone(),
+            Function::Fvschedule => functions.fvschedule.clone(),
+            Function::TDistCompat => functions.tdist_compat.clone(),
+            Function::LogNormDistCompat => functions.lognormdist_compat.clone(),
+            Function::BetaDistCompat => functions.betadist_compat.clone(),
+            Function::NegbinomDistCompat => functions.negbinomdist_compat.clone(),
+            Function::HypGeomDistCompat => functions.hypgeomdist_compat.clone(),
         }
     }
-    pub fn into_iter() -> IntoIter<Function, 345> {
+    pub fn into_iter() -> IntoIter<Function, 367> {
         [
             Function::And,
             Function::False,
@@ -1515,6 +1639,29 @@ impl Function {
             Function::Kurt,
             Function::MaxA,
             Function::MinA,
+            // Wave 1 additions (SabNode)
+            Function::Char,
+            Function::Code,
+            Function::Unichar,
+            Function::Clean,
+            Function::Proper,
+            Function::Replace,
+            Function::Sumproduct,
+            Function::Seriessum,
+            Function::Multinomial,
+            Function::PercentileInc,
+            Function::PercentileExc,
+            Function::QuartileInc,
+            Function::QuartileExc,
+            Function::Countunique,
+            Function::Address,
+            Function::Hyperlink,
+            Function::Fvschedule,
+            Function::TDistCompat,
+            Function::LogNormDistCompat,
+            Function::BetaDistCompat,
+            Function::NegbinomDistCompat,
+            Function::HypGeomDistCompat,
         ]
         .into_iter()
     }
@@ -1640,6 +1787,11 @@ impl Function {
             Function::SkewP => "_xlfn.SKEW.P".to_string(),
             Function::RankAvg => "_xlfn.RANK.AVG".to_string(),
             Function::RankEq => "_xlfn.RANK.EQ".to_string(),
+
+            Function::PercentileInc => "_xlfn.PERCENTILE.INC".to_string(),
+            Function::PercentileExc => "_xlfn.PERCENTILE.EXC".to_string(),
+            Function::QuartileInc => "_xlfn.QUARTILE.INC".to_string(),
+            Function::QuartileExc => "_xlfn.QUARTILE.EXC".to_string(),
 
             _ => {
                 let language = get_default_language();
@@ -2006,6 +2158,29 @@ impl<'a> Model<'a> {
             Function::Skew => self.fn_skew(args, cell),
             Function::SkewP => self.fn_skew_p(args, cell),
             Function::Small => self.fn_small(args, cell),
+            // Wave 1 additions (SabNode)
+            Function::Char => self.fn_char(args, cell),
+            Function::Code => self.fn_code(args, cell),
+            Function::Unichar => self.fn_unichar(args, cell),
+            Function::Clean => self.fn_clean(args, cell),
+            Function::Proper => self.fn_proper(args, cell),
+            Function::Replace => self.fn_replace(args, cell),
+            Function::Sumproduct => self.fn_sumproduct(args, cell),
+            Function::Seriessum => self.fn_seriessum(args, cell),
+            Function::Multinomial => self.fn_multinomial(args, cell),
+            Function::PercentileInc => self.fn_percentile_inc(args, cell),
+            Function::PercentileExc => self.fn_percentile_exc(args, cell),
+            Function::QuartileInc => self.fn_quartile_inc(args, cell),
+            Function::QuartileExc => self.fn_quartile_exc(args, cell),
+            Function::Countunique => self.fn_countunique(args, cell),
+            Function::Address => self.fn_address(args, cell),
+            Function::Hyperlink => self.fn_hyperlink(args, cell),
+            Function::Fvschedule => self.fn_fvschedule(args, cell),
+            Function::TDistCompat => self.fn_tdist_compat(args, cell),
+            Function::LogNormDistCompat => self.fn_lognormdist_compat(args, cell),
+            Function::BetaDistCompat => self.fn_betadist_compat(args, cell),
+            Function::NegbinomDistCompat => self.fn_negbinomdist_compat(args, cell),
+            Function::HypGeomDistCompat => self.fn_hypgeomdist_compat(args, cell),
         }
     }
 }

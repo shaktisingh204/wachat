@@ -1,5 +1,6 @@
 use crate::constants::{LAST_COLUMN, LAST_ROW};
 use crate::expressions::types::CellReferenceIndex;
+use crate::expressions::utils::number_to_column;
 use crate::{
     calc_result::CalcResult, expressions::parser::Node, expressions::token::Error, model::Model,
     utils::ParsedReference,
@@ -879,6 +880,170 @@ impl<'a> Model<'a> {
                 origin: cell,
                 message: "Argument must be a reference".to_string(),
             }
+        }
+    }
+
+    // ADDRESS(row_num, column_num, [abs_num], [a1], [sheet_text])
+    // Builds a cell reference as text. abs_num: 1 = fully absolute (default),
+    // 2 = absolute row, 3 = absolute column, 4 = fully relative.
+    // a1 = TRUE (default) for A1 notation, FALSE for R1C1 notation.
+    pub(crate) fn fn_address(&mut self, args: &[Node], cell: CellReferenceIndex) -> CalcResult {
+        let arg_count = args.len();
+        if !(2..=5).contains(&arg_count) {
+            return CalcResult::new_args_number_error(cell);
+        }
+        let row = match self.get_number(&args[0], cell) {
+            Ok(f) => f.trunc(),
+            Err(s) => return s,
+        };
+        let column = match self.get_number(&args[1], cell) {
+            Ok(f) => f.trunc(),
+            Err(s) => return s,
+        };
+        let abs_num = if arg_count >= 3 {
+            match self.evaluate_node_in_context(&args[2], cell) {
+                CalcResult::EmptyCell | CalcResult::EmptyArg => 1.0,
+                value => match self.cast_to_number(value, cell) {
+                    Ok(f) => f.trunc(),
+                    Err(s) => return s,
+                },
+            }
+        } else {
+            1.0
+        };
+        let a1 = if arg_count >= 4 {
+            match self.evaluate_node_in_context(&args[3], cell) {
+                CalcResult::Boolean(b) => b,
+                CalcResult::Number(f) => f != 0.0,
+                CalcResult::EmptyCell | CalcResult::EmptyArg => true,
+                CalcResult::String(s) => {
+                    let up = s.to_uppercase();
+                    if up == "TRUE" {
+                        true
+                    } else if up == "FALSE" {
+                        false
+                    } else {
+                        return CalcResult::new_error(
+                            Error::VALUE,
+                            cell,
+                            "a1 must be TRUE or FALSE in ADDRESS".to_string(),
+                        );
+                    }
+                }
+                error @ CalcResult::Error { .. } => return error,
+                _ => {
+                    return CalcResult::new_error(
+                        Error::VALUE,
+                        cell,
+                        "Invalid a1 argument in ADDRESS".to_string(),
+                    )
+                }
+            }
+        } else {
+            true
+        };
+        let sheet_text = if arg_count == 5 {
+            match self.get_string(&args[4], cell) {
+                Ok(s) => Some(s),
+                Err(error) => return error,
+            }
+        } else {
+            None
+        };
+
+        if row < 1.0 || row > (LAST_ROW as f64) || column < 1.0 || column > (LAST_COLUMN as f64) {
+            return CalcResult::new_error(
+                Error::VALUE,
+                cell,
+                "Invalid row or column in ADDRESS".to_string(),
+            );
+        }
+        if !(1.0..=4.0).contains(&abs_num) {
+            return CalcResult::new_error(
+                Error::VALUE,
+                cell,
+                "abs_num must be between 1 and 4 in ADDRESS".to_string(),
+            );
+        }
+
+        let row = row as i32;
+        let column = column as i32;
+        let abs_num = abs_num as i32;
+
+        let reference = if a1 {
+            let column_letters = match number_to_column(column) {
+                Some(s) => s,
+                None => {
+                    return CalcResult::new_error(
+                        Error::VALUE,
+                        cell,
+                        "Invalid column in ADDRESS".to_string(),
+                    )
+                }
+            };
+            match abs_num {
+                1 => format!("${column_letters}${row}"),
+                2 => format!("{column_letters}${row}"),
+                3 => format!("${column_letters}{row}"),
+                _ => format!("{column_letters}{row}"),
+            }
+        } else {
+            match abs_num {
+                1 => format!("R{row}C{column}"),
+                2 => format!("R{row}C[{column}]"),
+                3 => format!("R[{row}]C{column}"),
+                _ => format!("R[{row}]C[{column}]"),
+            }
+        };
+
+        let result = match sheet_text {
+            Some(sheet) => {
+                // Quote sheet names that need it ('My Sheet'!A1)
+                let needs_quotes = sheet.is_empty()
+                    || sheet.chars().next().is_some_and(|c| c.is_ascii_digit())
+                    || sheet
+                        .chars()
+                        .any(|c| !(c.is_alphanumeric() || c == '_' || c == '.'));
+                if needs_quotes {
+                    let escaped = sheet.replace('\'', "''");
+                    format!("'{escaped}'!{reference}")
+                } else {
+                    format!("{sheet}!{reference}")
+                }
+            }
+            None => reference,
+        };
+
+        CalcResult::String(result)
+    }
+
+    // HYPERLINK(link_location, [friendly_name])
+    // The engine only deals with the displayed value: the friendly name when
+    // present, otherwise the link itself.
+    pub(crate) fn fn_hyperlink(&mut self, args: &[Node], cell: CellReferenceIndex) -> CalcResult {
+        let arg_count = args.len();
+        if !(1..=2).contains(&arg_count) {
+            return CalcResult::new_args_number_error(cell);
+        }
+        let link = match self.get_string(&args[0], cell) {
+            Ok(s) => s,
+            Err(error) => return error,
+        };
+        if arg_count == 2 {
+            match self.evaluate_node_in_context(&args[1], cell) {
+                CalcResult::String(value) => CalcResult::String(value),
+                CalcResult::Number(value) => CalcResult::Number(value),
+                CalcResult::Boolean(value) => CalcResult::Boolean(value),
+                CalcResult::EmptyCell | CalcResult::EmptyArg => CalcResult::Number(0.0),
+                error @ CalcResult::Error { .. } => error,
+                _ => CalcResult::new_error(
+                    Error::VALUE,
+                    cell,
+                    "Invalid friendly_name in HYPERLINK".to_string(),
+                ),
+            }
+        } else {
+            CalcResult::String(link)
         }
     }
 }

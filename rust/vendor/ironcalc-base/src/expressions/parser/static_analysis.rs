@@ -1007,6 +1007,56 @@ fn get_function_args_signature(kind: &Function, arg_count: usize) -> Vec<Signatu
         Function::Skew => vec![Signature::Vector; arg_count],
         Function::SkewP => vec![Signature::Vector; arg_count],
         Function::Small => vec![Signature::Vector, Signature::Scalar],
+        // Wave 1 additions (SabNode)
+        Function::Char => args_signature_scalars(arg_count, 1, 0),
+        Function::Code => args_signature_scalars(arg_count, 1, 0),
+        Function::Unichar => args_signature_scalars(arg_count, 1, 0),
+        Function::Clean => args_signature_scalars(arg_count, 1, 0),
+        Function::Proper => args_signature_scalars(arg_count, 1, 0),
+        Function::Replace => args_signature_scalars(arg_count, 4, 0),
+        Function::Sumproduct => vec![Signature::Vector; arg_count],
+        Function::Seriessum => {
+            if arg_count == 4 {
+                vec![
+                    Signature::Scalar,
+                    Signature::Scalar,
+                    Signature::Scalar,
+                    Signature::Vector,
+                ]
+            } else {
+                vec![Signature::Error; arg_count]
+            }
+        }
+        Function::Multinomial => vec![Signature::Vector; arg_count],
+        Function::PercentileInc | Function::PercentileExc => {
+            if arg_count == 2 {
+                vec![Signature::Vector, Signature::Scalar]
+            } else {
+                vec![Signature::Error; arg_count]
+            }
+        }
+        Function::QuartileInc | Function::QuartileExc => {
+            if arg_count == 2 {
+                vec![Signature::Vector, Signature::Scalar]
+            } else {
+                vec![Signature::Error; arg_count]
+            }
+        }
+        Function::Countunique => vec![Signature::Vector; arg_count],
+        Function::Address => args_signature_scalars(arg_count, 2, 3),
+        Function::Hyperlink => args_signature_scalars(arg_count, 1, 1),
+        Function::Fvschedule => {
+            if arg_count == 2 {
+                vec![Signature::Scalar, Signature::Vector]
+            } else {
+                vec![Signature::Error; arg_count]
+            }
+        }
+        Function::TDistCompat => args_signature_scalars(arg_count, 3, 0),
+        Function::LogNormDistCompat => args_signature_scalars(arg_count, 3, 0),
+        Function::BetaDistCompat => args_signature_scalars(arg_count, 3, 2),
+        Function::NegbinomDistCompat => args_signature_scalars(arg_count, 3, 0),
+        Function::HypGeomDistCompat => args_signature_scalars(arg_count, 4, 0),
     }
 }
 
@@ -1358,5 +1408,28 @@ fn static_analysis_on_function(kind: &Function, args: &[Node]) -> StaticResult {
         Function::Skew => StaticResult::Scalar,
         Function::SkewP => StaticResult::Scalar,
         Function::Small => StaticResult::Scalar,
+        // Wave 1 additions (SabNode)
+        Function::Char => scalar_arguments(args),
+        Function::Code => scalar_arguments(args),
+        Function::Unichar => scalar_arguments(args),
+        Function::Clean => scalar_arguments(args),
+        Function::Proper => scalar_arguments(args),
+        Function::Replace => scalar_arguments(args),
+        Function::Sumproduct => StaticResult::Scalar,
+        Function::Seriessum => StaticResult::Scalar,
+        Function::Multinomial => StaticResult::Scalar,
+        Function::PercentileInc => StaticResult::Scalar,
+        Function::PercentileExc => StaticResult::Scalar,
+        Function::QuartileInc => StaticResult::Scalar,
+        Function::QuartileExc => StaticResult::Scalar,
+        Function::Countunique => StaticResult::Scalar,
+        Function::Address => scalar_arguments(args),
+        Function::Hyperlink => scalar_arguments(args),
+        Function::Fvschedule => StaticResult::Scalar,
+        Function::TDistCompat => StaticResult::Scalar,
+        Function::LogNormDistCompat => StaticResult::Scalar,
+        Function::BetaDistCompat => StaticResult::Scalar,
+        Function::NegbinomDistCompat => StaticResult::Scalar,
+        Function::HypGeomDistCompat => StaticResult::Scalar,
     }
 }

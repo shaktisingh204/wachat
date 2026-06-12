@@ -100,4 +100,5 @@ mod test_sheet_names;
 mod test_today;
 mod test_trigonometric_reciprocals;
 mod test_types;
+mod test_wave1_functions;
 mod user_model;

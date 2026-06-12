@@ -227,4 +227,209 @@ impl<'a> Model<'a> {
         };
         Ok(result)
     }
+
+    // Helper: evaluates one argument as a matrix of optional numbers.
+    // Ranges and arrays keep their shape; scalars become a 1x1 matrix.
+    // Non-numeric entries are returned as None.
+    fn matrix_from_node(
+        &mut self,
+        arg: &Node,
+        cell: CellReferenceIndex,
+    ) -> Result<(i32, i32, Vec<Option<f64>>), CalcResult> {
+        match self.evaluate_node_in_context(arg, cell) {
+            CalcResult::Range { left, right } => {
+                let rows = right.row - left.row + 1;
+                let cols = right.column - left.column + 1;
+                let values = self.values_from_range(left, right)?;
+                Ok((rows, cols, values))
+            }
+            CalcResult::Array(array) => {
+                let rows = array.len() as i32;
+                let cols = if rows > 0 { array[0].len() as i32 } else { 0 };
+                match self.values_from_array(array) {
+                    Ok(values) => Ok((rows, cols, values)),
+                    Err(error) => Err(CalcResult::new_error(
+                        Error::VALUE,
+                        cell,
+                        format!("Error in array argument: {:?}", error),
+                    )),
+                }
+            }
+            CalcResult::Number(value) => Ok((1, 1, vec![Some(value)])),
+            CalcResult::Boolean(_) | CalcResult::String(_) => Ok((1, 1, vec![None])),
+            CalcResult::EmptyCell | CalcResult::EmptyArg => Ok((1, 1, vec![Some(0.0)])),
+            error @ CalcResult::Error { .. } => Err(error),
+        }
+    }
+
+    // SUMPRODUCT(array1, [array2], ...)
+    // Multiplies the corresponding entries of the given arrays and returns the
+    // sum of those products. All arrays must have the same dimensions;
+    // non-numeric entries are treated as zero.
+    pub(crate) fn fn_sumproduct(&mut self, args: &[Node], cell: CellReferenceIndex) -> CalcResult {
+        if args.is_empty() {
+            return CalcResult::new_args_number_error(cell);
+        }
+
+        let (rows, cols, first) = match self.matrix_from_node(&args[0], cell) {
+            Ok(m) => m,
+            Err(e) => return e,
+        };
+
+        let mut products: Vec<f64> = first.iter().map(|v| v.unwrap_or(0.0)).collect();
+
+        for arg in &args[1..] {
+            let (r, c, values) = match self.matrix_from_node(arg, cell) {
+                Ok(m) => m,
+                Err(e) => return e,
+            };
+            if r != rows || c != cols {
+                return CalcResult::new_error(
+                    Error::VALUE,
+                    cell,
+                    "SUMPRODUCT arrays must have the same dimensions".to_string(),
+                );
+            }
+            for (product, value) in products.iter_mut().zip(values.iter()) {
+                *product *= value.unwrap_or(0.0);
+            }
+        }
+
+        CalcResult::Number(products.iter().sum())
+    }
+
+    // SERIESSUM(x, n, m, coefficients)
+    // Returns the sum of the power series:
+    //   a_1*x^n + a_2*x^(n+m) + ... + a_i*x^(n+(i-1)*m)
+    pub(crate) fn fn_seriessum(&mut self, args: &[Node], cell: CellReferenceIndex) -> CalcResult {
+        if args.len() != 4 {
+            return CalcResult::new_args_number_error(cell);
+        }
+        let x = match self.get_number(&args[0], cell) {
+            Ok(f) => f,
+            Err(s) => return s,
+        };
+        let n = match self.get_number(&args[1], cell) {
+            Ok(f) => f,
+            Err(s) => return s,
+        };
+        let m = match self.get_number(&args[2], cell) {
+            Ok(f) => f,
+            Err(s) => return s,
+        };
+        let (_, _, coefficients) = match self.matrix_from_node(&args[3], cell) {
+            Ok(v) => v,
+            Err(e) => return e,
+        };
+
+        let mut sum = 0.0;
+        for (index, coefficient) in coefficients.iter().enumerate() {
+            let a = match coefficient {
+                Some(f) => *f,
+                None => {
+                    return CalcResult::new_error(
+                        Error::VALUE,
+                        cell,
+                        "SERIESSUM coefficients must be numbers".to_string(),
+                    )
+                }
+            };
+            sum += a * x.powf(n + (index as f64) * m);
+        }
+
+        if !sum.is_finite() {
+            return CalcResult::new_error(
+                Error::NUM,
+                cell,
+                "Invalid result for SERIESSUM".to_string(),
+            );
+        }
+
+        CalcResult::Number(sum)
+    }
+
+    // MULTINOMIAL(number1, [number2], ...)
+    // Returns (sum of args)! / (product of args!). Arguments are truncated to
+    // integers; any negative argument produces #NUM!.
+    pub(crate) fn fn_multinomial(&mut self, args: &[Node], cell: CellReferenceIndex) -> CalcResult {
+        if args.is_empty() {
+            return CalcResult::new_args_number_error(cell);
+        }
+
+        let mut numbers: Vec<f64> = Vec::new();
+        for arg in args {
+            match self.evaluate_node_in_context(arg, cell) {
+                CalcResult::Number(value) => numbers.push(value),
+                CalcResult::Range { left, right } => {
+                    let values = match self.values_from_range(left, right) {
+                        Ok(v) => v,
+                        Err(e) => return e,
+                    };
+                    // blanks/non-numeric cells in a range are ignored
+                    numbers.extend(values.into_iter().flatten());
+                }
+                CalcResult::Array(array) => {
+                    let values = match self.values_from_array(array) {
+                        Ok(v) => v,
+                        Err(error) => {
+                            return CalcResult::new_error(
+                                Error::VALUE,
+                                cell,
+                                format!("Error in array argument: {:?}", error),
+                            )
+                        }
+                    };
+                    numbers.extend(values.into_iter().flatten());
+                }
+                CalcResult::Boolean(_) | CalcResult::String(_) => {
+                    return CalcResult::new_error(
+                        Error::VALUE,
+                        cell,
+                        "MULTINOMIAL arguments must be numeric".to_string(),
+                    )
+                }
+                CalcResult::EmptyCell | CalcResult::EmptyArg => {}
+                error @ CalcResult::Error { .. } => return error,
+            }
+        }
+
+        // Multinomial coefficient computed as a product of binomial factors to
+        // avoid evaluating large factorials directly:
+        //   (a_1 + ... + a_k)! / (a_1! * ... * a_k!) = prod_i C(a_1+...+a_i, a_i)
+        let mut total: u64 = 0;
+        let mut result = 1.0;
+        for value in numbers {
+            let a = value.trunc();
+            if a < 0.0 {
+                return CalcResult::new_error(
+                    Error::NUM,
+                    cell,
+                    "MULTINOMIAL arguments must be >= 0".to_string(),
+                );
+            }
+            if a > 170.0 * 100.0 {
+                // guard against absurd inputs that would overflow even stepwise
+                return CalcResult::new_error(
+                    Error::NUM,
+                    cell,
+                    "MULTINOMIAL argument too large".to_string(),
+                );
+            }
+            let a = a as u64;
+            for k in 1..=a {
+                total += 1;
+                result *= (total as f64) / (k as f64);
+            }
+        }
+
+        if !result.is_finite() {
+            return CalcResult::new_error(
+                Error::NUM,
+                cell,
+                "Invalid result for MULTINOMIAL".to_string(),
+            );
+        }
+
+        CalcResult::Number(result.round())
+    }
 }

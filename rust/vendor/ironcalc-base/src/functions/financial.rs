@@ -1830,4 +1830,114 @@ impl<'a> Model<'a> {
 
         CalcResult::Number(rate * (cost - result))
     }
+
+    // FVSCHEDULE(principal, schedule)
+    // Returns the future value of the principal after applying the series of
+    // compound interest rates in schedule: principal * prod(1 + rate_i).
+    // Blank cells in the schedule are treated as a rate of 0.
+    pub(crate) fn fn_fvschedule(&mut self, args: &[Node], cell: CellReferenceIndex) -> CalcResult {
+        if args.len() != 2 {
+            return CalcResult::new_args_number_error(cell);
+        }
+        let principal = match self.get_number(&args[0], cell) {
+            Ok(f) => f,
+            Err(s) => return s,
+        };
+
+        let mut result = principal;
+        match self.evaluate_node_in_context(&args[1], cell) {
+            CalcResult::Number(rate) => {
+                result *= 1.0 + rate;
+            }
+            CalcResult::EmptyCell | CalcResult::EmptyArg => {}
+            CalcResult::Range { left, right } => {
+                if left.sheet != right.sheet {
+                    return CalcResult::new_error(
+                        Error::VALUE,
+                        cell,
+                        "Ranges are in different sheets".to_string(),
+                    );
+                }
+                for row in left.row..=right.row {
+                    for column in left.column..=right.column {
+                        match self.evaluate_cell(CellReferenceIndex {
+                            sheet: left.sheet,
+                            row,
+                            column,
+                        }) {
+                            CalcResult::Number(rate) => {
+                                result *= 1.0 + rate;
+                            }
+                            CalcResult::EmptyCell | CalcResult::EmptyArg => {
+                                // blank entries count as a rate of 0
+                            }
+                            CalcResult::String(s) => match self.cast_number(&s) {
+                                Some(rate) => {
+                                    result *= 1.0 + rate;
+                                }
+                                None => {
+                                    return CalcResult::new_error(
+                                        Error::VALUE,
+                                        cell,
+                                        "FVSCHEDULE rates must be numbers".to_string(),
+                                    )
+                                }
+                            },
+                            error @ CalcResult::Error { .. } => return error,
+                            _ => {
+                                return CalcResult::new_error(
+                                    Error::VALUE,
+                                    cell,
+                                    "FVSCHEDULE rates must be numbers".to_string(),
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+            CalcResult::Array(array) => {
+                for row in array {
+                    for item in row {
+                        match item {
+                            crate::expressions::parser::ArrayNode::Number(rate) => {
+                                result *= 1.0 + rate;
+                            }
+                            crate::expressions::parser::ArrayNode::Error(error) => {
+                                return CalcResult::new_error(
+                                    error,
+                                    cell,
+                                    "Error in FVSCHEDULE schedule".to_string(),
+                                )
+                            }
+                            _ => {
+                                return CalcResult::new_error(
+                                    Error::VALUE,
+                                    cell,
+                                    "FVSCHEDULE rates must be numbers".to_string(),
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+            error @ CalcResult::Error { .. } => return error,
+            _ => {
+                return CalcResult::new_error(
+                    Error::VALUE,
+                    cell,
+                    "FVSCHEDULE schedule must be a range or array of numbers".to_string(),
+                )
+            }
+        }
+
+        if !result.is_finite() {
+            return CalcResult::new_error(
+                Error::NUM,
+                cell,
+                "Invalid result for FVSCHEDULE".to_string(),
+            );
+        }
+
+        CalcResult::Number(result)
+    }
 }
