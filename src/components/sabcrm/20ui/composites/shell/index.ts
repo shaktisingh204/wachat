@@ -35,12 +35,15 @@ export {
 // macOS-style desktop window system — many apps open at once, state preserved
 // on switch. DesktopHost mounts once in the root layout.
 export { DesktopHost } from "./desktop-host";
+export { MissionControl } from "./mission-control";
 export {
   DesktopWindowsProvider,
   useDesktopWindows,
   MAX_LIVE_WINDOWS,
   type DesktopWindows,
   type DesktopWindow,
+  type DesktopMode,
+  type WindowGeometry,
 } from "./window-store";
 export {
   useIsEmbedded,

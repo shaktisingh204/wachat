@@ -40,9 +40,11 @@ import {
   type MotionValue,
 } from "motion/react";
 import {
+  AppWindow,
   ArrowUpRight,
   Eye,
   EyeOff,
+  Maximize,
   Pin,
   PinOff,
   RotateCcw,
@@ -53,7 +55,7 @@ import { cn } from "../lib/cn";
 import { SAB_APPS, isWindowableApp, type SabAppDescriptor } from "./apps";
 import { SabAppLogo } from "./app-logos";
 import { useDockApps, useDockAutoHide } from "./use-dock-apps";
-import { useDesktopWindows } from "./window-store";
+import { useDesktopWindows, type DesktopMode } from "./window-store";
 import { SabLaunchpad } from "./launchpad";
 
 /* Compact geometry (px). BASE tile, MAX under the cursor, RANGE of influence. */
@@ -370,6 +372,11 @@ export function SabAppDock({ className }: { className?: string }) {
                 autoHide={hiding.autoHide}
                 reduceMotion={Boolean(reduceMotion)}
                 windowOpen={menu.kind === "app" ? wm.isOpen(menu.appId) : false}
+                desktopMode={wm.mode}
+                onToggleMode={() => {
+                  wm.setMode(wm.mode === "windows" ? "spaces" : "windows");
+                  setMenu(null);
+                }}
                 onOpen={() => {
                   const app =
                     menu.kind === "app" ? byId.get(menu.appId) : undefined;
@@ -566,6 +573,8 @@ interface DockContextMenuProps {
   reduceMotion: boolean;
   /** The menu's app currently has an open window. */
   windowOpen: boolean;
+  desktopMode: DesktopMode;
+  onToggleMode: () => void;
   onOpen: () => void;
   onCloseWindow: () => void;
   onPinToggle: () => void;
@@ -580,6 +589,8 @@ function DockContextMenu({
   autoHide,
   reduceMotion,
   windowOpen,
+  desktopMode,
+  onToggleMode,
   onOpen,
   onCloseWindow,
   onPinToggle,
@@ -652,11 +663,24 @@ function DockContextMenu({
         onSelect={onToggleHiding}
       />
       {menu.kind === "dock" && (
-        <DockMenuItem
-          icon={<RotateCcw aria-hidden="true" className="size-3.5" />}
-          label="Reset Dock"
-          onSelect={onResetDock}
-        />
+        <>
+          <DockMenuItem
+            icon={
+              desktopMode === "windows" ? (
+                <Maximize aria-hidden="true" className="size-3.5" />
+              ) : (
+                <AppWindow aria-hidden="true" className="size-3.5" />
+              )
+            }
+            label={desktopMode === "windows" ? "Use Spaces" : "Use Windows"}
+            onSelect={onToggleMode}
+          />
+          <DockMenuItem
+            icon={<RotateCcw aria-hidden="true" className="size-3.5" />}
+            label="Reset Dock"
+            onSelect={onResetDock}
+          />
+        </>
       )}
     </m.div>
   );

@@ -17,6 +17,17 @@ const nextConfig = {
   experimental: {
     serverActions: {
       bodySizeLimit: '50mb',
+      // The macOS-style desktop hosts open apps in same-origin chromeless
+      // iframes; Server Actions fired from inside a frame (or via the reverse
+      // proxy) carry the proxied host as Origin. Whitelist the hosts the app is
+      // served from so those action POSTs aren't rejected as cross-origin.
+      allowedOrigins: [
+        'sabnode.com',
+        'www.sabnode.com',
+        '15.235.234.217',
+        'localhost:3000',
+        'localhost:3002',
+      ],
     },
     // Cap the static-page-collection worker pool. Default is
     // `os.cpus().length - 1`, which on the 32-core build host means
@@ -319,6 +330,25 @@ const nextConfig = {
         source: '/dashboard/meta-suite/:path*',
         destination: '/dashboard/facebook/:path*',
         permanent: true,
+      },
+    ];
+  },
+
+  // Allow the app to frame itself (same-origin) so the macOS-style desktop can
+  // host open apps in chromeless iframes. Only `frame-ancestors` is set here, so
+  // this CSP governs *who may frame these pages* and nothing else (it does not
+  // restrict scripts/styles). X-Frame-Options is deliberately NOT sent — a
+  // `DENY`/`SAMEORIGIN` there would either break the desktop or be redundant.
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'Content-Security-Policy',
+            value: "frame-ancestors 'self' https://*.sabnode.com",
+          },
+        ],
       },
     ];
   },

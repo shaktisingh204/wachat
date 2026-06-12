@@ -10,6 +10,7 @@
 
 import { SabAppDock } from "./app-dock";
 import { DesktopCanvas } from "./desktop-canvas";
+import { MissionControl } from "./mission-control";
 import { DesktopWindowsProvider } from "./window-store";
 
 export function DesktopRuntime() {
@@ -17,6 +18,7 @@ export function DesktopRuntime() {
     <DesktopWindowsProvider>
       <DesktopCanvas />
       <SabAppDock />
+      <MissionControl />
     </DesktopWindowsProvider>
   );
 }
