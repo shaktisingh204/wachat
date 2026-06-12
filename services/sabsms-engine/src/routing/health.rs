@@ -112,11 +112,136 @@ pub async fn record_failed(redis: &mut ConnectionManager, acct: &str, country: &
     incr_field(redis, acct, country, "failed").await;
 }
 
-/// OTP conversion hook — V2.7 calls this from `otp/verify` so the
-/// router can rank the `otp` category by CONVERSION rate instead of
-/// DLR rate (architecture decision 8). No-op until then; the seam is
-/// kept visible so the V2.7 wiring is a one-liner.
-pub fn record_conversion(_acct: &str, _country: &str) {}
+// ---------------------------------------------------------------------------
+// V2.7 — OTP conversion stats (architecture decision 8).
+//
+// Two key families, both two-bucket sliding windows over 1-hour buckets
+// (the OTP window is 2h — wider than DLR's 10min because conversions
+// are user-paced, not carrier-paced):
+//
+//   `sabsms:otpstats:{acct}:{country}:{prefix}:{bucket}` — per-prefix
+//     sent/converted, read by the fraud zero-conversion ticker and the
+//     `/v1/otp/stats` endpoint;
+//   `sabsms:otpconv:{acct}:{country}:{bucket}` — the (account, country)
+//     aggregate the ROUTER reads to rank `otp`-category candidates by
+//     conversion instead of DLR.
+//
+// `sent` is bumped at OTP ENQUEUE time (not delivery), `converted` on
+// successful verify — so the ratio is true end-to-end conversion.
+// ---------------------------------------------------------------------------
+
+/// OTP stat bucket width (seconds) — 1h, merged window covers 2h.
+pub const OTP_BUCKET_SECS: i64 = 3600;
+/// TTL on OTP stat keys — current + previous bucket with slack.
+pub const OTP_KEY_TTL_SECS: i64 = 3 * 3600;
+/// Below this many OTP sends the conversion score is unavailable and
+/// the router falls back to the DLR health score.
+pub const OTP_MIN_VOLUME: u64 = 10;
+
+pub fn otp_bucket_of(epoch_secs: i64) -> i64 {
+    epoch_secs.div_euclid(OTP_BUCKET_SECS)
+}
+
+fn otpstats_key(acct: &str, country: &str, prefix: &str, bucket: i64) -> String {
+    format!("sabsms:otpstats:{acct}:{country}:{prefix}:{bucket}")
+}
+
+fn otpconv_key(acct: &str, country: &str, bucket: i64) -> String {
+    format!("sabsms:otpconv:{acct}:{country}:{bucket}")
+}
+
+async fn incr_otp_field(
+    redis: &mut ConnectionManager,
+    acct: &str,
+    country: &str,
+    prefix: &str,
+    field: &str,
+) {
+    let bucket = otp_bucket_of(now_epoch());
+    let keys = [
+        otpstats_key(acct, country, prefix, bucket),
+        otpconv_key(acct, country, bucket),
+    ];
+    for k in keys {
+        let res: redis::RedisResult<()> = async {
+            let _: i64 = redis.hincr(&k, field, 1).await?;
+            let _: bool = redis.expire(&k, OTP_KEY_TTL_SECS).await?;
+            Ok(())
+        }
+        .await;
+        if let Err(e) = res {
+            tracing::warn!(?e, acct, country, prefix, field, "otp stat write failed");
+        }
+    }
+}
+
+/// OTP enqueue hook — `sent++` for (account, country, prefix). Called
+/// from `otp::send`/`otp::resend` at enqueue time (NOT delivery).
+pub async fn record_otp_sent(
+    redis: &mut ConnectionManager,
+    acct: &str,
+    country: &str,
+    prefix: &str,
+) {
+    incr_otp_field(redis, acct, country, prefix, "sent").await;
+}
+
+/// OTP conversion hook — `converted++`; called from `otp::verify` on a
+/// successful constant-time code match. This is the (formerly no-op)
+/// seam the V2.6 router left for V2.7.
+pub async fn record_conversion(
+    redis: &mut ConnectionManager,
+    acct: &str,
+    country: &str,
+    prefix: &str,
+) {
+    incr_otp_field(redis, acct, country, prefix, "converted").await;
+}
+
+/// Laplace-smoothed conversion score `(converted + 1) / (sent + 2)`,
+/// or `None` below [`OTP_MIN_VOLUME`] sends (router then falls back to
+/// the DLR score — never punish a cold account).
+pub fn otp_conversion_score(sent: u64, converted: u64) -> Option<f64> {
+    if sent < OTP_MIN_VOLUME {
+        return None;
+    }
+    Some((converted as f64 + 1.0) / (sent as f64 + 2.0))
+}
+
+/// Merged (current + previous bucket) `(sent, converted)` from the
+/// per-(account, country) aggregate the router reads.
+pub async fn read_otp_stats(
+    redis: &mut ConnectionManager,
+    acct: &str,
+    country: &str,
+) -> (u64, u64) {
+    let now_bucket = otp_bucket_of(now_epoch());
+    let mut sent = 0u64;
+    let mut converted = 0u64;
+    for bucket in [now_bucket, now_bucket - 1] {
+        let k = otpconv_key(acct, country, bucket);
+        let res: redis::RedisResult<std::collections::HashMap<String, String>> =
+            redis.hgetall(&k).await;
+        match res {
+            Ok(map) => {
+                let get = |f: &str| map.get(f).and_then(|v| v.parse::<u64>().ok()).unwrap_or(0);
+                sent += get("sent");
+                converted += get("converted");
+            }
+            Err(e) => {
+                tracing::warn!(?e, acct, country, "otp stat read failed");
+            }
+        }
+    }
+    (sent, converted)
+}
+
+/// Conversion score for the router's OTP-category ordering, or `None`
+/// when the account is below min-volume (callers fall back to DLR).
+pub async fn otp_score(redis: &mut ConnectionManager, acct: &str, country: &str) -> Option<f64> {
+    let (sent, converted) = read_otp_stats(redis, acct, country).await;
+    otp_conversion_score(sent, converted)
+}
 
 /// Read the merged (current + previous bucket) stats.
 pub async fn read_stats(redis: &mut ConnectionManager, acct: &str, country: &str) -> HealthStats {
@@ -255,8 +380,36 @@ mod tests {
     }
 
     #[test]
-    fn conversion_hook_is_a_visible_noop_seam() {
-        // V2.7 replaces the body; the signature is the contract.
-        record_conversion("acct", "US");
+    fn otp_conversion_score_is_none_below_min_volume() {
+        assert_eq!(otp_conversion_score(0, 0), None);
+        assert_eq!(otp_conversion_score(9, 9), None);
+        // At exactly min volume the score kicks in.
+        assert!(otp_conversion_score(10, 0).is_some());
+    }
+
+    #[test]
+    fn otp_conversion_score_uses_laplace_smoothing() {
+        // 10 sent, 8 converted → (8+1)/(10+2) = 9/12 = 0.75.
+        let s = otp_conversion_score(10, 8).unwrap();
+        assert!((s - 0.75).abs() < 1e-12);
+        // Zero conversions never score exactly 0 (Laplace floor).
+        let s = otp_conversion_score(30, 0).unwrap();
+        assert!((s - 1.0 / 32.0).abs() < 1e-12);
+        assert!(s > 0.0);
+    }
+
+    #[test]
+    fn otp_conversion_score_orders_better_converters_higher() {
+        let high = otp_conversion_score(100, 90).unwrap();
+        let low = otp_conversion_score(100, 40).unwrap();
+        assert!(high > low);
+    }
+
+    #[test]
+    fn otp_bucket_rotation_is_one_hour() {
+        assert_eq!(otp_bucket_of(0), 0);
+        assert_eq!(otp_bucket_of(3599), 0);
+        assert_eq!(otp_bucket_of(3600), 1);
+        assert_eq!(otp_bucket_of(7200), 2);
     }
 }

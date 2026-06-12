@@ -11,6 +11,7 @@ const SABSMS_COLLECTIONS = {
   messages: "sabsms_messages",
   linkClicks: "sabsms_link_clicks",
   consentLog: "sabsms_consent_log",
+  eventLog: "sabsms_event_log",
 } as const;
 
 /**
@@ -609,6 +610,155 @@ export async function runTemplateReplyRates(
     out.push({ templateId, sent, replies: 0, rate: 0 });
   }
   return out;
+}
+
+/**
+ * V2.10 — per-campaign money sums from the RAW messages (`cost` =
+ * wholesale, `price` = customer price, both in currency units). The
+ * rollups carry costCents but no revenue, so the cost page's margin
+ * column reads this. Bounded to MAX_BUCKETS campaigns.
+ */
+export interface SabsmsCampaignMoneyRow {
+  campaignId: string;
+  cost: number;
+  revenue: number;
+  margin: number;
+}
+
+export async function runCampaignMoney(
+  db: Db,
+  filter: SabsmsAnalyticsFilter,
+): Promise<SabsmsCampaignMoneyRow[]> {
+  const messages = db.collection(SABSMS_COLLECTIONS.messages);
+  const pipeline = [
+    {
+      $match: {
+        ...buildMatch(filter, "primary"),
+        campaignId: { $exists: true, $nin: [null, ""] },
+      },
+    },
+    {
+      $group: {
+        _id: "$campaignId",
+        cost: { $sum: { $ifNull: ["$cost", 0] } },
+        revenue: { $sum: { $ifNull: ["$price", 0] } },
+      },
+    },
+    { $sort: { cost: -1 } },
+    { $limit: MAX_BUCKETS },
+  ];
+  const out: SabsmsCampaignMoneyRow[] = [];
+  for await (const row of messages.aggregate(pipeline)) {
+    const cost = Number(row.cost ?? 0);
+    const revenue = Number(row.revenue ?? 0);
+    out.push({
+      campaignId: String(row._id ?? ""),
+      cost,
+      revenue,
+      margin: revenue - cost,
+    });
+  }
+  return out;
+}
+
+/**
+ * V2.10 — error Pareto: top normalized failure codes over the LAST 7
+ * DAYS (fixed window — the point is "what is breaking right now").
+ * Uses the indexed `{workspaceId, status, queuedAt}` path and groups on
+ * `normalizedCode` (falling back to the raw provider `errorCode`).
+ */
+export interface SabsmsErrorParetoRow {
+  code: string;
+  count: number;
+  /** Share of all failures, % 1dp. */
+  pct: number;
+  /** Running cumulative share, % 1dp (the Pareto line). */
+  cumulativePct: number;
+}
+
+export async function runErrorPareto(
+  db: Db,
+  workspaceId: string,
+): Promise<SabsmsErrorParetoRow[]> {
+  const messages = db.collection(SABSMS_COLLECTIONS.messages);
+  const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+  const pipeline = [
+    {
+      $match: {
+        workspaceId,
+        direction: "outbound",
+        status: { $in: ["failed", "undelivered", "rejected"] },
+        updatedAt: { $gte: since },
+      },
+    },
+    {
+      $group: {
+        _id: { $ifNull: ["$normalizedCode", { $ifNull: ["$errorCode", "unknown"] }] },
+        count: { $sum: 1 },
+      },
+    },
+    { $sort: { count: -1 } },
+    { $limit: 12 },
+  ];
+
+  const rows: Array<{ code: string; count: number }> = [];
+  let total = 0;
+  for await (const row of messages.aggregate(pipeline)) {
+    const count = Number(row.count ?? 0);
+    rows.push({ code: String(row._id ?? "unknown"), count });
+    total += count;
+  }
+  let cumulative = 0;
+  return rows.map((r) => {
+    cumulative += r.count;
+    return {
+      ...r,
+      pct: total > 0 ? Math.round((r.count / total) * 1000) / 10 : 0,
+      cumulativePct: total > 0 ? Math.round((cumulative / total) * 1000) / 10 : 0,
+    };
+  });
+}
+
+/**
+ * V2.10 — recent routing/fraud incidents from the consumer's
+ * `sabsms_event_log` (30-day TTL): `routeFailover` (V2.6) plus the
+ * upcoming `fraudBlocked` (V2.7) — the query tolerates the kind not
+ * existing yet. Indexed `{workspaceId, kind, at: -1}` read.
+ */
+export interface SabsmsRiskEvent {
+  kind: string;
+  at: string;
+  /** Human-readable one-liner built from the payload. */
+  summary: string;
+}
+
+export async function runRecentRiskEvents(
+  db: Db,
+  workspaceId: string,
+  limit = 20,
+): Promise<SabsmsRiskEvent[]> {
+  const eventLog = db.collection(SABSMS_COLLECTIONS.eventLog);
+  const docs = await eventLog
+    .find(
+      { workspaceId, kind: { $in: ["routeFailover", "fraudBlocked"] } },
+      { projection: { kind: 1, at: 1, payload: 1 } },
+    )
+    .sort({ at: -1 })
+    .limit(limit)
+    .toArray();
+
+  return docs.map((d) => {
+    const p = (d.payload ?? {}) as Record<string, unknown>;
+    const summary =
+      d.kind === "routeFailover"
+        ? `Failover ${String(p.fromAccount ?? "?")} → ${String(p.toAccount ?? "?")} (${String(p.reason ?? "unknown")})`
+        : `Fraud guard blocked ${String(p.prefix ?? p.to ?? p.messageId ?? "a send")}${p.reason ? ` (${String(p.reason)})` : ""}`;
+    return {
+      kind: String(d.kind ?? ""),
+      at: d.at ? new Date(d.at as Date).toISOString() : "",
+      summary,
+    };
+  });
 }
 
 /** Build a `/sabsms/logs?…` URL with equivalent filters from a tile click. */

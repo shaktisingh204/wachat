@@ -19,6 +19,17 @@ import { connectToDatabase } from "@/lib/mongodb";
 import { getCachedSession } from "@/lib/server-cache";
 import { getSabsmsCollections } from "@/lib/sabsms/db/collections";
 import { sabsmsEngine, SabsmsEngineError } from "@/lib/sabsms/engine-client";
+// V2.10 smart send — identity-graph best-hour lookups.
+import {
+  phoneHashFor,
+  SABSMS_IDENTITIES_COLLECTION,
+  type SabsmsIdentityDoc,
+} from "@/lib/sabsms/identity/graph";
+import {
+  nextOccurrenceUtcMs,
+  smartSendDelayMs,
+  workspaceMedianBestHourUtc,
+} from "@/lib/sabsms/identity/smart-send";
 import type {
   SabsmsCampaign,
   SabsmsCampaignAudience,
@@ -736,6 +747,12 @@ const CreateCampaignSchema = z
     throttlePerSec: z.number().int().min(1).max(100).optional(),
     from: z.string().optional(),
     senderNumberIds: z.array(z.string()).optional(),
+    /**
+     * V2.10 smart send — schedule into recipients' best engagement hours
+     * (identity-graph histograms). See the comment on
+     * `applySmartSendSchedule` for the dual campaign/recipient design.
+     */
+    smartSend: z.boolean().optional(),
   })
   .refine((v) => Boolean(v.templateId || v.body?.trim()), {
     message: "Pick a template or write a message body",
@@ -750,6 +767,8 @@ interface CampaignLaunchExtras {
   defaultFrom?: string;
   recipientCount?: number;
   statusReason?: string;
+  /** V2.10 — recipients get per-contact `notBeforeEpochMs` at launch. */
+  smartSend?: boolean;
 }
 
 /**
@@ -772,8 +791,28 @@ export async function createCampaignAction(
   }
   const v = parsed.data;
   const now = new Date();
-  const scheduledAt =
+  let scheduledAt =
     v.schedule.kind === "scheduledAt" ? new Date(v.schedule.at) : undefined;
+
+  // ── V2.10 smart send, campaign level (works TODAY) ──────────────────
+  // When smart send is on and the user picked no explicit schedule, set
+  // the campaign-level `scheduledAt` to the next occurrence of the
+  // WORKSPACE-MEDIAN best hour from the identity graph — the existing
+  // engine scheduled-campaign ticker honours `scheduledAt` already, so
+  // this needs zero engine changes. Per-recipient precision is layered
+  // on top at launch via `notBeforeEpochMs` (forward contract — see
+  // `launchCampaignAction`). No identity signal yet → stay immediate.
+  if (v.smartSend && !scheduledAt) {
+    try {
+      const { db } = await connectToDatabase();
+      const medianHour = await workspaceMedianBestHourUtc(db, ws.workspaceId);
+      if (medianHour !== null) {
+        scheduledAt = new Date(nextOccurrenceUtcMs(medianHour, now));
+      }
+    } catch {
+      // Smart send is best-effort sugar — never block campaign creation.
+    }
+  }
 
   const doc: Omit<SabsmsCampaign, "_id"> & CampaignLaunchExtras = {
     workspaceId: ws.workspaceId,
@@ -804,6 +843,7 @@ export async function createCampaignAction(
     ...(v.body?.trim() ? { bodyOverride: v.body.trim() } : {}),
     ...(v.vars ? { templateVars: v.vars } : {}),
     ...(v.from ? { defaultFrom: v.from } : {}),
+    ...(v.smartSend ? { smartSend: true } : {}),
   };
 
   const { cols } = await getSabsmsCollections();
@@ -1030,7 +1070,7 @@ export async function launchCampaignAction(input: {
     return { ok: false, error: "Audience resolved to zero valid recipients" };
   }
 
-  const recipientDocs: CampaignRecipientDoc[] = buildRecipientDocs(contacts, {
+  let recipientDocs: SmartSendRecipientDoc[] = buildRecipientDocs(contacts, {
     campaignId: input.campaignId,
     workspaceId: ws.workspaceId,
     templateBody: body.body,
@@ -1039,10 +1079,25 @@ export async function launchCampaignAction(input: {
     baseVars: campaign.templateVars,
   });
 
+  // ── V2.10 smart send, recipient level (FORWARD CONTRACT) ────────────
+  // Stamp `notBeforeEpochMs` per recipient from the identity graph's
+  // best-hour histogram (one chunked `$in` lookup by phoneHash). The
+  // engine ticker does NOT read this field yet — engine support lands
+  // next phase; until then it is inert data the engine ignores, and the
+  // campaign-level median `scheduledAt` (set at create time) is what
+  // actually shifts delivery today.
+  if (campaign.smartSend) {
+    try {
+      recipientDocs = await stampSmartSendWindows(ws.workspaceId, recipientDocs);
+    } catch {
+      // Best-effort: a failed identity lookup must never block launch.
+    }
+  }
+
   // Bulk insert, 1000 docs per insertMany. `ordered: false` lets Mongo
   // keep going past E11000 duplicates (idempotency keys from a previous
   // partial launch) — those recipients already exist and are skipped.
-  const recipientsCol = db.collection<CampaignRecipientDoc>(
+  const recipientsCol = db.collection<SmartSendRecipientDoc>(
     "sabsms_campaign_recipients",
   );
   for (const chunk of chunkArray(recipientDocs, RECIPIENT_CHUNK_SIZE)) {
@@ -1054,7 +1109,7 @@ export async function launchCampaignAction(input: {
         e !== null &&
         "code" in e &&
         ((e as { code?: number }).code === 11000 ||
-          /E11000/.test(String((e as Error).message)));
+          /E11000/.test(String((e as { message?: unknown }).message)));
       if (!isDup) {
         return {
           ok: false,
@@ -1099,6 +1154,63 @@ export async function launchCampaignAction(input: {
     }
     return { ok: false, error: (e as Error).message ?? "launch failed" };
   }
+}
+
+// ─── V2.10 smart send helpers ─────────────────────────────────────────────
+
+/**
+ * Recipient doc + the V2.10 smart-send forward contract: an optional
+ * epoch-ms floor before which the engine should not claim the
+ * recipient. The engine ignores the field until the next phase wires
+ * it into the campaign chunk claimer — writing it now means already-
+ * launched campaigns pick up per-recipient windows the moment the
+ * engine ships support.
+ */
+type SmartSendRecipientDoc = CampaignRecipientDoc & {
+  notBeforeEpochMs?: number;
+};
+
+const SMART_SEND_LOOKUP_CHUNK = 10_000;
+
+/**
+ * Batch-resolve identities for the launch list (chunked `$in` on the
+ * unique `{workspaceId, phoneHash}` index) and stamp `notBeforeEpochMs`
+ * on every recipient whose histogram clears the signal bar and whose
+ * best hour is more than ±1h away. Recipients without identity signal
+ * are returned untouched (sent on the campaign's own schedule).
+ */
+async function stampSmartSendWindows(
+  workspaceId: string,
+  docs: SmartSendRecipientDoc[],
+): Promise<SmartSendRecipientDoc[]> {
+  if (docs.length === 0) return docs;
+  const { db } = await connectToDatabase();
+  const identities = db.collection<SabsmsIdentityDoc>(
+    SABSMS_IDENTITIES_COLLECTION,
+  );
+
+  const hashes = docs.map((d) => phoneHashFor(d.to));
+  const byHash = new Map<string, Pick<SabsmsIdentityDoc, "sendTimeHistogram">>();
+  for (let i = 0; i < hashes.length; i += SMART_SEND_LOOKUP_CHUNK) {
+    const chunk = hashes.slice(i, i + SMART_SEND_LOOKUP_CHUNK);
+    const found = await identities
+      .find(
+        { workspaceId, phoneHash: { $in: chunk } },
+        { projection: { phoneHash: 1, sendTimeHistogram: 1 } },
+      )
+      .toArray();
+    for (const id of found) {
+      byHash.set(id.phoneHash, { sendTimeHistogram: id.sendTimeHistogram });
+    }
+  }
+
+  const now = new Date();
+  return docs.map((doc, i) => {
+    const identity = byHash.get(hashes[i]);
+    if (!identity) return doc;
+    const delay = smartSendDelayMs(identity, now);
+    return delay > 0 ? { ...doc, notBeforeEpochMs: now.getTime() + delay } : doc;
+  });
 }
 
 // ─── Misc ─────────────────────────────────────────────────────────────────

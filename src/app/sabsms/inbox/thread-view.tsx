@@ -68,6 +68,7 @@ import { SabsmsDetailDrawer } from "@/components/sabsms/page-toolkit";
 import { segmentInfo } from "@/lib/sabsms/segments";
 
 import {
+  acceptSuggestion,
   addInternalNote,
   addLabel,
   addReaction,
@@ -75,6 +76,7 @@ import {
   addToSuppression,
   assignTo,
   closeConversation,
+  dismissSuggestion,
   loadThread,
   mergeConversations,
   removeLabel,
@@ -250,6 +252,27 @@ export function ThreadView({
     } else {
       toast({ title: "Send failed", description: res.error, tone: "danger" });
     }
+  }
+
+  // V2.12 — agent-written suggestion (suggest mode) parked on the
+  // conversation doc by the events worker.
+  async function useAgentSuggestion() {
+    if (!thread?.conversation.aiSuggestion) return;
+    setComposerBody(thread.conversation.aiSuggestion.body);
+    setTab("reply");
+    composerRef.current?.focus();
+    // Server-side audit stamp only — the suggestion clears on send.
+    void acceptSuggestion({ conversationId: thread.conversation.id });
+  }
+
+  async function dismissAgentSuggestion() {
+    if (!thread) return;
+    const res = await dismissSuggestion({
+      conversationId: thread.conversation.id,
+    });
+    if (res.ok) onMutate();
+    else
+      toast({ title: "Dismiss failed", description: res.error, tone: "danger" });
   }
 
   async function getAiSuggestion() {
@@ -533,6 +556,42 @@ export function ThreadView({
 
         {tab === "reply" ? (
           <div className="space-y-2 px-3 py-2">
+            {conversation.aiSuggestion && (
+              <div
+                className="flex items-start gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2"
+                role="region"
+                aria-label="AI suggested reply"
+              >
+                <Sparkles
+                  className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--st-text-secondary)]"
+                  aria-hidden="true"
+                />
+                <div className="min-w-0 flex-1 space-y-1">
+                  <div className="text-[10px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
+                    AI suggested reply
+                  </div>
+                  <p className="whitespace-pre-wrap break-words text-sm text-[var(--st-text)]">
+                    {conversation.aiSuggestion.body}
+                  </p>
+                </div>
+                <div className="flex shrink-0 items-center gap-1">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => void useAgentSuggestion()}
+                  >
+                    Use
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => void dismissAgentSuggestion()}
+                  >
+                    Dismiss
+                  </Button>
+                </div>
+              </div>
+            )}
             <Textarea
               ref={composerRef}
               value={composerBody}
@@ -804,6 +863,16 @@ function ThreadHeader({
             {slaBreached && (
               <Badge tone="danger" className="animate-pulse">
                 <Clock className="mr-1 h-3 w-3" aria-hidden="true" /> SLA breached
+              </Badge>
+            )}
+            {conversation.aiFlags?.possibleOptOut && (
+              <Badge tone="warning">
+                <Ban className="mr-1 h-3 w-3" aria-hidden="true" /> Possible opt-out
+              </Badge>
+            )}
+            {conversation.aiFlags?.handoff && (
+              <Badge tone="neutral">
+                <UserPlus className="mr-1 h-3 w-3" aria-hidden="true" /> AI handoff
               </Badge>
             )}
           </div>

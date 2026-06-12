@@ -339,6 +339,7 @@ export type GlobalRolePermissions = {
     sabsms_consent?: ModulePermission;
     sabsms_compliance?: ModulePermission;
     sabsms_analytics?: ModulePermission;
+    sabsms_otp?: ModulePermission;
     sabsms_logs?: ModulePermission;
     sabsms_webhooks?: ModulePermission;
     sabsms_api_keys?: ModulePermission;

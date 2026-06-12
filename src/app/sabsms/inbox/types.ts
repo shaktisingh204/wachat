@@ -26,6 +26,31 @@ export interface InboxConversationView {
   snoozedUntil?: string;
   firstResponseAt?: string;
   createdAt?: string;
+  /** V2.12 — AI agent suggested reply (suggest mode), shown above the composer. */
+  aiSuggestion?: {
+    body: string;
+    at?: string;
+    inboundMessageId?: string;
+  };
+  /** V2.12 — AI pipeline flags (guardrail + handoff badges). */
+  aiFlags?: {
+    possibleOptOut?: boolean;
+    handoff?: boolean;
+  };
+}
+
+/** V2.12 — conversation-insights strip on the inbox page. */
+export interface InboxInsightTopic {
+  label: string;
+  count: number;
+  sentiment: "positive" | "neutral" | "negative";
+  trend: "up" | "down" | "flat" | "new";
+}
+
+export interface InboxInsightsView {
+  topics: InboxInsightTopic[];
+  totalConversations: number;
+  computedAt?: string;
 }
 
 export interface InboxMessageView {

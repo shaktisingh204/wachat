@@ -24,6 +24,8 @@ export interface KpiTileProps {
   invertDelta?: boolean;
   /** When true, "up = good" but compare delta logic stays the same. */
   period?: string;
+  /** Rendered after the value (e.g. "%" for rate KPIs). */
+  suffix?: string;
 }
 
 function deltaPct(value: number, previous?: number): number | undefined {
@@ -41,17 +43,30 @@ export function KpiTile({
   queryString,
   invertDelta,
   period,
+  suffix,
 }: KpiTileProps) {
   const delta = deltaPct(value, previous);
+  // StatCard takes a pre-formatted `{ value, tone }` delta; tone encodes
+  // good/bad, so inverted metrics (failed, opt-outs) flip it.
+  const deltaProp =
+    delta === undefined
+      ? undefined
+      : {
+          value: `${delta > 0 ? "+" : ""}${delta}% ${period ?? "vs previous"}`,
+          tone:
+            delta === 0
+              ? ("neutral" as const)
+              : delta > 0 !== Boolean(invertDelta)
+                ? ("up" as const)
+                : ("down" as const),
+        };
 
   return (
     <div className="relative">
       <StatCard
         label={label}
-        value={value.toLocaleString()}
-        delta={delta}
-        invertDelta={invertDelta}
-        period={period ?? (delta !== undefined ? "vs previous" : undefined)}
+        value={`${value.toLocaleString()}${suffix ?? ""}`}
+        delta={deltaProp}
       />
       <div className="mt-1 flex items-center justify-between gap-1 px-1 text-xs text-[var(--st-text-secondary)]">
         <Button asChild size="sm" variant="ghost" className="h-6 px-2">

@@ -105,6 +105,51 @@ fn send_options_from_doc(doc: &mongodb::bson::Document) -> SendOptions {
     }
 }
 
+/// V2.8 conservative DLT auto-attach: when an IN-bound doc carries no
+/// DLT params but the workspace registry contains EXACTLY ONE active
+/// template whose scrub passes for the body, attach it. The sender
+/// header is attached only when it is registered (and bound, when the
+/// template lists bindings); an unregistered sender header aborts the
+/// auto-attach entirely — attaching would turn the kernel's
+/// missing-template warning into a header block.
+async fn auto_attach_dlt(
+    state: &Arc<AppState>,
+    workspace_id: &str,
+    body: &str,
+    sender_header: Option<&str>,
+) -> Option<DltParams> {
+    let registry = compliance::dlt_store::load_registry(state, workspace_id).await;
+    if registry.templates.is_empty() {
+        return None;
+    }
+    let mut matches = registry
+        .templates
+        .iter()
+        .filter(|t| compliance::dlt::scrub(&t.body, body) == compliance::dlt::ScrubResult::Pass);
+    let first = matches.next()?;
+    if matches.next().is_some() {
+        // More than one template matches — ambiguous, stay out.
+        return None;
+    }
+    let header_param = match sender_header {
+        Some(h) => match registry.find_header(h) {
+            Some(reg)
+                if first.header_ids.is_empty()
+                    || first.header_ids.iter().any(|id| id == &reg.header_id) =>
+            {
+                Some(reg.header.clone())
+            }
+            _ => return None,
+        },
+        None => None,
+    };
+    Some(DltParams {
+        entity_id: Some(first.pe_id.clone()).filter(|s| !s.is_empty()),
+        template_id: Some(first.template_id.clone()),
+        header: header_param,
+    })
+}
+
 /// Suppress a destination after a permanent carrier failure (normalized
 /// `suppress = true`: invalid number, landline, recipient STOP). Upsert —
 /// duplicates are fine.
@@ -211,6 +256,35 @@ async fn process_one(state: &Arc<AppState>, msg_id: &str) -> anyhow::Result<()> 
     // enough; and because no credit hold exists yet, a Reschedule
     // verdict never needs a release.
     let country = routing::country_of(&to);
+
+    // V2.8 — India DLT auto-attach runs BEFORE the kernel so the scrub
+    // validates the attached template.
+    let sender_header: Option<String> = doc
+        .get_str("senderId")
+        .ok()
+        .filter(|s| !s.is_empty())
+        .or_else(|| doc.get_str("from").ok().filter(|s| !s.is_empty()))
+        .map(|s| s.to_string());
+    let doc_dlt_template = doc
+        .get_str("dltTemplateId")
+        .ok()
+        .filter(|s| !s.is_empty())
+        .map(|s| s.to_string());
+    let doc_dlt_entity = doc
+        .get_str("dltEntityId")
+        .ok()
+        .filter(|s| !s.is_empty())
+        .map(|s| s.to_string());
+    let auto_attached: Option<DltParams> =
+        if country == "IN" && doc_dlt_template.is_none() && doc_dlt_entity.is_none() {
+            auto_attach_dlt(state, &workspace_id, &body, sender_header.as_deref()).await
+        } else {
+            None
+        };
+    let effective_dlt_template: Option<String> = doc_dlt_template
+        .clone()
+        .or_else(|| auto_attached.as_ref().and_then(|p| p.template_id.clone()));
+
     let ctx = compliance::MessageContext {
         workspace_id: &workspace_id,
         to_e164: &to,
@@ -220,8 +294,34 @@ async fn process_one(state: &Arc<AppState>, msg_id: &str) -> anyhow::Result<()> 
         provider: doc_provider_id.unwrap_or(ProviderId::Twilio),
         provider_account_id: provider_account_id.as_deref(),
         opt_out_confirmation: doc.get_bool("optOutConfirmation").unwrap_or(false),
+        body: &body,
+        sender_header: sender_header.as_deref(),
+        dlt_template_id: effective_dlt_template.as_deref(),
     };
-    let (verdict, trace) = compliance::pre_send_checks(state, &ctx).await?;
+    let (verdict, mut trace) = compliance::pre_send_checks(state, &ctx).await?;
+    if let Some(params) = auto_attached.as_ref() {
+        trace.push(compliance::TraceEntry::new(
+            "dlt_auto_attached",
+            "allow",
+            Some(format!(
+                "single matching registry template {} auto-attached",
+                params.template_id.as_deref().unwrap_or("?")
+            )),
+        ));
+        // Persist the attachment for audit + DLR reconciliation.
+        let mut set = mongodb::bson::Document::new();
+        if let Some(tid) = params.template_id.as_deref() {
+            set.insert("dltTemplateId", tid);
+        }
+        if let Some(eid) = params.entity_id.as_deref() {
+            set.insert("dltEntityId", eid);
+        }
+        if !set.is_empty() {
+            let _ = messages
+                .update_one(doc! { "_id": &oid }, doc! { "$set": set })
+                .await;
+        }
+    }
     // The trace is persisted regardless of the outcome.
     let trace_bson = mongodb::bson::to_bson(&trace)
         .unwrap_or_else(|_| mongodb::bson::Bson::Array(Vec::new()));
@@ -525,6 +625,20 @@ async fn process_one(state: &Arc<AppState>, msg_id: &str) -> anyhow::Result<()> 
             category,
         };
         let mut send_opts = send_options_from_doc(&doc);
+        // V2.8 — thread the auto-attached DLT params into the adapter
+        // (the doc's own header wins when both carry one).
+        if let Some(params) = auto_attached.as_ref() {
+            let header = send_opts
+                .dlt
+                .as_ref()
+                .and_then(|d| d.header.clone())
+                .or_else(|| params.header.clone());
+            send_opts.dlt = Some(DltParams {
+                entity_id: params.entity_id.clone(),
+                template_id: params.template_id.clone(),
+                header,
+            });
+        }
         // Per-message DLR callback: when the engine's public URL is known and
         // the account carries a webhook secret, point the provider straight at
         // the generic per-account DLR route (no provider-console config needed).

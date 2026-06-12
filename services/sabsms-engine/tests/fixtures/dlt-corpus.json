@@ -1,0 +1,376 @@
+[
+  {
+    "name": "exact match, no variables",
+    "registeredBody": "Your order has been confirmed. Thank you for shopping with SabStore.",
+    "messageBody": "Your order has been confirmed. Thank you for shopping with SabStore.",
+    "expect": "pass"
+  },
+  {
+    "name": "single var in the middle",
+    "registeredBody": "Your OTP is {#var#}. Do not share it with anyone.",
+    "messageBody": "Your OTP is 482913. Do not share it with anyone.",
+    "expect": "pass"
+  },
+  {
+    "name": "var at the very start",
+    "registeredBody": "{#var#} is your SabNode verification code.",
+    "messageBody": "729114 is your SabNode verification code.",
+    "expect": "pass"
+  },
+  {
+    "name": "var at the very end, short fill",
+    "registeredBody": "Hello, your delivery agent is {#var#}",
+    "messageBody": "Hello, your delivery agent is Ramesh",
+    "expect": "pass"
+  },
+  {
+    "name": "var fill of exactly 1 char (minimum)",
+    "registeredBody": "Gate {#var#} is now boarding.",
+    "messageBody": "Gate 7 is now boarding.",
+    "expect": "pass"
+  },
+  {
+    "name": "var fill of exactly 29 chars",
+    "registeredBody": "Ref: {#var#} received.",
+    "messageBody": "Ref: abcdefghijklmnopqrstuvwxyz123 received.",
+    "expect": "pass"
+  },
+  {
+    "name": "var fill of exactly 30 chars (boundary pass)",
+    "registeredBody": "Ref: {#var#} received.",
+    "messageBody": "Ref: abcdefghijklmnopqrstuvwxyz1234 received.",
+    "expect": "pass"
+  },
+  {
+    "name": "var fill of 31 chars (boundary fail)",
+    "registeredBody": "Ref: {#var#} received.",
+    "messageBody": "Ref: abcdefghijklmnopqrstuvwxyz12345 received.",
+    "expect": "fail",
+    "failCheck": "var_too_long"
+  },
+  {
+    "name": "trailing var fill of exactly 30 chars",
+    "registeredBody": "Track your parcel: {#var#}",
+    "messageBody": "Track your parcel: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "expect": "pass"
+  },
+  {
+    "name": "trailing var fill of 31 chars fails",
+    "registeredBody": "Track your parcel: {#var#}",
+    "messageBody": "Track your parcel: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "expect": "fail",
+    "failCheck": "var_too_long"
+  },
+  {
+    "name": "leading var fill of exactly 30 chars",
+    "registeredBody": "{#var#} thanks you for your visit.",
+    "messageBody": "Dr. Sharma Multispecialty Clin thanks you for your visit.",
+    "expect": "pass"
+  },
+  {
+    "name": "two adjacent vars absorb 60 chars combined",
+    "registeredBody": "Ref {#var#}{#var#} ok",
+    "messageBody": "Ref aaaaaaaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbb ok",
+    "expect": "pass"
+  },
+  {
+    "name": "two adjacent vars cannot absorb 61 chars",
+    "registeredBody": "Ref {#var#}{#var#} ok",
+    "messageBody": "Ref aaaaaaaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbX ok",
+    "expect": "fail",
+    "failCheck": "var_too_long"
+  },
+  {
+    "name": "two adjacent vars need at least 2 chars",
+    "registeredBody": "Ref {#var#}{#var#} ok",
+    "messageBody": "Ref ab ok",
+    "expect": "pass"
+  },
+  {
+    "name": "two adjacent vars with only 1 char fail",
+    "registeredBody": "Ref {#var#}{#var#} ok",
+    "messageBody": "Ref a ok",
+    "expect": "fail"
+  },
+  {
+    "name": "three adjacent vars absorb 90 chars",
+    "registeredBody": "ID {#var#}{#var#}{#var#}.",
+    "messageBody": "ID aaaaaaaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbcccccccccccccccccccccccccccccc.",
+    "expect": "pass"
+  },
+  {
+    "name": "three adjacent vars cannot absorb 91 chars",
+    "registeredBody": "ID {#var#}{#var#}{#var#}.",
+    "messageBody": "ID aaaaaaaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbccccccccccccccccccccccccccccccX.",
+    "expect": "fail",
+    "failCheck": "var_too_long"
+  },
+  {
+    "name": "multiline registered matches single-line message (whitespace normalization)",
+    "registeredBody": "Dear {#var#},\nYour appointment is confirmed for {#var#}.\n- SabClinic",
+    "messageBody": "Dear Asha, Your appointment is confirmed for 12 June. - SabClinic",
+    "expect": "pass"
+  },
+  {
+    "name": "extra internal spaces collapse on both sides",
+    "registeredBody": "Your   bill of Rs. {#var#} is   due.",
+    "messageBody": "Your bill of  Rs. 1,240.50  is due.",
+    "expect": "pass"
+  },
+  {
+    "name": "tabs and CRLF normalize to single spaces",
+    "registeredBody": "Account\t{#var#}\r\ncredited with Rs. {#var#}.",
+    "messageBody": "Account XX9182 credited with Rs. 5,000.00.",
+    "expect": "pass"
+  },
+  {
+    "name": "message with leading/trailing whitespace trims clean",
+    "registeredBody": "Flash sale ends tonight!",
+    "messageBody": "   Flash sale ends tonight!   ",
+    "expect": "pass"
+  },
+  {
+    "name": "multiline message matches multiline registered",
+    "registeredBody": "Hi {#var#},\nyour table for {#var#} is reserved.\nSee you soon!",
+    "messageBody": "Hi Rohan,\nyour table for 4 is reserved.\nSee you soon!",
+    "expect": "pass"
+  },
+  {
+    "name": "Hindi fixed text exact match",
+    "registeredBody": "नमस्ते! आपका ऑर्डर सफलतापूर्वक प्राप्त हुआ है।",
+    "messageBody": "नमस्ते! आपका ऑर्डर सफलतापूर्वक प्राप्त हुआ है।",
+    "expect": "pass"
+  },
+  {
+    "name": "Hindi template with Devanagari var fill",
+    "registeredBody": "प्रिय {#var#}, आपका OTP {#var#} है। इसे साझा न करें।",
+    "messageBody": "प्रिय रमेश, आपका OTP ४८२९१३ है। इसे साझा न करें।",
+    "expect": "pass"
+  },
+  {
+    "name": "Hindi var fill of exactly 30 scalar values",
+    "registeredBody": "सूचना: {#var#} पर ध्यान दें।",
+    "messageBody": "सूचना: कककककककककककककककककककककककककककककक पर ध्यान दें।",
+    "expect": "pass"
+  },
+  {
+    "name": "Hindi var fill of 31 scalar values fails",
+    "registeredBody": "सूचना: {#var#} पर ध्यान दें।",
+    "messageBody": "सूचना: ककककककककककककककककककककककककककककककक पर ध्यान दें।",
+    "expect": "fail",
+    "failCheck": "var_too_long"
+  },
+  {
+    "name": "Hindi typo in fixed text fails",
+    "registeredBody": "आपका कोड {#var#} है।",
+    "messageBody": "आपकी कोड 1234 है।",
+    "expect": "fail",
+    "failCheck": "fixed_text_mismatch"
+  },
+  {
+    "name": "URL inside a var (short link, 23 chars)",
+    "registeredBody": "Track here: {#var#} - SabStore",
+    "messageBody": "Track here: https://sab.io/t/abc123 - SabStore",
+    "expect": "pass"
+  },
+  {
+    "name": "URL longer than 30 chars inside a var fails",
+    "registeredBody": "Track here: {#var#} - SabStore",
+    "messageBody": "Track here: https://www.sabstore-tracking.example.com/p/9912 - SabStore",
+    "expect": "fail",
+    "failCheck": "var_too_long"
+  },
+  {
+    "name": "trailing var absorbing a URL",
+    "registeredBody": "Pay your dues at {#var#}",
+    "messageBody": "Pay your dues at https://sab.io/pay/8814",
+    "expect": "pass"
+  },
+  {
+    "name": "uppercase {#VAR#} marker is recognized",
+    "registeredBody": "Your OTP is {#VAR#}.",
+    "messageBody": "Your OTP is 551204.",
+    "expect": "pass"
+  },
+  {
+    "name": "mixed-case {#Var#} marker is recognized",
+    "registeredBody": "Booking {#Var#} confirmed for {#vAr#} guests.",
+    "messageBody": "Booking BK-2231 confirmed for 3 guests.",
+    "expect": "pass"
+  },
+  {
+    "name": "fixed text comparison is case-sensitive",
+    "registeredBody": "hello from sabstore",
+    "messageBody": "Hello from SabStore",
+    "expect": "fail",
+    "failCheck": "fixed_text_mismatch"
+  },
+  {
+    "name": "typo in fixed text (OPT vs OTP)",
+    "registeredBody": "Your OTP is {#var#}. Valid for 10 minutes.",
+    "messageBody": "Your OPT is 482913. Valid for 10 minutes.",
+    "expect": "fail",
+    "failCheck": "fixed_text_mismatch"
+  },
+  {
+    "name": "wrong punctuation in fixed text",
+    "registeredBody": "Thanks for visiting!",
+    "messageBody": "Thanks for visiting.",
+    "expect": "fail",
+    "failCheck": "fixed_text_mismatch"
+  },
+  {
+    "name": "completely different message",
+    "registeredBody": "Your recharge of Rs. {#var#} was successful.",
+    "messageBody": "Mega monsoon sale starts today, up to 70% off!",
+    "expect": "fail",
+    "failCheck": "fixed_text_mismatch"
+  },
+  {
+    "name": "message shorter than the fixed prefix",
+    "registeredBody": "Your electricity bill for {#var#} is ready.",
+    "messageBody": "Your elec",
+    "expect": "fail",
+    "failCheck": "fixed_text_mismatch"
+  },
+  {
+    "name": "extra trailing text after a fully-fixed template",
+    "registeredBody": "Order confirmed.",
+    "messageBody": "Order confirmed. Visit example.com for offers",
+    "expect": "fail",
+    "failCheck": "extra_trailing_text"
+  },
+  {
+    "name": "extra trailing text after the last fixed segment",
+    "registeredBody": "Code {#var#} thanks",
+    "messageBody": "Code 12 thanks bye",
+    "expect": "fail",
+    "failCheck": "extra_trailing_text"
+  },
+  {
+    "name": "marketer appends an unregistered promo tail",
+    "registeredBody": "Dear {#var#}, your policy {#var#} has been renewed.",
+    "messageBody": "Dear Asha, your policy LIC-99231 has been renewed. Refer a friend and win!",
+    "expect": "fail"
+  },
+  {
+    "name": "empty fill where a var is required (mid-template, comma-delimited)",
+    "registeredBody": "Hi {#var#}, welcome aboard.",
+    "messageBody": "Hi , welcome aboard.",
+    "expect": "fail",
+    "failCheck": "var_empty_where_required"
+  },
+  {
+    "name": "empty fill for a leading var",
+    "registeredBody": "{#var#}, your KYC is pending.",
+    "messageBody": ", your KYC is pending.",
+    "expect": "fail",
+    "failCheck": "var_empty_where_required"
+  },
+  {
+    "name": "missing trailing var fill",
+    "registeredBody": "Use code {#var#}",
+    "messageBody": "Use code",
+    "expect": "fail"
+  },
+  {
+    "name": "var fill containing spaces (multi-word name)",
+    "registeredBody": "Welcome {#var#}! Your account is active.",
+    "messageBody": "Welcome Asha Kumari Devi! Your account is active.",
+    "expect": "pass"
+  },
+  {
+    "name": "var fill containing the literal {#var#} token",
+    "registeredBody": "Note: {#var#} saved.",
+    "messageBody": "Note: {#var#} saved.",
+    "expect": "pass"
+  },
+  {
+    "name": "three separated vars in a bank-style template",
+    "registeredBody": "Your a/c XX{#var#} is debited by Rs.{#var#} on {#var#}. Call 1800-111 if not you.",
+    "messageBody": "Your a/c XX9281 is debited by Rs.12,500.00 on 12-Jun-26. Call 1800-111 if not you.",
+    "expect": "pass"
+  },
+  {
+    "name": "bank-style template with one fill over 30 chars",
+    "registeredBody": "Your a/c XX{#var#} is debited by Rs.{#var#} on {#var#}. Call 1800-111 if not you.",
+    "messageBody": "Your a/c XX9281 is debited by Rs.12,500.00 on the twelfth day of June twenty-six. Call 1800-111 if not you.",
+    "expect": "fail",
+    "failCheck": "var_too_long"
+  },
+  {
+    "name": "GSM special chars in fixed text",
+    "registeredBody": "Flat 50% off @ SabStore + free shipping: use {#var#}",
+    "messageBody": "Flat 50% off @ SabStore + free shipping: use SAVE50",
+    "expect": "pass"
+  },
+  {
+    "name": "emoji fill counts in unicode scalar values",
+    "registeredBody": "Offer alert {#var#} ends tonight.",
+    "messageBody": "Offer alert 🎉🎉🎉 ends tonight.",
+    "expect": "pass"
+  },
+  {
+    "name": "empty registered body matches only an empty message",
+    "registeredBody": "",
+    "messageBody": "",
+    "expect": "pass"
+  },
+  {
+    "name": "empty registered body rejects any content",
+    "registeredBody": "",
+    "messageBody": "Hello",
+    "expect": "fail",
+    "failCheck": "extra_trailing_text"
+  },
+  {
+    "name": "whole body is a single var (30 chars)",
+    "registeredBody": "{#var#}",
+    "messageBody": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "expect": "pass"
+  },
+  {
+    "name": "whole body is a single var (31 chars fails)",
+    "registeredBody": "{#var#}",
+    "messageBody": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "expect": "fail",
+    "failCheck": "var_too_long"
+  },
+  {
+    "name": "government-style template exact match",
+    "registeredBody": "Your Aadhaar-linked mobile verification is complete. Ref {#var#}.",
+    "messageBody": "Your Aadhaar-linked mobile verification is complete. Ref UIDAI-22-9-1.",
+    "expect": "pass"
+  },
+  {
+    "name": "ecommerce delivery template, var bounded by punctuation",
+    "registeredBody": "Out for delivery: {#var#}. Expected by {#var#}. - SabKart",
+    "messageBody": "Out for delivery: Order #SK-99281. Expected by 6 PM today. - SabKart",
+    "expect": "pass"
+  },
+  {
+    "name": "reordered sentences fail",
+    "registeredBody": "Payment received. Thank you, {#var#}.",
+    "messageBody": "Thank you, Asha. Payment received.",
+    "expect": "fail"
+  },
+  {
+    "name": "var fill bleeding across a required fixed boundary",
+    "registeredBody": "Use coupon {#var#} before {#var#} only on the app.",
+    "messageBody": "Use coupon FEST50 before midnight only on the website.",
+    "expect": "fail",
+    "failCheck": "fixed_text_mismatch"
+  },
+  {
+    "name": "registered template with var directly between two fixed words",
+    "registeredBody": "Seat {#var#} allotted in coach {#var#}.",
+    "messageBody": "Seat 42B allotted in coach S7.",
+    "expect": "pass"
+  },
+  {
+    "name": "operator CSV export style: NBSP normalizes like whitespace",
+    "registeredBody": "Balance: Rs. {#var#} only.",
+    "messageBody": "Balance: Rs. 740.25 only.",
+    "expect": "pass"
+  }
+]

@@ -2,10 +2,14 @@
 
 import Link from "next/link";
 
-import { CHART_PALETTE, Card, CardBody, CardDescription, CardHeader, CardTitle, Recharts, ChartContainer, ChartTooltip } from '@/components/sabcrm/20ui';
+import { CHART_PALETTE, Card, CardBody, CardDescription, CardHeader, CardTitle, Recharts, ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from '@/components/sabcrm/20ui';
 
 import { TileActions } from "./tile-actions";
 import type { SabsmsCountryBar } from "../aggregations";
+
+const chartConfig = {
+  sent: { label: "Sent", color: CHART_PALETTE[0] },
+} satisfies ChartConfig;
 
 export interface CountryBarTileProps {
   rows: SabsmsCountryBar[];
@@ -47,7 +51,11 @@ export function CountryBarTile({
             No traffic in this window.
           </p>
         ) : (
-          <ChartContainer height={Math.max(180, rows.length * 20)}>
+          <ChartContainer
+            config={chartConfig}
+            className="w-full"
+            style={{ height: Math.max(180, Math.min(rows.length, 20) * 20) }}
+          >
             <Recharts.BarChart
               data={rows.slice(0, 20)}
               layout="vertical"
@@ -71,7 +79,7 @@ export function CountryBarTile({
                 axisLine={false}
                 width={50}
               />
-              <Recharts.Tooltip content={<ChartTooltip />} />
+              <ChartTooltip content={<ChartTooltipContent indicator="dot" />} />
               <Recharts.Bar
                 dataKey="sent"
                 fill={CHART_PALETTE[0]}
