@@ -4,8 +4,8 @@
   "description": "Manage Rundeck API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 2,
-  "lastVerified": "2026-06-11",
+  "version": 3,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "header",
@@ -19,7 +19,7 @@
       "id": "job_execute",
       "label": "Execute Job",
       "method": "POST",
-      "path": "/job",
+      "path": "/api/14/job/{jobid}/run",
       "fields": [
         {
           "id": "jobid",
@@ -27,7 +27,8 @@
           "type": "text",
           "required": true,
           "placeholder": "Rundeck Job ID",
-          "description": "The job ID to execute"
+          "description": "The job ID to execute",
+          "in": "path"
         },
         {
           "id": "arguments",
@@ -45,13 +46,13 @@
         }
       ],
       "group": "Job",
-      "description": "[unverified path] Execute a job"
+      "description": "Execute a job"
     },
     {
       "id": "job_get_metadata",
       "label": "Get Metadata Job",
       "method": "GET",
-      "path": "/job",
+      "path": "/api/18/job/{jobid}/info",
       "fields": [
         {
           "id": "jobid",
@@ -59,11 +60,12 @@
           "type": "text",
           "required": true,
           "placeholder": "Rundeck Job ID",
-          "description": "The job ID to get metadata off"
+          "description": "The job ID to get metadata off",
+          "in": "path"
         }
       ],
       "group": "Job",
-      "description": "[unverified path] Get metadata of a job"
+      "description": "Get metadata of a job"
     }
   ]
 }

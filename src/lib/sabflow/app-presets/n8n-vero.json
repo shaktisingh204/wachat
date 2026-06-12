@@ -4,8 +4,8 @@
   "description": "Consume Vero API",
   "category": "marketing",
   "iconName": "LuPackage",
-  "version": 11,
-  "lastVerified": "2026-06-11",
+  "version": 12,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "header",
@@ -16,8 +16,8 @@
     {
       "id": "user_add_tags",
       "label": "Add Tags User",
-      "method": "POST",
-      "path": "/user",
+      "method": "PUT",
+      "path": "/users/tags/edit",
       "fields": [
         {
           "id": "id",
@@ -35,7 +35,7 @@
         }
       ],
       "group": "User",
-      "description": "[unverified path] Adds a tag to a users profile"
+      "description": "Adds a tag to a users profile"
     },
     {
       "id": "user_alias",
@@ -125,7 +125,7 @@
       "id": "user_resubscribe",
       "label": "Re-Subscribe User",
       "method": "POST",
-      "path": "/user",
+      "path": "/users/resubscribe",
       "fields": [
         {
           "id": "id",
@@ -136,7 +136,7 @@
         }
       ],
       "group": "User",
-      "description": "[unverified path] Resubscribe a user"
+      "description": "Resubscribe a user"
     },
     {
       "id": "user_remove_tags",
@@ -165,8 +165,8 @@
     {
       "id": "user_unsubscribe",
       "label": "Unsubscribe User",
-      "method": "DELETE",
-      "path": "/user",
+      "method": "POST",
+      "path": "/users/unsubscribe",
       "fields": [
         {
           "id": "id",
@@ -177,7 +177,7 @@
         }
       ],
       "group": "User",
-      "description": "[unverified path] Unsubscribe a user"
+      "description": "Unsubscribe a user"
     },
     {
       "id": "event_track",

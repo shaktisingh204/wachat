@@ -26,6 +26,9 @@ pub struct CrmProformaInvoice {
     pub id: Option<ObjectId>,
     #[serde(rename = "userId")]
     pub user_id: ObjectId,
+    /// SabCRM workspace scope; absent on legacy (`userId`-scoped) docs.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub project_id: Option<ObjectId>,
 
     pub proforma_number: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]

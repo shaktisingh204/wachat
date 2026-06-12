@@ -4,8 +4,8 @@
   "description": "Interact with the Currents API for test orchestration and analytics",
   "category": "analytics",
   "iconName": "LuPackage",
-  "version": 11,
-  "lastVerified": "2026-06-11",
+  "version": 12,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "header",
@@ -110,7 +110,7 @@
       "id": "action_delete",
       "label": "Delete Action",
       "method": "DELETE",
-      "path": "/actions/{{{actionId}}}",
+      "path": "/actions/{actionId}",
       "fields": [
         {
           "id": "actionId",
@@ -122,13 +122,13 @@
         }
       ],
       "group": "Action",
-      "description": "[unverified path] Archive an action (soft delete)"
+      "description": "Archive an action (soft delete)"
     },
     {
       "id": "action_disable",
       "label": "Disable Action",
       "method": "PUT",
-      "path": "/actions/{{{actionId}}}/disable",
+      "path": "/actions/{actionId}/disable",
       "fields": [
         {
           "id": "actionId",
@@ -140,13 +140,13 @@
         }
       ],
       "group": "Action",
-      "description": "[unverified path] Deactivate an active action"
+      "description": "Deactivate an active action"
     },
     {
       "id": "action_enable",
       "label": "Enable Action",
       "method": "PUT",
-      "path": "/actions/{{{actionId}}}/enable",
+      "path": "/actions/{actionId}/enable",
       "fields": [
         {
           "id": "actionId",
@@ -158,13 +158,13 @@
         }
       ],
       "group": "Action",
-      "description": "[unverified path] Reactivate a disabled action"
+      "description": "Reactivate a disabled action"
     },
     {
       "id": "action_get",
       "label": "Get Action",
       "method": "GET",
-      "path": "/actions/{{{actionId}}}",
+      "path": "/actions/{actionId}",
       "fields": [
         {
           "id": "actionId",
@@ -176,7 +176,7 @@
         }
       ],
       "group": "Action",
-      "description": "[unverified path] Get a single action by ID"
+      "description": "Get a single action by ID"
     },
     {
       "id": "action_get_all",
@@ -207,7 +207,7 @@
       "id": "action_update",
       "label": "Update Action",
       "method": "PUT",
-      "path": "/actions/{{{actionId}}}",
+      "path": "/actions/{actionId}",
       "fields": [
         {
           "id": "actionId",
@@ -226,13 +226,13 @@
         }
       ],
       "group": "Action",
-      "description": "[unverified path] Update an existing action"
+      "description": "Update an existing action"
     },
     {
       "id": "instance_get",
       "label": "Get Instance",
       "method": "GET",
-      "path": "/instances/{{{instanceId}}}",
+      "path": "/instances/{instanceId}",
       "fields": [
         {
           "id": "instanceId",
@@ -244,13 +244,13 @@
         }
       ],
       "group": "Instance",
-      "description": "[unverified path] Get a spec file execution instance with full test results"
+      "description": "Get a spec file execution instance with full test results"
     },
     {
       "id": "project_get",
       "label": "Get Project",
       "method": "GET",
-      "path": "/projects/{{{projectId}}}",
+      "path": "/projects/{projectId}",
       "fields": [
         {
           "id": "projectId",
@@ -262,7 +262,7 @@
         }
       ],
       "group": "Project",
-      "description": "[unverified path] Get a project by ID"
+      "description": "Get a project by ID"
     },
     {
       "id": "project_get_all",
@@ -286,7 +286,7 @@
       "id": "project_get_insights",
       "label": "Get Insights Project",
       "method": "GET",
-      "path": "/projects/{{{projectId}}}/insights",
+      "path": "/projects/{projectId}/insights",
       "fields": [
         {
           "id": "projectId",
@@ -323,13 +323,13 @@
         }
       ],
       "group": "Project",
-      "description": "[unverified path] Get project insights and metrics"
+      "description": "Get project insights and metrics"
     },
     {
       "id": "run_cancel",
       "label": "Cancel Run",
       "method": "PUT",
-      "path": "/runs/{{{runId}}}/cancel",
+      "path": "/runs/{runId}/cancel",
       "fields": [
         {
           "id": "runId",
@@ -341,7 +341,7 @@
         }
       ],
       "group": "Run",
-      "description": "[unverified path] Cancel a run in progress"
+      "description": "Cancel a run in progress"
     },
     {
       "id": "run_cancel_github",
@@ -381,7 +381,7 @@
       "id": "run_delete",
       "label": "Delete Run",
       "method": "DELETE",
-      "path": "/runs/{{{runId}}}",
+      "path": "/runs/{runId}",
       "fields": [
         {
           "id": "runId",
@@ -393,7 +393,7 @@
         }
       ],
       "group": "Run",
-      "description": "[unverified path] Delete a run and all associated data"
+      "description": "Delete a run and all associated data"
     },
     {
       "id": "run_find",
@@ -424,7 +424,7 @@
       "id": "run_get",
       "label": "Get Run",
       "method": "GET",
-      "path": "/runs/{{{runId}}}",
+      "path": "/runs/{runId}",
       "fields": [
         {
           "id": "runId",
@@ -436,13 +436,13 @@
         }
       ],
       "group": "Run",
-      "description": "[unverified path] Get a run by ID"
+      "description": "Get a run by ID"
     },
     {
       "id": "run_get_all",
       "label": "Get Many Run",
       "method": "GET",
-      "path": "/projects/{{{projectId}}}/runs",
+      "path": "/projects/{projectId}/runs",
       "fields": [
         {
           "id": "projectId",
@@ -476,13 +476,13 @@
         }
       ],
       "group": "Run",
-      "description": "[unverified path] Get many runs for a project"
+      "description": "Get many runs for a project"
     },
     {
       "id": "run_reset",
       "label": "Reset Run",
       "method": "PUT",
-      "path": "/runs/{{{runId}}}/reset",
+      "path": "/runs/{runId}/reset",
       "fields": [
         {
           "id": "runId",
@@ -509,7 +509,7 @@
         }
       ],
       "group": "Run",
-      "description": "[unverified path] Reset failed specs for re-execution on specified machines"
+      "description": "Reset failed specs for re-execution on specified machines"
     },
     {
       "id": "signature_generate",
@@ -551,7 +551,7 @@
       "id": "spec_file_get_all",
       "label": "Get Many Spec File",
       "method": "GET",
-      "path": "/spec-files/{{{projectId}}}",
+      "path": "/spec-files/{projectId}",
       "fields": [
         {
           "id": "projectId",
@@ -603,13 +603,13 @@
         }
       ],
       "group": "Spec File",
-      "description": "[unverified path] Get aggregated spec file metrics for a project"
+      "description": "Get aggregated spec file metrics for a project"
     },
     {
       "id": "test_get_all",
       "label": "Get Many Test",
       "method": "GET",
-      "path": "/tests/{{{projectId}}}",
+      "path": "/tests/{projectId}",
       "fields": [
         {
           "id": "projectId",
@@ -661,13 +661,13 @@
         }
       ],
       "group": "Test",
-      "description": "[unverified path] Get aggregated test metrics for a project"
+      "description": "Get aggregated test metrics for a project"
     },
     {
       "id": "test_result_get_all",
       "label": "Get Many Test Result",
       "method": "GET",
-      "path": "/test-results/{{{signature}}}",
+      "path": "/test-results/{signature}",
       "fields": [
         {
           "id": "signature",
@@ -719,7 +719,7 @@
         }
       ],
       "group": "Test Result",
-      "description": "[unverified path] Get historical test execution results for a specific test signature"
+      "description": "Get historical test execution results for a specific test signature"
     }
   ]
 }

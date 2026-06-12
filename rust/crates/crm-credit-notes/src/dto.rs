@@ -32,6 +32,12 @@ pub const MAX_LIMIT: i64 = 100;
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ListQuery {
+    /// SabCRM tenant scope (24-char hex `ObjectId`). **Required** when
+    /// the router is mounted in `ScopeMode::Project` (the
+    /// `/v1/sabcrm/finance/credit-notes` mount); ignored on the legacy
+    /// `userId`-scoped `/v1/crm/credit-notes` mount.
+    #[serde(default)]
+    pub project_id: Option<String>,
     /// 1-indexed page (matches TS). Defaults to `1`.
     #[serde(default)]
     pub page: Option<u32>,
@@ -51,6 +57,18 @@ pub struct ListQuery {
     pub status: Option<String>,
 }
 
+/// Query string for the single-document routes (`GET` / `PATCH` /
+/// `DELETE /{cnId}`). Carries only the SabCRM tenant scope —
+/// **required** under `ScopeMode::Project`, ignored on the legacy
+/// `userId`-scoped mount.
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ScopeQuery {
+    /// SabCRM tenant scope (24-char hex `ObjectId`).
+    #[serde(default)]
+    pub project_id: Option<String>,
+}
+
 /// `POST /v1/crm/credit-notes` body. The endpoint accepts a curated
 /// subset of the full [`crm_sales_types::CreditNote`] fields — enough to
 /// drive the existing "Add Credit Note" UI without exposing the heavy
@@ -66,6 +84,16 @@ pub struct ListQuery {
 #[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CreateCreditNoteInput {
+    /* ----- identity ----- */
+    /// Optional override of the project scope. **Required** when the
+    /// router is mounted in `ScopeMode::Project` (the
+    /// `/v1/sabcrm/finance/credit-notes` mount — it IS the tenant
+    /// scope). On the legacy mount, when absent, the create handler
+    /// stamps a freshly minted `ObjectId` so the document is at least
+    /// syntactically valid.
+    #[serde(default)]
+    pub project_id: Option<String>,
+
     /* ----- doc number + dates (★ required) ----- */
     /// Human-readable credit-note number (e.g. `"CN-00001"`). The
     /// caller is responsible for sequence allocation; the handler does

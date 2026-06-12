@@ -4,8 +4,8 @@
   "description": "Consume Google Docs API.",
   "category": "productivity",
   "iconName": "LuPackage",
-  "version": 11,
-  "lastVerified": "2026-06-11",
+  "version": 12,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -16,13 +16,13 @@
       "credentialType": "http_header_auth"
     }
   },
-  "baseUrl": "https://oauth2.googleapis.com/token",
+  "baseUrl": "https://docs.googleapis.com/v1",
   "endpoints": [
     {
       "id": "document_create",
       "label": "Create Document",
       "method": "POST",
-      "path": "/document",
+      "path": "/documents",
       "fields": [
         {
           "id": "driveId",
@@ -47,7 +47,7 @@
         }
       ],
       "group": "Document",
-      "description": "[unverified path] Create a document"
+      "description": "Create a document"
     },
     {
       "id": "document_get",

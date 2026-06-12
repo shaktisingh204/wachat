@@ -48,6 +48,7 @@ pub mod identity;
 pub mod lifecycle;
 pub mod lineage;
 pub mod note;
+pub mod scope;
 pub mod tagging;
 
 pub use assignment::Assignment;
@@ -59,4 +60,5 @@ pub use identity::Identity;
 pub use lifecycle::{Lifecycle, Priority, SoftDelete, Status};
 pub use lineage::{LineageRef, append_lineage, build_lineage_from_parent};
 pub use note::Note;
+pub use scope::{ScopeMode, TenantScope, sabcrm_project_oid};
 pub use tagging::Tags;

@@ -40,7 +40,7 @@ export interface SabcrmAttachment {
 export interface SabcrmRustActivity {
   id: string;
   projectId: string;
-  /** NOTE | TASK | CALL | MEETING | EMAIL | COMMENT. */
+  /** NOTE | TASK | CALL | MEETING | EMAIL | COMMENT | WHATSAPP. */
   type: string;
   title: string;
   body?: string;
@@ -66,7 +66,7 @@ export interface SabcrmActivityListParams {
   targetObject?: string;
   /** Serialized id of the record whose timeline to read (optional). */
   targetRecordId?: string;
-  /** Optional `type` filter (NOTE | TASK | CALL | MEETING | EMAIL | COMMENT). */
+  /** Optional `type` filter (NOTE | TASK | CALL | MEETING | EMAIL | COMMENT | WHATSAPP). */
   type?: string;
   /** Page size. Clamped at 200 server-side; defaults to 50. */
   limit?: number;
@@ -75,7 +75,7 @@ export interface SabcrmActivityListParams {
 /** `POST /` body — create a timeline activity. */
 export interface SabcrmActivityCreateInput {
   projectId: string;
-  /** Entry kind (NOTE | TASK | CALL | MEETING | EMAIL | COMMENT). */
+  /** Entry kind (NOTE | TASK | CALL | MEETING | EMAIL | COMMENT | WHATSAPP). */
   type: string;
   title: string;
   body?: string;

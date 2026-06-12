@@ -17,6 +17,18 @@ pub struct ListQuery {
     pub status: Option<String>,
     #[serde(default)]
     pub account_type: Option<String>,
+    /// SabCRM (project) mounts only — required there, ignored on legacy.
+    #[serde(default)]
+    pub project_id: Option<String>,
+}
+
+/// Scope carrier for get/update/delete on SabCRM (project) mounts —
+/// `?projectId=<oid>`. Ignored on the legacy (`userId`) mount.
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ScopeQuery {
+    #[serde(default)]
+    pub project_id: Option<String>,
 }
 
 #[derive(Debug, Clone, Default, Deserialize)]
@@ -24,6 +36,9 @@ pub struct ListQuery {
 pub struct CreateAccountInput {
     pub account_name: String,
     pub account_type: String,
+    /// SabCRM (project) mounts only — required there, ignored on legacy.
+    #[serde(default)]
+    pub project_id: Option<String>,
     #[serde(default)]
     pub opening_balance: Option<f64>,
     #[serde(default)]

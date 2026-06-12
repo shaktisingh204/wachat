@@ -4,8 +4,8 @@
   "description": "Consume Mailchimp API",
   "category": "marketing",
   "iconName": "LuPackage",
-  "version": 11,
-  "lastVerified": "2026-06-11",
+  "version": 12,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -22,7 +22,7 @@
       "id": "member_create",
       "label": "Create Member",
       "method": "POST",
-      "path": "/member",
+      "path": "/lists/{listId}/members",
       "fields": [
         {
           "id": "list",
@@ -119,13 +119,13 @@
         }
       ],
       "group": "Member",
-      "description": "[unverified path] Create a new member on list"
+      "description": "Create a new member on list"
     },
     {
       "id": "member_delete",
       "label": "Delete Member",
-      "method": "DELETE",
-      "path": "/member",
+      "method": "POST",
+      "path": "/lists/{listId}/members/{email}/actions/delete-permanent",
       "fields": [
         {
           "id": "list",
@@ -140,17 +140,18 @@
           "type": "text",
           "required": true,
           "placeholder": "name@email.com",
-          "description": "Member's email"
+          "description": "Member's email",
+          "in": "path"
         }
       ],
       "group": "Member",
-      "description": "[unverified path] Delete a member on list"
+      "description": "Delete a member on list"
     },
     {
       "id": "member_get",
       "label": "Get Member",
       "method": "GET",
-      "path": "/member",
+      "path": "/lists/{listId}/members/{email}",
       "fields": [
         {
           "id": "list",
@@ -165,7 +166,8 @@
           "type": "text",
           "required": true,
           "placeholder": "name@email.com",
-          "description": "Member's email"
+          "description": "Member's email",
+          "in": "path"
         },
         {
           "id": "options",
@@ -176,7 +178,7 @@
         }
       ],
       "group": "Member",
-      "description": "[unverified path] Get a member on list"
+      "description": "Get a member on list"
     },
     {
       "id": "member_get_all",
@@ -219,8 +221,8 @@
     {
       "id": "member_update",
       "label": "Update Member",
-      "method": "PATCH",
-      "path": "/member",
+      "method": "PUT",
+      "path": "/lists/{listId}/members/{email}",
       "fields": [
         {
           "id": "list",
@@ -235,7 +237,8 @@
           "type": "text",
           "required": true,
           "placeholder": "name@email.com",
-          "description": "Email address of the subscriber"
+          "description": "Email address of the subscriber",
+          "in": "path"
         },
         {
           "id": "jsonParameters",
@@ -267,13 +270,13 @@
         }
       ],
       "group": "Member",
-      "description": "[unverified path] Update a new member on list"
+      "description": "Update a new member on list"
     },
     {
       "id": "member_tag_create",
       "label": "Create Member Tag",
       "method": "POST",
-      "path": "/member-tag",
+      "path": "/lists/{listId}/members/{email}/tags",
       "fields": [
         {
           "id": "list",
@@ -288,7 +291,8 @@
           "type": "text",
           "required": true,
           "placeholder": "name@email.com",
-          "description": "Email address of the subscriber"
+          "description": "Email address of the subscriber",
+          "in": "path"
         },
         {
           "id": "tags",
@@ -304,13 +308,13 @@
         }
       ],
       "group": "Member Tag",
-      "description": "[unverified path] Add tags from a list member"
+      "description": "Add tags from a list member"
     },
     {
       "id": "member_tag_delete",
       "label": "Delete Member Tag",
-      "method": "DELETE",
-      "path": "/member-tag",
+      "method": "POST",
+      "path": "/lists/{listId}/members/{email}/tags",
       "fields": [
         {
           "id": "list",
@@ -325,7 +329,8 @@
           "type": "text",
           "required": true,
           "placeholder": "name@email.com",
-          "description": "Email address of the subscriber"
+          "description": "Email address of the subscriber",
+          "in": "path"
         },
         {
           "id": "tags",
@@ -341,7 +346,7 @@
         }
       ],
       "group": "Member Tag",
-      "description": "[unverified path] Remove tags from a list member"
+      "description": "Remove tags from a list member"
     },
     {
       "id": "list_group_get_all",
@@ -385,35 +390,37 @@
       "id": "campaign_delete",
       "label": "Delete Campaign",
       "method": "DELETE",
-      "path": "/campaign",
+      "path": "/campaigns/{campaignId}",
       "fields": [
         {
           "id": "campaignId",
           "label": "Campaign ID",
           "type": "text",
           "required": true,
-          "description": "List of Campaigns"
+          "description": "List of Campaigns",
+          "in": "path"
         }
       ],
       "group": "Campaign",
-      "description": "[unverified path] Delete a campaign"
+      "description": "Delete a campaign"
     },
     {
       "id": "campaign_get",
       "label": "Get Campaign",
       "method": "GET",
-      "path": "/campaign",
+      "path": "/campaigns/{campaignId}",
       "fields": [
         {
           "id": "campaignId",
           "label": "Campaign ID",
           "type": "text",
           "required": true,
-          "description": "List of Campaigns"
+          "description": "List of Campaigns",
+          "in": "path"
         }
       ],
       "group": "Campaign",
-      "description": "[unverified path] Get a campaign"
+      "description": "Get a campaign"
     },
     {
       "id": "campaign_get_all",
@@ -450,52 +457,55 @@
       "id": "campaign_replicate",
       "label": "Replicate Campaign",
       "method": "POST",
-      "path": "/campaign",
+      "path": "/campaigns/{campaignId}/actions/replicate",
       "fields": [
         {
           "id": "campaignId",
           "label": "Campaign ID",
           "type": "text",
           "required": true,
-          "description": "List of Campaigns"
+          "description": "List of Campaigns",
+          "in": "path"
         }
       ],
       "group": "Campaign",
-      "description": "[unverified path] Replicate a campaign"
+      "description": "Replicate a campaign"
     },
     {
       "id": "campaign_resend",
       "label": "Resend Campaign",
       "method": "POST",
-      "path": "/campaign",
+      "path": "/campaigns/{campaignId}/actions/create-resend",
       "fields": [
         {
           "id": "campaignId",
           "label": "Campaign ID",
           "type": "text",
           "required": true,
-          "description": "List of Campaigns"
+          "description": "List of Campaigns",
+          "in": "path"
         }
       ],
       "group": "Campaign",
-      "description": "[unverified path] Creates a Resend to Non-Openers version of this campaign"
+      "description": "Creates a Resend to Non-Openers version of this campaign"
     },
     {
       "id": "campaign_send",
       "label": "Send Campaign",
       "method": "POST",
-      "path": "/campaign",
+      "path": "/campaigns/{campaignId}/actions/send",
       "fields": [
         {
           "id": "campaignId",
           "label": "Campaign ID",
           "type": "text",
           "required": true,
-          "description": "List of Campaigns"
+          "description": "List of Campaigns",
+          "in": "path"
         }
       ],
       "group": "Campaign",
-      "description": "[unverified path] Send a campaign"
+      "description": "Send a campaign"
     }
   ]
 }

@@ -47,6 +47,9 @@ export * from './premium';
 export * from './table';
 export * from './combobox';
 export * from './popover';
+// Portal-anchored popover primitive (moved in from the legacy twenty/ kit;
+// `twenty/st-portal-popover.tsx` now re-exports this same implementation).
+export * from './portal-popover';
 export * from './resizable';
 export * from './form';
 export * from './slider';

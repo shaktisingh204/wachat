@@ -962,7 +962,7 @@ function ObjectPermissionBlock({
                         <Td key={c.key} align="center">
                           <TriCell
                             value={tri}
-                            disabled={role.isDefault}
+                            disabled={role.isDefault === true}
                             busy={cellBusy}
                             label={`${obj.labelSingular || obj.slug} ${c.label}`}
                             onChange={(next) =>
@@ -1144,7 +1144,7 @@ function FieldPermissionBlock({
                             <Td key={c.key} align="center">
                               <TriCell
                                 value={tri}
-                                disabled={role.isDefault}
+                                disabled={role.isDefault === true}
                                 busy={cellBusy}
                                 label={`${f.label || f.key} ${c.label}`}
                                 onChange={(next) =>

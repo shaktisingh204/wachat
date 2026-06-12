@@ -1,0 +1,252 @@
+/* =========================================================================
+   ViewBar + FilterBuilder — toolbar row + filter-tree editor
+   (composites/record).
+
+   Calm, dense, Linear-grade. Tokens only (--st-* / --u-*); dark mode comes
+   for free through the token layer. Every rule is scoped under the 20ui
+   roots — `:is(.\32 0ui, .ui20)` — NEVER a bare `.20ui.foo` compound (the
+   leading digit breaks the selector; see 20ui scope-rename fallout).
+
+   Both popover panels (Filter / Sort / view naming) portal to <body> inside
+   a `20ui sabcrm-twenty` wrapper, so the same scoping net matches there too.
+   ========================================================================= */
+
+/* ------------------------------------------------------------ the bar row */
+
+:is(.\32 0ui, .ui20) .vb {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  min-height: 40px;
+  padding: var(--st-space-1) 0;
+  font-family: var(--st-font);
+  font-size: var(--st-font-size);
+  color: var(--st-text);
+}
+
+:is(.\32 0ui, .ui20) .vb__spacer {
+  flex: 1;
+  min-width: var(--st-space-2);
+}
+
+:is(.\32 0ui, .ui20) .vb__divider {
+  flex: none;
+  width: 1px;
+  height: 18px;
+  background: var(--st-border);
+}
+
+:is(.\32 0ui, .ui20) .vb__trailing {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+}
+
+/* The saved-view trigger keeps long names from stretching the bar. */
+:is(.\32 0ui, .ui20) .vb-view-trigger {
+  max-width: 220px;
+}
+
+:is(.\32 0ui, .ui20) .vb-view-trigger .u-btn__label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Active-count pill inside the Filter / Sort buttons. */
+:is(.\32 0ui, .ui20) .vb-count {
+  margin-left: 6px;
+}
+
+/* Quick-search input — fixed comfortable width, never squishes the bar. */
+:is(.\32 0ui, .ui20) .vb-search {
+  width: 200px;
+}
+
+/* Group-by select stays content-sized (Select is non-block in toolbars). */
+:is(.\32 0ui, .ui20) .vb-group {
+  max-width: 180px;
+}
+
+/* ------------------------------------------------------- popover scaffolds */
+
+/* Panels portal to <body>; the wrapper carries `20ui sabcrm-twenty`. */
+:is(.\32 0ui, .ui20) .vb-pop {
+  display: grid;
+  gap: var(--st-space-2);
+  padding: var(--st-space-3);
+}
+
+/* The filter panel needs room for field + op + value rows (u-popover caps
+   at 360px by default). */
+:is(.\32 0ui, .ui20) .vb-pop--filter {
+  width: min(620px, calc(100vw - var(--st-space-4)));
+  max-width: min(620px, calc(100vw - var(--st-space-4)));
+}
+
+:is(.\32 0ui, .ui20) .vb-pop--sort {
+  width: min(460px, calc(100vw - var(--st-space-4)));
+  max-width: min(460px, calc(100vw - var(--st-space-4)));
+}
+
+:is(.\32 0ui, .ui20) .vb-pop__title {
+  margin: 0;
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text-secondary);
+}
+
+:is(.\32 0ui, .ui20) .vb-pop__empty {
+  margin: 0;
+  padding: var(--st-space-2) 0;
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-tertiary);
+}
+
+:is(.\32 0ui, .ui20) .vb-pop__foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--st-space-2);
+  padding-top: var(--st-space-2);
+  border-top: 1px solid var(--st-border-light);
+}
+
+:is(.\32 0ui, .ui20) .vb-pop__foot--between {
+  justify-content: space-between;
+}
+
+/* "Save view as…" / "Rename view" inline form. */
+:is(.\32 0ui, .ui20) .vb-name-form {
+  display: grid;
+  gap: var(--st-space-2);
+  min-width: 240px;
+}
+
+/* Saved-views menu rows. */
+:is(.\32 0ui, .ui20) .vb-view-menu__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+:is(.\32 0ui, .ui20) .vb-view-menu__default {
+  margin-left: auto;
+  padding-left: var(--st-space-3);
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-tertiary);
+}
+
+/* -------------------------------------------------------------- sort rows */
+
+:is(.\32 0ui, .ui20) .vb-sort {
+  display: grid;
+  gap: var(--st-space-2);
+}
+
+:is(.\32 0ui, .ui20) .vb-sort__row {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+}
+
+:is(.\32 0ui, .ui20) .vb-sort__lead {
+  flex: none;
+  width: 52px;
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-tertiary);
+  text-align: right;
+}
+
+:is(.\32 0ui, .ui20) .vb-sort__field {
+  flex: 1;
+  min-width: 0;
+}
+
+:is(.\32 0ui, .ui20) .vb-sort__order {
+  display: inline-flex;
+  flex: none;
+}
+
+/* ====================================================== FilterBuilder (fb) */
+
+:is(.\32 0ui, .ui20) .fb {
+  display: grid;
+  gap: var(--st-space-2);
+  min-width: 0;
+  font-size: var(--st-font-size-sm);
+}
+
+:is(.\32 0ui, .ui20) .fb-group {
+  display: grid;
+  gap: var(--st-space-2);
+  min-width: 0;
+}
+
+/* Nested groups read as one indented card. */
+:is(.\32 0ui, .ui20) .fb-group--nested {
+  padding: var(--st-space-2) var(--st-space-3);
+  border: 1px solid var(--st-border-light);
+  border-radius: var(--st-radius);
+  background: var(--st-bg-secondary);
+}
+
+:is(.\32 0ui, .ui20) .fb-group__head {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+}
+
+:is(.\32 0ui, .ui20) .fb-group__lead {
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-tertiary);
+}
+
+:is(.\32 0ui, .ui20) .fb-group__remove {
+  margin-left: auto;
+}
+
+:is(.\32 0ui, .ui20) .fb-row {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  min-width: 0;
+}
+
+:is(.\32 0ui, .ui20) .fb-row__lead {
+  flex: none;
+  width: 48px;
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-tertiary);
+  text-align: right;
+}
+
+:is(.\32 0ui, .ui20) .fb-row__field {
+  flex: 0 1 170px;
+  min-width: 110px;
+}
+
+:is(.\32 0ui, .ui20) .fb-row__op {
+  flex: 0 1 140px;
+  min-width: 96px;
+}
+
+:is(.\32 0ui, .ui20) .fb-row__value {
+  flex: 1 1 140px;
+  min-width: 110px;
+}
+
+:is(.\32 0ui, .ui20) .fb-row__remove {
+  flex: none;
+}
+
+:is(.\32 0ui, .ui20) .fb-adds {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-1);
+}
+
+:is(.\32 0ui, .ui20) .fb-empty {
+  padding: var(--st-space-2) 0;
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-tertiary);
+}

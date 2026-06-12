@@ -11,8 +11,8 @@ export const metadata = {
  * {@link SabcrmHomeClient} (client) — it reads the workspace's real objects +
  * record counts; this server entry only carries route `metadata`.
  *
- * Rendered inside the layout's `TwentyAppFrame` (`.sabcrm-twenty` scope), so
- * all visuals come from the `.st-*` Twenty design system. No Ui20 / Tailwind.
+ * Rendered inside the layout's suite frame on the 20ui design system
+ * (`@/components/sabcrm/20ui` components + page-local `hub.css`).
  */
 export default function SabcrmHomePage(): React.JSX.Element {
   return <SabcrmHomeClient />;

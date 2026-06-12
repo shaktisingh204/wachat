@@ -4,8 +4,8 @@
   "description": "Read, update, write and delete data from NocoDB",
   "category": "data",
   "iconName": "LuPackage",
-  "version": 4,
-  "lastVerified": "2026-06-11",
+  "version": 5,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "header",
@@ -17,7 +17,7 @@
       "id": "row_create",
       "label": "Create Row",
       "method": "POST",
-      "path": "/row",
+      "path": "/api/v1/db/data/noco/{projectId}/{table}",
       "fields": [
         {
           "id": "host",
@@ -59,14 +59,16 @@
           "label": "Base Name or ID",
           "type": "select",
           "required": true,
-          "description": "Choose from the list, or specify an ID using an expression"
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
         },
         {
           "id": "table",
           "label": "Table Name or ID",
           "type": "select",
           "required": true,
-          "description": "The table to operate on. Choose from the list, or specify an ID using an expression."
+          "description": "The table to operate on. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
         },
         {
           "id": "dataToSend",
@@ -101,13 +103,13 @@
         }
       ],
       "group": "Row",
-      "description": "[unverified path] Create a row"
+      "description": "Create a row"
     },
     {
       "id": "row_delete",
       "label": "Delete Row",
       "method": "DELETE",
-      "path": "/row",
+      "path": "/api/v1/db/data/noco/{projectId}/{table}/{id}",
       "fields": [
         {
           "id": "host",
@@ -149,14 +151,16 @@
           "label": "Base Name or ID",
           "type": "select",
           "required": true,
-          "description": "Choose from the list, or specify an ID using an expression"
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
         },
         {
           "id": "table",
           "label": "Table Name or ID",
           "type": "select",
           "required": true,
-          "description": "The table to operate on. Choose from the list, or specify an ID using an expression."
+          "description": "The table to operate on. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
         },
         {
           "id": "primaryKey",
@@ -188,17 +192,18 @@
           "label": "Row ID Value",
           "type": "text",
           "required": true,
-          "description": "The value of the ID field"
+          "description": "The value of the ID field",
+          "in": "path"
         }
       ],
       "group": "Row",
-      "description": "[unverified path] Delete a row"
+      "description": "Delete a row"
     },
     {
       "id": "row_get",
       "label": "Get Row",
       "method": "GET",
-      "path": "/row",
+      "path": "/api/v1/db/data/noco/{projectId}/{table}/{id}",
       "fields": [
         {
           "id": "host",
@@ -240,21 +245,24 @@
           "label": "Base Name or ID",
           "type": "select",
           "required": true,
-          "description": "Choose from the list, or specify an ID using an expression"
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
         },
         {
           "id": "table",
           "label": "Table Name or ID",
           "type": "select",
           "required": true,
-          "description": "The table to operate on. Choose from the list, or specify an ID using an expression."
+          "description": "The table to operate on. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
         },
         {
           "id": "id",
           "label": "Row ID Value",
           "type": "text",
           "required": true,
-          "description": "The value of the ID field"
+          "description": "The value of the ID field",
+          "in": "path"
         },
         {
           "id": "downloadAttachments",
@@ -272,13 +280,13 @@
         }
       ],
       "group": "Row",
-      "description": "[unverified path] Retrieve a row"
+      "description": "Retrieve a row"
     },
     {
       "id": "row_get_all",
       "label": "Get Many Row",
       "method": "GET",
-      "path": "/row",
+      "path": "/api/v1/db/data/noco/{projectId}/{table}",
       "fields": [
         {
           "id": "host",
@@ -320,14 +328,16 @@
           "label": "Base Name or ID",
           "type": "select",
           "required": true,
-          "description": "Choose from the list, or specify an ID using an expression"
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
         },
         {
           "id": "table",
           "label": "Table Name or ID",
           "type": "select",
           "required": true,
-          "description": "The table to operate on. Choose from the list, or specify an ID using an expression."
+          "description": "The table to operate on. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
         },
         {
           "id": "returnAll",
@@ -366,13 +376,13 @@
         }
       ],
       "group": "Row",
-      "description": "[unverified path] Retrieve many rows"
+      "description": "Retrieve many rows"
     },
     {
       "id": "row_update",
       "label": "Update Row",
       "method": "PATCH",
-      "path": "/row",
+      "path": "/api/v1/db/data/noco/{projectId}/{table}/{id}",
       "fields": [
         {
           "id": "host",
@@ -414,14 +424,16 @@
           "label": "Base Name or ID",
           "type": "select",
           "required": true,
-          "description": "Choose from the list, or specify an ID using an expression"
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
         },
         {
           "id": "table",
           "label": "Table Name or ID",
           "type": "select",
           "required": true,
-          "description": "The table to operate on. Choose from the list, or specify an ID using an expression."
+          "description": "The table to operate on. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
         },
         {
           "id": "primaryKey",
@@ -453,7 +465,8 @@
           "label": "Row ID Value",
           "type": "text",
           "required": true,
-          "description": "The value of the ID field"
+          "description": "The value of the ID field",
+          "in": "path"
         },
         {
           "id": "dataToSend",
@@ -488,7 +501,7 @@
         }
       ],
       "group": "Row",
-      "description": "[unverified path] Update a row"
+      "description": "Update a row"
     }
   ]
 }

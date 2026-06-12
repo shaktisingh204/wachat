@@ -16,12 +16,15 @@
 //! — the CRM tenant root from `crm-core::Identity`.
 
 use axum::{
-    Json,
+    Extension, Json,
     extract::{Path, Query, State},
 };
 use bson::{Bson, Document, doc, oid::ObjectId};
 use chrono::Utc;
-use crm_core::{Assignment, Audit, Identity, LineageRef, build_lineage_from_parent};
+use crm_core::{
+    Assignment, Audit, Identity, LineageRef, ScopeMode, TenantScope, build_lineage_from_parent,
+    sabcrm_project_oid,
+};
 use crm_purchases_types::{PayoutReceipt, PayoutStatus};
 use futures::TryStreamExt;
 use mongodb::options::FindOptions;
@@ -30,7 +33,7 @@ use sabnode_common::{ApiError, Result};
 use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
 use tracing::{instrument, warn};
 
-use crate::dto::{CreatePayoutInput, DEFAULT_LIMIT, ListQuery, MAX_LIMIT, UpdatePayoutInput};
+use crate::dto::{CreatePayoutInput, DEFAULT_LIMIT, ListQuery, MAX_LIMIT, ScopeQuery, UpdatePayoutInput};
 
 /// Mongo collection name. Must match the TS `crm-payouts.actions.ts`
 /// literal so the Rust BFF and the legacy Next.js action share the
@@ -54,6 +57,16 @@ fn user_oid(user: &AuthUser) -> Result<ObjectId> {
         .map_err(|_| ApiError::Unauthorized("subject is not a valid ObjectId".to_owned()))
 }
 
+/// Resolve the per-request tenant scope from the mount's [`ScopeMode`]:
+/// legacy mounts filter by the JWT's `userId`, SabCRM mounts by the
+/// caller-supplied (required) `projectId`.
+fn resolve_scope(mode: ScopeMode, user: &AuthUser, project_id: Option<&str>) -> Result<TenantScope> {
+    match mode {
+        ScopeMode::User => Ok(TenantScope::User(user_oid(user)?)),
+        ScopeMode::Project => Ok(TenantScope::Project(sabcrm_project_oid(project_id)?)),
+    }
+}
+
 /// Clamp `requested` page-size into `[1, MAX_LIMIT]`, defaulting to
 /// [`DEFAULT_LIMIT`] when absent. Returns an `i64` to match the
 /// `mongodb` driver's `FindOptions::limit` signature.
@@ -68,11 +81,10 @@ fn clamp_limit(requested: Option<u32>) -> i64 {
 /// `{ userId, archived: { $ne: true } }`. Soft-deleted rows
 /// (`archived = true`) are excluded by default; callers that want to
 /// surface them must build their own filter.
-fn base_ownership_filter(user: ObjectId) -> Document {
-    doc! {
-        "userId": user,
-        "archived": { "$ne": true },
-    }
+fn base_ownership_filter(scope: &TenantScope) -> Document {
+    let mut filter = scope.filter();
+    filter.insert("archived", doc! { "$ne": true });
+    filter
 }
 
 /// Optional-string update helper. When the input field is `Some`,
@@ -176,12 +188,13 @@ async fn seed_lineage_from_bill(
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn list_payouts(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Query(q): Query<ListQuery>,
 ) -> Result<Json<Vec<PayoutReceipt>>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, q.project_id.as_deref())?;
 
-    let mut filter = base_ownership_filter(user_id);
+    let mut filter = base_ownership_filter(&scope);
 
     if let Some(vid) = q.vendor_id.as_deref().filter(|s| !s.is_empty()) {
         filter.insert("vendorId", oid_from_str(vid)?);
@@ -236,13 +249,15 @@ pub async fn list_payouts(
 #[instrument(skip_all, fields(user_id = %user.user_id, payout_id = %payout_id))]
 pub async fn get_payout(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(payout_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
 ) -> Result<Json<PayoutReceipt>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let payout_oid = oid_from_str(&payout_id)?;
 
-    let mut filter = base_ownership_filter(user_id);
+    let mut filter = base_ownership_filter(&scope);
     filter.insert("_id", payout_oid);
 
     let coll = mongo.collection::<PayoutReceipt>(PAYOUTS_COLL);
@@ -276,6 +291,7 @@ pub async fn get_payout(
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn create_payout(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Json(input): Json<CreatePayoutInput>,
 ) -> Result<Json<PayoutReceipt>> {
@@ -291,12 +307,22 @@ pub async fn create_payout(
         ));
     }
 
+    let scope = resolve_scope(
+        mode,
+        &user,
+        input.project_id.as_deref().filter(|s| !s.is_empty()),
+    )?;
     let user_id = user_oid(&user)?;
-    let project_id = match input.project_id.as_deref().filter(|s| !s.is_empty()) {
-        Some(s) => oid_from_str(s)?,
-        // Match the legacy single-tenant behaviour — mint a fresh OID so
-        // existing UI keeps working during the migration window.
-        None => ObjectId::new(),
+    let project_id = match scope {
+        // SabCRM (project) mounts: the validated workspace id IS the
+        // tenancy key — required, never minted.
+        TenantScope::Project(oid) => oid,
+        TenantScope::User(_) => match input.project_id.as_deref().filter(|s| !s.is_empty()) {
+            Some(s) => oid_from_str(s)?,
+            // Match the legacy single-tenant behaviour — mint a fresh OID
+            // so existing UI keeps working during the migration window.
+            None => ObjectId::new(),
+        },
     };
 
     let vendor_oid = oid_from_str(&input.vendor_id)?;
@@ -413,8 +439,10 @@ pub async fn create_payout(
 #[instrument(skip_all, fields(user_id = %user.user_id, payout_id = %payout_id))]
 pub async fn update_payout(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(payout_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
     Json(input): Json<UpdatePayoutInput>,
 ) -> Result<Json<PayoutReceipt>> {
     if input.is_empty() {
@@ -430,6 +458,7 @@ pub async fn update_payout(
         }
     }
 
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let user_id = user_oid(&user)?;
     let payout_oid = oid_from_str(&payout_id)?;
 
@@ -488,7 +517,7 @@ pub async fn update_payout(
         set.insert("status", status_str(s));
     }
 
-    let mut filter = base_ownership_filter(user_id);
+    let mut filter = base_ownership_filter(&scope);
     filter.insert("_id", payout_oid);
 
     let coll = mongo.collection::<Document>(PAYOUTS_COLL);
@@ -525,13 +554,16 @@ pub async fn update_payout(
 #[instrument(skip_all, fields(user_id = %user.user_id, payout_id = %payout_id))]
 pub async fn delete_payout(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(payout_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
 ) -> Result<Json<serde_json::Value>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let payout_oid = oid_from_str(&payout_id)?;
 
-    let filter = doc! { "_id": payout_oid, "userId": user_id };
+    let mut filter = scope.filter();
+    filter.insert("_id", payout_oid);
 
     let coll = mongo.collection::<Document>(PAYOUTS_COLL);
     let res = coll
@@ -571,8 +603,18 @@ mod tests {
     #[test]
     fn base_filter_excludes_archived() {
         let oid = ObjectId::new();
-        let f = base_ownership_filter(oid);
+        let f = base_ownership_filter(&TenantScope::User(oid));
         assert_eq!(f.get_object_id("userId").unwrap(), oid);
+        let archived = f.get_document("archived").unwrap();
+        assert!(archived.contains_key("$ne"));
+    }
+
+    #[test]
+    fn base_filter_project_scope_filters_project_id() {
+        let oid = ObjectId::new();
+        let f = base_ownership_filter(&TenantScope::Project(oid));
+        assert_eq!(f.get_object_id("projectId").unwrap(), oid);
+        assert!(!f.contains_key("userId"));
         let archived = f.get_document("archived").unwrap();
         assert!(archived.contains_key("$ne"));
     }

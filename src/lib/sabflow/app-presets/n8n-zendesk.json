@@ -4,8 +4,8 @@
   "description": "Consume Zendesk API",
   "category": "support",
   "iconName": "LuPackage",
-  "version": 8,
-  "lastVerified": "2026-06-11",
+  "version": 9,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -66,7 +66,7 @@
       "id": "ticket_delete",
       "label": "Delete Ticket",
       "method": "DELETE",
-      "path": "/ticket",
+      "path": "/tickets/{id}",
       "fields": [
         {
           "id": "subdomain",
@@ -97,17 +97,18 @@
           "id": "id",
           "label": "Ticket ID",
           "type": "text",
-          "required": true
+          "required": true,
+          "in": "path"
         }
       ],
       "group": "Ticket",
-      "description": "[unverified path] Delete a ticket"
+      "description": "Delete a ticket"
     },
     {
       "id": "ticket_get",
       "label": "Get Ticket",
       "method": "GET",
-      "path": "/ticket",
+      "path": "/tickets/{id}",
       "fields": [
         {
           "id": "subdomain",
@@ -138,17 +139,18 @@
           "id": "id",
           "label": "Ticket ID",
           "type": "text",
-          "required": true
+          "required": true,
+          "in": "path"
         }
       ],
       "group": "Ticket",
-      "description": "[unverified path] Get a ticket"
+      "description": "Get a ticket"
     },
     {
       "id": "ticket_get_all",
       "label": "Get Many Ticket",
       "method": "GET",
-      "path": "/ticket",
+      "path": "/tickets",
       "fields": [
         {
           "id": "subdomain",
@@ -198,7 +200,7 @@
         }
       ],
       "group": "Ticket",
-      "description": "[unverified path] Get many tickets"
+      "description": "Get many tickets"
     },
     {
       "id": "ticket_recover",

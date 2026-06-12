@@ -4,8 +4,8 @@
   "description": "Consume Slack API",
   "category": "communication",
   "iconName": "LuPackage",
-  "version": 13,
-  "lastVerified": "2026-06-11",
+  "version": 14,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -687,15 +687,6 @@
       ],
       "group": "Message",
       "description": "Send a message"
-    },
-    {
-      "id": "message_send_and_wait_operation",
-      "label": "Send and Wait for Response Message",
-      "method": "POST",
-      "path": "/message",
-      "fields": [],
-      "group": "Message",
-      "description": "[unverified path] Send message and wait for response"
     },
     {
       "id": "message_update",

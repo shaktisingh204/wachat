@@ -9,9 +9,10 @@
  * value is mirrored into the `?view=` query so the sidebar submenu links deep-
  * link straight into a view.
  *
- * Built entirely on the 20ui design system inside the `.sabcrm-twenty` / `.ui20`
- * frame provided by `../layout.tsx`. RBAC / project / plan gating is enforced by
- * every server action it calls, so it fails closed to calm in-page states.
+ * Built entirely on the 20ui design system inside the suite frame provided by
+ * `../layout.tsx` (page-local classes are `.pj-*`, scoped to the 20ui root in
+ * `./projects.css`). RBAC / project / plan gating is enforced by every server
+ * action it calls, so it fails closed to calm in-page states.
  */
 
 import * as React from 'react';
@@ -58,6 +59,7 @@ import { ProjectFormDialog } from './project-form-dialog';
 import { ProjectDetailDrawer } from './project-detail-drawer';
 import { toProjectVM, asProjectView, type ProjectVM, type ProjectView } from './projects-shared';
 
+import '@/components/sabcrm/20ui/surface-crm-base.css';
 import './projects.css';
 
 const VIEW_ITEMS: ReadonlyArray<SegmentedItem<ProjectView>> = [
@@ -208,7 +210,7 @@ export function ProjectsWorkspace(): React.JSX.Element {
   // ---- Render -----------------------------------------------------------
 
   return (
-    <div className="pm-page">
+    <div className="pj-page">
       <PageHeader>
         <PageHeaderHeading>
           <PageEyebrow>Workspace</PageEyebrow>
@@ -225,14 +227,14 @@ export function ProjectsWorkspace(): React.JSX.Element {
         </PageActions>
       </PageHeader>
 
-      <div className="pm-toolbar">
+      <div className="pj-toolbar">
         <SegmentedControl
           items={VIEW_ITEMS}
           value={view}
           onChange={changeView}
           aria-label="Project view"
         />
-        <div className="pm-toolbar__search">
+        <div className="pj-toolbar__search">
           <Input
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
@@ -245,18 +247,18 @@ export function ProjectsWorkspace(): React.JSX.Element {
       </div>
 
       {error ? (
-        <Alert tone="danger" icon={AlertTriangle} className="pm-page__alert">
+        <Alert tone="danger" icon={AlertTriangle} className="pj-page__alert">
           {error}
         </Alert>
       ) : null}
 
       {loading ? (
-        <div className="pm-page__loading">
+        <div className="pj-page__loading">
           <Spinner />
           <span>Loading projects…</span>
         </div>
       ) : (
-        <div className="pm-page__view">
+        <div className="pj-page__view">
           {view === 'list' ? <ProjectsList projects={filtered} onOpen={openDetail} /> : null}
           {view === 'board' ? (
             <ProjectsBoard

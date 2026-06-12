@@ -4,8 +4,8 @@
   "description": "Consume Notion API",
   "category": "productivity",
   "iconName": "LuPackage",
-  "version": 13,
-  "lastVerified": "2026-06-11",
+  "version": 14,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -494,7 +494,7 @@
       "id": "page_get",
       "label": "Get Page",
       "method": "GET",
-      "path": "/page",
+      "path": "/pages/{pageId}",
       "fields": [
         {
           "id": "Credentials",
@@ -506,7 +506,8 @@
           "label": "Page Link or ID",
           "type": "text",
           "required": true,
-          "description": "The Page URL from Notion's 'copy link' functionality (or just the ID contained within the URL)"
+          "description": "The Page URL from Notion's 'copy link' functionality (or just the ID contained within the URL)",
+          "in": "path"
         },
         {
           "id": "simple",
@@ -517,7 +518,7 @@
         }
       ],
       "group": "Page",
-      "description": "[unverified path] Get a page"
+      "description": "Get a page"
     },
     {
       "id": "page_search",

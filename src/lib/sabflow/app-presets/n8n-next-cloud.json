@@ -4,8 +4,8 @@
   "description": "Access data on Nextcloud",
   "category": "storage",
   "iconName": "LuPackage",
-  "version": 2,
-  "lastVerified": "2026-06-11",
+  "version": 3,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "basic",
@@ -15,36 +15,10 @@
   "baseUrl": "",
   "endpoints": [
     {
-      "id": "file_copy",
-      "label": "Copy File",
-      "method": "POST",
-      "path": "/file",
-      "fields": [
-        {
-          "id": "path",
-          "label": "From Path",
-          "type": "text",
-          "required": true,
-          "placeholder": "/invoices/original.txt",
-          "description": "The path of file or folder to copy. The path should start with \"/\"."
-        },
-        {
-          "id": "toPath",
-          "label": "To Path",
-          "type": "text",
-          "required": true,
-          "placeholder": "/invoices/copy.txt",
-          "description": "The destination path of file or folder. The path should start with \"/\"."
-        }
-      ],
-      "group": "File",
-      "description": "[unverified path] Copy a file"
-    },
-    {
       "id": "file_delete",
       "label": "Delete File",
       "method": "DELETE",
-      "path": "/file",
+      "path": "/{path}",
       "fields": [
         {
           "id": "path",
@@ -52,17 +26,18 @@
           "type": "text",
           "required": true,
           "placeholder": "/invoices/2019/invoice_1.pdf",
-          "description": "The path to delete. Can be a single file or a whole folder. The path should start with \"/\"."
+          "description": "The path to delete. Can be a single file or a whole folder. The path should start with \"/\".",
+          "in": "path"
         }
       ],
       "group": "File",
-      "description": "[unverified path] Delete a file"
+      "description": "Delete a file"
     },
     {
       "id": "file_download",
       "label": "Download File",
       "method": "GET",
-      "path": "/file",
+      "path": "/{path}",
       "fields": [
         {
           "id": "path",
@@ -70,7 +45,8 @@
           "type": "text",
           "required": true,
           "placeholder": "/invoices/2019/invoice_1.pdf",
-          "description": "The file path of the file to download. Has to contain the full path. The path should start with \"/\"."
+          "description": "The file path of the file to download. Has to contain the full path. The path should start with \"/\".",
+          "in": "path"
         },
         {
           "id": "binaryPropertyName",
@@ -81,200 +57,13 @@
         }
       ],
       "group": "File",
-      "description": "[unverified path] Download a file"
-    },
-    {
-      "id": "file_move",
-      "label": "Move File",
-      "method": "PATCH",
-      "path": "/file",
-      "fields": [
-        {
-          "id": "path",
-          "label": "From Path",
-          "type": "text",
-          "required": true,
-          "placeholder": "/invoices/old_name.txt",
-          "description": "The path of file or folder to move. The path should start with \"/\"."
-        },
-        {
-          "id": "toPath",
-          "label": "To Path",
-          "type": "text",
-          "required": true,
-          "placeholder": "/invoices/new_name.txt",
-          "description": "The new path of file or folder. The path should start with \"/\"."
-        }
-      ],
-      "group": "File",
-      "description": "[unverified path] Move a file"
-    },
-    {
-      "id": "file_share",
-      "label": "Share File",
-      "method": "POST",
-      "path": "/file",
-      "fields": [
-        {
-          "id": "path",
-          "label": "File Path",
-          "type": "text",
-          "required": true,
-          "placeholder": "/invoices/2019/invoice_1.pdf",
-          "description": "The file path of the file to share. Has to contain the full path. The path should start with \"/\"."
-        },
-        {
-          "id": "shareType",
-          "label": "Share Type",
-          "type": "select",
-          "description": "The share permissions to set",
-          "defaultValue": 0,
-          "options": [
-            {
-              "value": "7",
-              "label": "Circle"
-            },
-            {
-              "value": "4",
-              "label": "Email"
-            },
-            {
-              "value": "1",
-              "label": "Group"
-            },
-            {
-              "value": "3",
-              "label": "Public Link"
-            },
-            {
-              "value": "0",
-              "label": "User"
-            }
-          ]
-        },
-        {
-          "id": "circleId",
-          "label": "Circle ID",
-          "type": "text",
-          "description": "The ID of the circle to share with"
-        },
-        {
-          "id": "email",
-          "label": "Email",
-          "type": "text",
-          "placeholder": "name@email.com",
-          "description": "The Email address to share with"
-        },
-        {
-          "id": "groupId",
-          "label": "Group ID",
-          "type": "text",
-          "description": "The ID of the group to share with"
-        },
-        {
-          "id": "user",
-          "label": "User",
-          "type": "text",
-          "description": "The user to share with"
-        },
-        {
-          "id": "options",
-          "label": "Options",
-          "type": "json",
-          "placeholder": "Add option",
-          "description": "(JSON object; supported keys: password, permissions)"
-        }
-      ],
-      "group": "File",
-      "description": "[unverified path] Share a file"
-    },
-    {
-      "id": "file_upload",
-      "label": "Upload File",
-      "method": "POST",
-      "path": "/file",
-      "fields": [
-        {
-          "id": "path",
-          "label": "File Path",
-          "type": "text",
-          "required": true,
-          "placeholder": "/invoices/2019/invoice_1.pdf",
-          "description": "The absolute file path of the file to upload. Has to contain the full path. The parent folder has to exist. Existing files get overwritten."
-        },
-        {
-          "id": "binaryDataUpload",
-          "label": "Binary File",
-          "type": "toggle",
-          "required": true,
-          "defaultValue": false
-        },
-        {
-          "id": "fileContent",
-          "label": "File Content",
-          "type": "text",
-          "description": "The text content of the file to upload"
-        },
-        {
-          "id": "binaryPropertyName",
-          "label": "Input Binary Field",
-          "type": "text",
-          "required": true,
-          "defaultValue": "data"
-        }
-      ],
-      "group": "File",
-      "description": "[unverified path] Upload a file"
-    },
-    {
-      "id": "folder_copy",
-      "label": "Copy Folder",
-      "method": "POST",
-      "path": "/folder",
-      "fields": [
-        {
-          "id": "path",
-          "label": "From Path",
-          "type": "text",
-          "required": true,
-          "placeholder": "/invoices/original.txt",
-          "description": "The path of file or folder to copy. The path should start with \"/\"."
-        },
-        {
-          "id": "toPath",
-          "label": "To Path",
-          "type": "text",
-          "required": true,
-          "placeholder": "/invoices/copy.txt",
-          "description": "The destination path of file or folder. The path should start with \"/\"."
-        }
-      ],
-      "group": "Folder",
-      "description": "[unverified path] Copy a folder"
-    },
-    {
-      "id": "folder_create",
-      "label": "Create Folder",
-      "method": "POST",
-      "path": "/folder",
-      "fields": [
-        {
-          "id": "path",
-          "label": "Folder",
-          "type": "text",
-          "required": true,
-          "placeholder": "/invoices/2019",
-          "description": "The folder to create. The parent folder has to exist. The path should start with \"/\"."
-        }
-      ],
-      "group": "Folder",
-      "description": "[unverified path] Create a folder"
+      "description": "Download a file"
     },
     {
       "id": "folder_delete",
       "label": "Delete Folder",
       "method": "DELETE",
-      "path": "/folder",
+      "path": "/{path}",
       "fields": [
         {
           "id": "path",
@@ -282,54 +71,12 @@
           "type": "text",
           "required": true,
           "placeholder": "/invoices/2019/invoice_1.pdf",
-          "description": "The path to delete. Can be a single file or a whole folder. The path should start with \"/\"."
+          "description": "The path to delete. Can be a single file or a whole folder. The path should start with \"/\".",
+          "in": "path"
         }
       ],
       "group": "Folder",
-      "description": "[unverified path] Delete a folder"
-    },
-    {
-      "id": "folder_list",
-      "label": "List Folder",
-      "method": "GET",
-      "path": "/folder",
-      "fields": [
-        {
-          "id": "path",
-          "label": "Folder Path",
-          "type": "text",
-          "placeholder": "/invoices/2019/",
-          "description": "The path of which to list the content. The path should start with \"/\"."
-        }
-      ],
-      "group": "Folder",
-      "description": "[unverified path] Return the contents of a given folder"
-    },
-    {
-      "id": "folder_move",
-      "label": "Move Folder",
-      "method": "PATCH",
-      "path": "/folder",
-      "fields": [
-        {
-          "id": "path",
-          "label": "From Path",
-          "type": "text",
-          "required": true,
-          "placeholder": "/invoices/old_name.txt",
-          "description": "The path of file or folder to move. The path should start with \"/\"."
-        },
-        {
-          "id": "toPath",
-          "label": "To Path",
-          "type": "text",
-          "required": true,
-          "placeholder": "/invoices/new_name.txt",
-          "description": "The new path of file or folder. The path should start with \"/\"."
-        }
-      ],
-      "group": "Folder",
-      "description": "[unverified path] Move a folder"
+      "description": "Delete a folder"
     },
     {
       "id": "folder_share",

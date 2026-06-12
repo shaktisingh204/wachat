@@ -4,8 +4,8 @@
   "description": "Consume SecurityScorecard API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 11,
-  "lastVerified": "2026-06-11",
+  "version": 12,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "header",
@@ -633,30 +633,6 @@
       ],
       "group": "Portfolio Company",
       "description": "Remove a company from portfolio"
-    },
-    {
-      "id": "report_download",
-      "label": "Download Report",
-      "method": "GET",
-      "path": "/report",
-      "fields": [
-        {
-          "id": "url",
-          "label": "Report URL",
-          "type": "text",
-          "required": true,
-          "description": "URL to a generated report"
-        },
-        {
-          "id": "binaryPropertyName",
-          "label": "Put Output File in Field",
-          "type": "text",
-          "required": true,
-          "defaultValue": "data"
-        }
-      ],
-      "group": "Report",
-      "description": "[unverified path] Download a generated report"
     },
     {
       "id": "report_generate",

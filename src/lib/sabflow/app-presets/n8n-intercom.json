@@ -4,8 +4,8 @@
   "description": "Consume Intercom API",
   "category": "support",
   "iconName": "LuPackage",
-  "version": 11,
-  "lastVerified": "2026-06-11",
+  "version": 13,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -22,7 +22,7 @@
       "id": "lead_create",
       "label": "Create Lead",
       "method": "POST",
-      "path": "/lead",
+      "path": "/contacts",
       "fields": [
         {
           "id": "email",
@@ -60,13 +60,13 @@
         }
       ],
       "group": "Lead",
-      "description": "[unverified path] Create a new lead"
+      "description": "Create a new lead"
     },
     {
       "id": "lead_delete",
       "label": "Delete Lead",
       "method": "DELETE",
-      "path": "/lead",
+      "path": "/contacts/{value}",
       "fields": [
         {
           "id": "deleteBy",
@@ -88,17 +88,18 @@
           "label": "Value",
           "type": "text",
           "required": true,
-          "description": "Delete by value"
+          "description": "Delete by value",
+          "in": "path"
         }
       ],
       "group": "Lead",
-      "description": "[unverified path] Delete a lead"
+      "description": "Delete a lead"
     },
     {
       "id": "lead_get",
       "label": "Get Lead",
       "method": "GET",
-      "path": "/lead",
+      "path": "/contacts/{value}",
       "fields": [
         {
           "id": "selectBy",
@@ -129,17 +130,18 @@
           "label": "Value",
           "type": "text",
           "required": true,
-          "description": "View by value"
+          "description": "View by value",
+          "in": "path"
         }
       ],
       "group": "Lead",
-      "description": "[unverified path] Get data of a lead"
+      "description": "Get data of a lead"
     },
     {
       "id": "lead_get_all",
       "label": "Get Many Lead",
       "method": "GET",
-      "path": "/lead",
+      "path": "/contacts",
       "fields": [
         {
           "id": "returnAll",
@@ -164,13 +166,13 @@
         }
       ],
       "group": "Lead",
-      "description": "[unverified path] Get data of many leads"
+      "description": "Get data of many leads"
     },
     {
       "id": "lead_update",
       "label": "Update Lead",
-      "method": "PATCH",
-      "path": "/lead",
+      "method": "POST",
+      "path": "/contacts",
       "fields": [
         {
           "id": "updateBy",
@@ -224,13 +226,13 @@
         }
       ],
       "group": "Lead",
-      "description": "[unverified path] Update new lead"
+      "description": "Update new lead"
     },
     {
       "id": "user_create",
       "label": "Create User",
       "method": "POST",
-      "path": "/user",
+      "path": "/users",
       "fields": [
         {
           "id": "identifierType",
@@ -283,30 +285,31 @@
         }
       ],
       "group": "User",
-      "description": "[unverified path] Create a new user"
+      "description": "Create a new user"
     },
     {
       "id": "user_delete",
       "label": "Delete User",
       "method": "DELETE",
-      "path": "/user",
+      "path": "/users/{id}",
       "fields": [
         {
           "id": "id",
           "label": "ID",
           "type": "text",
           "required": true,
-          "description": "The Intercom defined ID representing the Lead"
+          "description": "The Intercom defined ID representing the Lead",
+          "in": "path"
         }
       ],
       "group": "User",
-      "description": "[unverified path] Delete a user"
+      "description": "Delete a user"
     },
     {
       "id": "user_get",
       "label": "Get User",
       "method": "GET",
-      "path": "/user",
+      "path": "/users/{value}",
       "fields": [
         {
           "id": "selectBy",
@@ -329,17 +332,18 @@
           "label": "Value",
           "type": "text",
           "required": true,
-          "description": "View by value"
+          "description": "View by value",
+          "in": "path"
         }
       ],
       "group": "User",
-      "description": "[unverified path] Get data of a user"
+      "description": "Get data of a user"
     },
     {
       "id": "user_get_all",
       "label": "Get Many User",
       "method": "GET",
-      "path": "/user",
+      "path": "/users",
       "fields": [
         {
           "id": "returnAll",
@@ -364,13 +368,13 @@
         }
       ],
       "group": "User",
-      "description": "[unverified path] Get data of many users"
+      "description": "Get data of many users"
     },
     {
       "id": "user_update",
       "label": "Update User",
-      "method": "PATCH",
-      "path": "/user",
+      "method": "POST",
+      "path": "/users",
       "fields": [
         {
           "id": "updateBy",
@@ -428,13 +432,13 @@
         }
       ],
       "group": "User",
-      "description": "[unverified path] Update a user"
+      "description": "Update a user"
     },
     {
       "id": "company_create",
       "label": "Create Company",
       "method": "POST",
-      "path": "/company",
+      "path": "/companies",
       "fields": [
         {
           "id": "companyId",
@@ -470,13 +474,13 @@
         }
       ],
       "group": "Company",
-      "description": "[unverified path] Create a new company"
+      "description": "Create a new company"
     },
     {
       "id": "company_get",
       "label": "Get Company",
       "method": "GET",
-      "path": "/company",
+      "path": "/companies/{value}",
       "fields": [
         {
           "id": "selectBy",
@@ -503,17 +507,18 @@
           "label": "Value",
           "type": "text",
           "required": true,
-          "description": "View by value"
+          "description": "View by value",
+          "in": "path"
         }
       ],
       "group": "Company",
-      "description": "[unverified path] Get data of a company"
+      "description": "Get data of a company"
     },
     {
       "id": "company_get_all",
       "label": "Get Many Company",
       "method": "GET",
-      "path": "/company",
+      "path": "/companies",
       "fields": [
         {
           "id": "returnAll",
@@ -538,13 +543,13 @@
         }
       ],
       "group": "Company",
-      "description": "[unverified path] Get data of many companies"
+      "description": "Get data of many companies"
     },
     {
       "id": "company_update",
       "label": "Update Company",
-      "method": "PATCH",
-      "path": "/company",
+      "method": "POST",
+      "path": "/companies",
       "fields": [
         {
           "id": "companyId",
@@ -580,13 +585,13 @@
         }
       ],
       "group": "Company",
-      "description": "[unverified path] Update a company"
+      "description": "Update a company"
     },
     {
       "id": "company_users",
       "label": "Users Company",
       "method": "POST",
-      "path": "/company",
+      "path": "/companies/{value}/users",
       "fields": [
         {
           "id": "listBy",
@@ -608,7 +613,8 @@
           "label": "Value",
           "type": "text",
           "required": true,
-          "description": "View by value"
+          "description": "View by value",
+          "in": "path"
         },
         {
           "id": "returnAll",
@@ -626,7 +632,7 @@
         }
       ],
       "group": "Company",
-      "description": "[unverified path] List company's users"
+      "description": "List company's users"
     }
   ]
 }

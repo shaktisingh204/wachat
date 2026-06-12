@@ -4,8 +4,8 @@
   "description": "Sends data to Discord",
   "category": "communication",
   "iconName": "LuPackage",
-  "version": 11,
-  "lastVerified": "2026-06-11",
+  "version": 12,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -183,7 +183,7 @@
       "id": "message_send",
       "label": "Send Message",
       "method": "POST",
-      "path": "/message",
+      "path": "/channels/{channelId}/messages",
       "fields": [
         {
           "id": "guildId",
@@ -220,7 +220,8 @@
           "label": "Channel",
           "type": "text",
           "required": true,
-          "description": "Select the channel by name, URL, or ID (provide the ID)"
+          "description": "Select the channel by name, URL, or ID (provide the ID)",
+          "in": "path"
         },
         {
           "id": "content",
@@ -252,24 +253,7 @@
         }
       ],
       "group": "Message",
-      "description": "[unverified path] Send a message to a channel, thread, or member"
-    },
-    {
-      "id": "message_send_and_wait_operation",
-      "label": "Send and Wait for Response Message",
-      "method": "POST",
-      "path": "/message",
-      "fields": [
-        {
-          "id": "guildId",
-          "label": "Server",
-          "type": "text",
-          "required": true,
-          "description": "Select the server (guild) that your bot is connected to (provide the ID)"
-        }
-      ],
-      "group": "Message",
-      "description": "[unverified path] Send a message and wait for response"
+      "description": "Send a message to a channel, thread, or member"
     },
     {
       "id": "channel_create",
@@ -563,141 +547,6 @@
       ],
       "group": "Member",
       "description": "Remove a role from a member"
-    },
-    {
-      "id": "channel_send_legacy",
-      "label": "Send a Message Channel",
-      "method": "POST",
-      "path": "/channel",
-      "fields": [
-        {
-          "id": "guildId",
-          "label": "Server",
-          "type": "text",
-          "required": true,
-          "description": "Select the server (guild) that your bot is connected to (provide the ID)"
-        },
-        {
-          "id": "content",
-          "label": "Message",
-          "type": "textarea",
-          "placeholder": "e.g. My message",
-          "description": "The content of the message (up to 2000 characters)"
-        },
-        {
-          "id": "options",
-          "label": "Options",
-          "type": "json",
-          "placeholder": "Add option",
-          "description": "(JSON object; supported keys: avatar_url, flags, tts, username, wait)"
-        },
-        {
-          "id": "embeds",
-          "label": "Embeds",
-          "type": "json",
-          "placeholder": "Add Embeds",
-          "description": "(JSON object; supported keys: values, values.inputMethod, values.json, values.description, values.author, values.color, values.timestamp, values.title, values.url, values.image, values.thumbnail, values.video)"
-        },
-        {
-          "id": "files",
-          "label": "Files",
-          "type": "json",
-          "placeholder": "Add Files",
-          "description": "(JSON object; supported keys: values, values.inputFieldName)"
-        }
-      ],
-      "group": "Channel",
-      "description": "[unverified path] Send a message to a channel using the webhook"
-    },
-    {
-      "id": "message_send_legacy",
-      "label": "Send a Message Message",
-      "method": "POST",
-      "path": "/message",
-      "fields": [
-        {
-          "id": "guildId",
-          "label": "Server",
-          "type": "text",
-          "required": true,
-          "description": "Select the server (guild) that your bot is connected to (provide the ID)"
-        },
-        {
-          "id": "content",
-          "label": "Message",
-          "type": "textarea",
-          "placeholder": "e.g. My message",
-          "description": "The content of the message (up to 2000 characters)"
-        },
-        {
-          "id": "options",
-          "label": "Options",
-          "type": "json",
-          "placeholder": "Add option",
-          "description": "(JSON object; supported keys: avatar_url, flags, tts, username, wait)"
-        },
-        {
-          "id": "embeds",
-          "label": "Embeds",
-          "type": "json",
-          "placeholder": "Add Embeds",
-          "description": "(JSON object; supported keys: values, values.inputMethod, values.json, values.description, values.author, values.color, values.timestamp, values.title, values.url, values.image, values.thumbnail, values.video)"
-        },
-        {
-          "id": "files",
-          "label": "Files",
-          "type": "json",
-          "placeholder": "Add Files",
-          "description": "(JSON object; supported keys: values, values.inputFieldName)"
-        }
-      ],
-      "group": "Message",
-      "description": "[unverified path] Send a message to a channel using the webhook"
-    },
-    {
-      "id": "member_send_legacy",
-      "label": "Send a Message Member",
-      "method": "POST",
-      "path": "/member",
-      "fields": [
-        {
-          "id": "guildId",
-          "label": "Server",
-          "type": "text",
-          "required": true,
-          "description": "Select the server (guild) that your bot is connected to (provide the ID)"
-        },
-        {
-          "id": "content",
-          "label": "Message",
-          "type": "textarea",
-          "placeholder": "e.g. My message",
-          "description": "The content of the message (up to 2000 characters)"
-        },
-        {
-          "id": "options",
-          "label": "Options",
-          "type": "json",
-          "placeholder": "Add option",
-          "description": "(JSON object; supported keys: avatar_url, flags, tts, username, wait)"
-        },
-        {
-          "id": "embeds",
-          "label": "Embeds",
-          "type": "json",
-          "placeholder": "Add Embeds",
-          "description": "(JSON object; supported keys: values, values.inputMethod, values.json, values.description, values.author, values.color, values.timestamp, values.title, values.url, values.image, values.thumbnail, values.video)"
-        },
-        {
-          "id": "files",
-          "label": "Files",
-          "type": "json",
-          "placeholder": "Add Files",
-          "description": "(JSON object; supported keys: values, values.inputFieldName)"
-        }
-      ],
-      "group": "Member",
-      "description": "[unverified path] Send a message to a channel using the webhook"
     }
   ]
 }

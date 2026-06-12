@@ -1,19 +1,20 @@
 'use client';
 
 /**
- * SabCRM — Reports list (`/sabcrm/reports`), Twenty-style.
+ * SabCRM — Reports list (`/sabcrm/reports`), 20ui.
  *
- * A self-written Twenty-faithful rebuild of the saved-reports surface using the
- * shared `.st-*` kit (`src/styles/sabcrm-twenty.css`) plus the page-local extras
- * in `./reports-twenty.css`. No Ui20 / Tailwind / clay in the page chrome.
+ * The saved-reports surface on the 20ui design system: PageHeader family for
+ * the chrome, 20ui primitives (Button / Badge / Alert / Skeleton / EmptyState)
+ * for the gallery, and the shared charts composites (via `./report-chart`) for
+ * inline run results. Page-local layout uses the `rp-*` classes in
+ * `./reports.css` (scoped to the 20ui root).
  *
- * Behaviour parity with the previous Ui20 version:
+ * Behaviour:
  *   - Lists saved reports for the active project (`listReportsAction`) — newest
  *     first, each with name, object chip and metric label.
  *   - "Run" executes a report inline (`runReportAction`) and renders the
- *     resulting series as a Twenty bar list (or a single-value tile for the
- *     `number`/un-grouped case).
- *   - "Delete" removes a report (`deleteReportAction`) with optimistic refresh.
+ *     resulting series through the shared `ReportChart` renderer.
+ *   - "Delete" removes a report (`deleteReportAction`) behind a 20ui confirm.
  *   - "New report" / per-row "Edit" link to the builder page.
  *
  * Auth / onboarding / RBACGuard are enforced by the parent SabCRM `layout.tsx`;
@@ -48,7 +49,6 @@ import type {
 
 import { ReportChart } from './report-chart';
 
-import { useStConfirm } from '@/components/sabcrm/twenty/st-modals';
 import {
   Button,
   IconButton,
@@ -57,9 +57,16 @@ import {
   Spinner,
   Skeleton,
   EmptyState,
+  Modal,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  PageActions,
 } from '@/components/sabcrm/20ui';
 
-import './reports-twenty.css';
+import '@/components/sabcrm/20ui/surface-crm-base.css';
+import './reports.css';
 
 // ---------------------------------------------------------------------------
 // Display helpers
@@ -92,8 +99,8 @@ type RunState =
   | { status: 'done'; series: ReportDataSeries };
 
 // ---------------------------------------------------------------------------
-// Result visualisation — delegates to the shared Twenty chart renderer,
-// switching on the report's `chartType` (bar / line / pie / number / table).
+// Result visualisation — delegates to the shared chart renderer, switching on
+// the report's `chartType` (bar / line / pie / number / table).
 // ---------------------------------------------------------------------------
 
 function ReportResult({
@@ -127,8 +134,9 @@ export default function SabcrmReportsPage(): React.JSX.Element {
 
   const [runStates, setRunStates] = React.useState<Record<string, RunState>>({});
   const [deletingId, setDeletingId] = React.useState<string | null>(null);
-
-  const { confirm, dialog: confirmDialog } = useStConfirm();
+  const [pendingDelete, setPendingDelete] = React.useState<SavedReport | null>(
+    null,
+  );
 
   const load = React.useCallback(async () => {
     setLoading(true);
@@ -180,172 +188,193 @@ export default function SabcrmReportsPage(): React.JSX.Element {
     [activeProjectId],
   );
 
-  const handleDelete = React.useCallback(
-    async (report: SavedReport) => {
-      const ok = await confirm({
-        title: 'Delete report?',
-        message: `Delete "${report.name}"? This cannot be undone.`,
-        destructive: true,
-        confirmLabel: 'Delete',
+  const handleDeleteConfirmed = React.useCallback(async () => {
+    const report = pendingDelete;
+    setPendingDelete(null);
+    if (!report) return;
+    setDeletingId(report._id);
+    const res = await deleteReportAction(report._id, activeProjectId ?? undefined);
+    setDeletingId(null);
+    if (res.ok) {
+      setReports((prev) => prev.filter((r) => r._id !== report._id));
+      setRunStates((prev) => {
+        const next = { ...prev };
+        delete next[report._id];
+        return next;
       });
-      if (!ok) return;
-      setDeletingId(report._id);
-      const res = await deleteReportAction(report._id, activeProjectId ?? undefined);
-      setDeletingId(null);
-      if (res.ok) {
-        setReports((prev) => prev.filter((r) => r._id !== report._id));
-        setRunStates((prev) => {
-          const next = { ...prev };
-          delete next[report._id];
-          return next;
-        });
-      } else {
-        setError(res.error);
-      }
-    },
-    [activeProjectId, confirm],
-  );
+    } else {
+      setError(res.error);
+    }
+  }, [pendingDelete, activeProjectId]);
 
   return (
-    <div className="st-page">
-      <header className="st-page-header">
-        <span className="st-page-header__icon" aria-hidden="true">
-          <BarChart3 size={16} />
-        </span>
-        <h1 className="st-page-header__title">Reports</h1>
-        <div className="st-page-header__actions">
-          <Button
-            variant="ghost"
-            iconLeft={RefreshCw}
-            onClick={() => void load()}
-            disabled={loading}
-          >
-            Refresh
-          </Button>
-          <Button
-            variant="primary"
-            iconLeft={Plus}
-            onClick={() => router.push('/sabcrm/reports/builder')}
-          >
-            New report
-          </Button>
-        </div>
-      </header>
+    <div className="rp-page">
+      <div className="rp-page__inner">
+        <PageHeader>
+          <PageHeaderHeading>
+            <PageTitle>Reports</PageTitle>
+            <PageDescription>
+              Build analytics across any CRM object — count records, sum values,
+              and visualise trends by group. Results are computed live each time
+              you run a report.
+            </PageDescription>
+          </PageHeaderHeading>
+          <PageActions>
+            <Button
+              variant="ghost"
+              size="sm"
+              iconLeft={RefreshCw}
+              onClick={() => void load()}
+              disabled={loading}
+            >
+              Refresh
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              iconLeft={Plus}
+              onClick={() => router.push('/sabcrm/reports/builder')}
+            >
+              New report
+            </Button>
+          </PageActions>
+        </PageHeader>
 
-      <p className="st-muted" style={{ marginBottom: 'var(--st-space-4)' }}>
-        Build analytics across any CRM object — count records, sum values, and
-        visualise trends by group. Results are computed live each time you run a
-        report.
-      </p>
+        {error && (
+          <Alert tone="danger" className="rp-alert">
+            {error}
+          </Alert>
+        )}
 
-      {error && (
-        <Alert tone="danger" style={{ marginBottom: 'var(--st-space-4)' }}>
-          {error}
-        </Alert>
-      )}
-
-      {/* Loading skeleton */}
-      {loading ? (
-        <div className="st-section">
-          <div className="st-section__body st-stack">
-            {[0, 1, 2].map((i) => (
-              <Skeleton key={i} height={40} radius={8} />
-            ))}
+        {/* Loading skeleton */}
+        {loading ? (
+          <div className="rp-section">
+            <div className="rp-stack">
+              {[0, 1, 2].map((i) => (
+                <Skeleton key={i} height={40} radius={8} />
+              ))}
+            </div>
           </div>
-        </div>
-      ) : reports.length === 0 && !error ? (
-        <div className="st-section">
-          <EmptyState
-            icon={BarChart3}
-            title="No reports yet"
-            description="Create your first report to start measuring counts, sums, and trends across your CRM data."
-            action={
-              <Button
-                variant="primary"
-                iconLeft={Plus}
-                onClick={() => router.push('/sabcrm/reports/builder')}
-              >
-                New report
-              </Button>
-            }
-          />
-        </div>
-      ) : (
-        <div className="st-section">
-          {reports.map((report) => {
-            const run = runStates[report._id] ?? { status: 'idle' };
-            const isRunning = run.status === 'running';
-            const isDeleting = deletingId === report._id;
-            return (
-              <React.Fragment key={report._id}>
-                <div className="st-rep-row">
-                  <div className="st-rep-row__main">
-                    <span className="st-rep-row__title">{report.name}</span>
-                    <div className="st-rep-row__meta">
-                      <Badge tone="neutral">{objectLabel(report.object)}</Badge>
-                      <span className="st-muted">{metricCaption(report)}</span>
-                      {report.groupByField && (
-                        <span className="st-muted">
-                          · grouped by {report.groupByField}
+        ) : reports.length === 0 && !error ? (
+          <div className="rp-section">
+            <EmptyState
+              icon={BarChart3}
+              title="No reports yet"
+              description="Create your first report to start measuring counts, sums, and trends across your CRM data."
+              action={
+                <Button
+                  variant="primary"
+                  iconLeft={Plus}
+                  onClick={() => router.push('/sabcrm/reports/builder')}
+                >
+                  New report
+                </Button>
+              }
+            />
+          </div>
+        ) : (
+          <div className="rp-section">
+            {reports.map((report) => {
+              const run = runStates[report._id] ?? { status: 'idle' };
+              const isRunning = run.status === 'running';
+              const isDeleting = deletingId === report._id;
+              return (
+                <React.Fragment key={report._id}>
+                  <div className="rp-row">
+                    <div className="rp-row__main">
+                      <span className="rp-row__title">{report.name}</span>
+                      <div className="rp-row__meta">
+                        <Badge tone="neutral">{objectLabel(report.object)}</Badge>
+                        <span className="rp-muted">{metricCaption(report)}</span>
+                        {report.groupByField && (
+                          <span className="rp-muted">
+                            · grouped by {report.groupByField}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="rp-row__actions">
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        iconLeft={isRunning ? undefined : Play}
+                        loading={isRunning}
+                        onClick={() => void handleRun(report)}
+                        disabled={isRunning}
+                      >
+                        {isRunning ? 'Running' : 'Run'}
+                      </Button>
+                      <IconButton
+                        variant="ghost"
+                        icon={Pencil}
+                        label={`Edit ${report.name}`}
+                        onClick={() =>
+                          router.push(
+                            `/sabcrm/reports/builder?id=${encodeURIComponent(report._id)}`,
+                          )
+                        }
+                      />
+                      {isDeleting ? (
+                        <span
+                          className="rp-row__busy"
+                          role="status"
+                          aria-label={`Deleting ${report.name}`}
+                        >
+                          <Spinner size="sm" label="Deleting" />
                         </span>
+                      ) : (
+                        <IconButton
+                          variant="ghost"
+                          icon={Trash2}
+                          label={`Delete ${report.name}`}
+                          onClick={() => setPendingDelete(report)}
+                        />
                       )}
                     </div>
                   </div>
-                  <div className="st-rep-row__actions">
-                    <Button
-                      variant="secondary"
-                      iconLeft={isRunning ? undefined : Play}
-                      loading={isRunning}
-                      onClick={() => void handleRun(report)}
-                      disabled={isRunning}
-                    >
-                      {isRunning ? 'Running' : 'Run'}
-                    </Button>
-                    <IconButton
-                      variant="ghost"
-                      icon={Pencil}
-                      label={`Edit ${report.name}`}
-                      onClick={() =>
-                        router.push(
-                          `/sabcrm/reports/builder?id=${encodeURIComponent(report._id)}`,
-                        )
-                      }
-                    />
-                    {isDeleting ? (
-                      <span
-                        className="st-rep-row__busy"
-                        role="status"
-                        aria-label={`Deleting ${report.name}`}
-                      >
-                        <Spinner size="sm" label="Deleting" />
-                      </span>
-                    ) : (
-                      <IconButton
-                        variant="ghost"
-                        icon={Trash2}
-                        label={`Delete ${report.name}`}
-                        onClick={() => void handleDelete(report)}
-                      />
-                    )}
-                  </div>
-                </div>
 
-                {run.status === 'error' && (
-                  <div className="st-rep-result">
-                    <Alert tone="danger">{run.error}</Alert>
-                  </div>
-                )}
-                {run.status === 'done' && (
-                  <div className="st-rep-result">
-                    <ReportResult report={report} series={run.series} />
-                  </div>
-                )}
-              </React.Fragment>
-            );
-          })}
-        </div>
-      )}
-      {confirmDialog}
+                  {run.status === 'error' && (
+                    <div className="rp-result">
+                      <Alert tone="danger">{run.error}</Alert>
+                    </div>
+                  )}
+                  {run.status === 'done' && (
+                    <div className="rp-result">
+                      <ReportResult report={report} series={run.series} />
+                    </div>
+                  )}
+                </React.Fragment>
+              );
+            })}
+          </div>
+        )}
+
+        {pendingDelete ? (
+          <Modal
+            open
+            onClose={() => setPendingDelete(null)}
+            title="Delete report?"
+            size="sm"
+            footer={
+              <>
+                <Button variant="ghost" onClick={() => setPendingDelete(null)}>
+                  Cancel
+                </Button>
+                <Button
+                  variant="danger"
+                  onClick={() => void handleDeleteConfirmed()}
+                >
+                  Delete
+                </Button>
+              </>
+            }
+          >
+            <p className="rp-confirm-text">
+              Delete &quot;{pendingDelete.name}&quot;? This cannot be undone.
+            </p>
+          </Modal>
+        ) : null}
+      </div>
     </div>
   );
 }

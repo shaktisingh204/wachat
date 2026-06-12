@@ -11,8 +11,16 @@
 //! | `PATCH` | `/:billId`       | [`update_bill`]    |
 //! | `DELETE`| `/:billId`       | [`delete_bill`]    |
 //!
-//! Every handler scopes its Mongo query by `userId == AuthUser.user_id`
-//! — the CRM tenant root from `crm-core::Identity`.
+//! Every handler scopes its Mongo query by the mount's
+//! [`crm_core::ScopeMode`] (attached as an axum `Extension` by the
+//! router constructors in [`crate::router`]):
+//!
+//! - `/v1/crm/bills` (legacy) — `userId == AuthUser.user_id`, the CRM
+//!   tenant root from `crm-core::Identity`. Unchanged behaviour.
+//! - `/v1/sabcrm/finance/bills` (SabCRM Finance suite) —
+//!   `projectId == ?projectId` / body `projectId`, required per-request
+//!   (4xx when absent). Membership is validated by the Next.js action
+//!   gate before the request reaches Rust.
 //!
 //! ## Lineage seeding (§13.5)
 //!
@@ -25,12 +33,15 @@
 //! quietly skips the seed and still saves the Bill.
 
 use axum::{
-    Json,
+    Extension, Json,
     extract::{Path, Query, State},
 };
 use bson::{Bson, Document, doc, oid::ObjectId};
 use chrono::Utc;
-use crm_core::{Assignment, Audit, Identity, LineageRef, build_lineage_from_parent};
+use crm_core::{
+    Assignment, Audit, Identity, LineageRef, ScopeMode, TenantScope, build_lineage_from_parent,
+    sabcrm_project_oid,
+};
 use crm_purchases_types::Bill;
 use futures::TryStreamExt;
 use mongodb::options::FindOptions;
@@ -40,7 +51,8 @@ use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
 use tracing::{instrument, warn};
 
 use crate::dto::{
-    ALLOWED_STATUSES, CreateBillInput, DEFAULT_LIMIT, ListQuery, MAX_LIMIT, UpdateBillInput,
+    ALLOWED_STATUSES, CreateBillInput, DEFAULT_LIMIT, ListQuery, MAX_LIMIT, ScopeQuery,
+    UpdateBillInput,
 };
 
 /// Mongo collection name. Must match the §2.3 spec literal so the Rust
@@ -63,6 +75,23 @@ fn user_oid(user: &AuthUser) -> Result<ObjectId> {
         .map_err(|_| ApiError::Unauthorized("subject is not a valid ObjectId".to_owned()))
 }
 
+/// Resolve the per-request [`TenantScope`] from the mount's
+/// [`ScopeMode`] (attached as an axum `Extension` by the router
+/// constructor):
+///
+/// - `ScopeMode::User` (legacy `/v1/crm/bills`) — scope by the verified
+///   JWT subject. Identical to the historical behaviour.
+/// - `ScopeMode::Project` (`/v1/sabcrm/finance/bills`) — scope by the
+///   caller-supplied `projectId`, 4xx when absent/invalid. The Next.js
+///   action gate has already validated project membership before the
+///   request reaches Rust.
+fn resolve_scope(mode: ScopeMode, user: &AuthUser, project_id: Option<&str>) -> Result<TenantScope> {
+    match mode {
+        ScopeMode::User => Ok(TenantScope::User(user_oid(user)?)),
+        ScopeMode::Project => Ok(TenantScope::Project(sabcrm_project_oid(project_id)?)),
+    }
+}
+
 /// Clamp `requested` page-size into `[1, MAX_LIMIT]`, defaulting to
 /// [`DEFAULT_LIMIT`] when absent. Returns an `i64` to match the
 /// `mongodb` driver's `FindOptions::limit` signature.
@@ -73,14 +102,13 @@ fn clamp_limit(requested: Option<u32>) -> i64 {
     }
 }
 
-/// Materialize the base ownership filter:
-/// `{ userId, archived: { $ne: true } }`. Soft-deleted rows
+/// Materialize the base ownership filter for the resolved scope:
+/// `{ <userId|projectId>, archived: { $ne: true } }`. Soft-deleted rows
 /// (`archived = true`) are excluded by default.
-fn base_ownership_filter(user: ObjectId) -> Document {
-    doc! {
-        "userId": user,
-        "archived": { "$ne": true },
-    }
+fn base_ownership_filter(scope: &TenantScope) -> Document {
+    let mut f = scope.filter();
+    f.insert("archived", doc! { "$ne": true });
+    f
 }
 
 /// Optional-string update helper. PATCH semantics — absent ≠ `null`.
@@ -118,13 +146,14 @@ fn parent_collection(kind: &str) -> Option<&'static str> {
     }
 }
 
-/// Fetch the parent record (scoped by `userId`) and build the lineage
-/// chain a freshly-created Bill should inherit. Returns `Ok(None)` if
-/// the parent doesn't exist, isn't owned by the caller, or `kind` isn't
-/// a recognised Bill lineage parent.
+/// Fetch the parent record (under the same tenant scope as the new
+/// Bill) and build the lineage chain a freshly-created Bill should
+/// inherit. Returns `Ok(None)` if the parent doesn't exist, isn't owned
+/// by the caller's scope, or `kind` isn't a recognised Bill lineage
+/// parent.
 async fn seed_lineage_from_parent(
     mongo: &MongoHandle,
-    user_oid: ObjectId,
+    scope: &TenantScope,
     parent_kind: &str,
     parent_id_hex: &str,
 ) -> Result<Option<(Vec<LineageRef>, ObjectId, &'static str)>> {
@@ -134,8 +163,10 @@ async fn seed_lineage_from_parent(
     };
     let parent_oid = oid_from_str(parent_id_hex)?;
     let coll = mongo.collection::<Document>(coll_name);
+    let mut parent_filter = scope.filter();
+    parent_filter.insert("_id", parent_oid);
     let parent = match coll
-        .find_one(doc! { "_id": parent_oid, "userId": user_oid })
+        .find_one(parent_filter)
         .await
         .map_err(|e| {
             ApiError::Internal(
@@ -176,12 +207,13 @@ async fn seed_lineage_from_parent(
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn list_bills(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Query(q): Query<ListQuery>,
 ) -> Result<Json<Vec<Bill>>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, q.project_id.as_deref())?;
 
-    let mut filter = base_ownership_filter(user_id);
+    let mut filter = base_ownership_filter(&scope);
     if let Some(needle) = q.q.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
         let regex = doc! { "$regex": needle, "$options": "i" };
         filter.insert(
@@ -239,13 +271,15 @@ pub async fn list_bills(
 #[instrument(skip_all, fields(user_id = %user.user_id, bill_id = %bill_id))]
 pub async fn get_bill(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(bill_id): Path<String>,
+    Query(scope_q): Query<ScopeQuery>,
 ) -> Result<Json<Bill>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, scope_q.project_id.as_deref())?;
     let bill_oid = oid_from_str(&bill_id)?;
 
-    let mut filter = base_ownership_filter(user_id);
+    let mut filter = base_ownership_filter(&scope);
     filter.insert("_id", bill_oid);
 
     let coll = mongo.collection::<Bill>(BILLS_COLL);
@@ -276,6 +310,7 @@ pub async fn get_bill(
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn create_bill(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Json(input): Json<CreateBillInput>,
 ) -> Result<Json<Bill>> {
@@ -288,12 +323,21 @@ pub async fn create_bill(
     }
 
     let user_id = user_oid(&user)?;
-    let project_id = match input.project_id.as_deref().filter(|s| !s.is_empty()) {
-        Some(s) => oid_from_str(s)?,
-        // Match the §2.3 spec — projectId is required, but we mint a
-        // fresh OID for legacy single-tenant callers that omit it. The
-        // UI is expected to supply a real projectId in production.
-        None => ObjectId::new(),
+    // In project mode the body's `projectId` IS the tenant scope and is
+    // therefore mandatory (4xx when absent) — `resolve_scope` enforces
+    // that. In legacy user mode the scope is the JWT subject and the
+    // body `projectId` stays optional, exactly as before.
+    let scope = resolve_scope(mode, &user, input.project_id.as_deref())?;
+    let project_id = match scope {
+        TenantScope::Project(p) => p,
+        TenantScope::User(_) => match input.project_id.as_deref().filter(|s| !s.is_empty()) {
+            Some(s) => oid_from_str(s)?,
+            // Match the §2.3 spec — projectId is required, but we mint
+            // a fresh OID for legacy single-tenant callers that omit
+            // it. The UI is expected to supply a real projectId in
+            // production.
+            None => ObjectId::new(),
+        },
     };
     let vendor_oid = oid_from_str(&input.vendor_id)?;
 
@@ -314,7 +358,7 @@ pub async fn create_bill(
             .map(str::trim)
             .filter(|s| !s.is_empty()),
     ) {
-        match seed_lineage_from_parent(&mongo, user_id, kind, parent_id).await {
+        match seed_lineage_from_parent(&mongo, &scope, kind, parent_id).await {
             Ok(Some((lineage, parent_oid, parent_coll))) => {
                 lineage_array = Some(
                     lineage
@@ -478,9 +522,11 @@ pub async fn create_bill(
     // back-link still returns the freshly-created Bill.
     if let Some((parent_oid, parent_coll)) = parent_backlink {
         let parent = mongo.collection::<Document>(parent_coll);
+        let mut parent_filter = scope.filter();
+        parent_filter.insert("_id", parent_oid);
         let _ = parent
             .update_one(
-                doc! { "_id": parent_oid, "userId": user_id },
+                parent_filter,
                 doc! {
                     "$push": { "lineage": { "kind": "bill", "id": new_oid } },
                     "$set":  { "updatedAt": now },
@@ -491,8 +537,10 @@ pub async fn create_bill(
 
     // Re-read via the typed collection so the response shape is stable.
     let typed = mongo.collection::<Bill>(BILLS_COLL);
+    let mut reread_filter = scope.filter();
+    reread_filter.insert("_id", new_oid);
     let bill = typed
-        .find_one(doc! { "_id": new_oid, "userId": user_id })
+        .find_one(reread_filter)
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_bills.find_one(after-insert)"))
@@ -522,8 +570,10 @@ pub async fn create_bill(
 #[instrument(skip_all, fields(user_id = %user.user_id, bill_id = %bill_id))]
 pub async fn update_bill(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(bill_id): Path<String>,
+    Query(scope_q): Query<ScopeQuery>,
     Json(input): Json<UpdateBillInput>,
 ) -> Result<Json<Bill>> {
     if input.is_empty() {
@@ -533,6 +583,7 @@ pub async fn update_bill(
     }
 
     let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, scope_q.project_id.as_deref())?;
     let bill_oid = oid_from_str(&bill_id)?;
 
     let mut set = doc! {
@@ -603,7 +654,7 @@ pub async fn update_bill(
         set.insert("status", status);
     }
 
-    let mut filter = base_ownership_filter(user_id);
+    let mut filter = base_ownership_filter(&scope);
     filter.insert("_id", bill_oid);
 
     let coll = mongo.collection::<Document>(BILLS_COLL);
@@ -639,13 +690,16 @@ pub async fn update_bill(
 #[instrument(skip_all, fields(user_id = %user.user_id, bill_id = %bill_id))]
 pub async fn delete_bill(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(bill_id): Path<String>,
+    Query(scope_q): Query<ScopeQuery>,
 ) -> Result<Json<serde_json::Value>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, scope_q.project_id.as_deref())?;
     let bill_oid = oid_from_str(&bill_id)?;
 
-    let filter = doc! { "_id": bill_oid, "userId": user_id };
+    let mut filter = scope.filter();
+    filter.insert("_id", bill_oid);
 
     let coll = mongo.collection::<Document>(BILLS_COLL);
     let res = coll
@@ -683,10 +737,21 @@ mod tests {
     }
 
     #[test]
-    fn base_filter_excludes_archived() {
+    fn base_filter_excludes_archived_user_scope() {
         let oid = ObjectId::new();
-        let f = base_ownership_filter(oid);
+        let f = base_ownership_filter(&TenantScope::User(oid));
         assert_eq!(f.get_object_id("userId").unwrap(), oid);
+        assert!(!f.contains_key("projectId"));
+        let archived = f.get_document("archived").unwrap();
+        assert!(archived.contains_key("$ne"));
+    }
+
+    #[test]
+    fn base_filter_excludes_archived_project_scope() {
+        let oid = ObjectId::new();
+        let f = base_ownership_filter(&TenantScope::Project(oid));
+        assert_eq!(f.get_object_id("projectId").unwrap(), oid);
+        assert!(!f.contains_key("userId"));
         let archived = f.get_document("archived").unwrap();
         assert!(archived.contains_key("$ne"));
     }

@@ -61,6 +61,26 @@ pub enum TriggerEvent {
     RecordUpdated,
     #[serde(rename = "record.deleted")]
     RecordDeleted,
+    /// The record's pipeline-stage field changed value (ported from the
+    /// legacy CRM's `stage_changed`). The watched field defaults to
+    /// `data.stage` (the pipelines board default); a trigger may override it
+    /// via a flattened `field` key and narrow on `fromValue` / `toValue`.
+    #[serde(rename = "record.stage_changed")]
+    RecordStageChanged,
+    /// The record's `status` field changed value (ported from the legacy
+    /// CRM's `status_changed`). Mechanically identical to
+    /// [`TriggerEvent::RecordStageChanged`] but watching `data.status` by
+    /// default — in SabCRM "stage" (pipeline position) and "status" (a SELECT
+    /// field) are distinct record fields, so both events are kept.
+    #[serde(rename = "record.status_changed")]
+    RecordStatusChanged,
+    /// Time-based trigger (ported from the legacy CRM's `time_elapsed`):
+    /// fires for records that have been idle for a configured duration.
+    /// Definition-only on this surface — evaluation happens in the SabCRM
+    /// scheduler tick (`src/lib/sabcrm/scheduler.ts`, `/api/cron/sabcrm-workflows`).
+    /// Config rides as flattened trigger keys — see [`TimeElapsedConfig`].
+    #[serde(rename = "time.elapsed")]
+    TimeElapsed,
     #[serde(rename = "manual")]
     Manual,
     #[serde(rename = "cron")]
@@ -70,6 +90,48 @@ pub enum TriggerEvent {
     /// Any event slug the engine does not yet model.
     #[serde(other)]
     Other,
+}
+
+/// Typed view of a `time.elapsed` trigger's flattened config keys.
+///
+/// The persisted trigger is still a free-form `Value` (extra keys flow through
+/// [`WorkflowTrigger::extra`]); this struct documents + parses the slice the
+/// scheduler consumes. All keys are serde-defaulted so any historical trigger
+/// (or one carrying only some of the duration units) deserializes fine. The
+/// effective threshold is `afterMinutes + afterHours·60 + afterDays·1440`
+/// minutes; a zero total disables the trigger.
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct TimeElapsedConfig {
+    /// Minutes component of the idle threshold.
+    #[serde(default)]
+    pub after_minutes: Option<u64>,
+    /// Hours component of the idle threshold.
+    #[serde(default)]
+    pub after_hours: Option<u64>,
+    /// Days component of the idle threshold.
+    #[serde(default)]
+    pub after_days: Option<u64>,
+    /// Which record timestamp anchors the elapsed check. `"updatedAt"`
+    /// (default) and `"createdAt"` read the top-level record timestamps; any
+    /// other value reads `data.<sinceField>` (expected to be RFC3339).
+    #[serde(default)]
+    pub since_field: Option<String>,
+}
+
+impl TimeElapsedConfig {
+    /// Parse the config slice out of a raw trigger value. Unknown / malformed
+    /// keys fall back to the default rather than failing the trigger.
+    pub fn from_trigger(trigger: &Value) -> Self {
+        serde_json::from_value(trigger.clone()).unwrap_or_default()
+    }
+
+    /// The total idle threshold in minutes (0 → trigger disabled).
+    pub fn total_minutes(&self) -> u64 {
+        self.after_minutes.unwrap_or(0)
+            + self.after_hours.unwrap_or(0) * 60
+            + self.after_days.unwrap_or(0) * 60 * 24
+    }
 }
 
 /// A workflow trigger: the firing event coupled to the target object slug.
@@ -109,6 +171,12 @@ pub enum StepType {
     IfElse,
     FindRecords,
     UpsertRecord,
+    /// Send a WhatsApp template message through the WaChat engine (ported
+    /// from the legacy CRM's `send_whatsapp_template`). Config carries
+    /// `{ templateId, to, variables?, mediaId? }`; execution lives in the TS
+    /// runtime (`src/lib/sabcrm/runtime.ts`), which calls the existing
+    /// `/v1/wachat/templates/{id}/send` surface.
+    SendWhatsappTemplate,
     /// Any step kind the engine models but this enum does not yet name.
     #[serde(other)]
     Other,
@@ -289,4 +357,116 @@ pub struct WorkflowResponse {
 #[derive(Debug, Clone, Serialize, ToSchema)]
 pub struct OkResponse {
     pub ok: bool,
+}
+
+// ===========================================================================
+// tests — serde stays additive: legacy documents keep deserializing
+// ===========================================================================
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::json;
+
+    /// The original three record-lifecycle events still round-trip verbatim.
+    #[test]
+    fn legacy_record_events_round_trip() {
+        for slug in ["record.created", "record.updated", "record.deleted"] {
+            let ev: TriggerEvent = serde_json::from_value(json!(slug)).expect("parse");
+            assert_ne!(ev, TriggerEvent::Other, "{slug} must stay a named variant");
+            assert_eq!(serde_json::to_value(&ev).expect("ser"), json!(slug));
+        }
+    }
+
+    /// The ported legacy-CRM events parse to their new named variants and
+    /// serialize back to the same slugs.
+    #[test]
+    fn ported_legacy_events_round_trip() {
+        let cases = [
+            ("record.stage_changed", TriggerEvent::RecordStageChanged),
+            ("record.status_changed", TriggerEvent::RecordStatusChanged),
+            ("time.elapsed", TriggerEvent::TimeElapsed),
+        ];
+        for (slug, expected) in cases {
+            let ev: TriggerEvent = serde_json::from_value(json!(slug)).expect("parse");
+            assert_eq!(ev, expected);
+            assert_eq!(serde_json::to_value(&ev).expect("ser"), json!(slug));
+        }
+    }
+
+    /// Unknown event slugs still fall through to `Other` (forward compat).
+    #[test]
+    fn unknown_event_is_other() {
+        let ev: TriggerEvent =
+            serde_json::from_value(json!("record.someday_event")).expect("parse");
+        assert_eq!(ev, TriggerEvent::Other);
+    }
+
+    /// A `record.stage_changed` trigger with flattened from/to filters still
+    /// validates as a [`WorkflowTrigger`] (extras flow into `extra`).
+    #[test]
+    fn stage_changed_trigger_validates_with_extras() {
+        let t: WorkflowTrigger = serde_json::from_value(json!({
+            "event": "record.stage_changed",
+            "object": "opportunities",
+            "field": "stage",
+            "fromValue": "qualified",
+            "toValue": "won"
+        }))
+        .expect("trigger parses");
+        assert_eq!(t.event, TriggerEvent::RecordStageChanged);
+        assert_eq!(t.object.as_deref(), Some("opportunities"));
+        assert_eq!(t.extra.get("fromValue"), Some(&json!("qualified")));
+    }
+
+    /// The new step type parses; legacy step docs keep deserializing.
+    #[test]
+    fn send_whatsapp_template_step_parses() {
+        let s: WorkflowStep = serde_json::from_value(json!({
+            "id": "step_1",
+            "type": "send_whatsapp_template",
+            "config": { "templateId": "tpl1", "to": "{{trigger.phone}}" }
+        }))
+        .expect("step parses");
+        assert_eq!(s.step_type, StepType::SendWhatsappTemplate);
+        assert!(s.enabled, "enabled defaults true");
+
+        let legacy: WorkflowStep = serde_json::from_value(json!({
+            "id": "step_2",
+            "type": "create_task",
+            "config": { "title": "Follow up" }
+        }))
+        .expect("legacy step parses");
+        assert_eq!(legacy.step_type, StepType::CreateTask);
+    }
+
+    /// `TimeElapsedConfig` is fully serde-defaulted: a bare trigger parses to
+    /// the disabled baseline; duration units compose into total minutes.
+    #[test]
+    fn time_elapsed_config_defaults_and_totals() {
+        let bare = TimeElapsedConfig::from_trigger(&json!({ "event": "time.elapsed" }));
+        assert_eq!(bare, TimeElapsedConfig::default());
+        assert_eq!(bare.total_minutes(), 0, "no duration → disabled");
+
+        let cfg = TimeElapsedConfig::from_trigger(&json!({
+            "event": "time.elapsed",
+            "object": "leads",
+            "afterMinutes": 30,
+            "afterHours": 2,
+            "afterDays": 1,
+            "sinceField": "updatedAt"
+        }));
+        assert_eq!(cfg.total_minutes(), 30 + 120 + 1440);
+        assert_eq!(cfg.since_field.as_deref(), Some("updatedAt"));
+    }
+
+    /// Malformed duration keys fall back to the default rather than erroring.
+    #[test]
+    fn malformed_time_elapsed_config_falls_back() {
+        let cfg = TimeElapsedConfig::from_trigger(&json!({
+            "event": "time.elapsed",
+            "afterMinutes": "not-a-number"
+        }));
+        assert_eq!(cfg, TimeElapsedConfig::default());
+    }
 }

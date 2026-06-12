@@ -1,14 +1,18 @@
 'use client';
 
 /**
- * SabCRM hub (`/sabcrm`) — the client surface.
+ * SabCRM hub (`/sabcrm`) — the client surface, 20ui.
  *
  * A live, data-driven entry page: it loads the workspace's real objects from
  * the data model (so custom objects + the renamed Leads show up, and the stale
  * `opportunities` slug is hidden) and a record count per object, then renders a
- * polished card grid + quick actions. Everything fails closed to a sensible
- * empty/skeleton state so the page always renders inside the `.sabcrm-twenty`
- * frame.
+ * polished card grid + quick links. Everything fails closed to a sensible
+ * empty/skeleton state so the page always renders inside the suite frame.
+ *
+ * 20ui only (`@/components/sabcrm/20ui` — PageHeader family, Card, Skeleton,
+ * EmptyState, Button) plus the sibling `./hub.css` for page-local layout
+ * (`.hub-*`, scoped to the 20ui root). The data layer is unchanged:
+ * `listObjectsTw` + `countSabcrmRecordsTw`, both gated server actions.
  */
 
 import * as React from 'react';
@@ -30,15 +34,23 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 
-import { TwentyPageHeader } from '@/components/sabcrm/twenty';
-import { Card, Skeleton } from '@/components/sabcrm/20ui';
-import { useSabcrmSettings } from '@/components/sabcrm/twenty/sabcrm-settings-context';
+import {
+  Card,
+  Skeleton,
+  EmptyState,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  ICONS,
+} from '@/components/sabcrm/20ui';
 import { useProject } from '@/context/project-context';
 import { listObjectsTw } from '@/app/actions/sabcrm-objects.actions';
 import { countSabcrmRecordsTw } from '@/app/actions/sabcrm-twenty.actions';
 import type { ObjectMetadata } from '@/lib/rust-client/sabcrm-objects';
-import { ICONS } from '@/components/sabcrm/20ui';
-import './home.css';
+
+import '@/components/sabcrm/20ui/surface-crm-base.css';
+import './hub.css';
 
 const STANDARD_ICON: Record<string, LucideIcon> = {
   companies: Building2,
@@ -69,7 +81,6 @@ const QUICK_ACTIONS: ReadonlyArray<{
 
 export function SabcrmHomeClient(): React.JSX.Element {
   const { activeProjectId } = useProject();
-  const { general } = useSabcrmSettings();
   const [objects, setObjects] = React.useState<ObjectMetadata[] | null>(null);
   const [counts, setCounts] = React.useState<Record<string, number>>({});
 
@@ -112,32 +123,29 @@ export function SabcrmHomeClient(): React.JSX.Element {
     };
   }, [objects, activeProjectId]);
 
-  const workspaceName = general.workspaceName?.trim();
-
   return (
-    <div className="st-home">
-      <div className="st-home__inner">
-        <div className="st-home__hero">
-          <TwentyPageHeader
-            title={workspaceName ? `${workspaceName} CRM` : 'SabCRM'}
-            icon={Building2}
-          />
-          <p className="st-lead">
-            Your data, organised by object. Open any object to browse, filter and
-            manage its records.
-          </p>
-        </div>
+    <div className="hub-page">
+      <div className="hub-page__inner">
+        <PageHeader>
+          <PageHeaderHeading>
+            <PageTitle>SabCRM</PageTitle>
+            <PageDescription>
+              Your data, organised by object. Open any object to browse, filter
+              and manage its records.
+            </PageDescription>
+          </PageHeaderHeading>
+        </PageHeader>
 
         {objects === null ? (
-          <ul className="st-obj-grid" aria-busy="true">
+          <ul className="hub-grid" aria-busy="true">
             {Array.from({ length: 6 }).map((_, i) => (
-              <li key={i} style={{ display: 'flex' }}>
+              <li key={i} className="hub-grid__item">
                 <Card
                   variant="outlined"
-                  className="st-obj-card--skeleton"
+                  className="hub-card--skeleton"
                   aria-hidden="true"
                 >
-                  <div className="st-obj-card__top">
+                  <div className="hub-card__top">
                     <Skeleton width={32} height={32} radius="var(--st-radius)" />
                     <Skeleton width={96} height={16} />
                   </div>
@@ -147,42 +155,50 @@ export function SabcrmHomeClient(): React.JSX.Element {
             ))}
           </ul>
         ) : objects.length === 0 ? (
-          <div className="st-home__empty">
-            <Database size={22} aria-hidden="true" />
-            <p>No objects yet. Create one in the data model to get started.</p>
-            <Link href="/dashboard/settings/crm/data-model" className="st-quick-link">
-              <Plus size={14} aria-hidden="true" />
-              Open data model
-            </Link>
+          <div className="hub-empty">
+            <EmptyState
+              icon={Database}
+              title="No objects yet"
+              description="Create one in the data model to get started."
+              action={
+                <Link
+                  href="/dashboard/settings/crm/data-model"
+                  className="hub-quick__link"
+                >
+                  <Plus size={14} aria-hidden="true" />
+                  Open data model
+                </Link>
+              }
+            />
           </div>
         ) : (
-          <ul className="st-obj-grid">
+          <ul className="hub-grid">
             {objects.map((object) => {
               const Icon = iconFor(object);
               const count = counts[object.slug];
               return (
-                <li key={object.slug} style={{ display: 'flex' }}>
-                  <Card variant="interactive" padding="none" className="st-obj-card-shell">
+                <li key={object.slug} className="hub-grid__item">
+                  <Card variant="interactive" padding="none" className="hub-card-shell">
                     <Link
                       href={`/sabcrm/${object.slug}`}
-                      className="st-obj-card"
+                      className="hub-card"
                       aria-label={`${object.labelPlural}, view all`}
                     >
-                      <div className="st-obj-card__top">
-                        <span className="st-obj-card__icon" aria-hidden="true">
+                      <div className="hub-card__top">
+                        <span className="hub-card__icon" aria-hidden="true">
                           <Icon size={18} />
                         </span>
-                        <span className="st-obj-card__label">
+                        <span className="hub-card__label">
                           {object.labelPlural}
                         </span>
                         {count !== undefined && (
-                          <span className="st-obj-card__count">{count}</span>
+                          <span className="hub-card__count">{count}</span>
                         )}
                       </div>
                       {object.description ? (
-                        <span className="st-obj-card__desc">{object.description}</span>
+                        <span className="hub-card__desc">{object.description}</span>
                       ) : null}
-                      <span className="st-obj-card__cta">
+                      <span className="hub-card__cta">
                         View all
                         <ArrowRight size={13} aria-hidden="true" />
                       </span>
@@ -194,9 +210,9 @@ export function SabcrmHomeClient(): React.JSX.Element {
           </ul>
         )}
 
-        <nav className="st-quick" aria-label="Quick links">
+        <nav className="hub-quick" aria-label="Quick links">
           {QUICK_ACTIONS.map(({ href, label, icon: Icon }) => (
-            <Link key={href} href={href} className="st-quick-link">
+            <Link key={href} href={href} className="hub-quick__link">
               <Icon size={14} aria-hidden="true" />
               {label}
             </Link>

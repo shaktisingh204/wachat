@@ -29,8 +29,35 @@ import {
 import type { SabcrmRustRecord } from '@/app/actions/sabcrm-twenty.actions.types';
 import type { ObjectMetadata } from '@/lib/sabcrm/types';
 import { RecordDetailTw } from './record-detail-tw';
+import { RecordDetailSurface } from './record-detail-surface';
 
-export default function SabcrmTwentyDetailPage(): React.JSX.Element {
+/**
+ * Flag gate for the NEW 20ui RecordSurface detail experience — the SAME flag
+ * + slug logic as the list cutover in `../page.tsx`:
+ * `NEXT_PUBLIC_SABCRM_RECORD_SURFACE` = `'1'` | `'all'` (every object) or a
+ * comma-list of object slugs (e.g. `'people,companies'`). Unset/empty → the
+ * legacy Twenty-styled page below renders unchanged.
+ */
+function recordSurfaceEnabled(slug: string): boolean {
+  const flag = (process.env.NEXT_PUBLIC_SABCRM_RECORD_SURFACE ?? '').trim();
+  if (!flag) return false;
+  if (flag === '1' || flag === 'all') return true;
+  return flag
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .includes(slug);
+}
+
+export default function SabcrmRecordDetailPage(): React.JSX.Element {
+  const params = useParams<{ objectSlug: string }>();
+  if (recordSurfaceEnabled(params?.objectSlug ?? '')) {
+    return <RecordDetailSurface />;
+  }
+  return <SabcrmTwentyDetailPage />;
+}
+
+function SabcrmTwentyDetailPage(): React.JSX.Element {
   const params = useParams<{ objectSlug: string; recordId: string }>();
   const objectSlug = params?.objectSlug ?? '';
   const recordId = params?.recordId ?? '';

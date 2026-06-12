@@ -1,0 +1,435 @@
+/* =========================================================================
+   RecordDetail / RecordPanel / RecordTabs — the RecordSurface detail page
+   (composites/record).
+
+   Calm, Linear-grade. Tokens only (--st-* / --u-*); dark mode comes for free
+   through the token layer. Every rule is scoped under the 20ui roots —
+   `:is(.\32 0ui, .ui20)` — NEVER a bare `.20ui.foo` compound (the leading
+   digit breaks the selector; see 20ui scope-rename fallout).
+   ========================================================================= */
+
+/* ------------------------------------------------------------------ shell */
+
+:is(.\32 0ui, .ui20) .rd {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+  background: var(--st-bg);
+  color: var(--st-text);
+  font-family: var(--st-font);
+  font-size: var(--st-font-size);
+}
+
+/* ----------------------------------------------------------------- header */
+
+:is(.\32 0ui, .ui20) .rd-header {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-3);
+  padding: var(--st-space-3) var(--st-space-4);
+  border-bottom: 1px solid var(--st-border);
+  background: var(--st-bg);
+  flex: none;
+}
+
+:is(.\32 0ui, .ui20) .rd-header__back {
+  flex: none;
+}
+
+:is(.\32 0ui, .ui20) .rd-header__main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+:is(.\32 0ui, .ui20) .rd-header__crumb {
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-tertiary);
+  min-width: 0;
+}
+
+:is(.\32 0ui, .ui20) .rd-header__titlerow {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  min-width: 0;
+}
+
+:is(.\32 0ui, .ui20) .rd-header__title {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--st-text);
+  padding: 2px var(--st-space-1);
+  margin-left: calc(var(--st-space-1) * -1);
+  border-radius: var(--st-radius-sm);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+:is(.\32 0ui, .ui20) .rd-header__title.is-editable {
+  cursor: text;
+  transition: background-color var(--u-dur-fast, 120ms) var(--u-ease-out, ease-out);
+}
+
+:is(.\32 0ui, .ui20) .rd-header__title.is-editable:hover {
+  background: var(--st-hover);
+}
+
+:is(.\32 0ui, .ui20) .rd-header__title.is-editable:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}
+
+:is(.\32 0ui, .ui20) .rd-header__title-editor {
+  flex: 1;
+  min-width: 180px;
+  max-width: 420px;
+}
+
+:is(.\32 0ui, .ui20) .rd-header__title-saving {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--st-accent);
+  animation: rd-pulse 1s ease-in-out infinite;
+  flex: none;
+}
+
+/* Favorite star — filled amber when active. */
+:is(.\32 0ui, .ui20) .rd-header__fav svg {
+  transition: fill var(--u-dur-fast, 120ms) var(--u-ease-out, ease-out);
+}
+
+:is(.\32 0ui, .ui20) .rd-header__fav.is-active svg {
+  fill: var(--u-brand-amber, #f5a623);
+  color: var(--u-brand-amber, #f5a623);
+}
+
+:is(.\32 0ui, .ui20) .rd-header__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  flex: none;
+  margin-left: auto;
+}
+
+/* ------------------------------------------------------------------- body */
+
+:is(.\32 0ui, .ui20) .rd-body {
+  display: grid;
+  grid-template-columns: 340px minmax(0, 1fr);
+  flex: 1;
+  min-height: 0;
+}
+
+/* ------------------------------------------------------------- field panel */
+
+:is(.\32 0ui, .ui20) .rd-panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+  border-right: 1px solid var(--st-border);
+  background: var(--st-bg);
+}
+
+:is(.\32 0ui, .ui20) .rd-panel__scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--st-space-3) var(--st-space-3) var(--st-space-4);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+:is(.\32 0ui, .ui20) .rd-panel__empty {
+  margin: var(--st-space-4) var(--st-space-2);
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-tertiary);
+}
+
+:is(.\32 0ui, .ui20) .rd-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--st-space-2) var(--st-space-2);
+  border-radius: var(--st-radius);
+}
+
+:is(.\32 0ui, .ui20) .rd-row__label {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-1);
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text-tertiary);
+  min-width: 0;
+}
+
+:is(.\32 0ui, .ui20) .rd-row__label-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+:is(.\32 0ui, .ui20) .rd-row__saving {
+  animation: rd-spin 0.8s linear infinite;
+  color: var(--st-text-tertiary);
+  flex: none;
+}
+
+:is(.\32 0ui, .ui20) .rd-row__value {
+  display: flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 2px var(--st-space-1);
+  margin-left: calc(var(--st-space-1) * -1);
+  border-radius: var(--st-radius-sm);
+  cursor: pointer;
+  min-width: 0;
+  transition: background-color var(--u-dur-fast, 120ms) var(--u-ease-out, ease-out);
+}
+
+:is(.\32 0ui, .ui20) .rd-row__value:hover {
+  background: var(--st-hover);
+}
+
+:is(.\32 0ui, .ui20) .rd-row__value:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}
+
+:is(.\32 0ui, .ui20) .rd-row__editor {
+  min-width: 0;
+}
+
+/* ------------------------------------------------------------------- tabs */
+
+:is(.\32 0ui, .ui20) .rd-tabs {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+
+:is(.\32 0ui, .ui20) .rd-tabs__strip {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1;
+}
+
+:is(.\32 0ui, .ui20) .rd-tabs__strip > .u-tabs__list {
+  padding: 0 var(--st-space-4);
+  border-bottom: 1px solid var(--st-border);
+  flex: none;
+}
+
+:is(.\32 0ui, .ui20) .rd-tabs__panel {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--st-space-4);
+}
+
+:is(.\32 0ui, .ui20) .rd-tabs__panel:focus-visible {
+  outline: none;
+  box-shadow: inset var(--u-focus-ring);
+}
+
+/* Loading-state stand-ins. */
+:is(.\32 0ui, .ui20) .rd-tabs__skeleton {
+  display: flex;
+  gap: var(--st-space-4);
+  padding: var(--st-space-3) var(--st-space-4);
+  border-bottom: 1px solid var(--st-border);
+}
+
+:is(.\32 0ui, .ui20) .rd-tabs__skeleton-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-3);
+  padding: var(--st-space-4);
+}
+
+/* ------------------------------------------------------------ empty state */
+
+:is(.\32 0ui, .ui20) .rd-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--st-space-1);
+  padding: var(--st-space-4);
+  margin: var(--st-space-4) auto;
+  max-width: 360px;
+  text-align: center;
+}
+
+:is(.\32 0ui, .ui20) .rd-empty__icon {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--st-bg-muted);
+  color: var(--st-text-tertiary);
+  margin-bottom: var(--st-space-1);
+}
+
+:is(.\32 0ui, .ui20) .rd-empty__title {
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text-secondary);
+}
+
+:is(.\32 0ui, .ui20) .rd-empty__hint {
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-tertiary);
+}
+
+/* --------------------------------------------------------------- timeline */
+
+:is(.\32 0ui, .ui20) .rd-timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+:is(.\32 0ui, .ui20) .rd-timeline__item {
+  position: relative;
+  display: flex;
+  gap: var(--st-space-3);
+  padding: var(--st-space-2) 0 var(--st-space-3);
+}
+
+/* The connecting rail — hidden after the last entry. */
+:is(.\32 0ui, .ui20) .rd-timeline__item::before {
+  content: '';
+  position: absolute;
+  left: 11px;
+  top: 32px;
+  bottom: calc(var(--st-space-1) * -1);
+  width: 1px;
+  background: var(--st-border-light);
+}
+
+:is(.\32 0ui, .ui20) .rd-timeline__item:last-child::before {
+  display: none;
+}
+
+:is(.\32 0ui, .ui20) .rd-timeline__dot {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid var(--st-border);
+  background: var(--st-bg-secondary);
+  color: var(--st-text-secondary);
+  flex: none;
+  margin-top: 2px;
+  z-index: 1;
+}
+
+:is(.\32 0ui, .ui20) .rd-timeline__content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+:is(.\32 0ui, .ui20) .rd-timeline__head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--st-space-2);
+  min-width: 0;
+}
+
+:is(.\32 0ui, .ui20) .rd-timeline__title {
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+:is(.\32 0ui, .ui20) .rd-timeline__time {
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-tertiary);
+  white-space: nowrap;
+  margin-left: auto;
+  flex: none;
+}
+
+:is(.\32 0ui, .ui20) .rd-timeline__meta {
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-secondary);
+  overflow-wrap: anywhere;
+}
+
+:is(.\32 0ui, .ui20) .rd-timeline__actor {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-1);
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-tertiary);
+  margin-top: 2px;
+}
+
+/* ------------------------------------------------------------- responsive */
+
+@media (max-width: 900px) {
+  :is(.\32 0ui, .ui20) .rd-body {
+    grid-template-columns: minmax(0, 1fr);
+    overflow-y: auto;
+  }
+
+  :is(.\32 0ui, .ui20) .rd-panel {
+    border-right: none;
+    border-bottom: 1px solid var(--st-border);
+  }
+
+  /* The page scrolls as one column; the inner regions stop owning scroll. */
+  :is(.\32 0ui, .ui20) .rd-panel__scroll,
+  :is(.\32 0ui, .ui20) .rd-tabs__panel {
+    overflow-y: visible;
+  }
+}
+
+/* ---------------------------------------------------------------- motion */
+
+@keyframes rd-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes rd-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :is(.\32 0ui, .ui20) .rd-row__saving,
+  :is(.\32 0ui, .ui20) .rd-header__title-saving {
+    animation-duration: 2s;
+  }
+}

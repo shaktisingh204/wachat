@@ -33,7 +33,7 @@ export function ProjectsList({ projects, onOpen }: ProjectsListProps): React.JSX
         key: 'name',
         header: 'Project',
         sortable: true,
-        render: (p) => <span className="pm-cell-name">{p.name}</span>,
+        render: (p) => <span className="pj-cell-name">{p.name}</span>,
       },
       {
         key: 'status',
@@ -67,7 +67,7 @@ export function ProjectsList({ projects, onOpen }: ProjectsListProps): React.JSX
         key: 'owner',
         header: 'Owner',
         sortable: true,
-        render: (p) => p.owner || <span className="pm-muted">—</span>,
+        render: (p) => p.owner || <span className="pj-muted">—</span>,
       },
       {
         key: 'dueDate',
@@ -76,12 +76,12 @@ export function ProjectsList({ projects, onOpen }: ProjectsListProps): React.JSX
         sortValue: (p) => p.dueDate ?? '',
         render: (p) =>
           p.dueDate ? (
-            <span className={isOverdue(p) ? 'pm-due pm-due--over' : 'pm-due'}>
+            <span className={isOverdue(p) ? 'pj-due pj-due--over' : 'pj-due'}>
               {isOverdue(p) ? <CalendarClock size={13} aria-hidden="true" /> : null}
               {formatDate(p.dueDate)}
             </span>
           ) : (
-            <span className="pm-muted">—</span>
+            <span className="pj-muted">—</span>
           ),
       },
       {
@@ -93,9 +93,9 @@ export function ProjectsList({ projects, onOpen }: ProjectsListProps): React.JSX
         render: (p) => {
           const pct = p.progress ?? 0;
           return (
-            <div className="pm-progress-cell">
+            <div className="pj-progress-cell">
               <Progress value={pct} size="sm" tone={pct >= 100 ? 'success' : 'accent'} label={`${pct}% complete`} />
-              <span className="pm-progress-cell__pct">{pct}%</span>
+              <span className="pj-progress-cell__pct">{pct}%</span>
             </div>
           );
         },
@@ -106,7 +106,7 @@ export function ProjectsList({ projects, onOpen }: ProjectsListProps): React.JSX
         sortable: true,
         align: 'right',
         sortValue: (p) => p.budget ?? -1,
-        render: (p) => (p.budget == null ? <span className="pm-muted">—</span> : formatBudget(p.budget)),
+        render: (p) => (p.budget == null ? <span className="pj-muted">—</span> : formatBudget(p.budget)),
       },
     ],
     [],

@@ -4,8 +4,8 @@
   "description": "Consume SendGrid API",
   "category": "communication",
   "iconName": "LuPackage",
-  "version": 11,
-  "lastVerified": "2026-06-11",
+  "version": 12,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "header",
@@ -17,7 +17,7 @@
       "id": "list_create",
       "label": "Create List",
       "method": "POST",
-      "path": "/list",
+      "path": "/marketing/lists",
       "fields": [
         {
           "id": "name",
@@ -28,20 +28,21 @@
         }
       ],
       "group": "List",
-      "description": "[unverified path] Create a list"
+      "description": "Create a list"
     },
     {
       "id": "list_delete",
       "label": "Delete List",
       "method": "DELETE",
-      "path": "/list",
+      "path": "/marketing/lists/{listId}",
       "fields": [
         {
           "id": "listId",
           "label": "List ID",
           "type": "text",
           "required": true,
-          "description": "ID of the list"
+          "description": "ID of the list",
+          "in": "path"
         },
         {
           "id": "deleteContacts",
@@ -52,20 +53,21 @@
         }
       ],
       "group": "List",
-      "description": "[unverified path] Delete a list"
+      "description": "Delete a list"
     },
     {
       "id": "list_get",
       "label": "Get List",
       "method": "GET",
-      "path": "/list",
+      "path": "/marketing/lists/{listId}",
       "fields": [
         {
           "id": "listId",
           "label": "List ID",
           "type": "text",
           "required": true,
-          "description": "ID of the list"
+          "description": "ID of the list",
+          "in": "path"
         },
         {
           "id": "contactSample",
@@ -76,7 +78,7 @@
         }
       ],
       "group": "List",
-      "description": "[unverified path] Get a list"
+      "description": "Get a list"
     },
     {
       "id": "list_get_all",
@@ -106,14 +108,15 @@
       "id": "list_update",
       "label": "Update List",
       "method": "PATCH",
-      "path": "/list",
+      "path": "/marketing/lists/{listId}",
       "fields": [
         {
           "id": "listId",
           "label": "List ID",
           "type": "text",
           "required": true,
-          "description": "ID of the list"
+          "description": "ID of the list",
+          "in": "path"
         },
         {
           "id": "name",
@@ -124,13 +127,13 @@
         }
       ],
       "group": "List",
-      "description": "[unverified path] Update a list"
+      "description": "Update a list"
     },
     {
       "id": "contact_upsert",
       "label": "Create or Update Contact",
-      "method": "POST",
-      "path": "/contact",
+      "method": "PUT",
+      "path": "/marketing/contacts",
       "fields": [
         {
           "id": "email",
@@ -149,13 +152,13 @@
         }
       ],
       "group": "Contact",
-      "description": "[unverified path] Create a new contact, or update the current one if it already exists (upsert)"
+      "description": "Create a new contact, or update the current one if it already exists (upsert)"
     },
     {
       "id": "contact_delete",
       "label": "Delete Contact",
       "method": "DELETE",
-      "path": "/contact",
+      "path": "/marketing/contacts",
       "fields": [
         {
           "id": "ids",
@@ -172,7 +175,7 @@
         }
       ],
       "group": "Contact",
-      "description": "[unverified path] Delete a contact"
+      "description": "Delete a contact"
     },
     {
       "id": "contact_get",
@@ -253,7 +256,7 @@
       "id": "mail_send",
       "label": "Send Mail",
       "method": "POST",
-      "path": "/mail",
+      "path": "/mail/send",
       "fields": [
         {
           "id": "fromEmail",
@@ -336,7 +339,7 @@
         }
       ],
       "group": "Mail",
-      "description": "[unverified path] Send an email"
+      "description": "Send an email"
     }
   ]
 }

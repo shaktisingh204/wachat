@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * SabCRM — Dashboard (Twenty-faithful), now with SAVED dashboards.
+ * SabCRM — Dashboard (`/sabcrm/dashboard`), 20ui, with SAVED dashboards.
  *
  * Two layers share this page:
  *
@@ -21,13 +21,14 @@
  *
  * Everything degrades gracefully: the dashboard list failing falls back to just
  * Overview; one widget failing never breaks its neighbours; the page never
- * throws. Twenty visual language only (`.st-*` + dashboard.css).
+ * throws. 20ui only — every chart renders through the shared charts composites
+ * (`@/components/sabcrm/20ui/composites/charts`); page-local layout lives in
+ * the `cd-*` classes of `./dashboard.css` (scoped to the 20ui root).
  */
 
 import * as React from 'react';
 import Link from 'next/link';
 import {
-  LayoutDashboard,
   TrendingUp,
   CalendarClock,
   Sparkles,
@@ -44,17 +45,35 @@ import {
   RefreshCw,
 } from 'lucide-react';
 
-import { TwentyPageHeader, TwentyButton } from '@/components/sabcrm/twenty';
 import {
   Modal,
   Field,
   Input,
-  Tabs,
+  TabsBar,
   Alert,
   Skeleton,
   EmptyState,
   Button,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardBody,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  PageActions,
 } from '@/components/sabcrm/20ui';
+import {
+  KpiCard,
+  BarChart,
+  LineChart,
+  DonutChart,
+  FunnelChart,
+  type ChartDatum,
+  type FunnelStage,
+} from '@/components/sabcrm/20ui/composites/charts';
 import { useProject } from '@/context/project-context';
 import {
   getKpisAction,
@@ -79,8 +98,7 @@ import {
   deleteDashboardTw,
 } from '@/app/actions/sabcrm-dashboards.actions';
 
-import { useStConfirm } from '@/components/sabcrm/twenty/st-modals';
-import { WidgetTile } from './dashboard-widgets';
+import { WidgetTile, PipelineBody } from './dashboard-widgets';
 import { AddWidgetDialog } from './dashboard-add-widget';
 import {
   normalizeDashboard,
@@ -88,16 +106,7 @@ import {
   type DashboardWidgetTw,
 } from './dashboard-types';
 
-import {
-  TwentyBarChart,
-  TwentyDonutChart,
-  TwentyLineChart,
-} from '@/components/sabcrm/twenty/twenty-charts';
-import {
-  TwentyFunnelChart,
-  type FunnelStage,
-} from '@/components/sabcrm/charts/funnel-chart';
-
+import '@/components/sabcrm/20ui/surface-crm-base.css';
 import './dashboard.css';
 
 /* -------------------------------------------------------------------------- */
@@ -112,6 +121,16 @@ function formatCurrency(n: number): string {
   if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
   if (n >= 1_000) return `$${(n / 1_000).toFixed(1)}K`;
   return `$${formatNumber(n)}`;
+}
+
+function formatMonth(iso: string): string {
+  const d = new Date(`${iso}T00:00:00Z`);
+  if (Number.isNaN(d.getTime())) return iso;
+  return new Intl.DateTimeFormat(undefined, {
+    month: 'short',
+    year: 'numeric',
+    timeZone: 'UTC',
+  }).format(d);
 }
 
 function formatRelative(iso: string): string {
@@ -145,6 +164,7 @@ interface OverviewData {
   kpis: CrmDashboardKpis;
   stageCount: CountByFieldResult | null;
   pipelineByStage: SumByFieldResult | null;
+  ownerCount: CountByFieldResult | null;
   recentOpportunities: CrmRecordWithLabel[] | null;
   oppsByMonth: TimeSeriesResult | null;
 }
@@ -155,41 +175,31 @@ type OverviewState =
   | { status: 'ready'; data: OverviewData };
 
 /* -------------------------------------------------------------------------- */
-/* KPI card                                                                    */
+/* Chart panel — Card chrome shared by every Overview breakdown                */
 /* -------------------------------------------------------------------------- */
 
-interface KpiCardProps {
-  label: string;
-  value: string;
-  icon: React.ReactNode;
-  delta?: string;
-  deltaTone?: 'up' | 'down' | 'neutral';
-}
-
-function KpiCard({
-  label,
-  value,
-  icon,
-  delta,
-  deltaTone = 'neutral',
-}: KpiCardProps): React.JSX.Element {
-  const deltaClass =
-    deltaTone === 'up'
-      ? 'st-kpi__delta st-kpi__delta--up'
-      : deltaTone === 'down'
-        ? 'st-kpi__delta st-kpi__delta--down'
-        : 'st-kpi__delta';
+function ChartPanel({
+  title,
+  description,
+  error,
+  children,
+}: {
+  title: string;
+  description?: string;
+  /** When set the body renders a calm inline error instead of the chart. */
+  error?: string;
+  children: React.ReactNode;
+}): React.JSX.Element {
   return (
-    <div className="st-kpi">
-      <span className="st-kpi__label">
-        <span className="st-kpi__label-icon" aria-hidden="true">
-          {icon}
-        </span>
-        {label}
-      </span>
-      <span className="st-kpi__value">{value}</span>
-      {delta ? <span className={deltaClass}>{delta}</span> : null}
-    </div>
+    <Card className="cd-panel">
+      <CardHeader>
+        <CardTitle>{title}</CardTitle>
+        {description ? <CardDescription>{description}</CardDescription> : null}
+      </CardHeader>
+      <CardBody>
+        {error ? <div className="cd-empty-note">{error}</div> : children}
+      </CardBody>
+    </Card>
   );
 }
 
@@ -207,32 +217,32 @@ function RecentRecordsPanel({
   emptyLabel: string;
 }): React.JSX.Element {
   return (
-    <div className="st-panel">
-      <div className="st-panel__head">{title}</div>
-      {records === null ? (
-        <div className="st-timeline-empty">This widget could not be loaded.</div>
-      ) : records.length === 0 ? (
-        <div className="st-timeline-empty">{emptyLabel}</div>
+    <ChartPanel
+      title={title}
+      error={records === null ? 'This widget could not be loaded.' : undefined}
+    >
+      {records && records.length === 0 ? (
+        <div className="cd-empty-note">{emptyLabel}</div>
       ) : (
-        <ul className="st-reclist">
-          {records.map((record) => {
+        <ul className="cd-reclist">
+          {(records ?? []).map((record) => {
             const label = record.label || 'Untitled';
             return (
-              <li className="st-reclist__row" key={record._id}>
+              <li className="cd-reclist__row" key={record._id}>
                 <Link
                   href={`/sabcrm/${record.object}/${record._id}`}
-                  className="st-reclist__link"
+                  className="cd-reclist__link"
                 >
-                  <span className="st-avatar st-avatar--sm" aria-hidden="true">
+                  <span className="cd-avatar" aria-hidden="true">
                     {initials(label)}
                   </span>
-                  <span className="st-reclist__label">{label}</span>
-                  <span className="st-reclist__meta">
+                  <span className="cd-reclist__label">{label}</span>
+                  <span className="cd-reclist__meta">
                     <Clock size={11} aria-hidden="true" />
                     {formatRelative(record.createdAt)}
                   </span>
                   <ArrowUpRight
-                    className="st-reclist__chevron"
+                    className="cd-reclist__chevron"
                     size={13}
                     aria-hidden="true"
                   />
@@ -242,53 +252,7 @@ function RecentRecordsPanel({
           })}
         </ul>
       )}
-    </div>
-  );
-}
-
-/* -------------------------------------------------------------------------- */
-/* Pipeline summary widget                                                     */
-/* -------------------------------------------------------------------------- */
-
-function PipelineSummaryPanel({
-  pipeline,
-}: {
-  pipeline: SumByFieldResult | null;
-}): React.JSX.Element {
-  const buckets = (pipeline?.buckets ?? []).filter((b) => b.sum > 0);
-  const total = pipeline?.total ?? 0;
-  return (
-    <div className="st-panel">
-      <div className="st-panel__head">Pipeline summary</div>
-      {pipeline === null ? (
-        <div className="st-timeline-empty">This widget could not be loaded.</div>
-      ) : buckets.length === 0 ? (
-        <div className="st-timeline-empty">No pipeline value recorded yet.</div>
-      ) : (
-        <div className="st-pipesum">
-          <div className="st-pipesum__total">
-            <span className="st-pipesum__total-label">Total pipeline</span>
-            <span className="st-pipesum__total-value">
-              {formatCurrency(total)}
-            </span>
-          </div>
-          <ul className="st-pipesum__stages">
-            {buckets.map((b) => {
-              const pct = total > 0 ? Math.round((b.sum / total) * 100) : 0;
-              return (
-                <li className="st-pipesum__stage" key={b.value || '∅'}>
-                  <span className="st-pipesum__stage-label">{b.label}</span>
-                  <span className="st-pipesum__stage-value">
-                    {formatCurrency(b.sum)}
-                  </span>
-                  <span className="st-pipesum__stage-pct">{pct}%</span>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      )}
-    </div>
+    </ChartPanel>
   );
 }
 
@@ -299,14 +263,14 @@ function PipelineSummaryPanel({
 function DashboardSkeleton(): React.JSX.Element {
   return (
     <>
-      <div className="st-dash-kpis" aria-hidden="true">
+      <div className="cd-kpis" aria-hidden="true">
         {Array.from({ length: 4 }).map((_, i) => (
-          <Skeleton key={i} className="st-skel-kpi" />
+          <Skeleton key={i} height={96} radius={10} />
         ))}
       </div>
-      <div className="st-dash-grid" aria-hidden="true">
-        <Skeleton className="st-skel-panel" />
-        <Skeleton className="st-skel-panel" />
+      <div className="cd-grid" aria-hidden="true">
+        <Skeleton height={220} radius={10} />
+        <Skeleton height={220} radius={10} />
       </div>
     </>
   );
@@ -332,6 +296,7 @@ function OverviewView({ data }: { data: OverviewData }): React.JSX.Element {
     kpis,
     stageCount,
     pipelineByStage,
+    ownerCount,
     recentOpportunities,
     oppsByMonth,
   } = data;
@@ -340,6 +305,28 @@ function OverviewView({ data }: { data: OverviewData }): React.JSX.Element {
   const topObject: ObjectRecordCount | undefined = recordCounts
     .slice()
     .sort((a, b) => b.count - a.count)[0];
+
+  // Records by stage — count distribution.
+  const stageRows: ChartDatum[] = (stageCount?.buckets ?? []).map((b) => ({
+    label: b.label || 'Empty',
+    value: b.count,
+  }));
+
+  // New records over time (monthly).
+  const monthRows: ChartDatum[] = (oppsByMonth?.points ?? []).map((p) => ({
+    label: formatMonth(p.date),
+    value: p.count,
+  }));
+
+  // Pipeline value by stage — summed amounts.
+  const pipelineRows: ChartDatum[] = (pipelineByStage?.buckets ?? [])
+    .filter((b) => b.sum > 0)
+    .map((b) => ({ label: b.label || 'Empty', value: b.sum }));
+
+  // Records by owner — distribution donut.
+  const ownerRows: ChartDatum[] = (ownerCount?.buckets ?? [])
+    .filter((b) => b.count > 0)
+    .map((b) => ({ label: b.label || 'Unassigned', value: b.count }));
 
   // Pipeline funnel — ordered, value-weighted bands from the per-stage sum
   // aggregation (highest value first so it reads top-of-funnel → bottom).
@@ -354,13 +341,17 @@ function OverviewView({ data }: { data: OverviewData }): React.JSX.Element {
       display: formatCurrency(b.sum),
     }));
 
+  const pipelineBuckets = (pipelineByStage?.buckets ?? [])
+    .filter((b) => b.sum > 0)
+    .map((b) => ({ value: b.value || '∅', label: b.label, sum: b.sum }));
+
   return (
     <>
-      <section className="st-dash-kpis" aria-label="Key performance indicators">
+      <section className="cd-kpis" aria-label="Key performance indicators">
         <KpiCard
           label="Open pipeline"
           value={formatCurrency(opportunities.pipelineValue)}
-          icon={<TrendingUp size={14} />}
+          icon={TrendingUp}
           delta={`${formatNumber(opportunities.openCount)} open ${
             opportunities.openCount === 1 ? 'lead' : 'leads'
           }`}
@@ -368,7 +359,7 @@ function OverviewView({ data }: { data: OverviewData }): React.JSX.Element {
         <KpiCard
           label="Tasks due today"
           value={formatNumber(tasks.dueToday)}
-          icon={<CalendarClock size={14} />}
+          icon={CalendarClock}
           delta={
             tasks.overdue > 0
               ? `${formatNumber(tasks.overdue)} overdue`
@@ -379,96 +370,101 @@ function OverviewView({ data }: { data: OverviewData }): React.JSX.Element {
         <KpiCard
           label="New this week"
           value={formatNumber(newThisWeek.count)}
-          icon={<Sparkles size={14} />}
+          icon={Sparkles}
           delta="records created"
           deltaTone={newThisWeek.count > 0 ? 'up' : 'neutral'}
+          sparkline={
+            monthRows.length > 1 ? monthRows.map((r) => r.value) : undefined
+          }
         />
         <KpiCard
           label={topObject ? topObject.labelPlural : 'Records'}
           value={formatNumber(topObject ? topObject.count : 0)}
-          icon={
-            topObject?.slug === 'companies' ? (
-              <Building2 size={14} />
-            ) : (
-              <Briefcase size={14} />
-            )
-          }
+          icon={topObject?.slug === 'companies' ? Building2 : Briefcase}
           delta="total records"
         />
       </section>
 
-      <section className="st-dash-grid" aria-label="Breakdowns">
-        {/* Native .sabcrm-twenty charts — inline SVG + --st-* tokens, drawn
-            directly inside the .st-dash-grid (no Ui20 scope wrapper). */}
-
-        {/* Records by stage — native bar chart (countByField). */}
-        <TwentyBarChart
-          series={{
-            kind: 'countByField',
-            result:
-              stageCount ??
-              ({
-                object: 'leads',
-                field: 'stage',
-                buckets: [],
-                total: 0,
-              } as CountByFieldResult),
-          }}
+      <section className="cd-grid" aria-label="Breakdowns">
+        <ChartPanel
           title="Opportunities by stage"
           description="Record count per pipeline stage"
           error={stageCount === null ? 'This chart could not be loaded.' : undefined}
-        />
+        >
+          <BarChart
+            data={stageRows}
+            seriesLabel="Opportunities"
+            emptyLabel="No opportunities to chart yet."
+          />
+        </ChartPanel>
 
-        {/* ARR / pipeline value over time — native line chart (timeSeries). */}
-        <TwentyLineChart
-          data={oppsByMonth ?? undefined}
+        <ChartPanel
           title="New opportunities over time"
-        />
+          description="Created per month"
+          error={oppsByMonth === null ? 'This chart could not be loaded.' : undefined}
+        >
+          <LineChart
+            data={monthRows}
+            seriesLabel="Created"
+            emptyLabel="No opportunities created yet."
+          />
+        </ChartPanel>
 
-        {/* Pipeline value by stage — native horizontal bars (sumByField). */}
-        <TwentyBarChart
-          series={{
-            kind: 'sumByField',
-            result:
-              pipelineByStage ??
-              ({
-                object: 'leads',
-                groupField: 'stage',
-                sumField: 'amount',
-                buckets: [],
-                total: 0,
-              } as SumByFieldResult),
-          }}
+        <ChartPanel
           title="Pipeline value by stage"
           description="Summed amount per stage"
-          formatValue={formatCurrency}
-          layout="horizontal"
           error={
             pipelineByStage === null ? 'This chart could not be loaded.' : undefined
           }
-        />
+        >
+          <BarChart
+            data={pipelineRows}
+            layout="horizontal"
+            formatValue={formatCurrency}
+            seriesLabel="Pipeline"
+            emptyLabel="No pipeline value recorded yet."
+          />
+        </ChartPanel>
 
-        {/* Records by owner — native donut (self-fetching countByField). */}
-        <TwentyDonutChart
-          object="leads"
-          fieldKey="owner"
+        <ChartPanel
           title="Opportunities by owner"
           description="Distribution across record owners"
-        />
+          error={ownerCount === null ? 'This chart could not be loaded.' : undefined}
+        >
+          <DonutChart
+            data={ownerRows}
+            formatValue={formatNumber}
+            emptyLabel="No owners to chart yet."
+          />
+        </ChartPanel>
 
-        {/* Pipeline funnel — ordered, value-weighted bands (.sabcrm-twenty). */}
-        <TwentyFunnelChart
-          title="Pipeline funnel"
-          stages={funnelStages}
-          emptyLabel="No pipeline value recorded yet."
-        />
+        <ChartPanel title="Pipeline funnel">
+          <FunnelChart
+            label="Pipeline funnel"
+            stages={funnelStages}
+            formatValue={formatCurrency}
+            emptyLabel="No pipeline value recorded yet."
+          />
+        </ChartPanel>
 
         <RecentRecordsPanel
           title="Recent opportunities"
           records={recentOpportunities}
           emptyLabel="No opportunities created yet."
         />
-        <PipelineSummaryPanel pipeline={pipelineByStage} />
+
+        <ChartPanel
+          title="Pipeline summary"
+          error={
+            pipelineByStage === null ? 'This widget could not be loaded.' : undefined
+          }
+        >
+          <PipelineBody
+            total={pipelineByStage?.total ?? 0}
+            buckets={pipelineBuckets}
+            empty="No pipeline value recorded yet."
+          />
+        </ChartPanel>
       </section>
     </>
   );
@@ -517,31 +513,38 @@ function SavedDashboardView({
 
   return (
     <>
-      <div className="st-dash-toolbar">
-        <span className="st-dash-toolbar__count">
+      <div className="cd-toolbar">
+        <span className="cd-toolbar__count">
           {dashboard.widgets.length}{' '}
           {dashboard.widgets.length === 1 ? 'widget' : 'widgets'}
         </span>
-        <span className="st-dash-toolbar__spacer" />
-        {busy ? <span className="st-dash-toolbar__saving">Saving…</span> : null}
-        <TwentyButton
+        <span className="cd-toolbar__spacer" />
+        {busy ? <span className="cd-toolbar__saving">Saving…</span> : null}
+        <Button
           variant="ghost"
-          icon={RefreshCw}
+          size="sm"
+          iconLeft={RefreshCw}
           onClick={() => setReloadToken((t) => t + 1)}
           aria-label="Refresh widgets"
         >
           Refresh
-        </TwentyButton>
-        <TwentyButton
+        </Button>
+        <Button
           variant={editing ? 'primary' : 'secondary'}
-          icon={editing ? Check : Pencil}
+          size="sm"
+          iconLeft={editing ? Check : Pencil}
           onClick={() => setEditing((v) => !v)}
         >
           {editing ? 'Done' : 'Edit'}
-        </TwentyButton>
-        <TwentyButton variant="secondary" icon={Plus} onClick={() => setAdding(true)}>
+        </Button>
+        <Button
+          variant="secondary"
+          size="sm"
+          iconLeft={Plus}
+          onClick={() => setAdding(true)}
+        >
           Add widget
-        </TwentyButton>
+        </Button>
       </div>
 
       {dashboard.widgets.length === 0 ? (
@@ -561,7 +564,7 @@ function SavedDashboardView({
         />
       ) : (
         <section
-          className={`st-widget-grid${editing ? ' st-widget-grid--editing' : ''}`}
+          className={`cd-widget-grid${editing ? ' cd-widget-grid--editing' : ''}`}
           aria-label={`${dashboard.name} widgets`}
         >
           {dashboard.widgets.map((widget) => (
@@ -589,7 +592,7 @@ function SavedDashboardView({
 }
 
 /* -------------------------------------------------------------------------- */
-/* Rename dialog                                                               */
+/* Rename + confirm dialogs                                                    */
 /* -------------------------------------------------------------------------- */
 
 function RenameDialog({
@@ -650,6 +653,42 @@ function RenameDialog({
   );
 }
 
+/** A small destructive-confirm dialog (20ui Modal — no Twenty kit). */
+function ConfirmDeleteDialog({
+  title,
+  message,
+  confirmLabel,
+  onCancel,
+  onConfirm,
+}: {
+  title: string;
+  message: string;
+  confirmLabel: string;
+  onCancel: () => void;
+  onConfirm: () => void;
+}): React.JSX.Element {
+  return (
+    <Modal
+      open
+      onClose={onCancel}
+      title={title}
+      size="sm"
+      footer={
+        <>
+          <Button variant="ghost" onClick={onCancel}>
+            Cancel
+          </Button>
+          <Button variant="danger" onClick={onConfirm}>
+            {confirmLabel}
+          </Button>
+        </>
+      }
+    >
+      <p className="cd-confirm-text">{message}</p>
+    </Modal>
+  );
+}
+
 /* -------------------------------------------------------------------------- */
 /* Page                                                                        */
 /* -------------------------------------------------------------------------- */
@@ -669,51 +708,61 @@ export default function SabcrmDashboardPage(): React.JSX.Element {
   const [dashboards, setDashboards] = React.useState<DashboardTw[]>([]);
   const [selectedId, setSelectedId] = React.useState<string>(OVERVIEW_ID);
   const [saving, setSaving] = React.useState(false);
-  const [dialog, setDialog] = React.useState<'new' | 'rename' | null>(null);
+  const [dialog, setDialog] = React.useState<'new' | 'rename' | 'delete' | null>(
+    null,
+  );
   const [notice, setNotice] = React.useState<string | null>(null);
-
-  const { confirm, dialog: confirmDialog } = useStConfirm();
 
   /* ----- Load Overview analytics ----- */
   const loadOverview = React.useCallback(async (projectId: string) => {
     setOverview({ status: 'loading' });
     try {
-      const [kpisRes, stageCountRes, pipelineRes, recentRes, byMonthRes] =
-        await Promise.all([
-          getKpisAction(projectId),
-          runAnalyticsAction(
-            { kind: 'countByField', object: 'leads', fieldKey: 'stage' },
-            projectId,
-          ),
-          runAnalyticsAction(
-            {
-              kind: 'sumByField',
-              object: 'leads',
-              groupFieldKey: 'stage',
-              sumFieldKey: 'amount',
-            },
-            projectId,
-          ),
-          listRecordsAction(
-            {
-              object: 'leads',
-              page: 1,
-              pageSize: 5,
-              sortBy: 'createdAt',
-              sortDir: 'desc',
-            },
-            projectId,
-          ),
-          runAnalyticsAction(
-            {
-              kind: 'timeSeries',
-              object: 'leads',
-              dateField: 'createdAt',
-              interval: 'month',
-            },
-            projectId,
-          ),
-        ]);
+      const [
+        kpisRes,
+        stageCountRes,
+        pipelineRes,
+        ownerCountRes,
+        recentRes,
+        byMonthRes,
+      ] = await Promise.all([
+        getKpisAction(projectId),
+        runAnalyticsAction(
+          { kind: 'countByField', object: 'leads', fieldKey: 'stage' },
+          projectId,
+        ),
+        runAnalyticsAction(
+          {
+            kind: 'sumByField',
+            object: 'leads',
+            groupFieldKey: 'stage',
+            sumFieldKey: 'amount',
+          },
+          projectId,
+        ),
+        runAnalyticsAction(
+          { kind: 'countByField', object: 'leads', fieldKey: 'owner' },
+          projectId,
+        ),
+        listRecordsAction(
+          {
+            object: 'leads',
+            page: 1,
+            pageSize: 5,
+            sortBy: 'createdAt',
+            sortDir: 'desc',
+          },
+          projectId,
+        ),
+        runAnalyticsAction(
+          {
+            kind: 'timeSeries',
+            object: 'leads',
+            dateField: 'createdAt',
+            interval: 'month',
+          },
+          projectId,
+        ),
+      ]);
 
       if (!kpisRes.ok) {
         setOverview({ status: 'error', message: kpisRes.error });
@@ -729,6 +778,9 @@ export default function SabcrmDashboardPage(): React.JSX.Element {
             : null,
           pipelineByStage: pipelineRes.ok
             ? (pipelineRes.data as SumByFieldResult)
+            : null,
+          ownerCount: ownerCountRes.ok
+            ? (ownerCountRes.data as CountByFieldResult)
             : null,
           recentOpportunities: recentRes.ok
             ? (recentRes.data as SabcrmRecordPage).records
@@ -762,7 +814,7 @@ export default function SabcrmDashboardPage(): React.JSX.Element {
     }
 
     // The list action returns full dashboards from the engine; normalise each
-    // wire shape (wide `type: string` / `config: unknown`) into the renderable
+    // wire shape (wide `type: string` / optional `title`) into the renderable
     // client shape. If a row somehow lacks widgets, hydrate it individually.
     const full = await Promise.all(
       listRes.data.map(async (d) => {
@@ -862,15 +914,9 @@ export default function SabcrmDashboardPage(): React.JSX.Element {
     [selected, activeProjectId, persist],
   );
 
-  const handleDelete = React.useCallback(async () => {
+  const handleDeleteConfirmed = React.useCallback(async () => {
+    setDialog(null);
     if (!selected || !activeProjectId) return;
-    const ok = await confirm({
-      title: 'Delete dashboard?',
-      message: `Delete "${selected.name}"? This cannot be undone.`,
-      destructive: true,
-      confirmLabel: 'Delete',
-    });
-    if (!ok) return;
     const id = selected.id;
     setSaving(true);
     setSelectedId(OVERVIEW_ID);
@@ -883,47 +929,50 @@ export default function SabcrmDashboardPage(): React.JSX.Element {
     } finally {
       setSaving(false);
     }
-  }, [selected, activeProjectId, confirm]);
+  }, [selected, activeProjectId]);
 
   /* ----- Render ----- */
 
-  const selectorActions = (
-    <div className="st-dash-actions">
-      {selected ? (
-        <>
-          <TwentyButton
-            variant="ghost"
-            icon={Pencil}
-            onClick={() => setDialog('rename')}
-            aria-label="Rename dashboard"
-          >
-            Rename
-          </TwentyButton>
-          <TwentyButton
-            variant="ghost"
-            icon={Trash2}
-            onClick={handleDelete}
-            aria-label="Delete dashboard"
-          >
-            Delete
-          </TwentyButton>
-        </>
-      ) : null}
-    </div>
-  );
-
   const header = (
-    <TwentyPageHeader
-      title="Dashboard"
-      icon={LayoutDashboard}
-      actions={selectorActions}
-    />
+    <PageHeader>
+      <PageHeaderHeading>
+        <PageTitle>Dashboard</PageTitle>
+        <PageDescription>
+          Pipeline, tasks and record analytics for this workspace.
+        </PageDescription>
+      </PageHeaderHeading>
+      <PageActions>
+        {selected ? (
+          <>
+            <Button
+              variant="ghost"
+              size="sm"
+              iconLeft={Pencil}
+              onClick={() => setDialog('rename')}
+              aria-label="Rename dashboard"
+            >
+              Rename
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              iconLeft={Trash2}
+              onClick={() => setDialog('delete')}
+              aria-label="Delete dashboard"
+            >
+              Delete
+            </Button>
+          </>
+        ) : null}
+      </PageActions>
+    </PageHeader>
   );
 
   const selector = (
-    <div className="st-dash-tabs">
-      <Tabs
+    <div className="cd-tabs">
+      <TabsBar
         aria-label="Dashboards"
+        size="sm"
         value={selectedId}
         onChange={setSelectedId}
         items={[
@@ -947,63 +996,75 @@ export default function SabcrmDashboardPage(): React.JSX.Element {
   // Loading the project / overview spine.
   if (isLoadingProject || overview.status === 'loading') {
     return (
-      <div className="st-page">
-        {header}
-        {selector}
-        <DashboardSkeleton />
+      <div className="cd-page">
+        <div className="cd-page__inner">
+          {header}
+          {selector}
+          <DashboardSkeleton />
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="st-page">
-      {header}
-      {selector}
+    <div className="cd-page">
+      <div className="cd-page__inner">
+        {header}
+        {selector}
 
-      {notice ? (
-        <Alert
-          tone="warning"
-          style={{ marginBottom: 'var(--st-space-4)' }}
-          onClose={() => setNotice(null)}
-          closeLabel="Dismiss"
-        >
-          {notice}
-        </Alert>
-      ) : null}
+        {notice ? (
+          <Alert
+            tone="warning"
+            className="cd-notice"
+            onClose={() => setNotice(null)}
+            closeLabel="Dismiss"
+          >
+            {notice}
+          </Alert>
+        ) : null}
 
-      {selected ? (
-        <SavedDashboardView
-          dashboard={selected}
-          objects={objects}
-          projectId={activeProjectId as string}
-          busy={saving}
-          onChange={(next) => void persist(next)}
-        />
-      ) : overview.status === 'error' ? (
-        <DashboardError message={overview.message} />
-      ) : (
-        <OverviewView data={overview.data} />
-      )}
+        {selected ? (
+          <SavedDashboardView
+            dashboard={selected}
+            objects={objects}
+            projectId={activeProjectId as string}
+            busy={saving}
+            onChange={(next) => void persist(next)}
+          />
+        ) : overview.status === 'error' ? (
+          <DashboardError message={overview.message} />
+        ) : (
+          <OverviewView data={overview.data} />
+        )}
 
-      {dialog === 'new' ? (
-        <RenameDialog
-          initial=""
-          title="New dashboard"
-          confirmLabel="Create"
-          onCancel={() => setDialog(null)}
-          onConfirm={handleCreate}
-        />
-      ) : null}
-      {dialog === 'rename' && selected ? (
-        <RenameDialog
-          initial={selected.name}
-          title="Rename dashboard"
-          confirmLabel="Save"
-          onCancel={() => setDialog(null)}
-          onConfirm={handleRename}
-        />
-      ) : null}
-      {confirmDialog}
+        {dialog === 'new' ? (
+          <RenameDialog
+            initial=""
+            title="New dashboard"
+            confirmLabel="Create"
+            onCancel={() => setDialog(null)}
+            onConfirm={handleCreate}
+          />
+        ) : null}
+        {dialog === 'rename' && selected ? (
+          <RenameDialog
+            initial={selected.name}
+            title="Rename dashboard"
+            confirmLabel="Save"
+            onCancel={() => setDialog(null)}
+            onConfirm={handleRename}
+          />
+        ) : null}
+        {dialog === 'delete' && selected ? (
+          <ConfirmDeleteDialog
+            title="Delete dashboard?"
+            message={`Delete "${selected.name}"? This cannot be undone.`}
+            confirmLabel="Delete"
+            onCancel={() => setDialog(null)}
+            onConfirm={() => void handleDeleteConfirmed()}
+          />
+        ) : null}
+      </div>
     </div>
   );
 }

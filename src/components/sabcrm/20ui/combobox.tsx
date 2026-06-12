@@ -25,7 +25,7 @@
 import * as React from 'react';
 import { Check, ChevronDown, Loader2, Search } from 'lucide-react';
 
-import { StPortalPopover, type StPopoverAlign } from '@/components/sabcrm/twenty/st-portal-popover';
+import { StPortalPopover, type StPopoverAlign } from './portal-popover';
 
 import './combobox.css';
 

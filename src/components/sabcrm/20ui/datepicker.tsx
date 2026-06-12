@@ -24,7 +24,7 @@ import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, ChevronDown, Chevr
 import { DayPicker, type DateRange, type Matcher, type ChevronProps } from 'react-day-picker';
 import { format as formatDate } from 'date-fns';
 
-import { StPortalPopover } from '@/components/sabcrm/twenty/st-portal-popover';
+import { StPortalPopover } from './portal-popover';
 
 import './datepicker.css';
 

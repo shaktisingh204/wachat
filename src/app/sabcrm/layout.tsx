@@ -3,12 +3,12 @@ export const dynamic = 'force-dynamic';
 /**
  * /sabcrm layout — native SabCRM inside the shared SabNode shell.
  *
- * SabCRM is a metadata-driven CRM, rendered here in a Twenty-faithful frame.
- * This layout keeps ALL of the SabNode gating (session/onboarding/RBAC guard)
- * and the React context providers (ProjectProvider + LocaleProvider) so pages
- * can call `useProject()` and the gated server actions resolve a project — but
- * it swaps the visual shell from `Ui20HomeShell` to `TwentyAppFrame` so every
- * `/sabcrm/*` page renders inside Twenty's sidebar + main frame.
+ * SabCRM is a metadata-driven CRM suite. This layout keeps ALL of the SabNode
+ * gating (session/onboarding/RBAC guard) and the React context providers
+ * (ProjectProvider + LocaleProvider) so pages can call `useProject()` and the
+ * gated server actions resolve a project — the inner column is the 20ui
+ * `SabcrmSuiteFrame` (suite-grouped sidebar + command menu), which still
+ * carries the `.sabcrm-twenty` token scope for not-yet-migrated pages.
  *
  * Mirrors `src/app/dashboard/layout.tsx` for the gating pipeline; only the
  * visual chrome differs (Twenty's `.sabcrm-twenty` scope, not the Ui20 shell).
@@ -18,7 +18,7 @@ import React from 'react';
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 
-import { TwentyAppFrame } from '@/components/sabcrm/twenty';
+import { SabcrmSuiteFrame } from '@/components/sabcrm/sabcrm-suite-frame';
 import { SabcrmOuterShell } from '@/components/sabcrm/twenty/sabcrm-outer-shell';
 import { SabcrmActorNameProvider } from '@/components/sabcrm/twenty/sabcrm-actors-context';
 import { getCachedSession, getCachedProjects } from '@/lib/server-cache';
@@ -77,7 +77,7 @@ export default async function SabcrmLayout({
                 role: user?.role,
               }}
             >
-              <TwentyAppFrame>{children}</TwentyAppFrame>
+              <SabcrmSuiteFrame>{children}</SabcrmSuiteFrame>
             </SabcrmOuterShell>
           </SabcrmActorNameProvider>
         </ProjectProvider>

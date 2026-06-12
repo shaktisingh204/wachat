@@ -1,20 +1,21 @@
 'use client';
 
 /**
- * SabCRM — Twenty-faithful TRASH screen (`/sabcrm/[objectSlug]/trash`).
+ * SabCRM — Trash screen (`/sabcrm/[objectSlug]/trash`), 20ui.
  *
- * Lists the object's soft-deleted records and offers two per-row actions in
- * Twenty's visual language (the `.st-*` kit + the new `.str-*` classes — NO
- * Ui20 here on purpose, to match the rest of the SabCRM Twenty slice):
+ * Lists the object's soft-deleted records in a 20ui table and offers, per row
+ * and in bulk via row selection:
  *
  *   - Restore — un-deletes the record (`restoreSabcrmRecordTw`) and removes it
  *     from the list optimistically.
- *   - Delete permanently — opens a confirm dialog, then hard-deletes via
- *     `permanentDeleteSabcrmRecordTw` and removes the row.
+ *   - Delete permanently — opens a confirm AlertDialog, then hard-deletes via
+ *     `permanentDeleteSabcrmRecordTw` and removes the row(s).
  *
- * Every data call is a gated server action returning an `ActionResult`; the
- * Rust engine may be DOWN, so the error branch renders an inline banner and the
- * page degrades to empty/error states — it never crashes.
+ * 20ui only (`@/components/sabcrm/20ui` + the record composites' `RecordCell`
+ * for field-value rendering) plus the sibling `trash.css` for page-local layout
+ * (`.str-*`, scoped to the 20ui root). Every data call is a gated server action
+ * returning an `ActionResult`; the Rust engine may be DOWN, so every branch
+ * degrades to an inline alert / empty state and the page never crashes.
  */
 
 import * as React from 'react';
@@ -25,13 +26,37 @@ import {
   Trash2,
   RotateCcw,
   AlertTriangle,
-  Loader2,
+  Database,
 } from 'lucide-react';
 
-import { TwentyPageHeader, TwentyButton } from '@/components/sabcrm/twenty';
-import { TwentyFieldValue } from '@/components/sabcrm/twenty/twenty-field';
-import { Modal, Button, Alert } from '@/components/sabcrm/20ui';
-import './trash.css';
+import {
+  Alert,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  Button,
+  Checkbox,
+  EmptyState,
+  PageActions,
+  PageDescription,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  Skeleton,
+  Table,
+  TBody,
+  Td,
+  TFoot,
+  Th,
+  THead,
+  Tr,
+} from '@/components/sabcrm/20ui';
+import { RecordCell } from '@/components/sabcrm/20ui/composites/record';
 import { useProject } from '@/context/project-context';
 import {
   listSabcrmObjectsTw,
@@ -42,6 +67,9 @@ import {
 import type { SabcrmRustRecord } from '@/app/actions/sabcrm-twenty.actions.types';
 import type { ObjectMetadata, FieldMetadata } from '@/lib/sabcrm/types';
 import { sabcrmRecordLabel } from '@/lib/sabcrm/record-label';
+
+import '@/components/sabcrm/20ui/surface-crm-base.css';
+import './trash.css';
 
 // ---------------------------------------------------------------------------
 // Value helpers (mirrors the index page so the trash table reads identically)
@@ -80,90 +108,10 @@ function fmtTime(iso: string | null): string {
   });
 }
 
-// ---------------------------------------------------------------------------
-// Confirm dialog for permanent deletion
-// ---------------------------------------------------------------------------
-
-interface ConfirmDialogProps {
-  /** Human label of the record about to be destroyed. */
-  recordLabelText: string;
-  objectSingular: string;
-  deleting: boolean;
-  error: string | null;
-  onCancel: () => void;
-  onConfirm: () => void;
-}
-
-function ConfirmDialog({
-  recordLabelText,
-  objectSingular,
-  deleting,
-  error,
-  onCancel,
-  onConfirm,
-}: ConfirmDialogProps): React.JSX.Element {
-  return (
-    <Modal
-      open
-      onClose={onCancel}
-      title="Delete permanently"
-      footer={
-        <>
-          <Button variant="secondary" onClick={onCancel} disabled={deleting}>
-            Cancel
-          </Button>
-          <Button
-            variant="danger"
-            onClick={onConfirm}
-            loading={deleting}
-            disabled={deleting}
-          >
-            Delete permanently
-          </Button>
-        </>
-      }
-    >
-      <div className="str-confirm__body">
-        <p>
-          Permanently delete{' '}
-          <span className="str-confirm__name">{recordLabelText}</span>?
-        </p>
-        <p className="str-confirm__warn">
-          This action cannot be undone — the {objectSingular.toLowerCase()} and
-          its data are removed for good.
-        </p>
-        {error && (
-          <Alert tone="danger" icon={AlertTriangle}>
-            {error}
-          </Alert>
-        )}
-      </div>
-    </Modal>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Skeleton / error
-// ---------------------------------------------------------------------------
-
-function TableSkeleton(): React.JSX.Element {
-  return (
-    <div className="st-table-wrap" style={{ padding: 'var(--st-space-3)' }}>
-      {Array.from({ length: 6 }).map((_, i) => (
-        <div key={i} className="st-skeleton st-skeleton-row" />
-      ))}
-    </div>
-  );
-}
-
-function ErrorBanner({ message }: { message: string }): React.JSX.Element {
-  return (
-    <div className="st-banner" role="alert">
-      <AlertTriangle className="st-banner__icon" size={15} />
-      <span>{message}</span>
-    </div>
-  );
-}
+/** What the permanent-delete confirm is about to destroy. */
+type ConfirmTarget =
+  | { kind: 'one'; record: SabcrmRustRecord }
+  | { kind: 'bulk'; ids: string[] };
 
 // ---------------------------------------------------------------------------
 // Page
@@ -184,13 +132,17 @@ export default function SabcrmTrashPage(): React.JSX.Element {
   const [loadingData, setLoadingData] = React.useState(true);
   const [dataError, setDataError] = React.useState<string | null>(null);
 
+  // Row selection (drives the bulk action bar).
+  const [selected, setSelected] = React.useState<Set<string>>(new Set());
+
   // Rows currently restoring / deleting (drives the per-row busy dimming).
   const [busy, setBusy] = React.useState<Set<string>>(new Set());
+  /** A bulk run is in flight (disables the bulk bar + selection). */
+  const [bulkBusy, setBulkBusy] = React.useState(false);
 
-  // Permanent-delete confirm flow: the record pending confirmation, plus the
+  // Permanent-delete confirm flow: the target pending confirmation, plus the
   // dialog's in-flight + error state.
-  const [confirmRecord, setConfirmRecord] =
-    React.useState<SabcrmRustRecord | null>(null);
+  const [confirm, setConfirm] = React.useState<ConfirmTarget | null>(null);
   const [confirmDeleting, setConfirmDeleting] = React.useState(false);
   const [confirmError, setConfirmError] = React.useState<string | null>(null);
 
@@ -221,6 +173,7 @@ export default function SabcrmTrashPage(): React.JSX.Element {
     let cancelled = false;
     setLoadingData(true);
     setDataError(null);
+    setSelected(new Set());
     (async () => {
       const res = await listSabcrmTrashTw(
         objectSlug,
@@ -256,10 +209,48 @@ export default function SabcrmTrashPage(): React.JSX.Element {
     [object],
   );
 
-  // ---- Restore -----------------------------------------------------------
+  // ---- Selection -----------------------------------------------------------
+
+  const selectedIds = React.useMemo(
+    () => records.filter((r) => selected.has(r.id)).map((r) => r.id),
+    [records, selected],
+  );
+  const allSelected = records.length > 0 && selectedIds.length === records.length;
+  const someSelected = selectedIds.length > 0 && !allSelected;
+
+  const toggleAll = React.useCallback(() => {
+    setSelected((prev) =>
+      records.length > 0 && records.every((r) => prev.has(r.id))
+        ? new Set()
+        : new Set(records.map((r) => r.id)),
+    );
+  }, [records]);
+
+  const toggleOne = React.useCallback((recordId: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(recordId)) next.delete(recordId);
+      else next.add(recordId);
+      return next;
+    });
+  }, []);
+
+  /** Drop a record from the local list after a successful restore / delete. */
+  const removeRow = React.useCallback((recordId: string) => {
+    setRecords((rs) => rs.filter((r) => r.id !== recordId));
+    setTotal((t) => Math.max(0, t - 1));
+    setSelected((s) => {
+      if (!s.has(recordId)) return s;
+      const n = new Set(s);
+      n.delete(recordId);
+      return n;
+    });
+  }, []);
+
+  // ---- Restore (single) ----------------------------------------------------
   const handleRestore = React.useCallback(
     async (recordId: string) => {
-      if (busy.has(recordId)) return;
+      if (busy.has(recordId) || bulkBusy) return;
       setBusy((b) => new Set(b).add(recordId));
       setDataError(null);
 
@@ -271,57 +262,105 @@ export default function SabcrmTrashPage(): React.JSX.Element {
 
       if (!res.ok) {
         setDataError(res.error);
-        setBusy((b) => {
-          const n = new Set(b);
-          n.delete(recordId);
-          return n;
-        });
-        return;
+      } else {
+        // Restored → it leaves the trash list.
+        removeRow(recordId);
       }
-      // Restored → it leaves the trash list.
-      setRecords((rs) => rs.filter((r) => r.id !== recordId));
-      setTotal((t) => Math.max(0, t - 1));
       setBusy((b) => {
         const n = new Set(b);
         n.delete(recordId);
         return n;
       });
     },
-    [busy, objectSlug, activeProjectId],
+    [busy, bulkBusy, objectSlug, activeProjectId, removeRow],
   );
 
-  // ---- Permanent delete (confirmed) --------------------------------------
+  // ---- Restore (bulk, over the selection) ----------------------------------
+  const handleBulkRestore = React.useCallback(async () => {
+    const ids = selectedIds;
+    if (ids.length === 0 || bulkBusy) return;
+    setBulkBusy(true);
+    setBusy(new Set(ids));
+    setDataError(null);
+
+    let failed = 0;
+    let firstError: string | null = null;
+    for (const id of ids) {
+      const res = await restoreSabcrmRecordTw(
+        objectSlug,
+        id,
+        activeProjectId ?? undefined,
+      );
+      if (res.ok) {
+        removeRow(id);
+      } else {
+        failed += 1;
+        if (!firstError) firstError = res.error;
+      }
+      setBusy((b) => {
+        const n = new Set(b);
+        n.delete(id);
+        return n;
+      });
+    }
+
+    setBulkBusy(false);
+    if (firstError) {
+      setDataError(
+        failed > 1 ? `${firstError} (${failed} records failed)` : firstError,
+      );
+    }
+  }, [selectedIds, bulkBusy, objectSlug, activeProjectId, removeRow]);
+
+  // ---- Permanent delete (confirmed; single or bulk) -------------------------
   const handleConfirmDelete = React.useCallback(async () => {
-    const target = confirmRecord;
-    if (!target || confirmDeleting) return;
+    if (!confirm || confirmDeleting) return;
+    const ids = confirm.kind === 'one' ? [confirm.record.id] : confirm.ids;
     setConfirmDeleting(true);
     setConfirmError(null);
+    setBusy(new Set(ids));
 
-    const res = await permanentDeleteSabcrmRecordTw(
-      objectSlug,
-      target.id,
-      activeProjectId ?? undefined,
-    );
+    let failed = 0;
+    let firstError: string | null = null;
+    for (const id of ids) {
+      const res = await permanentDeleteSabcrmRecordTw(
+        objectSlug,
+        id,
+        activeProjectId ?? undefined,
+      );
+      if (res.ok) {
+        removeRow(id);
+      } else {
+        failed += 1;
+        if (!firstError) firstError = res.error;
+      }
+      setBusy((b) => {
+        const n = new Set(b);
+        n.delete(id);
+        return n;
+      });
+    }
+
     setConfirmDeleting(false);
-
-    if (!res.ok) {
-      setConfirmError(res.error);
+    if (firstError) {
+      // Keep the dialog open so the failure is read in context.
+      setConfirmError(
+        failed > 1 ? `${firstError} (${failed} records failed)` : firstError,
+      );
       return;
     }
-    setRecords((rs) => rs.filter((r) => r.id !== target.id));
-    setTotal((t) => Math.max(0, t - 1));
-    setConfirmRecord(null);
-  }, [confirmRecord, confirmDeleting, objectSlug, activeProjectId]);
+    setConfirm(null);
+  }, [confirm, confirmDeleting, objectSlug, activeProjectId, removeRow]);
 
-  const openConfirm = React.useCallback((record: SabcrmRustRecord) => {
+  const openConfirm = React.useCallback((target: ConfirmTarget) => {
     setConfirmError(null);
     setConfirmDeleting(false);
-    setConfirmRecord(record);
+    setConfirm(target);
   }, []);
 
   const closeConfirm = React.useCallback(() => {
     if (confirmDeleting) return;
-    setConfirmRecord(null);
+    setConfirm(null);
     setConfirmError(null);
   }, [confirmDeleting]);
 
@@ -329,187 +368,297 @@ export default function SabcrmTrashPage(): React.JSX.Element {
 
   if (loadingObject) {
     return (
-      <div className="st-page">
-        <div
-          className="st-skeleton"
-          style={{ height: 28, width: 220, marginBottom: 20 }}
-        />
-        <TableSkeleton />
+      <div className="str-page">
+        <div className="str-page__inner">
+          <div className="str-skeletons">
+            <Skeleton width={220} height={28} radius={6} />
+            <Skeleton height={40} radius={8} />
+            <Skeleton height={240} radius={10} />
+          </div>
+        </div>
       </div>
     );
   }
 
   if (objectError && !object) {
     return (
-      <div className="st-page">
-        <Link href="/sabcrm" className="st-back">
-          <ArrowLeft size={14} />
-          SabCRM
-        </Link>
-        <ErrorBanner message={objectError} />
+      <div className="str-page">
+        <div className="str-page__inner">
+          <Alert tone="danger" icon={AlertTriangle}>
+            {objectError}
+          </Alert>
+        </div>
       </div>
     );
   }
 
   if (!object) {
     return (
-      <div className="st-page">
-        <Link href="/sabcrm" className="st-back">
-          <ArrowLeft size={14} />
-          SabCRM
-        </Link>
-        <div className="st-empty">
-          <span className="st-empty__icon">
-            <Trash2 size={20} />
-          </span>
-          <h2 className="st-empty__title">Object not found</h2>
-          <p className="st-empty__desc">
-            No CRM object matches “{objectSlug}”. It may have been removed or you
-            may not have access.
-          </p>
-          <TwentyButton variant="secondary">
-            <Link
-              href="/sabcrm"
-              style={{ color: 'inherit', textDecoration: 'none' }}
-            >
-              Back to SabCRM
-            </Link>
-          </TwentyButton>
+      <div className="str-page">
+        <div className="str-page__inner">
+          <EmptyState
+            icon={Database}
+            title="Object not found"
+            description={`No CRM object matches “${objectSlug}”. It may have been removed or you may not have access.`}
+            action={
+              <Button variant="secondary" asChild>
+                <Link href="/sabcrm">Back to SabCRM</Link>
+              </Button>
+            }
+          />
         </div>
       </div>
     );
   }
 
-  const colSpan = previewFields.length + 3; // label + previews + deleted-at + actions
+  // checkbox + label + previews + deleted-at + actions
+  const colSpan = previewFields.length + 4;
+
+  const confirmCount =
+    confirm?.kind === 'bulk' ? confirm.ids.length : confirm ? 1 : 0;
+  const confirmName =
+    confirm?.kind === 'one'
+      ? recordLabel(object, confirm.record)
+      : `${confirmCount} ${
+          confirmCount === 1
+            ? object.labelSingular.toLowerCase()
+            : object.labelPlural.toLowerCase()
+        }`;
 
   return (
-    <div className="st-page">
-      <Link href={`/sabcrm/${object.slug}`} className="st-back">
-        <ArrowLeft size={14} />
-        {object.labelPlural}
-      </Link>
+    <div className="str-page">
+      <div className="str-page__inner">
+        <PageHeader>
+          <PageHeaderHeading>
+            <PageTitle>Trash — {object.labelPlural}</PageTitle>
+            <PageDescription>
+              Soft-deleted {object.labelPlural.toLowerCase()} — restore them or
+              remove them permanently.
+            </PageDescription>
+          </PageHeaderHeading>
+          <PageActions>
+            <Button variant="secondary" iconLeft={ArrowLeft} asChild>
+              <Link href={`/sabcrm/${object.slug}`}>
+                Back to {object.labelPlural.toLowerCase()}
+              </Link>
+            </Button>
+          </PageActions>
+        </PageHeader>
 
-      <TwentyPageHeader title={`Trash — ${object.labelPlural}`} icon={Trash2} />
+        {dataError && (
+          <Alert tone="danger" icon={AlertTriangle}>
+            {dataError}
+          </Alert>
+        )}
 
-      <p className="str-sub">
-        Soft-deleted {object.labelPlural.toLowerCase()} — restore them or remove
-        them permanently.
-      </p>
-
-      {dataError && <ErrorBanner message={dataError} />}
-
-      {loadingData ? (
-        <TableSkeleton />
-      ) : records.length === 0 ? (
-        <div className="st-empty">
-          <span className="st-empty__icon">
-            <Trash2 size={20} />
-          </span>
-          <h2 className="st-empty__title">Trash is empty</h2>
-          <p className="st-empty__desc">
-            No deleted {object.labelPlural.toLowerCase()} to restore.
-          </p>
-          <TwentyButton variant="secondary">
-            <Link
-              href={`/sabcrm/${object.slug}`}
-              style={{ color: 'inherit', textDecoration: 'none' }}
+        {/* Bulk action bar — appears once any row is selected. */}
+        {selectedIds.length > 0 && (
+          <div className="str-bulkbar" role="toolbar" aria-label="Bulk actions">
+            <span className="str-bulkbar__count">
+              {selectedIds.length} selected
+            </span>
+            <span className="str-bulkbar__spacer" />
+            <Button
+              variant="secondary"
+              size="sm"
+              iconLeft={RotateCcw}
+              disabled={bulkBusy || confirmDeleting}
+              loading={bulkBusy}
+              onClick={() => void handleBulkRestore()}
             >
-              Back to {object.labelPlural}
-            </Link>
-          </TwentyButton>
-        </div>
-      ) : (
-        <div className="st-table-wrap">
-          <table className="st-table">
-            <thead>
-              <tr>
-                <th>{object.labelSingular}</th>
-                {previewFields.map((f) => (
-                  <th key={f.key}>{f.label}</th>
-                ))}
-                <th>Deleted</th>
-                <th aria-label="Actions" />
-              </tr>
-            </thead>
-            <tbody>
-              {records.map((record) => {
-                const isBusy = busy.has(record.id);
-                const label = recordLabel(object, record);
-                return (
-                  <tr
-                    key={record.id}
-                    className={`st-row${isBusy ? ' str-row--busy' : ''}`}
-                  >
-                    <td>
-                      <span className="str-label">{label}</span>
-                    </td>
-                    {previewFields.map((f) => (
-                      <td key={f.key}>
-                        <TwentyFieldValue field={f} value={record.data[f.key]} />
-                      </td>
-                    ))}
-                    <td>
-                      <span className="str-time">
-                        {fmtTime(deletedAtOf(record))}
-                      </span>
-                    </td>
-                    <td className="str-actions__cell">
-                      <span className="str-actions">
-                        <TwentyButton
-                          variant="secondary"
-                          icon={isBusy ? undefined : RotateCcw}
-                          disabled={isBusy}
-                          onClick={() => handleRestore(record.id)}
-                        >
-                          {isBusy ? (
-                            <Loader2 size={14} className="st-spin" />
-                          ) : null}
-                          Restore
-                        </TwentyButton>
-                        <button
-                          type="button"
-                          className="st-btn st-btn--secondary str-btn-danger"
-                          disabled={isBusy}
-                          onClick={() => openConfirm(record)}
-                        >
-                          <Trash2 size={14} aria-hidden="true" />
-                          Delete permanently
-                        </button>
-                      </span>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-            <tfoot>
-              <tr className="st-row">
-                <td colSpan={colSpan}>
-                  <span className="str-time">
-                    {total > records.length
-                      ? `Showing ${records.length} of ${total} `
-                      : `${total} `}
-                    {total === 1
-                      ? object.labelSingular.toLowerCase()
-                      : object.labelPlural.toLowerCase()}{' '}
-                    in trash
-                  </span>
-                </td>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
-      )}
+              Restore
+            </Button>
+            <Button
+              variant="secondary"
+              size="sm"
+              iconLeft={Trash2}
+              className="str-btn-danger"
+              disabled={bulkBusy || confirmDeleting}
+              onClick={() => openConfirm({ kind: 'bulk', ids: selectedIds })}
+            >
+              Delete permanently
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              disabled={bulkBusy || confirmDeleting}
+              onClick={() => setSelected(new Set())}
+            >
+              Clear
+            </Button>
+          </div>
+        )}
 
-      {confirmRecord && (
-        <ConfirmDialog
-          recordLabelText={recordLabel(object, confirmRecord)}
-          objectSingular={object.labelSingular}
-          deleting={confirmDeleting}
-          error={confirmError}
-          onCancel={closeConfirm}
-          onConfirm={handleConfirmDelete}
-        />
-      )}
+        {loadingData ? (
+          <div className="str-skeletons">
+            <Skeleton height={36} radius={8} />
+            <Skeleton height={36} radius={8} />
+            <Skeleton height={36} radius={8} />
+            <Skeleton height={36} radius={8} />
+            <Skeleton height={36} radius={8} />
+            <Skeleton height={36} radius={8} />
+          </div>
+        ) : records.length === 0 ? (
+          <EmptyState
+            icon={Trash2}
+            title="Trash is empty"
+            description={`No deleted ${object.labelPlural.toLowerCase()} to restore.`}
+            action={
+              <Button variant="secondary" asChild>
+                <Link href={`/sabcrm/${object.slug}`}>
+                  Back to {object.labelPlural}
+                </Link>
+              </Button>
+            }
+          />
+        ) : (
+          <div className="str-table-wrap">
+            <Table density="compact">
+              <THead>
+                <Tr>
+                  <Th className="str-check-col">
+                    <Checkbox
+                      size="sm"
+                      checked={allSelected}
+                      indeterminate={someSelected}
+                      disabled={bulkBusy}
+                      onChange={toggleAll}
+                      aria-label="Select all records"
+                    />
+                  </Th>
+                  <Th>{object.labelSingular}</Th>
+                  {previewFields.map((f) => (
+                    <Th key={f.key}>{f.label}</Th>
+                  ))}
+                  <Th>Deleted</Th>
+                  <Th align="right" aria-label="Actions" />
+                </Tr>
+              </THead>
+              <TBody>
+                {records.map((record) => {
+                  const isBusy = busy.has(record.id);
+                  const isSelected = selected.has(record.id);
+                  const label = recordLabel(object, record);
+                  return (
+                    <Tr
+                      key={record.id}
+                      selected={isSelected}
+                      className={isBusy ? 'str-row--busy' : undefined}
+                    >
+                      <Td className="str-check-col">
+                        <Checkbox
+                          size="sm"
+                          checked={isSelected}
+                          disabled={isBusy || bulkBusy}
+                          onChange={() => toggleOne(record.id)}
+                          aria-label={`Select ${label}`}
+                        />
+                      </Td>
+                      <Td>
+                        <span className="str-label">{label}</span>
+                      </Td>
+                      {previewFields.map((f) => (
+                        <Td key={f.key}>
+                          <RecordCell field={f} value={record.data[f.key]} />
+                        </Td>
+                      ))}
+                      <Td>
+                        <span className="str-time">
+                          {fmtTime(deletedAtOf(record))}
+                        </span>
+                      </Td>
+                      <Td align="right" className="str-actions__cell">
+                        <span className="str-actions">
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            iconLeft={RotateCcw}
+                            disabled={isBusy || bulkBusy}
+                            loading={isBusy && !bulkBusy && !confirmDeleting}
+                            onClick={() => void handleRestore(record.id)}
+                          >
+                            Restore
+                          </Button>
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            iconLeft={Trash2}
+                            className="str-btn-danger"
+                            disabled={isBusy || bulkBusy}
+                            onClick={() =>
+                              openConfirm({ kind: 'one', record })
+                            }
+                          >
+                            Delete permanently
+                          </Button>
+                        </span>
+                      </Td>
+                    </Tr>
+                  );
+                })}
+              </TBody>
+              <TFoot>
+                <Tr>
+                  <Td colSpan={colSpan}>
+                    <span className="str-time">
+                      {total > records.length
+                        ? `Showing ${records.length} of ${total} `
+                        : `${total} `}
+                      {total === 1
+                        ? object.labelSingular.toLowerCase()
+                        : object.labelPlural.toLowerCase()}{' '}
+                      in trash
+                    </span>
+                  </Td>
+                </Tr>
+              </TFoot>
+            </Table>
+          </div>
+        )}
+
+        {/* Permanent-delete confirm (single row or the whole selection). */}
+        <AlertDialog
+          open={confirm !== null}
+          onOpenChange={(open) => {
+            if (!open) closeConfirm();
+          }}
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete permanently?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Permanently delete{' '}
+                <span className="str-confirm__name">{confirmName}</span>? This
+                action cannot be undone —{' '}
+                {confirmCount === 1
+                  ? `the ${object.labelSingular.toLowerCase()} and its data are`
+                  : `these ${object.labelPlural.toLowerCase()} and their data are`}{' '}
+                removed for good.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            {confirmError && (
+              <Alert tone="danger" icon={AlertTriangle}>
+                {confirmError}
+              </Alert>
+            )}
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={confirmDeleting}>
+                Cancel
+              </AlertDialogCancel>
+              <AlertDialogAction
+                disabled={confirmDeleting}
+                onClick={(e) => {
+                  // Stay open while the delete runs (and on failure).
+                  e.preventDefault();
+                  void handleConfirmDelete();
+                }}
+              >
+                {confirmDeleting ? 'Deleting…' : 'Delete permanently'}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </div>
     </div>
   );
 }

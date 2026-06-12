@@ -31,6 +31,12 @@ pub const MAX_LIMIT: i64 = 100;
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ListQuery {
+    /// SabCRM tenant scope (24-char hex `ObjectId`). **Required** when
+    /// the router is mounted in `ScopeMode::Project` (the
+    /// `/v1/sabcrm/finance/sales-orders` mount); ignored on the legacy
+    /// `userId`-scoped `/v1/crm/sales-orders` mount.
+    #[serde(default)]
+    pub project_id: Option<String>,
     /// 1-indexed page (matches TS). Defaults to `1`.
     #[serde(default)]
     pub page: Option<u32>,
@@ -48,6 +54,18 @@ pub struct ListQuery {
     /// `closed` / `cancelled`).
     #[serde(default)]
     pub status: Option<String>,
+}
+
+/// Query string for the single-document routes (`GET` / `PATCH` /
+/// `DELETE /{soId}`). Carries only the SabCRM tenant scope —
+/// **required** under `ScopeMode::Project`, ignored on the legacy
+/// `userId`-scoped mount.
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ScopeQuery {
+    /// SabCRM tenant scope (24-char hex `ObjectId`).
+    #[serde(default)]
+    pub project_id: Option<String>,
 }
 
 /// `POST /v1/crm/sales-orders` body. The endpoint accepts a curated

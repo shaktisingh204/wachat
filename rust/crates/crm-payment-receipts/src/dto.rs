@@ -33,6 +33,12 @@ pub const MAX_LIMIT: i64 = 100;
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ListQuery {
+    /// SabCRM tenant scope (24-char hex `ObjectId`). **Required** when
+    /// the router is mounted in `ScopeMode::Project` (the
+    /// `/v1/sabcrm/finance/payment-receipts` mount); ignored on the
+    /// legacy `userId`-scoped `/v1/crm/payment-receipts` mount.
+    #[serde(default)]
+    pub project_id: Option<String>,
     /// 1-indexed page (matches TS). Defaults to `1`.
     #[serde(default)]
     pub page: Option<u32>,
@@ -50,6 +56,18 @@ pub struct ListQuery {
     /// `bounced`. Case-insensitive.
     #[serde(default)]
     pub status: Option<String>,
+}
+
+/// Query string for the single-document routes (`GET` / `PATCH` /
+/// `DELETE /{receiptId}`). Carries only the SabCRM tenant scope —
+/// **required** under `ScopeMode::Project`, ignored on the legacy
+/// `userId`-scoped mount.
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ScopeQuery {
+    /// SabCRM tenant scope (24-char hex `ObjectId`).
+    #[serde(default)]
+    pub project_id: Option<String>,
 }
 
 /// `POST /v1/crm/payment-receipts` body. The endpoint accepts a curated
@@ -86,7 +104,6 @@ pub struct CreatePaymentReceiptInput {
 
     /* ----- doc number + dates (★ required) ----- */
     pub receipt_no: String,
-    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub date: DateTime<Utc>,
 
     /* ----- parties + accounts (★ required) ----- */
@@ -101,10 +118,7 @@ pub struct CreatePaymentReceiptInput {
     /* ----- mode-specific details ----- */
     #[serde(default)]
     pub cheque_no: Option<String>,
-    #[serde(
-        default,
-        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional"
-    )]
+    #[serde(default)]
     pub cheque_date: Option<DateTime<Utc>>,
     #[serde(default)]
     pub txn_id: Option<String>,
@@ -155,22 +169,14 @@ pub struct CreatePaymentReceiptInput {
 pub struct UpdatePaymentReceiptInput {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub receipt_no: Option<String>,
-    #[serde(
-        default,
-        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub date: Option<DateTime<Utc>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub bank_account_id: Option<String>,
 
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub cheque_no: Option<String>,
-    #[serde(
-        default,
-        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub cheque_date: Option<DateTime<Utc>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub txn_id: Option<String>,

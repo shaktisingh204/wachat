@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * SabCRM — saved-dashboard widget renderer (Twenty-faithful).
+ * SabCRM — saved-dashboard widget renderer (20ui).
  *
  * A "saved dashboard" is `{ id, name, widgets:[{ id, type, title, config }] }`
  * loaded from `@/app/actions/sabcrm-dashboards.actions`. Each widget is one of
@@ -11,10 +11,13 @@
  * Every widget fetches and renders in isolation: a single failing query degrades
  * that one tile to a calm error panel and never touches its neighbours. All data
  * comes through the existing, battle-tested analytics actions
- * (`runAnalyticsAction` / `listRecordsAction`) so the saved-dashboard layer is a
- * pure presentation/composition shell over proven resolvers.
+ * (`runAnalyticsAction` / `listRecordsAction` / `aggregateSabcrmRecordsTw`) so
+ * the saved-dashboard layer is a pure presentation/composition shell over
+ * proven resolvers.
  *
- * Twenty visual language only (`.st-*` + dashboard.css). No Ui20 / Tailwind.
+ * 20ui only: chart bodies render through the shared charts composites
+ * (`@/components/sabcrm/20ui/composites/charts`); page-local layout uses the
+ * `cd-*` classes in `./dashboard.css` (scoped to the 20ui root).
  */
 
 import * as React from 'react';
@@ -31,6 +34,11 @@ import {
   ArrowUpRight,
 } from 'lucide-react';
 
+import { Skeleton } from '@/components/sabcrm/20ui';
+import {
+  BarChart,
+  type ChartDatum,
+} from '@/components/sabcrm/20ui/composites/charts';
 import {
   runAnalyticsAction,
   listRecordsAction,
@@ -111,16 +119,9 @@ type WidgetState =
 
 type WidgetPayload =
   | { kind: 'kpi'; value: string; sub: string }
-  | { kind: 'bar'; rows: BarRow[] }
+  | { kind: 'bar'; rows: ChartDatum[]; format: 'number' | 'currency' }
   | { kind: 'recent'; records: CrmRecordWithLabel[] }
   | { kind: 'pipeline'; total: number; buckets: PipelineBucket[] };
-
-interface BarRow {
-  key: string;
-  label: string;
-  weight: number;
-  display: string;
-}
 
 interface PipelineBucket {
   value: string;
@@ -200,11 +201,10 @@ async function resolveWidget(
         const data = res.data as TimeSeriesResult;
         return {
           kind: 'bar',
+          format: 'number',
           rows: data.points.slice(-6).map((p) => ({
-            key: p.date,
             label: formatMonth(p.date),
-            weight: p.count,
-            display: formatNumber(p.count),
+            value: p.count,
           })),
         };
       }
@@ -222,13 +222,12 @@ async function resolveWidget(
       if (!res.ok) throw new Error(res.error);
       return {
         kind: 'bar',
+        format: isSum ? 'currency' : 'number',
         rows: res.data.groups
           .filter((g) => g.metric > 0)
           .map((g) => ({
-            key: bucketLabel(g.value),
             label: bucketLabel(g.value),
-            weight: g.metric,
-            display: isSum ? formatCurrency(g.metric) : formatNumber(g.metric),
+            value: g.metric,
           })),
       };
     }
@@ -286,39 +285,31 @@ async function resolveWidget(
 
 function KpiBody({ value, sub }: { value: string; sub: string }): React.JSX.Element {
   return (
-    <div className="st-widget-kpi">
-      <span className="st-widget-kpi__value">{value}</span>
-      <span className="st-widget-kpi__sub">{sub}</span>
+    <div className="cd-widget-kpi">
+      <span className="cd-widget-kpi__value">{value}</span>
+      <span className="cd-widget-kpi__sub">{sub}</span>
     </div>
   );
 }
 
-function BarBody({ rows, empty }: { rows: BarRow[]; empty: string }): React.JSX.Element {
-  if (rows.length === 0) return <div className="st-timeline-empty">{empty}</div>;
-  const max = rows.reduce((m, r) => Math.max(m, r.weight), 0);
+function BarBody({
+  rows,
+  format,
+  empty,
+}: {
+  rows: ChartDatum[];
+  format: 'number' | 'currency';
+  empty: string;
+}): React.JSX.Element {
   return (
-    <div className="st-barlist">
-      {rows.map((row) => {
-        const pct = max > 0 ? Math.max(2, (row.weight / max) * 100) : 0;
-        return (
-          <div className="st-barlist__row" key={row.key}>
-            <div className="st-barlist__head">
-              <span className="st-barlist__label">{row.label}</span>
-              <span className="st-barlist__value">{row.display}</span>
-            </div>
-            <div
-              className="st-barlist__track"
-              role="meter"
-              aria-valuenow={Math.round(pct)}
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-label={`${row.label}: ${row.display}`}
-            >
-              <span className="st-barlist__fill" style={{ width: `${pct}%` }} />
-            </div>
-          </div>
-        );
-      })}
+    <div className="cd-widget-chart">
+      <BarChart
+        data={rows}
+        layout="horizontal"
+        formatValue={format === 'currency' ? formatCurrency : formatNumber}
+        seriesLabel={format === 'currency' ? 'Sum' : 'Count'}
+        emptyLabel={empty}
+      />
     </div>
   );
 }
@@ -330,27 +321,27 @@ function RecentBody({
   records: CrmRecordWithLabel[];
   empty: string;
 }): React.JSX.Element {
-  if (records.length === 0) return <div className="st-timeline-empty">{empty}</div>;
+  if (records.length === 0) return <div className="cd-empty-note">{empty}</div>;
   return (
-    <ul className="st-reclist">
+    <ul className="cd-reclist">
       {records.map((record) => {
         const label = record.label || 'Untitled';
         return (
-          <li className="st-reclist__row" key={record._id}>
+          <li className="cd-reclist__row" key={record._id}>
             <Link
               href={`/sabcrm/${record.object}/${record._id}`}
-              className="st-reclist__link"
+              className="cd-reclist__link"
             >
-              <span className="st-avatar st-avatar--sm" aria-hidden="true">
+              <span className="cd-avatar" aria-hidden="true">
                 {initials(label)}
               </span>
-              <span className="st-reclist__label">{label}</span>
-              <span className="st-reclist__meta">
+              <span className="cd-reclist__label">{label}</span>
+              <span className="cd-reclist__meta">
                 <Clock size={11} aria-hidden="true" />
                 {formatRelative(record.createdAt)}
               </span>
               <ArrowUpRight
-                className="st-reclist__chevron"
+                className="cd-reclist__chevron"
                 size={13}
                 aria-hidden="true"
               />
@@ -362,7 +353,7 @@ function RecentBody({
   );
 }
 
-function PipelineBody({
+export function PipelineBody({
   total,
   buckets,
   empty,
@@ -371,21 +362,21 @@ function PipelineBody({
   buckets: PipelineBucket[];
   empty: string;
 }): React.JSX.Element {
-  if (buckets.length === 0) return <div className="st-timeline-empty">{empty}</div>;
+  if (buckets.length === 0) return <div className="cd-empty-note">{empty}</div>;
   return (
-    <div className="st-pipesum">
-      <div className="st-pipesum__total">
-        <span className="st-pipesum__total-label">Total pipeline</span>
-        <span className="st-pipesum__total-value">{formatCurrency(total)}</span>
+    <div className="cd-pipesum">
+      <div className="cd-pipesum__total">
+        <span className="cd-pipesum__total-label">Total pipeline</span>
+        <span className="cd-pipesum__total-value">{formatCurrency(total)}</span>
       </div>
-      <ul className="st-pipesum__stages">
+      <ul className="cd-pipesum__stages">
         {buckets.map((b) => {
           const pct = total > 0 ? Math.round((b.sum / total) * 100) : 0;
           return (
-            <li className="st-pipesum__stage" key={b.value || '∅'}>
-              <span className="st-pipesum__stage-label">{b.label}</span>
-              <span className="st-pipesum__stage-value">{formatCurrency(b.sum)}</span>
-              <span className="st-pipesum__stage-pct">{pct}%</span>
+            <li className="cd-pipesum__stage" key={b.value || '∅'}>
+              <span className="cd-pipesum__stage-label">{b.label}</span>
+              <span className="cd-pipesum__stage-value">{formatCurrency(b.sum)}</span>
+              <span className="cd-pipesum__stage-pct">{pct}%</span>
             </li>
           );
         })}
@@ -451,18 +442,18 @@ export function WidgetTile({
 
   return (
     <div
-      className={`st-panel st-widget${isWide ? ' st-widget--wide' : ''}`}
+      className={`cd-widget${isWide ? ' cd-widget--wide' : ''}`}
       data-widget-type={widget.type}
     >
-      <div className="st-widget__head">
-        <span className="st-widget__type-icon" aria-hidden="true">
+      <div className="cd-widget__head">
+        <span className="cd-widget__type-icon" aria-hidden="true">
           {TYPE_ICON[widget.type]}
         </span>
-        <span className="st-widget__title">{widget.title}</span>
+        <span className="cd-widget__title">{widget.title}</span>
         {editing ? (
           <button
             type="button"
-            className="st-widget__remove"
+            className="cd-widget__remove"
             onClick={() => onRemove(widget.id)}
             aria-label={`Remove ${widget.title}`}
             title="Remove widget"
@@ -470,26 +461,30 @@ export function WidgetTile({
             <Trash2 size={13} aria-hidden="true" />
           </button>
         ) : (
-          <span className="st-widget__grip" aria-hidden="true">
+          <span className="cd-widget__grip" aria-hidden="true">
             <GripVertical size={13} />
           </span>
         )}
       </div>
 
-      <div className="st-widget__body">
+      <div className="cd-widget__body">
         {state.status === 'loading' ? (
-          <div className="st-widget__loading">
-            <div className="st-skeleton st-widget__skel" />
+          <div className="cd-widget__loading">
+            <Skeleton height={96} radius={8} />
           </div>
         ) : state.status === 'error' ? (
-          <div className="st-widget__error">
+          <div className="cd-widget__error">
             <AlertTriangle size={14} aria-hidden="true" />
             <span>{state.message}</span>
           </div>
         ) : state.payload.kind === 'kpi' ? (
           <KpiBody value={state.payload.value} sub={state.payload.sub} />
         ) : state.payload.kind === 'bar' ? (
-          <BarBody rows={state.payload.rows} empty={empty} />
+          <BarBody
+            rows={state.payload.rows}
+            format={state.payload.format}
+            empty={empty}
+          />
         ) : state.payload.kind === 'recent' ? (
           <RecentBody records={state.payload.records} empty={empty} />
         ) : (

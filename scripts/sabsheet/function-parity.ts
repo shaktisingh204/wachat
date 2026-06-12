@@ -17,7 +17,12 @@ const HF_DOC_URL =
 
 /** Categories whose functions require dynamic arrays / spill (not in our engine yet). */
 const SPILL_CATEGORIES = new Set(["Array manipulation"]);
-const SPILL_FUNCTIONS = new Set(["ARRAYFORMULA", "FILTER", "ARRAY_CONSTRAIN", "SEQUENCE", "TRANSPOSE"]);
+const SPILL_FUNCTIONS = new Set([
+  "ARRAYFORMULA", "FILTER", "ARRAY_CONSTRAIN", "SEQUENCE", "TRANSPOSE",
+  "MMULT", "SPLIT", "MAXPOOL", "MEDIANPOOL", // matrix/array results
+]);
+/** HyperFormula-internal pseudo-functions (operator representations) — not spreadsheet functions. */
+const HF_INTERNAL = /^HF\./;
 
 /** Tier by category: 1 = everyday, 2 = analytical, 3 = niche tail. */
 function tierOf(category: string): 1 | 2 | 3 {
@@ -87,6 +92,7 @@ async function main() {
   let implemented = 0;
   let missing = 0;
   let blocked = 0;
+  let internal = 0;
   const missingByTier: Record<1 | 2 | 3, string[]> = { 1: [], 2: [], 3: [] };
 
   const lines: string[] = [];
@@ -110,6 +116,9 @@ async function main() {
       if (ours.has(e.name)) {
         status = "✓ implemented";
         implemented++;
+      } else if (HF_INTERNAL.test(e.name)) {
+        status = "— n/a (HyperFormula-internal operator pseudo-function)";
+        internal++;
       } else if (SPILL_CATEGORIES.has(cat) || SPILL_FUNCTIONS.has(e.name)) {
         status = "⛔ blocked on spill (dynamic arrays)";
         blocked++;
@@ -131,7 +140,7 @@ async function main() {
     "## Summary",
     "",
     `- Documented (HyperFormula): **${entries.length}**`,
-    `- Implemented here: **${implemented}** · Missing: **${missing}** · Blocked on spill: **${blocked}**`,
+    `- Implemented here: **${implemented}** · Missing: **${missing}** · Blocked on spill: **${blocked}** · n/a internal: **${internal}**`,
     `- Implemented here but not in their list: **${extras.length}** (${extras.slice(0, 12).join(", ")}${extras.length > 12 ? ", …" : ""})`,
     "",
     `### Missing — Tier 1 (${missingByTier[1].length})`,
@@ -150,7 +159,7 @@ async function main() {
   mkdirSync(path.dirname(out), { recursive: true });
   writeFileSync(out, lines.join("\n"));
   console.log(
-    `documented=${entries.length} implemented=${implemented} missing=${missing} blocked=${blocked} → ${path.relative(root, out)}`,
+    `documented=${entries.length} implemented=${implemented} missing=${missing} blocked=${blocked} internal=${internal} → ${path.relative(root, out)}`,
   );
   console.log(`Tier1 missing: ${missingByTier[1].join(", ")}`);
 }

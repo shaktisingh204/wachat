@@ -4,8 +4,8 @@
   "description": "Consume the Action Network API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 11,
-  "lastVerified": "2026-06-11",
+  "version": 12,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "header",
@@ -184,7 +184,7 @@
       "id": "event_get_all",
       "label": "Get Many Event",
       "method": "GET",
-      "path": "/event",
+      "path": "/events",
       "fields": [
         {
           "id": "returnAll",
@@ -209,7 +209,7 @@
         }
       ],
       "group": "Event",
-      "description": "[unverified path] Get many events"
+      "description": "Get many events"
     },
     {
       "id": "person_create",
@@ -271,7 +271,7 @@
       "id": "person_get_all",
       "label": "Get Many Person",
       "method": "GET",
-      "path": "/person",
+      "path": "/people",
       "fields": [
         {
           "id": "returnAll",
@@ -296,7 +296,7 @@
         }
       ],
       "group": "Person",
-      "description": "[unverified path] Get many people"
+      "description": "Get many people"
     },
     {
       "id": "person_update",
@@ -397,7 +397,7 @@
       "id": "petition_get_all",
       "label": "Get Many Petition",
       "method": "GET",
-      "path": "/petition",
+      "path": "/petitions",
       "fields": [
         {
           "id": "returnAll",
@@ -422,7 +422,7 @@
         }
       ],
       "group": "Petition",
-      "description": "[unverified path] Get many petitions"
+      "description": "Get many petitions"
     },
     {
       "id": "petition_update",
@@ -660,7 +660,7 @@
       "id": "tag_get_all",
       "label": "Get Many Tag",
       "method": "GET",
-      "path": "/tag",
+      "path": "/tags",
       "fields": [
         {
           "id": "returnAll",
@@ -685,7 +685,7 @@
         }
       ],
       "group": "Tag",
-      "description": "[unverified path] Get many tags"
+      "description": "Get many tags"
     },
     {
       "id": "person_tag_add",

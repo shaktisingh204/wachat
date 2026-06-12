@@ -4,8 +4,8 @@
   "description": "Provides various utilities for monitoring websites like health checks or screenshots",
   "category": "analytics",
   "iconName": "LuPackage",
-  "version": 11,
-  "lastVerified": "2026-06-11",
+  "version": 12,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "header",
@@ -34,7 +34,7 @@
       "id": "scan_get_all",
       "label": "Get Many Scan",
       "method": "GET",
-      "path": "/scan",
+      "path": "/search",
       "fields": [
         {
           "id": "returnAll",
@@ -59,7 +59,7 @@
         }
       ],
       "group": "Scan",
-      "description": "[unverified path] Get many scans"
+      "description": "Get many scans"
     },
     {
       "id": "scan_perform",

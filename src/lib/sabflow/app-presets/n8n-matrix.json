@@ -4,8 +4,8 @@
   "description": "Consume Matrix API",
   "category": "communication",
   "iconName": "LuPackage",
-  "version": 2,
-  "lastVerified": "2026-06-11",
+  "version": 3,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "bearer",
@@ -17,17 +17,17 @@
     {
       "id": "account_me",
       "label": "Me Account",
-      "method": "POST",
-      "path": "/account",
+      "method": "GET",
+      "path": "/_matrix/client/r0/account/whoami",
       "fields": [],
       "group": "Account",
-      "description": "[unverified path] Get current user's account information"
+      "description": "Get current user's account information"
     },
     {
       "id": "event_get",
       "label": "Get Event",
       "method": "GET",
-      "path": "/event",
+      "path": "/_matrix/client/r0/rooms/{roomId}/event/{eventId}",
       "fields": [
         {
           "id": "roomId",
@@ -35,7 +35,8 @@
           "type": "text",
           "required": true,
           "placeholder": "!123abc:matrix.org",
-          "description": "The room related to the event"
+          "description": "The room related to the event",
+          "in": "path"
         },
         {
           "id": "eventId",
@@ -43,75 +44,18 @@
           "type": "text",
           "required": true,
           "placeholder": "$1234abcd:matrix.org",
-          "description": "The room related to the event"
+          "description": "The room related to the event",
+          "in": "path"
         }
       ],
       "group": "Event",
-      "description": "[unverified path] Get single event by ID"
-    },
-    {
-      "id": "media_upload",
-      "label": "Upload Media",
-      "method": "POST",
-      "path": "/media",
-      "fields": [
-        {
-          "id": "roomId",
-          "label": "Room Name or ID",
-          "type": "select",
-          "required": true,
-          "description": "Room ID to post. Choose from the list, or specify an ID using an expression."
-        },
-        {
-          "id": "binaryPropertyName",
-          "label": "Input Binary Field",
-          "type": "text",
-          "required": true,
-          "defaultValue": "data"
-        },
-        {
-          "id": "mediaType",
-          "label": "Media Type",
-          "type": "select",
-          "required": true,
-          "placeholder": "mxc://matrix.org/uploaded-media-uri",
-          "description": "Type of file being uploaded",
-          "defaultValue": "image",
-          "options": [
-            {
-              "value": "file",
-              "label": "File"
-            },
-            {
-              "value": "image",
-              "label": "Image"
-            },
-            {
-              "value": "audio",
-              "label": "Audio"
-            },
-            {
-              "value": "video",
-              "label": "Video"
-            }
-          ]
-        },
-        {
-          "id": "additionalFields",
-          "label": "Additional Fields",
-          "type": "json",
-          "placeholder": "Add Field",
-          "description": "(JSON object; supported keys: fileName)"
-        }
-      ],
-      "group": "Media",
-      "description": "[unverified path] Send media to a chat room"
+      "description": "Get single event by ID"
     },
     {
       "id": "message_create",
       "label": "Create Message",
       "method": "POST",
-      "path": "/message",
+      "path": "/_matrix/client/r0/rooms/{roomId}/send/m.room.message",
       "fields": [
         {
           "id": "roomId",
@@ -119,7 +63,8 @@
           "type": "select",
           "required": true,
           "placeholder": "!123abc:matrix.org",
-          "description": "The channel to send the message to. Choose from the list, or specify an ID using an expression."
+          "description": "The channel to send the message to. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
         },
         {
           "id": "text",
@@ -174,20 +119,21 @@
         }
       ],
       "group": "Message",
-      "description": "[unverified path] Send a message to a room"
+      "description": "Send a message to a room"
     },
     {
       "id": "message_get_all",
       "label": "Get Many Message",
       "method": "GET",
-      "path": "/message",
+      "path": "/_matrix/client/r0/rooms/{roomId}/messages",
       "fields": [
         {
           "id": "roomId",
           "label": "Room Name or ID",
           "type": "select",
           "required": true,
-          "description": "The token to start returning events from. This token can be obtained from a prev_batch token returned for each room by the sync API. Choose from the list, or specify an ID using an expression."
+          "description": "The token to start returning events from. This token can be obtained from a prev_batch token returned for each room by the sync API. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
         },
         {
           "id": "returnAll",
@@ -213,13 +159,13 @@
         }
       ],
       "group": "Message",
-      "description": "[unverified path] Get many messages from a room"
+      "description": "Get many messages from a room"
     },
     {
       "id": "room_create",
       "label": "Create Room",
       "method": "POST",
-      "path": "/room",
+      "path": "/_matrix/client/r0/createRoom",
       "fields": [
         {
           "id": "roomName",
@@ -254,20 +200,21 @@
         }
       ],
       "group": "Room",
-      "description": "[unverified path] New chat room with defined settings"
+      "description": "New chat room with defined settings"
     },
     {
       "id": "room_invite",
       "label": "Invite Room",
       "method": "POST",
-      "path": "/room",
+      "path": "/_matrix/client/r0/rooms/{roomId}/invite",
       "fields": [
         {
           "id": "roomId",
           "label": "Room Name or ID",
           "type": "select",
           "required": true,
-          "description": "Choose from the list, or specify an ID using an expression"
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
         },
         {
           "id": "userId",
@@ -279,36 +226,38 @@
         }
       ],
       "group": "Room",
-      "description": "[unverified path] Invite a user to a room"
+      "description": "Invite a user to a room"
     },
     {
       "id": "room_join",
       "label": "Join Room",
       "method": "POST",
-      "path": "/room",
+      "path": "/_matrix/client/r0/rooms/{roomIdOrAlias}/join",
       "fields": [
         {
           "id": "roomIdOrAlias",
           "label": "Room ID or Alias",
           "type": "text",
-          "required": true
+          "required": true,
+          "in": "path"
         }
       ],
       "group": "Room",
-      "description": "[unverified path] Join a new room"
+      "description": "Join a new room"
     },
     {
       "id": "room_kick",
       "label": "Kick Room",
       "method": "POST",
-      "path": "/room",
+      "path": "/_matrix/client/r0/rooms/{roomId}/kick",
       "fields": [
         {
           "id": "roomId",
           "label": "Room Name or ID",
           "type": "select",
           "required": true,
-          "description": "Choose from the list, or specify an ID using an expression"
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
         },
         {
           "id": "userId",
@@ -327,37 +276,39 @@
         }
       ],
       "group": "Room",
-      "description": "[unverified path] Kick a user from a room"
+      "description": "Kick a user from a room"
     },
     {
       "id": "room_leave",
       "label": "Leave Room",
       "method": "POST",
-      "path": "/room",
+      "path": "/_matrix/client/r0/rooms/{roomId}/leave",
       "fields": [
         {
           "id": "roomId",
           "label": "Room Name or ID",
           "type": "select",
           "required": true,
-          "description": "Choose from the list, or specify an ID using an expression"
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
         }
       ],
       "group": "Room",
-      "description": "[unverified path] Leave a room"
+      "description": "Leave a room"
     },
     {
       "id": "room_member_get_all",
       "label": "Get Many Room Member",
       "method": "GET",
-      "path": "/room-member",
+      "path": "/_matrix/client/r0/rooms/{roomId}/members",
       "fields": [
         {
           "id": "roomId",
           "label": "Room Name or ID",
           "type": "select",
           "required": true,
-          "description": "Choose from the list, or specify an ID using an expression"
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
         },
         {
           "id": "filters",
@@ -368,7 +319,7 @@
         }
       ],
       "group": "Room Member",
-      "description": "[unverified path] Get many members"
+      "description": "Get many members"
     }
   ]
 }

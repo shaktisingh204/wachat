@@ -4,8 +4,8 @@
   "description": "Consume the Elastic Security API",
   "category": "data",
   "iconName": "LuPackage",
-  "version": 4,
-  "lastVerified": "2026-06-11",
+  "version": 5,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "header",
@@ -232,7 +232,7 @@
       "id": "case_get_all",
       "label": "Get Many Case",
       "method": "GET",
-      "path": "/case",
+      "path": "/cases/_find",
       "fields": [
         {
           "id": "host",
@@ -272,7 +272,7 @@
         }
       ],
       "group": "Case",
-      "description": "[unverified path] Retrieve many cases"
+      "description": "Retrieve many cases"
     },
     {
       "id": "case_get_status",

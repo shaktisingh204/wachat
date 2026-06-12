@@ -3,10 +3,11 @@
 /**
  * 20ui — Avatar + AvatarGroup.
  *
- * Avatar is a thin 20ui-namespaced pass-through over the existing colourful
+ * Avatar is a thin 20ui-namespaced pass-through over the colourful
  * `TwentyAvatar` primitive (deterministic initials tint, image fallback,
- * square = company / round = person). We re-export it under the 20ui name so the
- * design system has a single import surface — no behaviour is changed.
+ * square = company / round = person), which now lives IN this file — moved in
+ * from `twenty/twenty-primitives.tsx` (that file re-exports it from here) so
+ * 20ui has no imports from the legacy twenty/ kit. No behaviour is changed.
  *
  * AvatarGroup stacks several avatars with a slight negative-margin overlap and a
  * ring drawn between them (a surface-coloured outline) so they read as separate
@@ -18,14 +19,139 @@
 import * as React from 'react';
 import * as AvatarPrimitive from '@radix-ui/react-avatar';
 
-import {
-  TwentyAvatar,
-  type TwentyAvatarProps,
-  type TwentyAvatarSize,
-  type TwentyAvatarShape,
-} from '@/components/sabcrm/twenty/twenty-primitives';
+// CSS previously loaded transitively through `twenty/twenty-primitives` (which
+// this file used to import for TwentyAvatar). The TwentyAvatar implementation
+// now lives HERE (twenty-primitives re-exports it from this file), so the same
+// sheets are imported directly to keep the loaded-CSS graph identical: the
+// `.st-avatar` chrome lives in surface-crm-base.css / surface-chips.css, and
+// every 20ui-barrel consumer already received the full pile via the old chain.
+// Trim this down when the twenty/ kit is fully retired.
+import './surface-crm-base.css';
+import './tokens-motion.css';
+import './tokens-crm.css';
+import './surface-shell.css';
+import './surface-list.css';
+import './surface-forms.css';
+import './surface-chips.css';
+import './surface-detail.css';
+import './surface-board.css';
+import './surface-overlays.css';
+import './surface-pages.css';
 
 import './avatar.css';
+
+/* =========================================================================
+   TwentyAvatar — the prop-driven avatar primitive.
+
+   Moved in from `twenty/twenty-primitives.tsx` (which now re-exports it from
+   here) so 20ui has zero imports from the legacy twenty/ kit. Mirrors
+   twenty-ui's <Avatar>: a small square-rounded media chip that shows an image
+   (`src`) when available, with a deterministic initials fallback when the
+   image is absent OR fails to load. People avatars use `shape="round"` (a
+   circle); company logos + everything else default to Twenty's 4px-radius
+   rounded square. `size="xs"` is the 14px in-cell size used by RELATION /
+   ACTOR chips and table cells.
+   ========================================================================= */
+export type TwentyAvatarSize = 'xs' | 'sm' | 'md' | 'lg';
+export type TwentyAvatarShape = 'square' | 'round';
+
+export type TwentyAvatarProps = {
+  /** Display name — drives the initials fallback + accessible title. */
+  name: string;
+  /** Image / logo URL. Falls back to initials when missing or it 404s. */
+  src?: string;
+  size?: TwentyAvatarSize;
+  /** `round` = people (circle); `square` = companies/logos (default). */
+  shape?: TwentyAvatarShape;
+  /** Override the initials (e.g. single glyph for actors). */
+  initials?: string;
+  className?: string;
+};
+
+function initialsFromName(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return '?';
+  if (parts.length === 1) return parts[0]!.charAt(0).toUpperCase();
+  return `${parts[0]!.charAt(0)}${parts[parts.length - 1]!.charAt(0)}`.toUpperCase();
+}
+
+/**
+ * A soft, readable colour palette for initials-fallback avatars. Picking a
+ * deterministic colour per name (rather than a single flat accent tint) gives
+ * lists a lively, modern feel — every company/person/actor gets its own hue,
+ * echoing the colourful brand logos in a polished CRM. Each entry pairs a tinted
+ * background with an accessible, saturated foreground.
+ */
+const AVATAR_COLORS: ReadonlyArray<{ bg: string; fg: string }> = [
+  { bg: '#fdeaea', fg: '#d23f3f' }, // red
+  { bg: '#fdeede', fg: '#d97a1e' }, // orange
+  { bg: '#fcf5da', fg: '#b08a06' }, // amber
+  { bg: '#e7f6ec', fg: '#1f9d55' }, // green
+  { bg: '#e0f4f1', fg: '#0f9488' }, // teal
+  { bg: '#e6f0fd', fg: '#1d6fd6' }, // blue
+  { bg: '#e9eafc', fg: '#4f46e5' }, // indigo
+  { bg: '#efe7fb', fg: '#7c3aed' }, // violet
+  { bg: '#fce8f3', fg: '#c2369b' }, // pink
+  { bg: '#e8eef6', fg: '#3f5d8a' }, // slate
+];
+
+/** Deterministically map a name to one of the {@link AVATAR_COLORS}. */
+function avatarColor(name: string): { bg: string; fg: string } {
+  let hash = 0;
+  for (let i = 0; i < name.length; i += 1) {
+    hash = (hash * 31 + name.charCodeAt(i)) >>> 0;
+  }
+  return AVATAR_COLORS[hash % AVATAR_COLORS.length]!;
+}
+
+export function TwentyAvatar({
+  name,
+  src,
+  size = 'md',
+  shape = 'square',
+  initials,
+  className,
+}: TwentyAvatarProps): React.JSX.Element {
+  const classes = [
+    'st-avatar',
+    `st-avatar--${size}`,
+    `st-avatar--${shape}`,
+    className,
+  ]
+    .filter(Boolean)
+    .join(' ');
+  const fallback = initials ?? initialsFromName(name);
+  // Colourful, deterministic tint for the initials fallback (skipped when an
+  // image is present so logos/photos keep their own colours).
+  const tint = src ? undefined : avatarColor(name);
+  return (
+    <span
+      className={classes}
+      title={name}
+      aria-label={name}
+      style={tint ? { background: tint.bg, color: tint.fg } : undefined}
+    >
+      {/* Initials sit underneath; a successful image paints over them. If the
+          image fails to load, onError hides it so the initials show through —
+          this keeps the component free of React state so it stays SSR-safe. */}
+      <span className="st-avatar__initials" aria-hidden={src ? 'true' : undefined}>
+        {fallback}
+      </span>
+      {src ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={src}
+          alt={name}
+          className="st-avatar__img"
+          loading="lazy"
+          onError={(e) => {
+            e.currentTarget.style.display = 'none';
+          }}
+        />
+      ) : null}
+    </span>
+  );
+}
 
 export type AvatarSize = TwentyAvatarSize;
 export type AvatarShape = TwentyAvatarShape;

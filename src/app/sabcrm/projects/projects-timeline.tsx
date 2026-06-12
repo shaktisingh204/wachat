@@ -82,24 +82,24 @@ export function ProjectsTimeline({ projects, onOpen }: ProjectsTimelineProps): R
   const showToday = now >= rangeStart && now < rangeEnd;
 
   return (
-    <div className="pm-timeline">
-      <div className="pm-timeline__scroll">
-        <div className="pm-timeline__grid">
+    <div className="pj-timeline">
+      <div className="pj-timeline__scroll">
+        <div className="pj-timeline__grid">
           {/* Month axis */}
-          <div className="pm-timeline__axis" aria-hidden="true">
-            <div className="pm-timeline__axis-label" />
-            <div className="pm-timeline__axis-track">
+          <div className="pj-timeline__axis" aria-hidden="true">
+            <div className="pj-timeline__axis-label" />
+            <div className="pj-timeline__axis-track">
               {months.map((mo, i) => (
                 <span
                   key={i}
-                  className="pm-timeline__month"
+                  className="pj-timeline__month"
                   style={{ left: `${mo.leftPct}%`, width: `${mo.widthPct}%` }}
                 >
                   {mo.label}
                 </span>
               ))}
               {showToday ? (
-                <span className="pm-timeline__today" style={{ left: `${pct(now)}%` }} title="Today" />
+                <span className="pj-timeline__today" style={{ left: `${pct(now)}%` }} title="Today" />
               ) : null}
             </div>
           </div>
@@ -111,29 +111,29 @@ export function ProjectsTimeline({ projects, onOpen }: ProjectsTimelineProps): R
             const width = Math.max(1.5, pct(win.end) - left);
             const fill = p.progress ?? 0;
             return (
-              <div key={p.id} className="pm-timeline__row">
+              <div key={p.id} className="pj-timeline__row">
                 <button
                   type="button"
-                  className="pm-timeline__row-label"
+                  className="pj-timeline__row-label"
                   onClick={() => onOpen(p)}
                   title={p.name}
                 >
-                  <span className={`pm-board__dot pm-board__dot--${o.tone}`} aria-hidden="true" />
-                  <span className="pm-timeline__row-name">{p.name}</span>
+                  <span className={`pj-dot pj-dot--${o.tone}`} aria-hidden="true" />
+                  <span className="pj-timeline__row-name">{p.name}</span>
                 </button>
-                <div className="pm-timeline__row-track">
+                <div className="pj-timeline__row-track">
                   {showToday ? (
-                    <span className="pm-timeline__today-line" style={{ left: `${pct(now)}%` }} aria-hidden="true" />
+                    <span className="pj-timeline__today-line" style={{ left: `${pct(now)}%` }} aria-hidden="true" />
                   ) : null}
                   <button
                     type="button"
-                    className={`pm-timeline__bar pm-timeline__bar--${o.tone}`}
+                    className={`pj-timeline__bar pj-timeline__bar--${o.tone}`}
                     style={{ left: `${left}%`, width: `${width}%` }}
                     onClick={() => onOpen(p)}
                     title={`${p.name} · ${formatDate(p.startDate)} – ${formatDate(p.dueDate)}`}
                   >
-                    <span className="pm-timeline__bar-fill" style={{ width: `${fill}%` }} aria-hidden="true" />
-                    <span className="pm-timeline__bar-label">{p.name}</span>
+                    <span className="pj-timeline__bar-fill" style={{ width: `${fill}%` }} aria-hidden="true" />
+                    <span className="pj-timeline__bar-label">{p.name}</span>
                   </button>
                 </div>
               </div>
@@ -143,16 +143,16 @@ export function ProjectsTimeline({ projects, onOpen }: ProjectsTimelineProps): R
       </div>
 
       {unscheduled.length > 0 ? (
-        <div className="pm-timeline__unscheduled">
-          <h4 className="pm-timeline__unscheduled-title">Unscheduled</h4>
-          <div className="pm-timeline__unscheduled-list">
+        <div className="pj-timeline__unscheduled">
+          <h4 className="pj-timeline__unscheduled-title">Unscheduled</h4>
+          <div className="pj-timeline__unscheduled-list">
             {unscheduled.map((p) => {
               const o = projectStatusOption(p.status);
               return (
                 <button
                   key={p.id}
                   type="button"
-                  className="pm-timeline__unscheduled-chip"
+                  className="pj-timeline__unscheduled-chip"
                   onClick={() => onOpen(p)}
                 >
                   <Badge tone={o.tone} dot>

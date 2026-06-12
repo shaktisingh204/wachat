@@ -16,12 +16,29 @@ pub struct ListQuery {
     pub q: Option<String>,
     #[serde(default)]
     pub status: Option<String>,
+    /// SabCRM project scope — required on the `/v1/sabcrm/forms` mount,
+    /// ignored on the legacy `userId` mount.
+    #[serde(default)]
+    pub project_id: Option<String>,
+}
+
+/// Scope-only query for the single-document routes (`GET`/`PATCH`/`DELETE`
+/// `/{formId}`). Mirrors `crm_invoices::dto::ScopeQuery`.
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ScopeQuery {
+    #[serde(default)]
+    pub project_id: Option<String>,
 }
 
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CreateFormInput {
     pub name: String,
+    /// SabCRM project scope — required (in the body) on the
+    /// `/v1/sabcrm/forms` mount, ignored on the legacy mount.
+    #[serde(default)]
+    pub project_id: Option<String>,
     #[serde(default)]
     pub slug: Option<String>,
     #[serde(default)]

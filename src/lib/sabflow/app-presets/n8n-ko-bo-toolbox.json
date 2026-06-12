@@ -4,8 +4,8 @@
   "description": "Work with KoBoToolbox forms and submissions",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 8,
-  "lastVerified": "2026-06-11",
+  "version": 10,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "header",
@@ -17,7 +17,7 @@
       "id": "form_get",
       "label": "Get Form",
       "method": "GET",
-      "path": "/form",
+      "path": "/api/v2/assets/{formId}",
       "fields": [
         {
           "id": "allowedDomain",
@@ -32,17 +32,18 @@
           "label": "Form Name or ID",
           "type": "select",
           "required": true,
-          "description": "Form ID (e.g. aSAvYreNzVEkrWg5Gdcvg). Choose from the list, or specify an ID using an expression."
+          "description": "Form ID (e.g. aSAvYreNzVEkrWg5Gdcvg). Choose from the list, or specify an ID using an expression.",
+          "in": "path"
         }
       ],
       "group": "Form",
-      "description": "[unverified path] Get a form"
+      "description": "Get a form"
     },
     {
       "id": "form_get_all",
       "label": "Get Many Form",
       "method": "GET",
-      "path": "/form",
+      "path": "/api/v2/assets/",
       "fields": [
         {
           "id": "allowedDomain",
@@ -83,13 +84,13 @@
         }
       ],
       "group": "Form",
-      "description": "[unverified path] Get many forms"
+      "description": "Get many forms"
     },
     {
       "id": "form_redeploy",
       "label": "Redeploy Form",
-      "method": "POST",
-      "path": "/form",
+      "method": "PATCH",
+      "path": "/api/v2/assets/{formId}/deployment/",
       "fields": [
         {
           "id": "allowedDomain",
@@ -104,17 +105,18 @@
           "label": "Form Name or ID",
           "type": "select",
           "required": true,
-          "description": "Form ID (e.g. aSAvYreNzVEkrWg5Gdcvg). Choose from the list, or specify an ID using an expression."
+          "description": "Form ID (e.g. aSAvYreNzVEkrWg5Gdcvg). Choose from the list, or specify an ID using an expression.",
+          "in": "path"
         }
       ],
       "group": "Form",
-      "description": "[unverified path] Redeploy Current Form Version"
+      "description": "Redeploy Current Form Version"
     },
     {
       "id": "hook_get",
       "label": "Get Hook",
       "method": "GET",
-      "path": "/hook",
+      "path": "/api/v2/assets/{formId}/hooks/{hookId}",
       "fields": [
         {
           "id": "allowedDomain",
@@ -129,24 +131,26 @@
           "label": "Form Name or ID",
           "type": "select",
           "required": true,
-          "description": "Form ID (e.g. aSAvYreNzVEkrWg5Gdcvg). Choose from the list, or specify an ID using an expression."
+          "description": "Form ID (e.g. aSAvYreNzVEkrWg5Gdcvg). Choose from the list, or specify an ID using an expression.",
+          "in": "path"
         },
         {
           "id": "hookId",
           "label": "Hook ID",
           "type": "text",
           "required": true,
-          "description": "Hook ID (starts with h, e.g. hVehywQ2oXPYGHJHKtqth4)"
+          "description": "Hook ID (starts with h, e.g. hVehywQ2oXPYGHJHKtqth4)",
+          "in": "path"
         }
       ],
       "group": "Hook",
-      "description": "[unverified path] Get a single hook definition"
+      "description": "Get a single hook definition"
     },
     {
       "id": "hook_get_all",
       "label": "Get Many Hook",
       "method": "GET",
-      "path": "/hook",
+      "path": "/api/v2/assets/{formId}/hooks/",
       "fields": [
         {
           "id": "allowedDomain",
@@ -161,7 +165,8 @@
           "label": "Form Name or ID",
           "type": "select",
           "required": true,
-          "description": "Form ID (e.g. aSAvYreNzVEkrWg5Gdcvg). Choose from the list, or specify an ID using an expression."
+          "description": "Form ID (e.g. aSAvYreNzVEkrWg5Gdcvg). Choose from the list, or specify an ID using an expression.",
+          "in": "path"
         },
         {
           "id": "returnAll",
@@ -180,13 +185,13 @@
         }
       ],
       "group": "Hook",
-      "description": "[unverified path] List many hooks on a form"
+      "description": "List many hooks on a form"
     },
     {
       "id": "hook_get_logs",
       "label": "Logs Hook",
       "method": "GET",
-      "path": "/hook",
+      "path": "/api/v2/assets/{formId}/hooks/{hookId}/logs/",
       "fields": [
         {
           "id": "allowedDomain",
@@ -201,14 +206,16 @@
           "label": "Form Name or ID",
           "type": "select",
           "required": true,
-          "description": "Form ID (e.g. aSAvYreNzVEkrWg5Gdcvg). Choose from the list, or specify an ID using an expression."
+          "description": "Form ID (e.g. aSAvYreNzVEkrWg5Gdcvg). Choose from the list, or specify an ID using an expression.",
+          "in": "path"
         },
         {
           "id": "hookId",
           "label": "Hook ID",
           "type": "text",
           "required": true,
-          "description": "Hook ID (starts with h, e.g. hVehywQ2oXPYGHJHKtqth4)"
+          "description": "Hook ID (starts with h, e.g. hVehywQ2oXPYGHJHKtqth4)",
+          "in": "path"
         },
         {
           "id": "status",
@@ -250,13 +257,13 @@
         }
       ],
       "group": "Hook",
-      "description": "[unverified path] Get hook logs"
+      "description": "Get hook logs"
     },
     {
       "id": "hook_retry_all",
       "label": "Retry All Hook",
-      "method": "POST",
-      "path": "/hook",
+      "method": "PATCH",
+      "path": "/api/v2/assets/{formId}/hooks/{hookId}/retry/",
       "fields": [
         {
           "id": "allowedDomain",
@@ -271,24 +278,26 @@
           "label": "Form Name or ID",
           "type": "select",
           "required": true,
-          "description": "Form ID (e.g. aSAvYreNzVEkrWg5Gdcvg). Choose from the list, or specify an ID using an expression."
+          "description": "Form ID (e.g. aSAvYreNzVEkrWg5Gdcvg). Choose from the list, or specify an ID using an expression.",
+          "in": "path"
         },
         {
           "id": "hookId",
           "label": "Hook ID",
           "type": "text",
           "required": true,
-          "description": "Hook ID (starts with h, e.g. hVehywQ2oXPYGHJHKtqth4)"
+          "description": "Hook ID (starts with h, e.g. hVehywQ2oXPYGHJHKtqth4)",
+          "in": "path"
         }
       ],
       "group": "Hook",
-      "description": "[unverified path] Retry all failed attempts for a given hook"
+      "description": "Retry all failed attempts for a given hook"
     },
     {
       "id": "hook_retry_one",
       "label": "Retry One Hook",
-      "method": "POST",
-      "path": "/hook",
+      "method": "PATCH",
+      "path": "/api/v2/assets/{formId}/hooks/{hookId}/logs/{logId}/retry/",
       "fields": [
         {
           "id": "allowedDomain",
@@ -303,31 +312,34 @@
           "label": "Form Name or ID",
           "type": "select",
           "required": true,
-          "description": "Form ID (e.g. aSAvYreNzVEkrWg5Gdcvg). Choose from the list, or specify an ID using an expression."
+          "description": "Form ID (e.g. aSAvYreNzVEkrWg5Gdcvg). Choose from the list, or specify an ID using an expression.",
+          "in": "path"
         },
         {
           "id": "hookId",
           "label": "Hook ID",
           "type": "text",
           "required": true,
-          "description": "Hook ID (starts with h, e.g. hVehywQ2oXPYGHJHKtqth4)"
+          "description": "Hook ID (starts with h, e.g. hVehywQ2oXPYGHJHKtqth4)",
+          "in": "path"
         },
         {
           "id": "logId",
           "label": "Hook Log ID",
           "type": "text",
           "required": true,
-          "description": "Hook log ID (starts with hl, e.g. hlSbGKaUKzTVNoWEVMYbLHe)"
+          "description": "Hook log ID (starts with hl, e.g. hlSbGKaUKzTVNoWEVMYbLHe)",
+          "in": "path"
         }
       ],
       "group": "Hook",
-      "description": "[unverified path] Retry a specific hook"
+      "description": "Retry a specific hook"
     },
     {
       "id": "submission_delete",
       "label": "Delete Submission",
       "method": "DELETE",
-      "path": "/submission",
+      "path": "/api/v2/assets/{formId}/data/{id}",
       "fields": [
         {
           "id": "allowedDomain",
@@ -342,7 +354,8 @@
           "label": "Form Name or ID",
           "type": "select",
           "required": true,
-          "description": "Form ID (e.g. aSAvYreNzVEkrWg5Gdcvg). Choose from the list, or specify an ID using an expression."
+          "description": "Form ID (e.g. aSAvYreNzVEkrWg5Gdcvg). Choose from the list, or specify an ID using an expression.",
+          "in": "path"
         },
         {
           "id": "submissionId",
@@ -353,13 +366,13 @@
         }
       ],
       "group": "Submission",
-      "description": "[unverified path] Delete a single submission"
+      "description": "Delete a single submission"
     },
     {
       "id": "submission_get",
       "label": "Get Submission",
       "method": "GET",
-      "path": "/submission",
+      "path": "/api/v2/assets/{formId}/data/{submissionId}",
       "fields": [
         {
           "id": "allowedDomain",
@@ -374,14 +387,16 @@
           "label": "Form Name or ID",
           "type": "select",
           "required": true,
-          "description": "Form ID (e.g. aSAvYreNzVEkrWg5Gdcvg). Choose from the list, or specify an ID using an expression."
+          "description": "Form ID (e.g. aSAvYreNzVEkrWg5Gdcvg). Choose from the list, or specify an ID using an expression.",
+          "in": "path"
         },
         {
           "id": "submissionId",
           "label": "Submission ID",
           "type": "text",
           "required": true,
-          "description": "Submission ID (number, e.g. 245128)"
+          "description": "Submission ID (number, e.g. 245128)",
+          "in": "path"
         },
         {
           "id": "options",
@@ -392,13 +407,13 @@
         }
       ],
       "group": "Submission",
-      "description": "[unverified path] Get a single submission"
+      "description": "Get a single submission"
     },
     {
       "id": "submission_get_all",
       "label": "Get Many Submission",
       "method": "GET",
-      "path": "/submission",
+      "path": "/api/v2/assets/{formId}/data/",
       "fields": [
         {
           "id": "allowedDomain",
@@ -413,7 +428,8 @@
           "label": "Form Name or ID",
           "type": "select",
           "required": true,
-          "description": "Form ID (e.g. aSAvYreNzVEkrWg5Gdcvg). Choose from the list, or specify an ID using an expression."
+          "description": "Form ID (e.g. aSAvYreNzVEkrWg5Gdcvg). Choose from the list, or specify an ID using an expression.",
+          "in": "path"
         },
         {
           "id": "returnAll",
@@ -460,13 +476,13 @@
         }
       ],
       "group": "Submission",
-      "description": "[unverified path] Get many submissions"
+      "description": "Get many submissions"
     },
     {
       "id": "submission_get_validation",
       "label": "Get Validation Status Submission",
       "method": "GET",
-      "path": "/submission",
+      "path": "/api/v2/assets/{formId}/data/{submissionId}/validation_status/",
       "fields": [
         {
           "id": "allowedDomain",
@@ -481,24 +497,26 @@
           "label": "Form Name or ID",
           "type": "select",
           "required": true,
-          "description": "Form ID (e.g. aSAvYreNzVEkrWg5Gdcvg). Choose from the list, or specify an ID using an expression."
+          "description": "Form ID (e.g. aSAvYreNzVEkrWg5Gdcvg). Choose from the list, or specify an ID using an expression.",
+          "in": "path"
         },
         {
           "id": "submissionId",
           "label": "Submission ID",
           "type": "text",
           "required": true,
-          "description": "Submission ID (number, e.g. 245128)"
+          "description": "Submission ID (number, e.g. 245128)",
+          "in": "path"
         }
       ],
       "group": "Submission",
-      "description": "[unverified path] Get the validation status for the submission"
+      "description": "Get the validation status for the submission"
     },
     {
       "id": "submission_set_validation",
       "label": "Update Validation Status Submission",
       "method": "PATCH",
-      "path": "/submission",
+      "path": "/api/v2/assets/{formId}/data/{submissionId}/validation_status/",
       "fields": [
         {
           "id": "allowedDomain",
@@ -513,14 +531,16 @@
           "label": "Form Name or ID",
           "type": "select",
           "required": true,
-          "description": "Form ID (e.g. aSAvYreNzVEkrWg5Gdcvg). Choose from the list, or specify an ID using an expression."
+          "description": "Form ID (e.g. aSAvYreNzVEkrWg5Gdcvg). Choose from the list, or specify an ID using an expression.",
+          "in": "path"
         },
         {
           "id": "submissionId",
           "label": "Submission ID",
           "type": "text",
           "required": true,
-          "description": "Submission ID (number, e.g. 245128)"
+          "description": "Submission ID (number, e.g. 245128)",
+          "in": "path"
         },
         {
           "id": "validationStatus",
@@ -545,13 +565,13 @@
         }
       ],
       "group": "Submission",
-      "description": "[unverified path] Set the validation status of the submission"
+      "description": "Set the validation status of the submission"
     },
     {
       "id": "file_create",
       "label": "Create File",
       "method": "POST",
-      "path": "/file",
+      "path": "/api/v2/assets/{formId}/files/",
       "fields": [
         {
           "id": "allowedDomain",
@@ -566,7 +586,8 @@
           "label": "Form Name or ID",
           "type": "select",
           "required": true,
-          "description": "Form ID (e.g. aSAvYreNzVEkrWg5Gdcvg). Choose from the list, or specify an ID using an expression."
+          "description": "Form ID (e.g. aSAvYreNzVEkrWg5Gdcvg). Choose from the list, or specify an ID using an expression.",
+          "in": "path"
         },
         {
           "id": "fileMode",
@@ -602,13 +623,13 @@
         }
       ],
       "group": "File",
-      "description": "[unverified path] Create a file"
+      "description": "Create a file"
     },
     {
       "id": "file_delete",
       "label": "Delete File",
       "method": "DELETE",
-      "path": "/file",
+      "path": "/api/v2/assets/{formId}/files/{fileId}",
       "fields": [
         {
           "id": "allowedDomain",
@@ -623,24 +644,26 @@
           "label": "Form Name or ID",
           "type": "select",
           "required": true,
-          "description": "Form ID (e.g. aSAvYreNzVEkrWg5Gdcvg). Choose from the list, or specify an ID using an expression."
+          "description": "Form ID (e.g. aSAvYreNzVEkrWg5Gdcvg). Choose from the list, or specify an ID using an expression.",
+          "in": "path"
         },
         {
           "id": "fileId",
           "label": "File ID",
           "type": "text",
           "required": true,
-          "description": "Uid of the file (should start with \"af\" e.g. \"afQoJxA4kmKEXVpkH6SYbhb\""
+          "description": "Uid of the file (should start with \"af\" e.g. \"afQoJxA4kmKEXVpkH6SYbhb\"",
+          "in": "path"
         }
       ],
       "group": "File",
-      "description": "[unverified path] Delete file"
+      "description": "Delete file"
     },
     {
       "id": "file_get",
       "label": "Get File",
       "method": "GET",
-      "path": "/file",
+      "path": "/api/v2/assets/{formId}/files/{fileId}",
       "fields": [
         {
           "id": "allowedDomain",
@@ -655,14 +678,16 @@
           "label": "Form Name or ID",
           "type": "select",
           "required": true,
-          "description": "Form ID (e.g. aSAvYreNzVEkrWg5Gdcvg). Choose from the list, or specify an ID using an expression."
+          "description": "Form ID (e.g. aSAvYreNzVEkrWg5Gdcvg). Choose from the list, or specify an ID using an expression.",
+          "in": "path"
         },
         {
           "id": "fileId",
           "label": "File ID",
           "type": "text",
           "required": true,
-          "description": "Uid of the file (should start with \"af\" e.g. \"afQoJxA4kmKEXVpkH6SYbhb\""
+          "description": "Uid of the file (should start with \"af\" e.g. \"afQoJxA4kmKEXVpkH6SYbhb\"",
+          "in": "path"
         },
         {
           "id": "binaryPropertyName",
@@ -682,13 +707,13 @@
         }
       ],
       "group": "File",
-      "description": "[unverified path] Get a file content"
+      "description": "Get a file content"
     },
     {
       "id": "file_get_all",
       "label": "Get Many File",
       "method": "GET",
-      "path": "/file",
+      "path": "/api/v2/assets/{formId}/files",
       "fields": [
         {
           "id": "allowedDomain",
@@ -703,11 +728,12 @@
           "label": "Form Name or ID",
           "type": "select",
           "required": true,
-          "description": "Form ID (e.g. aSAvYreNzVEkrWg5Gdcvg). Choose from the list, or specify an ID using an expression."
+          "description": "Form ID (e.g. aSAvYreNzVEkrWg5Gdcvg). Choose from the list, or specify an ID using an expression.",
+          "in": "path"
         }
       ],
       "group": "File",
-      "description": "[unverified path] Get many files"
+      "description": "Get many files"
     }
   ]
 }

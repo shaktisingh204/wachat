@@ -4,8 +4,8 @@
   "description": "Handle events and perform actions on your n8n instance",
   "category": "productivity",
   "iconName": "LuPackage",
-  "version": 2,
-  "lastVerified": "2026-06-11",
+  "version": 4,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "header",
@@ -70,7 +70,7 @@
       "id": "credential_delete",
       "label": "Delete Credential",
       "method": "DELETE",
-      "path": "/credentials/{{ {credentialId} }}",
+      "path": "/credentials/{credentialId}",
       "fields": [
         {
           "id": "credentialId",
@@ -81,13 +81,13 @@
         }
       ],
       "group": "Credential",
-      "description": "[unverified path] Delete a credential"
+      "description": "Delete a credential"
     },
     {
       "id": "credential_get_schema",
       "label": "Get Schema Credential",
       "method": "GET",
-      "path": "/credentials/schema/{{ {credentialTypeName} }}",
+      "path": "/credentials/schema/{credentialTypeName}",
       "fields": [
         {
           "id": "credentialTypeName",
@@ -100,13 +100,13 @@
         }
       ],
       "group": "Credential",
-      "description": "[unverified path] Get credential data schema for type"
+      "description": "Get credential data schema for type"
     },
     {
       "id": "execution_get",
       "label": "Get Execution",
       "method": "GET",
-      "path": "/executions/{{ {executionId} }}",
+      "path": "/executions/{executionId}",
       "fields": [
         {
           "id": "executionId",
@@ -124,7 +124,7 @@
         }
       ],
       "group": "Execution",
-      "description": "[unverified path] Get an execution"
+      "description": "Get an execution"
     },
     {
       "id": "execution_get_all",
@@ -168,7 +168,7 @@
       "id": "execution_delete",
       "label": "Delete Execution",
       "method": "DELETE",
-      "path": "/executions/{{ {executionId} }}",
+      "path": "/executions/{executionId}",
       "fields": [
         {
           "id": "executionId",
@@ -179,20 +179,21 @@
         }
       ],
       "group": "Execution",
-      "description": "[unverified path] Delete an execution"
+      "description": "Delete an execution"
     },
     {
       "id": "workflow_activate",
       "label": "Publish Workflow",
       "method": "POST",
-      "path": "/workflow",
+      "path": "/workflows/{workflowId}/activate",
       "fields": [
         {
           "id": "workflowId",
           "label": "Workflow",
           "type": "text",
           "required": true,
-          "description": "Workflow to filter the executions by (provide the ID)"
+          "description": "Workflow to filter the executions by (provide the ID)",
+          "in": "path"
         },
         {
           "id": "additionalFields",
@@ -203,7 +204,7 @@
         }
       ],
       "group": "Workflow",
-      "description": "[unverified path] Publish a workflow"
+      "description": "Publish a workflow"
     },
     {
       "id": "workflow_create",
@@ -227,53 +228,56 @@
     {
       "id": "workflow_deactivate",
       "label": "Unpublish Workflow",
-      "method": "DELETE",
-      "path": "/workflow",
+      "method": "POST",
+      "path": "/workflows/{workflowId}/deactivate",
       "fields": [
         {
           "id": "workflowId",
           "label": "Workflow",
           "type": "text",
           "required": true,
-          "description": "Workflow to filter the executions by (provide the ID)"
+          "description": "Workflow to filter the executions by (provide the ID)",
+          "in": "path"
         }
       ],
       "group": "Workflow",
-      "description": "[unverified path] Unpublish a workflow"
+      "description": "Unpublish a workflow"
     },
     {
       "id": "workflow_delete",
       "label": "Delete Workflow",
       "method": "DELETE",
-      "path": "/workflow",
+      "path": "/workflows/{workflowId}",
       "fields": [
         {
           "id": "workflowId",
           "label": "Workflow",
           "type": "text",
           "required": true,
-          "description": "Workflow to filter the executions by (provide the ID)"
+          "description": "Workflow to filter the executions by (provide the ID)",
+          "in": "path"
         }
       ],
       "group": "Workflow",
-      "description": "[unverified path] Delete a workflow"
+      "description": "Delete a workflow"
     },
     {
       "id": "workflow_get",
       "label": "Get Workflow",
       "method": "GET",
-      "path": "/workflow",
+      "path": "/workflows/{workflowId}",
       "fields": [
         {
           "id": "workflowId",
           "label": "Workflow",
           "type": "text",
           "required": true,
-          "description": "Workflow to filter the executions by (provide the ID)"
+          "description": "Workflow to filter the executions by (provide the ID)",
+          "in": "path"
         }
       ],
       "group": "Workflow",
-      "description": "[unverified path] Get a workflow"
+      "description": "Get a workflow"
     },
     {
       "id": "workflow_get_all",
@@ -309,38 +313,41 @@
       "id": "workflow_get_version",
       "label": "Get Version Workflow",
       "method": "GET",
-      "path": "/workflow",
+      "path": "/workflows/{workflowId}/{versionId}",
       "fields": [
         {
           "id": "workflowId",
           "label": "Workflow",
           "type": "text",
           "required": true,
-          "description": "Workflow to filter the executions by (provide the ID)"
+          "description": "Workflow to filter the executions by (provide the ID)",
+          "in": "path"
         },
         {
           "id": "versionId",
           "label": "Version ID",
           "type": "text",
           "required": true,
-          "description": "The version ID to retrieve"
+          "description": "The version ID to retrieve",
+          "in": "path"
         }
       ],
       "group": "Workflow",
-      "description": "[unverified path] Get a workflow version"
+      "description": "Get a workflow version"
     },
     {
       "id": "workflow_update",
       "label": "Update Workflow",
-      "method": "PATCH",
-      "path": "/workflow",
+      "method": "PUT",
+      "path": "/workflows/{workflowId}",
       "fields": [
         {
           "id": "workflowId",
           "label": "Workflow",
           "type": "text",
           "required": true,
-          "description": "Workflow to filter the executions by (provide the ID)"
+          "description": "Workflow to filter the executions by (provide the ID)",
+          "in": "path"
         },
         {
           "id": "workflowObject",
@@ -352,7 +359,7 @@
         }
       ],
       "group": "Workflow",
-      "description": "[unverified path] Update a workflow"
+      "description": "Update a workflow"
     }
   ]
 }

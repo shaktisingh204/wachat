@@ -4,8 +4,8 @@
   "description": "Retrieve data from the NASA API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 11,
-  "lastVerified": "2026-06-11",
+  "version": 12,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "header",
@@ -354,37 +354,19 @@
       "id": "in_sight_mars_weather_service_get",
       "label": "Get In Sight Mars Weather Service",
       "method": "GET",
-      "path": "/in-sight-mars-weather-service",
+      "path": "/insight_weather/?feedtype=json&ver=1.0",
       "fields": [],
       "group": "In Sight Mars Weather Service",
-      "description": "[unverified path] Retrieve Insight Mars Weather Service data"
-    },
-    {
-      "id": "image_and_video_library_get",
-      "label": "Get Image And Video Library",
-      "method": "GET",
-      "path": "/image-and-video-library",
-      "fields": [],
-      "group": "Image And Video Library",
-      "description": "[unverified path] Retrieve Image and Video Library data"
+      "description": "Retrieve Insight Mars Weather Service data"
     },
     {
       "id": "tech_transfer_get",
       "label": "Get Tech Transfer",
       "method": "GET",
-      "path": "/tech-transfer",
+      "path": "/techtransfer/patent/",
       "fields": [],
       "group": "Tech Transfer",
-      "description": "[unverified path] Retrieve TechTransfer data"
-    },
-    {
-      "id": "two_line_element_set_get",
-      "label": "Get Two Line Element Set",
-      "method": "GET",
-      "path": "/two-line-element-set",
-      "fields": [],
-      "group": "Two Line Element Set",
-      "description": "[unverified path] Retrieve Two-Line Element Set data"
+      "description": "Retrieve TechTransfer data"
     }
   ]
 }

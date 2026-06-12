@@ -1,47 +1,41 @@
 /* =========================================================================
-   SabCRM — Getting Started (/sabcrm/getting-started)
-   Twenty-faithful, plain CSS. NO Tailwind / NO Ui20. Scoped under
-   .sabcrm-twenty (provided by the /sabcrm layout's TwentyAppFrame).
-   Reuses the --st-* design tokens declared in sabcrm-twenty.css.
-   New classes are namespaced .st-gs-* so they never collide with the
-   shared .st-* primitives in sabcrm-twenty.css (which must not be edited).
+   SabCRM — Getting Started (/sabcrm/getting-started), 20ui.
+
+   Page-local `.gs-*` classes, scoped to the 20ui root
+   (`:is(.\32 0ui, .ui20)` — NEVER a bare `.20ui.foo` compound). Tokens only
+   (`--st-*` / `--u-*`), so dark mode is free. Chrome (header, checkbox,
+   progress bar, reset button) comes from 20ui components; this file carries
+   the page column, the progress panel framing, the checklist cards and the
+   "Do it" link.
    ========================================================================= */
 
-/* ----- Page scroll wrapper ----- */
-.sabcrm-twenty .st-gs {
+/* ----- Page scroll wrapper + centered column ----- */
+:is(.\32 0ui, .ui20) .gs-page {
   flex: 1 1 auto;
   min-height: 0;
   padding: var(--st-space-5);
   overflow-y: auto;
 }
 
-.sabcrm-twenty .st-gs__inner {
+:is(.\32 0ui, .ui20) .gs-page__inner {
   width: 100%;
   max-width: 880px;
   margin: 0 auto;
 }
 
-/* ----- Lead / subtitle ----- */
-.sabcrm-twenty .st-gs__lead {
-  margin: calc(-1 * var(--st-space-3)) 0 var(--st-space-5);
-  max-width: 560px;
-  color: var(--st-text-secondary);
-  font-size: var(--st-font-size);
-  line-height: 1.5;
-}
-
 /* =========================================================================
-   Progress bar
+   Progress panel
    ========================================================================= */
-.sabcrm-twenty .st-gs-progress {
-  margin: 0 0 var(--st-space-6);
+:is(.\32 0ui, .ui20) .gs-progress {
+  margin: var(--st-space-5) 0 var(--st-space-6);
   padding: var(--st-space-4);
-  border: 1px solid var(--st-border);
+  border: 1px solid var(--st-border-light, var(--st-border));
   border-radius: var(--st-radius-lg);
   background: var(--st-bg);
+  box-shadow: var(--st-shadow-sm);
 }
 
-.sabcrm-twenty .st-gs-progress__head {
+:is(.\32 0ui, .ui20) .gs-progress__head {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
@@ -49,25 +43,25 @@
   margin-bottom: var(--st-space-3);
 }
 
-.sabcrm-twenty .st-gs-progress__title {
+:is(.\32 0ui, .ui20) .gs-progress__title {
   font-size: var(--st-font-size-lg);
   font-weight: var(--st-fw-semibold);
   color: var(--st-text);
   letter-spacing: -0.01em;
 }
 
-.sabcrm-twenty .st-gs-progress__count {
+:is(.\32 0ui, .ui20) .gs-progress__count {
   font-size: var(--st-font-size-sm);
   font-weight: var(--st-fw-medium);
   color: var(--st-text-secondary);
 }
 
-.sabcrm-twenty .st-gs-progress__count strong {
+:is(.\32 0ui, .ui20) .gs-progress__count strong {
   color: var(--st-accent);
   font-weight: var(--st-fw-semibold);
 }
 
-.sabcrm-twenty .st-gs-progress__done-msg {
+:is(.\32 0ui, .ui20) .gs-progress__done-msg {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -77,14 +71,14 @@
   font-weight: var(--st-fw-medium);
 }
 
-.sabcrm-twenty .st-gs-progress__done-msg svg {
+:is(.\32 0ui, .ui20) .gs-progress__done-msg svg {
   flex: 0 0 auto;
 }
 
 /* =========================================================================
    Checklist
    ========================================================================= */
-.sabcrm-twenty .st-gs-list {
+:is(.\32 0ui, .ui20) .gs-list {
   display: flex;
   flex-direction: column;
   gap: var(--st-space-3);
@@ -93,36 +87,38 @@
   list-style: none;
 }
 
-.sabcrm-twenty .st-gs-card {
+:is(.\32 0ui, .ui20) .gs-card {
   display: flex;
   align-items: flex-start;
   gap: var(--st-space-3);
   padding: var(--st-space-4);
-  border: 1px solid var(--st-border);
+  border: 1px solid var(--st-border-light, var(--st-border));
   border-radius: var(--st-radius-lg);
   background: var(--st-bg);
-  transition: border-color 120ms ease, box-shadow 120ms ease;
+  transition:
+    border-color var(--u-dur, 160ms) var(--u-ease-out, ease),
+    box-shadow var(--u-dur, 160ms) var(--u-ease-out, ease);
 }
 
-.sabcrm-twenty .st-gs-card:hover {
-  border-color: var(--st-text-tertiary);
-  box-shadow: var(--st-shadow);
+:is(.\32 0ui, .ui20) .gs-card:hover {
+  border-color: color-mix(in srgb, var(--st-accent) 32%, var(--st-border));
+  box-shadow: var(--st-shadow-md, var(--st-shadow));
 }
 
-.sabcrm-twenty .st-gs-card--done {
+:is(.\32 0ui, .ui20) .gs-card--done {
   background: var(--st-bg-secondary);
 }
 
 /* ----- Checkbox (20ui Checkbox toggling the done state) ----- */
 /* Layout-only hook: the 20ui Checkbox owns its own box, mark and focus ring;
    we just nudge it to line up with the first line of the card title. */
-.sabcrm-twenty .st-gs-check {
+:is(.\32 0ui, .ui20) .gs-check {
   flex: 0 0 auto;
   margin-top: 3px;
 }
 
 /* ----- Card icon ----- */
-.sabcrm-twenty .st-gs-card__icon {
+:is(.\32 0ui, .ui20) .gs-card__icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -134,14 +130,14 @@
   color: var(--st-accent);
 }
 
-.sabcrm-twenty .st-gs-card--done .st-gs-card__icon {
+:is(.\32 0ui, .ui20) .gs-card--done .gs-card__icon {
   background: var(--st-bg);
   border: 1px solid var(--st-border);
   color: var(--st-text-tertiary);
 }
 
 /* ----- Card body ----- */
-.sabcrm-twenty .st-gs-card__body {
+:is(.\32 0ui, .ui20) .gs-card__body {
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -149,34 +145,34 @@
   min-width: 0;
 }
 
-.sabcrm-twenty .st-gs-card__title {
+:is(.\32 0ui, .ui20) .gs-card__title {
   font-size: var(--st-font-size);
   font-weight: var(--st-fw-semibold);
   color: var(--st-text);
   letter-spacing: -0.01em;
 }
 
-.sabcrm-twenty .st-gs-card--done .st-gs-card__title {
+:is(.\32 0ui, .ui20) .gs-card--done .gs-card__title {
   color: var(--st-text-secondary);
   text-decoration: line-through;
   text-decoration-color: var(--st-text-tertiary);
 }
 
-.sabcrm-twenty .st-gs-card__desc {
+:is(.\32 0ui, .ui20) .gs-card__desc {
   color: var(--st-text-secondary);
   font-size: var(--st-font-size-sm);
   line-height: 1.45;
 }
 
 /* ----- "Do it" link ----- */
-.sabcrm-twenty .st-gs-card__action {
+:is(.\32 0ui, .ui20) .gs-card__action {
   display: flex;
   align-items: center;
   flex: 0 0 auto;
   align-self: center;
 }
 
-.sabcrm-twenty .st-gs-do {
+:is(.\32 0ui, .ui20) .gs-do {
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -190,25 +186,33 @@
   font-weight: var(--st-fw-medium);
   text-decoration: none;
   white-space: nowrap;
-  transition: background 120ms ease, border-color 120ms ease, color 120ms ease;
+  transition:
+    background 120ms ease,
+    border-color 120ms ease,
+    color 120ms ease;
 }
 
-.sabcrm-twenty .st-gs-do:hover {
-  background: var(--st-hover);
-  border-color: var(--st-text-tertiary);
+:is(.\32 0ui, .ui20) .gs-do:hover {
+  background: var(--st-accent-soft, var(--st-hover));
+  border-color: color-mix(in srgb, var(--st-accent) 30%, var(--st-border));
   color: var(--st-accent);
 }
 
-.sabcrm-twenty .st-gs-do svg {
+:is(.\32 0ui, .ui20) .gs-do:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}
+
+:is(.\32 0ui, .ui20) .gs-do svg {
   transition: transform 120ms ease;
 }
 
-.sabcrm-twenty .st-gs-do:hover svg {
+:is(.\32 0ui, .ui20) .gs-do:hover svg {
   transform: translateX(2px);
 }
 
 /* ----- Footer actions (reset) ----- */
-.sabcrm-twenty .st-gs-footer {
+:is(.\32 0ui, .ui20) .gs-footer {
   display: flex;
   justify-content: flex-end;
   margin-top: var(--st-space-5);
@@ -216,18 +220,31 @@
 
 /* ----- Responsive: stack the "Do it" link below on narrow screens ----- */
 @media (max-width: 560px) {
-  .sabcrm-twenty .st-gs-card {
+  :is(.\32 0ui, .ui20) .gs-card {
     flex-wrap: wrap;
   }
 
-  .sabcrm-twenty .st-gs-card__action {
+  :is(.\32 0ui, .ui20) .gs-card__action {
     align-self: stretch;
     width: 100%;
     padding-left: calc(22px + var(--st-space-3) + 32px + var(--st-space-3));
   }
 
-  .sabcrm-twenty .st-gs-do {
+  :is(.\32 0ui, .ui20) .gs-do {
     width: 100%;
     justify-content: center;
+  }
+}
+
+/* ----- Motion opt-out ----- */
+@media (prefers-reduced-motion: reduce) {
+  :is(.\32 0ui, .ui20) .gs-card,
+  :is(.\32 0ui, .ui20) .gs-do,
+  :is(.\32 0ui, .ui20) .gs-do svg {
+    transition: none;
+  }
+
+  :is(.\32 0ui, .ui20) .gs-do:hover svg {
+    transform: none;
   }
 }

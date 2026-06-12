@@ -21,7 +21,7 @@
 
 import * as React from 'react';
 
-import { StPortalPopover } from '@/components/sabcrm/twenty/st-portal-popover';
+import { StPortalPopover } from './portal-popover';
 
 import './tooltip.css';
 

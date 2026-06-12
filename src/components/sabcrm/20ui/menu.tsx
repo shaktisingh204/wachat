@@ -16,7 +16,7 @@
 import * as React from 'react';
 import type { LucideIcon } from 'lucide-react';
 
-import { StPortalPopover, type StPopoverAlign } from '@/components/sabcrm/twenty/st-portal-popover';
+import { StPortalPopover, type StPopoverAlign } from './portal-popover';
 
 import { renderIcon, type IconProp } from './_icon';
 import './menu.css';

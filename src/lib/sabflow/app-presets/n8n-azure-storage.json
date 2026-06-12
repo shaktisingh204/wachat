@@ -4,8 +4,8 @@
   "description": "Interact with Azure Storage API",
   "category": "storage",
   "iconName": "LuPackage",
-  "version": 4,
-  "lastVerified": "2026-06-11",
+  "version": 5,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -17,7 +17,7 @@
       "id": "blob_create",
       "label": "Create Blob",
       "method": "PUT",
-      "path": "/{{ {container} }}/{{ {blobCreate} }}",
+      "path": "/{container}/{blobCreate}",
       "fields": [
         {
           "id": "host",
@@ -86,13 +86,13 @@
         }
       ],
       "group": "Blob",
-      "description": "[unverified path] Create a new blob or replace an existing one"
+      "description": "Create a new blob or replace an existing one"
     },
     {
       "id": "blob_delete",
       "label": "Delete Blob",
       "method": "DELETE",
-      "path": "/{{ {container} }}/{{ {blob} }}",
+      "path": "/{container}/{blob}",
       "fields": [
         {
           "id": "host",
@@ -127,13 +127,13 @@
         }
       ],
       "group": "Blob",
-      "description": "[unverified path] Delete a blob"
+      "description": "Delete a blob"
     },
     {
       "id": "blob_get",
       "label": "Get Blob",
       "method": "GET",
-      "path": "/{{ {container} }}/{{ {blob} }}",
+      "path": "/{container}/{blob}",
       "fields": [
         {
           "id": "host",
@@ -168,13 +168,13 @@
         }
       ],
       "group": "Blob",
-      "description": "[unverified path] Retrieve data for a specific blob"
+      "description": "Retrieve data for a specific blob"
     },
     {
       "id": "blob_get_all",
       "label": "Get Many Blob",
       "method": "GET",
-      "path": "/{{ {container} }}",
+      "path": "/{container}",
       "fields": [
         {
           "id": "host",
@@ -216,13 +216,13 @@
         }
       ],
       "group": "Blob",
-      "description": "[unverified path] Retrieve a list of blobs"
+      "description": "Retrieve a list of blobs"
     },
     {
       "id": "container_create",
       "label": "Create Container",
       "method": "PUT",
-      "path": "/{{ {containerCreate} }}",
+      "path": "/{containerCreate}",
       "fields": [
         {
           "id": "host",
@@ -250,13 +250,13 @@
         }
       ],
       "group": "Container",
-      "description": "[unverified path] Create a container"
+      "description": "Create a container"
     },
     {
       "id": "container_delete",
       "label": "Delete Container",
       "method": "DELETE",
-      "path": "/{{ {container} }}",
+      "path": "/{container}",
       "fields": [
         {
           "id": "host",
@@ -276,13 +276,13 @@
         }
       ],
       "group": "Container",
-      "description": "[unverified path] Delete a container"
+      "description": "Delete a container"
     },
     {
       "id": "container_get",
       "label": "Get Container",
       "method": "GET",
-      "path": "/{{ {container} }}",
+      "path": "/{container}",
       "fields": [
         {
           "id": "host",
@@ -309,7 +309,7 @@
         }
       ],
       "group": "Container",
-      "description": "[unverified path] Retrieve data for a specific container"
+      "description": "Retrieve data for a specific container"
     },
     {
       "id": "container_get_all",

@@ -1,0 +1,53 @@
+# SabCRM — axum router for the **routing** (assignment rules) HTTP surface.
+#
+# Lead/record assignment rules over the `sabcrm_routing_rules` Mongo
+# collection: ordered, condition-gated rules that pick an assignee for a
+# record (`round_robin` / `least_assigned` / `fixed`) and write it onto the
+# record's `data.<assignField>` (default `owner`) in `sabcrm_records`.
+# `POST /evaluate` applies the first matching active rule; round-robin
+# rotation is persisted atomically via `$inc lastAssignedIndex`.
+#
+# Conditions reuse the workflow condition vocabulary
+# (`eq` / `ne` / `in` / `nin` / `contains` / ... — see `dto::RuleCondition`).
+# Tenancy is by `projectId` (a query/body string), not `userId`.
+#
+# Mirrors `rust/crates/sabcrm-approvals`. Mounted under
+# `/v1/sabcrm/routing` from the orchestrating `api` crate.
+[package]
+name = "sabcrm-routing"
+version = "0.1.0"
+edition = "2024"
+description = "Axum router that mounts the SabCRM assignment-routing HTTP surface (`/v1/sabcrm/routing/*`). Per-project assignment rules scoped by `projectId`."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "sabcrm_routing"
+path = "src/lib.rs"
+
+[dependencies]
+axum = { version = "0.8", default-features = false, features = ["json", "http1", "tokio", "macros", "query"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+bson = { version = "2", features = ["chrono-0_4"] }
+
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+
+mongodb = "3"
+futures = "0.3"
+
+tracing = "0.1"
+
+anyhow = "1"
+
+utoipa = { version = "5", features = ["axum_extras", "chrono"] }
+
+sabnode-common = { path = "../common" }
+sabnode-auth = { path = "../auth" }
+sabnode-db = { path = "../db" }
+
+[lints]
+workspace = true

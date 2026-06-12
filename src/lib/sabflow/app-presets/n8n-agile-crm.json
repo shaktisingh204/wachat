@@ -4,8 +4,8 @@
   "description": "Consume Agile CRM API",
   "category": "crm",
   "iconName": "LuPackage",
-  "version": 8,
-  "lastVerified": "2026-06-11",
+  "version": 9,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "header",
@@ -17,7 +17,7 @@
       "id": "contact_create",
       "label": "Create Contact",
       "method": "POST",
-      "path": "/contact",
+      "path": "/api/contacts",
       "fields": [
         {
           "id": "subdomain",
@@ -48,7 +48,7 @@
         }
       ],
       "group": "Contact",
-      "description": "[unverified path] Create a new contact"
+      "description": "Create a new contact"
     },
     {
       "id": "contact_delete",
@@ -105,8 +105,8 @@
     {
       "id": "contact_get_all",
       "label": "Get Many Contact",
-      "method": "GET",
-      "path": "/contact",
+      "method": "POST",
+      "path": "/api/filters/filter/dynamic-filter",
       "fields": [
         {
           "id": "subdomain",
@@ -194,13 +194,13 @@
         }
       ],
       "group": "Contact",
-      "description": "[unverified path] Get many contacts"
+      "description": "Get many contacts"
     },
     {
       "id": "contact_update",
       "label": "Update Contact",
-      "method": "PATCH",
-      "path": "/contact",
+      "method": "PUT",
+      "path": "/api/contacts/edit-properties",
       "fields": [
         {
           "id": "subdomain",
@@ -238,13 +238,13 @@
         }
       ],
       "group": "Contact",
-      "description": "[unverified path] Update contact properties"
+      "description": "Update contact properties"
     },
     {
       "id": "company_create",
       "label": "Create Company",
       "method": "POST",
-      "path": "/company",
+      "path": "/api/contacts",
       "fields": [
         {
           "id": "subdomain",
@@ -275,13 +275,13 @@
         }
       ],
       "group": "Company",
-      "description": "[unverified path] Create a new company"
+      "description": "Create a new company"
     },
     {
       "id": "company_delete",
       "label": "Delete Company",
       "method": "DELETE",
-      "path": "/company",
+      "path": "/api/contacts/{companyId}",
       "fields": [
         {
           "id": "subdomain",
@@ -296,17 +296,18 @@
           "label": "Company ID",
           "type": "text",
           "required": true,
-          "description": "ID of company to delete"
+          "description": "ID of company to delete",
+          "in": "path"
         }
       ],
       "group": "Company",
-      "description": "[unverified path] Delete a company"
+      "description": "Delete a company"
     },
     {
       "id": "company_get",
       "label": "Get Company",
       "method": "GET",
-      "path": "/company",
+      "path": "/api/contacts/{companyId}",
       "fields": [
         {
           "id": "subdomain",
@@ -321,17 +322,18 @@
           "label": "Company ID",
           "type": "text",
           "required": true,
-          "description": "Unique identifier for a particular company"
+          "description": "Unique identifier for a particular company",
+          "in": "path"
         }
       ],
       "group": "Company",
-      "description": "[unverified path] Get a company"
+      "description": "Get a company"
     },
     {
       "id": "company_get_all",
       "label": "Get Many Company",
-      "method": "GET",
-      "path": "/company",
+      "method": "POST",
+      "path": "/api/filters/filter/dynamic-filter",
       "fields": [
         {
           "id": "subdomain",
@@ -419,13 +421,13 @@
         }
       ],
       "group": "Company",
-      "description": "[unverified path] Get many companies"
+      "description": "Get many companies"
     },
     {
       "id": "company_update",
       "label": "Update Company",
-      "method": "PATCH",
-      "path": "/company",
+      "method": "PUT",
+      "path": "/api/contacts/edit-properties",
       "fields": [
         {
           "id": "subdomain",
@@ -463,7 +465,7 @@
         }
       ],
       "group": "Company",
-      "description": "[unverified path] Update company properties"
+      "description": "Update company properties"
     },
     {
       "id": "deal_create",

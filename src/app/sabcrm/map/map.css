@@ -1,46 +1,54 @@
-/* =========================================================================
-   SabCRM — Map view (companion sheet)
+/**
+ * SabCRM — Map view (`/sabcrm/map`) page-local styles, 20ui.
+ *
+ * A dependency-free "locations" browser: instead of real map tiles (which
+ * would pull in a map library), records are bucketed by the place encoded in a
+ * chosen ADDRESS / city / country field and presented as a two-pane location
+ * explorer — a left rail of places (with counts) and a right panel listing the
+ * records at the selected place.
+ *
+ * Page-local layout ONLY (`.map-*` prefix), scoped to the 20ui root
+ * (`:is(.\32 0ui, .ui20)` — NEVER a bare `.20ui.foo` compound). Selects /
+ * search / avatars / badges / empty states / skeletons come from 20ui
+ * components. Tokens only (`--st-*` / `--u-*`), so dark mode is free.
+ */
 
-   A dependency-free, Twenty-style "locations" browser. Instead of real map
-   tiles (which would pull in a map library), records are bucketed by the place
-   encoded in a chosen ADDRESS / city / country field and presented as a
-   two-pane location explorer: a left rail of places (with counts) and a right
-   panel listing the records at the selected place.
-
-   Builds ONLY on the shared `.st-*` vocabulary + `--st-*` tokens declared in
-   `src/styles/sabcrm-twenty.css` (which is NOT edited). Every selector here is
-   new and `.map-*`-namespaced so it can never collide with the base kit. All
-   colors come from the `--st-*` palette so the view re-themes with light / dark
-   automatically.
-   ========================================================================= */
+/* Page scroll wrapper (SabcrmSuiteFrame renders children directly in the main
+   pane, so the page provides its own scroll context). ---------------------- */
+:is(.\32 0ui, .ui20) .map-page {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: var(--st-space-5);
+  overflow-y: auto;
+}
 
 /* ---- Controls row ------------------------------------------------------- */
 
-.map-controls {
+:is(.\32 0ui, .ui20) .map-controls {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   gap: var(--st-space-3);
-  margin-bottom: var(--st-space-4);
+  margin: var(--st-space-4) 0;
 }
 
-.map-controls__group {
+:is(.\32 0ui, .ui20) .map-controls__group {
   display: inline-flex;
   align-items: center;
   gap: var(--st-space-2);
 }
 
-.map-controls__label {
+:is(.\32 0ui, .ui20) .map-controls__label {
   font-size: var(--st-font-size-sm);
   color: var(--st-text-secondary);
   white-space: nowrap;
 }
 
-.map-controls__spacer {
+:is(.\32 0ui, .ui20) .map-controls__spacer {
   flex: 1 1 auto;
 }
 
-.map-controls__count {
+:is(.\32 0ui, .ui20) .map-controls__count {
   font-size: var(--st-font-size-sm);
   color: var(--st-text-tertiary);
   white-space: nowrap;
@@ -48,7 +56,7 @@
 
 /* ---- Decorative region header (pure SVG, no map tiles) ------------------ */
 
-.map-hero {
+:is(.\32 0ui, .ui20) .map-hero {
   position: relative;
   height: 132px;
   border: 1px solid var(--st-border);
@@ -58,7 +66,13 @@
   margin-bottom: var(--st-space-4);
 }
 
-.map-hero__svg {
+/* The loading stand-in for the hero (20ui Skeleton). */
+:is(.\32 0ui, .ui20) .map-hero-skel {
+  display: block;
+  margin-bottom: var(--st-space-4);
+}
+
+:is(.\32 0ui, .ui20) .map-hero__svg {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -66,7 +80,7 @@
   display: block;
 }
 
-.map-hero__caption {
+:is(.\32 0ui, .ui20) .map-hero__caption {
   position: absolute;
   left: var(--st-space-4);
   bottom: var(--st-space-3);
@@ -79,14 +93,14 @@
   letter-spacing: -0.01em;
 }
 
-.map-hero__caption-sub {
+:is(.\32 0ui, .ui20) .map-hero__caption-sub {
   font-weight: 400;
   color: var(--st-text-secondary);
 }
 
 /* ---- Two-pane explorer -------------------------------------------------- */
 
-.map-explorer {
+:is(.\32 0ui, .ui20) .map-explorer {
   display: grid;
   grid-template-columns: minmax(220px, 300px) minmax(0, 1fr);
   gap: var(--st-space-4);
@@ -94,14 +108,14 @@
 }
 
 /* Left rail — list of places with counts. */
-.map-places {
+:is(.\32 0ui, .ui20) .map-places {
   border: 1px solid var(--st-border);
   border-radius: var(--st-radius-lg);
   background: var(--st-bg);
   overflow: hidden;
 }
 
-.map-places__head {
+:is(.\32 0ui, .ui20) .map-places__head {
   padding: var(--st-space-2) var(--st-space-3);
   border-bottom: 1px solid var(--st-border-light);
   background: var(--st-bg-secondary);
@@ -112,8 +126,8 @@
   color: var(--st-text-tertiary);
 }
 
-/* Search box for filtering the places rail (large place sets). */
-.map-places__search {
+/* Search box for filtering the places rail (20ui SearchInput root). */
+:is(.\32 0ui, .ui20) .map-places__search {
   display: flex;
   align-items: center;
   gap: var(--st-space-2);
@@ -122,33 +136,19 @@
   color: var(--st-text-tertiary);
 }
 
-.map-places__search-input {
-  flex: 1 1 auto;
-  min-width: 0;
-  border: none;
-  background: none;
-  outline: none;
-  color: var(--st-text);
-  font-size: var(--st-font-size-sm);
-}
-
-.map-places__search-input::placeholder {
-  color: var(--st-text-tertiary);
-}
-
-.map-places__list {
+:is(.\32 0ui, .ui20) .map-places__list {
   max-height: 540px;
   overflow-y: auto;
 }
 
-.map-places__empty {
+:is(.\32 0ui, .ui20) .map-places__empty {
   padding: var(--st-space-4) var(--st-space-3);
   text-align: center;
   color: var(--st-text-tertiary);
   font-size: var(--st-font-size-sm);
 }
 
-.map-place {
+:is(.\32 0ui, .ui20) .map-place {
   display: flex;
   align-items: center;
   gap: var(--st-space-2);
@@ -164,31 +164,36 @@
   transition: background 0.12s ease, border-color 0.12s ease;
 }
 
-.map-place + .map-place {
+:is(.\32 0ui, .ui20) .map-place + .map-place {
   border-top: 1px solid var(--st-border-light);
 }
 
-.map-place:hover {
+:is(.\32 0ui, .ui20) .map-place:hover {
   background: var(--st-bg-secondary);
 }
 
-.map-place.is-active {
+:is(.\32 0ui, .ui20) .map-place:focus-visible {
+  outline: none;
+  box-shadow: inset var(--u-focus-ring);
+}
+
+:is(.\32 0ui, .ui20) .map-place.is-active {
   background: var(--st-accent-soft);
   border-left-color: var(--st-accent);
   color: var(--st-text);
 }
 
-.map-place__pin {
+:is(.\32 0ui, .ui20) .map-place__pin {
   flex: 0 0 auto;
   color: var(--st-text-tertiary);
   display: inline-flex;
 }
 
-.map-place.is-active .map-place__pin {
+:is(.\32 0ui, .ui20) .map-place.is-active .map-place__pin {
   color: var(--st-accent);
 }
 
-.map-place__name {
+:is(.\32 0ui, .ui20) .map-place__name {
   flex: 1 1 auto;
   min-width: 0;
   overflow: hidden;
@@ -197,7 +202,7 @@
   font-weight: 500;
 }
 
-.map-place__count {
+:is(.\32 0ui, .ui20) .map-place__count {
   flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
@@ -213,21 +218,21 @@
   color: var(--st-text-secondary);
 }
 
-.map-place.is-active .map-place__count {
+:is(.\32 0ui, .ui20) .map-place.is-active .map-place__count {
   background: var(--st-accent);
   border-color: var(--st-accent);
   color: var(--st-text-inverted);
 }
 
 /* Right panel — records at the selected place. */
-.map-detail {
+:is(.\32 0ui, .ui20) .map-detail {
   border: 1px solid var(--st-border);
   border-radius: var(--st-radius-lg);
   background: var(--st-bg);
   overflow: hidden;
 }
 
-.map-detail__head {
+:is(.\32 0ui, .ui20) .map-detail__head {
   display: flex;
   align-items: baseline;
   gap: var(--st-space-2);
@@ -235,19 +240,19 @@
   border-bottom: 1px solid var(--st-border-light);
 }
 
-.map-detail__title {
+:is(.\32 0ui, .ui20) .map-detail__title {
   font-size: var(--st-font-size-lg);
   font-weight: 600;
   color: var(--st-text);
   letter-spacing: -0.01em;
 }
 
-.map-detail__sub {
+:is(.\32 0ui, .ui20) .map-detail__sub {
   font-size: var(--st-font-size-sm);
   color: var(--st-text-tertiary);
 }
 
-.map-detail__body {
+:is(.\32 0ui, .ui20) .map-detail__body {
   padding: var(--st-space-3) var(--st-space-4) var(--st-space-4);
   display: flex;
   flex-direction: column;
@@ -255,82 +260,95 @@
 }
 
 /* A single record row inside the place detail. */
-.map-record {
+:is(.\32 0ui, .ui20) .map-record {
   display: flex;
   flex-direction: column;
   gap: 4px;
   padding: var(--st-space-2) 0;
 }
 
-.map-record + .map-record {
+:is(.\32 0ui, .ui20) .map-record + .map-record {
   border-top: 1px solid var(--st-border-light);
 }
 
-.map-record__chips {
+:is(.\32 0ui, .ui20) .map-record__chips {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   gap: var(--st-space-2);
 }
 
-.map-record__link {
+:is(.\32 0ui, .ui20) .map-record__link {
   display: inline-flex;
   align-items: center;
   gap: var(--st-space-2);
   text-decoration: none;
 }
 
-.map-record__addr {
+:is(.\32 0ui, .ui20) .map-record__link:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+  border-radius: var(--st-radius-sm);
+}
+
+:is(.\32 0ui, .ui20) .map-record__addr {
   font-size: var(--st-font-size-xs);
   color: var(--st-text-tertiary);
   line-height: 1.4;
 }
 
 /* Empty selection / no-records hint inside the detail panel. */
-.map-detail__empty {
+:is(.\32 0ui, .ui20) .map-detail__empty {
   padding: var(--st-space-6) var(--st-space-4);
   text-align: center;
   color: var(--st-text-tertiary);
   font-size: var(--st-font-size-sm);
 }
 
-/* ---- Skeleton ----------------------------------------------------------- */
+/* ---- Skeleton ------------------------------------------------------------ */
+/* Layout only — the shimmer comes from the 20ui Skeleton component. */
 
-.map-skeleton-rail {
+:is(.\32 0ui, .ui20) .map-skeleton-rail {
   display: flex;
   flex-direction: column;
   gap: var(--st-space-2);
   padding: var(--st-space-3);
 }
 
-/* ---- Footer note -------------------------------------------------------- */
+/* ---- Footer note --------------------------------------------------------- */
 
-.map-note {
+:is(.\32 0ui, .ui20) .map-note {
   margin-top: var(--st-space-3);
   font-size: var(--st-font-size-xs);
   color: var(--st-text-tertiary);
 }
 
-/* ---- Responsive --------------------------------------------------------- */
+/* ---- Responsive ---------------------------------------------------------- */
 
 @media (max-width: 820px) {
-  .map-explorer {
+  :is(.\32 0ui, .ui20) .map-explorer {
     grid-template-columns: minmax(0, 1fr);
   }
-  .map-places__list {
+  :is(.\32 0ui, .ui20) .map-places__list {
     max-height: 240px;
   }
 }
 
 /* Very narrow viewports (~380px): let the object/field selectors fill the row
-   and keep selects from overflowing their group. */
+   and keep the select triggers from overflowing their group. */
 @media (max-width: 440px) {
-  .map-controls__group {
+  :is(.\32 0ui, .ui20) .map-controls__group {
     flex: 1 1 140px;
     min-width: 0;
   }
-  .map-controls__group .st-select {
+  :is(.\32 0ui, .ui20) .map-controls__group .map-controls__select {
     min-width: 0;
     max-width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :is(.\32 0ui, .ui20) .map-place {
+    transition: none;
   }
 }

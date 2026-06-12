@@ -1,0 +1,214 @@
+/* =========================================================================
+   AutomationCanvas — @xyflow/react node canvas (composites/flow).
+
+   Calm, dense, Linear-grade. Tokens only (--st-*); dark mode comes for free
+   through the token layer. Every rule is scoped under the 20ui roots —
+   `:is(.\32 0ui, .ui20)` — NEVER a bare `.20ui.foo` compound (the leading
+   digit breaks the selector; see 20ui scope-rename fallout).
+
+   Class prefix: `.afc-*` (automation flow canvas), mirroring RecordBoard's
+   `.rb-*`. React Flow's own chrome (controls / minimap / edges / background)
+   is restyled here, always under the `.afc` root so nothing leaks out.
+   ========================================================================= */
+
+:is(.\32 0ui, .ui20) .afc {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 460px;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  overflow: hidden;
+  background: var(--st-bg-secondary);
+  font-family: var(--st-font);
+}
+
+:is(.\32 0ui, .ui20) .afc .react-flow {
+  background: var(--st-bg-secondary);
+}
+
+/* ------------------------------------------------------------------ nodes */
+
+:is(.\32 0ui, .ui20) .afc-node {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  width: 260px;
+  padding: 10px 12px;
+  background: var(--st-bg);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.04);
+  cursor: pointer;
+  transition:
+    border-color 0.12s ease,
+    box-shadow 0.12s ease,
+    opacity 0.12s ease;
+}
+
+:is(.\32 0ui, .ui20) .afc.is-readonly .afc-node {
+  cursor: default;
+}
+
+:is(.\32 0ui, .ui20) .afc-node:hover {
+  border-color: color-mix(in srgb, var(--st-text-tertiary) 55%, var(--st-border));
+}
+
+/* Selected ring (the page's config panel follows this node). */
+:is(.\32 0ui, .ui20) .afc-node.is-selected {
+  border-color: var(--st-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--st-accent) 22%, transparent);
+}
+
+/* Invalid (missing required config) — danger border + flagged eyebrow. */
+:is(.\32 0ui, .ui20) .afc-node.is-invalid {
+  border-color: var(--st-danger);
+}
+:is(.\32 0ui, .ui20) .afc-node.is-invalid.is-selected {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--st-danger) 20%, transparent);
+}
+
+/* Muted (step disabled) — dimmed but still selectable/configurable. */
+:is(.\32 0ui, .ui20) .afc-node.is-muted {
+  opacity: 0.55;
+}
+
+:is(.\32 0ui, .ui20) .afc-node__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 26px;
+  height: 26px;
+  margin-top: 1px;
+  border: 1px solid var(--st-border);
+  border-radius: 999px;
+  background: var(--st-bg-secondary);
+  color: var(--st-text-secondary);
+}
+
+:is(.\32 0ui, .ui20) .afc-node[data-kind='trigger'] .afc-node__icon {
+  color: var(--st-accent);
+  border-color: color-mix(in srgb, var(--st-accent) 45%, var(--st-border));
+}
+:is(.\32 0ui, .ui20) .afc-node[data-kind='condition'] .afc-node__icon {
+  color: var(--st-warn);
+  border-color: color-mix(in srgb, var(--st-warn) 45%, var(--st-border));
+}
+
+:is(.\32 0ui, .ui20) .afc-node__body {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+:is(.\32 0ui, .ui20) .afc-node__kind {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--st-text-tertiary);
+}
+
+:is(.\32 0ui, .ui20) .afc-node__flag {
+  color: var(--st-danger);
+}
+
+:is(.\32 0ui, .ui20) .afc-node__title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--st-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+:is(.\32 0ui, .ui20) .afc-node__summary {
+  font-size: 12px;
+  color: var(--st-text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* -------------------------------------------------------- handles + edges */
+
+/* The chain is fixed (linear); handles are visual anchors only. */
+:is(.\32 0ui, .ui20) .afc .afc-handle {
+  width: 6px;
+  height: 6px;
+  border: none;
+  background: var(--st-border);
+  pointer-events: none;
+}
+
+:is(.\32 0ui, .ui20) .afc .react-flow__edge-path {
+  stroke: var(--st-border);
+  stroke-width: 1.5;
+}
+
+:is(.\32 0ui, .ui20) .afc .react-flow__edge.selected .react-flow__edge-path {
+  stroke: var(--st-accent);
+}
+
+/* ------------------------------------------------------------- background */
+
+:is(.\32 0ui, .ui20) .afc .react-flow__background pattern circle {
+  fill: var(--st-border);
+}
+
+/* ---------------------------------------------------------------- controls */
+
+:is(.\32 0ui, .ui20) .afc .react-flow__controls {
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.08);
+}
+
+:is(.\32 0ui, .ui20) .afc .react-flow__controls-button {
+  width: 26px;
+  height: 26px;
+  background: var(--st-bg);
+  border-bottom: 1px solid var(--st-border);
+  color: var(--st-text-secondary);
+}
+:is(.\32 0ui, .ui20) .afc .react-flow__controls-button:last-child {
+  border-bottom: none;
+}
+:is(.\32 0ui, .ui20) .afc .react-flow__controls-button:hover {
+  background: var(--st-bg-secondary);
+  color: var(--st-text);
+}
+:is(.\32 0ui, .ui20) .afc .react-flow__controls-button svg {
+  fill: currentColor;
+  max-width: 12px;
+  max-height: 12px;
+}
+
+/* ----------------------------------------------------------------- minimap */
+
+:is(.\32 0ui, .ui20) .afc .react-flow__minimap {
+  background: var(--st-bg);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+}
+:is(.\32 0ui, .ui20) .afc .react-flow__minimap-mask {
+  fill: color-mix(in srgb, var(--st-bg-secondary) 75%, transparent);
+}
+:is(.\32 0ui, .ui20) .afc .react-flow__minimap-node {
+  fill: var(--st-border);
+}
+
+/* ------------------------------------------------------------- attribution */
+
+:is(.\32 0ui, .ui20) .afc .react-flow__attribution {
+  background: transparent;
+}
+:is(.\32 0ui, .ui20) .afc .react-flow__attribution a {
+  color: var(--st-text-tertiary);
+}

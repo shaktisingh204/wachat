@@ -1,22 +1,39 @@
 /**
- * SabCRM — workspace Activity feed (`/sabcrm/activity`) styles.
+ * SabCRM — workspace Activity feed (`/sabcrm/activity`) styles, 20ui.
  *
- * NEW classes for the cross-object activity page ONLY. Twenty look, scoped to
- * the `.sabcrm-twenty` runtime (the shared `--t-*` tokens from
- * `sabcrm-twenty.css` are in scope here). We deliberately do NOT touch the
- * shared `sabcrm-twenty.css` — every selector below is `.sa-feed*`-prefixed so
- * it can't collide with the kit's `.st-*` / `.rt-*` classes.
+ * Page-local layout ONLY (`.sa-*` prefix), scoped to the 20ui root
+ * (`:is(.\32 0ui, .ui20)` — NEVER a bare `.20ui.foo` compound). The feed items
+ * themselves render through the shared record-composite `TimelineList`
+ * (`.rd-timeline*` in record-detail.css); this file carries the page shell,
+ * the segmented-filter count chip, the loading skeleton rows and the small
+ * per-item meta block (snippet + target chip + author) slotted into the
+ * timeline's `meta` area. Tokens only (`--st-*`), so dark mode is free.
  */
 
-/* Page shell ----------------------------------------------------------- */
-.sa-feed {
+/* Page scroll wrapper + centered content column ------------------------- */
+:is(.\32 0ui, .ui20) .sa-page {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: var(--st-space-5);
+  overflow-y: auto;
+}
+
+:is(.\32 0ui, .ui20) .sa-page__inner {
+  width: 100%;
+  max-width: 920px;
+  margin: 0 auto;
+}
+
+/* Feed column ------------------------------------------------------------ */
+:is(.\32 0ui, .ui20) .sa-feed {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  margin-top: var(--st-space-4);
 }
 
-/* Type filter (20ui SegmentedControl wrapper) -------------------------- */
-.sa-feed__filters {
+/* Type filter (20ui SegmentedControl wrapper) ---------------------------- */
+:is(.\32 0ui, .ui20) .sa-feed__filters {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
@@ -24,7 +41,7 @@
 }
 
 /* Live per-type count chip rendered inside each SegmentedControl label. */
-.sa-feed__filter-count {
+:is(.\32 0ui, .ui20) .sa-feed__filter-count {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -39,89 +56,15 @@
   font-weight: 600;
 }
 
-/* Timeline list -------------------------------------------------------- */
-.sa-feed__list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-.sa-item {
-  position: relative;
-  display: flex;
-  gap: 12px;
-  padding: 0 0 18px;
-}
-
-/* Connective rail (dots + line) */
-.sa-item__rail {
-  position: relative;
-  flex: 0 0 auto;
-  width: 24px;
-  display: flex;
-  justify-content: center;
-}
-
-.sa-item:not(:last-child) .sa-item__rail::after {
-  content: '';
-  position: absolute;
-  top: 24px;
-  bottom: -2px;
-  left: 50%;
-  width: 1px;
-  margin-left: -0.5px;
-  background: var(--st-border);
-}
-
-.sa-item__dot {
-  position: relative;
-  z-index: 1;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  border-radius: 8px;
-  border: 1px solid var(--st-border);
-  background: var(--st-bg);
-  color: var(--st-text-secondary);
-}
-
-/* Content card */
-.sa-item__body {
-  flex: 1 1 auto;
-  min-width: 0;
+/* Per-item meta block (slotted into TimelineList's `meta`) --------------- */
+:is(.\32 0ui, .ui20) .sa-meta {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  padding: 2px 0 0;
 }
 
-.sa-item__head {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.sa-item__title {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--st-text);
-  overflow-wrap: anywhere;
-}
-
-.sa-item__time {
-  margin-left: auto;
-  flex: 0 0 auto;
-  font-size: 12px;
-  color: var(--st-text-tertiary);
-  white-space: nowrap;
-}
-
-.sa-item__snippet {
+:is(.\32 0ui, .ui20) .sa-meta__snippet {
+  margin: 0;
   font-size: 13px;
   line-height: 1.5;
   color: var(--st-text-secondary);
@@ -131,7 +74,7 @@
   overflow: hidden;
 }
 
-.sa-item__foot {
+:is(.\32 0ui, .ui20) .sa-meta__foot {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -139,7 +82,8 @@
   margin-top: 2px;
 }
 
-.sa-item__target {
+/* Link chip back to the record the activity hangs off. */
+:is(.\32 0ui, .ui20) .sa-meta__target {
   display: inline-flex;
   align-items: center;
   gap: 5px;
@@ -156,39 +100,58 @@
     color 0.12s ease;
 }
 
-.sa-item__target:hover {
+:is(.\32 0ui, .ui20) .sa-meta__target:hover {
   background: var(--st-hover);
   color: var(--st-text);
 }
 
-.sa-item__target-label {
+:is(.\32 0ui, .ui20) .sa-meta__target:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}
+
+:is(.\32 0ui, .ui20) .sa-meta__target-label {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.sa-item__author {
+:is(.\32 0ui, .ui20) .sa-meta__author {
   font-size: 12px;
   color: var(--st-text-tertiary);
 }
 
-/* States --------------------------------------------------------------- */
-/* Empty / no-project / error states now render via 20ui EmptyState + Alert. */
-.sa-feed__state-action {
+/* States ------------------------------------------------------------------ */
+/* Empty / no-project / error states render via 20ui EmptyState + Alert. */
+:is(.\32 0ui, .ui20) .sa-feed__state-action {
   margin-top: 10px;
 }
 
 /* Skeleton rows (loading) — layout only; 20ui Skeleton brings the shimmer. */
-.sa-skel {
+:is(.\32 0ui, .ui20) .sa-feed__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+:is(.\32 0ui, .ui20) .sa-skel {
   display: flex;
   gap: 12px;
   padding: 0 0 18px;
 }
 
-.sa-skel__lines {
+:is(.\32 0ui, .ui20) .sa-skel__lines {
   flex: 1 1 auto;
   display: flex;
   flex-direction: column;
   gap: 7px;
   padding-top: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :is(.\32 0ui, .ui20) .sa-meta__target {
+    transition: none;
+  }
 }

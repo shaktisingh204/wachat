@@ -16,11 +16,49 @@ import 'server-only';
 import { rustFetch } from './fetcher';
 import type { SabcrmRustRecord } from './sabcrm-records';
 
-/** A single stage within a pipeline. */
+/**
+ * Explicit stage classification. `'won'` / `'lost'` mark terminal stages
+ * (powering the lost-reason dialog and win/loss reporting without label
+ * heuristics); `'open'` is the explicit in-flight marker. Legacy stages omit
+ * the key entirely.
+ */
+export type SabcrmStageKind = 'open' | 'won' | 'lost';
+
+/**
+ * A single stage within a pipeline, including its optional **entry gates**
+ * (stage governance — Zoho-Blueprint / Pipedrive-inspired). All governance
+ * keys are additive: legacy stages persisted as bare `{ id, label, color }`
+ * simply omit them (the Rust side serde-defaults them to the permissive
+ * baseline — see `rust/crates/sabcrm-pipelines/src/dto.rs` `StageGovernance`).
+ */
 export interface SabcrmRustPipelineStage {
   id: string;
   label: string;
   color?: string;
+  /**
+   * Record `data.<key>`s that must be non-empty before a record may ENTER
+   * this stage. Empty / omitted → no required-field gate.
+   */
+  requiredFields?: string[];
+  /**
+   * Entering this stage raises an approval request (see
+   * `sabcrm-approvals`) instead of moving immediately.
+   */
+  requiresApproval?: boolean;
+  /** Idle-days threshold for the deal-rotting UI. Omitted → never rots. */
+  rottingDays?: number;
+  /**
+   * Explicit stage classification (`'open' | 'won' | 'lost'`). Omitted on
+   * legacy stages — consumers may fall back to label heuristics.
+   */
+  kind?: SabcrmStageKind;
+  /**
+   * Win probability of records in this stage, in **percent** (0–100). Drives
+   * the weighted forecast (`weighted = amount × probability / 100`). Omitted →
+   * unset; consumers fall back to a kind/position-based default (see
+   * `sabcrm-forecast.actions.ts`).
+   */
+  probability?: number;
 }
 
 /** A SabCRM pipeline as returned by the Rust engine (`_id` → `id` hex). */
@@ -32,6 +70,13 @@ export interface SabcrmRustPipeline {
   object: string;
   stages: SabcrmRustPipelineStage[];
   isDefault?: boolean;
+  /**
+   * Marking a record lost requires a reason (one of {@link lostReasons}
+   * when that list is non-empty). Omitted → reason optional.
+   */
+  lostReasonRequired?: boolean;
+  /** Curated list of allowed lost reasons. Omitted/empty → free text. */
+  lostReasons?: string[];
   createdAt: string;
   updatedAt: string;
 }
@@ -46,6 +91,10 @@ export interface SabcrmPipelineCreateInput {
   object?: string;
   stages?: SabcrmRustPipelineStage[];
   isDefault?: boolean;
+  /** Marking a record lost requires a reason. */
+  lostReasonRequired?: boolean;
+  /** Curated list of allowed lost reasons. */
+  lostReasons?: string[];
 }
 
 /** `PATCH /{id}` body sans `projectId` — a partial pipeline document. */
@@ -99,6 +148,22 @@ export interface SabcrmPipelineBoardStage {
   count: number;
   /** Sum of the amount field across the records in this stage. */
   amount: number;
+  /**
+   * Record `data.<key>`s required to ENTER this stage (entry gate).
+   * Omitted on the wire when the stage declares none.
+   */
+  requiredFields?: string[];
+  /**
+   * Entering this stage raises an approval request instead of moving
+   * immediately. Omitted on the wire when `false`.
+   */
+  requiresApproval?: boolean;
+  /** Idle-days threshold for the deal-rotting UI, if declared. */
+  rottingDays?: number;
+  /** Explicit stage classification, if declared. Omitted when absent. */
+  kind?: SabcrmStageKind;
+  /** Win probability in percent (0–100), if declared. Omitted when absent. */
+  probability?: number;
 }
 
 /**

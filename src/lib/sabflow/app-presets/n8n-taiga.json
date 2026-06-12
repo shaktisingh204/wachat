@@ -4,14 +4,14 @@
   "description": "Consume Taiga API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 11,
-  "lastVerified": "2026-06-11",
+  "version": 12,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "https://api.taiga.io/api/v1/auth",
+  "baseUrl": "https://api.taiga.io/api/v1",
   "endpoints": [
     {
       "id": "epic_create",
@@ -83,7 +83,7 @@
       "id": "epic_get_all",
       "label": "Get Many Epic",
       "method": "GET",
-      "path": "/epic",
+      "path": "/epics",
       "fields": [
         {
           "id": "projectId",
@@ -115,7 +115,7 @@
         }
       ],
       "group": "Epic",
-      "description": "[unverified path] Get many epics"
+      "description": "Get many epics"
     },
     {
       "id": "epic_update",
@@ -218,7 +218,7 @@
       "id": "issue_get_all",
       "label": "Get Many Issue",
       "method": "GET",
-      "path": "/issue",
+      "path": "/issues",
       "fields": [
         {
           "id": "projectId",
@@ -250,7 +250,7 @@
         }
       ],
       "group": "Issue",
-      "description": "[unverified path] Get many issues"
+      "description": "Get many issues"
     },
     {
       "id": "issue_update",
@@ -353,7 +353,7 @@
       "id": "task_get_all",
       "label": "Get Many Task",
       "method": "GET",
-      "path": "/task",
+      "path": "/tasks",
       "fields": [
         {
           "id": "projectId",
@@ -385,7 +385,7 @@
         }
       ],
       "group": "Task",
-      "description": "[unverified path] Get many tasks"
+      "description": "Get many tasks"
     },
     {
       "id": "task_update",
@@ -488,7 +488,7 @@
       "id": "user_story_get_all",
       "label": "Get Many User Story",
       "method": "GET",
-      "path": "/user-story",
+      "path": "/userstories",
       "fields": [
         {
           "id": "projectId",
@@ -520,7 +520,7 @@
         }
       ],
       "group": "User Story",
-      "description": "[unverified path] Get many user stories"
+      "description": "Get many user stories"
     },
     {
       "id": "user_story_update",

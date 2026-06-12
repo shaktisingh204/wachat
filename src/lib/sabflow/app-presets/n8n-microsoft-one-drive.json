@@ -4,8 +4,8 @@
   "description": "Consume Microsoft OneDrive API",
   "category": "storage",
   "iconName": "LuPackage",
-  "version": 10,
-  "lastVerified": "2026-06-11",
+  "version": 11,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -109,13 +109,14 @@
       "id": "file_rename",
       "label": "Rename File",
       "method": "PATCH",
-      "path": "/file",
+      "path": "/v1.0/me/drive/items/{itemId}",
       "fields": [
         {
           "id": "itemId",
           "label": "Item ID",
           "type": "text",
-          "description": "ID of the file"
+          "description": "ID of the file",
+          "in": "path"
         },
         {
           "id": "newName",
@@ -125,7 +126,7 @@
         }
       ],
       "group": "File",
-      "description": "[unverified path] Rename a file"
+      "description": "Rename a file"
     },
     {
       "id": "file_search",

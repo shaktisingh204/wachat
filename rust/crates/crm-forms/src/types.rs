@@ -35,6 +35,11 @@ pub struct CrmForm {
     #[serde(rename = "userId")]
     pub user_id: ObjectId,
 
+    /// SabCRM workspace scope. Present on documents created through the
+    /// project-scoped `/v1/sabcrm/forms` mount; absent on legacy docs.
+    #[serde(rename = "projectId", default, skip_serializing_if = "Option::is_none")]
+    pub project_id: Option<ObjectId>,
+
     pub name: String,
 
     /// Public slug for embedding / public URL. Optional in legacy docs.

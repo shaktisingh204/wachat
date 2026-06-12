@@ -1,7 +1,7 @@
 //! HTTP handlers for the Expense Claim entity.
 
 use axum::{
-    Json,
+    Extension, Json,
     extract::{Path, Query, State},
 };
 use bson::{DateTime as BsonDateTime, Document, doc, oid::ObjectId};
@@ -12,6 +12,7 @@ use crm_common::{
     search::build_q_filter,
     tenant::user_oid,
 };
+use crm_core::{ScopeMode, TenantScope, sabcrm_project_oid};
 use futures::TryStreamExt;
 use mongodb::options::{FindOneOptions, FindOptions};
 use sabnode_auth::AuthUser;
@@ -23,6 +24,7 @@ use crate::dto::{
     CreateExpenseClaimInput, CreateExpenseClaimResponse, DeleteExpenseClaimResponse, ListQuery,
     UpdateExpenseClaimInput,
 };
+use crate::dto::ScopeQuery;
 use crate::types::CrmExpenseClaim;
 
 const COLL: &str = "crm_expense_claims";
@@ -44,8 +46,19 @@ fn parse_date(s: &str) -> Option<BsonDateTime> {
         .map(|d| BsonDateTime::from_chrono(d.with_timezone(&Utc)))
 }
 
-fn list_filter(user_id: ObjectId, status: Option<&str>) -> Document {
-    let mut filter = doc! { "userId": user_id };
+/// Resolve the per-request tenant scope from the mount's [`ScopeMode`]:
+/// legacy mounts filter by the JWT's `userId`, SabCRM mounts by the
+/// caller-supplied (required) `projectId`.
+fn resolve_scope(mode: ScopeMode, user: &AuthUser, project_id: Option<&str>) -> Result<TenantScope> {
+    match mode {
+        ScopeMode::User => Ok(TenantScope::User(user_oid(user)?)),
+        ScopeMode::Project => Ok(TenantScope::Project(sabcrm_project_oid(project_id)?)),
+    }
+}
+
+fn list_filter(
+    scope: &TenantScope, status: Option<&str>) -> Document {
+    let mut filter = scope.filter();
     match status.unwrap_or("active_visible") {
         "all" => {}
         s if VALID_STATUSES.contains(&s) => {
@@ -58,8 +71,10 @@ fn list_filter(user_id: ObjectId, status: Option<&str>) -> Document {
     filter
 }
 
-fn ownership_filter(user_id: ObjectId, oid: ObjectId) -> Document {
-    doc! { "_id": oid, "userId": user_id }
+fn ownership_filter(scope: &TenantScope, oid: ObjectId) -> Document {
+    let mut filter = scope.filter();
+    filter.insert("_id", oid);
+    filter
 }
 
 fn coerce_status(raw: Option<&str>, default: &str) -> String {
@@ -73,13 +88,11 @@ fn coerce_status(raw: Option<&str>, default: &str) -> String {
 ///
 /// Best-effort — race-free under low write rates only. Mongo `$regex`
 /// over the indexed `claim_number` keeps this O(1) per insert.
-async fn next_claim_number(mongo: &MongoHandle, user_id: ObjectId) -> Result<String> {
+async fn next_claim_number(mongo: &MongoHandle, scope: &TenantScope) -> Result<String> {
     let now = Utc::now();
     let prefix = format!("EC-{:04}{:02}-", now.year(), now.month());
-    let filter = doc! {
-        "userId": user_id,
-        "claim_number": { "$regex": format!("^{}", prefix) },
-    };
+    let mut filter = scope.filter();
+    filter.insert("claim_number", doc! { "$regex": format!("^{}", prefix) });
     let opts = FindOneOptions::builder()
         .sort(doc! { "claim_number": -1 })
         .projection(doc! { "claim_number": 1 })
@@ -122,6 +135,7 @@ fn claim_from_create(
     Ok(CrmExpenseClaim {
         id: None,
         user_id,
+        project_id: None,
         employee_id: input.employee_id.trim().to_owned(),
         employee_name: input.employee_name,
         claim_number,
@@ -208,11 +222,13 @@ pub struct ListResponse {
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn list_claims(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Query(q): Query<ListQuery>,
 ) -> Result<Json<ListResponse>> {
-    let user_id = user_oid(&user)?;
-    let mut filter = list_filter(user_id, q.status.as_deref());
+    let scope = resolve_scope(mode, &user, q.project_id.as_deref())?;
+    let mut filter = list_filter(
+        &scope, q.status.as_deref());
     if let Some(emp) = q.employee_id.as_deref().filter(|s| !s.is_empty()) {
         filter.insert("employee_id", emp);
     }
@@ -266,14 +282,16 @@ pub async fn list_claims(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %claim_id))]
 pub async fn get_claim(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(claim_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
 ) -> Result<Json<CrmExpenseClaim>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&claim_id)?;
     let coll = mongo.collection::<CrmExpenseClaim>(COLL);
     let row = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_expense_claims.find_one"))
@@ -285,15 +303,22 @@ pub async fn get_claim(
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn create_claim(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Json(input): Json<CreateExpenseClaimInput>,
 ) -> Result<Json<CreateExpenseClaimResponse>> {
+    let scope = resolve_scope(mode, &user, input.project_id.as_deref())?;
+    // `userId` is always stamped from the JWT (audit trail + entity
+    // field); `projectId` is stamped only on SabCRM (project) mounts.
     let user_id = user_oid(&user)?;
     let claim_number = match input.claim_number.as_deref() {
         Some(s) if !s.trim().is_empty() => s.trim().to_owned(),
-        _ => next_claim_number(&mongo, user_id).await?,
+        _ => next_claim_number(&mongo, &scope).await?,
     };
     let mut entity = claim_from_create(input, user_id, claim_number)?;
+    if let TenantScope::Project(project_oid) = scope {
+        entity.project_id = Some(project_oid);
+    }
     let coll = mongo.collection::<CrmExpenseClaim>(COLL);
     let inserted = coll.insert_one(&entity).await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("crm_expense_claims.insert"))
@@ -318,16 +343,18 @@ pub async fn create_claim(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %claim_id))]
 pub async fn update_claim(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(claim_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
     Json(patch): Json<UpdateExpenseClaimInput>,
 ) -> Result<Json<CrmExpenseClaim>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&claim_id)?;
 
     let coll = mongo.collection::<CrmExpenseClaim>(COLL);
     let before = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_expense_claims.find_one"))
@@ -336,7 +363,7 @@ pub async fn update_claim(
 
     let update = build_update_doc(patch)?;
     let result = coll
-        .update_one(ownership_filter(user_id, oid), update)
+        .update_one(ownership_filter(&scope, oid), update)
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_expense_claims.update"))
@@ -346,7 +373,7 @@ pub async fn update_claim(
     }
 
     let after = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_expense_claims.refetch"))
@@ -369,16 +396,18 @@ pub async fn update_claim(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %claim_id))]
 pub async fn delete_claim(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(claim_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
 ) -> Result<Json<DeleteExpenseClaimResponse>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&claim_id)?;
 
     let coll = mongo.collection::<CrmExpenseClaim>(COLL);
     let result = coll
         .update_one(
-            ownership_filter(user_id, oid),
+            ownership_filter(&scope, oid),
             doc! { "$set": {
                 "status": "archived",
                 "updatedAt": BsonDateTime::from_chrono(Utc::now()),
@@ -406,7 +435,7 @@ mod tests {
     #[test]
     fn list_filter_excludes_archived_by_default() {
         let oid = ObjectId::new();
-        let f = list_filter(oid, None);
+        let f = list_filter(&TenantScope::User(oid), None);
         assert!(f.contains_key("status"));
     }
 
@@ -444,5 +473,34 @@ mod tests {
             ..Default::default()
         };
         assert!(claim_from_create(input, user_id, "EC-202605-0001".into()).is_err());
+    }
+
+    #[test]
+    fn list_filter_user_scope_filters_user_id() {
+        let oid = ObjectId::new();
+        let f = list_filter(&TenantScope::User(oid), Some("all"));
+        assert_eq!(f.get_object_id("userId").unwrap(), oid);
+        assert!(!f.contains_key("projectId"));
+    }
+
+    #[test]
+    fn list_filter_project_scope_filters_project_id() {
+        let oid = ObjectId::new();
+        let f = list_filter(&TenantScope::Project(oid), Some("all"));
+        assert_eq!(f.get_object_id("projectId").unwrap(), oid);
+        assert!(!f.contains_key("userId"));
+    }
+
+    #[test]
+    fn ownership_filter_scopes_by_tenant_key() {
+        let tenant = ObjectId::new();
+        let id = ObjectId::new();
+        let user_f = ownership_filter(&TenantScope::User(tenant), id);
+        assert_eq!(user_f.get_object_id("userId").unwrap(), tenant);
+        assert_eq!(user_f.get_object_id("_id").unwrap(), id);
+        let proj_f = ownership_filter(&TenantScope::Project(tenant), id);
+        assert_eq!(proj_f.get_object_id("projectId").unwrap(), tenant);
+        assert_eq!(proj_f.get_object_id("_id").unwrap(), id);
+        assert!(!proj_f.contains_key("userId"));
     }
 }

@@ -4,8 +4,8 @@
   "description": "Consume the Demio API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 11,
-  "lastVerified": "2026-06-11",
+  "version": 12,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "header",
@@ -17,13 +17,14 @@
       "id": "event_get",
       "label": "Get Event",
       "method": "GET",
-      "path": "/event/{id}/date/{additionalFields_date_id}",
+      "path": "/event/{eventId}",
       "fields": [
         {
           "id": "eventId",
           "label": "Event ID",
           "type": "text",
-          "required": true
+          "required": true,
+          "in": "path"
         },
         {
           "id": "additionalFields",
@@ -34,7 +35,7 @@
         }
       ],
       "group": "Event",
-      "description": "[unverified path] Get an event"
+      "description": "Get an event"
     },
     {
       "id": "event_get_all",

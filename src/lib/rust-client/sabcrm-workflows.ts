@@ -26,6 +26,24 @@ export type SabcrmWorkflowEvent =
   | 'record.created'
   | 'record.updated'
   | 'record.deleted'
+  /**
+   * The record's pipeline-stage field changed (legacy CRM `stage_changed`).
+   * Watched field defaults to `data.stage`; the trigger may carry `field`,
+   * `fromValue` and `toValue` extras to narrow the match.
+   */
+  | 'record.stage_changed'
+  /**
+   * The record's `status` field changed (legacy CRM `status_changed`).
+   * Same mechanics as `record.stage_changed` but defaulting to `data.status`.
+   */
+  | 'record.status_changed'
+  /**
+   * Time-based trigger (legacy CRM `time_elapsed`). Definition-only here —
+   * evaluated by the scheduler tick (`src/lib/sabcrm/scheduler.ts`). Trigger
+   * extras: `afterMinutes` / `afterHours` / `afterDays` (+ optional
+   * `sinceField`, default `updatedAt`).
+   */
+  | 'time.elapsed'
   | 'manual'
   | 'cron'
   | 'webhook'
@@ -44,6 +62,12 @@ export type SabcrmWorkflowStepType =
   | 'if_else'
   | 'find_records'
   | 'upsert_record'
+  /**
+   * Send a WhatsApp template message through WaChat (legacy CRM
+   * `send_whatsapp_template`). Config: `{ templateId, to, variables?, mediaId? }`
+   * — executed via the existing `/v1/wachat/templates/{id}/send` surface.
+   */
+  | 'send_whatsapp_template'
   | (string & {});
 
 /** Lifecycle status of a workflow version. */

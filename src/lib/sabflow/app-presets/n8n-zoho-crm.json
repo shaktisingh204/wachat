@@ -4,8 +4,8 @@
   "description": "Consume Zoho CRM API",
   "category": "crm",
   "iconName": "LuPackage",
-  "version": 9,
-  "lastVerified": "2026-06-11",
+  "version": 10,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -105,7 +105,7 @@
       "id": "account_get_all",
       "label": "Get Many Account",
       "method": "GET",
-      "path": "/account",
+      "path": "/accounts",
       "fields": [
         {
           "id": "returnAll",
@@ -130,7 +130,7 @@
         }
       ],
       "group": "Account",
-      "description": "[unverified path] Get many accounts"
+      "description": "Get many accounts"
     },
     {
       "id": "account_update",
@@ -243,7 +243,7 @@
       "id": "contact_get_all",
       "label": "Get Many Contact",
       "method": "GET",
-      "path": "/contact",
+      "path": "/contacts",
       "fields": [
         {
           "id": "returnAll",
@@ -268,7 +268,7 @@
         }
       ],
       "group": "Contact",
-      "description": "[unverified path] Get many contacts"
+      "description": "Get many contacts"
     },
     {
       "id": "contact_update",
@@ -396,7 +396,7 @@
       "id": "deal_get_all",
       "label": "Get Many Deal",
       "method": "GET",
-      "path": "/deal",
+      "path": "/deals",
       "fields": [
         {
           "id": "returnAll",
@@ -421,7 +421,7 @@
         }
       ],
       "group": "Deal",
-      "description": "[unverified path] Get many contacts"
+      "description": "Get many contacts"
     },
     {
       "id": "deal_update",
@@ -550,7 +550,7 @@
       "id": "invoice_get_all",
       "label": "Get Many Invoice",
       "method": "GET",
-      "path": "/invoice",
+      "path": "/invoices",
       "fields": [
         {
           "id": "returnAll",
@@ -575,7 +575,7 @@
         }
       ],
       "group": "Invoice",
-      "description": "[unverified path] Get many invoices"
+      "description": "Get many invoices"
     },
     {
       "id": "invoice_update",
@@ -711,7 +711,7 @@
       "id": "lead_get_all",
       "label": "Get Many Lead",
       "method": "GET",
-      "path": "/lead",
+      "path": "/leads",
       "fields": [
         {
           "id": "returnAll",
@@ -736,7 +736,7 @@
         }
       ],
       "group": "Lead",
-      "description": "[unverified path] Get many leads"
+      "description": "Get many leads"
     },
     {
       "id": "lead_update",
@@ -850,7 +850,7 @@
       "id": "product_get_all",
       "label": "Get Many Product",
       "method": "GET",
-      "path": "/product",
+      "path": "/products",
       "fields": [
         {
           "id": "returnAll",
@@ -875,7 +875,7 @@
         }
       ],
       "group": "Product",
-      "description": "[unverified path] Get many products"
+      "description": "Get many products"
     },
     {
       "id": "product_update",
@@ -1016,7 +1016,7 @@
       "id": "purchase_order_get_all",
       "label": "Get Many Purchase Order",
       "method": "GET",
-      "path": "/purchase-order",
+      "path": "/purchase_orders",
       "fields": [
         {
           "id": "returnAll",
@@ -1041,7 +1041,7 @@
         }
       ],
       "group": "Purchase Order",
-      "description": "[unverified path] Get many purchase orders"
+      "description": "Get many purchase orders"
     },
     {
       "id": "purchase_order_update",
@@ -1170,7 +1170,7 @@
       "id": "quote_get_all",
       "label": "Get Many Quote",
       "method": "GET",
-      "path": "/quote",
+      "path": "/quotes",
       "fields": [
         {
           "id": "returnAll",
@@ -1195,7 +1195,7 @@
         }
       ],
       "group": "Quote",
-      "description": "[unverified path] Get many quotes"
+      "description": "Get many quotes"
     },
     {
       "id": "quote_update",
@@ -1338,7 +1338,7 @@
       "id": "sales_order_get_all",
       "label": "Get Many Sales Order",
       "method": "GET",
-      "path": "/sales-order",
+      "path": "/sales_orders",
       "fields": [
         {
           "id": "returnAll",
@@ -1363,7 +1363,7 @@
         }
       ],
       "group": "Sales Order",
-      "description": "[unverified path] Get many sales orders"
+      "description": "Get many sales orders"
     },
     {
       "id": "sales_order_update",
@@ -1477,7 +1477,7 @@
       "id": "vendor_get_all",
       "label": "Get Many Vendor",
       "method": "GET",
-      "path": "/vendor",
+      "path": "/vendors",
       "fields": [
         {
           "id": "returnAll",
@@ -1502,7 +1502,7 @@
         }
       ],
       "group": "Vendor",
-      "description": "[unverified path] Get many vendors"
+      "description": "Get many vendors"
     },
     {
       "id": "vendor_update",

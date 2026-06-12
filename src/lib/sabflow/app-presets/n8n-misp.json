@@ -4,8 +4,8 @@
   "description": "Consume the MISP API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 4,
-  "lastVerified": "2026-06-11",
+  "version": 5,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "header",
@@ -129,7 +129,7 @@
       "id": "attribute_get_all",
       "label": "Get Many Attribute",
       "method": "GET",
-      "path": "/attribute",
+      "path": "/attributes",
       "fields": [
         {
           "id": "host",
@@ -155,13 +155,13 @@
         }
       ],
       "group": "Attribute",
-      "description": "[unverified path] Get many attributes"
+      "description": "Get many attributes"
     },
     {
       "id": "attribute_search",
       "label": "Search Attribute",
-      "method": "GET",
-      "path": "/attribute",
+      "method": "POST",
+      "path": "/attributes/restSearch",
       "fields": [
         {
           "id": "host",
@@ -201,7 +201,7 @@
         }
       ],
       "group": "Attribute",
-      "description": "[unverified path] Get a filtered list of attributes"
+      "description": "Get a filtered list of attributes"
     },
     {
       "id": "attribute_update",
@@ -331,7 +331,7 @@
       "id": "event_get_all",
       "label": "Get Many Event",
       "method": "GET",
-      "path": "/event",
+      "path": "/events",
       "fields": [
         {
           "id": "host",
@@ -357,7 +357,7 @@
         }
       ],
       "group": "Event",
-      "description": "[unverified path] Get many events"
+      "description": "Get many events"
     },
     {
       "id": "event_publish",
@@ -388,8 +388,8 @@
     {
       "id": "event_search",
       "label": "Search Event",
-      "method": "GET",
-      "path": "/event",
+      "method": "POST",
+      "path": "/events/restSearch",
       "fields": [
         {
           "id": "host",
@@ -429,7 +429,7 @@
         }
       ],
       "group": "Event",
-      "description": "[unverified path] Get a filtered list of events"
+      "description": "Get a filtered list of events"
     },
     {
       "id": "event_unpublish",
@@ -682,7 +682,7 @@
       "id": "feed_get_all",
       "label": "Get Many Feed",
       "method": "GET",
-      "path": "/feed",
+      "path": "/feeds",
       "fields": [
         {
           "id": "host",
@@ -708,7 +708,7 @@
         }
       ],
       "group": "Feed",
-      "description": "[unverified path] Get many feeds"
+      "description": "Get many feeds"
     },
     {
       "id": "feed_update",
@@ -799,7 +799,7 @@
       "id": "galaxy_get_all",
       "label": "Get Many Galaxy",
       "method": "GET",
-      "path": "/galaxy",
+      "path": "/galaxies",
       "fields": [
         {
           "id": "host",
@@ -825,7 +825,7 @@
         }
       ],
       "group": "Galaxy",
-      "description": "[unverified path] Get many galaxies"
+      "description": "Get many galaxies"
     },
     {
       "id": "noticelist_get",
@@ -857,7 +857,7 @@
       "id": "noticelist_get_all",
       "label": "Get Many Noticelist",
       "method": "GET",
-      "path": "/noticelist",
+      "path": "/noticelists",
       "fields": [
         {
           "id": "host",
@@ -883,13 +883,13 @@
         }
       ],
       "group": "Noticelist",
-      "description": "[unverified path] Get many noticelists"
+      "description": "Get many noticelists"
     },
     {
       "id": "object_search",
       "label": "Search Object",
-      "method": "GET",
-      "path": "/object",
+      "method": "POST",
+      "path": "/objects/restSearch",
       "fields": [
         {
           "id": "host",
@@ -929,7 +929,7 @@
         }
       ],
       "group": "Object",
-      "description": "[unverified path] Get a filtered list of objects"
+      "description": "Get a filtered list of objects"
     },
     {
       "id": "organisation_create",
@@ -1018,7 +1018,7 @@
       "id": "organisation_get_all",
       "label": "Get Many Organisation",
       "method": "GET",
-      "path": "/organisation",
+      "path": "/organisations",
       "fields": [
         {
           "id": "host",
@@ -1044,7 +1044,7 @@
         }
       ],
       "group": "Organisation",
-      "description": "[unverified path] Get many organizations"
+      "description": "Get many organizations"
     },
     {
       "id": "organisation_update",
@@ -1296,7 +1296,7 @@
       "id": "user_get_all",
       "label": "Get Many User",
       "method": "GET",
-      "path": "/user",
+      "path": "/admin/users",
       "fields": [
         {
           "id": "host",
@@ -1322,7 +1322,7 @@
         }
       ],
       "group": "User",
-      "description": "[unverified path] Get many users"
+      "description": "Get many users"
     },
     {
       "id": "user_update",

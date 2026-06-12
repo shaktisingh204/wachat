@@ -1,7 +1,7 @@
 //! HTTP handlers for the Proforma Invoice entity.
 
 use axum::{
-    Json,
+    Extension, Json,
     extract::{Path, Query, State},
 };
 use bson::{DateTime as BsonDateTime, Document, doc, oid::ObjectId};
@@ -12,6 +12,7 @@ use crm_common::{
     search::build_q_filter,
     tenant::user_oid,
 };
+use crm_core::{ScopeMode, TenantScope, sabcrm_project_oid};
 use futures::TryStreamExt;
 use mongodb::options::FindOptions;
 use sabnode_auth::AuthUser;
@@ -20,7 +21,7 @@ use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
 use tracing::instrument;
 
 use crate::dto::{
-    CreateProformaInput, CreateProformaResponse, DeleteProformaResponse, ListQuery,
+    CreateProformaInput, CreateProformaResponse, DeleteProformaResponse, ListQuery, ScopeQuery,
     UpdateProformaInput,
 };
 use crate::types::{CrmProformaInvoice, ProformaLineItem};
@@ -28,8 +29,18 @@ use crate::types::{CrmProformaInvoice, ProformaLineItem};
 const COLL: &str = "crm_proforma_invoices";
 const ENTITY_KIND: &str = "proforma_invoice";
 
-fn list_filter(user_id: ObjectId, status: Option<&str>, account_id: Option<&str>) -> Document {
-    let mut filter = doc! { "userId": user_id };
+/// Resolve the per-request tenant scope from the mount's [`ScopeMode`]:
+/// legacy mounts filter by the JWT's `userId`, SabCRM mounts by the
+/// caller-supplied (required) `projectId`.
+fn resolve_scope(mode: ScopeMode, user: &AuthUser, project_id: Option<&str>) -> Result<TenantScope> {
+    match mode {
+        ScopeMode::User => Ok(TenantScope::User(user_oid(user)?)),
+        ScopeMode::Project => Ok(TenantScope::Project(sabcrm_project_oid(project_id)?)),
+    }
+}
+
+fn list_filter(scope: &TenantScope, status: Option<&str>, account_id: Option<&str>) -> Document {
+    let mut filter = scope.filter();
     match status.unwrap_or("active_visible") {
         "all" => {}
         "archived" => {
@@ -48,8 +59,10 @@ fn list_filter(user_id: ObjectId, status: Option<&str>, account_id: Option<&str>
     filter
 }
 
-fn ownership_filter(user_id: ObjectId, oid: ObjectId) -> Document {
-    doc! { "_id": oid, "userId": user_id }
+fn ownership_filter(scope: &TenantScope, oid: ObjectId) -> Document {
+    let mut filter = scope.filter();
+    filter.insert("_id", oid);
+    filter
 }
 
 fn parse_date(s: &str) -> Option<BsonDateTime> {
@@ -85,6 +98,7 @@ fn proforma_from_create(
     Ok(CrmProformaInvoice {
         id: None,
         user_id,
+        project_id: None,
         proforma_number: input.proforma_number.trim().to_owned(),
         account_id: input
             .account_id
@@ -179,11 +193,12 @@ pub struct ListResponse {
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn list_proforma(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Query(q): Query<ListQuery>,
 ) -> Result<Json<ListResponse>> {
-    let user_id = user_oid(&user)?;
-    let mut filter = list_filter(user_id, q.status.as_deref(), q.account_id.as_deref());
+    let scope = resolve_scope(mode, &user, q.project_id.as_deref())?;
+    let mut filter = list_filter(&scope, q.status.as_deref(), q.account_id.as_deref());
     if let Some(needle) = q.q.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
         let or = build_q_filter(needle, &["proformaNumber", "notes"]);
         if let Ok(arr) = or.get_array("$or") {
@@ -219,14 +234,16 @@ pub async fn list_proforma(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %proforma_id))]
 pub async fn get_proforma(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(proforma_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
 ) -> Result<Json<CrmProformaInvoice>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&proforma_id)?;
     let coll = mongo.collection::<CrmProformaInvoice>(COLL);
     let row = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_proforma_invoices.find_one"))
@@ -238,11 +255,18 @@ pub async fn get_proforma(
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn create_proforma(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Json(input): Json<CreateProformaInput>,
 ) -> Result<Json<CreateProformaResponse>> {
+    let scope = resolve_scope(mode, &user, input.project_id.as_deref())?;
+    // `userId` is always stamped from the JWT (audit trail + entity field);
+    // `projectId` is stamped only on SabCRM (project) mounts.
     let user_id = user_oid(&user)?;
     let mut entity = proforma_from_create(input, user_id)?;
+    if let TenantScope::Project(project_oid) = scope {
+        entity.project_id = Some(project_oid);
+    }
     let coll = mongo.collection::<CrmProformaInvoice>(COLL);
     let inserted = coll.insert_one(&entity).await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("crm_proforma_invoices.insert"))
@@ -265,15 +289,17 @@ pub async fn create_proforma(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %proforma_id))]
 pub async fn update_proforma(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(proforma_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
     Json(patch): Json<UpdateProformaInput>,
 ) -> Result<Json<CrmProformaInvoice>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&proforma_id)?;
     let coll = mongo.collection::<CrmProformaInvoice>(COLL);
     let before = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_proforma_invoices.find_one"))
@@ -281,7 +307,7 @@ pub async fn update_proforma(
         .ok_or_else(|| ApiError::NotFound("proforma_invoice".to_owned()))?;
     let update = build_update_doc(patch);
     let result = coll
-        .update_one(ownership_filter(user_id, oid), update)
+        .update_one(ownership_filter(&scope, oid), update)
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_proforma_invoices.update"))
@@ -290,7 +316,7 @@ pub async fn update_proforma(
         return Err(ApiError::NotFound("proforma_invoice".to_owned()));
     }
     let after = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_proforma_invoices.refetch"))
@@ -311,15 +337,17 @@ pub async fn update_proforma(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %proforma_id))]
 pub async fn delete_proforma(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(proforma_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
 ) -> Result<Json<DeleteProformaResponse>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&proforma_id)?;
     let coll = mongo.collection::<CrmProformaInvoice>(COLL);
     let result = coll
         .update_one(
-            ownership_filter(user_id, oid),
+            ownership_filter(&scope, oid),
             doc! { "$set": {
                 "status": "archived",
                 "updatedAt": BsonDateTime::from_chrono(Utc::now()),
@@ -345,8 +373,43 @@ mod tests {
     #[test]
     fn list_filter_excludes_archived_by_default() {
         let oid = ObjectId::new();
-        let f = list_filter(oid, None, None);
+        let f = list_filter(&TenantScope::User(oid), None, None);
         assert!(f.contains_key("status"));
+    }
+
+    #[test]
+    fn list_filter_user_scope_filters_user_id() {
+        let oid = ObjectId::new();
+        let f = list_filter(&TenantScope::User(oid), Some("all"), None);
+        assert_eq!(f.get_object_id("userId").unwrap(), oid);
+        assert!(!f.contains_key("projectId"));
+    }
+
+    #[test]
+    fn list_filter_project_scope_filters_project_id() {
+        let oid = ObjectId::new();
+        let account = ObjectId::new();
+        let f = list_filter(
+            &TenantScope::Project(oid),
+            Some("all"),
+            Some(account.to_hex().as_str()),
+        );
+        assert_eq!(f.get_object_id("projectId").unwrap(), oid);
+        assert!(!f.contains_key("userId"));
+        assert_eq!(f.get_object_id("accountId").unwrap(), account);
+    }
+
+    #[test]
+    fn ownership_filter_scopes_by_tenant_key() {
+        let tenant = ObjectId::new();
+        let id = ObjectId::new();
+        let user_f = ownership_filter(&TenantScope::User(tenant), id);
+        assert_eq!(user_f.get_object_id("userId").unwrap(), tenant);
+        assert_eq!(user_f.get_object_id("_id").unwrap(), id);
+        let proj_f = ownership_filter(&TenantScope::Project(tenant), id);
+        assert_eq!(proj_f.get_object_id("projectId").unwrap(), tenant);
+        assert_eq!(proj_f.get_object_id("_id").unwrap(), id);
+        assert!(!proj_f.contains_key("userId"));
     }
 
     #[test]

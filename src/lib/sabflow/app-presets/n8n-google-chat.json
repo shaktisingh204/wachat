@@ -4,8 +4,8 @@
   "description": "Consume Google Chat API",
   "category": "communication",
   "iconName": "LuPackage",
-  "version": 11,
-  "lastVerified": "2026-06-11",
+  "version": 12,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -150,15 +150,6 @@
       ],
       "group": "Message",
       "description": "Get a message"
-    },
-    {
-      "id": "message_send_and_wait_operation",
-      "label": "Send and Wait for Response Message",
-      "method": "POST",
-      "path": "/message",
-      "fields": [],
-      "group": "Message",
-      "description": "[unverified path] Send a message and wait for response"
     },
     {
       "id": "message_update",

@@ -19,7 +19,7 @@ import {
   Modal,
   Field,
   Input,
-  Select,
+  SelectField,
   SegmentedControl,
   Button,
 } from '@/components/sabcrm/20ui';
@@ -30,6 +30,7 @@ import {
   WIDGET_TYPE_LABEL,
   type WidgetTypeTw,
   type DashboardWidgetTw,
+  type SabcrmWidgetConfig,
 } from './dashboard-types';
 
 /** Metric options offered per widget type. */
@@ -149,7 +150,7 @@ export function AddWidgetDialog({
 
   function handleSubmit(e: React.FormEvent): void {
     e.preventDefault();
-    const config: Record<string, unknown> = { object: objectSlug, metric };
+    const config: SabcrmWidgetConfig = { object: objectSlug, metric };
     if (needsField) config[fieldConfigKey(type, metric)] = field;
     if (needsSumField) config.sumField = sumField;
     if (type === 'recent') config.sortBy = 'createdAt';
@@ -205,7 +206,7 @@ export function AddWidgetDialog({
 
         {/* Object */}
         <Field label="Object">
-          <Select
+          <SelectField
             aria-label="Object"
             value={objectSlug}
             onChange={(v) => setObjectSlug(v ?? firstObject)}
@@ -219,7 +220,7 @@ export function AddWidgetDialog({
         {/* Metric */}
         {metrics.length > 1 ? (
           <Field label="Metric">
-            <Select
+            <SelectField
               aria-label="Metric"
               value={metric}
               onChange={(v) => setMetric(v ?? metrics[0]!.value)}
@@ -231,7 +232,7 @@ export function AddWidgetDialog({
         {/* Group / category / date field */}
         {needsField ? (
           <Field label={metric === 'timeSeries' ? 'Date field' : 'Group by field'}>
-            <Select
+            <SelectField
               aria-label={metric === 'timeSeries' ? 'Date field' : 'Group by field'}
               value={field}
               onChange={(v) => setField(v ?? '')}
@@ -243,7 +244,7 @@ export function AddWidgetDialog({
         {/* Numeric field to sum */}
         {needsSumField ? (
           <Field label="Value field (to sum)">
-            <Select
+            <SelectField
               aria-label="Value field to sum"
               value={sumField}
               onChange={(v) => setSumField(v ?? 'amount')}

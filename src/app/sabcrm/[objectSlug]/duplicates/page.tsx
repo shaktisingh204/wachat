@@ -1,22 +1,21 @@
 'use client';
 
 /**
- * SabCRM — Twenty-faithful "Find duplicates" screen
- * (`/sabcrm/[objectSlug]/duplicates`).
+ * SabCRM — "Find duplicates" screen (`/sabcrm/[objectSlug]/duplicates`), 20ui.
  *
  * Picks a field to dedupe on (defaults to the object's label field, or an EMAIL
  * field when present) and scans for records that share the same value via
  * `findDuplicateRecordsTw(object, field, projectId?)`. Each returned group — a
- * shared value with a count and ≥2 records — renders as a Twenty card listing
+ * shared value with a count and ≥2 records — renders as a 20ui card listing
  * the colliding records (label linked to their detail page) plus a "Merge…"
  * link that deep-links the existing merge screen with the group's first two
  * records preselected (`?primary=ID&secondary=ID`).
  *
- * NO Ui20 / Tailwind / clay — Twenty look only (`.st-*` from the kit plus the
- * sibling `duplicates.css`, which holds only NEW `.st-dup-*` classes; the shared
- * `sabcrm-twenty.css` is never edited). Every data call is a gated server action
- * returning an `ActionResult`; the Rust engine may be DOWN, so every branch
- * degrades to an inline banner / empty state and the page never crashes.
+ * 20ui only (`@/components/sabcrm/20ui` + the record composites' `RecordCell`
+ * for field-value rendering) plus the sibling `duplicates.css` for page-local
+ * layout (`.scd-*`, scoped to the 20ui root). Every data call is a gated server
+ * action returning an `ActionResult`; the Rust engine may be DOWN, so every
+ * branch degrades to an inline alert / empty state and the page never crashes.
  */
 
 import * as React from 'react';
@@ -26,16 +25,31 @@ import {
   Search,
   AlertTriangle,
   Database,
-  Loader2,
   GitMerge,
-  CopyCheck,
   ArrowLeft,
   CheckCircle2,
 } from 'lucide-react';
 
-import { TwentyPageHeader, TwentyButton } from '@/components/sabcrm/twenty';
-import { TwentyFieldValue } from '@/components/sabcrm/twenty/twenty-field';
-import { Select } from '@/components/sabcrm/20ui';
+import {
+  Alert,
+  Badge,
+  Button,
+  Card,
+  EmptyState,
+  Field,
+  PageActions,
+  PageDescription,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Skeleton,
+} from '@/components/sabcrm/20ui';
+import { RecordCell } from '@/components/sabcrm/20ui/composites/record';
 import { useProject } from '@/context/project-context';
 import {
   listSabcrmObjectsTw,
@@ -45,6 +59,7 @@ import type { SabcrmRustRecord } from '@/app/actions/sabcrm-twenty.actions.types
 import type { ObjectMetadata, FieldMetadata } from '@/lib/sabcrm/types';
 import { sabcrmRecordLabel } from '@/lib/sabcrm/record-label';
 
+import '@/components/sabcrm/20ui/surface-crm-base.css';
 import './duplicates.css';
 
 // ---------------------------------------------------------------------------
@@ -115,19 +130,6 @@ function groupValueLabel(field: FieldMetadata, value: unknown): string {
 }
 
 // ---------------------------------------------------------------------------
-// Shared building blocks
-// ---------------------------------------------------------------------------
-
-function ErrorBanner({ message }: { message: string }): React.JSX.Element {
-  return (
-    <div className="st-banner" role="alert">
-      <AlertTriangle className="st-banner__icon" size={15} />
-      <span>{message}</span>
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
 // Duplicate group card
 // ---------------------------------------------------------------------------
 
@@ -150,44 +152,43 @@ function GroupCard({ object, field, group }: GroupCardProps): React.JSX.Element 
       : null;
 
   return (
-    <div className="st-dup-group">
-      <div className="st-dup-group__head">
-        <span className="st-dup-group__value">
-          <span className="st-dup-group__field">{field.label}:</span>
-          <span className="st-dup-group__value-text">
+    <Card variant="outlined" className="scd-group">
+      <div className="scd-group__head">
+        <span className="scd-group__value">
+          <span className="scd-group__field">{field.label}:</span>
+          <span className="scd-group__value-text">
             {groupValueLabel(field, group.value)}
           </span>
         </span>
-        <span className="st-dup-group__badge">
+        <Badge tone="accent">
           {group.count} {group.count === 1 ? 'record' : 'records'}
-        </span>
-        <span className="st-dup-group__spacer" />
+        </Badge>
+        <span className="scd-group__spacer" />
         {mergeHref && (
-          <Link href={mergeHref} className="st-dup-group__merge">
-            <GitMerge size={13} aria-hidden="true" />
-            Merge…
-          </Link>
+          <Button variant="secondary" size="sm" iconLeft={GitMerge} asChild>
+            <Link href={mergeHref}>Merge…</Link>
+          </Button>
         )}
       </div>
 
-      <div className="st-dup-records">
+      <div className="scd-records">
         {group.records.map((record) => (
-          <div className="st-dup-record" key={record.id}>
+          <div className="scd-record" key={record.id}>
             <Link
               href={`/sabcrm/${object.slug}/${record.id}`}
-              className="st-dup-record__link"
+              className="scd-record__link"
             >
               {recordLabel(object, record)}
             </Link>
-            <span className="st-dup-record__spacer" />
-            <span className="st-dup-record__meta">
-              <TwentyFieldValue field={field} value={record.data[field.key]} />
+            <span className="scd-record__spacer" />
+            <span className="scd-record__meta">
+              <RecordCell field={field} value={record.data[field.key]} />
             </span>
-            <span className="st-dup-record__id">{record.id.slice(-6)}</span>
+            <span className="scd-record__id">{record.id.slice(-6)}</span>
           </div>
         ))}
       </div>
-    </div>
+    </Card>
   );
 }
 
@@ -292,45 +293,44 @@ export default function SabcrmDuplicatesPage(): React.JSX.Element {
 
   if (loadingObject) {
     return (
-      <div className="st-page">
-        <div
-          className="st-skeleton"
-          style={{ height: 28, width: 240, marginBottom: 20 }}
-        />
-        <div className="st-skeleton" style={{ height: 96, marginBottom: 16 }} />
-        <div className="st-skeleton" style={{ height: 160 }} />
+      <div className="scd-page">
+        <div className="scd-page__inner">
+          <div className="scd-skeletons">
+            <Skeleton width={240} height={28} radius={6} />
+            <Skeleton height={96} radius={10} />
+            <Skeleton height={160} radius={10} />
+          </div>
+        </div>
       </div>
     );
   }
 
   if (objectError && !object) {
     return (
-      <div className="st-page">
-        <ErrorBanner message={objectError} />
+      <div className="scd-page">
+        <div className="scd-page__inner">
+          <Alert tone="danger" icon={AlertTriangle}>
+            {objectError}
+          </Alert>
+        </div>
       </div>
     );
   }
 
   if (!object) {
     return (
-      <div className="st-page">
-        <div className="st-empty">
-          <span className="st-empty__icon">
-            <Database size={20} />
-          </span>
-          <h2 className="st-empty__title">Object not found</h2>
-          <p className="st-empty__desc">
-            No CRM object matches “{objectSlug}”. It may have been removed or you
-            may not have access.
-          </p>
-          <TwentyButton variant="secondary">
-            <Link
-              href="/sabcrm"
-              style={{ color: 'inherit', textDecoration: 'none' }}
-            >
-              Back to SabCRM
-            </Link>
-          </TwentyButton>
+      <div className="scd-page">
+        <div className="scd-page__inner">
+          <EmptyState
+            icon={Database}
+            title="Object not found"
+            description={`No CRM object matches “${objectSlug}”. It may have been removed or you may not have access.`}
+            action={
+              <Button variant="secondary" asChild>
+                <Link href="/sabcrm">Back to SabCRM</Link>
+              </Button>
+            }
+          />
         </div>
       </div>
     );
@@ -340,108 +340,111 @@ export default function SabcrmDuplicatesPage(): React.JSX.Element {
   const headerField = scannedField ?? selectedField;
 
   return (
-    <div className="st-page">
-      <TwentyPageHeader
-        title={`Find duplicates — ${object.labelPlural}`}
-        icon={CopyCheck}
-        actions={
-          <TwentyButton variant="secondary" icon={ArrowLeft}>
-            <Link
-              href={`/sabcrm/${object.slug}`}
-              style={{ color: 'inherit', textDecoration: 'none' }}
-            >
-              Back to {object.labelPlural.toLowerCase()}
-            </Link>
-          </TwentyButton>
-        }
-      />
+    <div className="scd-page">
+      <div className="scd-page__inner">
+        <PageHeader>
+          <PageHeaderHeading>
+            <PageTitle>Find duplicates — {object.labelPlural}</PageTitle>
+            <PageDescription>
+              Records that share the same{' '}
+              {selectedField ? selectedField.label.toLowerCase() : 'value'} are
+              grouped together. Merge each group to keep one survivor.
+            </PageDescription>
+          </PageHeaderHeading>
+          <PageActions>
+            <Button variant="secondary" iconLeft={ArrowLeft} asChild>
+              <Link href={`/sabcrm/${object.slug}`}>
+                Back to {object.labelPlural.toLowerCase()}
+              </Link>
+            </Button>
+          </PageActions>
+        </PageHeader>
 
-      {/* Scan controls — pick a field, then scan. */}
-      <div className="st-dup-scan">
-        <div className="st-dup-scan__field">
-          <label className="st-dup-scan__label" htmlFor="st-dup-field">
-            Dedupe on field
-          </label>
-          <Select
-            id="st-dup-field"
-            aria-label="Dedupe on field"
-            value={fieldKey || null}
-            disabled={scanning || fields.length === 0}
-            onChange={(v) => v != null && setFieldKey(v)}
-            placeholder={
-              fields.length === 0 ? 'No dedupable fields' : 'Select field'
-            }
-            options={fields.map((f) => ({ value: f.key, label: f.label }))}
+        {/* Scan controls — pick a field, then scan. */}
+        <Card variant="outlined" className="scd-scan">
+          <div className="scd-scan__field">
+            <Field label="Dedupe on field">
+              <Select
+                value={fieldKey || undefined}
+                onValueChange={setFieldKey}
+                disabled={scanning || fields.length === 0}
+              >
+                <SelectTrigger aria-label="Dedupe on field">
+                  <SelectValue
+                    placeholder={
+                      fields.length === 0
+                        ? 'No dedupable fields'
+                        : 'Select field'
+                    }
+                  />
+                </SelectTrigger>
+                <SelectContent>
+                  {fields.map((f) => (
+                    <SelectItem key={f.key} value={f.key}>
+                      {f.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
+          </div>
+
+          <Button
+            variant="primary"
+            iconLeft={Search}
+            loading={scanning}
+            disabled={scanning || !selectedField}
+            onClick={handleScan}
+          >
+            {scanning ? 'Scanning…' : 'Scan'}
+          </Button>
+        </Card>
+
+        {scanError && (
+          <Alert tone="danger" icon={AlertTriangle}>
+            {scanError}
+          </Alert>
+        )}
+
+        {/* Results — empty until the first scan. */}
+        {scanning && !result && (
+          <div className="scd-skeletons">
+            <Skeleton height={88} radius={10} />
+            <Skeleton height={88} radius={10} />
+          </div>
+        )}
+
+        {!scanning && result && groups.length === 0 && (
+          <EmptyState
+            icon={CheckCircle2}
+            tone="success"
+            title="No duplicates found"
+            description={`No two ${object.labelPlural.toLowerCase()} share the same ${
+              (scannedField ?? selectedField)?.label.toLowerCase() ?? 'value'
+            }. Try scanning on a different field.`}
           />
-        </div>
+        )}
 
-        <button
-          type="button"
-          className="st-btn st-btn--primary"
-          disabled={scanning || !selectedField}
-          onClick={handleScan}
-        >
-          {scanning ? (
-            <Loader2 size={14} className="st-spin" />
-          ) : (
-            <Search size={14} />
-          )}
-          {scanning ? 'Scanning…' : 'Scan'}
-        </button>
-
-        <p className="st-dup-scan__hint">
-          Records that share the same{' '}
-          {selectedField ? selectedField.label.toLowerCase() : 'value'} are
-          grouped together. Merge each group to keep one survivor.
-        </p>
+        {result && groups.length > 0 && headerField && (
+          <>
+            <div className="scd-summary">
+              <span className="scd-summary__count">{groups.length}</span>
+              duplicate {groups.length === 1 ? 'group' : 'groups'} on{' '}
+              {headerField.label.toLowerCase()}
+            </div>
+            <div className="scd-groups">
+              {groups.map((group, i) => (
+                <GroupCard
+                  key={`${String(group.value)}-${i}`}
+                  object={object}
+                  field={headerField}
+                  group={group}
+                />
+              ))}
+            </div>
+          </>
+        )}
       </div>
-
-      {scanError && <ErrorBanner message={scanError} />}
-
-      {/* Results — empty until the first scan. */}
-      {scanning && !result && (
-        <>
-          <div
-            className="st-skeleton"
-            style={{ height: 88, marginBottom: 16 }}
-          />
-          <div className="st-skeleton" style={{ height: 88 }} />
-        </>
-      )}
-
-      {!scanning && result && groups.length === 0 && (
-        <div className="st-empty">
-          <span className="st-empty__icon">
-            <CheckCircle2 size={20} />
-          </span>
-          <h2 className="st-empty__title">No duplicates found</h2>
-          <p className="st-empty__desc">
-            No two {object.labelPlural.toLowerCase()} share the same{' '}
-            {(scannedField ?? selectedField)?.label.toLowerCase() ?? 'value'}.
-            Try scanning on a different field.
-          </p>
-        </div>
-      )}
-
-      {result && groups.length > 0 && headerField && (
-        <>
-          <div className="st-dup-summary">
-            <span className="st-dup-summary__count">{groups.length}</span>
-            duplicate {groups.length === 1 ? 'group' : 'groups'} on{' '}
-            {headerField.label.toLowerCase()}
-          </div>
-          <div className="st-dup-groups">
-            {groups.map((group, i) => (
-              <GroupCard
-                key={`${String(group.value)}-${i}`}
-                object={object}
-                field={headerField}
-                group={group}
-              />
-            ))}
-          </div>
-        </>
-      )}
     </div>
   );
 }

@@ -17,8 +17,8 @@
 //! | `updateActivity`   | `PATCH  /{id}`     |
 //! | `deleteActivity`   | `DELETE /{id}`     |
 //!
-//! A timeline entry is a NOTE / TASK / CALL / MEETING / EMAIL / COMMENT
-//! attached to a record (`targetObject` + `targetRecordId`). The list
+//! A timeline entry is a NOTE / TASK / CALL / MEETING / EMAIL / COMMENT /
+//! WHATSAPP attached to a record (`targetObject` + `targetRecordId`). The list
 //! endpoint returns newest-first; omitting the target yields a
 //! whole-project feed.
 //!

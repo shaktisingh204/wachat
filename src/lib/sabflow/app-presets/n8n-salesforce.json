@@ -4,8 +4,8 @@
   "description": "Consume Salesforce API",
   "category": "crm",
   "iconName": "LuPackage",
-  "version": 11,
-  "lastVerified": "2026-06-11",
+  "version": 12,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -84,7 +84,7 @@
       "id": "lead_create",
       "label": "Create Lead",
       "method": "POST",
-      "path": "/lead",
+      "path": "/sobjects/lead",
       "fields": [
         {
           "id": "company",
@@ -109,7 +109,7 @@
         }
       ],
       "group": "Lead",
-      "description": "[unverified path] Create a lead"
+      "description": "Create a lead"
     },
     {
       "id": "lead_upsert",
@@ -323,7 +323,7 @@
       "id": "contact_create",
       "label": "Create Contact",
       "method": "POST",
-      "path": "/contact",
+      "path": "/sobjects/contact",
       "fields": [
         {
           "id": "lastname",
@@ -341,7 +341,7 @@
         }
       ],
       "group": "Contact",
-      "description": "[unverified path] Create a contact"
+      "description": "Create a contact"
     },
     {
       "id": "contact_upsert",
@@ -486,14 +486,15 @@
       "id": "custom_object_create",
       "label": "Create Custom Object",
       "method": "POST",
-      "path": "/custom-object",
+      "path": "/sobjects/{customObject}",
       "fields": [
         {
           "id": "customObject",
           "label": "Custom Object Name or ID",
           "type": "select",
           "required": true,
-          "description": "Name of the custom object. Choose from the list, or specify an ID using an expression."
+          "description": "Name of the custom object. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
         },
         {
           "id": "customFieldsUi",
@@ -511,7 +512,7 @@
         }
       ],
       "group": "Custom Object",
-      "description": "[unverified path] Create a custom object record"
+      "description": "Create a custom object record"
     },
     {
       "id": "custom_object_upsert",
@@ -755,7 +756,7 @@
       "id": "opportunity_create",
       "label": "Create Opportunity",
       "method": "POST",
-      "path": "/opportunity",
+      "path": "/sobjects/opportunity",
       "fields": [
         {
           "id": "name",
@@ -788,7 +789,7 @@
         }
       ],
       "group": "Opportunity",
-      "description": "[unverified path] Create an opportunity"
+      "description": "Create an opportunity"
     },
     {
       "id": "opportunity_upsert",
@@ -979,7 +980,7 @@
       "id": "account_create",
       "label": "Create Account",
       "method": "POST",
-      "path": "/account",
+      "path": "/sobjects/account",
       "fields": [
         {
           "id": "name",
@@ -997,7 +998,7 @@
         }
       ],
       "group": "Account",
-      "description": "[unverified path] Create an account"
+      "description": "Create an account"
     },
     {
       "id": "account_upsert",

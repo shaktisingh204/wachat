@@ -1,10 +1,19 @@
-//! Mountable router for the §1.8 Credit Note endpoints.
+//! Mountable routers for the §1.8 Credit Note endpoints.
 //!
-//! Mount under `/v1/crm/credit-notes` from the host `api` crate:
+//! Two constructors share one handler set; the only difference is the
+//! [`ScopeMode`] each attaches as an axum `Extension`, which decides the
+//! per-request tenant filter key (see `crm_core::scope`):
+//!
+//! - [`router`] — the legacy `userId`-scoped surface. Mount under
+//!   `/v1/crm/credit-notes`. Behaviour is unchanged.
+//! - [`project_router`] — the SabCRM Finance suite surface, scoped by a
+//!   required `projectId`. Mount under
+//!   `/v1/sabcrm/finance/credit-notes`.
 //!
 //! ```ignore
 //! use crm_credit_notes;
 //! .nest("/v1/crm/credit-notes", crm_credit_notes::router::<AppState>())
+//! .nest("/v1/sabcrm/finance/credit-notes", crm_credit_notes::project_router::<AppState>())
 //! ```
 //!
 //! State requirements: any state from which a [`MongoHandle`] and
@@ -13,15 +22,14 @@
 
 use std::sync::Arc;
 
-use axum::{Router, extract::FromRef, routing::get};
+use axum::{Extension, Router, extract::FromRef, routing::get};
+use crm_core::ScopeMode;
 use sabnode_auth::AuthConfig;
 use sabnode_db::mongo::MongoHandle;
 
 use crate::handlers;
 
-/// Build the router.
-///
-/// Routes (mounted relative — caller nests under `/v1/crm/credit-notes`):
+/// The shared CRUD route table (no scope attached yet).
 ///
 /// ```text
 /// GET    /                  — list_credit_notes
@@ -30,13 +38,7 @@ use crate::handlers;
 /// PATCH  /{cnId}            — update_credit_note
 /// DELETE /{cnId}            — delete_credit_note
 /// ```
-///
-/// `S` is the caller's outer application state. Handlers need a
-/// [`MongoHandle`] (data access) and `Arc<AuthConfig>` (the JWT
-/// verifier the `AuthUser` extractor reads). Both are pulled via
-/// [`FromRef`] so this crate stays decoupled from the orchestrator's
-/// concrete `AppState`.
-pub fn router<S>() -> Router<S>
+fn crud_routes<S>() -> Router<S>
 where
     S: Clone + Send + Sync + 'static,
     MongoHandle: FromRef<S>,
@@ -53,4 +55,28 @@ where
                 .patch(handlers::update_credit_note)
                 .delete(handlers::delete_credit_note),
         )
+}
+
+/// Legacy `userId`-scoped router — mount under `/v1/crm/credit-notes`.
+pub fn router<S>() -> Router<S>
+where
+    S: Clone + Send + Sync + 'static,
+    MongoHandle: FromRef<S>,
+    Arc<AuthConfig>: FromRef<S>,
+{
+    crud_routes().layer(Extension(ScopeMode::User))
+}
+
+/// SabCRM Finance `projectId`-scoped router — mount under
+/// `/v1/sabcrm/finance/credit-notes`. Same handlers, same
+/// `crm_credit_notes` collection; every request must carry `projectId`
+/// (query for `GET`/`PATCH`/`DELETE`, body for `POST`) or it is
+/// rejected 4xx.
+pub fn project_router<S>() -> Router<S>
+where
+    S: Clone + Send + Sync + 'static,
+    MongoHandle: FromRef<S>,
+    Arc<AuthConfig>: FromRef<S>,
+{
+    crud_routes().layer(Extension(ScopeMode::Project))
 }

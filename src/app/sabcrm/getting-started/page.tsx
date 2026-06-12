@@ -11,27 +11,35 @@ import {
   Workflow,
   Upload,
   ArrowRight,
-  Rocket,
   PartyPopper,
   RotateCcw,
   type LucideIcon,
 } from 'lucide-react';
 
-import { TwentyPageHeader, TwentyButton } from '@/components/sabcrm/twenty';
-import { Checkbox, Progress } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  Checkbox,
+  PageDescription,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  Progress,
+} from '@/components/sabcrm/20ui';
+
+import '@/components/sabcrm/20ui/surface-crm-base.css';
 import './getting-started.css';
 
 /**
- * SabCRM — Getting Started (`/sabcrm/getting-started`).
+ * SabCRM — Getting Started (`/sabcrm/getting-started`), 20ui.
  *
- * A Twenty-style onboarding checklist. Each step is a card (icon, title,
- * description, a "Do it" deep-link and a checkbox). Ticking a step persists
- * its completion to `localStorage` so progress survives reloads. A progress
- * bar at the top reflects `n / total` done.
+ * An onboarding checklist. Each step is a card (icon, title, description, a
+ * "Do it" deep-link and a checkbox). Ticking a step persists its completion to
+ * `localStorage` so progress survives reloads. A progress bar at the top
+ * reflects `n / total` done.
  *
- * Rendered inside the layout's `TwentyAppFrame` (`.sabcrm-twenty` scope), so
- * all visuals come from the `.st-*` Twenty design system + the page-local
- * `.st-gs-*` classes in `getting-started.css`. No Ui20 / Tailwind.
+ * 20ui only: chrome comes from `@/components/sabcrm/20ui` (PageHeader,
+ * Checkbox, Progress, Button) plus the page-local `.gs-*` classes in
+ * `getting-started.css`, scoped to the 20ui root.
  */
 
 type ChecklistStep = {
@@ -166,19 +174,23 @@ export default function GettingStartedPage(): React.JSX.Element {
   const pct = total === 0 ? 0 : Math.round((doneCount / total) * 100);
 
   return (
-    <div className="st-gs">
-      <div className="st-gs__inner">
-        <TwentyPageHeader title="Getting Started" icon={Rocket} />
-        <p className="st-gs__lead">
-          A few quick steps to set up SabCRM. Tick each one off as you go — your
-          progress is saved on this device.
-        </p>
+    <div className="gs-page">
+      <div className="gs-page__inner">
+        <PageHeader>
+          <PageHeaderHeading>
+            <PageTitle>Getting Started</PageTitle>
+            <PageDescription>
+              A few quick steps to set up SabCRM. Tick each one off as you go —
+              your progress is saved on this device.
+            </PageDescription>
+          </PageHeaderHeading>
+        </PageHeader>
 
         {/* Progress */}
-        <section className="st-gs-progress" aria-label="Onboarding progress">
-          <div className="st-gs-progress__head">
-            <span className="st-gs-progress__title">Your progress</span>
-            <span className="st-gs-progress__count">
+        <section className="gs-progress" aria-label="Onboarding progress">
+          <div className="gs-progress__head">
+            <span className="gs-progress__title">Your progress</span>
+            <span className="gs-progress__count">
               <strong>{doneCount}</strong> of {total} complete
             </span>
           </div>
@@ -189,7 +201,7 @@ export default function GettingStartedPage(): React.JSX.Element {
             aria-valuetext={`${doneCount} of ${total} steps complete`}
           />
           {allDone ? (
-            <p className="st-gs-progress__done-msg">
+            <p className="gs-progress__done-msg">
               <PartyPopper size={15} aria-hidden="true" />
               All set — you&apos;ve completed onboarding. Nice work!
             </p>
@@ -197,16 +209,16 @@ export default function GettingStartedPage(): React.JSX.Element {
         </section>
 
         {/* Checklist */}
-        <ul className="st-gs-list">
+        <ul className="gs-list">
           {STEPS.map(({ id, title, description, href, icon: Icon }) => {
             const isDone = Boolean(completed[id]);
             return (
               <li
                 key={id}
-                className={'st-gs-card' + (isDone ? ' st-gs-card--done' : '')}
+                className={'gs-card' + (isDone ? ' gs-card--done' : '')}
               >
                 <Checkbox
-                  className="st-gs-check"
+                  className="gs-check"
                   size="md"
                   checked={isDone}
                   onChange={() => toggle(id)}
@@ -217,19 +229,19 @@ export default function GettingStartedPage(): React.JSX.Element {
                   }
                 />
 
-                <span className="st-gs-card__icon" aria-hidden="true">
+                <span className="gs-card__icon" aria-hidden="true">
                   <Icon size={18} />
                 </span>
 
-                <div className="st-gs-card__body">
-                  <span className="st-gs-card__title">{title}</span>
-                  <span className="st-gs-card__desc">{description}</span>
+                <div className="gs-card__body">
+                  <span className="gs-card__title">{title}</span>
+                  <span className="gs-card__desc">{description}</span>
                 </div>
 
-                <div className="st-gs-card__action">
+                <div className="gs-card__action">
                   <Link
                     href={href}
-                    className="st-gs-do"
+                    className="gs-do"
                     aria-label={`${title} — do it`}
                   >
                     Do it
@@ -242,10 +254,10 @@ export default function GettingStartedPage(): React.JSX.Element {
         </ul>
 
         {doneCount > 0 ? (
-          <div className="st-gs-footer">
-            <TwentyButton variant="ghost" icon={RotateCcw} onClick={reset}>
+          <div className="gs-footer">
+            <Button variant="ghost" iconLeft={RotateCcw} onClick={reset}>
               Reset progress
-            </TwentyButton>
+            </Button>
           </div>
         ) : null}
       </div>

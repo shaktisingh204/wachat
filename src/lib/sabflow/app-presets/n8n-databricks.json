@@ -4,8 +4,8 @@
   "description": "Interact with Databricks API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 3,
-  "lastVerified": "2026-06-11",
+  "version": 4,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "bearer",
@@ -153,80 +153,6 @@
       ],
       "group": "File",
       "description": "Download file content from a volume"
-    },
-    {
-      "id": "files_get_file_info",
-      "label": "Get File Metadata File",
-      "method": "GET",
-      "path": "/files",
-      "fields": [
-        {
-          "id": "host",
-          "label": "Host",
-          "type": "text",
-          "required": true,
-          "in": "path",
-          "description": "Host of your Databricks server, e.g. app.example.com (no https:// prefix)"
-        },
-        {
-          "id": "volumePath",
-          "label": "Volume Path",
-          "type": "text",
-          "required": true,
-          "placeholder": "catalog.schema.volume",
-          "description": "Full path to the volume in format: catalog.schema.volume"
-        },
-        {
-          "id": "filePath",
-          "label": "File Path",
-          "type": "text",
-          "required": true,
-          "placeholder": "folder/file.txt",
-          "description": "Path to the file within the volume (e.g. \"folder/file.txt\" or \"file.txt\"). Do not include leading slash."
-        }
-      ],
-      "group": "File",
-      "description": "[unverified path] Get file metadata from a volume"
-    },
-    {
-      "id": "files_list_directory",
-      "label": "List Directory File",
-      "method": "GET",
-      "path": "/files",
-      "fields": [
-        {
-          "id": "host",
-          "label": "Host",
-          "type": "text",
-          "required": true,
-          "in": "path",
-          "description": "Host of your Databricks server, e.g. app.example.com (no https:// prefix)"
-        },
-        {
-          "id": "volumePath",
-          "label": "Volume Path",
-          "type": "text",
-          "required": true,
-          "placeholder": "catalog.schema.volume",
-          "description": "Full path to the volume in format: catalog.schema.volume"
-        },
-        {
-          "id": "directoryPath",
-          "label": "Directory Path",
-          "type": "text",
-          "placeholder": "folder1",
-          "description": "Path to directory within the volume (e.g. \"folder1\" or \"folder1/subfolder\"). Leave empty to list the volume root. Do not include leading slash."
-        },
-        {
-          "id": "additionalFields",
-          "label": "Additional Fields",
-          "type": "json",
-          "placeholder": "Add Field",
-          "description": "(JSON object; supported keys: pageSize, pageToken, overwrite)"
-        }
-      ],
-      "group": "File",
-      "description": "[unverified path] List directory contents in volume"
     },
     {
       "id": "files_upload_file",

@@ -4,8 +4,8 @@
   "description": "Consume the Freshservice API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 8,
-  "lastVerified": "2026-06-11",
+  "version": 9,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "header",
@@ -115,7 +115,7 @@
       "id": "agent_get_all",
       "label": "Get Many Agent",
       "method": "GET",
-      "path": "/agent",
+      "path": "/agents",
       "fields": [
         {
           "id": "domain",
@@ -148,7 +148,7 @@
         }
       ],
       "group": "Agent",
-      "description": "[unverified path] Retrieve many agents"
+      "description": "Retrieve many agents"
     },
     {
       "id": "agent_update",
@@ -270,7 +270,7 @@
       "id": "agent_group_get_all",
       "label": "Get Many Agent Group",
       "method": "GET",
-      "path": "/agent-group",
+      "path": "/groups",
       "fields": [
         {
           "id": "domain",
@@ -296,7 +296,7 @@
         }
       ],
       "group": "Agent Group",
-      "description": "[unverified path] Retrieve many agent groups"
+      "description": "Retrieve many agent groups"
     },
     {
       "id": "agent_group_update",
@@ -361,7 +361,7 @@
       "id": "agent_role_get_all",
       "label": "Get Many Agent Role",
       "method": "GET",
-      "path": "/agent-role",
+      "path": "/roles",
       "fields": [
         {
           "id": "domain",
@@ -387,7 +387,7 @@
         }
       ],
       "group": "Agent Role",
-      "description": "[unverified path] Retrieve many agent roles"
+      "description": "Retrieve many agent roles"
     },
     {
       "id": "announcement_create",
@@ -512,7 +512,7 @@
       "id": "announcement_get_all",
       "label": "Get Many Announcement",
       "method": "GET",
-      "path": "/announcement",
+      "path": "/announcements",
       "fields": [
         {
           "id": "domain",
@@ -538,7 +538,7 @@
         }
       ],
       "group": "Announcement",
-      "description": "[unverified path] Retrieve many announcements"
+      "description": "Retrieve many announcements"
     },
     {
       "id": "announcement_update",
@@ -660,7 +660,7 @@
       "id": "asset_type_get_all",
       "label": "Get Many Asset Type",
       "method": "GET",
-      "path": "/asset-type",
+      "path": "/asset_types",
       "fields": [
         {
           "id": "domain",
@@ -686,7 +686,7 @@
         }
       ],
       "group": "Asset Type",
-      "description": "[unverified path] Retrieve many asset types"
+      "description": "Retrieve many asset types"
     },
     {
       "id": "asset_type_update",
@@ -831,7 +831,7 @@
       "id": "change_get_all",
       "label": "Get Many Change",
       "method": "GET",
-      "path": "/change",
+      "path": "/changes",
       "fields": [
         {
           "id": "domain",
@@ -864,7 +864,7 @@
         }
       ],
       "group": "Change",
-      "description": "[unverified path] Retrieve many changes"
+      "description": "Retrieve many changes"
     },
     {
       "id": "change_update",
@@ -986,7 +986,7 @@
       "id": "department_get_all",
       "label": "Get Many Department",
       "method": "GET",
-      "path": "/department",
+      "path": "/departments",
       "fields": [
         {
           "id": "domain",
@@ -1019,7 +1019,7 @@
         }
       ],
       "group": "Department",
-      "description": "[unverified path] Retrieve many departments"
+      "description": "Retrieve many departments"
     },
     {
       "id": "department_update",
@@ -1142,7 +1142,7 @@
       "id": "location_get_all",
       "label": "Get Many Location",
       "method": "GET",
-      "path": "/location",
+      "path": "/locations",
       "fields": [
         {
           "id": "domain",
@@ -1168,7 +1168,7 @@
         }
       ],
       "group": "Location",
-      "description": "[unverified path] Retrieve many locations"
+      "description": "Retrieve many locations"
     },
     {
       "id": "location_update",
@@ -1304,7 +1304,7 @@
       "id": "problem_get_all",
       "label": "Get Many Problem",
       "method": "GET",
-      "path": "/problem",
+      "path": "/problems",
       "fields": [
         {
           "id": "domain",
@@ -1330,7 +1330,7 @@
         }
       ],
       "group": "Problem",
-      "description": "[unverified path] Retrieve many problems"
+      "description": "Retrieve many problems"
     },
     {
       "id": "problem_update",
@@ -1459,7 +1459,7 @@
       "id": "product_get_all",
       "label": "Get Many Product",
       "method": "GET",
-      "path": "/product",
+      "path": "/products",
       "fields": [
         {
           "id": "domain",
@@ -1485,7 +1485,7 @@
         }
       ],
       "group": "Product",
-      "description": "[unverified path] Retrieve many products"
+      "description": "Retrieve many products"
     },
     {
       "id": "product_update",
@@ -1699,7 +1699,7 @@
       "id": "release_get_all",
       "label": "Get Many Release",
       "method": "GET",
-      "path": "/release",
+      "path": "/releases",
       "fields": [
         {
           "id": "domain",
@@ -1725,7 +1725,7 @@
         }
       ],
       "group": "Release",
-      "description": "[unverified path] Retrieve many releases"
+      "description": "Retrieve many releases"
     },
     {
       "id": "release_update",
@@ -1852,7 +1852,7 @@
       "id": "requester_get_all",
       "label": "Get Many Requester",
       "method": "GET",
-      "path": "/requester",
+      "path": "/requesters",
       "fields": [
         {
           "id": "domain",
@@ -1885,7 +1885,7 @@
         }
       ],
       "group": "Requester",
-      "description": "[unverified path] Retrieve many requesters"
+      "description": "Retrieve many requesters"
     },
     {
       "id": "requester_update",
@@ -2007,7 +2007,7 @@
       "id": "requester_group_get_all",
       "label": "Get Many Requester Group",
       "method": "GET",
-      "path": "/requester-group",
+      "path": "/requester_groups",
       "fields": [
         {
           "id": "domain",
@@ -2033,7 +2033,7 @@
         }
       ],
       "group": "Requester Group",
-      "description": "[unverified path] Retrieve many requester groups"
+      "description": "Retrieve many requester groups"
     },
     {
       "id": "requester_group_update",
@@ -2176,7 +2176,7 @@
       "id": "software_get_all",
       "label": "Get Many Software",
       "method": "GET",
-      "path": "/software",
+      "path": "/applications",
       "fields": [
         {
           "id": "domain",
@@ -2202,7 +2202,7 @@
         }
       ],
       "group": "Software",
-      "description": "[unverified path] Retrieve many software applications"
+      "description": "Retrieve many software applications"
     },
     {
       "id": "software_update",

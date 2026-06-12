@@ -44,8 +44,11 @@ const DEFAULT_LIMIT: u64 = 50;
 const MAX_LIMIT: u64 = 200;
 
 /// The activity kinds SabCRM recognises, mirroring Twenty's timeline entry
-/// types. Stored uppercase verbatim.
-const ALLOWED_KINDS: &[&str] = &["NOTE", "TASK", "CALL", "MEETING", "EMAIL", "COMMENT"];
+/// types plus the WhatsApp touchpoint kind logged by the SabCRM ↔ WaChat
+/// bridge (`sabcrm-comms.actions.ts`). Stored uppercase verbatim.
+const ALLOWED_KINDS: &[&str] = &[
+    "NOTE", "TASK", "CALL", "MEETING", "EMAIL", "COMMENT", "WHATSAPP",
+];
 
 // ===========================================================================
 // helpers
@@ -82,6 +85,29 @@ fn normalize_kind(raw: &str) -> Result<String> {
             "type must be one of {}.",
             ALLOWED_KINDS.join(" | ")
         )))
+    }
+}
+
+#[cfg(test)]
+mod kind_tests {
+    use super::normalize_kind;
+
+    /// Every allowed kind round-trips (case-insensitively) to its canonical
+    /// uppercase form — including the WHATSAPP kind logged by the SabCRM ↔
+    /// WaChat bridge.
+    #[test]
+    fn normalize_kind_accepts_all_allowed_kinds() {
+        for kind in ["NOTE", "TASK", "CALL", "MEETING", "EMAIL", "COMMENT", "WHATSAPP"] {
+            assert_eq!(normalize_kind(kind).unwrap(), kind);
+            assert_eq!(normalize_kind(&kind.to_lowercase()).unwrap(), kind);
+        }
+    }
+
+    /// Unknown kinds are still rejected so the timeline stays typed.
+    #[test]
+    fn normalize_kind_rejects_unknown() {
+        assert!(normalize_kind("SMS").is_err());
+        assert!(normalize_kind("").is_err());
     }
 }
 

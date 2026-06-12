@@ -4,8 +4,8 @@
   "description": "Consume Line API",
   "category": "communication",
   "iconName": "LuPackage",
-  "version": 2,
-  "lastVerified": "2026-06-11",
+  "version": 3,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -18,7 +18,7 @@
       "id": "notification_send",
       "label": "Send Notification",
       "method": "POST",
-      "path": "/notification",
+      "path": "/api/notify",
       "fields": [
         {
           "id": "message",
@@ -35,7 +35,7 @@
         }
       ],
       "group": "Notification",
-      "description": "[unverified path] Sends notifications to users or groups"
+      "description": "Sends notifications to users or groups"
     }
   ]
 }

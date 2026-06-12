@@ -91,7 +91,7 @@ export function Field({
 export type InputSize = 'sm' | 'md' | 'lg';
 
 export interface InputProps
-  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'> {
+  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size' | 'prefix'> {
   inputSize?: InputSize;
   invalid?: boolean;
   iconLeft?: LucideIcon;

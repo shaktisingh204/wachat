@@ -4,8 +4,8 @@
   "description": "Consume Todoist API",
   "category": "productivity",
   "iconName": "LuPackage",
-  "version": 11,
-  "lastVerified": "2026-06-11",
+  "version": 12,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "bearer",
@@ -102,7 +102,7 @@
       "id": "task_get_all",
       "label": "Get Many Task",
       "method": "GET",
-      "path": "/task",
+      "path": "/tasks",
       "fields": [
         {
           "id": "returnAll",
@@ -127,67 +127,7 @@
         }
       ],
       "group": "Task",
-      "description": "[unverified path] Get many tasks"
-    },
-    {
-      "id": "task_move",
-      "label": "Move Task",
-      "method": "PATCH",
-      "path": "/task",
-      "fields": [
-        {
-          "id": "taskId",
-          "label": "Task ID",
-          "type": "text",
-          "required": true
-        },
-        {
-          "id": "project",
-          "label": "Project Name or ID",
-          "type": "text",
-          "required": true,
-          "description": "The destination project. Choose from the list, or specify an ID. (provide the ID)"
-        },
-        {
-          "id": "section",
-          "label": "Section Name or ID",
-          "type": "select",
-          "description": "Section to which you want move the task. Choose from the list, or specify an ID using an expression."
-        },
-        {
-          "id": "options",
-          "label": "Additional Fields",
-          "type": "json",
-          "placeholder": "Add option",
-          "description": "(JSON object; supported keys: section, parent)"
-        }
-      ],
-      "group": "Task",
-      "description": "[unverified path] Move a task"
-    },
-    {
-      "id": "task_quick_add",
-      "label": "Quick Add Task",
-      "method": "POST",
-      "path": "/task",
-      "fields": [
-        {
-          "id": "text",
-          "label": "Text",
-          "type": "textarea",
-          "required": true,
-          "description": "Natural language text for quick adding task (e.g., \"Buy milk @Grocery #shopping tomorrow\"). It can include a due date in free form text, a project name starting with the \"#\" character (without spaces), a label starting with the \"@\" character, an assignee starting with the \"+\" character, a priority (e.g., p1), a deadline between \"{}\" (e.g. {in 3 days}), or a description starting from \"//\" until the end of the text."
-        },
-        {
-          "id": "options",
-          "label": "Additional Fields",
-          "type": "json",
-          "placeholder": "Add Field",
-          "description": "(JSON object; supported keys: note, reminder, auto_reminder)"
-        }
-      ],
-      "group": "Task",
-      "description": "[unverified path] Quick add a task using natural language"
+      "description": "Get many tasks"
     },
     {
       "id": "task_reopen",
@@ -307,27 +247,28 @@
       "id": "project_get_collaborators",
       "label": "Get Collaborators Project",
       "method": "GET",
-      "path": "/project",
+      "path": "/projects/{projectId}/collaborators",
       "fields": [
         {
           "id": "projectId",
           "label": "Project ID",
           "type": "text",
           "required": true,
-          "description": "The project ID - can be either a string or number"
+          "description": "The project ID - can be either a string or number",
+          "in": "path"
         }
       ],
       "group": "Project",
-      "description": "[unverified path] Get project collaborators"
+      "description": "Get project collaborators"
     },
     {
       "id": "project_get_all",
       "label": "Get Many Project",
       "method": "GET",
-      "path": "/project",
+      "path": "/projects",
       "fields": [],
       "group": "Project",
-      "description": "[unverified path] Get many projects"
+      "description": "Get many projects"
     },
     {
       "id": "project_unarchive",
@@ -437,7 +378,7 @@
       "id": "section_get_all",
       "label": "Get Many Section",
       "method": "GET",
-      "path": "/section",
+      "path": "/sections",
       "fields": [
         {
           "id": "sectionFilters",
@@ -448,7 +389,7 @@
         }
       ],
       "group": "Section",
-      "description": "[unverified path] Get many sections"
+      "description": "Get many sections"
     },
     {
       "id": "section_update",
@@ -533,7 +474,7 @@
       "id": "comment_get_all",
       "label": "Get Many Comment",
       "method": "GET",
-      "path": "/comment",
+      "path": "/comments",
       "fields": [
         {
           "id": "commentFilters",
@@ -544,7 +485,7 @@
         }
       ],
       "group": "Comment",
-      "description": "[unverified path] Get many comments"
+      "description": "Get many comments"
     },
     {
       "id": "comment_update",
@@ -629,10 +570,10 @@
       "id": "label_get_all",
       "label": "Get Many Label",
       "method": "GET",
-      "path": "/label",
+      "path": "/labels",
       "fields": [],
       "group": "Label",
-      "description": "[unverified path] Get many labels"
+      "description": "Get many labels"
     },
     {
       "id": "label_update",
@@ -754,15 +695,6 @@
       ],
       "group": "Reminder",
       "description": "Delete a reminder"
-    },
-    {
-      "id": "reminder_get_all",
-      "label": "Get Many Reminder",
-      "method": "GET",
-      "path": "/reminder",
-      "fields": [],
-      "group": "Reminder",
-      "description": "[unverified path] Get many reminders"
     },
     {
       "id": "reminder_update",

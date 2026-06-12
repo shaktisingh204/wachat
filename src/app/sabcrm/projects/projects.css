@@ -1,64 +1,78 @@
 /**
- * SabCRM Projects — surface styles.
+ * SabCRM Projects (`/sabcrm/projects`) — surface styles, 20ui.
  *
- * Scoped under `.sabcrm-twenty` / `.\32 0ui` so every rule resolves the shared
- * `--st-*` / `--u-*` tokens and never leaks into other design-system roots.
- * Covers the page chrome, the three views (list / board / timeline), the detail
- * drawer and the form dialog grid.
+ * Page-local layout ONLY (`.pj-*` prefix), scoped to the 20ui root
+ * (`:is(.\32 0ui, .ui20)` — NEVER a bare `.20ui.foo` compound). Covers the
+ * page chrome (scroll wrapper — the suite frame renders children directly in
+ * the frame's main area), the List helpers, the Board card CONTENT (column/card chrome
+ * comes from the shared `RecordBoard` composite, `.rb-*` in board.css), the
+ * bespoke Timeline/gantt, the detail drawer and the form dialog grid.
+ * Tokens only (`--st-*` / `--u-*`), so dark mode is free.
  */
 
-:is(.\32 0ui, .sabcrm-twenty) .pm-page {
+:is(.\32 0ui, .ui20) .pj-page {
   display: flex;
   flex-direction: column;
   gap: var(--st-space-4);
+  flex: 1 1 auto;
+  min-height: 0;
   padding: var(--st-space-5) var(--st-space-6);
-  min-height: 100%;
+  overflow-y: auto;
 }
 
-/* Per-tone accent colour for dots, board headers and timeline bars. */
-:is(.\32 0ui, .sabcrm-twenty) .pm-board__dot--neutral,
-:is(.\32 0ui, .sabcrm-twenty) .pm-timeline__bar--neutral {
-  --pm-tone: var(--st-text-tertiary);
+/* Per-tone accent colour for status dots and timeline bars. */
+:is(.\32 0ui, .ui20) .pj-dot--neutral,
+:is(.\32 0ui, .ui20) .pj-timeline__bar--neutral {
+  --pj-tone: var(--st-text-tertiary);
 }
-:is(.\32 0ui, .sabcrm-twenty) .pm-board__dot--accent,
-:is(.\32 0ui, .sabcrm-twenty) .pm-timeline__bar--accent {
-  --pm-tone: var(--st-accent);
+:is(.\32 0ui, .ui20) .pj-dot--accent,
+:is(.\32 0ui, .ui20) .pj-timeline__bar--accent {
+  --pj-tone: var(--st-accent);
 }
-:is(.\32 0ui, .sabcrm-twenty) .pm-board__dot--success,
-:is(.\32 0ui, .sabcrm-twenty) .pm-timeline__bar--success {
-  --pm-tone: #1f7a37;
+:is(.\32 0ui, .ui20) .pj-dot--success,
+:is(.\32 0ui, .ui20) .pj-timeline__bar--success {
+  --pj-tone: #1f7a37;
 }
-:is(.\32 0ui, .sabcrm-twenty) .pm-board__dot--warning,
-:is(.\32 0ui, .sabcrm-twenty) .pm-timeline__bar--warning {
-  --pm-tone: #9a6400;
+:is(.\32 0ui, .ui20) .pj-dot--warning,
+:is(.\32 0ui, .ui20) .pj-timeline__bar--warning {
+  --pj-tone: #9a6400;
 }
-:is(.\32 0ui, .sabcrm-twenty) .pm-board__dot--danger,
-:is(.\32 0ui, .sabcrm-twenty) .pm-timeline__bar--danger {
-  --pm-tone: var(--st-danger);
+:is(.\32 0ui, .ui20) .pj-dot--danger,
+:is(.\32 0ui, .ui20) .pj-timeline__bar--danger {
+  --pj-tone: var(--st-danger);
 }
-:is(.\32 0ui, .sabcrm-twenty) .pm-board__dot--info,
-:is(.\32 0ui, .sabcrm-twenty) .pm-timeline__bar--info {
-  --pm-tone: #1d6fd6;
+:is(.\32 0ui, .ui20) .pj-dot--info,
+:is(.\32 0ui, .ui20) .pj-timeline__bar--info {
+  --pj-tone: #1d6fd6;
+}
+
+/* Small status dot (timeline row labels). */
+:is(.\32 0ui, .ui20) .pj-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--pj-tone, var(--st-text-tertiary));
+  flex: none;
 }
 
 /* -------------------------------------------------------------- Toolbar --- */
 
-:is(.\32 0ui, .sabcrm-twenty) .pm-toolbar {
+:is(.\32 0ui, .ui20) .pj-toolbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--st-space-3);
   flex-wrap: wrap;
 }
-:is(.\32 0ui, .sabcrm-twenty) .pm-toolbar__search {
+:is(.\32 0ui, .ui20) .pj-toolbar__search {
   width: min(280px, 100%);
 }
 
-:is(.\32 0ui, .sabcrm-twenty) .pm-page__alert {
+:is(.\32 0ui, .ui20) .pj-page__alert {
   margin: 0;
 }
 
-:is(.\32 0ui, .sabcrm-twenty) .pm-page__loading {
+:is(.\32 0ui, .ui20) .pj-page__loading {
   display: flex;
   align-items: center;
   gap: var(--st-space-2);
@@ -67,38 +81,38 @@
   font-size: var(--st-font-size-sm);
 }
 
-:is(.\32 0ui, .sabcrm-twenty) .pm-page__view {
+:is(.\32 0ui, .ui20) .pj-page__view {
   min-height: 0;
 }
 
 /* ------------------------------------------------------ Shared helpers --- */
 
-:is(.\32 0ui, .sabcrm-twenty) .pm-muted {
+:is(.\32 0ui, .ui20) .pj-muted {
   color: var(--st-text-tertiary);
 }
-:is(.\32 0ui, .sabcrm-twenty) .pm-cell-name {
+:is(.\32 0ui, .ui20) .pj-cell-name {
   font-weight: var(--st-fw-semibold);
   color: var(--st-text);
 }
-:is(.\32 0ui, .sabcrm-twenty) .pm-due {
+:is(.\32 0ui, .ui20) .pj-due {
   display: inline-flex;
   align-items: center;
   gap: 4px;
   white-space: nowrap;
 }
-:is(.\32 0ui, .sabcrm-twenty) .pm-due--over {
+:is(.\32 0ui, .ui20) .pj-due--over {
   color: var(--st-danger);
   font-weight: var(--st-fw-medium);
 }
-:is(.\32 0ui, .sabcrm-twenty) .pm-progress-cell {
+:is(.\32 0ui, .ui20) .pj-progress-cell {
   display: flex;
   align-items: center;
   gap: var(--st-space-2);
 }
-:is(.\32 0ui, .sabcrm-twenty) .pm-progress-cell .u-progress {
+:is(.\32 0ui, .ui20) .pj-progress-cell .u-progress {
   flex: 1;
 }
-:is(.\32 0ui, .sabcrm-twenty) .pm-progress-cell__pct {
+:is(.\32 0ui, .ui20) .pj-progress-cell__pct {
   font-size: var(--st-font-size-xs);
   color: var(--st-text-secondary);
   font-variant-numeric: tabular-nums;
@@ -107,146 +121,65 @@
 }
 
 /* ---------------------------------------------------------------- Board --- */
+/* Columns, drag-and-drop and card chrome come from the shared RecordBoard
+   composite (`.rb-*`); these rules style only the injected card CONTENT. */
 
-:is(.\32 0ui, .sabcrm-twenty) .pm-board {
-  display: flex;
-  gap: var(--st-space-3);
-  align-items: flex-start;
-  overflow-x: auto;
-  padding-bottom: var(--st-space-3);
-}
-:is(.\32 0ui, .sabcrm-twenty) .pm-board__col {
-  flex: 0 0 280px;
-  width: 280px;
-  background: var(--st-bg-secondary);
-  border: 1px solid var(--st-border);
-  border-radius: var(--st-radius-lg);
-  padding: var(--st-space-2);
-  transition: background var(--u-dur-fast) var(--u-ease-out),
-    border-color var(--u-dur-fast) var(--u-ease-out);
-}
-:is(.\32 0ui, .sabcrm-twenty) .pm-board__col.is-over {
-  background: var(--st-accent-soft);
-  border-color: var(--st-accent);
-}
-:is(.\32 0ui, .sabcrm-twenty) .pm-board__col-head {
-  display: flex;
-  align-items: center;
-  gap: var(--st-space-2);
-  padding: var(--st-space-1) var(--st-space-2);
-}
-:is(.\32 0ui, .sabcrm-twenty) .pm-board__dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--pm-tone, var(--st-text-tertiary));
-  flex: none;
-}
-:is(.\32 0ui, .sabcrm-twenty) .pm-board__col-title {
-  margin: 0;
-  font-size: var(--st-font-size-sm);
-  font-weight: var(--st-fw-semibold);
-  color: var(--st-text);
-  flex: 1;
-}
-:is(.\32 0ui, .sabcrm-twenty) .pm-board__count {
-  font-size: var(--st-font-size-xs);
-  color: var(--st-text-tertiary);
-  font-variant-numeric: tabular-nums;
-}
-:is(.\32 0ui, .sabcrm-twenty) .pm-board__cards {
+:is(.\32 0ui, .ui20) .pj-card {
   display: flex;
   flex-direction: column;
   gap: var(--st-space-2);
-  padding: var(--st-space-2) var(--st-space-1);
-  min-height: 60px;
 }
-:is(.\32 0ui, .sabcrm-twenty) .pm-board__empty {
-  margin: 0;
-  padding: var(--st-space-4);
-  text-align: center;
-  font-size: var(--st-font-size-xs);
-  color: var(--st-text-tertiary);
-  border: 1px dashed var(--st-border);
-  border-radius: var(--st-radius);
-}
-
-/* Cards (board) */
-:is(.\32 0ui, .sabcrm-twenty) .pm-card {
-  display: flex;
-  flex-direction: column;
-  gap: var(--st-space-2);
-  padding: var(--st-space-3);
-  background: var(--st-bg);
-  border: 1px solid var(--st-border);
-  border-radius: var(--st-radius);
-  box-shadow: var(--u-elev-1);
-  cursor: grab;
-  transition: box-shadow var(--u-dur-fast) var(--u-ease-out),
-    transform var(--u-dur-fast) var(--u-ease-out);
-}
-:is(.\32 0ui, .sabcrm-twenty) .pm-card:hover {
-  box-shadow: var(--u-elev-2);
-}
-:is(.\32 0ui, .sabcrm-twenty) .pm-card:focus-visible {
-  outline: var(--u-focus-ring);
-  outline-offset: 2px;
-}
-:is(.\32 0ui, .sabcrm-twenty) .pm-card.is-dragging {
-  opacity: 0.5;
-  cursor: grabbing;
-}
-:is(.\32 0ui, .sabcrm-twenty) .pm-card__top {
+:is(.\32 0ui, .ui20) .pj-card__top {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: var(--st-space-2);
 }
-:is(.\32 0ui, .sabcrm-twenty) .pm-card__name {
+:is(.\32 0ui, .ui20) .pj-card__name {
   font-size: var(--st-font-size-sm);
   font-weight: var(--st-fw-semibold);
   color: var(--st-text);
   line-height: 1.35;
 }
-:is(.\32 0ui, .sabcrm-twenty) .pm-card__meta {
+:is(.\32 0ui, .ui20) .pj-card__meta {
   display: flex;
   flex-wrap: wrap;
   gap: var(--st-space-2);
 }
-:is(.\32 0ui, .sabcrm-twenty) .pm-card__chip {
+:is(.\32 0ui, .ui20) .pj-card__chip {
   display: inline-flex;
   align-items: center;
   gap: 4px;
   font-size: var(--st-font-size-xs);
   color: var(--st-text-secondary);
 }
-:is(.\32 0ui, .sabcrm-twenty) .pm-card__chip--over {
+:is(.\32 0ui, .ui20) .pj-card__chip--over {
   color: var(--st-danger);
 }
 
 /* ------------------------------------------------------------- Timeline --- */
 
-:is(.\32 0ui, .sabcrm-twenty) .pm-timeline {
+:is(.\32 0ui, .ui20) .pj-timeline {
   display: flex;
   flex-direction: column;
   gap: var(--st-space-4);
 }
-:is(.\32 0ui, .sabcrm-twenty) .pm-timeline__scroll {
+:is(.\32 0ui, .ui20) .pj-timeline__scroll {
   overflow-x: auto;
   border: 1px solid var(--st-border);
   border-radius: var(--st-radius-lg);
   background: var(--st-bg);
 }
-:is(.\32 0ui, .sabcrm-twenty) .pm-timeline__grid {
+:is(.\32 0ui, .ui20) .pj-timeline__grid {
   min-width: 640px;
 }
-:is(.\32 0ui, .sabcrm-twenty) .pm-timeline__axis,
-:is(.\32 0ui, .sabcrm-twenty) .pm-timeline__row {
+:is(.\32 0ui, .ui20) .pj-timeline__axis,
+:is(.\32 0ui, .ui20) .pj-timeline__row {
   display: grid;
   grid-template-columns: 200px 1fr;
   align-items: center;
 }
-:is(.\32 0ui, .sabcrm-twenty) .pm-timeline__axis {
+:is(.\32 0ui, .ui20) .pj-timeline__axis {
   position: sticky;
   top: 0;
   z-index: 1;
@@ -254,15 +187,15 @@
   background: var(--st-bg-secondary);
   height: 36px;
 }
-:is(.\32 0ui, .sabcrm-twenty) .pm-timeline__axis-label {
+:is(.\32 0ui, .ui20) .pj-timeline__axis-label {
   border-right: 1px solid var(--st-border);
   height: 100%;
 }
-:is(.\32 0ui, .sabcrm-twenty) .pm-timeline__axis-track {
+:is(.\32 0ui, .ui20) .pj-timeline__axis-track {
   position: relative;
   height: 100%;
 }
-:is(.\32 0ui, .sabcrm-twenty) .pm-timeline__month {
+:is(.\32 0ui, .ui20) .pj-timeline__month {
   position: absolute;
   top: 0;
   display: flex;
@@ -274,8 +207,8 @@
   border-left: 1px solid var(--st-border-light);
   white-space: nowrap;
 }
-:is(.\32 0ui, .sabcrm-twenty) .pm-timeline__today,
-:is(.\32 0ui, .sabcrm-twenty) .pm-timeline__today-line {
+:is(.\32 0ui, .ui20) .pj-timeline__today,
+:is(.\32 0ui, .ui20) .pj-timeline__today-line {
   position: absolute;
   top: 0;
   bottom: 0;
@@ -284,14 +217,14 @@
   opacity: 0.6;
   pointer-events: none;
 }
-:is(.\32 0ui, .sabcrm-twenty) .pm-timeline__row {
+:is(.\32 0ui, .ui20) .pj-timeline__row {
   border-bottom: 1px solid var(--st-border-light);
   min-height: 44px;
 }
-:is(.\32 0ui, .sabcrm-twenty) .pm-timeline__row:last-child {
+:is(.\32 0ui, .ui20) .pj-timeline__row:last-child {
   border-bottom: none;
 }
-:is(.\32 0ui, .sabcrm-twenty) .pm-timeline__row-label {
+:is(.\32 0ui, .ui20) .pj-timeline__row-label {
   display: flex;
   align-items: center;
   gap: var(--st-space-2);
@@ -306,19 +239,23 @@
   font-size: var(--st-font-size-sm);
   width: 100%;
 }
-:is(.\32 0ui, .sabcrm-twenty) .pm-timeline__row-label:hover {
+:is(.\32 0ui, .ui20) .pj-timeline__row-label:hover {
   background: var(--st-hover);
 }
-:is(.\32 0ui, .sabcrm-twenty) .pm-timeline__row-name {
+:is(.\32 0ui, .ui20) .pj-timeline__row-label:focus-visible {
+  outline: none;
+  box-shadow: inset var(--u-focus-ring);
+}
+:is(.\32 0ui, .ui20) .pj-timeline__row-name {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-:is(.\32 0ui, .sabcrm-twenty) .pm-timeline__row-track {
+:is(.\32 0ui, .ui20) .pj-timeline__row-track {
   position: relative;
   height: 100%;
 }
-:is(.\32 0ui, .sabcrm-twenty) .pm-timeline__bar {
+:is(.\32 0ui, .ui20) .pj-timeline__bar {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
@@ -329,20 +266,24 @@
   overflow: hidden;
   border: none;
   border-radius: var(--st-radius-sm);
-  background: color-mix(in srgb, var(--pm-tone) 22%, transparent);
+  background: color-mix(in srgb, var(--pj-tone) 22%, transparent);
   cursor: pointer;
   transition: filter var(--u-dur-fast) var(--u-ease-out);
 }
-:is(.\32 0ui, .sabcrm-twenty) .pm-timeline__bar:hover {
+:is(.\32 0ui, .ui20) .pj-timeline__bar:hover {
   filter: brightness(0.97);
 }
-:is(.\32 0ui, .sabcrm-twenty) .pm-timeline__bar-fill {
+:is(.\32 0ui, .ui20) .pj-timeline__bar:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}
+:is(.\32 0ui, .ui20) .pj-timeline__bar-fill {
   position: absolute;
   inset: 0 auto 0 0;
-  background: var(--pm-tone);
+  background: var(--pj-tone);
   opacity: 0.85;
 }
-:is(.\32 0ui, .sabcrm-twenty) .pm-timeline__bar-label {
+:is(.\32 0ui, .ui20) .pj-timeline__bar-label {
   position: relative;
   z-index: 1;
   padding: 0 8px;
@@ -353,12 +294,12 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
-:is(.\32 0ui, .sabcrm-twenty) .pm-timeline__unscheduled {
+:is(.\32 0ui, .ui20) .pj-timeline__unscheduled {
   display: flex;
   flex-direction: column;
   gap: var(--st-space-2);
 }
-:is(.\32 0ui, .sabcrm-twenty) .pm-timeline__unscheduled-title {
+:is(.\32 0ui, .ui20) .pj-timeline__unscheduled-title {
   margin: 0;
   font-size: var(--st-font-size-xs);
   font-weight: var(--st-fw-semibold);
@@ -366,12 +307,12 @@
   letter-spacing: 0.04em;
   color: var(--st-text-tertiary);
 }
-:is(.\32 0ui, .sabcrm-twenty) .pm-timeline__unscheduled-list {
+:is(.\32 0ui, .ui20) .pj-timeline__unscheduled-list {
   display: flex;
   flex-wrap: wrap;
   gap: var(--st-space-2);
 }
-:is(.\32 0ui, .sabcrm-twenty) .pm-timeline__unscheduled-chip {
+:is(.\32 0ui, .ui20) .pj-timeline__unscheduled-chip {
   border: none;
   background: transparent;
   padding: 0;
@@ -380,36 +321,36 @@
 
 /* --------------------------------------------------------------- Detail --- */
 
-:is(.\32 0ui, .sabcrm-twenty) .pm-detail__badges {
+:is(.\32 0ui, .ui20) .pj-detail__badges {
   display: flex;
   flex-wrap: wrap;
   gap: var(--st-space-2);
   margin-top: var(--st-space-2);
 }
-:is(.\32 0ui, .sabcrm-twenty) .pm-detail__body {
+:is(.\32 0ui, .ui20) .pj-detail__body {
   display: flex;
   flex-direction: column;
   gap: var(--st-space-3);
   padding: var(--st-space-4);
   overflow-y: auto;
 }
-:is(.\32 0ui, .sabcrm-twenty) .pm-detail__progress {
+:is(.\32 0ui, .ui20) .pj-detail__progress {
   display: flex;
   flex-direction: column;
   gap: var(--st-space-2);
 }
-:is(.\32 0ui, .sabcrm-twenty) .pm-detail__progress-head {
+:is(.\32 0ui, .ui20) .pj-detail__progress-head {
   display: flex;
   justify-content: space-between;
   font-size: var(--st-font-size-sm);
   color: var(--st-text-secondary);
 }
-:is(.\32 0ui, .sabcrm-twenty) .pm-detail__progress-pct {
+:is(.\32 0ui, .ui20) .pj-detail__progress-pct {
   font-variant-numeric: tabular-nums;
   font-weight: var(--st-fw-semibold);
   color: var(--st-text);
 }
-:is(.\32 0ui, .sabcrm-twenty) .pm-detail__row {
+:is(.\32 0ui, .ui20) .pj-detail__row {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -417,24 +358,24 @@
   padding-bottom: var(--st-space-2);
   border-bottom: 1px solid var(--st-border-light);
 }
-:is(.\32 0ui, .sabcrm-twenty) .pm-detail__label {
+:is(.\32 0ui, .ui20) .pj-detail__label {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   font-size: var(--st-font-size-sm);
   color: var(--st-text-tertiary);
 }
-:is(.\32 0ui, .sabcrm-twenty) .pm-detail__value {
+:is(.\32 0ui, .ui20) .pj-detail__value {
   font-size: var(--st-font-size-sm);
   color: var(--st-text);
   text-align: right;
 }
-:is(.\32 0ui, .sabcrm-twenty) .pm-detail__desc {
+:is(.\32 0ui, .ui20) .pj-detail__desc {
   display: flex;
   flex-direction: column;
   gap: var(--st-space-2);
 }
-:is(.\32 0ui, .sabcrm-twenty) .pm-detail__desc p {
+:is(.\32 0ui, .ui20) .pj-detail__desc p {
   margin: 0;
   font-size: var(--st-font-size-sm);
   line-height: 1.6;
@@ -444,24 +385,30 @@
 
 /* ----------------------------------------------------------------- Form --- */
 
-:is(.\32 0ui, .sabcrm-twenty) .pm-form {
+:is(.\32 0ui, .ui20) .pj-form {
   display: flex;
   flex-direction: column;
   gap: var(--st-space-3);
 }
-:is(.\32 0ui, .sabcrm-twenty) .pm-form__row {
+:is(.\32 0ui, .ui20) .pj-form__row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--st-space-3);
 }
-:is(.\32 0ui, .sabcrm-twenty) .pm-form__error {
+:is(.\32 0ui, .ui20) .pj-form__error {
   margin: 0;
   color: var(--st-danger);
   font-size: var(--st-font-size-sm);
 }
 
 @media (max-width: 640px) {
-  :is(.\32 0ui, .sabcrm-twenty) .pm-form__row {
+  :is(.\32 0ui, .ui20) .pj-form__row {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :is(.\32 0ui, .ui20) .pj-timeline__bar {
+    transition: none;
   }
 }

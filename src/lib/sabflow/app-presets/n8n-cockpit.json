@@ -4,8 +4,8 @@
   "description": "Consume Cockpit API",
   "category": "productivity",
   "iconName": "LuPackage",
-  "version": 4,
-  "lastVerified": "2026-06-11",
+  "version": 5,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "header",
@@ -17,7 +17,7 @@
       "id": "collection_create",
       "label": "Create an Entry Collection",
       "method": "POST",
-      "path": "/collection",
+      "path": "/collections/save/{collection}",
       "fields": [
         {
           "id": "host",
@@ -32,7 +32,8 @@
           "label": "Collection Name or ID",
           "type": "select",
           "required": true,
-          "description": "Name of the collection to operate on. Choose from the list, or specify an ID using an expression."
+          "description": "Name of the collection to operate on. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
         },
         {
           "id": "jsonDataFields",
@@ -55,13 +56,13 @@
         }
       ],
       "group": "Collection",
-      "description": "[unverified path] Create a collection entry"
+      "description": "Create a collection entry"
     },
     {
       "id": "collection_get_all",
       "label": "Get Many Entries Collection",
-      "method": "GET",
-      "path": "/collection",
+      "method": "POST",
+      "path": "/collections/get/{collection}",
       "fields": [
         {
           "id": "host",
@@ -76,7 +77,8 @@
           "label": "Collection Name or ID",
           "type": "select",
           "required": true,
-          "description": "Name of the collection to operate on. Choose from the list, or specify an ID using an expression."
+          "description": "Name of the collection to operate on. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
         },
         {
           "id": "returnAll",
@@ -101,13 +103,13 @@
         }
       ],
       "group": "Collection",
-      "description": "[unverified path] Get many collection entries"
+      "description": "Get many collection entries"
     },
     {
       "id": "collection_update",
       "label": "Update an Entry Collection",
-      "method": "PATCH",
-      "path": "/collection",
+      "method": "POST",
+      "path": "/collections/save/{collection}",
       "fields": [
         {
           "id": "host",
@@ -122,7 +124,8 @@
           "label": "Collection Name or ID",
           "type": "select",
           "required": true,
-          "description": "Name of the collection to operate on. Choose from the list, or specify an ID using an expression."
+          "description": "Name of the collection to operate on. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
         },
         {
           "id": "id",
@@ -151,13 +154,13 @@
         }
       ],
       "group": "Collection",
-      "description": "[unverified path] Update a collection entry"
+      "description": "Update a collection entry"
     },
     {
       "id": "form_submit",
       "label": "Submit a Form Form",
       "method": "POST",
-      "path": "/form",
+      "path": "/forms/submit/{form}",
       "fields": [
         {
           "id": "host",
@@ -172,7 +175,8 @@
           "label": "Form",
           "type": "text",
           "required": true,
-          "description": "Name of the form to operate on"
+          "description": "Name of the form to operate on",
+          "in": "path"
         },
         {
           "id": "jsonDataFields",
@@ -195,13 +199,13 @@
         }
       ],
       "group": "Form",
-      "description": "[unverified path] Store data from a form submission"
+      "description": "Store data from a form submission"
     },
     {
       "id": "singleton_get",
       "label": "Get Singleton",
       "method": "GET",
-      "path": "/singleton",
+      "path": "/singletons/get/{singleton}",
       "fields": [
         {
           "id": "host",
@@ -216,11 +220,12 @@
           "label": "Singleton Name or ID",
           "type": "select",
           "required": true,
-          "description": "Name of the singleton to operate on. Choose from the list, or specify an ID using an expression."
+          "description": "Name of the singleton to operate on. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
         }
       ],
       "group": "Singleton",
-      "description": "[unverified path] Get a singleton"
+      "description": "Get a singleton"
     }
   ]
 }

@@ -4,8 +4,8 @@
   "description": "Retrieve data from GitLab API",
   "category": "dev",
   "iconName": "LuPackage",
-  "version": 11,
-  "lastVerified": "2026-06-11",
+  "version": 12,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -566,7 +566,7 @@
       "id": "file_create",
       "label": "Create File",
       "method": "POST",
-      "path": "/{baseEndpoint}/repository/files/{encodeURIComponent_filePath_}",
+      "path": "/projects/{owner}%2F{repository}/repository/files/{filePath}",
       "fields": [
         {
           "id": "owner",
@@ -574,7 +574,8 @@
           "type": "text",
           "required": true,
           "placeholder": "n8n-io",
-          "description": "User, group or namespace of the project"
+          "description": "User, group or namespace of the project",
+          "in": "path"
         },
         {
           "id": "repository",
@@ -582,14 +583,16 @@
           "type": "text",
           "required": true,
           "placeholder": "n8n",
-          "description": "The name of the project"
+          "description": "The name of the project",
+          "in": "path"
         },
         {
           "id": "filePath",
           "label": "File Path",
           "type": "text",
           "placeholder": "docs/README.md",
-          "description": "The file path of the file. Has to contain the full path or leave it empty for root folder."
+          "description": "The file path of the file. Has to contain the full path or leave it empty for root folder.",
+          "in": "path"
         },
         {
           "id": "binaryData",
@@ -635,13 +638,13 @@
         }
       ],
       "group": "File",
-      "description": "[unverified path] Create a new file in repository"
+      "description": "Create a new file in repository"
     },
     {
       "id": "file_delete",
       "label": "Delete File",
       "method": "DELETE",
-      "path": "/{baseEndpoint}/repository/files/{encodeURIComponent_filePath_}",
+      "path": "/projects/{owner}%2F{repository}/repository/files/{filePath}",
       "fields": [
         {
           "id": "owner",
@@ -649,7 +652,8 @@
           "type": "text",
           "required": true,
           "placeholder": "n8n-io",
-          "description": "User, group or namespace of the project"
+          "description": "User, group or namespace of the project",
+          "in": "path"
         },
         {
           "id": "repository",
@@ -657,14 +661,16 @@
           "type": "text",
           "required": true,
           "placeholder": "n8n",
-          "description": "The name of the project"
+          "description": "The name of the project",
+          "in": "path"
         },
         {
           "id": "filePath",
           "label": "File Path",
           "type": "text",
           "placeholder": "docs/README.md",
-          "description": "The file path of the file. Has to contain the full path or leave it empty for root folder."
+          "description": "The file path of the file. Has to contain the full path or leave it empty for root folder.",
+          "in": "path"
         },
         {
           "id": "commitMessage",
@@ -688,13 +694,13 @@
         }
       ],
       "group": "File",
-      "description": "[unverified path] Delete a file in repository"
+      "description": "Delete a file in repository"
     },
     {
       "id": "file_edit",
       "label": "Edit File",
-      "method": "PATCH",
-      "path": "/file",
+      "method": "PUT",
+      "path": "/projects/{owner}%2F{repository}/repository/files/{filePath}",
       "fields": [
         {
           "id": "owner",
@@ -702,7 +708,8 @@
           "type": "text",
           "required": true,
           "placeholder": "n8n-io",
-          "description": "User, group or namespace of the project"
+          "description": "User, group or namespace of the project",
+          "in": "path"
         },
         {
           "id": "repository",
@@ -710,14 +717,16 @@
           "type": "text",
           "required": true,
           "placeholder": "n8n",
-          "description": "The name of the project"
+          "description": "The name of the project",
+          "in": "path"
         },
         {
           "id": "filePath",
           "label": "File Path",
           "type": "text",
           "placeholder": "docs/README.md",
-          "description": "The file path of the file. Has to contain the full path or leave it empty for root folder."
+          "description": "The file path of the file. Has to contain the full path or leave it empty for root folder.",
+          "in": "path"
         },
         {
           "id": "binaryData",
@@ -763,13 +772,13 @@
         }
       ],
       "group": "File",
-      "description": "[unverified path] Edit a file in repository"
+      "description": "Edit a file in repository"
     },
     {
       "id": "file_get",
       "label": "Get File",
       "method": "GET",
-      "path": "/{baseEndpoint}/repository/files/{encodeURIComponent_filePath_}",
+      "path": "/projects/{owner}%2F{repository}/repository/files/{filePath}",
       "fields": [
         {
           "id": "owner",
@@ -777,7 +786,8 @@
           "type": "text",
           "required": true,
           "placeholder": "n8n-io",
-          "description": "User, group or namespace of the project"
+          "description": "User, group or namespace of the project",
+          "in": "path"
         },
         {
           "id": "repository",
@@ -785,14 +795,16 @@
           "type": "text",
           "required": true,
           "placeholder": "n8n",
-          "description": "The name of the project"
+          "description": "The name of the project",
+          "in": "path"
         },
         {
           "id": "filePath",
           "label": "File Path",
           "type": "text",
           "placeholder": "docs/README.md",
-          "description": "The file path of the file. Has to contain the full path or leave it empty for root folder."
+          "description": "The file path of the file. Has to contain the full path or leave it empty for root folder.",
+          "in": "path"
         },
         {
           "id": "asBinaryProperty",
@@ -817,7 +829,7 @@
         }
       ],
       "group": "File",
-      "description": "[unverified path] Get the data of a single file"
+      "description": "Get the data of a single file"
     },
     {
       "id": "file_list",

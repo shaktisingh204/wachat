@@ -1,0 +1,53 @@
+# SabCRM — axum router for the **sequences** (cadences) HTTP surface.
+#
+# HubSpot/Close-style sequences: an ordered list of email / task / wait steps
+# a record is enrolled into. Two Mongo collections:
+#
+#   - `sabcrm_sequences`            — sequence definitions (steps + settings)
+#   - `sabcrm_sequence_enrollments` — per-record enrollment state machines
+#
+# Execution (popping due enrollments and running their steps) lives in the
+# TS scheduler tick (`src/lib/sabcrm/scheduler.ts`, `/api/cron/sabcrm-workflows`);
+# this crate is the definition + enrollment lifecycle surface. Tenancy is by
+# `projectId` (a query/body string), not `userId`.
+#
+# Mirrors `rust/crates/sabcrm-approvals`. Mounted under
+# `/v1/sabcrm/sequences` from the orchestrating `api` crate.
+[package]
+name = "sabcrm-sequences"
+version = "0.1.0"
+edition = "2024"
+description = "Axum router that mounts the SabCRM sequences (cadences) HTTP surface (`/v1/sabcrm/sequences/*`). Per-project sequence definitions + enrollments scoped by `projectId`."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "sabcrm_sequences"
+path = "src/lib.rs"
+
+[dependencies]
+axum = { version = "0.8", default-features = false, features = ["json", "http1", "tokio", "macros", "query"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+bson = { version = "2", features = ["chrono-0_4"] }
+
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+
+mongodb = "3"
+futures = "0.3"
+
+tracing = "0.1"
+
+anyhow = "1"
+
+utoipa = { version = "5", features = ["axum_extras", "chrono"] }
+
+sabnode-common = { path = "../common" }
+sabnode-auth = { path = "../auth" }
+sabnode-db = { path = "../db" }
+
+[lints]
+workspace = true

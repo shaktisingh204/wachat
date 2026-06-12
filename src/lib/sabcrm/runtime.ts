@@ -62,7 +62,11 @@ import {
   sabcrmRecordsApi,
   type SabcrmRecordFilters,
 } from '@/lib/rust-client/sabcrm-records';
+import { sabcrmTagsApi } from '@/lib/rust-client/sabcrm-tags';
+import { templatesApi } from '@/lib/rust-client/templates';
 import { rustFetch } from '@/lib/rust-client/fetcher';
+import { sabcrmRoutingApi } from '@/lib/rust-client/sabcrm-routing';
+import { unenrollSabcrmSequencesForRecord } from '@/lib/sabcrm/sequences.server';
 
 // ---------------------------------------------------------------------------
 // Audit
@@ -281,16 +285,39 @@ function toNum(v: unknown): number {
   return NaN;
 }
 
+/** Loose equality used by membership-style operators (`field_in` / `in_stage`). */
+function looseEq(a: unknown, b: unknown): boolean {
+  return a === b || String(a ?? '') === String(b ?? '');
+}
+
+/** Coerce the RHS of a membership operator into an array (CSV strings split). */
+function toArray(v: unknown): unknown[] {
+  if (Array.isArray(v)) return v;
+  if (typeof v === 'string') return v.split(',').map((s) => s.trim()).filter(Boolean);
+  return v === undefined || v === null ? [] : [v];
+}
+
 /**
  * Evaluate one `{ field, operator, value }` condition against `ctx`. The
  * `field` is a dotted context path (any of the `trigger` / `record` / `steps`
  * roots, falling back to a bare `trigger.*` lookup). Unknown operators are
  * treated as a non-match (`false`).
+ *
+ * Legacy-CRM condition vocabulary is supported as operator aliases:
+ * `field_equals` → `eq`, `field_in` → `in` (RHS array / CSV), and
+ * `in_stage` (compares the record's stage field — `trigger.stage` when no
+ * explicit `field` is configured — against one or more stage ids). The
+ * IO-needing `has_tag` is handled upstream in {@link runResolvedStep}.
  */
 function evalCondition(cond: StepCondition | undefined, ctx: WorkflowContext): boolean {
-  if (!cond || !cond.field) return true;
+  if (!cond || (!cond.field && cond.operator !== 'in_stage' && cond.operator !== 'inStage')) {
+    return true;
+  }
   // Allow bare field names (no root) to read off the trigger payload.
-  const path = cond.field;
+  // `in_stage` defaults its field to the board's stage field (`trigger.stage`).
+  const path =
+    cond.field ||
+    ((cond.operator === 'in_stage' || cond.operator === 'inStage') ? 'trigger.stage' : '');
   const left =
     path.startsWith('trigger') || path.startsWith('record') || path.startsWith('steps')
       ? evalToken(path, ctx)
@@ -300,11 +327,20 @@ function evalCondition(cond: StepCondition | undefined, ctx: WorkflowContext): b
     case 'eq':
     case '==':
     case 'equals':
-      return left === right || String(left ?? '') === String(right ?? '');
+    case 'field_equals': // legacy-CRM alias
+      return looseEq(left, right);
     case 'ne':
     case '!=':
     case 'notEquals':
-      return !(left === right || String(left ?? '') === String(right ?? ''));
+      return !looseEq(left, right);
+    case 'in':
+    case 'field_in': // legacy-CRM alias
+    case 'in_stage': // legacy-CRM: stage ∈ value(s); scalar RHS allowed
+    case 'inStage':
+      return toArray(right).some((v) => looseEq(left, v));
+    case 'notIn':
+    case 'nin':
+      return !toArray(right).some((v) => looseEq(left, v));
     case 'contains':
       return String(left ?? '').includes(String(right ?? ''));
     case 'notContains':
@@ -333,12 +369,65 @@ function evalCondition(cond: StepCondition | undefined, ctx: WorkflowContext): b
 /** Read a `{ field, operator, value }` condition off a resolved config. */
 function readCondition(config: Record<string, unknown>): StepCondition | undefined {
   const field = config.field;
-  if (typeof field !== 'string' || !field) return undefined;
-  return {
-    field,
-    operator: typeof config.operator === 'string' ? config.operator : 'eq',
-    value: config.value,
-  };
+  const operator = typeof config.operator === 'string' ? config.operator : 'eq';
+  if (typeof field !== 'string' || !field) {
+    // Field-less conditions are allowed for the operators that carry their
+    // own default subject (`in_stage` → the stage field, `has_tag` → the
+    // triggering record's tags).
+    if (
+      operator === 'in_stage' ||
+      operator === 'inStage' ||
+      operator === 'has_tag' ||
+      operator === 'hasTag' ||
+      operator === 'not_has_tag'
+    ) {
+      return { field: '', operator, value: config.value };
+    }
+    return undefined;
+  }
+  return { field, operator, value: config.value };
+}
+
+/** Record coordinates needed by IO-backed condition operators (`has_tag`). */
+interface ConditionIo {
+  projectId: string;
+  object: string;
+  recordId: string;
+}
+
+/**
+ * Evaluate a condition, including the IO-needing legacy operators. `has_tag`
+ * (and `not_has_tag`) read the triggering record's tag assignments from the
+ * sabcrm-tags engine and match `value` (tag name or id; array / CSV allowed,
+ * names case-insensitive). Everything else delegates to the synchronous
+ * {@link evalCondition}. Best-effort: a failed tag lookup evaluates `has_tag`
+ * to `false` (and `not_has_tag` to `true`) rather than throwing.
+ */
+async function evalConditionWithIo(
+  cond: StepCondition | undefined,
+  ctx: WorkflowContext,
+  io: ConditionIo,
+): Promise<boolean> {
+  if (!cond) return true;
+  const op = cond.operator;
+  if (op === 'has_tag' || op === 'hasTag' || op === 'not_has_tag') {
+    let matched = false;
+    try {
+      if (io.recordId) {
+        const tags = await sabcrmTagsApi.forRecord(io.projectId, io.object, io.recordId);
+        const wanted = toArray(cond.value).map((v) => String(v ?? '').toLowerCase());
+        matched = tags.some(
+          (t) =>
+            wanted.includes(String(t.name ?? '').toLowerCase()) ||
+            wanted.includes(String(t.id ?? '').toLowerCase()),
+        );
+      }
+    } catch {
+      matched = false; // best-effort: unreadable tags → no match
+    }
+    return op === 'not_has_tag' ? !matched : matched;
+  }
+  return evalCondition(cond, ctx);
 }
 
 // ---------------------------------------------------------------------------
@@ -459,6 +548,43 @@ async function runStep(
         return { status: 'success', output: { status: res.status } };
       }
 
+      case 'send_whatsapp_template': {
+        // Ported from the legacy CRM's `send_whatsapp_template` action — a
+        // REAL send through the existing WaChat surface
+        // (`POST /v1/wachat/templates/{id}/send`, crate `wachat-templates`).
+        // Config (all strings pre-resolved through the `{{ }}` engine):
+        //   templateId — WaChat template id (required)
+        //   to         — recipient phone (required; e.g. `{{trigger.phone}}`)
+        //   variables  — { named } map of template variables (optional)
+        //   mediaId    — WhatsApp media handle for the header (optional)
+        const templateId = cfgStr(config, 'templateId');
+        const to = cfgStr(config, 'to') ?? cfgStr(config, 'recipientPhone') ?? cfgStr(config, 'phone');
+        if (!templateId) {
+          return { status: 'failed', error: 'send_whatsapp_template: missing templateId' };
+        }
+        if (!to) {
+          return {
+            status: 'failed',
+            error:
+              'send_whatsapp_template: missing recipient — set `to` (e.g. {{trigger.phone}})',
+          };
+        }
+        const named: Record<string, string> = {};
+        const rawVars = config.variables;
+        if (rawVars && typeof rawVars === 'object' && !Array.isArray(rawVars)) {
+          for (const [k, v] of Object.entries(rawVars as Record<string, unknown>)) {
+            if (v === undefined || v === null) continue;
+            named[k] = typeof v === 'string' ? v : String(v);
+          }
+        }
+        const out = await templatesApi.send(templateId, {
+          recipientPhone: to,
+          variables: { named },
+          mediaId: cfgStr(config, 'mediaId'),
+        });
+        return { status: 'success', output: { wamid: out.wamid, to } };
+      }
+
       // --- record queries --------------------------------------------------
       // (FILTER / IF_ELSE are evaluated upstream in runResolvedStep, which has
       //  the running context; they never reach this dispatch.)
@@ -557,13 +683,21 @@ async function runResolvedStep(
 
   // Gate actions are evaluated inline because they read the running context.
   if (type === 'filter') {
-    const pass = evalCondition(readCondition(config), ctx);
+    const pass = await evalConditionWithIo(readCondition(config), ctx, {
+      projectId,
+      object,
+      recordId,
+    });
     return pass
       ? { status: 'success', output: { passed: true } }
       : { status: 'skipped', output: { passed: false }, gateClosed: true };
   }
   if (type === 'if_else' || type === 'ifelse') {
-    const pass = evalCondition(readCondition(config), ctx);
+    const pass = await evalConditionWithIo(readCondition(config), ctx, {
+      projectId,
+      object,
+      recordId,
+    });
     // Branch by skipping the rest when the condition is false (the "else" of a
     // linear pipeline is "stop"). The taken branch simply continues.
     return pass
@@ -625,17 +759,72 @@ async function runWorkflowSteps(
   return { stepsRun, stepsFailed, recorded };
 }
 
+/**
+ * A field-change descriptor accompanying `record.stage_changed` /
+ * `record.status_changed` events: which field flipped, and its old / new
+ * values (read from the pre-update snapshot and the applied patch).
+ */
+export interface WorkflowFieldChange {
+  /** The `data.<key>` that changed (e.g. `stage` / `status`). */
+  field: string;
+  fromValue?: unknown;
+  toValue?: unknown;
+}
+
 /** Build a fresh execution context from the trigger payload + record id. */
 function buildContext(
   recordId: string,
   data: Record<string, unknown>,
+  change?: WorkflowFieldChange,
 ): WorkflowContext {
-  const trigger = data ?? {};
+  const trigger: Record<string, unknown> = {
+    ...(data ?? {}),
+    // Expose the change descriptor to `{{ }}` authors on *_changed events:
+    // {{trigger.changedField}} / {{trigger.fromValue}} / {{trigger.toValue}}.
+    ...(change
+      ? {
+          changedField: change.field,
+          fromValue: change.fromValue,
+          toValue: change.toValue,
+        }
+      : {}),
+  };
   return {
     trigger,
     record: { id: recordId, ...trigger },
     steps: {},
   };
+}
+
+/** Loose equality for trigger-level from/to filters (ids vs labels etc.). */
+function changeEq(a: unknown, b: unknown): boolean {
+  return a === b || String(a ?? '') === String(b ?? '');
+}
+
+/**
+ * Does a `*_changed` workflow's trigger accept this concrete field change?
+ * The trigger may narrow on (all optional, flattened extras on the trigger):
+ * - `field`     — only fire when THIS field changed (defaults to the event's
+ *                 conventional field upstream, so it usually matches);
+ * - `fromValue` (alias `from`) — only when the old value matches;
+ * - `toValue`   (alias `to`)   — only when the new value matches.
+ */
+function triggerAcceptsChange(
+  trigger: Record<string, unknown> | undefined,
+  change: WorkflowFieldChange,
+): boolean {
+  if (!trigger) return true;
+  const watched = trigger.field;
+  if (typeof watched === 'string' && watched && watched !== change.field) return false;
+  const from = trigger.fromValue ?? trigger.from;
+  if (from !== undefined && from !== null && from !== '' && !changeEq(from, change.fromValue)) {
+    return false;
+  }
+  const to = trigger.toValue ?? trigger.to;
+  if (to !== undefined && to !== null && to !== '' && !changeEq(to, change.toValue)) {
+    return false;
+  }
+  return true;
 }
 
 // ---------------------------------------------------------------------------
@@ -756,23 +945,50 @@ export async function runWorkflowsForEvent(
   recordId: string,
   data: Record<string, unknown>,
   actorId?: string,
+  /**
+   * For `record.stage_changed` / `record.status_changed` events: the concrete
+   * field change. Workflows may narrow on it via trigger extras
+   * (`field` / `fromValue` / `toValue`) — see {@link triggerAcceptsChange}.
+   */
+  change?: WorkflowFieldChange,
 ): Promise<WorkflowRunSummary> {
   const summary: WorkflowRunSummary = {
     workflowsRun: 0,
     stepsRun: 0,
     stepsFailed: 0,
   };
+  // Routing BEFORE workflows on record.created: the assignment rules engine
+  // (crate `sabcrm-routing`) applies the first matching active rule and
+  // writes `data.<assignField>` onto the record server-side. The local
+  // `data` view is patched too so the assignment is visible to this very
+  // run's workflow conditions ({{trigger.owner}} etc.). Best-effort — a
+  // downed engine or no matching rule never blocks the workflows.
+  if (event === 'record.created' && recordId) {
+    try {
+      const routed = await sabcrmRoutingApi.evaluate(projectId, {
+        objectSlug: object,
+        recordId,
+        trigger: 'record.created',
+      });
+      if (routed.matched && routed.assignee && routed.assignField) {
+        data = { ...(data ?? {}), [routed.assignField]: routed.assignee };
+      }
+    } catch {
+      // best-effort: never throw
+    }
+  }
   try {
     const workflows = await sabcrmWorkflowsApi.list(projectId);
     const matched = workflows.filter(
       (w) =>
         w.enabled &&
         w.trigger?.event === event &&
-        w.trigger?.object === object,
+        w.trigger?.object === object &&
+        (!change || triggerAcceptsChange(w.trigger, change)),
     );
     for (const wf of matched) {
       // Each workflow gets a fresh context (independent step namespaces).
-      const ctx = buildContext(recordId, data ?? {});
+      const ctx = buildContext(recordId, data ?? {}, change);
       const { stepsRun, stepsFailed } = await runWorkflowWithRecording(
         projectId,
         wf,
@@ -784,6 +1000,95 @@ export async function runWorkflowsForEvent(
       summary.workflowsRun += 1;
       summary.stepsRun += stepsRun;
       summary.stepsFailed += stepsFailed;
+    }
+  } catch {
+    // best-effort: never throw
+  }
+  return summary;
+}
+
+/**
+ * The conventional stage-bearing field on board/pipeline records — matches the
+ * pipelines engine's `BoardQuery.stage_field` default (`"stage"`).
+ */
+const STAGE_FIELD = 'stage';
+/** The conventional status field (a SELECT field, distinct from `stage`). */
+const STATUS_FIELD = 'status';
+
+/** Does this record-update patch touch a field watched by a change event? */
+export function patchTouchesChangeFields(patch: Record<string, unknown>): boolean {
+  if (!patch) return false;
+  return (
+    Object.prototype.hasOwnProperty.call(patch, STAGE_FIELD) ||
+    Object.prototype.hasOwnProperty.call(patch, STATUS_FIELD)
+  );
+}
+
+/**
+ * Fire `record.stage_changed` / `record.status_changed` workflows for a record
+ * update, given the record's pre-update `data` snapshot and the applied patch.
+ *
+ * Ported from the legacy CRM's `stage_changed` / `status_changed` triggers
+ * (see `src/lib/automations/dispatch.ts` + `evaluate.ts`): the event fires only
+ * when the watched field's value actually CHANGED (old vs new differ), and the
+ * matched workflows may further narrow on `fromValue` / `toValue` trigger
+ * extras. In SabCRM the two are distinct record fields — `stage` carries the
+ * pipeline/board position (pipelines `stage_field` default), `status` is a
+ * regular SELECT field — so both events are real, not aliases.
+ *
+ * Call after a successful record update, alongside the `record.updated` run.
+ * Best-effort — never throws; returns the merged run summary.
+ */
+export async function runRecordChangeWorkflows(
+  projectId: string,
+  object: string,
+  recordId: string,
+  before: Record<string, unknown> | undefined,
+  patch: Record<string, unknown>,
+  actorId?: string,
+): Promise<WorkflowRunSummary> {
+  const summary: WorkflowRunSummary = { workflowsRun: 0, stepsRun: 0, stepsFailed: 0 };
+  try {
+    if (!patch) return summary;
+    // The post-update data view: pre-update snapshot overlaid with the patch.
+    const after = { ...(before ?? {}), ...patch };
+    const events: Array<{ event: SabcrmWorkflowEvent; field: string }> = [
+      { event: 'record.stage_changed', field: STAGE_FIELD },
+      { event: 'record.status_changed', field: STATUS_FIELD },
+    ];
+    for (const { event, field } of events) {
+      if (!Object.prototype.hasOwnProperty.call(patch, field)) continue;
+      const fromValue = before?.[field];
+      const toValue = patch[field];
+      // No-op writes (same value re-saved) must not fire the event. When the
+      // pre-update snapshot is unavailable, err on firing (legacy parity:
+      // the dispatcher fired on the emitter's word).
+      if (before && changeEq(fromValue, toValue)) continue;
+      // Stage changes also auto-unenroll the record from sequences whose
+      // settings ask for it (`settings.unenrollOnStageChange`, crate
+      // `sabcrm-sequences`). Best-effort; runs before the workflows so a
+      // workflow can observe the already-stopped cadence.
+      if (event === 'record.stage_changed') {
+        await unenrollSabcrmSequencesForRecord(
+          projectId,
+          object,
+          recordId,
+          'stage_changed',
+          { fromValue, toValue },
+        );
+      }
+      const res = await runWorkflowsForEvent(
+        projectId,
+        event,
+        object,
+        recordId,
+        after,
+        actorId,
+        { field, fromValue, toValue },
+      );
+      summary.workflowsRun += res.workflowsRun;
+      summary.stepsRun += res.stepsRun;
+      summary.stepsFailed += res.stepsFailed;
     }
   } catch {
     // best-effort: never throw

@@ -33,7 +33,7 @@ use tracing::instrument;
 use crate::dto::{
     BoardQuery, BoardResponse, BoardStage, CreatePipelineInput, ListQuery, ListResponse,
     MoveRecordInput, MoveRecordResponse, OkResponse, PipelineResponse, ReorderStagesInput,
-    ScopeQuery, UpdatePipelineInput,
+    ScopeQuery, StageGovernance, UpdatePipelineInput,
 };
 
 /// The Mongo collection backing sales pipelines.
@@ -459,6 +459,7 @@ pub async fn get_board(
         let (count, amount) = by_stage.remove(&stage_id).unwrap_or((0, 0.0));
         total_count += count;
         total_amount += amount;
+        let governance = StageGovernance::from_stage(&stage);
         stages.push(BoardStage {
             id: stage_id,
             label: stage
@@ -472,6 +473,11 @@ pub async fn get_board(
             position,
             count,
             amount,
+            required_fields: governance.required_fields,
+            requires_approval: governance.requires_approval,
+            rotting_days: governance.rotting_days,
+            kind: governance.kind,
+            probability: governance.probability,
         });
     }
 
@@ -490,6 +496,11 @@ pub async fn get_board(
         position: stages.len(),
         count: unassigned_count,
         amount: unassigned_amount,
+        required_fields: Vec::new(),
+        requires_approval: false,
+        rotting_days: None,
+        kind: None,
+        probability: None,
     };
 
     Ok(Json(BoardResponse {

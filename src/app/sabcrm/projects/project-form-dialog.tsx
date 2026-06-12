@@ -142,7 +142,7 @@ export function ProjectFormDialog({
         </>
       }
     >
-      <div className="pm-form">
+      <div className="pj-form">
         <Field label="Project name" required>
           <Input
             value={name}
@@ -152,7 +152,7 @@ export function ProjectFormDialog({
           />
         </Field>
 
-        <div className="pm-form__row">
+        <div className="pj-form__row">
           <Field label="Status">
             <SelectField value={status} onChange={(v) => setStatus(v ?? DEFAULT_PROJECT_STATUS)} options={STATUS_OPTS} />
           </Field>
@@ -165,7 +165,7 @@ export function ProjectFormDialog({
           </Field>
         </div>
 
-        <div className="pm-form__row">
+        <div className="pj-form__row">
           <Field label="Start date">
             <DatePicker value={startDate} onChange={setStartDate} placeholder="Pick a date" />
           </Field>
@@ -174,7 +174,7 @@ export function ProjectFormDialog({
           </Field>
         </div>
 
-        <div className="pm-form__row">
+        <div className="pj-form__row">
           <Field label="Progress" help="0–100">
             <Input
               type="number"
@@ -212,7 +212,7 @@ export function ProjectFormDialog({
         </Field>
 
         {error ? (
-          <p className="pm-form__error" role="alert">
+          <p className="pj-form__error" role="alert">
             {error}
           </p>
         ) : null}

@@ -1,30 +1,26 @@
 'use client';
 
 /**
- * SabCRM — AI Assistant surface (`/sabcrm/ai`), Twenty-faithful.
+ * SabCRM — AI Assistant surface (`/sabcrm/ai`), 20ui.
  *
- * A chat UI rendered in Twenty's visual language (`.st-*` classes + the
- * `@/components/sabcrm/twenty` kit + the sibling `./ai.css` — NO Ui20 /
- * Tailwind / clay). It posts the running transcript to `/api/sabcrm/ai` (the
- * existing, gated AI backend route — there is no AI server action in
+ * A chat UI on the 20ui design system (`@/components/sabcrm/20ui` components +
+ * the `Markdown` composite + the sibling `./ai.css` for page-local `.ai-*`
+ * layout). It posts the running transcript to `/api/sabcrm/ai` (the existing,
+ * gated AI backend route — there is no AI server action in
  * `sabcrm*.actions.ts`, this dedicated route IS the backend) and streams the
  * assistant reply back into the transcript.
  *
- * Twenty parity notes (mirrors `twenty-front/src/modules/ai/components`):
+ * Behaviour (unchanged through the 20ui re-skin):
  *   - Assistant messages render flush-left with a transparent background and
- *     no avatar (Twenty's `AiChatMessage` / `StyledMessageText` for non-user).
- *   - User messages get a small tinted bubble, right-aligned.
+ *     no avatar; user messages get a small tinted bubble, right-aligned.
  *   - Each message gets a hover footer with a relative timestamp + a copy
- *     button (Twenty's `StyledMessageFooter` + `LightCopyIconButton`).
- *   - A floating "scroll to bottom" button appears when scrolled up
- *     (Twenty's `AiChatScrollToBottomButton`).
+ *     button.
+ *   - A floating "scroll to bottom" button appears when scrolled up.
  *   - Streaming "thinking" indicator while the first token is in flight.
- *   - Assistant replies render as sanitized Markdown (Twenty's
- *     `LazyMarkdownRenderer`), via the dependency-free
- *     `@/components/sabcrm/twenty/markdown` renderer.
+ *   - Assistant replies render as sanitized Markdown via the dependency-free
+ *     `@/components/sabcrm/20ui/composites/markdown` renderer.
  *   - The chat thread is persisted to `localStorage`, scoped per active
- *     project, with a "New chat" control to clear it (Twenty's thread list /
- *     new-thread affordance, collapsed to a single workspace thread here).
+ *     project, with a "New chat" control to clear it.
  *
  * CRM grounding: before each request we gather a lightweight context snapshot
  * (per-object record counts via the existing gated `listSabcrmObjectsTw` +
@@ -34,8 +30,7 @@
  *
  * Honesty: when the route reports it has no provider key configured (HTTP 503
  * with `{ ok:false, error }`), we surface a clear "AI isn't configured yet"
- * banner instead of pretending to answer (mirrors Twenty's
- * `AiChatApiKeyNotConfiguredMessage`).
+ * banner instead of pretending to answer.
  */
 
 export const dynamic = 'force-dynamic';
@@ -51,15 +46,19 @@ import {
   Plus,
 } from 'lucide-react';
 
-import { TwentyPageHeader, TwentyButton } from '@/components/sabcrm/twenty';
-import { TwentyMarkdown } from '@/components/sabcrm/twenty/markdown';
 import {
   Button,
   IconButton,
   Textarea,
   Alert,
   Spinner,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  PageActions,
 } from '@/components/sabcrm/20ui';
+import { Markdown } from '@/components/sabcrm/20ui/composites/markdown';
 import { useProject } from '@/context/project-context';
 
 import '@/components/sabcrm/20ui/surface-crm-base.css';
@@ -212,7 +211,7 @@ async function gatherCrmContext(
 }
 
 // ---------------------------------------------------------------------------
-// Copy button (Twenty's LightCopyIconButton equivalent)
+// Copy button
 // ---------------------------------------------------------------------------
 
 function CopyButton({ text }: { text: string }): React.JSX.Element {
@@ -235,7 +234,6 @@ function CopyButton({ text }: { text: string }): React.JSX.Element {
 
   return (
     <IconButton
-      className="st-ai__copy"
       size="sm"
       variant="ghost"
       icon={copied ? Check : Copy}
@@ -275,7 +273,7 @@ export default function SabcrmAiPage(): React.JSX.Element {
   }, [input]);
 
   // Keep the newest message in view as the transcript / stream grows — but
-  // only while the user hasn't scrolled up (Twenty's auto-scroll behaviour).
+  // only while the user hasn't scrolled up.
   React.useEffect(() => {
     const el = scrollRef.current;
     if (el && stickRef.current) el.scrollTop = el.scrollHeight;
@@ -446,7 +444,7 @@ export default function SabcrmAiPage(): React.JSX.Element {
   }, []);
 
   // Start a fresh thread: abort any stream, clear the transcript + notices,
-  // and drop the saved copy for this project (Twenty's "new chat").
+  // and drop the saved copy for this project.
   const newChat = React.useCallback(() => {
     abortRef.current?.abort();
     setMessages([]);
@@ -479,36 +477,42 @@ export default function SabcrmAiPage(): React.JSX.Element {
   const isEmpty = messages.length === 0;
 
   return (
-    <div className="st-ai">
-      <TwentyPageHeader
-        title="AI Assistant"
-        icon={Sparkles}
-        actions={
-          <TwentyButton
-            variant="secondary"
-            type="button"
-            icon={Plus}
-            onClick={newChat}
-            disabled={isEmpty && input.trim().length === 0}
-          >
-            New chat
-          </TwentyButton>
-        }
-      />
+    <div className="ai-page">
+      <div className="ai-page__head">
+        <PageHeader>
+          <PageHeaderHeading>
+            <PageTitle>AI Assistant</PageTitle>
+            <PageDescription>
+              Ask about your CRM data, or have me draft notes and emails.
+            </PageDescription>
+          </PageHeaderHeading>
+          <PageActions>
+            <Button
+              variant="secondary"
+              size="sm"
+              iconLeft={Plus}
+              onClick={newChat}
+              disabled={isEmpty && input.trim().length === 0}
+            >
+              New chat
+            </Button>
+          </PageActions>
+        </PageHeader>
+      </div>
 
-      <div className="st-ai__body">
-        <div className="st-ai__scroll" ref={scrollRef} onScroll={onScroll}>
+      <div className="ai-body">
+        <div className="ai-scroll" ref={scrollRef} onScroll={onScroll}>
           {isEmpty ? (
-            <div className="st-ai__welcome">
-              <span className="st-ai__welcome-icon" aria-hidden="true">
+            <div className="ai-welcome">
+              <span className="ai-welcome__icon" aria-hidden="true">
                 <Sparkles size={22} />
               </span>
-              <h2 className="st-ai__welcome-title">How can I help?</h2>
-              <p className="st-ai__welcome-sub">
+              <h2 className="ai-welcome__title">How can I help?</h2>
+              <p className="ai-welcome__sub">
                 Ask about your opportunities, contacts, and tasks — or have me
                 draft a note or email.
               </p>
-              <div className="st-ai__chips">
+              <div className="ai-welcome__chips">
                 {SUGGESTED_PROMPTS.map((prompt) => (
                   <Button
                     key={prompt}
@@ -523,27 +527,24 @@ export default function SabcrmAiPage(): React.JSX.Element {
               </div>
             </div>
           ) : (
-            <ul className="st-ai__messages">
+            <ul className="ai-messages">
               {messages.map((m) => {
                 const isUser = m.role === 'user';
                 const streaming =
                   pending && m.role === 'assistant' && m.content === '';
                 return (
-                  <li
-                    key={m.id}
-                    className={`st-ai__msg st-ai__msg--${m.role}`}
-                  >
-                    <div className="st-ai__bubble">
+                  <li key={m.id} className={`ai-msg ai-msg--${m.role}`}>
+                    <div className="ai-msg__bubble">
                       {m.content ? (
                         isUser ? (
                           m.content
                         ) : (
-                          <TwentyMarkdown className="st-ai__md">
+                          <Markdown className="ai-msg__md">
                             {m.content}
-                          </TwentyMarkdown>
+                          </Markdown>
                         )
                       ) : streaming ? (
-                        <span className="st-ai__typing">
+                        <span className="ai-msg__typing">
                           <Spinner size="sm" label="Thinking" />
                           Thinking…
                         </span>
@@ -552,8 +553,8 @@ export default function SabcrmAiPage(): React.JSX.Element {
                       )}
                     </div>
                     {m.content && !streaming ? (
-                      <div className="st-ai__footer">
-                        <span className="st-ai__timestamp">
+                      <div className="ai-msg__footer">
+                        <span className="ai-msg__timestamp">
                           {relativeTime(m.createdAt, nowTick)}
                         </span>
                         <CopyButton text={m.content} />
@@ -567,7 +568,7 @@ export default function SabcrmAiPage(): React.JSX.Element {
 
           {unconfigured ? (
             <Alert
-              className="st-ai__notice"
+              className="ai-notice"
               tone="info"
               icon={AlertTriangle}
               title="AI isn’t configured yet."
@@ -579,7 +580,7 @@ export default function SabcrmAiPage(): React.JSX.Element {
           ) : null}
 
           {error ? (
-            <Alert className="st-ai__notice" tone="danger">
+            <Alert className="ai-notice" tone="danger">
               {error}
             </Alert>
           ) : null}
@@ -587,17 +588,17 @@ export default function SabcrmAiPage(): React.JSX.Element {
 
         {!isEmpty && !atBottom ? (
           <IconButton
-            className="st-ai__scroll-bottom"
+            className="ai-scroll-bottom"
             icon={ArrowDown}
             label="Scroll to latest"
             onClick={scrollToBottom}
           />
         ) : null}
 
-        <form className="st-ai__composer" onSubmit={onSubmit}>
+        <form className="ai-composer" onSubmit={onSubmit}>
           <Textarea
             ref={inputRef}
-            className="st-ai__input"
+            className="ai-composer__input"
             placeholder="Message the AI Assistant…"
             aria-label="Message the AI Assistant"
             value={input}
@@ -606,18 +607,18 @@ export default function SabcrmAiPage(): React.JSX.Element {
             rows={1}
           />
           {pending ? (
-            <TwentyButton variant="secondary" type="button" onClick={stop}>
+            <Button variant="secondary" type="button" onClick={stop}>
               Stop
-            </TwentyButton>
+            </Button>
           ) : (
-            <TwentyButton
+            <Button
               variant="primary"
               type="submit"
-              icon={Send}
+              iconLeft={Send}
               disabled={input.trim().length === 0}
             >
               Send
-            </TwentyButton>
+            </Button>
           )}
         </form>
       </div>

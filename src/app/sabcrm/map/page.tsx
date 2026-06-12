@@ -3,7 +3,7 @@
 export const dynamic = 'force-dynamic';
 
 /**
- * SabCRM — Map view (`/sabcrm/map`), Twenty-faithful.
+ * SabCRM — Map view (`/sabcrm/map`), 20ui.
  *
  * A dependency-free "locations" browser. Records that carry a location-bearing
  * field — an ADDRESS composite, or a plain city / country TEXT field — are
@@ -17,9 +17,9 @@ export const dynamic = 'force-dynamic';
  * There are NO real map tiles — a structured location browser is the
  * dependency-free equivalent of Twenty's Map view, with a purely decorative
  * SVG "region" header (`.map-hero`) standing in for the canvas. The view is
- * rendered entirely in Twenty's visual language: the shared `.st-*` vocabulary
- * from `src/styles/sabcrm-twenty.css` (NOT edited) plus the sibling `./map.css`
- * extras and the `@/components/sabcrm/twenty` kit. No Ui20 / Tailwind / clay.
+ * rendered entirely in the 20ui design system (`@/components/sabcrm/20ui`)
+ * plus the sibling `./map.css` page-local layout (`.map-*`, scoped to the
+ * 20ui root). `--st-*` token variables only.
  *
  * Controls:
  *   - Object selector — only objects that declare at least one location field
@@ -42,11 +42,22 @@ import Link from 'next/link';
 import { AlertTriangle, Database, MapPin, Globe2 } from 'lucide-react';
 
 import {
-  TwentyPageHeader,
-  TwentyChip,
-  TwentyAvatar,
-} from '@/components/sabcrm/twenty';
-import { Select, SearchInput, Alert } from '@/components/sabcrm/20ui';
+  Alert,
+  Avatar,
+  Badge,
+  EmptyState,
+  PageDescription,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  SearchInput,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Skeleton,
+} from '@/components/sabcrm/20ui';
 import { useProject } from '@/context/project-context';
 import {
   listSabcrmObjectsTw,
@@ -223,6 +234,28 @@ function ErrorBanner({ message }: { message: string }) {
     <Alert tone="danger" icon={AlertTriangle}>
       {message}
     </Alert>
+  );
+}
+
+/** Two-pane skeleton (places rail + detail panel) shown while loading. */
+function ExplorerSkeleton() {
+  return (
+    <div className="map-explorer" aria-hidden="true">
+      <div className="map-places">
+        <div className="map-skeleton-rail">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Skeleton key={i} height={22} radius={6} />
+          ))}
+        </div>
+      </div>
+      <div className="map-detail">
+        <div className="map-skeleton-rail">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <Skeleton key={i} height={28} radius={6} />
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -466,42 +499,73 @@ export default function SabcrmMapPage(): React.JSX.Element {
   // ---- Render -------------------------------------------------------------
 
   return (
-    <div className="st-page">
-      <TwentyPageHeader title="Map" />
+    <div className="map-page">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageTitle>Map</PageTitle>
+          <PageDescription>
+            Records grouped by place from an address or location field.
+          </PageDescription>
+        </PageHeaderHeading>
+      </PageHeader>
 
       <div className="map-controls">
         <div className="map-controls__group">
-          <span className="map-controls__label">Object</span>
+          <span className="map-controls__label" id="map-object-label">
+            Object
+          </span>
           <Select
-            value={objectSlug || null}
+            value={objectSlug}
+            onValueChange={(value) => setObjectSlug(value)}
             disabled={loadingObjects || objects.length === 0}
-            onChange={(value) => setObjectSlug(value ?? '')}
-            aria-label="Map object"
-            placeholder={objects.length === 0 ? 'No objects' : 'Select object'}
-            options={objects.map((o) => ({
-              value: o.slug,
-              label: o.labelPlural,
-            }))}
-          />
+          >
+            <SelectTrigger
+              className="map-controls__select"
+              aria-labelledby="map-object-label"
+            >
+              <SelectValue
+                placeholder={objects.length === 0 ? 'No objects' : 'Select object'}
+              />
+            </SelectTrigger>
+            <SelectContent>
+              {objects.map((o) => (
+                <SelectItem key={o.slug} value={o.slug}>
+                  {o.labelPlural}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         <div className="map-controls__group">
-          <span className="map-controls__label">By location</span>
+          <span className="map-controls__label" id="map-field-label">
+            By location
+          </span>
           <Select
-            value={locationFieldKey || null}
+            value={locationFieldKey}
+            onValueChange={(value) => setLocationFieldKey(value)}
             disabled={locationFields.length === 0}
-            onChange={(value) => setLocationFieldKey(value ?? '')}
-            aria-label="Map location field"
-            placeholder={
-              locationFields.length === 0
-                ? 'No location field'
-                : 'Select field'
-            }
-            options={locationFields.map((f) => ({
-              value: f.key,
-              label: f.label,
-            }))}
-          />
+          >
+            <SelectTrigger
+              className="map-controls__select"
+              aria-labelledby="map-field-label"
+            >
+              <SelectValue
+                placeholder={
+                  locationFields.length === 0
+                    ? 'No location field'
+                    : 'Select field'
+                }
+              />
+            </SelectTrigger>
+            <SelectContent>
+              {locationFields.map((f) => (
+                <SelectItem key={f.key} value={f.key}>
+                  {f.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         <div className="map-controls__spacer" />
@@ -519,80 +583,33 @@ export default function SabcrmMapPage(): React.JSX.Element {
 
       {loadingObjects ? (
         <>
-          <div
-            className="st-skeleton rounded-[var(--st-radius-lg)]"
-            style={{ height: 132, marginBottom: 16 }}
-          />
-          <div className="map-explorer">
-            <div className="map-places">
-              <div className="map-skeleton-rail">
-                {Array.from({ length: 6 }).map((_, i) => (
-                  <div key={i} className="st-skeleton" style={{ height: 22 }} />
-                ))}
-              </div>
-            </div>
-            <div className="map-detail">
-              <div className="map-skeleton-rail">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <div key={i} className="st-skeleton" style={{ height: 28 }} />
-                ))}
-              </div>
-            </div>
-          </div>
+          <Skeleton height={132} radius={10} className="map-hero-skel" />
+          <ExplorerSkeleton />
         </>
       ) : objects.length === 0 ? (
-        <div className="st-empty">
-          <span className="st-empty__icon">
-            <MapPin size={20} />
-          </span>
-          <h2 className="st-empty__title">No mappable objects</h2>
-          <p className="st-empty__desc">
-            None of your CRM objects has a location field to group records by.
-            Add an ADDRESS field — or a City / Country field — to an object to
-            use the map.
-          </p>
-        </div>
+        <EmptyState
+          icon={MapPin}
+          title="No mappable objects"
+          description={
+            'None of your CRM objects has a location field to group records by. ' +
+            'Add an ADDRESS field — or a City / Country field — to an object to ' +
+            'use the map.'
+          }
+        />
       ) : !activeObject || locationFields.length === 0 ? (
-        <div className="st-empty">
-          <span className="st-empty__icon">
-            <Database size={20} />
-          </span>
-          <h2 className="st-empty__title">Pick an object and location field</h2>
-          <p className="st-empty__desc">
-            Choose an object with a location field above to browse its places.
-          </p>
-        </div>
+        <EmptyState
+          icon={Database}
+          title="Pick an object and location field"
+          description="Choose an object with a location field above to browse its places."
+        />
       ) : loadingData ? (
-        <div className="map-explorer">
-          <div className="map-places">
-            <div className="map-skeleton-rail">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="st-skeleton" style={{ height: 22 }} />
-              ))}
-            </div>
-          </div>
-          <div className="map-detail">
-            <div className="map-skeleton-rail">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="st-skeleton" style={{ height: 28 }} />
-              ))}
-            </div>
-          </div>
-        </div>
+        <ExplorerSkeleton />
       ) : buckets.length === 0 ? (
-        <div className="st-empty">
-          <span className="st-empty__icon">
-            <MapPin size={20} />
-          </span>
-          <h2 className="st-empty__title">
-            No {activeObject.labelPlural.toLowerCase()} to place
-          </h2>
-          <p className="st-empty__desc">
-            None of the loaded {activeObject.labelPlural.toLowerCase()} has a
-            value in “{locationField?.label}”. Add a location to a record to see
-            it on the map.
-          </p>
-        </div>
+        <EmptyState
+          icon={MapPin}
+          title={`No ${activeObject.labelPlural.toLowerCase()} to place`}
+          description={`None of the loaded ${activeObject.labelPlural.toLowerCase()} has a value in “${locationField?.label}”. Add a location to a record to see it on the map.`}
+        />
       ) : (
         <>
           <RegionHero
@@ -672,8 +689,8 @@ export default function SabcrmMapPage(): React.JSX.Element {
                               href={`/sabcrm/${activeObject.slug}/${rec.id}`}
                               className="map-record__link"
                             >
-                              <TwentyAvatar name={label} size="xs" />
-                              <TwentyChip label={label} />
+                              <Avatar name={label} size="xs" />
+                              <Badge tone="neutral">{label}</Badge>
                             </Link>
                           </div>
                           {lines.length > 0 && (

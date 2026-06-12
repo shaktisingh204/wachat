@@ -19,6 +19,7 @@ import type {
 export type {
   SabcrmRustPipeline,
   SabcrmRustPipelineStage,
+  SabcrmStageKind,
   SabcrmPipelineCreateInput,
   SabcrmPipelineUpdateInput,
 } from '@/lib/rust-client/sabcrm-pipelines';

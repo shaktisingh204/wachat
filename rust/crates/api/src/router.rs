@@ -378,8 +378,37 @@ pub fn build(state: AppState) -> Router {
     let sabcrm_workflow_runs = sabcrm_workflow_runs::router::<AppState>();
     let sabcrm_pipelines = sabcrm_pipelines::router::<AppState>();
     let sabcrm_favorites = sabcrm_favorites::router::<AppState>();
+    let sabcrm_approvals = sabcrm_approvals::router::<AppState>();
+    let sabcrm_sequences = sabcrm_sequences::router::<AppState>();
+    let sabcrm_routing = sabcrm_routing::router::<AppState>();
     let crm_quotations = crm_quotations::router::<AppState>();
     let crm_invoices = crm_invoices::router::<AppState>();
+    // SabCRM Finance suite — same crate + `crm_invoices` collection,
+    // project-scoped re-mount (see crm_invoices::project_router).
+    let sabcrm_finance_invoices = crm_invoices::project_router::<AppState>();
+    // SabCRM Finance tranche 1 — the remaining document crates,
+    // project-scoped re-mounts beside their legacy `/v1/crm/*` mounts
+    // (same crates, same collections; see each crate's project_router).
+    let sabcrm_finance_quotations = crm_quotations::project_router::<AppState>();
+    let sabcrm_finance_sales_orders = crm_sales_orders::project_router::<AppState>();
+    let sabcrm_finance_credit_notes = crm_credit_notes::project_router::<AppState>();
+    let sabcrm_finance_debit_notes = crm_debit_notes::project_router::<AppState>();
+    let sabcrm_finance_payment_receipts = crm_payment_receipts::project_router::<AppState>();
+    let sabcrm_finance_bills = crm_bills::project_router::<AppState>();
+    let sabcrm_finance_proforma_invoices = crm_proforma_invoices::project_router::<AppState>();
+    let sabcrm_finance_payment_accounts = crm_payment_accounts::project_router::<AppState>();
+    // SabCRM Finance tranche 2 — banking/ledger crates, project-scoped
+    // re-mounts. NB: crm-bank-transactions + crm-recurring-invoices have
+    // NO legacy `/v1/crm/*` mount (the legacy UI never used them via
+    // Rust); ONLY their project_router is mounted.
+    let sabcrm_finance_bank_transactions = crm_bank_transactions::project_router::<AppState>();
+    let sabcrm_finance_recurring_invoices = crm_recurring_invoices::project_router::<AppState>();
+    let sabcrm_finance_expenses = crm_expense_claims::project_router::<AppState>();
+    let sabcrm_finance_payouts = crm_payouts::project_router::<AppState>();
+    let sabcrm_finance_vouchers = crm_vouchers::project_router::<AppState>();
+    let sabcrm_finance_petty_cash = crm_petty_cash::project_router::<AppState>();
+    let sabcrm_finance_budgets = crm_budgets::project_router::<AppState>();
+    let sabcrm_finance_reconciliation = crm_reconciliation::project_router::<AppState>();
     let crm_sales_orders = crm_sales_orders::router::<AppState>();
     let crm_purchase_orders = crm_purchase_orders::router::<AppState>();
     let crm_payment_receipts = crm_payment_receipts::router::<AppState>();
@@ -430,6 +459,15 @@ pub fn build(state: AppState) -> Router {
     let crm_purchase_leads = crm_purchase_leads::router::<AppState>();
     let crm_automations_router = crm_automations::router::<AppState>();
     let crm_forms_router = crm_forms::router::<AppState>();
+    // SabCRM web-to-lead forms — same crates + collections as the legacy
+    // `/v1/crm/forms` + `/v1/crm/form-submissions` mounts, project-scoped
+    // re-mounts (see `crm_forms::project_router` /
+    // `crm_form_submissions::project_router`). Each also carries one
+    // UNauthenticated public route (`GET forms/public/{id}`,
+    // `POST form-submissions/public/{id}`) for the public render/submit
+    // flow — the form document carries its tenant.
+    let sabcrm_forms = crm_forms::project_router::<AppState>();
+    let sabcrm_form_submissions = crm_form_submissions::project_router::<AppState>();
     let crm_saved_views_router = crm_saved_views::router::<AppState>();
     let crm_email_templates_router = crm_email_templates::router::<AppState>();
     let crm_portal_users_router = crm_portal_users::router::<AppState>();
@@ -671,6 +709,52 @@ pub fn build(state: AppState) -> Router {
         .nest("/v1/sabcrm/workflow-runs", sabcrm_workflow_runs)
         .nest("/v1/sabcrm/pipelines", sabcrm_pipelines)
         .nest("/v1/sabcrm/favorites", sabcrm_favorites)
+        .nest("/v1/sabcrm/approvals", sabcrm_approvals)
+        .nest("/v1/sabcrm/sequences", sabcrm_sequences)
+        .nest("/v1/sabcrm/routing", sabcrm_routing)
+        .nest("/v1/sabcrm/finance/invoices", sabcrm_finance_invoices)
+        .nest("/v1/sabcrm/finance/quotations", sabcrm_finance_quotations)
+        .nest(
+            "/v1/sabcrm/finance/sales-orders",
+            sabcrm_finance_sales_orders,
+        )
+        .nest(
+            "/v1/sabcrm/finance/credit-notes",
+            sabcrm_finance_credit_notes,
+        )
+        .nest("/v1/sabcrm/finance/debit-notes", sabcrm_finance_debit_notes)
+        .nest(
+            "/v1/sabcrm/finance/payment-receipts",
+            sabcrm_finance_payment_receipts,
+        )
+        .nest("/v1/sabcrm/finance/bills", sabcrm_finance_bills)
+        .nest(
+            "/v1/sabcrm/finance/proforma-invoices",
+            sabcrm_finance_proforma_invoices,
+        )
+        .nest(
+            "/v1/sabcrm/finance/payment-accounts",
+            sabcrm_finance_payment_accounts,
+        )
+        .nest(
+            "/v1/sabcrm/finance/bank-transactions",
+            sabcrm_finance_bank_transactions,
+        )
+        .nest(
+            "/v1/sabcrm/finance/recurring-invoices",
+            sabcrm_finance_recurring_invoices,
+        )
+        .nest("/v1/sabcrm/finance/expenses", sabcrm_finance_expenses)
+        .nest("/v1/sabcrm/finance/payouts", sabcrm_finance_payouts)
+        .nest("/v1/sabcrm/finance/vouchers", sabcrm_finance_vouchers)
+        .nest("/v1/sabcrm/finance/petty-cash", sabcrm_finance_petty_cash)
+        .nest("/v1/sabcrm/finance/budgets", sabcrm_finance_budgets)
+        .nest(
+            "/v1/sabcrm/finance/reconciliation",
+            sabcrm_finance_reconciliation,
+        )
+        .nest("/v1/sabcrm/forms", sabcrm_forms)
+        .nest("/v1/sabcrm/form-submissions", sabcrm_form_submissions)
         .nest("/v1/crm/quotations", crm_quotations)
         .nest("/v1/crm/invoices", crm_invoices)
         .nest("/v1/crm/sales-orders", crm_sales_orders)

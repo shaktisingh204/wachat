@@ -4,8 +4,8 @@
   "description": "Consume Paddle API",
   "category": "finance",
   "iconName": "LuPackage",
-  "version": 10,
-  "lastVerified": "2026-06-11",
+  "version": 11,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "header",
@@ -206,7 +206,7 @@
     {
       "id": "coupon_get_all",
       "label": "Get Many Coupon",
-      "method": "GET",
+      "method": "POST",
       "path": "/2.0/product/list_coupons",
       "fields": [
         {
@@ -237,7 +237,7 @@
     {
       "id": "coupon_update",
       "label": "Update Coupon",
-      "method": "PATCH",
+      "method": "POST",
       "path": "/2.1/product/update_coupon",
       "fields": [
         {
@@ -295,7 +295,7 @@
     {
       "id": "payment_get_all",
       "label": "Get Many Payment",
-      "method": "GET",
+      "method": "POST",
       "path": "/2.0/subscription/payments",
       "fields": [
         {
@@ -362,7 +362,7 @@
     {
       "id": "plan_get",
       "label": "Get Plan",
-      "method": "GET",
+      "method": "POST",
       "path": "/2.0/subscription/plans",
       "fields": [
         {
@@ -379,7 +379,7 @@
     {
       "id": "plan_get_all",
       "label": "Get Many Plan",
-      "method": "GET",
+      "method": "POST",
       "path": "/2.0/subscription/plans",
       "fields": [
         {
@@ -403,7 +403,7 @@
     {
       "id": "product_get_all",
       "label": "Get Many Product",
-      "method": "GET",
+      "method": "POST",
       "path": "/2.0/product/get_products",
       "fields": [
         {
@@ -427,7 +427,7 @@
     {
       "id": "user_get_all",
       "label": "Get Many User",
-      "method": "GET",
+      "method": "POST",
       "path": "/2.0/subscription/users",
       "fields": [
         {

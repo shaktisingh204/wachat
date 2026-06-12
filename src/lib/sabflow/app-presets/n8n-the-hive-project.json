@@ -4,8 +4,8 @@
   "description": "Consume TheHive 5 API",
   "category": "Imported (n8n)",
   "iconName": "LuPackage",
-  "version": 3,
-  "lastVerified": "2026-06-11",
+  "version": 4,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "bearer",
@@ -120,24 +120,6 @@
       ],
       "group": "Alert",
       "description": "Promote an alert to a case"
-    },
-    {
-      "id": "alert_search",
-      "label": "Search Alert",
-      "method": "GET",
-      "path": "/alert",
-      "fields": [
-        {
-          "id": "host",
-          "label": "Host",
-          "type": "text",
-          "required": true,
-          "in": "path",
-          "description": "Host of your TheHive 5 server, e.g. app.example.com (no https:// prefix)"
-        }
-      ],
-      "group": "Alert",
-      "description": "[unverified path] Search alerts"
     },
     {
       "id": "alert_update",
@@ -320,24 +302,6 @@
       "description": "Get timeline of a case"
     },
     {
-      "id": "case_search",
-      "label": "Search Case",
-      "method": "GET",
-      "path": "/case",
-      "fields": [
-        {
-          "id": "host",
-          "label": "Host",
-          "type": "text",
-          "required": true,
-          "in": "path",
-          "description": "Host of your TheHive 5 server, e.g. app.example.com (no https:// prefix)"
-        }
-      ],
-      "group": "Case",
-      "description": "[unverified path] Search cases"
-    },
-    {
       "id": "case_update",
       "label": "Update Case",
       "method": "PATCH",
@@ -390,24 +354,6 @@
       ],
       "group": "Comment",
       "description": "Delete a comment"
-    },
-    {
-      "id": "comment_search",
-      "label": "Search Comment",
-      "method": "GET",
-      "path": "/comment",
-      "fields": [
-        {
-          "id": "host",
-          "label": "Host",
-          "type": "text",
-          "required": true,
-          "in": "path",
-          "description": "Host of your TheHive 5 server, e.g. app.example.com (no https:// prefix)"
-        }
-      ],
-      "group": "Comment",
-      "description": "[unverified path] Search comments"
     },
     {
       "id": "comment_update",
@@ -536,24 +482,6 @@
       "description": "Get a task log"
     },
     {
-      "id": "log_search",
-      "label": "Search Task Log",
-      "method": "GET",
-      "path": "/log",
-      "fields": [
-        {
-          "id": "host",
-          "label": "Host",
-          "type": "text",
-          "required": true,
-          "in": "path",
-          "description": "Host of your TheHive 5 server, e.g. app.example.com (no https:// prefix)"
-        }
-      ],
-      "group": "Task Log",
-      "description": "[unverified path] Search task logs"
-    },
-    {
       "id": "observable_create",
       "label": "Create Observable",
       "method": "POST",
@@ -644,24 +572,6 @@
       "description": "Get an observable"
     },
     {
-      "id": "observable_search",
-      "label": "Search Observable",
-      "method": "GET",
-      "path": "/observable",
-      "fields": [
-        {
-          "id": "host",
-          "label": "Host",
-          "type": "text",
-          "required": true,
-          "in": "path",
-          "description": "Host of your TheHive 5 server, e.g. app.example.com (no https:// prefix)"
-        }
-      ],
-      "group": "Observable",
-      "description": "[unverified path] Search observables"
-    },
-    {
       "id": "observable_update",
       "label": "Update Observable",
       "method": "PATCH",
@@ -714,24 +624,6 @@
       ],
       "group": "Page",
       "description": "Delete a page"
-    },
-    {
-      "id": "page_search",
-      "label": "Search Page",
-      "method": "GET",
-      "path": "/page",
-      "fields": [
-        {
-          "id": "host",
-          "label": "Host",
-          "type": "text",
-          "required": true,
-          "in": "path",
-          "description": "Host of your TheHive 5 server, e.g. app.example.com (no https:// prefix)"
-        }
-      ],
-      "group": "Page",
-      "description": "[unverified path] Search pages"
     },
     {
       "id": "page_update",
@@ -840,24 +732,6 @@
       ],
       "group": "Task",
       "description": "Get a task"
-    },
-    {
-      "id": "task_search",
-      "label": "Search Task",
-      "method": "GET",
-      "path": "/task",
-      "fields": [
-        {
-          "id": "host",
-          "label": "Host",
-          "type": "text",
-          "required": true,
-          "in": "path",
-          "description": "Host of your TheHive 5 server, e.g. app.example.com (no https:// prefix)"
-        }
-      ],
-      "group": "Task",
-      "description": "[unverified path] Search tasks"
     },
     {
       "id": "task_update",

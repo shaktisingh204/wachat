@@ -1,14 +1,20 @@
 'use client';
 
-import { useEffect } from 'react';
+/**
+ * SabCRM root error boundary (`/sabcrm/*`), 20ui.
+ *
+ * Catches runtime errors anywhere under the SabCRM segment that a more
+ * specific boundary didn't handle. Renders inside `layout.tsx`'s
+ * `SabcrmSuiteFrame` (which carries the 20ui token scope), so this is pure
+ * 20ui — no `.sabcrm-twenty` / `.st-*` classes.
+ */
+
+import * as React from 'react';
 import { AlertTriangle } from 'lucide-react';
 
 import '@/components/sabcrm/20ui/surface-crm-base.css';
-import { TwentyButton } from '@/components/sabcrm/twenty/twenty-primitives';
+import { Button, EmptyState } from '@/components/sabcrm/20ui';
 
-/**
- * SabCRM root error boundary — Twenty design system (`.st-*`), NOT Ui20.
- */
 export default function SabcrmError({
   error,
   reset,
@@ -16,27 +22,26 @@ export default function SabcrmError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  useEffect(() => {
+  React.useEffect(() => {
     console.error('SabCRM Error:', error);
   }, [error]);
 
   return (
-    <div className="sabcrm-twenty">
-      <main className="st-page">
-        <div className="st-empty" role="alert">
-          <span className="st-empty__icon" aria-hidden="true">
-            <AlertTriangle size={20} />
-          </span>
-          <h1 className="st-empty__title">Something went wrong in SabCRM</h1>
-          <p className="st-empty__desc">
-            {error?.message ||
-              'An unexpected error occurred while loading SabCRM. Please try again or contact support if the issue persists.'}
-          </p>
-          <TwentyButton variant="primary" onClick={() => reset()}>
+    <main className="mx-auto w-full max-w-6xl px-6 py-8" role="alert">
+      <EmptyState
+        icon={AlertTriangle}
+        tone="danger"
+        title="Something went wrong in SabCRM"
+        description={
+          error?.message ||
+          'An unexpected error occurred while loading SabCRM. Please try again or contact support if the issue persists.'
+        }
+        action={
+          <Button variant="primary" onClick={() => reset()}>
             Try again
-          </TwentyButton>
-        </div>
-      </main>
-    </div>
+          </Button>
+        }
+      />
+    </main>
   );
 }

@@ -16,6 +16,12 @@ pub struct CrmFormSubmission {
     #[serde(rename = "userId")]
     pub user_id: ObjectId,
 
+    /// SabCRM workspace scope. Present on submissions captured through the
+    /// project-scoped `/v1/sabcrm/*` mounts (inherited from the parent
+    /// form's `projectId`); absent on legacy docs.
+    #[serde(rename = "projectId", default, skip_serializing_if = "Option::is_none")]
+    pub project_id: Option<ObjectId>,
+
     /// Reference to the parent `crm_forms` document.
     #[serde(rename = "formId")]
     pub form_id: ObjectId,

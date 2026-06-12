@@ -1,0 +1,387 @@
+/**
+ * SabCRM — global cross-object search (`/sabcrm/search`) page-local styles,
+ * 20ui.
+ *
+ * Two page prefixes, both scoped to the 20ui root (`:is(.\32 0ui, .ui20)` —
+ * NEVER a bare `.20ui.foo` compound):
+ *
+ *   - `.sgw-*` — the base layout primitives (page column, search box, result
+ *     groups, hit rows) formerly shared with My Work.
+ *   - `.sg-*`  — the command-search extras (summary line, two-line hit rows,
+ *     highlight marks, keyboard hints, recent searches, verbs, pager).
+ *
+ * Tokens only (`--st-*` / `--u-*`), so dark mode is free. Buttons / inputs /
+ * avatars / empty states come from 20ui components.
+ */
+
+/* =========================================================================
+   Page wrapper — scroll wrapper + centered content column
+   ========================================================================= */
+:is(.\32 0ui, .ui20) .sgw-page {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: var(--st-space-5);
+  overflow-y: auto;
+}
+
+:is(.\32 0ui, .ui20) .sgw-page__inner {
+  width: 100%;
+  max-width: 920px;
+  margin: 0 auto;
+}
+
+/* =========================================================================
+   Search box (20ui SearchInput + trailing spinner)
+   ========================================================================= */
+:is(.\32 0ui, .ui20) .sgw-searchbox {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin: var(--st-space-4) 0 var(--st-space-5);
+}
+
+/* A tiny spinner that sits at the right edge of the box while searching. */
+:is(.\32 0ui, .ui20) .sgw-searchbox__spin {
+  position: absolute;
+  right: 12px;
+  display: inline-flex;
+  color: var(--st-text-tertiary);
+}
+
+/* =========================================================================
+   Result groups
+   ========================================================================= */
+:is(.\32 0ui, .ui20) .sgw-groups {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-5);
+}
+
+/* One object's group of hits, framed as a calm panel. */
+:is(.\32 0ui, .ui20) .sgw-group {
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-bg);
+  overflow: hidden;
+}
+
+:is(.\32 0ui, .ui20) .sgw-group__head {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  padding: var(--st-space-3) var(--st-space-4);
+  border-bottom: 1px solid var(--st-border);
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-semibold);
+  color: var(--st-text-secondary);
+}
+
+:is(.\32 0ui, .ui20) .sgw-group__head svg {
+  flex: 0 0 auto;
+  color: var(--st-text-tertiary);
+}
+
+:is(.\32 0ui, .ui20) .sgw-group__count {
+  margin-left: auto;
+  color: var(--st-text-tertiary);
+  font-size: var(--st-font-size-xs);
+  font-weight: var(--st-fw-medium);
+}
+
+/* List of hits within a group. */
+:is(.\32 0ui, .ui20) .sgw-hits {
+  display: flex;
+  flex-direction: column;
+  list-style: none;
+  margin: 0;
+  padding: var(--st-space-1) var(--st-space-2);
+}
+
+:is(.\32 0ui, .ui20) .sgw-hit {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--st-space-3);
+  padding: 8px var(--st-space-2);
+  border-radius: var(--st-radius);
+  color: var(--st-text);
+  font-size: var(--st-font-size);
+  text-decoration: none;
+  transition: background 100ms ease;
+}
+
+:is(.\32 0ui, .ui20) .sgw-hit:hover {
+  background: var(--st-hover);
+}
+
+:is(.\32 0ui, .ui20) .sgw-hit:focus-visible {
+  outline: none;
+  background: var(--st-hover);
+  box-shadow: inset 0 0 0 2px var(--st-accent);
+}
+
+:is(.\32 0ui, .ui20) .sgw-hit__label {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-weight: var(--st-fw-medium);
+}
+
+:is(.\32 0ui, .ui20) .sgw-hit__kind {
+  flex: 0 0 auto;
+  color: var(--st-text-tertiary);
+  font-size: var(--st-font-size-xs);
+}
+
+/* =========================================================================
+   Results summary line (sits just under the search box)
+   ========================================================================= */
+:is(.\32 0ui, .ui20) .sg-summary {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  margin: calc(-1 * var(--st-space-3)) 0 var(--st-space-4);
+  color: var(--st-text-secondary);
+  font-size: var(--st-font-size-sm);
+}
+
+:is(.\32 0ui, .ui20) .sg-summary strong {
+  color: var(--st-text);
+  font-weight: var(--st-fw-semibold);
+}
+
+/* The matched query term, echoed in the summary line. */
+:is(.\32 0ui, .ui20) .sg-summary__term {
+  color: var(--st-text);
+  font-weight: var(--st-fw-medium);
+}
+
+:is(.\32 0ui, .ui20) .sg-summary__sep {
+  color: var(--st-text-tertiary, var(--st-text-secondary));
+}
+
+/* =========================================================================
+   Two-line command-search hit rows (avatar | body | kind chip)
+   ========================================================================= */
+:is(.\32 0ui, .ui20) .sgw-hit.sg-hit {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--st-space-2);
+}
+
+/* Leading avatar, vertically centred against the two-line body. */
+:is(.\32 0ui, .ui20) .sg-hit__avatar {
+  flex: 0 0 auto;
+  margin-top: 1px;
+}
+
+:is(.\32 0ui, .ui20) .sg-hit__body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+/* Secondary line: a short context snippet returned by the engine. */
+:is(.\32 0ui, .ui20) .sg-hit__snippet {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--st-text-secondary);
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-regular);
+}
+
+/*
+ * Keyboard-active row. Mirrors Twenty's command menu: the focused item gets the
+ * hover surface + an accent rail so arrow-key position is unambiguous. Applied
+ * via `data-active` (set by the page's roving keyboard index), not :hover, so a
+ * stray mouse position can't fight the keyboard selection.
+ */
+:is(.\32 0ui, .ui20) .sgw-hit.sg-hit[data-active='true'] {
+  background: var(--st-hover);
+  box-shadow: inset 2px 0 0 0 var(--st-accent);
+}
+
+/* Inline highlight for the matched substring inside a label or snippet. */
+:is(.\32 0ui, .ui20) .sg-mark {
+  padding: 0 1px;
+  border-radius: var(--st-radius-sm);
+  background: var(--st-accent-soft);
+  color: var(--st-accent);
+  font-weight: var(--st-fw-medium);
+}
+
+/* Per-group footer affordance — "See all in <Object>" (a 20ui ghost Button). */
+:is(.\32 0ui, .ui20) .sg-group__more {
+  border-top: 1px solid var(--st-border-light);
+  border-radius: 0;
+  justify-content: flex-start;
+}
+
+/* Degraded banner spacing when the engine is unreachable but search ran. */
+:is(.\32 0ui, .ui20) .sg-degraded {
+  margin-top: var(--st-space-4);
+}
+
+/* =========================================================================
+   Keyboard hint (shown under the box when recents are listed)
+   ========================================================================= */
+:is(.\32 0ui, .ui20) .sg-kbd-hint {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-1);
+  margin: calc(-1 * var(--st-space-3)) 0 var(--st-space-4);
+  color: var(--st-text-tertiary, var(--st-text-secondary));
+  font-size: var(--st-font-size-sm);
+}
+
+:is(.\32 0ui, .ui20) .sg-kbd {
+  display: inline-flex;
+  align-items: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border: 1px solid var(--st-border-light);
+  border-radius: var(--st-radius-sm);
+  background: var(--st-bg-secondary, var(--st-hover));
+  color: var(--st-text-secondary);
+  font-size: 11px;
+  font-weight: var(--st-fw-medium);
+  line-height: 1;
+}
+
+/* =========================================================================
+   Recent searches (shown when the box is empty)
+   ========================================================================= */
+:is(.\32 0ui, .ui20) .sg-recent {
+  margin-top: var(--st-space-4);
+}
+
+:is(.\32 0ui, .ui20) .sg-recent__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--st-space-2);
+  margin-bottom: var(--st-space-2);
+  color: var(--st-text-secondary);
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+:is(.\32 0ui, .ui20) .sg-recent__title {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-1);
+}
+
+:is(.\32 0ui, .ui20) .sg-recent__list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+:is(.\32 0ui, .ui20) .sg-recent__item {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  width: 100%;
+  padding: var(--st-space-2) var(--st-space-3);
+  border: 0;
+  border-radius: var(--st-radius-md, var(--st-radius-sm));
+  background: none;
+  color: var(--st-text);
+  font: inherit;
+  font-size: var(--st-font-size-sm);
+  text-align: left;
+  cursor: pointer;
+}
+
+:is(.\32 0ui, .ui20) .sg-recent__item:hover,
+:is(.\32 0ui, .ui20) .sg-recent__item[data-active='true'] {
+  background: var(--st-hover);
+}
+
+:is(.\32 0ui, .ui20) .sg-recent__item:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}
+
+:is(.\32 0ui, .ui20) .sg-recent__item svg {
+  flex: 0 0 auto;
+  color: var(--st-text-tertiary, var(--st-text-secondary));
+}
+
+:is(.\32 0ui, .ui20) .sg-recent__term {
+  flex: 1 1 auto;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* =========================================================================
+   Command-style verbs (Create … / Go to settings)
+   ========================================================================= */
+:is(.\32 0ui, .ui20) .sg-verbs {
+  margin-bottom: var(--st-space-2);
+}
+
+/* A verb row reuses the hit row layout but leads with a boxed icon, not an
+   avatar, to read as an action (Twenty command-menu actions section). */
+:is(.\32 0ui, .ui20) .sgw-hit.sg-verb {
+  align-items: center;
+}
+
+:is(.\32 0ui, .ui20) .sg-verb__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 26px;
+  height: 26px;
+  border-radius: var(--st-radius-sm);
+  background: var(--st-bg-secondary, var(--st-hover));
+  color: var(--st-text-secondary);
+}
+
+:is(.\32 0ui, .ui20) .sgw-hit.sg-verb[data-active='true'] .sg-verb__icon {
+  color: var(--st-accent);
+}
+
+/* =========================================================================
+   Expanded full-result list — footer pager
+   ========================================================================= */
+:is(.\32 0ui, .ui20) .sg-pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--st-space-2);
+  padding: var(--st-space-2) var(--st-space-3);
+  border-top: 1px solid var(--st-border-light);
+}
+
+:is(.\32 0ui, .ui20) .sg-pager__nav {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+}
+
+:is(.\32 0ui, .ui20) .sg-pager__range,
+:is(.\32 0ui, .ui20) .sg-pager__page {
+  color: var(--st-text-secondary);
+  font-size: var(--st-font-size-sm);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :is(.\32 0ui, .ui20) .sgw-hit {
+    transition: none;
+  }
+}

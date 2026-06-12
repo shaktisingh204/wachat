@@ -4,8 +4,8 @@
   "description": "Interact with Azure Cosmos DB API",
   "category": "dev",
   "iconName": "LuPackage",
-  "version": 11,
-  "lastVerified": "2026-06-11",
+  "version": 12,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "header",
@@ -35,7 +35,7 @@
       "id": "container_delete",
       "label": "Delete Container",
       "method": "DELETE",
-      "path": "/colls/{{ {container} }}",
+      "path": "/colls/{container}",
       "fields": [
         {
           "id": "account",
@@ -47,13 +47,13 @@
         }
       ],
       "group": "Container",
-      "description": "[unverified path] Delete a container"
+      "description": "Delete a container"
     },
     {
       "id": "container_get",
       "label": "Get Container",
       "method": "GET",
-      "path": "/colls/{{ {container} }}",
+      "path": "/colls/{container}",
       "fields": [
         {
           "id": "account",
@@ -65,7 +65,7 @@
         }
       ],
       "group": "Container",
-      "description": "[unverified path] Retrieve a container"
+      "description": "Retrieve a container"
     },
     {
       "id": "container_get_all",
@@ -89,7 +89,7 @@
       "id": "item_create",
       "label": "Create Item",
       "method": "POST",
-      "path": "/colls/{{ {container} }}/docs",
+      "path": "/colls/{container}/docs",
       "fields": [
         {
           "id": "account",
@@ -101,13 +101,13 @@
         }
       ],
       "group": "Item",
-      "description": "[unverified path] Create a new item"
+      "description": "Create a new item"
     },
     {
       "id": "item_delete",
       "label": "Delete Item",
       "method": "DELETE",
-      "path": "/colls/{{ {container} }}/docs/{{ {item} }}",
+      "path": "/colls/{container}/docs/{item}",
       "fields": [
         {
           "id": "account",
@@ -119,13 +119,13 @@
         }
       ],
       "group": "Item",
-      "description": "[unverified path] Delete an existing item"
+      "description": "Delete an existing item"
     },
     {
       "id": "item_get",
       "label": "Get Item",
       "method": "GET",
-      "path": "/colls/{{ {container}}}/docs/{{{item}}}",
+      "path": "/colls/{container}/docs/{item}",
       "fields": [
         {
           "id": "account",
@@ -137,13 +137,13 @@
         }
       ],
       "group": "Item",
-      "description": "[unverified path] Retrieve an item"
+      "description": "Retrieve an item"
     },
     {
       "id": "item_get_all",
       "label": "Get Many Item",
       "method": "GET",
-      "path": "/colls/{{ {container} }}/docs",
+      "path": "/colls/{container}/docs",
       "fields": [
         {
           "id": "account",
@@ -155,13 +155,13 @@
         }
       ],
       "group": "Item",
-      "description": "[unverified path] Retrieve a list of items"
+      "description": "Retrieve a list of items"
     },
     {
       "id": "item_query",
       "label": "Execute Query Item",
       "method": "POST",
-      "path": "/colls/{{ {container} }}/docs",
+      "path": "/colls/{container}/docs",
       "fields": [
         {
           "id": "account",
@@ -173,13 +173,13 @@
         }
       ],
       "group": "Item",
-      "description": "[unverified path] Query items"
+      "description": "Query items"
     },
     {
       "id": "item_update",
       "label": "Update Item",
       "method": "PUT",
-      "path": "/colls/{{ {container} }}/docs/{{ {item} }}",
+      "path": "/colls/{container}/docs/{item}",
       "fields": [
         {
           "id": "account",
@@ -191,7 +191,7 @@
         }
       ],
       "group": "Item",
-      "description": "[unverified path] Update an existing item"
+      "description": "Update an existing item"
     }
   ]
 }

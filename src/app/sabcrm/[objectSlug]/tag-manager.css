@@ -1,0 +1,30 @@
+/**
+ * SabCRM — TagManagerDialog styles, 20ui.
+ *
+ * Dialog-local layout ONLY (`.stgm-*` prefix plus sizing hooks for the 20ui
+ * controls inside the legacy `.stg-mgr__*` rows), scoped to the 20ui root
+ * (`:is(.\32 0ui, .ui20)` — NEVER a bare `.20ui.foo` compound). The dialog
+ * itself, its buttons, inputs, selects and the delete confirm all render
+ * through real 20ui components; the row layout still comes from the shared
+ * `record-tags.css` (`.stg-mgr__*`). Tokens only (`--st-*`), so dark mode is
+ * free.
+ */
+
+/* The 20ui Input replaces the old `.st-input` — restore its flexible width
+   inside the create row and each tag row. */
+:is(.\32 0ui, .ui20) .stg-mgr__create > .u-input,
+:is(.\32 0ui, .ui20) .stg-mgr__row > .u-input {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* The swatch dot painted inside each colour option (and the trigger value). */
+:is(.\32 0ui, .ui20) .stgm-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: var(--st-space-2);
+  border-radius: 999px;
+  vertical-align: middle;
+  flex: 0 0 auto;
+}

@@ -4,8 +4,8 @@
   "description": "Consume Strava API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 11,
-  "lastVerified": "2026-06-11",
+  "version": 12,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -296,14 +296,15 @@
       "id": "activity_get_comments",
       "label": "Get Comments Activity",
       "method": "GET",
-      "path": "/activity",
+      "path": "/activities/{activityId}/comments",
       "fields": [
         {
           "id": "activityId",
           "label": "Activity ID",
           "type": "text",
           "required": true,
-          "description": "ID or email of activity"
+          "description": "ID or email of activity",
+          "in": "path"
         },
         {
           "id": "returnAll",
@@ -321,20 +322,21 @@
         }
       ],
       "group": "Activity",
-      "description": "[unverified path] Get all activity comments"
+      "description": "Get all activity comments"
     },
     {
       "id": "activity_get_kudos",
       "label": "Get Kudos Activity",
       "method": "GET",
-      "path": "/activity",
+      "path": "/activities/{activityId}/kudos",
       "fields": [
         {
           "id": "activityId",
           "label": "Activity ID",
           "type": "text",
           "required": true,
-          "description": "ID or email of activity"
+          "description": "ID or email of activity",
+          "in": "path"
         },
         {
           "id": "returnAll",
@@ -352,20 +354,21 @@
         }
       ],
       "group": "Activity",
-      "description": "[unverified path] Get all activity kudos"
+      "description": "Get all activity kudos"
     },
     {
       "id": "activity_get_laps",
       "label": "Get Laps Activity",
       "method": "GET",
-      "path": "/activity",
+      "path": "/activities/{activityId}/laps",
       "fields": [
         {
           "id": "activityId",
           "label": "Activity ID",
           "type": "text",
           "required": true,
-          "description": "ID or email of activity"
+          "description": "ID or email of activity",
+          "in": "path"
         },
         {
           "id": "returnAll",
@@ -383,7 +386,7 @@
         }
       ],
       "group": "Activity",
-      "description": "[unverified path] Get all activity laps"
+      "description": "Get all activity laps"
     },
     {
       "id": "activity_get_all",
@@ -484,14 +487,15 @@
       "id": "activity_get_zones",
       "label": "Get Zones Activity",
       "method": "GET",
-      "path": "/activity",
+      "path": "/activities/{activityId}/zones",
       "fields": [
         {
           "id": "activityId",
           "label": "Activity ID",
           "type": "text",
           "required": true,
-          "description": "ID or email of activity"
+          "description": "ID or email of activity",
+          "in": "path"
         },
         {
           "id": "returnAll",
@@ -509,7 +513,7 @@
         }
       ],
       "group": "Activity",
-      "description": "[unverified path] Get all activity zones"
+      "description": "Get all activity zones"
     },
     {
       "id": "activity_update",

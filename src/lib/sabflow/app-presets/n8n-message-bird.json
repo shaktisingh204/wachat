@@ -4,8 +4,8 @@
   "description": "Sends SMS via MessageBird",
   "category": "communication",
   "iconName": "LuPackage",
-  "version": 11,
-  "lastVerified": "2026-06-11",
+  "version": 12,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "header",
@@ -60,7 +60,7 @@
       "path": "/balance",
       "fields": [],
       "group": "Balance",
-      "description": "[unverified path] Get the balance"
+      "description": "Get the balance"
     }
   ]
 }

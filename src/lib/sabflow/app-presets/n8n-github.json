@@ -4,8 +4,8 @@
   "description": "Consume GitHub API",
   "category": "dev",
   "iconName": "LuPackage",
-  "version": 11,
-  "lastVerified": "2026-06-11",
+  "version": 12,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -281,22 +281,24 @@
     {
       "id": "file_create",
       "label": "Create File",
-      "method": "POST",
-      "path": "/file",
+      "method": "PUT",
+      "path": "/repos/{owner}/{repository}/contents/{filePath}",
       "fields": [
         {
           "id": "owner",
           "label": "Repository Owner",
           "type": "text",
           "required": true,
-          "description": "(provide the ID)"
+          "description": "(provide the ID)",
+          "in": "path"
         },
         {
           "id": "repository",
           "label": "Repository Name",
           "type": "text",
           "required": true,
-          "description": "(provide the ID)"
+          "description": "(provide the ID)",
+          "in": "path"
         },
         {
           "id": "filePath",
@@ -304,7 +306,8 @@
           "type": "text",
           "required": true,
           "placeholder": "docs/README.md",
-          "description": "The file path of the file. Has to contain the full path."
+          "description": "The file path of the file. Has to contain the full path.",
+          "in": "path"
         },
         {
           "id": "binaryData",
@@ -343,13 +346,13 @@
         }
       ],
       "group": "File",
-      "description": "[unverified path] Create a new file in repository"
+      "description": "Create a new file in repository"
     },
     {
       "id": "file_delete",
       "label": "Delete File",
       "method": "DELETE",
-      "path": "/repos/{owner}/{repository}/contents/{encodeURIComponent_filePath_}",
+      "path": "/repos/{owner}/{repository}/contents/{filePath}",
       "fields": [
         {
           "id": "owner",
@@ -373,7 +376,8 @@
           "type": "text",
           "required": true,
           "placeholder": "docs/README.md",
-          "description": "The file path of the file. Has to contain the full path."
+          "description": "The file path of the file. Has to contain the full path.",
+          "in": "path"
         },
         {
           "id": "commitMessage",
@@ -390,13 +394,13 @@
         }
       ],
       "group": "File",
-      "description": "[unverified path] Delete a file in repository"
+      "description": "Delete a file in repository"
     },
     {
       "id": "file_edit",
       "label": "Edit File",
-      "method": "PATCH",
-      "path": "/repos/{owner}/{repository}/contents/{encodeURIComponent_filePath_}",
+      "method": "PUT",
+      "path": "/repos/{owner}/{repository}/contents/{filePath}",
       "fields": [
         {
           "id": "owner",
@@ -420,7 +424,8 @@
           "type": "text",
           "required": true,
           "placeholder": "docs/README.md",
-          "description": "The file path of the file. Has to contain the full path."
+          "description": "The file path of the file. Has to contain the full path.",
+          "in": "path"
         },
         {
           "id": "binaryData",
@@ -459,13 +464,13 @@
         }
       ],
       "group": "File",
-      "description": "[unverified path] Edit a file in repository"
+      "description": "Edit a file in repository"
     },
     {
       "id": "file_get",
       "label": "Get File",
       "method": "GET",
-      "path": "/repos/{owner}/{repository}/contents/{encodeURIComponent_filePath_}",
+      "path": "/repos/{owner}/{repository}/contents/{filePath}",
       "fields": [
         {
           "id": "owner",
@@ -489,7 +494,8 @@
           "type": "text",
           "required": true,
           "placeholder": "docs/README.md",
-          "description": "The file path of the file. Has to contain the full path."
+          "description": "The file path of the file. Has to contain the full path.",
+          "in": "path"
         },
         {
           "id": "asBinaryProperty",
@@ -514,13 +520,13 @@
         }
       ],
       "group": "File",
-      "description": "[unverified path] Get the data of a single file"
+      "description": "Get the data of a single file"
     },
     {
       "id": "file_list",
       "label": "List File",
       "method": "GET",
-      "path": "/repos/{owner}/{repository}/contents/{encodeURIComponent_filePath_}",
+      "path": "/repos/{owner}/{repository}/contents/{filePath}",
       "fields": [
         {
           "id": "owner",
@@ -543,11 +549,12 @@
           "label": "Path",
           "type": "text",
           "placeholder": "docs/",
-          "description": "The path of the folder to list"
+          "description": "The path of the folder to list",
+          "in": "path"
         }
       ],
       "group": "File",
-      "description": "[unverified path] List contents of a folder"
+      "description": "List contents of a folder"
     },
     {
       "id": "repository_get",
@@ -651,25 +658,27 @@
       "id": "repository_get_profile",
       "label": "Get Profile Repository",
       "method": "GET",
-      "path": "/repository",
+      "path": "/repos/{owner}/{repository}/community/profile",
       "fields": [
         {
           "id": "owner",
           "label": "Repository Owner",
           "type": "text",
           "required": true,
-          "description": "(provide the ID)"
+          "description": "(provide the ID)",
+          "in": "path"
         },
         {
           "id": "repository",
           "label": "Repository Name",
           "type": "text",
           "required": true,
-          "description": "(provide the ID)"
+          "description": "(provide the ID)",
+          "in": "path"
         }
       ],
       "group": "Repository",
-      "description": "[unverified path] Get the community profile of a repository with metrics, health score, description, license, etc"
+      "description": "Get the community profile of a repository with metrics, health score, description, license, etc"
     },
     {
       "id": "repository_get_pull_requests",

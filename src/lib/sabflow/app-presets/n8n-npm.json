@@ -4,8 +4,8 @@
   "description": "Consume NPM registry API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 9,
-  "lastVerified": "2026-06-11",
+  "version": 11,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "header",
@@ -17,7 +17,7 @@
       "id": "package_get_metadata",
       "label": "Get Metadata Package",
       "method": "GET",
-      "path": "/{{ encodeURIComponent({packageName}) }}/{{ {packageVersion} }}",
+      "path": "/{packageName}/{packageVersion}",
       "fields": [
         {
           "id": "packageName",
@@ -36,13 +36,13 @@
         }
       ],
       "group": "Package",
-      "description": "[unverified path] Returns all the metadata for a package at a specific version"
+      "description": "Returns all the metadata for a package at a specific version"
     },
     {
       "id": "package_get_versions",
       "label": "Get Versions Package",
       "method": "GET",
-      "path": "/{{ encodeURIComponent({packageName}) }}",
+      "path": "/{packageName}",
       "fields": [
         {
           "id": "packageName",
@@ -53,7 +53,7 @@
         }
       ],
       "group": "Package",
-      "description": "[unverified path] Returns all the versions for a package"
+      "description": "Returns all the versions for a package"
     },
     {
       "id": "package_search",
@@ -90,7 +90,7 @@
       "id": "dist_tag_get_many",
       "label": "Get All Distribution Tag",
       "method": "GET",
-      "path": "/-/package/{{ encodeURIComponent({packageName}) }}/dist-tags",
+      "path": "/-/package/{packageName}/dist-tags",
       "fields": [
         {
           "id": "packageName",
@@ -101,13 +101,13 @@
         }
       ],
       "group": "Distribution Tag",
-      "description": "[unverified path] Returns all the dist-tags for a package"
+      "description": "Returns all the dist-tags for a package"
     },
     {
       "id": "dist_tag_update",
       "label": "Update Distribution Tag",
       "method": "PUT",
-      "path": "/-/package/{{ encodeURIComponent({packageName}) }}/dist-tags/{{ encodeURIComponent({distTagName}) }}",
+      "path": "/-/package/{packageName}/dist-tags/{distTagName}",
       "fields": [
         {
           "id": "packageName",
@@ -132,7 +132,7 @@
         }
       ],
       "group": "Distribution Tag",
-      "description": "[unverified path] Update a the dist-tags for a package"
+      "description": "Update a the dist-tags for a package"
     }
   ]
 }

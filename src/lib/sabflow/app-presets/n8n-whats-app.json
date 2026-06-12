@@ -4,8 +4,8 @@
   "description": "Access WhatsApp API",
   "category": "communication",
   "iconName": "LuPackage",
-  "version": 11,
-  "lastVerified": "2026-06-11",
+  "version": 12,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "bearer",
@@ -17,14 +17,15 @@
       "id": "message_send",
       "label": "Send Message",
       "method": "POST",
-      "path": "/message",
+      "path": "/{phoneNumberId}/messages",
       "fields": [
         {
           "id": "phoneNumberId",
           "label": "Sender Phone Number (or ID)",
           "type": "select",
           "required": true,
-          "description": "The ID of the business account's phone number from which the message will be sent from"
+          "description": "The ID of the business account's phone number from which the message will be sent from",
+          "in": "path"
         },
         {
           "id": "recipientPhoneNumber",
@@ -160,45 +161,21 @@
         }
       ],
       "group": "Message",
-      "description": "[unverified path] Send message"
-    },
-    {
-      "id": "message_send_and_wait_operation",
-      "label": "Send and Wait for Response Message",
-      "method": "POST",
-      "path": "/message",
-      "fields": [
-        {
-          "id": "phoneNumberId",
-          "label": "Sender Phone Number (or ID)",
-          "type": "select",
-          "required": true,
-          "description": "The ID of the business account's phone number from which the message will be sent from"
-        },
-        {
-          "id": "recipientPhoneNumber",
-          "label": "Recipient's Phone Number",
-          "type": "text",
-          "required": true,
-          "description": "Phone number of the recipient of the message",
-          "in": "body"
-        }
-      ],
-      "group": "Message",
-      "description": "[unverified path] Send message and wait for response"
+      "description": "Send message"
     },
     {
       "id": "message_send_template",
       "label": "Send Template Message",
       "method": "POST",
-      "path": "/message",
+      "path": "/{phoneNumberId}/messages",
       "fields": [
         {
           "id": "phoneNumberId",
           "label": "Sender Phone Number (or ID)",
           "type": "select",
           "required": true,
-          "description": "The ID of the business account's phone number from which the message will be sent from"
+          "description": "The ID of the business account's phone number from which the message will be sent from",
+          "in": "path"
         },
         {
           "id": "recipientPhoneNumber",
@@ -225,73 +202,43 @@
         }
       ],
       "group": "Message",
-      "description": "[unverified path] Send template"
-    },
-    {
-      "id": "media_media_upload",
-      "label": "Upload Media",
-      "method": "POST",
-      "path": "/media",
-      "fields": [
-        {
-          "id": "phoneNumberId",
-          "label": "Sender Phone Number (or ID)",
-          "type": "select",
-          "required": true,
-          "description": "The ID of the business account's phone number to store the media"
-        },
-        {
-          "id": "mediaPropertyName",
-          "label": "Property Name",
-          "type": "text",
-          "required": true,
-          "description": "Name of the binary property which contains the data for the file to be uploaded",
-          "defaultValue": "data"
-        },
-        {
-          "id": "additionalFields",
-          "label": "Additional Fields",
-          "type": "json",
-          "placeholder": "Add Field",
-          "description": "(JSON object; supported keys: mediaFileName)"
-        }
-      ],
-      "group": "Media",
-      "description": "[unverified path] Upload media"
+      "description": "Send template"
     },
     {
       "id": "media_media_url_get",
       "label": "Download Media",
-      "method": "POST",
-      "path": "/media",
+      "method": "GET",
+      "path": "/{mediaGetId}",
       "fields": [
         {
           "id": "mediaGetId",
           "label": "Media ID",
           "type": "text",
           "required": true,
-          "description": "The ID of the media"
+          "description": "The ID of the media",
+          "in": "path"
         }
       ],
       "group": "Media",
-      "description": "[unverified path] Download media"
+      "description": "Download media"
     },
     {
       "id": "media_media_delete",
       "label": "Delete Media",
-      "method": "POST",
-      "path": "/media",
+      "method": "DELETE",
+      "path": "/{mediaDeleteId}",
       "fields": [
         {
           "id": "mediaDeleteId",
           "label": "Media ID",
           "type": "text",
           "required": true,
-          "description": "The ID of the media"
+          "description": "The ID of the media",
+          "in": "path"
         }
       ],
       "group": "Media",
-      "description": "[unverified path] Delete media"
+      "description": "Delete media"
     }
   ]
 }

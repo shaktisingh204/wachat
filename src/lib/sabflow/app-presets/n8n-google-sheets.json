@@ -4,8 +4,8 @@
   "description": "Read, update and write data to Google Sheets",
   "category": "productivity",
   "iconName": "LuPackage",
-  "version": 11,
-  "lastVerified": "2026-06-11",
+  "version": 12,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -15,104 +15,29 @@
       "type": "none"
     }
   },
-  "baseUrl": "https://sheets.googleapis.com/v4/spreadsheets",
+  "baseUrl": "https://sheets.googleapis.com",
   "endpoints": [
-    {
-      "id": "sheet_append_or_update",
-      "label": "Append or Update Row Sheet Within Document",
-      "method": "POST",
-      "path": "/sheet",
-      "fields": [
-        {
-          "id": "documentId",
-          "label": "Document",
-          "type": "text",
-          "required": true,
-          "description": "(provide the ID)"
-        },
-        {
-          "id": "sheetName",
-          "label": "Sheet",
-          "type": "text",
-          "required": true,
-          "description": "(provide the ID)"
-        },
-        {
-          "id": "dataMode",
-          "label": "Data Mode",
-          "type": "select",
-          "description": "Whether to insert the input data this node receives in the new row",
-          "defaultValue": "defineBelow",
-          "options": [
-            {
-              "value": "autoMapInputData",
-              "label": "Auto-Map Input Data to Columns"
-            },
-            {
-              "value": "defineBelow",
-              "label": "Map Each Column Below"
-            },
-            {
-              "value": "nothing",
-              "label": "Nothing"
-            }
-          ]
-        },
-        {
-          "id": "columnToMatchOn",
-          "label": "Column to match on",
-          "type": "select",
-          "description": "Choose from the list, or specify an ID using an expression"
-        },
-        {
-          "id": "valueToMatchOn",
-          "label": "Value of Column to Match On",
-          "type": "text"
-        },
-        {
-          "id": "fieldsUi",
-          "label": "Values to Send",
-          "type": "json",
-          "placeholder": "Add Field",
-          "description": "(JSON object; supported keys: values, values.column, values.columnName, values.fieldValue)"
-        },
-        {
-          "id": "columns",
-          "label": "Columns",
-          "type": "json",
-          "required": true,
-          "description": "(JSON)"
-        },
-        {
-          "id": "options",
-          "label": "Options",
-          "type": "json",
-          "placeholder": "Add option",
-          "description": "(JSON object; supported keys: cellFormat, locationDefine, handlingExtraData, useAppend)"
-        }
-      ],
-      "group": "Sheet Within Document",
-      "description": "[unverified path] Append a new row or update an existing one (upsert)"
-    },
     {
       "id": "sheet_append",
       "label": "Append Row Sheet Within Document",
       "method": "POST",
-      "path": "/sheet",
+      "path": "/v4/spreadsheets/{documentId}/values/{sheetName}:append",
       "fields": [
         {
           "id": "documentId",
           "label": "Document",
           "type": "text",
           "required": true,
-          "description": "(provide the ID)"
+          "description": "(provide the ID)",
+          "in": "path"
         },
         {
           "id": "sheetName",
           "label": "Sheet",
           "type": "text",
           "required": true,
-          "description": "(provide the ID)"
+          "description": "(provide the ID)",
+          "in": "path"
         },
         {
           "id": "dataMode",
@@ -158,20 +83,21 @@
         }
       ],
       "group": "Sheet Within Document",
-      "description": "[unverified path] Create a new row in a sheet"
+      "description": "Create a new row in a sheet"
     },
     {
       "id": "sheet_clear",
       "label": "Clear Sheet Within Document",
       "method": "POST",
-      "path": "/sheet",
+      "path": "/v4/spreadsheets/{documentId}/values/{range}:clear",
       "fields": [
         {
           "id": "documentId",
           "label": "Document",
           "type": "text",
           "required": true,
-          "description": "(provide the ID)"
+          "description": "(provide the ID)",
+          "in": "path"
         },
         {
           "id": "sheetName",
@@ -236,24 +162,26 @@
           "type": "text",
           "required": true,
           "description": "The table range to read from or to append data to. See the Google documentation for the details. If it contains multiple sheets it can also be added like this: \"MySheet!A:F\"",
-          "defaultValue": "A:F"
+          "defaultValue": "A:F",
+          "in": "path"
         }
       ],
       "group": "Sheet Within Document",
-      "description": "[unverified path] Delete all the contents or a part of a sheet"
+      "description": "Delete all the contents or a part of a sheet"
     },
     {
       "id": "sheet_create",
       "label": "Create Sheet Within Document",
       "method": "POST",
-      "path": "/v4/spreadsheets/{sheetName}:batchUpdate",
+      "path": "/v4/spreadsheets/{documentId}:batchUpdate",
       "fields": [
         {
           "id": "documentId",
           "label": "Document",
           "type": "text",
           "required": true,
-          "description": "(provide the ID)"
+          "description": "(provide the ID)",
+          "in": "path"
         },
         {
           "id": "title",
@@ -278,14 +206,15 @@
       "id": "sheet_remove",
       "label": "Delete Sheet Within Document",
       "method": "POST",
-      "path": "/v4/spreadsheets/{spreadsheetId}:batchUpdate",
+      "path": "/v4/spreadsheets/{documentId}:batchUpdate",
       "fields": [
         {
           "id": "documentId",
           "label": "Document",
           "type": "text",
           "required": true,
-          "description": "(provide the ID)"
+          "description": "(provide the ID)",
+          "in": "path"
         },
         {
           "id": "sheetName",
@@ -301,15 +230,16 @@
     {
       "id": "sheet_delete",
       "label": "Delete Rows or Columns Sheet Within Document",
-      "method": "DELETE",
-      "path": "/sheet",
+      "method": "POST",
+      "path": "/v4/spreadsheets/{documentId}:batchUpdate",
       "fields": [
         {
           "id": "documentId",
           "label": "Document",
           "type": "text",
           "required": true,
-          "description": "(provide the ID)"
+          "description": "(provide the ID)",
+          "in": "path"
         },
         {
           "id": "sheetName",
@@ -350,27 +280,29 @@
         }
       ],
       "group": "Sheet Within Document",
-      "description": "[unverified path] Delete columns or rows from a sheet"
+      "description": "Delete columns or rows from a sheet"
     },
     {
       "id": "sheet_read",
       "label": "Get Row(s) Sheet Within Document",
       "method": "GET",
-      "path": "/sheet",
+      "path": "/v4/spreadsheets/{documentId}/values/{sheetName}",
       "fields": [
         {
           "id": "documentId",
           "label": "Document",
           "type": "text",
           "required": true,
-          "description": "(provide the ID)"
+          "description": "(provide the ID)",
+          "in": "path"
         },
         {
           "id": "sheetName",
           "label": "Sheet",
           "type": "text",
           "required": true,
-          "description": "(provide the ID)"
+          "description": "(provide the ID)",
+          "in": "path"
         },
         {
           "id": "filtersUI",
@@ -405,84 +337,7 @@
         }
       ],
       "group": "Sheet Within Document",
-      "description": "[unverified path] Retrieve one or more rows from a sheet"
-    },
-    {
-      "id": "sheet_update",
-      "label": "Update Row Sheet Within Document",
-      "method": "PATCH",
-      "path": "/sheet",
-      "fields": [
-        {
-          "id": "documentId",
-          "label": "Document",
-          "type": "text",
-          "required": true,
-          "description": "(provide the ID)"
-        },
-        {
-          "id": "sheetName",
-          "label": "Sheet",
-          "type": "text",
-          "required": true,
-          "description": "(provide the ID)"
-        },
-        {
-          "id": "dataMode",
-          "label": "Data Mode",
-          "type": "select",
-          "description": "Whether to insert the input data this node receives in the new row",
-          "defaultValue": "defineBelow",
-          "options": [
-            {
-              "value": "autoMapInputData",
-              "label": "Auto-Map Input Data to Columns"
-            },
-            {
-              "value": "defineBelow",
-              "label": "Map Each Column Below"
-            },
-            {
-              "value": "nothing",
-              "label": "Nothing"
-            }
-          ]
-        },
-        {
-          "id": "columnToMatchOn",
-          "label": "Column to match on",
-          "type": "select",
-          "description": "Choose from the list, or specify an ID using an expression"
-        },
-        {
-          "id": "valueToMatchOn",
-          "label": "Value of Column to Match On",
-          "type": "text"
-        },
-        {
-          "id": "fieldsUi",
-          "label": "Values to Send",
-          "type": "json",
-          "placeholder": "Add Field",
-          "description": "(JSON object; supported keys: values, values.column, values.columnName, values.fieldValue)"
-        },
-        {
-          "id": "columns",
-          "label": "Columns",
-          "type": "json",
-          "required": true,
-          "description": "(JSON)"
-        },
-        {
-          "id": "options",
-          "label": "Options",
-          "type": "json",
-          "placeholder": "Add option",
-          "description": "(JSON object; supported keys: cellFormat, locationDefine, handlingExtraData)"
-        }
-      ],
-      "group": "Sheet Within Document",
-      "description": "[unverified path] Update an existing row in a sheet"
+      "description": "Retrieve one or more rows from a sheet"
     },
     {
       "id": "spreadsheet_create",
@@ -513,23 +368,6 @@
       ],
       "group": "Document",
       "description": "Create a spreadsheet"
-    },
-    {
-      "id": "spreadsheet_delete_spreadsheet",
-      "label": "Delete Document",
-      "method": "DELETE",
-      "path": "/spreadsheet",
-      "fields": [
-        {
-          "id": "documentId",
-          "label": "Document",
-          "type": "text",
-          "required": true,
-          "description": "(provide the ID)"
-        }
-      ],
-      "group": "Document",
-      "description": "[unverified path] Delete a spreadsheet"
     }
   ]
 }

@@ -1,61 +1,46 @@
-import '@/components/sabcrm/20ui/surface-crm-base.css';
-
 /**
- * SabCRM root loading skeleton — Twenty design system (`.st-*`), NOT Ui20.
+ * SabCRM root loading skeleton (`/sabcrm`), 20ui.
  *
  * Matches the overview/index layout: page header + grid of object cards.
  * Each card shows a title line, a body block, and a footer chip/count row.
+ * Renders inside `layout.tsx`'s `SabcrmSuiteFrame` (which carries the 20ui
+ * token scope), so this is pure 20ui — no `.sabcrm-twenty` / `.st-*` classes.
  */
-export default function SabcrmLoading() {
-  return (
-    <div className="sabcrm-twenty">
-      <main className="st-page" aria-busy="true" aria-label="Loading SabCRM">
-        <header className="st-page-header">
-          <span className="st-page-header__icon" aria-hidden="true">
-            <span
-              className="st-skeleton"
-              style={{ width: 16, height: 16, borderRadius: 4 }}
-            />
-          </span>
-          <span
-            className="st-skeleton"
-            style={{ width: 120, height: 18, display: 'inline-block' }}
-          />
-        </header>
 
-        <ul className="grid gap-[var(--st-space-3)] list-none m-0 p-0 [grid-template-columns:repeat(auto-fill,minmax(260px,1fr))]">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <li key={i}>
-              <div className="st-panel p-[var(--st-space-4)]">
-                <div className="flex items-center justify-between gap-[var(--st-space-3)]">
-                  <span
-                    className="st-skeleton"
-                    style={{ width: 128, height: 16, display: 'inline-block' }}
-                  />
-                  <span
-                    className="st-skeleton"
-                    style={{ width: 40, height: 16, display: 'inline-block' }}
-                  />
-                </div>
-                <span
-                  className="st-skeleton block mt-[var(--st-space-3)]"
-                  style={{ width: '100%', height: 36 }}
-                />
-                <div className="flex items-center gap-[var(--st-space-2)] mt-[var(--st-space-3)]">
-                  <span
-                    className="st-skeleton"
-                    style={{ width: 72, height: 20, display: 'inline-block' }}
-                  />
-                  <span
-                    className="st-skeleton"
-                    style={{ width: 56, height: 14, display: 'inline-block' }}
-                  />
-                </div>
+import * as React from 'react';
+
+import '@/components/sabcrm/20ui/surface-crm-base.css';
+import { Skeleton } from '@/components/sabcrm/20ui';
+
+export default function SabcrmLoading(): React.JSX.Element {
+  return (
+    <main
+      className="mx-auto w-full max-w-6xl px-6 py-8"
+      aria-busy="true"
+      aria-label="Loading SabCRM"
+    >
+      <header className="flex items-center gap-2">
+        <Skeleton className="h-4 w-4 rounded" />
+        <Skeleton className="h-[18px] w-[120px]" />
+      </header>
+
+      <ul className="m-0 mt-6 grid list-none gap-3 p-0 [grid-template-columns:repeat(auto-fill,minmax(260px,1fr))]">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <li key={i}>
+            <div className="rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-4">
+              <div className="flex items-center justify-between gap-3">
+                <Skeleton className="h-4 w-32" />
+                <Skeleton className="h-4 w-10" />
               </div>
-            </li>
-          ))}
-        </ul>
-      </main>
-    </div>
+              <Skeleton className="mt-3 block h-9 w-full" />
+              <div className="mt-3 flex items-center gap-2">
+                <Skeleton className="h-5 w-[72px]" />
+                <Skeleton className="h-[14px] w-14" />
+              </div>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </main>
   );
 }

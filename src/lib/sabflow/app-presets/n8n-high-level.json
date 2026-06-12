@@ -4,8 +4,8 @@
   "description": "Consume HighLevel API v2",
   "category": "crm",
   "iconName": "LuPackage",
-  "version": 11,
-  "lastVerified": "2026-06-11",
+  "version": 12,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -50,7 +50,7 @@
       "id": "contact_delete",
       "label": "Delete Contact",
       "method": "DELETE",
-      "path": "/contacts/{{{contactId}}}/",
+      "path": "/contacts/{contactId}/",
       "fields": [
         {
           "id": "contactId",
@@ -61,13 +61,13 @@
         }
       ],
       "group": "Contact",
-      "description": "[unverified path] Delete a contact"
+      "description": "Delete a contact"
     },
     {
       "id": "contact_get",
       "label": "Get Contact",
       "method": "GET",
-      "path": "/contacts/{{{contactId}}}/",
+      "path": "/contacts/{contactId}/",
       "fields": [
         {
           "id": "contactId",
@@ -78,7 +78,7 @@
         }
       ],
       "group": "Contact",
-      "description": "[unverified path] Get a contact"
+      "description": "Get a contact"
     },
     {
       "id": "contact_get_all",
@@ -123,7 +123,7 @@
       "id": "contact_update",
       "label": "Update Contact",
       "method": "PUT",
-      "path": "/contacts/{{{contactId}}}/",
+      "path": "/contacts/{contactId}/",
       "fields": [
         {
           "id": "contactId",
@@ -141,7 +141,7 @@
         }
       ],
       "group": "Contact",
-      "description": "[unverified path] Update a contact"
+      "description": "Update a contact"
     },
     {
       "id": "opportunity_create",
@@ -212,7 +212,7 @@
       "id": "opportunity_delete",
       "label": "Delete Opportunity",
       "method": "DELETE",
-      "path": "/opportunities/{{{opportunityId}}}",
+      "path": "/opportunities/{opportunityId}",
       "fields": [
         {
           "id": "opportunityId",
@@ -223,13 +223,13 @@
         }
       ],
       "group": "Opportunity",
-      "description": "[unverified path] Delete an opportunity"
+      "description": "Delete an opportunity"
     },
     {
       "id": "opportunity_get",
       "label": "Get Opportunity",
       "method": "GET",
-      "path": "/opportunities/{{{opportunityId}}}",
+      "path": "/opportunities/{opportunityId}",
       "fields": [
         {
           "id": "opportunityId",
@@ -240,7 +240,7 @@
         }
       ],
       "group": "Opportunity",
-      "description": "[unverified path] Get an opportunity"
+      "description": "Get an opportunity"
     },
     {
       "id": "opportunity_get_all",
@@ -278,7 +278,7 @@
       "id": "opportunity_update",
       "label": "Update Opportunity",
       "method": "PUT",
-      "path": "/opportunities/{{{opportunityId}}}",
+      "path": "/opportunities/{opportunityId}",
       "fields": [
         {
           "id": "opportunityId",
@@ -296,13 +296,13 @@
         }
       ],
       "group": "Opportunity",
-      "description": "[unverified path] Update an opportunity"
+      "description": "Update an opportunity"
     },
     {
       "id": "task_create",
       "label": "Create Task",
       "method": "POST",
-      "path": "/contacts/{{{contactId}}}/tasks/",
+      "path": "/contacts/{contactId}/tasks/",
       "fields": [
         {
           "id": "contactId",
@@ -345,13 +345,13 @@
         }
       ],
       "group": "Task",
-      "description": "[unverified path] Create a task"
+      "description": "Create a task"
     },
     {
       "id": "task_delete",
       "label": "Delete Task",
       "method": "DELETE",
-      "path": "/contacts/{{{contactId}}}/tasks/{{{taskId}}}/",
+      "path": "/contacts/{contactId}/tasks/{taskId}/",
       "fields": [
         {
           "id": "contactId",
@@ -370,13 +370,13 @@
         }
       ],
       "group": "Task",
-      "description": "[unverified path] Delete a task"
+      "description": "Delete a task"
     },
     {
       "id": "task_get",
       "label": "Get Task",
       "method": "GET",
-      "path": "/contacts/{{{contactId}}}/tasks/{{{taskId}}}/",
+      "path": "/contacts/{contactId}/tasks/{taskId}/",
       "fields": [
         {
           "id": "contactId",
@@ -395,13 +395,13 @@
         }
       ],
       "group": "Task",
-      "description": "[unverified path] Get a task"
+      "description": "Get a task"
     },
     {
       "id": "task_get_all",
       "label": "Get Many Task",
       "method": "GET",
-      "path": "/contacts/{{{contactId}}}/tasks/",
+      "path": "/contacts/{contactId}/tasks/",
       "fields": [
         {
           "id": "contactId",
@@ -428,13 +428,13 @@
         }
       ],
       "group": "Task",
-      "description": "[unverified path] Get many tasks"
+      "description": "Get many tasks"
     },
     {
       "id": "task_update",
       "label": "Update Task",
       "method": "PUT",
-      "path": "/contacts/{{{contactId}}}/tasks/{{{taskId}}}/",
+      "path": "/contacts/{contactId}/tasks/{taskId}/",
       "fields": [
         {
           "id": "contactId",
@@ -460,7 +460,7 @@
         }
       ],
       "group": "Task",
-      "description": "[unverified path] Update a task"
+      "description": "Update a task"
     },
     {
       "id": "calendar_book_appointment",
@@ -512,7 +512,7 @@
       "id": "calendar_get_free_slots",
       "label": "Get Free Slots Calendar",
       "method": "GET",
-      "path": "/calendars/{{{calendarId}}}/free-slots",
+      "path": "/calendars/{calendarId}/free-slots",
       "fields": [
         {
           "id": "calendarId",
@@ -546,7 +546,7 @@
         }
       ],
       "group": "Calendar",
-      "description": "[unverified path] Get free slots of a calendar"
+      "description": "Get free slots of a calendar"
     }
   ]
 }

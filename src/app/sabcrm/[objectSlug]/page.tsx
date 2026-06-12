@@ -94,6 +94,7 @@ import type {
 import type { ObjectMetadata, FieldMetadata } from '@/lib/sabcrm/types';
 import { listMembersAction } from '@/app/actions/sabcrm.actions';
 import type { CrmMember } from '@/lib/sabcrm/members.server';
+import { RecordSurface } from './record-surface';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -2505,7 +2506,30 @@ function ErrorBanner({ message }: { message: string }) {
 // Page
 // ---------------------------------------------------------------------------
 
-export default function SabcrmTwentyIndexPage(): React.JSX.Element {
+/**
+ * Flag gate for the NEW 20ui RecordSurface list experience.
+ * `NEXT_PUBLIC_SABCRM_RECORD_SURFACE` = `'1'` | `'all'` (every object) or a
+ * comma-list of object slugs (e.g. `'people,companies'`). Unset/empty → the
+ * legacy Twenty-styled page below renders unchanged.
+ */
+function recordSurfaceEnabled(slug: string): boolean {
+  const flag = (process.env.NEXT_PUBLIC_SABCRM_RECORD_SURFACE ?? '').trim();
+  if (!flag) return false;
+  if (flag === '1' || flag === 'all') return true;
+  return flag
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .includes(slug);
+}
+
+export default function SabcrmObjectIndexPage(): React.JSX.Element {
+  const params = useParams<{ objectSlug: string }>();
+  if (recordSurfaceEnabled(params?.objectSlug ?? '')) return <RecordSurface />;
+  return <SabcrmTwentyIndexPage />;
+}
+
+function SabcrmTwentyIndexPage(): React.JSX.Element {
   const params = useParams<{ objectSlug: string }>();
   const objectSlug = params?.objectSlug ?? '';
   const router = useRouter();

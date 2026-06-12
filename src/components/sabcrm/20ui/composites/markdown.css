@@ -1,0 +1,167 @@
+/**
+ * 20ui — Markdown renderer (composite) styles.
+ *
+ * Pairs with `markdown.tsx` (`.u-md*` classes), scoped to the 20ui roots
+ * (`:is(.\32 0ui, .ui20)` — NEVER a bare `.20ui.foo` compound). Ported from
+ * the retiring Twenty AI page rules (`.st-md*` in `ai.css`). Tokens only
+ * (`--st-*`), so dark mode is free.
+ */
+
+:is(.\32 0ui, .ui20) .u-md {
+  font-size: var(--st-font-size);
+  line-height: 1.6;
+  color: var(--st-text);
+  white-space: normal;
+}
+
+/* Vertical rhythm between blocks; first/last collapse to the wrapper edge. */
+:is(.\32 0ui, .ui20) .u-md > * {
+  margin: 0 0 var(--st-space-3);
+}
+
+:is(.\32 0ui, .ui20) .u-md > *:last-child {
+  margin-bottom: 0;
+}
+
+:is(.\32 0ui, .ui20) .u-md__p {
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Headings */
+:is(.\32 0ui, .ui20) .u-md__h {
+  font-weight: var(--st-fw-semibold);
+  line-height: 1.3;
+  color: var(--st-text);
+  margin-top: var(--st-space-4);
+}
+
+:is(.\32 0ui, .ui20) .u-md > .u-md__h:first-child {
+  margin-top: 0;
+}
+
+:is(.\32 0ui, .ui20) .u-md__h1 {
+  font-size: var(--st-font-size-xl);
+}
+
+:is(.\32 0ui, .ui20) .u-md__h2 {
+  font-size: var(--st-font-size-lg);
+}
+
+:is(.\32 0ui, .ui20) .u-md__h3 {
+  font-size: var(--st-font-size);
+}
+
+:is(.\32 0ui, .ui20) .u-md__h4,
+:is(.\32 0ui, .ui20) .u-md__h5,
+:is(.\32 0ui, .ui20) .u-md__h6 {
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-secondary);
+  text-transform: none;
+}
+
+/* Inline marks */
+:is(.\32 0ui, .ui20) .u-md__strong {
+  font-weight: var(--st-fw-semibold);
+  color: var(--st-text);
+}
+
+:is(.\32 0ui, .ui20) .u-md__em {
+  font-style: italic;
+}
+
+:is(.\32 0ui, .ui20) .u-md__code {
+  font-family: var(--st-font-mono);
+  font-size: 0.85em;
+  padding: 1px 5px;
+  border-radius: var(--st-radius-sm);
+  background: var(--st-hover);
+  border: 1px solid var(--st-border-light);
+  word-break: break-word;
+}
+
+:is(.\32 0ui, .ui20) .u-md__link {
+  color: var(--st-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  word-break: break-word;
+}
+
+:is(.\32 0ui, .ui20) .u-md__link:hover {
+  color: var(--st-accent-strong, var(--st-accent));
+}
+
+/* Lists */
+:is(.\32 0ui, .ui20) .u-md__ul,
+:is(.\32 0ui, .ui20) .u-md__ol {
+  padding-left: var(--st-space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-1);
+}
+
+:is(.\32 0ui, .ui20) .u-md__ul {
+  list-style: disc;
+}
+
+:is(.\32 0ui, .ui20) .u-md__ol {
+  list-style: decimal;
+}
+
+:is(.\32 0ui, .ui20) .u-md__li {
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+:is(.\32 0ui, .ui20) .u-md__li::marker {
+  color: var(--st-text-secondary);
+}
+
+/* Blockquote */
+:is(.\32 0ui, .ui20) .u-md__quote {
+  border-left: 3px solid var(--st-border-strong);
+  padding: var(--st-space-1) 0 var(--st-space-1) var(--st-space-3);
+  color: var(--st-text-secondary);
+}
+
+:is(.\32 0ui, .ui20) .u-md__quote > *:last-child {
+  margin-bottom: 0;
+}
+
+/* Horizontal rule */
+:is(.\32 0ui, .ui20) .u-md__hr {
+  border: none;
+  border-top: 1px solid var(--st-border);
+  margin: var(--st-space-4) 0;
+}
+
+/* Fenced code block */
+:is(.\32 0ui, .ui20) .u-md__pre {
+  position: relative;
+  margin: 0 0 var(--st-space-3);
+  padding: var(--st-space-3) var(--st-space-4);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg-secondary);
+  overflow-x: auto;
+  white-space: pre;
+}
+
+:is(.\32 0ui, .ui20) .u-md__pre-lang {
+  display: block;
+  margin-bottom: var(--st-space-1);
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-tertiary);
+  text-transform: lowercase;
+  user-select: none;
+}
+
+:is(.\32 0ui, .ui20) .u-md__pre-code {
+  font-family: var(--st-font-mono);
+  font-size: 0.85em;
+  line-height: 1.5;
+  color: var(--st-text);
+  white-space: pre;
+}

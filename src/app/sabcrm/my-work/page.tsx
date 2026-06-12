@@ -3,32 +3,30 @@
 export const dynamic = 'force-dynamic';
 
 /**
- * SabCRM — "My Work" page (`/sabcrm/my-work`), Twenty look.
+ * SabCRM — "My Work" page (`/sabcrm/my-work`), 20ui.
  *
  * Twenty CRM "Assigned to me / My work" parity: a single, cross-object inbox of
  * every record assigned to the signed-in member in the active project, newest-
  * updated first. Object-agnostic — it lists assignments across *all* objects
- * (people, companies, opportunities, tasks, …) in one continuous Twenty surface,
+ * (people, companies, opportunities, tasks, …) in one continuous surface,
  * each row linking to `/sabcrm/<object>/<recordId>`.
  *
- * Twenty parity surfaces (mirroring `activities/tasks/TaskGroups`):
+ * Parity surfaces (mirroring `activities/tasks/TaskGroups`):
  *   • An OBJECT filter — a segmented control (All + every object that actually
  *     has assignments, each with its count) so the inbox can be narrowed to one
- *     object slug. The selection is pushed down to {@link listMyAssignmentsAction}
- *     (`{ object }`) so the engine does the narrowing.
+ *     object slug. The selection is applied client-side over the loaded page so
+ *     the segmented counts stay live without re-fetching.
  *   • STATUS GROUPING — when the selected assignments carry a `data.status`,
- *     they render as Twenty status groups (one `TaskList`-style section per
- *     status, newest-updated first within each), exactly like Twenty groups its
- *     tasks. With no statuses present it degrades to one flat assignments table.
+ *     they render as status groups (one section per status, newest-updated
+ *     first within each), exactly like Twenty groups its tasks. With no
+ *     statuses present it degrades to one flat assignments table.
  *   • A header REFRESH affordance (consistent with `/sabcrm/activity`).
  *
  * Client Component. Auth / onboarding / RBAC / project context are enforced by
- * `../layout.tsx`, which wraps every `/sabcrm/*` child in `RBACGuard` +
- * `ProjectProvider` and mounts them inside `TwentyAppFrame` (the `.sabcrm-twenty`
- * scope + `.st-main__content` padding). {@link listMyAssignmentsAction} (behind
- * `sabcrm:view`) independently re-runs the full session → project → RBAC → plan
- * pipeline, so this page fails closed (calm in-page error / empty state) for
- * anyone who slips past the layout guard.
+ * `../layout.tsx`. {@link listMyAssignmentsAction} (behind `sabcrm:view`)
+ * independently re-runs the full session → project → RBAC → plan pipeline, so
+ * this page fails closed (calm in-page error / empty state) for anyone who
+ * slips past the layout guard.
  *
  * Data model
  * ----------
@@ -37,11 +35,11 @@ export const dynamic = 'force-dynamic';
  * and ISO `createdAt` / `updatedAt` — there is no precomputed label/status
  * field, so we derive a display title from the conventional label keys
  * (`title` / `name` / `label` / …) and surface `data.status` + a due date *only
- * when the record's `data` actually contains them*, rendering them through
- * {@link TwentyFieldValue} (synthetic SELECT / DATE fields) for Twenty-faithful
- * presentation.
+ * when the record's `data` actually contains them* (status as a toned Badge,
+ * the due date humanized like "Apr 3, 2026").
  *
- * Twenty look only (`.st-*` + `./my-work.css`). NO Ui20 / Tailwind / clay.
+ * 20ui only (`@/components/sabcrm/20ui` + the page-local `./my-work.css`,
+ * `.mw-*` classes scoped to the 20ui root).
  */
 
 import * as React from 'react';
@@ -53,32 +51,36 @@ import {
 } from 'lucide-react';
 
 import { listMyAssignmentsAction } from '@/app/actions/sabcrm.actions';
-import { TwentyPageHeader, TwentyChip } from '@/components/sabcrm/twenty';
-import { TwentyFieldValue } from '@/components/sabcrm/twenty/twenty-field';
-import { Button, SegmentedControl } from '@/components/sabcrm/20ui';
-import type { SegmentedItem } from '@/components/sabcrm/20ui';
-import type { CrmRecord, FieldMetadata } from '@/lib/sabcrm/types';
+import {
+  Alert,
+  Badge,
+  Button,
+  EmptyState,
+  PageActions,
+  PageDescription,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  SegmentedControl,
+  Skeleton,
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+  type BadgeTone,
+  type SegmentedItem,
+} from '@/components/sabcrm/20ui';
+import type { CrmRecord } from '@/lib/sabcrm/types';
 import { useProject } from '@/context/project-context';
 
+import '@/components/sabcrm/20ui/surface-crm-base.css';
 import './my-work.css';
 
 // ---------------------------------------------------------------------------
-// Synthetic fields used to drive TwentyFieldValue for the optional columns.
+// Constants
 // ---------------------------------------------------------------------------
-
-/** A bare SELECT field (no options) so a status value renders as a chip. */
-const STATUS_FIELD: FieldMetadata = {
-  key: 'status',
-  label: 'Status',
-  type: 'SELECT',
-};
-
-/** A DATE field so a due date renders Twenty-humanized ("Apr 3, 2026"). */
-const DUE_FIELD: FieldMetadata = {
-  key: 'dueAt',
-  label: 'Due',
-  type: 'DATE',
-};
 
 /** Sentinel object-filter key meaning "every object". */
 const ALL_OBJECTS = '__all__' as const;
@@ -99,6 +101,16 @@ const STATUS_ORDER: Record<string, number> = {
 
 /** Bucket key used for records that carry no status at all. */
 const NO_STATUS = '__no_status__';
+
+/** Status → Badge tone, so colour carries workflow meaning (never decoration). */
+const STATUS_TONE: Record<string, BadgeTone> = {
+  TODO: 'neutral',
+  'IN PROGRESS': 'info',
+  IN_PROGRESS: 'info',
+  BLOCKED: 'danger',
+  DONE: 'success',
+  COMPLETED: 'success',
+};
 
 // ---------------------------------------------------------------------------
 // Value helpers (the `data` map is free-form, so every read is defensive)
@@ -135,7 +147,7 @@ function deriveStatus(record: CrmRecord): string | null {
 
 /**
  * Read a raw due value from the conventional date keys, only if present + a
- * parseable date. Returns the raw value (for {@link TwentyFieldValue}) or null.
+ * parseable date. Returns the raw value or null.
  */
 function deriveDue(record: CrmRecord): string | number | null {
   const d = record.data;
@@ -164,6 +176,23 @@ function humanizeStatus(status: string): string {
   return spaced.charAt(0).toUpperCase() + spaced.slice(1);
 }
 
+/** Badge tone for a raw status string (unknown statuses stay neutral). */
+function statusTone(status: string): BadgeTone {
+  return STATUS_TONE[status.toUpperCase()] ?? 'neutral';
+}
+
+/** Humanize a raw due value to a short date ("Apr 3, 2026"), or ''. */
+function formatDue(raw: string | number): string {
+  const d = new Date(raw);
+  return Number.isNaN(d.getTime())
+    ? ''
+    : d.toLocaleDateString(undefined, {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      });
+}
+
 /** Format the record's ISO `updatedAt` to a locale date (or '' if unparsable). */
 function formatUpdated(iso: string): string {
   const d = new Date(iso);
@@ -176,13 +205,11 @@ function formatUpdated(iso: string): string {
 
 function MyWorkSkeleton(): React.JSX.Element {
   return (
-    <div className="st-table-wrap" aria-hidden="true">
-      <div style={{ padding: 'var(--st-space-3)' }}>
-        <div className="st-skeleton st-skeleton-row" style={{ height: 28 }} />
-        {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="st-skeleton st-skeleton-row" />
-        ))}
-      </div>
+    <div className="mw-skel" aria-hidden="true">
+      <Skeleton width="100%" height={28} radius={6} />
+      {Array.from({ length: 6 }).map((_, i) => (
+        <Skeleton key={i} width="100%" height={36} radius={6} />
+      ))}
     </div>
   );
 }
@@ -206,62 +233,62 @@ function AssignmentsTable({
   const showDue = records.some((r) => deriveDue(r) !== null);
 
   return (
-    <div className="st-table-wrap">
-      <table className="st-table">
-        <thead>
-          <tr>
-            <th>Record</th>
-            <th>Object</th>
-            {withStatus ? <th>Status</th> : null}
-            {showDue ? <th>Due</th> : null}
-            <th>Updated</th>
-          </tr>
-        </thead>
-        <tbody>
-          {records.map((record) => {
-            const status = deriveStatus(record);
-            const due = deriveDue(record);
-            const updated = formatUpdated(record.updatedAt);
-            return (
-              <tr key={record._id} className="st-row">
-                <td>
-                  <Link
-                    href={`/sabcrm/${record.object}/${record._id}`}
-                    className="st-cell-link"
-                  >
-                    {deriveTitle(record)}
-                  </Link>
-                </td>
-                <td className="stw-cell-object">
-                  <TwentyChip label={humanizeObject(record.object)} />
-                </td>
-                {withStatus ? (
-                  <td>
-                    {status ? (
-                      <TwentyFieldValue field={STATUS_FIELD} value={status} />
-                    ) : (
-                      <span className="st-cell-muted">—</span>
-                    )}
-                  </td>
-                ) : null}
-                {showDue ? (
-                  <td>
-                    {due !== null ? (
-                      <TwentyFieldValue field={DUE_FIELD} value={due} />
-                    ) : (
-                      <span className="st-cell-muted">—</span>
-                    )}
-                  </td>
-                ) : null}
-                <td className="stw-cell-meta">
-                  {updated || <span className="st-cell-muted">—</span>}
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </div>
+    <Table hover>
+      <THead>
+        <Tr>
+          <Th>Record</Th>
+          <Th>Object</Th>
+          {withStatus ? <Th>Status</Th> : null}
+          {showDue ? <Th>Due</Th> : null}
+          <Th>Updated</Th>
+        </Tr>
+      </THead>
+      <TBody>
+        {records.map((record) => {
+          const status = deriveStatus(record);
+          const due = deriveDue(record);
+          const updated = formatUpdated(record.updatedAt);
+          return (
+            <Tr key={record._id}>
+              <Td>
+                <Link
+                  href={`/sabcrm/${record.object}/${record._id}`}
+                  className="mw-link"
+                >
+                  {deriveTitle(record)}
+                </Link>
+              </Td>
+              <Td className="mw-cell-object">
+                <Badge tone="neutral">{humanizeObject(record.object)}</Badge>
+              </Td>
+              {withStatus ? (
+                <Td>
+                  {status ? (
+                    <Badge tone={statusTone(status)} dot>
+                      {humanizeStatus(status)}
+                    </Badge>
+                  ) : (
+                    <span className="mw-muted">—</span>
+                  )}
+                </Td>
+              ) : null}
+              {showDue ? (
+                <Td>
+                  {due !== null ? (
+                    <span className="mw-cell-meta">{formatDue(due)}</span>
+                  ) : (
+                    <span className="mw-muted">—</span>
+                  )}
+                </Td>
+              ) : null}
+              <Td className="mw-cell-meta">
+                {updated || <span className="mw-muted">—</span>}
+              </Td>
+            </Tr>
+          );
+        })}
+      </TBody>
+    </Table>
   );
 }
 
@@ -315,12 +342,12 @@ function StatusGroups({ records }: { records: CrmRecord[] }): React.JSX.Element 
   const groups = React.useMemo(() => groupByStatus(records), [records]);
 
   return (
-    <div className="stw-groups">
+    <div className="mw-groups">
       {groups.map((group) => (
-        <section className="stw-status-group" key={group.key}>
-          <header className="stw-status-group__head">
-            <span className="stw-status-group__title">{group.label}</span>
-            <span className="stw-status-group__count">
+        <section className="mw-status-group" key={group.key}>
+          <header className="mw-status-group__head">
+            <span className="mw-status-group__title">{group.label}</span>
+            <span className="mw-status-group__count">
               {group.records.length}
             </span>
           </header>
@@ -363,7 +390,7 @@ function ObjectFilter({
           <>
             All
             {total > 0 ? (
-              <span className="stw-filter-count">{total}</span>
+              <span className="mw-filter-count">{total}</span>
             ) : null}
           </>
         ),
@@ -373,7 +400,7 @@ function ObjectFilter({
         label: (
           <>
             {opt.label}
-            <span className="stw-filter-count">{opt.count}</span>
+            <span className="mw-filter-count">{opt.count}</span>
           </>
         ),
       })),
@@ -383,7 +410,7 @@ function ObjectFilter({
 
   return (
     <SegmentedControl
-      className="stw-filters"
+      className="mw-filters"
       aria-label="Filter assignments by object"
       items={items}
       value={active}
@@ -479,78 +506,72 @@ export default function MyWorkPage(): React.JSX.Element {
     [visible],
   );
 
-  const headerActions = (
-    <Button
-      variant="secondary"
-      size="sm"
-      iconLeft={RefreshCw}
-      loading={loading}
-      onClick={refresh}
-      aria-label="Refresh assignments"
-      title="Refresh"
-    >
-      Refresh
-    </Button>
-  );
-
   return (
-    <div className="stw-page">
-      <TwentyPageHeader
-        title="My Work"
-        icon={ClipboardList}
-        actions={headerActions}
-      />
+    <div className="mw-page">
+      <div className="mw-page__inner">
+        <PageHeader>
+          <PageHeaderHeading>
+            <PageTitle>My Work</PageTitle>
+            <PageDescription>
+              Every record assigned to you in this project, newest first.
+            </PageDescription>
+          </PageHeaderHeading>
+          <PageActions>
+            <Button
+              variant="secondary"
+              size="sm"
+              iconLeft={RefreshCw}
+              loading={loading}
+              onClick={refresh}
+              aria-label="Refresh assignments"
+              title="Refresh"
+            >
+              Refresh
+            </Button>
+          </PageActions>
+        </PageHeader>
 
-      {loading ? (
-        <MyWorkSkeleton />
-      ) : error ? (
-        <div className="st-banner" role="alert">
-          <AlertTriangle size={16} className="st-banner__icon" aria-hidden="true" />
-          <span>{error}</span>
-        </div>
-      ) : records.length === 0 ? (
-        <div className="st-empty">
-          <span className="st-empty__icon" aria-hidden="true">
-            <ClipboardList size={20} />
-          </span>
-          <p className="st-empty__title">Nothing assigned to you</p>
-          <p className="st-empty__desc">
-            When a record is assigned to you it will show up here, ready to pick
-            up.
-          </p>
-        </div>
-      ) : (
-        <>
-          <p className="stw-count">
-            {total} {total === 1 ? 'record' : 'records'} assigned to you
-          </p>
+        {loading ? (
+          <MyWorkSkeleton />
+        ) : error ? (
+          <Alert tone="danger" icon={AlertTriangle} role="alert">
+            {error}
+          </Alert>
+        ) : records.length === 0 ? (
+          <EmptyState
+            icon={ClipboardList}
+            title="Nothing assigned to you"
+            description="When a record is assigned to you it will show up here, ready to pick up."
+          />
+        ) : (
+          <>
+            <p className="mw-count">
+              {total} {total === 1 ? 'record' : 'records'} assigned to you
+            </p>
 
-          {objectOptions.length > 1 ? (
-            <ObjectFilter
-              options={objectOptions}
-              active={objectFilter}
-              total={records.length}
-              onSelect={setObjectFilter}
-            />
-          ) : null}
+            {objectOptions.length > 1 ? (
+              <ObjectFilter
+                options={objectOptions}
+                active={objectFilter}
+                total={records.length}
+                onSelect={setObjectFilter}
+              />
+            ) : null}
 
-          {visible.length === 0 ? (
-            <div className="st-empty">
-              <span className="st-empty__icon" aria-hidden="true">
-                <ClipboardList size={20} />
-              </span>
-              <p className="st-empty__title">Nothing here</p>
-              <p className="st-empty__desc">
-                No assignments for this object right now.
-              </p>
-            </div>
-          ) : hasStatuses ? (
-            <StatusGroups records={visible} />
-          ) : (
-            <AssignmentsTable records={visible} showStatus />
-          )}
-        </>
-      )}
+            {visible.length === 0 ? (
+              <EmptyState
+                icon={ClipboardList}
+                title="Nothing here"
+                description="No assignments for this object right now."
+              />
+            ) : hasStatuses ? (
+              <StatusGroups records={visible} />
+            ) : (
+              <AssignmentsTable records={visible} showStatus />
+            )}
+          </>
+        )}
+      </div>
     </div>
   );
 }

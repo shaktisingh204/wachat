@@ -12,8 +12,19 @@
 //! | `PATCH` | `/:receiptId`    | [`update_payment_receipt`]    |
 //! | `DELETE`| `/:receiptId`    | [`delete_payment_receipt`]    |
 //!
-//! Every handler scopes its Mongo query by `userId == AuthUser.user_id`
-//! — the CRM tenant root from `crm-core::Identity`.
+//! Every handler scopes its Mongo query by the mount's
+//! [`crm_core::ScopeMode`] (attached as an axum `Extension` by the
+//! router constructors in [`crate::router`]):
+//!
+//! - `/v1/crm/payment-receipts` (legacy) — `userId == AuthUser.user_id`,
+//!   the CRM tenant root from `crm-core::Identity`. Unchanged behaviour.
+//! - `/v1/sabcrm/finance/payment-receipts` (SabCRM Finance suite) —
+//!   `projectId == ?projectId` / body `projectId`, required per-request
+//!   (4xx when absent). Membership is validated by the Next.js action
+//!   gate before the request reaches Rust. Cross-collection lookups
+//!   (lineage parents on `crm_invoices` / `crm_proforma_invoices`)
+//!   use the same scope filter so project-mode requests never leave the
+//!   project tenant.
 //!
 //! ## Lineage seeding (G4 pattern)
 //!
@@ -35,12 +46,15 @@
 //! and still saves the receipt (matches the TS action's `try/catch`).
 
 use axum::{
-    Json,
+    Extension, Json,
     extract::{Path, Query, State},
 };
 use bson::{Bson, Document, doc, oid::ObjectId};
 use chrono::Utc;
-use crm_core::{Assignment, Audit, Identity, LineageRef, build_lineage_from_parent};
+use crm_core::{
+    Assignment, Audit, Identity, LineageRef, ScopeMode, TenantScope, build_lineage_from_parent,
+    sabcrm_project_oid,
+};
 use crm_sales_types::{PaymentReceipt, ReceiptStatus};
 use futures::TryStreamExt;
 use mongodb::options::FindOptions;
@@ -50,7 +64,8 @@ use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
 use tracing::{instrument, warn};
 
 use crate::dto::{
-    CreatePaymentReceiptInput, DEFAULT_LIMIT, ListQuery, MAX_LIMIT, UpdatePaymentReceiptInput,
+    CreatePaymentReceiptInput, DEFAULT_LIMIT, ListQuery, MAX_LIMIT, ScopeQuery,
+    UpdatePaymentReceiptInput,
 };
 
 /// Mongo collection name. Must match the TS
@@ -77,6 +92,23 @@ fn user_oid(user: &AuthUser) -> Result<ObjectId> {
         .map_err(|_| ApiError::Unauthorized("subject is not a valid ObjectId".to_owned()))
 }
 
+/// Resolve the per-request [`TenantScope`] from the mount's
+/// [`ScopeMode`] (attached as an axum `Extension` by the router
+/// constructor):
+///
+/// - `ScopeMode::User` (legacy `/v1/crm/payment-receipts`) — scope by
+///   the verified JWT subject. Identical to the historical behaviour.
+/// - `ScopeMode::Project` (`/v1/sabcrm/finance/payment-receipts`) —
+///   scope by the caller-supplied `projectId`, 4xx when absent/invalid.
+///   The Next.js action gate has already validated project membership
+///   before the request reaches Rust.
+fn resolve_scope(mode: ScopeMode, user: &AuthUser, project_id: Option<&str>) -> Result<TenantScope> {
+    match mode {
+        ScopeMode::User => Ok(TenantScope::User(user_oid(user)?)),
+        ScopeMode::Project => Ok(TenantScope::Project(sabcrm_project_oid(project_id)?)),
+    }
+}
+
 /// Clamp `requested` page-size into `[1, MAX_LIMIT]`, defaulting to
 /// [`DEFAULT_LIMIT`] when absent.
 fn clamp_limit(requested: Option<u32>) -> i64 {
@@ -86,12 +118,12 @@ fn clamp_limit(requested: Option<u32>) -> i64 {
     }
 }
 
-/// Materialize the base ownership filter: `{ userId, archived: { $ne: true } }`.
-fn base_ownership_filter(user: ObjectId) -> Document {
-    doc! {
-        "userId": user,
-        "archived": { "$ne": true },
-    }
+/// Materialize the base ownership filter for the resolved scope:
+/// `{ <userId|projectId>, archived: { $ne: true } }`.
+fn base_ownership_filter(scope: &TenantScope) -> Document {
+    let mut f = scope.filter();
+    f.insert("archived", doc! { "$ne": true });
+    f
 }
 
 /// Optional-string update helper. PATCH semantics — absent ≠ `null`.
@@ -132,12 +164,13 @@ fn parent_collection(kind: &str) -> Option<&'static str> {
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn list_payment_receipts(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Query(q): Query<ListQuery>,
 ) -> Result<Json<Vec<PaymentReceipt>>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, q.project_id.as_deref())?;
 
-    let mut filter = base_ownership_filter(user_id);
+    let mut filter = base_ownership_filter(&scope);
     if let Some(needle) = q.q.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
         let regex = doc! { "$regex": needle, "$options": "i" };
         filter.insert(
@@ -193,13 +226,15 @@ pub async fn list_payment_receipts(
 #[instrument(skip_all, fields(user_id = %user.user_id, receipt_id = %receipt_id))]
 pub async fn get_payment_receipt(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(receipt_id): Path<String>,
+    Query(scope_q): Query<ScopeQuery>,
 ) -> Result<Json<PaymentReceipt>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, scope_q.project_id.as_deref())?;
     let receipt_oid = oid_from_str(&receipt_id)?;
 
-    let mut filter = base_ownership_filter(user_id);
+    let mut filter = base_ownership_filter(&scope);
     filter.insert("_id", receipt_oid);
 
     let coll = mongo.collection::<PaymentReceipt>(RECEIPTS_COLL);
@@ -227,6 +262,7 @@ pub async fn get_payment_receipt(
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn create_payment_receipt(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Json(input): Json<CreatePaymentReceiptInput>,
 ) -> Result<Json<PaymentReceipt>> {
@@ -244,12 +280,20 @@ pub async fn create_payment_receipt(
     }
 
     let user_id = user_oid(&user)?;
-    let project_id = match input.project_id.as_deref().filter(|s| !s.is_empty()) {
-        Some(s) => oid_from_str(s)?,
-        // The §1.7 spec requires a project scope, but the legacy TS
-        // action did not — single-tenant callers omit it and pick up a
-        // freshly-minted id at insert time.
-        None => ObjectId::new(),
+    // In project mode the body's `projectId` IS the tenant scope and is
+    // therefore mandatory (4xx when absent) — `resolve_scope` enforces
+    // that. In legacy user mode the scope is the JWT subject and the
+    // body `projectId` stays optional, exactly as before.
+    let scope = resolve_scope(mode, &user, input.project_id.as_deref())?;
+    let project_id = match scope {
+        TenantScope::Project(p) => p,
+        TenantScope::User(_) => match input.project_id.as_deref().filter(|s| !s.is_empty()) {
+            Some(s) => oid_from_str(s)?,
+            // The §1.7 spec requires a project scope, but the legacy TS
+            // action did not — single-tenant callers omit it and pick
+            // up a freshly-minted id at insert time.
+            None => ObjectId::new(),
+        },
     };
 
     let client_oid = oid_from_str(&input.client_id)?;
@@ -306,7 +350,7 @@ pub async fn create_payment_receipt(
     let mut lineage: Vec<LineageRef> = Vec::new();
     let mut parent_back_link: Option<(&'static str, ObjectId)> = None;
     if let (Some(kind), Some(parent_oid)) = (resolved_kind, resolved_id) {
-        match seed_lineage_from_parent(&mongo, user_id, kind, parent_oid).await {
+        match seed_lineage_from_parent(&mongo, &scope, kind, parent_oid).await {
             Ok(Some(chain)) => {
                 lineage = chain;
                 parent_back_link = Some((kind, parent_oid));
@@ -371,9 +415,11 @@ pub async fn create_payment_receipt(
         if let Some(parent_coll_name) = parent_collection(kind) {
             let parents = mongo.collection::<Document>(parent_coll_name);
             let now = bson::DateTime::from_chrono(Utc::now());
+            let mut parent_filter = scope.filter();
+            parent_filter.insert("_id", parent_oid);
             let _ = parents
                 .update_one(
-                    doc! { "_id": parent_oid, "userId": user_id },
+                    parent_filter,
                     doc! {
                         "$push": { "lineage": { "kind": "paymentReceipt", "id": new_oid } },
                         "$set":  { "updatedAt": now },
@@ -386,12 +432,13 @@ pub async fn create_payment_receipt(
     Ok(Json(receipt))
 }
 
-/// Fetch the parent doc (scoped by `userId`) and build the lineage
-/// chain a freshly-created receipt should inherit. Returns `Ok(None)`
-/// if the parent doesn't exist or isn't owned by the caller.
+/// Fetch the parent doc (under the same tenant scope as the new
+/// receipt) and build the lineage chain a freshly-created receipt
+/// should inherit. Returns `Ok(None)` if the parent doesn't exist or
+/// isn't owned by the caller's scope.
 async fn seed_lineage_from_parent(
     mongo: &MongoHandle,
-    user_oid: ObjectId,
+    scope: &TenantScope,
     parent_kind: &str,
     parent_oid: ObjectId,
 ) -> Result<Option<Vec<LineageRef>>> {
@@ -400,8 +447,10 @@ async fn seed_lineage_from_parent(
         None => return Ok(None),
     };
     let parents = mongo.collection::<Document>(coll_name);
+    let mut parent_filter = scope.filter();
+    parent_filter.insert("_id", parent_oid);
     let parent = match parents
-        .find_one(doc! { "_id": parent_oid, "userId": user_oid })
+        .find_one(parent_filter)
         .await
         .map_err(|e| {
             ApiError::Internal(
@@ -448,8 +497,10 @@ async fn seed_lineage_from_parent(
 #[instrument(skip_all, fields(user_id = %user.user_id, receipt_id = %receipt_id))]
 pub async fn update_payment_receipt(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(receipt_id): Path<String>,
+    Query(scope_q): Query<ScopeQuery>,
     Json(input): Json<UpdatePaymentReceiptInput>,
 ) -> Result<Json<PaymentReceipt>> {
     if input.is_empty() {
@@ -459,6 +510,7 @@ pub async fn update_payment_receipt(
     }
 
     let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, scope_q.project_id.as_deref())?;
     let receipt_oid = oid_from_str(&receipt_id)?;
 
     let mut set = doc! {
@@ -500,7 +552,7 @@ pub async fn update_payment_receipt(
         set.insert("status", s);
     }
 
-    let mut filter = base_ownership_filter(user_id);
+    let mut filter = base_ownership_filter(&scope);
     filter.insert("_id", receipt_oid);
 
     let coll = mongo.collection::<Document>(RECEIPTS_COLL);
@@ -542,13 +594,16 @@ pub async fn update_payment_receipt(
 #[instrument(skip_all, fields(user_id = %user.user_id, receipt_id = %receipt_id))]
 pub async fn delete_payment_receipt(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(receipt_id): Path<String>,
+    Query(scope_q): Query<ScopeQuery>,
 ) -> Result<Json<serde_json::Value>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, scope_q.project_id.as_deref())?;
     let receipt_oid = oid_from_str(&receipt_id)?;
 
-    let filter = doc! { "_id": receipt_oid, "userId": user_id };
+    let mut filter = scope.filter();
+    filter.insert("_id", receipt_oid);
 
     let coll = mongo.collection::<Document>(RECEIPTS_COLL);
     let res = coll.delete_one(filter).await.map_err(|e| {
@@ -585,10 +640,21 @@ mod tests {
     }
 
     #[test]
-    fn base_filter_excludes_archived() {
+    fn base_filter_excludes_archived_user_scope() {
         let oid = ObjectId::new();
-        let f = base_ownership_filter(oid);
+        let f = base_ownership_filter(&TenantScope::User(oid));
         assert_eq!(f.get_object_id("userId").unwrap(), oid);
+        assert!(!f.contains_key("projectId"));
+        let archived = f.get_document("archived").unwrap();
+        assert!(archived.contains_key("$ne"));
+    }
+
+    #[test]
+    fn base_filter_excludes_archived_project_scope() {
+        let oid = ObjectId::new();
+        let f = base_ownership_filter(&TenantScope::Project(oid));
+        assert_eq!(f.get_object_id("projectId").unwrap(), oid);
+        assert!(!f.contains_key("userId"));
         let archived = f.get_document("archived").unwrap();
         assert!(archived.contains_key("$ne"));
     }

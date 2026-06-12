@@ -4,8 +4,8 @@
   "description": "Consume PostHog API",
   "category": "analytics",
   "iconName": "LuPackage",
-  "version": 2,
-  "lastVerified": "2026-06-11",
+  "version": 3,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "bearer",
@@ -104,7 +104,7 @@
       "id": "track_page",
       "label": "Page Track",
       "method": "POST",
-      "path": "/track",
+      "path": "/capture",
       "fields": [
         {
           "id": "name",
@@ -128,7 +128,7 @@
         }
       ],
       "group": "Track",
-      "description": "[unverified path] Track a page"
+      "description": "Track a page"
     },
     {
       "id": "track_screen",

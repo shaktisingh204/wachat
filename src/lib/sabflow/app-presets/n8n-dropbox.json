@@ -4,8 +4,8 @@
   "description": "Access data on Dropbox",
   "category": "storage",
   "iconName": "LuPackage",
-  "version": 11,
-  "lastVerified": "2026-06-11",
+  "version": 12,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -22,7 +22,7 @@
       "id": "file_copy",
       "label": "Copy File",
       "method": "POST",
-      "path": "/file",
+      "path": "/files/copy_v2",
       "fields": [
         {
           "id": "path",
@@ -42,13 +42,13 @@
         }
       ],
       "group": "File",
-      "description": "[unverified path] Copy a file"
+      "description": "Copy a file"
     },
     {
       "id": "file_delete",
       "label": "Delete File",
-      "method": "DELETE",
-      "path": "/file",
+      "method": "POST",
+      "path": "/files/delete_v2",
       "fields": [
         {
           "id": "path",
@@ -60,7 +60,7 @@
         }
       ],
       "group": "File",
-      "description": "[unverified path] Delete a file"
+      "description": "Delete a file"
     },
     {
       "id": "file_download",
@@ -90,8 +90,8 @@
     {
       "id": "file_move",
       "label": "Move File",
-      "method": "PATCH",
-      "path": "/file",
+      "method": "POST",
+      "path": "/files/move_v2",
       "fields": [
         {
           "id": "path",
@@ -111,7 +111,7 @@
         }
       ],
       "group": "File",
-      "description": "[unverified path] Move a file"
+      "description": "Move a file"
     },
     {
       "id": "file_upload",
@@ -155,7 +155,7 @@
       "id": "folder_copy",
       "label": "Copy Folder",
       "method": "POST",
-      "path": "/folder",
+      "path": "/files/copy_v2",
       "fields": [
         {
           "id": "path",
@@ -175,7 +175,7 @@
         }
       ],
       "group": "Folder",
-      "description": "[unverified path] Copy a folder"
+      "description": "Copy a folder"
     },
     {
       "id": "folder_create",
@@ -198,8 +198,8 @@
     {
       "id": "folder_delete",
       "label": "Delete Folder",
-      "method": "DELETE",
-      "path": "/folder",
+      "method": "POST",
+      "path": "/files/delete_v2",
       "fields": [
         {
           "id": "path",
@@ -211,7 +211,7 @@
         }
       ],
       "group": "Folder",
-      "description": "[unverified path] Delete a folder"
+      "description": "Delete a folder"
     },
     {
       "id": "folder_list",
@@ -254,8 +254,8 @@
     {
       "id": "folder_move",
       "label": "Move Folder",
-      "method": "PATCH",
-      "path": "/folder",
+      "method": "POST",
+      "path": "/files/move_v2",
       "fields": [
         {
           "id": "path",
@@ -275,7 +275,7 @@
         }
       ],
       "group": "Folder",
-      "description": "[unverified path] Move a folder"
+      "description": "Move a folder"
     },
     {
       "id": "search_query",

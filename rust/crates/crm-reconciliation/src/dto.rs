@@ -18,6 +18,9 @@ pub struct ListQuery {
     /// Filter by ledger account (ObjectId hex). Invalid hex is ignored.
     #[serde(default)]
     pub account_id: Option<String>,
+    /// SabCRM (project) mounts only — required there, ignored on legacy.
+    #[serde(default)]
+    pub project_id: Option<String>,
 }
 
 #[derive(Debug, Clone, Default, Deserialize)]
@@ -38,6 +41,9 @@ pub struct CreateReconciliationInput {
     pub notes: Option<String>,
     #[serde(default)]
     pub status: Option<String>,
+    /// SabCRM (project) mounts only — required there, ignored on legacy.
+    #[serde(default)]
+    pub project_id: Option<String>,
 }
 
 #[derive(Debug, Clone, Default, Deserialize)]
@@ -76,4 +82,13 @@ pub struct CreateReconciliationResponse {
 #[serde(rename_all = "camelCase")]
 pub struct DeleteReconciliationResponse {
     pub deleted: bool,
+}
+
+/// Scope carrier for get/update/delete on SabCRM (project) mounts —
+/// `?projectId=<oid>`. Ignored on the legacy (`userId`) mount.
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ScopeQuery {
+    #[serde(default)]
+    pub project_id: Option<String>,
 }

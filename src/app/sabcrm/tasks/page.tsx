@@ -3,28 +3,34 @@
 export const dynamic = 'force-dynamic';
 
 /**
- * SabCRM — top-level "Tasks" surface (`/sabcrm/tasks`), Twenty-faithful.
+ * SabCRM — top-level "Tasks" surface (`/sabcrm/tasks`), 20ui.
  *
- * A standalone screen over the standard `tasks` object, rendered in Twenty's
- * visual language (`.st-*` classes + the `@/components/sabcrm/twenty` kit + the
- * sibling `../tasks-notes.css` — NO Ui20 / Tailwind / clay). It offers:
+ * A standalone screen over the standard `tasks` object, rendered entirely with
+ * the 20ui design system (`@/components/sabcrm/20ui` primitives + the
+ * `RecordBoard` composite — zero `.st-*` Twenty classes). It offers:
  *
- *   - BOARD view — kanban columns grouped by the `status` SELECT
- *     (TODO / IN_PROGRESS / DONE) via `groupSabcrmRecordsTw('tasks','status')`.
- *     Each card links to `/sabcrm/tasks/{id}`, shows the due date
- *     (`TwentyFieldValue`), the assignee as a chip, and an inline status
- *     `<select>` that persists through `updateSabcrmRecordTw`.
- *   - TABLE view — the same tasks as rows, toggled from the toolbar.
- *   - A Twenty-style "New task" dialog (title / status / dueAt / assignee /
- *     body) backed by `createSabcrmRecordTw`.
+ *   - BOARD view — a drag-and-drop kanban on `RecordBoard`, columns grouped by
+ *     the `status` SELECT (TODO / IN_PROGRESS / DONE) via
+ *     `groupSabcrmRecordsTw('tasks','status')`. Dragging a card to another
+ *     column persists the status through `updateSabcrmRecordTw` (optimistic,
+ *     reverts on failure). Cards show the title, the due date (overdue tint +
+ *     tag), the assignee, and a completion checkbox; clicking a card opens
+ *     `/sabcrm/tasks/{id}`. Each column header has a "+" that opens the create
+ *     dialog pre-seeded with that column's status.
+ *   - TABLE view — the same tasks as 20ui `Table` rows with an inline status
+ *     select, toggled from the toolbar `SegmentedControl`.
+ *   - A "New task" `Modal` (title / status / dueAt / assignee / body) backed
+ *     by `createSabcrmRecordTw`.
  *
  * Every data call is a gated server action returning an `ActionResult`. The
  * Rust engine may be DOWN, so failures degrade to inline banners / empty
- * states — the page never crashes.
+ * states — the page never crashes. Styling is token-only (`--st-*`), so dark
+ * mode is automatic; page-local classes (`tk-*`) live in `./tasks.css`,
+ * scoped under the 20ui roots.
  */
 
 import * as React from 'react';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   Plus,
   CheckCircle2,
@@ -34,12 +40,14 @@ import {
   User as UserIcon,
 } from 'lucide-react';
 
-import { TwentyPageHeader, TwentyButton, TwentyChip } from '@/components/sabcrm/twenty';
-import { TwentyFieldValue } from '@/components/sabcrm/twenty/twenty-field';
 import {
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageActions,
   Button,
   Checkbox,
-  Select,
+  SelectField,
   Modal,
   Field,
   Input,
@@ -50,7 +58,19 @@ import {
   SearchInput,
   SegmentedControl,
   EmptyState,
+  Tag,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
 } from '@/components/sabcrm/20ui';
+import {
+  RecordBoard,
+  type RecordBoardColumn,
+} from '@/components/sabcrm/20ui/composites/record';
+import type { CrmRecord } from '@/lib/sabcrm/types';
 import { useProject } from '@/context/project-context';
 import {
   listSabcrmRecordsTw,
@@ -62,10 +82,10 @@ import type {
   SabcrmRustRecord,
   SabcrmRecordTwGroup,
 } from '@/app/actions/sabcrm-twenty.actions.types';
-import type { FieldMetadata } from '@/lib/sabcrm/types';
+import { rustRecordToCrm } from '../[objectSlug]/record-surface-adapter';
 
 import '@/components/sabcrm/20ui/surface-crm-base.css';
-import '../tasks-notes.css';
+import './tasks.css';
 
 // ---------------------------------------------------------------------------
 // Constants / metadata
@@ -81,29 +101,16 @@ type ViewKind = 'board' | 'table';
 
 type TaskStatus = 'TODO' | 'IN_PROGRESS' | 'DONE';
 
-/** The status SELECT options, in board column order. */
+/** The status SELECT options, in board column order. Token colors only. */
 const STATUS_OPTIONS: ReadonlyArray<{ value: TaskStatus; label: string; color: string }> = [
   { value: 'TODO', label: 'To do', color: 'var(--st-text-tertiary)' },
   { value: 'IN_PROGRESS', label: 'In progress', color: 'var(--st-accent)' },
-  { value: 'DONE', label: 'Done', color: 'var(--stn-success, #16a34a)' },
+  { value: 'DONE', label: 'Done', color: 'var(--st-success)' },
 ];
 
 const STATUS_VALUES: readonly TaskStatus[] = STATUS_OPTIONS.map((o) => o.value);
 
-/** A synthetic SELECT field so `TwentyFieldValue` can render status chips. */
-const STATUS_FIELD: FieldMetadata = {
-  key: 'status',
-  label: 'Status',
-  type: 'SELECT',
-  options: STATUS_OPTIONS.map((o) => ({ value: o.value, label: o.label, color: o.color })),
-};
-
-/** A synthetic DATE field so the card due-date renders Twenty-style. */
-const DUE_FIELD: FieldMetadata = {
-  key: 'dueAt',
-  label: 'Due',
-  type: 'DATE',
-};
+const STATUS_SELECT_OPTIONS = STATUS_OPTIONS.map((o) => ({ value: o.value, label: o.label }));
 
 // ---------------------------------------------------------------------------
 // Value helpers
@@ -124,16 +131,6 @@ function statusOf(record: SabcrmRustRecord): TaskStatus {
   return isTaskStatus(raw) ? raw : 'TODO';
 }
 
-function statusLabel(value: string | null): string {
-  if (value === null) return 'No status';
-  return STATUS_OPTIONS.find((o) => o.value === value)?.label ?? value;
-}
-
-function statusColor(value: string | null): string | undefined {
-  if (value === null) return undefined;
-  return STATUS_OPTIONS.find((o) => o.value === value)?.color;
-}
-
 function taskTitle(record: SabcrmRustRecord): string {
   return asText(record.data.title).trim() || 'Untitled task';
 }
@@ -150,6 +147,19 @@ function assigneeLabel(value: unknown): string | null {
   return String(value);
 }
 
+/** Format a due-date value for display (e.g. "11 Jun 2026"). */
+function formatDue(value: unknown): string | null {
+  const raw = asText(value);
+  if (!raw) return null;
+  const time = new Date(raw).getTime();
+  if (Number.isNaN(time)) return raw;
+  return new Intl.DateTimeFormat(undefined, {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  }).format(time);
+}
+
 /** True when a task's due date is in the past and the task isn't DONE. */
 function isOverdue(record: SabcrmRustRecord): boolean {
   const raw = record.data.dueAt;
@@ -161,7 +171,7 @@ function isOverdue(record: SabcrmRustRecord): boolean {
 }
 
 // ---------------------------------------------------------------------------
-// Completion checkbox (Twenty TaskRow parity — rounded checkbox → DONE/TODO)
+// Completion checkbox (board card + table row — toggles DONE ⇄ TODO)
 // ---------------------------------------------------------------------------
 
 interface CompleteCheckboxProps {
@@ -178,7 +188,8 @@ function CompleteCheckbox({ done, busy, onToggle }: CompleteCheckboxProps) {
       disabled={busy}
       aria-label={done ? 'Mark task as to do' : 'Mark task as done'}
       onClick={(e) => {
-        // Inside a card <Link> / row, don't navigate when toggling completion.
+        // Inside a clickable board card / table row, don't open the record
+        // when toggling completion.
         e.stopPropagation();
       }}
       onChange={() => {
@@ -189,7 +200,7 @@ function CompleteCheckbox({ done, busy, onToggle }: CompleteCheckboxProps) {
 }
 
 // ---------------------------------------------------------------------------
-// Inline status select (shared by board card + table row)
+// Inline status select (table rows)
 // ---------------------------------------------------------------------------
 
 interface StatusSelectProps {
@@ -198,137 +209,69 @@ interface StatusSelectProps {
   onChange: (next: TaskStatus) => void;
 }
 
-const STATUS_SELECT_OPTIONS = STATUS_OPTIONS.map((o) => ({ value: o.value, label: o.label }));
-
 function StatusSelect({ value, busy, onChange }: StatusSelectProps) {
   return (
-    // Inside a card <Link>, don't navigate when interacting with the status menu.
-    <span onClick={(e) => e.stopPropagation()}>
-      <Select
-        size="sm"
-        value={value}
-        disabled={busy}
-        aria-label="Task status"
-        options={STATUS_SELECT_OPTIONS}
-        onChange={(next) => {
-          if (isTaskStatus(next) && next !== value) onChange(next);
-        }}
-      />
-    </span>
+    <SelectField
+      size="sm"
+      value={value}
+      disabled={busy}
+      aria-label="Task status"
+      options={STATUS_SELECT_OPTIONS}
+      onChange={(next) => {
+        if (isTaskStatus(next) && next !== value) onChange(next);
+      }}
+    />
   );
 }
 
 // ---------------------------------------------------------------------------
-// Board view
+// Board card content (rendered inside RecordBoard's `.rb-card` chrome)
 // ---------------------------------------------------------------------------
 
-interface BoardViewProps {
-  groups: SabcrmRecordTwGroup[];
-  busyIds: ReadonlySet<string>;
-  onStatusChange: (record: SabcrmRustRecord, next: TaskStatus) => void;
-  onToggleComplete: (record: SabcrmRustRecord) => void;
-}
-
-/** Order groups as TODO → IN_PROGRESS → DONE, with any extras appended. */
-function orderedGroups(groups: SabcrmRecordTwGroup[]): SabcrmRecordTwGroup[] {
-  const byValue = new Map(groups.map((g) => [g.value, g]));
-  const ordered: SabcrmRecordTwGroup[] = STATUS_OPTIONS.map(
-    (o) => byValue.get(o.value) ?? { value: o.value, records: [] },
-  );
-  // Append any unexpected buckets (legacy / null) the engine returned.
-  for (const g of groups) {
-    if (!STATUS_VALUES.includes(g.value as TaskStatus)) ordered.push(g);
-  }
-  return ordered;
-}
-
-function TaskCard({
+function TaskCardContent({
   record,
   busy,
-  onStatusChange,
   onToggleComplete,
 }: {
   record: SabcrmRustRecord;
   busy: boolean;
-  onStatusChange: (next: TaskStatus) => void;
   onToggleComplete: () => void;
 }) {
   const assignee = assigneeLabel(record.data.assignee ?? record.data.assigneeId);
-  const due = record.data.dueAt;
-  const hasDue = due !== null && due !== undefined && due !== '';
+  const due = formatDue(record.data.dueAt);
   const done = statusOf(record) === 'DONE';
   const overdue = isOverdue(record);
 
   return (
-    <div className="st-card stn-board-card">
-      <div className="stn-card-head">
+    <div className="tk-card">
+      <div className="tk-card__head">
         <CompleteCheckbox done={done} busy={busy} onToggle={onToggleComplete} />
-        <Link
-          href={`/sabcrm/tasks/${record.id}`}
-          className={`stn-card-title${done ? ' is-done' : ''}`}
-        >
-          {taskTitle(record)}
-        </Link>
+        <span className={`tk-card__title${done ? ' is-done' : ''}`}>{taskTitle(record)}</span>
       </div>
 
-      {hasDue ? (
-        <div className={`stn-card-meta${overdue ? ' is-overdue' : ''}`}>
-          <span className="stn-card-meta__label">
-            <CalendarClock size={13} aria-hidden="true" />
-          </span>
-          <TwentyFieldValue field={DUE_FIELD} value={due} />
-          {overdue ? <span className="stn-overdue-tag">Overdue</span> : null}
+      {due ? (
+        <div className={`tk-meta${overdue ? ' is-overdue' : ''}`}>
+          <CalendarClock size={13} aria-hidden="true" />
+          <span>{due}</span>
+          {overdue ? <span className="tk-overdue-tag">Overdue</span> : null}
         </div>
       ) : null}
 
-      <div className="stn-card-foot">
+      <div className="tk-card__foot">
         {assignee ? (
-          <TwentyChip label={assignee} />
+          <Tag>{assignee}</Tag>
         ) : (
-          <span className="stn-card-meta__label">
+          <span className="tk-meta">
             <UserIcon size={13} aria-hidden="true" />
             Unassigned
           </span>
         )}
-        <span className="stn-card-foot__status">
-          {busy ? (
-            <span className="stn-card-busy">
-              <Spinner size="sm" label="Saving" />
-            </span>
-          ) : null}
-          <StatusSelect value={statusOf(record)} busy={busy} onChange={onStatusChange} />
-        </span>
+        {busy ? (
+          <span className="tk-busy">
+            <Spinner size="sm" label="Saving" />
+          </span>
+        ) : null}
       </div>
-    </div>
-  );
-}
-
-function BoardView({ groups, busyIds, onStatusChange, onToggleComplete }: BoardViewProps) {
-  return (
-    <div className="st-board">
-      {orderedGroups(groups).map((group) => (
-        <div className="st-board__col" key={group.value ?? '__ungrouped__'}>
-          <div className="st-board__head">
-            <TwentyChip label={statusLabel(group.value)} color={statusColor(group.value)} />
-            <span className="st-board__count">{group.records.length}</span>
-          </div>
-          <div className="st-board__body">
-            {group.records.length === 0 ? (
-              <div className="st-board__empty">Nothing here</div>
-            ) : (
-              group.records.map((record) => (
-                <TaskCard
-                  key={record.id}
-                  record={record}
-                  busy={busyIds.has(record.id)}
-                  onStatusChange={(next) => onStatusChange(record, next)}
-                  onToggleComplete={() => onToggleComplete(record)}
-                />
-              ))
-            )}
-          </div>
-        </div>
-      ))}
     </div>
   );
 }
@@ -340,51 +283,53 @@ function BoardView({ groups, busyIds, onStatusChange, onToggleComplete }: BoardV
 interface TableViewProps {
   records: SabcrmRustRecord[];
   busyIds: ReadonlySet<string>;
+  onOpen: (id: string) => void;
   onStatusChange: (record: SabcrmRustRecord, next: TaskStatus) => void;
   onToggleComplete: (record: SabcrmRustRecord) => void;
 }
 
-function TableView({ records, busyIds, onStatusChange, onToggleComplete }: TableViewProps) {
+function TableView({ records, busyIds, onOpen, onStatusChange, onToggleComplete }: TableViewProps) {
   return (
-    <div className="st-table-wrap">
-      <table className="st-table">
-        <thead>
-          <tr>
-            <th aria-label="Done" />
-            <th>Task</th>
-            <th>Status</th>
-            <th>Due</th>
-            <th>Assignee</th>
-          </tr>
-        </thead>
-        <tbody>
+    <div className="tk-table-wrap">
+      <Table>
+        <THead>
+          <Tr>
+            <Th aria-label="Done" />
+            <Th>Task</Th>
+            <Th>Status</Th>
+            <Th>Due</Th>
+            <Th>Assignee</Th>
+          </Tr>
+        </THead>
+        <TBody>
           {records.map((record) => {
             const assignee = assigneeLabel(record.data.assignee ?? record.data.assigneeId);
-            const due = record.data.dueAt;
+            const due = formatDue(record.data.dueAt);
             const busy = busyIds.has(record.id);
             const done = statusOf(record) === 'DONE';
             const overdue = isOverdue(record);
             return (
-              <tr key={record.id} className="st-row">
-                <td className="stn-check-cell">
+              <Tr key={record.id}>
+                <Td className="tk-check-cell">
                   <CompleteCheckbox
                     done={done}
                     busy={busy}
                     onToggle={() => onToggleComplete(record)}
                   />
-                </td>
-                <td>
-                  <Link
-                    href={`/sabcrm/tasks/${record.id}`}
-                    className={`st-cell-link${done ? ' stn-cell-done' : ''}`}
+                </Td>
+                <Td>
+                  <button
+                    type="button"
+                    className={`tk-row-title${done ? ' is-done' : ''}`}
+                    onClick={() => onOpen(record.id)}
                   >
                     {taskTitle(record)}
-                  </Link>
-                </td>
-                <td>
-                  <span className="stn-card-foot__status">
+                  </button>
+                </Td>
+                <Td>
+                  <span className="tk-status-cell">
                     {busy ? (
-                      <span className="stn-card-busy">
+                      <span className="tk-busy">
                         <Spinner size="sm" label="Saving" />
                       </span>
                     ) : null}
@@ -394,24 +339,30 @@ function TableView({ records, busyIds, onStatusChange, onToggleComplete }: Table
                       onChange={(next) => onStatusChange(record, next)}
                     />
                   </span>
-                </td>
-                <td>
-                  <span className={overdue ? 'stn-due-overdue' : undefined}>
-                    <TwentyFieldValue field={DUE_FIELD} value={due} />
-                  </span>
-                </td>
-                <td>
-                  {assignee ? (
-                    <TwentyChip label={assignee} />
-                  ) : (
-                    <span className="st-cell-muted">Unassigned</span>
-                  )}
-                </td>
-              </tr>
+                </Td>
+                <Td>
+                  <span className={overdue ? 'tk-due-overdue' : undefined}>{due ?? '—'}</span>
+                </Td>
+                <Td>
+                  {assignee ? <Tag>{assignee}</Tag> : <span className="tk-cell-muted">Unassigned</span>}
+                </Td>
+              </Tr>
             );
           })}
-        </tbody>
-      </table>
+        </TBody>
+      </Table>
+    </div>
+  );
+}
+
+function TableSkeleton() {
+  return (
+    <div className="tk-table-wrap" aria-hidden="true">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <div key={i} className="tk-table-skeleton-row">
+          <Skeleton width="100%" height={36} radius={6} />
+        </div>
+      ))}
     </div>
   );
 }
@@ -422,13 +373,15 @@ function TableView({ records, busyIds, onStatusChange, onToggleComplete }: Table
 
 interface CreateDialogProps {
   projectId: string | null;
+  /** Pre-seeded status (e.g. from a column's "+" affordance). */
+  initialStatus: TaskStatus;
   onClose: () => void;
   onCreated: () => void;
 }
 
-function CreateDialog({ projectId, onClose, onCreated }: CreateDialogProps) {
+function CreateDialog({ projectId, initialStatus, onClose, onCreated }: CreateDialogProps) {
   const [title, setTitle] = React.useState('');
-  const [status, setStatus] = React.useState<TaskStatus>('TODO');
+  const [status, setStatus] = React.useState<TaskStatus>(initialStatus);
   const [dueAt, setDueAt] = React.useState('');
   const [assignee, setAssignee] = React.useState('');
   const [body, setBody] = React.useState('');
@@ -469,20 +422,16 @@ function CreateDialog({ projectId, onClose, onCreated }: CreateDialogProps) {
       title="New task"
       footer={
         <>
-          <TwentyButton variant="secondary" onClick={onClose} disabled={saving}>
+          <Button variant="secondary" onClick={onClose} disabled={saving}>
             Cancel
-          </TwentyButton>
+          </Button>
           <Button type="submit" form={formId} variant="primary" loading={saving}>
             Create task
           </Button>
         </>
       }
     >
-      <form
-        id={formId}
-        onSubmit={handleSubmit}
-        style={{ display: 'flex', flexDirection: 'column', gap: 'var(--st-space-4, 16px)' }}
-      >
+      <form id={formId} onSubmit={handleSubmit} className="tk-create-form">
         <Field label="Title" required>
           <Input
             value={title}
@@ -494,7 +443,7 @@ function CreateDialog({ projectId, onClose, onCreated }: CreateDialogProps) {
         </Field>
 
         <Field label="Status">
-          <Select
+          <SelectField
             value={status}
             options={STATUS_SELECT_OPTIONS}
             onChange={(v) => {
@@ -531,38 +480,12 @@ function CreateDialog({ projectId, onClose, onCreated }: CreateDialogProps) {
 }
 
 // ---------------------------------------------------------------------------
-// Skeleton / error
-// ---------------------------------------------------------------------------
-
-function BoardSkeleton() {
-  return (
-    <div className="st-board">
-      {STATUS_OPTIONS.map((o) => (
-        <div className="st-board__col" key={o.value}>
-          <div className="st-board__head">
-            <TwentyChip label={o.label} color={o.color} />
-          </div>
-          <div className="st-board__body">
-            {Array.from({ length: 2 }).map((_, i) => (
-              <Skeleton key={i} width="100%" height={64} radius={8} />
-            ))}
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function ErrorBanner({ message }: { message: string }) {
-  return <Alert tone="danger">{message}</Alert>;
-}
-
-// ---------------------------------------------------------------------------
 // Page
 // ---------------------------------------------------------------------------
 
 export default function SabcrmTasksPage(): React.JSX.Element {
   const { activeProjectId } = useProject();
+  const router = useRouter();
 
   const [view, setView] = React.useState<ViewKind>('board');
 
@@ -571,7 +494,7 @@ export default function SabcrmTasksPage(): React.JSX.Element {
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
 
-  const [createOpen, setCreateOpen] = React.useState(false);
+  const [createFor, setCreateFor] = React.useState<TaskStatus | null>(null);
   const [refreshTick, setRefreshTick] = React.useState(0);
   const [busyIds, setBusyIds] = React.useState<Set<string>>(new Set());
 
@@ -639,18 +562,53 @@ export default function SabcrmTasksPage(): React.JSX.Element {
 
   // Board search runs client-side over the grouped buckets (the engine's
   // group endpoint has no `q`). Matches on the task title, case-insensitively.
-  const visibleGroups = React.useMemo(() => {
+  const boardRust = React.useMemo(() => {
     const term = debouncedSearch.toLowerCase();
-    if (!term) return groups;
-    return groups.map((g) => ({
-      ...g,
-      records: g.records.filter((r) => taskTitle(r).toLowerCase().includes(term)),
-    }));
+    const flat = groups.flatMap((g) => g.records);
+    if (!term) return flat;
+    return flat.filter((r) => taskTitle(r).toLowerCase().includes(term));
   }, [groups, debouncedSearch]);
 
-  // Inline status change → optimistic update + persist via the Rust engine.
+  // Wire records → the composites' CrmRecord shape. Tasks with a missing /
+  // empty status are normalized into TODO so they always have a column.
+  const boardRecords = React.useMemo<CrmRecord[]>(
+    () =>
+      boardRust.map((r) => {
+        const crm = rustRecordToCrm(r);
+        const raw = crm.data.status;
+        if (typeof raw === 'string' && raw) return crm;
+        return { ...crm, data: { ...crm.data, status: 'TODO' } };
+      }),
+    [boardRust],
+  );
+
+  // TODO / IN_PROGRESS / DONE, plus a column per unexpected legacy status
+  // value the engine returned (parity with the old appended buckets).
+  const boardColumns = React.useMemo<RecordBoardColumn[]>(() => {
+    const cols: RecordBoardColumn[] = STATUS_OPTIONS.map((o) => ({
+      id: o.value,
+      label: o.label,
+      color: o.color,
+    }));
+    const extras = new Set<string>();
+    for (const rec of boardRecords) {
+      const s = asText(rec.data.status);
+      if (s && !(STATUS_VALUES as readonly string[]).includes(s)) extras.add(s);
+    }
+    for (const s of [...extras].sort()) cols.push({ id: s, label: s });
+    return cols;
+  }, [boardRecords]);
+
+  const findTask = React.useCallback(
+    (id: string): SabcrmRustRecord | undefined =>
+      boardRust.find((r) => r.id === id) ?? records.find((r) => r.id === id),
+    [boardRust, records],
+  );
+
+  // Status change (drag, table select, completion checkbox) → optimistic
+  // update + persist via the SAME gated record write the old page used.
   const handleStatusChange = React.useCallback(
-    async (record: SabcrmRustRecord, next: TaskStatus) => {
+    async (record: SabcrmRustRecord, next: string) => {
       if (busyIds.has(record.id)) return;
       setBusyIds((b) => new Set(b).add(record.id));
 
@@ -659,7 +617,7 @@ export default function SabcrmTasksPage(): React.JSX.Element {
         r.id === record.id ? { ...r, data: { ...r.data, status: next } } : r;
       setRecords((rs) => rs.map(patch));
       setGroups((gs) => {
-        // Move the record between status columns optimistically.
+        // Move the record between status buckets optimistically.
         const stripped = gs.map((g) => ({
           ...g,
           records: g.records.filter((r) => r.id !== record.id),
@@ -695,6 +653,21 @@ export default function SabcrmTasksPage(): React.JSX.Element {
     [busyIds, activeProjectId, refresh],
   );
 
+  // RecordBoard drop → persist the new status (same-column reorders are
+  // purely visual; the tasks object has no manual ordering to save).
+  const handleBoardMove = React.useCallback(
+    (recordId: string, toColumnId: string) => {
+      const record = findTask(recordId);
+      if (!record) return;
+      // The board normalizes empty statuses into TODO, so compare against the
+      // normalized value to skip same-column reorders / no-op drops.
+      const current = asText(record.data.status) || 'TODO';
+      if (current === toColumnId) return;
+      void handleStatusChange(record, toColumnId);
+    },
+    [findTask, handleStatusChange],
+  );
+
   // Completion checkbox → toggle DONE ⇄ TODO, reusing the status pipeline.
   const handleToggleComplete = React.useCallback(
     (record: SabcrmRustRecord) => {
@@ -704,41 +677,42 @@ export default function SabcrmTasksPage(): React.JSX.Element {
     [handleStatusChange],
   );
 
+  const openTask = React.useCallback(
+    (id: string) => router.push(`/sabcrm/tasks/${id}`),
+    [router],
+  );
+
   const handleCreated = React.useCallback(() => refresh(), [refresh]);
 
-  const totalCount =
-    view === 'board'
-      ? visibleGroups.reduce((sum, g) => sum + g.records.length, 0)
-      : records.length;
+  const totalCount = view === 'board' ? boardRecords.length : records.length;
 
   const isEmpty = !loading && totalCount === 0;
   const isSearching = debouncedSearch.length > 0;
 
   return (
-    <div className="st-page">
-      <TwentyPageHeader
-        title="Tasks"
-        icon={CheckCircle2}
-        actions={
-          <TwentyButton variant="primary" icon={Plus} onClick={() => setCreateOpen(true)}>
+    <div className="tk-page">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageTitle>Tasks</PageTitle>
+        </PageHeaderHeading>
+        <PageActions>
+          <Button variant="primary" iconLeft={Plus} onClick={() => setCreateFor('TODO')}>
             New task
-          </TwentyButton>
-        }
-      />
+          </Button>
+        </PageActions>
+      </PageHeader>
 
-      <div className="st-toolbar">
-        <div className="st-search">
-          <SearchInput
-            inputSize="sm"
-            value={search}
-            placeholder="Search tasks…"
-            aria-label="Search tasks"
-            onValueChange={setSearch}
-          />
-        </div>
-        <div className="st-toolbar__spacer" />
+      <div className="tk-toolbar">
+        <SearchInput
+          inputSize="sm"
+          value={search}
+          placeholder="Search tasks…"
+          aria-label="Search tasks"
+          onValueChange={setSearch}
+        />
+        <div className="tk-toolbar__spacer" />
         {!loading ? (
-          <span className="st-count">
+          <span className="tk-count">
             {totalCount} {totalCount === 1 ? 'task' : 'tasks'}
           </span>
         ) : null}
@@ -754,11 +728,13 @@ export default function SabcrmTasksPage(): React.JSX.Element {
         />
       </div>
 
-      {error ? <ErrorBanner message={error} /> : null}
+      {error ? (
+        <Alert tone="danger" className="tk-error">
+          {error}
+        </Alert>
+      ) : null}
 
-      {loading ? (
-        <BoardSkeleton />
-      ) : isEmpty ? (
+      {isEmpty ? (
         <EmptyState
           icon={CheckCircle2}
           title={isSearching ? 'No matching tasks' : 'No tasks yet'}
@@ -769,32 +745,50 @@ export default function SabcrmTasksPage(): React.JSX.Element {
           }
           action={
             !isSearching ? (
-              <TwentyButton variant="primary" icon={Plus} onClick={() => setCreateOpen(true)}>
+              <Button variant="primary" iconLeft={Plus} onClick={() => setCreateFor('TODO')}>
                 New task
-              </TwentyButton>
+              </Button>
             ) : undefined
           }
         />
       ) : view === 'board' ? (
-        <BoardView
-          groups={visibleGroups}
-          busyIds={busyIds}
-          onStatusChange={handleStatusChange}
-          onToggleComplete={handleToggleComplete}
+        <RecordBoard
+          columns={boardColumns}
+          records={boardRecords}
+          groupKey="status"
+          loading={loading}
+          renderCard={(record) => {
+            const task = findTask(record._id);
+            if (!task) return null;
+            return (
+              <TaskCardContent
+                record={task}
+                busy={busyIds.has(task.id)}
+                onToggleComplete={() => handleToggleComplete(task)}
+              />
+            );
+          }}
+          onMove={handleBoardMove}
+          onCardClick={(record) => openTask(record._id)}
+          onAddCard={(columnId) => setCreateFor(isTaskStatus(columnId) ? columnId : 'TODO')}
         />
+      ) : loading ? (
+        <TableSkeleton />
       ) : (
         <TableView
           records={records}
           busyIds={busyIds}
+          onOpen={openTask}
           onStatusChange={handleStatusChange}
           onToggleComplete={handleToggleComplete}
         />
       )}
 
-      {createOpen ? (
+      {createFor !== null ? (
         <CreateDialog
           projectId={activeProjectId}
-          onClose={() => setCreateOpen(false)}
+          initialStatus={createFor}
+          onClose={() => setCreateFor(null)}
           onCreated={handleCreated}
         />
       ) : null}

@@ -11,9 +11,13 @@
  *
  *   RIGHT - the editor for the selected pipeline: its name, the object it runs
  *           on, an ordered list of stages (each a label + colour-swatch picker,
- *           with add / remove / reorder-by-arrows), and a "Set as default"
- *           toggle. Save persists via `updatePipelineTw` (existing) or
- *           `createPipelineTw` (new, unsaved) drafts. Delete removes it.
+ *           with add / remove / reorder-by-arrows), a per-stage collapsible
+ *           "Governance" panel (required fields to enter, requires-approval,
+ *           rotting days, explicit open/won/lost kind), a pipeline-level
+ *           lost-reason section (require-a-reason switch + curated reason
+ *           chips), and a "Set as default" toggle. Save persists via
+ *           `updatePipelineTw` (existing) or `createPipelineTw` (new, unsaved)
+ *           drafts. Delete removes it.
  *
  * Mutations go through the gated server actions in
  * `@/app/actions/sabcrm-pipelines.actions` (session -> project -> RBAC -> plan),
@@ -37,6 +41,8 @@ import {
   ArrowDown,
   Star,
   GripVertical,
+  ShieldCheck,
+  X,
 } from 'lucide-react';
 
 import {
@@ -51,6 +57,7 @@ import {
   Field,
   Input,
   Switch,
+  MultiSelect,
   Badge,
   Alert,
   EmptyState,
@@ -81,6 +88,7 @@ import {
   updatePipelineTw,
   deletePipelineTw,
 } from '@/app/actions/sabcrm-pipelines.actions';
+import { listObjectsTw } from '@/app/actions/sabcrm-objects.actions';
 
 // ---------------------------------------------------------------------------
 // Wire shapes
@@ -91,11 +99,24 @@ import {
 //   { id, name, object, stages:[{ id, label, color }], isDefault? }
 // ---------------------------------------------------------------------------
 
+/** Explicit stage classification persisted as `stage.kind` (additive). */
+type StageKind = 'open' | 'won' | 'lost';
+
 interface PipelineStage {
   id: string;
   label: string;
   /** A `--st-*` token (or hex); optional on the wire, defaulted in the UI. */
   color?: string;
+  /** Governance: `data.<key>`s required before a record may ENTER the stage. */
+  requiredFields?: string[];
+  /** Governance: entering the stage raises an approval request first. */
+  requiresApproval?: boolean;
+  /** Governance: idle-days threshold for deal rotting. Omitted → never rots. */
+  rottingDays?: number;
+  /** Explicit open / won / lost marker. Omitted on legacy stages. */
+  kind?: StageKind;
+  /** Forecast weighting (percent 0-100). Omitted → position-based default. */
+  probability?: number;
 }
 
 interface Pipeline {
@@ -104,6 +125,10 @@ interface Pipeline {
   object: string;
   stages: PipelineStage[];
   isDefault?: boolean;
+  /** Loss governance: marking a record lost requires a reason. */
+  lostReasonRequired?: boolean;
+  /** Loss governance: curated lost reasons (empty → free text). */
+  lostReasons?: string[];
 }
 
 /** Input for create/update - `id` is server-assigned for new pipelines. */
@@ -112,6 +137,14 @@ interface PipelineInput {
   object: string;
   stages: PipelineStage[];
   isDefault?: boolean;
+  lostReasonRequired?: boolean;
+  lostReasons?: string[];
+}
+
+/** One pickable object field (key + label) for the required-fields gate. */
+interface ObjectFieldOption {
+  value: string;
+  label: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -182,11 +215,30 @@ function newDraft(): Pipeline {
     stages: [
       { id: tempId(), label: 'New', color: 'stage-gray' },
       { id: tempId(), label: 'In progress', color: 'stage-blue' },
-      { id: tempId(), label: 'Won', color: 'stage-green' },
-      { id: tempId(), label: 'Lost', color: 'stage-red' },
+      { id: tempId(), label: 'Won', color: 'stage-green', kind: 'won' },
+      { id: tempId(), label: 'Lost', color: 'stage-red', kind: 'lost' },
     ],
     isDefault: false,
   };
+}
+
+/** Deep-enough copy so draft edits never alias the pristine original. */
+function clonePipeline(p: Pipeline): Pipeline {
+  return {
+    ...p,
+    lostReasons: p.lostReasons ? [...p.lostReasons] : undefined,
+    stages: p.stages.map((s) => ({
+      ...s,
+      requiredFields: s.requiredFields ? [...s.requiredFields] : undefined,
+    })),
+  };
+}
+
+/** Order-sensitive equality on optional string lists (undefined ≡ empty). */
+function sameStrings(a: string[] | undefined, b: string[] | undefined): boolean {
+  const x = a ?? [];
+  const y = b ?? [];
+  return x.length === y.length && x.every((v, i) => v === y[i]);
 }
 
 /** Compare two pipelines for editor dirty-state (order-sensitive on stages). */
@@ -195,13 +247,25 @@ function pipelineEquals(a: Pipeline, b: Pipeline): boolean {
     a.name !== b.name ||
     a.object !== b.object ||
     Boolean(a.isDefault) !== Boolean(b.isDefault) ||
+    Boolean(a.lostReasonRequired) !== Boolean(b.lostReasonRequired) ||
+    !sameStrings(a.lostReasons, b.lostReasons) ||
     a.stages.length !== b.stages.length
   ) {
     return false;
   }
   return a.stages.every((s, i) => {
     const o = b.stages[i];
-    return o && s.id === o.id && s.label === o.label && s.color === o.color;
+    return (
+      o !== undefined &&
+      s.id === o.id &&
+      s.label === o.label &&
+      s.color === o.color &&
+      sameStrings(s.requiredFields, o.requiredFields) &&
+      Boolean(s.requiresApproval) === Boolean(o.requiresApproval) &&
+      (s.rottingDays ?? null) === (o.rottingDays ?? null) &&
+      (s.kind ?? null) === (o.kind ?? null) &&
+      (s.probability ?? null) === (o.probability ?? null)
+    );
   });
 }
 
@@ -271,16 +335,176 @@ function ColorPicker({
 }
 
 // ---------------------------------------------------------------------------
+// Stage governance - collapsible per-stage panel: required fields (entry
+// gate), approval, rotting threshold and the explicit open/won/lost kind.
+// ---------------------------------------------------------------------------
+
+/** How many governance rules a stage has switched on (for the toggle badge). */
+function governanceCount(stage: PipelineStage): number {
+  let n = 0;
+  if (stage.requiredFields && stage.requiredFields.length > 0) n += 1;
+  if (stage.requiresApproval) n += 1;
+  if (typeof stage.rottingDays === 'number') n += 1;
+  if (stage.kind === 'won' || stage.kind === 'lost') n += 1;
+  if (typeof stage.probability === 'number') n += 1;
+  return n;
+}
+
+const STAGE_KINDS: ReadonlyArray<{ value: StageKind; label: string }> = [
+  { value: 'open', label: 'Open (in progress)' },
+  { value: 'won', label: 'Won (closed positively)' },
+  { value: 'lost', label: 'Lost (closed negatively)' },
+];
+
+function StageGovernancePanel({
+  stage,
+  fieldOptions,
+  onChange,
+}: {
+  stage: PipelineStage;
+  /** Pickable fields of the pipeline's object for the required-fields gate. */
+  fieldOptions: ObjectFieldOption[];
+  onChange: (patch: Partial<PipelineStage>) => void;
+}): React.JSX.Element {
+  // Preserve already-selected keys the catalogue no longer knows, so a stale
+  // gate still round-trips (and can be removed) instead of silently vanishing.
+  const options = React.useMemo<ObjectFieldOption[]>(() => {
+    const known = new Set(fieldOptions.map((o) => o.value));
+    const extras = (stage.requiredFields ?? [])
+      .filter((k) => !known.has(k))
+      .map((k) => ({ value: k, label: k }));
+    return [...fieldOptions, ...extras];
+  }, [fieldOptions, stage.requiredFields]);
+
+  return (
+    <div className="ml-[calc(14px+var(--st-space-2))] flex flex-col gap-[var(--st-space-3)] rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-[var(--st-space-3)] py-[var(--st-space-3)]">
+      <Field
+        label="Required fields to enter"
+        help="Records cannot move into this stage until these fields are filled."
+      >
+        <MultiSelect
+          value={stage.requiredFields ?? []}
+          onChange={(requiredFields) => onChange({ requiredFields })}
+          options={options}
+          placeholder={
+            options.length > 0 ? 'Pick fields' : 'No fields on this object'
+          }
+          searchable
+          disabled={options.length === 0}
+          aria-label="Required fields to enter this stage"
+        />
+      </Field>
+
+      <div className="flex items-start gap-[var(--st-space-3)]">
+        <Switch
+          checked={Boolean(stage.requiresApproval)}
+          aria-label="Require approval to enter this stage"
+          onCheckedChange={(requiresApproval) => onChange({ requiresApproval })}
+        />
+        <span className="flex flex-col gap-0.5">
+          <span className="text-[13px] font-medium text-[var(--st-text)]">
+            Require approval
+          </span>
+          <span className="text-[12px] text-[var(--st-text-secondary)]">
+            Moving here raises an approval request instead of moving directly.
+          </span>
+        </span>
+      </div>
+
+      <div className="grid grid-cols-1 gap-[var(--st-space-3)] sm:grid-cols-2">
+        <Field
+          label="Rotting after (days)"
+          help="Idle records are flagged as rotting. Empty turns it off."
+        >
+          <Input
+            type="number"
+            min={1}
+            inputMode="numeric"
+            value={typeof stage.rottingDays === 'number' ? stage.rottingDays : ''}
+            placeholder="Off"
+            onChange={(e) => {
+              const raw = e.target.value;
+              if (raw === '') {
+                onChange({ rottingDays: undefined });
+                return;
+              }
+              const n = Number(raw);
+              onChange({
+                rottingDays: Number.isFinite(n) && n > 0 ? Math.floor(n) : undefined,
+              });
+            }}
+          />
+        </Field>
+
+        <Field
+          label="Win probability (%)"
+          help="Weights this stage's deals in the forecast. Empty uses a position-based default."
+        >
+          <Input
+            type="number"
+            min={0}
+            max={100}
+            inputMode="numeric"
+            value={typeof stage.probability === 'number' ? stage.probability : ''}
+            placeholder="Auto"
+            onChange={(e) => {
+              const raw = e.target.value;
+              if (raw === '') {
+                onChange({ probability: undefined });
+                return;
+              }
+              const n = Number(raw);
+              onChange({
+                probability:
+                  Number.isFinite(n) && n >= 0 && n <= 100 ? n : undefined,
+              });
+            }}
+          />
+        </Field>
+
+        <Field
+          label="Stage type"
+          help="Lost stages trigger the lost-reason dialog."
+        >
+          <Select
+            value={stage.kind ?? 'open'}
+            onValueChange={(kind) => onChange({ kind: kind as StageKind })}
+          >
+            <SelectTrigger aria-label="Stage type">
+              <SelectValue placeholder="Open (in progress)" />
+            </SelectTrigger>
+            <SelectContent>
+              {STAGE_KINDS.map((k) => (
+                <SelectItem key={k.value} value={k.value}>
+                  {k.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </Field>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Stages editor - ordered rows of swatch + label, with add/remove/reorder.
 // ---------------------------------------------------------------------------
 
 function StagesEditor({
   stages,
+  fieldOptions,
   onChange,
 }: {
   stages: PipelineStage[];
+  /** Pickable fields of the pipeline's object for the governance panels. */
+  fieldOptions: ObjectFieldOption[];
   onChange: (next: PipelineStage[]) => void;
 }): React.JSX.Element {
+  /** id of the stage whose governance panel is expanded (one at a time). */
+  const [openGovernanceId, setOpenGovernanceId] = React.useState<string | null>(
+    null,
+  );
   const update = (idx: number, patch: Partial<PipelineStage>) => {
     onChange(stages.map((s, i) => (i === idx ? { ...s, ...patch } : s)));
   };
@@ -294,6 +518,9 @@ function StagesEditor({
   };
 
   const remove = (idx: number) => {
+    if (stages[idx] && stages[idx].id === openGovernanceId) {
+      setOpenGovernanceId(null);
+    }
     onChange(stages.filter((_, i) => i !== idx));
   };
 
@@ -310,55 +537,182 @@ function StagesEditor({
             No stages yet. Add one to start the pipeline.
           </p>
         ) : (
-          stages.map((stage, idx) => (
-            <div className="flex items-center gap-[var(--st-space-2)]" key={stage.id}>
-              <span className="text-[var(--st-text-tertiary)]" aria-hidden="true">
-                <GripVertical size={14} />
-              </span>
-              <ColorPicker
-                value={stage.color || DEFAULT_STAGE_COLOR}
-                onChange={(token) => update(idx, { color: token })}
-              />
-              <div className="min-w-0 flex-1">
-                <Input
-                  value={stage.label}
-                  placeholder={`Stage ${idx + 1}`}
-                  autoComplete="off"
-                  aria-label={`Stage ${idx + 1} label`}
-                  onChange={(e) => update(idx, { label: e.target.value })}
-                />
+          stages.map((stage, idx) => {
+            const governanceOpen = openGovernanceId === stage.id;
+            const ruleCount = governanceCount(stage);
+            return (
+              <div className="flex flex-col gap-[var(--st-space-2)]" key={stage.id}>
+                <div className="flex items-center gap-[var(--st-space-2)]">
+                  <span className="text-[var(--st-text-tertiary)]" aria-hidden="true">
+                    <GripVertical size={14} />
+                  </span>
+                  <ColorPicker
+                    value={stage.color || DEFAULT_STAGE_COLOR}
+                    onChange={(token) => update(idx, { color: token })}
+                  />
+                  <div className="min-w-0 flex-1">
+                    <Input
+                      value={stage.label}
+                      placeholder={`Stage ${idx + 1}`}
+                      autoComplete="off"
+                      aria-label={`Stage ${idx + 1} label`}
+                      onChange={(e) => update(idx, { label: e.target.value })}
+                    />
+                  </div>
+                  <Button
+                    variant={governanceOpen ? 'secondary' : 'ghost'}
+                    size="sm"
+                    iconLeft={ShieldCheck}
+                    aria-expanded={governanceOpen}
+                    aria-label={`Governance for stage ${stage.label || idx + 1}${
+                      ruleCount > 0 ? ` (${ruleCount} rules on)` : ''
+                    }`}
+                    onClick={() =>
+                      setOpenGovernanceId(governanceOpen ? null : stage.id)
+                    }
+                  >
+                    {ruleCount > 0 ? `Governance · ${ruleCount}` : 'Governance'}
+                  </Button>
+                  <div className="flex items-center gap-[var(--st-space-1)]">
+                    <IconButton
+                      icon={ArrowUp}
+                      label="Move stage up"
+                      variant="ghost"
+                      size="sm"
+                      disabled={idx === 0}
+                      onClick={() => move(idx, -1)}
+                    />
+                    <IconButton
+                      icon={ArrowDown}
+                      label="Move stage down"
+                      variant="ghost"
+                      size="sm"
+                      disabled={idx === stages.length - 1}
+                      onClick={() => move(idx, 1)}
+                    />
+                  </div>
+                  <IconButton
+                    icon={Trash2}
+                    label={`Remove stage ${stage.label || idx + 1}`}
+                    variant="danger"
+                    size="sm"
+                    onClick={() => remove(idx)}
+                  />
+                </div>
+                {governanceOpen ? (
+                  <StageGovernancePanel
+                    stage={stage}
+                    fieldOptions={fieldOptions}
+                    onChange={(patch) => update(idx, patch)}
+                  />
+                ) : null}
               </div>
-              <div className="flex items-center gap-[var(--st-space-1)]">
-                <IconButton
-                  icon={ArrowUp}
-                  label="Move stage up"
-                  variant="ghost"
-                  size="sm"
-                  disabled={idx === 0}
-                  onClick={() => move(idx, -1)}
-                />
-                <IconButton
-                  icon={ArrowDown}
-                  label="Move stage down"
-                  variant="ghost"
-                  size="sm"
-                  disabled={idx === stages.length - 1}
-                  onClick={() => move(idx, 1)}
-                />
-              </div>
-              <IconButton
-                icon={Trash2}
-                label={`Remove stage ${stage.label || idx + 1}`}
-                variant="danger"
-                size="sm"
-                onClick={() => remove(idx)}
-              />
-            </div>
-          ))
+            );
+          })
         )}
         <div>
           <Button variant="ghost" size="sm" iconLeft={Plus} onClick={add}>
             Add stage
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Lost-reason governance - require-a-reason switch + editable reason chips.
+// ---------------------------------------------------------------------------
+
+function LostReasonsEditor({
+  required,
+  reasons,
+  onRequiredChange,
+  onReasonsChange,
+}: {
+  required: boolean;
+  reasons: string[];
+  onRequiredChange: (required: boolean) => void;
+  onReasonsChange: (reasons: string[]) => void;
+}): React.JSX.Element {
+  const [pending, setPending] = React.useState('');
+
+  const addReason = () => {
+    const value = pending.trim();
+    if (!value || reasons.includes(value)) return;
+    onReasonsChange([...reasons, value]);
+    setPending('');
+  };
+
+  return (
+    <div className="flex flex-col gap-[var(--st-space-3)] rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-[var(--st-space-3)] py-[var(--st-space-3)]">
+      <div className="flex items-start gap-[var(--st-space-3)]">
+        <Switch
+          checked={required}
+          aria-label="Require a lost reason"
+          onCheckedChange={onRequiredChange}
+        />
+        <span className="flex flex-col gap-0.5">
+          <span className="flex items-center gap-[var(--st-space-1)] text-[13px] font-medium text-[var(--st-text)]">
+            <ShieldCheck size={14} aria-hidden="true" />
+            Require a lost reason
+          </span>
+          <span className="text-[12px] text-[var(--st-text-secondary)]">
+            Moving a record into a lost stage asks why before the move commits.
+          </span>
+        </span>
+      </div>
+
+      <div className="flex flex-col gap-[var(--st-space-2)]">
+        <span className="text-[12px] font-medium text-[var(--st-text-secondary)]">
+          Lost reasons {reasons.length === 0 ? '(empty = free text)' : ''}
+        </span>
+        {reasons.length > 0 ? (
+          <div className="flex flex-wrap gap-[var(--st-space-1)]">
+            {reasons.map((reason) => (
+              <span
+                key={reason}
+                className="inline-flex items-center gap-[var(--st-space-1)] rounded-full border border-[var(--st-border)] bg-[var(--st-bg)] px-[var(--st-space-2)] py-0.5 text-[12px] text-[var(--st-text)]"
+              >
+                {reason}
+                <button
+                  type="button"
+                  aria-label={`Remove lost reason ${reason}`}
+                  className="grid place-items-center rounded-full p-0.5 text-[var(--st-text-tertiary)] hover:text-[var(--st-text)]"
+                  onClick={() =>
+                    onReasonsChange(reasons.filter((r) => r !== reason))
+                  }
+                >
+                  <X size={12} aria-hidden="true" />
+                </button>
+              </span>
+            ))}
+          </div>
+        ) : null}
+        <div className="flex items-center gap-[var(--st-space-2)]">
+          <div className="min-w-0 flex-1">
+            <Input
+              value={pending}
+              placeholder="Add a reason, e.g. Price"
+              autoComplete="off"
+              aria-label="New lost reason"
+              onChange={(e) => setPending(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  addReason();
+                }
+              }}
+            />
+          </div>
+          <Button
+            variant="secondary"
+            size="sm"
+            iconLeft={Plus}
+            disabled={!pending.trim() || reasons.includes(pending.trim())}
+            onClick={addReason}
+          >
+            Add
           </Button>
         </div>
       </div>
@@ -443,6 +797,8 @@ interface EditorProps {
   original: Pipeline;
   /** The in-progress draft the user is editing. */
   draft: Pipeline;
+  /** Fields of the draft's object, for the required-fields governance gate. */
+  fieldOptions: ObjectFieldOption[];
   saving: boolean;
   deleting: boolean;
   error: string | null;
@@ -454,6 +810,7 @@ interface EditorProps {
 function PipelineEditor({
   original,
   draft,
+  fieldOptions,
   saving,
   deleting,
   error,
@@ -543,7 +900,17 @@ function PipelineEditor({
 
         <StagesEditor
           stages={draft.stages}
+          fieldOptions={fieldOptions}
           onChange={(stages) => onChange({ ...draft, stages })}
+        />
+
+        <LostReasonsEditor
+          required={Boolean(draft.lostReasonRequired)}
+          reasons={draft.lostReasons ?? []}
+          onRequiredChange={(lostReasonRequired) =>
+            onChange({ ...draft, lostReasonRequired })
+          }
+          onReasonsChange={(lostReasons) => onChange({ ...draft, lostReasons })}
         />
 
         <div className="flex items-start gap-[var(--st-space-3)] rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-[var(--st-space-3)] py-[var(--st-space-3)]">
@@ -650,14 +1017,45 @@ export default function SabcrmPipelinesSettingsPage(): React.JSX.Element {
   const [deleteTarget, setDeleteTarget] = React.useState<Pipeline | null>(null);
   const [deleting, setDeleting] = React.useState(false);
 
+  /** Object slug → its pickable fields, for the governance required-fields gate. */
+  const [fieldsByObject, setFieldsByObject] = React.useState<
+    Record<string, ObjectFieldOption[]>
+  >({});
+
   // ----- Load -----
 
   const selectInto = React.useCallback((p: Pipeline) => {
     setActiveId(p.id);
-    setDraft({ ...p, stages: p.stages.map((s) => ({ ...s })) });
-    setOriginal({ ...p, stages: p.stages.map((s) => ({ ...s })) });
+    setDraft(clonePipeline(p));
+    setOriginal(clonePipeline(p));
     setEditorError(null);
   }, []);
+
+  // Load the object catalogue once per project so the per-stage governance
+  // panel can offer the pipeline object's fields. Best-effort: a failure just
+  // leaves the picker empty (governance editing degrades, nothing crashes).
+  React.useEffect(() => {
+    if (!activeProjectId) {
+      setFieldsByObject({});
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      const res = await listObjectsTw(activeProjectId);
+      if (cancelled || !res.ok) return;
+      const map: Record<string, ObjectFieldOption[]> = {};
+      for (const obj of res.data) {
+        map[obj.slug] = obj.fields.map((f) => ({
+          value: f.key,
+          label: f.label || f.key,
+        }));
+      }
+      setFieldsByObject(map);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [activeProjectId]);
 
   React.useEffect(() => {
     if (isLoadingProject) return;
@@ -684,8 +1082,8 @@ export default function SabcrmPipelinesSettingsPage(): React.JSX.Element {
           }
           const first = res.data.find((p) => p.isDefault) ?? res.data[0];
           if (first) {
-            setDraft({ ...first, stages: first.stages.map((s) => ({ ...s })) });
-            setOriginal({ ...first, stages: first.stages.map((s) => ({ ...s })) });
+            setDraft(clonePipeline(first));
+            setOriginal(clonePipeline(first));
             return first.id;
           }
           setDraft(null);
@@ -748,16 +1146,34 @@ export default function SabcrmPipelinesSettingsPage(): React.JSX.Element {
       name: draft.name.trim(),
       object: draft.object,
       isDefault: Boolean(draft.isDefault),
+      // Loss governance - always sent so switching OFF persists too.
+      lostReasonRequired: Boolean(draft.lostReasonRequired),
+      lostReasons: (draft.lostReasons ?? [])
+        .map((r) => r.trim())
+        .filter((r) => r.length > 0),
+      // Stage governance keys are included only when set; the whole `stages`
+      // array is replaced on save, so omission clears a previous value.
       stages: draft.stages.map((s) => ({
         id: s.id,
         label: s.label.trim(),
         color: s.color || DEFAULT_STAGE_COLOR,
+        ...(s.requiredFields && s.requiredFields.length > 0
+          ? { requiredFields: s.requiredFields }
+          : {}),
+        ...(s.requiresApproval ? { requiresApproval: true } : {}),
+        ...(typeof s.rottingDays === 'number' && s.rottingDays > 0
+          ? { rottingDays: Math.floor(s.rottingDays) }
+          : {}),
+        ...(s.kind ? { kind: s.kind } : {}),
+        ...(typeof s.probability === 'number' && s.probability >= 0 && s.probability <= 100
+          ? { probability: s.probability }
+          : {}),
       })),
     };
 
     const isUpdate = Boolean(draft.id);
     const res = isUpdate
-      ? await updatePipelineTw(draft.id, input, activeProjectId)
+      ? await updatePipelineTw(draft.id, { ...input }, activeProjectId)
       : await createPipelineTw({ ...input }, activeProjectId);
 
     setSaving(false);
@@ -809,8 +1225,8 @@ export default function SabcrmPipelinesSettingsPage(): React.JSX.Element {
       const fallback = next.find((p) => p.isDefault) ?? next[0] ?? null;
       if (fallback) {
         setActiveId(fallback.id);
-        setDraft({ ...fallback, stages: fallback.stages.map((s) => ({ ...s })) });
-        setOriginal({ ...fallback, stages: fallback.stages.map((s) => ({ ...s })) });
+        setDraft(clonePipeline(fallback));
+        setOriginal(clonePipeline(fallback));
       } else {
         setActiveId(null);
         setDraft(null);
@@ -901,6 +1317,7 @@ export default function SabcrmPipelinesSettingsPage(): React.JSX.Element {
               <PipelineEditor
                 original={original}
                 draft={draft}
+                fieldOptions={fieldsByObject[draft.object] ?? []}
                 saving={saving}
                 deleting={deleting}
                 error={editorError}

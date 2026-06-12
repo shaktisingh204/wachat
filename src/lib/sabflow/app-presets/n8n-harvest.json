@@ -4,8 +4,8 @@
   "description": "Access data on Harvest",
   "category": "finance",
   "iconName": "LuPackage",
-  "version": 11,
-  "lastVerified": "2026-06-11",
+  "version": 12,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "header",
@@ -98,7 +98,7 @@
       "id": "client_get_all",
       "label": "Get Many Client",
       "method": "GET",
-      "path": "/client",
+      "path": "/clients",
       "fields": [
         {
           "id": "accountId",
@@ -130,7 +130,7 @@
         }
       ],
       "group": "Client",
-      "description": "[unverified path] Get data of many clients"
+      "description": "Get data of many clients"
     },
     {
       "id": "client_update",
@@ -273,7 +273,7 @@
       "id": "contact_get_all",
       "label": "Get Many Contact",
       "method": "GET",
-      "path": "/contact",
+      "path": "/contacts",
       "fields": [
         {
           "id": "accountId",
@@ -305,7 +305,7 @@
         }
       ],
       "group": "Contact",
-      "description": "[unverified path] Get data of many contacts"
+      "description": "Get data of many contacts"
     },
     {
       "id": "contact_update",
@@ -424,7 +424,7 @@
       "id": "estimate_get_all",
       "label": "Get Many Estimate",
       "method": "GET",
-      "path": "/estimate",
+      "path": "/estimates",
       "fields": [
         {
           "id": "accountId",
@@ -456,7 +456,7 @@
         }
       ],
       "group": "Estimate",
-      "description": "[unverified path] Get data of many estimates"
+      "description": "Get data of many estimates"
     },
     {
       "id": "estimate_update",
@@ -590,7 +590,7 @@
       "id": "expense_get_all",
       "label": "Get Many Expense",
       "method": "GET",
-      "path": "/expense",
+      "path": "/expenses",
       "fields": [
         {
           "id": "accountId",
@@ -622,7 +622,7 @@
         }
       ],
       "group": "Expense",
-      "description": "[unverified path] Get data of many expenses"
+      "description": "Get data of many expenses"
     },
     {
       "id": "expense_update",
@@ -741,7 +741,7 @@
       "id": "invoice_get_all",
       "label": "Get Many Invoice",
       "method": "GET",
-      "path": "/invoice",
+      "path": "/invoices",
       "fields": [
         {
           "id": "accountId",
@@ -773,7 +773,7 @@
         }
       ],
       "group": "Invoice",
-      "description": "[unverified path] Get data of many invoices"
+      "description": "Get data of many invoices"
     },
     {
       "id": "invoice_update",
@@ -941,7 +941,7 @@
       "id": "project_get_all",
       "label": "Get Many Project",
       "method": "GET",
-      "path": "/project",
+      "path": "/projects",
       "fields": [
         {
           "id": "accountId",
@@ -973,7 +973,7 @@
         }
       ],
       "group": "Project",
-      "description": "[unverified path] Get data of many projects"
+      "description": "Get data of many projects"
     },
     {
       "id": "project_update",
@@ -1092,7 +1092,7 @@
       "id": "task_get_all",
       "label": "Get Many Task",
       "method": "GET",
-      "path": "/task",
+      "path": "/tasks",
       "fields": [
         {
           "id": "accountId",
@@ -1124,7 +1124,7 @@
         }
       ],
       "group": "Task",
-      "description": "[unverified path] Get data of many tasks"
+      "description": "Get data of many tasks"
     },
     {
       "id": "task_update",
@@ -1329,7 +1329,7 @@
       "id": "time_entry_get_all",
       "label": "Get Many Time Entry",
       "method": "GET",
-      "path": "/time-entry",
+      "path": "/time_entries",
       "fields": [
         {
           "id": "accountId",
@@ -1361,7 +1361,7 @@
         }
       ],
       "group": "Time Entry",
-      "description": "[unverified path] Get data of many time entries"
+      "description": "Get data of many time entries"
     },
     {
       "id": "time_entry_restart_time",
@@ -1545,7 +1545,7 @@
       "id": "user_get_all",
       "label": "Get Many User",
       "method": "GET",
-      "path": "/user",
+      "path": "/users",
       "fields": [
         {
           "id": "accountId",
@@ -1577,7 +1577,7 @@
         }
       ],
       "group": "User",
-      "description": "[unverified path] Get data of many users"
+      "description": "Get data of many users"
     },
     {
       "id": "user_me",

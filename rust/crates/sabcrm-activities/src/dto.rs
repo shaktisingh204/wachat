@@ -24,7 +24,7 @@ pub struct ListQuery {
     /// Serialized id of the record whose timeline to read (optional).
     #[serde(default)]
     pub target_record_id: Option<String>,
-    /// Optional `type` filter (NOTE | TASK | CALL | MEETING | EMAIL | COMMENT).
+    /// Optional `type` filter (NOTE | TASK | CALL | MEETING | EMAIL | COMMENT | WHATSAPP).
     #[serde(default, rename = "type")]
     pub kind: Option<String>,
     /// Page size. Clamped at 200 by the handler. Defaults to 50.
@@ -69,7 +69,7 @@ pub struct ScopeQuery {
 pub struct CreateActivityInput {
     /// Tenant scope — required.
     pub project_id: String,
-    /// Entry kind (NOTE | TASK | CALL | MEETING | EMAIL | COMMENT).
+    /// Entry kind (NOTE | TASK | CALL | MEETING | EMAIL | COMMENT | WHATSAPP).
     #[serde(rename = "type")]
     pub kind: String,
     /// Short title / subject line.

@@ -4,8 +4,8 @@
   "description": "Consume Customer.io API",
   "category": "marketing",
   "iconName": "LuPackage",
-  "version": 8,
-  "lastVerified": "2026-06-11",
+  "version": 9,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "header",
@@ -326,8 +326,8 @@
     {
       "id": "segment_remove",
       "label": "Remove Customer Segment",
-      "method": "DELETE",
-      "path": "/segment",
+      "method": "POST",
+      "path": "/segments/{segmentId}/remove_customers",
       "fields": [
         {
           "id": "appHost",
@@ -343,7 +343,8 @@
           "type": "number",
           "required": true,
           "description": "The unique identifier of the segment",
-          "defaultValue": 0
+          "defaultValue": 0,
+          "in": "path"
         },
         {
           "id": "customerIds",
@@ -354,7 +355,7 @@
         }
       ],
       "group": "Segment",
-      "description": "[unverified path] Remove a customer from a segment"
+      "description": "Remove a customer from a segment"
     }
   ]
 }

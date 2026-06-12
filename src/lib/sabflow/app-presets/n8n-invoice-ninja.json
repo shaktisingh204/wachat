@@ -4,14 +4,14 @@
   "description": "Consume Invoice Ninja API",
   "category": "finance",
   "iconName": "LuPackage",
-  "version": 10,
-  "lastVerified": "2026-06-11",
+  "version": 11,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "https://app.invoiceninja.com",
+  "baseUrl": "https://app.invoiceninja.com/api/v1",
   "endpoints": [
     {
       "id": "client_create",
@@ -847,7 +847,7 @@
       "id": "quote_create",
       "label": "Create Quote",
       "method": "POST",
-      "path": "/quote",
+      "path": "/quotes",
       "fields": [
         {
           "id": "apiVersion",
@@ -881,7 +881,7 @@
         }
       ],
       "group": "Quote",
-      "description": "[unverified path] Create a new quote"
+      "description": "Create a new quote"
     },
     {
       "id": "quote_delete",
@@ -992,7 +992,7 @@
       "id": "quote_get_all",
       "label": "Get Many Quote",
       "method": "GET",
-      "path": "/quote",
+      "path": "/quotes",
       "fields": [
         {
           "id": "apiVersion",
@@ -1033,13 +1033,13 @@
         }
       ],
       "group": "Quote",
-      "description": "[unverified path] Get data of many quotes"
+      "description": "Get data of many quotes"
     },
     {
       "id": "bank_transaction_create",
       "label": "Create Bank Transaction",
       "method": "POST",
-      "path": "/bank-transaction",
+      "path": "/bank_transactions",
       "fields": [
         {
           "id": "apiVersion",
@@ -1066,7 +1066,7 @@
         }
       ],
       "group": "Bank Transaction",
-      "description": "[unverified path] Create a new bank transaction"
+      "description": "Create a new bank transaction"
     },
     {
       "id": "bank_transaction_delete",
@@ -1138,7 +1138,7 @@
       "id": "bank_transaction_get_all",
       "label": "Get Many Bank Transaction",
       "method": "GET",
-      "path": "/bank-transaction",
+      "path": "/bank_transactions",
       "fields": [
         {
           "id": "apiVersion",
@@ -1172,7 +1172,7 @@
         }
       ],
       "group": "Bank Transaction",
-      "description": "[unverified path] Get data of many bank transactions"
+      "description": "Get data of many bank transactions"
     },
     {
       "id": "bank_transaction_match_payment",

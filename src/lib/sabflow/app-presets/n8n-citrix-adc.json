@@ -4,8 +4,8 @@
   "description": "Consume Netscaler ADC API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 2,
-  "lastVerified": "2026-06-11",
+  "version": 3,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "bearer",
@@ -253,45 +253,49 @@
       "id": "file_delete",
       "label": "Delete File",
       "method": "DELETE",
-      "path": "/file",
+      "path": "/nitro/v1/config/systemfile?args=filename:{fileName},filelocation:{fileLocation}",
       "fields": [
         {
           "id": "fileLocation",
           "label": "File Location",
           "type": "text",
           "required": true,
-          "defaultValue": "/nsconfig/ssl/"
+          "defaultValue": "/nsconfig/ssl/",
+          "in": "path"
         },
         {
           "id": "fileName",
           "label": "File Name",
           "type": "text",
           "required": true,
-          "description": "Name of the file. It should not include filepath."
+          "description": "Name of the file. It should not include filepath.",
+          "in": "path"
         }
       ],
       "group": "File",
-      "description": "[unverified path] Delete a file"
+      "description": "Delete a file"
     },
     {
       "id": "file_download",
       "label": "Download File",
       "method": "GET",
-      "path": "/file",
+      "path": "/nitro/v1/config/systemfile?args=filename:{fileName},filelocation:{fileLocation}",
       "fields": [
         {
           "id": "fileLocation",
           "label": "File Location",
           "type": "text",
           "required": true,
-          "defaultValue": "/nsconfig/ssl/"
+          "defaultValue": "/nsconfig/ssl/",
+          "in": "path"
         },
         {
           "id": "fileName",
           "label": "File Name",
           "type": "text",
           "required": true,
-          "description": "Name of the file. It should not include filepath."
+          "description": "Name of the file. It should not include filepath.",
+          "in": "path"
         },
         {
           "id": "binaryProperty",
@@ -303,7 +307,7 @@
         }
       ],
       "group": "File",
-      "description": "[unverified path] Download a file"
+      "description": "Download a file"
     },
     {
       "id": "file_upload",

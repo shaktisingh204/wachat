@@ -4,8 +4,8 @@
   "description": "Consume Brevo API",
   "category": "marketing",
   "iconName": "LuPackage",
-  "version": 11,
-  "lastVerified": "2026-06-11",
+  "version": 13,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "header",
@@ -17,7 +17,7 @@
       "id": "attribute_create",
       "label": "Create Contact Attribute",
       "method": "POST",
-      "path": "/v3/contacts/attributes/{{{attributeCategory}}}/{{encodeURI({attributeName})}}",
+      "path": "/v3/contacts/attributes/{attributeCategory}/{attributeName}",
       "fields": [
         {
           "id": "attributeCategory",
@@ -101,13 +101,13 @@
         }
       ],
       "group": "Contact Attribute",
-      "description": "[unverified path] Create an attribute"
+      "description": "Create an attribute"
     },
     {
       "id": "attribute_update",
       "label": "Update Contact Attribute",
       "method": "PUT",
-      "path": "/v3/contacts/attributes/{{{updateAttributeCategory}}}/{{encodeURI({updateAttributeName})}}",
+      "path": "/v3/contacts/attributes/{updateAttributeCategory}/{updateAttributeName}",
       "fields": [
         {
           "id": "updateAttributeCategory",
@@ -154,13 +154,13 @@
         }
       ],
       "group": "Contact Attribute",
-      "description": "[unverified path] Update an attribute"
+      "description": "Update an attribute"
     },
     {
       "id": "attribute_delete",
       "label": "Delete Contact Attribute",
       "method": "DELETE",
-      "path": "/v3/contacts/attributes/{{{deleteAttributeCategory}}}/{{encodeURI({deleteAttributeName})}}",
+      "path": "/v3/contacts/attributes/{deleteAttributeCategory}/{deleteAttributeName}",
       "fields": [
         {
           "id": "deleteAttributeCategory",
@@ -201,7 +201,7 @@
         }
       ],
       "group": "Contact Attribute",
-      "description": "[unverified path] Delete an attribute"
+      "description": "Delete an attribute"
     },
     {
       "id": "attribute_get_all",
@@ -231,7 +231,7 @@
       "id": "sender_create",
       "label": "Create Sender",
       "method": "POST",
-      "path": "/sender",
+      "path": "/v3/senders",
       "fields": [
         {
           "id": "name",
@@ -252,13 +252,13 @@
         }
       ],
       "group": "Sender",
-      "description": "[unverified path] Create a sender"
+      "description": "Create a sender"
     },
     {
       "id": "sender_delete",
       "label": "Delete Sender",
       "method": "DELETE",
-      "path": "/v3/senders/{{{id}}}",
+      "path": "/v3/senders/{id}",
       "fields": [
         {
           "id": "id",
@@ -269,7 +269,7 @@
         }
       ],
       "group": "Sender",
-      "description": "[unverified path] Delete a sender"
+      "description": "Delete a sender"
     },
     {
       "id": "sender_get_all",
@@ -349,34 +349,36 @@
       "id": "contact_delete",
       "label": "Delete Contact",
       "method": "DELETE",
-      "path": "/contact",
+      "path": "/v3/contacts/{identifier}",
       "fields": [
         {
           "id": "identifier",
           "label": "Contact Identifier",
           "type": "text",
-          "description": "Email (urlencoded) OR ID of the contact OR its SMS attribute value"
+          "description": "Email (urlencoded) OR ID of the contact OR its SMS attribute value",
+          "in": "path"
         }
       ],
       "group": "Contact",
-      "description": "[unverified path] Delete a contact"
+      "description": "Delete a contact"
     },
     {
       "id": "contact_get",
       "label": "Get Contact",
       "method": "GET",
-      "path": "/contact",
+      "path": "/v3/contacts/{identifier}",
       "fields": [
         {
           "id": "identifier",
           "label": "Contact Identifier",
           "type": "text",
           "required": true,
-          "description": "Email (urlencoded) OR ID of the contact OR its SMS attribute value"
+          "description": "Email (urlencoded) OR ID of the contact OR its SMS attribute value",
+          "in": "path"
         }
       ],
       "group": "Contact",
-      "description": "[unverified path] Get a contact"
+      "description": "Get a contact"
     },
     {
       "id": "contact_get_all",
@@ -420,15 +422,16 @@
     {
       "id": "contact_update",
       "label": "Update Contact",
-      "method": "PATCH",
-      "path": "/contact",
+      "method": "PUT",
+      "path": "/v3/contacts/{identifier}",
       "fields": [
         {
           "id": "identifier",
           "label": "Contact Identifier",
           "type": "text",
           "required": true,
-          "description": "Email (urlencoded) OR ID of the contact OR its SMS attribute value"
+          "description": "Email (urlencoded) OR ID of the contact OR its SMS attribute value",
+          "in": "path"
         },
         {
           "id": "updateAttributes",
@@ -439,13 +442,13 @@
         }
       ],
       "group": "Contact",
-      "description": "[unverified path] Update a contact"
+      "description": "Update a contact"
     },
     {
       "id": "email_send",
       "label": "Send Email",
       "method": "POST",
-      "path": "/email",
+      "path": "/v3/smtp/email",
       "fields": [
         {
           "id": "sendHTML",
@@ -495,13 +498,13 @@
         }
       ],
       "group": "Email",
-      "description": "[unverified path] Send a transactional email"
+      "description": "Send a transactional email"
     },
     {
       "id": "email_send_template",
       "label": "Send Template Email",
       "method": "POST",
-      "path": "/email",
+      "path": "/v3/smtp/email",
       "fields": [
         {
           "id": "templateId",
@@ -524,7 +527,7 @@
         }
       ],
       "group": "Email",
-      "description": "[unverified path] Send an email with an existing Template"
+      "description": "Send an email with an existing Template"
     }
   ]
 }

@@ -1,0 +1,116 @@
+/* =========================================================================
+   SabCRM — Settings hub (`/dashboard/settings/crm`) styles, 20ui.
+
+   Page-local ONLY (`.shub-*` prefix), scoped to the 20ui root
+   (`:is(.\32 0ui, .ui20)` — NEVER a bare `.20ui.foo` compound). Ported from
+   the legacy `src/app/sabcrm/home.css` (`.st-home` / `.st-settings-*`,
+   `.sabcrm-twenty`-scoped), which this file replaces. Tokens only (`--st-*`),
+   so dark mode is free.
+   ========================================================================= */
+
+/* ----- Centered content column (the shell provides scroll + outer gutters) */
+:is(.\32 0ui, .ui20) .shub {
+  width: 100%;
+  max-width: 880px;
+  margin: 0 auto;
+}
+
+/* =========================================================================
+   Grouped list (rows with icon, label, description, chevron)
+   ========================================================================= */
+:is(.\32 0ui, .ui20) .shub-group {
+  margin-bottom: var(--st-space-6);
+}
+
+:is(.\32 0ui, .ui20) .shub-group__title {
+  margin: 0 0 var(--st-space-2);
+  padding: 0 var(--st-space-1);
+  color: var(--st-text-tertiary);
+  font-size: var(--st-font-size-xs);
+  font-weight: var(--st-fw-semibold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+:is(.\32 0ui, .ui20) .shub-list {
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-bg);
+  overflow: hidden;
+}
+
+:is(.\32 0ui, .ui20) .shub-row {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-3);
+  padding: var(--st-space-3) var(--st-space-4);
+  border-bottom: 1px solid var(--st-border-light);
+  color: var(--st-text);
+  text-decoration: none;
+  transition: background 100ms ease;
+}
+
+:is(.\32 0ui, .ui20) .shub-row:last-child {
+  border-bottom: none;
+}
+
+:is(.\32 0ui, .ui20) .shub-row:hover {
+  background: var(--st-hover);
+}
+
+:is(.\32 0ui, .ui20) .shub-row__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--st-radius);
+  background: var(--st-bg-secondary);
+  border: 1px solid var(--st-border);
+  color: var(--st-text-secondary);
+}
+
+:is(.\32 0ui, .ui20) .shub-row:hover .shub-row__icon {
+  color: var(--st-text);
+}
+
+:is(.\32 0ui, .ui20) .shub-row__text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+:is(.\32 0ui, .ui20) .shub-row__label {
+  font-size: var(--st-font-size);
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text);
+}
+
+:is(.\32 0ui, .ui20) .shub-row__desc {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--st-text-secondary);
+  font-size: var(--st-font-size-sm);
+}
+
+:is(.\32 0ui, .ui20) .shub-row__chevron {
+  flex: 0 0 auto;
+  color: var(--st-text-tertiary);
+  transition: transform 120ms ease;
+}
+
+:is(.\32 0ui, .ui20) .shub-row:hover .shub-row__chevron {
+  color: var(--st-text-secondary);
+  transform: translateX(2px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :is(.\32 0ui, .ui20) .shub-row,
+  :is(.\32 0ui, .ui20) .shub-row__chevron {
+    transition: none;
+  }
+}

@@ -1,58 +1,85 @@
 /**
- * SabCRM — "My Work" + "Search" page-local styles.
+ * SabCRM — "My Work" (`/sabcrm/my-work`) page-local styles, 20ui.
  *
- * Twenty look only. These classes EXTEND the shared `.st-*` system in
- * `src/styles/sabcrm-twenty.css` (which is NOT edited) with the few extras the
- * cross-object assignment inbox (`/sabcrm/my-work`) and the global record
- * search (`/sabcrm/search`) need. Everything reuses the Twenty design tokens
- * (`--st-*`) so it stays visually consistent with the rest of the SabCRM
- * Twenty surface.
- *
- * NO Ui20 / Tailwind / clay tokens here.
+ * `.mw-*` prefix, scoped to the 20ui root (`:is(.\32 0ui, .ui20)` — NEVER a
+ * bare `.20ui.foo` compound). Tokens only (`--st-*` / `--u-*`), so dark mode
+ * is free. Tables / badges / segmented control / empty states come from 20ui
+ * components; this file carries only the page column, the count line, the
+ * filter count pills and the status-group framing.
  */
 
-/* =========================================================================
-   Page wrapper — a centered Twenty content column
-   ========================================================================= */
-.stw-page {
+/* Page scroll wrapper + centered content column --------------------------- */
+:is(.\32 0ui, .ui20) .mw-page {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: var(--st-space-5);
+  overflow-y: auto;
+}
+
+:is(.\32 0ui, .ui20) .mw-page__inner {
   width: 100%;
   max-width: 920px;
   margin: 0 auto;
 }
 
 /* Sub-count line under the header (e.g. "12 records assigned to you"). */
-.stw-count {
-  margin: calc(-1 * var(--st-space-3)) 0 var(--st-space-4);
+:is(.\32 0ui, .ui20) .mw-count {
+  margin: var(--st-space-4) 0;
   color: var(--st-text-secondary);
   font-size: var(--st-font-size-sm);
 }
 
-/* =========================================================================
-   My Work — table cells
-   ========================================================================= */
+/* Loading skeleton column. */
+:is(.\32 0ui, .ui20) .mw-skel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-2);
+  margin-top: var(--st-space-4);
+}
+
+/* Table cells -------------------------------------------------------------- */
+
+/* Record title link. */
+:is(.\32 0ui, .ui20) .mw-link {
+  color: var(--st-text);
+  font-weight: var(--st-fw-medium);
+  text-decoration: none;
+}
+
+:is(.\32 0ui, .ui20) .mw-link:hover {
+  color: var(--st-accent);
+}
+
+:is(.\32 0ui, .ui20) .mw-link:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+  border-radius: var(--st-radius-sm);
+}
 
 /* Object chip cell keeps its chip from stretching the row. */
-.stw-cell-object {
+:is(.\32 0ui, .ui20) .mw-cell-object {
   white-space: nowrap;
 }
 
 /* Muted updated / due date text. */
-.stw-cell-meta {
+:is(.\32 0ui, .ui20) .mw-cell-meta {
   color: var(--st-text-secondary);
   font-size: var(--st-font-size-sm);
   white-space: nowrap;
 }
 
-/* =========================================================================
-   My Work — object filter (20ui SegmentedControl wrapper + count pills)
-   ========================================================================= */
+:is(.\32 0ui, .ui20) .mw-muted {
+  color: var(--st-text-tertiary);
+}
+
+/* Object filter (20ui SegmentedControl wrapper + count pills) -------------- */
 /* The control owns its own layout (u-seg); this only spaces it from the table. */
-.stw-filters {
+:is(.\32 0ui, .ui20) .mw-filters {
   margin-bottom: var(--st-space-4);
 }
 
 /* Live count pill rendered inside each segment label. */
-.stw-filter-count {
+:is(.\32 0ui, .ui20) .mw-filter-count {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -67,27 +94,31 @@
   font-weight: 600;
 }
 
-.u-seg__item.is-selected .stw-filter-count {
+:is(.\32 0ui, .ui20) .u-seg__item.is-selected .mw-filter-count {
   background: var(--st-accent-soft, var(--st-active));
   color: var(--st-accent-hover, var(--st-accent));
 }
 
-/* =========================================================================
-   My Work — status groups (Twenty TaskGroups parity)
-   ========================================================================= */
-.stw-status-group {
+/* Status groups (Twenty TaskGroups parity) --------------------------------- */
+:is(.\32 0ui, .ui20) .mw-groups {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-5);
+}
+
+:is(.\32 0ui, .ui20) .mw-status-group {
   display: flex;
   flex-direction: column;
   gap: var(--st-space-2);
 }
 
-.stw-status-group__head {
+:is(.\32 0ui, .ui20) .mw-status-group__head {
   display: flex;
   align-items: center;
   gap: var(--st-space-2);
 }
 
-.stw-status-group__title {
+:is(.\32 0ui, .ui20) .mw-status-group__title {
   font-size: var(--st-font-size-sm);
   font-weight: var(--st-fw-semibold);
   color: var(--st-text);
@@ -95,7 +126,7 @@
   letter-spacing: 0.02em;
 }
 
-.stw-status-group__count {
+:is(.\32 0ui, .ui20) .mw-status-group__count {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -108,140 +139,4 @@
   color: var(--st-text-tertiary);
   font-size: 11px;
   font-weight: 600;
-}
-
-/* =========================================================================
-   Search — search box + result groups
-   ========================================================================= */
-
-/* The big standalone search box that heads the page. */
-.stw-searchbox {
-  position: relative;
-  display: flex;
-  align-items: center;
-  width: 100%;
-  margin-bottom: var(--st-space-5);
-}
-
-.stw-searchbox__icon {
-  position: absolute;
-  left: 12px;
-  display: inline-flex;
-  color: var(--st-text-tertiary);
-  pointer-events: none;
-}
-
-.stw-searchbox__input {
-  width: 100%;
-  height: 40px;
-  padding: 0 var(--st-space-4) 0 36px;
-  border: 1px solid var(--st-border);
-  border-radius: var(--st-radius);
-  background: var(--st-bg);
-  color: var(--st-text);
-  font-family: inherit;
-  font-size: var(--st-font-size-lg);
-  outline: none;
-  transition: border-color 120ms ease, box-shadow 120ms ease;
-}
-
-.stw-searchbox__input::placeholder {
-  color: var(--st-text-tertiary);
-}
-
-.stw-searchbox__input:focus {
-  border-color: var(--st-accent);
-  box-shadow: 0 0 0 2px var(--st-accent-soft);
-}
-
-/* A tiny spinner that sits at the right edge of the box while searching. */
-.stw-searchbox__spin {
-  position: absolute;
-  right: 12px;
-  display: inline-flex;
-  color: var(--st-text-tertiary);
-}
-
-/* Stacked result groups. */
-.stw-groups {
-  display: flex;
-  flex-direction: column;
-  gap: var(--st-space-5);
-}
-
-/* One object's group of hits, framed like a Twenty panel. */
-.stw-group {
-  border: 1px solid var(--st-border);
-  border-radius: var(--st-radius-lg);
-  background: var(--st-bg);
-  overflow: hidden;
-}
-
-.stw-group__head {
-  display: flex;
-  align-items: center;
-  gap: var(--st-space-2);
-  padding: var(--st-space-3) var(--st-space-4);
-  border-bottom: 1px solid var(--st-border);
-  font-size: var(--st-font-size-sm);
-  font-weight: var(--st-fw-semibold);
-  color: var(--st-text-secondary);
-}
-
-.stw-group__head svg {
-  flex: 0 0 auto;
-  color: var(--st-text-tertiary);
-}
-
-.stw-group__count {
-  margin-left: auto;
-  color: var(--st-text-tertiary);
-  font-size: var(--st-font-size-xs);
-  font-weight: var(--st-fw-medium);
-}
-
-/* List of hits within a group. */
-.stw-hits {
-  display: flex;
-  flex-direction: column;
-  list-style: none;
-  margin: 0;
-  padding: var(--st-space-1) var(--st-space-2);
-}
-
-.stw-hit {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--st-space-3);
-  padding: 8px var(--st-space-2);
-  border-radius: var(--st-radius);
-  color: var(--st-text);
-  font-size: var(--st-font-size);
-  text-decoration: none;
-  transition: background 100ms ease;
-}
-
-.stw-hit:hover {
-  background: var(--st-hover);
-}
-
-.stw-hit:focus-visible {
-  outline: none;
-  background: var(--st-hover);
-  box-shadow: inset 0 0 0 2px var(--st-accent);
-}
-
-.stw-hit__label {
-  min-width: 0;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  font-weight: var(--st-fw-medium);
-}
-
-.stw-hit__kind {
-  flex: 0 0 auto;
-  color: var(--st-text-tertiary);
-  font-size: var(--st-font-size-xs);
 }

@@ -4,8 +4,8 @@
   "description": "Consume Autopilot API",
   "category": "marketing",
   "iconName": "LuPackage",
-  "version": 11,
-  "lastVerified": "2026-06-11",
+  "version": 12,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "header",
@@ -128,49 +128,53 @@
       "id": "contact_list_add",
       "label": "Add Contact List",
       "method": "POST",
-      "path": "/contact-list",
+      "path": "/list/{listId}/contact/{contactId}",
       "fields": [
         {
           "id": "listId",
           "label": "List Name or ID",
           "type": "select",
           "required": true,
-          "description": "ID of the list to operate on. Choose from the list, or specify an ID using an expression."
+          "description": "ID of the list to operate on. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
         },
         {
           "id": "contactId",
           "label": "Contact ID",
           "type": "text",
           "required": true,
-          "description": "Can be ID or email"
+          "description": "Can be ID or email",
+          "in": "path"
         }
       ],
       "group": "Contact List",
-      "description": "[unverified path] Add contact to list"
+      "description": "Add contact to list"
     },
     {
       "id": "contact_list_exist",
       "label": "Exist Contact List",
-      "method": "POST",
-      "path": "/contact-list",
+      "method": "GET",
+      "path": "/list/{listId}/contact/{contactId}",
       "fields": [
         {
           "id": "listId",
           "label": "List Name or ID",
           "type": "select",
           "required": true,
-          "description": "ID of the list to operate on. Choose from the list, or specify an ID using an expression."
+          "description": "ID of the list to operate on. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
         },
         {
           "id": "contactId",
           "label": "Contact ID",
           "type": "text",
           "required": true,
-          "description": "Can be ID or email"
+          "description": "Can be ID or email",
+          "in": "path"
         }
       ],
       "group": "Contact List",
-      "description": "[unverified path] Check if contact is on list"
+      "description": "Check if contact is on list"
     },
     {
       "id": "contact_list_get_all",
@@ -208,25 +212,27 @@
       "id": "contact_list_remove",
       "label": "Remove Contact List",
       "method": "DELETE",
-      "path": "/contact-list",
+      "path": "/list/{listId}/contact/{contactId}",
       "fields": [
         {
           "id": "listId",
           "label": "List Name or ID",
           "type": "select",
           "required": true,
-          "description": "ID of the list to operate on. Choose from the list, or specify an ID using an expression."
+          "description": "ID of the list to operate on. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
         },
         {
           "id": "contactId",
           "label": "Contact ID",
           "type": "text",
           "required": true,
-          "description": "Can be ID or email"
+          "description": "Can be ID or email",
+          "in": "path"
         }
       ],
       "group": "Contact List",
-      "description": "[unverified path] Remove a contact from a list"
+      "description": "Remove a contact from a list"
     },
     {
       "id": "list_create",

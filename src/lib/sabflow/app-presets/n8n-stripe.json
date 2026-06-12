@@ -4,8 +4,8 @@
   "description": "Consume the Stripe API",
   "category": "finance",
   "iconName": "LuPackage",
-  "version": 13,
-  "lastVerified": "2026-06-11",
+  "version": 14,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -173,7 +173,7 @@
       "id": "charge_get_all",
       "label": "Get Many Charge",
       "method": "GET",
-      "path": "/charge",
+      "path": "/charges",
       "fields": [
         {
           "id": "returnAll",
@@ -191,7 +191,7 @@
         }
       ],
       "group": "Charge",
-      "description": "[unverified path] Get many charges"
+      "description": "Get many charges"
     },
     {
       "id": "charge_update",
@@ -291,7 +291,7 @@
       "id": "coupon_get_all",
       "label": "Get Many Coupon",
       "method": "GET",
-      "path": "/coupon",
+      "path": "/coupons",
       "fields": [
         {
           "id": "returnAll",
@@ -309,7 +309,7 @@
         }
       ],
       "group": "Coupon",
-      "description": "[unverified path] Get many coupons"
+      "description": "Get many coupons"
     },
     {
       "id": "customer_create",
@@ -375,7 +375,7 @@
       "id": "customer_get_all",
       "label": "Get Many Customer",
       "method": "GET",
-      "path": "/customer",
+      "path": "/customers",
       "fields": [
         {
           "id": "returnAll",
@@ -400,7 +400,7 @@
         }
       ],
       "group": "Customer",
-      "description": "[unverified path] Get many customers"
+      "description": "Get many customers"
     },
     {
       "id": "customer_update",

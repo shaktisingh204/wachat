@@ -1801,6 +1801,7 @@ dependencies = [
  "bson",
  "chrono",
  "crm-common",
+ "crm-core",
  "futures",
  "mongodb",
  "sabnode-auth",
@@ -1939,6 +1940,7 @@ dependencies = [
  "bson",
  "chrono",
  "crm-common",
+ "crm-core",
  "futures",
  "mongodb",
  "sabnode-auth",
@@ -2534,6 +2536,7 @@ dependencies = [
  "bson",
  "chrono",
  "crm-common",
+ "crm-core",
  "futures",
  "mongodb",
  "sabnode-auth",
@@ -2630,14 +2633,19 @@ dependencies = [
  "bson",
  "chrono",
  "crm-common",
+ "crm-core",
  "futures",
+ "hex",
+ "hmac 0.12.1",
  "mongodb",
+ "reqwest",
  "sabnode-auth",
  "sabnode-common",
  "sabnode-db",
  "sabnode-rbac",
  "serde",
  "serde_json",
+ "sha2 0.10.9",
  "tokio",
  "tracing",
 ]
@@ -2651,6 +2659,7 @@ dependencies = [
  "bson",
  "chrono",
  "crm-common",
+ "crm-core",
  "futures",
  "mongodb",
  "sabnode-auth",
@@ -3277,6 +3286,7 @@ dependencies = [
  "bson",
  "chrono",
  "crm-common",
+ "crm-core",
  "futures",
  "mongodb",
  "sabnode-auth",
@@ -3404,6 +3414,7 @@ dependencies = [
  "bson",
  "chrono",
  "crm-common",
+ "crm-core",
  "futures",
  "mongodb",
  "sabnode-auth",
@@ -3614,6 +3625,7 @@ dependencies = [
  "bson",
  "chrono",
  "crm-common",
+ "crm-core",
  "futures",
  "mongodb",
  "sabnode-auth",
@@ -3838,6 +3850,7 @@ dependencies = [
  "bson",
  "chrono",
  "crm-common",
+ "crm-core",
  "futures",
  "mongodb",
  "sabnode-auth",
@@ -3859,6 +3872,7 @@ dependencies = [
  "bson",
  "chrono",
  "crm-common",
+ "crm-core",
  "futures",
  "mongodb",
  "sabnode-auth",
@@ -4714,6 +4728,7 @@ dependencies = [
  "bson",
  "chrono",
  "crm-common",
+ "crm-core",
  "futures",
  "mongodb",
  "sabnode-auth",
@@ -6746,7 +6761,6 @@ dependencies = [
 [[package]]
 name = "ironcalc"
 version = "0.7.1"
-source = "git+https://github.com/ironcalc/IronCalc?tag=v0.7.1#5e90d02ed2dc60542d4f219e50c42715c40b390a"
 dependencies = [
  "bitcode",
  "chrono",
@@ -6762,7 +6776,6 @@ dependencies = [
 [[package]]
 name = "ironcalc_base"
 version = "0.7.1"
-source = "git+https://github.com/ironcalc/IronCalc?tag=v0.7.1#5e90d02ed2dc60542d4f219e50c42715c40b390a"
 dependencies = [
  "bitcode",
  "chrono",
@@ -11631,6 +11644,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "sabcrm-approvals"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum 0.8.9",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "utoipa",
+]
+
+[[package]]
 name = "sabcrm-audit"
 version = "0.1.0"
 dependencies = [
@@ -11848,7 +11881,47 @@ dependencies = [
 ]
 
 [[package]]
+name = "sabcrm-routing"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum 0.8.9",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "utoipa",
+]
+
+[[package]]
 name = "sabcrm-segments"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum 0.8.9",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "utoipa",
+]
+
+[[package]]
+name = "sabcrm-sequences"
 version = "0.1.0"
 dependencies = [
  "anyhow",
@@ -13002,6 +13075,7 @@ dependencies = [
  "crm-auto-leads",
  "crm-automations",
  "crm-awards",
+ "crm-bank-transactions",
  "crm-bills",
  "crm-bom",
  "crm-bookings",
@@ -13029,6 +13103,7 @@ dependencies = [
  "crm-events",
  "crm-exits",
  "crm-expense-categories",
+ "crm-expense-claims",
  "crm-fixed-assets",
  "crm-form-submissions",
  "crm-forms",
@@ -13079,6 +13154,7 @@ dependencies = [
  "crm-purchases",
  "crm-quotations",
  "crm-reconciliation",
+ "crm-recurring-invoices",
  "crm-reply-templates",
  "crm-rfqs",
  "crm-salary-structures",
@@ -13263,6 +13339,7 @@ dependencies = [
  "sabcreator-roles",
  "sabcreator-workflows",
  "sabcrm-activities",
+ "sabcrm-approvals",
  "sabcrm-audit",
  "sabcrm-dashboards",
  "sabcrm-favorites",
@@ -13273,7 +13350,9 @@ dependencies = [
  "sabcrm-pipelines",
  "sabcrm-records",
  "sabcrm-roles",
+ "sabcrm-routing",
  "sabcrm-segments",
+ "sabcrm-sequences",
  "sabcrm-settings",
  "sabcrm-tags",
  "sabcrm-targets",

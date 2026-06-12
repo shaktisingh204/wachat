@@ -1,0 +1,203 @@
+/**
+ * SabCRM — home hub (`/sabcrm`) page-local styles, 20ui.
+ *
+ * Page-local layout ONLY (`.hub-*` prefix), scoped to the 20ui root
+ * (`:is(.\32 0ui, .ui20)` — NEVER a bare `.20ui.foo` compound). The header,
+ * cards, skeletons and empty state come from 20ui components; this file
+ * carries the scroll wrapper (the suite frame renders children directly in
+ * the frame's main area), the object-card grid layout and the quick-link chips.
+ * Tokens only (`--st-*` / `--u-*`), so dark mode is free.
+ */
+
+/* Page scroll wrapper + centered content column ------------------------- */
+:is(.\32 0ui, .ui20) .hub-page {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: var(--st-space-5);
+  overflow-y: auto;
+}
+
+:is(.\32 0ui, .ui20) .hub-page__inner {
+  width: 100%;
+  max-width: 920px;
+  margin: 0 auto;
+}
+
+/* Object card grid --------------------------------------------------------- */
+:is(.\32 0ui, .ui20) .hub-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--st-space-3);
+  margin: var(--st-space-5) 0 var(--st-space-6);
+  padding: 0;
+  list-style: none;
+}
+
+:is(.\32 0ui, .ui20) .hub-grid__item {
+  display: flex;
+}
+
+/* Interactive 20ui Card shell wraps each object link; it owns the chrome
+   (border, radius, hover lift, press, focus ring). The inner link is
+   layout-only and stretches to fill the shell. */
+:is(.\32 0ui, .ui20) .hub-card-shell {
+  flex: 1 1 auto;
+  display: flex;
+}
+
+:is(.\32 0ui, .ui20) .hub-card {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: var(--st-space-3);
+  height: 100%;
+  padding: var(--st-space-4);
+  color: var(--st-text);
+  text-decoration: none;
+}
+
+/* The inner link is the keyboard focus target; surface its focus ring on the
+   Card shell so the whole card reads as focused (matches the interactive
+   Card's own :focus-visible treatment). */
+:is(.\32 0ui, .ui20) .hub-card:focus-visible {
+  outline: none;
+}
+:is(.\32 0ui, .ui20) .hub-card-shell:has(.hub-card:focus-visible) {
+  box-shadow: var(--u-focus-ring);
+}
+
+:is(.\32 0ui, .ui20) .hub-card__top {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-3);
+}
+
+:is(.\32 0ui, .ui20) .hub-card__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--st-radius);
+  background: var(--st-accent-soft);
+  color: var(--st-accent);
+}
+
+:is(.\32 0ui, .ui20) .hub-card__label {
+  font-size: var(--st-font-size-lg);
+  font-weight: var(--st-fw-semibold);
+  color: var(--st-text);
+  letter-spacing: -0.01em;
+}
+
+/* Record-count pill on each object card. */
+:is(.\32 0ui, .ui20) .hub-card__count {
+  margin-left: auto;
+  align-self: flex-start;
+  min-width: 22px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--st-bg-muted);
+  color: var(--st-text-secondary);
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-medium);
+  text-align: center;
+}
+:is(.\32 0ui, .ui20) .hub-card-shell:hover .hub-card__count {
+  background: var(--st-accent-soft);
+  color: var(--st-accent);
+}
+
+/* One/two-line object description under the title. */
+:is(.\32 0ui, .ui20) .hub-card__desc {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  color: var(--st-text-secondary);
+  font-size: var(--st-font-size-sm);
+  line-height: 1.45;
+}
+
+:is(.\32 0ui, .ui20) .hub-card__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: auto;
+  color: var(--st-text-secondary);
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-medium);
+}
+
+:is(.\32 0ui, .ui20) .hub-card-shell:hover .hub-card__cta {
+  color: var(--st-accent);
+}
+
+:is(.\32 0ui, .ui20) .hub-card__cta svg {
+  transition: transform 120ms ease;
+}
+
+:is(.\32 0ui, .ui20) .hub-card-shell:hover .hub-card__cta svg {
+  transform: translateX(2px);
+}
+
+/* Skeleton card while objects load — the outlined Card owns the chrome,
+   so the placeholder only needs layout + disabled interaction. */
+:is(.\32 0ui, .ui20) .hub-card--skeleton {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-3);
+  height: 100%;
+  pointer-events: none;
+}
+
+/* Empty state (no objects) — 20ui EmptyState carries the visuals. */
+:is(.\32 0ui, .ui20) .hub-empty {
+  margin: var(--st-space-5) 0 var(--st-space-6);
+}
+
+/* Quick links (footer) ------------------------------------------------------ */
+:is(.\32 0ui, .ui20) .hub-quick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--st-space-2);
+}
+
+:is(.\32 0ui, .ui20) .hub-quick__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 var(--st-space-3);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg);
+  color: var(--st-text);
+  font-size: var(--st-font-size);
+  font-weight: var(--st-fw-medium);
+  text-decoration: none;
+  transition: background 120ms ease, border-color 120ms ease;
+}
+
+:is(.\32 0ui, .ui20) .hub-quick__link:hover {
+  background: var(--st-hover);
+  border-color: var(--st-text-tertiary);
+}
+
+:is(.\32 0ui, .ui20) .hub-quick__link:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}
+
+:is(.\32 0ui, .ui20) .hub-quick__link svg {
+  color: var(--st-text-secondary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :is(.\32 0ui, .ui20) .hub-quick__link,
+  :is(.\32 0ui, .ui20) .hub-card__cta svg {
+    transition: none;
+  }
+}

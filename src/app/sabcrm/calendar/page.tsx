@@ -3,20 +3,22 @@
 export const dynamic = 'force-dynamic';
 
 /**
- * SabCRM — Calendar view (`/sabcrm/calendar`), Twenty-faithful.
+ * SabCRM — Calendar view (`/sabcrm/calendar`), 20ui.
  *
- * A metadata-driven month calendar that places records on a 7×6 grid by a
+ * A metadata-driven month calendar that places records on a month grid by a
  * chosen DATE / DATE_TIME field — e.g. Tasks by due date, Opportunities by
- * close date. Rendered purely in Twenty's visual language: the shared `.st-*`
- * vocabulary from `src/styles/sabcrm-twenty.css` (NOT edited) plus the sibling
- * `./calendar.css` extras and the `@/components/sabcrm/twenty` kit. No Ui20 /
- * Tailwind / clay; native `Date` only.
+ * close date. Rendered entirely in the 20ui design system: the shared
+ * `FullscreenCalendar` composite draws the month grid (header nav, weekday
+ * row, day cells, event chips with "+N more" overflow), while the controls,
+ * detail panel and states come from the 20ui kit plus the sibling
+ * `./calendar.css` page-local layout (`.cal-*`, scoped to the 20ui root).
+ * Native `Date` only for the data math.
  *
  * Controls:
  *   - Object selector — only objects that declare at least one DATE / DATE_TIME
  *     field qualify (the calendar needs a date axis).
  *   - Date-field selector — that object's date fields; the bucketing axis.
- *   - Month navigation — prev / next / "Today".
+ *   - Month navigation — prev / next / "Today" (inside the composite header).
  *
  * Records are fetched SERVER-SIDE, scoped to the visible window: each time the
  * object / date field / month changes we query `listSabcrmRecordsTw` with a
@@ -25,8 +27,9 @@ export const dynamic = 'force-dynamic';
  * record in that range is loaded. Only those range-scoped records are bucketed
  * CLIENT-side by the chosen field's day — so large datasets render correctly
  * (no 200-record client cap) while flipping the date field stays instant. Each
- * day cell lists its records as small chips linking to `/sabcrm/{object}/{id}`;
- * overflow collapses into a "+N more" toggle.
+ * day cell lists its records as small chips opening `/sabcrm/{object}/{id}`;
+ * overflow collapses into a "+N more" affordance that selects the day, whose
+ * full record list renders in the detail panel below the grid.
  *
  * Every data call is a gated server action returning an `ActionResult`. The
  * Rust engine may be DOWN, so failures degrade to inline banners / empty
@@ -35,19 +38,26 @@ export const dynamic = 'force-dynamic';
 
 import * as React from 'react';
 import Link from 'next/link';
-import {
-  CalendarDays,
-  ChevronLeft,
-  ChevronRight,
-  Database,
-} from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { CalendarDays, Database } from 'lucide-react';
 
 import {
-  TwentyPageHeader,
-  TwentyButton,
-  TwentyAvatar,
-} from '@/components/sabcrm/twenty';
-import { Select, IconButton, Alert } from '@/components/sabcrm/20ui';
+  Alert,
+  Avatar,
+  EmptyState,
+  FullscreenCalendar,
+  PageDescription,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Skeleton,
+  type CalendarEvent,
+} from '@/components/sabcrm/20ui';
 import { useProject } from '@/context/project-context';
 import {
   listSabcrmObjectsTw,
@@ -274,24 +284,16 @@ function ErrorBanner({ message }: { message: string }) {
 
 function GridSkeleton() {
   return (
-    <div className="cal-grid" aria-hidden="true">
-      <div className="cal-weekdays">
+    <div className="cal-skel" aria-hidden="true">
+      <div className="cal-skel__head">
         {WEEKDAYS.map((w) => (
-          <div key={w} className="cal-weekday">
-            {w}
-          </div>
+          <Skeleton key={w} width={30} height={12} radius={6} />
         ))}
       </div>
       {Array.from({ length: 6 }).map((_, r) => (
-        <div className="cal-week" key={r}>
+        <div className="cal-skel__row" key={r}>
           {Array.from({ length: 7 }).map((__, c) => (
-            <div className="cal-day" key={c}>
-              <div
-                className="st-skeleton"
-                style={{ height: 16, width: 18, marginBottom: 6 }}
-              />
-              <div className="st-skeleton" style={{ height: 14 }} />
-            </div>
+            <Skeleton key={c} height={84} radius={8} />
           ))}
         </div>
       ))}
@@ -304,6 +306,7 @@ function GridSkeleton() {
 // ---------------------------------------------------------------------------
 
 export default function SabcrmCalendarPage(): React.JSX.Element {
+  const router = useRouter();
   const { activeProjectId } = useProject();
 
   // Object catalogue (filtered to those with a date field).
@@ -327,9 +330,6 @@ export default function SabcrmCalendarPage(): React.JSX.Element {
   const [dataError, setDataError] = React.useState<string | null>(null);
   // True when the window held more matching records than we paged in (cap hit).
   const [windowCapped, setWindowCapped] = React.useState(false);
-
-  // Which day cells are "expanded" past the overflow cap (by day key).
-  const [expanded, setExpanded] = React.useState<Set<string>>(new Set());
 
   // The day whose records are shown in the detail panel below the grid. Twenty's
   // calendar always has a "selected date" that drives a side/below panel.
@@ -391,10 +391,8 @@ export default function SabcrmCalendarPage(): React.JSX.Element {
     }
   }, [dateFields, dateFieldKey]);
 
-  // Expanded-day + selected-day state must not leak across object / field /
-  // month changes.
+  // Selected-day state must not leak across object / field / month changes.
   React.useEffect(() => {
-    setExpanded(new Set());
     setSelectedDay(null);
   }, [objectSlug, dateFieldKey, cursor]);
 
@@ -455,8 +453,6 @@ export default function SabcrmCalendarPage(): React.JSX.Element {
     [cursor],
   );
 
-  const todayKey = React.useMemo(() => dayKey(today), [today]);
-
   const activeDateField = React.useMemo(
     () => dateFields.find((f) => f.key === dateFieldKey) ?? null,
     [dateFields, dateFieldKey],
@@ -492,89 +488,115 @@ export default function SabcrmCalendarPage(): React.JSX.Element {
     [cells, buckets],
   );
 
-  // ---- Month navigation ---------------------------------------------------
-  const goPrev = React.useCallback(() => {
-    setCursor((c) => {
-      const m = c.month - 1;
-      return m < 0 ? { year: c.year - 1, month: 11 } : { year: c.year, month: m };
-    });
+  // ---- Composite wiring ----------------------------------------------------
+  // The 20ui FullscreenCalendar owns the month grid: records become events,
+  // the visible month is controlled from `cursor`, clicking a day selects it
+  // (detail panel below), and clicking an event chip opens the record page.
+
+  /** Records → calendar events (one chip per record, on its parsed day). */
+  const events = React.useMemo<CalendarEvent[]>(() => {
+    if (!activeObject || !dateFieldKey) return [];
+    const out: CalendarEvent[] = [];
+    for (const rec of records) {
+      const d = parseDateValue(rec.data[dateFieldKey]);
+      if (!d) continue;
+      out.push({ id: rec.id, date: d, title: recordLabel(activeObject, rec) });
+    }
+    return out;
+  }, [records, activeObject, dateFieldKey]);
+
+  /** Controlled visible month for the composite (anchored to the 1st). */
+  const visibleMonth = React.useMemo(
+    () => new Date(cursor.year, cursor.month, 1),
+    [cursor],
+  );
+
+  const handleMonthChange = React.useCallback((next: Date) => {
+    setCursor({ year: next.getFullYear(), month: next.getMonth() });
   }, []);
 
-  const goNext = React.useCallback(() => {
-    setCursor((c) => {
-      const m = c.month + 1;
-      return m > 11 ? { year: c.year + 1, month: 0 } : { year: c.year, month: m };
-    });
+  const handleDateClick = React.useCallback((date: Date) => {
+    setSelectedDay(dayKey(date));
   }, []);
 
-  const goToday = React.useCallback(() => {
-    const now = new Date();
-    setCursor({ year: now.getFullYear(), month: now.getMonth() });
-  }, []);
-
-  const toggleExpanded = React.useCallback((key: string) => {
-    setExpanded((prev) => {
-      const next = new Set(prev);
-      if (next.has(key)) next.delete(key);
-      else next.add(key);
-      return next;
-    });
-  }, []);
+  const handleEventClick = React.useCallback(
+    (event: CalendarEvent) => {
+      if (!activeObject) return;
+      router.push(`/sabcrm/${activeObject.slug}/${event.id}`);
+    },
+    [router, activeObject],
+  );
 
   // ---- Render -------------------------------------------------------------
 
   const monthTitle = `${MONTHS[cursor.month]} ${cursor.year}`;
 
   return (
-    <div className="st-page">
-      <TwentyPageHeader title="Calendar" />
+    <div className="cal-page">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageTitle>Calendar</PageTitle>
+          <PageDescription>
+            Records placed on a month grid by a date field.
+          </PageDescription>
+        </PageHeaderHeading>
+      </PageHeader>
 
       <div className="cal-controls">
         <div className="cal-controls__group">
-          <span className="cal-controls__label">Object</span>
+          <span className="cal-controls__label" id="cal-object-label">
+            Object
+          </span>
           <Select
-            size="sm"
-            value={objectSlug || null}
+            value={objectSlug}
+            onValueChange={(v) => setObjectSlug(v)}
             disabled={loadingObjects || objects.length === 0}
-            onChange={(v) => setObjectSlug(v ?? '')}
-            aria-label="Calendar object"
-            placeholder={objects.length === 0 ? 'No objects' : 'Select object'}
-            options={objects.map((o) => ({ value: o.slug, label: o.labelPlural }))}
-          />
+          >
+            <SelectTrigger
+              className="cal-controls__select"
+              aria-labelledby="cal-object-label"
+            >
+              <SelectValue
+                placeholder={objects.length === 0 ? 'No objects' : 'Select object'}
+              />
+            </SelectTrigger>
+            <SelectContent>
+              {objects.map((o) => (
+                <SelectItem key={o.slug} value={o.slug}>
+                  {o.labelPlural}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         <div className="cal-controls__group">
-          <span className="cal-controls__label">By date</span>
+          <span className="cal-controls__label" id="cal-field-label">
+            By date
+          </span>
           <Select
-            size="sm"
-            value={dateFieldKey || null}
+            value={dateFieldKey}
+            onValueChange={(v) => setDateFieldKey(v)}
             disabled={dateFields.length === 0}
-            onChange={(v) => setDateFieldKey(v ?? '')}
-            aria-label="Calendar date field"
-            placeholder={dateFields.length === 0 ? 'No date field' : 'Select date field'}
-            options={dateFields.map((f) => ({ value: f.key, label: f.label }))}
-          />
-        </div>
-
-        <div className="cal-controls__spacer" />
-
-        <div className="cal-nav">
-          <IconButton
-            size="sm"
-            icon={ChevronLeft}
-            label="Previous month"
-            onClick={goPrev}
-          />
-          <span className="cal-nav__title">{monthTitle}</span>
-          <IconButton
-            size="sm"
-            icon={ChevronRight}
-            label="Next month"
-            onClick={goNext}
-          />
-          <TwentyButton variant="secondary" onClick={goToday}>
-            Today
-          </TwentyButton>
+          >
+            <SelectTrigger
+              className="cal-controls__select"
+              aria-labelledby="cal-field-label"
+            >
+              <SelectValue
+                placeholder={
+                  dateFields.length === 0 ? 'No date field' : 'Select date field'
+                }
+              />
+            </SelectTrigger>
+            <SelectContent>
+              {dateFields.map((f) => (
+                <SelectItem key={f.key} value={f.key}>
+                  {f.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
@@ -584,133 +606,33 @@ export default function SabcrmCalendarPage(): React.JSX.Element {
       {loadingObjects ? (
         <GridSkeleton />
       ) : objects.length === 0 ? (
-        <div className="st-empty">
-          <span className="st-empty__icon">
-            <CalendarDays size={20} />
-          </span>
-          <h2 className="st-empty__title">No calendarable objects</h2>
-          <p className="st-empty__desc">
-            None of your CRM objects has a date field to place records on. Add a
-            DATE or DATE&nbsp;TIME field to an object to use the calendar.
-          </p>
-        </div>
+        <EmptyState
+          icon={CalendarDays}
+          title="No calendarable objects"
+          description={
+            'None of your CRM objects has a date field to place records on. ' +
+            'Add a DATE or DATE TIME field to an object to use the calendar.'
+          }
+        />
       ) : !activeObject || dateFields.length === 0 ? (
-        <div className="st-empty">
-          <span className="st-empty__icon">
-            <Database size={20} />
-          </span>
-          <h2 className="st-empty__title">Pick an object and date field</h2>
-          <p className="st-empty__desc">
-            Choose an object with a date field above to populate the calendar.
-          </p>
-        </div>
+        <EmptyState
+          icon={Database}
+          title="Pick an object and date field"
+          description="Choose an object with a date field above to populate the calendar."
+        />
       ) : loadingData ? (
         <GridSkeleton />
       ) : (
         <>
-          <div className="cal-grid" role="grid" aria-label={`${monthTitle} calendar`}>
-            <div className="cal-weekdays" role="row">
-              {WEEKDAYS.map((w) => (
-                <div key={w} className="cal-weekday" role="columnheader">
-                  {w}
-                </div>
-              ))}
-            </div>
-            {Array.from({ length: 6 }).map((_, week) => (
-              <div className="cal-week" key={week} role="row">
-                {cells.slice(week * 7, week * 7 + 7).map((cell) => {
-                  const dayRecords = buckets.get(cell.key) ?? [];
-                  const isExpanded = expanded.has(cell.key);
-                  const shown = isExpanded
-                    ? dayRecords
-                    : dayRecords.slice(0, MAX_PER_DAY);
-                  const overflow = dayRecords.length - shown.length;
-                  const isToday = cell.key === todayKey;
-                  const isSelected = cell.key === selectedDay;
-                  return (
-                    <div
-                      key={cell.key}
-                      role="gridcell"
-                      tabIndex={0}
-                      onClick={() => setSelectedDay(cell.key)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                          e.preventDefault();
-                          setSelectedDay(cell.key);
-                        }
-                      }}
-                      aria-label={`${cell.date.toLocaleDateString(undefined, {
-                        weekday: 'long',
-                        month: 'long',
-                        day: 'numeric',
-                        year: 'numeric',
-                      })}${isToday ? ' (today)' : ''}${
-                        dayRecords.length > 0
-                          ? `, ${dayRecords.length} ${
-                              dayRecords.length === 1 ? 'record' : 'records'
-                            }`
-                          : ''
-                      }`}
-                      className={`cal-day${
-                        cell.inMonth ? '' : ' cal-day--outside'
-                      }${isToday ? ' cal-day--today' : ''}${
-                        isSelected ? ' cal-day--selected' : ''
-                      }`}
-                    >
-                      <div className="cal-day__head">
-                        <span className="cal-day__num" aria-hidden="true">
-                          {cell.date.getDate()}
-                        </span>
-                      </div>
-                      {dayRecords.length > 0 && (
-                        <div className="cal-day__items">
-                          {shown.map((rec) => {
-                            const label = recordLabel(activeObject, rec);
-                            return (
-                              <Link
-                                key={rec.id}
-                                href={`/sabcrm/${activeObject.slug}/${rec.id}`}
-                                className="cal-event"
-                                title={label}
-                                onClick={(e) => e.stopPropagation()}
-                              >
-                                <TwentyAvatar name={label} size="xs" />
-                                <span className="cal-event__label">{label}</span>
-                              </Link>
-                            );
-                          })}
-                          {overflow > 0 && (
-                            <button
-                              type="button"
-                              className="cal-more"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                toggleExpanded(cell.key);
-                              }}
-                            >
-                              +{overflow} more
-                            </button>
-                          )}
-                          {isExpanded && dayRecords.length > MAX_PER_DAY && (
-                            <button
-                              type="button"
-                              className="cal-more"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                toggleExpanded(cell.key);
-                              }}
-                            >
-                              Show less
-                            </button>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            ))}
-          </div>
+          <FullscreenCalendar
+            className="cal-calendar"
+            month={visibleMonth}
+            onMonthChange={handleMonthChange}
+            events={events}
+            onDateClick={handleDateClick}
+            onEventClick={handleEventClick}
+            maxChipsPerDay={MAX_PER_DAY}
+          />
 
           {selectedDay && (
             <div className="cal-detail" aria-live="polite">
@@ -747,7 +669,7 @@ export default function SabcrmCalendarPage(): React.JSX.Element {
                           href={`/sabcrm/${activeObject.slug}/${rec.id}`}
                           className="cal-detail__link"
                         >
-                          <TwentyAvatar name={label} size="sm" />
+                          <Avatar name={label} size="sm" />
                           <span className="cal-detail__name" title={label}>
                             {label}
                           </span>

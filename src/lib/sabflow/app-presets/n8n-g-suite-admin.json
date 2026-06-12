@@ -4,8 +4,8 @@
   "description": "Consume Google Workspace Admin API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 11,
-  "lastVerified": "2026-06-11",
+  "version": 12,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -53,7 +53,7 @@
       "id": "device_get_all",
       "label": "Get Many ChromeOS Device",
       "method": "GET",
-      "path": "/directory/v1/customer/{qs_customer}/devices/chromeos/",
+      "path": "/directory/v1/customer/my_customer/devices/chromeos",
       "fields": [
         {
           "id": "returnAll",
@@ -110,7 +110,7 @@
         }
       ],
       "group": "ChromeOS Device",
-      "description": "[unverified path] Get many ChromeOS devices"
+      "description": "Get many ChromeOS devices"
     },
     {
       "id": "device_update",

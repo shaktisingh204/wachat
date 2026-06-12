@@ -4,8 +4,8 @@
   "description": "Scrape and control any site with Airtop",
   "category": "data",
   "iconName": "LuPackage",
-  "version": 11,
-  "lastVerified": "2026-06-11",
+  "version": 12,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "header",
@@ -13,43 +13,6 @@
   },
   "baseUrl": "https://api.airtop.ai/api/v1",
   "endpoints": [
-    {
-      "id": "agent_run",
-      "label": "Run Agent",
-      "method": "POST",
-      "path": "/agent",
-      "fields": [
-        {
-          "id": "agentId",
-          "label": "Agent",
-          "type": "text",
-          "required": true,
-          "description": "The Airtop agent to run. Visit Airtop Agents for more information. (provide the ID)"
-        },
-        {
-          "id": "agentParameters",
-          "label": "Agent Parameters",
-          "type": "json",
-          "description": "(JSON)"
-        },
-        {
-          "id": "awaitExecution",
-          "label": "Await Agent",
-          "type": "toggle",
-          "description": "Whether to wait for the agent to complete its execution",
-          "defaultValue": true
-        },
-        {
-          "id": "timeout",
-          "label": "Timeout",
-          "type": "number",
-          "description": "Timeout in seconds to wait for the agent to finish",
-          "defaultValue": 600
-        }
-      ],
-      "group": "Agent",
-      "description": "[unverified path] Run an Airtop agent"
-    },
     {
       "id": "session_create",
       "label": "Create Session Session",
@@ -174,30 +137,6 @@
       ],
       "group": "Session",
       "description": "Terminate a session"
-    },
-    {
-      "id": "session_wait_for_download",
-      "label": "Wait for Download Session",
-      "method": "POST",
-      "path": "/session",
-      "fields": [
-        {
-          "id": "sessionId",
-          "label": "Session ID",
-          "type": "text",
-          "required": true,
-          "description": "The ID of the Session to use"
-        },
-        {
-          "id": "additionalFields",
-          "label": "Additional Fields",
-          "type": "json",
-          "placeholder": "Add Field",
-          "description": "(JSON object; supported keys: timeout)"
-        }
-      ],
-      "group": "Session",
-      "description": "[unverified path] Wait for a file download to become available"
     },
     {
       "id": "window_close",
@@ -414,18 +353,19 @@
       "id": "file_delete_file",
       "label": "Delete File",
       "method": "DELETE",
-      "path": "/file",
+      "path": "/files/{fileId}",
       "fields": [
         {
           "id": "fileId",
           "label": "File ID",
           "type": "text",
           "required": true,
-          "description": "ID of the file to delete"
+          "description": "ID of the file to delete",
+          "in": "path"
         }
       ],
       "group": "File",
-      "description": "[unverified path] Delete an uploaded file"
+      "description": "Delete an uploaded file"
     },
     {
       "id": "file_get",
@@ -491,164 +431,10 @@
       "description": "Get details of multiple uploaded files"
     },
     {
-      "id": "file_load",
-      "label": "Load File",
-      "method": "POST",
-      "path": "/file",
-      "fields": [
-        {
-          "id": "sessionId",
-          "label": "Session ID",
-          "type": "text",
-          "required": true,
-          "description": "The session ID to load the file into"
-        },
-        {
-          "id": "windowId",
-          "label": "Window ID",
-          "type": "text",
-          "required": true,
-          "description": "The window ID to trigger the file input in"
-        },
-        {
-          "id": "fileId",
-          "label": "File ID",
-          "type": "text",
-          "required": true,
-          "description": "ID of the file to load into the session"
-        },
-        {
-          "id": "elementDescription",
-          "label": "Element Description",
-          "type": "text",
-          "placeholder": "e.g. the file upload selection box",
-          "description": "Optional description of the file input to interact with"
-        },
-        {
-          "id": "includeHiddenElements",
-          "label": "Include Hidden Elements",
-          "type": "toggle",
-          "description": "Whether to include hidden elements in the interaction",
-          "defaultValue": true
-        }
-      ],
-      "group": "File",
-      "description": "[unverified path] Load a file into a session"
-    },
-    {
-      "id": "file_upload",
-      "label": "Upload File",
-      "method": "POST",
-      "path": "/file",
-      "fields": [
-        {
-          "id": "sessionId",
-          "label": "Session ID",
-          "type": "text",
-          "required": true,
-          "description": "The session ID to load the file into"
-        },
-        {
-          "id": "windowId",
-          "label": "Window ID",
-          "type": "text",
-          "required": true,
-          "description": "The window ID to trigger the file input in"
-        },
-        {
-          "id": "fileName",
-          "label": "File Name",
-          "type": "text",
-          "required": true,
-          "description": "Name for the file to upload. For a session, all files loaded should have unique names."
-        },
-        {
-          "id": "fileType",
-          "label": "File Type",
-          "type": "select",
-          "description": "Choose the type of file to upload. Defaults to 'Customer Upload'.",
-          "defaultValue": "customer_upload",
-          "options": [
-            {
-              "value": "browser_download",
-              "label": "Browser Download"
-            },
-            {
-              "value": "screenshot",
-              "label": "Screenshot"
-            },
-            {
-              "value": "video",
-              "label": "Video"
-            },
-            {
-              "value": "customer_upload",
-              "label": "Customer Upload"
-            }
-          ]
-        },
-        {
-          "id": "source",
-          "label": "Source",
-          "type": "select",
-          "description": "Source of the file to upload",
-          "defaultValue": "url",
-          "options": [
-            {
-              "value": "url",
-              "label": "URL"
-            },
-            {
-              "value": "binary",
-              "label": "Binary"
-            }
-          ]
-        },
-        {
-          "id": "binaryPropertyName",
-          "label": "Binary Property",
-          "type": "text",
-          "required": true,
-          "description": "Name of the binary property containing the file data",
-          "defaultValue": "data"
-        },
-        {
-          "id": "url",
-          "label": "URL",
-          "type": "text",
-          "required": true,
-          "description": "URL from where to fetch the file to upload"
-        },
-        {
-          "id": "triggerFileInputParameter",
-          "label": "Trigger File Input",
-          "type": "toggle",
-          "description": "Whether to automatically trigger the file input dialog in the current window. If disabled, the file will only be uploaded to the session without opening the file input dialog.",
-          "defaultValue": true
-        },
-        {
-          "id": "elementDescription",
-          "label": "Element Description",
-          "type": "text",
-          "placeholder": "e.g. the file upload selection box",
-          "description": "Optional description of the file input to interact with"
-        },
-        {
-          "id": "includeHiddenElements",
-          "label": "Include Hidden Elements",
-          "type": "toggle",
-          "description": "Whether to include hidden elements in the interaction",
-          "defaultValue": true
-        }
-      ],
-      "group": "File",
-      "description": "[unverified path] Upload a file into a session"
-    },
-    {
       "id": "extraction_query",
       "label": "Query Page Extraction",
-      "method": "GET",
-      "path": "/extraction",
+      "method": "POST",
+      "path": "/sessions/{sessionId}/windows/{windowId}/page-query",
       "fields": [
         {
           "id": "sessionMode",
@@ -672,14 +458,16 @@
           "label": "Session ID",
           "type": "text",
           "required": true,
-          "description": "The ID of the Session to use"
+          "description": "The ID of the Session to use",
+          "in": "path"
         },
         {
           "id": "windowId",
           "label": "Window ID",
           "type": "text",
           "required": true,
-          "description": "The ID of the Window to use"
+          "description": "The ID of the Window to use",
+          "in": "path"
         },
         {
           "id": "url",
@@ -720,13 +508,13 @@
         }
       ],
       "group": "Extraction",
-      "description": "[unverified path] Query a page to extract data or ask a question given the data on the page"
+      "description": "Query a page to extract data or ask a question given the data on the page"
     },
     {
       "id": "extraction_get_paginated",
       "label": "Query Page with Pagination Extraction",
-      "method": "GET",
-      "path": "/extraction",
+      "method": "POST",
+      "path": "/sessions/{sessionId}/windows/{windowId}/paginated-extraction",
       "fields": [
         {
           "id": "sessionMode",
@@ -750,14 +538,16 @@
           "label": "Session ID",
           "type": "text",
           "required": true,
-          "description": "The ID of the Session to use"
+          "description": "The ID of the Session to use",
+          "in": "path"
         },
         {
           "id": "windowId",
           "label": "Window ID",
           "type": "text",
           "required": true,
-          "description": "The ID of the Window to use"
+          "description": "The ID of the Window to use",
+          "in": "path"
         },
         {
           "id": "url",
@@ -798,13 +588,13 @@
         }
       ],
       "group": "Extraction",
-      "description": "[unverified path] Extract content from paginated or dynamically loaded pages"
+      "description": "Extract content from paginated or dynamically loaded pages"
     },
     {
       "id": "extraction_scrape",
       "label": "Smart Scrape Extraction",
       "method": "POST",
-      "path": "/extraction",
+      "path": "/sessions/{sessionId}/windows/{windowId}/scrape-content",
       "fields": [
         {
           "id": "sessionMode",
@@ -828,14 +618,16 @@
           "label": "Session ID",
           "type": "text",
           "required": true,
-          "description": "The ID of the Session to use"
+          "description": "The ID of the Session to use",
+          "in": "path"
         },
         {
           "id": "windowId",
           "label": "Window ID",
           "type": "text",
           "required": true,
-          "description": "The ID of the Window to use"
+          "description": "The ID of the Window to use",
+          "in": "path"
         },
         {
           "id": "url",
@@ -861,7 +653,7 @@
         }
       ],
       "group": "Extraction",
-      "description": "[unverified path] Scrape a page and return the data as markdown"
+      "description": "Scrape a page and return the data as markdown"
     },
     {
       "id": "interaction_click",

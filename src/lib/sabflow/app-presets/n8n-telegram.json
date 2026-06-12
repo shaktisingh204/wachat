@@ -4,8 +4,8 @@
   "description": "Sends data to Telegram",
   "category": "communication",
   "iconName": "LuPackage",
-  "version": 11,
-  "lastVerified": "2026-06-11",
+  "version": 12,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "header",
@@ -1343,51 +1343,6 @@
       ],
       "group": "Message",
       "description": "Send a text message"
-    },
-    {
-      "id": "message_send_and_wait_operation",
-      "label": "Send and Wait for Response Message",
-      "method": "POST",
-      "path": "/message",
-      "fields": [
-        {
-          "id": "forceReply",
-          "label": "Force Reply",
-          "type": "json",
-          "placeholder": "Add Field",
-          "description": "(JSON object; supported keys: force_reply, selective)"
-        },
-        {
-          "id": "inlineKeyboard",
-          "label": "Inline Keyboard",
-          "type": "json",
-          "placeholder": "Add Keyboard Row",
-          "description": "Adds an inline keyboard that appears right next to the message it belongs to (JSON object; supported keys: rows, rows.row)"
-        },
-        {
-          "id": "replyKeyboard",
-          "label": "Reply Keyboard",
-          "type": "json",
-          "placeholder": "Add Reply Keyboard Row",
-          "description": "Adds a custom keyboard with reply options (JSON object; supported keys: rows, rows.row)"
-        },
-        {
-          "id": "replyKeyboardOptions",
-          "label": "Reply Keyboard Options",
-          "type": "json",
-          "placeholder": "Add option",
-          "description": "(JSON object; supported keys: resize_keyboard, one_time_keyboard, selective)"
-        },
-        {
-          "id": "replyKeyboardRemove",
-          "label": "Reply Keyboard Remove",
-          "type": "json",
-          "placeholder": "Add Field",
-          "description": "(JSON object; supported keys: remove_keyboard, selective)"
-        }
-      ],
-      "group": "Message",
-      "description": "[unverified path] Send a message and wait for response"
     },
     {
       "id": "message_send_photo",

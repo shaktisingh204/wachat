@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import crypto from 'node:crypto';
 
 import { ingestTicketEmail } from '@/lib/crm/ticket-email.server';
+import { routeInboundSabcrmEmail } from '@/lib/sabcrm/email-inbound';
 
 const LOG_PREFIX = '[EMAIL INBOUND]';
 
@@ -12,6 +13,12 @@ const LOG_PREFIX = '[EMAIL INBOUND]';
  * (or any third-party inbound provider — SendGrid Inbound Parse,
  * Mailgun routes, Postal, etc.) and routes them through the CRM
  * ticket-email binding, optionally creating a `crm_tickets` document.
+ *
+ * Each envelope is ALSO routed onto SabCRM records additively
+ * (`routeInboundSabcrmEmail` — matches the sender against record
+ * EMAIL / EMAILS fields, logs an `EMAIL` activity per match and
+ * auto-unenrolls replying records from their active sequences). SabCRM
+ * routing is best-effort and never fails the webhook.
  *
  * Authentication: a shared secret HMAC stored as
  * `EMAIL_INBOUND_WEBHOOK_SECRET`. Senders include the secret as the
@@ -84,25 +91,43 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  const envelope = {
+    to: String(body.to),
+    from: String(body.from),
+    fromName: body.fromName ? String(body.fromName) : undefined,
+    subject: String(body.subject),
+    bodyText: body.bodyText ? String(body.bodyText) : undefined,
+    bodyHtml: body.bodyHtml ? String(body.bodyHtml) : undefined,
+    messageId: body.messageId ? String(body.messageId) : undefined,
+    receivedAt: body.receivedAt ? new Date(body.receivedAt) : undefined,
+  };
+
+  // SabCRM record routing — additive and best-effort (`routeInboundSabcrmEmail`
+  // never throws; the .catch guards the contract). Started alongside the
+  // ticket ingest so a ticket-side failure cannot suppress it.
+  const sabcrmPromise = routeInboundSabcrmEmail(envelope).catch(() => ({
+    routed: false,
+    matchedRecords: 0,
+    activitiesLogged: 0,
+    sequencesUnenrolled: 0,
+    reason: 'route-failed',
+  }));
+
   try {
-    const result = await ingestTicketEmail({
-      to: String(body.to),
-      from: String(body.from),
-      fromName: body.fromName ? String(body.fromName) : undefined,
-      subject: String(body.subject),
-      bodyText: body.bodyText ? String(body.bodyText) : undefined,
-      bodyHtml: body.bodyHtml ? String(body.bodyHtml) : undefined,
-      messageId: body.messageId ? String(body.messageId) : undefined,
-      receivedAt: body.receivedAt ? new Date(body.receivedAt) : undefined,
-    });
+    const result = await ingestTicketEmail(envelope);
+    const sabcrm = await sabcrmPromise;
     console.log(
-      `${LOG_PREFIX} ${result.created ? 'created' : 'skipped'} ticket — to=${body.to} from=${body.from} reason=${result.reason ?? 'ok'} ticketId=${result.ticketId ?? '—'}`,
+      `${LOG_PREFIX} ${result.created ? 'created' : 'skipped'} ticket — to=${body.to} from=${body.from} reason=${result.reason ?? 'ok'} ticketId=${result.ticketId ?? '—'} | sabcrm routed=${sabcrm.routed} matched=${sabcrm.matchedRecords} activities=${sabcrm.activitiesLogged} unenrolled=${sabcrm.sequencesUnenrolled}${sabcrm.reason ? ` reason=${sabcrm.reason}` : ''}`,
     );
-    return NextResponse.json(result);
+    return NextResponse.json({ ...result, sabcrm });
   } catch (e) {
-    console.error(`${LOG_PREFIX} ingest failed:`, e);
+    const sabcrm = await sabcrmPromise;
+    console.error(
+      `${LOG_PREFIX} ingest failed (sabcrm routed=${sabcrm.routed}):`,
+      e,
+    );
     return NextResponse.json(
-      { error: 'ingest failed', message: (e as Error).message },
+      { error: 'ingest failed', message: (e as Error).message, sabcrm },
       { status: 500 },
     );
   }

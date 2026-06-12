@@ -1,0 +1,123 @@
+/**
+ * SabCRM — Notes (`/sabcrm/notes`) page-local styles, 20ui.
+ *
+ * `.nts-*` prefix, scoped to the 20ui root (`:is(.\32 0ui, .ui20)` — NEVER a
+ * bare `.20ui.foo` compound). Tokens only (`--st-*`), so dark mode is free.
+ * The note-tile grid mirrors Twenty's NoteList / NoteTile (fixed-height card
+ * tiles with a clamped body preview); chrome (header, search, empty state,
+ * dialog) comes from 20ui components.
+ */
+
+/* Page scroll wrapper ----------------------------------------------------- */
+:is(.\32 0ui, .ui20) .nts-page {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: var(--st-space-5);
+  overflow-y: auto;
+}
+
+/* Toolbar (search + live count) ------------------------------------------- */
+:is(.\32 0ui, .ui20) .nts-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-3);
+  flex-wrap: wrap;
+  margin: var(--st-space-4) 0;
+}
+
+:is(.\32 0ui, .ui20) .nts-count {
+  margin-left: auto;
+  color: var(--st-text-secondary);
+  font-size: var(--st-font-size-sm);
+  white-space: nowrap;
+}
+
+/* Notes grid — Twenty NoteList / NoteTile parity --------------------------- */
+:is(.\32 0ui, .ui20) .nts-grid {
+  display: grid;
+  gap: var(--st-space-4, 16px);
+  grid-auto-rows: 1fr;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+
+/* One note tile — a clickable card with a title and a clamped body preview. */
+:is(.\32 0ui, .ui20) .nts-tile {
+  display: flex;
+  flex-direction: column;
+  min-height: 180px;
+  background: var(--st-bg);
+  border: 1px solid var(--st-border-light, var(--st-border));
+  border-radius: var(--st-radius-lg);
+  text-decoration: none;
+  overflow: hidden;
+  box-shadow: var(--st-shadow-sm);
+  transition:
+    border-color 0.12s ease,
+    box-shadow 0.12s ease;
+}
+
+:is(.\32 0ui, .ui20) .nts-tile:hover {
+  border-color: color-mix(in srgb, var(--st-accent) 34%, var(--st-border));
+  box-shadow: var(--st-shadow-md, 0 1px 4px rgba(0, 0, 0, 0.06));
+}
+
+:is(.\32 0ui, .ui20) .nts-tile:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}
+
+:is(.\32 0ui, .ui20) .nts-tile__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-2, 8px);
+  padding: var(--st-space-4, 16px);
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+:is(.\32 0ui, .ui20) .nts-tile__title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--st-font-size-sm);
+  font-weight: 600;
+  color: var(--st-text);
+}
+
+:is(.\32 0ui, .ui20) .nts-tile__title svg {
+  flex: 0 0 auto;
+  color: var(--st-accent);
+}
+
+:is(.\32 0ui, .ui20) .nts-tile__title-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+:is(.\32 0ui, .ui20) .nts-tile__content {
+  margin: 0;
+  font-size: var(--st-font-size-sm);
+  line-height: 1.55;
+  color: var(--st-text-secondary);
+  white-space: pre-line;
+  word-break: break-word;
+  overflow: hidden;
+  /* Clamp the preview to a handful of lines, Twenty-style. */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 6;
+}
+
+/* Create dialog form ------------------------------------------------------- */
+:is(.\32 0ui, .ui20) .nts-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :is(.\32 0ui, .ui20) .nts-tile {
+    transition: none;
+  }
+}

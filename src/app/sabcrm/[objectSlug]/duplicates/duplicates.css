@@ -1,93 +1,94 @@
 /**
- * SabCRM — "Find duplicates" screen styles (Twenty look only).
+ * SabCRM — "Find duplicates" screen (`/sabcrm/[objectSlug]/duplicates`)
+ * styles, 20ui.
  *
- * Scoped to the duplicates page; consumes the shared `--st-*` design tokens so
- * it re-themes for free in light / dark. NO Ui20 / Tailwind / clay here —
- * only `.st-dup-*` classes, alongside the reusable `.st-page / .st-input /
- * .st-select / .st-btn / .st-banner / .st-empty / .st-skeleton / .st-field`
- * primitives already shipped with the Twenty kit. NEW classes only — the shared
- * `sabcrm-twenty.css` is never edited.
+ * Page-local layout ONLY (`.scd-*` prefix), scoped to the 20ui root
+ * (`:is(.\32 0ui, .ui20)` — NEVER a bare `.20ui.foo` compound). Buttons,
+ * badges, selects, cards, alerts and empty states render through real 20ui
+ * components; this file carries the page shell, the scan control bar, the
+ * group cards' internals and the per-record rows. Tokens only (`--st-*`),
+ * so dark mode is free.
  */
+
+/* Page scroll wrapper + centered content column ------------------------- */
+:is(.\32 0ui, .ui20) .scd-page {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: var(--st-space-5);
+  overflow-y: auto;
+}
+
+:is(.\32 0ui, .ui20) .scd-page__inner {
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-4);
+}
+
+/* Loading skeleton stack. */
+:is(.\32 0ui, .ui20) .scd-skeletons {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-4);
+}
 
 /* --- Scan control bar (field selector + Scan button) --------------------- */
 
-.st-dup-scan {
+:is(.\32 0ui, .ui20) .scd-scan {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
   gap: var(--st-space-3);
-  padding: var(--st-space-4);
-  margin-bottom: var(--st-space-5);
-  border: 1px solid var(--st-border);
-  border-radius: var(--st-radius-lg);
-  background: var(--st-bg);
 }
 
-.st-dup-scan__field {
-  display: flex;
-  flex-direction: column;
-  gap: var(--st-space-2);
+:is(.\32 0ui, .ui20) .scd-scan__field {
   min-width: 240px;
   flex: 1 1 240px;
 }
 
-.st-dup-scan__label {
-  font-size: var(--st-font-size-xs);
-  font-weight: var(--st-fw-semibold);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--st-text-secondary);
-}
-
-.st-dup-scan__hint {
-  width: 100%;
-  margin: 0;
-  font-size: var(--st-font-size-xs);
-  color: var(--st-text-secondary);
-}
-
 /* --- Summary line above the result groups -------------------------------- */
 
-.st-dup-summary {
+:is(.\32 0ui, .ui20) .scd-summary {
   display: flex;
   align-items: center;
   gap: var(--st-space-2);
-  margin-bottom: var(--st-space-4);
   font-size: var(--st-font-size-sm);
   color: var(--st-text-secondary);
 }
 
-.st-dup-summary__count {
+:is(.\32 0ui, .ui20) .scd-summary__count {
   font-weight: var(--st-fw-semibold);
   color: var(--st-text);
 }
 
 /* --- Group list ---------------------------------------------------------- */
 
-.st-dup-groups {
+:is(.\32 0ui, .ui20) .scd-groups {
   display: flex;
   flex-direction: column;
   gap: var(--st-space-4);
 }
 
-.st-dup-group {
-  border: 1px solid var(--st-border);
-  border-radius: var(--st-radius-lg);
-  background: var(--st-bg);
+/* The Card brings border/radius/background; zero its padding so the head and
+   record rows can run edge-to-edge with their own gutters. */
+:is(.\32 0ui, .ui20) .scd-group {
+  padding: 0;
   overflow: hidden;
 }
 
-.st-dup-group__head {
+:is(.\32 0ui, .ui20) .scd-group__head {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--st-space-2) var(--st-space-3);
   padding: var(--st-space-3) var(--st-space-4);
   border-bottom: 1px solid var(--st-border);
-  background: var(--st-bg-secondary, var(--st-bg));
+  background: var(--st-bg-secondary);
 }
 
-.st-dup-group__value {
+:is(.\32 0ui, .ui20) .scd-group__value {
   display: inline-flex;
   align-items: center;
   gap: var(--st-space-2);
@@ -97,99 +98,62 @@
   color: var(--st-text);
 }
 
-.st-dup-group__value-text {
+:is(.\32 0ui, .ui20) .scd-group__value-text {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.st-dup-group__field {
+:is(.\32 0ui, .ui20) .scd-group__field {
   font-size: var(--st-font-size-xs);
   font-weight: var(--st-fw-regular);
   color: var(--st-text-secondary);
 }
 
-.st-dup-group__badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 1px 8px;
-  border-radius: 999px;
-  font-size: var(--st-font-size-xs);
-  font-weight: var(--st-fw-semibold);
-  color: var(--st-accent, var(--st-text));
-  background: var(--st-accent-soft, var(--st-bg-secondary, var(--st-bg)));
-  white-space: nowrap;
-}
-
-.st-dup-group__spacer {
+:is(.\32 0ui, .ui20) .scd-group__spacer {
   flex: 1 1 auto;
-}
-
-.st-dup-group__merge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
-  border: 1px solid var(--st-border);
-  border-radius: var(--st-radius);
-  font-size: var(--st-font-size-xs);
-  font-weight: var(--st-fw-semibold);
-  color: var(--st-text);
-  text-decoration: none;
-  white-space: nowrap;
-  transition: background 120ms ease, border-color 120ms ease;
-}
-
-.st-dup-group__merge:hover {
-  background: var(--st-hover, var(--st-bg-secondary));
-  border-color: var(--st-accent);
-}
-
-.st-dup-group__merge:focus-visible {
-  outline: 2px solid var(--st-accent);
-  outline-offset: 2px;
 }
 
 /* --- Records within a group --------------------------------------------- */
 
-.st-dup-records {
+:is(.\32 0ui, .ui20) .scd-records {
   display: flex;
   flex-direction: column;
 }
 
-.st-dup-record {
+:is(.\32 0ui, .ui20) .scd-record {
   display: flex;
   align-items: center;
   gap: var(--st-space-3);
   padding: var(--st-space-3) var(--st-space-4);
 }
 
-.st-dup-record + .st-dup-record {
+:is(.\32 0ui, .ui20) .scd-record + .scd-record {
   border-top: 1px solid var(--st-border);
 }
 
-.st-dup-record__link {
+:is(.\32 0ui, .ui20) .scd-record__link {
   font-size: var(--st-font-size-sm);
   font-weight: var(--st-fw-medium);
-  color: var(--st-accent, var(--st-text));
+  color: var(--st-accent);
   text-decoration: none;
 }
 
-.st-dup-record__link:hover {
+:is(.\32 0ui, .ui20) .scd-record__link:hover {
   text-decoration: underline;
 }
 
-.st-dup-record__link:focus-visible {
+:is(.\32 0ui, .ui20) .scd-record__link:focus-visible {
   outline: 2px solid var(--st-accent);
   outline-offset: 2px;
   border-radius: var(--st-radius-sm);
 }
 
-.st-dup-record__spacer {
+:is(.\32 0ui, .ui20) .scd-record__spacer {
   flex: 1 1 auto;
 }
 
-.st-dup-record__meta {
+:is(.\32 0ui, .ui20) .scd-record__meta {
   display: inline-flex;
   align-items: center;
   gap: var(--st-space-2);
@@ -198,7 +162,7 @@
   color: var(--st-text-secondary);
 }
 
-.st-dup-record__id {
+:is(.\32 0ui, .ui20) .scd-record__id {
   font-family: var(--st-font-mono, ui-monospace, monospace);
   font-size: var(--st-font-size-xs);
   color: var(--st-text-secondary);
@@ -208,20 +172,20 @@
 /* Let a long record label + its trailing value/id wrap to a second line rather
    than overflow the card on a phone width. */
 @media (max-width: 480px) {
-  .st-dup-record {
+  :is(.\32 0ui, .ui20) .scd-record {
     flex-wrap: wrap;
     gap: var(--st-space-1) var(--st-space-2);
   }
 
-  .st-dup-record__link {
+  :is(.\32 0ui, .ui20) .scd-record__link {
     flex: 1 1 100%;
   }
 
-  .st-dup-record__spacer {
+  :is(.\32 0ui, .ui20) .scd-record__spacer {
     display: none;
   }
 
-  .st-dup-scan__field {
+  :is(.\32 0ui, .ui20) .scd-scan__field {
     min-width: 0;
   }
 }

@@ -4,8 +4,8 @@
   "description": "Consume Beeminder API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 11,
-  "lastVerified": "2026-06-11",
+  "version": 12,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "header",
@@ -17,7 +17,7 @@
       "id": "charge_create",
       "label": "Create Charge",
       "method": "POST",
-      "path": "/charge",
+      "path": "/charges.json",
       "fields": [
         {
           "id": "amount",
@@ -36,20 +36,21 @@
         }
       ],
       "group": "Charge",
-      "description": "[unverified path] Create a charge"
+      "description": "Create a charge"
     },
     {
       "id": "datapoint_create",
       "label": "Create Datapoint",
       "method": "POST",
-      "path": "/datapoint",
+      "path": "/users/me/goals/{goalName}/datapoints.json",
       "fields": [
         {
           "id": "goalName",
           "label": "Goal Name or ID",
           "type": "select",
           "required": true,
-          "description": "The name of the goal. Choose from the list, or specify an ID using an expression."
+          "description": "The name of the goal. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
         },
         {
           "id": "value",
@@ -68,20 +69,21 @@
         }
       ],
       "group": "Datapoint",
-      "description": "[unverified path] Create datapoint for goal"
+      "description": "Create datapoint for goal"
     },
     {
       "id": "datapoint_create_all",
       "label": "Create All Datapoint",
       "method": "POST",
-      "path": "/datapoint",
+      "path": "/users/me/goals/{goalName}/datapoints/create_all.json",
       "fields": [
         {
           "id": "goalName",
           "label": "Goal Name or ID",
           "type": "select",
           "required": true,
-          "description": "The name of the goal. Choose from the list, or specify an ID using an expression."
+          "description": "The name of the goal. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
         },
         {
           "id": "datapoints",
@@ -94,66 +96,71 @@
         }
       ],
       "group": "Datapoint",
-      "description": "[unverified path] Create multiple datapoints at once"
+      "description": "Create multiple datapoints at once"
     },
     {
       "id": "datapoint_delete",
       "label": "Delete Datapoint",
       "method": "DELETE",
-      "path": "/datapoint",
+      "path": "/users/me/goals/{goalName}/datapoints/{datapointId}.json",
       "fields": [
         {
           "id": "goalName",
           "label": "Goal Name or ID",
           "type": "select",
           "required": true,
-          "description": "The name of the goal. Choose from the list, or specify an ID using an expression."
+          "description": "The name of the goal. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
         },
         {
           "id": "datapointId",
           "label": "Datapoint ID",
           "type": "text",
-          "required": true
+          "required": true,
+          "in": "path"
         }
       ],
       "group": "Datapoint",
-      "description": "[unverified path] Delete a datapoint"
+      "description": "Delete a datapoint"
     },
     {
       "id": "datapoint_get",
       "label": "Get Datapoint",
       "method": "GET",
-      "path": "/datapoint",
+      "path": "/users/me/goals/{goalName}/datapoints/{datapointId}.json",
       "fields": [
         {
           "id": "goalName",
           "label": "Goal Name or ID",
           "type": "select",
           "required": true,
-          "description": "The name of the goal. Choose from the list, or specify an ID using an expression."
+          "description": "The name of the goal. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
         },
         {
           "id": "datapointId",
           "label": "Datapoint ID",
           "type": "text",
-          "required": true
+          "required": true,
+          "in": "path"
         }
       ],
       "group": "Datapoint",
-      "description": "[unverified path] Get a single datapoint"
+      "description": "Get a single datapoint"
     },
     {
       "id": "datapoint_get_all",
       "label": "Get Many Datapoint",
       "method": "GET",
-      "path": "/datapoint",
+      "path": "/users/me/goals/{goalName}/datapoints.json",
       "fields": [
         {
           "id": "goalName",
           "label": "Goal Name or ID",
           "type": "select",
           "required": true,
-          "description": "The name of the goal. Choose from the list, or specify an ID using an expression."
+          "description": "The name of the goal. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
         },
         {
           "id": "returnAll",
@@ -178,26 +185,28 @@
         }
       ],
       "group": "Datapoint",
-      "description": "[unverified path] Get many datapoints for a goal"
+      "description": "Get many datapoints for a goal"
     },
     {
       "id": "datapoint_update",
       "label": "Update Datapoint",
-      "method": "PATCH",
-      "path": "/datapoint",
+      "method": "PUT",
+      "path": "/users/me/goals/{goalName}/datapoints/{datapointId}.json",
       "fields": [
         {
           "id": "goalName",
           "label": "Goal Name or ID",
           "type": "select",
           "required": true,
-          "description": "The name of the goal. Choose from the list, or specify an ID using an expression."
+          "description": "The name of the goal. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
         },
         {
           "id": "datapointId",
           "label": "Datapoint ID",
           "type": "text",
-          "required": true
+          "required": true,
+          "in": "path"
         },
         {
           "id": "updateFields",
@@ -208,13 +217,13 @@
         }
       ],
       "group": "Datapoint",
-      "description": "[unverified path] Update a datapoint"
+      "description": "Update a datapoint"
     },
     {
       "id": "goal_create",
       "label": "Create Goal",
       "method": "POST",
-      "path": "/goal",
+      "path": "/users/me/goals.json",
       "fields": [
         {
           "id": "slug",
@@ -284,20 +293,21 @@
         }
       ],
       "group": "Goal",
-      "description": "[unverified path] Create a new goal"
+      "description": "Create a new goal"
     },
     {
       "id": "goal_get",
       "label": "Get Goal",
       "method": "GET",
-      "path": "/goal",
+      "path": "/users/me/goals/{goalName}.json",
       "fields": [
         {
           "id": "goalName",
           "label": "Goal Name or ID",
           "type": "select",
           "required": true,
-          "description": "The name of the goal. Choose from the list, or specify an ID using an expression."
+          "description": "The name of the goal. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
         },
         {
           "id": "additionalFields",
@@ -308,13 +318,13 @@
         }
       ],
       "group": "Goal",
-      "description": "[unverified path] Get a specific goal"
+      "description": "Get a specific goal"
     },
     {
       "id": "goal_get_all",
       "label": "Get Many Goal",
       "method": "GET",
-      "path": "/goal",
+      "path": "/users/me/goals.json",
       "fields": [
         {
           "id": "additionalFields",
@@ -325,13 +335,13 @@
         }
       ],
       "group": "Goal",
-      "description": "[unverified path] Get many goals"
+      "description": "Get many goals"
     },
     {
       "id": "goal_get_archived",
       "label": "Get Archived Goal",
       "method": "GET",
-      "path": "/goal",
+      "path": "/users/me/goals/archived.json",
       "fields": [
         {
           "id": "additionalFields",
@@ -342,20 +352,21 @@
         }
       ],
       "group": "Goal",
-      "description": "[unverified path] Get archived goals"
+      "description": "Get archived goals"
     },
     {
       "id": "goal_update",
       "label": "Update Goal",
-      "method": "PATCH",
-      "path": "/goal",
+      "method": "PUT",
+      "path": "/users/me/goals/{goalName}.json",
       "fields": [
         {
           "id": "goalName",
           "label": "Goal Name or ID",
           "type": "select",
           "required": true,
-          "description": "The name of the goal. Choose from the list, or specify an ID using an expression."
+          "description": "The name of the goal. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
         },
         {
           "id": "updateFields",
@@ -366,98 +377,103 @@
         }
       ],
       "group": "Goal",
-      "description": "[unverified path] Update a goal"
+      "description": "Update a goal"
     },
     {
       "id": "goal_refresh",
       "label": "Refresh Goal",
-      "method": "POST",
-      "path": "/goal",
+      "method": "GET",
+      "path": "/users/me/goals/{goalName}/refresh_graph.json",
       "fields": [
         {
           "id": "goalName",
           "label": "Goal Name or ID",
           "type": "select",
           "required": true,
-          "description": "The name of the goal. Choose from the list, or specify an ID using an expression."
+          "description": "The name of the goal. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
         }
       ],
       "group": "Goal",
-      "description": "[unverified path] Refresh goal data"
+      "description": "Refresh goal data"
     },
     {
       "id": "goal_short_circuit",
       "label": "Short Circuit Goal",
       "method": "POST",
-      "path": "/goal",
+      "path": "/users/me/goals/{goalName}/shortcircuit.json",
       "fields": [
         {
           "id": "goalName",
           "label": "Goal Name or ID",
           "type": "select",
           "required": true,
-          "description": "The name of the goal. Choose from the list, or specify an ID using an expression."
+          "description": "The name of the goal. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
         }
       ],
       "group": "Goal",
-      "description": "[unverified path] Short circuit pledge"
+      "description": "Short circuit pledge"
     },
     {
       "id": "goal_step_down",
       "label": "Step Down Goal",
       "method": "POST",
-      "path": "/goal",
+      "path": "/users/me/goals/{goalName}/stepdown.json",
       "fields": [
         {
           "id": "goalName",
           "label": "Goal Name or ID",
           "type": "select",
           "required": true,
-          "description": "The name of the goal. Choose from the list, or specify an ID using an expression."
+          "description": "The name of the goal. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
         }
       ],
       "group": "Goal",
-      "description": "[unverified path] Step down pledge"
+      "description": "Step down pledge"
     },
     {
       "id": "goal_cancel_step_down",
       "label": "Cancel Step Down Goal",
       "method": "POST",
-      "path": "/goal",
+      "path": "/users/me/goals/{goalName}/cancel_stepdown.json",
       "fields": [
         {
           "id": "goalName",
           "label": "Goal Name or ID",
           "type": "select",
           "required": true,
-          "description": "The name of the goal. Choose from the list, or specify an ID using an expression."
+          "description": "The name of the goal. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
         }
       ],
       "group": "Goal",
-      "description": "[unverified path] Cancel step down"
+      "description": "Cancel step down"
     },
     {
       "id": "goal_uncle",
       "label": "Uncle Goal",
       "method": "POST",
-      "path": "/goal",
+      "path": "/users/me/goals/{goalName}/uncleme.json",
       "fields": [
         {
           "id": "goalName",
           "label": "Goal Name or ID",
           "type": "select",
           "required": true,
-          "description": "The name of the goal to derail. Choose from the list, or specify an ID using an expression."
+          "description": "The name of the goal to derail. Choose from the list, or specify an ID using an expression.",
+          "in": "path"
         }
       ],
       "group": "Goal",
-      "description": "[unverified path] Derail a goal and charge the pledge amount"
+      "description": "Derail a goal and charge the pledge amount"
     },
     {
       "id": "user_get",
       "label": "Get User",
       "method": "GET",
-      "path": "/user",
+      "path": "/users/me.json",
       "fields": [
         {
           "id": "additionalFields",
@@ -468,7 +484,7 @@
         }
       ],
       "group": "User",
-      "description": "[unverified path] Get user information"
+      "description": "Get user information"
     }
   ]
 }

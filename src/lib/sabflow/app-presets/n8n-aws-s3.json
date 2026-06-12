@@ -4,8 +4,8 @@
   "description": "Sends data to AWS S3",
   "category": "storage",
   "iconName": "LuPackage",
-  "version": 2,
-  "lastVerified": "2026-06-11",
+  "version": 3,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "aws_sigv4",
@@ -17,15 +17,16 @@
     {
       "id": "bucket_create",
       "label": "Create Bucket",
-      "method": "POST",
-      "path": "/bucket",
+      "method": "PUT",
+      "path": "/{name}",
       "fields": [
         {
           "id": "name",
           "label": "Name",
           "type": "text",
           "required": true,
-          "description": "A succinct description of the nature, symptoms, cause, or effect of the bucket"
+          "description": "A succinct description of the nature, symptoms, cause, or effect of the bucket",
+          "in": "path"
         },
         {
           "id": "additionalFields",
@@ -36,30 +37,31 @@
         }
       ],
       "group": "Bucket",
-      "description": "[unverified path] Create a bucket"
+      "description": "Create a bucket"
     },
     {
       "id": "bucket_delete",
       "label": "Delete Bucket",
       "method": "DELETE",
-      "path": "/bucket",
+      "path": "/{name}",
       "fields": [
         {
           "id": "name",
           "label": "Name",
           "type": "text",
           "required": true,
-          "description": "Name of the AWS S3 bucket to delete"
+          "description": "Name of the AWS S3 bucket to delete",
+          "in": "path"
         }
       ],
       "group": "Bucket",
-      "description": "[unverified path] Delete a bucket"
+      "description": "Delete a bucket"
     },
     {
       "id": "bucket_get_all",
       "label": "Get Many Bucket",
       "method": "GET",
-      "path": "/bucket",
+      "path": "/",
       "fields": [
         {
           "id": "returnAll",
@@ -77,19 +79,20 @@
         }
       ],
       "group": "Bucket",
-      "description": "[unverified path] Get many buckets"
+      "description": "Get many buckets"
     },
     {
       "id": "bucket_search",
       "label": "Search Bucket",
       "method": "GET",
-      "path": "/bucket",
+      "path": "/{bucketName}?list-type=2",
       "fields": [
         {
           "id": "bucketName",
           "label": "Bucket Name",
           "type": "text",
-          "required": true
+          "required": true,
+          "in": "path"
         },
         {
           "id": "returnAll",
@@ -114,7 +117,7 @@
         }
       ],
       "group": "Bucket",
-      "description": "[unverified path] Search within a bucket"
+      "description": "Search within a bucket"
     },
     {
       "id": "folder_create",
@@ -173,13 +176,14 @@
       "id": "folder_get_all",
       "label": "Get Many Folder",
       "method": "GET",
-      "path": "/folder",
+      "path": "/{bucketName}?list-type=2",
       "fields": [
         {
           "id": "bucketName",
           "label": "Bucket Name",
           "type": "text",
-          "required": true
+          "required": true,
+          "in": "path"
         },
         {
           "id": "returnAll",
@@ -204,40 +208,7 @@
         }
       ],
       "group": "Folder",
-      "description": "[unverified path] Get many folders"
-    },
-    {
-      "id": "file_copy",
-      "label": "Copy File",
-      "method": "POST",
-      "path": "/file",
-      "fields": [
-        {
-          "id": "sourcePath",
-          "label": "Source Path",
-          "type": "text",
-          "required": true,
-          "placeholder": "/bucket/my-image.jpg",
-          "description": "The name of the source bucket should start with (/) and key name of the source object, separated by a slash (/)"
-        },
-        {
-          "id": "destinationPath",
-          "label": "Destination Path",
-          "type": "text",
-          "required": true,
-          "placeholder": "/bucket/my-second-image.jpg",
-          "description": "The name of the destination bucket and key name of the destination object, separated by a slash (/)"
-        },
-        {
-          "id": "additionalFields",
-          "label": "Additional Fields",
-          "type": "json",
-          "placeholder": "Add Field",
-          "description": "(JSON object; supported keys: acl, grantFullControl, grantRead, grantReadAcp, grantWriteAcp, lockLegalHold, lockMode, lockRetainUntilDate, metadataDirective, requesterPays, serverSideEncryption, serverSideEncryptionContext, encryptionAwsKmsKeyId, serversideEncryptionCustomerAlgorithm, serversideEncryptionCustomerKey, serversideEncryptionCustomerKeyMD5, storageClass, taggingDirective)"
-        }
-      ],
-      "group": "File",
-      "description": "[unverified path] Copy a file"
+      "description": "Get many folders"
     },
     {
       "id": "file_delete",
@@ -303,13 +274,14 @@
       "id": "file_get_all",
       "label": "Get Many File",
       "method": "GET",
-      "path": "/file",
+      "path": "/{bucketName}?list-type=2",
       "fields": [
         {
           "id": "bucketName",
           "label": "Bucket Name",
           "type": "text",
-          "required": true
+          "required": true,
+          "in": "path"
         },
         {
           "id": "returnAll",
@@ -334,7 +306,7 @@
         }
       ],
       "group": "File",
-      "description": "[unverified path] Get many files"
+      "description": "Get many files"
     },
     {
       "id": "file_upload",

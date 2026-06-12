@@ -4,8 +4,8 @@
   "description": "Retrieve data from Chargebee API",
   "category": "finance",
   "iconName": "LuPackage",
-  "version": 2,
-  "lastVerified": "2026-06-11",
+  "version": 3,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "header",
@@ -74,7 +74,7 @@
       "id": "invoice_pdf_url",
       "label": "PDF Invoice URL Invoice",
       "method": "POST",
-      "path": "/invoices/{invoiceId_trim__}/pdf",
+      "path": "/invoices/{invoiceId}/pdf",
       "fields": [
         {
           "id": "accountName",
@@ -89,17 +89,18 @@
           "label": "Invoice ID",
           "type": "text",
           "required": true,
-          "description": "The ID of the invoice to get"
+          "description": "The ID of the invoice to get",
+          "in": "path"
         }
       ],
       "group": "Invoice",
-      "description": "[unverified path] Get URL for the invoice PDF"
+      "description": "Get URL for the invoice PDF"
     },
     {
       "id": "subscription_cancel",
       "label": "Cancel Subscription",
       "method": "POST",
-      "path": "/subscriptions/{subscriptionId_trim__}/cancel",
+      "path": "/subscriptions/{subscriptionId}/cancel",
       "fields": [
         {
           "id": "accountName",
@@ -114,7 +115,8 @@
           "label": "Subscription ID",
           "type": "text",
           "required": true,
-          "description": "The ID of the subscription to cancel"
+          "description": "The ID of the subscription to cancel",
+          "in": "path"
         },
         {
           "id": "endOfTerm",
@@ -125,13 +127,13 @@
         }
       ],
       "group": "Subscription",
-      "description": "[unverified path] Cancel a subscription"
+      "description": "Cancel a subscription"
     },
     {
       "id": "subscription_delete",
       "label": "Delete Subscription",
       "method": "POST",
-      "path": "/subscriptions/{subscriptionId_trim__}/delete",
+      "path": "/subscriptions/{subscriptionId}/delete",
       "fields": [
         {
           "id": "accountName",
@@ -146,11 +148,12 @@
           "label": "Subscription ID",
           "type": "text",
           "required": true,
-          "description": "The ID of the subscription to delete"
+          "description": "The ID of the subscription to delete",
+          "in": "path"
         }
       ],
       "group": "Subscription",
-      "description": "[unverified path] Delete a subscription"
+      "description": "Delete a subscription"
     }
   ]
 }

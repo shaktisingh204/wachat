@@ -4,8 +4,8 @@
   "description": "Consume the Freshworks CRM API",
   "category": "crm",
   "iconName": "LuPackage",
-  "version": 8,
-  "lastVerified": "2026-06-11",
+  "version": 9,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "header",
@@ -101,7 +101,7 @@
       "id": "account_get_all",
       "label": "Get Many Account",
       "method": "GET",
-      "path": "/account",
+      "path": "/sales_accounts/view/{view}",
       "fields": [
         {
           "id": "domain",
@@ -116,7 +116,8 @@
           "label": "View Name or ID",
           "type": "select",
           "required": true,
-          "description": "Choose from the list, or specify an ID using an expression"
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
         },
         {
           "id": "returnAll",
@@ -134,7 +135,7 @@
         }
       ],
       "group": "Account",
-      "description": "[unverified path] Retrieve many accounts"
+      "description": "Retrieve many accounts"
     },
     {
       "id": "account_update",
@@ -280,7 +281,7 @@
       "id": "appointment_get_all",
       "label": "Get Many Appointment",
       "method": "GET",
-      "path": "/appointment",
+      "path": "/appointments",
       "fields": [
         {
           "id": "domain",
@@ -313,7 +314,7 @@
         }
       ],
       "group": "Appointment",
-      "description": "[unverified path] Retrieve many appointments"
+      "description": "Retrieve many appointments"
     },
     {
       "id": "appointment_update",
@@ -450,7 +451,7 @@
       "id": "contact_get_all",
       "label": "Get Many Contact",
       "method": "GET",
-      "path": "/contact",
+      "path": "/contacts/view/{view}",
       "fields": [
         {
           "id": "domain",
@@ -464,7 +465,8 @@
           "id": "view",
           "label": "View Name or ID",
           "type": "select",
-          "description": "Choose from the list, or specify an ID using an expression"
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
         },
         {
           "id": "returnAll",
@@ -482,7 +484,7 @@
         }
       ],
       "group": "Contact",
-      "description": "[unverified path] Retrieve many contacts"
+      "description": "Retrieve many contacts"
     },
     {
       "id": "contact_update",
@@ -613,7 +615,7 @@
       "id": "deal_get_all",
       "label": "Get Many Deal",
       "method": "GET",
-      "path": "/deal",
+      "path": "/deals/view/{view}",
       "fields": [
         {
           "id": "domain",
@@ -627,7 +629,8 @@
           "id": "view",
           "label": "View Name or ID",
           "type": "select",
-          "description": "Choose from the list, or specify an ID using an expression"
+          "description": "Choose from the list, or specify an ID using an expression",
+          "in": "path"
         },
         {
           "id": "returnAll",
@@ -645,7 +648,7 @@
         }
       ],
       "group": "Deal",
-      "description": "[unverified path] Retrieve many deals"
+      "description": "Retrieve many deals"
     },
     {
       "id": "deal_update",
@@ -823,7 +826,7 @@
       "id": "sales_activity_get_all",
       "label": "Get Many Sales Activity",
       "method": "GET",
-      "path": "/sales-activity",
+      "path": "/sales_activities",
       "fields": [
         {
           "id": "domain",
@@ -849,7 +852,7 @@
         }
       ],
       "group": "Sales Activity",
-      "description": "[unverified path] Retrieve many sales activities"
+      "description": "Retrieve many sales activities"
     },
     {
       "id": "search_query",
@@ -1111,7 +1114,7 @@
       "id": "task_get_all",
       "label": "Get Many Task",
       "method": "GET",
-      "path": "/task",
+      "path": "/tasks",
       "fields": [
         {
           "id": "domain",
@@ -1144,7 +1147,7 @@
         }
       ],
       "group": "Task",
-      "description": "[unverified path] Retrieve many tasks"
+      "description": "Retrieve many tasks"
     },
     {
       "id": "task_update",

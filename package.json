@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "postinstall": "node scripts/patch-lucide-use-client.mjs",
     "dev": "next dev -p 3002",
     "sabsheet:wasm": "bash scripts/build-sabsheet-wasm.sh",
     "sabsheet:migrate": "tsx scripts/sabsheet/migrate-v2.ts",

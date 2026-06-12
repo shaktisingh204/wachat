@@ -4,8 +4,8 @@
   "description": "Consume the Zammad API",
   "category": "support",
   "iconName": "LuPackage",
-  "version": 4,
-  "lastVerified": "2026-06-11",
+  "version": 5,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "basic",
@@ -577,7 +577,7 @@
       "id": "user_get_all",
       "label": "Get Many User",
       "method": "GET",
-      "path": "/user",
+      "path": "/users",
       "fields": [
         {
           "id": "host",
@@ -610,7 +610,7 @@
         }
       ],
       "group": "User",
-      "description": "[unverified path] Retrieve many users"
+      "description": "Retrieve many users"
     },
     {
       "id": "user_get_self",

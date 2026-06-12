@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import {
-  Settings,
   Database,
   Users,
   KeyRound,
@@ -33,22 +32,32 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 
-import { TwentyPageHeader } from '@/components/sabcrm/twenty';
-import '../../../sabcrm/home.css';
+import {
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+} from '@/components/sabcrm/20ui';
+
+import '@/components/sabcrm/20ui/surface-crm-base.css';
+import './settings-hub.css';
 
 export const metadata = {
   title: 'Settings · SabNode',
 };
 
 /**
- * SabCRM Settings hub (`/dashboard/settings/crm`).
+ * SabCRM Settings hub (`/dashboard/settings/crm`), 20ui.
  *
- * A Twenty-faithful settings index: grouped sections (Workspace / Developers /
- * Data / Automation) rendered as list rows (icon, label, description, chevron),
- * each linking to an existing `/dashboard/settings/crm/*` route.
+ * A settings index: grouped sections (Account / Workspace / Developers /
+ * Data / Automation / Advanced) rendered as list rows (icon, label,
+ * description, chevron), each linking to an existing
+ * `/dashboard/settings/crm/*` route.
  *
- * Rendered inside the layout's `TwentyAppFrame` (`.sabcrm-twenty` scope); all
- * visuals come from the `.st-*` Twenty design system. No Ui20 / Tailwind.
+ * Rendered inside the layout's `CrmSettingsShell` (which stamps the 20ui token
+ * scope); header chrome comes from the 20ui `PageHeader` family and the rows
+ * from the page-local `./settings-hub.css` (`.shub-*`, ported off the legacy
+ * `.st-*` / `home.css` chrome).
  *
  * Auth / onboarding / RBAC / project context are enforced by `../layout.tsx`;
  * each linked route independently re-runs its own gate.
@@ -281,48 +290,46 @@ const GROUPS: readonly SettingsGroup[] = [
 
 export default function SabcrmSettingsPage(): React.JSX.Element {
   return (
-    <div className="st-home">
-      <div className="st-home__inner">
-        <nav className="st-crumbs" aria-label="Breadcrumb">
-          <span>Settings</span>
-        </nav>
+    <div className="shub">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageTitle>Settings</PageTitle>
+          <PageDescription>
+            Manage your account, workspace, billing and module settings — all
+            from one place. Update your profile and security, control members
+            and roles, issue API keys and webhooks, and configure each
+            connected module.
+          </PageDescription>
+        </PageHeaderHeading>
+      </PageHeader>
 
-        <TwentyPageHeader title="Settings" icon={Settings} />
-        <p className="st-lead">
-          Manage your account, workspace, billing and module settings — all
-          from one place. Update your profile and security, control members and
-          roles, issue API keys and webhooks, and configure each connected
-          module.
-        </p>
-
-        {GROUPS.map((group) => (
-          <section key={group.title} className="st-settings-group">
-            <h2 className="st-settings-group__title">{group.title}</h2>
-            <div className="st-settings-list">
-              {group.rows.map(({ slug, label, description, icon: Icon }) => (
-                <Link
-                  key={slug}
-                  href={`/dashboard/settings/crm/${slug}`}
-                  className="st-settings-row"
-                >
-                  <span className="st-settings-row__icon" aria-hidden="true">
-                    <Icon size={16} />
-                  </span>
-                  <span className="st-settings-row__text">
-                    <span className="st-settings-row__label">{label}</span>
-                    <span className="st-settings-row__desc">{description}</span>
-                  </span>
-                  <ChevronRight
-                    className="st-settings-row__chevron"
-                    size={16}
-                    aria-hidden="true"
-                  />
-                </Link>
-              ))}
-            </div>
-          </section>
-        ))}
-      </div>
+      {GROUPS.map((group) => (
+        <section key={group.title} className="shub-group">
+          <h2 className="shub-group__title">{group.title}</h2>
+          <div className="shub-list">
+            {group.rows.map(({ slug, label, description, icon: Icon }) => (
+              <Link
+                key={slug}
+                href={`/dashboard/settings/crm/${slug}`}
+                className="shub-row"
+              >
+                <span className="shub-row__icon" aria-hidden="true">
+                  <Icon size={16} />
+                </span>
+                <span className="shub-row__text">
+                  <span className="shub-row__label">{label}</span>
+                  <span className="shub-row__desc">{description}</span>
+                </span>
+                <ChevronRight
+                  className="shub-row__chevron"
+                  size={16}
+                  aria-hidden="true"
+                />
+              </Link>
+            ))}
+          </div>
+        </section>
+      ))}
     </div>
   );
 }

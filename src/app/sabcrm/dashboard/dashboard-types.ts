@@ -6,8 +6,16 @@
  *
  * Kept in a plain (non-"use server", non-"use client") module so both the page
  * shell and the widget renderer can import the shapes without pulling server
- * code into the client bundle.
+ * code into the client bundle. The wire shapes are imported TYPE-ONLY from the
+ * rust-client module (erased at compile time), so the narrow client types stay
+ * structurally aligned with what the engine actually returns/accepts.
  */
+
+import type {
+  SabcrmRustDashboard,
+  SabcrmRustWidget,
+  SabcrmWidgetConfig,
+} from '@/lib/rust-client/sabcrm-dashboards';
 
 export type WidgetTypeTw = 'kpi' | 'bar' | 'recent' | 'pipeline';
 
@@ -25,12 +33,19 @@ export const WIDGET_TYPE_LABEL: Record<WidgetTypeTw, string> = {
   pipeline: 'Pipeline summary',
 };
 
-export interface DashboardWidgetTw {
+/**
+ * A renderable widget. Deliberately a `type` literal (not an `interface`) so it
+ * receives an implicit index signature and stays assignable to the wire shape
+ * `SabcrmRustWidget` (whose `[key: string]: unknown` index signature would
+ * otherwise reject interface values) when persisting via update/create.
+ */
+export type DashboardWidgetTw = {
   id: string;
   type: WidgetTypeTw;
   title: string;
-  config?: Record<string, unknown>;
-}
+  /** Typed engine config blob — extra keys round-trip via its index signature. */
+  config?: SabcrmWidgetConfig;
+};
 
 export interface DashboardTw {
   id: string;
@@ -39,25 +54,20 @@ export interface DashboardTw {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Adapters — the Rust engine returns wider shapes (`type: string`,            */
-/* `config: unknown`, plus tenant/timestamp fields). These normalise its      */
-/* widgets/dashboards into the narrowed client shapes used for rendering, and  */
-/* widen them back into the wire shape expected by create/update.             */
+/* Adapters — the Rust engine returns wider shapes (`type: string`, optional   */
+/* `title`, plus tenant/timestamp fields). These normalise its widgets/        */
+/* dashboards into the narrowed client shapes used for rendering; the client   */
+/* shapes are assignable back to the wire shapes for create/update.            */
 /* -------------------------------------------------------------------------- */
 
-/** Minimal structural mirror of `SabcrmRustWidget` (avoids a server import). */
-interface RustWidgetLike {
-  id: string;
-  type: string;
-  title: string;
-  config?: unknown;
-}
-
-/** Minimal structural mirror of `SabcrmRustDashboard`. */
-interface RustDashboardLike {
+/**
+ * Minimal structural slice of {@link SabcrmRustDashboard} accepted by
+ * {@link normalizeDashboard} — tolerant of partially-hydrated list rows.
+ */
+export interface RustDashboardLike {
   id: string;
   name: string;
-  widgets?: RustWidgetLike[] | null;
+  widgets?: SabcrmRustWidget[] | null;
 }
 
 function isWidgetType(t: string): t is WidgetTypeTw {
@@ -65,14 +75,14 @@ function isWidgetType(t: string): t is WidgetTypeTw {
 }
 
 /** Narrow one wire widget into a renderable `DashboardWidgetTw`. */
-export function normalizeWidget(w: RustWidgetLike): DashboardWidgetTw {
+export function normalizeWidget(w: SabcrmRustWidget): DashboardWidgetTw {
   return {
     id: w.id,
     type: isWidgetType(w.type) ? w.type : 'kpi',
-    title: w.title,
+    title: w.title ?? 'Untitled widget',
     config:
       w.config && typeof w.config === 'object' && !Array.isArray(w.config)
-        ? (w.config as Record<string, unknown>)
+        ? w.config
         : undefined,
   };
 }
@@ -85,3 +95,6 @@ export function normalizeDashboard(d: RustDashboardLike): DashboardTw {
     widgets: (d.widgets ?? []).map(normalizeWidget),
   };
 }
+
+/** Re-exported wire types for callers that need them (type-only). */
+export type { SabcrmRustDashboard, SabcrmRustWidget, SabcrmWidgetConfig };

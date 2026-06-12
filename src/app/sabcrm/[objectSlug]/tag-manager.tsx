@@ -2,7 +2,9 @@
 
 /**
  * TagManagerDialog — create / rename / recolour / delete workspace tags from
- * the SabCRM list surface.
+ * the SabCRM list surface. 20ui only (`@/components/sabcrm/20ui`), plus the
+ * sibling `tag-manager.css` for the dialog-local layout bits (`.stgm-*`,
+ * scoped to the 20ui root).
  *
  * Tags are workspace-scoped label definitions ({@link SabcrmRustTag}); records
  * carry applied tag ids on `data.__tags`. This dialog is the CRUD surface the
@@ -14,17 +16,33 @@
 import * as React from 'react';
 import { Plus, Trash2, Check } from 'lucide-react';
 
-import { TwentyButton } from '@/components/sabcrm/twenty';
-import { StSelect, type StSelectOption } from '@/components/sabcrm/twenty/st-select';
-import { TWENTY_PALETTE } from '@/components/sabcrm/twenty/twenty-palette';
-import { useStConfirm } from '@/components/sabcrm/twenty/st-modals';
-import { Modal, Alert } from '@/components/sabcrm/20ui';
+import {
+  Alert,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  Button,
+  Input,
+  Modal,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/sabcrm/20ui';
 import {
   createTagTw,
   updateTagTw,
   deleteTagTw,
 } from '@/app/actions/sabcrm-tags.actions';
 import type { SabcrmRustTag } from '@/app/actions/sabcrm-tags.actions.types';
+
+import './tag-manager.css';
 
 interface TagManagerDialogProps {
   tags: SabcrmRustTag[];
@@ -34,16 +52,84 @@ interface TagManagerDialogProps {
   onChanged: () => void;
 }
 
-/** Colour palette options (hex values so `chipColor` paints them directly). */
-const COLOR_OPTIONS: StSelectOption[] = Array.from(
-  new Map(Object.entries(TWENTY_PALETTE).map(([name, hex]) => [hex, name])).entries(),
-).map(([hex, name]) => ({
-  value: hex,
-  label: name.charAt(0).toUpperCase() + name.slice(1),
-  color: hex,
-}));
+/**
+ * Colour palette (hex values so `chipColor` paints them directly). Mirrors the
+ * canonical Twenty tag palette in `dashboard/settings/crm/tags`.
+ */
+const COLOR_OPTIONS: ReadonlyArray<{ value: string; label: string }> = [
+  { value: '#3dab5a', label: 'Green' },
+  { value: '#21b8a6', label: 'Turquoise' },
+  { value: '#5db4e3', label: 'Sky' },
+  { value: '#3b7ae4', label: 'Blue' },
+  { value: '#9b51e0', label: 'Purple' },
+  { value: '#e052b0', label: 'Pink' },
+  { value: '#e0484e', label: 'Red' },
+  { value: '#f0883e', label: 'Orange' },
+  { value: '#e0c64a', label: 'Yellow' },
+  { value: '#8c8c8c', label: 'Gray' },
+];
 
 const DEFAULT_COLOR = COLOR_OPTIONS[0]?.value ?? '#3dab5a';
+
+/**
+ * Normalise a stored tag colour (palette name / hex) to a paintable hex value
+ * so it matches a swatch option where possible. Unknown values pass through
+ * and render as a "Custom" swatch.
+ */
+function resolveColor(color?: string | null): string {
+  if (!color) return DEFAULT_COLOR;
+  if (color.startsWith('#') || color.startsWith('rgb')) return color;
+  const match = COLOR_OPTIONS.find(
+    (o) => o.label.toLowerCase() === color.toLowerCase(),
+  );
+  return match ? match.value : color;
+}
+
+interface ColorSelectProps {
+  value: string;
+  onChange: (color: string) => void;
+  ariaLabel: string;
+  disabled?: boolean;
+}
+
+/** Swatch dropdown — each option pairs a colour dot with its palette name. */
+function ColorSelect({
+  value,
+  onChange,
+  ariaLabel,
+  disabled,
+}: ColorSelectProps): React.JSX.Element {
+  const known = COLOR_OPTIONS.some((o) => o.value === value);
+  return (
+    <Select value={value} onValueChange={onChange} disabled={disabled}>
+      <SelectTrigger aria-label={ariaLabel}>
+        <SelectValue placeholder="Colour" />
+      </SelectTrigger>
+      <SelectContent>
+        {!known && value ? (
+          <SelectItem value={value}>
+            <span
+              className="stgm-dot"
+              style={{ background: value }}
+              aria-hidden="true"
+            />
+            Custom
+          </SelectItem>
+        ) : null}
+        {COLOR_OPTIONS.map((opt) => (
+          <SelectItem key={opt.value} value={opt.value}>
+            <span
+              className="stgm-dot"
+              style={{ background: opt.value }}
+              aria-hidden="true"
+            />
+            {opt.label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+}
 
 export function TagManagerDialog({
   tags,
@@ -51,7 +137,6 @@ export function TagManagerDialog({
   onClose,
   onChanged,
 }: TagManagerDialogProps): React.JSX.Element {
-  const { confirm, dialog } = useStConfirm();
   const [error, setError] = React.useState<string | null>(null);
   const [busyId, setBusyId] = React.useState<string | null>(null);
 
@@ -59,6 +144,10 @@ export function TagManagerDialog({
   const [newName, setNewName] = React.useState('');
   const [newColor, setNewColor] = React.useState(DEFAULT_COLOR);
   const [creating, setCreating] = React.useState(false);
+
+  // Delete-confirm flow (AlertDialog): the tag pending confirmation.
+  const [pendingDelete, setPendingDelete] =
+    React.useState<SabcrmRustTag | null>(null);
 
   const pid = projectId ?? undefined;
 
@@ -99,15 +188,10 @@ export function TagManagerDialog({
     else setError(res.error);
   };
 
-  const handleDelete = async (tag: SabcrmRustTag) => {
-    const ok = await confirm({
-      title: `Delete "${tag.name}"?`,
-      message:
-        'The tag will be removed from the workspace. Tags still applied to records cannot be deleted.',
-      destructive: true,
-      confirmLabel: 'Delete tag',
-    });
-    if (!ok) return;
+  const handleConfirmDelete = async () => {
+    const tag = pendingDelete;
+    if (!tag) return;
+    setPendingDelete(null);
     setBusyId(tag.id);
     setError(null);
     const res = await deleteTagTw(tag.id, pid);
@@ -127,8 +211,7 @@ export function TagManagerDialog({
 
         {/* Create row */}
         <div className="stg-mgr__create">
-          <input
-            className="st-input"
+          <Input
             placeholder="New tag name"
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
@@ -137,21 +220,21 @@ export function TagManagerDialog({
             }}
           />
           <div className="stg-mgr__color">
-            <StSelect
+            <ColorSelect
               value={newColor}
               onChange={setNewColor}
-              options={COLOR_OPTIONS}
               ariaLabel="New tag colour"
             />
           </div>
-          <TwentyButton
+          <Button
             variant="primary"
-            icon={Plus}
+            iconLeft={Plus}
             onClick={() => void handleCreate()}
             disabled={!newName.trim() || creating}
+            loading={creating}
           >
             Add
-          </TwentyButton>
+          </Button>
         </div>
 
         {/* Existing tags */}
@@ -166,13 +249,39 @@ export function TagManagerDialog({
                 busy={busyId === tag.id}
                 onRename={(name) => void handleRename(tag, name)}
                 onRecolour={(color) => void handleRecolour(tag, color)}
-                onDelete={() => void handleDelete(tag)}
+                onDelete={() => setPendingDelete(tag)}
               />
             ))
           )}
         </div>
       </Modal>
-      {dialog}
+
+      {/* Delete confirm — Radix AlertDialog so the destructive action can't be
+          lost to a stray overlay tap. */}
+      <AlertDialog
+        open={pendingDelete !== null}
+        onOpenChange={(open) => {
+          if (!open) setPendingDelete(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              Delete &quot;{pendingDelete?.name ?? ''}&quot;?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              The tag will be removed from the workspace. Tags still applied to
+              records cannot be deleted.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => void handleConfirmDelete()}>
+              Delete tag
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }
@@ -192,10 +301,10 @@ function TagRow({ tag, busy, onRename, onRecolour, onDelete }: TagRowProps): Rea
 
   return (
     <div className="stg-mgr__row">
-      <input
-        className="st-input"
+      <Input
         value={name}
         disabled={busy}
+        aria-label={`Name for ${tag.name}`}
         onChange={(e) => setName(e.target.value)}
         onBlur={() => dirty && onRename(name)}
         onKeyDown={(e) => {
@@ -203,10 +312,9 @@ function TagRow({ tag, busy, onRename, onRecolour, onDelete }: TagRowProps): Rea
         }}
       />
       <div className="stg-mgr__color">
-        <StSelect
-          value={tag.color}
+        <ColorSelect
+          value={resolveColor(tag.color)}
           onChange={onRecolour}
-          options={COLOR_OPTIONS}
           ariaLabel={`Colour for ${tag.name}`}
           disabled={busy}
         />

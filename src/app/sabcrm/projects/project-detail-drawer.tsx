@@ -52,12 +52,12 @@ function Row({
   children: React.ReactNode;
 }): React.JSX.Element {
   return (
-    <div className="pm-detail__row">
-      <span className="pm-detail__label">
+    <div className="pj-detail__row">
+      <span className="pj-detail__label">
         <Icon size={14} aria-hidden />
         {label}
       </span>
-      <span className="pm-detail__value">{children}</span>
+      <span className="pj-detail__value">{children}</span>
     </div>
   );
 }
@@ -76,12 +76,12 @@ export function ProjectDetailDrawer({
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange} side="right">
-      <DrawerContent side="right" className="pm-detail">
+      <DrawerContent side="right" className="pj-detail">
         {project ? (
           <>
             <DrawerHeader>
               <DrawerTitle>{project.name}</DrawerTitle>
-              <div className="pm-detail__badges">
+              <div className="pj-detail__badges">
                 {status ? (
                   <Badge tone={status.tone} dot>
                     {status.label}
@@ -95,37 +95,37 @@ export function ProjectDetailDrawer({
               </div>
             </DrawerHeader>
 
-            <div className="pm-detail__body">
-              <div className="pm-detail__progress">
-                <div className="pm-detail__progress-head">
+            <div className="pj-detail__body">
+              <div className="pj-detail__progress">
+                <div className="pj-detail__progress-head">
                   <span>Progress</span>
-                  <span className="pm-detail__progress-pct">{pct}%</span>
+                  <span className="pj-detail__progress-pct">{pct}%</span>
                 </div>
                 <Progress value={pct} tone={pct >= 100 ? 'success' : 'accent'} label={`${pct}% complete`} />
               </div>
 
               <Row icon={User} label="Owner">
-                {project.owner || <span className="pm-muted">Unassigned</span>}
+                {project.owner || <span className="pj-muted">Unassigned</span>}
               </Row>
               <Row icon={Calendar} label="Start date">
-                {project.startDate ? formatDate(project.startDate) : <span className="pm-muted">—</span>}
+                {project.startDate ? formatDate(project.startDate) : <span className="pj-muted">—</span>}
               </Row>
               <Row icon={CalendarClock} label="Due date">
                 {project.dueDate ? (
-                  <span className={isOverdue(project) ? 'pm-due pm-due--over' : undefined}>
+                  <span className={isOverdue(project) ? 'pj-due pj-due--over' : undefined}>
                     {formatDate(project.dueDate)}
                   </span>
                 ) : (
-                  <span className="pm-muted">—</span>
+                  <span className="pj-muted">—</span>
                 )}
               </Row>
               <Row icon={DollarSign} label="Budget">
-                {project.budget == null ? <span className="pm-muted">—</span> : formatBudget(project.budget)}
+                {project.budget == null ? <span className="pj-muted">—</span> : formatBudget(project.budget)}
               </Row>
 
               {project.description ? (
-                <div className="pm-detail__desc">
-                  <span className="pm-detail__label">Description</span>
+                <div className="pj-detail__desc">
+                  <span className="pj-detail__label">Description</span>
                   <p>{project.description}</p>
                 </div>
               ) : null}

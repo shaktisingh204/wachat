@@ -4,8 +4,8 @@
   "description": "Consume PayPal API",
   "category": "finance",
   "iconName": "LuPackage",
-  "version": 11,
-  "lastVerified": "2026-06-11",
+  "version": 12,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -22,7 +22,7 @@
       "id": "payout_create",
       "label": "Create Payout",
       "method": "POST",
-      "path": "/payout",
+      "path": "/payments/payouts",
       "fields": [
         {
           "id": "senderBatchId",
@@ -59,20 +59,21 @@
         }
       ],
       "group": "Payout",
-      "description": "[unverified path] Create a batch payout"
+      "description": "Create a batch payout"
     },
     {
       "id": "payout_get",
       "label": "Get Payout",
       "method": "GET",
-      "path": "/payout",
+      "path": "/payments/payouts/{payoutBatchId}",
       "fields": [
         {
           "id": "payoutBatchId",
           "label": "Payout Batch ID",
           "type": "text",
           "required": true,
-          "description": "The ID of the payout for which to show details"
+          "description": "The ID of the payout for which to show details",
+          "in": "path"
         },
         {
           "id": "returnAll",
@@ -90,41 +91,43 @@
         }
       ],
       "group": "Payout",
-      "description": "[unverified path] Show batch payout details"
+      "description": "Show batch payout details"
     },
     {
       "id": "payout_item_cancel",
       "label": "Cancel Payout Item",
       "method": "POST",
-      "path": "/payout-item",
+      "path": "/payments/payouts-item/{payoutItemId}/cancel",
       "fields": [
         {
           "id": "payoutItemId",
           "label": "Payout Item ID",
           "type": "text",
           "required": true,
-          "description": "The ID of the payout item to cancel"
+          "description": "The ID of the payout item to cancel",
+          "in": "path"
         }
       ],
       "group": "Payout Item",
-      "description": "[unverified path] Cancels an unclaimed payout item"
+      "description": "Cancels an unclaimed payout item"
     },
     {
       "id": "payout_item_get",
       "label": "Get Payout Item",
       "method": "GET",
-      "path": "/payout-item",
+      "path": "/payments/payouts-item/{payoutItemId}",
       "fields": [
         {
           "id": "payoutItemId",
           "label": "Payout Item ID",
           "type": "text",
           "required": true,
-          "description": "The ID of the payout item for which to show details"
+          "description": "The ID of the payout item for which to show details",
+          "in": "path"
         }
       ],
       "group": "Payout Item",
-      "description": "[unverified path] Show payout item details"
+      "description": "Show payout item details"
     }
   ]
 }

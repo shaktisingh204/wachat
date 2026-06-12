@@ -4,8 +4,8 @@
   "description": "Consume Onfleet API",
   "category": "commerce",
   "iconName": "LuPackage",
-  "version": 11,
-  "lastVerified": "2026-06-11",
+  "version": 12,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "header",
@@ -17,7 +17,7 @@
       "id": "admin_create",
       "label": "Create Admin",
       "method": "POST",
-      "path": "/admin",
+      "path": "/admins",
       "fields": [
         {
           "id": "name",
@@ -43,30 +43,31 @@
         }
       ],
       "group": "Admin",
-      "description": "[unverified path] Create a new Onfleet admin"
+      "description": "Create a new Onfleet admin"
     },
     {
       "id": "admin_delete",
       "label": "Delete Admin",
       "method": "DELETE",
-      "path": "/admin",
+      "path": "/admins/{id}",
       "fields": [
         {
           "id": "id",
           "label": "Admin ID",
           "type": "text",
           "required": true,
-          "description": "The ID of the admin object for lookup"
+          "description": "The ID of the admin object for lookup",
+          "in": "path"
         }
       ],
       "group": "Admin",
-      "description": "[unverified path] Delete an Onfleet admin"
+      "description": "Delete an Onfleet admin"
     },
     {
       "id": "admin_get_all",
       "label": "Get Many Admin",
       "method": "GET",
-      "path": "/admin",
+      "path": "/admins",
       "fields": [
         {
           "id": "returnAll",
@@ -84,20 +85,21 @@
         }
       ],
       "group": "Admin",
-      "description": "[unverified path] Get many Onfleet admins"
+      "description": "Get many Onfleet admins"
     },
     {
       "id": "admin_update",
       "label": "Update Admin",
-      "method": "PATCH",
-      "path": "/admin",
+      "method": "PUT",
+      "path": "/admins/{id}",
       "fields": [
         {
           "id": "id",
           "label": "Admin ID",
           "type": "text",
           "required": true,
-          "description": "The ID of the admin object for lookup"
+          "description": "The ID of the admin object for lookup",
+          "in": "path"
         },
         {
           "id": "updateFields",
@@ -108,7 +110,7 @@
         }
       ],
       "group": "Admin",
-      "description": "[unverified path] Update an Onfleet admin"
+      "description": "Update an Onfleet admin"
     },
     {
       "id": "container_add_task",
@@ -233,15 +235,16 @@
     {
       "id": "container_update_task",
       "label": "Update Tasks Container",
-      "method": "PATCH",
-      "path": "/container",
+      "method": "PUT",
+      "path": "/containers/workers/{containerId}",
       "fields": [
         {
           "id": "containerId",
           "label": "Container ID",
           "type": "text",
           "required": true,
-          "description": "The object ID according to the container chosen"
+          "description": "The object ID according to the container chosen",
+          "in": "path"
         },
         {
           "id": "tasks",
@@ -259,13 +262,13 @@
         }
       ],
       "group": "Container",
-      "description": "[unverified path] Fully replace a container's tasks"
+      "description": "Fully replace a container's tasks"
     },
     {
       "id": "destination_create",
       "label": "Create Destination",
       "method": "POST",
-      "path": "/destination",
+      "path": "/destinations",
       "fields": [
         {
           "id": "unparsed",
@@ -319,7 +322,7 @@
         }
       ],
       "group": "Destination",
-      "description": "[unverified path] Create a new destination"
+      "description": "Create a new destination"
     },
     {
       "id": "destination_get",
@@ -343,7 +346,7 @@
       "id": "hub_create",
       "label": "Create Hub",
       "method": "POST",
-      "path": "/hub",
+      "path": "/hubs",
       "fields": [
         {
           "id": "name",
@@ -368,13 +371,13 @@
         }
       ],
       "group": "Hub",
-      "description": "[unverified path] Create a new Onfleet hub"
+      "description": "Create a new Onfleet hub"
     },
     {
       "id": "hub_get_all",
       "label": "Get Many Hub",
       "method": "GET",
-      "path": "/hub",
+      "path": "/hubs",
       "fields": [
         {
           "id": "returnAll",
@@ -392,7 +395,7 @@
         }
       ],
       "group": "Hub",
-      "description": "[unverified path] Get many Onfleet hubs"
+      "description": "Get many Onfleet hubs"
     },
     {
       "id": "hub_update",
@@ -450,7 +453,7 @@
       "id": "recipient_create",
       "label": "Create Recipient",
       "method": "POST",
-      "path": "/recipient",
+      "path": "/recipients",
       "fields": [
         {
           "id": "recipientName",
@@ -482,13 +485,13 @@
         }
       ],
       "group": "Recipient",
-      "description": "[unverified path] Create a new Onfleet recipient"
+      "description": "Create a new Onfleet recipient"
     },
     {
       "id": "recipient_get",
       "label": "Get Recipient",
       "method": "GET",
-      "path": "/recipient{lookupBy______id___________lookupBy}/{lookupByValue}",
+      "path": "/recipients/{id}",
       "fields": [
         {
           "id": "getBy",
@@ -517,7 +520,8 @@
           "label": "Recipient ID",
           "type": "text",
           "required": true,
-          "description": "The ID of the recipient object for lookup"
+          "description": "The ID of the recipient object for lookup",
+          "in": "path"
         },
         {
           "id": "name",
@@ -535,7 +539,7 @@
         }
       ],
       "group": "Recipient",
-      "description": "[unverified path] Get a specific Onfleet recipient"
+      "description": "Get a specific Onfleet recipient"
     },
     {
       "id": "recipient_update",
@@ -667,7 +671,7 @@
       "id": "task_get",
       "label": "Get Task",
       "method": "GET",
-      "path": "/task{shortId_____shortId______}/{id}",
+      "path": "/tasks/{id}",
       "fields": [
         {
           "id": "id",
@@ -679,7 +683,7 @@
         }
       ],
       "group": "Task",
-      "description": "[unverified path] Get a specific Onfleet task"
+      "description": "Get a specific Onfleet task"
     },
     {
       "id": "task_get_all",
@@ -766,7 +770,7 @@
       "id": "team_create",
       "label": "Create Team",
       "method": "POST",
-      "path": "/team",
+      "path": "/teams",
       "fields": [
         {
           "id": "name",
@@ -798,7 +802,7 @@
         }
       ],
       "group": "Team",
-      "description": "[unverified path] Create a new Onfleet team"
+      "description": "Create a new Onfleet team"
     },
     {
       "id": "team_delete",
@@ -840,7 +844,7 @@
       "id": "team_get_all",
       "label": "Get Many Team",
       "method": "GET",
-      "path": "/team",
+      "path": "/teams",
       "fields": [
         {
           "id": "returnAll",
@@ -858,7 +862,7 @@
         }
       ],
       "group": "Team",
-      "description": "[unverified path] Get many Onfleet teams"
+      "description": "Get many Onfleet teams"
     },
     {
       "id": "team_get_time_estimates",
@@ -914,7 +918,7 @@
       "id": "worker_create",
       "label": "Create Worker",
       "method": "POST",
-      "path": "/worker",
+      "path": "/workers",
       "fields": [
         {
           "id": "name",
@@ -946,7 +950,7 @@
         }
       ],
       "group": "Worker",
-      "description": "[unverified path] Create a new Onfleet worker"
+      "description": "Create a new Onfleet worker"
     },
     {
       "id": "worker_delete",

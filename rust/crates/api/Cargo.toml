@@ -104,6 +104,9 @@ sabcrm-workflow-runs = { path = "../sabcrm-workflow-runs" }
 sabcrm-dashboards = { path = "../sabcrm-dashboards" }
 sabcrm-notifications = { path = "../sabcrm-notifications" }
 sabcrm-favorites = { path = "../sabcrm-favorites" }
+sabcrm-approvals = { path = "../sabcrm-approvals" }
+sabcrm-sequences = { path = "../sabcrm-sequences" }
+sabcrm-routing = { path = "../sabcrm-routing" }
 crm-quotations = { path = "../crm-quotations" }
 crm-invoices = { path = "../crm-invoices" }
 crm-sales-orders = { path = "../crm-sales-orders" }
@@ -162,6 +165,9 @@ crm-portal-users = { path = "../crm-portal-users" }
 crm-appraisals = { path = "../crm-appraisals" }
 crm-succession = { path = "../crm-succession" }
 crm-reconciliation = { path = "../crm-reconciliation" }
+crm-bank-transactions = { path = "../crm-bank-transactions" }
+crm-recurring-invoices = { path = "../crm-recurring-invoices" }
+crm-expense-claims = { path = "../crm-expense-claims" }
 crm-payroll-settings = { path = "../crm-payroll-settings" }
 crm-auto-leads = { path = "../crm-auto-leads" }
 crm-project-tasks = { path = "../crm-project-tasks" }

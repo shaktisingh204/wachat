@@ -1,15 +1,15 @@
 {
-  "generatedAt": "2026-06-11T18:45:58.565Z",
+  "generatedAt": "2026-06-12T01:26:39.037Z",
   "counts": {
-    "live": 145,
-    "shadowed-by-forge": 92,
-    "shadowed-by-rust": 254,
+    "live": 144,
+    "shadowed-by-forge": 84,
+    "shadowed-by-rust": 248,
     "shadowed-by-native": 23,
-    "shell": 11,
+    "shell": 10,
     "repairable": 2
   },
   "tierSizes": {
-    "presets": 527,
+    "presets": 511,
     "forgeBlocks": 839,
     "rustNodes": 316,
     "staticBlockTypes": 57
@@ -147,49 +147,7 @@
       ]
     },
     {
-      "slug": "awscognito",
-      "tiers": [
-        "preset",
-        "forge"
-      ]
-    },
-    {
-      "slug": "awscomprehend",
-      "tiers": [
-        "preset",
-        "forge"
-      ]
-    },
-    {
-      "slug": "awsdynamodb",
-      "tiers": [
-        "preset",
-        "forge"
-      ]
-    },
-    {
       "slug": "awselb",
-      "tiers": [
-        "preset",
-        "forge"
-      ]
-    },
-    {
-      "slug": "awsiam",
-      "tiers": [
-        "preset",
-        "forge"
-      ]
-    },
-    {
-      "slug": "awslambda",
-      "tiers": [
-        "preset",
-        "forge"
-      ]
-    },
-    {
-      "slug": "awsrekognition",
       "tiers": [
         "preset",
         "forge"
@@ -211,20 +169,6 @@
     },
     {
       "slug": "awssqs",
-      "tiers": [
-        "preset",
-        "forge"
-      ]
-    },
-    {
-      "slug": "awstextract",
-      "tiers": [
-        "preset",
-        "forge"
-      ]
-    },
-    {
-      "slug": "awstranscribe",
       "tiers": [
         "preset",
         "forge"
@@ -735,7 +679,6 @@
     {
       "slug": "emelia",
       "tiers": [
-        "preset",
         "forge",
         "rust"
       ]
@@ -1391,7 +1334,6 @@
     {
       "slug": "linear",
       "tiers": [
-        "preset",
         "forge",
         "rust"
       ]
@@ -1670,13 +1612,6 @@
       ]
     },
     {
-      "slug": "mondaycom",
-      "tiers": [
-        "preset",
-        "rust"
-      ]
-    },
-    {
       "slug": "mongodb",
       "tiers": [
         "preset",
@@ -1818,7 +1753,6 @@
     {
       "slug": "odoo",
       "tiers": [
-        "preset",
         "forge",
         "rust"
       ]
@@ -1873,7 +1807,6 @@
     {
       "slug": "orbit",
       "tiers": [
-        "preset",
         "forge",
         "rust"
       ]
@@ -2237,7 +2170,6 @@
     {
       "slug": "seatable",
       "tiers": [
-        "preset",
         "forge",
         "rust"
       ]
@@ -4027,7 +3959,7 @@
       "name": "Airtop",
       "category": "data",
       "status": "draft",
-      "endpointCount": 24,
+      "endpointCount": 20,
       "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
@@ -4072,46 +4004,6 @@
       "classification": "shadowed-by-rust"
     },
     {
-      "id": "n8n-aws-certificate-manager",
-      "slug": "awscertificatemanager",
-      "name": "AWS Certificate Manager",
-      "category": "dev",
-      "status": "draft",
-      "endpointCount": 5,
-      "hasBaseUrl": true,
-      "classification": "live"
-    },
-    {
-      "id": "n8n-aws-cognito",
-      "slug": "awscognito",
-      "name": "AWS Cognito",
-      "category": "dev",
-      "status": "draft",
-      "endpointCount": 13,
-      "hasBaseUrl": true,
-      "classification": "shadowed-by-forge"
-    },
-    {
-      "id": "n8n-aws-comprehend",
-      "slug": "awscomprehend",
-      "name": "AWS Comprehend",
-      "category": "dev",
-      "status": "draft",
-      "endpointCount": 3,
-      "hasBaseUrl": true,
-      "classification": "shadowed-by-forge"
-    },
-    {
-      "id": "n8n-aws-dynamo-db",
-      "slug": "awsdynamodb",
-      "name": "AWS DynamoDB",
-      "category": "dev",
-      "status": "draft",
-      "endpointCount": 4,
-      "hasBaseUrl": true,
-      "classification": "shadowed-by-forge"
-    },
-    {
       "id": "n8n-aws-elb",
       "slug": "awselb",
       "name": "AWS ELB",
@@ -4122,42 +4014,12 @@
       "classification": "shadowed-by-forge"
     },
     {
-      "id": "n8n-aws-iam",
-      "slug": "awsiam",
-      "name": "AWS IAM",
-      "category": "dev",
-      "status": "draft",
-      "endpointCount": 12,
-      "hasBaseUrl": true,
-      "classification": "shadowed-by-forge"
-    },
-    {
-      "id": "n8n-aws-lambda",
-      "slug": "awslambda",
-      "name": "AWS Lambda",
-      "category": "dev",
-      "status": "draft",
-      "endpointCount": 1,
-      "hasBaseUrl": true,
-      "classification": "shadowed-by-forge"
-    },
-    {
-      "id": "n8n-aws-rekognition",
-      "slug": "awsrekognition",
-      "name": "AWS Rekognition",
-      "category": "dev",
-      "status": "draft",
-      "endpointCount": 1,
-      "hasBaseUrl": true,
-      "classification": "shadowed-by-forge"
-    },
-    {
       "id": "n8n-aws-s3",
       "slug": "awss3",
       "name": "AWS S3",
       "category": "storage",
       "status": "draft",
-      "endpointCount": 12,
+      "endpointCount": 11,
       "hasBaseUrl": true,
       "classification": "shadowed-by-forge"
     },
@@ -4189,26 +4051,6 @@
       "status": "draft",
       "endpointCount": 1,
       "hasBaseUrl": false,
-      "classification": "shadowed-by-forge"
-    },
-    {
-      "id": "n8n-aws-textract",
-      "slug": "awstextract",
-      "name": "AWS Textract",
-      "category": "data",
-      "status": "draft",
-      "endpointCount": 1,
-      "hasBaseUrl": true,
-      "classification": "shadowed-by-forge"
-    },
-    {
-      "id": "n8n-aws-transcribe",
-      "slug": "awstranscribe",
-      "name": "AWS Transcribe",
-      "category": "ai",
-      "status": "draft",
-      "endpointCount": 4,
-      "hasBaseUrl": true,
       "classification": "shadowed-by-forge"
     },
     {
@@ -4297,7 +4139,7 @@
       "name": "Box",
       "category": "storage",
       "status": "draft",
-      "endpointCount": 13,
+      "endpointCount": 12,
       "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
@@ -4577,7 +4419,7 @@
       "name": "Databricks",
       "category": "misc",
       "status": "draft",
-      "endpointCount": 36,
+      "endpointCount": 34,
       "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
@@ -4647,7 +4489,7 @@
       "name": "Discord",
       "category": "communication",
       "status": "draft",
-      "endpointCount": 17,
+      "endpointCount": 13,
       "hasBaseUrl": true,
       "classification": "shadowed-by-native"
     },
@@ -4779,16 +4621,6 @@
       "status": "draft",
       "endpointCount": 0,
       "hasBaseUrl": false,
-      "classification": "shadowed-by-rust"
-    },
-    {
-      "id": "n8n-emelia",
-      "slug": "emelia",
-      "name": "Emelia",
-      "category": "marketing",
-      "status": "draft",
-      "endpointCount": 9,
-      "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
     {
@@ -5027,7 +4859,7 @@
       "name": "Gmail",
       "category": "communication",
       "status": "draft",
-      "endpointCount": 26,
+      "endpointCount": 23,
       "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
@@ -5067,7 +4899,7 @@
       "name": "Google Analytics",
       "category": "analytics",
       "status": "draft",
-      "endpointCount": 2,
+      "endpointCount": 1,
       "hasBaseUrl": true,
       "classification": "shadowed-by-native"
     },
@@ -5097,7 +4929,7 @@
       "name": "Google Business Profile",
       "category": "storage",
       "status": "draft",
-      "endpointCount": 9,
+      "endpointCount": 6,
       "hasBaseUrl": true,
       "classification": "shadowed-by-forge"
     },
@@ -5117,7 +4949,7 @@
       "name": "Google Chat",
       "category": "communication",
       "status": "draft",
-      "endpointCount": 9,
+      "endpointCount": 8,
       "hasBaseUrl": true,
       "classification": "shadowed-by-forge"
     },
@@ -5207,7 +5039,7 @@
       "name": "Google Sheets",
       "category": "productivity",
       "status": "draft",
-      "endpointCount": 10,
+      "endpointCount": 7,
       "hasBaseUrl": true,
       "classification": "shadowed-by-native"
     },
@@ -5612,16 +5444,6 @@
       "classification": "shadowed-by-rust"
     },
     {
-      "id": "n8n-linear",
-      "slug": "linear",
-      "name": "Linear",
-      "category": "dev",
-      "status": "draft",
-      "endpointCount": 7,
-      "hasBaseUrl": true,
-      "classification": "shadowed-by-rust"
-    },
-    {
       "id": "n8n-lingva-nex",
       "slug": "lingvanex",
       "name": "LingvaNex",
@@ -5757,7 +5579,7 @@
       "name": "Matrix",
       "category": "communication",
       "status": "draft",
-      "endpointCount": 11,
+      "endpointCount": 10,
       "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
@@ -5877,7 +5699,7 @@
       "name": "Microsoft Outlook",
       "category": "communication",
       "status": "draft",
-      "endpointCount": 38,
+      "endpointCount": 37,
       "hasBaseUrl": true,
       "classification": "shadowed-by-forge"
     },
@@ -5907,7 +5729,7 @@
       "name": "Microsoft Teams",
       "category": "communication",
       "status": "draft",
-      "endpointCount": 16,
+      "endpointCount": 15,
       "hasBaseUrl": true,
       "classification": "shadowed-by-forge"
     },
@@ -5958,16 +5780,6 @@
       "category": "communication",
       "status": "draft",
       "endpointCount": 2,
-      "hasBaseUrl": true,
-      "classification": "shadowed-by-rust"
-    },
-    {
-      "id": "n8n-monday-com",
-      "slug": "mondaycom",
-      "name": "Monday.com",
-      "category": "productivity",
-      "status": "draft",
-      "endpointCount": 18,
       "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
@@ -6067,7 +5879,7 @@
       "name": "NASA",
       "category": "misc",
       "status": "draft",
-      "endpointCount": 20,
+      "endpointCount": 18,
       "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
@@ -6087,7 +5899,7 @@
       "name": "Nextcloud",
       "category": "storage",
       "status": "draft",
-      "endpointCount": 17,
+      "endpointCount": 9,
       "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
@@ -6128,16 +5940,6 @@
       "category": "misc",
       "status": "draft",
       "endpointCount": 5,
-      "hasBaseUrl": true,
-      "classification": "shadowed-by-rust"
-    },
-    {
-      "id": "n8n-odoo",
-      "slug": "odoo",
-      "name": "Odoo",
-      "category": "crm",
-      "status": "draft",
-      "endpointCount": 20,
       "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
@@ -6210,16 +6012,6 @@
       "endpointCount": 0,
       "hasBaseUrl": false,
       "classification": "shell"
-    },
-    {
-      "id": "n8n-orbit",
-      "slug": "orbit",
-      "name": "Orbit",
-      "category": "misc",
-      "status": "draft",
-      "endpointCount": 14,
-      "hasBaseUrl": true,
-      "classification": "shadowed-by-rust"
     },
     {
       "id": "n8n-oura",
@@ -6587,7 +6379,7 @@
       "name": "S3",
       "category": "storage",
       "status": "draft",
-      "endpointCount": 12,
+      "endpointCount": 10,
       "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
@@ -6612,32 +6404,12 @@
       "classification": "shadowed-by-rust"
     },
     {
-      "id": "n8n-sea-table-api",
-      "slug": "seatableapi",
-      "name": "Table Name or ID",
-      "category": "data",
-      "status": "draft",
-      "endpointCount": 0,
-      "hasBaseUrl": false,
-      "classification": "shell"
-    },
-    {
-      "id": "n8n-sea-table",
-      "slug": "seatable",
-      "name": "SeaTable",
-      "category": "data",
-      "status": "draft",
-      "endpointCount": 16,
-      "hasBaseUrl": true,
-      "classification": "shadowed-by-rust"
-    },
-    {
       "id": "n8n-security-scorecard",
       "slug": "securityscorecard",
       "name": "SecurityScorecard",
       "category": "misc",
       "status": "draft",
-      "endpointCount": 19,
+      "endpointCount": 18,
       "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
@@ -6737,7 +6509,7 @@
       "name": "SIGNL4",
       "category": "misc",
       "status": "draft",
-      "endpointCount": 2,
+      "endpointCount": 1,
       "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
@@ -6757,7 +6529,7 @@
       "name": "Slack",
       "category": "communication",
       "status": "draft",
-      "endpointCount": 44,
+      "endpointCount": 43,
       "hasBaseUrl": true,
       "classification": "shadowed-by-native"
     },
@@ -6987,7 +6759,7 @@
       "name": "Telegram",
       "category": "communication",
       "status": "draft",
-      "endpointCount": 24,
+      "endpointCount": 23,
       "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
@@ -6997,7 +6769,7 @@
       "name": "TheHive 5",
       "category": "Imported (n8n)",
       "status": "draft",
-      "endpointCount": 48,
+      "endpointCount": 41,
       "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
@@ -7037,7 +6809,7 @@
       "name": "Todoist",
       "category": "productivity",
       "status": "draft",
-      "endpointCount": 36,
+      "endpointCount": 33,
       "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },
@@ -7267,7 +7039,7 @@
       "name": "WhatsApp Business Cloud",
       "category": "communication",
       "status": "draft",
-      "endpointCount": 6,
+      "endpointCount": 4,
       "hasBaseUrl": true,
       "classification": "shadowed-by-rust"
     },

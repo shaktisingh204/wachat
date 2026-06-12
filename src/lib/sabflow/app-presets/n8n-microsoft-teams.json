@@ -4,8 +4,8 @@
   "description": "Consume Microsoft Teams API",
   "category": "communication",
   "iconName": "LuPackage",
-  "version": 10,
-  "lastVerified": "2026-06-11",
+  "version": 11,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -106,15 +106,6 @@
       "fields": [],
       "group": "Chat Message",
       "description": "Get many messages from a chat"
-    },
-    {
-      "id": "chat_message_send_and_wait_operation",
-      "label": "Send and Wait for Response Chat Message",
-      "method": "POST",
-      "path": "/chat-message",
-      "fields": [],
-      "group": "Chat Message",
-      "description": "[unverified path] Send a message and wait for response"
     },
     {
       "id": "task_create",

@@ -20,6 +20,11 @@ export function generateScopes(): { wrote: boolean; relPath: string } {
   all.add('me:read');
   all.add('webhooks:read');
   all.add('webhooks:write');
+  // MCP-only scopes: no generated /api/v1 endpoints sit behind these yet —
+  // they gate the SabCRM MCP server at `src/app/api/mcp/sabcrm/route.ts`
+  // (read tools ↔ sabcrm:read, mutations ↔ sabcrm:write).
+  all.add('sabcrm:read');
+  all.add('sabcrm:write');
 
   const sorted = Array.from(all).sort();
   const union = sorted.map((s) => `  | '${s}'`).join('\n');

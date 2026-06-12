@@ -4,16 +4,32 @@
  * SabCRM Projects — Board (kanban) view.
  *
  * One column per status (Planning → Cancelled), cards grouped by `status`.
- * Cards are draggable between columns via native HTML5 drag-and-drop; a drop
- * calls `onStatusChange`, which the parent persists optimistically. Mirrors the
- * native-DnD pattern used by the existing SabCRM board surfaces (no dnd library).
+ * The board itself is the shared 20ui record composite {@link RecordBoard}
+ * (dnd-kit drag-and-drop with keyboard support — Space picks up / drops,
+ * arrows move, Enter opens); this file only maps the {@link ProjectVM}s onto
+ * the composite's record shape and renders the card content (`.pj-card*`).
+ *
+ * A drop on another column calls `onStatusChange`, which the parent persists
+ * optimistically. Same-column reorders are ignored (card order isn't a
+ * persisted field — parity with the previous bespoke board). Projects whose
+ * status matches no known column are not rendered (also parity).
  */
 
 import * as React from 'react';
-import { User, CalendarClock, Plus } from 'lucide-react';
+import { User, CalendarClock } from 'lucide-react';
 
-import { Badge, Progress, IconButton } from '@/components/sabcrm/20ui';
-import { PROJECT_STATUSES, projectPriorityOption } from '@/lib/sabcrm/projects-object';
+import { Badge, Progress } from '@/components/sabcrm/20ui';
+import {
+  RecordBoard,
+  type RecordBoardColumn,
+} from '@/components/sabcrm/20ui/composites/record';
+import type { CrmRecord } from '@/lib/sabcrm/types';
+import {
+  PROJECTS_SLUG,
+  PROJECT_STATUSES,
+  projectPriorityOption,
+  type ProjectTone,
+} from '@/lib/sabcrm/projects-object';
 import { formatDate, isOverdue, type ProjectVM } from './projects-shared';
 
 interface ProjectsBoardProps {
@@ -23,130 +39,124 @@ interface ProjectsBoardProps {
   onAdd: (status: string) => void;
 }
 
+/** Status/priority tone → concrete dot color for the board column headers. */
+const TONE_COLOR: Record<ProjectTone, string> = {
+  neutral: 'var(--st-text-tertiary)',
+  accent: 'var(--st-accent)',
+  success: '#1f7a37',
+  warning: '#9a6400',
+  danger: 'var(--st-danger)',
+  info: '#1d6fd6',
+};
+
+const COLUMNS: RecordBoardColumn[] = PROJECT_STATUSES.map((s) => ({
+  id: s.value,
+  label: s.label,
+  color: TONE_COLOR[s.tone],
+}));
+
 export function ProjectsBoard({
   projects,
   onOpen,
   onStatusChange,
   onAdd,
 }: ProjectsBoardProps): React.JSX.Element {
-  const [draggingId, setDraggingId] = React.useState<string | null>(null);
-  const [overStatus, setOverStatus] = React.useState<string | null>(null);
+  const vmById = React.useMemo(
+    () => new Map(projects.map((p) => [p.id, p])),
+    [projects],
+  );
 
-  const byStatus = React.useMemo(() => {
-    const map = new Map<string, ProjectVM[]>();
-    for (const s of PROJECT_STATUSES) map.set(s.value, []);
-    for (const p of projects) {
-      const bucket = map.get(p.status);
-      if (bucket) bucket.push(p);
-      else map.set(p.status, [p]); // unknown status → its own implicit bucket
-    }
-    return map;
-  }, [projects]);
+  // Minimal CrmRecord shells for the composite — only `_id` + the grouping
+  // field matter; the card content renders from the looked-up ProjectVM.
+  const records = React.useMemo<CrmRecord[]>(
+    () =>
+      projects.map((p) => ({
+        _id: p.id,
+        object: PROJECTS_SLUG,
+        userId: '',
+        data: { status: p.status },
+        createdAt: p.updatedAt,
+        updatedAt: p.updatedAt,
+      })),
+    [projects],
+  );
 
-  const handleDrop = (status: string) => {
-    if (draggingId) {
-      const dragged = projects.find((p) => p.id === draggingId);
-      if (dragged && dragged.status !== status) onStatusChange(draggingId, status);
-    }
-    setDraggingId(null);
-    setOverStatus(null);
-  };
+  // Cross-column drops persist the new status; same-column reorders are a
+  // visual no-op (order isn't a stored field), so they're filtered out here.
+  const handleMove = React.useCallback(
+    (recordId: string, toColumnId: string) => {
+      const vm = vmById.get(recordId);
+      if (vm && vm.status !== toColumnId) onStatusChange(recordId, toColumnId);
+    },
+    [vmById, onStatusChange],
+  );
+
+  const handleCardClick = React.useCallback(
+    (record: CrmRecord) => {
+      const vm = vmById.get(record._id);
+      if (vm) onOpen(vm);
+    },
+    [vmById, onOpen],
+  );
+
+  const renderCard = React.useCallback(
+    (record: CrmRecord): React.ReactNode => {
+      const p = vmById.get(record._id);
+      if (!p) return null;
+      const pr = projectPriorityOption(p.priority);
+      const pct = p.progress ?? 0;
+      return (
+        <div className="pj-card">
+          <div className="pj-card__top">
+            <span className="pj-card__name">{p.name}</span>
+            <Badge tone={pr.tone} kind="soft">
+              {pr.label}
+            </Badge>
+          </div>
+
+          {p.progress != null ? (
+            <div className="pj-card__progress">
+              <Progress
+                value={pct}
+                size="sm"
+                tone={pct >= 100 ? 'success' : 'accent'}
+                label={`${pct}% complete`}
+              />
+            </div>
+          ) : null}
+
+          <div className="pj-card__meta">
+            {p.owner ? (
+              <span className="pj-card__chip">
+                <User size={12} aria-hidden="true" />
+                {p.owner}
+              </span>
+            ) : null}
+            {p.dueDate ? (
+              <span
+                className={`pj-card__chip${isOverdue(p) ? ' pj-card__chip--over' : ''}`}
+              >
+                <CalendarClock size={12} aria-hidden="true" />
+                {formatDate(p.dueDate)}
+              </span>
+            ) : null}
+          </div>
+        </div>
+      );
+    },
+    [vmById],
+  );
 
   return (
-    <div className="pm-board" role="list" aria-label="Projects board">
-      {PROJECT_STATUSES.map((col) => {
-        const items = byStatus.get(col.value) ?? [];
-        const isOver = overStatus === col.value;
-        return (
-          <section
-            key={col.value}
-            role="listitem"
-            className={`pm-board__col${isOver ? ' is-over' : ''}`}
-            onDragOver={(e) => {
-              e.preventDefault();
-              if (overStatus !== col.value) setOverStatus(col.value);
-            }}
-            onDragLeave={(e) => {
-              // Only clear when truly leaving the column (not entering a child).
-              if (!e.currentTarget.contains(e.relatedTarget as Node)) {
-                setOverStatus((s) => (s === col.value ? null : s));
-              }
-            }}
-            onDrop={() => handleDrop(col.value)}
-          >
-            <header className="pm-board__col-head">
-              <span className={`pm-board__dot pm-board__dot--${col.tone}`} aria-hidden="true" />
-              <h3 className="pm-board__col-title">{col.label}</h3>
-              <span className="pm-board__count">{items.length}</span>
-              <IconButton
-                icon={Plus}
-                label={`Add project to ${col.label}`}
-                size="sm"
-                variant="ghost"
-                onClick={() => onAdd(col.value)}
-              />
-            </header>
-
-            <div className="pm-board__cards">
-              {items.map((p) => {
-                const pr = projectPriorityOption(p.priority);
-                const pct = p.progress ?? 0;
-                return (
-                  <article
-                    key={p.id}
-                    className={`pm-card${draggingId === p.id ? ' is-dragging' : ''}`}
-                    draggable
-                    onDragStart={() => setDraggingId(p.id)}
-                    onDragEnd={() => {
-                      setDraggingId(null);
-                      setOverStatus(null);
-                    }}
-                    onClick={() => onOpen(p)}
-                    tabIndex={0}
-                    role="button"
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        onOpen(p);
-                      }
-                    }}
-                  >
-                    <div className="pm-card__top">
-                      <span className="pm-card__name">{p.name}</span>
-                      <Badge tone={pr.tone} kind="soft">
-                        {pr.label}
-                      </Badge>
-                    </div>
-
-                    {p.progress != null ? (
-                      <div className="pm-card__progress">
-                        <Progress value={pct} size="sm" tone={pct >= 100 ? 'success' : 'accent'} label={`${pct}% complete`} />
-                      </div>
-                    ) : null}
-
-                    <div className="pm-card__meta">
-                      {p.owner ? (
-                        <span className="pm-card__chip">
-                          <User size={12} aria-hidden="true" />
-                          {p.owner}
-                        </span>
-                      ) : null}
-                      {p.dueDate ? (
-                        <span className={`pm-card__chip${isOverdue(p) ? ' pm-card__chip--over' : ''}`}>
-                          <CalendarClock size={12} aria-hidden="true" />
-                          {formatDate(p.dueDate)}
-                        </span>
-                      ) : null}
-                    </div>
-                  </article>
-                );
-              })}
-
-              {items.length === 0 ? <p className="pm-board__empty">Drop projects here</p> : null}
-            </div>
-          </section>
-        );
-      })}
-    </div>
+    <RecordBoard
+      className="pj-board"
+      columns={COLUMNS}
+      records={records}
+      groupKey="status"
+      renderCard={renderCard}
+      onMove={handleMove}
+      onCardClick={handleCardClick}
+      onAddCard={onAdd}
+    />
   );
 }

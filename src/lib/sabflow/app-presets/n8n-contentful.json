@@ -4,21 +4,29 @@
   "description": "Consume Contentful API",
   "category": "productivity",
   "iconName": "LuPackage",
-  "version": 2,
-  "lastVerified": "2026-06-11",
+  "version": 3,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "https://cdn.contentful.com",
+  "baseUrl": "https://cdn.contentful.com/spaces/{spaceId}",
   "endpoints": [
     {
       "id": "space_get",
       "label": "Get Space",
       "method": "GET",
-      "path": "/spaces/{credentials__spaceId}",
+      "path": "",
       "fields": [
+        {
+          "id": "spaceId",
+          "label": "Space Id",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Space Id of your Contentful account (host token in the API base URL)"
+        },
         {
           "id": "source",
           "label": "Source",
@@ -37,15 +45,22 @@
           ]
         }
       ],
-      "group": "Space",
-      "description": "[unverified path]"
+      "group": "Space"
     },
     {
       "id": "content_type_get",
       "label": "Get Content Type",
       "method": "GET",
-      "path": "/spaces/{credentials__spaceId}/environments/{env}/content_types/{id}",
+      "path": "/environments/{environmentId}/content_types/{contentTypeId}",
       "fields": [
+        {
+          "id": "spaceId",
+          "label": "Space Id",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Space Id of your Contentful account (host token in the API base URL)"
+        },
         {
           "id": "source",
           "label": "Source",
@@ -68,13 +83,15 @@
           "label": "Environment ID",
           "type": "text",
           "description": "The ID for the Contentful environment (e.g. master, staging, etc.). Depending on your plan, you might not have environments. In that case use \"master\".",
-          "defaultValue": "master"
+          "defaultValue": "master",
+          "in": "path"
         },
         {
           "id": "contentTypeId",
           "label": "Content Type ID",
           "type": "text",
-          "required": true
+          "required": true,
+          "in": "path"
         },
         {
           "id": "additionalFields",
@@ -84,15 +101,22 @@
           "description": "(JSON object; supported keys: rawData)"
         }
       ],
-      "group": "Content Type",
-      "description": "[unverified path]"
+      "group": "Content Type"
     },
     {
       "id": "entry_get",
       "label": "Get Entry",
       "method": "GET",
-      "path": "/spaces/{credentials__spaceId}/environments/{env}/entries/{id}",
+      "path": "/environments/{environmentId}/entries/{entryId}",
       "fields": [
+        {
+          "id": "spaceId",
+          "label": "Space Id",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Space Id of your Contentful account (host token in the API base URL)"
+        },
         {
           "id": "source",
           "label": "Source",
@@ -115,13 +139,15 @@
           "label": "Environment ID",
           "type": "text",
           "description": "The ID for the Contentful environment (e.g. master, staging, etc.). Depending on your plan, you might not have environments. In that case use \"master\".",
-          "defaultValue": "master"
+          "defaultValue": "master",
+          "in": "path"
         },
         {
           "id": "entryId",
           "label": "Entry ID",
           "type": "text",
-          "required": true
+          "required": true,
+          "in": "path"
         },
         {
           "id": "additionalFields",
@@ -131,15 +157,22 @@
           "description": "(JSON object; supported keys: rawData)"
         }
       ],
-      "group": "Entry",
-      "description": "[unverified path]"
+      "group": "Entry"
     },
     {
       "id": "entry_get_all",
       "label": "Get Many Entry",
       "method": "GET",
-      "path": "/spaces/{credentials__spaceId}/environments/{env}/entries",
+      "path": "/environments/{environmentId}/entries",
       "fields": [
+        {
+          "id": "spaceId",
+          "label": "Space Id",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Space Id of your Contentful account (host token in the API base URL)"
+        },
         {
           "id": "source",
           "label": "Source",
@@ -162,7 +195,8 @@
           "label": "Environment ID",
           "type": "text",
           "description": "The ID for the Contentful environment (e.g. master, staging, etc.). Depending on your plan, you might not have environments. In that case use \"master\".",
-          "defaultValue": "master"
+          "defaultValue": "master",
+          "in": "path"
         },
         {
           "id": "returnAll",
@@ -186,15 +220,22 @@
           "description": "(JSON object; supported keys: content_type, equal, exclude, exist, select, include, notEqual, order, query, rawData)"
         }
       ],
-      "group": "Entry",
-      "description": "[unverified path]"
+      "group": "Entry"
     },
     {
       "id": "asset_get",
       "label": "Get Asset",
       "method": "GET",
-      "path": "/spaces/{credentials__spaceId}/environments/{env}/assets/{id}",
+      "path": "/environments/{environmentId}/assets/{assetId}",
       "fields": [
+        {
+          "id": "spaceId",
+          "label": "Space Id",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Space Id of your Contentful account (host token in the API base URL)"
+        },
         {
           "id": "source",
           "label": "Source",
@@ -217,24 +258,33 @@
           "label": "Environment ID",
           "type": "text",
           "description": "The ID for the Contentful environment (e.g. master, staging, etc.). Depending on your plan, you might not have environments. In that case use \"master\".",
-          "defaultValue": "master"
+          "defaultValue": "master",
+          "in": "path"
         },
         {
           "id": "assetId",
           "label": "Asset ID",
           "type": "text",
-          "required": true
+          "required": true,
+          "in": "path"
         }
       ],
-      "group": "Asset",
-      "description": "[unverified path]"
+      "group": "Asset"
     },
     {
       "id": "asset_get_all",
       "label": "Get Many Asset",
       "method": "GET",
-      "path": "/spaces/{credentials__spaceId}/environments/{env}/assets",
+      "path": "/environments/{environmentId}/assets",
       "fields": [
+        {
+          "id": "spaceId",
+          "label": "Space Id",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Space Id of your Contentful account (host token in the API base URL)"
+        },
         {
           "id": "source",
           "label": "Source",
@@ -257,7 +307,8 @@
           "label": "Environment ID",
           "type": "text",
           "description": "The ID for the Contentful environment (e.g. master, staging, etc.). Depending on your plan, you might not have environments. In that case use \"master\".",
-          "defaultValue": "master"
+          "defaultValue": "master",
+          "in": "path"
         },
         {
           "id": "returnAll",
@@ -281,15 +332,22 @@
           "description": "(JSON object; supported keys: equal, exclude, exist, select, include, notEqual, order, query, rawData)"
         }
       ],
-      "group": "Asset",
-      "description": "[unverified path]"
+      "group": "Asset"
     },
     {
       "id": "locale_get_all",
       "label": "Get Many Locale",
       "method": "GET",
-      "path": "/spaces/{credentials__spaceId}/environments/{env}/locales",
+      "path": "/environments/{environmentId}/locales",
       "fields": [
+        {
+          "id": "spaceId",
+          "label": "Space Id",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Space Id of your Contentful account (host token in the API base URL)"
+        },
         {
           "id": "source",
           "label": "Source",
@@ -312,7 +370,8 @@
           "label": "Environment ID",
           "type": "text",
           "description": "The ID for the Contentful environment (e.g. master, staging, etc.). Depending on your plan, you might not have environments. In that case use \"master\".",
-          "defaultValue": "master"
+          "defaultValue": "master",
+          "in": "path"
         },
         {
           "id": "returnAll",
@@ -329,8 +388,7 @@
           "defaultValue": 100
         }
       ],
-      "group": "Locale",
-      "description": "[unverified path]"
+      "group": "Locale"
     }
   ]
 }

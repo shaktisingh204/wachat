@@ -211,7 +211,21 @@ const BASE_URL_OVERRIDES: Record<string, string> = {
   'n8n-twilio': 'https://api.twilio.com/2010-04-01',
   'n8n-sendgrid': 'https://api.sendgrid.com/v3',
   'n8n-linear': 'https://api.linear.app/graphql',
-  'n8n-google-sheets': 'https://sheets.googleapis.com/v4/spreadsheets',
+  // endpoint paths carry the /v4/spreadsheets prefix themselves
+  'n8n-google-sheets': 'https://sheets.googleapis.com',
+  'n8n-google-docs': 'https://docs.googleapis.com/v1',
+  // host is templated from credential data ({projectId}+{region} become
+  // required path fields on every endpoint; region e.g. firebaseio.com)
+  'n8n-google-firebase-realtime-database': 'https://{projectId}.{region}',
+  'n8n-copper': 'https://api.copper.com/developer_api/v1',
+  // endpoint paths (/clients, /invoices, …) sit under /api/v1
+  'n8n-invoice-ninja': 'https://app.invoiceninja.com/api/v1',
+  // the scan otherwise picks the /auth login endpoint as the base
+  'n8n-taiga': 'https://api.taiga.io/api/v1',
+  // teamSecret comes from the credential in n8n — surfaced as a path field
+  'n8n-signl4': 'https://connect.signl4.com/webhook/{teamSecret}',
+  // the node's V2 transport prefixes /v2 itself
+  'n8n-webflow': 'https://api.webflow.com/v2',
   'n8n-google-drive': 'https://www.googleapis.com/drive/v3',
   'n8n-gmail': 'https://www.googleapis.com/gmail/v1',
   'n8n-google-calendar': 'https://www.googleapis.com/calendar/v3',
@@ -227,7 +241,9 @@ const BASE_URL_OVERRIDES: Record<string, string> = {
   // `{token}` placeholders become required path-fields on every endpoint
   'n8n-freshdesk': 'https://{domain}.freshdesk.com/api/v2',
   'n8n-chargebee': 'https://{accountName}.chargebee.com/api/v2',
-  'n8n-contentful': 'https://cdn.contentful.com',
+  // /spaces/{spaceId} lives in the base so spaceId is synthesized as a
+  // required path field on every endpoint (it comes from credentials in n8n)
+  'n8n-contentful': 'https://cdn.contentful.com/spaces/{spaceId}',
 };
 
 /**
@@ -282,6 +298,762 @@ const AWS_SERVICE_BY_ID: Record<string, string> = {
   // generic S3-compatible node — signs as s3 against the AWS host template
   'n8n-s3': 's3',
 };
+
+/**
+ * Hand-verified endpoint corrections (survive every re-run — the extractor
+ * applies them AFTER scanning, so they always win over heuristics).
+ *
+ * Keyed `presetId → endpointId` (the deterministic snake(resource_operation)
+ * ids already present in the emitted JSON).
+ *   - `null`  → DELETE the endpoint: the operation is genuinely non-HTTP for
+ *     our runtime (SDK/RPC-only, or a protocol the preset dispatcher cannot
+ *     sign/serialise — e.g. AWS JSON-1.1 X-Amz-Target RPC, multi-call
+ *     compositions, raw-binary uploads).
+ *   - `{ method?, path }` → the REAL verified method+path (path placeholders
+ *     `{x}` must match field ids; fields gain `in: 'path'` automatically).
+ * Every entry was read out of the corresponding n8n node source
+ * (`n8n-master/packages/nodes-base/nodes/<App>/…`) — execute() blocks,
+ * GenericFunctions and operation description files.
+ */
+type EndpointOverride = null | { method?: PresetHttpMethod; path: string };
+
+const ENDPOINT_OVERRIDES: Record<string, Record<string, EndpointOverride>> = {
+  // ── batch 1 ──────────────────────────────────────────────────────────────
+  'n8n-action-network': {
+    event_get_all: { method: 'GET', path: '/events' },
+    person_get_all: { method: 'GET', path: '/people' },
+    petition_get_all: { method: 'GET', path: '/petitions' },
+    tag_get_all: { method: 'GET', path: '/tags' },
+  },
+  'n8n-agile-crm': {
+    contact_create: { method: 'POST', path: '/api/contacts' },
+    contact_get_all: { method: 'POST', path: '/api/filters/filter/dynamic-filter' },
+    contact_update: { method: 'PUT', path: '/api/contacts/edit-properties' },
+    company_create: { method: 'POST', path: '/api/contacts' },
+    company_delete: { method: 'DELETE', path: '/api/contacts/{companyId}' },
+    company_get: { method: 'GET', path: '/api/contacts/{companyId}' },
+    company_get_all: { method: 'POST', path: '/api/filters/filter/dynamic-filter' },
+    company_update: { method: 'PUT', path: '/api/contacts/edit-properties' },
+  },
+  'n8n-airtop': {
+    agent_run: null, // webhook invocation composition on the hooks host (getAgentDetails → webhook POST)
+    session_wait_for_download: null, // long-poll of the session event stream — not a single request
+    file_load: null, // composition: POST /files/{id}/push + window file-input
+    file_upload: null, // composition: create file record + presigned-URL binary upload
+    file_delete_file: { method: 'DELETE', path: '/files/{fileId}' },
+    extraction_query: { method: 'POST', path: '/sessions/{sessionId}/windows/{windowId}/page-query' },
+    extraction_get_paginated: {
+      method: 'POST',
+      path: '/sessions/{sessionId}/windows/{windowId}/paginated-extraction',
+    },
+    extraction_scrape: { method: 'POST', path: '/sessions/{sessionId}/windows/{windowId}/scrape-content' },
+  },
+  'n8n-autopilot': {
+    contact_list_add: { method: 'POST', path: '/list/{listId}/contact/{contactId}' },
+    contact_list_exist: { method: 'GET', path: '/list/{listId}/contact/{contactId}' },
+    contact_list_remove: { method: 'DELETE', path: '/list/{listId}/contact/{contactId}' },
+  },
+  // AWS JSON-1.x / Query RPC protocols put the operation in an X-Amz-Target
+  // header (or form-encoded Action body) that the preset runtime cannot sign
+  // (SigV4 here signs only host/date/content-sha256) — unrepresentable.
+  'n8n-aws-certificate-manager': {
+    certificate_delete: null,
+    certificate_get: null,
+    certificate_get_many: null,
+    certificate_get_metadata: null,
+    certificate_renew: null,
+  },
+  'n8n-aws-cognito': {
+    group_create: null,
+    group_delete: null,
+    group_get: null,
+    group_get_all: null,
+    group_update: null,
+    user_add_to_group: null,
+    user_create: null,
+    user_delete: null,
+    user_get: null,
+    user_get_all: null,
+    user_remove_from_group: null,
+    user_update: null,
+    user_pool_get: null,
+  },
+  'n8n-aws-comprehend': {
+    text_detect_dominant_language: null,
+    text_detect_entities: null,
+    text_detect_sentiment: null,
+  },
+  'n8n-aws-dynamo-db': { item_upsert: null, item_delete: null, item_get: null, item_get_all: null },
+  'n8n-aws-iam': {
+    user_add_to_group: null,
+    user_create: null,
+    user_delete: null,
+    user_get: null,
+    user_get_all: null,
+    user_remove_from_group: null,
+    user_update: null,
+    group_create: null,
+    group_delete: null,
+    group_get: null,
+    group_get_all: null,
+    group_update: null,
+  },
+  'n8n-aws-lambda': { invoke: null }, // needs raw event body + X-Amz-Invocation-Type header
+  'n8n-aws-rekognition': { image_analyze: null },
+  'n8n-aws-textract': { analyze_expense: null }, // also requires raw binary document bytes
+  'n8n-aws-transcribe': {
+    transcription_job_create: null,
+    transcription_job_delete: null,
+    transcription_job_get: null,
+    transcription_job_get_all: null,
+  },
+  // S3 is real REST (path-style addressing against s3.{region}.amazonaws.com)
+  'n8n-aws-s3': {
+    bucket_create: { method: 'PUT', path: '/{name}' },
+    bucket_delete: { method: 'DELETE', path: '/{name}' },
+    bucket_get_all: { method: 'GET', path: '/' },
+    bucket_search: { method: 'GET', path: '/{bucketName}?list-type=2' },
+    folder_get_all: { method: 'GET', path: '/{bucketName}?list-type=2' },
+    file_get_all: { method: 'GET', path: '/{bucketName}?list-type=2' },
+    file_copy: null, // CopyObject needs the x-amz-copy-source header (unsignable here)
+  },
+  'n8n-s3': {
+    bucket_create: { method: 'PUT', path: '/{name}' },
+    bucket_delete: { method: 'DELETE', path: '/{name}' },
+    bucket_get_all: { method: 'GET', path: '/' },
+    bucket_search: { method: 'GET', path: '/{bucketName}?list-type=2' },
+    folder_get_all: { method: 'GET', path: '/{bucketName}?list-type=2' },
+    file_get_all: { method: 'GET', path: '/{bucketName}?list-type=2' },
+    file_copy: null, // x-amz-copy-source header
+    file_upload: null, // raw binary body
+  },
+  'n8n-beeminder': {
+    charge_create: { method: 'POST', path: '/charges.json' },
+    datapoint_create: { method: 'POST', path: '/users/me/goals/{goalName}/datapoints.json' },
+    datapoint_create_all: { method: 'POST', path: '/users/me/goals/{goalName}/datapoints/create_all.json' },
+    datapoint_delete: { method: 'DELETE', path: '/users/me/goals/{goalName}/datapoints/{datapointId}.json' },
+    datapoint_get: { method: 'GET', path: '/users/me/goals/{goalName}/datapoints/{datapointId}.json' },
+    datapoint_get_all: { method: 'GET', path: '/users/me/goals/{goalName}/datapoints.json' },
+    datapoint_update: { method: 'PUT', path: '/users/me/goals/{goalName}/datapoints/{datapointId}.json' },
+    goal_create: { method: 'POST', path: '/users/me/goals.json' },
+    goal_get: { method: 'GET', path: '/users/me/goals/{goalName}.json' },
+    goal_get_all: { method: 'GET', path: '/users/me/goals.json' },
+    goal_get_archived: { method: 'GET', path: '/users/me/goals/archived.json' },
+    goal_update: { method: 'PUT', path: '/users/me/goals/{goalName}.json' },
+    goal_refresh: { method: 'GET', path: '/users/me/goals/{goalName}/refresh_graph.json' },
+    goal_short_circuit: { method: 'POST', path: '/users/me/goals/{goalName}/shortcircuit.json' },
+    goal_step_down: { method: 'POST', path: '/users/me/goals/{goalName}/stepdown.json' },
+    goal_cancel_step_down: { method: 'POST', path: '/users/me/goals/{goalName}/cancel_stepdown.json' },
+    goal_uncle: { method: 'POST', path: '/users/me/goals/{goalName}/uncleme.json' },
+    user_get: { method: 'GET', path: '/users/me.json' },
+  },
+  'n8n-box': {
+    file_upload: null, // multipart binary upload against upload.box.com
+  },
+  'n8n-chargebee': {
+    invoice_pdf_url: { method: 'POST', path: '/invoices/{invoiceId}/pdf' },
+    subscription_cancel: { method: 'POST', path: '/subscriptions/{subscriptionId}/cancel' },
+    subscription_delete: { method: 'POST', path: '/subscriptions/{subscriptionId}/delete' },
+  },
+  'n8n-citrix-adc': {
+    file_delete: {
+      method: 'DELETE',
+      path: '/nitro/v1/config/systemfile?args=filename:{fileName},filelocation:{fileLocation}',
+    },
+    file_download: {
+      method: 'GET',
+      path: '/nitro/v1/config/systemfile?args=filename:{fileName},filelocation:{fileLocation}',
+    },
+  },
+  'n8n-cockpit': {
+    collection_create: { method: 'POST', path: '/collections/save/{collection}' },
+    collection_get_all: { method: 'POST', path: '/collections/get/{collection}' },
+    collection_update: { method: 'POST', path: '/collections/save/{collection}' },
+    form_submit: { method: 'POST', path: '/forms/submit/{form}' },
+    singleton_get: { method: 'GET', path: '/singletons/get/{singleton}' },
+  },
+  // ── batch 2 ──────────────────────────────────────────────────────────────
+  'n8n-copper': {
+    // getAll listings are POST /<plural>/search on the developer API
+    company_get_all: { method: 'POST', path: '/companies/search' },
+    customer_source_get_all: { method: 'GET', path: '/customer_sources' },
+    lead_get_all: { method: 'POST', path: '/leads/search' },
+    opportunity_get_all: { method: 'POST', path: '/opportunities/search' },
+    person_get_all: { method: 'POST', path: '/people/search' },
+    project_get_all: { method: 'POST', path: '/projects/search' },
+    task_get_all: { method: 'POST', path: '/tasks/search' },
+    user_get_all: { method: 'POST', path: '/users/search' },
+  },
+  'n8n-customer-io': {
+    segment_remove: { method: 'POST', path: '/segments/{segmentId}/remove_customers' },
+  },
+  'n8n-databricks': {
+    files_get_file_info: null, // HEAD request (unsupported) on a dot-split volume path
+    files_list_directory: null, // volumePath 'catalog.schema.volume' must be split into path segments
+  },
+  'n8n-demio': {
+    event_get: { method: 'GET', path: '/event/{eventId}' },
+  },
+  'n8n-discord': {
+    message_send: { method: 'POST', path: '/channels/{channelId}/messages' },
+    message_send_and_wait_operation: null, // send + wait-for-callback composition
+    channel_send_legacy: null, // v1 node posts to the webhook URL stored in the credential
+    message_send_legacy: null,
+    member_send_legacy: null,
+  },
+  'n8n-dropbox': {
+    file_copy: { method: 'POST', path: '/files/copy_v2' },
+    file_delete: { method: 'POST', path: '/files/delete_v2' },
+    file_move: { method: 'POST', path: '/files/move_v2' },
+    folder_copy: { method: 'POST', path: '/files/copy_v2' },
+    folder_delete: { method: 'POST', path: '/files/delete_v2' },
+    folder_move: { method: 'POST', path: '/files/move_v2' },
+  },
+  'n8n-elastic-security': {
+    case_get_all: { method: 'GET', path: '/cases/_find' },
+  },
+  // Emelia's public API is GraphQL-only (https://graphql.emelia.io) — every
+  // operation is a query/mutation document the preset model cannot compose.
+  'n8n-emelia': {
+    campaign_add_contact: null,
+    campaign_create: null,
+    campaign_duplicate: null,
+    campaign_get: null,
+    campaign_get_all: null,
+    campaign_pause: null,
+    campaign_start: null,
+    contact_list_add: null,
+    contact_list_get_all: null,
+  },
+  'n8n-freshservice': {
+    agent_get_all: { method: 'GET', path: '/agents' },
+    agent_group_get_all: { method: 'GET', path: '/groups' },
+    agent_role_get_all: { method: 'GET', path: '/roles' },
+    announcement_get_all: { method: 'GET', path: '/announcements' },
+    asset_type_get_all: { method: 'GET', path: '/asset_types' },
+    change_get_all: { method: 'GET', path: '/changes' },
+    department_get_all: { method: 'GET', path: '/departments' },
+    location_get_all: { method: 'GET', path: '/locations' },
+    problem_get_all: { method: 'GET', path: '/problems' },
+    product_get_all: { method: 'GET', path: '/products' },
+    release_get_all: { method: 'GET', path: '/releases' },
+    requester_get_all: { method: 'GET', path: '/requesters' },
+    requester_group_get_all: { method: 'GET', path: '/requester_groups' },
+    software_get_all: { method: 'GET', path: '/applications' },
+  },
+  'n8n-freshworks-crm': {
+    account_get_all: { method: 'GET', path: '/sales_accounts/view/{view}' },
+    appointment_get_all: { method: 'GET', path: '/appointments' },
+    contact_get_all: { method: 'GET', path: '/contacts/view/{view}' },
+    deal_get_all: { method: 'GET', path: '/deals/view/{view}' },
+    sales_activity_get_all: { method: 'GET', path: '/sales_activities' },
+    task_get_all: { method: 'GET', path: '/tasks' },
+  },
+  'n8n-g-suite-admin': {
+    device_get_all: { method: 'GET', path: '/directory/v1/customer/my_customer/devices/chromeos' },
+  },
+  'n8n-github': {
+    file_create: { method: 'PUT', path: '/repos/{owner}/{repository}/contents/{filePath}' },
+    file_delete: { method: 'DELETE', path: '/repos/{owner}/{repository}/contents/{filePath}' },
+    file_edit: { method: 'PUT', path: '/repos/{owner}/{repository}/contents/{filePath}' },
+    file_get: { method: 'GET', path: '/repos/{owner}/{repository}/contents/{filePath}' },
+    file_list: { method: 'GET', path: '/repos/{owner}/{repository}/contents/{filePath}' },
+    repository_get_profile: { method: 'GET', path: '/repos/{owner}/{repository}/community/profile' },
+  },
+  'n8n-gitlab': {
+    file_create: { method: 'POST', path: '/projects/{owner}%2F{repository}/repository/files/{filePath}' },
+    file_delete: { method: 'DELETE', path: '/projects/{owner}%2F{repository}/repository/files/{filePath}' },
+    file_edit: { method: 'PUT', path: '/projects/{owner}%2F{repository}/repository/files/{filePath}' },
+    file_get: { method: 'GET', path: '/projects/{owner}%2F{repository}/repository/files/{filePath}' },
+  },
+  'n8n-gmail': {
+    message_reply: null, // builds a raw RFC-2822 MIME payload client-side
+    message_send_and_wait_operation: null, // send + wait-for-callback composition
+    thread_reply: null, // raw MIME composition
+  },
+  'n8n-google-analytics': {
+    report_get: null, // dual-host GA4/UA dispatch with a programmatically-built report body
+  },
+  'n8n-google-business-profile': {
+    review_delete: null, // review resource-name parsed apart (split/pop) to build the path
+    review_get: null,
+    review_reply: null,
+  },
+  'n8n-google-chat': {
+    message_send_and_wait_operation: null, // send + wait-for-callback composition
+  },
+  'n8n-google-docs': {
+    document_create: { method: 'POST', path: '/documents' },
+  },
+  'n8n-google-firebase-realtime-database': {
+    create: { method: 'PUT', path: '/{path}.json' },
+    delete: { method: 'DELETE', path: '/{path}.json' },
+    get: { method: 'GET', path: '/{path}.json' },
+    push: { method: 'POST', path: '/{path}.json' },
+    update: { method: 'PATCH', path: '/{path}.json' },
+  },
+  'n8n-google-sheets': {
+    sheet_append: { method: 'POST', path: '/v4/spreadsheets/{documentId}/values/{sheetName}:append' },
+    sheet_append_or_update: null, // read-sheet + match-column + batchUpdate composition
+    sheet_update: null, // find-matching-row composition
+    sheet_clear: { method: 'POST', path: '/v4/spreadsheets/{documentId}/values/{range}:clear' },
+    sheet_delete: { method: 'POST', path: '/v4/spreadsheets/{documentId}:batchUpdate' },
+    sheet_read: { method: 'GET', path: '/v4/spreadsheets/{documentId}/values/{sheetName}' },
+    sheet_create: { method: 'POST', path: '/v4/spreadsheets/{documentId}:batchUpdate' },
+    sheet_remove: { method: 'POST', path: '/v4/spreadsheets/{documentId}:batchUpdate' },
+    spreadsheet_delete_spreadsheet: null, // lives on the Drive API host (drive/v3/files)
+  },
+  // ── batch 3 ──────────────────────────────────────────────────────────────
+  'n8n-harvest': {
+    client_get_all: { method: 'GET', path: '/clients' },
+    contact_get_all: { method: 'GET', path: '/contacts' },
+    estimate_get_all: { method: 'GET', path: '/estimates' },
+    expense_get_all: { method: 'GET', path: '/expenses' },
+    invoice_get_all: { method: 'GET', path: '/invoices' },
+    project_get_all: { method: 'GET', path: '/projects' },
+    task_get_all: { method: 'GET', path: '/tasks' },
+    time_entry_get_all: { method: 'GET', path: '/time_entries' },
+    user_get_all: { method: 'GET', path: '/users' },
+  },
+  'n8n-intercom': {
+    lead_create: { method: 'POST', path: '/contacts' },
+    user_create: { method: 'POST', path: '/users' },
+    company_create: { method: 'POST', path: '/companies' },
+  },
+  'n8n-invoice-ninja': {
+    quote_create: { method: 'POST', path: '/quotes' },
+    quote_get_all: { method: 'GET', path: '/quotes' },
+    bank_transaction_create: { method: 'POST', path: '/bank_transactions' },
+    bank_transaction_get_all: { method: 'GET', path: '/bank_transactions' },
+  },
+  'n8n-ko-bo-toolbox': {
+    form_get: { method: 'GET', path: '/api/v2/assets/{formId}' },
+    form_get_all: { method: 'GET', path: '/api/v2/assets/' },
+    hook_get: { method: 'GET', path: '/api/v2/assets/{formId}/hooks/{hookId}' },
+    hook_get_all: { method: 'GET', path: '/api/v2/assets/{formId}/hooks/' },
+    hook_get_logs: { method: 'GET', path: '/api/v2/assets/{formId}/hooks/{hookId}/logs/' },
+    submission_get: { method: 'GET', path: '/api/v2/assets/{formId}/data/{submissionId}' },
+    submission_get_all: { method: 'GET', path: '/api/v2/assets/{formId}/data/' },
+    submission_get_validation: {
+      method: 'GET',
+      path: '/api/v2/assets/{formId}/data/{submissionId}/validation_status/',
+    },
+    file_get: { method: 'GET', path: '/api/v2/assets/{formId}/files/{fileId}' },
+    file_get_all: { method: 'GET', path: '/api/v2/assets/{formId}/files' },
+  },
+  'n8n-line': {
+    notification_send: { method: 'POST', path: '/api/notify' },
+  },
+  // Linear's API is GraphQL-only — every operation is a query/mutation
+  // document the preset model cannot compose.
+  'n8n-linear': {
+    comment_add_comment: null,
+    issue_add_link: null,
+    issue_create: null,
+    issue_delete: null,
+    issue_get: null,
+    issue_get_all: null,
+    issue_update: null,
+  },
+  // Matrix client-server API r0 (relative to the credential homeserver URL)
+  'n8n-matrix': {
+    account_me: { method: 'GET', path: '/_matrix/client/r0/account/whoami' },
+    event_get: { method: 'GET', path: '/_matrix/client/r0/rooms/{roomId}/event/{eventId}' },
+    media_upload: null, // binary upload to the media repo + follow-up m.room.message send
+    message_create: { method: 'POST', path: '/_matrix/client/r0/rooms/{roomId}/send/m.room.message' },
+    message_get_all: { method: 'GET', path: '/_matrix/client/r0/rooms/{roomId}/messages' },
+    room_create: { method: 'POST', path: '/_matrix/client/r0/createRoom' },
+    room_invite: { method: 'POST', path: '/_matrix/client/r0/rooms/{roomId}/invite' },
+    room_join: { method: 'POST', path: '/_matrix/client/r0/rooms/{roomIdOrAlias}/join' },
+    room_kick: { method: 'POST', path: '/_matrix/client/r0/rooms/{roomId}/kick' },
+    room_leave: { method: 'POST', path: '/_matrix/client/r0/rooms/{roomId}/leave' },
+    room_member_get_all: { method: 'GET', path: '/_matrix/client/r0/rooms/{roomId}/members' },
+  },
+  'n8n-message-bird': {
+    balance_get: { method: 'GET', path: '/balance' },
+  },
+  'n8n-microsoft-graph-security': {
+    secure_score_get_all: { method: 'GET', path: '/v1.0/security/secureScores' },
+    secure_score_control_profile_get_all: {
+      method: 'GET',
+      path: '/v1.0/security/secureScoreControlProfiles',
+    },
+  },
+  'n8n-microsoft-one-drive': {
+    file_rename: { method: 'PATCH', path: '/v1.0/me/drive/items/{itemId}' },
+  },
+  'n8n-microsoft-outlook': {
+    message_send_and_wait_operation: null, // send + wait-for-callback composition
+  },
+  'n8n-microsoft-teams': {
+    chat_message_send_and_wait_operation: null, // send + wait-for-callback composition
+  },
+  'n8n-misp': {
+    attribute_get_all: { method: 'GET', path: '/attributes' },
+    attribute_search: { method: 'POST', path: '/attributes/restSearch' },
+    event_get_all: { method: 'GET', path: '/events' },
+    event_search: { method: 'POST', path: '/events/restSearch' },
+    feed_get_all: { method: 'GET', path: '/feeds' },
+    galaxy_get_all: { method: 'GET', path: '/galaxies' },
+    noticelist_get_all: { method: 'GET', path: '/noticelists' },
+    object_search: { method: 'POST', path: '/objects/restSearch' },
+    organisation_get_all: { method: 'GET', path: '/organisations' },
+    user_get_all: { method: 'GET', path: '/admin/users' },
+  },
+  'n8n-mocean': {
+    sms_send: { method: 'POST', path: '/rest/2/sms' },
+    voice_send: { method: 'POST', path: '/rest/2/voice/dial' },
+  },
+  // monday.com's API is GraphQL-only (POST /v2 with a query document)
+  'n8n-monday-com': {
+    board_archive: null,
+    board_create: null,
+    board_get: null,
+    board_get_all: null,
+    board_column_create: null,
+    board_column_get_all: null,
+    board_group_delete: null,
+    board_group_create: null,
+    board_group_get_all: null,
+    board_item_add_update: null,
+    board_item_change_column_value: null,
+    board_item_change_multiple_column_values: null,
+    board_item_create: null,
+    board_item_delete: null,
+    board_item_get: null,
+    board_item_get_by_column_value: null,
+    board_item_get_all: null,
+    board_item_move: null,
+  },
+  'n8n-n8n': {
+    workflow_activate: { method: 'POST', path: '/workflows/{workflowId}/activate' },
+    workflow_deactivate: { method: 'POST', path: '/workflows/{workflowId}/deactivate' },
+    workflow_delete: { method: 'DELETE', path: '/workflows/{workflowId}' },
+    workflow_get: { method: 'GET', path: '/workflows/{workflowId}' },
+    workflow_get_version: { method: 'GET', path: '/workflows/{workflowId}/{versionId}' },
+    workflow_update: { method: 'PUT', path: '/workflows/{workflowId}' },
+  },
+  'n8n-nasa': {
+    // n8n's own block carries a copy-paste path bug; the documented endpoint
+    // (with its fixed feedtype/ver query) is:
+    in_sight_mars_weather_service_get: { method: 'GET', path: '/insight_weather/?feedtype=json&ver=1.0' },
+    image_and_video_library_get: null, // lives on images-api.nasa.gov (different host)
+    tech_transfer_get: { method: 'GET', path: '/techtransfer/patent/' },
+    two_line_element_set_get: null, // proxied third-party host (tle.ivanstanojevic.me)
+  },
+  'n8n-next-cloud': {
+    // WebDAV verbs (COPY/MOVE/MKCOL/PROPFIND) and raw-binary upload are not
+    // representable in the preset dispatcher
+    file_copy: null,
+    file_move: null,
+    file_upload: null,
+    folder_copy: null,
+    folder_create: null,
+    folder_delete: { method: 'DELETE', path: '/{path}' },
+    folder_list: null,
+    folder_move: null,
+    file_delete: { method: 'DELETE', path: '/{path}' },
+    file_download: { method: 'GET', path: '/{path}' },
+    file_share: null, // OCS share API hangs off the server root, not the WebDAV credential base
+  },
+  // NocoDB v2 data API (single-record endpoints documented at /api/v1/db/data)
+  'n8n-noco-db': {
+    row_create: { method: 'POST', path: '/api/v1/db/data/noco/{projectId}/{table}' },
+    row_delete: { method: 'DELETE', path: '/api/v1/db/data/noco/{projectId}/{table}/{id}' },
+    row_get: { method: 'GET', path: '/api/v1/db/data/noco/{projectId}/{table}/{id}' },
+    row_get_all: { method: 'GET', path: '/api/v1/db/data/noco/{projectId}/{table}' },
+    row_update: { method: 'PATCH', path: '/api/v1/db/data/noco/{projectId}/{table}/{id}' },
+  },
+  'n8n-notion': {
+    page_get: { method: 'GET', path: '/pages/{pageId}' },
+  },
+  // Odoo's external API is JSON-RPC (POST /jsonrpc with service/method
+  // envelopes) — not representable as REST endpoints.
+  'n8n-odoo': {
+    custom_create: null,
+    custom_delete: null,
+    custom_get: null,
+    custom_get_all: null,
+    custom_update: null,
+    opportunity_create: null,
+    opportunity_delete: null,
+    opportunity_get: null,
+    opportunity_get_all: null,
+    opportunity_update: null,
+    contact_create: null,
+    contact_delete: null,
+    contact_get: null,
+    contact_get_all: null,
+    contact_update: null,
+    note_create: null,
+    note_delete: null,
+    note_get: null,
+    note_get_all: null,
+    note_update: null,
+  },
+  // ── batch 4 ──────────────────────────────────────────────────────────────
+  'n8n-npm': {
+    package_get_metadata: { method: 'GET', path: '/{packageName}/{packageVersion}' },
+    package_get_versions: { method: 'GET', path: '/{packageName}' },
+    dist_tag_get_many: { method: 'GET', path: '/-/package/{packageName}/dist-tags' },
+    dist_tag_update: { method: 'PUT', path: '/-/package/{packageName}/dist-tags/{distTagName}' },
+  },
+  'n8n-onfleet': {
+    admin_create: { method: 'POST', path: '/admins' },
+    admin_delete: { method: 'DELETE', path: '/admins/{id}' },
+    admin_get_all: { method: 'GET', path: '/admins' },
+    admin_update: { method: 'PUT', path: '/admins/{id}' },
+    // containerType parameter defaults to 'workers' in the n8n node
+    container_update_task: { method: 'PUT', path: '/containers/workers/{containerId}' },
+    destination_create: { method: 'POST', path: '/destinations' },
+    hub_create: { method: 'POST', path: '/hubs' },
+    hub_get_all: { method: 'GET', path: '/hubs' },
+    recipient_create: { method: 'POST', path: '/recipients' },
+    recipient_get: { method: 'GET', path: '/recipients/{id}' },
+    task_get: { method: 'GET', path: '/tasks/{id}' },
+    team_create: { method: 'POST', path: '/teams' },
+    team_get_all: { method: 'GET', path: '/teams' },
+    worker_create: { method: 'POST', path: '/workers' },
+  },
+  // Orbit shut down in 2024 — n8n's execute() throws 'Service is deprecated'.
+  'n8n-orbit': {
+    activity_create: null,
+    activity_get_all: null,
+    member_upsert: null,
+    member_delete: null,
+    member_get: null,
+    member_get_all: null,
+    member_lookup: null,
+    member_update: null,
+    note_create: null,
+    note_get_all: null,
+    note_update: null,
+    post_create: null,
+    post_get_all: null,
+    post_delete: null,
+  },
+  'n8n-post-bin': {
+    bin_get: { method: 'GET', path: '/api/bin/{binId}' },
+    bin_delete: { method: 'DELETE', path: '/api/bin/{binId}' },
+    request_send: { method: 'POST', path: '/{binId}' },
+  },
+  'n8n-post-hog': {
+    track_page: { method: 'POST', path: '/capture' },
+  },
+  'n8n-raindrop': {
+    collection_get_all: { method: 'GET', path: '/collections' },
+  },
+  'n8n-rundeck': {
+    job_execute: { method: 'POST', path: '/api/14/job/{jobid}/run' },
+    job_get_metadata: { method: 'GET', path: '/api/18/job/{jobid}/info' },
+  },
+  'n8n-salesforce': {
+    lead_create: { method: 'POST', path: '/sobjects/lead' },
+    contact_create: { method: 'POST', path: '/sobjects/contact' },
+    custom_object_create: { method: 'POST', path: '/sobjects/{customObject}' },
+    opportunity_create: { method: 'POST', path: '/sobjects/opportunity' },
+    account_create: { method: 'POST', path: '/sobjects/account' },
+  },
+  // SeaTable's API requires exchanging the API token for a per-base access
+  // token (and base UUID) before every gateway call — a handshake the preset
+  // dispatcher cannot perform.
+  'n8n-sea-table': {
+    row_create: null,
+    row_remove: null,
+    row_get: null,
+    row_list: null,
+    row_lock: null,
+    row_search: null,
+    row_unlock: null,
+    row_update: null,
+    base_snapshot: null,
+    base_metadata: null,
+    base_collaborator: null,
+    link_add: null,
+    link_list: null,
+    link_remove: null,
+    asset_get_public_url: null,
+    asset_upload: null,
+  },
+  'n8n-security-scorecard': {
+    report_download: null, // GETs a runtime download URL returned by a prior 'generate report' call
+  },
+  'n8n-send-in-blue': {
+    attribute_create: { method: 'POST', path: '/v3/contacts/attributes/{attributeCategory}/{attributeName}' },
+    attribute_update: {
+      method: 'PUT',
+      path: '/v3/contacts/attributes/{updateAttributeCategory}/{updateAttributeName}',
+    },
+    attribute_delete: {
+      method: 'DELETE',
+      path: '/v3/contacts/attributes/{deleteAttributeCategory}/{deleteAttributeName}',
+    },
+    sender_create: { method: 'POST', path: '/v3/senders' },
+    contact_delete: { method: 'DELETE', path: '/v3/contacts/{identifier}' },
+    contact_get: { method: 'GET', path: '/v3/contacts/{identifier}' },
+    contact_update: { method: 'PUT', path: '/v3/contacts/{identifier}' },
+    email_send: { method: 'POST', path: '/v3/smtp/email' },
+    email_send_template: { method: 'POST', path: '/v3/smtp/email' },
+  },
+  // teamSecret moves into the base URL (becomes a required path field);
+  // resolve additionally needs the X-S4-Status:resolved body constant.
+  'n8n-signl4': {
+    alert_send: { method: 'POST', path: '' },
+    alert_resolve: null,
+  },
+  'n8n-slack': {
+    message_send_and_wait_operation: null, // send + wait-for-callback composition
+  },
+  'n8n-strava': {
+    activity_get_comments: { method: 'GET', path: '/activities/{activityId}/comments' },
+    activity_get_kudos: { method: 'GET', path: '/activities/{activityId}/kudos' },
+    activity_get_laps: { method: 'GET', path: '/activities/{activityId}/laps' },
+    activity_get_zones: { method: 'GET', path: '/activities/{activityId}/zones' },
+  },
+  'n8n-stripe': {
+    charge_get_all: { method: 'GET', path: '/charges' },
+    coupon_get_all: { method: 'GET', path: '/coupons' },
+    customer_get_all: { method: 'GET', path: '/customers' },
+  },
+  'n8n-taiga': {
+    epic_get_all: { method: 'GET', path: '/epics' },
+    issue_get_all: { method: 'GET', path: '/issues' },
+    task_get_all: { method: 'GET', path: '/tasks' },
+    user_story_get_all: { method: 'GET', path: '/userstories' },
+  },
+  'n8n-telegram': {
+    message_send_and_wait_operation: null, // send + wait-for-callback composition
+  },
+  // TheHive 5 search operations all post a query-language envelope
+  // ({query:[{_name:'listAlert'},…]}) to /v1/query — an RPC the preset
+  // dispatcher cannot compose.
+  'n8n-the-hive-project': {
+    alert_search: null,
+    case_search: null,
+    comment_search: null,
+    log_search: null,
+    observable_search: null,
+    page_search: null,
+    task_search: null,
+  },
+  'n8n-todoist': {
+    task_get_all: { method: 'GET', path: '/tasks' },
+    task_move: null, // Sync-API command envelope (POST /sync/v9/sync)
+    task_quick_add: null, // Sync-API endpoint (POST /sync/v9/quick/add)
+    project_get_collaborators: { method: 'GET', path: '/projects/{projectId}/collaborators' },
+    project_get_all: { method: 'GET', path: '/projects' },
+    section_get_all: { method: 'GET', path: '/sections' },
+    comment_get_all: { method: 'GET', path: '/comments' },
+    label_get_all: { method: 'GET', path: '/labels' },
+    reminder_get_all: null, // reminders exist only in the Sync API
+  },
+  'n8n-url-scan-io': {
+    scan_get_all: { method: 'GET', path: '/search' },
+  },
+  // ── batch 5 ──────────────────────────────────────────────────────────────
+  'n8n-vero': {
+    user_add_tags: { method: 'PUT', path: '/users/tags/edit' },
+    user_resubscribe: { method: 'POST', path: '/users/resubscribe' },
+    user_unsubscribe: { method: 'POST', path: '/users/unsubscribe' },
+  },
+  'n8n-webflow': {
+    item_create: { method: 'POST', path: '/collections/{collectionId}/items' },
+    item_delete_item: { method: 'DELETE', path: '/collections/{collectionId}/items/{itemId}' },
+    item_get: { method: 'GET', path: '/collections/{collectionId}/items/{itemId}' },
+    item_get_all: { method: 'GET', path: '/collections/{collectionId}/items' },
+    item_update: { method: 'PATCH', path: '/collections/{collectionId}/items/{itemId}' },
+  },
+  'n8n-whats-app': {
+    message_send: { method: 'POST', path: '/{phoneNumberId}/messages' },
+    message_send_and_wait_operation: null, // send + wait-for-callback composition
+    message_send_template: { method: 'POST', path: '/{phoneNumberId}/messages' },
+    media_media_upload: null, // multipart binary upload
+    media_media_url_get: { method: 'GET', path: '/{mediaGetId}' },
+    media_media_delete: { method: 'DELETE', path: '/{mediaDeleteId}' },
+  },
+  // YOURLS routes everything through yourls-api.php?action=…
+  'n8n-yourls': {
+    url_expand: { method: 'GET', path: '?action=expand&format=json' },
+    url_shorten: { method: 'GET', path: '?action=shorturl&format=json' },
+    url_stats: { method: 'GET', path: '?action=url-stats&format=json' },
+  },
+  'n8n-zammad': {
+    user_get_all: { method: 'GET', path: '/users' },
+  },
+  'n8n-zendesk': {
+    ticket_delete: { method: 'DELETE', path: '/tickets/{id}' },
+    ticket_get: { method: 'GET', path: '/tickets/{id}' },
+    ticket_get_all: { method: 'GET', path: '/tickets' },
+  },
+  'n8n-zoho-crm': {
+    account_get_all: { method: 'GET', path: '/accounts' },
+    contact_get_all: { method: 'GET', path: '/contacts' },
+    deal_get_all: { method: 'GET', path: '/deals' },
+    invoice_get_all: { method: 'GET', path: '/invoices' },
+    lead_get_all: { method: 'GET', path: '/leads' },
+    product_get_all: { method: 'GET', path: '/products' },
+    purchase_order_get_all: { method: 'GET', path: '/purchase_orders' },
+    quote_get_all: { method: 'GET', path: '/quotes' },
+    sales_order_get_all: { method: 'GET', path: '/sales_orders' },
+    vendor_get_all: { method: 'GET', path: '/vendors' },
+  },
+  // baseUrl override adds /spaces/{spaceId} (spaceId becomes a synthesized
+  // required path field on every endpoint) — see BASE_URL_OVERRIDES.
+  'n8n-contentful': {
+    space_get: { method: 'GET', path: '' },
+    content_type_get: { method: 'GET', path: '/environments/{environmentId}/content_types/{contentTypeId}' },
+    entry_get: { method: 'GET', path: '/environments/{environmentId}/entries/{entryId}' },
+    entry_get_all: { method: 'GET', path: '/environments/{environmentId}/entries' },
+    asset_get: { method: 'GET', path: '/environments/{environmentId}/assets/{assetId}' },
+    asset_get_all: { method: 'GET', path: '/environments/{environmentId}/assets' },
+    locale_get_all: { method: 'GET', path: '/environments/{environmentId}/locales' },
+  },
+};
+
+/**
+ * Apply ENDPOINT_OVERRIDES for one app: fix method/path (clearing the
+ * `[unverified path]` marker) or drop override-deleted endpoints, keeping the
+ * verified/unverified counters truthful.
+ */
+function applyEndpointOverrides(
+  id: string,
+  endpoints: PresetEndpoint[],
+  verified: number,
+  unverified: number,
+): { endpoints: PresetEndpoint[]; verified: number; unverified: number } {
+  const ov = ENDPOINT_OVERRIDES[id];
+  if (!ov) return { endpoints, verified, unverified };
+  const out: PresetEndpoint[] = [];
+  for (const ep of endpoints) {
+    const o = ov[ep.id];
+    const wasUnverified = Boolean(ep.description?.startsWith('[unverified path]'));
+    if (o === undefined) {
+      out.push(ep);
+      continue;
+    }
+    if (o === null) {
+      // drop: non-HTTP / unrepresentable operation
+      if (wasUnverified) unverified--;
+      else verified--;
+      continue;
+    }
+    if (o.method) ep.method = o.method;
+    ep.path = o.path;
+    if (wasUnverified) {
+      const d = (ep.description ?? '').replace(/^\[unverified path\]\s*/, '');
+      if (d) ep.description = d;
+      else delete ep.description;
+      unverified--;
+      verified++;
+    }
+    // placeholders introduced by the corrected path become path-located fields
+    for (const f of ep.fields) {
+      if (!f.in && ep.path.includes(`{${f.id}}`)) f.in = 'path';
+    }
+    out.push(ep);
+  }
+  return { endpoints: out, verified, unverified };
+}
 
 // ───────────────────────────────────────────────────────────────────────────
 // String helpers
@@ -844,6 +1616,12 @@ function convertUrlExpr(raw: string, ctx: { resource?: string; operation?: strin
       .map((p) => p.trim().replace(/^["'`]|["'`]$/g, ''))
       .join('');
   }
+
+  // {{ $parameter["x"] }} / {{ $parameter.x }}  →  {x}
+  // (must run BEFORE the bare $parameter replaces, which would otherwise leave
+  //  the surrounding `{{ }}` in place → `{{{x}}}` → false unverified)
+  s = s.replace(/\{\{\s*\$parameter\[["']([^"']+)["']\]\s*\}\}/g, '{$1}');
+  s = s.replace(/\{\{\s*\$parameter\.([a-zA-Z0-9_]+)\s*\}\}/g, '{$1}');
 
   // $parameter["x"] / $parameter.x  →  {x}
   s = s.replace(/\$parameter\[["']([^"']+)["']\]/g, '{$1}');
@@ -1879,10 +2657,26 @@ function main(): void {
       .map((o: any) => o?.value)
       .filter((v: unknown): v is string => typeof v === 'string');
     const programmatic = buildProgrammaticMap(acquired.versionDir, entry.appDir, resourceValues);
-    const { endpoints, verified, unverified } = buildEndpointsForApp(desc, programmatic);
+    const built = buildEndpointsForApp(desc, programmatic);
+    const { endpoints, verified, unverified } = applyEndpointOverrides(
+      id,
+      built.endpoints,
+      built.verified,
+      built.unverified,
+    );
 
     if (endpoints.length === 0) {
-      excluded.push({ app: appLabel, reason: 'no-operations' });
+      // either no operations at all, or every operation was override-deleted
+      // as non-HTTP — remove any stale preset so nothing fake remains.
+      const stale = path.join(PRESETS_DIR, `${id}.json`);
+      if (built.endpoints.length > 0 && !DRY_RUN && fs.existsSync(stale)) fs.unlinkSync(stale);
+      excluded.push({
+        app: appLabel,
+        reason:
+          built.endpoints.length > 0
+            ? 'all operations non-HTTP (override-deleted; preset removed)'
+            : 'no-operations',
+      });
       continue;
     }
 

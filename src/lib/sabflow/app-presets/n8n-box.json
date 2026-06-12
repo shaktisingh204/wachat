@@ -4,8 +4,8 @@
   "description": "Consume Box API",
   "category": "storage",
   "iconName": "LuPackage",
-  "version": 11,
-  "lastVerified": "2026-06-11",
+  "version": 12,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -250,51 +250,6 @@
       ],
       "group": "File",
       "description": "Share a file"
-    },
-    {
-      "id": "file_upload",
-      "label": "Upload File",
-      "method": "POST",
-      "path": "/file",
-      "fields": [
-        {
-          "id": "fileName",
-          "label": "File Name",
-          "type": "text",
-          "placeholder": "photo.png",
-          "description": "The name the file should be saved as"
-        },
-        {
-          "id": "binaryData",
-          "label": "Binary File",
-          "type": "toggle",
-          "required": true,
-          "description": "Whether the data to upload should be taken from binary field",
-          "defaultValue": false
-        },
-        {
-          "id": "fileContent",
-          "label": "File Content",
-          "type": "text",
-          "required": true,
-          "description": "The text content of the file"
-        },
-        {
-          "id": "binaryPropertyName",
-          "label": "Input Binary Field",
-          "type": "text",
-          "required": true,
-          "defaultValue": "data"
-        },
-        {
-          "id": "parentId",
-          "label": "Parent ID",
-          "type": "text",
-          "description": "ID of the parent folder that will contain the file. If not it will be uploaded to the root folder."
-        }
-      ],
-      "group": "File",
-      "description": "[unverified path] Upload a file"
     },
     {
       "id": "folder_create",

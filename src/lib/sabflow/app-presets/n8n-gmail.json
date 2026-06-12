@@ -4,8 +4,8 @@
   "description": "Consume the Gmail API",
   "category": "communication",
   "iconName": "LuPackage",
-  "version": 11,
-  "lastVerified": "2026-06-11",
+  "version": 12,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -397,53 +397,6 @@
       "description": "Remove label from message"
     },
     {
-      "id": "message_reply",
-      "label": "Reply Message",
-      "method": "POST",
-      "path": "/message",
-      "fields": [
-        {
-          "id": "messageId",
-          "label": "Message ID",
-          "type": "text",
-          "required": true,
-          "placeholder": "172ce2c4a72cc243"
-        },
-        {
-          "id": "emailType",
-          "label": "Email Type",
-          "type": "select",
-          "required": true,
-          "defaultValue": "html",
-          "options": [
-            {
-              "value": "text",
-              "label": "Text"
-            },
-            {
-              "value": "html",
-              "label": "HTML"
-            }
-          ]
-        },
-        {
-          "id": "message",
-          "label": "Message",
-          "type": "text",
-          "required": true
-        },
-        {
-          "id": "options",
-          "label": "Options",
-          "type": "json",
-          "placeholder": "Add option",
-          "description": "(JSON object; supported keys: appendAttribution, attachmentsUi, bccList, ccList, senderName, replyTo, replyToSenderOnly)"
-        }
-      ],
-      "group": "Message",
-      "description": "[unverified path] Reply to a message"
-    },
-    {
       "id": "message_send",
       "label": "Send Message",
       "method": "POST",
@@ -497,15 +450,6 @@
       ],
       "group": "Message",
       "description": "Send a message"
-    },
-    {
-      "id": "message_send_and_wait_operation",
-      "label": "Send and Wait for Response Message",
-      "method": "POST",
-      "path": "/message",
-      "fields": [],
-      "group": "Message",
-      "description": "[unverified path] Send message and wait for response"
     },
     {
       "id": "thread_add_labels",
@@ -633,59 +577,6 @@
       ],
       "group": "Thread",
       "description": "Remove label from thread"
-    },
-    {
-      "id": "thread_reply",
-      "label": "Reply Thread",
-      "method": "POST",
-      "path": "/thread",
-      "fields": [
-        {
-          "id": "threadId",
-          "label": "Thread ID",
-          "type": "text",
-          "required": true,
-          "description": "The ID of the thread you are operating on"
-        },
-        {
-          "id": "messageId",
-          "label": "Message Snippet or ID",
-          "type": "select",
-          "description": "Choose from the list, or specify an ID using an expression"
-        },
-        {
-          "id": "emailType",
-          "label": "Email Type",
-          "type": "select",
-          "required": true,
-          "defaultValue": "text",
-          "options": [
-            {
-              "value": "text",
-              "label": "Text"
-            },
-            {
-              "value": "html",
-              "label": "HTML"
-            }
-          ]
-        },
-        {
-          "id": "message",
-          "label": "Message",
-          "type": "text",
-          "required": true
-        },
-        {
-          "id": "options",
-          "label": "Options",
-          "type": "json",
-          "placeholder": "Add option",
-          "description": "(JSON object; supported keys: attachmentsUi, bccList, ccList, senderName, replyToSenderOnly, replyToRecipientsOnly)"
-        }
-      ],
-      "group": "Thread",
-      "description": "[unverified path] Reply to a message"
     },
     {
       "id": "thread_trash",

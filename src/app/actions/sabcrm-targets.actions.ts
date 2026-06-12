@@ -30,8 +30,14 @@ import { canServer } from '@/lib/rbac-server';
 import type { PermissionAction } from '@/lib/rbac';
 import { sabcrmPlanFeature } from '@/lib/plans';
 import { RustApiError } from '@/lib/rust-client/fetcher';
-import { sabcrmTargetsApi } from '@/lib/rust-client/sabcrm-targets';
-import type { SabcrmRustTarget } from '@/lib/rust-client/sabcrm-targets';
+import { sabcrmQuotasApi, sabcrmTargetsApi } from '@/lib/rust-client/sabcrm-targets';
+import type {
+  SabcrmQuotaCreateInput,
+  SabcrmQuotaListOpts,
+  SabcrmQuotaUpdateInput,
+  SabcrmRustQuota,
+  SabcrmRustTarget,
+} from '@/lib/rust-client/sabcrm-targets';
 import type { ActionResult } from '@/lib/sabcrm/types';
 
 // ---------------------------------------------------------------------------
@@ -215,5 +221,99 @@ export async function unlinkTargetTw(
     return { ok: true, data: { ok: res.ok } };
   } catch (e) {
     return fail(e, 'Failed to unlink target.');
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Sales quotas (goals) — via the Rust engine's `/quotas` sub-resource
+//
+// Per-project sales targets powering the `/sabcrm/forecast` weighted-forecast
+// + attainment UI. Each quota is
+// `{ name, period: month|quarter, periodStart, metric: revenue|count,
+//    amount, memberId? (absent = team), pipelineId? (absent = all) }`.
+// Same gate pipeline as the junction actions above.
+// ---------------------------------------------------------------------------
+
+/** Lists the active project's sales quotas, newest `periodStart` first. */
+export async function listSalesTargetsTw(
+  opts?: SabcrmQuotaListOpts,
+  projectId?: string,
+): Promise<ActionResult<SabcrmRustQuota[]>> {
+  const g = await gate('view', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const data = await sabcrmQuotasApi.list(g.ctx.projectId, opts);
+    return { ok: true, data };
+  } catch (e) {
+    return fail(e, 'Failed to list sales targets.');
+  }
+}
+
+/** Creates a sales quota for the active project. */
+export async function createSalesTargetTw(
+  input: SabcrmQuotaCreateInput,
+  projectId?: string,
+): Promise<ActionResult<SabcrmRustQuota>> {
+  if (!input?.name?.trim()) return { ok: false, error: 'Name is required.' };
+  if (input.period !== 'month' && input.period !== 'quarter') {
+    return { ok: false, error: 'Period must be "month" or "quarter".' };
+  }
+  if (!input.periodStart) return { ok: false, error: 'Period start is required.' };
+  if (input.metric !== 'revenue' && input.metric !== 'count') {
+    return { ok: false, error: 'Metric must be "revenue" or "count".' };
+  }
+  if (!Number.isFinite(input.amount) || input.amount < 0) {
+    return { ok: false, error: 'Amount must be a non-negative number.' };
+  }
+
+  const g = await gate('edit', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const data = await sabcrmQuotasApi.create(g.ctx.projectId, input);
+    return { ok: true, data };
+  } catch (e) {
+    return fail(e, 'Failed to create sales target.');
+  }
+}
+
+/**
+ * Partially updates a sales quota. Only present keys are written; send an
+ * explicit empty string for `memberId` / `pipelineId` to clear the scope.
+ */
+export async function updateSalesTargetTw(
+  id: string,
+  input: SabcrmQuotaUpdateInput,
+  projectId?: string,
+): Promise<ActionResult<SabcrmRustQuota>> {
+  if (!id) return { ok: false, error: 'Quota id is required.' };
+
+  const g = await gate('edit', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const data = await sabcrmQuotasApi.update(g.ctx.projectId, id, input);
+    return { ok: true, data };
+  } catch (e) {
+    return fail(e, 'Failed to update sales target.');
+  }
+}
+
+/** Deletes a sales quota (idempotent). */
+export async function deleteSalesTargetTw(
+  id: string,
+  projectId?: string,
+): Promise<ActionResult<{ ok: boolean }>> {
+  if (!id) return { ok: false, error: 'Quota id is required.' };
+
+  const g = await gate('edit', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const res = await sabcrmQuotasApi.remove(g.ctx.projectId, id);
+    return { ok: true, data: { ok: res.ok } };
+  } catch (e) {
+    return fail(e, 'Failed to delete sales target.');
   }
 }

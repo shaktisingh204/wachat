@@ -3,7 +3,7 @@
 export const dynamic = 'force-dynamic';
 
 /**
- * SabCRM — global record search (`/sabcrm/search`), Twenty look.
+ * SabCRM — global record search (`/sabcrm/search`), 20ui.
  *
  * Twenty's "command menu / records search" parity as an always-visible page:
  * one search box that runs a single **cross-object** query through the records
@@ -25,7 +25,7 @@ export const dynamic = 'force-dynamic';
  *
  * Command-search parity
  * ---------------------
- *   - Each hit shows a `TwentyAvatar` (round for people-ish objects, the 4px
+ *   - Each hit shows a 20ui `Avatar` (round for people-ish objects, the 4px
  *     rounded square logo shape otherwise) + label + match snippet + kind chip.
  *   - Keyboard navigation: ↑/↓ rove a single flat index ACROSS object-group
  *     boundaries (like Twenty's command menu), Enter opens the active (or first)
@@ -40,14 +40,15 @@ export const dynamic = 'force-dynamic';
  * is the existing gated action for this surface.
  *
  * Client Component. The surrounding `src/app/sabcrm/layout.tsx` enforces auth /
- * onboarding / `RBACGuard`, mounts the project provider, and renders this inside
- * `TwentyAppFrame` (the `.sabcrm-twenty` scope). Both actions independently
- * re-run the full session → project → RBAC (`sabcrm:view`) → plan gate, so the
- * page fails closed (calm empty / error states) for anyone who slips past the
- * layout guard, and degrades quietly if the engine is down.
+ * onboarding / `RBACGuard`, mounts the project provider, and renders this
+ * inside the suite frame (20ui scope). Both actions independently re-run the
+ * full session → project → RBAC (`sabcrm:view`) → plan gate, so the page fails
+ * closed (calm empty / error states) for anyone who slips past the layout
+ * guard, and degrades quietly if the engine is down.
  *
- * Twenty look only (`.st-*` + `../my-work/my-work.css` base classes + this
- * page's `./search-global.css`). NO Ui20 / Tailwind / clay.
+ * 20ui only (`@/components/sabcrm/20ui` + the page-local `./search.css` —
+ * `.sgw-*` base layout + `.sg-*` command-search extras, scoped to the 20ui
+ * root).
  */
 
 import * as React from 'react';
@@ -82,20 +83,24 @@ import {
 import type { ObjectMetadata } from '@/lib/sabcrm/types';
 import { sabcrmRecordLabel } from '@/lib/sabcrm/record-label';
 import type { SabcrmRustRecord } from '@/lib/rust-client/sabcrm-records';
-import { TwentyPageHeader, TwentyAvatar } from '@/components/sabcrm/twenty';
-import type { TwentyAvatarShape } from '@/components/sabcrm/twenty';
 import {
   SearchInput,
   Button,
   IconButton,
   Alert,
+  Avatar,
+  EmptyState,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
   Spinner,
   Skeleton,
+  type AvatarShape,
 } from '@/components/sabcrm/20ui';
 import { useProject } from '@/context/project-context';
 
-import '../my-work/my-work.css';
-import './search-global.css';
+import '@/components/sabcrm/20ui/surface-crm-base.css';
+import './search.css';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -257,7 +262,7 @@ function highlight(text: string, term: string): React.ReactNode {
   return (
     <>
       {before}
-      <mark className="stsg-mark">{match}</mark>
+      <mark className="sg-mark">{match}</mark>
       {after}
     </>
   );
@@ -689,10 +694,15 @@ export default function SabcrmSearchPage(): React.JSX.Element {
   // ---- Render --------------------------------------------------------------
 
   return (
-    <div className="stw-page">
-      <TwentyPageHeader title="Search" icon={Search} />
+    <div className="sgw-page">
+      <div className="sgw-page__inner">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageTitle>Search</PageTitle>
+        </PageHeaderHeading>
+      </PageHeader>
 
-      <div className="stw-searchbox">
+      <div className="sgw-searchbox">
         <SearchInput
           ref={inputRef}
           inputSize="lg"
@@ -705,17 +715,17 @@ export default function SabcrmSearchPage(): React.JSX.Element {
           spellCheck={false}
           role="combobox"
           aria-expanded={navHrefs.length > 0}
-          aria-controls="stsg-results"
+          aria-controls="sg-results"
           aria-activedescendant={
             activeIndex >= 0 && !expandedObject
-              ? `stsg-nav-${activeIndex}`
+              ? `sg-nav-${activeIndex}`
               : undefined
           }
           aria-label="Search all records"
         />
         {searching ? (
           <span
-            className="stw-searchbox__spin"
+            className="sgw-searchbox__spin"
             style={{ right: input ? 36 : 12 }}
           >
             <Spinner size="sm" label="Searching" />
@@ -725,7 +735,7 @@ export default function SabcrmSearchPage(): React.JSX.Element {
 
       {/* Results summary line (only once we have hits). */}
       {hasQuery && expandedObject ? (
-        <p className="stsg-summary">
+        <p className="sg-summary">
           <Button
             variant="ghost"
             size="sm"
@@ -734,30 +744,30 @@ export default function SabcrmSearchPage(): React.JSX.Element {
           >
             All results
           </Button>
-          <span aria-hidden="true" className="stsg-summary__sep">
+          <span aria-hidden="true" className="sg-summary__sep">
             /
           </span>
           <strong>{expandedTotal}</strong>
           {expandedTotal === 1 ? ' record' : ' records'} in{' '}
-          <span className="stsg-summary__term">
+          <span className="sg-summary__term">
             {descriptorFor(expandedObject, catalogue).labelPlural}
           </span>{' '}
           for{' '}
-          <span className="stsg-summary__term">&ldquo;{query}&rdquo;</span>
+          <span className="sg-summary__term">&ldquo;{query}&rdquo;</span>
         </p>
       ) : hasQuery && !searchError && total > 0 ? (
-        <p className="stsg-summary">
+        <p className="sg-summary">
           <strong>{total}</strong>
           {total === 1 ? ' result' : ' results'} for{' '}
-          <span className="stsg-summary__term">&ldquo;{query}&rdquo;</span>
+          <span className="sg-summary__term">&ldquo;{query}&rdquo;</span>
           {groups.length > 1 ? ` across ${groups.length} objects` : null}
         </p>
       ) : !hasQuery && recent.length > 0 ? (
-        <p className="stsg-kbd-hint">
-          <kbd className="stsg-kbd">↑</kbd>
-          <kbd className="stsg-kbd">↓</kbd>
+        <p className="sg-kbd-hint">
+          <kbd className="sg-kbd">↑</kbd>
+          <kbd className="sg-kbd">↓</kbd>
           to navigate
-          <kbd className="stsg-kbd">
+          <kbd className="sg-kbd">
             <CornerDownLeft size={11} aria-hidden="true" />
           </kbd>
           to open
@@ -765,14 +775,14 @@ export default function SabcrmSearchPage(): React.JSX.Element {
       ) : null}
 
       {searchError ? (
-        <Alert tone="danger" className="stsg-degraded">
+        <Alert tone="danger" className="sg-degraded">
           {searchError}
         </Alert>
       ) : !hasQuery ? (
         recent.length > 0 ? (
-          <section className="stsg-recent" aria-label="Recent searches">
-            <div className="stsg-recent__head">
-              <span className="stsg-recent__title">
+          <section className="sg-recent" aria-label="Recent searches">
+            <div className="sg-recent__head">
+              <span className="sg-recent__title">
                 <Clock size={13} aria-hidden="true" />
                 Recent
               </span>
@@ -780,19 +790,19 @@ export default function SabcrmSearchPage(): React.JSX.Element {
                 Clear
               </Button>
             </div>
-            <ul className="stsg-recent__list">
+            <ul className="sg-recent__list">
               {recent.map((term) => (
                 <li key={term}>
                   <button
                     type="button"
-                    className="stsg-recent__item"
+                    className="sg-recent__item"
                     onClick={() => {
                       setInput(term);
                       inputRef.current?.focus();
                     }}
                   >
                     <Search size={14} aria-hidden="true" />
-                    <span className="stsg-recent__term">{term}</span>
+                    <span className="sg-recent__term">{term}</span>
                     <ArrowRight size={13} aria-hidden="true" />
                   </button>
                 </li>
@@ -800,16 +810,11 @@ export default function SabcrmSearchPage(): React.JSX.Element {
             </ul>
           </section>
         ) : (
-          <div className="st-empty">
-            <span className="st-empty__icon" aria-hidden="true">
-              <Search size={20} />
-            </span>
-            <p className="st-empty__title">Start typing to search</p>
-            <p className="st-empty__desc">
-              One search across every object in this workspace — companies,
-              people, opportunities, notes, tasks and your custom records.
-            </p>
-          </div>
+          <EmptyState
+            icon={Search}
+            title="Start typing to search"
+            description="One search across every object in this workspace — companies, people, opportunities, notes, tasks and your custom records."
+          />
         )
       ) : expandedObject ? (
         <ExpandedResults
@@ -828,47 +833,45 @@ export default function SabcrmSearchPage(): React.JSX.Element {
       ) : searching && groups.length === 0 ? (
         <ResultsSkeleton />
       ) : groups.length === 0 ? (
-        <div className="st-empty">
-          <span className="st-empty__icon" aria-hidden="true">
-            <Database size={20} />
-          </span>
-          <p className="st-empty__title">No matching records</p>
-          <p className="st-empty__desc">
-            Nothing matches &ldquo;{query}&rdquo;. Try a different term.
-          </p>
-        </div>
+        <EmptyState
+          icon={Database}
+          title="No matching records"
+          description={
+            <>Nothing matches &ldquo;{query}&rdquo;. Try a different term.</>
+          }
+        />
       ) : (
-        <div className="stw-groups" id="stsg-results" role="listbox" ref={listRef}>
+        <div className="sgw-groups" id="sg-results" role="listbox" ref={listRef}>
           {/* Command-style verbs (Create … / Go to settings) above results. */}
           {verbs.length > 0 ? (
-            <section className="stw-group stsg-verbs" aria-label="Actions">
-              <header className="stw-group__head">
+            <section className="sgw-group sg-verbs" aria-label="Actions">
+              <header className="sgw-group__head">
                 <Command size={15} aria-hidden="true" />
                 Actions
               </header>
-              <ul className="stw-hits">
+              <ul className="sgw-hits">
                 {verbs.map((verb, i) => {
                   const VerbIcon = verb.icon;
                   const active = i === activeIndex;
                   return (
                     <li key={verb.key}>
                       <Link
-                        id={`stsg-nav-${i}`}
+                        id={`sg-nav-${i}`}
                         data-nav-index={i}
                         data-active={active}
                         role="option"
                         aria-selected={active}
                         href={verb.href}
-                        className="stw-hit stsg-hit stsg-verb"
+                        className="sgw-hit sg-hit sg-verb"
                         onMouseEnter={() => setActiveIndex(i)}
                       >
-                        <span className="stsg-verb__icon" aria-hidden="true">
+                        <span className="sg-verb__icon" aria-hidden="true">
                           <VerbIcon size={16} />
                         </span>
-                        <span className="stsg-hit__body">
-                          <span className="stw-hit__label">{verb.label}</span>
+                        <span className="sg-hit__body">
+                          <span className="sgw-hit__label">{verb.label}</span>
                         </span>
-                        <span className="stw-hit__kind">{verb.kind}</span>
+                        <span className="sgw-hit__kind">{verb.kind}</span>
                       </Link>
                     </li>
                   );
@@ -881,19 +884,19 @@ export default function SabcrmSearchPage(): React.JSX.Element {
             const Icon = descriptor.icon;
             const preview = group.hits.slice(0, PREVIEW_PER_GROUP);
             const overflow = group.hits.length - preview.length;
-            const shape: TwentyAvatarShape = ROUND_AVATAR_OBJECTS.has(
+            const shape: AvatarShape = ROUND_AVATAR_OBJECTS.has(
               descriptor.slug,
             )
               ? 'round'
               : 'square';
             return (
-              <section key={descriptor.slug} className="stw-group">
-                <header className="stw-group__head">
+              <section key={descriptor.slug} className="sgw-group">
+                <header className="sgw-group__head">
                   <Icon size={15} aria-hidden="true" />
                   {descriptor.labelPlural}
-                  <span className="stw-group__count">{group.hits.length}</span>
+                  <span className="sgw-group__count">{group.hits.length}</span>
                 </header>
-                <ul className="stw-hits">
+                <ul className="sgw-hits">
                   {preview.map((hit) => {
                     // Resolve this hit's slot in the flattened keyboard list,
                     // then offset by the verb rows that precede the hits.
@@ -906,35 +909,35 @@ export default function SabcrmSearchPage(): React.JSX.Element {
                     return (
                       <li key={`${hit.object}:${hit.id}`}>
                         <Link
-                          id={`stsg-nav-${navIndex}`}
+                          id={`sg-nav-${navIndex}`}
                           data-nav-index={navIndex}
                           data-active={active}
                           role="option"
                           aria-selected={active}
                           href={`${CRM_BASE_PATH}/${hit.object}/${hit.id}`}
-                          className="stw-hit stsg-hit"
+                          className="sgw-hit sg-hit"
                           onMouseEnter={() => setActiveIndex(navIndex)}
                           onClick={() => rememberSearch(query)}
                         >
-                          <TwentyAvatar
+                          <Avatar
                             name={hit.label || 'Untitled'}
                             size="sm"
                             shape={shape}
-                            className="stsg-hit__avatar"
+                            className="sg-hit__avatar"
                           />
-                          <span className="stsg-hit__body">
-                            <span className="stw-hit__label">
+                          <span className="sg-hit__body">
+                            <span className="sgw-hit__label">
                               {hit.label
                                 ? highlight(hit.label, query)
                                 : 'Untitled'}
                             </span>
                             {hit.snippet ? (
-                              <span className="stsg-hit__snippet">
+                              <span className="sg-hit__snippet">
                                 {highlight(hit.snippet, query)}
                               </span>
                             ) : null}
                           </span>
-                          <span className="stw-hit__kind">
+                          <span className="sgw-hit__kind">
                             {descriptor.labelSingular}
                           </span>
                         </Link>
@@ -946,7 +949,7 @@ export default function SabcrmSearchPage(): React.JSX.Element {
                   variant="ghost"
                   size="sm"
                   block
-                  className="stsg-group__more"
+                  className="sg-group__more"
                   iconRight={ArrowRight}
                   onClick={() => openExpanded(descriptor.slug)}
                   aria-label={`See all results in ${descriptor.labelPlural}`}
@@ -960,6 +963,7 @@ export default function SabcrmSearchPage(): React.JSX.Element {
           })}
         </div>
       )}
+      </div>
     </div>
   );
 }
@@ -970,11 +974,11 @@ export default function SabcrmSearchPage(): React.JSX.Element {
 
 function ResultsSkeleton(): React.JSX.Element {
   return (
-    <div className="stw-groups" aria-hidden="true">
+    <div className="sgw-groups" aria-hidden="true">
       {Array.from({ length: 2 }).map((_, i) => (
         <div
           key={i}
-          className="stw-group p-[var(--st-space-3)]"
+          className="sgw-group p-[var(--st-space-3)]"
         >
           <Skeleton
             height={16}
@@ -1024,7 +1028,7 @@ interface ExpandedResultsProps {
  * The "See all N" experience: a full, paginated record list for a single object
  * filtered by the active query — fetched through `listSabcrmRecordsTw` (the real
  * records engine, not the capped global-search preview). Each row links to the
- * record's detail page. Twenty look only (`.st-*` / `.stw-*` + `.stsg-*`).
+ * record's detail page. 20ui only (`.sgw-*` + `.sg-*` page-local classes).
  */
 function ExpandedResults({
   slug,
@@ -1040,7 +1044,7 @@ function ExpandedResults({
   onBack,
 }: ExpandedResultsProps): React.JSX.Element {
   const Icon = descriptor.icon;
-  const shape: TwentyAvatarShape = ROUND_AVATAR_OBJECTS.has(slug)
+  const shape: AvatarShape = ROUND_AVATAR_OBJECTS.has(slug)
     ? 'round'
     : 'square';
   const totalPages = Math.max(1, Math.ceil(total / EXPANDED_PAGE_SIZE));
@@ -1049,35 +1053,36 @@ function ExpandedResults({
 
   if (error) {
     return (
-      <Alert tone="danger" className="stsg-degraded">
+      <Alert tone="danger" className="sg-degraded">
         {error}
       </Alert>
     );
   }
 
   return (
-    <div className="stw-groups" id="stsg-results">
-      <section className="stw-group">
-        <header className="stw-group__head">
+    <div className="sgw-groups" id="sg-results">
+      <section className="sgw-group">
+        <header className="sgw-group__head">
           <Icon size={15} aria-hidden="true" />
           {descriptor.labelPlural}
-          <span className="stw-group__count">{total}</span>
+          <span className="sgw-group__count">{total}</span>
         </header>
 
         {loading && records.length === 0 ? (
           <ResultsSkeleton />
         ) : records.length === 0 ? (
-          <div className="st-empty">
-            <span className="st-empty__icon" aria-hidden="true">
-              <Database size={20} />
-            </span>
-            <p className="st-empty__title">No matching {descriptor.labelPlural}</p>
-            <p className="st-empty__desc">
-              Nothing in {descriptor.labelPlural} matches &ldquo;{query}&rdquo;.
-            </p>
-          </div>
+          <EmptyState
+            icon={Database}
+            title={<>No matching {descriptor.labelPlural}</>}
+            description={
+              <>
+                Nothing in {descriptor.labelPlural} matches &ldquo;{query}
+                &rdquo;.
+              </>
+            }
+          />
         ) : (
-          <ul className="stw-hits" role="listbox">
+          <ul className="sgw-hits" role="listbox">
             {records.map((record) => {
               const label = recordLabel(object, record);
               return (
@@ -1085,20 +1090,20 @@ function ExpandedResults({
                   <Link
                     role="option"
                     href={`${CRM_BASE_PATH}/${slug}/${record.id}`}
-                    className="stw-hit stsg-hit"
+                    className="sgw-hit sg-hit"
                   >
-                    <TwentyAvatar
+                    <Avatar
                       name={label}
                       size="sm"
                       shape={shape}
-                      className="stsg-hit__avatar"
+                      className="sg-hit__avatar"
                     />
-                    <span className="stsg-hit__body">
-                      <span className="stw-hit__label">
+                    <span className="sg-hit__body">
+                      <span className="sgw-hit__label">
                         {highlight(label, query)}
                       </span>
                     </span>
-                    <span className="stw-hit__kind">
+                    <span className="sgw-hit__kind">
                       {descriptor.labelSingular}
                     </span>
                   </Link>
@@ -1109,7 +1114,7 @@ function ExpandedResults({
         )}
 
         {/* Pager + back affordance. */}
-        <div className="stsg-pager">
+        <div className="sg-pager">
           <Button
             variant="ghost"
             size="sm"
@@ -1119,8 +1124,8 @@ function ExpandedResults({
             Back to all results
           </Button>
           {total > 0 ? (
-            <div className="stsg-pager__nav">
-              <span className="stsg-pager__range">
+            <div className="sg-pager__nav">
+              <span className="sg-pager__range">
                 {from}&ndash;{to} of {total}
               </span>
               <IconButton
@@ -1131,7 +1136,7 @@ function ExpandedResults({
                 disabled={page <= 1 || loading}
                 onClick={() => onPage(Math.max(1, page - 1))}
               />
-              <span className="stsg-pager__page">
+              <span className="sg-pager__page">
                 {page} / {totalPages}
               </span>
               <IconButton

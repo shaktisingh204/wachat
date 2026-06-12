@@ -1,11 +1,13 @@
 'use client';
 
 /**
- * SabCRM — Report Builder (`/sabcrm/reports/builder`), Twenty-style.
+ * SabCRM — Report Builder (`/sabcrm/reports/builder`), 20ui.
  *
- * A self-written Twenty-faithful rebuild of the report builder using the shared
- * `.st-*` kit (`src/styles/sabcrm-twenty.css`) plus the page-local extras in
- * `../reports-twenty.css`. No Ui20 / Tailwind / clay in the page chrome.
+ * The report builder on the 20ui design system: PageHeader family for the
+ * chrome, 20ui form primitives (Field / Input / Textarea / SelectField) for
+ * the definition pane, and the shared charts composites (via `../report-chart`)
+ * for the live preview. Page-local layout uses the `rp-*` classes in
+ * `../reports.css` (scoped to the 20ui root).
  *
  * Two-pane canvas:
  *   - Left: the definition form — object, metric, metric field (sum/avg/min/max),
@@ -53,14 +55,19 @@ import {
   Field,
   Input,
   Textarea,
-  Select,
+  SelectField,
   Alert,
   Spinner,
   Skeleton,
   EmptyState,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageActions,
 } from '@/components/sabcrm/20ui';
 
-import '../reports-twenty.css';
+import '@/components/sabcrm/20ui/surface-crm-base.css';
+import '../reports.css';
 
 // ---------------------------------------------------------------------------
 // Field-type predicates
@@ -379,20 +386,18 @@ export default function SabcrmReportBuilderPage(): React.JSX.Element {
   }, [canSave, draft, activeProjectId, router]);
 
   return (
-    <div className="st-page">
-      <Link href="/sabcrm/reports" className="st-back">
+    <div className="rp-page">
+      <div className="rp-page__inner">
+      <Link href="/sabcrm/reports" className="rp-back">
         <ChevronLeft size={14} aria-hidden="true" />
         Reports
       </Link>
 
-      <header className="st-page-header">
-        <span className="st-page-header__icon" aria-hidden="true">
-          <BarChart3 size={16} />
-        </span>
-        <h1 className="st-page-header__title">
-          {editingId ? 'Edit report' : 'New report'}
-        </h1>
-        <div className="st-page-header__actions">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageTitle>{editingId ? 'Edit report' : 'New report'}</PageTitle>
+        </PageHeaderHeading>
+        <PageActions>
           <Button
             variant="primary"
             iconLeft={saving ? undefined : Save}
@@ -402,43 +407,41 @@ export default function SabcrmReportBuilderPage(): React.JSX.Element {
           >
             {saving ? 'Saving' : editingId ? 'Save changes' : 'Save report'}
           </Button>
-        </div>
-      </header>
+        </PageActions>
+      </PageHeader>
 
       {pageError && (
-        <Alert tone="danger" style={{ marginBottom: 'var(--st-space-4)' }}>
+        <Alert tone="danger" className="rp-alert">
           {pageError}
         </Alert>
       )}
 
       {loading ? (
-        <div className="st-builder">
-          <div className="st-section">
-            <div className="st-section__body st-stack">
+        <div className="rp-builder">
+          <div className="rp-section">
+            <div className="rp-stack">
               {[0, 1, 2, 3].map((i) => (
                 <Skeleton key={i} height={40} radius={8} />
               ))}
             </div>
           </div>
-          <div className="st-section">
-            <div className="st-section__body">
-              <Skeleton height={240} width="100%" radius={8} />
-            </div>
+          <div className="rp-section">
+            <Skeleton height={240} width="100%" radius={8} />
           </div>
         </div>
       ) : (
-        <div className="st-builder">
+        <div className="rp-builder">
           {/* ── Definition form ──────────────────────────────────────────── */}
-          <div className="st-section">
-            <div className="st-section__head">
-              <div className="st-section__head-text">
-                <h2 className="st-section__title">Definition</h2>
-                <p className="st-section__desc">
+          <div className="rp-section">
+            <div className="rp-section__head">
+              <div>
+                <h2 className="rp-section__title">Definition</h2>
+                <p className="rp-section__desc">
                   Choose what to measure and how to break it down.
                 </p>
               </div>
             </div>
-            <div className="st-section__body st-stack">
+            <div className="rp-stack">
               {/* Name */}
               <Field label="Name" required id="rep-name">
                 <Input
@@ -459,7 +462,7 @@ export default function SabcrmReportBuilderPage(): React.JSX.Element {
                     : undefined
                 }
               >
-                <Select
+                <SelectField
                   value={draft.object || null}
                   onChange={(v) => handleObjectChange(v ?? '')}
                   disabled={!!editingId}
@@ -473,7 +476,7 @@ export default function SabcrmReportBuilderPage(): React.JSX.Element {
 
               {/* Metric */}
               <Field label="Metric" required id="rep-metric">
-                <Select
+                <SelectField
                   value={draft.metric}
                   onChange={(v) => v && set('metric', v as ReportMetric)}
                   options={METRICS.map((m) => ({
@@ -495,7 +498,7 @@ export default function SabcrmReportBuilderPage(): React.JSX.Element {
                       : undefined
                   }
                 >
-                  <Select
+                  <SelectField
                     value={draft.metricField || null}
                     onChange={(v) => set('metricField', v ?? '')}
                     placeholder="Select a number field"
@@ -509,7 +512,7 @@ export default function SabcrmReportBuilderPage(): React.JSX.Element {
 
               {/* Group by */}
               <Field label="Group by" id="rep-group">
-                <Select
+                <SelectField
                   value={draft.groupByField}
                   onChange={(v) => set('groupByField', v ?? '')}
                   options={[
@@ -525,7 +528,7 @@ export default function SabcrmReportBuilderPage(): React.JSX.Element {
               {/* Time bucket (only when group-by is a date field) */}
               {draft.groupByField && groupByIsDate && (
                 <Field label="Time bucket" id="rep-bucket">
-                  <Select
+                  <SelectField
                     value={draft.timeBucket}
                     onChange={(v) =>
                       v && set('timeBucket', v as ReportTimeBucket)
@@ -540,7 +543,7 @@ export default function SabcrmReportBuilderPage(): React.JSX.Element {
 
               {/* Chart type */}
               <Field label="Visualisation" id="rep-chart">
-                <Select
+                <SelectField
                   value={draft.chartType}
                   onChange={(v) => v && set('chartType', v as ReportChartType)}
                   options={CHART_TYPES.map((c) => ({
@@ -564,19 +567,19 @@ export default function SabcrmReportBuilderPage(): React.JSX.Element {
           </div>
 
           {/* ── Live preview ─────────────────────────────────────────────── */}
-          <div className="st-section">
-            <div className="st-section__head">
-              <div className="st-section__head-text">
-                <h2 className="st-section__title">Preview</h2>
-                <p className="st-section__desc">
+          <div className="rp-section">
+            <div className="rp-section__head">
+              <div>
+                <h2 className="rp-section__title">Preview</h2>
+                <p className="rp-section__desc">
                   Runs live against your data as you edit the definition.
                 </p>
               </div>
-              <div className="st-section__head-actions">
+              <div className="rp-section__head-actions">
                 {previewing && <Spinner size="sm" label="Updating preview" />}
               </div>
             </div>
-            <div className="st-section__body">
+            <div>
               {!canPreview ? (
                 <EmptyState
                   icon={BarChart3}
@@ -588,7 +591,7 @@ export default function SabcrmReportBuilderPage(): React.JSX.Element {
               ) : preview ? (
                 <PreviewSeries series={preview} chartType={draft.chartType} />
               ) : (
-                <div className="st-stack st-stack--tight">
+                <div className="rp-stack rp-stack--tight">
                   {[0, 1, 2].map((i) => (
                     <Skeleton key={i} height={40} radius={8} />
                   ))}
@@ -598,6 +601,7 @@ export default function SabcrmReportBuilderPage(): React.JSX.Element {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }

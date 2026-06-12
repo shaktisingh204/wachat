@@ -4,8 +4,8 @@
   "description": "Interact with Jina AI API",
   "category": "ai",
   "iconName": "LuPackage",
-  "version": 11,
-  "lastVerified": "2026-06-11",
+  "version": 12,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "header",
@@ -17,7 +17,7 @@
       "id": "reader_read",
       "label": "Read Reader",
       "method": "GET",
-      "path": "/https:/r.jina.ai/{{ {url} }}",
+      "path": "/https:/r.jina.ai/{url}",
       "fields": [
         {
           "id": "url",
@@ -44,7 +44,7 @@
         }
       ],
       "group": "Reader",
-      "description": "[unverified path] Fetches content from a URL and converts it to clean, LLM-friendly formats"
+      "description": "Fetches content from a URL and converts it to clean, LLM-friendly formats"
     },
     {
       "id": "reader_search",

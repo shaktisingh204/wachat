@@ -13,7 +13,8 @@
 
 use std::sync::Arc;
 
-use axum::{Router, extract::FromRef, routing::get};
+use axum::{Extension, Router, extract::FromRef, routing::get};
+use crm_core::ScopeMode;
 use sabnode_auth::AuthConfig;
 use sabnode_db::mongo::MongoHandle;
 
@@ -36,7 +37,8 @@ use crate::handlers;
 /// verifier the `AuthUser` extractor reads). Both are pulled via
 /// [`FromRef`] so this crate stays decoupled from the orchestrator's
 /// concrete `AppState`.
-pub fn router<S>() -> Router<S>
+/// The shared CRUD route table (no scope attached yet).
+fn crud_routes<S>() -> Router<S>
 where
     S: Clone + Send + Sync + 'static,
     MongoHandle: FromRef<S>,
@@ -53,4 +55,28 @@ where
                 .patch(handlers::update_payout)
                 .delete(handlers::delete_payout),
         )
+}
+
+/// Legacy `userId`-scoped router — behaviour unchanged; mount under
+/// `/v1/crm/payouts`.
+pub fn router<S>() -> Router<S>
+where
+    S: Clone + Send + Sync + 'static,
+    MongoHandle: FromRef<S>,
+    Arc<AuthConfig>: FromRef<S>,
+{
+    crud_routes().layer(Extension(ScopeMode::User))
+}
+
+/// SabCRM Finance `projectId`-scoped router — mount under
+/// `/v1/sabcrm/finance/payouts`. Same handlers, same `crm_payouts`
+/// collection; every request must carry `projectId` (query for
+/// `GET`/`PATCH`/`DELETE`, body for `POST`) or it is rejected 4xx.
+pub fn project_router<S>() -> Router<S>
+where
+    S: Clone + Send + Sync + 'static,
+    MongoHandle: FromRef<S>,
+    Arc<AuthConfig>: FromRef<S>,
+{
+    crud_routes().layer(Extension(ScopeMode::Project))
 }

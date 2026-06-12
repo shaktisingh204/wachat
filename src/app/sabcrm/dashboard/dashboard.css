@@ -1,152 +1,88 @@
 /* =========================================================================
-   SabCRM — Dashboard (Twenty-faithful)
-   Scoped under .sabcrm-twenty. Plain CSS only. Consumes the --st-* tokens
-   defined in src/styles/sabcrm-twenty.css. NO Tailwind, NO Ui20.
+   SabCRM — Dashboard (`/sabcrm/dashboard`) styles, 20ui.
+
+   Page-local layout ONLY (`cd-*` prefix), scoped to the 20ui root
+   (`:is(.\32 0ui, .ui20)` — NEVER a bare `.20ui.foo` compound). Charts render
+   through the shared composites (`composites/charts`); cards through the 20ui
+   Card. Tokens only (`--st-*`), so dark mode is free.
    ========================================================================= */
 
-/* Local semantic tokens — the shared kit ships no success/warning/danger
-   colours, so define theme-aware ones here (brighter on dark surfaces). */
-.sabcrm-twenty {
-  --dash-up: #1a7f37;
-  --dash-down: #b35900;
-  --dash-danger: #d64545;
-  --dash-danger-bg: #fdecec;
-  --dash-danger-border: #f0c2c2;
-}
-.sabcrm-twenty.st-theme-dark {
-  --dash-up: #4ade80;
-  --dash-down: #fbbf76;
-  --dash-danger: #ff8a80;
-  --dash-danger-bg: #3a1f1f;
-  --dash-danger-border: #5a2a2a;
+/* Page scroll wrapper + centered content column ------------------------- */
+:is(.\32 0ui, .ui20) .cd-page {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: var(--st-space-5);
+  overflow-y: auto;
 }
 
-/* ----- KPI card grid ----- */
-.st-dash-kpis {
+:is(.\32 0ui, .ui20) .cd-page__inner {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* Dashboard selector row (tabs + "new") ---------------------------------- */
+:is(.\32 0ui, .ui20) .cd-tabs {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  flex-wrap: wrap;
+  margin-bottom: var(--st-space-4);
+  padding-bottom: var(--st-space-2);
+  border-bottom: 1px solid var(--st-border);
+}
+
+/* Non-fatal notice ------------------------------------------------------- */
+:is(.\32 0ui, .ui20) .cd-notice {
+  margin-bottom: var(--st-space-4);
+}
+
+/* KPI card grid ----------------------------------------------------------- */
+:is(.\32 0ui, .ui20) .cd-kpis {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: var(--st-space-3);
   margin-bottom: var(--st-space-5);
 }
 
-.st-kpi {
-  display: flex;
-  flex-direction: column;
-  gap: var(--st-space-1);
-  padding: var(--st-space-4);
-  border: 1px solid var(--st-border);
-  border-radius: var(--st-radius-lg);
-  background: var(--st-bg);
-}
-
-.st-kpi__label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--st-text-secondary);
-  font-size: var(--st-font-size-sm);
-  font-weight: var(--st-fw-medium);
-}
-
-.st-kpi__label-icon {
-  flex: 0 0 auto;
-  color: var(--st-text-tertiary);
-}
-
-.st-kpi__value {
-  font-size: 26px;
-  line-height: 1.1;
-  font-weight: var(--st-fw-semibold);
-  letter-spacing: -0.02em;
-  color: var(--st-text);
-}
-
-.st-kpi__delta {
-  font-size: var(--st-font-size-sm);
-  color: var(--st-text-tertiary);
-}
-
-.st-kpi__delta--up {
-  color: var(--dash-up);
-}
-
-.st-kpi__delta--down {
-  color: var(--dash-down);
-}
-
-/* ----- Two-column panel layout ----- */
-.st-dash-grid {
+/* Breakdown panel grid ----------------------------------------------------- */
+:is(.\32 0ui, .ui20) .cd-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: var(--st-space-4);
+  align-items: start;
 }
 
-/* ----- Bar list (Twenty breakdown) ----- */
-.st-barlist {
+:is(.\32 0ui, .ui20) .cd-panel {
+  min-width: 0;
+}
+
+/* Calm inline empty / error note ------------------------------------------ */
+:is(.\32 0ui, .ui20) .cd-empty-note {
   display: flex;
-  flex-direction: column;
-  gap: var(--st-space-3);
-  padding: var(--st-space-4);
-}
-
-.st-barlist__row {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.st-barlist__head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--st-space-2);
-}
-
-.st-barlist__label {
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  color: var(--st-text);
-  font-size: var(--st-font-size);
-}
-
-.st-barlist__value {
-  flex: 0 0 auto;
-  color: var(--st-text-secondary);
+  align-items: center;
+  justify-content: center;
+  min-height: 64px;
+  padding: var(--st-space-3);
+  color: var(--st-text-tertiary);
   font-size: var(--st-font-size-sm);
-  font-weight: var(--st-fw-medium);
-  font-variant-numeric: tabular-nums;
+  text-align: center;
 }
 
-.st-barlist__track {
-  width: 100%;
-  height: 6px;
-  border-radius: 999px;
-  background: var(--st-bg-secondary);
-  overflow: hidden;
-}
-
-.st-barlist__fill {
-  height: 100%;
-  border-radius: 999px;
-  background: var(--st-accent);
-  transition: width 200ms ease;
-}
-
-/* ----- Recent records widget ----- */
-.st-reclist {
+/* Recent records list ------------------------------------------------------ */
+:is(.\32 0ui, .ui20) .cd-reclist {
   display: flex;
   flex-direction: column;
-  padding: var(--st-space-2);
   margin: 0;
+  padding: 0;
   list-style: none;
 }
 
-.st-reclist__row {
+:is(.\32 0ui, .ui20) .cd-reclist__row {
   display: block;
 }
 
-.st-reclist__link {
+:is(.\32 0ui, .ui20) .cd-reclist__link {
   display: flex;
   align-items: center;
   gap: var(--st-space-2);
@@ -157,11 +93,26 @@
   transition: background 120ms ease;
 }
 
-.st-reclist__link:hover {
-  background: var(--st-bg-secondary);
+:is(.\32 0ui, .ui20) .cd-reclist__link:hover {
+  background: var(--st-hover);
 }
 
-.st-reclist__label {
+:is(.\32 0ui, .ui20) .cd-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--st-active);
+  color: var(--st-text-secondary);
+  font-size: 10px;
+  font-weight: var(--st-fw-semibold);
+  text-transform: uppercase;
+}
+
+:is(.\32 0ui, .ui20) .cd-reclist__label {
   flex: 1 1 auto;
   overflow: hidden;
   white-space: nowrap;
@@ -169,7 +120,7 @@
   font-size: var(--st-font-size);
 }
 
-.st-reclist__meta {
+:is(.\32 0ui, .ui20) .cd-reclist__meta {
   display: inline-flex;
   align-items: center;
   gap: 3px;
@@ -179,26 +130,25 @@
   font-variant-numeric: tabular-nums;
 }
 
-.st-reclist__chevron {
+:is(.\32 0ui, .ui20) .cd-reclist__chevron {
   flex: 0 0 auto;
   color: var(--st-text-tertiary);
   opacity: 0;
   transition: opacity 120ms ease;
 }
 
-.st-reclist__link:hover .st-reclist__chevron {
+:is(.\32 0ui, .ui20) .cd-reclist__link:hover .cd-reclist__chevron {
   opacity: 1;
 }
 
-/* ----- Pipeline summary widget ----- */
-.st-pipesum {
+/* Pipeline summary ---------------------------------------------------------- */
+:is(.\32 0ui, .ui20) .cd-pipesum {
   display: flex;
   flex-direction: column;
   gap: var(--st-space-3);
-  padding: var(--st-space-4);
 }
 
-.st-pipesum__total {
+:is(.\32 0ui, .ui20) .cd-pipesum__total {
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -206,21 +156,22 @@
   border-bottom: 1px solid var(--st-border);
 }
 
-.st-pipesum__total-label {
+:is(.\32 0ui, .ui20) .cd-pipesum__total-label {
   color: var(--st-text-secondary);
   font-size: var(--st-font-size-sm);
   font-weight: var(--st-fw-medium);
 }
 
-.st-pipesum__total-value {
+:is(.\32 0ui, .ui20) .cd-pipesum__total-value {
   font-size: 24px;
   line-height: 1.1;
   font-weight: var(--st-fw-semibold);
   letter-spacing: -0.02em;
   color: var(--st-text);
+  font-variant-numeric: tabular-nums;
 }
 
-.st-pipesum__stages {
+:is(.\32 0ui, .ui20) .cd-pipesum__stages {
   display: flex;
   flex-direction: column;
   gap: var(--st-space-2);
@@ -229,13 +180,13 @@
   list-style: none;
 }
 
-.st-pipesum__stage {
+:is(.\32 0ui, .ui20) .cd-pipesum__stage {
   display: flex;
   align-items: baseline;
   gap: var(--st-space-2);
 }
 
-.st-pipesum__stage-label {
+:is(.\32 0ui, .ui20) .cd-pipesum__stage-label {
   flex: 1 1 auto;
   overflow: hidden;
   white-space: nowrap;
@@ -244,7 +195,7 @@
   font-size: var(--st-font-size);
 }
 
-.st-pipesum__stage-value {
+:is(.\32 0ui, .ui20) .cd-pipesum__stage-value {
   flex: 0 0 auto;
   color: var(--st-text-secondary);
   font-size: var(--st-font-size-sm);
@@ -252,7 +203,7 @@
   font-variant-numeric: tabular-nums;
 }
 
-.st-pipesum__stage-pct {
+:is(.\32 0ui, .ui20) .cd-pipesum__stage-pct {
   flex: 0 0 auto;
   min-width: 36px;
   text-align: right;
@@ -261,166 +212,58 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* ----- Skeleton sizing for the dashboard ----- */
-.st-skel-kpi {
-  height: 96px;
-  border-radius: var(--st-radius-lg);
-}
-
-.st-skel-panel {
-  height: 220px;
-  border-radius: var(--st-radius-lg);
-}
-
-/* =========================================================================
-   Saved-dashboard selector (tabs)
-   ========================================================================= */
-.st-dash-tabs {
-  display: flex;
-  align-items: center;
-  gap: var(--st-space-1);
-  flex-wrap: wrap;
-  margin-bottom: var(--st-space-4);
-  padding-bottom: var(--st-space-2);
-  border-bottom: 1px solid var(--st-border);
-}
-
-.st-dash-tab {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  height: 30px;
-  max-width: 220px;
-  padding: 0 var(--st-space-3);
-  border: 1px solid transparent;
-  border-radius: var(--st-radius);
-  background: transparent;
-  color: var(--st-text-secondary);
-  font-family: inherit;
-  font-size: var(--st-font-size);
-  font-weight: var(--st-fw-medium);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  cursor: pointer;
-  transition: background 120ms ease, color 120ms ease;
-}
-
-.st-dash-tab:hover {
-  background: var(--st-hover);
-  color: var(--st-text);
-}
-
-.st-dash-tab.active {
-  background: var(--st-bg-secondary);
-  border-color: var(--st-border);
-  color: var(--st-text);
-  font-weight: var(--st-fw-semibold);
-}
-
-.st-dash-tab--add {
-  color: var(--st-text-tertiary);
-}
-
-.st-dash-tab--add:hover {
-  color: var(--st-accent);
-}
-
-/* Rename / delete actions in the page header */
-.st-dash-actions {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--st-space-1);
-}
-
-/* =========================================================================
-   Saved-dashboard toolbar (edit / add widget row)
-   ========================================================================= */
-.st-dash-toolbar {
+/* Saved-dashboard toolbar (edit / add widget row) -------------------------- */
+:is(.\32 0ui, .ui20) .cd-toolbar {
   display: flex;
   align-items: center;
   gap: var(--st-space-2);
   margin-bottom: var(--st-space-4);
 }
 
-.st-dash-toolbar__count {
+:is(.\32 0ui, .ui20) .cd-toolbar__count {
   color: var(--st-text-secondary);
   font-size: var(--st-font-size-sm);
   font-weight: var(--st-fw-medium);
 }
 
-.st-dash-toolbar__spacer {
+:is(.\32 0ui, .ui20) .cd-toolbar__spacer {
   flex: 1 1 auto;
 }
 
-.st-dash-toolbar__saving {
+:is(.\32 0ui, .ui20) .cd-toolbar__saving {
   color: var(--st-text-tertiary);
   font-size: var(--st-font-size-sm);
   font-style: italic;
 }
 
-/* =========================================================================
-   Inline notice (non-fatal save/load errors)
-   ========================================================================= */
-.st-dash-notice {
-  display: flex;
-  align-items: center;
-  gap: var(--st-space-2);
-  margin-bottom: var(--st-space-4);
-  padding: var(--st-space-2) var(--st-space-3);
-  border: 1px solid var(--st-border);
-  border-radius: var(--st-radius);
-  background: var(--st-bg-secondary);
-  color: var(--st-text-secondary);
-  font-size: var(--st-font-size-sm);
-}
-
-.st-dash-notice > span {
-  flex: 1 1 auto;
-}
-
-.st-dash-notice__close {
-  flex: 0 0 auto;
-  border: none;
-  background: transparent;
-  color: var(--st-text-tertiary);
-  font-size: 16px;
-  line-height: 1;
-  cursor: pointer;
-}
-
-.st-dash-notice__close:hover {
-  color: var(--st-text);
-}
-
-/* =========================================================================
-   Widget grid (responsive Twenty tile layout)
-   ========================================================================= */
-.st-widget-grid {
+/* Widget grid (responsive tile layout) -------------------------------------- */
+:is(.\32 0ui, .ui20) .cd-widget-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   grid-auto-rows: minmax(120px, auto);
   gap: var(--st-space-4);
 }
 
-/* Wider widgets (bar / recent / pipeline) span two columns when room allows. */
-.st-widget--wide {
+:is(.\32 0ui, .ui20) .cd-widget--wide {
   grid-column: span 2;
 }
 
 @media (max-width: 720px) {
-  .st-widget--wide {
+  :is(.\32 0ui, .ui20) .cd-widget--wide {
     grid-column: span 1;
   }
 }
 
-.st-widget {
+:is(.\32 0ui, .ui20) .cd-widget {
   display: flex;
   flex-direction: column;
   min-width: 0;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-bg);
 }
 
-.st-widget__head {
+:is(.\32 0ui, .ui20) .cd-widget__head {
   display: flex;
   align-items: center;
   gap: var(--st-space-2);
@@ -428,13 +271,13 @@
   border-bottom: 1px solid var(--st-border);
 }
 
-.st-widget__type-icon {
+:is(.\32 0ui, .ui20) .cd-widget__type-icon {
   display: inline-flex;
   flex: 0 0 auto;
   color: var(--st-text-tertiary);
 }
 
-.st-widget__title {
+:is(.\32 0ui, .ui20) .cd-widget__title {
   flex: 1 1 auto;
   min-width: 0;
   overflow: hidden;
@@ -445,19 +288,19 @@
   color: var(--st-text);
 }
 
-.st-widget__grip {
+:is(.\32 0ui, .ui20) .cd-widget__grip {
   flex: 0 0 auto;
-  color: var(--st-border-strong, var(--st-text-tertiary));
+  color: var(--st-text-tertiary);
   opacity: 0;
   transition: opacity 120ms ease;
 }
 
-.st-widget-grid--editing .st-widget__grip {
+:is(.\32 0ui, .ui20) .cd-widget-grid--editing .cd-widget__grip {
   opacity: 0.5;
   cursor: grab;
 }
 
-.st-widget__remove {
+:is(.\32 0ui, .ui20) .cd-widget__remove {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -472,93 +315,65 @@
   transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
 }
 
-.st-widget__remove:hover {
-  background: var(--dash-danger-bg);
-  border-color: var(--dash-danger-border);
-  color: var(--dash-danger);
+:is(.\32 0ui, .ui20) .cd-widget__remove:hover {
+  background: var(--st-danger-soft);
+  border-color: var(--st-danger);
+  color: var(--st-danger);
 }
 
-.st-widget__body {
+:is(.\32 0ui, .ui20) .cd-widget__body {
   flex: 1 1 auto;
   min-height: 0;
-}
-
-.st-widget__loading {
   padding: var(--st-space-4);
 }
 
-.st-widget__skel {
-  height: 96px;
-  border-radius: var(--st-radius);
+:is(.\32 0ui, .ui20) .cd-widget__loading {
+  display: flex;
 }
 
-.st-widget__error {
+:is(.\32 0ui, .ui20) .cd-widget__error {
   display: flex;
   align-items: flex-start;
   gap: var(--st-space-2);
-  padding: var(--st-space-4);
   color: var(--st-text-tertiary);
   font-size: var(--st-font-size-sm);
 }
 
-.st-widget__error svg {
+:is(.\32 0ui, .ui20) .cd-widget__error svg {
   flex: 0 0 auto;
   margin-top: 1px;
-  color: var(--dash-down);
+  color: var(--st-warn);
 }
 
-/* KPI widget body */
-.st-widget-kpi {
+/* KPI widget body ------------------------------------------------------------ */
+:is(.\32 0ui, .ui20) .cd-widget-kpi {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  padding: var(--st-space-4);
 }
 
-.st-widget-kpi__value {
+:is(.\32 0ui, .ui20) .cd-widget-kpi__value {
   font-size: 28px;
   line-height: 1.1;
   font-weight: var(--st-fw-semibold);
   letter-spacing: -0.02em;
   color: var(--st-text);
+  font-variant-numeric: tabular-nums;
 }
 
-.st-widget-kpi__sub {
+:is(.\32 0ui, .ui20) .cd-widget-kpi__sub {
   color: var(--st-text-tertiary);
   font-size: var(--st-font-size-sm);
 }
 
-/* =========================================================================
-   Add-widget dialog — type chooser grid
-   ========================================================================= */
-.st-widget-typegrid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--st-space-2);
+/* Bar widget chart wrapper ----------------------------------------------------- */
+:is(.\32 0ui, .ui20) .cd-widget-chart {
+  min-width: 0;
 }
 
-.st-widget-typeopt {
-  padding: var(--st-space-2) var(--st-space-3);
-  border: 1px solid var(--st-border);
-  border-radius: var(--st-radius);
-  background: var(--st-bg);
+/* Confirm dialog body ----------------------------------------------------------- */
+:is(.\32 0ui, .ui20) .cd-confirm-text {
+  margin: 0;
   color: var(--st-text-secondary);
-  font-family: inherit;
   font-size: var(--st-font-size);
-  font-weight: var(--st-fw-medium);
-  text-align: left;
-  cursor: pointer;
-  transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
-}
-
-.st-widget-typeopt:hover {
-  background: var(--st-hover);
-  color: var(--st-text);
-}
-
-.st-widget-typeopt.active {
-  border-color: var(--st-accent);
-  background: var(--st-accent-soft);
-  color: var(--st-text);
-  box-shadow: 0 0 0 1px var(--st-accent);
 }

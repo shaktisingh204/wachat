@@ -1,0 +1,250 @@
+/* =========================================================================
+   20ui · charts composites (kpi-card / bar / line / donut / funnel / sparkline)
+   Token-styled only (--st-*), so dark mode is free. Scoped to the same root
+   net as ../../chart.css so the composites work on every 20ui surface.
+   ========================================================================= */
+
+/* ----- Shared empty note ----- */
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-chx-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 96px;
+  padding: var(--st-space-4);
+  color: var(--st-text-tertiary);
+  font-size: var(--st-font-size-sm);
+  text-align: center;
+}
+
+/* ----- KPI card ----- */
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-chx-kpi {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-1);
+  min-width: 0;
+  padding: var(--st-space-4);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-bg);
+}
+
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-chx-kpi__head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  color: var(--st-text-secondary);
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-medium);
+}
+
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-chx-kpi__icon {
+  display: inline-flex;
+  flex: 0 0 auto;
+  color: var(--st-text-tertiary);
+}
+
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-chx-kpi__label {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-chx-kpi__row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--st-space-2);
+}
+
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-chx-kpi__value {
+  font-size: 26px;
+  line-height: 1.1;
+  font-weight: var(--st-fw-semibold);
+  letter-spacing: -0.02em;
+  color: var(--st-text);
+  font-variant-numeric: tabular-nums;
+}
+
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-chx-kpi__spark {
+  flex: 0 0 auto;
+  color: var(--st-text-secondary);
+}
+
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-chx-kpi__delta {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: var(--st-text-tertiary);
+  font-size: var(--st-font-size-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-chx-kpi__delta--up {
+  color: var(--st-success);
+}
+
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-chx-kpi__delta--down {
+  color: var(--st-danger);
+}
+
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-chx-kpi__delta-icon {
+  display: inline-flex;
+  flex: 0 0 auto;
+}
+
+/* ----- Donut (center overlay + legend) ----- */
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-chx-donut {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-3);
+  min-width: 0;
+}
+
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-chx-donut__plot {
+  position: relative;
+}
+
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-chx-donut__center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  pointer-events: none;
+}
+
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-chx-donut__center-value {
+  font-size: 20px;
+  line-height: 1.1;
+  font-weight: var(--st-fw-semibold);
+  letter-spacing: -0.02em;
+  color: var(--st-text);
+  font-variant-numeric: tabular-nums;
+}
+
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-chx-donut__center-cap {
+  color: var(--st-text-tertiary);
+  font-size: var(--st-font-size-xs);
+}
+
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-chx-donut__legend {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-chx-donut__legend-item {
+  display: flex;
+  align-items: baseline;
+  gap: var(--st-space-2);
+  min-width: 0;
+  font-size: var(--st-font-size-sm);
+}
+
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-chx-donut__swatch {
+  flex: 0 0 auto;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  align-self: center;
+}
+
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-chx-donut__legend-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--st-text);
+}
+
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-chx-donut__legend-val {
+  flex: 0 0 auto;
+  color: var(--st-text-secondary);
+  font-weight: var(--st-fw-medium);
+  font-variant-numeric: tabular-nums;
+}
+
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-chx-donut__legend-pct {
+  flex: 0 0 auto;
+  min-width: 40px;
+  text-align: right;
+  color: var(--st-text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ----- Funnel (horizontal bands) ----- */
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-chx-funnel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-2);
+  min-width: 0;
+}
+
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-chx-funnel__stage {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-chx-funnel__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--st-space-2);
+}
+
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-chx-funnel__label {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--st-text);
+  font-size: var(--st-font-size);
+}
+
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-chx-funnel__values {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--st-space-2);
+  flex: 0 0 auto;
+}
+
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-chx-funnel__value {
+  color: var(--st-text);
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-medium);
+  font-variant-numeric: tabular-nums;
+}
+
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-chx-funnel__conv {
+  color: var(--st-text-tertiary);
+  font-size: var(--st-font-size-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-chx-funnel__band-row {
+  display: flex;
+  justify-content: center;
+}
+
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-chx-funnel__band {
+  min-width: 24px;
+  height: 24px;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  transition: width 220ms ease;
+}
+
+/* ----- Sparkline ----- */
+:is(.\32 0ui, .ui20, .sabcrm-twenty, :root) .u-chx-spark {
+  display: inline-flex;
+  vertical-align: middle;
+}

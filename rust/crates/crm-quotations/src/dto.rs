@@ -47,6 +47,12 @@ pub const MAX_LIMIT: i64 = 100;
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ListQuery {
+    /// SabCRM tenant scope (24-char hex `ObjectId`). **Required** when
+    /// the router is mounted in `ScopeMode::Project` (the
+    /// `/v1/sabcrm/finance/quotations` mount); ignored on the legacy
+    /// `userId`-scoped `/v1/crm/quotations` mount.
+    #[serde(default)]
+    pub project_id: Option<String>,
     /// 1-indexed page (matches TS). Defaults to `1`.
     #[serde(default)]
     pub page: Option<u32>,
@@ -71,6 +77,18 @@ pub struct ListQuery {
     /// conversion UX; not yet used as a filter.
     #[serde(default)]
     pub from_id: Option<String>,
+}
+
+/// Query string for the single-document routes (`GET` / `PATCH` /
+/// `DELETE /{quotationId}`). Carries only the SabCRM tenant scope —
+/// **required** under `ScopeMode::Project`, ignored on the legacy
+/// `userId`-scoped mount.
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ScopeQuery {
+    /// SabCRM tenant scope (24-char hex `ObjectId`).
+    #[serde(default)]
+    pub project_id: Option<String>,
 }
 
 /// `POST /v1/crm/quotations` body. The endpoint accepts a curated subset
@@ -108,12 +126,11 @@ pub struct CreateQuotationInput {
     /// is the action layer's responsibility — the Rust BFF only enforces
     /// non-empty.
     pub quotation_no: String,
-    /// Quotation issue date.
-    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
+    /// Quotation issue date (RFC 3339 on the wire; the handler converts
+    /// to a BSON datetime at persist time, matching `crm-invoices`).
     pub date: DateTime<Utc>,
     /// Validity expiry — quotations past this date should not be
     /// honoured by downstream conversion flows.
-    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub valid_until: DateTime<Utc>,
 
     /* ----- party (★ required) ----- */
@@ -172,17 +189,9 @@ pub struct CreateQuotationInput {
 pub struct UpdateQuotationInput {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub quotation_no: Option<String>,
-    #[serde(
-        default,
-        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub date: Option<DateTime<Utc>>,
-    #[serde(
-        default,
-        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub valid_until: Option<DateTime<Utc>>,
 
     #[serde(default, skip_serializing_if = "Option::is_none")]

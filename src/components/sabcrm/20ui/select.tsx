@@ -26,7 +26,7 @@ import * as React from 'react';
 import { Check, ChevronDown, Search, X } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
-import { StPortalPopover } from '@/components/sabcrm/twenty/st-portal-popover';
+import { StPortalPopover } from './portal-popover';
 import { renderIcon, type IconProp } from './_icon';
 import { useFieldContext } from './field';
 import './select.css';

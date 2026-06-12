@@ -29,7 +29,7 @@ import { Calendar as CalendarIcon, MoveRight, ChevronDown, X } from 'lucide-reac
 import type { DateRange, Matcher } from 'react-day-picker';
 import { format as formatDate, isValid as isValidDate } from 'date-fns';
 
-import { StPortalPopover } from '@/components/sabcrm/twenty/st-portal-popover';
+import { StPortalPopover } from './portal-popover';
 import { Calendar } from './datepicker';
 
 import './daterange.css';

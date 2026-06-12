@@ -123,12 +123,22 @@ export type ObjectMetadataTw = ObjectMetadata;
 // Activities (timeline)
 // ---------------------------------------------------------------------------
 
-/** Known activity kinds the Twenty composer offers. */
-export type SabcrmActivityKind = 'NOTE' | 'TASK' | 'CALL' | 'MEETING' | 'EMAIL';
+/**
+ * Known activity kinds the Twenty composer offers, plus `WHATSAPP` — the
+ * touchpoint kind the SabCRM ↔ WaChat bridge (`sabcrm-comms.actions.ts`)
+ * logs for outbound WhatsApp messages.
+ */
+export type SabcrmActivityKind =
+  | 'NOTE'
+  | 'TASK'
+  | 'CALL'
+  | 'MEETING'
+  | 'EMAIL'
+  | 'WHATSAPP';
 
 /** Options accepted by {@link listSabcrmActivitiesTw}. */
 export interface ListSabcrmActivitiesTwParams {
-  /** Optional `type` filter (NOTE | TASK | CALL | MEETING | EMAIL | COMMENT). */
+  /** Optional `type` filter (NOTE | TASK | CALL | MEETING | EMAIL | COMMENT | WHATSAPP). */
   type?: string;
   /** Page size. Clamped at 200 server-side; defaults to 50. */
   limit?: number;

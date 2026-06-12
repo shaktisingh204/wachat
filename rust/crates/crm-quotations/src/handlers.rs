@@ -12,25 +12,35 @@
 //! | `PATCH`  | `/:quotationId`       | [`update_quotation`]  |
 //! | `DELETE` | `/:quotationId`       | [`delete_quotation`]  |
 //!
-//! Every handler scopes its Mongo query by `userId == AuthUser.user_id`
-//! — the CRM tenant root from `crm-core::Identity`.
+//! Every handler scopes its Mongo query by the mount's
+//! [`crm_core::ScopeMode`] (attached as an axum `Extension` by the
+//! router constructors in [`crate::router`]):
+//!
+//! - `/v1/crm/quotations` (legacy) — `userId == AuthUser.user_id`, the
+//!   CRM tenant root from `crm-core::Identity`. Unchanged behaviour.
+//! - `/v1/sabcrm/finance/quotations` (SabCRM Finance suite) —
+//!   `projectId == ?projectId` / body `projectId`, required per-request
+//!   (4xx when absent). Membership is validated by the Next.js action
+//!   gate before the request reaches Rust.
 //!
 //! ## Lineage seeding (mirrors `crm-deals`)
 //!
 //! On create the body may carry `fromKind: "lead" | "deal"` + `fromId`;
 //! when both are present the handler fetches the parent under the same
-//! `userId` scope and seeds the new quotation's `lineage[]` via
+//! tenant scope and seeds the new quotation's `lineage[]` via
 //! [`crm_core::build_lineage_from_parent`]. A best-effort back-link is
 //! also pushed onto the parent's `lineage[]`. Failures are non-fatal —
 //! the quotation still saves.
 
 use axum::{
-    Json,
+    Extension, Json,
     extract::{Path, Query, State},
 };
 use bson::{Bson, Document, doc, oid::ObjectId};
 use chrono::Utc;
-use crm_core::{LineageRef, build_lineage_from_parent};
+use crm_core::{
+    LineageRef, ScopeMode, TenantScope, build_lineage_from_parent, sabcrm_project_oid,
+};
 use crm_sales_types::Quotation;
 use futures::TryStreamExt;
 use mongodb::options::FindOptions;
@@ -39,7 +49,9 @@ use sabnode_common::{ApiError, Result};
 use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
 use tracing::{instrument, warn};
 
-use crate::dto::{CreateQuotationInput, DEFAULT_LIMIT, ListQuery, MAX_LIMIT, UpdateQuotationInput};
+use crate::dto::{
+    CreateQuotationInput, DEFAULT_LIMIT, ListQuery, MAX_LIMIT, ScopeQuery, UpdateQuotationInput,
+};
 
 /// Mongo collection name. Must match the existing TS `CrmQuotation`
 /// shape so the Rust BFF and the legacy Next.js action share the same
@@ -60,6 +72,23 @@ fn user_oid(user: &AuthUser) -> Result<ObjectId> {
         .map_err(|_| ApiError::Unauthorized("subject is not a valid ObjectId".to_owned()))
 }
 
+/// Resolve the per-request [`TenantScope`] from the mount's
+/// [`ScopeMode`] (attached as an axum `Extension` by the router
+/// constructor):
+///
+/// - `ScopeMode::User` (legacy `/v1/crm/quotations`) — scope by the
+///   verified JWT subject. Identical to the historical behaviour.
+/// - `ScopeMode::Project` (`/v1/sabcrm/finance/quotations`) — scope by
+///   the caller-supplied `projectId`, 4xx when absent/invalid. The
+///   Next.js action gate has already validated project membership before
+///   the request reaches Rust.
+fn resolve_scope(mode: ScopeMode, user: &AuthUser, project_id: Option<&str>) -> Result<TenantScope> {
+    match mode {
+        ScopeMode::User => Ok(TenantScope::User(user_oid(user)?)),
+        ScopeMode::Project => Ok(TenantScope::Project(sabcrm_project_oid(project_id)?)),
+    }
+}
+
 /// Clamp `requested` page-size into `[1, MAX_LIMIT]`, defaulting to
 /// [`DEFAULT_LIMIT`] when absent. Returns an `i64` to match the
 /// `mongodb` driver's `FindOptions::limit` signature.
@@ -70,15 +99,14 @@ fn clamp_limit(requested: Option<u32>) -> i64 {
     }
 }
 
-/// Materialize the base ownership filter:
-/// `{ userId, archived: { $ne: true } }`. Soft-deleted rows
+/// Materialize the base ownership filter for the resolved scope:
+/// `{ <userId|projectId>, archived: { $ne: true } }`. Soft-deleted rows
 /// (`archived = true`) are excluded by default; callers that want to
 /// surface them must build their own filter.
-fn base_ownership_filter(user: ObjectId) -> Document {
-    doc! {
-        "userId": user,
-        "archived": { "$ne": true },
-    }
+fn base_ownership_filter(scope: &TenantScope) -> Document {
+    let mut f = scope.filter();
+    f.insert("archived", doc! { "$ne": true });
+    f
 }
 
 /// Optional-string update helper. When the input field is `Some`,
@@ -114,12 +142,13 @@ fn parent_coll_for(kind: &str) -> Option<&'static str> {
     }
 }
 
-/// Fetch the parent document (scoped by `userId`) and build the lineage
-/// chain a freshly-created quotation should inherit. Returns `Ok(None)`
-/// if the parent doesn't exist or isn't owned by the caller.
+/// Fetch the parent document (under the same tenant scope as the new
+/// quotation) and build the lineage chain a freshly-created quotation
+/// should inherit. Returns `Ok(None)` if the parent doesn't exist or
+/// isn't owned by the caller's scope.
 async fn seed_lineage_from_parent(
     mongo: &MongoHandle,
-    user_oid: ObjectId,
+    scope: &TenantScope,
     parent_kind: &str,
     parent_id_hex: &str,
 ) -> Result<Option<(Vec<LineageRef>, ObjectId, &'static str)>> {
@@ -129,8 +158,10 @@ async fn seed_lineage_from_parent(
     };
     let parent_oid = oid_from_str(parent_id_hex)?;
     let parents = mongo.collection::<Document>(coll_name);
+    let mut parent_filter = scope.filter();
+    parent_filter.insert("_id", parent_oid);
     let parent = match parents
-        .find_one(doc! { "_id": parent_oid, "userId": user_oid })
+        .find_one(parent_filter)
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_quotations.parent.find_one"))
@@ -171,12 +202,13 @@ async fn seed_lineage_from_parent(
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn list_quotations(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Query(q): Query<ListQuery>,
 ) -> Result<Json<Vec<Quotation>>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, q.project_id.as_deref())?;
 
-    let mut filter = base_ownership_filter(user_id);
+    let mut filter = base_ownership_filter(&scope);
     if let Some(needle) = q.q.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
         let regex = doc! { "$regex": needle, "$options": "i" };
         filter.insert(
@@ -228,13 +260,15 @@ pub async fn list_quotations(
 #[instrument(skip_all, fields(user_id = %user.user_id, quotation_id = %quotation_id))]
 pub async fn get_quotation(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(quotation_id): Path<String>,
+    Query(scope_q): Query<ScopeQuery>,
 ) -> Result<Json<Quotation>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, scope_q.project_id.as_deref())?;
     let quote_oid = oid_from_str(&quotation_id)?;
 
-    let mut filter = base_ownership_filter(user_id);
+    let mut filter = base_ownership_filter(&scope);
     filter.insert("_id", quote_oid);
 
     let coll = mongo.collection::<Quotation>(QUOTATIONS_COLL);
@@ -266,6 +300,7 @@ pub async fn get_quotation(
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn create_quotation(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Json(input): Json<CreateQuotationInput>,
 ) -> Result<Json<Quotation>> {
@@ -285,12 +320,20 @@ pub async fn create_quotation(
     }
 
     let user_id = user_oid(&user)?;
-    let project_id = match input.project_id.as_deref().filter(|s| !s.is_empty()) {
-        Some(s) => oid_from_str(s)?,
-        // Match the legacy TS behaviour: stamp a freshly-minted id when
-        // the caller doesn't pass one. Production callers SHOULD send
-        // the real projectId.
-        None => ObjectId::new(),
+    // In project mode the body's `projectId` IS the tenant scope and is
+    // therefore mandatory (4xx when absent) — `resolve_scope` enforces
+    // that. In legacy user mode the scope is the JWT subject and the
+    // body `projectId` stays optional, exactly as before.
+    let scope = resolve_scope(mode, &user, input.project_id.as_deref())?;
+    let project_id = match scope {
+        TenantScope::Project(p) => p,
+        TenantScope::User(_) => match input.project_id.as_deref().filter(|s| !s.is_empty()) {
+            Some(s) => oid_from_str(s)?,
+            // Match the legacy TS behaviour: stamp a freshly-minted id
+            // when the caller doesn't pass one. Production callers
+            // SHOULD send the real projectId.
+            None => ObjectId::new(),
+        },
     };
     let client_oid = oid_from_str(input.client_id.trim())?;
 
@@ -299,7 +342,7 @@ pub async fn create_quotation(
     let mut parent_back_link: Option<(&'static str, ObjectId)> = None;
     if let (Some(kind), Some(parent_id)) = (input.from_kind.as_deref(), input.from_id.as_deref()) {
         if !kind.is_empty() && !parent_id.is_empty() {
-            match seed_lineage_from_parent(&mongo, user_id, kind, parent_id).await {
+            match seed_lineage_from_parent(&mongo, &scope, kind, parent_id).await {
                 Ok(Some((lineage, parent_oid, coll_name))) => {
                     lineage_array = Some(
                         lineage
@@ -395,9 +438,11 @@ pub async fn create_quotation(
     // mirrors the TS `try { ... } catch {}` block in `crm-deals`).
     if let Some((parent_coll, parent_oid)) = parent_back_link {
         let parents = mongo.collection::<Document>(parent_coll);
+        let mut parent_filter = scope.filter();
+        parent_filter.insert("_id", parent_oid);
         let _ = parents
             .update_one(
-                doc! { "_id": parent_oid, "userId": user_id },
+                parent_filter,
                 doc! {
                     "$push": { "lineage": { "kind": "quotation", "id": new_oid } },
                     "$set":  { "updatedAt": now },
@@ -412,8 +457,10 @@ pub async fn create_quotation(
     // would force every optional field to be wired by hand at construct
     // time).
     let typed = mongo.collection::<Quotation>(QUOTATIONS_COLL);
+    let mut reread_filter = scope.filter();
+    reread_filter.insert("_id", new_oid);
     let quote = typed
-        .find_one(doc! { "_id": new_oid, "userId": user_id })
+        .find_one(reread_filter)
         .await
         .map_err(|e| {
             ApiError::Internal(
@@ -437,8 +484,10 @@ pub async fn create_quotation(
 #[instrument(skip_all, fields(user_id = %user.user_id, quotation_id = %quotation_id))]
 pub async fn update_quotation(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(quotation_id): Path<String>,
+    Query(scope_q): Query<ScopeQuery>,
     Json(input): Json<UpdateQuotationInput>,
 ) -> Result<Json<Quotation>> {
     if input.is_empty() {
@@ -455,6 +504,7 @@ pub async fn update_quotation(
     }
 
     let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, scope_q.project_id.as_deref())?;
     let quote_oid = oid_from_str(&quotation_id)?;
 
     let mut set = doc! {
@@ -508,7 +558,7 @@ pub async fn update_quotation(
         }
     }
 
-    let mut filter = base_ownership_filter(user_id);
+    let mut filter = base_ownership_filter(&scope);
     filter.insert("_id", quote_oid);
 
     let coll = mongo.collection::<Document>(QUOTATIONS_COLL);
@@ -551,13 +601,16 @@ pub async fn update_quotation(
 #[instrument(skip_all, fields(user_id = %user.user_id, quotation_id = %quotation_id))]
 pub async fn delete_quotation(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(quotation_id): Path<String>,
+    Query(scope_q): Query<ScopeQuery>,
 ) -> Result<Json<serde_json::Value>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, scope_q.project_id.as_deref())?;
     let quote_oid = oid_from_str(&quotation_id)?;
 
-    let filter = doc! { "_id": quote_oid, "userId": user_id };
+    let mut filter = scope.filter();
+    filter.insert("_id", quote_oid);
 
     let coll = mongo.collection::<Document>(QUOTATIONS_COLL);
     let res = coll.delete_one(filter).await.map_err(|e| {
@@ -594,10 +647,21 @@ mod tests {
     }
 
     #[test]
-    fn base_filter_excludes_archived() {
+    fn base_filter_excludes_archived_user_scope() {
         let oid = ObjectId::new();
-        let f = base_ownership_filter(oid);
+        let f = base_ownership_filter(&TenantScope::User(oid));
         assert_eq!(f.get_object_id("userId").unwrap(), oid);
+        assert!(!f.contains_key("projectId"));
+        let archived = f.get_document("archived").unwrap();
+        assert!(archived.contains_key("$ne"));
+    }
+
+    #[test]
+    fn base_filter_excludes_archived_project_scope() {
+        let oid = ObjectId::new();
+        let f = base_ownership_filter(&TenantScope::Project(oid));
+        assert_eq!(f.get_object_id("projectId").unwrap(), oid);
+        assert!(!f.contains_key("userId"));
         let archived = f.get_document("archived").unwrap();
         assert!(archived.contains_key("$ne"));
     }

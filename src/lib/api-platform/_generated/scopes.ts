@@ -82,6 +82,8 @@ export type OAuthScope =
   | 'qr:write'
   | 'sabchat:read'
   | 'sabchat:write'
+  | 'sabcrm:read'
+  | 'sabcrm:write'
   | 'sabfiles:read'
   | 'sabfiles:write'
   | 'sabwa:read'
@@ -179,6 +181,8 @@ export const ALL_SCOPES: ReadonlyArray<OAuthScope> = [
   'qr:write',
   'sabchat:read',
   'sabchat:write',
+  'sabcrm:read',
+  'sabcrm:write',
   'sabfiles:read',
   'sabfiles:write',
   'sabwa:read',

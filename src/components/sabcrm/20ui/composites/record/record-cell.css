@@ -1,0 +1,279 @@
+/* =========================================================================
+   RecordCell field styles (.rc-*) — display renderers + inline editors for
+   every SabCRM field type (composites/record/fields/*). Token-driven, scoped
+   to the 20ui roots; dark mode comes free via tokens.
+   ========================================================================= */
+
+/* ----- Display primitives ----- */
+:is(.\32 0ui, .ui20) .rc-text,
+:is(.\32 0ui, .ui20) .rc-date,
+:is(.\32 0ui, .ui20) .rc-actor {
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--st-font-size);
+  color: var(--st-text);
+}
+
+:is(.\32 0ui, .ui20) .rc-num,
+:is(.\32 0ui, .ui20) .rc-money {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--st-space-1);
+  font-variant-numeric: tabular-nums;
+  color: var(--st-text);
+}
+
+:is(.\32 0ui, .ui20) .rc-money__code {
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-tertiary);
+  letter-spacing: 0.02em;
+}
+
+:is(.\32 0ui, .ui20) .rc-empty {
+  color: var(--st-text-tertiary);
+  user-select: none;
+}
+
+:is(.\32 0ui, .ui20) .rc-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-1);
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--st-accent);
+  text-decoration: none;
+}
+:is(.\32 0ui, .ui20) .rc-link:hover {
+  color: var(--st-accent-hover);
+  text-decoration: underline;
+}
+
+:is(.\32 0ui, .ui20) .rc-bool {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: var(--st-radius-sm);
+  border: 1px solid var(--st-border-strong);
+  color: transparent;
+  background: var(--st-bg);
+}
+:is(.\32 0ui, .ui20) .rc-bool.is-on {
+  border-color: var(--st-accent);
+  background: var(--st-accent);
+  color: var(--st-text-inverted);
+}
+:is(.\32 0ui, .ui20) .rc-bool svg {
+  width: 12px;
+  height: 12px;
+}
+
+/* ----- Chips (emails / phones / links / multi-select tags) ----- */
+:is(.\32 0ui, .ui20) .rc-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--st-space-1);
+  min-width: 0;
+}
+
+:is(.\32 0ui, .ui20) .rc-chip,
+:is(.\32 0ui, .ui20) .rc-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-1);
+  max-width: 100%;
+  padding: 1px var(--st-space-2);
+  border-radius: var(--st-radius-pill);
+  border: 1px solid var(--st-border);
+  background: var(--st-bg-secondary);
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-secondary);
+  white-space: nowrap;
+}
+
+:is(.\32 0ui, .ui20) .rc-chip__label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+:is(.\32 0ui, .ui20) .rc-chip--link {
+  color: var(--st-accent);
+  text-decoration: none;
+}
+:is(.\32 0ui, .ui20) .rc-chip--link:hover {
+  border-color: var(--st-accent);
+  background: var(--st-accent-soft);
+}
+
+/* ----- Stacked composite display (FULL_NAME / ADDRESS) ----- */
+:is(.\32 0ui, .ui20) .rc-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+:is(.\32 0ui, .ui20) .rc-stack__line {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--st-text);
+}
+:is(.\32 0ui, .ui20) .rc-stack__line--muted {
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-secondary);
+}
+
+/* ----- Rating stars ----- */
+:is(.\32 0ui, .ui20) .rc-stars {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+:is(.\32 0ui, .ui20) .rc-star {
+  width: 14px;
+  height: 14px;
+  color: var(--st-border-strong);
+}
+:is(.\32 0ui, .ui20) .rc-star.is-on {
+  color: var(--st-warn);
+}
+:is(.\32 0ui, .ui20) .rc-star--btn {
+  display: inline-flex;
+  padding: 2px;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  border-radius: var(--st-radius-sm);
+}
+:is(.\32 0ui, .ui20) .rc-star--btn:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}
+
+/* ----- File ----- */
+:is(.\32 0ui, .ui20) .rc-file {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  min-width: 0;
+}
+:is(.\32 0ui, .ui20) .rc-file-avatar {
+  flex-shrink: 0;
+}
+
+/* ----- JSON / rich text previews ----- */
+:is(.\32 0ui, .ui20) .rc-json,
+:is(.\32 0ui, .ui20) .rc-richtext {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-secondary);
+}
+:is(.\32 0ui, .ui20) .rc-json {
+  font-family: var(--st-font-mono);
+}
+
+/* ----- Editors ----- */
+:is(.\32 0ui, .ui20) .rc-editor-row {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-1);
+  min-width: 0;
+}
+:is(.\32 0ui, .ui20) .rc-editor-row--file {
+  gap: var(--st-space-2);
+}
+
+:is(.\32 0ui, .ui20) .rc-editor-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--st-space-1);
+}
+
+:is(.\32 0ui, .ui20) .rc-editor-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-1);
+}
+:is(.\32 0ui, .ui20) .rc-editor-item {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-1);
+}
+
+:is(.\32 0ui, .ui20) .rc-editor-input {
+  width: 100%;
+  min-width: 0;
+  height: 26px;
+  padding: 0 var(--st-space-2);
+  border: 1px solid var(--st-accent);
+  border-radius: var(--st-radius-sm);
+  background: var(--st-bg);
+  color: var(--st-text);
+  font-family: var(--st-font);
+  font-size: var(--st-font-size);
+  outline: none;
+  box-shadow: 0 0 0 3px var(--st-accent-ring);
+}
+:is(.\32 0ui, .ui20) .rc-editor-input--num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+:is(.\32 0ui, .ui20) .rc-editor-input--time {
+  width: 92px;
+  flex: none;
+}
+:is(.\32 0ui, .ui20) .rc-editor-input--wide {
+  grid-column: 1 / -1;
+}
+
+:is(.\32 0ui, .ui20) .rc-editor-textarea {
+  width: 100%;
+  min-height: 72px;
+  padding: var(--st-space-1) var(--st-space-2);
+  border: 1px solid var(--st-accent);
+  border-radius: var(--st-radius-sm);
+  background: var(--st-bg);
+  color: var(--st-text);
+  font-family: var(--st-font);
+  font-size: var(--st-font-size);
+  outline: none;
+  box-shadow: 0 0 0 3px var(--st-accent-ring);
+  resize: vertical;
+}
+:is(.\32 0ui, .ui20) .rc-editor-textarea--mono {
+  font-family: var(--st-font-mono);
+  font-size: var(--st-font-size-sm);
+}
+
+:is(.\32 0ui, .ui20) .rc-editor-add {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-1);
+  align-self: flex-start;
+  padding: 2px var(--st-space-2);
+  border: 0;
+  border-radius: var(--st-radius-sm);
+  background: none;
+  color: var(--st-text-secondary);
+  font-size: var(--st-font-size-sm);
+  cursor: pointer;
+}
+:is(.\32 0ui, .ui20) .rc-editor-add:hover {
+  background: var(--st-hover);
+  color: var(--st-text);
+}
+:is(.\32 0ui, .ui20) .rc-editor-add:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}

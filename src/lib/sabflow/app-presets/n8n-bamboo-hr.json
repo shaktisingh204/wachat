@@ -4,8 +4,8 @@
   "description": "Consume BambooHR API",
   "category": "HR",
   "iconName": "LuPackage",
-  "version": 9,
-  "lastVerified": "2026-06-11",
+  "version": 10,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "bearer",
@@ -17,7 +17,7 @@
       "id": "employee_create",
       "label": "Create Employee",
       "method": "POST",
-      "path": "/employee",
+      "path": "/employees",
       "fields": [
         {
           "id": "synced",
@@ -259,13 +259,13 @@
         }
       ],
       "group": "Employee",
-      "description": "[unverified path] Create an employee"
+      "description": "Create an employee"
     },
     {
       "id": "employee_get",
       "label": "Get Employee",
       "method": "GET",
-      "path": "/employee",
+      "path": "/employees/{id}?fields={fields}",
       "fields": [
         {
           "id": "employeeId",
@@ -282,13 +282,13 @@
         }
       ],
       "group": "Employee",
-      "description": "[unverified path] Get an employee"
+      "description": "Get an employee"
     },
     {
       "id": "employee_get_all",
       "label": "Get Many Employee",
       "method": "GET",
-      "path": "/employee",
+      "path": "/employees/directory",
       "fields": [
         {
           "id": "returnAll",
@@ -306,13 +306,13 @@
         }
       ],
       "group": "Employee",
-      "description": "[unverified path] Get many employees"
+      "description": "Get many employees"
     },
     {
       "id": "employee_update",
       "label": "Update Employee",
-      "method": "PATCH",
-      "path": "/employee",
+      "method": "POST",
+      "path": "/employees/{id}",
       "fields": [
         {
           "id": "employeeId",
@@ -560,13 +560,13 @@
         }
       ],
       "group": "Employee",
-      "description": "[unverified path] Update an employee"
+      "description": "Update an employee"
     },
     {
       "id": "employee_document_delete",
       "label": "Delete Employee Document",
       "method": "DELETE",
-      "path": "/employee-document",
+      "path": "/employees/{id}/files/{fileId}",
       "fields": [
         {
           "id": "employeeId",
@@ -580,17 +580,18 @@
           "label": "File ID",
           "type": "text",
           "required": true,
-          "description": "ID of the employee file"
+          "description": "ID of the employee file",
+          "in": "path"
         }
       ],
       "group": "Employee Document",
-      "description": "[unverified path] Delete an employee document"
+      "description": "Delete an employee document"
     },
     {
       "id": "employee_document_download",
       "label": "Download Employee Document",
       "method": "GET",
-      "path": "/employee-document",
+      "path": "/employees/{id}/files/{fileId}/",
       "fields": [
         {
           "id": "employeeId",
@@ -604,7 +605,8 @@
           "label": "File ID",
           "type": "text",
           "required": true,
-          "description": "ID of the employee file"
+          "description": "ID of the employee file",
+          "in": "path"
         },
         {
           "id": "output",
@@ -616,13 +618,13 @@
         }
       ],
       "group": "Employee Document",
-      "description": "[unverified path] Download an employee document"
+      "description": "Download an employee document"
     },
     {
       "id": "employee_document_get_all",
       "label": "Get Many Employee Document",
       "method": "GET",
-      "path": "/employee-document",
+      "path": "/employees/{id}/files/view/",
       "fields": [
         {
           "id": "employeeId",
@@ -653,13 +655,13 @@
         }
       ],
       "group": "Employee Document",
-      "description": "[unverified path] Get many employee documents"
+      "description": "Get many employee documents"
     },
     {
       "id": "employee_document_update",
       "label": "Update Employee Document",
-      "method": "PATCH",
-      "path": "/employee-document",
+      "method": "POST",
+      "path": "/employees/{id}/files/{fileId}",
       "fields": [
         {
           "id": "employeeId",
@@ -671,7 +673,8 @@
           "id": "fileId",
           "label": "File ID",
           "type": "text",
-          "required": true
+          "required": true,
+          "in": "path"
         },
         {
           "id": "updateFields",
@@ -682,13 +685,13 @@
         }
       ],
       "group": "Employee Document",
-      "description": "[unverified path] Update an employee document"
+      "description": "Update an employee document"
     },
     {
       "id": "employee_document_upload",
       "label": "Upload Employee Document",
       "method": "POST",
-      "path": "/employee-document",
+      "path": "/employees/{id}/files",
       "fields": [
         {
           "id": "employeeId",
@@ -720,37 +723,39 @@
         }
       ],
       "group": "Employee Document",
-      "description": "[unverified path] Upload an employee document"
+      "description": "Upload an employee document"
     },
     {
       "id": "file_delete",
       "label": "Delete File",
       "method": "DELETE",
-      "path": "/file",
+      "path": "/files/{fileId}",
       "fields": [
         {
           "id": "fileId",
           "label": "File ID",
           "type": "text",
           "required": true,
-          "description": "ID of the file"
+          "description": "ID of the file",
+          "in": "path"
         }
       ],
       "group": "File",
-      "description": "[unverified path] Delete a company file"
+      "description": "Delete a company file"
     },
     {
       "id": "file_download",
       "label": "Download File",
       "method": "GET",
-      "path": "/file",
+      "path": "/files/{fileId}/",
       "fields": [
         {
           "id": "fileId",
           "label": "File ID",
           "type": "text",
           "required": true,
-          "description": "ID of the file"
+          "description": "ID of the file",
+          "in": "path"
         },
         {
           "id": "output",
@@ -762,13 +767,13 @@
         }
       ],
       "group": "File",
-      "description": "[unverified path] Download a company file"
+      "description": "Download a company file"
     },
     {
       "id": "file_get_all",
       "label": "Get Many File",
       "method": "GET",
-      "path": "/file",
+      "path": "/files/view",
       "fields": [
         {
           "id": "returnAll",
@@ -793,20 +798,21 @@
         }
       ],
       "group": "File",
-      "description": "[unverified path] Get many company files"
+      "description": "Get many company files"
     },
     {
       "id": "file_update",
       "label": "Update File",
-      "method": "PATCH",
-      "path": "/file",
+      "method": "POST",
+      "path": "/files/{fileId}",
       "fields": [
         {
           "id": "fileId",
           "label": "File ID",
           "type": "text",
           "required": true,
-          "description": "ID of the file"
+          "description": "ID of the file",
+          "in": "path"
         },
         {
           "id": "updateFields",
@@ -817,13 +823,13 @@
         }
       ],
       "group": "File",
-      "description": "[unverified path] Update a company file"
+      "description": "Update a company file"
     },
     {
       "id": "file_upload",
       "label": "Upload File",
       "method": "POST",
-      "path": "/file",
+      "path": "/files",
       "fields": [
         {
           "id": "binaryPropertyName",
@@ -849,20 +855,21 @@
         }
       ],
       "group": "File",
-      "description": "[unverified path] Upload a company file"
+      "description": "Upload a company file"
     },
     {
       "id": "company_report_get",
       "label": "Get Company Report",
       "method": "GET",
-      "path": "/company-report",
+      "path": "/reports/{reportId}/?format={format}&fd={fd}&onlyCurrent={onlyCurrent}",
       "fields": [
         {
           "id": "reportId",
           "label": "Report ID",
           "type": "text",
           "required": true,
-          "description": "ID of the report. You can get the report number by hovering over the report name on the reports page and grabbing the ID."
+          "description": "ID of the report. You can get the report number by hovering over the report name on the reports page and grabbing the ID.",
+          "in": "path"
         },
         {
           "id": "format",
@@ -892,7 +899,8 @@
               "value": "XML",
               "label": "XML"
             }
-          ]
+          ],
+          "in": "path"
         },
         {
           "id": "output",
@@ -911,7 +919,7 @@
         }
       ],
       "group": "Company Report",
-      "description": "[unverified path] Get a company report"
+      "description": "Get a company report"
     }
   ]
 }

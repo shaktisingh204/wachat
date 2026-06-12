@@ -4,14 +4,14 @@
   "description": "Consume the Copper API",
   "category": "crm",
   "iconName": "LuPackage",
-  "version": 11,
-  "lastVerified": "2026-06-11",
+  "version": 12,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "https://api.copper.com",
+  "baseUrl": "https://api.copper.com/developer_api/v1",
   "endpoints": [
     {
       "id": "company_create",
@@ -76,8 +76,8 @@
     {
       "id": "company_get_all",
       "label": "Get Many Company",
-      "method": "GET",
-      "path": "/company",
+      "method": "POST",
+      "path": "/companies/search",
       "fields": [
         {
           "id": "returnAll",
@@ -102,7 +102,7 @@
         }
       ],
       "group": "Company",
-      "description": "[unverified path] Get many companies"
+      "description": "Get many companies"
     },
     {
       "id": "company_update",
@@ -133,7 +133,7 @@
       "id": "customer_source_get_all",
       "label": "Get Many Customer Source",
       "method": "GET",
-      "path": "/customer-source",
+      "path": "/customer_sources",
       "fields": [
         {
           "id": "returnAll",
@@ -151,7 +151,7 @@
         }
       ],
       "group": "Customer Source",
-      "description": "[unverified path] Get many customer sources"
+      "description": "Get many customer sources"
     },
     {
       "id": "lead_create",
@@ -216,8 +216,8 @@
     {
       "id": "lead_get_all",
       "label": "Get Many Lead",
-      "method": "GET",
-      "path": "/lead",
+      "method": "POST",
+      "path": "/leads/search",
       "fields": [
         {
           "id": "returnAll",
@@ -242,7 +242,7 @@
         }
       ],
       "group": "Lead",
-      "description": "[unverified path] Get many leads"
+      "description": "Get many leads"
     },
     {
       "id": "lead_update",
@@ -337,8 +337,8 @@
     {
       "id": "opportunity_get_all",
       "label": "Get Many Opportunity",
-      "method": "GET",
-      "path": "/opportunity",
+      "method": "POST",
+      "path": "/opportunities/search",
       "fields": [
         {
           "id": "returnAll",
@@ -363,7 +363,7 @@
         }
       ],
       "group": "Opportunity",
-      "description": "[unverified path] Get many opportunities"
+      "description": "Get many opportunities"
     },
     {
       "id": "opportunity_update",
@@ -453,8 +453,8 @@
     {
       "id": "person_get_all",
       "label": "Get Many Person",
-      "method": "GET",
-      "path": "/person",
+      "method": "POST",
+      "path": "/people/search",
       "fields": [
         {
           "id": "returnAll",
@@ -479,7 +479,7 @@
         }
       ],
       "group": "Person",
-      "description": "[unverified path] Get many people"
+      "description": "Get many people"
     },
     {
       "id": "person_update",
@@ -569,8 +569,8 @@
     {
       "id": "project_get_all",
       "label": "Get Many Project",
-      "method": "GET",
-      "path": "/project",
+      "method": "POST",
+      "path": "/projects/search",
       "fields": [
         {
           "id": "returnAll",
@@ -595,7 +595,7 @@
         }
       ],
       "group": "Project",
-      "description": "[unverified path] Get many projects"
+      "description": "Get many projects"
     },
     {
       "id": "project_update",
@@ -684,8 +684,8 @@
     {
       "id": "task_get_all",
       "label": "Get Many Task",
-      "method": "GET",
-      "path": "/task",
+      "method": "POST",
+      "path": "/tasks/search",
       "fields": [
         {
           "id": "returnAll",
@@ -710,7 +710,7 @@
         }
       ],
       "group": "Task",
-      "description": "[unverified path] Get many tasks"
+      "description": "Get many tasks"
     },
     {
       "id": "task_update",
@@ -740,8 +740,8 @@
     {
       "id": "user_get_all",
       "label": "Get Many User",
-      "method": "GET",
-      "path": "/user",
+      "method": "POST",
+      "path": "/users/search",
       "fields": [
         {
           "id": "returnAll",
@@ -759,7 +759,7 @@
         }
       ],
       "group": "User",
-      "description": "[unverified path] Get many users"
+      "description": "Get many users"
     }
   ]
 }

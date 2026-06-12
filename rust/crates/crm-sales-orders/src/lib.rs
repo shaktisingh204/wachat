@@ -8,11 +8,14 @@
 //!   the canonical [`crm_sales_types::SalesOrder`] from the §1 sales
 //!   types crate; we never redeclare it here).
 //! - Handlers live in [`handlers`] and read [`sabnode_auth::AuthUser`] as
-//!   their authenticated principal. Every query is scoped by
-//!   `userId == AuthUser.user_id` (the CRM "tenant root" — see
-//!   `crm-core::Identity`).
-//! - The [`router`] module exposes a state-generic [`router::router`]
-//!   that the host `api` crate mounts under `/v1/crm/sales-orders`.
+//!   their authenticated principal.
+//! - The [`router`] module exposes two state-generic constructors:
+//!   [`router::router`] (legacy `userId` scope, mounted under
+//!   `/v1/crm/sales-orders`) and [`router::project_router`] (SabCRM
+//!   Finance `projectId` scope, mounted under
+//!   `/v1/sabcrm/finance/sales-orders`). Both share the same handlers;
+//!   the per-request tenant filter key is resolved from the mount's
+//!   `crm_core::ScopeMode` extension.
 //!
 //! ## Mongo
 //!
@@ -53,4 +56,4 @@ pub mod dto;
 pub mod handlers;
 pub mod router;
 
-pub use router::router;
+pub use router::{project_router, router};

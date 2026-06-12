@@ -20,6 +20,10 @@
 //! POST   /             — link_target      (idempotent upsert)
 //! DELETE /             — unlink_target
 //! GET    /for-record   — list_for_record  (sources on a record)
+//! GET    /quotas       — list_quotas      (sales quotas / goals)
+//! POST   /quotas       — create_quota
+//! PATCH  /quotas/{id}  — update_quota
+//! DELETE /quotas/{id}  — delete_quota
 //! ```
 
 use std::sync::Arc;
@@ -27,7 +31,7 @@ use std::sync::Arc;
 use axum::{
     Router,
     extract::FromRef,
-    routing::get,
+    routing::{get, patch},
 };
 use sabnode_auth::AuthConfig;
 use sabnode_db::mongo::MongoHandle;
@@ -50,4 +54,12 @@ where
                 .delete(handlers::unlink_target),
         )
         .route("/for-record", get(handlers::list_for_record))
+        .route(
+            "/quotas",
+            get(handlers::list_quotas).post(handlers::create_quota),
+        )
+        .route(
+            "/quotas/{id}",
+            patch(handlers::update_quota).delete(handlers::delete_quota),
+        )
 }

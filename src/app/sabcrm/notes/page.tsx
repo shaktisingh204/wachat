@@ -3,17 +3,17 @@
 export const dynamic = 'force-dynamic';
 
 /**
- * SabCRM — top-level "Notes" surface (`/sabcrm/notes`), Twenty-faithful.
+ * SabCRM — top-level "Notes" surface (`/sabcrm/notes`), 20ui.
  *
- * A standalone screen over the standard `notes` object, rendered in Twenty's
- * visual language (`.st-*` classes + the `@/components/sabcrm/twenty` kit + the
- * sibling `../tasks-notes.css` — NO Ui20 / Tailwind / clay).
+ * A standalone screen over the standard `notes` object, rendered on the 20ui
+ * design system (`@/components/sabcrm/20ui` + the page-local `./notes.css`,
+ * scoped to the 20ui root).
  *
  * Layout parity with Twenty's `NoteList` / `NoteTile`:
  *   - A responsive GRID of fixed-height note tiles (title + body preview),
  *     newest first, each linking to `/sabcrm/notes/{id}`.
- *   - A header "New note" button that opens a Twenty-style dialog (title + body)
- *     backed by `createSabcrmRecordTw`.
+ *   - A header "New note" button that opens a dialog (title + body) backed by
+ *     `createSabcrmRecordTw`.
  *   - A toolbar search box (debounced) + live record count.
  *
  * Why `notes` records (not activities)?
@@ -33,7 +33,6 @@ import * as React from 'react';
 import Link from 'next/link';
 import { Plus, StickyNote } from 'lucide-react';
 
-import { TwentyPageHeader, TwentyButton } from '@/components/sabcrm/twenty';
 import {
   Modal,
   Field,
@@ -41,6 +40,12 @@ import {
   Textarea,
   Button,
   Alert,
+  EmptyState,
+  PageActions,
+  PageDescription,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
   Skeleton,
   SearchInput,
 } from '@/components/sabcrm/20ui';
@@ -52,7 +57,7 @@ import {
 import type { SabcrmRustRecord } from '@/app/actions/sabcrm-twenty.actions.types';
 
 import '@/components/sabcrm/20ui/surface-crm-base.css';
-import '../tasks-notes.css';
+import './notes.css';
 
 // ---------------------------------------------------------------------------
 // Constants / helpers
@@ -96,13 +101,13 @@ function NoteTile({ record }: { record: SabcrmRustRecord }) {
   const title = noteTitle(record);
   const body = noteBody(record, title);
   return (
-    <Link href={`/sabcrm/notes/${record.id}`} className="stn-note-tile">
-      <div className="stn-note-tile__body">
-        <div className="stn-note-tile__title">
+    <Link href={`/sabcrm/notes/${record.id}`} className="nts-tile">
+      <div className="nts-tile__body">
+        <div className="nts-tile__title">
           <StickyNote size={14} aria-hidden="true" />
-          <span className="stn-note-tile__title-text">{title}</span>
+          <span className="nts-tile__title-text">{title}</span>
         </div>
-        {body ? <p className="stn-note-tile__content">{body}</p> : null}
+        {body ? <p className="nts-tile__content">{body}</p> : null}
       </div>
     </Link>
   );
@@ -110,7 +115,7 @@ function NoteTile({ record }: { record: SabcrmRustRecord }) {
 
 function NotesSkeleton() {
   return (
-    <div className="stn-notes-grid" aria-hidden="true">
+    <div className="nts-grid" aria-hidden="true">
       {Array.from({ length: 6 }).map((_, i) => (
         <Skeleton key={i} height={180} radius={8} />
       ))}
@@ -123,7 +128,7 @@ function ErrorBanner({ message }: { message: string }) {
 }
 
 // ---------------------------------------------------------------------------
-// Create dialog (Twenty-style — title + body)
+// Create dialog (title + body)
 // ---------------------------------------------------------------------------
 
 interface CreateDialogProps {
@@ -179,20 +184,16 @@ function CreateDialog({ projectId, onClose, onCreated }: CreateDialogProps) {
       title="New note"
       footer={
         <>
-          <TwentyButton variant="secondary" onClick={onClose} disabled={saving}>
+          <Button variant="secondary" onClick={onClose} disabled={saving}>
             Cancel
-          </TwentyButton>
+          </Button>
           <Button type="submit" form={formId} variant="primary" loading={saving}>
             Create note
           </Button>
         </>
       }
     >
-      <form
-        id={formId}
-        onSubmit={handleSubmit}
-        style={{ display: 'flex', flexDirection: 'column', gap: 16 }}
-      >
+      <form id={formId} onSubmit={handleSubmit} className="nts-form">
         <Field label="Title">
           <Input
             value={title}
@@ -283,27 +284,30 @@ export default function SabcrmNotesPage(): React.JSX.Element {
   const isSearching = debouncedSearch.length > 0;
 
   return (
-    <div className="st-page">
-      <TwentyPageHeader
-        title="Notes"
-        icon={StickyNote}
-        actions={
-          <TwentyButton variant="primary" icon={Plus} onClick={() => setCreateOpen(true)}>
+    <div className="nts-page">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageTitle>Notes</PageTitle>
+          <PageDescription>
+            Notes you add here are kept together, newest first.
+          </PageDescription>
+        </PageHeaderHeading>
+        <PageActions>
+          <Button variant="primary" iconLeft={Plus} onClick={() => setCreateOpen(true)}>
             New note
-          </TwentyButton>
-        }
-      />
+          </Button>
+        </PageActions>
+      </PageHeader>
 
-      <div className="st-toolbar">
+      <div className="nts-toolbar">
         <SearchInput
           value={search}
           placeholder="Search notes…"
           aria-label="Search notes"
           onValueChange={setSearch}
         />
-        <div className="st-toolbar__spacer" />
         {!loading ? (
-          <span className="st-count">
+          <span className="nts-count">
             {notes.length} {notes.length === 1 ? 'note' : 'notes'}
           </span>
         ) : null}
@@ -314,26 +318,28 @@ export default function SabcrmNotesPage(): React.JSX.Element {
       {loading ? (
         <NotesSkeleton />
       ) : isEmpty ? (
-        <div className="st-empty">
-          <span className="st-empty__icon">
-            <StickyNote size={20} />
-          </span>
-          <h2 className="st-empty__title">
-            {isSearching ? 'No matching notes' : 'No notes yet'}
-          </h2>
-          <p className="st-empty__desc">
-            {isSearching
+        <EmptyState
+          icon={StickyNote}
+          title={isSearching ? 'No matching notes' : 'No notes yet'}
+          description={
+            isSearching
               ? 'Try a different search term, or clear the search to see every note.'
-              : 'Notes you add here are kept together, newest first. Create your first note to get started.'}
-          </p>
-          {!isSearching ? (
-            <TwentyButton variant="primary" icon={Plus} onClick={() => setCreateOpen(true)}>
-              New note
-            </TwentyButton>
-          ) : null}
-        </div>
+              : 'Notes you add here are kept together, newest first. Create your first note to get started.'
+          }
+          action={
+            !isSearching ? (
+              <Button
+                variant="primary"
+                iconLeft={Plus}
+                onClick={() => setCreateOpen(true)}
+              >
+                New note
+              </Button>
+            ) : undefined
+          }
+        />
       ) : (
-        <div className="stn-notes-grid">
+        <div className="nts-grid">
           {notes.map((record) => (
             <NoteTile key={record.id} record={record} />
           ))}

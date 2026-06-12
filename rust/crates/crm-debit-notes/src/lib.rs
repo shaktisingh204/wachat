@@ -12,11 +12,13 @@
 //!   the canonical [`crm_purchases_types::DebitNote`]; we never
 //!   redeclare it here).
 //! - Handlers live in [`handlers`] and read [`sabnode_auth::AuthUser`]
-//!   as their authenticated principal. Every query is scoped by
-//!   `userId == AuthUser.user_id` (the CRM "tenant root" — see
-//!   [`crm_core::Identity`]).
-//! - The [`router`] module exposes a state-generic [`router::router`]
-//!   that the host `api` crate mounts under `/v1/crm/debit-notes`.
+//!   as their authenticated principal. Every query is scoped by the
+//!   mount's [`crm_core::ScopeMode`]: `userId == AuthUser.user_id` on
+//!   the legacy mount, `projectId` on the SabCRM Finance mount.
+//! - The [`router`] module exposes the state-generic [`router::router`]
+//!   (legacy, mounted under `/v1/crm/debit-notes`) and
+//!   [`router::project_router`] (SabCRM Finance, mounted under
+//!   `/v1/sabcrm/finance/debit-notes`).
 //!
 //! ## Mongo
 //!
@@ -52,4 +54,4 @@ pub mod dto;
 pub mod handlers;
 pub mod router;
 
-pub use router::router;
+pub use router::{project_router, router};

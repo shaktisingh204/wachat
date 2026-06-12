@@ -12,8 +12,16 @@
 //! | `PATCH` | `/:debitNoteId`     | [`update_debit_note`] |
 //! | `DELETE`| `/:debitNoteId`     | [`delete_debit_note`] |
 //!
-//! Every handler scopes its Mongo query by `userId == AuthUser.user_id`
-//! — the CRM tenant root from [`crm_core::Identity`].
+//! Every handler scopes its Mongo query by the mount's
+//! [`crm_core::ScopeMode`] (attached as an axum `Extension` by the
+//! router constructors in [`crate::router`]):
+//!
+//! - `/v1/crm/debit-notes` (legacy) — `userId == AuthUser.user_id`, the
+//!   CRM tenant root from [`crm_core::Identity`]. Unchanged behaviour.
+//! - `/v1/sabcrm/finance/debit-notes` (SabCRM Finance suite) —
+//!   `projectId == ?projectId` / body `projectId`, required per-request
+//!   (4xx when absent). Membership is validated by the Next.js action
+//!   gate before the request reaches Rust.
 //!
 //! ## Lineage parents
 //!
@@ -25,12 +33,15 @@
 //! `try { ... } catch {}` block in the TS action.
 
 use axum::{
-    Json,
+    Extension, Json,
     extract::{Path, Query, State},
 };
 use bson::{Bson, Document, doc, oid::ObjectId};
 use chrono::Utc;
-use crm_core::{LineageRef, append_lineage, build_lineage_from_parent};
+use crm_core::{
+    LineageRef, ScopeMode, TenantScope, append_lineage, build_lineage_from_parent,
+    sabcrm_project_oid,
+};
 use crm_purchases_types::DebitNote;
 use futures::TryStreamExt;
 use mongodb::options::FindOptions;
@@ -39,7 +50,9 @@ use sabnode_common::{ApiError, Result};
 use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
 use tracing::{instrument, warn};
 
-use crate::dto::{CreateDebitNoteInput, DEFAULT_LIMIT, ListQuery, MAX_LIMIT, UpdateDebitNoteInput};
+use crate::dto::{
+    CreateDebitNoteInput, DEFAULT_LIMIT, ListQuery, MAX_LIMIT, ScopeQuery, UpdateDebitNoteInput,
+};
 
 /// Mongo collection name. Must match the §2.4 spec (and the TS literal
 /// in `src/lib/definitions.ts`) so the Rust BFF and the legacy Next.js
@@ -85,6 +98,23 @@ fn user_oid(user: &AuthUser) -> Result<ObjectId> {
         .map_err(|_| ApiError::Unauthorized("subject is not a valid ObjectId".to_owned()))
 }
 
+/// Resolve the per-request [`TenantScope`] from the mount's
+/// [`ScopeMode`] (attached as an axum `Extension` by the router
+/// constructor):
+///
+/// - `ScopeMode::User` (legacy `/v1/crm/debit-notes`) — scope by the
+///   verified JWT subject. Identical to the historical behaviour.
+/// - `ScopeMode::Project` (`/v1/sabcrm/finance/debit-notes`) — scope by
+///   the caller-supplied `projectId`, 4xx when absent/invalid. The
+///   Next.js action gate has already validated project membership
+///   before the request reaches Rust.
+fn resolve_scope(mode: ScopeMode, user: &AuthUser, project_id: Option<&str>) -> Result<TenantScope> {
+    match mode {
+        ScopeMode::User => Ok(TenantScope::User(user_oid(user)?)),
+        ScopeMode::Project => Ok(TenantScope::Project(sabcrm_project_oid(project_id)?)),
+    }
+}
+
 /// Clamp `requested` page-size into `[1, MAX_LIMIT]`, defaulting to
 /// [`DEFAULT_LIMIT`] when absent. Returns an `i64` to match the
 /// `mongodb` driver's `FindOptions::limit` signature.
@@ -95,15 +125,14 @@ fn clamp_limit(requested: Option<u32>) -> i64 {
     }
 }
 
-/// Materialize the base ownership filter:
-/// `{ userId, archived: { $ne: true } }`. Soft-deleted rows
+/// Materialize the base ownership filter for the resolved scope:
+/// `{ <userId|projectId>, archived: { $ne: true } }`. Soft-deleted rows
 /// (`archived = true`) are excluded by default; callers that want to
 /// surface them must build their own filter.
-fn base_ownership_filter(user: ObjectId) -> Document {
-    doc! {
-        "userId": user,
-        "archived": { "$ne": true },
-    }
+fn base_ownership_filter(scope: &TenantScope) -> Document {
+    let mut f = scope.filter();
+    f.insert("archived", doc! { "$ne": true });
+    f
 }
 
 /// Optional-string update helper. When the input field is `Some`,
@@ -161,12 +190,13 @@ fn json_to_bson(field: &str, value: &serde_json::Value) -> Result<Bson> {
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn list_debit_notes(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Query(q): Query<ListQuery>,
 ) -> Result<Json<Vec<DebitNote>>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, q.project_id.as_deref())?;
 
-    let mut filter = base_ownership_filter(user_id);
+    let mut filter = base_ownership_filter(&scope);
 
     if let Some(needle) = q.q.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
         filter.insert("dnNo", doc! { "$regex": needle, "$options": "i" });
@@ -211,13 +241,15 @@ pub async fn list_debit_notes(
 #[instrument(skip_all, fields(user_id = %user.user_id, dn_id = %dn_id))]
 pub async fn get_debit_note(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(dn_id): Path<String>,
+    Query(scope_q): Query<ScopeQuery>,
 ) -> Result<Json<DebitNote>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, scope_q.project_id.as_deref())?;
     let dn_oid = oid_from_str(&dn_id)?;
 
-    let mut filter = base_ownership_filter(user_id);
+    let mut filter = base_ownership_filter(&scope);
     filter.insert("_id", dn_oid);
 
     let coll = mongo.collection::<DebitNote>(DEBIT_NOTES_COLL);
@@ -245,6 +277,7 @@ pub async fn get_debit_note(
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn create_debit_note(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Json(input): Json<CreateDebitNoteInput>,
 ) -> Result<Json<DebitNote>> {
@@ -281,11 +314,19 @@ pub async fn create_debit_note(
 
     // ---- ObjectIds + dates ---------------------------------------------
     let user_id = user_oid(&user)?;
-    let project_id = match input.project_id.as_deref().filter(|s| !s.is_empty()) {
-        Some(s) => oid_from_str(s)?,
-        // Match the legacy TS behaviour — single-tenant callers omit
-        // projectId and pick up a freshly-minted id at insert time.
-        None => ObjectId::new(),
+    // In project mode the body's `projectId` IS the tenant scope and is
+    // therefore mandatory (4xx when absent) — `resolve_scope` enforces
+    // that. In legacy user mode the scope is the JWT subject and the
+    // body `projectId` stays optional, exactly as before.
+    let scope = resolve_scope(mode, &user, input.project_id.as_deref())?;
+    let project_id = match scope {
+        TenantScope::Project(p) => p,
+        TenantScope::User(_) => match input.project_id.as_deref().filter(|s| !s.is_empty()) {
+            Some(s) => oid_from_str(s)?,
+            // Match the legacy TS behaviour — single-tenant callers omit
+            // projectId and pick up a freshly-minted id at insert time.
+            None => ObjectId::new(),
+        },
     };
     let vendor_oid = oid_from_str(&input.vendor_id)?;
     let linked_bill_oid = match input.linked_bill_id.as_deref().filter(|s| !s.is_empty()) {
@@ -309,7 +350,7 @@ pub async fn create_debit_note(
                 // the wildcard so the match stays exhaustive.
                 _ => unreachable!(),
             };
-            match seed_lineage_from_parent(&mongo, user_id, parent_id, kind, coll_name).await {
+            match seed_lineage_from_parent(&mongo, &scope, parent_id, kind, coll_name).await {
                 Ok(Some((chain, parent_oid))) => {
                     lineage_array = Some(
                         chain
@@ -387,7 +428,7 @@ pub async fn create_debit_note(
     // and swallowed.
     if let Some((parent_coll, parent_oid)) = parent_back_link {
         if let Err(e) =
-            backlink_parent(&mongo, parent_coll, parent_oid, user_id, new_oid, now).await
+            backlink_parent(&mongo, parent_coll, parent_oid, &scope, new_oid, now).await
         {
             warn!(error = %e, "parent back-link failed; debit note already saved");
         }
@@ -396,7 +437,7 @@ pub async fn create_debit_note(
     // ---- Re-read via the typed collection so the response is the
     // canonical [`DebitNote`] shape. -------------------------------------
     let typed = mongo.collection::<DebitNote>(DEBIT_NOTES_COLL);
-    let mut filter = base_ownership_filter(user_id);
+    let mut filter = scope.filter();
     filter.insert("_id", new_oid);
     let dn = typed
         .find_one(filter)
@@ -411,21 +452,23 @@ pub async fn create_debit_note(
     Ok(Json(dn))
 }
 
-/// Fetch the parent bill / purchase order (scoped by `userId`) and
-/// build the lineage chain a freshly-created debit note should inherit.
-/// Returns `Ok(None)` if the parent doesn't exist or isn't owned by
-/// the caller.
+/// Fetch the parent bill / purchase order (under the same tenant scope
+/// as the new debit note) and build the lineage chain a freshly-created
+/// debit note should inherit. Returns `Ok(None)` if the parent doesn't
+/// exist or isn't owned by the caller's scope.
 async fn seed_lineage_from_parent(
     mongo: &MongoHandle,
-    user_oid: ObjectId,
+    scope: &TenantScope,
     parent_id_hex: &str,
     parent_kind: &str,
     parent_collection: &str,
 ) -> Result<Option<(Vec<LineageRef>, ObjectId)>> {
     let parent_oid = oid_from_str(parent_id_hex)?;
     let coll = mongo.collection::<Document>(parent_collection);
+    let mut parent_filter = scope.filter();
+    parent_filter.insert("_id", parent_oid);
     let parent = match coll
-        .find_one(doc! { "_id": parent_oid, "userId": user_oid })
+        .find_one(parent_filter)
         .await
         .map_err(|e| {
             ApiError::Internal(
@@ -465,13 +508,15 @@ async fn backlink_parent(
     mongo: &MongoHandle,
     parent_collection: &str,
     parent_oid: ObjectId,
-    user_oid: ObjectId,
+    scope: &TenantScope,
     child_oid: ObjectId,
     now: bson::DateTime,
 ) -> Result<()> {
     let coll = mongo.collection::<Document>(parent_collection);
+    let mut parent_filter = scope.filter();
+    parent_filter.insert("_id", parent_oid);
     let parent = coll
-        .find_one(doc! { "_id": parent_oid, "userId": user_oid })
+        .find_one(parent_filter.clone())
         .await
         .map_err(|e| {
             ApiError::Internal(
@@ -506,7 +551,7 @@ async fn backlink_parent(
         .collect();
 
     coll.update_one(
-        doc! { "_id": parent_oid, "userId": user_oid },
+        parent_filter,
         doc! {
             "$set": {
                 "lineage": Bson::Array(updated_arr),
@@ -535,8 +580,10 @@ async fn backlink_parent(
 #[instrument(skip_all, fields(user_id = %user.user_id, dn_id = %dn_id))]
 pub async fn update_debit_note(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(dn_id): Path<String>,
+    Query(scope_q): Query<ScopeQuery>,
     Json(input): Json<UpdateDebitNoteInput>,
 ) -> Result<Json<DebitNote>> {
     if input.is_empty() {
@@ -546,6 +593,7 @@ pub async fn update_debit_note(
     }
 
     let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, scope_q.project_id.as_deref())?;
     let dn_oid = oid_from_str(&dn_id)?;
 
     let mut set = doc! {
@@ -600,7 +648,7 @@ pub async fn update_debit_note(
         set.insert("totals", json_to_bson("totals", totals)?);
     }
 
-    let mut filter = base_ownership_filter(user_id);
+    let mut filter = base_ownership_filter(&scope);
     filter.insert("_id", dn_oid);
 
     let coll = mongo.collection::<Document>(DEBIT_NOTES_COLL);
@@ -643,13 +691,16 @@ pub async fn update_debit_note(
 #[instrument(skip_all, fields(user_id = %user.user_id, dn_id = %dn_id))]
 pub async fn delete_debit_note(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(dn_id): Path<String>,
+    Query(scope_q): Query<ScopeQuery>,
 ) -> Result<Json<serde_json::Value>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, scope_q.project_id.as_deref())?;
     let dn_oid = oid_from_str(&dn_id)?;
 
-    let filter = doc! { "_id": dn_oid, "userId": user_id };
+    let mut filter = scope.filter();
+    filter.insert("_id", dn_oid);
 
     let coll = mongo.collection::<Document>(DEBIT_NOTES_COLL);
     let res = coll.delete_one(filter).await.map_err(|e| {
@@ -686,10 +737,21 @@ mod tests {
     }
 
     #[test]
-    fn base_filter_excludes_archived() {
+    fn base_filter_excludes_archived_user_scope() {
         let oid = ObjectId::new();
-        let f = base_ownership_filter(oid);
+        let f = base_ownership_filter(&TenantScope::User(oid));
         assert_eq!(f.get_object_id("userId").unwrap(), oid);
+        assert!(!f.contains_key("projectId"));
+        let archived = f.get_document("archived").unwrap();
+        assert!(archived.contains_key("$ne"));
+    }
+
+    #[test]
+    fn base_filter_excludes_archived_project_scope() {
+        let oid = ObjectId::new();
+        let f = base_ownership_filter(&TenantScope::Project(oid));
+        assert_eq!(f.get_object_id("projectId").unwrap(), oid);
+        assert!(!f.contains_key("userId"));
         let archived = f.get_document("archived").unwrap();
         assert!(archived.contains_key("$ne"));
     }

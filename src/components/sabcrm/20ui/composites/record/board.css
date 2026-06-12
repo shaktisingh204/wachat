@@ -1,0 +1,273 @@
+/* =========================================================================
+   RecordBoard — kanban board (composites/record).
+
+   Calm, dense, Linear-grade. Tokens only (--st-*); dark mode comes for free
+   through the token layer. Every rule is scoped under the 20ui roots —
+   `:is(.\32 0ui, .ui20)` — NEVER a bare `.20ui.foo` compound (the leading
+   digit breaks the selector; see 20ui scope-rename fallout).
+
+   Class prefix: `.rb-*` (record board), mirroring RecordGrid's `.rg-*`.
+   ========================================================================= */
+
+:is(.\32 0ui, .ui20) .rb {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+  font-family: var(--st-font);
+  font-size: var(--st-font-size);
+  color: var(--st-text);
+}
+
+/* ------------------------------------------------------------ scroll rail */
+
+:is(.\32 0ui, .ui20) .rb-scroll {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--st-space-3);
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: var(--st-space-1) var(--st-space-1) var(--st-space-3);
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
+}
+
+/* ----------------------------------------------------------------- column */
+
+:is(.\32 0ui, .ui20) .rb-col {
+  flex: 0 0 280px;
+  min-width: 280px;
+  max-height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  background: var(--st-bg-secondary);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+
+/* Drop-target highlight while a card hovers this column. */
+:is(.\32 0ui, .ui20) .rb-col--over {
+  border-color: var(--st-accent);
+  box-shadow: 0 0 0 2px var(--st-accent-ring);
+}
+
+:is(.\32 0ui, .ui20) .rb-col__head {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  min-height: 36px;
+  padding: var(--st-space-2) var(--st-space-2) var(--st-space-2) var(--st-space-3);
+}
+
+:is(.\32 0ui, .ui20) .rb-col__dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+:is(.\32 0ui, .ui20) .rb-col__label {
+  margin: 0;
+  min-width: 0;
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+:is(.\32 0ui, .ui20) .rb-col__count {
+  flex: none;
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Right-aligned cluster: aggregate pill + add button. */
+:is(.\32 0ui, .ui20) .rb-col__tail {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-1);
+  min-width: 0;
+}
+
+:is(.\32 0ui, .ui20) .rb-col__sum {
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-secondary);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------- gate banner */
+
+:is(.\32 0ui, .ui20) .rb-gate {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--st-space-2);
+  margin: 0 var(--st-space-2) var(--st-space-2);
+  padding: var(--st-space-2);
+  border-radius: var(--st-radius);
+  font-size: var(--st-font-size-xs);
+  line-height: 1.45;
+  color: var(--st-text);
+  background: color-mix(in srgb, var(--st-warn) 10%, var(--st-bg));
+  border: 1px solid color-mix(in srgb, var(--st-warn) 35%, transparent);
+  animation: rb-gate-in 160ms ease-out;
+}
+
+:is(.\32 0ui, .ui20) .rb-gate > svg {
+  flex: none;
+  margin-top: 1px;
+  color: var(--st-warn);
+}
+
+:is(.\32 0ui, .ui20) .rb-gate--forbidden {
+  background: color-mix(in srgb, var(--st-danger) 8%, var(--st-bg));
+  border-color: color-mix(in srgb, var(--st-danger) 32%, transparent);
+}
+
+:is(.\32 0ui, .ui20) .rb-gate--forbidden > svg {
+  color: var(--st-danger);
+}
+
+:is(.\32 0ui, .ui20) .rb-gate__reason {
+  min-width: 0;
+}
+
+@keyframes rb-gate-in {
+  from {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ------------------------------------------------------------- card list */
+
+:is(.\32 0ui, .ui20) .rb-col__list {
+  flex: 1;
+  min-height: 60px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-2);
+  padding: 0 var(--st-space-2) var(--st-space-2);
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
+
+:is(.\32 0ui, .ui20) .rb-col__more {
+  flex: none;
+}
+
+:is(.\32 0ui, .ui20) .rb-col__footer {
+  flex: none;
+  border-top: 1px solid var(--st-border-light);
+  padding: var(--st-space-2) var(--st-space-3);
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------------------------- card */
+
+:is(.\32 0ui, .ui20) .rb-card {
+  position: relative;
+  box-sizing: border-box;
+  background: var(--st-bg);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  padding: var(--st-space-3);
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none; /* PointerSensor needs the gesture, not the scroll */
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+
+:is(.\32 0ui, .ui20) .rb-card:hover {
+  border-color: var(--st-border-strong);
+  box-shadow: var(--st-shadow-sm);
+}
+
+:is(.\32 0ui, .ui20) .rb-card:focus-visible {
+  outline: 2px solid var(--st-accent);
+  outline-offset: 1px;
+}
+
+/* In-list placeholder while its overlay clone is being dragged. */
+:is(.\32 0ui, .ui20) .rb-card.is-dragging {
+  opacity: 0.4;
+}
+
+/* The floating clone inside <DragOverlay>. */
+:is(.\32 0ui, .ui20) .rb-card--overlay {
+  width: 100%;
+  cursor: grabbing;
+  border-color: var(--st-border-strong);
+  box-shadow: var(--st-shadow-pop);
+}
+
+:is(.\32 0ui, .ui20) .rb-card__content {
+  min-width: 0;
+}
+
+/* ---- deal rotting ---- */
+
+/* Near-1 decay: warn-tinted border (desaturation is inline, level-scaled). */
+:is(.\32 0ui, .ui20) .rb-card--rot-hot {
+  border-color: var(--st-warn);
+}
+
+:is(.\32 0ui, .ui20) .rb-card__rot {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-1);
+  margin-top: var(--st-space-2);
+  font-size: var(--st-font-size-xs);
+  color: var(--st-warn);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------------------ empty state */
+
+:is(.\32 0ui, .ui20) .rb-empty {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  min-height: 200px;
+  padding: var(--st-space-6);
+  border: 1px dashed var(--st-border);
+  border-radius: var(--st-radius-lg);
+  color: var(--st-text-secondary);
+  font-size: var(--st-font-size-sm);
+}
+
+/* -------------------------------------------------------------- skeletons */
+
+:is(.\32 0ui, .ui20) .rb-col--skeleton .rb-col__head {
+  gap: var(--st-space-2);
+}
+
+/* ----------------------------------------------------------- motion calm */
+
+@media (prefers-reduced-motion: reduce) {
+  :is(.\32 0ui, .ui20) .rb-col,
+  :is(.\32 0ui, .ui20) .rb-card {
+    transition: none;
+  }
+  :is(.\32 0ui, .ui20) .rb-gate {
+    animation: none;
+  }
+}

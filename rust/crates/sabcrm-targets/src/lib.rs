@@ -33,6 +33,17 @@
 //! | link (idempotent)    | `POST   /`            |
 //! | unlink               | `DELETE /`            |
 //!
+//! Plus the ADDITIVE **sales quotas** sub-resource (per-project goals for
+//! the `/sabcrm/forecast` weighted-forecast UI), stored in the separate
+//! `sabcrm_sales_targets` collection:
+//!
+//! | Action               | HTTP route              |
+//! |----------------------|-------------------------|
+//! | list quotas          | `GET    /quotas`        |
+//! | create quota         | `POST   /quotas`        |
+//! | update quota         | `PATCH  /quotas/{id}`   |
+//! | delete quota         | `DELETE /quotas/{id}`   |
+//!
 //! ## Tenancy & indexes
 //!
 //! Every Mongo filter leads with `projectId` (a query/body string; never

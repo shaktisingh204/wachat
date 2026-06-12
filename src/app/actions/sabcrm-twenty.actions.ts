@@ -42,6 +42,8 @@ import {
   recordAudit,
   maybeNotifyAssignment,
   runWorkflowsForEvent,
+  runRecordChangeWorkflows,
+  patchTouchesChangeFields,
 } from '@/lib/sabcrm/runtime';
 import type {
   SabcrmRustActivity,
@@ -491,6 +493,20 @@ export async function updateSabcrmRecordTw(
       };
     }
 
+    // Capture the pre-update snapshot ONLY when the patch touches a field
+    // watched by the `record.stage_changed` / `record.status_changed`
+    // workflow events — the old vs new diff is computed off this snapshot.
+    // Best-effort: an unreadable snapshot must not block the update.
+    let beforeData: Record<string, unknown> | undefined;
+    if (patchTouchesChangeFields(data ?? {})) {
+      try {
+        const before = await sabcrmRecordsApi.get(object, id, g.ctx.projectId);
+        beforeData = before?.data ?? {};
+      } catch {
+        beforeData = undefined;
+      }
+    }
+
     const record = await sabcrmRecordsApi.update(object, id, {
       projectId: g.ctx.projectId,
       data: stampedData,
@@ -526,6 +542,18 @@ export async function updateSabcrmRecordTw(
       patch,
       g.ctx.userId,
     );
+    // Fire the ported legacy-CRM change events (`record.stage_changed` /
+    // `record.status_changed`) when the patch flipped a watched field.
+    if (patchTouchesChangeFields(patch)) {
+      await runRecordChangeWorkflows(
+        g.ctx.projectId,
+        object,
+        id,
+        beforeData,
+        patch,
+        g.ctx.userId,
+      );
+    }
 
     revalidatePath(`${TW_BASE_PATH}/${object}`);
     revalidatePath(`${TW_BASE_PATH}/${object}/${id}`);

@@ -10,4 +10,12 @@
  * relation pickers on the Twenty-faithful record pages.
  */
 
-export type { SabcrmRustTarget } from '@/lib/rust-client/sabcrm-targets';
+export type {
+  SabcrmQuotaCreateInput,
+  SabcrmQuotaListOpts,
+  SabcrmQuotaMetric,
+  SabcrmQuotaPeriod,
+  SabcrmQuotaUpdateInput,
+  SabcrmRustQuota,
+  SabcrmRustTarget,
+} from '@/lib/rust-client/sabcrm-targets';

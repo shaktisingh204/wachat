@@ -3,7 +3,7 @@
 export const dynamic = 'force-dynamic';
 
 /**
- * SabCRM — workspace-wide ACTIVITY feed (`/sabcrm/activity`), Twenty look.
+ * SabCRM — workspace-wide ACTIVITY feed (`/sabcrm/activity`), 20ui.
  *
  * Twenty's record pages each carry a per-record timeline; this is the
  * project-wide rollup of that same stream — every NOTE / TASK / CALL / MEETING /
@@ -33,9 +33,9 @@ export const dynamic = 'force-dynamic';
  * fail). Client Component — auth / RBAC / project context come from
  * `../layout.tsx`; the actions independently re-run the full gate.
  *
- * Twenty look, on the 20ui design system (`@/components/sabcrm/20ui`, scoped
- * under the CRM frame's `.sabcrm-twenty` class so no wrapper is needed) plus the
- * sibling `./activity.css` for the timeline rail. NO Ui20 / Tailwind / clay.
+ * 20ui only (`@/components/sabcrm/20ui` + the record composites'
+ * `TimelineList` for the feed itself) plus the sibling `./activity.css` for
+ * page-local layout (`.sa-*`, scoped to the 20ui root).
  */
 
 import * as React from 'react';
@@ -54,15 +54,24 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 
-import { TwentyPageHeader } from '@/components/sabcrm/twenty';
 import {
   Alert,
   Button,
   EmptyState,
+  PageActions,
+  PageDescription,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
   SegmentedControl,
   Skeleton,
   type SegmentedItem,
 } from '@/components/sabcrm/20ui';
+import {
+  TimelineList,
+  type TimelineItem,
+  type TimelineItemKind,
+} from '@/components/sabcrm/20ui/composites/record';
 import { useProject } from '@/context/project-context';
 import {
   listSabcrmObjectsTw,
@@ -108,43 +117,18 @@ const FILTERS: readonly { key: FilterKey; label: string; icon: LucideIcon }[] = 
   { key: 'EMAIL', label: 'Email', icon: Mail },
 ] as const;
 
-const TYPE_ICON: Record<string, LucideIcon> = {
-  NOTE: StickyNote,
-  TASK: CheckCircle2,
-  CALL: Phone,
-  MEETING: CalendarClock,
-  EMAIL: Mail,
+/** Engine activity type → `TimelineList` item kind (icon-per-kind rail). */
+const KIND_BY_TYPE: Record<string, TimelineItemKind> = {
+  NOTE: 'note',
+  TASK: 'task',
+  CALL: 'call',
+  MEETING: 'meeting',
+  EMAIL: 'email',
 };
 
-function iconForType(type: string): LucideIcon {
-  return TYPE_ICON[type.toUpperCase()] ?? ActivityIcon;
-}
-
 // ---------------------------------------------------------------------------
-// Time + label helpers
+// Label helpers
 // ---------------------------------------------------------------------------
-
-const MINUTE = 60_000;
-const HOUR = 60 * MINUTE;
-const DAY = 24 * HOUR;
-const WEEK = 7 * DAY;
-
-/** Compact relative time — "just now", "5m ago", "3h ago", else a short date. */
-function relativeTime(value: string | undefined): string {
-  if (!value) return '';
-  const then = new Date(value).getTime();
-  if (Number.isNaN(then)) return '';
-  const diff = Date.now() - then;
-  if (diff < MINUTE) return 'just now';
-  if (diff < HOUR) return `${Math.floor(diff / MINUTE)}m ago`;
-  if (diff < DAY) return `${Math.floor(diff / HOUR)}h ago`;
-  if (diff < WEEK) return `${Math.floor(diff / DAY)}d ago`;
-  return new Date(then).toLocaleDateString(undefined, {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  });
-}
 
 function asText(value: unknown): string {
   if (typeof value === 'string') return value;
@@ -331,48 +315,41 @@ function FeedSkeleton(): React.JSX.Element {
   );
 }
 
-interface FeedRowProps {
-  item: FeedItem;
-}
-
-function FeedRow({ item }: FeedRowProps): React.JSX.Element {
+/** Map a feed item onto the shared `TimelineList` item shape. */
+function toTimelineItem(item: FeedItem): TimelineItem {
   const { activity, targetLabel, targetObjectLabel } = item;
-  const Icon = iconForType(activity.type);
   const snippet = plainSnippet(activity.body);
+  const hasTarget = Boolean(activity.targetObject && activity.targetRecordId);
   const href = `/sabcrm/${activity.targetObject}/${activity.targetRecordId}`;
-  return (
-    <li className="sa-item">
-      <div className="sa-item__rail">
-        <span className="sa-item__dot" aria-hidden="true">
-          <Icon size={13} />
-        </span>
+  const meta =
+    snippet || hasTarget || activity.authorId ? (
+      <div className="sa-meta">
+        {snippet ? <p className="sa-meta__snippet">{snippet}</p> : null}
+        {hasTarget || activity.authorId ? (
+          <div className="sa-meta__foot">
+            {hasTarget ? (
+              <Link className="sa-meta__target" href={href}>
+                <Database size={12} aria-hidden="true" />
+                <span className="sa-meta__target-label">
+                  {targetObjectLabel}: {targetLabel}
+                </span>
+              </Link>
+            ) : null}
+            {activity.authorId ? (
+              <span className="sa-meta__author">by {activity.authorId}</span>
+            ) : null}
+          </div>
+        ) : null}
       </div>
-      <div className="sa-item__body">
-        <div className="sa-item__head">
-          <span className="sa-item__title">
-            {activity.title || activity.type}
-          </span>
-          <time className="sa-item__time" dateTime={activity.createdAt}>
-            {relativeTime(activity.createdAt)}
-          </time>
-        </div>
-        {snippet ? <p className="sa-item__snippet">{snippet}</p> : null}
-        <div className="sa-item__foot">
-          {activity.targetObject && activity.targetRecordId ? (
-            <Link className="sa-item__target" href={href}>
-              <Database size={12} aria-hidden="true" />
-              <span className="sa-item__target-label">
-                {targetObjectLabel}: {targetLabel}
-              </span>
-            </Link>
-          ) : null}
-          {activity.authorId ? (
-            <span className="sa-item__author">by {activity.authorId}</span>
-          ) : null}
-        </div>
-      </div>
-    </li>
-  );
+    ) : undefined;
+
+  return {
+    id: activity.id,
+    kind: KIND_BY_TYPE[activity.type.toUpperCase()] ?? 'event',
+    title: activity.title || activity.type,
+    at: activity.createdAt,
+    meta,
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -443,93 +420,99 @@ export default function SabcrmActivityPage(): React.JSX.Element {
     [items, loading],
   );
 
-  const headerActions = (
-    <Button
-      variant="secondary"
-      size="sm"
-      iconLeft={RefreshCw}
-      onClick={refresh}
-      loading={loading}
-      aria-label="Refresh activity feed"
-      title="Refresh"
-    >
-      Refresh
-    </Button>
+  const timelineItems = React.useMemo<TimelineItem[]>(
+    () => items.map(toTimelineItem),
+    [items],
   );
 
   return (
-    <>
-      <TwentyPageHeader
-        title="Activity"
-        icon={ActivityIcon}
-        actions={headerActions}
-      />
+    <div className="sa-page">
+      <div className="sa-page__inner">
+        <PageHeader>
+          <PageHeaderHeading>
+            <PageTitle>Activity</PageTitle>
+            <PageDescription>
+              Notes, tasks, calls, meetings and emails across every record,
+              newest first.
+            </PageDescription>
+          </PageHeaderHeading>
+          <PageActions>
+            <Button
+              variant="secondary"
+              size="sm"
+              iconLeft={RefreshCw}
+              onClick={refresh}
+              loading={loading}
+              aria-label="Refresh activity feed"
+              title="Refresh"
+            >
+              Refresh
+            </Button>
+          </PageActions>
+        </PageHeader>
 
-      <div className="sa-feed">
-        {/* Type filter (segmented) */}
-        <div className="sa-feed__filters">
-          <SegmentedControl<FilterKey>
-            aria-label="Filter activity by type"
-            size="sm"
-            value={filter}
-            onChange={setFilter}
-            items={filterItems}
-          />
+        <div className="sa-feed">
+          {/* Type filter (segmented) */}
+          <div className="sa-feed__filters">
+            <SegmentedControl<FilterKey>
+              aria-label="Filter activity by type"
+              size="sm"
+              value={filter}
+              onChange={setFilter}
+              items={filterItems}
+            />
+          </div>
+
+          {/* Degraded-engine notice (partial results retained) */}
+          {partial && !error ? (
+            <Alert tone="warning">
+              Some activity couldn&apos;t be loaded, so the feed may be
+              incomplete. Try refreshing.
+            </Alert>
+          ) : null}
+
+          {/* Body: loading → error → empty → timeline */}
+          {loading ? (
+            <FeedSkeleton />
+          ) : error ? (
+            <Alert
+              tone="danger"
+              title="Couldn't load activity"
+              icon={AlertTriangle}
+            >
+              <p>{error}</p>
+              <div className="sa-feed__state-action">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  iconLeft={RefreshCw}
+                  onClick={refresh}
+                >
+                  Try again
+                </Button>
+              </div>
+            </Alert>
+          ) : !activeProjectId ? (
+            <EmptyState
+              icon={Inbox}
+              title="No project selected"
+              description="Choose a project to see its activity feed."
+            />
+          ) : items.length === 0 ? (
+            <EmptyState
+              icon={ActivityIcon}
+              title={
+                filter === 'ALL'
+                  ? 'No activity yet'
+                  : `No ${filter.toLowerCase()} activity`
+              }
+              description="Notes, tasks, calls, meetings and emails added to your records show up here, newest first."
+            />
+          ) : (
+            <TimelineList items={timelineItems} />
+          )}
         </div>
-
-        {/* Degraded-engine notice (partial results retained) */}
-        {partial && !error ? (
-          <Alert tone="warning">
-            Some activity couldn&apos;t be loaded, so the feed may be
-            incomplete. Try refreshing.
-          </Alert>
-        ) : null}
-
-        {/* Body: loading → error → empty → list */}
-        {loading ? (
-          <FeedSkeleton />
-        ) : error ? (
-          <Alert
-            tone="danger"
-            title="Couldn't load activity"
-            icon={AlertTriangle}
-          >
-            <p>{error}</p>
-            <div className="sa-feed__state-action">
-              <Button
-                variant="secondary"
-                size="sm"
-                iconLeft={RefreshCw}
-                onClick={refresh}
-              >
-                Try again
-              </Button>
-            </div>
-          </Alert>
-        ) : !activeProjectId ? (
-          <EmptyState
-            icon={Inbox}
-            title="No project selected"
-            description="Choose a project to see its activity feed."
-          />
-        ) : items.length === 0 ? (
-          <EmptyState
-            icon={ActivityIcon}
-            title={
-              filter === 'ALL'
-                ? 'No activity yet'
-                : `No ${filter.toLowerCase()} activity`
-            }
-            description="Notes, tasks, calls, meetings and emails added to your records show up here, newest first."
-          />
-        ) : (
-          <ol className="sa-feed__list">
-            {items.map((item) => (
-              <FeedRow key={item.activity.id} item={item} />
-            ))}
-          </ol>
-        )}
       </div>
-    </>
+    </div>
   );
 }

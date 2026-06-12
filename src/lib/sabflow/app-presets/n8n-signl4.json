@@ -4,21 +4,29 @@
   "description": "Consume SIGNL4 API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 11,
-  "lastVerified": "2026-06-11",
+  "version": 12,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "header",
     "credentialType": "http_header_auth"
   },
-  "baseUrl": "https://connect.signl4.com/webhook",
+  "baseUrl": "https://connect.signl4.com/webhook/{teamSecret}",
   "endpoints": [
     {
       "id": "alert_send",
       "label": "Send Alert",
       "method": "POST",
-      "path": "/alert",
+      "path": "",
       "fields": [
+        {
+          "id": "teamSecret",
+          "label": "Team Secret",
+          "type": "text",
+          "required": true,
+          "in": "path",
+          "description": "Team Secret of your SIGNL4 account (host token in the API base URL)"
+        },
         {
           "id": "message",
           "label": "Message",
@@ -34,23 +42,7 @@
         }
       ],
       "group": "Alert",
-      "description": "[unverified path] Send an alert"
-    },
-    {
-      "id": "alert_resolve",
-      "label": "Resolve Alert",
-      "method": "POST",
-      "path": "/alert",
-      "fields": [
-        {
-          "id": "externalId",
-          "label": "External ID",
-          "type": "text",
-          "description": "If the event originates from a record in a 3rd party system, use this parameter to pass the unique ID of that record. That ID will be communicated in outbound webhook notifications from SIGNL4, which is great for correlation/synchronization of that record with the alert. If you resolve / close an alert you must use the same External ID as in the original alert."
-        }
-      ],
-      "group": "Alert",
-      "description": "[unverified path] Resolve an alert"
+      "description": "Send an alert"
     }
   ]
 }

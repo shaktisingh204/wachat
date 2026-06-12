@@ -1,5 +1,29 @@
 # SabCRM → 20ui migration (retire `.sabcrm-twenty` / `.st-*`)
 
+> **2026-06-11 — absorbed into the SabCRM Suite program.** This migration now
+> runs inside the larger consolidation that folds the legacy CRM module
+> (`/dashboard/crm`, CRM + ERP) into SabCRM and deletes it afterward
+> (plan: `~/.claude/plans/now-i-want-to-dazzling-sunset.md`). Two strategy
+> changes supersede parts of this doc:
+>
+> 1. **Phases 5–6 (shared `twenty/` kit + in-place record-engine migration)
+>    are REPLACED by a clean rebuild**: a reusable "RecordSurface" engine in
+>    `src/components/sabcrm/20ui/composites/record/` (tanstack table+virtual
+>    grid, field renderers ported from `twenty-field.tsx`, dnd-kit board with
+>    stage gates, recursive filter builder, record detail tabs). `[objectSlug]`
+>    routes flip to it per-object behind a flag; the `twenty/` kit then dies by
+>    attrition (shims re-export 20ui `Popover`/`Select`/`Badge` so untouched
+>    pages compile mid-program). Rationale: no live users + true redesign +
+>    ~10 new ERP domains needing the same table/filter/board.
+> 2. **The shell swap landed early**: `/sabcrm/layout.tsx` now mounts
+>    `SabcrmSuiteFrame` (`src/components/sabcrm/sabcrm-suite-frame.tsx`) — the
+>    20ui `SabAppSidebar` with suite groups (Sales / Finance / Insights /
+>    Other) — instead of `TwentyAppFrame`. The frame still carries the
+>    `.sabcrm-twenty ui20` token root + `SabcrmSettingsProvider` until the last
+>    `.st-*` page is rebuilt.
+>
+> Phases 0–4 and 7 (recipe, page waves, CSS endgame) remain authoritative.
+
 **Goal:** move all of SabCRM off its bespoke "Twenty" design layer (scope class
 `.sabcrm-twenty` + `.st-*` component primitives) onto the **20ui** design system
 (real components from `@/components/sabcrm/20ui`, scoped under the `20ui` class —

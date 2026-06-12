@@ -4,8 +4,8 @@
   "description": "Consume Yourls API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 4,
-  "lastVerified": "2026-06-11",
+  "version": 5,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "header",
@@ -16,8 +16,8 @@
     {
       "id": "url_expand",
       "label": "Expand URL",
-      "method": "POST",
-      "path": "/url",
+      "method": "GET",
+      "path": "?action=expand&format=json",
       "fields": [
         {
           "id": "host",
@@ -36,13 +36,13 @@
         }
       ],
       "group": "URL",
-      "description": "[unverified path] Expand a URL"
+      "description": "Expand a URL"
     },
     {
       "id": "url_shorten",
       "label": "Shorten URL",
-      "method": "POST",
-      "path": "/url",
+      "method": "GET",
+      "path": "?action=shorturl&format=json",
       "fields": [
         {
           "id": "host",
@@ -68,13 +68,13 @@
         }
       ],
       "group": "URL",
-      "description": "[unverified path] Shorten a URL"
+      "description": "Shorten a URL"
     },
     {
       "id": "url_stats",
       "label": "Stats URL",
-      "method": "POST",
-      "path": "/url",
+      "method": "GET",
+      "path": "?action=url-stats&format=json",
       "fields": [
         {
           "id": "host",
@@ -93,7 +93,7 @@
         }
       ],
       "group": "URL",
-      "description": "[unverified path] Get stats about one short URL"
+      "description": "Get stats about one short URL"
     }
   ]
 }

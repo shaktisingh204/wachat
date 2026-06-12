@@ -4,8 +4,8 @@
   "description": "Consume the Microsoft Graph Security API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 10,
-  "lastVerified": "2026-06-11",
+  "version": 11,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -40,7 +40,7 @@
       "id": "secure_score_get_all",
       "label": "Get Many Secure Score",
       "method": "GET",
-      "path": "/secure-score",
+      "path": "/v1.0/security/secureScores",
       "fields": [
         {
           "id": "returnAll",
@@ -65,7 +65,7 @@
         }
       ],
       "group": "Secure Score",
-      "description": "[unverified path] Get many secure scores"
+      "description": "Get many secure scores"
     },
     {
       "id": "secure_score_control_profile_get",
@@ -89,7 +89,7 @@
       "id": "secure_score_control_profile_get_all",
       "label": "Get Many Secure Score Control Profile",
       "method": "GET",
-      "path": "/secure-score-control-profile",
+      "path": "/v1.0/security/secureScoreControlProfiles",
       "fields": [
         {
           "id": "returnAll",
@@ -114,7 +114,7 @@
         }
       ],
       "group": "Secure Score Control Profile",
-      "description": "[unverified path] Get many secure score control profiles"
+      "description": "Get many secure score control profiles"
     },
     {
       "id": "secure_score_control_profile_update",

@@ -1,0 +1,229 @@
+/* =========================================================================
+   SabCRM — Reports (`/sabcrm/reports` + `/sabcrm/reports/builder`) styles, 20ui.
+
+   Page-local layout ONLY (`rp-*` prefix), scoped to the 20ui root
+   (`:is(.\32 0ui, .ui20)` — NEVER a bare `.20ui.foo` compound). Charts render
+   through the shared composites (`composites/charts`) via `./report-chart`.
+   Tokens only (`--st-*`), so dark mode is free.
+   ========================================================================= */
+
+/* Page scroll wrapper + centered content column ------------------------- */
+:is(.\32 0ui, .ui20) .rp-page {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: var(--st-space-5);
+  overflow-y: auto;
+}
+
+:is(.\32 0ui, .ui20) .rp-page__inner {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* Back link (builder) ------------------------------------------------------ */
+:is(.\32 0ui, .ui20) .rp-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: var(--st-space-3);
+  color: var(--st-text-secondary);
+  font-size: var(--st-font-size-sm);
+  text-decoration: none;
+  transition: color 120ms ease;
+}
+
+:is(.\32 0ui, .ui20) .rp-back:hover {
+  color: var(--st-text);
+}
+
+/* Inline alert spacing ----------------------------------------------------- */
+:is(.\32 0ui, .ui20) .rp-alert {
+  margin-bottom: var(--st-space-4);
+}
+
+/* Section card ------------------------------------------------------------- */
+:is(.\32 0ui, .ui20) .rp-section {
+  min-width: 0;
+  padding: var(--st-space-4);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-bg);
+}
+
+:is(.\32 0ui, .ui20) .rp-section + .rp-section {
+  margin-top: var(--st-space-4);
+}
+
+:is(.\32 0ui, .ui20) .rp-section__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--st-space-2);
+  margin-bottom: var(--st-space-4);
+}
+
+:is(.\32 0ui, .ui20) .rp-section__title {
+  margin: 0;
+  font-size: var(--st-font-size);
+  font-weight: var(--st-fw-semibold);
+  color: var(--st-text);
+}
+
+:is(.\32 0ui, .ui20) .rp-section__desc {
+  margin: 2px 0 0;
+  color: var(--st-text-secondary);
+  font-size: var(--st-font-size-sm);
+}
+
+:is(.\32 0ui, .ui20) .rp-section__head-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-2);
+}
+
+/* Vertical form / skeleton stack ------------------------------------------- */
+:is(.\32 0ui, .ui20) .rp-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-4);
+}
+
+:is(.\32 0ui, .ui20) .rp-stack--tight {
+  gap: var(--st-space-2);
+}
+
+/* Muted inline text --------------------------------------------------------- */
+:is(.\32 0ui, .ui20) .rp-muted {
+  color: var(--st-text-secondary);
+  font-size: var(--st-font-size-sm);
+}
+
+/* Report gallery rows -------------------------------------------------------- */
+:is(.\32 0ui, .ui20) .rp-row {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-3);
+  padding: var(--st-space-3) var(--st-space-2);
+}
+
+:is(.\32 0ui, .ui20) .rp-row + .rp-row {
+  border-top: 1px solid var(--st-border);
+}
+
+:is(.\32 0ui, .ui20) .rp-row__main {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+:is(.\32 0ui, .ui20) .rp-row__title {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: var(--st-font-size);
+  font-weight: var(--st-fw-semibold);
+  color: var(--st-text);
+}
+
+:is(.\32 0ui, .ui20) .rp-row__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  flex-wrap: wrap;
+}
+
+:is(.\32 0ui, .ui20) .rp-row__actions {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-1);
+  flex: 0 0 auto;
+}
+
+:is(.\32 0ui, .ui20) .rp-row__busy {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+}
+
+/* Inline run result --------------------------------------------------------- */
+:is(.\32 0ui, .ui20) .rp-result {
+  padding: var(--st-space-3) var(--st-space-2) var(--st-space-4);
+  border-top: 1px dashed var(--st-border);
+}
+
+:is(.\32 0ui, .ui20) .rp-result-foot {
+  margin-top: var(--st-space-2);
+  color: var(--st-text-tertiary);
+  font-size: var(--st-font-size-sm);
+}
+
+/* Single-value metric tile ---------------------------------------------------- */
+:is(.\32 0ui, .ui20) .rp-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: var(--st-space-4) 0;
+}
+
+:is(.\32 0ui, .ui20) .rp-metric__value {
+  font-size: 34px;
+  line-height: 1.1;
+  font-weight: var(--st-fw-semibold);
+  letter-spacing: -0.02em;
+  color: var(--st-text);
+  font-variant-numeric: tabular-nums;
+}
+
+:is(.\32 0ui, .ui20) .rp-metric__caption {
+  color: var(--st-text-secondary);
+  font-size: var(--st-font-size-sm);
+}
+
+/* Table chart ------------------------------------------------------------------ */
+:is(.\32 0ui, .ui20) .rp-table-wrap {
+  overflow-x: auto;
+}
+
+:is(.\32 0ui, .ui20) .rp-table__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+:is(.\32 0ui, .ui20) .rp-table__dot {
+  flex: 0 0 auto;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+/* Builder two-pane canvas -------------------------------------------------------- */
+:is(.\32 0ui, .ui20) .rp-builder {
+  display: grid;
+  grid-template-columns: minmax(280px, 380px) minmax(0, 1fr);
+  gap: var(--st-space-4);
+  align-items: start;
+}
+
+@media (max-width: 860px) {
+  :is(.\32 0ui, .ui20) .rp-builder {
+    grid-template-columns: 1fr;
+  }
+}
+
+:is(.\32 0ui, .ui20) .rp-builder .rp-section + .rp-section {
+  margin-top: 0;
+}
+
+/* Confirm dialog body --------------------------------------------------------------- */
+:is(.\32 0ui, .ui20) .rp-confirm-text {
+  margin: 0;
+  color: var(--st-text-secondary);
+  font-size: var(--st-font-size);
+}

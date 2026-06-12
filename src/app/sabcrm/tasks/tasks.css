@@ -1,0 +1,175 @@
+/**
+ * SabCRM — Tasks page-local styles (20ui).
+ *
+ * Small layout extras for the `/sabcrm/tasks` board cards, toolbar and table,
+ * scoped under the 20ui roots (`.\32 0ui` / `.ui20`) and styled with `--st-*`
+ * design tokens ONLY — dark mode is automatic. The kanban chrome itself
+ * (columns, drag, card borders) comes from the `RecordBoard` composite
+ * (`.rb-*`); these `tk-*` classes only lay out the card CONTENT and the bits
+ * 20ui has no primitive for (overdue tint, strike-through titles).
+ */
+
+/* ------------------------------------------------------------- toolbar -- */
+
+:is(.\32 0ui, .ui20) .tk-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--st-space-3, 12px);
+  margin: var(--st-space-4, 16px) 0;
+}
+
+:is(.\32 0ui, .ui20) .tk-toolbar__spacer {
+  flex: 1 1 auto;
+}
+
+:is(.\32 0ui, .ui20) .tk-count {
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-tertiary);
+  white-space: nowrap;
+}
+
+:is(.\32 0ui, .ui20) .tk-error {
+  margin-bottom: var(--st-space-3, 12px);
+}
+
+/* ---------------------------------------------------- board card content -- */
+
+:is(.\32 0ui, .ui20) .tk-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-2, 8px);
+}
+
+/* Head row: completion checkbox + title, aligned to the top. */
+:is(.\32 0ui, .ui20) .tk-card__head {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--st-space-2, 8px);
+}
+
+:is(.\32 0ui, .ui20) .tk-card__title {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: var(--st-font-size-sm);
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--st-text);
+  word-break: break-word;
+}
+
+/* Completed task title — struck through and muted. */
+:is(.\32 0ui, .ui20) .tk-card__title.is-done {
+  color: var(--st-text-tertiary);
+  text-decoration: line-through;
+}
+
+/* A single icon + text meta line (due date, unassigned…). */
+:is(.\32 0ui, .ui20) .tk-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-secondary);
+}
+
+:is(.\32 0ui, .ui20) .tk-meta svg {
+  flex: 0 0 auto;
+  color: var(--st-text-tertiary);
+}
+
+/* Overdue tint — text AND icon go danger. */
+:is(.\32 0ui, .ui20) .tk-meta.is-overdue,
+:is(.\32 0ui, .ui20) .tk-meta.is-overdue svg,
+:is(.\32 0ui, .ui20) .tk-due-overdue {
+  color: var(--st-danger);
+}
+
+:is(.\32 0ui, .ui20) .tk-overdue-tag {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--st-danger);
+}
+
+/* Footer row — assignee chip on the left, busy spinner on the right. */
+:is(.\32 0ui, .ui20) .tk-card__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--st-space-2, 8px);
+  margin-top: 2px;
+}
+
+:is(.\32 0ui, .ui20) .tk-busy {
+  display: inline-flex;
+  color: var(--st-text-tertiary);
+}
+
+/* ----------------------------------------------------------------- table -- */
+
+:is(.\32 0ui, .ui20) .tk-table-wrap {
+  overflow-x: auto;
+}
+
+:is(.\32 0ui, .ui20) .tk-table-skeleton-row {
+  margin-bottom: var(--st-space-2, 8px);
+}
+
+/* Completion column — keep it narrow + centred. */
+:is(.\32 0ui, .ui20) .tk-check-cell {
+  width: 32px;
+  text-align: center;
+}
+
+/* The task title as an open-record affordance (button reset → link look). */
+:is(.\32 0ui, .ui20) .tk-row-title {
+  appearance: none;
+  border: 0;
+  padding: 0;
+  background: none;
+  font: inherit;
+  font-weight: 500;
+  color: var(--st-text);
+  text-align: left;
+  cursor: pointer;
+}
+
+:is(.\32 0ui, .ui20) .tk-row-title:hover {
+  text-decoration: underline;
+}
+
+:is(.\32 0ui, .ui20) .tk-row-title:focus-visible {
+  outline: 2px solid var(--st-accent);
+  outline-offset: 2px;
+  border-radius: var(--st-radius-sm, 4px);
+}
+
+:is(.\32 0ui, .ui20) .tk-row-title.is-done {
+  color: var(--st-text-tertiary);
+  text-decoration: line-through;
+}
+
+:is(.\32 0ui, .ui20) .tk-row-title.is-done:hover {
+  text-decoration: line-through underline;
+}
+
+:is(.\32 0ui, .ui20) .tk-cell-muted {
+  color: var(--st-text-tertiary);
+}
+
+/* Spinner + select side by side in the status cell. */
+:is(.\32 0ui, .ui20) .tk-status-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-2, 8px);
+}
+
+/* ---------------------------------------------------------- create form -- */
+
+:is(.\32 0ui, .ui20) .tk-create-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-4, 16px);
+}

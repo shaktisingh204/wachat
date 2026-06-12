@@ -4,8 +4,8 @@
   "description": "Send SMS and voice messages via Mocean",
   "category": "communication",
   "iconName": "LuPackage",
-  "version": 11,
-  "lastVerified": "2026-06-11",
+  "version": 12,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "header",
@@ -17,7 +17,7 @@
       "id": "sms_send",
       "label": "Send SMS",
       "method": "POST",
-      "path": "/sms",
+      "path": "/rest/2/sms",
       "fields": [
         {
           "id": "from",
@@ -51,13 +51,13 @@
         }
       ],
       "group": "SMS",
-      "description": "[unverified path] Send SMS/Voice message"
+      "description": "Send SMS/Voice message"
     },
     {
       "id": "voice_send",
       "label": "Send Voice",
       "method": "POST",
-      "path": "/voice",
+      "path": "/rest/2/voice/dial",
       "fields": [
         {
           "id": "from",
@@ -112,7 +112,7 @@
         }
       ],
       "group": "Voice",
-      "description": "[unverified path] Send SMS/Voice message"
+      "description": "Send SMS/Voice message"
     }
   ]
 }

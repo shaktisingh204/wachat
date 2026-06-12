@@ -7,11 +7,13 @@
 //!   is the canonical [`crm_sales_types::PaymentReceipt`] from the §1
 //!   sales-types crate; we do not redeclare it here).
 //! - Handlers in [`handlers`] use [`sabnode_auth::AuthUser`] as the
-//!   tenant principal. Every query is scoped by
-//!   `userId == AuthUser.user_id` (the CRM tenant root — see
-//!   `crm-core::Identity`).
-//! - The [`router`] module exposes a state-generic [`router::router`]
-//!   the host `api` crate mounts under `/v1/crm/payment-receipts`.
+//!   tenant principal. Every query is scoped by the mount's
+//!   [`crm_core::ScopeMode`]: `userId == AuthUser.user_id` on the
+//!   legacy mount, `projectId` on the SabCRM Finance mount.
+//! - The [`router`] module exposes the state-generic [`router::router`]
+//!   (legacy, mounted under `/v1/crm/payment-receipts`) and
+//!   [`router::project_router`] (SabCRM Finance, mounted under
+//!   `/v1/sabcrm/finance/payment-receipts`).
 //!
 //! ## Mongo
 //!
@@ -49,4 +51,4 @@ pub mod dto;
 pub mod handlers;
 pub mod router;
 
-pub use router::router;
+pub use router::{project_router, router};

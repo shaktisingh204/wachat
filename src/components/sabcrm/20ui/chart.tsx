@@ -100,7 +100,8 @@ export interface ChartStyleProps {
  * nothing when no entry carries a colour.
  */
 export function ChartStyle({ id, config }: ChartStyleProps): React.JSX.Element | null {
-  const colorConfig = Object.entries(config).filter(
+  // `config` is optional on ChartContainer, so it can legitimately be absent.
+  const colorConfig = Object.entries(config ?? {}).filter(
     ([, item]) => item.theme || item.color,
   );
 

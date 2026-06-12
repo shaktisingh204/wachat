@@ -4,8 +4,8 @@
   "description": "Consume Google Business Profile API",
   "category": "storage",
   "iconName": "LuPackage",
-  "version": 11,
-  "lastVerified": "2026-06-11",
+  "version": 13,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -22,7 +22,7 @@
       "id": "post_create",
       "label": "Create Post",
       "method": "POST",
-      "path": "/{{{account}}}/{{{location}}}/localPosts",
+      "path": "/{account}/{location}/localPosts",
       "fields": [
         {
           "id": "account",
@@ -139,13 +139,13 @@
         }
       ],
       "group": "Post",
-      "description": "[unverified path] Create a new post on Google Business Profile"
+      "description": "Create a new post on Google Business Profile"
     },
     {
       "id": "post_delete",
       "label": "Delete Post",
       "method": "DELETE",
-      "path": "/{{{post}}}",
+      "path": "/{post}",
       "fields": [
         {
           "id": "account",
@@ -170,13 +170,13 @@
         }
       ],
       "group": "Post",
-      "description": "[unverified path] Delete an existing post"
+      "description": "Delete an existing post"
     },
     {
       "id": "post_get",
       "label": "Get Post",
       "method": "GET",
-      "path": "/{{{post}}}",
+      "path": "/{post}",
       "fields": [
         {
           "id": "account",
@@ -201,13 +201,13 @@
         }
       ],
       "group": "Post",
-      "description": "[unverified path] Retrieve details of a specific post"
+      "description": "Retrieve details of a specific post"
     },
     {
       "id": "post_get_all",
       "label": "Get Many Post",
       "method": "GET",
-      "path": "/{{{account}}}/{{{location}}}/localPosts",
+      "path": "/{account}/{location}/localPosts",
       "fields": [
         {
           "id": "account",
@@ -241,13 +241,13 @@
         }
       ],
       "group": "Post",
-      "description": "[unverified path] Retrieve multiple posts"
+      "description": "Retrieve multiple posts"
     },
     {
       "id": "post_update",
       "label": "Update Post",
       "method": "PATCH",
-      "path": "/{{{post}}}",
+      "path": "/{post}",
       "fields": [
         {
           "id": "account",
@@ -279,81 +279,13 @@
         }
       ],
       "group": "Post",
-      "description": "[unverified path] Update an existing post"
-    },
-    {
-      "id": "review_delete",
-      "label": "Delete Reply Review",
-      "method": "DELETE",
-      "path": "/{{{account}}}/{{{location}}}/reviews/{{{review}.split(\"reviews/\").pop().split(\"/reply\")[0]}}/reply",
-      "fields": [
-        {
-          "id": "account",
-          "label": "Account",
-          "type": "text",
-          "required": true,
-          "description": "The Google Business Profile account (provide the ID)",
-          "in": "path"
-        },
-        {
-          "id": "location",
-          "label": "Location",
-          "type": "text",
-          "required": true,
-          "description": "The specific location or business associated with the account (provide the ID)",
-          "in": "path"
-        },
-        {
-          "id": "review",
-          "label": "Review",
-          "type": "text",
-          "required": true,
-          "description": "Select the review to retrieve its details (provide the ID)",
-          "in": "path"
-        }
-      ],
-      "group": "Review",
-      "description": "[unverified path] Delete a reply to a review"
-    },
-    {
-      "id": "review_get",
-      "label": "Get Review",
-      "method": "GET",
-      "path": "/{{{account}}}/{{{location}}}/reviews/{{{review}.split(\"reviews/\").pop().split(\"/reply\")[0]}}",
-      "fields": [
-        {
-          "id": "account",
-          "label": "Account",
-          "type": "text",
-          "required": true,
-          "description": "The Google Business Profile account (provide the ID)",
-          "in": "path"
-        },
-        {
-          "id": "location",
-          "label": "Location",
-          "type": "text",
-          "required": true,
-          "description": "The specific location or business associated with the account (provide the ID)",
-          "in": "path"
-        },
-        {
-          "id": "review",
-          "label": "Review",
-          "type": "text",
-          "required": true,
-          "description": "Select the review to retrieve its details (provide the ID)",
-          "in": "path"
-        }
-      ],
-      "group": "Review",
-      "description": "[unverified path] Retrieve details of a specific review on Google Business Profile"
+      "description": "Update an existing post"
     },
     {
       "id": "review_get_all",
       "label": "Get Many Review",
       "method": "GET",
-      "path": "/{{{account}}}/{{{location}}}/reviews",
+      "path": "/{account}/{location}/reviews",
       "fields": [
         {
           "id": "account",
@@ -388,48 +320,7 @@
         }
       ],
       "group": "Review",
-      "description": "[unverified path] Retrieve multiple reviews"
-    },
-    {
-      "id": "review_reply",
-      "label": "Reply Review",
-      "method": "PUT",
-      "path": "/{{{account}}}/{{{location}}}/reviews/{{{review}.split(\"reviews/\").pop().split(\"/reply\")[0]}}/reply",
-      "fields": [
-        {
-          "id": "account",
-          "label": "Account",
-          "type": "text",
-          "required": true,
-          "description": "The Google Business Profile account (provide the ID)",
-          "in": "path"
-        },
-        {
-          "id": "location",
-          "label": "Location",
-          "type": "text",
-          "required": true,
-          "description": "The specific location or business associated with the account (provide the ID)",
-          "in": "path"
-        },
-        {
-          "id": "review",
-          "label": "Review",
-          "type": "text",
-          "required": true,
-          "description": "Select the review to retrieve its details (provide the ID)",
-          "in": "path"
-        },
-        {
-          "id": "comment",
-          "label": "Reply",
-          "type": "textarea",
-          "description": "The body of the reply (up to 4096 characters)",
-          "in": "body"
-        }
-      ],
-      "group": "Review",
-      "description": "[unverified path] Reply to a review"
+      "description": "Retrieve multiple reviews"
     }
   ]
 }

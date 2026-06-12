@@ -4,8 +4,8 @@
   "description": "Interact with Microsoft Entra ID API",
   "category": "misc",
   "iconName": "LuPackage",
-  "version": 10,
-  "lastVerified": "2026-06-11",
+  "version": 11,
+  "lastVerified": "2026-06-12",
   "status": "draft",
   "auth": {
     "type": "oauth2",
@@ -103,7 +103,7 @@
       "id": "group_delete",
       "label": "Delete Group",
       "method": "DELETE",
-      "path": "/groups/{{ {group} }}",
+      "path": "/groups/{group}",
       "fields": [
         {
           "id": "group",
@@ -115,13 +115,13 @@
         }
       ],
       "group": "Group",
-      "description": "[unverified path] Delete a group"
+      "description": "Delete a group"
     },
     {
       "id": "group_get",
       "label": "Get Group",
       "method": "GET",
-      "path": "/groups/{{ {group} }}",
+      "path": "/groups/{group}",
       "fields": [
         {
           "id": "group",
@@ -167,7 +167,7 @@
         }
       ],
       "group": "Group",
-      "description": "[unverified path] Retrieve data for a specific group"
+      "description": "Retrieve data for a specific group"
     },
     {
       "id": "group_get_all",
@@ -233,7 +233,7 @@
       "id": "group_update",
       "label": "Update Group",
       "method": "PATCH",
-      "path": "/groups/{{ {group} }}",
+      "path": "/groups/{group}",
       "fields": [
         {
           "id": "group",
@@ -252,13 +252,13 @@
         }
       ],
       "group": "Group",
-      "description": "[unverified path] Update a group"
+      "description": "Update a group"
     },
     {
       "id": "user_add_group",
       "label": "Add to Group User",
       "method": "POST",
-      "path": "/groups/{{ {group} }}/members/$ref",
+      "path": "/groups/{group}/members/$ref",
       "fields": [
         {
           "id": "group",
@@ -278,7 +278,7 @@
         }
       ],
       "group": "User",
-      "description": "[unverified path] Add user to group"
+      "description": "Add user to group"
     },
     {
       "id": "user_create",
@@ -345,7 +345,7 @@
       "id": "user_delete",
       "label": "Delete User",
       "method": "DELETE",
-      "path": "/users/{{ {user} }}",
+      "path": "/users/{user}",
       "fields": [
         {
           "id": "user",
@@ -357,13 +357,13 @@
         }
       ],
       "group": "User",
-      "description": "[unverified path] Delete a user"
+      "description": "Delete a user"
     },
     {
       "id": "user_get",
       "label": "Get User",
       "method": "GET",
-      "path": "/users/{{ {user} }}",
+      "path": "/users/{user}",
       "fields": [
         {
           "id": "user",
@@ -402,7 +402,7 @@
         }
       ],
       "group": "User",
-      "description": "[unverified path] Retrieve data for a specific user"
+      "description": "Retrieve data for a specific user"
     },
     {
       "id": "user_get_all",
@@ -468,7 +468,7 @@
       "id": "user_remove_group",
       "label": "Remove from Group User",
       "method": "DELETE",
-      "path": "/groups/{{ {group} }}/members/{{ {user} }}/$ref",
+      "path": "/groups/{group}/members/{user}/$ref",
       "fields": [
         {
           "id": "group",
@@ -488,13 +488,13 @@
         }
       ],
       "group": "User",
-      "description": "[unverified path] Remove user from group"
+      "description": "Remove user from group"
     },
     {
       "id": "user_update",
       "label": "Update User",
       "method": "PATCH",
-      "path": "/users/{{ {user} }}",
+      "path": "/users/{user}",
       "fields": [
         {
           "id": "user",
@@ -513,7 +513,7 @@
         }
       ],
       "group": "User",
-      "description": "[unverified path] Update a user"
+      "description": "Update a user"
     }
   ]
 }
