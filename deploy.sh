@@ -139,13 +139,19 @@ if [ "$BUILD_SABSITES" = "1" ] && [ -f vendor/webstudio/package.json ]; then
   fi
   if ( cd vendor/webstudio && corepack pnpm install --frozen-lockfile ); then
     # Postgres schema for the sabsites DB (idempotent journal-based runner).
+    # `prisma generate` must run before the migrations CLI. PostgREST caches
+    # the DB schema at startup, so restart it after migrating or it keeps
+    # answering 42P01 ("relation does not exist") for new tables.
     SABSITES_DB_URL="$(grep -E '^SABSITES_DATABASE_URL=.+' .env 2>/dev/null | tail -1 | cut -d= -f2- || true)"
     if [ -n "${SABSITES_DB_URL:-}" ]; then
       echo "🗄️  Applying SabSites Postgres migrations..."
       ( cd vendor/webstudio \
         && DATABASE_URL="$SABSITES_DB_URL" DIRECT_URL="$SABSITES_DB_URL" \
+           corepack pnpm --filter=@webstudio-is/prisma-client generate \
+        && DATABASE_URL="$SABSITES_DB_URL" DIRECT_URL="$SABSITES_DB_URL" \
            corepack pnpm --filter=./packages/prisma-client migrations migrate --cwd ../../apps/builder ) \
-        || echo "⚠️  SabSites migrations failed — /sites may misbehave until they run."
+        && pm2 restart sabsites-postgrest 2>/dev/null \
+        || echo "⚠️  SabSites migrations failed — /sites will loop to /sites/login until they run (see docs/sabsites/README.md)."
     else
       echo "⏭️  SABSITES_DATABASE_URL not set in .env — skipping SabSites migrations."
     fi

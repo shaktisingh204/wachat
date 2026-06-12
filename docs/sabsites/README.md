@@ -49,9 +49,13 @@ createdb -h localhost -O sabsites sabsites
 # 2. Migrations (Node 22 required by the webstudio workspace)
 cd vendor/webstudio
 corepack pnpm install
-DATABASE_URL=postgresql://sabsites:sabsites@localhost:5432/sabsites \
-DIRECT_URL=postgresql://sabsites:sabsites@localhost:5432/sabsites \
+export DATABASE_URL=postgresql://sabsites:sabsites@localhost:5432/sabsites
+export DIRECT_URL=$DATABASE_URL
+corepack pnpm --filter=@webstudio-is/prisma-client generate
 corepack pnpm --filter=./packages/prisma-client migrations migrate --cwd ../../apps/builder
+# PostgREST caches the schema at startup — restart it after migrating
+# (pm2 restart sabsites-postgrest) or it answers 42P01 "relation does not
+# exist" and /sites loops back to /sites/login.
 
 # 3. PostgREST
 brew install postgrest
