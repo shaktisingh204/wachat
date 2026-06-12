@@ -10,6 +10,8 @@ import type {
   SabsmsTemplateBody,
 } from "@/lib/sabsms/types";
 
+import { loadDltRegistryAction } from "../../compliance/dlt/actions";
+import type { DltBindingRegistry } from "./dlt-scrub-panel";
 import { TemplateEditor } from "./editor";
 import {
   emptyViewModel,
@@ -61,7 +63,29 @@ async function TemplateDataLoader({ id, isNew }: { id: string; isNew: boolean })
   const vm = isNew ? emptyViewModel() : await loadTemplate(id, workspaceId);
   if (!vm) notFound();
 
-  return <TemplateEditor initial={vm} isNew={isNew} />;
+  // Workspace DLT registry (V2.8) for the live scrub card — active
+  // templates + headers only, slimmed to what the binding pickers need.
+  let dltRegistry: DltBindingRegistry = { templates: [], headers: [] };
+  const reg = await loadDltRegistryAction();
+  if (reg.success) {
+    dltRegistry = {
+      templates: reg.registry.templates
+        .filter((t) => t.status === "active")
+        .map((t) => ({
+          templateId: t.templateId,
+          body: t.body,
+          category: t.category,
+          peId: t.peId,
+        })),
+      headers: reg.registry.headers.map((h) => ({
+        headerId: h.headerId,
+        header: h.header,
+        category: h.category,
+      })),
+    };
+  }
+
+  return <TemplateEditor initial={vm} isNew={isNew} dltRegistry={dltRegistry} />;
 }
 
 export default async function TemplateEditorPage({ params }: PageProps) {
