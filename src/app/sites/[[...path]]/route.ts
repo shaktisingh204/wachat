@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { createRequire } from 'node:module';
 import { pathToFileURL } from 'node:url';
 import path from 'node:path';
@@ -30,12 +30,27 @@ const dynamicImport = new Function('u', 'return import(u)') as (
 type RemixHandler = (request: Request) => Promise<Response>;
 
 let handlerPromise: Promise<RemixHandler> | undefined;
+let handlerVersion: number | undefined;
 
-const loadHandler = (): Promise<RemixHandler> => {
+const loadHandler = async (): Promise<RemixHandler> => {
+    const dir = builderDir();
+    const buildFile = path.join(dir, 'build/server/index.js');
+
+    // In dev, reload the handler when the vendored build is rebuilt
+    // (scripts/build-sabsites.mjs); ESM caches by URL so version it.
+    let version = 0;
+    if (process.env.NODE_ENV !== 'production') {
+        const { statSync } = await import('node:fs');
+        version = statSync(buildFile).mtimeMs;
+        if (handlerVersion !== version) {
+            handlerPromise = undefined;
+        }
+    }
+
     handlerPromise ??= (async () => {
-        const dir = builderDir();
+        handlerVersion = version;
         const build = await dynamicImport(
-            pathToFileURL(path.join(dir, 'build/server/index.js')).href
+            `${pathToFileURL(buildFile).href}?v=${version}`
         );
         const requireFromBuilder = createRequire(path.join(dir, 'package.json'));
         const { createRequestHandler } = requireFromBuilder(
@@ -50,12 +65,6 @@ const loadHandler = (): Promise<RemixHandler> => {
 
 const handle = async (request: NextRequest): Promise<Response> => {
     const url = new URL(request.url);
-
-    // The Remix router treats the bare mount path as outside the basename.
-    if (url.pathname === '/sites') {
-        url.pathname = '/sites/';
-        return NextResponse.redirect(url, 308);
-    }
 
     // Preserve the original host (p-<projectId> builder subdomains matter).
     const host =
@@ -74,10 +83,10 @@ const handle = async (request: NextRequest): Promise<Response> => {
         method: request.method,
         headers: request.headers,
         body: hasBody ? request.body : undefined,
-        // @ts-expect-error duplex is required by undici for streamed bodies
+        // duplex is required by undici for streamed bodies
         duplex: hasBody ? 'half' : undefined,
         redirect: 'manual',
-    });
+    } as RequestInit);
 
     const response = await handler(forwarded);
 

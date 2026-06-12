@@ -1,0 +1,38 @@
+import type { PageContext } from "vike/types";
+import {
+  PageSettingsMeta,
+  PageSettingsTitle,
+  ReactSdkContext,
+} from "@webstudio-is/react-sdk/runtime";
+import { LinkCurrentUrlContext } from "@webstudio-is/sdk-components-react";
+import { assetBaseUrl, imageLoader } from "__CONSTANTS__";
+import { Page, breakpoints, siteName } from "__CLIENT__";
+
+const PageComponent = ({ data }: { data: PageContext["data"] }) => {
+  const { system, resources, url, pageMeta } = data;
+  return (
+    <ReactSdkContext.Provider
+      value={{
+        imageLoader,
+        assetBaseUrl,
+        resources,
+        breakpoints,
+        onError: console.error,
+      }}
+    >
+      <LinkCurrentUrlContext.Provider value={url}>
+        {/* Use the URL as the key to force scripts in HTML Embed to reload on dynamic pages */}
+        <Page key={url} system={system} />
+      </LinkCurrentUrlContext.Provider>
+      <PageSettingsMeta
+        url={url}
+        pageMeta={pageMeta}
+        siteName={siteName}
+        imageLoader={imageLoader}
+        assetBaseUrl={assetBaseUrl}
+      />
+      <PageSettingsTitle>{pageMeta.title}</PageSettingsTitle>
+    </ReactSdkContext.Provider>
+  );
+};
+export default PageComponent;

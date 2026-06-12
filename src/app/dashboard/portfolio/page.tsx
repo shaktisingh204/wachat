@@ -132,7 +132,7 @@ function DomainMappingDialog({ site, onUpdate }: { site: WithId<Website>, onUpda
 function SiteCard({ site, onUpdate }: { site: WithId<Website>, onUpdate: () => void }) {
   const router = useRouter();
   const handleManage = () => {
-    router.push(`/dashboard/website-builder/manage/${site._id.toString()}/builder`);
+    router.push(`/dashboard/portfolio/manage/${site._id.toString()}/builder`);
   };
 
   return (

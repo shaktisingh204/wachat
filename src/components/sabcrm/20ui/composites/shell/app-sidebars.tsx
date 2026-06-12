@@ -1508,17 +1508,19 @@ export const SAB_APP_SIDEBARS: SabAppSidebarConfig[] = [
     ],
   },
 
-  /* ─────────────────────────────  Website Builder  ───────────────── */
+  /* ───────────────────────  SabSites (Website Builder)  ───────────── */
+  // The builder itself is the full-screen Webstudio-powered app at /sites;
+  // this sidebar only covers the /dashboard/website-builder gate page.
   {
     prefix: "/dashboard/website-builder",
-    heading: "Website Builder",
-    caption: "Sites, pages & publishing",
+    heading: "SabSites",
+    caption: "Visual website builder",
     build: (p) => [
       {
         id: "website-main",
         label: "Workspace",
         items: [
-          leaf("home", "Websites", "/dashboard/website-builder", Globe, p, { exact: true }),
+          leaf("home", "Open SabSites", "/sites/dashboard", Globe, p, { exact: true }),
         ],
       },
       {

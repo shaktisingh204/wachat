@@ -50,6 +50,7 @@ import {
   TelegramIcon,
   UrlShortenerIcon,
   WaChatIcon,
+  WebsiteBuilderIcon,
 } from "./app-icons";
 
 export type SabAppMigrationStatus = "done" | "partial" | "pending";
@@ -73,14 +74,7 @@ export interface SabAppDescriptor {
  * Modules hidden from ALL navigation per product decision (their code + routes
  * stay intact, they're just no longer surfaced).
  */
-const HIDDEN_APP_IDS = new Set([
-  "sabwa",
-  "crm",
-  "sabcrm",
-  "hrm",
-  "seo",
-  "website-builder",
-]);
+const HIDDEN_APP_IDS = new Set(["sabwa", "crm", "sabcrm", "hrm", "seo"]);
 
 const SAB_APPS_ALL: SabAppDescriptor[] = [
   {
@@ -368,6 +362,17 @@ const SAB_APPS_ALL: SabAppDescriptor[] = [
     Icon: SabSheetIcon,
     migration: "done",
     isActive: (p) => !!p?.startsWith("/dashboard/sabsheet"),
+  },
+  {
+    // SabSites — the Webstudio-powered visual website builder, mounted
+    // inside this app at /sites (see src/app/sites/[[...path]]/route.ts)
+    id: "website-builder",
+    name: "SabSites",
+    href: "/sites/dashboard",
+    Icon: WebsiteBuilderIcon,
+    migration: "done",
+    isActive: (p) =>
+      !!p?.startsWith("/sites") || !!p?.startsWith("/dashboard/website-builder"),
   },
   {
     id: "sabshow",

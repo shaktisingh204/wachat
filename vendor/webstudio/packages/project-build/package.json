@@ -1,0 +1,47 @@
+{
+  "name": "@webstudio-is/project-build",
+  "version": "0.0.0",
+  "description": "Webstudio Project Build",
+  "author": "Webstudio <github@webstudio.is>",
+  "homepage": "https://webstudio.is",
+  "license": "AGPL-3.0-or-later",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "webstudio": "./src/index.ts",
+      "partykit": "./src/index.ts"
+    },
+    "./index.server": {
+      "webstudio": "./src/index.server.ts"
+    },
+    "./build-parser.server": {
+      "webstudio": "./src/db/build-parser.ts"
+    },
+    "./style-source-selections.server": {
+      "webstudio": "./src/db/style-source-selections.ts"
+    },
+    "./styles.server": {
+      "webstudio": "./src/db/styles.ts"
+    }
+  },
+  "sideEffects": false,
+  "scripts": {
+    "typecheck": "tsgo --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@webstudio-is/authorization-token": "workspace:*",
+    "@webstudio-is/postgrest": "workspace:*",
+    "@webstudio-is/project-migrations": "workspace:*",
+    "@webstudio-is/sdk": "workspace:*",
+    "@webstudio-is/template": "workspace:*",
+    "@webstudio-is/trpc-interface": "workspace:*",
+    "nanoid": "^5.1.5",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@webstudio-is/tsconfig": "workspace:*",
+    "vitest": "^3.1.2"
+  }
+}

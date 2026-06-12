@@ -47,7 +47,9 @@
     "api:lint": "tsx tools/api-codegen/lint.ts",
     "api:test": "tsx --test tools/api-codegen/__tests__/*.test.ts",
     "cypress:open": "cypress open",
-    "cypress:run": "cypress run"
+    "cypress:run": "cypress run",
+    "build:sabsites": "node scripts/build-sabsites.mjs",
+    "e2e:sabsites": "node scripts/sabsites-e2e.mjs"
   },
   "dependencies": {
     "@ai-sdk/react": "^3.0.193",

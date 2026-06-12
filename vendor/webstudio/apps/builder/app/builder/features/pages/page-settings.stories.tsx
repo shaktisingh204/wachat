@@ -1,0 +1,116 @@
+import { $pages } from "~/shared/sync/data-stores";
+import { PageSettings as PageSettingsComponent } from "./page-settings/page-settings";
+import {
+  Grid,
+  theme,
+  Dialog,
+  DialogContent,
+  StorySection,
+} from "@webstudio-is/design-system";
+import { $assets, $project } from "~/shared/sync/data-stores";
+import { createDefaultPages } from "@webstudio-is/project-build";
+
+export default {
+  title: "Pages/Page Settings",
+  component: PageSettingsComponent,
+  parameters: {
+    lostpixel: {
+      // this is to fix cutting off the after scroll area in the screenshot
+      waitBeforeScreenshot: 3000,
+    },
+  },
+};
+
+$assets.set(
+  new Map([
+    [
+      "imageId",
+      {
+        id: "imageId",
+        type: "image",
+        name: "very-very-very-long-long-image-name.jpg",
+        format: "jpg",
+        size: 100,
+        meta: {
+          width: 2 * 191,
+          height: 2 * 100,
+        },
+        projectId: "projectId",
+        createdAt: `${new Date()}`,
+        description: "image-description",
+      },
+    ],
+  ])
+);
+
+const pages = createDefaultPages({ rootInstanceId: "root-instance-id" });
+pages.meta = {
+  siteName: "Project name",
+  faviconAssetId: "imageId",
+  code: "code",
+};
+pages.pages.set("pageId", {
+  id: "pageId",
+  title: "Page title",
+  path: "/page-path",
+  name: "page-name",
+  meta: {},
+  rootInstanceId: "root-instance-id",
+});
+const rootFolder = pages.folders.get(pages.rootFolderId);
+rootFolder?.children.push("pageId");
+
+$pages.set(pages);
+
+$project.set({
+  id: "projectId",
+  title: "Project title",
+  createdAt: `${new Date()}`,
+  isDeleted: false,
+  userId: "userId",
+  domain: "new-2x9tcd",
+  tags: [],
+
+  marketplaceApprovalStatus: "UNLISTED",
+  workspaceId: null,
+
+  latestStaticBuild: null,
+  previewImageAssetId: null,
+  previewImageAsset: {
+    projectId: "projectId",
+    id: "imageId",
+    name: "very-very-very-long-long-image-name.jpg",
+    filename: null,
+    description: null,
+  },
+  latestBuildVirtual: null,
+  domainsVirtual: [],
+});
+
+export const PageSettings = () => {
+  return (
+    <StorySection title="Page Settings">
+      <Dialog open>
+        <DialogContent>
+          <Grid
+            css={{
+              width: theme.spacing[35],
+              margin: "auto",
+              border: `1px solid ${theme.colors.borderMain}`,
+              boxShadow: theme.shadows.menuDropShadow,
+              background: theme.colors.backgroundPanel,
+              borderRadius: theme.borderRadius[4],
+            }}
+          >
+            <PageSettingsComponent
+              onClose={() => {}}
+              onDuplicate={() => {}}
+              onDelete={() => {}}
+              pageId="pageId"
+            />
+          </Grid>
+        </DialogContent>
+      </Dialog>
+    </StorySection>
+  );
+};

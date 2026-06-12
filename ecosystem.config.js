@@ -106,6 +106,36 @@ module.exports = {
     },
 
     // ---------------------------------------------------------------------
+    // SabSites data layer — PostgREST over the sabsites Postgres database.
+    // The builder itself runs INSIDE the Next.js app (src/app/sites);
+    // PostgREST is its only extra process. Requires the `postgrest` binary
+    // on PATH (or set SABSITES_POSTGREST_BIN) and Postgres 16 running with
+    // the `sabsites` database migrated (see docs/sabsites/README.md).
+    // ---------------------------------------------------------------------
+    {
+      name: 'sabsites-postgrest',
+      script: process.env.SABSITES_POSTGREST_BIN || 'postgrest',
+      interpreter: 'none',
+      instances: 1,
+      exec_mode: 'fork',
+      max_memory_restart: '512M',
+      watch: false,
+      autorestart: true,
+      restart_delay: 5000,
+      max_restarts: 20,
+      kill_timeout: 10000,
+      env: {
+        PGRST_DB_URI:
+          process.env.SABSITES_DATABASE_URL ||
+          'postgres://sabsites:sabsites@localhost:5432/sabsites',
+        PGRST_DB_SCHEMAS: 'public',
+        PGRST_DB_ANON_ROLE: process.env.SABSITES_PG_ROLE || 'sabsites',
+        PGRST_SERVER_PORT: process.env.SABSITES_POSTGREST_PORT || '4006',
+        PGRST_JWT_SECRET: process.env.SABSITES_POSTGREST_JWT_SECRET,
+      },
+    },
+
+    // ---------------------------------------------------------------------
     // SabSMS Engine (Rust — multi-provider SMS/MMS/RCS pipeline)
     // ---------------------------------------------------------------------
     {
