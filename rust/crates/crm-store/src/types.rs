@@ -87,6 +87,14 @@ pub struct CrmStorefront {
     pub id: Option<ObjectId>,
     #[serde(rename = "userId")]
     pub user_id: ObjectId,
+    /// SabCRM suite scope — set on documents created through the
+    /// project-scoped (`/v1/sabcrm/*`) mounts; absent on legacy rows.
+    #[serde(
+        rename = "projectId",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub project_id: Option<ObjectId>,
 
     pub name: String,
     /// URL-safe identifier, unique per tenant.
@@ -121,6 +129,14 @@ pub struct CrmStoreProduct {
     pub id: Option<ObjectId>,
     #[serde(rename = "userId")]
     pub user_id: ObjectId,
+    /// SabCRM suite scope — set on documents created through the
+    /// project-scoped (`/v1/sabcrm/*`) mounts; absent on legacy rows.
+    #[serde(
+        rename = "projectId",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub project_id: Option<ObjectId>,
 
     pub storefront_id: ObjectId,
     /// Reference to the master `crm_items` record this projection points at.
@@ -168,6 +184,14 @@ pub struct CrmStorePricingRule {
     pub id: Option<ObjectId>,
     #[serde(rename = "userId")]
     pub user_id: ObjectId,
+    /// SabCRM suite scope — set on documents created through the
+    /// project-scoped (`/v1/sabcrm/*`) mounts; absent on legacy rows.
+    #[serde(
+        rename = "projectId",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub project_id: Option<ObjectId>,
 
     pub storefront_id: ObjectId,
     pub name: String,
@@ -205,6 +229,14 @@ pub struct CrmStoreShippingZone {
     pub id: Option<ObjectId>,
     #[serde(rename = "userId")]
     pub user_id: ObjectId,
+    /// SabCRM suite scope — set on documents created through the
+    /// project-scoped (`/v1/sabcrm/*`) mounts; absent on legacy rows.
+    #[serde(
+        rename = "projectId",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub project_id: Option<ObjectId>,
 
     pub storefront_id: ObjectId,
     pub name: String,
@@ -236,6 +268,14 @@ pub struct CrmStoreOrder {
     pub id: Option<ObjectId>,
     #[serde(rename = "userId")]
     pub user_id: ObjectId,
+    /// SabCRM suite scope — set on documents created through the
+    /// project-scoped (`/v1/sabcrm/*`) mounts; absent on legacy rows.
+    #[serde(
+        rename = "projectId",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub project_id: Option<ObjectId>,
 
     pub storefront_id: ObjectId,
     /// Generated `ORD-YYYYMMDD-NNNN`.
@@ -289,6 +329,14 @@ pub struct CrmStoreAbandonedCart {
     pub id: Option<ObjectId>,
     #[serde(rename = "userId")]
     pub user_id: ObjectId,
+    /// SabCRM suite scope — set on documents created through the
+    /// project-scoped (`/v1/sabcrm/*`) mounts; absent on legacy rows.
+    #[serde(
+        rename = "projectId",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub project_id: Option<ObjectId>,
 
     pub storefront_id: ObjectId,
     pub customer_email: String,

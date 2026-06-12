@@ -1,7 +1,7 @@
 //! HTTP handlers for the Gift Card entity.
 
 use axum::{
-    Json,
+    Extension, Json,
     extract::{Path, Query, State},
 };
 use bson::{DateTime as BsonDateTime, Document, doc, oid::ObjectId};
@@ -12,6 +12,7 @@ use crm_common::{
     search::build_q_filter,
     tenant::user_oid,
 };
+use crm_core::{ScopeMode, TenantScope, sabcrm_project_oid};
 use futures::TryStreamExt;
 use mongodb::options::FindOptions;
 use sabnode_auth::AuthUser;
@@ -20,7 +21,7 @@ use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
 use tracing::instrument;
 
 use crate::dto::{
-    CreateGiftCardInput, CreateGiftCardResponse, DeleteGiftCardResponse, ListQuery,
+    CreateGiftCardInput, CreateGiftCardResponse, DeleteGiftCardResponse, ListQuery, ScopeQuery,
     UpdateGiftCardInput,
 };
 use crate::types::CrmGiftCard;
@@ -28,14 +29,28 @@ use crate::types::CrmGiftCard;
 const COLL: &str = "crm_gift_cards";
 const ENTITY_KIND: &str = "gift_card";
 
+/// Resolve the per-request tenant scope from the mount's [`ScopeMode`]:
+/// legacy mounts filter by the JWT's `userId`, SabCRM mounts by the
+/// caller-supplied (required) `projectId`.
+fn resolve_scope(
+    mode: ScopeMode,
+    user: &AuthUser,
+    project_id: Option<&str>,
+) -> Result<TenantScope> {
+    match mode {
+        ScopeMode::User => Ok(TenantScope::User(user_oid(user)?)),
+        ScopeMode::Project => Ok(TenantScope::Project(sabcrm_project_oid(project_id)?)),
+    }
+}
+
 fn parse_iso(s: &str) -> Option<BsonDateTime> {
     chrono::DateTime::parse_from_rfc3339(s)
         .ok()
         .map(|dt| BsonDateTime::from_chrono(dt.with_timezone(&Utc)))
 }
 
-fn list_filter(user_id: ObjectId, status: Option<&str>) -> Document {
-    let mut filter = doc! { "userId": user_id };
+fn list_filter(scope: &TenantScope, status: Option<&str>) -> Document {
+    let mut filter = scope.filter();
     match status.unwrap_or("active_visible") {
         "all" => {}
         "archived" => {
@@ -57,8 +72,10 @@ fn list_filter(user_id: ObjectId, status: Option<&str>) -> Document {
     filter
 }
 
-fn ownership_filter(user_id: ObjectId, oid: ObjectId) -> Document {
-    doc! { "_id": oid, "userId": user_id }
+fn ownership_filter(scope: &TenantScope, oid: ObjectId) -> Document {
+    let mut filter = scope.filter();
+    filter.insert("_id", oid);
+    filter
 }
 
 fn gift_card_from_create(input: CreateGiftCardInput, user_id: ObjectId) -> Result<CrmGiftCard> {
@@ -71,6 +88,7 @@ fn gift_card_from_create(input: CreateGiftCardInput, user_id: ObjectId) -> Resul
     Ok(CrmGiftCard {
         id: None,
         user_id,
+        project_id: None,
         code: code.trim().to_uppercase(),
         value: input.value,
         balance: input.value,
@@ -133,11 +151,12 @@ pub struct ListResponse {
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn list_gift_cards(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Query(q): Query<ListQuery>,
 ) -> Result<Json<ListResponse>> {
-    let user_id = user_oid(&user)?;
-    let mut filter = list_filter(user_id, q.status.as_deref());
+    let scope = resolve_scope(mode, &user, q.project_id.as_deref())?;
+    let mut filter = list_filter(&scope, q.status.as_deref());
     if let Some(needle) = q.q.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
         let or = build_q_filter(needle, &["code", "issuedTo", "issuedToEmail"]);
         if let Ok(arr) = or.get_array("$or") {
@@ -179,14 +198,16 @@ pub async fn list_gift_cards(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %card_id))]
 pub async fn get_gift_card(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(card_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
 ) -> Result<Json<CrmGiftCard>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&card_id)?;
     let coll = mongo.collection::<CrmGiftCard>(COLL);
     let row = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_gift_cards.find_one")))?
         .ok_or_else(|| ApiError::NotFound("gift_card".to_owned()))?;
@@ -196,11 +217,18 @@ pub async fn get_gift_card(
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn create_gift_card(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Json(input): Json<CreateGiftCardInput>,
 ) -> Result<Json<CreateGiftCardResponse>> {
+    let scope = resolve_scope(mode, &user, input.project_id.as_deref())?;
+    // `userId` is always stamped from the JWT (audit trail + entity
+    // field); `projectId` is stamped only on SabCRM (project) mounts.
     let user_id = user_oid(&user)?;
     let mut entity = gift_card_from_create(input, user_id)?;
+    if let TenantScope::Project(project_oid) = scope {
+        entity.project_id = Some(project_oid);
+    }
     let coll = mongo.collection::<CrmGiftCard>(COLL);
     let inserted = coll
         .insert_one(&entity)
@@ -226,23 +254,25 @@ pub async fn create_gift_card(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %card_id))]
 pub async fn update_gift_card(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(card_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
     Json(patch): Json<UpdateGiftCardInput>,
 ) -> Result<Json<CrmGiftCard>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&card_id)?;
 
     let coll = mongo.collection::<CrmGiftCard>(COLL);
     let before = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_gift_cards.find_one")))?
         .ok_or_else(|| ApiError::NotFound("gift_card".to_owned()))?;
 
     let update = build_update_doc(patch);
     let result = coll
-        .update_one(ownership_filter(user_id, oid), update)
+        .update_one(ownership_filter(&scope, oid), update)
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_gift_cards.update")))?;
     if result.matched_count == 0 {
@@ -250,7 +280,7 @@ pub async fn update_gift_card(
     }
 
     let after = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_gift_cards.refetch")))?
         .ok_or_else(|| ApiError::NotFound("gift_card".to_owned()))?;
@@ -271,16 +301,18 @@ pub async fn update_gift_card(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %card_id))]
 pub async fn delete_gift_card(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(card_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
 ) -> Result<Json<DeleteGiftCardResponse>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&card_id)?;
 
     let coll = mongo.collection::<CrmGiftCard>(COLL);
     let result = coll
         .update_one(
-            ownership_filter(user_id, oid),
+            ownership_filter(&scope, oid),
             doc! { "$set": {
                 "status": "archived",
                 "updatedAt": BsonDateTime::from_chrono(Utc::now()),
@@ -306,8 +338,16 @@ mod tests {
     #[test]
     fn list_filter_excludes_archived_by_default() {
         let oid = ObjectId::new();
-        let f = list_filter(oid, None);
+        let f = list_filter(&TenantScope::User(oid), None);
         assert!(f.contains_key("status"));
+    }
+
+    #[test]
+    fn list_filter_scopes_by_project_on_sabcrm_mounts() {
+        let oid = ObjectId::new();
+        let f = list_filter(&TenantScope::Project(oid), None);
+        assert_eq!(f.get_object_id("projectId").unwrap(), oid);
+        assert!(!f.contains_key("userId"));
     }
 
     #[test]

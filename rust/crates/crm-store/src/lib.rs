@@ -27,4 +27,4 @@ pub mod router;
 pub mod types;
 
 pub use handlers::{compute_shipping, select_applicable_rules};
-pub use router::router;
+pub use router::{project_router, router};

@@ -2159,6 +2159,7 @@ dependencies = [
  "bson",
  "chrono",
  "crm-common",
+ "crm-core",
  "futures",
  "mongodb",
  "sabnode-auth",
@@ -2684,6 +2685,7 @@ dependencies = [
  "bson",
  "chrono",
  "crm-common",
+ "crm-core",
  "futures",
  "mongodb",
  "sabnode-auth",
@@ -3516,6 +3518,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "crm-pos"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum 0.8.9",
+ "bson",
+ "chrono",
+ "crm-common",
+ "crm-core",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "sabnode-rbac",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
 name = "crm-probation"
 version = "0.1.0"
 dependencies = [
@@ -4180,6 +4204,28 @@ dependencies = [
 
 [[package]]
 name = "crm-stock-adjustments"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum 0.8.9",
+ "bson",
+ "chrono",
+ "crm-common",
+ "crm-core",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "sabnode-rbac",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "crm-store"
 version = "0.1.0"
 dependencies = [
  "anyhow",
@@ -13152,6 +13198,7 @@ dependencies = [
  "crm-pipelines",
  "crm-policies",
  "crm-portal-users",
+ "crm-pos",
  "crm-product-categories",
  "crm-production-orders",
  "crm-products",
@@ -13176,6 +13223,7 @@ dependencies = [
  "crm-shifts",
  "crm-slas",
  "crm-stock-adjustments",
+ "crm-store",
  "crm-subscriptions",
  "crm-subtasks",
  "crm-succession",

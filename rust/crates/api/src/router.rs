@@ -430,6 +430,15 @@ pub fn build(state: AppState) -> Router {
     let sabcrm_supply_vendor_bids = crm_vendor_bids::project_router::<AppState>();
     let sabcrm_supply_bom = crm_bom::project_router::<AppState>();
     let sabcrm_supply_production_orders = crm_production_orders::project_router::<AppState>();
+    // SabCRM Commerce — POS + online store re-homed under the SabCRM
+    // suite. `crm-pos` and `crm-store` were previously UNmounted legacy
+    // crates; per the suite recipe they get ONLY the project-scoped
+    // mount (no legacy `/v1/crm/*` mount). Coupons and gift cards keep
+    // their legacy mounts and gain project re-mounts.
+    let sabcrm_commerce_pos = crm_pos::project_router::<AppState>();
+    let sabcrm_commerce_store = crm_store::project_router::<AppState>();
+    let sabcrm_commerce_coupons = crm_coupons::project_router::<AppState>();
+    let sabcrm_commerce_gift_cards = crm_gift_cards::project_router::<AppState>();
     let crm_sales_orders = crm_sales_orders::router::<AppState>();
     let crm_purchase_orders = crm_purchase_orders::router::<AppState>();
     let crm_payment_receipts = crm_payment_receipts::router::<AppState>();
@@ -802,6 +811,13 @@ pub fn build(state: AppState) -> Router {
         .nest(
             "/v1/sabcrm/supply/production-orders",
             sabcrm_supply_production_orders,
+        )
+        .nest("/v1/sabcrm/commerce/pos", sabcrm_commerce_pos)
+        .nest("/v1/sabcrm/commerce/store", sabcrm_commerce_store)
+        .nest("/v1/sabcrm/commerce/coupons", sabcrm_commerce_coupons)
+        .nest(
+            "/v1/sabcrm/commerce/gift-cards",
+            sabcrm_commerce_gift_cards,
         )
         .nest("/v1/sabcrm/forms", sabcrm_forms)
         .nest("/v1/sabcrm/form-submissions", sabcrm_form_submissions)

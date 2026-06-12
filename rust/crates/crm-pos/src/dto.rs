@@ -6,6 +6,16 @@ use crate::types::{CrmPosHold, CrmPosRefund, CrmPosSession, CrmPosTransaction, P
 
 // ─── Shared inputs ─────────────────────────────────────────────────────────
 
+/// Scope-only query for id-addressed routes (`GET`/`PATCH`/`DELETE`,
+/// and the `POST` lifecycle verbs that carry a body). `projectId` is
+/// required on SabCRM (project) mounts and ignored on legacy mounts.
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ScopeQuery {
+    #[serde(default)]
+    pub project_id: Option<String>,
+}
+
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PosLineItemInput {
@@ -40,6 +50,9 @@ pub struct RefundedLineItemInput {
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ListSessionsQuery {
+    /// SabCRM (project) mounts only — required tenant scope.
+    #[serde(default)]
+    pub project_id: Option<String>,
     #[serde(default)]
     pub page: Option<u32>,
     #[serde(default)]
@@ -57,6 +70,9 @@ pub struct ListSessionsQuery {
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct OpenSessionInput {
+    /// SabCRM (project) mounts only — required tenant scope.
+    #[serde(default)]
+    pub project_id: Option<String>,
     pub terminal_id: String,
     pub opening_cash: f64,
     #[serde(default)]
@@ -105,6 +121,9 @@ pub struct DeleteSessionResponse {
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ListTransactionsQuery {
+    /// SabCRM (project) mounts only — required tenant scope.
+    #[serde(default)]
+    pub project_id: Option<String>,
     #[serde(default)]
     pub page: Option<u32>,
     #[serde(default)]
@@ -124,6 +143,9 @@ pub struct ListTransactionsQuery {
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CreateTransactionInput {
+    /// SabCRM (project) mounts only — required tenant scope.
+    #[serde(default)]
+    pub project_id: Option<String>,
     pub session_id: String,
     #[serde(default)]
     pub customer_id: Option<String>,
@@ -182,6 +204,9 @@ pub struct DeleteTransactionResponse {
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ListHoldsQuery {
+    /// SabCRM (project) mounts only — required tenant scope.
+    #[serde(default)]
+    pub project_id: Option<String>,
     #[serde(default)]
     pub page: Option<u32>,
     #[serde(default)]
@@ -197,6 +222,9 @@ pub struct ListHoldsQuery {
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CreateHoldInput {
+    /// SabCRM (project) mounts only — required tenant scope.
+    #[serde(default)]
+    pub project_id: Option<String>,
     pub session_id: String,
     #[serde(default)]
     pub customer_id: Option<String>,
@@ -251,6 +279,9 @@ pub struct DeleteHoldResponse {
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ListRefundsQuery {
+    /// SabCRM (project) mounts only — required tenant scope.
+    #[serde(default)]
+    pub project_id: Option<String>,
     #[serde(default)]
     pub page: Option<u32>,
     #[serde(default)]

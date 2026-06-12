@@ -136,6 +136,8 @@ crm-labels = { path = "../crm-labels" }
 crm-branches = { path = "../crm-branches" }
 crm-warehouses = { path = "../crm-warehouses" }
 crm-stock-adjustments = { path = "../crm-stock-adjustments" }
+crm-pos = { path = "../crm-pos" }
+crm-store = { path = "../crm-store" }
 crm-coupons = { path = "../crm-coupons" }
 crm-gift-cards = { path = "../crm-gift-cards" }
 crm-loyalty-programs = { path = "../crm-loyalty-programs" }

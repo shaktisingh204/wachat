@@ -3,11 +3,21 @@
 use serde::{Deserialize, Serialize};
 
 use crate::types::{
-    Address, CrmStoreAbandonedCart, CrmStoreOrder, CrmStorePricingRule, CrmStoreProduct,
+    CrmStoreAbandonedCart, CrmStoreOrder, CrmStorePricingRule, CrmStoreProduct,
     CrmStoreShippingZone, CrmStorefront,
 };
 
 // ─── Shared inputs ─────────────────────────────────────────────────────────
+
+/// Scope-only query for id-addressed routes (`GET`/`PATCH`/`DELETE`,
+/// and the `POST` lifecycle verbs that carry a body). `projectId` is
+/// required on SabCRM (project) mounts and ignored on legacy mounts.
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ScopeQuery {
+    #[serde(default)]
+    pub project_id: Option<String>,
+}
 
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -72,6 +82,9 @@ pub struct OrderLineItemInput {
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ListStorefrontsQuery {
+    /// SabCRM (project) mounts only — required tenant scope.
+    #[serde(default)]
+    pub project_id: Option<String>,
     #[serde(default)]
     pub page: Option<u32>,
     #[serde(default)]
@@ -85,6 +98,9 @@ pub struct ListStorefrontsQuery {
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CreateStorefrontInput {
+    /// SabCRM (project) mounts only — required tenant scope.
+    #[serde(default)]
+    pub project_id: Option<String>,
     pub name: String,
     pub slug: String,
     #[serde(default)]
@@ -137,6 +153,9 @@ pub struct DeleteStorefrontResponse {
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ListStoreProductsQuery {
+    /// SabCRM (project) mounts only — required tenant scope.
+    #[serde(default)]
+    pub project_id: Option<String>,
     #[serde(default)]
     pub page: Option<u32>,
     #[serde(default)]
@@ -154,6 +173,9 @@ pub struct ListStoreProductsQuery {
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CreateStoreProductInput {
+    /// SabCRM (project) mounts only — required tenant scope.
+    #[serde(default)]
+    pub project_id: Option<String>,
     pub storefront_id: String,
     pub item_id: String,
     pub sku: String,
@@ -223,6 +245,9 @@ pub struct DeleteStoreProductResponse {
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ListPricingRulesQuery {
+    /// SabCRM (project) mounts only — required tenant scope.
+    #[serde(default)]
+    pub project_id: Option<String>,
     #[serde(default)]
     pub page: Option<u32>,
     #[serde(default)]
@@ -240,6 +265,9 @@ pub struct ListPricingRulesQuery {
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CreatePricingRuleInput {
+    /// SabCRM (project) mounts only — required tenant scope.
+    #[serde(default)]
+    pub project_id: Option<String>,
     pub storefront_id: String,
     pub name: String,
     pub kind: String,
@@ -296,6 +324,9 @@ pub struct DeletePricingRuleResponse {
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ListShippingZonesQuery {
+    /// SabCRM (project) mounts only — required tenant scope.
+    #[serde(default)]
+    pub project_id: Option<String>,
     #[serde(default)]
     pub page: Option<u32>,
     #[serde(default)]
@@ -313,6 +344,9 @@ pub struct ListShippingZonesQuery {
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CreateShippingZoneInput {
+    /// SabCRM (project) mounts only — required tenant scope.
+    #[serde(default)]
+    pub project_id: Option<String>,
     pub storefront_id: String,
     pub name: String,
     #[serde(default)]
@@ -356,6 +390,9 @@ pub struct DeleteShippingZoneResponse {
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ListOrdersQuery {
+    /// SabCRM (project) mounts only — required tenant scope.
+    #[serde(default)]
+    pub project_id: Option<String>,
     #[serde(default)]
     pub page: Option<u32>,
     #[serde(default)]
@@ -375,6 +412,9 @@ pub struct ListOrdersQuery {
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CreateOrderInput {
+    /// SabCRM (project) mounts only — required tenant scope.
+    #[serde(default)]
+    pub project_id: Option<String>,
     pub storefront_id: String,
     pub customer_email: String,
     pub customer_name: String,
@@ -440,6 +480,9 @@ pub struct DeleteOrderResponse {
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ListAbandonedCartsQuery {
+    /// SabCRM (project) mounts only — required tenant scope.
+    #[serde(default)]
+    pub project_id: Option<String>,
     #[serde(default)]
     pub page: Option<u32>,
     #[serde(default)]
@@ -456,6 +499,9 @@ pub struct ListAbandonedCartsQuery {
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TrackAbandonedCartInput {
+    /// SabCRM (project) mounts only — required tenant scope.
+    #[serde(default)]
+    pub project_id: Option<String>,
     pub storefront_id: String,
     pub customer_email: String,
     #[serde(default)]

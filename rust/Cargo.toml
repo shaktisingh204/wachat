@@ -200,6 +200,8 @@ members = [
     "crates/crm-branches",
     "crates/crm-warehouses",
     "crates/crm-stock-adjustments",
+    "crates/crm-pos",
+    "crates/crm-store",
     "crates/crm-coupons",
     "crates/crm-gift-cards",
     "crates/crm-loyalty-programs",

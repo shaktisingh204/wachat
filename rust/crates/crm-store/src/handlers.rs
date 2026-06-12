@@ -2,7 +2,7 @@
 //! pricing rules, shipping zones, orders, and abandoned carts.
 
 use axum::{
-    Json,
+    Extension, Json,
     extract::{Path, Query, State},
 };
 use bson::{Bson, DateTime as BsonDateTime, Document, doc, oid::ObjectId};
@@ -13,6 +13,7 @@ use crm_common::{
     search::build_q_filter,
     tenant::user_oid,
 };
+use crm_core::{ScopeMode, TenantScope, sabcrm_project_oid};
 use futures::TryStreamExt;
 use mongodb::options::FindOptions;
 use sabnode_auth::AuthUser;
@@ -29,7 +30,8 @@ use crate::dto::{
     DeleteStorefrontResponse, HomepageBlockInput, ListAbandonedCartsQuery, ListOrdersQuery,
     ListPricingRulesQuery, ListShippingZonesQuery, ListStoreProductsQuery, ListStorefrontsQuery,
     MarkFulfilledInput, MarkPaidInput, MarkRecoveredInput, OrderLineItemInput,
-    PricingAppliesInput, PricingConditionInput, ShippingMethodInput, TrackAbandonedCartInput,
+    PricingAppliesInput, PricingConditionInput, ScopeQuery, ShippingMethodInput,
+    TrackAbandonedCartInput,
     TrackAbandonedCartResponse, UpdateOrderInput, UpdatePricingRuleInput,
     UpdateShippingZoneInput, UpdateStoreProductInput, UpdateStorefrontInput,
 };
@@ -55,8 +57,33 @@ const ABANDONED_CART_KIND: &str = "store_abandoned_cart";
 
 // ─── Shared helpers ────────────────────────────────────────────────────────
 
-fn ownership_filter(user_id: ObjectId, oid: ObjectId) -> Document {
-    doc! { "_id": oid, "userId": user_id }
+fn ownership_filter(scope: &TenantScope, oid: ObjectId) -> Document {
+    let mut filter = scope.filter();
+    filter.insert("_id", oid);
+    filter
+}
+
+/// Resolve the per-request tenant scope from the mount's [`ScopeMode`]:
+/// legacy mounts filter by the JWT's `userId`, SabCRM mounts by the
+/// caller-supplied (required) `projectId`.
+fn resolve_scope(
+    mode: ScopeMode,
+    user: &AuthUser,
+    project_id: Option<&str>,
+) -> Result<TenantScope> {
+    match mode {
+        ScopeMode::User => Ok(TenantScope::User(user_oid(user)?)),
+        ScopeMode::Project => Ok(TenantScope::Project(sabcrm_project_oid(project_id)?)),
+    }
+}
+
+/// `projectId` to stamp on a freshly created document: `Some(...)` only
+/// on SabCRM (project) mounts.
+fn project_of(scope: &TenantScope) -> Option<ObjectId> {
+    match scope {
+        TenantScope::Project(p) => Some(*p),
+        TenantScope::User(_) => None,
+    }
 }
 
 fn opt_oid(s: Option<String>) -> Result<Option<ObjectId>> {
@@ -194,16 +221,15 @@ fn day_window(now: chrono::DateTime<Utc>) -> (BsonDateTime, BsonDateTime) {
 
 async fn next_order_number(
     mongo: &MongoHandle,
-    user_id: ObjectId,
+    scope: &TenantScope,
     now: chrono::DateTime<Utc>,
 ) -> Result<String> {
     let (start, end) = day_window(now);
     let coll = mongo.collection::<CrmStoreOrder>(ORDERS_COLL);
+    let mut day_filter = scope.filter();
+    day_filter.insert("createdAt", doc! { "$gte": start, "$lt": end });
     let count = coll
-        .count_documents(doc! {
-            "userId": user_id,
-            "createdAt": { "$gte": start, "$lt": end },
-        })
+        .count_documents(day_filter)
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_store_orders.count_day"))
@@ -399,8 +425,8 @@ pub fn compute_shipping(
 
 // ─── Storefronts ───────────────────────────────────────────────────────────
 
-pub(crate) fn storefront_list_filter(user_id: ObjectId, status: Option<&str>) -> Document {
-    let mut filter = doc! { "userId": user_id };
+pub(crate) fn storefront_list_filter(scope: &TenantScope, status: Option<&str>) -> Document {
+    let mut filter = scope.filter();
     match status.unwrap_or("active_visible") {
         "all" => {}
         "archived" => {
@@ -440,11 +466,12 @@ fn validate_slug(slug: &str) -> Result<()> {
 
 async fn ensure_slug_unique(
     mongo: &MongoHandle,
-    user_id: ObjectId,
+    scope: &TenantScope,
     slug: &str,
     excluding: Option<ObjectId>,
 ) -> Result<()> {
-    let mut filter = doc! { "userId": user_id, "slug": slug };
+    let mut filter = scope.filter();
+    filter.insert("slug", slug);
     if let Some(oid) = excluding {
         filter.insert("_id", doc! { "$ne": oid });
     }
@@ -472,11 +499,12 @@ pub struct ListStorefrontsResponse {
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn list_storefronts(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Query(q): Query<ListStorefrontsQuery>,
 ) -> Result<Json<ListStorefrontsResponse>> {
-    let user_id = user_oid(&user)?;
-    let mut filter = storefront_list_filter(user_id, q.status.as_deref());
+    let scope = resolve_scope(mode, &user, q.project_id.as_deref())?;
+    let mut filter = storefront_list_filter(&scope, q.status.as_deref());
     if let Some(needle) = q.q.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
         let or = build_q_filter(needle, &["name", "slug", "domain"]);
         if let Ok(arr) = or.get_array("$or") {
@@ -516,14 +544,16 @@ pub async fn list_storefronts(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %storefront_id))]
 pub async fn get_storefront(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(storefront_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
 ) -> Result<Json<CrmStorefront>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&storefront_id)?;
     let coll = mongo.collection::<CrmStorefront>(STOREFRONTS_COLL);
     let row = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_storefronts.find_one"))
@@ -535,9 +565,13 @@ pub async fn get_storefront(
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn create_storefront(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Json(input): Json<CreateStorefrontInput>,
 ) -> Result<Json<CreateStorefrontResponse>> {
+    let scope = resolve_scope(mode, &user, input.project_id.as_deref())?;
+    // `userId` is always stamped from the JWT (audit trail + entity
+    // field); `projectId` is stamped only on SabCRM (project) mounts.
     let user_id = user_oid(&user)?;
     if input.name.trim().is_empty() {
         return Err(ApiError::Validation("name is required".to_owned()));
@@ -547,12 +581,13 @@ pub async fn create_storefront(
     }
     let slug = normalize_slug(&input.slug);
     validate_slug(&slug)?;
-    ensure_slug_unique(&mongo, user_id, &slug, None).await?;
+    ensure_slug_unique(&mongo, &scope, &slug, None).await?;
 
     let now = BsonDateTime::from_chrono(Utc::now());
     let mut entity = CrmStorefront {
         id: None,
         user_id,
+        project_id: project_of(&scope),
         name: input.name.trim().to_string(),
         slug,
         domain: input
@@ -597,16 +632,18 @@ pub async fn create_storefront(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %storefront_id))]
 pub async fn update_storefront(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(storefront_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
     Json(patch): Json<UpdateStorefrontInput>,
 ) -> Result<Json<CrmStorefront>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&storefront_id)?;
     let coll = mongo.collection::<CrmStorefront>(STOREFRONTS_COLL);
 
     let before = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_storefronts.find_one"))
@@ -620,7 +657,7 @@ pub async fn update_storefront(
     if let Some(v) = patch.slug {
         let slug = normalize_slug(&v);
         validate_slug(&slug)?;
-        ensure_slug_unique(&mongo, user_id, &slug, Some(oid)).await?;
+        ensure_slug_unique(&mongo, &scope, &slug, Some(oid)).await?;
         set.insert("slug", slug);
     }
     if let Some(v) = patch.domain {
@@ -648,7 +685,7 @@ pub async fn update_storefront(
     }
 
     let result = coll
-        .update_one(ownership_filter(user_id, oid), doc! { "$set": set })
+        .update_one(ownership_filter(&scope, oid), doc! { "$set": set })
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_storefronts.update"))
@@ -658,7 +695,7 @@ pub async fn update_storefront(
     }
 
     let after = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_storefronts.refetch"))
@@ -681,16 +718,18 @@ pub async fn update_storefront(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %storefront_id))]
 pub async fn archive_storefront(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(storefront_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
 ) -> Result<Json<DeleteStorefrontResponse>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&storefront_id)?;
 
     let coll = mongo.collection::<CrmStorefront>(STOREFRONTS_COLL);
     let result = coll
         .update_one(
-            ownership_filter(user_id, oid),
+            ownership_filter(&scope, oid),
             doc! { "$set": {
                 "status": "archived",
                 "updatedAt": BsonDateTime::from_chrono(Utc::now()),
@@ -714,12 +753,12 @@ pub async fn archive_storefront(
 // ─── Store products ────────────────────────────────────────────────────────
 
 pub(crate) fn product_list_filter(
-    user_id: ObjectId,
+    scope: &TenantScope,
     status: Option<&str>,
     storefront_id: Option<ObjectId>,
     category_id: Option<ObjectId>,
 ) -> Document {
-    let mut filter = doc! { "userId": user_id };
+    let mut filter = scope.filter();
     // Default: only `active` products show. Distinct from other list filters
     // — store catalogues don't want drafts polluting the customer UI.
     match status.unwrap_or("active") {
@@ -758,14 +797,15 @@ pub struct ListStoreProductsResponse {
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn list_store_products(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Query(q): Query<ListStoreProductsQuery>,
 ) -> Result<Json<ListStoreProductsResponse>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, q.project_id.as_deref())?;
     let storefront = opt_oid(q.storefront_id.clone())?;
     let category = opt_oid(q.category_id.clone())?;
     let mut filter =
-        product_list_filter(user_id, q.status.as_deref(), storefront, category);
+        product_list_filter(&scope, q.status.as_deref(), storefront, category);
     if let Some(needle) = q.q.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
         let or = build_q_filter(needle, &["title", "sku", "description"]);
         if let Ok(arr) = or.get_array("$or") {
@@ -805,14 +845,16 @@ pub async fn list_store_products(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %product_id))]
 pub async fn get_store_product(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(product_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
 ) -> Result<Json<CrmStoreProduct>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&product_id)?;
     let coll = mongo.collection::<CrmStoreProduct>(PRODUCTS_COLL);
     let row = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_store_products.find_one"))
@@ -824,9 +866,13 @@ pub async fn get_store_product(
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn create_store_product(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Json(input): Json<CreateStoreProductInput>,
 ) -> Result<Json<CreateStoreProductResponse>> {
+    let scope = resolve_scope(mode, &user, input.project_id.as_deref())?;
+    // `userId` is always stamped from the JWT (audit trail + entity
+    // field); `projectId` is stamped only on SabCRM (project) mounts.
     let user_id = user_oid(&user)?;
     if input.title.trim().is_empty() {
         return Err(ApiError::Validation("title is required".to_owned()));
@@ -848,6 +894,7 @@ pub async fn create_store_product(
     let mut entity = CrmStoreProduct {
         id: None,
         user_id,
+        project_id: project_of(&scope),
         storefront_id: storefront_oid,
         item_id: item_oid,
         sku: input.sku.trim().to_string(),
@@ -892,16 +939,18 @@ pub async fn create_store_product(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %product_id))]
 pub async fn update_store_product(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(product_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
     Json(patch): Json<UpdateStoreProductInput>,
 ) -> Result<Json<CrmStoreProduct>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&product_id)?;
     let coll = mongo.collection::<CrmStoreProduct>(PRODUCTS_COLL);
 
     let before = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_store_products.find_one"))
@@ -955,7 +1004,7 @@ pub async fn update_store_product(
     }
 
     let result = coll
-        .update_one(ownership_filter(user_id, oid), doc! { "$set": set })
+        .update_one(ownership_filter(&scope, oid), doc! { "$set": set })
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_store_products.update"))
@@ -965,7 +1014,7 @@ pub async fn update_store_product(
     }
 
     let after = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_store_products.refetch"))
@@ -988,16 +1037,18 @@ pub async fn update_store_product(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %product_id))]
 pub async fn archive_store_product(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(product_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
 ) -> Result<Json<DeleteStoreProductResponse>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&product_id)?;
 
     let coll = mongo.collection::<CrmStoreProduct>(PRODUCTS_COLL);
     let result = coll
         .update_one(
-            ownership_filter(user_id, oid),
+            ownership_filter(&scope, oid),
             doc! { "$set": {
                 "status": "archived",
                 "updatedAt": BsonDateTime::from_chrono(Utc::now()),
@@ -1021,12 +1072,12 @@ pub async fn archive_store_product(
 // ─── Pricing rules ─────────────────────────────────────────────────────────
 
 pub(crate) fn pricing_rule_list_filter(
-    user_id: ObjectId,
+    scope: &TenantScope,
     status: Option<&str>,
     storefront_id: Option<ObjectId>,
     kind: Option<&str>,
 ) -> Document {
-    let mut filter = doc! { "userId": user_id };
+    let mut filter = scope.filter();
     match status.unwrap_or("active_visible") {
         "all" => {}
         "archived" => {
@@ -1063,13 +1114,14 @@ pub struct ListPricingRulesResponse {
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn list_pricing_rules(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Query(q): Query<ListPricingRulesQuery>,
 ) -> Result<Json<ListPricingRulesResponse>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, q.project_id.as_deref())?;
     let storefront = opt_oid(q.storefront_id.clone())?;
     let mut filter = pricing_rule_list_filter(
-        user_id,
+        &scope,
         q.status.as_deref(),
         storefront,
         q.kind.as_deref(),
@@ -1113,14 +1165,16 @@ pub async fn list_pricing_rules(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %rule_id))]
 pub async fn get_pricing_rule(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(rule_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
 ) -> Result<Json<CrmStorePricingRule>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&rule_id)?;
     let coll = mongo.collection::<CrmStorePricingRule>(PRICING_RULES_COLL);
     let row = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(
@@ -1134,9 +1188,13 @@ pub async fn get_pricing_rule(
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn create_pricing_rule(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Json(input): Json<CreatePricingRuleInput>,
 ) -> Result<Json<CreatePricingRuleResponse>> {
+    let scope = resolve_scope(mode, &user, input.project_id.as_deref())?;
+    // `userId` is always stamped from the JWT (audit trail + entity
+    // field); `projectId` is stamped only on SabCRM (project) mounts.
     let user_id = user_oid(&user)?;
     if input.name.trim().is_empty() {
         return Err(ApiError::Validation("name is required".to_owned()));
@@ -1161,6 +1219,7 @@ pub async fn create_pricing_rule(
     let mut entity = CrmStorePricingRule {
         id: None,
         user_id,
+        project_id: project_of(&scope),
         storefront_id: storefront_oid,
         name: input.name.trim().to_string(),
         kind: input.kind,
@@ -1200,16 +1259,18 @@ pub async fn create_pricing_rule(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %rule_id))]
 pub async fn update_pricing_rule(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(rule_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
     Json(patch): Json<UpdatePricingRuleInput>,
 ) -> Result<Json<CrmStorePricingRule>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&rule_id)?;
     let coll = mongo.collection::<CrmStorePricingRule>(PRICING_RULES_COLL);
 
     let before = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(
@@ -1257,7 +1318,7 @@ pub async fn update_pricing_rule(
     }
 
     let result = coll
-        .update_one(ownership_filter(user_id, oid), doc! { "$set": set })
+        .update_one(ownership_filter(&scope, oid), doc! { "$set": set })
         .await
         .map_err(|e| {
             ApiError::Internal(
@@ -1269,7 +1330,7 @@ pub async fn update_pricing_rule(
     }
 
     let after = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(
@@ -1294,16 +1355,18 @@ pub async fn update_pricing_rule(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %rule_id))]
 pub async fn archive_pricing_rule(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(rule_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
 ) -> Result<Json<DeletePricingRuleResponse>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&rule_id)?;
 
     let coll = mongo.collection::<CrmStorePricingRule>(PRICING_RULES_COLL);
     let result = coll
         .update_one(
-            ownership_filter(user_id, oid),
+            ownership_filter(&scope, oid),
             doc! { "$set": {
                 "status": "archived",
                 "updatedAt": BsonDateTime::from_chrono(Utc::now()),
@@ -1329,12 +1392,12 @@ pub async fn archive_pricing_rule(
 // ─── Shipping zones ────────────────────────────────────────────────────────
 
 pub(crate) fn shipping_zone_list_filter(
-    user_id: ObjectId,
+    scope: &TenantScope,
     status: Option<&str>,
     storefront_id: Option<ObjectId>,
     country: Option<&str>,
 ) -> Document {
-    let mut filter = doc! { "userId": user_id };
+    let mut filter = scope.filter();
     match status.unwrap_or("active_visible") {
         "all" => {}
         "archived" => {
@@ -1371,13 +1434,14 @@ pub struct ListShippingZonesResponse {
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn list_shipping_zones(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Query(q): Query<ListShippingZonesQuery>,
 ) -> Result<Json<ListShippingZonesResponse>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, q.project_id.as_deref())?;
     let storefront = opt_oid(q.storefront_id.clone())?;
     let mut filter = shipping_zone_list_filter(
-        user_id,
+        &scope,
         q.status.as_deref(),
         storefront,
         q.country.as_deref(),
@@ -1425,14 +1489,16 @@ pub async fn list_shipping_zones(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %zone_id))]
 pub async fn get_shipping_zone(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(zone_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
 ) -> Result<Json<CrmStoreShippingZone>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&zone_id)?;
     let coll = mongo.collection::<CrmStoreShippingZone>(SHIPPING_ZONES_COLL);
     let row = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(
@@ -1446,9 +1512,13 @@ pub async fn get_shipping_zone(
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn create_shipping_zone(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Json(input): Json<CreateShippingZoneInput>,
 ) -> Result<Json<CreateShippingZoneResponse>> {
+    let scope = resolve_scope(mode, &user, input.project_id.as_deref())?;
+    // `userId` is always stamped from the JWT (audit trail + entity
+    // field); `projectId` is stamped only on SabCRM (project) mounts.
     let user_id = user_oid(&user)?;
     if input.name.trim().is_empty() {
         return Err(ApiError::Validation("name is required".to_owned()));
@@ -1469,6 +1539,7 @@ pub async fn create_shipping_zone(
     let mut entity = CrmStoreShippingZone {
         id: None,
         user_id,
+        project_id: project_of(&scope),
         storefront_id: storefront_oid,
         name: input.name.trim().to_string(),
         countries,
@@ -1506,16 +1577,18 @@ pub async fn create_shipping_zone(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %zone_id))]
 pub async fn update_shipping_zone(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(zone_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
     Json(patch): Json<UpdateShippingZoneInput>,
 ) -> Result<Json<CrmStoreShippingZone>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&zone_id)?;
     let coll = mongo.collection::<CrmStoreShippingZone>(SHIPPING_ZONES_COLL);
 
     let before = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(
@@ -1555,7 +1628,7 @@ pub async fn update_shipping_zone(
     }
 
     let result = coll
-        .update_one(ownership_filter(user_id, oid), doc! { "$set": set })
+        .update_one(ownership_filter(&scope, oid), doc! { "$set": set })
         .await
         .map_err(|e| {
             ApiError::Internal(
@@ -1567,7 +1640,7 @@ pub async fn update_shipping_zone(
     }
 
     let after = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(
@@ -1592,16 +1665,18 @@ pub async fn update_shipping_zone(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %zone_id))]
 pub async fn archive_shipping_zone(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(zone_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
 ) -> Result<Json<DeleteShippingZoneResponse>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&zone_id)?;
 
     let coll = mongo.collection::<CrmStoreShippingZone>(SHIPPING_ZONES_COLL);
     let result = coll
         .update_one(
-            ownership_filter(user_id, oid),
+            ownership_filter(&scope, oid),
             doc! { "$set": {
                 "status": "archived",
                 "updatedAt": BsonDateTime::from_chrono(Utc::now()),
@@ -1627,13 +1702,13 @@ pub async fn archive_shipping_zone(
 // ─── Orders ────────────────────────────────────────────────────────────────
 
 pub(crate) fn order_list_filter(
-    user_id: ObjectId,
+    scope: &TenantScope,
     storefront_id: Option<ObjectId>,
     payment_status: Option<&str>,
     fulfillment_status: Option<&str>,
     customer_email: Option<&str>,
 ) -> Document {
-    let mut filter = doc! { "userId": user_id };
+    let mut filter = scope.filter();
     if let Some(s) = storefront_id {
         filter.insert("storefrontId", s);
     }
@@ -1661,13 +1736,14 @@ pub struct ListOrdersResponse {
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn list_orders(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Query(q): Query<ListOrdersQuery>,
 ) -> Result<Json<ListOrdersResponse>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, q.project_id.as_deref())?;
     let storefront = opt_oid(q.storefront_id.clone())?;
     let mut filter = order_list_filter(
-        user_id,
+        &scope,
         storefront,
         q.payment_status.as_deref(),
         q.fulfillment_status.as_deref(),
@@ -1712,14 +1788,16 @@ pub async fn list_orders(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %order_id))]
 pub async fn get_order(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(order_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
 ) -> Result<Json<CrmStoreOrder>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&order_id)?;
     let coll = mongo.collection::<CrmStoreOrder>(ORDERS_COLL);
     let row = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_store_orders.find_one"))
@@ -1731,9 +1809,13 @@ pub async fn get_order(
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn create_order(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Json(input): Json<CreateOrderInput>,
 ) -> Result<Json<CreateOrderResponse>> {
+    let scope = resolve_scope(mode, &user, input.project_id.as_deref())?;
+    // `userId` is always stamped from the JWT (audit trail + entity
+    // field); `projectId` is stamped only on SabCRM (project) mounts.
     let user_id = user_oid(&user)?;
     if input.line_items.is_empty() {
         return Err(ApiError::Validation(
@@ -1771,11 +1853,12 @@ pub async fn create_order(
 
     let now_chrono = Utc::now();
     let now = BsonDateTime::from_chrono(now_chrono);
-    let order_number = next_order_number(&mongo, user_id, now_chrono).await?;
+    let order_number = next_order_number(&mongo, &scope, now_chrono).await?;
 
     let mut entity = CrmStoreOrder {
         id: None,
         user_id,
+        project_id: project_of(&scope),
         storefront_id: storefront_oid,
         order_number,
         customer_email: input.customer_email.trim().to_lowercase(),
@@ -1826,16 +1909,18 @@ pub async fn create_order(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %order_id))]
 pub async fn update_order(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(order_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
     Json(patch): Json<UpdateOrderInput>,
 ) -> Result<Json<CrmStoreOrder>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&order_id)?;
     let coll = mongo.collection::<CrmStoreOrder>(ORDERS_COLL);
 
     let before = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_store_orders.find_one"))
@@ -1856,7 +1941,7 @@ pub async fn update_order(
     }
 
     let result = coll
-        .update_one(ownership_filter(user_id, oid), doc! { "$set": set })
+        .update_one(ownership_filter(&scope, oid), doc! { "$set": set })
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_store_orders.update"))
@@ -1866,7 +1951,7 @@ pub async fn update_order(
     }
 
     let after = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_store_orders.refetch"))
@@ -1907,16 +1992,18 @@ pub(crate) fn validate_fulfillment_status(s: &str) -> Result<()> {
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %order_id))]
 pub async fn mark_order_paid(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(order_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
     Json(input): Json<MarkPaidInput>,
 ) -> Result<Json<CrmStoreOrder>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&order_id)?;
     let coll = mongo.collection::<CrmStoreOrder>(ORDERS_COLL);
 
     let before = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_store_orders.find_one"))
@@ -1943,7 +2030,7 @@ pub async fn mark_order_paid(
     }
 
     let result = coll
-        .update_one(ownership_filter(user_id, oid), doc! { "$set": set })
+        .update_one(ownership_filter(&scope, oid), doc! { "$set": set })
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_store_orders.mark_paid"))
@@ -1957,7 +2044,7 @@ pub async fn mark_order_paid(
     // crate coupling is intentionally deferred — tracked in a follow-up PR.
 
     let after = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_store_orders.refetch"))
@@ -1980,16 +2067,18 @@ pub async fn mark_order_paid(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %order_id))]
 pub async fn mark_order_fulfilled(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(order_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
     Json(input): Json<MarkFulfilledInput>,
 ) -> Result<Json<CrmStoreOrder>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&order_id)?;
     let coll = mongo.collection::<CrmStoreOrder>(ORDERS_COLL);
 
     let before = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_store_orders.find_one"))
@@ -2014,7 +2103,7 @@ pub async fn mark_order_fulfilled(
     };
 
     let result = coll
-        .update_one(ownership_filter(user_id, oid), doc! { "$set": set })
+        .update_one(ownership_filter(&scope, oid), doc! { "$set": set })
         .await
         .map_err(|e| {
             ApiError::Internal(
@@ -2026,7 +2115,7 @@ pub async fn mark_order_fulfilled(
     }
 
     let after = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_store_orders.refetch"))
@@ -2049,10 +2138,12 @@ pub async fn mark_order_fulfilled(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %order_id))]
 pub async fn archive_order(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(order_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
 ) -> Result<Json<DeleteOrderResponse>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&order_id)?;
 
     let coll = mongo.collection::<CrmStoreOrder>(ORDERS_COLL);
@@ -2060,7 +2151,7 @@ pub async fn archive_order(
     // hard-delete, audit trail must survive.
     let result = coll
         .update_one(
-            ownership_filter(user_id, oid),
+            ownership_filter(&scope, oid),
             doc! { "$set": {
                 "fulfillmentStatus": "cancelled",
                 "updatedAt": BsonDateTime::from_chrono(Utc::now()),
@@ -2084,11 +2175,11 @@ pub async fn archive_order(
 // ─── Abandoned carts ───────────────────────────────────────────────────────
 
 pub(crate) fn abandoned_cart_list_filter(
-    user_id: ObjectId,
+    scope: &TenantScope,
     storefront_id: Option<ObjectId>,
     recovered: Option<bool>,
 ) -> Document {
-    let mut filter = doc! { "userId": user_id };
+    let mut filter = scope.filter();
     if let Some(s) = storefront_id {
         filter.insert("storefrontId", s);
     }
@@ -2110,12 +2201,13 @@ pub struct ListAbandonedCartsResponse {
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn list_abandoned_carts(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Query(q): Query<ListAbandonedCartsQuery>,
 ) -> Result<Json<ListAbandonedCartsResponse>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, q.project_id.as_deref())?;
     let storefront = opt_oid(q.storefront_id.clone())?;
-    let mut filter = abandoned_cart_list_filter(user_id, storefront, q.recovered);
+    let mut filter = abandoned_cart_list_filter(&scope, storefront, q.recovered);
     if let Some(needle) = q.q.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
         let or = build_q_filter(needle, &["customerEmail", "customerName"]);
         if let Ok(arr) = or.get_array("$or") {
@@ -2159,14 +2251,16 @@ pub async fn list_abandoned_carts(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %cart_id))]
 pub async fn get_abandoned_cart(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(cart_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
 ) -> Result<Json<CrmStoreAbandonedCart>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&cart_id)?;
     let coll = mongo.collection::<CrmStoreAbandonedCart>(ABANDONED_CARTS_COLL);
     let row = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(
@@ -2180,9 +2274,13 @@ pub async fn get_abandoned_cart(
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn track_abandoned_cart(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Json(input): Json<TrackAbandonedCartInput>,
 ) -> Result<Json<TrackAbandonedCartResponse>> {
+    let scope = resolve_scope(mode, &user, input.project_id.as_deref())?;
+    // `userId` is always stamped from the JWT (audit trail + entity
+    // field); `projectId` is stamped only on SabCRM (project) mounts.
     let user_id = user_oid(&user)?;
     if input.customer_email.trim().is_empty() {
         return Err(ApiError::Validation(
@@ -2201,11 +2299,9 @@ pub async fn track_abandoned_cart(
         .unwrap_or_else(|| items.iter().map(|i| i.total).sum());
 
     let coll = mongo.collection::<CrmStoreAbandonedCart>(ABANDONED_CARTS_COLL);
-    let filter = doc! {
-        "userId": user_id,
-        "storefrontId": storefront_oid,
-        "customerEmail": &email,
-    };
+    let mut filter = scope.filter();
+    filter.insert("storefrontId", storefront_oid);
+    filter.insert("customerEmail", &email);
 
     let existing = coll.find_one(filter.clone()).await.map_err(|e| {
         ApiError::Internal(
@@ -2234,7 +2330,7 @@ pub async fn track_abandoned_cart(
             .id
             .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("abandoned cart missing _id")))?;
         coll.update_one(
-            ownership_filter(user_id, prev_id),
+            ownership_filter(&scope, prev_id),
             doc! { "$set": set },
         )
         .await
@@ -2245,7 +2341,7 @@ pub async fn track_abandoned_cart(
         })?;
 
         let after = coll
-            .find_one(ownership_filter(user_id, prev_id))
+            .find_one(ownership_filter(&scope, prev_id))
             .await
             .map_err(|e| {
                 ApiError::Internal(
@@ -2274,6 +2370,7 @@ pub async fn track_abandoned_cart(
     let mut entity = CrmStoreAbandonedCart {
         id: None,
         user_id,
+        project_id: project_of(&scope),
         storefront_id: storefront_oid,
         customer_email: email,
         customer_name: input.customer_name,
@@ -2315,17 +2412,19 @@ pub async fn track_abandoned_cart(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %cart_id))]
 pub async fn mark_cart_recovered(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(cart_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
     Json(input): Json<MarkRecoveredInput>,
 ) -> Result<Json<CrmStoreAbandonedCart>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&cart_id)?;
     let order_oid = oid_from_str(&input.recovered_order_id)?;
 
     let coll = mongo.collection::<CrmStoreAbandonedCart>(ABANDONED_CARTS_COLL);
     let before = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(
@@ -2337,7 +2436,7 @@ pub async fn mark_cart_recovered(
     let now = BsonDateTime::from_chrono(Utc::now());
     let result = coll
         .update_one(
-            ownership_filter(user_id, oid),
+            ownership_filter(&scope, oid),
             doc! { "$set": {
                 "recovered": true,
                 "recoveredOrderId": order_oid,
@@ -2355,7 +2454,7 @@ pub async fn mark_cart_recovered(
     }
 
     let after = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(
@@ -2380,15 +2479,17 @@ pub async fn mark_cart_recovered(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %cart_id))]
 pub async fn delete_abandoned_cart(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(cart_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
 ) -> Result<Json<DeleteAbandonedCartResponse>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&cart_id)?;
 
     let coll = mongo.collection::<CrmStoreAbandonedCart>(ABANDONED_CARTS_COLL);
     let result = coll
-        .delete_one(ownership_filter(user_id, oid))
+        .delete_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(
@@ -2423,6 +2524,7 @@ mod tests {
         CrmStorePricingRule {
             id: Some(ObjectId::new()),
             user_id: ObjectId::new(),
+            project_id: None,
             storefront_id: ObjectId::new(),
             name: format!("rule-{priority}"),
             kind: "percent_off".to_owned(),
@@ -2446,6 +2548,7 @@ mod tests {
         CrmStoreShippingZone {
             id: Some(ObjectId::new()),
             user_id: ObjectId::new(),
+            project_id: None,
             storefront_id: ObjectId::new(),
             name: "Z1".to_owned(),
             countries: vec!["IN".to_owned()],
@@ -2482,7 +2585,7 @@ mod tests {
     #[test]
     fn product_list_filter_defaults_to_active_only() {
         let user = ObjectId::new();
-        let f = product_list_filter(user, None, None, None);
+        let f = product_list_filter(&TenantScope::User(user), None, None, None);
         assert_eq!(f.get_str("status").unwrap(), "active");
     }
 
@@ -2491,7 +2594,7 @@ mod tests {
         let user = ObjectId::new();
         let sf = ObjectId::new();
         let cat = ObjectId::new();
-        let f = product_list_filter(user, Some("all"), Some(sf), Some(cat));
+        let f = product_list_filter(&TenantScope::User(user), Some("all"), Some(sf), Some(cat));
         assert!(!f.contains_key("status"));
         assert_eq!(f.get_object_id("storefrontId").unwrap(), sf);
         assert_eq!(f.get_object_id("categoryIds").unwrap(), cat);
@@ -2664,7 +2767,7 @@ mod tests {
     fn abandoned_cart_list_filter_scopes_to_storefront_and_recovered_flag() {
         let user = ObjectId::new();
         let sf = ObjectId::new();
-        let f = abandoned_cart_list_filter(user, Some(sf), Some(false));
+        let f = abandoned_cart_list_filter(&TenantScope::User(user), Some(sf), Some(false));
         assert_eq!(f.get_object_id("storefrontId").unwrap(), sf);
         assert_eq!(f.get_bool("recovered").unwrap(), false);
     }
@@ -2681,11 +2784,37 @@ mod tests {
     // ─── storefront filter ─────────────────────────────────────────────────
 
     #[test]
+    fn list_filters_scope_by_project_on_sabcrm_mounts() {
+        let oid = ObjectId::new();
+        let scope = TenantScope::Project(oid);
+        for f in [
+            storefront_list_filter(&scope, None),
+            product_list_filter(&scope, None, None, None),
+            pricing_rule_list_filter(&scope, None, None, None),
+            shipping_zone_list_filter(&scope, None, None, None),
+            order_list_filter(&scope, None, None, None, None),
+            abandoned_cart_list_filter(&scope, None, None),
+        ] {
+            assert_eq!(f.get_object_id("projectId").unwrap(), oid);
+            assert!(!f.contains_key("userId"));
+        }
+    }
+
+    #[test]
+    fn ownership_filter_pins_id_and_scope_key() {
+        let tenant = ObjectId::new();
+        let id = ObjectId::new();
+        let f = ownership_filter(&TenantScope::Project(tenant), id);
+        assert_eq!(f.get_object_id("_id").unwrap(), id);
+        assert_eq!(f.get_object_id("projectId").unwrap(), tenant);
+    }
+
+    #[test]
     fn storefront_list_filter_excludes_archived_by_default() {
         let user = ObjectId::new();
-        let f = storefront_list_filter(user, None);
+        let f = storefront_list_filter(&TenantScope::User(user), None);
         assert!(f.contains_key("status"));
-        let f_all = storefront_list_filter(user, Some("all"));
+        let f_all = storefront_list_filter(&TenantScope::User(user), Some("all"));
         assert!(!f_all.contains_key("status"));
     }
 }

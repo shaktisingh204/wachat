@@ -298,6 +298,16 @@ export function SabcrmSuiteFrame({ children }: { children: React.ReactNode }) {
       { group: 'supply', id: 'vendor-bids', label: 'Vendor bids', href: '/sabcrm/supply/vendor-bids', icon: FileText },
       { group: 'supply', id: 'bom', label: 'Bill of materials', href: '/sabcrm/supply/bom', icon: BookOpen },
       { group: 'supply', id: 'production-orders', label: 'Production orders', href: '/sabcrm/supply/production-orders', icon: Workflow },
+      { group: 'commerce', id: 'commerce-home', label: 'Overview', href: '/sabcrm/commerce', icon: LayoutDashboard },
+      { group: 'commerce', id: 'pos-sessions', label: 'POS sessions', href: '/sabcrm/commerce/pos-sessions', icon: Calendar },
+      { group: 'commerce', id: 'pos-transactions', label: 'POS transactions', href: '/sabcrm/commerce/pos-transactions', icon: CreditCard },
+      { group: 'commerce', id: 'pos-refunds', label: 'POS refunds', href: '/sabcrm/commerce/pos-refunds', icon: Receipt },
+      { group: 'commerce', id: 'pos-holds', label: 'POS holds', href: '/sabcrm/commerce/pos-holds', icon: CheckSquare },
+      { group: 'commerce', id: 'orders', label: 'Orders', href: '/sabcrm/commerce/orders', icon: ClipboardList },
+      { group: 'commerce', id: 'storefronts', label: 'Storefronts', href: '/sabcrm/commerce/storefronts', icon: Building2 },
+      { group: 'commerce', id: 'coupons', label: 'Coupons', href: '/sabcrm/commerce/coupons', icon: Percent },
+      { group: 'commerce', id: 'gift-cards', label: 'Gift cards', href: '/sabcrm/commerce/gift-cards', icon: CreditCard },
+      { group: 'commerce', id: 'shipping', label: 'Shipping', href: '/sabcrm/commerce/shipping', icon: Workflow },
       { group: 'insights', id: 'forecast', label: 'Forecast', href: '/sabcrm/forecast', icon: TrendingUp },
       { group: 'insights', id: 'dashboards', label: 'Dashboards', href: '/sabcrm/dashboard', icon: LayoutDashboard },
       { group: 'insights', id: 'reports', label: 'Reports', href: '/sabcrm/reports', icon: BarChart3 },
@@ -364,6 +374,11 @@ export function SabcrmSuiteFrame({ children }: { children: React.ReactNode }) {
       id: 'supply',
       label: 'Supply',
       items: entries.filter((e) => e.group === 'supply').map(toLeaf),
+    });
+    result.push({
+      id: 'commerce',
+      label: 'Commerce',
+      items: entries.filter((e) => e.group === 'commerce').map(toLeaf),
     });
     result.push({
       id: 'insights',

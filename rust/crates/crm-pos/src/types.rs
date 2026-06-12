@@ -44,6 +44,14 @@ pub struct CrmPosSession {
     pub id: Option<ObjectId>,
     #[serde(rename = "userId")]
     pub user_id: ObjectId,
+    /// SabCRM suite scope — set on documents created through the
+    /// project-scoped (`/v1/sabcrm/*`) mounts; absent on legacy rows.
+    #[serde(
+        rename = "projectId",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub project_id: Option<ObjectId>,
 
     pub terminal_id: String,
     pub opened_by: ObjectId,
@@ -81,6 +89,14 @@ pub struct CrmPosTransaction {
     pub id: Option<ObjectId>,
     #[serde(rename = "userId")]
     pub user_id: ObjectId,
+    /// SabCRM suite scope — set on documents created through the
+    /// project-scoped (`/v1/sabcrm/*`) mounts; absent on legacy rows.
+    #[serde(
+        rename = "projectId",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub project_id: Option<ObjectId>,
 
     pub session_id: ObjectId,
     /// Generated `TXN-YYYYMMDD-NNNN`.
@@ -121,6 +137,14 @@ pub struct CrmPosHold {
     pub id: Option<ObjectId>,
     #[serde(rename = "userId")]
     pub user_id: ObjectId,
+    /// SabCRM suite scope — set on documents created through the
+    /// project-scoped (`/v1/sabcrm/*`) mounts; absent on legacy rows.
+    #[serde(
+        rename = "projectId",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub project_id: Option<ObjectId>,
 
     pub session_id: ObjectId,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -157,6 +181,14 @@ pub struct CrmPosRefund {
     pub id: Option<ObjectId>,
     #[serde(rename = "userId")]
     pub user_id: ObjectId,
+    /// SabCRM suite scope — set on documents created through the
+    /// project-scoped (`/v1/sabcrm/*`) mounts; absent on legacy rows.
+    #[serde(
+        rename = "projectId",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub project_id: Option<ObjectId>,
 
     pub original_transaction_id: ObjectId,
     pub reason: String,

@@ -51,16 +51,18 @@
 use std::sync::Arc;
 
 use axum::{
-    Router,
+    Extension, Router,
     extract::FromRef,
     routing::{get, post},
 };
+use crm_core::ScopeMode;
 use sabnode_auth::AuthConfig;
 use sabnode_db::mongo::MongoHandle;
 
 use crate::handlers;
 
-pub fn router<S>() -> Router<S>
+/// The shared store route table (no scope attached yet).
+fn store_routes<S>() -> Router<S>
 where
     S: Clone + Send + Sync + 'static,
     MongoHandle: FromRef<S>,
@@ -144,4 +146,27 @@ where
             "/abandoned-carts/{cartId}/recover",
             post(handlers::mark_cart_recovered),
         )
+}
+
+/// Legacy `userId`-scoped router — mount under `/v1/crm/store`.
+pub fn router<S>() -> Router<S>
+where
+    S: Clone + Send + Sync + 'static,
+    MongoHandle: FromRef<S>,
+    Arc<AuthConfig>: FromRef<S>,
+{
+    store_routes().layer(Extension(ScopeMode::User))
+}
+
+/// SabCRM Commerce `projectId`-scoped router — mount under
+/// `/v1/sabcrm/commerce/store`. Same handlers, same collections; every
+/// request must carry `projectId` (query for id-addressed routes, body
+/// for collection `POST`s) or it is rejected 4xx.
+pub fn project_router<S>() -> Router<S>
+where
+    S: Clone + Send + Sync + 'static,
+    MongoHandle: FromRef<S>,
+    Arc<AuthConfig>: FromRef<S>,
+{
+    store_routes().layer(Extension(ScopeMode::Project))
 }

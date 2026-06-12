@@ -1,7 +1,7 @@
 //! HTTP handlers for the POS surface: sessions, transactions, holds, refunds.
 
 use axum::{
-    Json,
+    Extension, Json,
     extract::{Path, Query, State},
 };
 use bson::{Bson, DateTime as BsonDateTime, Document, doc, oid::ObjectId};
@@ -12,6 +12,7 @@ use crm_common::{
     search::build_q_filter,
     tenant::user_oid,
 };
+use crm_core::{ScopeMode, TenantScope, sabcrm_project_oid};
 use futures::TryStreamExt;
 use mongodb::options::FindOptions;
 use sabnode_auth::AuthUser;
@@ -24,7 +25,7 @@ use crate::dto::{
     CreateTransactionInput, CreateTransactionResponse, DeleteHoldResponse, DeleteRefundResponse,
     DeleteSessionResponse, DeleteTransactionResponse, ListHoldsQuery, ListRefundsQuery,
     ListSessionsQuery, ListTransactionsQuery, OpenSessionInput, PosLineItemInput,
-    PosPaymentSplitInput, RecallHoldInput, RecallHoldResponse, ReconcileSessionInput,
+    PosPaymentSplitInput, RecallHoldInput, RecallHoldResponse, ReconcileSessionInput, ScopeQuery,
     RefundTransactionInput, RefundTransactionResponse, RefundedLineItemInput, UpdateHoldInput,
     UpdateRefundInput, UpdateSessionInput, UpdateTransactionInput, VoidTransactionInput,
 };
@@ -45,8 +46,33 @@ const REFUND_KIND: &str = "pos_refund";
 
 // ─── Shared helpers ────────────────────────────────────────────────────────
 
-fn ownership_filter(user_id: ObjectId, oid: ObjectId) -> Document {
-    doc! { "_id": oid, "userId": user_id }
+fn ownership_filter(scope: &TenantScope, oid: ObjectId) -> Document {
+    let mut filter = scope.filter();
+    filter.insert("_id", oid);
+    filter
+}
+
+/// Resolve the per-request tenant scope from the mount's [`ScopeMode`]:
+/// legacy mounts filter by the JWT's `userId`, SabCRM mounts by the
+/// caller-supplied (required) `projectId`.
+fn resolve_scope(
+    mode: ScopeMode,
+    user: &AuthUser,
+    project_id: Option<&str>,
+) -> Result<TenantScope> {
+    match mode {
+        ScopeMode::User => Ok(TenantScope::User(user_oid(user)?)),
+        ScopeMode::Project => Ok(TenantScope::Project(sabcrm_project_oid(project_id)?)),
+    }
+}
+
+/// `projectId` to stamp on a freshly created document: `Some(...)` only
+/// on SabCRM (project) mounts.
+fn project_of(scope: &TenantScope) -> Option<ObjectId> {
+    match scope {
+        TenantScope::Project(p) => Some(*p),
+        TenantScope::User(_) => None,
+    }
 }
 
 fn opt_oid(s: Option<String>) -> Result<Option<ObjectId>> {
@@ -130,16 +156,15 @@ fn day_window(now: chrono::DateTime<Utc>) -> (BsonDateTime, BsonDateTime) {
 
 async fn next_transaction_number(
     mongo: &MongoHandle,
-    user_id: ObjectId,
+    scope: &TenantScope,
     now: chrono::DateTime<Utc>,
 ) -> Result<String> {
     let (start, end) = day_window(now);
     let coll = mongo.collection::<CrmPosTransaction>(TRANSACTIONS_COLL);
+    let mut day_filter = scope.filter();
+    day_filter.insert("createdAt", doc! { "$gte": start, "$lt": end });
     let count = coll
-        .count_documents(doc! {
-            "userId": user_id,
-            "createdAt": { "$gte": start, "$lt": end },
-        })
+        .count_documents(day_filter)
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_pos_transactions.count_day"))
@@ -154,12 +179,12 @@ fn pos_doc(value: &impl serde::Serialize) -> Document {
 // ─── Sessions: filters ─────────────────────────────────────────────────────
 
 pub(crate) fn session_list_filter(
-    user_id: ObjectId,
+    scope: &TenantScope,
     status: Option<&str>,
     terminal_id: Option<&str>,
     cashier_id: Option<ObjectId>,
 ) -> Document {
-    let mut filter = doc! { "userId": user_id };
+    let mut filter = scope.filter();
     match status.unwrap_or("active_visible") {
         "all" => {}
         "archived" => {
@@ -199,12 +224,14 @@ pub struct ListSessionsResponse {
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn list_sessions(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Query(q): Query<ListSessionsQuery>,
 ) -> Result<Json<ListSessionsResponse>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, q.project_id.as_deref())?;
     let cashier = opt_oid(q.cashier_id.clone())?;
-    let mut filter = session_list_filter(user_id, q.status.as_deref(), q.terminal_id.as_deref(), cashier);
+    let mut filter =
+        session_list_filter(&scope, q.status.as_deref(), q.terminal_id.as_deref(), cashier);
     if let Some(needle) = q.q.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
         let or = build_q_filter(needle, &["terminalId", "notes"]);
         if let Ok(arr) = or.get_array("$or") {
@@ -247,14 +274,16 @@ pub async fn list_sessions(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %session_id))]
 pub async fn get_session(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(session_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
 ) -> Result<Json<CrmPosSession>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&session_id)?;
     let coll = mongo.collection::<CrmPosSession>(SESSIONS_COLL);
     let row = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_pos_sessions.find_one"))
@@ -266,22 +295,26 @@ pub async fn get_session(
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn open_session(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Json(input): Json<OpenSessionInput>,
 ) -> Result<Json<CreateSessionResponse>> {
+    let scope = resolve_scope(mode, &user, input.project_id.as_deref())?;
+    // `userId` is always stamped from the JWT (audit trail + `openedBy`);
+    // `projectId` is stamped only on SabCRM (project) mounts.
     let user_id = user_oid(&user)?;
     if input.terminal_id.trim().is_empty() {
         return Err(ApiError::Validation("terminalId is required".to_owned()));
     }
 
     let coll = mongo.collection::<CrmPosSession>(SESSIONS_COLL);
-    // Invariant: a cashier may only have at most one open session at a time.
+    // Invariant: a cashier may only have at most one open session at a time
+    // (within this tenant scope).
+    let mut open_check = scope.filter();
+    open_check.insert("openedBy", user_id);
+    open_check.insert("status", "open");
     let existing = coll
-        .find_one(doc! {
-            "userId": user_id,
-            "openedBy": user_id,
-            "status": "open",
-        })
+        .find_one(open_check)
         .await
         .map_err(|e| {
             ApiError::Internal(
@@ -298,6 +331,7 @@ pub async fn open_session(
     let mut entity = CrmPosSession {
         id: None,
         user_id,
+        project_id: project_of(&scope),
         terminal_id: input.terminal_id.trim().to_string(),
         opened_by: user_id,
         opened_at: now,
@@ -339,16 +373,18 @@ pub async fn open_session(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %session_id))]
 pub async fn close_session(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(session_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
     Json(input): Json<CloseSessionInput>,
 ) -> Result<Json<CrmPosSession>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&session_id)?;
 
     let coll = mongo.collection::<CrmPosSession>(SESSIONS_COLL);
     let before = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_pos_sessions.find_one"))
@@ -364,7 +400,7 @@ pub async fn close_session(
     // Expected cash = opening + cash takings on this session's completed
     // cash/split transactions. (Cash split-portion summed for "split"
     // payments.)
-    let expected_cash = compute_expected_cash(&mongo, user_id, oid, before.opening_cash).await?;
+    let expected_cash = compute_expected_cash(&mongo, &scope, oid, before.opening_cash).await?;
     let discrepancy = input.closing_cash - expected_cash;
 
     let now = BsonDateTime::from_chrono(Utc::now());
@@ -381,7 +417,7 @@ pub async fn close_session(
     }
 
     let result = coll
-        .update_one(ownership_filter(user_id, oid), doc! { "$set": set })
+        .update_one(ownership_filter(&scope, oid), doc! { "$set": set })
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_pos_sessions.close"))
@@ -391,7 +427,7 @@ pub async fn close_session(
     }
 
     let after = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_pos_sessions.refetch"))
@@ -413,17 +449,16 @@ pub async fn close_session(
 
 async fn compute_expected_cash(
     mongo: &MongoHandle,
-    user_id: ObjectId,
+    scope: &TenantScope,
     session_oid: ObjectId,
     opening_cash: f64,
 ) -> Result<f64> {
     let coll = mongo.collection::<CrmPosTransaction>(TRANSACTIONS_COLL);
+    let mut session_filter = scope.filter();
+    session_filter.insert("sessionId", session_oid);
+    session_filter.insert("status", "completed");
     let cursor = coll
-        .find(doc! {
-            "userId": user_id,
-            "sessionId": session_oid,
-            "status": "completed",
-        })
+        .find(session_filter)
         .await
         .map_err(|e| {
             ApiError::Internal(
@@ -456,16 +491,18 @@ async fn compute_expected_cash(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %session_id))]
 pub async fn reconcile_session(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(session_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
     Json(input): Json<ReconcileSessionInput>,
 ) -> Result<Json<CrmPosSession>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&session_id)?;
 
     let coll = mongo.collection::<CrmPosSession>(SESSIONS_COLL);
     let before = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_pos_sessions.find_one"))
@@ -485,7 +522,7 @@ pub async fn reconcile_session(
     }
 
     let result = coll
-        .update_one(ownership_filter(user_id, oid), doc! { "$set": set })
+        .update_one(ownership_filter(&scope, oid), doc! { "$set": set })
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_pos_sessions.reconcile"))
@@ -495,7 +532,7 @@ pub async fn reconcile_session(
     }
 
     let after = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_pos_sessions.refetch"))
@@ -518,16 +555,18 @@ pub async fn reconcile_session(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %session_id))]
 pub async fn update_session(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(session_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
     Json(patch): Json<UpdateSessionInput>,
 ) -> Result<Json<CrmPosSession>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&session_id)?;
 
     let coll = mongo.collection::<CrmPosSession>(SESSIONS_COLL);
     let before = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_pos_sessions.find_one"))
@@ -542,7 +581,7 @@ pub async fn update_session(
         set.insert("status", s);
     }
     let result = coll
-        .update_one(ownership_filter(user_id, oid), doc! { "$set": set })
+        .update_one(ownership_filter(&scope, oid), doc! { "$set": set })
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_pos_sessions.update"))
@@ -552,7 +591,7 @@ pub async fn update_session(
     }
 
     let after = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_pos_sessions.refetch"))
@@ -575,16 +614,18 @@ pub async fn update_session(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %session_id))]
 pub async fn archive_session(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(session_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
 ) -> Result<Json<DeleteSessionResponse>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&session_id)?;
 
     let coll = mongo.collection::<CrmPosSession>(SESSIONS_COLL);
     let result = coll
         .update_one(
-            ownership_filter(user_id, oid),
+            ownership_filter(&scope, oid),
             doc! { "$set": {
                 "status": "archived",
                 "updatedAt": BsonDateTime::from_chrono(Utc::now()),
@@ -608,13 +649,13 @@ pub async fn archive_session(
 // ─── Transactions ──────────────────────────────────────────────────────────
 
 pub(crate) fn transaction_list_filter(
-    user_id: ObjectId,
+    scope: &TenantScope,
     status: Option<&str>,
     session_id: Option<ObjectId>,
     customer_id: Option<ObjectId>,
     cashier_id: Option<ObjectId>,
 ) -> Document {
-    let mut filter = doc! { "userId": user_id };
+    let mut filter = scope.filter();
     match status.unwrap_or("all") {
         "completed" => {
             filter.insert("status", "completed");
@@ -651,14 +692,16 @@ pub struct ListTransactionsResponse {
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn list_transactions(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Query(q): Query<ListTransactionsQuery>,
 ) -> Result<Json<ListTransactionsResponse>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, q.project_id.as_deref())?;
     let session = opt_oid(q.session_id.clone())?;
     let customer = opt_oid(q.customer_id.clone())?;
     let cashier = opt_oid(q.cashier_id.clone())?;
-    let mut filter = transaction_list_filter(user_id, q.status.as_deref(), session, customer, cashier);
+    let mut filter =
+        transaction_list_filter(&scope, q.status.as_deref(), session, customer, cashier);
     if let Some(needle) = q.q.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
         let or = build_q_filter(needle, &["transactionNumber"]);
         if let Ok(arr) = or.get_array("$or") {
@@ -702,14 +745,16 @@ pub async fn list_transactions(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %transaction_id))]
 pub async fn get_transaction(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(transaction_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
 ) -> Result<Json<CrmPosTransaction>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&transaction_id)?;
     let coll = mongo.collection::<CrmPosTransaction>(TRANSACTIONS_COLL);
     let row = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_pos_transactions.find_one"))
@@ -721,9 +766,13 @@ pub async fn get_transaction(
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn create_transaction(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Json(input): Json<CreateTransactionInput>,
 ) -> Result<Json<CreateTransactionResponse>> {
+    let scope = resolve_scope(mode, &user, input.project_id.as_deref())?;
+    // `userId` is always stamped from the JWT (audit trail + `cashierId`);
+    // `projectId` is stamped only on SabCRM (project) mounts.
     let user_id = user_oid(&user)?;
     let session_oid = oid_from_str(&input.session_id)?;
     let customer_oid = opt_oid(input.customer_id)?;
@@ -741,7 +790,7 @@ pub async fn create_transaction(
     // Session must exist + be open.
     let sessions = mongo.collection::<CrmPosSession>(SESSIONS_COLL);
     let session = sessions
-        .find_one(ownership_filter(user_id, session_oid))
+        .find_one(ownership_filter(&scope, session_oid))
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_pos_sessions.find_one"))
@@ -781,11 +830,12 @@ pub async fn create_transaction(
 
     let now_chrono = Utc::now();
     let now = BsonDateTime::from_chrono(now_chrono);
-    let transaction_number = next_transaction_number(&mongo, user_id, now_chrono).await?;
+    let transaction_number = next_transaction_number(&mongo, &scope, now_chrono).await?;
 
     let mut entity = CrmPosTransaction {
         id: None,
         user_id,
+        project_id: project_of(&scope),
         session_id: session_oid,
         transaction_number,
         customer_id: customer_oid,
@@ -826,16 +876,18 @@ pub async fn create_transaction(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %transaction_id))]
 pub async fn update_transaction(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(transaction_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
     Json(patch): Json<UpdateTransactionInput>,
 ) -> Result<Json<CrmPosTransaction>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&transaction_id)?;
     let coll = mongo.collection::<CrmPosTransaction>(TRANSACTIONS_COLL);
 
     let before = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_pos_transactions.find_one"))
@@ -847,7 +899,7 @@ pub async fn update_transaction(
         set.insert("status", s);
     }
     let result = coll
-        .update_one(ownership_filter(user_id, oid), doc! { "$set": set })
+        .update_one(ownership_filter(&scope, oid), doc! { "$set": set })
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_pos_transactions.update"))
@@ -857,7 +909,7 @@ pub async fn update_transaction(
     }
 
     let after = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_pos_transactions.refetch"))
@@ -880,16 +932,18 @@ pub async fn update_transaction(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %transaction_id))]
 pub async fn void_transaction(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(transaction_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
     Json(input): Json<VoidTransactionInput>,
 ) -> Result<Json<CrmPosTransaction>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&transaction_id)?;
     let coll = mongo.collection::<CrmPosTransaction>(TRANSACTIONS_COLL);
 
     let before = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_pos_transactions.find_one"))
@@ -911,7 +965,7 @@ pub async fn void_transaction(
     }
 
     let result = coll
-        .update_one(ownership_filter(user_id, oid), doc! { "$set": set })
+        .update_one(ownership_filter(&scope, oid), doc! { "$set": set })
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_pos_transactions.void"))
@@ -921,7 +975,7 @@ pub async fn void_transaction(
     }
 
     let after = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_pos_transactions.refetch"))
@@ -950,10 +1004,15 @@ pub(crate) fn refund_total(items: &[RefundedLineItem]) -> f64 {
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %transaction_id))]
 pub async fn refund_transaction(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(transaction_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
     Json(input): Json<RefundTransactionInput>,
 ) -> Result<Json<RefundTransactionResponse>> {
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
+    // `userId` is always stamped from the JWT (audit trail +
+    // `processedBy`); `projectId` only on SabCRM (project) mounts.
     let user_id = user_oid(&user)?;
     let oid = oid_from_str(&transaction_id)?;
     if input.reason.trim().is_empty() {
@@ -972,7 +1031,7 @@ pub async fn refund_transaction(
 
     let txns = mongo.collection::<CrmPosTransaction>(TRANSACTIONS_COLL);
     let before = txns
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_pos_transactions.find_one"))
@@ -1011,6 +1070,7 @@ pub async fn refund_transaction(
     let mut refund = CrmPosRefund {
         id: None,
         user_id,
+        project_id: project_of(&scope),
         original_transaction_id: oid,
         reason: input.reason.trim().to_string(),
         refunded_line_items: refunded_items,
@@ -1036,7 +1096,7 @@ pub async fn refund_transaction(
     // Flip the source transaction.
     let update_result = txns
         .update_one(
-            ownership_filter(user_id, oid),
+            ownership_filter(&scope, oid),
             doc! { "$set": {
                 "status": "refunded",
                 "updatedAt": now,
@@ -1052,7 +1112,7 @@ pub async fn refund_transaction(
         return Err(ApiError::NotFound("pos_transaction".to_owned()));
     }
     let after_txn = txns
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_pos_transactions.refetch"))
@@ -1083,15 +1143,17 @@ pub async fn refund_transaction(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %transaction_id))]
 pub async fn delete_transaction(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(transaction_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
 ) -> Result<Json<DeleteTransactionResponse>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&transaction_id)?;
     let coll = mongo.collection::<CrmPosTransaction>(TRANSACTIONS_COLL);
     let result = coll
         .update_one(
-            ownership_filter(user_id, oid),
+            ownership_filter(&scope, oid),
             doc! { "$set": {
                 "status": "voided",
                 "updatedAt": BsonDateTime::from_chrono(Utc::now()),
@@ -1113,12 +1175,12 @@ pub async fn delete_transaction(
 // ─── Holds ─────────────────────────────────────────────────────────────────
 
 pub(crate) fn hold_list_filter(
-    user_id: ObjectId,
+    scope: &TenantScope,
     status: Option<&str>,
     session_id: Option<ObjectId>,
     customer_id: Option<ObjectId>,
 ) -> Document {
-    let mut filter = doc! { "userId": user_id };
+    let mut filter = scope.filter();
     match status.unwrap_or("active_visible") {
         "all" => {}
         "held" => {
@@ -1158,13 +1220,14 @@ pub struct ListHoldsResponse {
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn list_holds(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Query(q): Query<ListHoldsQuery>,
 ) -> Result<Json<ListHoldsResponse>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, q.project_id.as_deref())?;
     let session = opt_oid(q.session_id.clone())?;
     let customer = opt_oid(q.customer_id.clone())?;
-    let filter = hold_list_filter(user_id, q.status.as_deref(), session, customer);
+    let filter = hold_list_filter(&scope, q.status.as_deref(), session, customer);
 
     let limit = clamp_limit(q.limit);
     let skip = skip_for(q.page, limit);
@@ -1200,14 +1263,16 @@ pub async fn list_holds(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %hold_id))]
 pub async fn get_hold(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(hold_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
 ) -> Result<Json<CrmPosHold>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&hold_id)?;
     let coll = mongo.collection::<CrmPosHold>(HOLDS_COLL);
     let row = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_pos_holds.find_one")))?
         .ok_or_else(|| ApiError::NotFound("pos_hold".to_owned()))?;
@@ -1217,9 +1282,13 @@ pub async fn get_hold(
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn create_hold(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Json(input): Json<CreateHoldInput>,
 ) -> Result<Json<CreateHoldResponse>> {
+    let scope = resolve_scope(mode, &user, input.project_id.as_deref())?;
+    // `userId` is always stamped from the JWT (audit trail + `heldBy`);
+    // `projectId` is stamped only on SabCRM (project) mounts.
     let user_id = user_oid(&user)?;
     let session_oid = oid_from_str(&input.session_id)?;
     let customer_oid = opt_oid(input.customer_id)?;
@@ -1239,6 +1308,7 @@ pub async fn create_hold(
     let mut entity = CrmPosHold {
         id: None,
         user_id,
+        project_id: project_of(&scope),
         session_id: session_oid,
         customer_id: customer_oid,
         line_items: items,
@@ -1276,16 +1346,18 @@ pub async fn create_hold(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %hold_id))]
 pub async fn update_hold(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(hold_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
     Json(patch): Json<UpdateHoldInput>,
 ) -> Result<Json<CrmPosHold>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&hold_id)?;
 
     let coll = mongo.collection::<CrmPosHold>(HOLDS_COLL);
     let before = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_pos_holds.find_one")))?
         .ok_or_else(|| ApiError::NotFound("pos_hold".to_owned()))?;
@@ -1310,7 +1382,7 @@ pub async fn update_hold(
     }
 
     let result = coll
-        .update_one(ownership_filter(user_id, oid), doc! { "$set": set })
+        .update_one(ownership_filter(&scope, oid), doc! { "$set": set })
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_pos_holds.update")))?;
     if result.matched_count == 0 {
@@ -1318,7 +1390,7 @@ pub async fn update_hold(
     }
 
     let after = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_pos_holds.refetch")))?
         .ok_or_else(|| ApiError::NotFound("pos_hold".to_owned()))?;
@@ -1339,16 +1411,18 @@ pub async fn update_hold(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %hold_id))]
 pub async fn recall_hold(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(hold_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
     Json(input): Json<RecallHoldInput>,
 ) -> Result<Json<RecallHoldResponse>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&hold_id)?;
 
     let coll = mongo.collection::<CrmPosHold>(HOLDS_COLL);
     let before = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_pos_holds.find_one")))?
         .ok_or_else(|| ApiError::NotFound("pos_hold".to_owned()))?;
@@ -1371,7 +1445,7 @@ pub async fn recall_hold(
     }
 
     let result = coll
-        .update_one(ownership_filter(user_id, oid), doc! { "$set": set })
+        .update_one(ownership_filter(&scope, oid), doc! { "$set": set })
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_pos_holds.recall")))?;
     if result.matched_count == 0 {
@@ -1379,7 +1453,7 @@ pub async fn recall_hold(
     }
 
     let after = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_pos_holds.refetch")))?
         .ok_or_else(|| ApiError::NotFound("pos_hold".to_owned()))?;
@@ -1404,15 +1478,17 @@ pub async fn recall_hold(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %hold_id))]
 pub async fn void_hold(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(hold_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
 ) -> Result<Json<DeleteHoldResponse>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&hold_id)?;
     let coll = mongo.collection::<CrmPosHold>(HOLDS_COLL);
     let result = coll
         .update_one(
-            ownership_filter(user_id, oid),
+            ownership_filter(&scope, oid),
             doc! { "$set": {
                 "status": "voided",
                 "updatedAt": BsonDateTime::from_chrono(Utc::now()),
@@ -1432,12 +1508,12 @@ pub async fn void_hold(
 // ─── Refunds ───────────────────────────────────────────────────────────────
 
 pub(crate) fn refund_list_filter(
-    user_id: ObjectId,
+    scope: &TenantScope,
     status: Option<&str>,
     original_transaction_id: Option<ObjectId>,
     processed_by: Option<ObjectId>,
 ) -> Document {
-    let mut filter = doc! { "userId": user_id };
+    let mut filter = scope.filter();
     match status.unwrap_or("active_visible") {
         "all" => {}
         "pending" => {
@@ -1477,13 +1553,14 @@ pub struct ListRefundsResponse {
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn list_refunds(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Query(q): Query<ListRefundsQuery>,
 ) -> Result<Json<ListRefundsResponse>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, q.project_id.as_deref())?;
     let txn = opt_oid(q.original_transaction_id.clone())?;
     let processed_by = opt_oid(q.processed_by.clone())?;
-    let filter = refund_list_filter(user_id, q.status.as_deref(), txn, processed_by);
+    let filter = refund_list_filter(&scope, q.status.as_deref(), txn, processed_by);
 
     let limit = clamp_limit(q.limit);
     let skip = skip_for(q.page, limit);
@@ -1519,14 +1596,16 @@ pub async fn list_refunds(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %refund_id))]
 pub async fn get_refund(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(refund_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
 ) -> Result<Json<CrmPosRefund>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&refund_id)?;
     let coll = mongo.collection::<CrmPosRefund>(REFUNDS_COLL);
     let row = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_pos_refunds.find_one"))
@@ -1538,12 +1617,14 @@ pub async fn get_refund(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %transaction_id))]
 pub async fn list_refunds_by_transaction(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(transaction_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
 ) -> Result<Json<ListRefundsResponse>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let txn_oid = oid_from_str(&transaction_id)?;
-    let filter = refund_list_filter(user_id, Some("all"), Some(txn_oid), None);
+    let filter = refund_list_filter(&scope, Some("all"), Some(txn_oid), None);
 
     let opts = FindOptions::builder()
         .sort(doc! { "processedAt": -1 })
@@ -1571,16 +1652,18 @@ pub async fn list_refunds_by_transaction(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %refund_id))]
 pub async fn update_refund(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(refund_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
     Json(patch): Json<UpdateRefundInput>,
 ) -> Result<Json<CrmPosRefund>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&refund_id)?;
     let coll = mongo.collection::<CrmPosRefund>(REFUNDS_COLL);
 
     let before = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_pos_refunds.find_one"))
@@ -1596,7 +1679,7 @@ pub async fn update_refund(
     }
 
     let result = coll
-        .update_one(ownership_filter(user_id, oid), doc! { "$set": set })
+        .update_one(ownership_filter(&scope, oid), doc! { "$set": set })
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_pos_refunds.update"))
@@ -1606,7 +1689,7 @@ pub async fn update_refund(
     }
 
     let after = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_pos_refunds.refetch"))
@@ -1629,15 +1712,17 @@ pub async fn update_refund(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %refund_id))]
 pub async fn delete_refund(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(refund_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
 ) -> Result<Json<DeleteRefundResponse>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&refund_id)?;
     let coll = mongo.collection::<CrmPosRefund>(REFUNDS_COLL);
     let result = coll
         .update_one(
-            ownership_filter(user_id, oid),
+            ownership_filter(&scope, oid),
             doc! { "$set": {
                 "status": "archived",
                 "updatedAt": BsonDateTime::from_chrono(Utc::now()),
@@ -1726,11 +1811,35 @@ mod tests {
     }
 
     #[test]
+    fn list_filters_scope_by_project_on_sabcrm_mounts() {
+        let oid = ObjectId::new();
+        let scope = TenantScope::Project(oid);
+        for f in [
+            session_list_filter(&scope, None, None, None),
+            transaction_list_filter(&scope, None, None, None, None),
+            hold_list_filter(&scope, None, None, None),
+            refund_list_filter(&scope, None, None, None),
+        ] {
+            assert_eq!(f.get_object_id("projectId").unwrap(), oid);
+            assert!(!f.contains_key("userId"));
+        }
+    }
+
+    #[test]
+    fn ownership_filter_pins_id_and_scope_key() {
+        let tenant = ObjectId::new();
+        let id = ObjectId::new();
+        let f = ownership_filter(&TenantScope::Project(tenant), id);
+        assert_eq!(f.get_object_id("_id").unwrap(), id);
+        assert_eq!(f.get_object_id("projectId").unwrap(), tenant);
+    }
+
+    #[test]
     fn session_list_filter_excludes_archived_by_default() {
         let oid = ObjectId::new();
-        let f = session_list_filter(oid, None, None, None);
+        let f = session_list_filter(&TenantScope::User(oid), None, None, None);
         assert!(f.contains_key("status"));
-        let f_all = session_list_filter(oid, Some("all"), None, None);
+        let f_all = session_list_filter(&TenantScope::User(oid), Some("all"), None, None);
         assert!(!f_all.contains_key("status"));
     }
 
@@ -1738,7 +1847,7 @@ mod tests {
     fn session_list_filter_respects_terminal_and_cashier() {
         let user = ObjectId::new();
         let cashier = ObjectId::new();
-        let f = session_list_filter(user, Some("open"), Some("till-1"), Some(cashier));
+        let f = session_list_filter(&TenantScope::User(user), Some("open"), Some("till-1"), Some(cashier));
         assert_eq!(f.get_str("terminalId").unwrap(), "till-1");
         assert_eq!(f.get_str("status").unwrap(), "open");
         assert_eq!(f.get_object_id("openedBy").unwrap(), cashier);
@@ -1747,7 +1856,7 @@ mod tests {
     #[test]
     fn transaction_list_filter_defaults_to_all_statuses() {
         let oid = ObjectId::new();
-        let f = transaction_list_filter(oid, None, None, None, None);
+        let f = transaction_list_filter(&TenantScope::User(oid), None, None, None, None);
         assert!(!f.contains_key("status"));
     }
 
@@ -1757,7 +1866,7 @@ mod tests {
         let session = ObjectId::new();
         let customer = ObjectId::new();
         let f = transaction_list_filter(
-            user,
+            &TenantScope::User(user),
             Some("completed"),
             Some(session),
             Some(customer),
@@ -1771,7 +1880,7 @@ mod tests {
     #[test]
     fn hold_list_filter_excludes_archived_by_default() {
         let oid = ObjectId::new();
-        let f = hold_list_filter(oid, None, None, None);
+        let f = hold_list_filter(&TenantScope::User(oid), None, None, None);
         assert!(f.contains_key("status"));
     }
 
@@ -1779,7 +1888,7 @@ mod tests {
     fn hold_list_filter_scopes_to_session() {
         let user = ObjectId::new();
         let session = ObjectId::new();
-        let f = hold_list_filter(user, Some("held"), Some(session), None);
+        let f = hold_list_filter(&TenantScope::User(user), Some("held"), Some(session), None);
         assert_eq!(f.get_str("status").unwrap(), "held");
         assert_eq!(f.get_object_id("sessionId").unwrap(), session);
     }
@@ -1788,7 +1897,7 @@ mod tests {
     fn refund_list_filter_scopes_to_original_transaction() {
         let user = ObjectId::new();
         let txn = ObjectId::new();
-        let f = refund_list_filter(user, Some("completed"), Some(txn), None);
+        let f = refund_list_filter(&TenantScope::User(user), Some("completed"), Some(txn), None);
         assert_eq!(f.get_str("status").unwrap(), "completed");
         assert_eq!(f.get_object_id("originalTransactionId").unwrap(), txn);
     }

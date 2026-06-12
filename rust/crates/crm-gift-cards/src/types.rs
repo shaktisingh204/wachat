@@ -10,6 +10,14 @@ pub struct CrmGiftCard {
     pub id: Option<ObjectId>,
     #[serde(rename = "userId")]
     pub user_id: ObjectId,
+    /// SabCRM suite scope — set on documents created through the
+    /// project-scoped (`/v1/sabcrm/*`) mounts; absent on legacy rows.
+    #[serde(
+        rename = "projectId",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub project_id: Option<ObjectId>,
     pub code: String,
     pub value: f64,
     pub balance: f64,
