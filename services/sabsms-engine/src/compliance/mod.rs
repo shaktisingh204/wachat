@@ -10,6 +10,8 @@
 //! credits, so a `Reschedule` verdict never holds a credit reservation
 //! that would need releasing.
 
+pub mod dlt;
+pub mod dlt_store;
 pub mod quiet_hours;
 
 use std::sync::Arc;
@@ -52,7 +54,7 @@ pub struct TraceEntry {
 }
 
 impl TraceEntry {
-    fn new(check: &str, verdict: &str, detail: Option<String>) -> Self {
+    pub fn new(check: &str, verdict: &str, detail: Option<String>) -> Self {
         Self {
             check: check.to_string(),
             verdict: verdict.to_string(),
@@ -74,6 +76,13 @@ pub struct MessageContext<'a> {
     /// was JUST suppressed — set on the STOP auto-reply so the
     /// suppression check is skipped for that one message.
     pub opt_out_confirmation: bool,
+    /// Final message body — required by the India DLT template scrub.
+    pub body: &'a str,
+    /// Sender header (the doc's `senderId`/`from`) for DLT header checks.
+    pub sender_header: Option<&'a str>,
+    /// India DLT content-template id claimed by the message (explicit on
+    /// the doc, or auto-attached by the worker before the kernel runs).
+    pub dlt_template_id: Option<&'a str>,
 }
 
 /// Hash a phone for the suppression list. SHA-256 lowercase hex.
@@ -136,12 +145,51 @@ pub fn ten_dlc_blocks(
 /// `false` ONLY in dev to skip marketing consent gating.
 fn require_consent() -> bool {
     std::env::var("SABSMS_REQUIRE_CONSENT")
-        .map(|v| v.to_ascii_lowercase() != "false")
+        .map(|v| !v.eq_ignore_ascii_case("false"))
         .unwrap_or(true)
 }
 
 fn env_creds_allowed() -> bool {
     std::env::var("SABSMS_ALLOW_ENV_CREDS").unwrap_or_default() == "true"
+}
+
+/// `SABSMS_DLT_ENFORCE` — how hard the India DLT gate bites.
+///
+///   - `strict` — every IN send needs a registered template
+///   - `marketing_only` — (default) marketing without a template blocks;
+///     transactional/otp/alert/service pass with a warning trace (many
+///     transactional routes attach the template at the provider level)
+///   - `off` — all DLT checks skipped
+///
+/// Regardless of mode (except `off`): when a message DOES claim a
+/// `dltTemplateId`, the full scrub against that template is enforcing.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum DltEnforceMode {
+    Strict,
+    MarketingOnly,
+    Off,
+}
+
+pub fn dlt_enforce_mode() -> DltEnforceMode {
+    match std::env::var("SABSMS_DLT_ENFORCE")
+        .unwrap_or_default()
+        .to_ascii_lowercase()
+        .as_str()
+    {
+        "strict" => DltEnforceMode::Strict,
+        "off" => DltEnforceMode::Off,
+        _ => DltEnforceMode::MarketingOnly,
+    }
+}
+
+/// Pure decision for the missing-template path of the DLT gate.
+/// Returns `true` when the send must block with `dlt_template_required`.
+pub fn dlt_missing_template_blocks(mode: DltEnforceMode, category: MessageCategory) -> bool {
+    match mode {
+        DltEnforceMode::Off => false,
+        DltEnforceMode::Strict => true,
+        DltEnforceMode::MarketingOnly => category == MessageCategory::Marketing,
+    }
 }
 
 /// Run the full pre-send compliance kernel. Returns the first non-Allow
@@ -292,6 +340,111 @@ pub async fn pre_send_checks(
         ));
     }
 
+    // 5. India DLT gating (V2.8) — IN destinations only.
+    let dlt_mode = dlt_enforce_mode();
+    if ctx.country != "IN" {
+        trace.push(TraceEntry::new(
+            "dlt_gate",
+            "skipped",
+            Some("not an IN destination".into()),
+        ));
+    } else if dlt_mode == DltEnforceMode::Off {
+        trace.push(TraceEntry::new(
+            "dlt_gate",
+            "skipped",
+            Some("SABSMS_DLT_ENFORCE=off".into()),
+        ));
+    } else if let Some(template_id) = ctx.dlt_template_id {
+        // The message claims a template → full scrub, enforcing on Fail.
+        let registry = dlt_store::load_registry(state, ctx.workspace_id).await;
+        match registry.find_template(template_id) {
+            None if registry.templates.is_empty() => {
+                // Workspace never configured a DLT registry — the id is
+                // provider-portal-managed. Warn, don't break existing
+                // flows; the scrub becomes enforcing once the registry
+                // is populated.
+                trace.push(TraceEntry::new(
+                    "dlt_template_match",
+                    "warn",
+                    Some(format!(
+                        "dlt registry not configured; template {template_id} not verified"
+                    )),
+                ));
+            }
+            None => {
+                trace.push(TraceEntry::new(
+                    "dlt_template_match",
+                    "block",
+                    Some(format!(
+                        "dltTemplateId {template_id} is not in the workspace DLT registry"
+                    )),
+                ));
+                return Ok((
+                    Verdict::Block {
+                        code: "dlt_template_unknown".into(),
+                        reason: format!(
+                            "DLT template {template_id} is not registered for this workspace"
+                        ),
+                    },
+                    trace,
+                ));
+            }
+            Some(template) => {
+                let registered_header = ctx
+                    .sender_header
+                    .and_then(|h| registry.find_header(h));
+                let scrub_ctx = dlt::FullScrubContext {
+                    body: ctx.body,
+                    header: ctx.sender_header,
+                    registered_header,
+                    template: Some(template),
+                    chain: registry.chain.as_ref(),
+                };
+                let dlt_trace = dlt::full_scrub(&scrub_ctx);
+                let block = dlt::first_block(&dlt_trace)
+                    .map(|(check, detail)| (check.to_string(), detail.to_string()));
+                trace.extend(dlt_trace);
+                if let Some((check, detail)) = block {
+                    return Ok((
+                        Verdict::Block {
+                            code: check,
+                            reason: detail,
+                        },
+                        trace,
+                    ));
+                }
+            }
+        }
+    } else if dlt_missing_template_blocks(dlt_mode, ctx.category) {
+        trace.push(TraceEntry::new(
+            "dlt_gate",
+            "block",
+            Some("IN destination with no DLT content template attached".into()),
+        ));
+        return Ok((
+            Verdict::Block {
+                code: "dlt_template_required".into(),
+                reason: "India destinations require a registered DLT content template".into(),
+            },
+            trace,
+        ));
+    } else {
+        trace.push(TraceEntry::new(
+            "dlt_gate",
+            "warn",
+            Some(format!(
+                "IN {} send without a DLT template id; provider-level template assumed",
+                match ctx.category {
+                    MessageCategory::Otp => "otp",
+                    MessageCategory::Transactional => "transactional",
+                    MessageCategory::Alert => "alert",
+                    MessageCategory::Service => "service",
+                    MessageCategory::Marketing => "marketing",
+                }
+            )),
+        ));
+    }
+
     Ok((Verdict::Allow, trace))
 }
 
@@ -391,6 +544,23 @@ mod tests {
         assert!(h.chars().all(|c| c.is_ascii_hexdigit()));
         // Deterministic.
         assert_eq!(h, hash_phone("+15551234567"));
+    }
+
+    #[test]
+    fn dlt_missing_template_policy_matrix() {
+        use DltEnforceMode as M;
+        // off never blocks.
+        assert!(!dlt_missing_template_blocks(M::Off, MessageCategory::Marketing));
+        // marketing_only blocks marketing only.
+        assert!(dlt_missing_template_blocks(M::MarketingOnly, MessageCategory::Marketing));
+        assert!(!dlt_missing_template_blocks(M::MarketingOnly, MessageCategory::Transactional));
+        assert!(!dlt_missing_template_blocks(M::MarketingOnly, MessageCategory::Otp));
+        assert!(!dlt_missing_template_blocks(M::MarketingOnly, MessageCategory::Alert));
+        assert!(!dlt_missing_template_blocks(M::MarketingOnly, MessageCategory::Service));
+        // strict blocks everything.
+        assert!(dlt_missing_template_blocks(M::Strict, MessageCategory::Otp));
+        assert!(dlt_missing_template_blocks(M::Strict, MessageCategory::Transactional));
+        assert!(dlt_missing_template_blocks(M::Strict, MessageCategory::Marketing));
     }
 
     #[test]

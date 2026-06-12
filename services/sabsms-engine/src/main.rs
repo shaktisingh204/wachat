@@ -10,7 +10,9 @@ use axum::Router;
 use tokio::signal;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
 
-use sabsms_engine::{campaigns, config, creds, db, delayed, handlers, queue, state::AppState, worker};
+use sabsms_engine::{
+    campaigns, config, creds, db, delayed, handlers, otp, queue, state::AppState, worker,
+};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -62,6 +64,13 @@ async fn main() -> anyhow::Result<()> {
     let campaign_state = state.clone();
     tokio::spawn(async move {
         campaigns::run_ticker(campaign_state).await;
+    });
+
+    // Fraud ticker (V2.7) — auto-blocks zero-conversion OTP prefixes
+    // every 60s (skipped while SABSMS_FRAUD_MODE=off).
+    let fraud_state = state.clone();
+    tokio::spawn(async move {
+        otp::fraud::run_ticker(fraud_state).await;
     });
 
     let app: Router = handlers::router(state.clone())

@@ -8,6 +8,8 @@ import {
 } from "@/components/sabcrm/20ui";
 
 import { getSabsmsSettingsAction } from "./actions";
+import { getAgentConfigAction } from "./agent-actions";
+import { AgentSettingsCard } from "./agent-card";
 import { ShortLinksSettingsCard } from "./short-links-card";
 
 export const dynamic = "force-dynamic";
@@ -29,6 +31,19 @@ async function SettingsContent() {
   );
 }
 
+/** V2.12 — AI agent configuration (same RBAC gate as the other cards). */
+async function AgentContent() {
+  const res = await getAgentConfigAction();
+  if (!res.success) {
+    return (
+      <p className="rounded border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 text-sm text-[var(--st-text)]">
+        {res.error}
+      </p>
+    );
+  }
+  return <AgentSettingsCard initialConfig={res.config} />;
+}
+
 export default function SabsmsSettingsPage() {
   return (
     <div className="space-y-6 p-6">
@@ -44,6 +59,10 @@ export default function SabsmsSettingsPage() {
 
       <Suspense fallback={null}>
         <SettingsContent />
+      </Suspense>
+
+      <Suspense fallback={null}>
+        <AgentContent />
       </Suspense>
     </div>
   );

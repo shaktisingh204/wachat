@@ -119,15 +119,27 @@ pub async fn select(state: &Arc<AppState>, ctx: &RoutingContext<'_>) -> Vec<Rout
             to_e164: ctx.to_e164,
         };
         if let Some(rule) = policy::first_match(&p.rules, &mctx) {
-            // Health scores for the equal-weight tie-break.
+            // Scores for the equal-weight tie-break. OTP-category
+            // messages rank by CONVERSION rate (architecture decision
+            // 8) — falling back to the DLR health score when an
+            // account is below the OTP min-volume; everything else
+            // ranks by DLR health.
+            let use_conversion = ctx.category == "otp";
             let mut scores: HashMap<String, f64> = HashMap::new();
             for r in &rule.routes {
                 if accounts.contains_key(&r.provider_account_id)
                     && !scores.contains_key(&r.provider_account_id)
                 {
-                    let (score, _) =
-                        health::score_and_volume(&mut redis, &r.provider_account_id, ctx.country)
-                            .await;
+                    let acct = r.provider_account_id.as_str();
+                    let conv = if use_conversion {
+                        health::otp_score(&mut redis, acct, ctx.country).await
+                    } else {
+                        None
+                    };
+                    let score = match conv {
+                        Some(s) => s,
+                        None => health::score_and_volume(&mut redis, acct, ctx.country).await.0,
+                    };
                     scores.insert(r.provider_account_id.clone(), score);
                 }
             }
@@ -559,6 +571,84 @@ mod tests {
         assert_ne!(i1, i2);
         // Empty pool guarded.
         assert_eq!(sticky_pool_index("+1555", 0), 0);
+    }
+
+    /// V2.7 — the select() scoring contract for the `otp` category:
+    /// equal-weight routes are tie-broken by CONVERSION score when an
+    /// account has ≥ OTP_MIN_VOLUME sends, falling back to the DLR
+    /// health score below min-volume; every other category orders by
+    /// DLR. Exercises the exact composition select() uses
+    /// (`health::otp_conversion_score` → fallback
+    /// `health::health_score`) through `policy::order_routes`.
+    #[test]
+    fn otp_category_orders_by_conversion_not_dlr() {
+        use crate::routing::policy::{order_routes, RouteWeight};
+
+        let routes = vec![
+            RouteWeight {
+                provider_account_id: "dlr-champ".into(),
+                weight: 1,
+            },
+            RouteWeight {
+                provider_account_id: "conv-champ".into(),
+                weight: 1,
+            },
+        ];
+        let ids = |ordered: &[RouteWeight]| -> Vec<String> {
+            ordered.iter().map(|r| r.provider_account_id.clone()).collect()
+        };
+
+        // dlr-champ: 98/100 delivered but only 10/100 OTPs converted.
+        // conv-champ: 90/100 delivered and 80/100 OTPs converted.
+        let dlr = |acct: &str| -> f64 {
+            match acct {
+                "dlr-champ" => health::health_score(98, 2),
+                _ => health::health_score(90, 10),
+            }
+        };
+        let conversion = |acct: &str| -> Option<f64> {
+            match acct {
+                "dlr-champ" => health::otp_conversion_score(100, 10),
+                _ => health::otp_conversion_score(100, 80),
+            }
+        };
+
+        // Non-OTP categories: DLR health decides → dlr-champ first.
+        let by_dlr = order_routes(&routes, &dlr);
+        assert_eq!(ids(&by_dlr), vec!["dlr-champ", "conv-champ"]);
+
+        // OTP category: conversion decides → conv-champ first, even
+        // though its DLR score is worse.
+        let by_conv = order_routes(&routes, |acct| conversion(acct).unwrap_or_else(|| dlr(acct)));
+        assert_eq!(ids(&by_conv), vec!["conv-champ", "dlr-champ"]);
+
+        // Below OTP_MIN_VOLUME the conversion score is None and the
+        // OTP ordering degrades to DLR — never punish a cold account.
+        let cold = |acct: &str| -> Option<f64> {
+            match acct {
+                "dlr-champ" => health::otp_conversion_score(3, 0),
+                _ => health::otp_conversion_score(5, 5),
+            }
+        };
+        assert_eq!(cold("dlr-champ"), None);
+        let by_cold = order_routes(&routes, |acct| cold(acct).unwrap_or_else(|| dlr(acct)));
+        assert_eq!(ids(&by_cold), vec!["dlr-champ", "conv-champ"]);
+
+        // Weight still outranks any score: a heavier route beats a
+        // better-converting light one.
+        let weighted = vec![
+            RouteWeight {
+                provider_account_id: "dlr-champ".into(),
+                weight: 100,
+            },
+            RouteWeight {
+                provider_account_id: "conv-champ".into(),
+                weight: 1,
+            },
+        ];
+        let by_weight =
+            order_routes(&weighted, |acct| conversion(acct).unwrap_or_else(|| dlr(acct)));
+        assert_eq!(ids(&by_weight), vec!["dlr-champ", "conv-champ"]);
     }
 
     #[test]

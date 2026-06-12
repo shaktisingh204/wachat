@@ -18,6 +18,7 @@ pub mod errors_map;
 pub mod events;
 pub mod handlers;
 pub mod keywords;
+pub mod otp;
 pub mod providers;
 pub mod queue;
 pub mod routing;

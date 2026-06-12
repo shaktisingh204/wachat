@@ -35,6 +35,11 @@ import { MongoClient, type Collection, type Db } from 'mongodb';
 import { tickJourneys } from '../journeys/executor';
 import { registerJourneyEventHandlers } from '../journeys/handlers';
 import { createMongoJourneyStore, ensureJourneyIndexes } from '../journeys/store';
+// V2.10 — analytics rollups + identity graph (additive registrations).
+import { registerAnalyticsEventHandlers } from '../analytics/handlers';
+import { registerIdentityEventHandlers } from '../identity/handlers';
+// V2.12 — AI agent guardrails + runtime (additive registration).
+import { registerAgentEventHandlers } from '../agent/handlers';
 
 // ─── Constants (mirror services/sabsms-engine/src/events.rs) ─────────────
 
@@ -249,6 +254,16 @@ export function createDefaultRouter(): SabsmsEventRouter {
   // V2.9 — journey reactions (wake/exit/enrol). Additive: each handler
   // no-ops when `ctx.db` is absent, so V2.2 behaviour is unchanged.
   registerJourneyEventHandlers(router);
+
+  // V2.10 — daily rollups (`sabsms_stats_daily`, wildcard) + identity
+  // graph (`sabsms_identities`, per-kind). Both no-op without `ctx.db`.
+  registerAnalyticsEventHandlers(router);
+  registerIdentityEventHandlers(router);
+
+  // V2.12 — AI agent: opt-out guardrail THEN agent runtime on
+  // `messageInbound` (ordering enforced inside the registration —
+  // see `../agent/handlers.ts`). No-ops without `ctx.db`.
+  registerAgentEventHandlers(router);
 
   return router;
 }

@@ -72,6 +72,78 @@ export interface SabsmsRoutePreview {
   candidates: SabsmsRoutePreviewCandidate[];
 }
 
+/** Result of `POST /v1/otp/send` / `POST /v1/otp/resend`. */
+export interface SabsmsOtpSendResult {
+  otpId: string;
+  /** Epoch seconds. */
+  expiresAt: number;
+  /** Epoch seconds — earliest allowed resend. */
+  resendAfter: number;
+  messageId?: string;
+}
+
+/** Result of `POST /v1/otp/verify`. */
+export interface SabsmsOtpVerifyResult {
+  verified: boolean;
+  reason?: 'expired' | 'wrong_code' | 'max_attempts';
+}
+
+/** One per-(country, prefix) conversion row from `GET /v1/otp/stats`. */
+export interface SabsmsOtpStatsRow {
+  country: string;
+  prefix: string;
+  sent: number;
+  converted: number;
+  /** converted / sent in [0, 1]; 0 when sent == 0. */
+  rate: number;
+}
+
+export interface SabsmsOtpStats {
+  /** Engine fraud-guard mode (`SABSMS_FRAUD_MODE`). */
+  fraudMode: 'enforce' | 'monitor' | 'off';
+  /** Sliding-window width the rows cover, in seconds. */
+  windowSecs: number;
+  rows: SabsmsOtpStatsRow[];
+}
+
+/** Result of `POST /v1/lookup` (Twilio Lookup v2 / Telnyx pass-through). */
+export interface SabsmsLookupResult {
+  lineType?: string;
+  carrierName?: string;
+  mobileCountryCode?: string;
+  /** Which provider answered ("twilio" | "telnyx" | "cache"). */
+  source: string;
+}
+
+/** One check row from `POST /v1/dlt/scrub-preview` (V2.8). */
+export interface SabsmsDltTraceEntry {
+  /** `dlt_header_registered` | `dlt_header_bound` | `dlt_template_match`
+   *  | `dlt_chain` | `dlt_category_content`. */
+  check: string;
+  verdict: 'allow' | 'block' | 'warn' | 'skipped';
+  detail?: string;
+}
+
+/** Response of `POST /v1/dlt/scrub-preview` (V2.8). */
+export interface SabsmsDltScrubPreview {
+  trace: SabsmsDltTraceEntry[];
+  /** True when `dltTemplateId` resolved in the workspace registry. */
+  templateFound: boolean;
+  /** Registered category of the resolved template (snake_case) or null. */
+  templateCategory: string | null;
+  /** True when the workspace has ANY DLT registry doc at all. */
+  registryConfigured: boolean;
+  /** Operator header suffix: "P" | "S" | "T" | "G" | null. */
+  predictedSuffix: string | null;
+  /** Content-classifier hint (advisory only). */
+  predictedCategory: {
+    category: 'promotional' | 'transactional' | 'service' | 'unknown';
+    confidence: number;
+  };
+  wouldBlock: boolean;
+  blockCheck: string | null;
+}
+
 export class SabsmsEngineError extends Error {
   public readonly status: number;
   public readonly path: string;
@@ -388,6 +460,134 @@ export const sabsmsEngine = {
       method: 'POST',
       json: input,
     });
+  },
+
+  /**
+   * Send an OTP (`POST /v1/otp/send`) — the engine runs the fraud
+   * pre-check + rate limits, generates and stores the hashed code, and
+   * enqueues the SMS through the normal worker pipeline (category
+   * `otp`). 403 = fraud-blocked, 429 = rate-limited/cooldown.
+   */
+  async otpSend(input: {
+    workspaceId: string;
+    to: string;
+    channel?: 'sms' | 'mms' | 'rcs';
+  }): Promise<SabsmsOtpSendResult> {
+    return engineFetch<SabsmsOtpSendResult>('/v1/otp/send', {
+      method: 'POST',
+      json: input,
+    });
+  },
+
+  /**
+   * Verify a code (`POST /v1/otp/verify`) — constant-time compare
+   * engine-side; success deletes the code and records the conversion
+   * the router ranks the `otp` category by.
+   */
+  async otpVerify(input: {
+    workspaceId: string;
+    to: string;
+    code: string;
+  }): Promise<SabsmsOtpVerifyResult> {
+    return engineFetch<SabsmsOtpVerifyResult>('/v1/otp/verify', {
+      method: 'POST',
+      json: input,
+    });
+  },
+
+  /**
+   * Resend the SAME code (`POST /v1/otp/resend`) — engine enforces the
+   * cooldown + max-resend budget. 429 = cooldown/max_resends.
+   */
+  async otpResend(input: {
+    workspaceId: string;
+    to: string;
+  }): Promise<SabsmsOtpSendResult> {
+    return engineFetch<SabsmsOtpSendResult>('/v1/otp/resend', {
+      method: 'POST',
+      json: input,
+    });
+  },
+
+  /**
+   * Per-(country, prefix) OTP conversion window
+   * (`GET /v1/otp/stats`) — feeds the /sabsms/otp analytics card.
+   */
+  async otpStats(workspaceId: string): Promise<SabsmsOtpStats> {
+    const search = new URLSearchParams({ workspaceId });
+    return engineFetch<SabsmsOtpStats>(`/v1/otp/stats?${search.toString()}`);
+  },
+
+  /**
+   * Line-type lookup (`POST /v1/lookup`) — Twilio Lookup v2 / Telnyx
+   * pass-through with a 24h engine-side cache. Requires a Twilio or
+   * Telnyx provider account on the workspace.
+   */
+  async lookupNumber(input: {
+    workspaceId: string;
+    to: string;
+  }): Promise<SabsmsLookupResult> {
+    return engineFetch<SabsmsLookupResult>('/v1/lookup', {
+      method: 'POST',
+      json: input,
+      timeoutMs: 30_000,
+    });
+  },
+
+  /**
+   * Live India-DLT scrub (`POST /v1/dlt/scrub-preview`) — "would this
+   * body pass operator scrubbing?" without sending. Feeds the template
+   * editor's DLT panel and the compliance hub's simulator.
+   */
+  async scrubPreview(input: {
+    workspaceId: string;
+    /** Final (rendered) message body. */
+    body: string;
+    /** Registered content-template id (TE_ID), when bound. */
+    dltTemplateId?: string;
+    /** Sender header the message would use. */
+    header?: string;
+  }): Promise<SabsmsDltScrubPreview> {
+    return engineFetch<SabsmsDltScrubPreview>('/v1/dlt/scrub-preview', {
+      method: 'POST',
+      json: input,
+    });
+  },
+
+  /**
+   * Drop the engine's cached DLT registry for a workspace (called after
+   * every `sabsms_dlt_*` write). Tolerates an unreachable/disabled
+   * engine silently — the 60s cache simply expires.
+   */
+  async invalidateDlt(workspaceId: string): Promise<boolean> {
+    try {
+      await engineFetch('/v1/internal/dlt/invalidate', {
+        method: 'POST',
+        json: { workspaceId },
+        timeoutMs: 5_000,
+      });
+      return true;
+    } catch {
+      return false;
+    }
+  },
+
+  /**
+   * Drop the engine's cached OTP config for a workspace (called after
+   * every `sabsms_otp_configs` save). Tolerates an unreachable/disabled
+   * engine silently — the 60s cache simply expires.
+   */
+  async invalidateOtpConfig(workspaceId: string): Promise<boolean> {
+    try {
+      await engineFetch('/v1/internal/otp/configs/invalidate', {
+        method: 'POST',
+        json: { workspaceId },
+        timeoutMs: 5_000,
+      });
+      return true;
+    } catch {
+      return false;
+    }
   },
 };
 

@@ -82,6 +82,31 @@ pub enum EngineEvent {
         workspace_id: String,
         campaign_id: String,
     },
+    /// V2.7 — an OTP message was enqueued (send or resend).
+    OtpSent {
+        workspace_id: String,
+        to_prefix: String,
+    },
+    /// V2.7 — a code was verified successfully. `elapsed_ms` is
+    /// send→verify latency (drives conversion analytics).
+    OtpVerified {
+        workspace_id: String,
+        to_prefix: String,
+        elapsed_ms: i64,
+    },
+    /// V2.7 — the fraud guard blocked (or, in monitor mode, flagged) an
+    /// OTP send. `code` names the failing check.
+    FraudBlocked {
+        workspace_id: String,
+        code: String,
+        to_prefix: String,
+    },
+    /// V2.7 — the zero-conversion ticker (or an operator) added a
+    /// blocklist row.
+    FraudBlockAdded {
+        prefix: String,
+        reason: String,
+    },
 }
 
 impl EngineEvent {
@@ -100,6 +125,10 @@ impl EngineEvent {
             EngineEvent::CampaignStarted { .. } => "campaignStarted",
             EngineEvent::CampaignPaused { .. } => "campaignPaused",
             EngineEvent::CampaignCompleted { .. } => "campaignCompleted",
+            EngineEvent::OtpSent { .. } => "otpSent",
+            EngineEvent::OtpVerified { .. } => "otpVerified",
+            EngineEvent::FraudBlocked { .. } => "fraudBlocked",
+            EngineEvent::FraudBlockAdded { .. } => "fraudBlockAdded",
         }
     }
 }
@@ -209,6 +238,24 @@ mod tests {
                 workspace_id: "w".into(),
                 campaign_id: "c".into(),
             },
+            EngineEvent::OtpSent {
+                workspace_id: "w".into(),
+                to_prefix: "+1415555".into(),
+            },
+            EngineEvent::OtpVerified {
+                workspace_id: "w".into(),
+                to_prefix: "+1415555".into(),
+                elapsed_ms: 8200,
+            },
+            EngineEvent::FraudBlocked {
+                workspace_id: "w".into(),
+                code: "velocity_phone".into(),
+                to_prefix: "+1415555".into(),
+            },
+            EngineEvent::FraudBlockAdded {
+                prefix: "+9198765".into(),
+                reason: "zero_conversion".into(),
+            },
         ];
         for e in cases {
             let v = serde_json::to_value(&e).unwrap();
@@ -242,6 +289,39 @@ mod tests {
         assert_eq!(v["fromAccount"], "acctA");
         assert_eq!(v["toAccount"], "acctB");
         assert_eq!(v["reason"], "spam_filtered");
+    }
+
+    #[test]
+    fn otp_and_fraud_events_serialize_camel_case() {
+        let e = EngineEvent::OtpVerified {
+            workspace_id: "ws1".into(),
+            to_prefix: "+1415555".into(),
+            elapsed_ms: 4200,
+        };
+        let v = serde_json::to_value(&e).unwrap();
+        assert_eq!(v["kind"], "otpVerified");
+        assert_eq!(v["workspaceId"], "ws1");
+        assert_eq!(v["toPrefix"], "+1415555");
+        assert_eq!(v["elapsedMs"], 4200);
+
+        let e = EngineEvent::FraudBlocked {
+            workspace_id: "ws1".into(),
+            code: "blocklist".into(),
+            to_prefix: "+9198765".into(),
+        };
+        let v = serde_json::to_value(&e).unwrap();
+        assert_eq!(v["kind"], "fraudBlocked");
+        assert_eq!(v["code"], "blocklist");
+        assert_eq!(v["toPrefix"], "+9198765");
+
+        let e = EngineEvent::FraudBlockAdded {
+            prefix: "+9198765".into(),
+            reason: "zero_conversion".into(),
+        };
+        let v = serde_json::to_value(&e).unwrap();
+        assert_eq!(v["kind"], "fraudBlockAdded");
+        assert_eq!(v["prefix"], "+9198765");
+        assert_eq!(v["reason"], "zero_conversion");
     }
 
     #[test]
