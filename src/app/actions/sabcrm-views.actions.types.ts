@@ -22,14 +22,23 @@ export type {
   SabcrmViewCreateInput,
   SabcrmViewUpdateInput,
   SabcrmViewRunOpts,
+  SabcrmQueueState,
+  SabcrmQueueMarkAction,
 } from '@/lib/rust-client/sabcrm-views';
 export type { SabcrmRustRecord } from '@/lib/rust-client/sabcrm-records';
 
 /** Input accepted by {@link createViewTw} — the flattened view document. */
 export type CreateViewTwInput = SabcrmViewCreateInput;
 
-/** Partial patch accepted by {@link updateViewTw}. */
-export type UpdateViewTwPatch = SabcrmViewUpdateInput;
+/**
+ * Partial patch accepted by {@link updateViewTw}. Includes the additive
+ * work-queue config key (`queue`) — the Rust handlers `$set` flattened body
+ * keys verbatim, so the config persists on the view document and round-trips
+ * (the `columnWidths` precedent).
+ */
+export type UpdateViewTwPatch = SabcrmViewUpdateInput & {
+  queue?: Record<string, unknown>;
+};
 
 /** Result of a {@link runViewTw} call — a page of records. */
 export interface SabcrmViewRunPage {

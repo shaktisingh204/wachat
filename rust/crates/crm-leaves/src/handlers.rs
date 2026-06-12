@@ -16,16 +16,25 @@
 //! | `DELETE`| `/applications/:applicationId`      | [`delete_leave_application`]        |
 //! | `POST`  | `/applications/:applicationId/approve` | [`approve_leave_application`]    |
 //!
-//! Every handler scopes its Mongo query by `userId == AuthUser.user_id`
-//! — the CRM tenant root from `crm-core::Identity`.
+//! Every handler scopes its Mongo query by the mount's
+//! [`crm_core::ScopeMode`] (attached as an axum `Extension` by the
+//! router constructors in [`crate::router`]):
+//!
+//! - `/v1/hrm/leaves` + `/v1/crm/leaves` (legacy) —
+//!   `userId == AuthUser.user_id`, the CRM tenant root from
+//!   `crm-core::Identity`. Unchanged behaviour.
+//! - `/v1/sabcrm/people/leaves` (SabCRM People suite) —
+//!   `projectId == ?projectId` / body `projectId`, required per-request
+//!   (4xx when absent). Membership is validated by the Next.js action
+//!   gate before the request reaches Rust.
 
 use axum::{
-    Json,
+    Extension, Json,
     extract::{Path, Query, State},
 };
 use bson::{Bson, Document, doc, oid::ObjectId};
 use chrono::Utc;
-use crm_core::{Assignment, Audit, Identity};
+use crm_core::{Assignment, Audit, Identity, ScopeMode, TenantScope, sabcrm_project_oid};
 use futures::TryStreamExt;
 use hrm_payroll_types::{ApproverStep, LeaveApplication, LeaveApplicationStatus, LeaveType};
 use mongodb::options::FindOptions;
@@ -36,8 +45,8 @@ use tracing::instrument;
 
 use crate::dto::{
     ApproveLeaveApplicationInput, CreateLeaveApplicationInput, CreateLeaveTypeInput, DEFAULT_LIMIT,
-    ListLeaveApplicationsQuery, ListLeaveTypesQuery, MAX_LIMIT, UpdateLeaveApplicationInput,
-    UpdateLeaveTypeInput,
+    ListLeaveApplicationsQuery, ListLeaveTypesQuery, MAX_LIMIT, ScopeQuery,
+    UpdateLeaveApplicationInput, UpdateLeaveTypeInput,
 };
 
 /// Mongo collection name for the leave-type catalog.
@@ -65,12 +74,33 @@ fn clamp_limit(requested: Option<u32>) -> i64 {
     }
 }
 
-/// Materialize the base ownership filter: `{ userId, archived: { $ne: true } }`.
-fn base_ownership_filter(user: ObjectId) -> Document {
-    doc! {
-        "userId": user,
-        "archived": { "$ne": true },
+/// Resolve the per-request [`TenantScope`] from the mount's
+/// [`ScopeMode`] (attached as an axum `Extension` by the router
+/// constructor):
+///
+/// - `ScopeMode::User` (legacy mounts) — scope by the verified JWT
+///   subject. Identical to the historical behaviour.
+/// - `ScopeMode::Project` (`/v1/sabcrm/people/leaves`) — scope by the
+///   caller-supplied `projectId`, 4xx when absent/invalid. The Next.js
+///   action gate has already validated project membership before the
+///   request reaches Rust.
+fn resolve_scope(
+    mode: ScopeMode,
+    user: &AuthUser,
+    project_id: Option<&str>,
+) -> Result<TenantScope> {
+    match mode {
+        ScopeMode::User => Ok(TenantScope::User(user_oid(user)?)),
+        ScopeMode::Project => Ok(TenantScope::Project(sabcrm_project_oid(project_id)?)),
     }
+}
+
+/// Materialize the base ownership filter for the resolved scope:
+/// `{ <userId|projectId>, archived: { $ne: true } }`.
+fn base_ownership_filter(scope: &TenantScope) -> Document {
+    let mut f = scope.filter();
+    f.insert("archived", doc! { "$ne": true });
+    f
 }
 
 /// Optional-string update helper.
@@ -129,12 +159,13 @@ fn compute_days(from: chrono::DateTime<Utc>, to: chrono::DateTime<Utc>, half_day
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn list_leave_types(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Query(q): Query<ListLeaveTypesQuery>,
 ) -> Result<Json<Vec<LeaveType>>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, q.project_id.as_deref())?;
 
-    let mut filter = base_ownership_filter(user_id);
+    let mut filter = base_ownership_filter(&scope);
     if let Some(needle) = q.q.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
         let regex = doc! { "$regex": needle, "$options": "i" };
         filter.insert(
@@ -173,13 +204,15 @@ pub async fn list_leave_types(
 #[instrument(skip_all, fields(user_id = %user.user_id, type_id = %type_id))]
 pub async fn get_leave_type(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(type_id): Path<String>,
+    Query(scope_q): Query<ScopeQuery>,
 ) -> Result<Json<LeaveType>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, scope_q.project_id.as_deref())?;
     let oid = oid_from_str(&type_id)?;
 
-    let mut filter = base_ownership_filter(user_id);
+    let mut filter = base_ownership_filter(&scope);
     filter.insert("_id", oid);
 
     let coll = mongo.collection::<LeaveType>(LEAVE_TYPES_COLL);
@@ -200,6 +233,7 @@ pub async fn get_leave_type(
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn create_leave_type(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Json(input): Json<CreateLeaveTypeInput>,
 ) -> Result<Json<LeaveType>> {
@@ -210,7 +244,16 @@ pub async fn create_leave_type(
     }
 
     let user_id = user_oid(&user)?;
-    let project_id = resolve_project_id(input.project_id.as_deref())?;
+    // In project mode the body's `projectId` IS the tenant scope and is
+    // therefore mandatory (4xx when absent) — `resolve_scope` enforces
+    // that. In legacy user mode the scope is the JWT subject and the
+    // body `projectId` stays optional, exactly as before. The stamped
+    // `userId` is always `AuthUser.user_id` (auditing).
+    let scope = resolve_scope(mode, &user, input.project_id.as_deref())?;
+    let project_id = match scope {
+        TenantScope::Project(p) => p,
+        TenantScope::User(_) => resolve_project_id(input.project_id.as_deref())?,
+    };
 
     let lt = LeaveType {
         identity: Identity {
@@ -247,8 +290,10 @@ pub async fn create_leave_type(
 #[instrument(skip_all, fields(user_id = %user.user_id, type_id = %type_id))]
 pub async fn update_leave_type(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(type_id): Path<String>,
+    Query(scope_q): Query<ScopeQuery>,
     Json(input): Json<UpdateLeaveTypeInput>,
 ) -> Result<Json<LeaveType>> {
     if input.is_empty() {
@@ -257,6 +302,7 @@ pub async fn update_leave_type(
         ));
     }
 
+    let scope = resolve_scope(mode, &user, scope_q.project_id.as_deref())?;
     let user_id = user_oid(&user)?;
     let oid = oid_from_str(&type_id)?;
 
@@ -283,7 +329,7 @@ pub async fn update_leave_type(
         set.insert("minServiceMonths", months as i64);
     }
 
-    let mut filter = base_ownership_filter(user_id);
+    let mut filter = base_ownership_filter(&scope);
     filter.insert("_id", oid);
 
     let coll = mongo.collection::<Document>(LEAVE_TYPES_COLL);
@@ -316,14 +362,17 @@ pub async fn update_leave_type(
 #[instrument(skip_all, fields(user_id = %user.user_id, type_id = %type_id))]
 pub async fn delete_leave_type(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(type_id): Path<String>,
+    Query(scope_q): Query<ScopeQuery>,
 ) -> Result<Json<serde_json::Value>> {
+    let scope = resolve_scope(mode, &user, scope_q.project_id.as_deref())?;
     let user_id = user_oid(&user)?;
     let oid = oid_from_str(&type_id)?;
 
     let now = bson::DateTime::from_chrono(Utc::now());
-    let mut filter = base_ownership_filter(user_id);
+    let mut filter = base_ownership_filter(&scope);
     filter.insert("_id", oid);
 
     let update = doc! {
@@ -368,12 +417,13 @@ fn status_to_str(status: LeaveApplicationStatus) -> &'static str {
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn list_leave_applications(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Query(q): Query<ListLeaveApplicationsQuery>,
 ) -> Result<Json<Vec<LeaveApplication>>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, q.project_id.as_deref())?;
 
-    let mut filter = base_ownership_filter(user_id);
+    let mut filter = base_ownership_filter(&scope);
     if let Some(emp) = q
         .employee_id
         .as_deref()
@@ -413,13 +463,15 @@ pub async fn list_leave_applications(
 #[instrument(skip_all, fields(user_id = %user.user_id, application_id = %application_id))]
 pub async fn get_leave_application(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(application_id): Path<String>,
+    Query(scope_q): Query<ScopeQuery>,
 ) -> Result<Json<LeaveApplication>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, scope_q.project_id.as_deref())?;
     let oid = oid_from_str(&application_id)?;
 
-    let mut filter = base_ownership_filter(user_id);
+    let mut filter = base_ownership_filter(&scope);
     filter.insert("_id", oid);
 
     let coll = mongo.collection::<LeaveApplication>(LEAVE_APPLICATIONS_COLL);
@@ -442,6 +494,7 @@ pub async fn get_leave_application(
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn create_leave_application(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Json(input): Json<CreateLeaveApplicationInput>,
 ) -> Result<Json<LeaveApplication>> {
@@ -454,14 +507,23 @@ pub async fn create_leave_application(
     }
 
     let leave_type_oid = oid_from_str(&input.leave_type_id)?;
-    let project_id = resolve_project_id(input.project_id.as_deref())?;
+    // In project mode the body's `projectId` IS the tenant scope and is
+    // therefore mandatory (4xx when absent); legacy user-mode behaviour
+    // is unchanged. The stamped `userId` is always `AuthUser.user_id`.
+    let scope = resolve_scope(mode, &user, input.project_id.as_deref())?;
+    let project_id = match scope {
+        TenantScope::Project(p) => p,
+        TenantScope::User(_) => resolve_project_id(input.project_id.as_deref())?,
+    };
 
     // Verify the referenced LeaveType exists and is owned by the same
-    // tenant root. Without this check a caller could attach an
-    // application to someone else's catalog row.
+    // tenant scope. Without this check a caller could attach an
+    // application to someone else's catalog row. Cross-collection reads
+    // use `scope.filter()` so a Project-mounted create only sees that
+    // project's catalog.
     {
         let coll = mongo.collection::<LeaveType>(LEAVE_TYPES_COLL);
-        let mut f = base_ownership_filter(user_id);
+        let mut f = base_ownership_filter(&scope);
         f.insert("_id", leave_type_oid);
         let exists = coll.find_one(f).await.map_err(|e| {
             ApiError::Internal(
@@ -529,8 +591,10 @@ pub async fn create_leave_application(
 #[instrument(skip_all, fields(user_id = %user.user_id, application_id = %application_id))]
 pub async fn update_leave_application(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(application_id): Path<String>,
+    Query(scope_q): Query<ScopeQuery>,
     Json(input): Json<UpdateLeaveApplicationInput>,
 ) -> Result<Json<LeaveApplication>> {
     if input.is_empty() {
@@ -539,6 +603,7 @@ pub async fn update_leave_application(
         ));
     }
 
+    let scope = resolve_scope(mode, &user, scope_q.project_id.as_deref())?;
     let user_id = user_oid(&user)?;
     let oid = oid_from_str(&application_id)?;
 
@@ -569,7 +634,7 @@ pub async fn update_leave_application(
     // coherent. We re-read the doc to fill in the unchanged fields.
     let needs_recount = input.from.is_some() || input.to.is_some() || input.half_day.is_some();
 
-    let mut filter = base_ownership_filter(user_id);
+    let mut filter = base_ownership_filter(&scope);
     filter.insert("_id", oid);
 
     let coll = mongo.collection::<Document>(LEAVE_APPLICATIONS_COLL);
@@ -621,13 +686,16 @@ pub async fn update_leave_application(
 #[instrument(skip_all, fields(user_id = %user.user_id, application_id = %application_id))]
 pub async fn delete_leave_application(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(application_id): Path<String>,
+    Query(scope_q): Query<ScopeQuery>,
 ) -> Result<Json<serde_json::Value>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, scope_q.project_id.as_deref())?;
     let oid = oid_from_str(&application_id)?;
 
-    let filter = doc! { "_id": oid, "userId": user_id };
+    let mut filter = scope.filter();
+    filter.insert("_id", oid);
 
     let coll = mongo.collection::<Document>(LEAVE_APPLICATIONS_COLL);
     let res = coll.delete_one(filter).await.map_err(|e| {
@@ -656,10 +724,22 @@ pub async fn delete_leave_application(
 #[instrument(skip_all, fields(user_id = %user.user_id, application_id = %application_id))]
 pub async fn approve_leave_application(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(application_id): Path<String>,
+    Query(scope_q): Query<ScopeQuery>,
     Json(input): Json<ApproveLeaveApplicationInput>,
 ) -> Result<Json<LeaveApplication>> {
+    // Project mode requires `projectId` — accepted on the body or the
+    // query string (the body wins when both are present).
+    let scope = resolve_scope(
+        mode,
+        &user,
+        input
+            .project_id
+            .as_deref()
+            .or(scope_q.project_id.as_deref()),
+    )?;
     let user_id = user_oid(&user)?;
     let oid = oid_from_str(&application_id)?;
 
@@ -668,7 +748,7 @@ pub async fn approve_leave_application(
     // round-trip is fine; it lets us return a precise 409 instead of a
     // silent no-op when the same step is double-clicked.
     let typed = mongo.collection::<LeaveApplication>(LEAVE_APPLICATIONS_COLL);
-    let mut filter = base_ownership_filter(user_id);
+    let mut filter = base_ownership_filter(&scope);
     filter.insert("_id", oid);
     let current = typed
         .find_one(filter.clone())
@@ -765,12 +845,58 @@ mod tests {
         assert_eq!(clamp_limit(Some(0)), 1);
     }
 
+    /// Test-only [`AuthUser`] with a valid 24-hex subject.
+    fn fake_user(oid: &ObjectId) -> AuthUser {
+        AuthUser {
+            user_id: oid.to_hex(),
+            tenant_id: String::new(),
+            roles: Vec::new(),
+        }
+    }
+
     #[test]
-    fn base_filter_excludes_archived() {
+    fn base_filter_excludes_archived_user_scope() {
         let oid = ObjectId::new();
-        let f = base_ownership_filter(oid);
+        let f = base_ownership_filter(&TenantScope::User(oid));
         assert_eq!(f.get_object_id("userId").unwrap(), oid);
+        assert!(!f.contains_key("projectId"));
         assert!(f.get_document("archived").unwrap().contains_key("$ne"));
+    }
+
+    #[test]
+    fn base_filter_excludes_archived_project_scope() {
+        let oid = ObjectId::new();
+        let f = base_ownership_filter(&TenantScope::Project(oid));
+        assert_eq!(f.get_object_id("projectId").unwrap(), oid);
+        assert!(!f.contains_key("userId"));
+        assert!(f.get_document("archived").unwrap().contains_key("$ne"));
+    }
+
+    #[test]
+    fn resolve_scope_project_rejects_missing_project_id() {
+        // The `project_router` mount attaches `ScopeMode::Project`; a
+        // request without `projectId` must 4xx (mirrors the
+        // `crm-core::scope` tests).
+        let user = fake_user(&ObjectId::new());
+        let err = resolve_scope(ScopeMode::Project, &user, None).unwrap_err();
+        assert!(matches!(err, ApiError::Validation(_)));
+        let err = resolve_scope(ScopeMode::Project, &user, Some("not-an-oid")).unwrap_err();
+        assert!(matches!(err, ApiError::Validation(_)));
+    }
+
+    #[test]
+    fn resolve_scope_resolves_both_modes() {
+        let user_oid = ObjectId::new();
+        let user = fake_user(&user_oid);
+        assert_eq!(
+            resolve_scope(ScopeMode::User, &user, None).unwrap(),
+            TenantScope::User(user_oid)
+        );
+        let project = ObjectId::new();
+        assert_eq!(
+            resolve_scope(ScopeMode::Project, &user, Some(&project.to_hex())).unwrap(),
+            TenantScope::Project(project)
+        );
     }
 
     #[test]

@@ -54,6 +54,11 @@ export interface RecordPanelProps {
    * Return null/undefined to render nothing for a field.
    */
   fieldRowTrailing?: (field: FieldMetadata) => React.ReactNode;
+  /**
+   * View-only mode (RBAC affordance gating — never security): rows always
+   * render in display mode with no click-to-edit affordance.
+   */
+  readOnly?: boolean;
   loading?: boolean;
   className?: string;
 }
@@ -75,6 +80,8 @@ interface PanelRowProps {
   fmt?: RecordCellFmt;
   /** Right-aligned slot beside the label (see RecordPanelProps). */
   trailing?: React.ReactNode;
+  /** View-only row — display mode, no edit affordance. */
+  readOnly?: boolean;
 }
 
 /**
@@ -95,6 +102,7 @@ function PanelRow({
   relationResolver,
   fmt,
   trailing,
+  readOnly = false,
 }: PanelRowProps): React.JSX.Element {
   const commit = React.useCallback(
     (next: unknown) => onCommit(field.key, next),
@@ -132,7 +140,7 @@ function PanelRow({
           <span className="rd-row__trailing">{trailing}</span>
         ) : null}
       </div>
-      {editing ? (
+      {!readOnly && editing ? (
         <div className="rd-row__editor">
           <RecordCell
             field={field}
@@ -141,6 +149,19 @@ function PanelRow({
             mode="edit"
             onCommit={commit}
             onCancel={onCancel}
+            relationResolver={relationResolver}
+            fmt={fmt}
+          />
+        </div>
+      ) : readOnly ? (
+        <div
+          className="rd-row__value is-readonly"
+          aria-labelledby={`rd-label-${field.key}`}
+        >
+          <RecordCell
+            field={field}
+            value={value}
+            record={record}
             relationResolver={relationResolver}
             fmt={fmt}
           />
@@ -178,6 +199,7 @@ export function RecordPanel({
   fmt,
   excludeKeys,
   fieldRowTrailing,
+  readOnly = false,
   loading = false,
   className,
 }: RecordPanelProps): React.JSX.Element {
@@ -190,7 +212,13 @@ export function RecordPanel({
     return fields.filter((f) => !f.system && !skip.has(f.key));
   }, [fields, excludeKeys]);
 
-  const startEdit = React.useCallback((key: string) => setEditingKey(key), []);
+  const startEdit = React.useCallback(
+    (key: string) => {
+      if (readOnly) return;
+      setEditingKey(key);
+    },
+    [readOnly],
+  );
   const cancelEdit = React.useCallback(() => setEditingKey(null), []);
 
   const commit = React.useCallback(
@@ -255,6 +283,7 @@ export function RecordPanel({
               relationResolver={relationResolver}
               fmt={fmt}
               trailing={fieldRowTrailing?.(field)}
+              readOnly={readOnly}
             />
           ))
         )}

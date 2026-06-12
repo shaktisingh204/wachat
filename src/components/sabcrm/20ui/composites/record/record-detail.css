@@ -397,6 +397,38 @@
   margin-top: 2px;
 }
 
+/* Row actions — always in the tab order, only VISUALLY revealed on row
+   hover / focus-within (keyboard + touch users always reach them). */
+:is(.\32 0ui, .ui20) .rd-timeline__actions {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-1);
+  flex: none;
+  opacity: 0;
+  transition: opacity var(--u-dur-fast, 120ms) var(--u-ease-out, ease-out);
+}
+
+:is(.\32 0ui, .ui20) .rd-timeline__item:hover .rd-timeline__actions,
+:is(.\32 0ui, .ui20) .rd-timeline__item:focus-within .rd-timeline__actions,
+:is(.\32 0ui, .ui20) .rd-timeline__actions:has([aria-expanded='true']) {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  :is(.\32 0ui, .ui20) .rd-timeline__actions {
+    opacity: 1;
+  }
+}
+
+/* Read-only panel rows (RBAC view-only): no edit affordance. */
+:is(.\32 0ui, .ui20) .rd-row__value.is-readonly {
+  cursor: default;
+}
+
+:is(.\32 0ui, .ui20) .rd-row__value.is-readonly:hover {
+  background: none;
+}
+
 /* ------------------------------------------------------------- responsive */
 
 @media (max-width: 900px) {

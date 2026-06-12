@@ -373,14 +373,17 @@ function DesktopWindowView({
         style={{
           position: "absolute",
           left: 0,
-          right: 0,
-          bottom: 0,
           top: chromeShown ? TITLEBAR_H : 0,
-          // Disable hit-testing on the frame while dragging/resizing so the
-          // iframe doesn't swallow the pointer stream.
+          width: "100%",
+          // iframes are REPLACED elements: height:auto resolves to the intrinsic
+          // ~150px and top+bottom does NOT stretch them — the height must be
+          // explicit or the app renders in a short strip over the page beneath.
+          height: chromeShown ? `calc(100% - ${TITLEBAR_H}px)` : "100%",
+          // Disable hit-testing while dragging/resizing so the iframe doesn't
+          // swallow the pointer stream.
           pointerEvents: interacting ? "none" : "auto",
         }}
-        className="h-auto w-full border-0 bg-[var(--st-bg)]"
+        className="block border-0 bg-[var(--st-bg)]"
       />
 
       {/* Loading veil until first load */}

@@ -33,6 +33,7 @@ import {
   Calendar,
   ChevronDown,
   ChevronUp,
+  Columns3,
   GanttChart,
   Kanban,
   ListFilter,
@@ -52,6 +53,7 @@ import {
 import type { ObjectMetadata, FieldMetadata } from '@/lib/sabcrm/types';
 import { Button, IconButton } from '../../button';
 import { Badge } from '../../badge';
+import { Checkbox } from '../../choice';
 import { Input } from '../../field';
 import { Select, type SelectOption } from '../../select';
 import { SegmentedControl, type SegmentedItem } from '../../segmented';
@@ -125,6 +127,12 @@ export interface SavedView {
   filters?: FilterGroup;
   sorts?: ViewSort[];
   groupBy?: string | null;
+  /**
+   * Ordered field keys shown as table columns (the canonical saved-view
+   * `viewFields` channel, deserialized by the host). `null`/absent = the
+   * object's default (`inTable`) column set.
+   */
+  visibleColumns?: string[] | null;
   isDefault?: boolean;
 }
 
@@ -157,6 +165,14 @@ export interface ViewBarProps {
   /** Key of the SELECT field grouped by, or null. */
   groupBy: string | null;
   onGroupByChange: (next: string | null) => void;
+
+  /**
+   * Field keys currently shown as table columns (order = display order).
+   * Omit to hide the Fields show/hide control.
+   */
+  visibleColumns?: string[];
+  /** Fired with the next ordered key list when columns are toggled. */
+  onVisibleColumnsChange?: (keys: string[]) => void;
 
   /** Saved views for the switcher. Omit to hide the switcher dropdown. */
   savedViews?: SavedView[];
@@ -643,6 +659,115 @@ function SortControl({
   );
 }
 
+/* ----------------------------------------------------- fields (columns) */
+
+interface FieldsControlProps {
+  fields: FieldMetadata[];
+  /** Field keys currently shown as table columns. */
+  visibleColumns: string[];
+  onVisibleColumnsChange: (keys: string[]) => void;
+}
+
+/**
+ * "Fields" popover — per-column show/hide checklist over the object's
+ * non-system fields. Toggling preserves field-metadata order; the last
+ * checked row cannot be unchecked (a table needs ≥ 1 column).
+ */
+function FieldsControl({
+  fields,
+  visibleColumns,
+  onVisibleColumnsChange,
+}: FieldsControlProps): React.JSX.Element {
+  const [open, setOpen] = React.useState(false);
+
+  const selectable = React.useMemo(
+    () => fields.filter((f) => !f.system),
+    [fields],
+  );
+  const checked = React.useMemo(
+    () => new Set(visibleColumns),
+    [visibleColumns],
+  );
+  const checkedCount = selectable.reduce(
+    (n, f) => n + (checked.has(f.key) ? 1 : 0),
+    0,
+  );
+  const hiddenCount = selectable.length - checkedCount;
+  const defaults = React.useMemo(
+    () => selectable.filter((f) => f.inTable).map((f) => f.key),
+    [selectable],
+  );
+
+  const toggle = (key: string): void => {
+    const next = new Set(checked);
+    if (next.has(key)) next.delete(key);
+    else next.add(key);
+    // Emit in field-metadata order so the column order stays canonical.
+    onVisibleColumnsChange(
+      selectable.filter((f) => next.has(f.key)).map((f) => f.key),
+    );
+  };
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button variant="ghost" size="sm" iconLeft={Columns3}>
+          Fields
+          {hiddenCount > 0 ? (
+            <Badge tone="accent" className="vb-count">
+              {hiddenCount}
+            </Badge>
+          ) : null}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent align="start" className="vb-pop vb-pop--fields">
+        <p className="vb-pop__title">Table columns</p>
+        {selectable.length === 0 ? (
+          <p className="vb-pop__empty">No fields to show.</p>
+        ) : (
+          <div className="vb-fields" role="group" aria-label="Visible columns">
+            {selectable.map((f) => {
+              const isChecked = checked.has(f.key);
+              return (
+                <Checkbox
+                  key={f.key}
+                  size="sm"
+                  className="vb-fields__row"
+                  label={f.label}
+                  checked={isChecked}
+                  // Never allow unchecking down to zero columns.
+                  disabled={isChecked && checkedCount === 1}
+                  onChange={() => toggle(f.key)}
+                />
+              );
+            })}
+          </div>
+        )}
+        <div className="vb-pop__foot vb-pop__foot--between">
+          <Button
+            size="sm"
+            variant="ghost"
+            disabled={hiddenCount === 0}
+            onClick={() =>
+              onVisibleColumnsChange(selectable.map((f) => f.key))
+            }
+          >
+            Show all
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            disabled={defaults.length === 0}
+            onClick={() => onVisibleColumnsChange(defaults)}
+          >
+            Reset to default
+          </Button>
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
 /* ------------------------------------------------------------ quick search */
 
 function QuickSearch({
@@ -702,6 +827,8 @@ export function ViewBar({
   onSortsChange,
   groupBy,
   onGroupByChange,
+  visibleColumns,
+  onVisibleColumnsChange,
   savedViews,
   activeViewId,
   onSelectView,
@@ -791,6 +918,14 @@ export function ViewBar({
           placeholder="Group"
           clearable
           aria-label="Group by"
+        />
+      ) : null}
+
+      {visibleColumns && onVisibleColumnsChange ? (
+        <FieldsControl
+          fields={fields}
+          visibleColumns={visibleColumns}
+          onVisibleColumnsChange={onVisibleColumnsChange}
         />
       ) : null}
 

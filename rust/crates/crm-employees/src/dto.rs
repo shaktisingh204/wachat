@@ -22,6 +22,19 @@ pub const DEFAULT_LIMIT: i64 = 20;
 /// the Rust BFF (clamped to keep large-result-set DoS attempts bounded).
 pub const MAX_LIMIT: i64 = 100;
 
+/// Query string for the single-document routes (`GET` / `PATCH` /
+/// `DELETE /{employeeId}`). Carries only the SabCRM tenant scope —
+/// **required** under `ScopeMode::Project` (the
+/// `/v1/sabcrm/people/employees` mount), ignored on the legacy
+/// `userId`-scoped mounts.
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ScopeQuery {
+    /// SabCRM tenant scope (24-char hex `ObjectId`).
+    #[serde(default)]
+    pub project_id: Option<String>,
+}
+
 /// `GET /v1/crm/employees` query string.
 ///
 /// `q` is a free-text substring searched (case-insensitive) across the
@@ -30,6 +43,12 @@ pub const MAX_LIMIT: i64 = 100;
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ListQuery {
+    /// SabCRM tenant scope (24-char hex `ObjectId`). **Required** when
+    /// the router is mounted in `ScopeMode::Project` (the
+    /// `/v1/sabcrm/people/employees` mount); ignored on the legacy
+    /// `userId`-scoped mounts.
+    #[serde(default)]
+    pub project_id: Option<String>,
     /// 1-indexed page (matches TS). Defaults to `1`.
     #[serde(default)]
     pub page: Option<u32>,
@@ -308,5 +327,26 @@ mod tests {
             Some("507f1f77bcf86cd799439012")
         );
         assert_eq!(q.status.as_deref(), Some("active"));
+    }
+
+    #[test]
+    fn list_query_parses_camel_case_project_id() {
+        let q: ListQuery = serde_json::from_value(serde_json::json!({
+            "projectId": "507f1f77bcf86cd799439099",
+        }))
+        .unwrap();
+        assert_eq!(q.project_id.as_deref(), Some("507f1f77bcf86cd799439099"));
+    }
+
+    #[test]
+    fn scope_query_parses_camel_case_project_id() {
+        let q: ScopeQuery = serde_json::from_value(serde_json::json!({
+            "projectId": "507f1f77bcf86cd799439099",
+        }))
+        .unwrap();
+        assert_eq!(q.project_id.as_deref(), Some("507f1f77bcf86cd799439099"));
+
+        let empty: ScopeQuery = serde_json::from_value(serde_json::json!({})).unwrap();
+        assert!(empty.project_id.is_none());
     }
 }

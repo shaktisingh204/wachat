@@ -37,7 +37,6 @@ import {
   Modal,
   Field,
   Input,
-  Textarea,
   Button,
   Alert,
   EmptyState,
@@ -49,6 +48,13 @@ import {
   Skeleton,
   SearchInput,
 } from '@/components/sabcrm/20ui';
+// Editor composite — imported by its direct path on purpose (NOT through the
+// 20ui barrel index; barrel self-cycle gotcha).
+import {
+  RichTextEditor,
+  isRichTextEmpty,
+  plainTextOfBody,
+} from '@/components/sabcrm/20ui/composites/editor/rich-text';
 import { useProject } from '@/context/project-context';
 import {
   listSabcrmRecordsTw,
@@ -79,7 +85,9 @@ function asText(value: unknown): string {
 function noteTitle(record: SabcrmRustRecord): string {
   const title = asText(record.data.title).trim();
   if (title) return title;
-  const body = asText(record.data.body).trim();
+  // Bodies may be sanitized rich-text HTML (RichTextEditor) — strip to plain
+  // text before deriving a one-line title.
+  const body = plainTextOfBody(asText(record.data.body)).trim();
   if (body) {
     const firstLine = body.split('\n')[0]!.trim();
     return firstLine.length > 80 ? `${firstLine.slice(0, 80)}…` : firstLine;
@@ -87,9 +95,10 @@ function noteTitle(record: SabcrmRustRecord): string {
   return 'Untitled note';
 }
 
-/** A note's body preview, only if it differs from the derived title. */
+/** A note's plain-text body preview, only if it differs from the derived title. */
 function noteBody(record: SabcrmRustRecord, title: string): string {
-  const body = asText(record.data.body).trim();
+  // HTML bodies must never render as raw markup text — project to plain text.
+  const body = plainTextOfBody(asText(record.data.body)).trim();
   return body && body !== title ? body : '';
 }
 
@@ -139,17 +148,19 @@ interface CreateDialogProps {
 
 function CreateDialog({ projectId, onClose, onCreated }: CreateDialogProps) {
   const [title, setTitle] = React.useState('');
+  // Sanitized rich-text HTML from the editor composite.
   const [body, setBody] = React.useState('');
   const [saving, setSaving] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const formId = React.useId();
+  const formRef = React.useRef<HTMLFormElement | null>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (saving) return;
 
     const t = title.trim();
-    const b = body.trim();
+    const b = isRichTextEmpty(body) ? '' : body.trim();
     if (!t && !b) {
       setError('Write a title or some body text first.');
       return;
@@ -157,10 +168,11 @@ function CreateDialog({ projectId, onClose, onCreated }: CreateDialogProps) {
     setSaving(true);
     setError(null);
 
-    // If no explicit title, derive a short one from the first body line.
+    // If no explicit title, derive a short one from the first PLAIN-text
+    // body line (the stored body is sanitized HTML).
     let finalTitle = t;
     if (!finalTitle && b) {
-      const firstLine = b.split('\n')[0]!.trim();
+      const firstLine = plainTextOfBody(b).split('\n')[0]!.trim();
       finalTitle = firstLine.length > 80 ? `${firstLine.slice(0, 80)}…` : firstLine;
     }
 
@@ -193,29 +205,32 @@ function CreateDialog({ projectId, onClose, onCreated }: CreateDialogProps) {
         </>
       }
     >
-      <form id={formId} onSubmit={handleSubmit} className="nts-form">
+      <form id={formId} ref={formRef} onSubmit={handleSubmit} className="nts-form">
         <Field label="Title">
           <Input
             value={title}
             autoFocus
             placeholder="Note title"
             onChange={(e) => setTitle(e.target.value)}
-          />
-        </Field>
-
-        <Field label="Body">
-          <Textarea
-            value={body}
-            rows={6}
-            placeholder="Write your note…"
-            onChange={(e) => setBody(e.target.value)}
             onKeyDown={(e) => {
               // Cmd/Ctrl + Enter submits.
               if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
                 e.preventDefault();
-                (e.currentTarget.form as HTMLFormElement | null)?.requestSubmit();
+                e.currentTarget.form?.requestSubmit();
               }
             }}
+          />
+        </Field>
+
+        <Field label="Body">
+          <RichTextEditor
+            value={body}
+            onChange={setBody}
+            // The editor submits the parent on ⌘/Ctrl+Enter.
+            onSubmit={() => formRef.current?.requestSubmit()}
+            placeholder="Write your note…"
+            ariaLabel="Note body"
+            disabled={saving}
           />
         </Field>
 

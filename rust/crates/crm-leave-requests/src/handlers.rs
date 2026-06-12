@@ -1,7 +1,12 @@
 //! HTTP handlers for the LeaveRequest entity (`crm_leave_requests`).
+//!
+//! Every handler scopes its Mongo query by the mount's
+//! [`crm_core::ScopeMode`]: `userId == AuthUser.user_id` on the legacy
+//! `/v1/crm/leave-requests` mount, required `projectId` on the
+//! project-scoped mount (4xx when absent).
 
 use axum::{
-    Json,
+    Extension, Json,
     extract::{Path, Query, State},
 };
 use bson::{DateTime as BsonDateTime, Document, doc, oid::ObjectId};
@@ -12,6 +17,7 @@ use crm_common::{
     search::build_q_filter,
     tenant::user_oid,
 };
+use crm_core::{ScopeMode, TenantScope, sabcrm_project_oid};
 use futures::TryStreamExt;
 use mongodb::options::FindOptions;
 use sabnode_auth::AuthUser;
@@ -21,7 +27,7 @@ use tracing::instrument;
 
 use crate::dto::{
     CreateLeaveRequestInput, CreateLeaveRequestResponse, DeleteLeaveRequestResponse, ListQuery,
-    UpdateLeaveRequestInput,
+    ScopeQuery, UpdateLeaveRequestInput,
 };
 use crate::types::CrmLeaveRequest;
 
@@ -45,13 +51,27 @@ fn parse_date(s: &str) -> Option<BsonDateTime> {
     None
 }
 
+/// Resolve the per-request [`TenantScope`] from the mount's
+/// [`ScopeMode`] — `userId` (JWT subject) on the legacy mount, required
+/// `projectId` on the project mount (4xx when absent/invalid).
+fn resolve_scope(
+    mode: ScopeMode,
+    user: &AuthUser,
+    project_id: Option<&str>,
+) -> Result<TenantScope> {
+    match mode {
+        ScopeMode::User => Ok(TenantScope::User(user_oid(user)?)),
+        ScopeMode::Project => Ok(TenantScope::Project(sabcrm_project_oid(project_id)?)),
+    }
+}
+
 fn list_filter(
-    user_id: ObjectId,
+    scope: &TenantScope,
     status: Option<&str>,
     employee_id: Option<&str>,
     leave_type: Option<&str>,
 ) -> Document {
-    let mut filter = doc! { "userId": user_id };
+    let mut filter = scope.filter();
     match status.unwrap_or("active_visible") {
         "all" => {}
         "archived" => {
@@ -77,13 +97,16 @@ fn list_filter(
     filter
 }
 
-fn ownership_filter(user_id: ObjectId, oid: ObjectId) -> Document {
-    doc! { "_id": oid, "userId": user_id }
+fn ownership_filter(scope: &TenantScope, oid: ObjectId) -> Document {
+    let mut f = scope.filter();
+    f.insert("_id", oid);
+    f
 }
 
 fn request_from_create(
     input: CreateLeaveRequestInput,
     user_id: ObjectId,
+    project_id: Option<ObjectId>,
 ) -> Result<CrmLeaveRequest> {
     let employee_id = ObjectId::parse_str(input.employee_id.trim())
         .map_err(|_| ApiError::Validation("employeeId must be a valid ObjectId".to_owned()))?;
@@ -116,6 +139,7 @@ fn request_from_create(
     Ok(CrmLeaveRequest {
         id: None,
         user_id,
+        project_id,
         employee_id,
         employee_name: input
             .employee_name
@@ -230,12 +254,13 @@ pub struct ListResponse {
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn list_requests(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Query(q): Query<ListQuery>,
 ) -> Result<Json<ListResponse>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, q.project_id.as_deref())?;
     let mut filter = list_filter(
-        user_id,
+        &scope,
         q.status.as_deref(),
         q.employee_id.as_deref(),
         q.leave_type.as_deref(),
@@ -275,14 +300,16 @@ pub async fn list_requests(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %request_id))]
 pub async fn get_request(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(request_id): Path<String>,
+    Query(scope_q): Query<ScopeQuery>,
 ) -> Result<Json<CrmLeaveRequest>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, scope_q.project_id.as_deref())?;
     let oid = oid_from_str(&request_id)?;
     let coll = mongo.collection::<CrmLeaveRequest>(COLL);
     let row = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_leave_requests.find_one"))
@@ -294,11 +321,25 @@ pub async fn get_request(
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn create_request(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Json(input): Json<CreateLeaveRequestInput>,
 ) -> Result<Json<CreateLeaveRequestResponse>> {
     let user_id = user_oid(&user)?;
-    let mut entity = request_from_create(input, user_id)?;
+    // Project mode: body `projectId` IS the tenant scope (mandatory).
+    // User mode: scope is the JWT subject, body `projectId` optional.
+    // `userId` is always stamped for auditing.
+    let scope = resolve_scope(mode, &user, input.project_id.as_deref())?;
+    let project_id = match scope {
+        TenantScope::Project(p) => Some(p),
+        TenantScope::User(_) => input
+            .project_id
+            .as_deref()
+            .map(str::trim)
+            .filter(|s| !s.is_empty())
+            .and_then(|s| ObjectId::parse_str(s).ok()),
+    };
+    let mut entity = request_from_create(input, user_id, project_id)?;
     let coll = mongo.collection::<CrmLeaveRequest>(COLL);
     let inserted = coll.insert_one(&entity).await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("crm_leave_requests.insert"))
@@ -321,15 +362,17 @@ pub async fn create_request(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %request_id))]
 pub async fn update_request(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(request_id): Path<String>,
+    Query(scope_q): Query<ScopeQuery>,
     Json(patch): Json<UpdateLeaveRequestInput>,
 ) -> Result<Json<CrmLeaveRequest>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, scope_q.project_id.as_deref())?;
     let oid = oid_from_str(&request_id)?;
     let coll = mongo.collection::<CrmLeaveRequest>(COLL);
     let before = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_leave_requests.find_one"))
@@ -337,7 +380,7 @@ pub async fn update_request(
         .ok_or_else(|| ApiError::NotFound("leave_request".to_owned()))?;
     let update = build_update_doc(patch)?;
     let result = coll
-        .update_one(ownership_filter(user_id, oid), update)
+        .update_one(ownership_filter(&scope, oid), update)
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_leave_requests.update"))
@@ -346,7 +389,7 @@ pub async fn update_request(
         return Err(ApiError::NotFound("leave_request".to_owned()));
     }
     let after = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_leave_requests.refetch"))
@@ -367,15 +410,17 @@ pub async fn update_request(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %request_id))]
 pub async fn delete_request(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(request_id): Path<String>,
+    Query(scope_q): Query<ScopeQuery>,
 ) -> Result<Json<DeleteLeaveRequestResponse>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, scope_q.project_id.as_deref())?;
     let oid = oid_from_str(&request_id)?;
     let coll = mongo.collection::<CrmLeaveRequest>(COLL);
     let result = coll
         .update_one(
-            ownership_filter(user_id, oid),
+            ownership_filter(&scope, oid),
             doc! { "$set": {
                 "status": "archived",
                 "updatedAt": BsonDateTime::from_chrono(Utc::now()),

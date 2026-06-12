@@ -48,6 +48,7 @@ fn list_filter(
     scope: &TenantScope,
     status: Option<&str>,
     voucher_book_id: Option<&str>,
+    account_id: Option<&str>,
 ) -> Result<Document> {
     let mut filter = scope.filter();
     match status.unwrap_or("active_visible") {
@@ -66,6 +67,23 @@ fn list_filter(
         let oid = ObjectId::parse_str(book)
             .map_err(|_| ApiError::Validation("invalid voucherBookId".to_owned()))?;
         filter.insert("voucherBookId", oid);
+    }
+    if let Some(account) = account_id.map(str::trim).filter(|s| !s.is_empty()) {
+        let oid = ObjectId::parse_str(account)
+            .map_err(|_| ApiError::Validation("invalid accountId".to_owned()))?;
+        // The account may appear on either side of the ledger. Wrapped in
+        // a top-level `$and` so this `$or` never collides with the
+        // free-text `$or` that `list_entries` may also insert
+        // (finance-rollout gap G6).
+        filter.insert(
+            "$and",
+            vec![doc! {
+                "$or": [
+                    { "debitEntries.accountId": oid },
+                    { "creditEntries.accountId": oid },
+                ]
+            }],
+        );
     }
     Ok(filter)
 }
@@ -229,7 +247,12 @@ pub async fn list_entries(
     Query(q): Query<ListQuery>,
 ) -> Result<Json<ListResponse>> {
     let scope = resolve_scope(mode, &user, q.project_id.as_deref())?;
-    let mut filter = list_filter(&scope, q.status.as_deref(), q.voucher_book_id.as_deref())?;
+    let mut filter = list_filter(
+        &scope,
+        q.status.as_deref(),
+        q.voucher_book_id.as_deref(),
+        q.account_id.as_deref(),
+    )?;
     if let Some(needle) = q.q.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
         let or = build_q_filter(needle, &["voucherNumber", "narration", "reference"]);
         if let Ok(arr) = or.get_array("$or") {
@@ -412,16 +435,80 @@ mod tests {
     #[test]
     fn list_filter_excludes_archived_by_default() {
         let oid = ObjectId::new();
-        let f = list_filter(&TenantScope::User(oid), None, None).unwrap();
+        let f = list_filter(&TenantScope::User(oid), None, None, None).unwrap();
         assert!(f.contains_key("status"));
     }
 
     #[test]
     fn list_filter_scopes_by_project_on_sabcrm_mounts() {
         let oid = ObjectId::new();
-        let f = list_filter(&TenantScope::Project(oid), None, None).unwrap();
+        let f = list_filter(&TenantScope::Project(oid), None, None, None).unwrap();
         assert_eq!(f.get_object_id("projectId").unwrap(), oid);
         assert!(!f.contains_key("userId"));
+    }
+
+    /// G6 — `accountId` matches a leg on either side of the ledger,
+    /// wrapped in `$and` so it can coexist with the free-text `$or`.
+    #[test]
+    fn list_filter_account_id_matches_either_ledger_side() {
+        let tenant = ObjectId::new();
+        let account = ObjectId::new();
+        let f = list_filter(
+            &TenantScope::Project(tenant),
+            None,
+            None,
+            Some(account.to_hex().as_str()),
+        )
+        .unwrap();
+        let and = f.get_array("$and").unwrap();
+        assert_eq!(and.len(), 1);
+        let or = and[0]
+            .as_document()
+            .unwrap()
+            .get_array("$or")
+            .unwrap()
+            .iter()
+            .filter_map(|b| b.as_document())
+            .collect::<Vec<_>>();
+        assert_eq!(or.len(), 2);
+        assert_eq!(or[0].get_object_id("debitEntries.accountId").unwrap(), account);
+        assert_eq!(
+            or[1].get_object_id("creditEntries.accountId").unwrap(),
+            account
+        );
+        // Top-level `$or` slot stays free for the q-search.
+        assert!(!f.contains_key("$or"));
+    }
+
+    /// G6 — malformed / blank account ids: 400 on garbage, ignored when
+    /// blank.
+    #[test]
+    fn list_filter_account_id_validates_input() {
+        let tenant = ObjectId::new();
+        assert!(matches!(
+            list_filter(&TenantScope::User(tenant), None, None, Some("garbage")).unwrap_err(),
+            ApiError::Validation(_)
+        ));
+        let f = list_filter(&TenantScope::User(tenant), None, None, Some("  ")).unwrap();
+        assert!(!f.contains_key("$and"));
+    }
+
+    /// G6 — accountId composes with the voucher-book filter.
+    #[test]
+    fn list_filter_account_id_composes_with_book_filter() {
+        let tenant = ObjectId::new();
+        let book = ObjectId::new();
+        let account = ObjectId::new();
+        let f = list_filter(
+            &TenantScope::User(tenant),
+            Some("posted"),
+            Some(book.to_hex().as_str()),
+            Some(account.to_hex().as_str()),
+        )
+        .unwrap();
+        assert_eq!(f.get_object_id("voucherBookId").unwrap(), book);
+        assert_eq!(f.get_str("status").unwrap(), "posted");
+        assert!(f.contains_key("$and"));
     }
 
     #[test]

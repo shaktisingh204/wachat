@@ -513,7 +513,12 @@ export default function MyWorkPage(): React.JSX.Element {
           <PageHeaderHeading>
             <PageTitle>My Work</PageTitle>
             <PageDescription>
-              Every record assigned to you in this project, newest first.
+              Every record assigned to you in this project, newest first. Need
+              a prioritized per-view work list instead?{' '}
+              <Link href="/sabcrm" className="mw-queue-link">
+                Create a work queue from any view
+              </Link>
+              .
             </PageDescription>
           </PageHeaderHeading>
           <PageActions>

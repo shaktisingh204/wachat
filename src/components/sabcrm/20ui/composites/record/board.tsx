@@ -122,7 +122,11 @@ export interface RecordBoardColumn {
   };
 }
 
-export type RecordBoardGateKind = 'required-fields' | 'approval' | 'forbidden';
+export type RecordBoardGateKind =
+  | 'required-fields'
+  | 'approval'
+  | 'forbidden'
+  | 'permission';
 
 /** Verdict returned by `canMove` — a blocked drop snaps back + shows `reason`. */
 export type RecordBoardGateVerdict =
@@ -579,6 +583,7 @@ const GATE_ICON: Record<RecordBoardGateKind, React.ReactNode> = {
   'required-fields': <AlertTriangle size={13} aria-hidden="true" />,
   approval: <ShieldAlert size={13} aria-hidden="true" />,
   forbidden: <Lock size={13} aria-hidden="true" />,
+  permission: <Lock size={13} aria-hidden="true" />,
 };
 
 function BoardColumnView({

@@ -18,6 +18,11 @@ pub struct ListQuery {
     /// Filter to a single voucher book.
     #[serde(default)]
     pub voucher_book_id: Option<String>,
+    /// Filter to entries touching a single ledger account — matches a
+    /// leg in EITHER `debitEntries[]` or `creditEntries[]`
+    /// (finance-rollout gap G6: trial-balance drill-down precision).
+    #[serde(default)]
+    pub account_id: Option<String>,
     /// SabCRM (project) mounts only — required there, ignored on legacy.
     #[serde(default)]
     pub project_id: Option<String>,

@@ -112,12 +112,14 @@ import {
   setObjectIndexesTw,
   deleteObjectTw,
 } from '@/app/actions/sabcrm-objects.actions';
-import type {
-  ObjectMetadata,
-  FieldMetadata,
-  FieldType,
-  FieldOption,
-  FieldRelation,
+import {
+  aiFieldConfig,
+  type ObjectMetadata,
+  type FieldMetadata,
+  type FieldType,
+  type FieldOption,
+  type FieldRelation,
+  type AiOutputType,
 } from '@/lib/sabcrm/types';
 
 // ---------------------------------------------------------------------------
@@ -213,6 +215,7 @@ const FIELD_TYPE_OPTIONS: ReadonlyArray<{ value: FieldType; label: string }> = [
   { value: 'LINKS', label: 'Links' },
   { value: 'ARRAY', label: 'Array' },
   { value: 'RAW_JSON', label: 'Raw JSON' },
+  { value: 'AI', label: 'AI (computed)' },
 ];
 
 function fieldTypeLabel(type: FieldType): string {
@@ -340,6 +343,8 @@ interface ObjectTwExtras {
 /** Field-level depth flags layered over `FieldMetadata`. */
 interface FieldTwExtras {
   isUnique?: boolean;
+  /** Type-discriminated per-field settings blob (AI fields use `settings.ai`). */
+  settings?: Record<string, unknown>;
 }
 
 /** Narrow an object to its depth extras (safe, read-only view). */
@@ -2204,6 +2209,15 @@ function FieldDialog({
   );
   /** RAW_JSON validity, blocks submit while the textarea holds invalid JSON. */
   const [jsonValid, setJsonValid] = React.useState(true);
+  // AI (computed) config — seeded from the existing settings.ai blob on edit.
+  const editingAi = editing ? aiFieldConfig(editing) : null;
+  const [aiPrompt, setAiPrompt] = React.useState(editingAi?.prompt ?? '');
+  const [aiOutputType, setAiOutputType] = React.useState<AiOutputType>(
+    editingAi?.outputType ?? 'TEXT',
+  );
+  const [aiRefresh, setAiRefresh] = React.useState<'auto' | 'manual'>(
+    editingAi?.refresh ?? 'auto',
+  );
   const [saving, setSaving] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
@@ -2221,6 +2235,9 @@ function FieldDialog({
   const keyConflict = key.trim().length > 0 && existingKeys.has(key.trim());
   const isSelect = SELECT_TYPES.has(type);
   const isRelation = type === 'RELATION';
+  const isAi = type === 'AI';
+  /** AI fields with a SELECT output reuse the options editor as allowed values. */
+  const needsOptions = isSelect || (isAi && aiOutputType === 'SELECT');
 
   /** Switch the field type, dropping any default that no longer fits. */
   const onTypeChange = (next: FieldType) => {
@@ -2229,12 +2246,14 @@ function FieldDialog({
     setJsonValid(true);
   };
 
-  // Type-specific validity: SELECT needs >=1 valid option; RELATION needs a target.
+  // Type-specific validity: SELECT (or AI→SELECT) needs >=1 valid option;
+  // RELATION needs a target; AI needs a non-empty prompt.
   const optionsValid =
-    !isSelect ||
+    !needsOptions ||
     (options.length > 0 &&
       options.every((o) => o.label.trim() && o.value.trim()));
   const relationValid = !isRelation || relation.targetObject.trim().length > 0;
+  const aiValid = !isAi || aiPrompt.trim().length > 0;
 
   const canSubmit =
     label.trim().length > 0 &&
@@ -2242,16 +2261,17 @@ function FieldDialog({
     !keyConflict &&
     optionsValid &&
     relationValid &&
+    aiValid &&
     jsonValid &&
     !saving;
 
-  // Seed an empty option row the first time SELECT is chosen.
+  // Seed an empty option row the first time options become required.
   React.useEffect(() => {
-    if (isSelect && options.length === 0) {
+    if (needsOptions && options.length === 0) {
       setOptions([{ value: '', label: '', color: DEFAULT_OPTION_COLOR }]);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isSelect]);
+  }, [needsOptions]);
 
   /** Build the FieldMetadata payload from the current form state. */
   const buildField = (): FieldMetadata => {
@@ -2265,12 +2285,24 @@ function FieldDialog({
     if (editing?.isLabel) next.isLabel = true;
     if (editing?.icon) next.icon = editing.icon;
     if (editing?.description) next.description = editing.description;
-    if (isSelect) {
+    if (needsOptions) {
       next.options = options.map((o) => ({
         value: o.value.trim() || optionValue(o.label),
         label: o.label.trim(),
         color: o.color ?? DEFAULT_OPTION_COLOR,
       }));
+    }
+    if (isAi) {
+      // The blob rides the extras cast like `isUnique` — the engine's
+      // `settings: Option<Value>` round-trips it verbatim.
+      (next as FieldMetadata & FieldTwExtras).settings = {
+        ai: {
+          prompt: aiPrompt.trim(),
+          outputType: aiOutputType,
+          refresh: aiRefresh,
+        },
+      };
+      if (!next.icon) next.icon = 'sparkles';
     }
     if (isRelation) {
       next.relation = {
@@ -2394,7 +2426,92 @@ function FieldDialog({
           </Select>
         </Field>
 
-        {isSelect ? (
+        {isAi ? (
+          <>
+            <Field
+              label="Prompt"
+              required
+              help={
+                <span>
+                  Use <code className="font-mono">{'{{fieldKey}}'}</code> to
+                  insert this record&apos;s values.
+                </span>
+              }
+            >
+              <Textarea
+                value={aiPrompt}
+                onChange={(e) => setAiPrompt(e.target.value)}
+                placeholder={
+                  'Summarise this record in one sentence using {{name}}…'
+                }
+                rows={4}
+              />
+            </Field>
+
+            <div
+              className="flex flex-wrap items-center gap-1"
+              role="group"
+              aria-label="Insert a field token into the prompt"
+            >
+              {object.fields
+                .filter((f) => f.key !== editKey && f.key !== key.trim())
+                .map((f) => (
+                  <Button
+                    key={f.key}
+                    type="button"
+                    size="sm"
+                    variant="secondary"
+                    onClick={() =>
+                      setAiPrompt((prev) =>
+                        prev.length === 0 || prev.endsWith(' ')
+                          ? `${prev}{{${f.key}}}`
+                          : `${prev} {{${f.key}}}`,
+                      )
+                    }
+                  >
+                    {`{{${f.key}}}`}
+                  </Button>
+                ))}
+            </div>
+
+            <Field label="Output">
+              <Select
+                value={aiOutputType}
+                onValueChange={(v) => setAiOutputType(v as AiOutputType)}
+              >
+                <SelectTrigger aria-label="AI output type">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="TEXT">Text</SelectItem>
+                  <SelectItem value="NUMBER">Number</SelectItem>
+                  <SelectItem value="BOOLEAN">Boolean</SelectItem>
+                  <SelectItem value="SELECT">Select (one of the options)</SelectItem>
+                  <SelectItem value="RATING">Rating (1–5)</SelectItem>
+                </SelectContent>
+              </Select>
+            </Field>
+
+            <Field label="Refresh">
+              <Select
+                value={aiRefresh}
+                onValueChange={(v) => setAiRefresh(v as 'auto' | 'manual')}
+              >
+                <SelectTrigger aria-label="AI refresh mode">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="auto">
+                    Recompute when inputs change
+                  </SelectItem>
+                  <SelectItem value="manual">Only when asked</SelectItem>
+                </SelectContent>
+              </Select>
+            </Field>
+          </>
+        ) : null}
+
+        {needsOptions ? (
           <OptionRowsEditor options={options} onChange={setOptions} />
         ) : null}
 

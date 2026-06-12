@@ -21,6 +21,19 @@ pub const DEFAULT_LIMIT: i64 = 20;
 /// the Rust BFF (clamped to keep large-result-set DoS attempts bounded).
 pub const MAX_LIMIT: i64 = 100;
 
+/// Query string for the single-document routes (`GET` / `PATCH` /
+/// `DELETE /{holidayId}`). Carries only the SabCRM tenant scope —
+/// **required** under `ScopeMode::Project` (the
+/// `/v1/sabcrm/people/holidays` mount), ignored on the legacy
+/// `userId`-scoped mount.
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ScopeQuery {
+    /// SabCRM tenant scope (24-char hex `ObjectId`).
+    #[serde(default)]
+    pub project_id: Option<String>,
+}
+
 /// `GET /v1/crm/holidays` query string.
 ///
 /// `year` filters by calendar year (UTC) using `[Jan 1, Jan 1 next-year)`
@@ -29,6 +42,12 @@ pub const MAX_LIMIT: i64 = 100;
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ListQuery {
+    /// SabCRM tenant scope (24-char hex `ObjectId`). **Required** when
+    /// the router is mounted in `ScopeMode::Project` (the
+    /// `/v1/sabcrm/people/holidays` mount); ignored on the legacy
+    /// `userId`-scoped mount.
+    #[serde(default)]
+    pub project_id: Option<String>,
     /// 1-indexed page (matches TS). Defaults to `1`.
     #[serde(default)]
     pub page: Option<u32>,
@@ -57,8 +76,10 @@ pub struct CreateHolidayInput {
     pub project_id: Option<String>,
 
     /* ----- required ----- */
-    /// Calendar date for this holiday. ISO-8601 datetime.
-    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
+    /// Calendar date for this holiday. ISO-8601 datetime (plain chrono
+    /// serde — bson's `DateTime` deserializer only accepts extended
+    /// JSON, which the TS clients never send; the handler converts via
+    /// `bson::DateTime::from_chrono` for the Mongo write).
     pub date: DateTime<Utc>,
     /// Display name ("Republic Day", "Maharashtra Day", …).
     pub name: String,
@@ -84,11 +105,7 @@ pub struct CreateHolidayInput {
 #[derive(Debug, Clone, Default, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct UpdateHolidayInput {
-    #[serde(
-        default,
-        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub date: Option<DateTime<Utc>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
@@ -166,5 +183,26 @@ mod tests {
         let q: ListQuery =
             serde_json::from_value(serde_json::json!({ "holidayType": "regional" })).unwrap();
         assert_eq!(q.holiday_type, Some(HolidayType::Regional));
+    }
+
+    #[test]
+    fn list_query_parses_camel_case_project_id() {
+        let q: ListQuery = serde_json::from_value(serde_json::json!({
+            "projectId": "507f1f77bcf86cd799439099",
+        }))
+        .unwrap();
+        assert_eq!(q.project_id.as_deref(), Some("507f1f77bcf86cd799439099"));
+    }
+
+    #[test]
+    fn scope_query_parses_camel_case_project_id() {
+        let q: ScopeQuery = serde_json::from_value(serde_json::json!({
+            "projectId": "507f1f77bcf86cd799439099",
+        }))
+        .unwrap();
+        assert_eq!(q.project_id.as_deref(), Some("507f1f77bcf86cd799439099"));
+
+        let empty: ScopeQuery = serde_json::from_value(serde_json::json!({})).unwrap();
+        assert!(empty.project_id.is_none());
     }
 }

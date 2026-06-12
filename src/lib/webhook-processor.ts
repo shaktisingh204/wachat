@@ -1510,6 +1510,21 @@ export async function handleSingleMessageEvent(db: Db, project: WithId<Project>,
         { upsert: true },
     );
 
+    // CRM bridge: log this inbound message as a WHATSAPP activity on any
+    // matching SabCRM record (best-effort, fire-and-forget — must never block
+    // or fail the WaChat ingest). Runs only on first delivery thanks to the
+    // wamid dedup above. Kill-switch: SABCRM_INBOUND_WA_BRIDGE=0.
+    import('@/lib/sabcrm/inbound-whatsapp-bridge')
+        .then((m) => m.logInboundWhatsappToCrm({
+            tenantId: String(project.userId),
+            waId: senderWaId, // Meta sends E.164 digits without '+'
+            senderName,
+            text: lastMessageText,
+            wamid: message.id,
+            at: new Date(parseInt(message.timestamp, 10) * 1000),
+        }))
+        .catch((e: any) => console.error('[CRM bridge] inbound WA log failed:', e?.message));
+
     // Create notification for the new message
     try {
         await db.collection('notifications').insertOne({

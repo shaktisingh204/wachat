@@ -19,6 +19,17 @@ pub struct CrmTimeLog {
     #[serde(rename = "userId")]
     pub user_id: ObjectId,
 
+    /// SabCRM tenant scope — **crate-local exception** (people-suite
+    /// WI-13): on this entity `projectId` already means the WORK
+    /// project FK (the CRM project entity the time was logged against),
+    /// so the tenant scope lands as `tenantProjectId` instead. Stamped
+    /// on rows created through the project-scoped mount
+    /// (`/v1/sabcrm/people/time-logs`); absent on legacy rows — which
+    /// are therefore invisible on the project mount (accepted
+    /// clean-start; no `userId` fallback).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub tenant_project_id: Option<ObjectId>,
+
     /// Employee logging the time (separate from the tenant owner — an
     /// HR/admin may log on behalf of staff).
     #[serde(default, skip_serializing_if = "Option::is_none")]
