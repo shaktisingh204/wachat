@@ -23,6 +23,9 @@ const SPILL_FUNCTIONS = new Set([
 ]);
 /** HyperFormula-internal pseudo-functions (operator representations) — not spreadsheet functions. */
 const HF_INTERNAL = /^HF\./;
+/** HyperFormula-specific functions with implementation-defined output (faithful impls would require
+ *  reading their GPL source, which is off-limits) — excluded, not Excel/Sheets functions. */
+const HF_SPECIFIC = new Set(["INTERVAL", "ISBINARY"]);
 
 /** Tier by category: 1 = everyday, 2 = analytical, 3 = niche tail. */
 function tierOf(category: string): 1 | 2 | 3 {
@@ -118,6 +121,9 @@ async function main() {
         implemented++;
       } else if (HF_INTERNAL.test(e.name)) {
         status = "— n/a (HyperFormula-internal operator pseudo-function)";
+        internal++;
+      } else if (HF_SPECIFIC.has(e.name)) {
+        status = "— n/a (HyperFormula-specific, output format implementation-defined)";
         internal++;
       } else if (SPILL_CATEGORIES.has(cat) || SPILL_FUNCTIONS.has(e.name)) {
         status = "⛔ blocked on spill (dynamic arrays)";

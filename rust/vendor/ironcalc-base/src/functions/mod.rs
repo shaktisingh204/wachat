@@ -903,6 +903,7 @@ impl_function_lookup! {
     norminv_compat      => NormInv,
     normsinv_compat     => NormSInv,
     loginv_compat       => LogNormInv,
+    lognorminv_compat   => LogNormInv,
     gammadist_compat    => GammaDist,
     gammainv_compat     => GammaInv,
     betainv_compat      => BetaInv,

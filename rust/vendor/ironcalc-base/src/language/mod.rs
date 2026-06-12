@@ -428,6 +428,7 @@ pub struct Functions {
     pub norminv_compat: String,
     pub normsinv_compat: String,
     pub loginv_compat: String,
+    pub lognorminv_compat: String,
     pub gammadist_compat: String,
     pub gammainv_compat: String,
     pub betainv_compat: String,
