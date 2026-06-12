@@ -3,3 +3,4 @@ batch 2: unverified 344->259, live presets re-emitted 19, GraphQL-only app delet
 batch 3: unverified 259->131, live presets re-emitted 18, GraphQL/JSON-RPC apps deleted 3 (linear, monday-com, odoo)
 batch 4: unverified 131->40, live presets re-emitted 17, dead/handshake apps deleted 2 (orbit, sea-table)
 batch 5: unverified 40->0, live presets re-emitted 8 — stage 1 complete
+final: unverified 0/2846 (0.0%), audit re-run clean, all 511 preset JSONs valid, extractor tsc clean
