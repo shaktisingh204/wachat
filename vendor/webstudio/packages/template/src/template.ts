@@ -3,6 +3,8 @@ import type { WebstudioFragment } from "@webstudio-is/sdk";
 
 export const templateCategories = [
   "general",
+  // SabSites: animated, ready-made section + page templates.
+  "sections",
   "typography",
   "media",
   "animations",

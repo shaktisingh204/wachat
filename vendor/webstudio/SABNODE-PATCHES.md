@@ -121,6 +121,26 @@ Note: the published-site "Built with SabNode" badge still uses the upstream
 `Webstudio1cIcon` glyph (`packages/sdk/src/core-templates.tsx`) — only renders
 on published output, deferred with the publishing work.
 
+## SabSites animated templates ("Sections" panel)
+
+Ready-made, animated section + page templates users can drop into their pages.
+- NEW `packages/sdk/src/sabsites-templates.tsx` — 9 templates (Landing page,
+  Hero, Logo marquee, Features, Stats, Pricing, Testimonials, CTA, Footer)
+  authored in the `@webstudio-is/template` JSX format. Animations are pure CSS:
+  each template embeds a `<style>` keyframes block via `HtmlEmbed` (the style
+  model rejects `@keyframes`) and drives entrance/continuous/hover motion
+  through the `animation`/`transition` properties — no proprietary package.
+- `packages/template/src/template.ts` + `packages/sdk/src/schema/component-meta.ts`
+  — added a `"sections"` category so they get their own panel group.
+- `packages/sdk/package.json` — new `./sabsites-templates` export + esbuild entry.
+- `apps/builder/app/canvas/canvas.tsx` — `registerComponentLibrary({ templates:
+  sabsitesTemplates })`.
+- Authoring gotchas (baked into the file): the template compiler reads
+  `element.type.displayName` and does NOT expand function components or flatten
+  array children — so helper JSX must be CALLED (`Keyframes()`, not
+  `<Keyframes/>`), and children must be discrete nodes, never an array from
+  `.map`.
+
 ## Licensing
 
 - Webstudio core: AGPL-3.0-or-later. SabNode offers this modified source

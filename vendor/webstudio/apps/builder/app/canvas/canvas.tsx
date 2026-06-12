@@ -10,6 +10,7 @@ import { ErrorBoundary, type FallbackProps } from "react-error-boundary";
 import { useStore } from "@nanostores/react";
 import { type Instances, coreMetas } from "@webstudio-is/sdk";
 import { coreTemplates } from "@webstudio-is/sdk/core-templates";
+import { sabsitesTemplates } from "@webstudio-is/sdk/sabsites-templates";
 import type { Components } from "@webstudio-is/react-sdk";
 import { wsImageLoader, wsVideoLoader } from "@webstudio-is/image";
 import { ReactSdkContext } from "@webstudio-is/react-sdk/runtime";
@@ -265,6 +266,12 @@ export const Canvas = () => {
       components: {},
       metas: coreMetas,
       templates: coreTemplates,
+    });
+    // SabSites: animated section + page templates in the "Sections" panel.
+    registerComponentLibrary({
+      components: {},
+      metas: {},
+      templates: sabsitesTemplates,
     });
     registerComponentLibrary({
       components: baseComponents,

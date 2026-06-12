@@ -33,6 +33,11 @@
       "types": "./lib/types/core-templates.d.ts",
       "import": "./lib/core-templates.js"
     },
+    "./sabsites-templates": {
+      "webstudio": "./src/sabsites-templates.tsx",
+      "types": "./lib/types/sabsites-templates.d.ts",
+      "import": "./lib/sabsites-templates.js"
+    },
     "./router-path-test-data": {
       "webstudio": "./src/router-path-test-data.ts"
     }
@@ -46,7 +51,7 @@
     "typecheck": "tsgo --noEmit -p tsconfig.typecheck.json",
     "test": "vitest run",
     "build:normalize.css": "tsx --conditions=webstudio ./scripts/normalize.css.ts && prettier --write src/__generated__/normalize.css.ts",
-    "build": "rm -rf lib && esbuild src/index.ts src/runtime.ts src/link-utils.ts src/__generated__/normalize.css.ts src/core-templates.tsx --outdir=lib --bundle --format=esm --packages=external",
+    "build": "rm -rf lib && esbuild src/index.ts src/runtime.ts src/link-utils.ts src/__generated__/normalize.css.ts src/core-templates.tsx src/sabsites-templates.tsx --outdir=lib --bundle --format=esm --packages=external",
     "dts": "tsc --project tsconfig.dts.json"
   },
   "dependencies": {

@@ -23,6 +23,8 @@ export type PresetStyle<Tag extends HtmlTags = HtmlTags> = Partial<
 
 export const componentCategories = [
   "general",
+  // SabSites: animated, ready-made section + page templates.
+  "sections",
   "typography",
   "media",
   "animations",
