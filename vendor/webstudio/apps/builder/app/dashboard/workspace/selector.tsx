@@ -239,7 +239,7 @@ export const WorkspaceSelector = ({
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onSelect={() => {
-                window.open("https://webstudio.is/pricing");
+                window.open("https://sabnode.com/pricing");
               }}
             >
               <Flex align="center" gap="1">

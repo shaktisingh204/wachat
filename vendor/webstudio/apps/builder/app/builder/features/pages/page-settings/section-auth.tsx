@@ -102,7 +102,7 @@ export const AuthSection = ({
                       color="contrast"
                       underline="none"
                       target="_blank"
-                      href="https://webstudio.is/pricing"
+                      href="https://sabnode.com/pricing"
                     >
                       Upgrade
                     </Link>

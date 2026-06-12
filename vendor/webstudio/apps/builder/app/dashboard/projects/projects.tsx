@@ -150,7 +150,7 @@ export const Projects = (props: ProjectsProps) => {
           <Link
             className={buttonStyle({ color: "dark" })}
             underline="none"
-            href="https://webstudio.is/marketplace/templates/"
+            href="https://sabnode.com/templates"
             target="_blank"
             color="contrast"
           >

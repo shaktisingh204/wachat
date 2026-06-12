@@ -450,7 +450,7 @@ const Publish = ({
               <span>Build data</span>
             </Tooltip>{" "}
             for publishing has been successfully created. Use{" "}
-            <Link href="https://docs.webstudio.is/university/self-hosting/cli">
+            <Link href="https://sabnode.com/docs/sabsites">
               SabSites&nbsp;CLI
             </Link>{" "}
             to generate the code.
@@ -778,7 +778,7 @@ const UpgradeBanner = ({ hasCustomDomains }: { hasCustomDomains: boolean }) => {
           className={buttonStyle({ color: "gradient" })}
           color="contrast"
           underline="none"
-          href="https://webstudio.is/pricing"
+          href="https://sabnode.com/pricing"
           target="_blank"
         >
           Upgrade
@@ -842,7 +842,7 @@ const UpgradeBanner = ({ hasCustomDomains }: { hasCustomDomains: boolean }) => {
           <Link
             color="inherit"
             target="_blank"
-            href="https://webstudio.is/pricing"
+            href="https://sabnode.com/pricing"
           >
             Upgrade to Pro
           </Link>
@@ -864,7 +864,7 @@ const UpgradeBanner = ({ hasCustomDomains }: { hasCustomDomains: boolean }) => {
           <Link
             color="inherit"
             target="_blank"
-            href="https://webstudio.is/pricing"
+            href="https://sabnode.com/pricing"
           >
             Upgrade to Pro
           </Link>
@@ -1036,7 +1036,7 @@ const ExportContent = (props: { projectId: Project["id"] }) => {
             <Link
               variant="inherit"
               color="inherit"
-              href="https://wstd.us/ssg"
+              href="https://sabnode.com/docs/sabsites"
               target="_blank"
               rel="noreferrer"
             >
@@ -1159,7 +1159,7 @@ const ExportContent = (props: { projectId: Project["id"] }) => {
               <Link
                 variant="inherit"
                 color="inherit"
-                href="https://wstd.us/cli"
+                href="https://sabnode.com/docs/sabsites"
                 target="_blank"
                 rel="noreferrer"
               >

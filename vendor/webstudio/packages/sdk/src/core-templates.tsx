@@ -106,7 +106,7 @@ const blockMeta: TemplateMeta = {
         <ws.element
           ws:label="Link"
           ws:tag="a"
-          href="https://wstd.us/content-block"
+          href="https://sabnode.com/docs/sabsites"
         >
           Content mode
         </ws.element>
@@ -363,14 +363,14 @@ const forms: Record<string, TemplateMeta> = {
 const builtWithWebstudioMeta: TemplateMeta = {
   category: "other",
   description:
-    "A “Built with Webstudio” badge should be added to every project page on the free plan. This helps Webstudio spread awareness as a platform.",
+    "A “Built with SabNode” badge should be added to every project page on the free plan. This helps SabNode spread awareness as a platform.",
   icon: Webstudio1cIcon,
   template: (
     <ws.element
       ws:tag="a"
-      ws:label="Built with Webstudio"
+      ws:label="Built with SabNode"
       // If you change this, you need to also update this link in publish checks
-      href="https://webstudio.is/?via=badge"
+      href="https://sabnode.com/?via=badge"
       target="_blank"
       ws:style={css`
         display: inline-flex;
@@ -415,7 +415,7 @@ const builtWithWebstudioMeta: TemplateMeta = {
         `}
       ></$.HtmlEmbed>
       <ws.element ws:tag="div" ws:label="Text">
-        Built with Webstudio
+        Built with SabNode
       </ws.element>
     </ws.element>
   ),

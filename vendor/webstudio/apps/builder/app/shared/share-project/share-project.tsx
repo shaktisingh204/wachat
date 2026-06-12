@@ -64,7 +64,7 @@ const PricingUpgradeLink = ({
     className={buttonStyle({ color: "gradient" })}
     color="contrast"
     underline="none"
-    href="https://webstudio.is/pricing"
+    href="https://sabnode.com/pricing"
     target="_blank"
   >
     {children}
@@ -79,7 +79,7 @@ export const ShareLinkSecurityNotice = () => (
     </Text>
     <Flex align="center" gap={1}>
       <UpgradeIcon />
-      <Link color="inherit" target="_blank" href="https://webstudio.is/pricing">
+      <Link color="inherit" target="_blank" href="https://sabnode.com/pricing">
         Upgrade
       </Link>
     </Flex>

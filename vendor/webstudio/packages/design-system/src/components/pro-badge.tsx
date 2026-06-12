@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { css, theme, type CSS } from "../stitches.config";
 import { textVariants } from "./text";
 
-const pricingUrl = "https://webstudio.is/pricing";
+const pricingUrl = "https://sabnode.com/pricing";
 
 const style = css(textVariants.labels, {
   display: "inline-grid",

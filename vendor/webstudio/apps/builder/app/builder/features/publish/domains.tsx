@@ -459,7 +459,7 @@ const DomainItem = ({
                 one TXT record with the values shown below.{" "}
                 <Link
                   color="inherit"
-                  href="https://docs.webstudio.is/university/foundations/publishing-and-custom-domains"
+                  href="https://sabnode.com/docs/sabsites"
                   target="_blank"
                   rel="noreferrer"
                 >

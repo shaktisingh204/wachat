@@ -271,7 +271,7 @@ const InvalidCollectionDataStub = forwardRef<
       <a
         style={{ color: "inherit" }}
         target="_blank"
-        href="https://docs.webstudio.is/university/core-components/collection#whats-an-array"
+        href="https://sabnode.com/docs/sabsites"
         // avoid preventing click by events interceptor
         onClickCapture={(event) => event.stopPropagation()}
       >

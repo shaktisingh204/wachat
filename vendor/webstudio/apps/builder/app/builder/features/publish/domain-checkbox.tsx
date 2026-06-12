@@ -70,7 +70,7 @@ export const DomainCheckbox = (props: DomainCheckboxProps) => {
               className={buttonStyle({ color: "gradient" })}
               color="contrast"
               underline="none"
-              href="https://webstudio.is/pricing"
+              href="https://sabnode.com/pricing"
               target="_blank"
             >
               Upgrade

@@ -56,7 +56,7 @@ export const SettingsPanel = ({
             <Link
               color="inherit"
               target="_blank"
-              href="https://webstudio.is/pricing"
+              href="https://sabnode.com/pricing"
             >
               Upgrade to Pro
             </Link>
