@@ -51,6 +51,7 @@ import { SabsmsDetailDrawer, SabsmsKbdHint } from "@/components/sabsms/page-tool
 import { formatUTC } from "@/lib/utils";
 
 import { AiRewriteToolbar } from "./ai-rewrite";
+import { DltScrubPanel, type DltBindingRegistry } from "./dlt-scrub-panel";
 import { TemplatePreview } from "./preview";
 import {
   diffAgainstPublished,
@@ -94,13 +95,21 @@ function piiScrub(body: string): string {
     .replace(/[\w.+-]+@[\w-]+\.[\w.-]+/g, "[REDACTED_EMAIL]");
 }
 
+const EMPTY_DLT_REGISTRY: DltBindingRegistry = { templates: [], headers: [] };
+
 export interface TemplateEditorProps {
   initial: TemplateEditorViewModel;
   /** Indicates `id === "new"`. */
   isNew: boolean;
+  /** Workspace DLT registry (V2.8) — drives the live scrub card. */
+  dltRegistry?: DltBindingRegistry;
 }
 
-export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
+export function TemplateEditor({
+  initial,
+  isNew,
+  dltRegistry = EMPTY_DLT_REGISTRY,
+}: TemplateEditorProps) {
   const router = useRouter();
   const [vm, setVm] = useState<TemplateEditorViewModel>(initial);
   const [activeLocale, setActiveLocale] = useState<LocaleCode>(
@@ -914,6 +923,33 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
               sampleVars={sampleVars}
               metadata={vm.metadata}
             />
+
+            {/* Live DLT scrub (V2.8) — shown when the workspace has DLT
+                templates registered OR this template already carries
+                DLT fields. */}
+            {(dltRegistry.templates.length > 0 ||
+              Boolean(
+                vm.metadata.dlt.templateId ||
+                  vm.metadata.dlt.headerId ||
+                  vm.metadata.dlt.principalEntityId ||
+                  vm.metadata.dlt.contentCategory,
+              )) && (
+              <DltScrubPanel
+                registry={dltRegistry}
+                body={activeBody}
+                templateId={vm.metadata.dlt.templateId}
+                headerId={vm.metadata.dlt.headerId}
+                onBind={(patch) =>
+                  setVm((p) => ({
+                    ...p,
+                    metadata: {
+                      ...p.metadata,
+                      dlt: { ...p.metadata.dlt, ...patch },
+                    },
+                  }))
+                }
+              />
+            )}
 
             <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3 space-y-2">
               <div className="flex flex-wrap items-center gap-2">
