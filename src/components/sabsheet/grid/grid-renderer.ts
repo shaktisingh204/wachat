@@ -266,10 +266,16 @@ export class GridRenderer {
         const tx = align === "center" ? x + w / 2 : align === "right" ? x + w - 4 : x + 4;
         const ty = y + h / 2;
 
-        ctx.save();
-        ctx.beginPath();
-        ctx.rect(x + 1, y, w - 3, h);
-        ctx.clip();
+        // save/clip/restore per cell is the hottest part of the paint. Skip it when the text
+        // obviously fits (conservative ~9px/char upper bound at 13px system font, 10px when bold) —
+        // the common short-cell case then draws with zero canvas state churn.
+        const fits = cell.text.length * (cell.bold ? 10 : 9) <= w - 8;
+        if (!fits) {
+          ctx.save();
+          ctx.beginPath();
+          ctx.rect(x + 1, y, w - 3, h);
+          ctx.clip();
+        }
         ctx.fillText(cell.text, tx, ty);
         if (cell.underline) {
           const tw = ctx.measureText(cell.text).width;
@@ -282,7 +288,7 @@ export class GridRenderer {
           ctx.lineTo(ux + tw, uy);
           ctx.stroke();
         }
-        ctx.restore();
+        if (!fits) ctx.restore();
       }
     }
     // Leave shared text state at the renderer's defaults so header passes are unaffected.
