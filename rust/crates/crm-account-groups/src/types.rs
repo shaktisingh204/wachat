@@ -20,6 +20,15 @@ pub struct CrmAccountGroup {
     #[serde(rename = "userId")]
     pub user_id: ObjectId,
 
+    /// SabCRM tenancy scope — stamped on documents created through the
+    /// project (`/v1/sabcrm/finance/*`) mounts; absent on legacy rows.
+    #[serde(
+        rename = "projectId",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub project_id: Option<ObjectId>,
+
     /// Human label, e.g. "Current Assets", "Sales", "Operating Expenses".
     pub name: String,
 

@@ -186,3 +186,62 @@ export interface SabcrmReconciliationFormInput {
   accountId?: string;
   notes?: string;
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+ * Finance tranche 3 — dialog payloads for the accounting/compliance
+ * entities (chart of accounts, journal entries, TDS records).
+ * ═══════════════════════════════════════════════════════════════════ */
+
+/** The "New account" (chart-of-accounts ledger head) dialog payload. */
+export interface SabcrmChartOfAccountFormInput {
+  /** Display name, e.g. `Cash in Hand`. Required. */
+  name: string;
+  /** `asset` | `liability` | `income` | `expense` | `equity`. Required. */
+  accountType: string;
+  /** Optional short ledger code, e.g. `1000`. */
+  code?: string;
+  /** Opening balance. Defaults to `0`. */
+  openingBalance?: number;
+  /** ISO-4217 code. */
+  currency?: string;
+}
+
+/**
+ * The "New journal entry" dialog payload — a simple 2-line balanced
+ * entry (one debit account, one credit account, one amount). The action
+ * expands it into the line-based Rust DTO and finds-or-creates the
+ * project's default Journal voucher book for `voucherBookId`.
+ */
+export interface SabcrmJournalEntryFormInput {
+  /** Debit-side chart-of-account id (24-char hex). Required. */
+  debitAccountId: string;
+  /** Credit-side chart-of-account id (24-char hex). Required. */
+  creditAccountId: string;
+  /** Posted to BOTH sides (entry stays balanced). Required, > 0. */
+  amount: number;
+  /** Entry date (ISO string, e.g. `2026-06-12`). Required. */
+  date: string;
+  /** Voucher number; auto-generated (`JV-<timestamp>`) when omitted. */
+  voucherNumber?: string;
+  narration?: string;
+  /** `posted` (default) | `draft`. */
+  status?: string;
+}
+
+/** The "New TDS record" dialog payload. */
+export interface SabcrmTdsFormInput {
+  /** Deductee name. Required. */
+  employeeName: string;
+  /** e.g. `2026-27`. Required. */
+  financialYear: string;
+  /** `Q1` | `Q2` | `Q3` | `Q4`. Required. */
+  quarter: string;
+  /** TDS deducted. Required, finite, ≥ 0. */
+  tdsAmount: number;
+  /** Gross amount the TDS was deducted on. Defaults to `0`. */
+  grossAmount?: number;
+  certificateNumber?: string;
+  depositChallanNumber?: string;
+  /** `pending` (default) | `deposited` | `filed`. */
+  status?: string;
+}

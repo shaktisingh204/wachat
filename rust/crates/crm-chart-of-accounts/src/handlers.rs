@@ -1,7 +1,7 @@
 //! HTTP handlers for the Chart of Account entity.
 
 use axum::{
-    Json,
+    Extension, Json,
     extract::{Path, Query, State},
 };
 use bson::{DateTime as BsonDateTime, Document, doc, oid::ObjectId};
@@ -12,6 +12,7 @@ use crm_common::{
     search::build_q_filter,
     tenant::user_oid,
 };
+use crm_core::{ScopeMode, TenantScope, sabcrm_project_oid};
 use futures::TryStreamExt;
 use mongodb::options::FindOptions;
 use sabnode_auth::AuthUser;
@@ -20,7 +21,8 @@ use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
 use tracing::instrument;
 
 use crate::dto::{
-    CreateAccountInput, CreateAccountResponse, DeleteAccountResponse, ListQuery, UpdateAccountInput,
+    CreateAccountInput, CreateAccountResponse, DeleteAccountResponse, ListQuery, ScopeQuery,
+    UpdateAccountInput,
 };
 use crate::types::CrmChartOfAccount;
 
@@ -29,13 +31,27 @@ const ENTITY_KIND: &str = "chart_of_account";
 
 const ALLOWED_TYPES: &[&str] = &["asset", "liability", "income", "expense", "equity"];
 
+/// Resolve the per-request tenant scope from the mount's [`ScopeMode`]:
+/// legacy mounts filter by the JWT's `userId`, SabCRM mounts by the
+/// caller-supplied (required) `projectId`.
+fn resolve_scope(
+    mode: ScopeMode,
+    user: &AuthUser,
+    project_id: Option<&str>,
+) -> Result<TenantScope> {
+    match mode {
+        ScopeMode::User => Ok(TenantScope::User(user_oid(user)?)),
+        ScopeMode::Project => Ok(TenantScope::Project(sabcrm_project_oid(project_id)?)),
+    }
+}
+
 fn list_filter(
-    user_id: ObjectId,
+    scope: &TenantScope,
     status: Option<&str>,
     account_type: Option<&str>,
     account_group_id: Option<&str>,
 ) -> Document {
-    let mut filter = doc! { "userId": user_id };
+    let mut filter = scope.filter();
     match status.unwrap_or("active_visible") {
         "all" => {}
         "archived" => {
@@ -61,8 +77,10 @@ fn list_filter(
     filter
 }
 
-fn ownership_filter(user_id: ObjectId, oid: ObjectId) -> Document {
-    doc! { "_id": oid, "userId": user_id }
+fn ownership_filter(scope: &TenantScope, oid: ObjectId) -> Document {
+    let mut filter = scope.filter();
+    filter.insert("_id", oid);
+    filter
 }
 
 fn normalize_type(t: &str) -> Option<String> {
@@ -89,6 +107,7 @@ fn account_from_create(input: CreateAccountInput, user_id: ObjectId) -> Result<C
     Ok(CrmChartOfAccount {
         id: None,
         user_id,
+        project_id: None,
         name: name.to_owned(),
         code: input
             .code
@@ -183,12 +202,13 @@ pub struct ListResponse {
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn list_accounts(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Query(q): Query<ListQuery>,
 ) -> Result<Json<ListResponse>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, q.project_id.as_deref())?;
     let mut filter = list_filter(
-        user_id,
+        &scope,
         q.status.as_deref(),
         q.account_type.as_deref(),
         q.account_group_id.as_deref(),
@@ -228,14 +248,16 @@ pub async fn list_accounts(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %account_id))]
 pub async fn get_account(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(account_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
 ) -> Result<Json<CrmChartOfAccount>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&account_id)?;
     let coll = mongo.collection::<CrmChartOfAccount>(COLL);
     let row = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_chart_of_accounts.find_one"))
@@ -247,11 +269,18 @@ pub async fn get_account(
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn create_account(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Json(input): Json<CreateAccountInput>,
 ) -> Result<Json<CreateAccountResponse>> {
+    let scope = resolve_scope(mode, &user, input.project_id.as_deref())?;
+    // `userId` is always stamped from the JWT (audit trail + entity
+    // field); `projectId` is stamped only on SabCRM (project) mounts.
     let user_id = user_oid(&user)?;
     let mut entity = account_from_create(input, user_id)?;
+    if let TenantScope::Project(project_oid) = scope {
+        entity.project_id = Some(project_oid);
+    }
     let coll = mongo.collection::<CrmChartOfAccount>(COLL);
     let inserted = coll.insert_one(&entity).await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("crm_chart_of_accounts.insert"))
@@ -274,15 +303,17 @@ pub async fn create_account(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %account_id))]
 pub async fn update_account(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(account_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
     Json(patch): Json<UpdateAccountInput>,
 ) -> Result<Json<CrmChartOfAccount>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&account_id)?;
     let coll = mongo.collection::<CrmChartOfAccount>(COLL);
     let before = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_chart_of_accounts.find_one"))
@@ -290,7 +321,7 @@ pub async fn update_account(
         .ok_or_else(|| ApiError::NotFound(ENTITY_KIND.to_owned()))?;
     let update = build_update_doc(patch)?;
     let result = coll
-        .update_one(ownership_filter(user_id, oid), update)
+        .update_one(ownership_filter(&scope, oid), update)
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_chart_of_accounts.update"))
@@ -299,7 +330,7 @@ pub async fn update_account(
         return Err(ApiError::NotFound(ENTITY_KIND.to_owned()));
     }
     let after = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_chart_of_accounts.refetch"))
@@ -320,15 +351,17 @@ pub async fn update_account(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %account_id))]
 pub async fn delete_account(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(account_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
 ) -> Result<Json<DeleteAccountResponse>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&account_id)?;
     let coll = mongo.collection::<CrmChartOfAccount>(COLL);
     let result = coll
         .update_one(
-            ownership_filter(user_id, oid),
+            ownership_filter(&scope, oid),
             doc! { "$set": {
                 "status": "archived",
                 "isActive": false,
@@ -355,11 +388,19 @@ mod tests {
     #[test]
     fn list_filter_excludes_archived_by_default() {
         let oid = ObjectId::new();
-        let f = list_filter(oid, None, None, None);
+        let f = list_filter(&TenantScope::User(oid), None, None, None);
         assert!(f.contains_key("status"));
         let status = f.get("status").unwrap();
         // default is `{ "$ne": "archived" }`, not a plain string.
         assert!(status.as_document().is_some());
+    }
+
+    #[test]
+    fn list_filter_scopes_by_project_on_sabcrm_mounts() {
+        let oid = ObjectId::new();
+        let f = list_filter(&TenantScope::Project(oid), None, None, None);
+        assert_eq!(f.get_object_id("projectId").unwrap(), oid);
+        assert!(!f.contains_key("userId"));
     }
 
     #[test]

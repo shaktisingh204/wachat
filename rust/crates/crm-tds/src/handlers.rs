@@ -1,7 +1,7 @@
 //! HTTP handlers for the TDS Record entity.
 
 use axum::{
-    Json,
+    Extension, Json,
     extract::{Path, Query, State},
 };
 use bson::{DateTime as BsonDateTime, Document, doc, oid::ObjectId};
@@ -12,6 +12,7 @@ use crm_common::{
     search::build_q_filter,
     tenant::user_oid,
 };
+use crm_core::{ScopeMode, TenantScope, sabcrm_project_oid};
 use futures::TryStreamExt;
 use mongodb::options::FindOptions;
 use sabnode_auth::AuthUser;
@@ -20,7 +21,7 @@ use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
 use tracing::instrument;
 
 use crate::dto::{
-    CreateTdsRecordInput, CreateTdsRecordResponse, DeleteTdsRecordResponse, ListQuery,
+    CreateTdsRecordInput, CreateTdsRecordResponse, DeleteTdsRecordResponse, ListQuery, ScopeQuery,
     UpdateTdsRecordInput,
 };
 use crate::types::CrmTdsRecord;
@@ -41,8 +42,22 @@ fn parse_iso_date(s: &str) -> Result<BsonDateTime> {
         .map_err(|_| ApiError::Validation(format!("invalid date '{s}'")))
 }
 
-fn list_filter(user_id: ObjectId, q: &ListQuery) -> Document {
-    let mut filter = doc! { "userId": user_id };
+/// Resolve the per-request tenant scope from the mount's [`ScopeMode`]:
+/// legacy mounts filter by the JWT's `userId`, SabCRM mounts by the
+/// caller-supplied (required) `projectId`.
+fn resolve_scope(
+    mode: ScopeMode,
+    user: &AuthUser,
+    project_id: Option<&str>,
+) -> Result<TenantScope> {
+    match mode {
+        ScopeMode::User => Ok(TenantScope::User(user_oid(user)?)),
+        ScopeMode::Project => Ok(TenantScope::Project(sabcrm_project_oid(project_id)?)),
+    }
+}
+
+fn list_filter(scope: &TenantScope, q: &ListQuery) -> Document {
+    let mut filter = scope.filter();
     match q.status.as_deref().unwrap_or("active_visible") {
         "all" => {}
         "archived" => {
@@ -69,8 +84,10 @@ fn list_filter(user_id: ObjectId, q: &ListQuery) -> Document {
     filter
 }
 
-fn ownership_filter(user_id: ObjectId, oid: ObjectId) -> Document {
-    doc! { "_id": oid, "userId": user_id }
+fn ownership_filter(scope: &TenantScope, oid: ObjectId) -> Document {
+    let mut filter = scope.filter();
+    filter.insert("_id", oid);
+    filter
 }
 
 fn entity_from_create(input: CreateTdsRecordInput, user_id: ObjectId) -> Result<CrmTdsRecord> {
@@ -99,6 +116,7 @@ fn entity_from_create(input: CreateTdsRecordInput, user_id: ObjectId) -> Result<
     Ok(CrmTdsRecord {
         id: None,
         user_id,
+        project_id: None,
         employee_id: input.employee_id,
         employee_name: input.employee_name.trim().to_string(),
         financial_year: input.financial_year.trim().to_string(),
@@ -177,11 +195,12 @@ pub struct ListResponse {
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn list_tds(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Query(q): Query<ListQuery>,
 ) -> Result<Json<ListResponse>> {
-    let user_id = user_oid(&user)?;
-    let mut filter = list_filter(user_id, &q);
+    let scope = resolve_scope(mode, &user, q.project_id.as_deref())?;
+    let mut filter = list_filter(&scope, &q);
     if let Some(needle) = q.q.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
         let or = build_q_filter(
             needle,
@@ -232,14 +251,16 @@ pub async fn list_tds(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %record_id))]
 pub async fn get_tds(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(record_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
 ) -> Result<Json<CrmTdsRecord>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&record_id)?;
     let coll = mongo.collection::<CrmTdsRecord>(COLL);
     let row = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_tds.find_one")))?
         .ok_or_else(|| ApiError::NotFound("tds_record".to_owned()))?;
@@ -249,11 +270,18 @@ pub async fn get_tds(
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn create_tds(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Json(input): Json<CreateTdsRecordInput>,
 ) -> Result<Json<CreateTdsRecordResponse>> {
+    let scope = resolve_scope(mode, &user, input.project_id.as_deref())?;
+    // `userId` is always stamped from the JWT (audit trail + entity
+    // field); `projectId` is stamped only on SabCRM (project) mounts.
     let user_id = user_oid(&user)?;
     let mut entity = entity_from_create(input, user_id)?;
+    if let TenantScope::Project(project_oid) = scope {
+        entity.project_id = Some(project_oid);
+    }
     let coll = mongo.collection::<CrmTdsRecord>(COLL);
     let inserted = coll
         .insert_one(&entity)
@@ -279,23 +307,25 @@ pub async fn create_tds(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %record_id))]
 pub async fn update_tds(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(record_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
     Json(patch): Json<UpdateTdsRecordInput>,
 ) -> Result<Json<CrmTdsRecord>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&record_id)?;
 
     let coll = mongo.collection::<CrmTdsRecord>(COLL);
     let before = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_tds.find_one")))?
         .ok_or_else(|| ApiError::NotFound("tds_record".to_owned()))?;
 
     let update = build_update_doc(patch)?;
     let result = coll
-        .update_one(ownership_filter(user_id, oid), update)
+        .update_one(ownership_filter(&scope, oid), update)
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_tds.update")))?;
     if result.matched_count == 0 {
@@ -303,7 +333,7 @@ pub async fn update_tds(
     }
 
     let after = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_tds.refetch")))?
         .ok_or_else(|| ApiError::NotFound("tds_record".to_owned()))?;
@@ -324,16 +354,18 @@ pub async fn update_tds(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %record_id))]
 pub async fn delete_tds(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(record_id): Path<String>,
+    Query(sq): Query<ScopeQuery>,
 ) -> Result<Json<DeleteTdsRecordResponse>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, sq.project_id.as_deref())?;
     let oid = oid_from_str(&record_id)?;
 
     let coll = mongo.collection::<CrmTdsRecord>(COLL);
     let result = coll
         .update_one(
-            ownership_filter(user_id, oid),
+            ownership_filter(&scope, oid),
             doc! { "$set": {
                 "status": "archived",
                 "updatedAt": BsonDateTime::from_chrono(Utc::now()),
@@ -360,8 +392,17 @@ mod tests {
     fn list_filter_excludes_archived_by_default() {
         let oid = ObjectId::new();
         let q = ListQuery::default();
-        let f = list_filter(oid, &q);
+        let f = list_filter(&TenantScope::User(oid), &q);
         assert!(f.contains_key("status"));
+    }
+
+    #[test]
+    fn list_filter_scopes_by_project_on_sabcrm_mounts() {
+        let oid = ObjectId::new();
+        let q = ListQuery::default();
+        let f = list_filter(&TenantScope::Project(oid), &q);
+        assert_eq!(f.get_object_id("projectId").unwrap(), oid);
+        assert!(!f.contains_key("userId"));
     }
 
     #[test]

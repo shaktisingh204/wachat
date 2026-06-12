@@ -42,32 +42,52 @@ export interface OutboxOptions {
   workbookId: string;
   store: OutboxStore;
   flush: FlushFn;
+  /** Produces the current full-workbook snapshot — called once per debounced persist, NOT per edit. */
+  snapshot: () => Promise<Uint8Array>;
   /** Reports whether the network is currently believed reachable. */
   isOnline: () => boolean;
   onStateChange?: (state: SyncState, pending: number) => void;
+  /**
+   * Trailing debounce before buffered edits are persisted (ms). Default 400. Negative disables the
+   * timer entirely (tests drive persistence via `flushNow()`).
+   */
+  debounceMs?: number;
 }
 
 /**
- * Manages the local cache + the queue of un-synced batches for one workbook. Call `record` after every
- * local edit; call `flush` on reconnect (or after each edit when online).
+ * Manages the local cache + the queue of un-synced batches for one workbook.
+ *
+ * `record(commands)` is **synchronous and cheap** — it only appends to an in-memory buffer, so the
+ * grid's interaction path never pays for serialization, IndexedDB, or the network. A trailing
+ * debounce then coalesces the burst into ONE queued batch + ONE snapshot + ONE server call.
+ * `flushNow()` forces the persist (Ctrl+S, pagehide/visibilitychange). Buffered edits count as
+ * pending so the inbound collab sync defers while local work is unsent.
  */
 export class OfflineOutbox {
   private readonly workbookId: string;
   private readonly store: OutboxStore;
   private readonly flushFn: FlushFn;
+  private readonly snapshotFn: () => Promise<Uint8Array>;
   private readonly isOnline: () => boolean;
   private readonly onStateChange?: (state: SyncState, pending: number) => void;
+  private readonly debounceMs: number;
 
   private nextId = 1;
   private flushing = false;
   private conflicted = false;
+  /** Edits accepted by `record` but not yet committed to the durable queue. */
+  private buffer: Command[] = [];
+  private timer: ReturnType<typeof setTimeout> | null = null;
+  private committing = false;
 
   constructor(opts: OutboxOptions) {
     this.workbookId = opts.workbookId;
     this.store = opts.store;
     this.flushFn = opts.flush;
+    this.snapshotFn = opts.snapshot;
     this.isOnline = opts.isOnline;
     this.onStateChange = opts.onStateChange;
+    this.debounceMs = opts.debounceMs ?? 400;
   }
 
   /** Restore the local snapshot cached on this device (used when the server is unreachable). */
@@ -89,15 +109,53 @@ export class OfflineOutbox {
   }
 
   /**
-   * Record a local edit: cache the fresh engine snapshot and queue the batch. Then attempt to flush.
-   * The batch is durably queued *before* any network attempt, so a crash/refresh never loses it.
+   * Record a local edit. Synchronous + O(1): appends to the in-memory buffer and arms the trailing
+   * debounce. All expensive work (snapshot, IndexedDB, network) happens later in `persistBuffer`.
    */
-  async record(commands: Command[], snapshot: Uint8Array): Promise<void> {
-    const batch: QueuedBatch = { id: this.nextId++, commands };
-    await this.store.enqueue(this.workbookId, batch);
-    // Cache snapshot at the last-known seq; the real seq advances only on successful flush.
-    const seq = await this.store.getSeq(this.workbookId);
-    await this.store.setSnapshot(this.workbookId, snapshot, seq);
+  record(commands: Command[]): void {
+    this.buffer.push(...commands);
+    void this.emit();
+    if (this.debounceMs < 0) return; // timer disabled — tests call flushNow()
+    if (this.timer) clearTimeout(this.timer);
+    this.timer = setTimeout(() => void this.persistBuffer(), this.debounceMs);
+  }
+
+  /** Force-persist any buffered edits and push the queue (Ctrl+S, pagehide, reconnect). */
+  async flushNow(): Promise<void> {
+    if (this.timer) {
+      clearTimeout(this.timer);
+      this.timer = null;
+    }
+    await this.persistBuffer();
+  }
+
+  /**
+   * Commit the buffered burst as ONE durable batch + ONE snapshot, then try to push the queue.
+   * Edits recorded while a persist is in flight stay buffered for the next cycle.
+   */
+  private async persistBuffer(): Promise<void> {
+    if (this.committing) return; // in flight — the next record()/flushNow() picks up the remainder
+    if (this.buffer.length === 0) {
+      await this.flush();
+      return;
+    }
+    this.committing = true;
+    try {
+      const commands = this.buffer;
+      this.buffer = [];
+      const batch: QueuedBatch = { id: this.nextId++, commands };
+      await this.store.enqueue(this.workbookId, batch);
+      // Cache the snapshot at the last-known seq; the real seq advances only on successful flush.
+      try {
+        const snapshot = await this.snapshotFn();
+        const seq = await this.store.getSeq(this.workbookId);
+        await this.store.setSnapshot(this.workbookId, snapshot, seq);
+      } catch {
+        /* snapshot is the offline-restore cache — a miss degrades restore, never edits */
+      }
+    } finally {
+      this.committing = false;
+    }
     await this.flush();
   }
 
@@ -139,14 +197,20 @@ export class OfflineOutbox {
     }
   }
 
-  /** Number of batches still waiting to sync. */
+  /** Batches waiting to sync — buffered-but-uncommitted edits count as one pending batch. */
   async pendingCount(): Promise<number> {
-    return (await this.store.list(this.workbookId)).length;
+    const queued = (await this.store.list(this.workbookId)).length;
+    return queued + (this.buffer.length > 0 ? 1 : 0);
   }
 
-  /** After a conflict, the caller re-bootstraps from the server snapshot and clears the queue. */
+  /** After a conflict, the caller re-bootstraps from the server snapshot and clears local edits. */
   async resolveConflict(serverSeq: number): Promise<void> {
     this.conflicted = false;
+    this.buffer = [];
+    if (this.timer) {
+      clearTimeout(this.timer);
+      this.timer = null;
+    }
     await this.store.clearQueue(this.workbookId);
     await this.store.setSeq(this.workbookId, serverSeq);
     await this.emit();

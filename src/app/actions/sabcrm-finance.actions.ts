@@ -50,6 +50,10 @@ import {
   sabcrmFinancePettyCashApi,
   sabcrmFinanceBudgetsApi,
   sabcrmFinanceReconciliationApi,
+  sabcrmFinanceAccountsApi,
+  sabcrmFinanceAccountGroupsApi,
+  sabcrmFinanceJournalEntriesApi,
+  sabcrmFinanceTdsApi,
 } from '@/lib/rust-client/sabcrm-finance';
 import type {
   SabcrmInvoiceDoc,
@@ -102,6 +106,17 @@ import type {
   SabcrmReconciliationDoc,
   SabcrmReconciliationListParams,
   SabcrmReconciliationCreateInput,
+  SabcrmChartOfAccountDoc,
+  SabcrmChartOfAccountListParams,
+  SabcrmChartOfAccountCreateInput,
+  SabcrmAccountGroupDoc,
+  SabcrmAccountGroupListParams,
+  SabcrmJournalEntryDoc,
+  SabcrmJournalEntryListParams,
+  SabcrmJournalEntryCreateInput,
+  SabcrmTdsRecordDoc,
+  SabcrmTdsListParams,
+  SabcrmTdsCreateInput,
 } from '@/lib/rust-client/sabcrm-finance';
 import type { ActionResult } from '@/lib/sabcrm/types';
 import type {
@@ -117,6 +132,9 @@ import type {
   SabcrmPettyCashFormInput,
   SabcrmBudgetFormInput,
   SabcrmReconciliationFormInput,
+  SabcrmChartOfAccountFormInput,
+  SabcrmJournalEntryFormInput,
+  SabcrmTdsFormInput,
 } from './sabcrm-finance.actions.types';
 
 // ---------------------------------------------------------------------------
@@ -2071,5 +2089,329 @@ export async function deleteSabcrmReconciliation(
     return { ok: true, data: { ok: res.deleted } };
   } catch (e) {
     return fail(e, 'Failed to delete reconciliation run.');
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+ * Finance tranche 3 — accounting/compliance entities (chart of
+ * accounts, account groups, journal entries, TDS records). Same gated
+ * pipeline; crates re-mounted at `/v1/sabcrm/finance/*`.
+ * ═══════════════════════════════════════════════════════════════════ */
+
+/* ─── Chart of accounts ───────────────────────────────────────── */
+
+const FINANCE_ACCOUNTS_PATH = '/sabcrm/finance/accounts';
+
+const ACCOUNT_TYPES = new Set([
+  'asset',
+  'liability',
+  'income',
+  'expense',
+  'equity',
+]);
+
+/** Lists the project's chart-of-account ledger heads. */
+export async function listSabcrmChartOfAccounts(
+  params?: SabcrmChartOfAccountListParams,
+  projectId?: string,
+): Promise<ActionResult<SabcrmChartOfAccountDoc[]>> {
+  const g = await gate('view', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+  try {
+    const res = await sabcrmFinanceAccountsApi.list(g.ctx.projectId, params);
+    return { ok: true, data: res.items };
+  } catch (e) {
+    return fail(e, 'Failed to list accounts.');
+  }
+}
+
+/** Creates a ledger account from the "New account" dialog payload. */
+export async function createSabcrmChartOfAccount(
+  input: SabcrmChartOfAccountFormInput,
+  projectId?: string,
+): Promise<ActionResult<SabcrmChartOfAccountDoc>> {
+  if (!input?.name?.trim()) {
+    return { ok: false, error: 'An account name is required.' };
+  }
+  const accountType = input.accountType?.trim().toLowerCase();
+  if (!accountType || !ACCOUNT_TYPES.has(accountType)) {
+    return {
+      ok: false,
+      error:
+        'Account type must be asset, liability, income, expense or equity.',
+    };
+  }
+  const openingBalance =
+    input.openingBalance !== undefined ? Number(input.openingBalance) : 0;
+  if (!Number.isFinite(openingBalance)) {
+    return { ok: false, error: 'Opening balance must be a number.' };
+  }
+
+  const g = await gate('create', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const wire: SabcrmChartOfAccountCreateInput = {
+      name: input.name.trim(),
+      accountType:
+        accountType as SabcrmChartOfAccountCreateInput['accountType'],
+      code: input.code?.trim() || undefined,
+      openingBalance,
+      currency: input.currency?.trim()
+        ? input.currency.trim().toUpperCase()
+        : undefined,
+    };
+    const created = await sabcrmFinanceAccountsApi.create(
+      g.ctx.projectId,
+      wire,
+    );
+    revalidatePath(FINANCE_ACCOUNTS_PATH);
+    return { ok: true, data: created.entity };
+  } catch (e) {
+    return fail(e, 'Failed to create account.');
+  }
+}
+
+/** Archives a ledger account (crm-common-style soft delete). */
+export async function deleteSabcrmChartOfAccount(
+  id: string,
+  projectId?: string,
+): Promise<ActionResult<{ ok: boolean }>> {
+  if (!id) return { ok: false, error: 'Account id is required.' };
+  const g = await gate('delete', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+  try {
+    const res = await sabcrmFinanceAccountsApi.delete(g.ctx.projectId, id);
+    revalidatePath(FINANCE_ACCOUNTS_PATH);
+    return { ok: true, data: { ok: res.deleted } };
+  } catch (e) {
+    return fail(e, 'Failed to delete account.');
+  }
+}
+
+/* ─── Account groups ──────────────────────────────────────────── */
+
+/** Lists the project's account groups (read-only support surface). */
+export async function listSabcrmAccountGroups(
+  params?: SabcrmAccountGroupListParams,
+  projectId?: string,
+): Promise<ActionResult<SabcrmAccountGroupDoc[]>> {
+  const g = await gate('view', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+  try {
+    const res = await sabcrmFinanceAccountGroupsApi.list(
+      g.ctx.projectId,
+      params,
+    );
+    return { ok: true, data: res.items };
+  } catch (e) {
+    return fail(e, 'Failed to list account groups.');
+  }
+}
+
+/* ─── Journal entries (voucher entries) ───────────────────────── */
+
+const FINANCE_JOURNAL_ENTRIES_PATH = '/sabcrm/finance/journal-entries';
+
+/** Lists the project's journal (voucher) entries. */
+export async function listSabcrmJournalEntries(
+  params?: SabcrmJournalEntryListParams,
+  projectId?: string,
+): Promise<ActionResult<SabcrmJournalEntryDoc[]>> {
+  const g = await gate('view', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+  try {
+    const res = await sabcrmFinanceJournalEntriesApi.list(
+      g.ctx.projectId,
+      params,
+    );
+    return { ok: true, data: res.items };
+  } catch (e) {
+    return fail(e, 'Failed to list journal entries.');
+  }
+}
+
+/**
+ * Creates a balanced 2-line journal entry (one debit line, one credit
+ * line, same amount). `voucherBookId` is required by the Rust DTO, so
+ * the action finds the project's first `journal`-type voucher book and
+ * creates a default "Journal" book when none exists yet.
+ */
+export async function createSabcrmJournalEntry(
+  input: SabcrmJournalEntryFormInput,
+  projectId?: string,
+): Promise<ActionResult<SabcrmJournalEntryDoc>> {
+  if (!input?.debitAccountId || !ObjectId.isValid(input.debitAccountId)) {
+    return { ok: false, error: 'A debit account is required.' };
+  }
+  if (!input.creditAccountId || !ObjectId.isValid(input.creditAccountId)) {
+    return { ok: false, error: 'A credit account is required.' };
+  }
+  if (input.debitAccountId === input.creditAccountId) {
+    return {
+      ok: false,
+      error: 'Debit and credit accounts must be different.',
+    };
+  }
+  const amount = Number(input.amount);
+  if (!Number.isFinite(amount) || amount <= 0) {
+    return { ok: false, error: 'Amount must be a positive number.' };
+  }
+  const dateIso = input.date ? toIso(input.date) : null;
+  if (!dateIso) return { ok: false, error: 'A valid entry date is required.' };
+
+  const g = await gate('create', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    // Resolve (or seed) the default journal voucher book.
+    const books = await sabcrmFinanceVouchersApi.list(g.ctx.projectId, {
+      type: 'journal',
+      limit: 1,
+    });
+    let bookId = books.items[0]?._id;
+    if (!bookId) {
+      const created = await sabcrmFinanceVouchersApi.create(g.ctx.projectId, {
+        name: 'Journal',
+        type: 'journal',
+        prefix: 'JV-',
+      });
+      bookId = created.id;
+    }
+
+    const status =
+      input.status === 'draft' || input.status === 'posted'
+        ? input.status
+        : 'posted';
+    const wire: SabcrmJournalEntryCreateInput = {
+      voucherBookId: bookId,
+      voucherNumber:
+        input.voucherNumber?.trim() || `JV-${Date.now().toString(36).toUpperCase()}`,
+      date: dateIso,
+      narration: input.narration?.trim() || undefined,
+      debitEntries: [{ accountId: input.debitAccountId, amount }],
+      creditEntries: [{ accountId: input.creditAccountId, amount }],
+      status,
+    };
+    const created = await sabcrmFinanceJournalEntriesApi.create(
+      g.ctx.projectId,
+      wire,
+    );
+    revalidatePath(FINANCE_JOURNAL_ENTRIES_PATH);
+    return { ok: true, data: created.entity };
+  } catch (e) {
+    return fail(e, 'Failed to create journal entry.');
+  }
+}
+
+/** Archives a journal entry (crm-common-style soft delete). */
+export async function deleteSabcrmJournalEntry(
+  id: string,
+  projectId?: string,
+): Promise<ActionResult<{ ok: boolean }>> {
+  if (!id) return { ok: false, error: 'Entry id is required.' };
+  const g = await gate('delete', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+  try {
+    const res = await sabcrmFinanceJournalEntriesApi.delete(
+      g.ctx.projectId,
+      id,
+    );
+    revalidatePath(FINANCE_JOURNAL_ENTRIES_PATH);
+    return { ok: true, data: { ok: res.deleted } };
+  } catch (e) {
+    return fail(e, 'Failed to delete journal entry.');
+  }
+}
+
+/* ─── TDS records ─────────────────────────────────────────────── */
+
+const FINANCE_TDS_PATH = '/sabcrm/finance/tds';
+
+const TDS_QUARTERS = new Set(['Q1', 'Q2', 'Q3', 'Q4']);
+const TDS_STATUSES = new Set(['pending', 'deposited', 'filed']);
+
+/** Lists the project's TDS deduction records. */
+export async function listSabcrmTdsRecords(
+  params?: SabcrmTdsListParams,
+  projectId?: string,
+): Promise<ActionResult<SabcrmTdsRecordDoc[]>> {
+  const g = await gate('view', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+  try {
+    const res = await sabcrmFinanceTdsApi.list(g.ctx.projectId, params);
+    return { ok: true, data: res.items };
+  } catch (e) {
+    return fail(e, 'Failed to list TDS records.');
+  }
+}
+
+/** Creates a TDS record from the "New TDS record" dialog payload. */
+export async function createSabcrmTdsRecord(
+  input: SabcrmTdsFormInput,
+  projectId?: string,
+): Promise<ActionResult<SabcrmTdsRecordDoc>> {
+  if (!input?.employeeName?.trim()) {
+    return { ok: false, error: 'A deductee name is required.' };
+  }
+  if (!input.financialYear?.trim()) {
+    return { ok: false, error: 'A financial year is required.' };
+  }
+  const quarter = input.quarter?.trim().toUpperCase();
+  if (!quarter || !TDS_QUARTERS.has(quarter)) {
+    return { ok: false, error: 'Quarter must be Q1, Q2, Q3 or Q4.' };
+  }
+  const tdsAmount = Number(input.tdsAmount);
+  if (!Number.isFinite(tdsAmount) || tdsAmount < 0) {
+    return { ok: false, error: 'TDS amount must be a non-negative number.' };
+  }
+  const grossAmount =
+    input.grossAmount !== undefined ? Number(input.grossAmount) : 0;
+  if (!Number.isFinite(grossAmount) || grossAmount < 0) {
+    return {
+      ok: false,
+      error: 'Gross amount must be a non-negative number.',
+    };
+  }
+
+  const g = await gate('create', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const wire: SabcrmTdsCreateInput = {
+      employeeName: input.employeeName.trim(),
+      financialYear: input.financialYear.trim(),
+      quarter,
+      tdsAmount,
+      grossAmount,
+      certificateNumber: input.certificateNumber?.trim() || undefined,
+      depositChallanNumber: input.depositChallanNumber?.trim() || undefined,
+      status:
+        input.status && TDS_STATUSES.has(input.status)
+          ? input.status
+          : undefined,
+    };
+    const created = await sabcrmFinanceTdsApi.create(g.ctx.projectId, wire);
+    revalidatePath(FINANCE_TDS_PATH);
+    return { ok: true, data: created.entity };
+  } catch (e) {
+    return fail(e, 'Failed to create TDS record.');
+  }
+}
+
+/** Archives a TDS record (crm-common-style soft delete). */
+export async function deleteSabcrmTdsRecord(
+  id: string,
+  projectId?: string,
+): Promise<ActionResult<{ ok: boolean }>> {
+  if (!id) return { ok: false, error: 'Record id is required.' };
+  const g = await gate('delete', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+  try {
+    const res = await sabcrmFinanceTdsApi.delete(g.ctx.projectId, id);
+    revalidatePath(FINANCE_TDS_PATH);
+    return { ok: true, data: { ok: res.deleted } };
+  } catch (e) {
+    return fail(e, 'Failed to delete TDS record.');
   }
 }

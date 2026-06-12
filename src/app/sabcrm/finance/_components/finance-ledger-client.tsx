@@ -29,6 +29,8 @@ import {
   BookOpen,
   CalendarClock,
   Coins,
+  Landmark,
+  Percent,
   PiggyBank,
   Plus,
   Scale,
@@ -87,6 +89,10 @@ import {
   deleteSabcrmBudget,
   createSabcrmReconciliation,
   deleteSabcrmReconciliation,
+  createSabcrmChartOfAccount,
+  deleteSabcrmChartOfAccount,
+  createSabcrmTdsRecord,
+  deleteSabcrmTdsRecord,
 } from '@/app/actions/sabcrm-finance.actions';
 import type { ActionResult } from '@/lib/sabcrm/types';
 
@@ -115,7 +121,9 @@ export type FinanceLedgerKind =
   | 'vouchers'
   | 'petty-cash'
   | 'budgets'
-  | 'reconciliation';
+  | 'reconciliation'
+  | 'accounts'
+  | 'tds';
 
 /**
  * Column rendering modes:
@@ -499,6 +507,125 @@ const LEDGER_CONFIGS: Record<FinanceLedgerKind, LedgerConfig> = {
         closingBalance: v.closingBalance ? Number(v.closingBalance) : undefined,
       }),
     remove: deleteSabcrmReconciliation,
+  },
+  accounts: {
+    title: 'Chart of accounts',
+    description:
+      'Ledger heads grouped by type — the backbone of journal entries and statements — part of the SabCRM Finance suite.',
+    singular: 'account',
+    emptyIcon: Landmark,
+    columns: [
+      { key: 'name', label: 'Account', kind: 'text' },
+      { key: 'code', label: 'Code', kind: 'text' },
+      { key: 'type', label: 'Type', kind: 'text' },
+      { key: 'openingBalance', label: 'Opening balance', kind: 'amount' },
+      { key: 'status', label: 'Status', kind: 'badge' },
+    ],
+    statusTone: {
+      active: 'success',
+      archived: 'neutral',
+    },
+    statusLabel: {
+      active: 'Active',
+      archived: 'Archived',
+    },
+    fields: [
+      { key: 'name', label: 'Account name', type: 'text', required: true, placeholder: 'Cash in Hand' },
+      {
+        key: 'accountType',
+        label: 'Account type',
+        type: 'select',
+        required: true,
+        initial: 'asset',
+        options: [
+          { value: 'asset', label: 'Asset' },
+          { value: 'liability', label: 'Liability' },
+          { value: 'income', label: 'Income' },
+          { value: 'expense', label: 'Expense' },
+          { value: 'equity', label: 'Equity' },
+        ],
+      },
+      { key: 'code', label: 'Ledger code', type: 'text', placeholder: '1000' },
+      { key: 'openingBalance', label: 'Opening balance', type: 'number', placeholder: '0.00' },
+      { key: 'currency', label: 'Currency', type: 'select', initial: 'INR', options: CURRENCY_OPTIONS },
+    ],
+    create: (v) =>
+      createSabcrmChartOfAccount({
+        name: v.name ?? '',
+        accountType: v.accountType ?? 'asset',
+        code: v.code || undefined,
+        openingBalance: v.openingBalance ? Number(v.openingBalance) : undefined,
+        currency: v.currency || undefined,
+      }),
+    remove: deleteSabcrmChartOfAccount,
+  },
+  tds: {
+    title: 'TDS records',
+    description:
+      'Quarterly TDS deductions — gross vs deducted, challans, and deposit status — part of the SabCRM Finance suite.',
+    singular: 'TDS record',
+    emptyIcon: Percent,
+    columns: [
+      { key: 'employeeName', label: 'Deductee', kind: 'text' },
+      { key: 'financialYear', label: 'FY', kind: 'text' },
+      { key: 'quarter', label: 'Quarter', kind: 'text' },
+      { key: 'grossAmount', label: 'Gross', kind: 'amount' },
+      { key: 'tdsAmount', label: 'TDS', kind: 'amount' },
+      { key: 'challan', label: 'Challan', kind: 'text' },
+      { key: 'status', label: 'Status', kind: 'badge' },
+    ],
+    statusTone: {
+      pending: 'warning',
+      deposited: 'info',
+      filed: 'success',
+      archived: 'neutral',
+    },
+    statusLabel: {
+      pending: 'Pending',
+      deposited: 'Deposited',
+      filed: 'Filed',
+      archived: 'Archived',
+    },
+    fields: [
+      { key: 'employeeName', label: 'Deductee name', type: 'text', required: true, placeholder: 'Asha Verma' },
+      { key: 'financialYear', label: 'Financial year', type: 'text', required: true, placeholder: '2026-27' },
+      {
+        key: 'quarter',
+        label: 'Quarter',
+        type: 'select',
+        required: true,
+        initial: 'Q1',
+        options: [
+          { value: 'Q1', label: 'Q1 (Apr–Jun)' },
+          { value: 'Q2', label: 'Q2 (Jul–Sep)' },
+          { value: 'Q3', label: 'Q3 (Oct–Dec)' },
+          { value: 'Q4', label: 'Q4 (Jan–Mar)' },
+        ],
+      },
+      { key: 'grossAmount', label: 'Gross amount', type: 'number', placeholder: '0.00' },
+      { key: 'tdsAmount', label: 'TDS amount', type: 'number', required: true, placeholder: '0.00' },
+      {
+        key: 'status',
+        label: 'Status',
+        type: 'select',
+        initial: 'pending',
+        options: [
+          { value: 'pending', label: 'Pending' },
+          { value: 'deposited', label: 'Deposited' },
+          { value: 'filed', label: 'Filed' },
+        ],
+      },
+    ],
+    create: (v) =>
+      createSabcrmTdsRecord({
+        employeeName: v.employeeName ?? '',
+        financialYear: v.financialYear ?? '',
+        quarter: v.quarter ?? 'Q1',
+        grossAmount: v.grossAmount ? Number(v.grossAmount) : undefined,
+        tdsAmount: Number(v.tdsAmount),
+        status: v.status || undefined,
+      }),
+    remove: deleteSabcrmTdsRecord,
   },
 };
 

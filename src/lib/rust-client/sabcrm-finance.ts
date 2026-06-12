@@ -131,6 +131,33 @@ import type {
   CrmReconciliationListResponse,
   CrmReconciliationUpdateInput,
 } from './crm-reconciliation';
+import type {
+  CrmChartOfAccountCreateInput,
+  CrmChartOfAccountDoc,
+  CrmChartOfAccountListParams,
+  CrmChartOfAccountListResponse,
+  CrmChartOfAccountUpdateInput,
+} from './crm-chart-of-accounts';
+import type {
+  CrmAccountGroupCreateInput,
+  CrmAccountGroupDoc,
+  CrmAccountGroupListParams,
+  CrmAccountGroupListResponse,
+} from './crm-account-groups';
+import type {
+  CrmVoucherEntryCreateInput,
+  CrmVoucherEntryDoc,
+  CrmVoucherEntryListParams,
+  CrmVoucherEntryListResponse,
+  CrmVoucherEntryUpdateInput,
+} from './crm-voucher-entries';
+import type {
+  CrmTdsCreateInput,
+  CrmTdsListParams,
+  CrmTdsListResponse,
+  CrmTdsRecordDoc,
+  CrmTdsUpdateInput,
+} from './crm-tds';
 
 /* ─── Wire types (aliased from the legacy client; same Rust DTOs) ── */
 
@@ -1185,6 +1212,235 @@ export const sabcrmFinanceReconciliationApi = {
   delete: (projectId: string, id: string): Promise<{ deleted: boolean }> =>
     rustFetch<{ deleted: boolean }>(
       `${RECONCILIATION_BASE}/${encodeURIComponent(id)}${qs({ projectId })}`,
+      { method: 'DELETE' },
+    ),
+};
+
+/* ═══════════════════════════════════════════════════════════════════
+ * Finance tranche 3 — accounting/compliance crates re-mounted under
+ * `/v1/sabcrm/finance/*` (each crate's `project_router`). All four are
+ * crm-common-style (list `{ items, page, limit, hasMore }`, create
+ * `{ id, entity }`, delete = archive `{ deleted }`).
+ * ═══════════════════════════════════════════════════════════════════ */
+
+/* ─── Chart of accounts (`crm-chart-of-accounts`) ─────────────── */
+
+export type SabcrmChartOfAccountDoc = CrmChartOfAccountDoc;
+export type SabcrmChartOfAccountListParams = CrmChartOfAccountListParams;
+export type SabcrmChartOfAccountListResponse = CrmChartOfAccountListResponse;
+/** Legacy create input has no `projectId`; this client injects it. */
+export type SabcrmChartOfAccountCreateInput = CrmChartOfAccountCreateInput;
+export type SabcrmChartOfAccountUpdateInput = CrmChartOfAccountUpdateInput;
+
+const ACCOUNTS_BASE = '/v1/sabcrm/finance/accounts';
+
+export const sabcrmFinanceAccountsApi = {
+  /** NB: crm-common style — list returns `{ items, page, limit, hasMore }`. */
+  list: (
+    projectId: string,
+    params?: SabcrmChartOfAccountListParams,
+  ): Promise<SabcrmChartOfAccountListResponse> =>
+    rustFetch<SabcrmChartOfAccountListResponse>(
+      `${ACCOUNTS_BASE}${qs({
+        projectId,
+        page: params?.page,
+        limit: params?.limit,
+        q: params?.q,
+        status: params?.status ? String(params.status) : undefined,
+        accountType: params?.accountType
+          ? String(params.accountType)
+          : undefined,
+        accountGroupId: params?.accountGroupId,
+      })}`,
+    ),
+  getById: (
+    projectId: string,
+    id: string,
+  ): Promise<SabcrmChartOfAccountDoc> =>
+    rustFetch<SabcrmChartOfAccountDoc>(
+      `${ACCOUNTS_BASE}/${encodeURIComponent(id)}${qs({ projectId })}`,
+    ),
+  /** NB: crm-common style — create returns `{ id, entity }`. */
+  create: (
+    projectId: string,
+    input: SabcrmChartOfAccountCreateInput,
+  ): Promise<{ id: string; entity: SabcrmChartOfAccountDoc }> =>
+    rustFetch<{ id: string; entity: SabcrmChartOfAccountDoc }>(
+      ACCOUNTS_BASE,
+      { method: 'POST', body: JSON.stringify({ ...input, projectId }) },
+    ),
+  update: (
+    projectId: string,
+    id: string,
+    patch: SabcrmChartOfAccountUpdateInput,
+  ): Promise<SabcrmChartOfAccountDoc> =>
+    rustFetch<SabcrmChartOfAccountDoc>(
+      `${ACCOUNTS_BASE}/${encodeURIComponent(id)}${qs({ projectId })}`,
+      { method: 'PATCH', body: JSON.stringify(patch) },
+    ),
+  /** NB: crm-common style — delete is an archive and returns `{ deleted }`. */
+  delete: (projectId: string, id: string): Promise<{ deleted: boolean }> =>
+    rustFetch<{ deleted: boolean }>(
+      `${ACCOUNTS_BASE}/${encodeURIComponent(id)}${qs({ projectId })}`,
+      { method: 'DELETE' },
+    ),
+};
+
+/* ─── Account groups (`crm-account-groups`) ───────────────────── */
+
+export type SabcrmAccountGroupDoc = CrmAccountGroupDoc;
+export type SabcrmAccountGroupListParams = CrmAccountGroupListParams;
+export type SabcrmAccountGroupListResponse = CrmAccountGroupListResponse;
+/** Legacy create input has no `projectId`; this client injects it. */
+export type SabcrmAccountGroupCreateInput = CrmAccountGroupCreateInput;
+
+const ACCOUNT_GROUPS_BASE = '/v1/sabcrm/finance/account-groups';
+
+export const sabcrmFinanceAccountGroupsApi = {
+  /** NB: crm-common style — list returns `{ items, page, limit, hasMore }`. */
+  list: (
+    projectId: string,
+    params?: SabcrmAccountGroupListParams,
+  ): Promise<SabcrmAccountGroupListResponse> =>
+    rustFetch<SabcrmAccountGroupListResponse>(
+      `${ACCOUNT_GROUPS_BASE}${qs({
+        projectId,
+        page: params?.page,
+        limit: params?.limit,
+        q: params?.q,
+        status: params?.status ? String(params.status) : undefined,
+        nature: params?.nature ? String(params.nature) : undefined,
+        parentGroupId: params?.parentGroupId,
+      })}`,
+    ),
+  /** NB: crm-common style — create returns `{ id, entity }`. */
+  create: (
+    projectId: string,
+    input: SabcrmAccountGroupCreateInput,
+  ): Promise<{ id: string; entity: SabcrmAccountGroupDoc }> =>
+    rustFetch<{ id: string; entity: SabcrmAccountGroupDoc }>(
+      ACCOUNT_GROUPS_BASE,
+      { method: 'POST', body: JSON.stringify({ ...input, projectId }) },
+    ),
+  /** NB: crm-common style — delete is an archive and returns `{ deleted }`. */
+  delete: (projectId: string, id: string): Promise<{ deleted: boolean }> =>
+    rustFetch<{ deleted: boolean }>(
+      `${ACCOUNT_GROUPS_BASE}/${encodeURIComponent(id)}${qs({ projectId })}`,
+      { method: 'DELETE' },
+    ),
+};
+
+/* ─── Journal entries (`crm-voucher-entries`) ─────────────────── */
+
+export type SabcrmJournalEntryDoc = CrmVoucherEntryDoc;
+export type SabcrmJournalEntryListParams = CrmVoucherEntryListParams;
+export type SabcrmJournalEntryListResponse = CrmVoucherEntryListResponse;
+/** Legacy create input has no `projectId`; this client injects it. */
+export type SabcrmJournalEntryCreateInput = CrmVoucherEntryCreateInput;
+export type SabcrmJournalEntryUpdateInput = CrmVoucherEntryUpdateInput;
+
+const JOURNAL_ENTRIES_BASE = '/v1/sabcrm/finance/journal-entries';
+
+export const sabcrmFinanceJournalEntriesApi = {
+  /** NB: crm-common style — list returns `{ items, page, limit, hasMore }`. */
+  list: (
+    projectId: string,
+    params?: SabcrmJournalEntryListParams,
+  ): Promise<SabcrmJournalEntryListResponse> =>
+    rustFetch<SabcrmJournalEntryListResponse>(
+      `${JOURNAL_ENTRIES_BASE}${qs({
+        projectId,
+        page: params?.page,
+        limit: params?.limit,
+        q: params?.q,
+        status: params?.status ? String(params.status) : undefined,
+        voucherBookId: params?.voucherBookId,
+      })}`,
+    ),
+  getById: (projectId: string, id: string): Promise<SabcrmJournalEntryDoc> =>
+    rustFetch<SabcrmJournalEntryDoc>(
+      `${JOURNAL_ENTRIES_BASE}/${encodeURIComponent(id)}${qs({ projectId })}`,
+    ),
+  /**
+   * NB: crm-common style — create returns `{ id, entity }`. The Rust
+   * side validates that debits balance credits (±0.01) and 400s if not.
+   */
+  create: (
+    projectId: string,
+    input: SabcrmJournalEntryCreateInput,
+  ): Promise<{ id: string; entity: SabcrmJournalEntryDoc }> =>
+    rustFetch<{ id: string; entity: SabcrmJournalEntryDoc }>(
+      JOURNAL_ENTRIES_BASE,
+      { method: 'POST', body: JSON.stringify({ ...input, projectId }) },
+    ),
+  update: (
+    projectId: string,
+    id: string,
+    patch: SabcrmJournalEntryUpdateInput,
+  ): Promise<SabcrmJournalEntryDoc> =>
+    rustFetch<SabcrmJournalEntryDoc>(
+      `${JOURNAL_ENTRIES_BASE}/${encodeURIComponent(id)}${qs({ projectId })}`,
+      { method: 'PATCH', body: JSON.stringify(patch) },
+    ),
+  /** NB: crm-common style — delete is an archive and returns `{ deleted }`. */
+  delete: (projectId: string, id: string): Promise<{ deleted: boolean }> =>
+    rustFetch<{ deleted: boolean }>(
+      `${JOURNAL_ENTRIES_BASE}/${encodeURIComponent(id)}${qs({ projectId })}`,
+      { method: 'DELETE' },
+    ),
+};
+
+/* ─── TDS records (`crm-tds`) ─────────────────────────────────── */
+
+export type SabcrmTdsRecordDoc = CrmTdsRecordDoc;
+export type SabcrmTdsListParams = CrmTdsListParams;
+export type SabcrmTdsListResponse = CrmTdsListResponse;
+/** Legacy create input has no `projectId`; this client injects it. */
+export type SabcrmTdsCreateInput = CrmTdsCreateInput;
+export type SabcrmTdsUpdateInput = CrmTdsUpdateInput;
+
+const TDS_BASE = '/v1/sabcrm/finance/tds';
+
+export const sabcrmFinanceTdsApi = {
+  /** NB: crm-common style — list returns `{ items, page, limit, hasMore }`. */
+  list: (
+    projectId: string,
+    params?: SabcrmTdsListParams,
+  ): Promise<SabcrmTdsListResponse> =>
+    rustFetch<SabcrmTdsListResponse>(
+      `${TDS_BASE}${qs({
+        projectId,
+        page: params?.page,
+        limit: params?.limit,
+        q: params?.q,
+        status: params?.status ? String(params.status) : undefined,
+        financialYear: params?.financialYear,
+        quarter: params?.quarter ? String(params.quarter) : undefined,
+        employeeId: params?.employeeId,
+      })}`,
+    ),
+  /** NB: crm-common style — create returns `{ id, entity }`. */
+  create: (
+    projectId: string,
+    input: SabcrmTdsCreateInput,
+  ): Promise<{ id: string; entity: SabcrmTdsRecordDoc }> =>
+    rustFetch<{ id: string; entity: SabcrmTdsRecordDoc }>(TDS_BASE, {
+      method: 'POST',
+      body: JSON.stringify({ ...input, projectId }),
+    }),
+  update: (
+    projectId: string,
+    id: string,
+    patch: SabcrmTdsUpdateInput,
+  ): Promise<SabcrmTdsRecordDoc> =>
+    rustFetch<SabcrmTdsRecordDoc>(
+      `${TDS_BASE}/${encodeURIComponent(id)}${qs({ projectId })}`,
+      { method: 'PATCH', body: JSON.stringify(patch) },
+    ),
+  /** NB: crm-common style — delete is an archive and returns `{ deleted }`. */
+  delete: (projectId: string, id: string): Promise<{ deleted: boolean }> =>
+    rustFetch<{ deleted: boolean }>(
+      `${TDS_BASE}/${encodeURIComponent(id)}${qs({ projectId })}`,
       { method: 'DELETE' },
     ),
 };

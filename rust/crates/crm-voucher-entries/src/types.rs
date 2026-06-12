@@ -22,6 +22,15 @@ pub struct CrmVoucherEntry {
     #[serde(rename = "userId")]
     pub user_id: ObjectId,
 
+    /// SabCRM tenancy scope — stamped on documents created through the
+    /// project (`/v1/sabcrm/finance/*`) mounts; absent on legacy rows.
+    #[serde(
+        rename = "projectId",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub project_id: Option<ObjectId>,
+
     #[serde(rename = "voucherBookId")]
     pub voucher_book_id: ObjectId,
     pub voucher_number: String,

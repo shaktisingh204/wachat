@@ -18,6 +18,9 @@ pub struct ListQuery {
     /// Filter to a single voucher book.
     #[serde(default)]
     pub voucher_book_id: Option<String>,
+    /// SabCRM (project) mounts only — required there, ignored on legacy.
+    #[serde(default)]
+    pub project_id: Option<String>,
 }
 
 #[derive(Debug, Clone, Default, Deserialize)]
@@ -37,6 +40,9 @@ pub struct CreateEntryInput {
     pub status: Option<String>,
     #[serde(default)]
     pub reference: Option<String>,
+    /// SabCRM (project) mounts only — required there, ignored on legacy.
+    #[serde(default)]
+    pub project_id: Option<String>,
 }
 
 #[derive(Debug, Clone, Default, Deserialize)]
@@ -80,6 +86,15 @@ pub struct CreateEntryResponse {
 #[serde(rename_all = "camelCase")]
 pub struct DeleteEntryResponse {
     pub deleted: bool,
+}
+
+/// Scope carrier for get/update/delete on SabCRM (project) mounts —
+/// `?projectId=<oid>`. Ignored on the legacy (`userId`) mount.
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ScopeQuery {
+    #[serde(default)]
+    pub project_id: Option<String>,
 }
 
 impl VoucherLineInput {

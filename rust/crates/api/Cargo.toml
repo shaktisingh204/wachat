@@ -180,6 +180,7 @@ crm-chart-of-accounts = { path = "../crm-chart-of-accounts" }
 crm-account-groups = { path = "../crm-account-groups" }
 crm-dashboards = { path = "../crm-dashboards" }
 crm-voucher-entries = { path = "../crm-voucher-entries" }
+crm-tds = { path = "../crm-tds" }
 crm-form-submissions = { path = "../crm-form-submissions" }
 crm-kpis = { path = "../crm-kpis" }
 crm-industries = { path = "../crm-industries" }

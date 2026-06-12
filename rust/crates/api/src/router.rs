@@ -409,6 +409,13 @@ pub fn build(state: AppState) -> Router {
     let sabcrm_finance_petty_cash = crm_petty_cash::project_router::<AppState>();
     let sabcrm_finance_budgets = crm_budgets::project_router::<AppState>();
     let sabcrm_finance_reconciliation = crm_reconciliation::project_router::<AppState>();
+    // SabCRM Finance tranche 3 — accounting/compliance crates,
+    // project-scoped re-mounts beside their legacy `/v1/crm/*` mounts
+    // (same crates, same collections; see each crate's project_router).
+    let sabcrm_finance_accounts = crm_chart_of_accounts::project_router::<AppState>();
+    let sabcrm_finance_account_groups = crm_account_groups::project_router::<AppState>();
+    let sabcrm_finance_journal_entries = crm_voucher_entries::project_router::<AppState>();
+    let sabcrm_finance_tds = crm_tds::project_router::<AppState>();
     let crm_sales_orders = crm_sales_orders::router::<AppState>();
     let crm_purchase_orders = crm_purchase_orders::router::<AppState>();
     let crm_payment_receipts = crm_payment_receipts::router::<AppState>();
@@ -753,6 +760,16 @@ pub fn build(state: AppState) -> Router {
             "/v1/sabcrm/finance/reconciliation",
             sabcrm_finance_reconciliation,
         )
+        .nest("/v1/sabcrm/finance/accounts", sabcrm_finance_accounts)
+        .nest(
+            "/v1/sabcrm/finance/account-groups",
+            sabcrm_finance_account_groups,
+        )
+        .nest(
+            "/v1/sabcrm/finance/journal-entries",
+            sabcrm_finance_journal_entries,
+        )
+        .nest("/v1/sabcrm/finance/tds", sabcrm_finance_tds)
         .nest("/v1/sabcrm/forms", sabcrm_forms)
         .nest("/v1/sabcrm/form-submissions", sabcrm_form_submissions)
         .nest("/v1/crm/quotations", crm_quotations)

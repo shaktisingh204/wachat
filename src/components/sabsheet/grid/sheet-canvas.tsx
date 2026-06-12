@@ -165,6 +165,8 @@ export const SheetCanvas = forwardRef<SheetCanvasHandle, SheetCanvasProps>(funct
   const filterHiddenRef = useRef<number[]>([]);
   /** Debounce timer for posting this user's cursor to the presence channel. */
   const presenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  /** Debounce timer for the status-bar aggregates (they read the selection from the worker). */
+  const aggTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [editing, setEditing] = useState<EditState | null>(null);
   const [ready, setReady] = useState(false);
@@ -216,36 +218,40 @@ export const SheetCanvas = forwardRef<SheetCanvasHandle, SheetCanvasProps>(funct
     }
     onSelectionChange?.(selectionLabel(sel), content);
 
-    // Status-bar aggregates for a multi-cell selection (capped so a huge selection stays cheap).
+    // Status-bar aggregates for a multi-cell selection. Debounced: drag-selecting fires this per
+    // pointermove, and each computation is a worker viewport read — only the settled selection matters.
     if (onAggregatesChange) {
       const total = selectionCount(sel);
+      if (aggTimerRef.current) clearTimeout(aggTimerRef.current);
       if (total < 2 || !e) {
         onAggregatesChange(null);
       } else if (total > 50_000) {
         onAggregatesChange(`Count: ${total} (too large to total)`);
       } else {
-        const box = selectionBox(sel);
-        try {
-          const cells = await e.readViewport(
-            sheetRef.current,
-            box.top,
-            box.left,
-            box.right - box.left + 1,
-            box.bottom - box.top + 1,
-          );
-          onAggregatesChange(aggregateLabel(computeAggregates(cells)));
-        } catch {
-          onAggregatesChange(null);
-        }
+        aggTimerRef.current = setTimeout(async () => {
+          const cur = selectionBox(selectionRef.current);
+          try {
+            const cells = await e.readViewport(
+              sheetRef.current,
+              cur.top,
+              cur.left,
+              cur.right - cur.left + 1,
+              cur.bottom - cur.top + 1,
+            );
+            onAggregatesChange(aggregateLabel(computeAggregates(cells)));
+          } catch {
+            onAggregatesChange(null);
+          }
+        }, 120);
       }
     }
   }, [onSelectionChange, onAggregatesChange]);
 
   /**
-   * Apply a command batch to the local engine and repaint — this always succeeds, online or off.
-   * For persistent workbooks the edit is also handed to the offline outbox, which durably queues it
-   * and syncs to the cloud when reachable (and retries automatically on reconnect). Nothing is lost
-   * offline; only the cloud round-trip is deferred.
+   * Apply a command batch to the local engine and repaint — this always succeeds, online or off,
+   * and is the ONLY thing the interaction path waits for. Persistence (snapshot, IndexedDB, server)
+   * is handed to the outbox, which buffers + debounces it in the background — a typing burst becomes
+   * one snapshot and one server call instead of one per keystroke.
    */
   const applyLocal = useCallback(
     async (commands: Command[]) => {
@@ -253,13 +259,9 @@ export const SheetCanvas = forwardRef<SheetCanvasHandle, SheetCanvasProps>(funct
       if (!e || commands.length === 0) return;
       await e.apply(commands);
       await refresh();
-      const box = outboxRef.current;
-      if (!box) return; // in-memory preview (no workbookId)
-      onSaveStateChange?.("saving");
-      const snapshot = await e.toSnapshot();
-      await box.record(commands, snapshot);
+      outboxRef.current?.record(commands); // synchronous buffer append — no await
     },
-    [refresh, onSaveStateChange],
+    [refresh],
   );
 
   /** Broadcast this user's cursor to collaborators (presence). Best-effort, persistent workbooks only. */
@@ -522,6 +524,12 @@ export const SheetCanvas = forwardRef<SheetCanvasHandle, SheetCanvasProps>(funct
         workbookId,
         store,
         isOnline: () => onlineRef.current,
+        // Called once per debounced persist (NOT per edit) — keeps serialization off the hot path.
+        snapshot: async () => {
+          const eng = engineRef.current;
+          if (!eng) throw new Error("engine disposed");
+          return eng.toSnapshot();
+        },
         flush: async (batch, baseSeq) => {
           const res = await applyOpsAction({ workbookId, baseSeq, commands: batch.commands });
           return { seq: res.seq, rejected: res.rejected };
@@ -562,15 +570,22 @@ export const SheetCanvas = forwardRef<SheetCanvasHandle, SheetCanvasProps>(funct
 
     const onOnline = () => {
       onlineRef.current = true;
-      void outbox?.flush();
+      void outbox?.flushNow();
       void sync?.poll();
     };
     const onOffline = () => {
       onlineRef.current = false;
       onSaveStateChange?.("offline");
     };
+    // Persist the debounced buffer before the tab goes away/hides, so nothing in-flight is lost.
+    const onPageHide = () => void outbox?.flushNow();
+    const onVisibility = () => {
+      if (document.visibilityState === "hidden") void outbox?.flushNow();
+    };
     window.addEventListener("online", onOnline);
     window.addEventListener("offline", onOffline);
+    window.addEventListener("pagehide", onPageHide);
+    document.addEventListener("visibilitychange", onVisibility);
 
     let cancelled = false;
     (async () => {
@@ -654,8 +669,12 @@ export const SheetCanvas = forwardRef<SheetCanvasHandle, SheetCanvasProps>(funct
       closeSse?.();
       if (heartbeat) clearInterval(heartbeat);
       if (presenceTimerRef.current) clearTimeout(presenceTimerRef.current);
+      if (aggTimerRef.current) clearTimeout(aggTimerRef.current);
+      void outbox?.flushNow(); // last-chance persist of any buffered edits on unmount
       window.removeEventListener("online", onOnline);
       window.removeEventListener("offline", onOffline);
+      window.removeEventListener("pagehide", onPageHide);
+      document.removeEventListener("visibilitychange", onVisibility);
       engine.destroy();
       rendererRef.current = null;
       engineRef.current = null;
@@ -899,7 +918,7 @@ export const SheetCanvas = forwardRef<SheetCanvasHandle, SheetCanvasProps>(funct
       if (mod && (k === "s" || k === "S")) {
         ev.preventDefault();
         onSaveStateChange?.("saving");
-        await outboxRef.current?.flush();
+        await outboxRef.current?.flushNow();
         return;
       }
       // Ctrl/Cmd+Home jumps to A1.
