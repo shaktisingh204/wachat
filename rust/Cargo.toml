@@ -1,5 +1,8 @@
 [workspace]
 resolver = "3"
+# Vendored third-party crates (MIT/Apache) keep their own settings — built as path
+# deps, not workspace members, so workspace lints/edition don't apply to them.
+exclude = ["vendor/ironcalc-base", "vendor/ironcalc"]
 members = [
     "crates/api",
     "crates/auth",
@@ -491,7 +494,10 @@ members = [
     "crates/sabchat-channel-x",
     "crates/sabchat-marketplace",
     "crates/sabcrm-activities",
+    "crates/sabcrm-approvals",
     "crates/sabcrm-core",
+    "crates/sabcrm-routing",
+    "crates/sabcrm-sequences",
     "crates/sabcrm-favorites",
     "crates/sabcrm-objects",
     "crates/sabcrm-records",
