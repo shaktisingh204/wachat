@@ -9,11 +9,15 @@
 //!   the canonical [`hrm_payroll_types::PayrollRun`] from the §9.6 types
 //!   crate; we never redeclare it here).
 //! - Handlers live in [`handlers`] and read [`sabnode_auth::AuthUser`] as
-//!   their authenticated principal. Every query is scoped by
-//!   `userId == AuthUser.user_id` (the CRM "tenant root" — see
-//!   `crm-core::Identity`).
-//! - The [`router`] module exposes a state-generic [`router::router`]
-//!   that the host `api` crate mounts under `/v1/hrm/payroll-runs`.
+//!   their authenticated principal. Every query is scoped by the mount's
+//!   `crm_core::ScopeMode` — `userId == AuthUser.user_id` on the legacy
+//!   mount, a required `projectId` on the SabCRM People suite mount.
+//!   Cross-collection reads inside compute use the same resolved scope.
+//! - The [`router`] module exposes two state-generic constructors:
+//!   [`router::router`] (legacy `userId` scope, mounted under
+//!   `/v1/hrm/payroll-runs`) and [`router::project_router`] (SabCRM
+//!   People `projectId` scope, mounted under
+//!   `/v1/sabcrm/people/payroll-runs`).
 //!
 //! ## Mongo
 //!
@@ -62,4 +66,4 @@ pub mod dto;
 pub mod handlers;
 pub mod router;
 
-pub use router::router;
+pub use router::{project_router, router};

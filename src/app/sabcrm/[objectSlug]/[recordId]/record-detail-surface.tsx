@@ -42,6 +42,7 @@ import {
   MessageCircle,
   Paperclip,
   Plus,
+  RefreshCw,
   StickyNote,
   Trash2,
 } from 'lucide-react';
@@ -54,7 +55,7 @@ import {
   type TimelineItemKind,
   type RecordCellProps,
 } from '@/components/sabcrm/20ui/composites/record';
-import { Button } from '@/components/sabcrm/20ui/button';
+import { Button, IconButton } from '@/components/sabcrm/20ui/button';
 import { Select } from '@/components/sabcrm/20ui/select';
 import { Input, Textarea } from '@/components/sabcrm/20ui/field';
 import { Checkbox } from '@/components/sabcrm/20ui/choice';
@@ -78,7 +79,8 @@ import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
 
 import { useProject } from '@/context/project-context';
 import { sabcrmRecordLabel } from '@/lib/sabcrm/record-label';
-import type { ObjectMetadata, CrmRecord } from '@/lib/sabcrm/types';
+import type { ObjectMetadata, CrmRecord, FieldMetadata } from '@/lib/sabcrm/types';
+import { recomputeAiFieldTw } from '@/app/actions/sabcrm-ai.actions';
 import {
   listSabcrmObjectsTw,
   listSabcrmRecordsTw,
@@ -852,6 +854,80 @@ export function RecordDetailSurface(): React.JSX.Element {
     [objectSlug, recordId, activeProjectId],
   );
 
+  /* ---- AI field recompute (manual, gated server action) -------------------- */
+
+  const [recomputingKey, setRecomputingKey] = React.useState<string | null>(
+    null,
+  );
+
+  const handleRecomputeAiField = React.useCallback(
+    (fieldKey: string) => {
+      setRecomputingKey((current) => {
+        if (current) return current; // one recompute at a time
+        setMutationError(null);
+        void (async () => {
+          const res = await recomputeAiFieldTw(
+            objectSlug,
+            recordId,
+            fieldKey,
+            activeProjectId ?? undefined,
+          );
+          if (!res.ok) {
+            setMutationError(res.error);
+          } else {
+            // Land the fresh value + a ready __ai meta into local state so
+            // the cell flips out of any pending/failed affix immediately.
+            setRustRecord((prev) => {
+              if (!prev) return prev;
+              const prevAi =
+                prev.data?.__ai && typeof prev.data.__ai === 'object'
+                  ? (prev.data.__ai as Record<string, unknown>)
+                  : {};
+              return {
+                ...prev,
+                data: {
+                  ...prev.data,
+                  [fieldKey]: res.data.value,
+                  __ai: {
+                    ...prevAi,
+                    [fieldKey]: {
+                      status: 'ready',
+                      computedAt: res.data.computedAt,
+                      error: null,
+                    },
+                  },
+                },
+              };
+            });
+          }
+          setRecomputingKey(null);
+        })();
+        return fieldKey;
+      });
+    },
+    [objectSlug, recordId, activeProjectId],
+  );
+
+  /** Trailing "Recompute" affordance, injected only on AI field rows. */
+  const aiFieldRowTrailing = React.useCallback(
+    (field: FieldMetadata): React.ReactNode => {
+      if (field.type !== 'AI') return null;
+      if (recomputingKey === field.key) {
+        return <Spinner size="sm" aria-label={`Recomputing ${field.label}`} />;
+      }
+      return (
+        <IconButton
+          label="Recompute"
+          icon={RefreshCw}
+          size="sm"
+          disabled={recomputingKey != null}
+          onClick={() => handleRecomputeAiField(field.key)}
+        />
+      );
+    },
+    [recomputingKey, handleRecomputeAiField],
+  );
+
   /* ---- favorite ------------------------------------------------------------ */
 
   const [isFavorite, setIsFavorite] = React.useState(false);
@@ -1304,6 +1380,7 @@ export function RecordDetailSurface(): React.JSX.Element {
           titleFieldKey={titleFieldKey}
           onFieldCommit={handleFieldCommit}
           relationResolver={relationResolver}
+          fieldRowTrailing={aiFieldRowTrailing}
           tabs={tabs}
           defaultTabId="timeline"
           header={{

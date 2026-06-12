@@ -24,6 +24,14 @@ pub struct CrmShiftRotation {
     #[serde(rename = "userId")]
     pub user_id: ObjectId,
 
+    /// SabCRM tenant scope. Stamped on rows created through the
+    /// project-scoped mount (`/v1/sabcrm/people/shift-rotations`);
+    /// absent on legacy user-scoped rows — which are therefore invisible
+    /// on the project mount (accepted clean-start per people-suite
+    /// §2.1.7; no `userId` fallback, that would cross-tenant-leak).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub project_id: Option<ObjectId>,
+
     pub name: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,

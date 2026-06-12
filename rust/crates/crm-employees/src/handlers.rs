@@ -10,19 +10,29 @@
 //! | `PATCH` | `/:employeeId`      | [`update_employee`]   |
 //! | `DELETE`| `/:employeeId`      | [`delete_employee`]   |
 //!
-//! Every handler scopes its Mongo query by `userId == AuthUser.user_id`
-//! — the CRM tenant root from `crm-core::Identity`.
+//! Every handler scopes its Mongo query by the mount's
+//! [`crm_core::ScopeMode`] (attached as an axum `Extension` by the
+//! router constructors in [`crate::router`]):
+//!
+//! - `/v1/hrm/employees` + `/v1/crm/employees` (legacy) —
+//!   `userId == AuthUser.user_id`, the CRM tenant root from
+//!   `crm-core::Identity`. Unchanged behaviour.
+//! - `/v1/sabcrm/people/employees` (SabCRM People suite) —
+//!   `projectId == ?projectId` / body `projectId`, required per-request
+//!   (4xx when absent). Membership is validated by the Next.js action
+//!   gate before the request reaches Rust.
 //!
 //! Employees are NOT in the §13.5 lineage chain — they are a root HRM
 //! node — so this crate does not seed `lineage[]` on create. See the
 //! crate-level docs for context.
 
 use axum::{
-    Json,
+    Extension, Json,
     extract::{Path, Query, State},
 };
 use bson::{Bson, Document, doc, oid::ObjectId};
 use chrono::Utc;
+use crm_core::{ScopeMode, TenantScope, sabcrm_project_oid};
 use futures::TryStreamExt;
 use hrm_payroll_types::{Employee, EmploymentStatus, EmploymentType};
 use mongodb::options::FindOptions;
@@ -31,7 +41,9 @@ use sabnode_common::{ApiError, Result};
 use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
 use tracing::instrument;
 
-use crate::dto::{CreateEmployeeInput, DEFAULT_LIMIT, ListQuery, MAX_LIMIT, UpdateEmployeeInput};
+use crate::dto::{
+    CreateEmployeeInput, DEFAULT_LIMIT, ListQuery, MAX_LIMIT, ScopeQuery, UpdateEmployeeInput,
+};
 
 /// Mongo collection name. Matches the §9.1 spec and the
 /// `Employee` doc-comment in `hrm-payroll-types::employee`.
@@ -57,15 +69,35 @@ fn clamp_limit(requested: Option<u32>) -> i64 {
     }
 }
 
-/// Materialize the base ownership filter:
-/// `{ userId, archived: { $ne: true } }`. Soft-deleted rows
+/// Resolve the per-request [`TenantScope`] from the mount's
+/// [`ScopeMode`] (attached as an axum `Extension` by the router
+/// constructor):
+///
+/// - `ScopeMode::User` (legacy mounts) — scope by the verified JWT
+///   subject. Identical to the historical behaviour.
+/// - `ScopeMode::Project` (`/v1/sabcrm/people/employees`) — scope by the
+///   caller-supplied `projectId`, 4xx when absent/invalid. The Next.js
+///   action gate has already validated project membership before the
+///   request reaches Rust.
+fn resolve_scope(
+    mode: ScopeMode,
+    user: &AuthUser,
+    project_id: Option<&str>,
+) -> Result<TenantScope> {
+    match mode {
+        ScopeMode::User => Ok(TenantScope::User(user_oid(user)?)),
+        ScopeMode::Project => Ok(TenantScope::Project(sabcrm_project_oid(project_id)?)),
+    }
+}
+
+/// Materialize the base ownership filter for the resolved scope:
+/// `{ <userId|projectId>, archived: { $ne: true } }`. Soft-deleted rows
 /// (`archived = true`) are excluded by default; callers that want to
 /// surface them must build their own filter.
-fn base_ownership_filter(user: ObjectId) -> Document {
-    doc! {
-        "userId": user,
-        "archived": { "$ne": true },
-    }
+fn base_ownership_filter(scope: &TenantScope) -> Document {
+    let mut f = scope.filter();
+    f.insert("archived", doc! { "$ne": true });
+    f
 }
 
 /// Optional-string update helper. When the input field is `Some`,
@@ -138,12 +170,13 @@ fn parse_status_label(s: &str) -> Result<&'static str> {
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn list_employees(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Query(q): Query<ListQuery>,
 ) -> Result<Json<Vec<Employee>>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, q.project_id.as_deref())?;
 
-    let mut filter = base_ownership_filter(user_id);
+    let mut filter = base_ownership_filter(&scope);
 
     if let Some(needle) = q.q.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
         let regex = doc! { "$regex": needle, "$options": "i" };
@@ -203,13 +236,15 @@ pub async fn list_employees(
 #[instrument(skip_all, fields(user_id = %user.user_id, employee_id = %employee_id))]
 pub async fn get_employee(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(employee_id): Path<String>,
+    Query(scope_q): Query<ScopeQuery>,
 ) -> Result<Json<Employee>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, scope_q.project_id.as_deref())?;
     let emp_oid = oid_from_str(&employee_id)?;
 
-    let mut filter = base_ownership_filter(user_id);
+    let mut filter = base_ownership_filter(&scope);
     filter.insert("_id", emp_oid);
 
     let coll = mongo.collection::<Employee>(EMPLOYEES_COLL);
@@ -250,6 +285,7 @@ pub async fn get_employee(
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn create_employee(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Json(input): Json<CreateEmployeeInput>,
 ) -> Result<Json<Employee>> {
@@ -263,12 +299,21 @@ pub async fn create_employee(
     }
 
     let user_id = user_oid(&user)?;
-    let project_id = match input.project_id.as_deref().filter(|s| !s.is_empty()) {
-        Some(s) => oid_from_str(s)?,
-        // §9.1 requires a project scope, but legacy single-tenant
-        // callers omit it and pick up a freshly-minted id at insert
-        // time. Match the legacy behaviour during the migration window.
-        None => ObjectId::new(),
+    // In project mode the body's `projectId` IS the tenant scope and is
+    // therefore mandatory (4xx when absent) — `resolve_scope` enforces
+    // that. In legacy user mode the scope is the JWT subject and the
+    // body `projectId` stays optional, exactly as before. The stamped
+    // `userId` is always `AuthUser.user_id` (auditing).
+    let scope = resolve_scope(mode, &user, input.project_id.as_deref())?;
+    let project_id = match scope {
+        TenantScope::Project(p) => p,
+        TenantScope::User(_) => match input.project_id.as_deref().filter(|s| !s.is_empty()) {
+            Some(s) => oid_from_str(s)?,
+            // §9.1 requires a project scope, but legacy single-tenant
+            // callers omit it and pick up a freshly-minted id at insert
+            // time. Match the legacy behaviour during the migration window.
+            None => ObjectId::new(),
+        },
     };
 
     let department_oid = oid_from_str(&input.department_id)?;
@@ -415,8 +460,10 @@ pub async fn create_employee(
 #[instrument(skip_all, fields(user_id = %user.user_id, employee_id = %employee_id))]
 pub async fn update_employee(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(employee_id): Path<String>,
+    Query(scope_q): Query<ScopeQuery>,
     Json(input): Json<UpdateEmployeeInput>,
 ) -> Result<Json<Employee>> {
     if input.is_empty() {
@@ -425,6 +472,7 @@ pub async fn update_employee(
         ));
     }
 
+    let scope = resolve_scope(mode, &user, scope_q.project_id.as_deref())?;
     let user_id = user_oid(&user)?;
     let emp_oid = oid_from_str(&employee_id)?;
 
@@ -492,7 +540,7 @@ pub async fn update_employee(
         set.insert("noticePeriodDays", d as i64);
     }
 
-    let mut filter = base_ownership_filter(user_id);
+    let mut filter = base_ownership_filter(&scope);
     filter.insert("_id", emp_oid);
 
     let coll = mongo.collection::<Document>(EMPLOYEES_COLL);
@@ -533,13 +581,16 @@ pub async fn update_employee(
 #[instrument(skip_all, fields(user_id = %user.user_id, employee_id = %employee_id))]
 pub async fn delete_employee(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(employee_id): Path<String>,
+    Query(scope_q): Query<ScopeQuery>,
 ) -> Result<Json<serde_json::Value>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, scope_q.project_id.as_deref())?;
     let emp_oid = oid_from_str(&employee_id)?;
 
-    let filter = doc! { "_id": emp_oid, "userId": user_id };
+    let mut filter = scope.filter();
+    filter.insert("_id", emp_oid);
 
     let coll = mongo.collection::<Document>(EMPLOYEES_COLL);
     let res = coll.delete_one(filter).await.map_err(|e| {
@@ -575,13 +626,62 @@ mod tests {
         assert_eq!(clamp_limit(Some(0)), 1);
     }
 
+    /// Test-only [`AuthUser`] with a valid 24-hex subject.
+    fn fake_user(oid: &ObjectId) -> AuthUser {
+        AuthUser {
+            user_id: oid.to_hex(),
+            tenant_id: String::new(),
+            roles: Vec::new(),
+        }
+    }
+
     #[test]
-    fn base_filter_excludes_archived() {
+    fn base_filter_excludes_archived_user_scope() {
         let oid = ObjectId::new();
-        let f = base_ownership_filter(oid);
+        let f = base_ownership_filter(&TenantScope::User(oid));
         assert_eq!(f.get_object_id("userId").unwrap(), oid);
+        assert!(!f.contains_key("projectId"));
         let archived = f.get_document("archived").unwrap();
         assert!(archived.contains_key("$ne"));
+    }
+
+    #[test]
+    fn base_filter_excludes_archived_project_scope() {
+        let oid = ObjectId::new();
+        let f = base_ownership_filter(&TenantScope::Project(oid));
+        assert_eq!(f.get_object_id("projectId").unwrap(), oid);
+        assert!(!f.contains_key("userId"));
+        let archived = f.get_document("archived").unwrap();
+        assert!(archived.contains_key("$ne"));
+    }
+
+    #[test]
+    fn resolve_scope_project_rejects_missing_project_id() {
+        // The `project_router` mount attaches `ScopeMode::Project`; a
+        // request without `projectId` must 4xx (mirrors the
+        // `crm-core::scope` tests).
+        let user = fake_user(&ObjectId::new());
+        let err = resolve_scope(ScopeMode::Project, &user, None).unwrap_err();
+        assert!(matches!(err, ApiError::Validation(_)));
+        let err = resolve_scope(ScopeMode::Project, &user, Some("  ")).unwrap_err();
+        assert!(matches!(err, ApiError::Validation(_)));
+        let err = resolve_scope(ScopeMode::Project, &user, Some("not-an-oid")).unwrap_err();
+        assert!(matches!(err, ApiError::Validation(_)));
+    }
+
+    #[test]
+    fn resolve_scope_resolves_both_modes() {
+        let user_oid = ObjectId::new();
+        let user = fake_user(&user_oid);
+        assert_eq!(
+            resolve_scope(ScopeMode::User, &user, None).unwrap(),
+            TenantScope::User(user_oid)
+        );
+        let project = ObjectId::new();
+        assert_eq!(
+            resolve_scope(ScopeMode::Project, &user, Some(&project.to_hex())).unwrap(),
+            TenantScope::Project(project)
+        );
     }
 
     #[test]

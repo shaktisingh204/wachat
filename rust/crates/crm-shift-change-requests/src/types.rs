@@ -15,6 +15,16 @@ pub struct CrmShiftChangeRequest {
     #[serde(rename = "userId")]
     pub user_id: ObjectId,
 
+    /// SabCRM tenant scope. Stamped on rows created through the
+    /// project-scoped mount (`/v1/sabcrm/people/shift-change-requests`);
+    /// absent on legacy user-scoped rows — invisible on the project
+    /// mount by design (people-suite §2.1.7; no `userId` fallback).
+    /// Explicitly renamed because this struct intentionally has no
+    /// `rename_all` (snake_case wire), but the tenant key is camelCase
+    /// across the suite.
+    #[serde(rename = "projectId", default, skip_serializing_if = "Option::is_none")]
+    pub project_id: Option<ObjectId>,
+
     pub employee_id: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub employee_name: Option<String>,

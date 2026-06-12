@@ -184,6 +184,24 @@ export interface DocFormValues {
   tdsPct?: number;
   /* ---- header totals modifiers (`config.totalsModifiers`) ------ */
   modifiers?: DocTotalsModifiersInput;
+  /* ---- entity-specific extras (`config.extraFields`) ------------ */
+  /**
+   * Entity-specific extras bag — round-trips through `onSubmit`
+   * untouched (each surface's submit handler reads/validates its own
+   * keys). Seeded to `{}` by `emptyDocFormValues()` and normalised to
+   * `{}` by `DocForm` whenever it (re)opens, but typed optional so the
+   * pre-extension adopters' full `DocFormValues` literals (invoices)
+   * keep compiling unchanged.
+   */
+  extras?: Record<string, unknown>;
+}
+
+/** The render API handed to `DocFormConfig.extraFields`. */
+export interface DocFormExtraFieldsApi {
+  values: DocFormValues;
+  patch: (p: Partial<DocFormValues>) => void;
+  /** True while a submit is in flight — disable inputs. */
+  busy: boolean;
 }
 
 export interface DocFormConfig {
@@ -232,6 +250,27 @@ export interface DocFormConfig {
    * from the catalog).
    */
   lineExtras?: boolean;
+
+  /* ---- per-entity shape flags (all default false ⇒ invoice shape) -- */
+
+  /** Hide the due-date field entirely (sales orders, credit notes, …).
+   *  Also skips the due-date validation rules. */
+  hideDueDate?: boolean;
+  /** Hide the line-items editor and treat lines as optional (payment
+   *  receipts, payouts — amount lives in `extraFields` instead). */
+  hideLines?: boolean;
+  /** Hide the payment-terms input (entities whose DTO can't store it). */
+  hidePaymentTerms?: boolean;
+  /** Override the "Customer notes" textarea label (e.g. "Notes"). */
+  notesLabel?: string;
+  /**
+   * Entity-specific fields rendered inside the form grid, right after
+   * the payment-terms slot. Return `<Field>`-wrapped 20ui inputs; wrap
+   * a node in `<div className="fdoc-form-grid__full">` to span both
+   * columns. Store entity-specific state in `values.extras` (it
+   * round-trips through `onSubmit` untouched).
+   */
+  extraFields?: (api: DocFormExtraFieldsApi) => React.ReactNode;
 }
 
 /* ─── Detail page ─────────────────────────────────────────────── */

@@ -39,6 +39,28 @@ pub struct CrmProformaInvoice {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub currency: Option<String>,
 
+    /* ----- canonical advance fields (finance-rollout gap G3) ------ */
+    /* Ported from `crm_sales_types::ProformaInvoice` so the project   */
+    /* mount can serve advance-payment UX. All optional + defaulted so */
+    /* legacy documents (which never carried them) deserialize as-is.  */
+    /// Linked Sales Order — populated when the proforma is generated as
+    /// an advance-payment request against a confirmed SO.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub linked_so_id: Option<ObjectId>,
+    /// Advance %. When populated, drives the ask amount; the absolute
+    /// `advance_amount` is stored alongside so PDFs render the exact
+    /// figure.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub advance_pct: Option<f64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub advance_amount: Option<f64>,
+    /// Date the advance payment is due.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub payment_due_date: Option<BsonDateTime>,
+    /// Expected delivery date communicated to the customer.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub expected_delivery: Option<BsonDateTime>,
+
     #[serde(default)]
     pub line_items: Vec<ProformaLineItem>,
 

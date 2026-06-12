@@ -459,6 +459,22 @@ pub fn build(state: AppState) -> Router {
     let crm_fixed_assets = crm_fixed_assets::router::<AppState>();
     let crm_bookings = crm_bookings::router::<AppState>();
     let crm_holidays = crm_holidays::router::<AppState>();
+    // SabCRM People suite (P7) — project-scoped re-mounts of the gen-1
+    // HR crates (same handlers, same collections; tenant key flips from
+    // `userId` to a required `projectId` via `crm_core::ScopeMode::Project`).
+    let sabcrm_people_employees = crm_employees::project_router::<AppState>();
+    let sabcrm_people_attendance = crm_attendance::project_router::<AppState>();
+    let sabcrm_people_leaves = crm_leaves::project_router::<AppState>();
+    let sabcrm_people_payroll_runs = crm_payroll_runs::project_router::<AppState>();
+    let sabcrm_people_holidays = crm_holidays::project_router::<AppState>();
+    // Legacy-alias fix (people-suite §2.1.1): the TS rust-clients
+    // (`src/lib/rust-client/crm-employees.ts` / `crm-attendance.ts` /
+    // `crm-leaves.ts`) call `/v1/crm/employees|attendance|leaves`, but
+    // the crates were only mounted under `/v1/hrm/...` — 404s in
+    // production. Alias the same user-scoped routers under `/v1/crm/...`.
+    let crm_employees_alias = crm_employees::router::<AppState>();
+    let crm_attendance_alias = crm_attendance::router::<AppState>();
+    let crm_leaves_alias = crm_leaves::router::<AppState>();
     let crm_departments = crm_departments::router::<AppState>();
     let crm_brands = crm_brands::router::<AppState>();
     let crm_tags = crm_tags::router::<AppState>();
@@ -933,6 +949,22 @@ pub fn build(state: AppState) -> Router {
         .nest("/v1/hrm/leaves", crm_leaves)
         .nest("/v1/hrm/payroll-runs", crm_payroll_runs)
         .nest("/v1/hrm/holidays", crm_holidays)
+        // Legacy aliases (people-suite §2.1.1) — the same user-scoped
+        // routers re-mounted where the TS rust-clients already point.
+        .nest("/v1/crm/employees", crm_employees_alias)
+        .nest("/v1/crm/attendance", crm_attendance_alias)
+        .nest("/v1/crm/leaves", crm_leaves_alias)
+        // SabCRM People suite (P7) — project-scoped mounts. Every
+        // request must carry `projectId` (query for GET/PATCH/DELETE,
+        // body for POST) or it is rejected 4xx.
+        .nest("/v1/sabcrm/people/employees", sabcrm_people_employees)
+        .nest("/v1/sabcrm/people/attendance", sabcrm_people_attendance)
+        .nest("/v1/sabcrm/people/leaves", sabcrm_people_leaves)
+        .nest(
+            "/v1/sabcrm/people/payroll-runs",
+            sabcrm_people_payroll_runs,
+        )
+        .nest("/v1/sabcrm/people/holidays", sabcrm_people_holidays)
         // The crm-departments crate contributes BOTH `/departments/*` and
         // `/designations/*` subtrees (see crate docstring) — mount it at
         // `/v1/crm` so the resulting paths are `/v1/crm/departments` and

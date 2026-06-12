@@ -75,6 +75,29 @@ fn calc_subtotal(items: &[ProformaLineItem]) -> f64 {
     items.iter().map(|i| i.quantity * i.rate).sum()
 }
 
+/// Validate a caller-supplied advance percentage (finance-rollout gap
+/// G3): finite and within `[0, 100]`.
+fn validate_advance_pct(pct: f64) -> Result<f64> {
+    if !pct.is_finite() || !(0.0..=100.0).contains(&pct) {
+        return Err(ApiError::Validation(
+            "advancePct must be a finite number between 0 and 100".to_owned(),
+        ));
+    }
+    Ok(pct)
+}
+
+/// Parse an optional hex `ObjectId` string, rejecting malformed input
+/// (unlike the lenient legacy `accountId` path — a bad SO link would
+/// silently orphan the advance flow).
+fn parse_linked_so_id(raw: Option<&str>) -> Result<Option<ObjectId>> {
+    match raw.map(str::trim).filter(|s| !s.is_empty()) {
+        Some(s) => ObjectId::parse_str(s)
+            .map(Some)
+            .map_err(|_| ApiError::Validation("linkedSoId must be a valid ObjectId".to_owned())),
+        None => Ok(None),
+    }
+}
+
 fn proforma_from_create(
     input: CreateProformaInput,
     user_id: ObjectId,
@@ -95,6 +118,27 @@ fn proforma_from_create(
     let tax = input.tax_total.unwrap_or(0.0);
     let discount = input.discount_total.unwrap_or(0.0);
     let total = subtotal + tax - discount;
+
+    // ---- canonical advance fields (G3) ---------------------------------
+    let linked_so_id = parse_linked_so_id(input.linked_so_id.as_deref())?;
+    let advance_pct = input.advance_pct.map(validate_advance_pct).transpose()?;
+    let advance_amount = match (input.advance_amount, advance_pct) {
+        // Explicit amount wins (stored alongside the pct, mirroring the
+        // canonical `crm_sales_types::ProformaInvoice` semantics).
+        (Some(amount), _) => {
+            if !amount.is_finite() || amount < 0.0 {
+                return Err(ApiError::Validation(
+                    "advanceAmount must be a non-negative finite number".to_owned(),
+                ));
+            }
+            Some(amount)
+        }
+        // Pct without an amount — derive the absolute figure from the
+        // doc total so PDFs render the exact ask.
+        (None, Some(pct)) => Some(total * pct / 100.0),
+        (None, None) => None,
+    };
+
     Ok(CrmProformaInvoice {
         id: None,
         user_id,
@@ -107,6 +151,11 @@ fn proforma_from_create(
         proforma_date: date,
         valid_till_date: input.valid_till_date.as_deref().and_then(parse_date),
         currency: input.currency,
+        linked_so_id,
+        advance_pct,
+        advance_amount,
+        payment_due_date: input.payment_due_date.as_deref().and_then(parse_date),
+        expected_delivery: input.expected_delivery.as_deref().and_then(parse_date),
         line_items: input.line_items,
         subtotal,
         total,
@@ -123,7 +172,7 @@ fn proforma_from_create(
     })
 }
 
-fn build_update_doc(patch: UpdateProformaInput) -> Document {
+fn build_update_doc(patch: UpdateProformaInput) -> Result<Document> {
     let mut set = doc! { "updatedAt": BsonDateTime::from_chrono(Utc::now()) };
     if let Some(v) = patch.proforma_number {
         set.insert("proformaNumber", v);
@@ -143,6 +192,27 @@ fn build_update_doc(patch: UpdateProformaInput) -> Document {
     }
     if let Some(v) = patch.currency {
         set.insert("currency", v);
+    }
+    // ---- canonical advance fields (G3) ---------------------------------
+    if let Some(v) = parse_linked_so_id(patch.linked_so_id.as_deref())? {
+        set.insert("linkedSoId", v);
+    }
+    if let Some(pct) = patch.advance_pct {
+        set.insert("advancePct", validate_advance_pct(pct)?);
+    }
+    if let Some(amount) = patch.advance_amount {
+        if !amount.is_finite() || amount < 0.0 {
+            return Err(ApiError::Validation(
+                "advanceAmount must be a non-negative finite number".to_owned(),
+            ));
+        }
+        set.insert("advanceAmount", amount);
+    }
+    if let Some(v) = patch.payment_due_date.as_deref().and_then(parse_date) {
+        set.insert("paymentDueDate", v);
+    }
+    if let Some(v) = patch.expected_delivery.as_deref().and_then(parse_date) {
+        set.insert("expectedDelivery", v);
     }
     if let Some(items) = patch.line_items {
         let subtotal = calc_subtotal(&items);
@@ -174,7 +244,7 @@ fn build_update_doc(patch: UpdateProformaInput) -> Document {
             set.insert("designMetadata", doc);
         }
     }
-    doc! { "$set": set }
+    Ok(doc! { "$set": set })
 }
 
 fn doc_for_audit(entity: &CrmProformaInvoice) -> Document {
@@ -305,7 +375,7 @@ pub async fn update_proforma(
             ApiError::Internal(anyhow::Error::new(e).context("crm_proforma_invoices.find_one"))
         })?
         .ok_or_else(|| ApiError::NotFound("proforma_invoice".to_owned()))?;
-    let update = build_update_doc(patch);
+    let update = build_update_doc(patch)?;
     let result = coll
         .update_one(ownership_filter(&scope, oid), update)
         .await
@@ -444,5 +514,150 @@ mod tests {
             ..Default::default()
         };
         assert!(proforma_from_create(input, user_id).is_err());
+    }
+
+    fn one_line(quantity: f64, rate: f64) -> ProformaLineItem {
+        ProformaLineItem {
+            item_id: None,
+            description: "Widget".into(),
+            quantity,
+            rate,
+            unit: None,
+            tax_pct: None,
+            amount: None,
+        }
+    }
+
+    /// G3 — advance fields persist on create; `advanceAmount` is derived
+    /// from `advancePct` × total when the caller doesn't send it.
+    #[test]
+    fn proforma_from_create_derives_advance_amount_from_pct() {
+        let user_id = ObjectId::new();
+        let so_id = ObjectId::new();
+        let input = CreateProformaInput {
+            proforma_number: "PI-2".into(),
+            proforma_date: "2026-06-01T00:00:00Z".into(),
+            line_items: vec![one_line(4.0, 250.0)], // total = 1000
+            linked_so_id: Some(so_id.to_hex()),
+            advance_pct: Some(30.0),
+            payment_due_date: Some("2026-06-15T00:00:00Z".into()),
+            expected_delivery: Some("2026-07-01T00:00:00Z".into()),
+            ..Default::default()
+        };
+        let p = proforma_from_create(input, user_id).unwrap();
+        assert_eq!(p.linked_so_id, Some(so_id));
+        assert_eq!(p.advance_pct, Some(30.0));
+        assert_eq!(p.advance_amount, Some(300.0));
+        assert!(p.payment_due_date.is_some());
+        assert!(p.expected_delivery.is_some());
+    }
+
+    /// G3 — an explicit `advanceAmount` wins over the derived figure.
+    #[test]
+    fn proforma_from_create_keeps_explicit_advance_amount() {
+        let user_id = ObjectId::new();
+        let input = CreateProformaInput {
+            proforma_number: "PI-3".into(),
+            proforma_date: "2026-06-01T00:00:00Z".into(),
+            line_items: vec![one_line(1.0, 1000.0)],
+            advance_pct: Some(50.0),
+            advance_amount: Some(450.0),
+            ..Default::default()
+        };
+        let p = proforma_from_create(input, user_id).unwrap();
+        assert_eq!(p.advance_amount, Some(450.0));
+    }
+
+    /// G3 — legacy creates (no advance fields) stay byte-identical.
+    #[test]
+    fn proforma_from_create_without_advance_fields_stays_none() {
+        let user_id = ObjectId::new();
+        let input = CreateProformaInput {
+            proforma_number: "PI-4".into(),
+            proforma_date: "2026-06-01T00:00:00Z".into(),
+            line_items: vec![one_line(1.0, 100.0)],
+            ..Default::default()
+        };
+        let p = proforma_from_create(input, user_id).unwrap();
+        assert!(p.linked_so_id.is_none());
+        assert!(p.advance_pct.is_none());
+        assert!(p.advance_amount.is_none());
+        assert!(p.payment_due_date.is_none());
+        assert!(p.expected_delivery.is_none());
+    }
+
+    #[test]
+    fn validate_advance_pct_bounds() {
+        assert_eq!(validate_advance_pct(0.0).unwrap(), 0.0);
+        assert_eq!(validate_advance_pct(100.0).unwrap(), 100.0);
+        assert!(validate_advance_pct(-1.0).is_err());
+        assert!(validate_advance_pct(100.1).is_err());
+        assert!(validate_advance_pct(f64::NAN).is_err());
+        assert!(validate_advance_pct(f64::INFINITY).is_err());
+    }
+
+    #[test]
+    fn parse_linked_so_id_rejects_garbage_accepts_hex_and_empty() {
+        assert!(parse_linked_so_id(Some("not-an-oid")).is_err());
+        assert_eq!(parse_linked_so_id(None).unwrap(), None);
+        assert_eq!(parse_linked_so_id(Some("  ")).unwrap(), None);
+        let oid = ObjectId::new();
+        assert_eq!(
+            parse_linked_so_id(Some(oid.to_hex().as_str())).unwrap(),
+            Some(oid)
+        );
+    }
+
+    /// G3 — the PATCH builder writes the advance fields under their
+    /// camelCase keys.
+    #[test]
+    fn build_update_doc_sets_advance_fields() {
+        let so_id = ObjectId::new();
+        let patch = UpdateProformaInput {
+            linked_so_id: Some(so_id.to_hex()),
+            advance_pct: Some(25.0),
+            advance_amount: Some(2500.0),
+            payment_due_date: Some("2026-06-20T00:00:00Z".into()),
+            expected_delivery: Some("2026-07-05T00:00:00Z".into()),
+            ..Default::default()
+        };
+        let update = build_update_doc(patch).unwrap();
+        let set = update.get_document("$set").unwrap();
+        assert_eq!(set.get_object_id("linkedSoId").unwrap(), so_id);
+        assert_eq!(set.get_f64("advancePct").unwrap(), 25.0);
+        assert_eq!(set.get_f64("advanceAmount").unwrap(), 2500.0);
+        assert!(set.get_datetime("paymentDueDate").is_ok());
+        assert!(set.get_datetime("expectedDelivery").is_ok());
+    }
+
+    /// G3 — invalid advance values reject the whole PATCH.
+    #[test]
+    fn build_update_doc_rejects_bad_advance_values() {
+        let bad_pct = UpdateProformaInput {
+            advance_pct: Some(150.0),
+            ..Default::default()
+        };
+        assert!(matches!(
+            build_update_doc(bad_pct).unwrap_err(),
+            ApiError::Validation(_)
+        ));
+
+        let bad_amount = UpdateProformaInput {
+            advance_amount: Some(-10.0),
+            ..Default::default()
+        };
+        assert!(matches!(
+            build_update_doc(bad_amount).unwrap_err(),
+            ApiError::Validation(_)
+        ));
+
+        let bad_so = UpdateProformaInput {
+            linked_so_id: Some("zzz".into()),
+            ..Default::default()
+        };
+        assert!(matches!(
+            build_update_doc(bad_so).unwrap_err(),
+            ApiError::Validation(_)
+        ));
     }
 }

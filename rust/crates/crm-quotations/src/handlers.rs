@@ -41,7 +41,7 @@ use chrono::Utc;
 use crm_core::{
     LineageRef, ScopeMode, TenantScope, build_lineage_from_parent, sabcrm_project_oid,
 };
-use crm_sales_types::Quotation;
+use crm_sales_types::{LineItem, Quotation, Totals};
 use futures::TryStreamExt;
 use mongodb::options::FindOptions;
 use sabnode_auth::AuthUser;
@@ -129,6 +129,45 @@ fn set_opt_oid(set: &mut Document, key: &str, val: Option<&String>) -> Result<()
         set.insert(key, oid);
     }
     Ok(())
+}
+
+/// Lowercase wire literals of `QuotationStatus` — the only values the
+/// create/update endpoints accept for `status`.
+const QUOTATION_STATUSES: &[&str] = &[
+    "draft",
+    "sent",
+    "accepted",
+    "rejected",
+    "expired",
+    "converted",
+];
+
+/// Normalize + validate a caller-supplied status literal against
+/// [`QUOTATION_STATUSES`]. Returns the lowercase canonical form.
+fn validate_status(raw: &str) -> Result<String> {
+    let status = raw.trim().to_ascii_lowercase();
+    if !QUOTATION_STATUSES.contains(&status.as_str()) {
+        return Err(ApiError::Validation(
+            "status must be one of: draft, sent, accepted, rejected, expired, converted."
+                .to_owned(),
+        ));
+    }
+    Ok(status)
+}
+
+/// Derive document-level [`Totals`] from the line items — `subTotal` and
+/// `total` are both Σ line `total` (per-line discounts/taxes are already
+/// baked into each line's `total`; header-level modifiers only exist
+/// when the caller sends an explicit `totals`). Fallback used when the
+/// create body omits `totals` so we never persist `Totals::default()`
+/// zeros against a non-empty items array (finance-rollout gap G1).
+fn totals_from_items(items: &[LineItem]) -> Totals {
+    let sum: f64 = items.iter().map(|i| i.total).sum();
+    Totals {
+        sub_total: sum,
+        total: sum,
+        ..Totals::default()
+    }
 }
 
 /// Map a parent `kind` string to the Mongo collection that holds it.
@@ -318,6 +357,19 @@ pub async fn create_quotation(
             "at least one line item is required.".to_owned(),
         ));
     }
+    if let Some(rate) = input.exchange_rate {
+        if !rate.is_finite() || rate <= 0.0 {
+            return Err(ApiError::Validation(
+                "exchangeRate must be a positive finite number.".to_owned(),
+            ));
+        }
+    }
+    // Initial workflow status (G1) — validated against the enum's wire
+    // literals, defaulting to `draft` exactly as before.
+    let status = match input.status.as_deref().filter(|s| !s.trim().is_empty()) {
+        Some(raw) => validate_status(raw)?,
+        None => "draft".to_owned(),
+    };
 
     let user_id = user_oid(&user)?;
     // In project mode the body's `projectId` IS the tenant scope and is
@@ -366,6 +418,13 @@ pub async fn create_quotation(
     let new_oid = ObjectId::new();
     let now = bson::DateTime::from_chrono(Utc::now());
 
+    // Document totals (G1): caller-supplied when present, otherwise
+    // derived from `items[]` — never `Totals::default()` zeros.
+    let totals = input
+        .totals
+        .clone()
+        .unwrap_or_else(|| totals_from_items(&input.items));
+
     // Build the document by hand so we can persist nested fragments
     // (`identity`, `audit`, …) flattened to the document root the same
     // way the canonical [`Quotation`] struct serialises. We avoid
@@ -390,15 +449,16 @@ pub async fn create_quotation(
         "clientId": client_oid,
         // money
         "currency": input.currency.trim(),
-        // line items + totals (Default::default())
+        // line items + totals (caller-supplied or derived from items —
+        // finance-rollout gap G1)
         "items": bson::to_bson(&input.items)
             .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("quotation.items.bson")))?,
-        "totals": bson::to_bson(&crm_sales_types::Totals::default())
+        "totals": bson::to_bson(&totals)
             .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("quotation.totals.bson")))?,
-        // workflow defaults — match the lowercase serde representations
-        // of `QuotationStatus::Draft` and `PdfStatus::None` so the
-        // typed re-read after insert deserialises cleanly.
-        "status": "draft",
+        // workflow — validated lowercase literal (defaults to "draft");
+        // `PdfStatus::None` so the typed re-read after insert
+        // deserialises cleanly.
+        "status": status,
         "pdfStatus": "none",
         "archived": false,
     };
@@ -419,6 +479,38 @@ pub async fn create_quotation(
     }
     if let Some(p) = input.place_of_supply.as_deref().filter(|s| !s.is_empty()) {
         new_doc.insert("placeOfSupply", p);
+    }
+    // ---- G2 fields ----------------------------------------------------
+    if let Some(r) = input.reference_no.as_deref().filter(|s| !s.is_empty()) {
+        new_doc.insert("referenceNo", r);
+    }
+    if let Some(agent) = input.sales_agent_id.as_deref().filter(|s| !s.is_empty()) {
+        new_doc.insert("salesAgentId", oid_from_str(agent)?);
+    }
+    if let Some(deal) = input.deal_id.as_deref().filter(|s| !s.is_empty()) {
+        new_doc.insert("dealId", oid_from_str(deal)?);
+    }
+    if let Some(rate) = input.exchange_rate {
+        new_doc.insert("exchangeRate", rate);
+    }
+    if let Some(addr) = input.billing_address.as_ref() {
+        let b = bson::to_bson(addr).map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("quotation.billingAddress.bson"))
+        })?;
+        new_doc.insert("billingAddress", b);
+    }
+    if let Some(addr) = input.shipping_address.as_ref() {
+        let b = bson::to_bson(addr).map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("quotation.shippingAddress.bson"))
+        })?;
+        new_doc.insert("shippingAddress", b);
+    }
+    // ---- G1: attachments (SabFiles pointers) ---------------------------
+    if let Some(att) = input.attachments.as_ref().filter(|a| !a.is_empty()) {
+        let b = bson::to_bson(att).map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("quotation.attachments.bson"))
+        })?;
+        new_doc.insert("attachments", b);
     }
     if let Some(la) = lineage_array {
         new_doc.insert("lineage", Bson::Array(la));
@@ -502,6 +594,13 @@ pub async fn update_quotation(
             ));
         }
     }
+    if let Some(rate) = input.exchange_rate {
+        if !rate.is_finite() || rate <= 0.0 {
+            return Err(ApiError::Validation(
+                "exchangeRate must be a positive finite number.".to_owned(),
+            ));
+        }
+    }
 
     let user_id = user_oid(&user)?;
     let scope = resolve_scope(mode, &user, scope_q.project_id.as_deref())?;
@@ -522,7 +621,10 @@ pub async fn update_quotation(
         input.terms_and_conditions.as_ref(),
     );
     set_opt_str(&mut set, "customerNotes", input.notes.as_ref());
+    set_opt_str(&mut set, "referenceNo", input.reference_no.as_ref());
     set_opt_oid(&mut set, "clientId", input.client_id.as_ref())?;
+    set_opt_oid(&mut set, "salesAgentId", input.sales_agent_id.as_ref())?;
+    set_opt_oid(&mut set, "dealId", input.deal_id.as_ref())?;
 
     if let Some(when) = input.date {
         set.insert("date", bson::DateTime::from_chrono(when));
@@ -530,27 +632,42 @@ pub async fn update_quotation(
     if let Some(when) = input.valid_until {
         set.insert("validUntil", bson::DateTime::from_chrono(when));
     }
-    if let Some(status) = input
-        .status
-        .as_deref()
-        .map(|s| s.trim().to_ascii_lowercase())
-    {
-        if !matches!(
-            status.as_str(),
-            "draft" | "sent" | "accepted" | "rejected" | "expired" | "converted"
-        ) {
-            return Err(ApiError::Validation(
-                "status must be one of: draft, sent, accepted, rejected, expired, converted."
-                    .to_owned(),
-            ));
-        }
-        set.insert("status", status);
+    if let Some(rate) = input.exchange_rate {
+        set.insert("exchangeRate", rate);
+    }
+    if let Some(addr) = input.billing_address.as_ref() {
+        let b = bson::to_bson(addr).map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("quotation.billingAddress.bson"))
+        })?;
+        set.insert("billingAddress", b);
+    }
+    if let Some(addr) = input.shipping_address.as_ref() {
+        let b = bson::to_bson(addr).map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("quotation.shippingAddress.bson"))
+        })?;
+        set.insert("shippingAddress", b);
+    }
+    if let Some(status) = input.status.as_deref() {
+        set.insert("status", validate_status(status)?);
     }
     if let Some(items) = input.items.as_ref() {
         let bson_items = bson::to_bson(items).map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("quotation.items.bson"))
         })?;
         set.insert("items", bson_items);
+    }
+    if let Some(totals) = input.totals.as_ref() {
+        let b = bson::to_bson(totals).map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("quotation.totals.bson"))
+        })?;
+        set.insert("totals", b);
+    }
+    if let Some(att) = input.attachments.as_ref() {
+        // Full replacement — `[]` deliberately clears all attachments.
+        let b = bson::to_bson(att).map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("quotation.attachments.bson"))
+        })?;
+        set.insert("attachments", b);
     }
     if let Some(v) = input.design_metadata {
         if let Ok(doc) = bson::to_document(&v) {
@@ -687,6 +804,60 @@ mod tests {
         let bad = "not-an-oid".to_owned();
         let err = set_opt_oid(&mut d, "clientId", Some(&bad)).unwrap_err();
         assert!(matches!(err, ApiError::BadRequest(_)));
+    }
+
+    /// G1 — totals derived from items when the create body omits them.
+    #[test]
+    fn totals_from_items_sums_line_totals() {
+        let items = vec![
+            LineItem {
+                qty: 2.0,
+                rate: 1500.0,
+                total: 3000.0,
+                ..LineItem::default()
+            },
+            LineItem {
+                qty: 1.0,
+                rate: 499.5,
+                total: 499.5,
+                ..LineItem::default()
+            },
+        ];
+        let totals = totals_from_items(&items);
+        assert_eq!(totals.sub_total, 3499.5);
+        assert_eq!(totals.total, 3499.5);
+        assert!(totals.discount_overall.is_none());
+        assert!(totals.shipping_charge.is_none());
+        assert!(totals.adjustment.is_none());
+        assert!(totals.round_off.is_none());
+    }
+
+    #[test]
+    fn totals_from_items_empty_is_zero() {
+        let totals = totals_from_items(&[]);
+        assert_eq!(totals.sub_total, 0.0);
+        assert_eq!(totals.total, 0.0);
+    }
+
+    #[test]
+    fn validate_status_accepts_all_enum_literals() {
+        for s in QUOTATION_STATUSES {
+            assert_eq!(validate_status(s).unwrap(), *s);
+        }
+        // Trim + lowercase normalisation.
+        assert_eq!(validate_status("  SENT ").unwrap(), "sent");
+    }
+
+    #[test]
+    fn validate_status_rejects_unknown() {
+        assert!(matches!(
+            validate_status("approved").unwrap_err(),
+            ApiError::Validation(_)
+        ));
+        assert!(matches!(
+            validate_status("").unwrap_err(),
+            ApiError::Validation(_)
+        ));
     }
 
     #[test]

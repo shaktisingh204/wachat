@@ -309,6 +309,49 @@
   cursor: inherit;
 }
 
+/* ─── Allocations editor ─────────────────────────────────────── */
+
+:is(.\32 0ui, .ui20) .fdoc-lines col.fdoc-col--doc {
+  width: 42%;
+}
+
+:is(.\32 0ui, .ui20) .fdoc-alloc__summary {
+  margin: 0;
+  align-self: center;
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-secondary);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+:is(.\32 0ui, .ui20) .fdoc-alloc__summary--over {
+  color: var(--st-danger-strong);
+}
+
+/* ─── Journal (debit/credit) editor ──────────────────────────── */
+
+:is(.\32 0ui, .ui20) .fdoc-journal__heading {
+  margin: 0;
+  padding: 8px 10px 0;
+  font-size: var(--st-font-size-xs);
+  font-weight: var(--st-fw-semibold);
+  color: var(--st-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+:is(.\32 0ui, .ui20) .fdoc-journal__section + .fdoc-journal__section {
+  border-top: 1px solid var(--st-border);
+}
+
+:is(.\32 0ui, .ui20) .fdoc-journal__add {
+  padding: 4px 6px 8px;
+}
+
+:is(.\32 0ui, .ui20) .fdoc-journal .fdoc-lines__footer {
+  align-items: center;
+}
+
 /* ─── Form layout ────────────────────────────────────────────── */
 
 /* Wide right-side drawer for the full doc form. (DrawerContent portals

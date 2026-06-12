@@ -19,6 +19,19 @@ pub const DEFAULT_LIMIT: i64 = 20;
 /// the Rust BFF (clamped to keep large-result-set DoS attempts bounded).
 pub const MAX_LIMIT: i64 = 100;
 
+/// Query string for the single-document + lifecycle routes (`GET` /
+/// `PATCH` / `DELETE /{runId}` and `POST /{runId}/compute|disburse`).
+/// Carries only the SabCRM tenant scope — **required** under
+/// `ScopeMode::Project` (the `/v1/sabcrm/people/payroll-runs` mount),
+/// ignored on the legacy `userId`-scoped mount.
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ScopeQuery {
+    /// SabCRM tenant scope (24-char hex `ObjectId`).
+    #[serde(default)]
+    pub project_id: Option<String>,
+}
+
 /// `GET /v1/hrm/payroll-runs` query string.
 ///
 /// `status` narrows by workflow stage; legal values are the lower-case
@@ -27,6 +40,12 @@ pub const MAX_LIMIT: i64 = 100;
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ListQuery {
+    /// SabCRM tenant scope (24-char hex `ObjectId`). **Required** when
+    /// the router is mounted in `ScopeMode::Project` (the
+    /// `/v1/sabcrm/people/payroll-runs` mount); ignored on the legacy
+    /// `userId`-scoped mount.
+    #[serde(default)]
+    pub project_id: Option<String>,
     /// 1-indexed page (matches TS). Defaults to `1`.
     #[serde(default)]
     pub page: Option<u32>,
@@ -133,6 +152,12 @@ impl UpdatePayrollRunInput {
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ApproveInput {
+    /// SabCRM tenant scope (24-char hex `ObjectId`). **Required** when
+    /// the router is mounted in `ScopeMode::Project`; ignored on the
+    /// legacy `userId`-scoped mount. Also accepted as `?projectId=` on
+    /// the query string.
+    #[serde(default)]
+    pub project_id: Option<String>,
     /// 24-char hex of the approver (typically the manager / CFO who
     /// is signing off on this step).
     pub approver_id: String,
@@ -188,5 +213,37 @@ mod tests {
         let input: ApproveInput = serde_json::from_value(json).unwrap();
         assert_eq!(input.approver_id, "507f1f77bcf86cd799439011");
         assert_eq!(input.comment.as_deref(), Some("LGTM"));
+        assert!(input.project_id.is_none());
+    }
+
+    #[test]
+    fn approve_input_parses_camel_case_project_id() {
+        let input: ApproveInput = serde_json::from_value(serde_json::json!({
+            "approverId": "507f1f77bcf86cd799439011",
+            "projectId": "507f1f77bcf86cd799439099",
+        }))
+        .unwrap();
+        assert_eq!(input.project_id.as_deref(), Some("507f1f77bcf86cd799439099"));
+    }
+
+    #[test]
+    fn list_query_parses_camel_case_project_id() {
+        let q: ListQuery = serde_json::from_value(serde_json::json!({
+            "projectId": "507f1f77bcf86cd799439099",
+        }))
+        .unwrap();
+        assert_eq!(q.project_id.as_deref(), Some("507f1f77bcf86cd799439099"));
+    }
+
+    #[test]
+    fn scope_query_parses_camel_case_project_id() {
+        let q: ScopeQuery = serde_json::from_value(serde_json::json!({
+            "projectId": "507f1f77bcf86cd799439099",
+        }))
+        .unwrap();
+        assert_eq!(q.project_id.as_deref(), Some("507f1f77bcf86cd799439099"));
+
+        let empty: ScopeQuery = serde_json::from_value(serde_json::json!({})).unwrap();
+        assert!(empty.project_id.is_none());
     }
 }

@@ -1,7 +1,15 @@
 //! HTTP handlers for the Shift Change Request entity.
+//!
+//! Every handler scopes its Mongo query by the mount's
+//! [`crm_core::ScopeMode`]:
+//!
+//! - `/v1/crm/shift-change-requests` (legacy) — `userId == JWT subject`.
+//! - `/v1/sabcrm/people/shift-change-requests` — required `projectId`
+//!   (4xx when absent). Entity fields stay snake_case on the wire; only
+//!   the tenant key (`projectId`) is camelCase.
 
 use axum::{
-    Json,
+    Extension, Json,
     extract::{Path, Query, State},
 };
 use bson::{DateTime as BsonDateTime, Document, doc, oid::ObjectId};
@@ -12,6 +20,7 @@ use crm_common::{
     search::build_q_filter,
     tenant::user_oid,
 };
+use crm_core::{ScopeMode, TenantScope, sabcrm_project_oid};
 use futures::TryStreamExt;
 use mongodb::options::FindOptions;
 use sabnode_auth::AuthUser;
@@ -21,15 +30,29 @@ use tracing::instrument;
 
 use crate::dto::{
     CreateShiftChangeRequestInput, CreateShiftChangeRequestResponse,
-    DeleteShiftChangeRequestResponse, ListQuery, UpdateShiftChangeRequestInput,
+    DeleteShiftChangeRequestResponse, ListQuery, ScopeQuery, UpdateShiftChangeRequestInput,
 };
 use crate::types::CrmShiftChangeRequest;
 
 const COLL: &str = "crm_shift_change_requests";
 const ENTITY_KIND: &str = "shift_change_request";
 
-fn list_filter(user_id: ObjectId, status: Option<&str>) -> Document {
-    let mut filter = doc! { "userId": user_id };
+/// Resolve the per-request [`TenantScope`] from the mount's
+/// [`ScopeMode`] — `userId` (JWT subject) on the legacy mount, required
+/// `projectId` on the SabCRM People mount (4xx when absent/invalid).
+fn resolve_scope(
+    mode: ScopeMode,
+    user: &AuthUser,
+    project_id: Option<&str>,
+) -> Result<TenantScope> {
+    match mode {
+        ScopeMode::User => Ok(TenantScope::User(user_oid(user)?)),
+        ScopeMode::Project => Ok(TenantScope::Project(sabcrm_project_oid(project_id)?)),
+    }
+}
+
+fn list_filter(scope: &TenantScope, status: Option<&str>) -> Document {
+    let mut filter = scope.filter();
     match status.unwrap_or("active_visible") {
         "all" => {}
         "archived" => {
@@ -57,13 +80,16 @@ fn list_filter(user_id: ObjectId, status: Option<&str>) -> Document {
     filter
 }
 
-fn ownership_filter(user_id: ObjectId, oid: ObjectId) -> Document {
-    doc! { "_id": oid, "userId": user_id }
+fn ownership_filter(scope: &TenantScope, oid: ObjectId) -> Document {
+    let mut f = scope.filter();
+    f.insert("_id", oid);
+    f
 }
 
 fn entity_from_create(
     input: CreateShiftChangeRequestInput,
     user_id: ObjectId,
+    project_id: Option<ObjectId>,
 ) -> Result<CrmShiftChangeRequest> {
     if input.employee_id.trim().is_empty() {
         return Err(ApiError::Validation("employee_id is required".to_owned()));
@@ -87,6 +113,7 @@ fn entity_from_create(
     Ok(CrmShiftChangeRequest {
         id: None,
         user_id,
+        project_id,
         employee_id: input.employee_id.trim().to_string(),
         employee_name: input.employee_name,
         current_shift_id: input.current_shift_id.trim().to_string(),
@@ -161,11 +188,12 @@ pub struct ListResponse {
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn list_requests(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Query(q): Query<ListQuery>,
 ) -> Result<Json<ListResponse>> {
-    let user_id = user_oid(&user)?;
-    let mut filter = list_filter(user_id, q.status.as_deref());
+    let scope = resolve_scope(mode, &user, q.project_id.as_deref())?;
+    let mut filter = list_filter(&scope, q.status.as_deref());
     if let Some(emp) = q
         .employee_id
         .as_deref()
@@ -221,14 +249,16 @@ pub async fn list_requests(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %request_id))]
 pub async fn get_request(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(request_id): Path<String>,
+    Query(scope_q): Query<ScopeQuery>,
 ) -> Result<Json<CrmShiftChangeRequest>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, scope_q.project_id.as_deref())?;
     let oid = oid_from_str(&request_id)?;
     let coll = mongo.collection::<CrmShiftChangeRequest>(COLL);
     let row = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_shift_change_requests.find_one"))
@@ -240,11 +270,25 @@ pub async fn get_request(
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn create_request(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Json(input): Json<CreateShiftChangeRequestInput>,
 ) -> Result<Json<CreateShiftChangeRequestResponse>> {
     let user_id = user_oid(&user)?;
-    let mut entity = entity_from_create(input, user_id)?;
+    // Project mode: body `projectId` IS the tenant scope (mandatory).
+    // User mode: scope is the JWT subject, body `projectId` optional.
+    // `userId` is always stamped for auditing.
+    let scope = resolve_scope(mode, &user, input.project_id.as_deref())?;
+    let project_id = match scope {
+        TenantScope::Project(p) => Some(p),
+        TenantScope::User(_) => input
+            .project_id
+            .as_deref()
+            .map(str::trim)
+            .filter(|s| !s.is_empty())
+            .and_then(|s| ObjectId::parse_str(s).ok()),
+    };
+    let mut entity = entity_from_create(input, user_id, project_id)?;
     let coll = mongo.collection::<CrmShiftChangeRequest>(COLL);
     let inserted = coll.insert_one(&entity).await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("crm_shift_change_requests.insert"))
@@ -269,16 +313,18 @@ pub async fn create_request(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %request_id))]
 pub async fn update_request(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(request_id): Path<String>,
+    Query(scope_q): Query<ScopeQuery>,
     Json(patch): Json<UpdateShiftChangeRequestInput>,
 ) -> Result<Json<CrmShiftChangeRequest>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, scope_q.project_id.as_deref())?;
     let oid = oid_from_str(&request_id)?;
 
     let coll = mongo.collection::<CrmShiftChangeRequest>(COLL);
     let before = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_shift_change_requests.find_one"))
@@ -287,7 +333,7 @@ pub async fn update_request(
 
     let update = build_update_doc(patch);
     let result = coll
-        .update_one(ownership_filter(user_id, oid), update)
+        .update_one(ownership_filter(&scope, oid), update)
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_shift_change_requests.update"))
@@ -297,7 +343,7 @@ pub async fn update_request(
     }
 
     let after = coll
-        .find_one(ownership_filter(user_id, oid))
+        .find_one(ownership_filter(&scope, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_shift_change_requests.refetch"))
@@ -320,16 +366,18 @@ pub async fn update_request(
 #[instrument(skip_all, fields(user_id = %user.user_id, id = %request_id))]
 pub async fn delete_request(
     user: AuthUser,
+    Extension(mode): Extension<ScopeMode>,
     State(mongo): State<MongoHandle>,
     Path(request_id): Path<String>,
+    Query(scope_q): Query<ScopeQuery>,
 ) -> Result<Json<DeleteShiftChangeRequestResponse>> {
-    let user_id = user_oid(&user)?;
+    let scope = resolve_scope(mode, &user, scope_q.project_id.as_deref())?;
     let oid = oid_from_str(&request_id)?;
 
     let coll = mongo.collection::<CrmShiftChangeRequest>(COLL);
     let result = coll
         .update_one(
-            ownership_filter(user_id, oid),
+            ownership_filter(&scope, oid),
             doc! { "$set": {
                 "status": "archived",
                 "updatedAt": BsonDateTime::from_chrono(Utc::now()),
@@ -357,6 +405,7 @@ mod tests {
 
     fn sample_input() -> CreateShiftChangeRequestInput {
         CreateShiftChangeRequestInput {
+            project_id: None,
             employee_id: "emp_1".into(),
             employee_name: Some("Aakash".into()),
             current_shift_id: "shift_a".into(),
@@ -372,17 +421,19 @@ mod tests {
     #[test]
     fn list_filter_excludes_archived_by_default() {
         let oid = ObjectId::new();
-        let f = list_filter(oid, None);
+        let f = list_filter(&TenantScope::User(oid), None);
         assert!(f.contains_key("status"));
+        assert_eq!(f.get_object_id("userId").unwrap(), oid);
     }
 
     #[test]
     fn entity_from_create_defaults_to_pending() {
         let user_id = ObjectId::new();
-        let e = entity_from_create(sample_input(), user_id).unwrap();
+        let e = entity_from_create(sample_input(), user_id, None).unwrap();
         assert_eq!(e.status, "pending");
         assert!(e.approver_id.is_none());
         assert!(e.approved_at.is_none());
+        assert!(e.project_id.is_none());
     }
 
     #[test]
@@ -390,7 +441,7 @@ mod tests {
         let user_id = ObjectId::new();
         let mut input = sample_input();
         input.requested_shift_id = input.current_shift_id.clone();
-        assert!(entity_from_create(input, user_id).is_err());
+        assert!(entity_from_create(input, user_id, None).is_err());
     }
 
     #[test]
@@ -398,14 +449,104 @@ mod tests {
         let user_id = ObjectId::new();
         let mut bad_emp = sample_input();
         bad_emp.employee_id = "  ".into();
-        assert!(entity_from_create(bad_emp, user_id).is_err());
+        assert!(entity_from_create(bad_emp, user_id, None).is_err());
 
         let mut bad_cur = sample_input();
         bad_cur.current_shift_id = " ".into();
-        assert!(entity_from_create(bad_cur, user_id).is_err());
+        assert!(entity_from_create(bad_cur, user_id, None).is_err());
 
         let mut bad_req = sample_input();
         bad_req.requested_shift_id = " ".into();
-        assert!(entity_from_create(bad_req, user_id).is_err());
+        assert!(entity_from_create(bad_req, user_id, None).is_err());
+    }
+
+    #[test]
+    fn entity_from_create_stamps_project_scope_camel_case() {
+        let user_id = ObjectId::new();
+        let project_id = ObjectId::new();
+        let e = entity_from_create(sample_input(), user_id, Some(project_id)).unwrap();
+        assert_eq!(e.project_id, Some(project_id));
+        // The entity wire stays snake_case but the tenant key must land
+        // camelCase (`projectId`) — uniform across the suite.
+        let json = serde_json::to_value(&e).unwrap();
+        assert_eq!(json["projectId"]["$oid"], project_id.to_hex());
+        assert!(json.get("project_id").is_none());
+        assert!(json.get("employee_id").is_some(), "entity wire stays snake_case");
+    }
+
+    /// Test-only [`AuthUser`] with a valid 24-hex subject.
+    fn fake_user(oid: &ObjectId) -> AuthUser {
+        AuthUser {
+            user_id: oid.to_hex(),
+            tenant_id: String::new(),
+            roles: Vec::new(),
+        }
+    }
+
+    #[test]
+    fn resolve_scope_project_rejects_missing_project_id() {
+        let user = fake_user(&ObjectId::new());
+        assert!(matches!(
+            resolve_scope(ScopeMode::Project, &user, None).unwrap_err(),
+            ApiError::Validation(_)
+        ));
+        assert!(matches!(
+            resolve_scope(ScopeMode::Project, &user, Some("  ")).unwrap_err(),
+            ApiError::Validation(_)
+        ));
+        assert!(matches!(
+            resolve_scope(ScopeMode::Project, &user, Some("not-an-oid")).unwrap_err(),
+            ApiError::Validation(_)
+        ));
+    }
+
+    #[test]
+    fn resolve_scope_resolves_both_modes() {
+        let user_oid = ObjectId::new();
+        let user = fake_user(&user_oid);
+        assert_eq!(
+            resolve_scope(ScopeMode::User, &user, None).unwrap(),
+            TenantScope::User(user_oid)
+        );
+        let project = ObjectId::new();
+        assert_eq!(
+            resolve_scope(ScopeMode::Project, &user, Some(&project.to_hex())).unwrap(),
+            TenantScope::Project(project)
+        );
+    }
+
+    #[test]
+    fn project_scope_filters_project_id_only() {
+        let project = ObjectId::new();
+        let f = list_filter(&TenantScope::Project(project), None);
+        assert_eq!(f.get_object_id("projectId").unwrap(), project);
+        assert!(!f.contains_key("userId"));
+        let f = ownership_filter(&TenantScope::Project(project), ObjectId::new());
+        assert_eq!(f.get_object_id("projectId").unwrap(), project);
+        assert!(!f.contains_key("userId"));
+    }
+
+    #[test]
+    fn scope_query_parses_camel_case_project_id_despite_snake_case_wire() {
+        let q: ScopeQuery = serde_json::from_value(serde_json::json!({
+            "projectId": "507f1f77bcf86cd799439099"
+        }))
+        .unwrap();
+        assert_eq!(q.project_id.as_deref(), Some("507f1f77bcf86cd799439099"));
+
+        // The create body keeps snake_case entity fields + camelCase tenant key.
+        let input: CreateShiftChangeRequestInput = serde_json::from_value(serde_json::json!({
+            "projectId": "507f1f77bcf86cd799439099",
+            "employee_id": "emp_1",
+            "current_shift_id": "shift_a",
+            "requested_shift_id": "shift_b",
+            "effective_date": "2026-06-01T00:00:00Z"
+        }))
+        .unwrap();
+        assert_eq!(
+            input.project_id.as_deref(),
+            Some("507f1f77bcf86cd799439099")
+        );
+        assert_eq!(input.employee_id, "emp_1");
     }
 }

@@ -407,7 +407,8 @@ pub async fn create_sales_order(
         expected_shipment_date: input.expected_shipment_date,
         delivery_method: input.delivery_method,
         payment_terms: input.payment_terms.clone(),
-        shipping_address: None,
+        // Ship-to address from the create body (finance-rollout gap G7).
+        shipping_address: input.shipping_address.clone(),
         currency: input.currency.trim().to_owned(),
         exchange_rate: input.exchange_rate,
         items: input.items.clone(),
@@ -506,6 +507,13 @@ pub async fn update_sales_order(
             ApiError::Internal(anyhow::Error::new(e).context("delivery_method serialize"))
         })?;
         set.insert("deliveryMethod", b);
+    }
+    if let Some(addr) = input.shipping_address.as_ref() {
+        // Ship-to address replacement (finance-rollout gap G7).
+        let b = bson::to_bson(addr).map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("shipping_address serialize"))
+        })?;
+        set.insert("shippingAddress", b);
     }
     set_opt_str(&mut set, "paymentTerms", input.payment_terms.as_ref());
     set_opt_str(&mut set, "currency", input.currency.as_ref());
