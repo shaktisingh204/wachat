@@ -55,6 +55,7 @@ import { recomputeRollupsAround } from '@/lib/sabcrm/rollup.server';
 import { captureOutcome, patchTouchesStage } from '@/lib/sabcrm/win-loss.server';
 import { recomputeLookupsForRecord } from '@/lib/sabcrm/lookup.server';
 import { applyRecordTypeDefaults } from '@/lib/sabcrm/record-types.server';
+import { recomputeSlaForCase, CASES_SLUG } from '@/lib/sabcrm/cases.server';
 import { scoreWinForRecord } from '@/lib/sabcrm/predictive-scoring.server';
 import {
   validateRecordWrite,
@@ -561,6 +562,9 @@ export async function createSabcrmRecordTw(
     await indexEmbeddingForRecord(g.ctx.projectId, object, record.id);
     await recomputeRollupsAround(g.ctx.projectId, object, record.id);
     await scoreWinForRecord(g.ctx.projectId, object, record.id);
+    if (object === CASES_SLUG) {
+      await recomputeSlaForCase(g.ctx.projectId, record.id);
+    }
 
     revalidatePath(`${TW_BASE_PATH}/${object}`);
     return { ok: true, data: record };
@@ -684,6 +688,9 @@ export async function updateSabcrmRecordTw(
     await indexEmbeddingForRecord(g.ctx.projectId, object, id);
     await recomputeRollupsAround(g.ctx.projectId, object, id);
     await scoreWinForRecord(g.ctx.projectId, object, id);
+    if (object === CASES_SLUG) {
+      await recomputeSlaForCase(g.ctx.projectId, id);
+    }
 
     // Win/loss outcome capture: when the patch moved the deal's stage, classify
     // the new stage and stamp data.outcome/outcomeAt (AI-fields envelope, no

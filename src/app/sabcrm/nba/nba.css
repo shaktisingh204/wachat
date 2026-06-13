@@ -1,0 +1,221 @@
+/**
+ * SabCRM — Next-Best-Action (`/sabcrm/nba`) page-local styles, 20ui.
+ *
+ * `.nba-*` prefix, scoped to the 20ui root (`:is(.\32 0ui, .ui20)` — NEVER a
+ * bare `.20ui.foo` compound). Tokens only (`--st-*`), so dark mode is free.
+ * Cards / badges / segmented control / empty states come from 20ui components;
+ * this file carries only the page column, the count line, the filter pills, the
+ * urgency-group framing and the action-card internals.
+ */
+
+/* Page scroll wrapper + centered content column --------------------------- */
+:is(.\32 0ui, .ui20) .nba-page {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: var(--st-space-5);
+  overflow-y: auto;
+}
+
+:is(.\32 0ui, .ui20) .nba-page__inner {
+  width: 100%;
+  max-width: 920px;
+  margin: 0 auto;
+}
+
+/* "As of HH:MM" suffix in the page description. */
+:is(.\32 0ui, .ui20) .nba-asof {
+  color: var(--st-text-tertiary, var(--st-text-secondary));
+}
+
+/* Sub-count line under the header (e.g. "12 actions in your queue"). */
+:is(.\32 0ui, .ui20) .nba-count {
+  margin: var(--st-space-4) 0 var(--st-space-3);
+  color: var(--st-text-secondary);
+  font-size: var(--st-font-size-sm);
+}
+
+/* Loading skeleton column. */
+:is(.\32 0ui, .ui20) .nba-skel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-3);
+  margin-top: var(--st-space-4);
+}
+
+/* Kind filter (segmented control) spacing. */
+:is(.\32 0ui, .ui20) .nba-filters {
+  margin-bottom: var(--st-space-4);
+}
+
+/* Live count pill inside a segmented filter label. */
+:is(.\32 0ui, .ui20) .nba-filter-count {
+  margin-left: var(--st-space-2);
+  padding: 0 var(--st-space-2);
+  border-radius: 999px;
+  background: var(--st-surface-subtle, var(--st-bg-subtle));
+  color: var(--st-text-secondary);
+  font-size: var(--st-font-size-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Urgency groups ---------------------------------------------------------- */
+:is(.\32 0ui, .ui20) .nba-groups {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-5);
+}
+
+:is(.\32 0ui, .ui20) .nba-group__head {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  margin-bottom: var(--st-space-3);
+}
+
+:is(.\32 0ui, .ui20) .nba-group__title {
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-font-weight-semibold, 600);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--st-text-secondary);
+}
+
+:is(.\32 0ui, .ui20) .nba-group__title--critical {
+  color: var(--st-danger-text, var(--st-danger));
+}
+:is(.\32 0ui, .ui20) .nba-group__title--high {
+  color: var(--st-warning-text, var(--st-warning));
+}
+
+:is(.\32 0ui, .ui20) .nba-group__count {
+  min-width: 20px;
+  padding: 0 var(--st-space-2);
+  border-radius: 999px;
+  background: var(--st-surface-subtle, var(--st-bg-subtle));
+  color: var(--st-text-secondary);
+  font-size: var(--st-font-size-xs);
+  line-height: 1.4;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+:is(.\32 0ui, .ui20) .nba-group__cards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-3);
+}
+
+/* Action card ------------------------------------------------------------- */
+:is(.\32 0ui, .ui20) .nba-card__body {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--st-space-3);
+  padding: var(--st-space-4);
+}
+
+:is(.\32 0ui, .ui20) .nba-card__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--st-radius-md, 10px);
+  background: var(--st-surface-subtle, var(--st-bg-subtle));
+  color: var(--st-text-secondary);
+}
+
+:is(.\32 0ui, .ui20) .nba-card__icon--critical {
+  background: var(--st-danger-bg, color-mix(in srgb, var(--st-danger) 14%, transparent));
+  color: var(--st-danger-text, var(--st-danger));
+}
+:is(.\32 0ui, .ui20) .nba-card__icon--high {
+  background: var(--st-warning-bg, color-mix(in srgb, var(--st-warning) 14%, transparent));
+  color: var(--st-warning-text, var(--st-warning));
+}
+:is(.\32 0ui, .ui20) .nba-card__icon--medium {
+  background: var(--st-info-bg, color-mix(in srgb, var(--st-info) 14%, transparent));
+  color: var(--st-info-text, var(--st-info));
+}
+
+:is(.\32 0ui, .ui20) .nba-card__main {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-1);
+}
+
+:is(.\32 0ui, .ui20) .nba-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--st-space-2);
+}
+
+:is(.\32 0ui, .ui20) .nba-card__verb {
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-font-weight-semibold, 600);
+  color: var(--st-text-primary);
+}
+
+:is(.\32 0ui, .ui20) .nba-card__record {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  max-width: 100%;
+  color: var(--st-text-primary);
+  font-size: var(--st-font-size-sm);
+  text-decoration: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+:is(.\32 0ui, .ui20) .nba-card__record:hover {
+  color: var(--st-accent-text, var(--st-accent));
+  text-decoration: underline;
+}
+
+:is(.\32 0ui, .ui20) .nba-card__obj {
+  flex: 0 0 auto;
+}
+
+:is(.\32 0ui, .ui20) .nba-card__reason {
+  margin: 0;
+  color: var(--st-text-secondary);
+  font-size: var(--st-font-size-xs);
+  line-height: 1.5;
+}
+
+:is(.\32 0ui, .ui20) .nba-card__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-1);
+  flex: 0 0 auto;
+  align-self: center;
+  padding: var(--st-space-2) var(--st-space-3);
+  border-radius: var(--st-radius-md, 8px);
+  border: 1px solid var(--st-border, var(--st-border-subtle));
+  color: var(--st-text-primary);
+  font-size: var(--st-font-size-sm);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 120ms ease, border-color 120ms ease;
+}
+:is(.\32 0ui, .ui20) .nba-card__cta:hover {
+  background: var(--st-surface-subtle, var(--st-bg-subtle));
+  border-color: var(--st-border-strong, var(--st-border));
+}
+
+/* Narrow screens: stack the CTA below the body. */
+@media (max-width: 560px) {
+  :is(.\32 0ui, .ui20) .nba-card__body {
+    flex-wrap: wrap;
+  }
+  :is(.\32 0ui, .ui20) .nba-card__cta {
+    align-self: stretch;
+    justify-content: center;
+    margin-top: var(--st-space-2);
+    width: 100%;
+  }
+}

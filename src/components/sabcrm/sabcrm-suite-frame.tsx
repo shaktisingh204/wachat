@@ -60,6 +60,7 @@ import {
   Users,
   Wallet,
   Workflow,
+  LifeBuoy,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -267,6 +268,7 @@ export function SabcrmSuiteFrame({ children }: { children: React.ReactNode }) {
       { group: 'sales', id: 'approvals', label: 'Approvals', href: '/sabcrm/approvals', icon: ShieldCheck },
       { group: 'sales', id: 'sequences', label: 'Sequences', href: '/sabcrm/sequences', icon: Send },
       { group: 'sales', id: 'routing', label: 'Routing', href: '/sabcrm/routing', icon: Shuffle },
+      { group: 'sales', id: 'cases', label: 'Cases', href: '/sabcrm/cases', icon: LifeBuoy },
       { group: 'finance', id: 'invoices', label: 'Invoices', href: '/sabcrm/finance/invoices', icon: Receipt },
       { group: 'finance', id: 'quotations', label: 'Quotations', href: '/sabcrm/finance/quotations', icon: FileText },
       { group: 'finance', id: 'sales-orders', label: 'Sales orders', href: '/sabcrm/finance/sales-orders', icon: FileText },
@@ -330,6 +332,7 @@ export function SabcrmSuiteFrame({ children }: { children: React.ReactNode }) {
       { group: 'insights', id: 'dashboards', label: 'Dashboards', href: '/sabcrm/dashboard', icon: LayoutDashboard },
       { group: 'insights', id: 'reports', label: 'Reports', href: '/sabcrm/reports', icon: BarChart3 },
       { group: 'insights', id: 'data-quality', label: 'Data health', href: '/sabcrm/data-quality', icon: ShieldCheck },
+      { group: 'insights', id: 'nba', label: 'Next best action', href: '/sabcrm/nba', icon: Sparkles },
       { group: 'insights', id: 'activity', label: 'Activity', href: '/sabcrm/activity', icon: Activity },
       { group: 'insights', id: 'calendar', label: 'Calendar', href: '/sabcrm/calendar', icon: Calendar },
       { group: 'insights', id: 'map', label: 'Map', href: '/sabcrm/map', icon: MapPin },

@@ -37,6 +37,7 @@ import {
   Link2,
   ListChecks,
   Inbox,
+  LifeBuoy,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -265,6 +266,24 @@ const GROUPS: readonly SettingsGroup[] = [
         label: 'Activity auto-capture',
         description: 'Auto-log inbound email and calendar events as activities',
         icon: Inbox,
+      },
+      {
+        slug: 'cadences',
+        label: 'Multichannel cadences',
+        description: 'Email / SMS / WhatsApp / task outreach steps with A/B subjects',
+        icon: GitBranch,
+      },
+      {
+        slug: 'service',
+        label: 'Service & SLA',
+        description: 'Support cases, SLA targets and CSAT surveys',
+        icon: LifeBuoy,
+      },
+      {
+        slug: 'pricing',
+        label: 'CPQ pricing',
+        description: 'Price books, volume tiers and the discount-approval threshold',
+        icon: Tag,
       },
       {
         slug: 'forecast-adjustments',
