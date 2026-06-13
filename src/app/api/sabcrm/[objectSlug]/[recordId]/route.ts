@@ -13,6 +13,12 @@ import { ensureSabcrmIndexes } from "@/lib/sabcrm/db";
 import { verifyApiKey } from "@/lib/sabcrm/apikeys.server";
 import { logRecordAudit } from "@/lib/sabcrm/audit.server";
 import { emitSabcrmEvent } from "@/lib/sabcrm/events.server";
+import {
+  checkRateLimit,
+  logApiCall,
+  rateLimitHeaders,
+  type RateLimitVerdict,
+} from "@/lib/sabcrm/api-logs.server";
 import type { CrmRecord, ObjectMetadata } from "@/lib/sabcrm/types";
 
 /**
@@ -58,8 +64,25 @@ function apiOwnerId(keyId: string): string {
   return `api:${keyId}`;
 }
 
-function json(body: unknown, status = 200): NextResponse {
-  return NextResponse.json(body, { status });
+function json(
+  body: unknown,
+  status = 200,
+  headers?: Record<string, string>,
+): NextResponse {
+  return NextResponse.json(body, { status, headers });
+}
+
+/** Build a 429 response from a denied rate-limit verdict. */
+function rateLimited(verdict: RateLimitVerdict): NextResponse {
+  return json(
+    {
+      error:
+        "Rate limit exceeded. Slow down and retry after the window resets.",
+      retryAfterSeconds: verdict.retryAfterSeconds,
+    },
+    429,
+    rateLimitHeaders(verdict),
+  );
 }
 
 /** Authenticated, object-resolved context shared by all three verbs. */
@@ -142,20 +165,38 @@ export async function GET(
   req: Request,
   { params }: { params: Promise<{ objectSlug: string; recordId: string }> },
 ): Promise<NextResponse> {
+  const started = Date.now();
   const { objectSlug, recordId } = await params;
+  const path = new URL(req.url).pathname;
 
   const resolved = await resolveContext(req, objectSlug);
   if (!resolved.ok) return resolved.response;
   const { ctx } = resolved;
 
+  const verdict = await checkRateLimit(ctx.keyId, { projectId: ctx.projectId });
+  if (!verdict.allowed) {
+    void logApiCall({
+      projectId: ctx.projectId,
+      keyId: ctx.keyId,
+      method: "GET",
+      path,
+      status: 429,
+      ms: Date.now() - started,
+    });
+    return rateLimited(verdict);
+  }
+
+  let status = 200;
   try {
     const record = await getRecord(ctx.projectId, ctx.ownerId, recordId);
     if (!record || !recordMatchesObject(record, objectSlug)) {
-      return json({ error: "Record not found." }, 404);
+      status = 404;
+      return json({ error: "Record not found." }, 404, rateLimitHeaders(verdict));
     }
 
-    return json({ object: objectSlug, record });
+    return json({ object: objectSlug, record }, 200, rateLimitHeaders(verdict));
   } catch (err) {
+    status = 500;
     console.error(
       "[sabcrm:api] GET record failed:",
       objectSlug,
@@ -164,7 +205,16 @@ export async function GET(
     );
     const message =
       err instanceof Error ? err.message : "Failed to load record.";
-    return json({ error: message }, 500);
+    return json({ error: message }, 500, rateLimitHeaders(verdict));
+  } finally {
+    void logApiCall({
+      projectId: ctx.projectId,
+      keyId: ctx.keyId,
+      method: "GET",
+      path,
+      status,
+      ms: Date.now() - started,
+    });
   }
 }
 
@@ -176,17 +226,39 @@ export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ objectSlug: string; recordId: string }> },
 ): Promise<NextResponse> {
+  const started = Date.now();
   const { objectSlug, recordId } = await params;
+  const path = new URL(req.url).pathname;
 
   const resolved = await resolveContext(req, objectSlug);
   if (!resolved.ok) return resolved.response;
   const { ctx } = resolved;
 
+  const verdict = await checkRateLimit(ctx.keyId, { projectId: ctx.projectId });
+  const logCall = (status: number) =>
+    void logApiCall({
+      projectId: ctx.projectId,
+      keyId: ctx.keyId,
+      method: "PATCH",
+      path,
+      status,
+      ms: Date.now() - started,
+    });
+  if (!verdict.allowed) {
+    logCall(429);
+    return rateLimited(verdict);
+  }
+
   let body: unknown;
   try {
     body = await req.json();
   } catch {
-    return json({ error: "Request body must be valid JSON." }, 400);
+    logCall(400);
+    return json(
+      { error: "Request body must be valid JSON." },
+      400,
+      rateLimitHeaders(verdict),
+    );
   }
 
   // Accept both `{ data: {...} }` and a bare field map, mirroring POST on the
@@ -197,12 +269,15 @@ export async function PATCH(
       : body;
 
   if (!patch || typeof patch !== "object" || Array.isArray(patch)) {
+    logCall(400);
     return json(
       { error: "Request body must be a JSON object of field values." },
       400,
+      rateLimitHeaders(verdict),
     );
   }
 
+  let status = 200;
   try {
     // Confirm the record exists for this object before patching so a mismatched
     // slug or a foreign record can never be touched. `updateRecord` re-checks
@@ -210,7 +285,8 @@ export async function PATCH(
     // a precise message and skip a write when nothing matches.
     const existing = await getRecord(ctx.projectId, ctx.ownerId, recordId);
     if (!existing || !recordMatchesObject(existing, objectSlug)) {
-      return json({ error: "Record not found." }, 404);
+      status = 404;
+      return json({ error: "Record not found." }, 404, rateLimitHeaders(verdict));
     }
 
     // The record runtime drops unknown keys (sanitiseData) and shallow-merges
@@ -221,7 +297,10 @@ export async function PATCH(
       recordId,
       patch as Record<string, unknown>,
     );
-    if (!record) return json({ error: "Record not found." }, 404);
+    if (!record) {
+      status = 404;
+      return json({ error: "Record not found." }, 404, rateLimitHeaders(verdict));
+    }
 
     const changedFields = Object.keys(patch as Record<string, unknown>);
 
@@ -249,12 +328,13 @@ export async function PATCH(
       tenantUserId: ctx.ownerId,
       objectSlug: record.object,
       recordId: record._id,
-      record: record as Record<string, unknown>,
+      record: record as unknown as Record<string, unknown>,
       changedFields,
     });
 
-    return json({ object: objectSlug, record });
+    return json({ object: objectSlug, record }, 200, rateLimitHeaders(verdict));
   } catch (err) {
+    status = 500;
     console.error(
       "[sabcrm:api] PATCH record failed:",
       objectSlug,
@@ -263,7 +343,9 @@ export async function PATCH(
     );
     const message =
       err instanceof Error ? err.message : "Failed to update record.";
-    return json({ error: message }, 500);
+    return json({ error: message }, 500, rateLimitHeaders(verdict));
+  } finally {
+    logCall(status);
   }
 }
 
@@ -275,22 +357,42 @@ export async function DELETE(
   req: Request,
   { params }: { params: Promise<{ objectSlug: string; recordId: string }> },
 ): Promise<NextResponse> {
+  const started = Date.now();
   const { objectSlug, recordId } = await params;
+  const path = new URL(req.url).pathname;
 
   const resolved = await resolveContext(req, objectSlug);
   if (!resolved.ok) return resolved.response;
   const { ctx } = resolved;
 
+  const verdict = await checkRateLimit(ctx.keyId, { projectId: ctx.projectId });
+  if (!verdict.allowed) {
+    void logApiCall({
+      projectId: ctx.projectId,
+      keyId: ctx.keyId,
+      method: "DELETE",
+      path,
+      status: 429,
+      ms: Date.now() - started,
+    });
+    return rateLimited(verdict);
+  }
+
+  let status = 200;
   try {
     // Resolve first so we can (a) confirm the slug matches and (b) attribute the
     // audit/event with the record's object even though the row is then gone.
     const existing = await getRecord(ctx.projectId, ctx.ownerId, recordId);
     if (!existing || !recordMatchesObject(existing, objectSlug)) {
-      return json({ error: "Record not found." }, 404);
+      status = 404;
+      return json({ error: "Record not found." }, 404, rateLimitHeaders(verdict));
     }
 
     const deleted = await deleteRecord(ctx.projectId, ctx.ownerId, recordId);
-    if (!deleted) return json({ error: "Record not found." }, 404);
+    if (!deleted) {
+      status = 404;
+      return json({ error: "Record not found." }, 404, rateLimitHeaders(verdict));
+    }
 
     void logRecordAudit(
       {
@@ -310,8 +412,13 @@ export async function DELETE(
       recordId,
     });
 
-    return json({ object: objectSlug, id: recordId, deleted: true });
+    return json(
+      { object: objectSlug, id: recordId, deleted: true },
+      200,
+      rateLimitHeaders(verdict),
+    );
   } catch (err) {
+    status = 500;
     console.error(
       "[sabcrm:api] DELETE record failed:",
       objectSlug,
@@ -320,6 +427,15 @@ export async function DELETE(
     );
     const message =
       err instanceof Error ? err.message : "Failed to delete record.";
-    return json({ error: message }, 500);
+    return json({ error: message }, 500, rateLimitHeaders(verdict));
+  } finally {
+    void logApiCall({
+      projectId: ctx.projectId,
+      keyId: ctx.keyId,
+      method: "DELETE",
+      path,
+      status,
+      ms: Date.now() - started,
+    });
   }
 }

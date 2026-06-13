@@ -14,6 +14,12 @@ import {
 import { ensureSabcrmIndexes } from "@/lib/sabcrm/db";
 import { verifyApiKey } from "@/lib/sabcrm/apikeys.server";
 import { assertWithinRecordLimit, SabcrmLimitError } from "@/lib/sabcrm/limits.server";
+import {
+  checkRateLimit,
+  logApiCall,
+  rateLimitHeaders,
+  type RateLimitVerdict,
+} from "@/lib/sabcrm/api-logs.server";
 
 /**
  * SabCRM — public REST record API (headless, API-key authenticated).
@@ -72,8 +78,25 @@ function apiOwnerId(keyId: string): string {
   return `api:${keyId}`;
 }
 
-function json(body: unknown, status = 200): NextResponse {
-  return NextResponse.json(body, { status });
+function json(
+  body: unknown,
+  status = 200,
+  headers?: Record<string, string>,
+): NextResponse {
+  return NextResponse.json(body, { status, headers });
+}
+
+/** Build a 429 response from a denied rate-limit verdict. */
+function rateLimited(verdict: RateLimitVerdict): NextResponse {
+  return json(
+    {
+      error:
+        "Rate limit exceeded. Slow down and retry after the window resets.",
+      retryAfterSeconds: verdict.retryAfterSeconds,
+    },
+    429,
+    rateLimitHeaders(verdict),
+  );
 }
 
 /** Coerce a `?page=` / `?pageSize=` query value into a positive integer. */
@@ -162,7 +185,7 @@ async function resolveContext(
   req: Request,
   objectSlug: string,
 ): Promise<
-  | { ok: true; projectId: string; ownerId: string }
+  | { ok: true; projectId: string; ownerId: string; keyId: string }
   | { ok: false; response: NextResponse }
 > {
   const auth = await verifyApiKey(req);
@@ -198,6 +221,7 @@ async function resolveContext(
     ok: true,
     projectId: auth.projectId,
     ownerId: apiOwnerId(auth.keyId),
+    keyId: auth.keyId,
   };
 }
 
@@ -209,29 +233,59 @@ export async function GET(
   req: Request,
   { params }: { params: Promise<{ objectSlug: string }> },
 ): Promise<NextResponse> {
+  const started = Date.now();
   const { objectSlug } = await params;
+  const path = new URL(req.url).pathname;
 
   const ctx = await resolveContext(req, objectSlug);
   if (!ctx.ok) return ctx.response;
 
+  const verdict = await checkRateLimit(ctx.keyId, { projectId: ctx.projectId });
+  if (!verdict.allowed) {
+    void logApiCall({
+      projectId: ctx.projectId,
+      keyId: ctx.keyId,
+      method: "GET",
+      path,
+      status: 429,
+      ms: Date.now() - started,
+    });
+    return rateLimited(verdict);
+  }
+
+  let status = 200;
   try {
     const url = new URL(req.url);
     const query = buildQuery(objectSlug, url.searchParams);
 
     const data = await listRecords(ctx.projectId, ctx.ownerId, query);
 
-    return json({
-      object: objectSlug,
-      records: data.records,
-      page: data.page,
-      pageSize: data.pageSize,
-      total: data.total,
-    });
+    return json(
+      {
+        object: objectSlug,
+        records: data.records,
+        page: data.page,
+        pageSize: data.pageSize,
+        total: data.total,
+      },
+      200,
+      rateLimitHeaders(verdict),
+    );
   } catch (err) {
+    status = 500;
     console.error("[sabcrm:api] GET records failed:", objectSlug, err);
     const message =
       err instanceof Error ? err.message : "Failed to list records.";
-    return json({ error: message }, 500);
+    return json({ error: message }, 500, rateLimitHeaders(verdict));
+  } finally {
+    void logApiCall({
+      projectId: ctx.projectId,
+      keyId: ctx.keyId,
+      method: "GET",
+      path,
+      status,
+      ms: Date.now() - started,
+    });
   }
 }
 
@@ -243,16 +297,35 @@ export async function POST(
   req: Request,
   { params }: { params: Promise<{ objectSlug: string }> },
 ): Promise<NextResponse> {
+  const started = Date.now();
   const { objectSlug } = await params;
+  const path = new URL(req.url).pathname;
 
   const ctx = await resolveContext(req, objectSlug);
   if (!ctx.ok) return ctx.response;
+
+  const verdict = await checkRateLimit(ctx.keyId, { projectId: ctx.projectId });
+  const logCall = (status: number) =>
+    void logApiCall({
+      projectId: ctx.projectId,
+      keyId: ctx.keyId,
+      method: "POST",
+      path,
+      status,
+      ms: Date.now() - started,
+    });
+  if (!verdict.allowed) {
+    logCall(429);
+    return rateLimited(verdict);
+  }
+  const rlHeaders = rateLimitHeaders(verdict);
 
   let body: unknown;
   try {
     body = await req.json();
   } catch {
-    return json({ error: "Request body must be valid JSON." }, 400);
+    logCall(400);
+    return json({ error: "Request body must be valid JSON." }, 400, rlHeaders);
   }
 
   // Accept both `{ data: {...} }` and a bare field map for ergonomics.
@@ -262,9 +335,11 @@ export async function POST(
       : body;
 
   if (!values || typeof values !== "object" || Array.isArray(values)) {
+    logCall(400);
     return json(
       { error: "Request body must be a JSON object of field values." },
       400,
+      rlHeaders,
     );
   }
 
@@ -280,14 +355,17 @@ export async function POST(
       values as Record<string, unknown>,
     );
 
-    return json({ object: objectSlug, record }, 201);
+    logCall(201);
+    return json({ object: objectSlug, record }, 201, rlHeaders);
   } catch (err) {
     if (err instanceof SabcrmLimitError) {
-      return json({ error: err.message, feature: err.feature }, 402);
+      logCall(402);
+      return json({ error: err.message, feature: err.feature }, 402, rlHeaders);
     }
+    logCall(500);
     console.error("[sabcrm:api] POST record failed:", objectSlug, err);
     const message =
       err instanceof Error ? err.message : "Failed to create record.";
-    return json({ error: message }, 500);
+    return json({ error: message }, 500, rlHeaders);
   }
 }

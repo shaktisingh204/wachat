@@ -31,6 +31,9 @@ import {
   HelpCircle,
   Boxes,
   ShieldAlert,
+  Flag,
+  MailOpen,
+  CalendarClock,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -187,6 +190,24 @@ const GROUPS: readonly SettingsGroup[] = [
         label: 'Lead scoring',
         description: 'Rule-based lead and deal scoring',
         icon: Target,
+      },
+      {
+        slug: 'win-loss',
+        label: 'Win/loss reasons',
+        description: 'Capture win/loss outcomes when a deal changes stage',
+        icon: Flag,
+      },
+      {
+        slug: 'email-tracking',
+        label: 'Email tracking',
+        description: 'Open and click tracking for outbound CRM email',
+        icon: MailOpen,
+      },
+      {
+        slug: 'booking',
+        label: 'Booking links',
+        description: 'Calendly-style public links that create CRM records',
+        icon: CalendarClock,
       },
       {
         slug: 'validation',

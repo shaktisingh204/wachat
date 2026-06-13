@@ -24,6 +24,7 @@ import 'server-only';
  */
 
 import { dispatchTransactionalEmail } from '@/lib/email-dispatcher';
+import { createTrackedMessage } from './email-tracking.server';
 import { rustFetchAs } from '@/lib/rust-client/fetcher';
 import type { SabcrmRustActivity } from '@/lib/rust-client/sabcrm-activities';
 import type { OutboundMailEnvelope } from '@/lib/mailbox/imail-transport';
@@ -154,9 +155,27 @@ export async function sendSabcrmEmailCore(
     return { ok: false, error: 'The email body is empty.', activity: null };
   }
 
-  const html = /<[a-z][\s\S]*>/i.test(input.body)
+  let html = /<[a-z][\s\S]*>/i.test(input.body)
     ? input.body
     : `<div style="font-family:system-ui,sans-serif;white-space:pre-wrap">${input.body}</div>`;
+
+  // Email open/click tracking: instrument the HTML (inject a 1x1 pixel + rewrite
+  // links through the tracking redirect) BEFORE delivery. Best-effort — returns
+  // the original HTML untouched when tracking is disabled (no SABCRM_TRACK_SECRET)
+  // or anything fails, so a send never depends on tracking.
+  try {
+    const tracked = await createTrackedMessage({
+      projectId: input.projectId,
+      objectSlug: input.objectSlug,
+      recordId: input.recordId,
+      html,
+      to,
+      subject,
+    });
+    html = tracked.html;
+  } catch {
+    /* tracking is best-effort; deliver the original html */
+  }
 
   // 1. real delivery via the platform transport (tenant `email_settings`).
   const delivery = await dispatchTransactionalEmail({

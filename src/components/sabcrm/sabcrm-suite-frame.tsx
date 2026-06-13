@@ -329,6 +329,7 @@ export function SabcrmSuiteFrame({ children }: { children: React.ReactNode }) {
       { group: 'insights', id: 'forecast', label: 'Forecast', href: '/sabcrm/forecast', icon: TrendingUp },
       { group: 'insights', id: 'dashboards', label: 'Dashboards', href: '/sabcrm/dashboard', icon: LayoutDashboard },
       { group: 'insights', id: 'reports', label: 'Reports', href: '/sabcrm/reports', icon: BarChart3 },
+      { group: 'insights', id: 'data-quality', label: 'Data health', href: '/sabcrm/data-quality', icon: ShieldCheck },
       { group: 'insights', id: 'activity', label: 'Activity', href: '/sabcrm/activity', icon: Activity },
       { group: 'insights', id: 'calendar', label: 'Calendar', href: '/sabcrm/calendar', icon: Calendar },
       { group: 'insights', id: 'map', label: 'Map', href: '/sabcrm/map', icon: MapPin },

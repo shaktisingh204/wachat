@@ -52,6 +52,7 @@ import {
   deleteEmbeddingForRecord,
 } from '@/lib/sabcrm/embeddings.server';
 import { recomputeRollupsAround } from '@/lib/sabcrm/rollup.server';
+import { captureOutcome, patchTouchesStage } from '@/lib/sabcrm/win-loss.server';
 import { scoreWinForRecord } from '@/lib/sabcrm/predictive-scoring.server';
 import {
   validateRecordWrite,
@@ -676,6 +677,28 @@ export async function updateSabcrmRecordTw(
     await indexEmbeddingForRecord(g.ctx.projectId, object, id);
     await recomputeRollupsAround(g.ctx.projectId, object, id);
     await scoreWinForRecord(g.ctx.projectId, object, id);
+
+    // Win/loss outcome capture: when the patch moved the deal's stage, classify
+    // the new stage and stamp data.outcome/outcomeAt (AI-fields envelope, no
+    // updatedAt bump). Reuses the pre-update `beforeData` snapshot above.
+    if (patchTouchesStage(patch)) {
+      const prevStage =
+        (beforeData?.stage as string | undefined) ??
+        (beforeData?.status as string | undefined) ??
+        null;
+      const newStage =
+        (record.data?.stage as string | undefined) ??
+        (record.data?.status as string | undefined) ??
+        null;
+      await captureOutcome(
+        g.ctx.projectId,
+        object,
+        id,
+        prevStage,
+        newStage,
+        record.data ?? patch,
+      );
+    }
 
     revalidatePath(`${TW_BASE_PATH}/${object}`);
     revalidatePath(`${TW_BASE_PATH}/${object}/${id}`);
