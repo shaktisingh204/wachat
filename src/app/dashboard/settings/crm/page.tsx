@@ -194,6 +194,12 @@ const GROUPS: readonly SettingsGroup[] = [
         icon: ShieldCheck,
       },
       {
+        slug: 'flow-automations',
+        label: 'SabFlow automations',
+        description: 'Run a SabFlow flow when a CRM event fires',
+        icon: Zap,
+      },
+      {
         slug: 'tags',
         label: 'Tags',
         description: 'Labels for categorising records',

@@ -57,6 +57,7 @@ import {
   type SabcrmWorkflowEvent,
   type SabcrmWorkflowStep,
 } from '@/lib/rust-client/sabcrm-workflows';
+import { dispatchSabflowForEvent } from './sabflow-dispatch.server';
 import { sabcrmActivitiesApi } from '@/lib/rust-client/sabcrm-activities';
 import {
   sabcrmRecordsApi,
@@ -1004,6 +1005,10 @@ export async function runWorkflowsForEvent(
   } catch {
     // best-effort: never throw
   }
+  // Fan the same event out to SabFlow (branching/parallel/delay/approval),
+  // additive to the linear engine above. No-op until a CRM→flow binding exists.
+  // `data` here is the routing-patched view; pass it through unchanged.
+  await dispatchSabflowForEvent(projectId, event, object, recordId, data, actorId);
   return summary;
 }
 

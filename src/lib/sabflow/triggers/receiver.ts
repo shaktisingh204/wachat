@@ -82,7 +82,7 @@ export async function claimFingerprint(fingerprint: string): Promise<boolean> {
 
 // ── Trigger lookup + enqueue ───────────────────────────────────────────────
 
-export type TriggerSource = 'slack' | 'telegram' | 'sabwa';
+export type TriggerSource = 'slack' | 'telegram' | 'sabwa' | 'sabcrm';
 
 export interface TriggerMatchHint {
   /** Provider-side identifier of the workspace/team/account/session. */
