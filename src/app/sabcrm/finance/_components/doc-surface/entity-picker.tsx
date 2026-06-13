@@ -58,7 +58,12 @@ export function EntityPicker({
       let results: DocEntityOption[] = [];
       try {
         results = await search(q);
-      } catch {
+      } catch (err) {
+        // Surface the failure instead of silently rendering an empty list — a
+        // backend gap (route/scope/data) otherwise looks identical to "no
+        // matches" and hides the real cause of an empty picker.
+        // eslint-disable-next-line no-console
+        console.error('[EntityPicker] search failed', err);
         results = [];
       }
       for (const r of results) cacheRef.current.set(r.id, r);

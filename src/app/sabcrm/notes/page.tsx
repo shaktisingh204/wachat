@@ -55,6 +55,7 @@ import {
   isRichTextEmpty,
   plainTextOfBody,
 } from '@/components/sabcrm/20ui/composites/editor/rich-text';
+import { RecordRelationPicker } from '@/components/sabcrm/pickers/record-relation-picker';
 import { useProject } from '@/context/project-context';
 import {
   listSabcrmRecordsTw,
@@ -146,10 +147,19 @@ interface CreateDialogProps {
   onCreated: () => void;
 }
 
+/** A picked relation record (id + cached label for closed-state display). */
+interface RelationRef {
+  id: string;
+  label: string;
+}
+
 function CreateDialog({ projectId, onClose, onCreated }: CreateDialogProps) {
   const [title, setTitle] = React.useState('');
   // Sanitized rich-text HTML from the editor composite.
   const [body, setBody] = React.useState('');
+  const [person, setPerson] = React.useState<RelationRef | null>(null);
+  const [company, setCompany] = React.useState<RelationRef | null>(null);
+  const [lead, setLead] = React.useState<RelationRef | null>(null);
   const [saving, setSaving] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const formId = React.useId();
@@ -178,6 +188,10 @@ function CreateDialog({ projectId, onClose, onCreated }: CreateDialogProps) {
 
     const payload: Record<string, unknown> = { title: finalTitle };
     if (b) payload.body = b;
+    // Link the note to its target records (people / companies / leads).
+    if (person) payload.targetPeople = person.id;
+    if (company) payload.targetCompanies = company.id;
+    if (lead) payload.targetOpportunities = lead.id;
 
     const res = await createSabcrmRecordTw(NOTES_OBJECT, payload, projectId ?? undefined);
     setSaving(false);
@@ -233,6 +247,44 @@ function CreateDialog({ projectId, onClose, onCreated }: CreateDialogProps) {
             disabled={saving}
           />
         </Field>
+
+        <div className="nts-relations">
+          <Field label="Contact">
+            <RecordRelationPicker
+              object="people"
+              value={person?.id ?? null}
+              valueLabel={person?.label ?? null}
+              projectId={projectId}
+              placeholder="Link a person…"
+              aria-label="Related contact"
+              onChange={(opt) => setPerson(opt ? { id: opt.id, label: opt.label } : null)}
+            />
+          </Field>
+
+          <Field label="Company">
+            <RecordRelationPicker
+              object="companies"
+              value={company?.id ?? null}
+              valueLabel={company?.label ?? null}
+              projectId={projectId}
+              placeholder="Link a company…"
+              aria-label="Related company"
+              onChange={(opt) => setCompany(opt ? { id: opt.id, label: opt.label } : null)}
+            />
+          </Field>
+
+          <Field label="Deal / lead">
+            <RecordRelationPicker
+              object="leads"
+              value={lead?.id ?? null}
+              valueLabel={lead?.label ?? null}
+              projectId={projectId}
+              placeholder="Link a deal…"
+              aria-label="Related deal or lead"
+              onChange={(opt) => setLead(opt ? { id: opt.id, label: opt.label } : null)}
+            />
+          </Field>
+        </div>
 
         {error ? <Alert tone="danger">{error}</Alert> : null}
       </form>

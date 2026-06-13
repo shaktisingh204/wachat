@@ -116,6 +116,19 @@
   gap: 16px;
 }
 
+/* Relation pickers row — link the note to people / companies / leads. */
+:is(.\32 0ui, .ui20) .nts-relations {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 600px) {
+  :is(.\32 0ui, .ui20) .nts-relations {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   :is(.\32 0ui, .ui20) .nts-tile {
     transition: none;

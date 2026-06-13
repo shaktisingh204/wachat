@@ -66,7 +66,7 @@ import {
   updateSabcrmSupplyWarehouseFull,
 } from '@/app/actions/sabcrm-supply-warehouses.actions';
 import { deleteSabcrmSupplyWarehouse } from '@/app/actions/sabcrm-supply.actions';
-import { searchSabcrmFinanceParties } from '@/app/actions/sabcrm-finance-invoices.actions';
+import { searchSabcrmEmployees } from '@/app/actions/sabcrm-people-employees.actions';
 import {
   SABCRM_WAREHOUSE_TYPES,
   type SabcrmSupplyWarehouseFullInput,
@@ -381,10 +381,10 @@ function WarehouseDrawer({
                   value={draft.managerId || null}
                   valueLabel={draft.managerName || null}
                   search={async (q) => {
-                    const res = await searchSabcrmFinanceParties(q);
+                    const res = await searchSabcrmEmployees(q);
                     return res.ok ? res.data : [];
                   }}
-                  placeholder="Search people…"
+                  placeholder="Search employees…"
                   disabled={busy}
                   onChange={(opt) =>
                     patch({

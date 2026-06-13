@@ -51,7 +51,6 @@ import {
   Modal,
   Field,
   Input,
-  Textarea,
   Alert,
   Skeleton,
   Spinner,
@@ -83,6 +82,15 @@ import type {
   SabcrmRecordTwGroup,
 } from '@/app/actions/sabcrm-twenty.actions.types';
 import { rustRecordToCrm } from '../[objectSlug]/record-surface-adapter';
+import { MemberSelect } from '@/components/sabcrm/pickers/member-select';
+import { RecordRelationPicker } from '@/components/sabcrm/pickers/record-relation-picker';
+// Editor composite — direct path, NOT the 20ui barrel (self-cycle gotcha).
+import {
+  RichTextEditor,
+  isRichTextEmpty,
+} from '@/components/sabcrm/20ui/composites/editor/rich-text';
+import { useResolveActorName } from '@/components/sabcrm/sabcrm-actors-context';
+import type { ResolveActorName } from '@/components/sabcrm/sabcrm-actors-context';
 
 import '@/components/sabcrm/20ui/surface-crm-base.css';
 import './tasks.css';
@@ -145,6 +153,22 @@ function assigneeLabel(value: unknown): string | null {
     if (typeof candidate === 'string' && candidate.trim()) return candidate;
   }
   return String(value);
+}
+
+/**
+ * Resolve a task's assignee to a display name. New tasks store a workspace
+ * member's `userId` on `assigneeId` (+ the `assignee` relation), so we resolve
+ * it to a name via the actor-name provider; legacy free-text assignees fall
+ * through to their raw value.
+ */
+function resolveAssignee(
+  record: SabcrmRustRecord,
+  resolve: ResolveActorName,
+): string | null {
+  const raw = record.data.assigneeId ?? record.data.assignee;
+  if (raw === null || raw === undefined || raw === '') return null;
+  if (typeof raw === 'string') return resolve(raw) ?? assigneeLabel(raw);
+  return assigneeLabel(raw);
 }
 
 /** Format a due-date value for display (e.g. "11 Jun 2026"). */
@@ -237,7 +261,8 @@ function TaskCardContent({
   busy: boolean;
   onToggleComplete: () => void;
 }) {
-  const assignee = assigneeLabel(record.data.assignee ?? record.data.assigneeId);
+  const resolveName = useResolveActorName();
+  const assignee = resolveAssignee(record, resolveName);
   const due = formatDue(record.data.dueAt);
   const done = statusOf(record) === 'DONE';
   const overdue = isOverdue(record);
@@ -289,6 +314,7 @@ interface TableViewProps {
 }
 
 function TableView({ records, busyIds, onOpen, onStatusChange, onToggleComplete }: TableViewProps) {
+  const resolveName = useResolveActorName();
   return (
     <div className="tk-table-wrap">
       <Table>
@@ -303,7 +329,7 @@ function TableView({ records, busyIds, onOpen, onStatusChange, onToggleComplete 
         </THead>
         <TBody>
           {records.map((record) => {
-            const assignee = assigneeLabel(record.data.assignee ?? record.data.assigneeId);
+            const assignee = resolveAssignee(record, resolveName);
             const due = formatDue(record.data.dueAt);
             const busy = busyIds.has(record.id);
             const done = statusOf(record) === 'DONE';
@@ -379,14 +405,25 @@ interface CreateDialogProps {
   onCreated: () => void;
 }
 
+/** A picked relation record (id + cached label for closed-state display). */
+interface RelationRef {
+  id: string;
+  label: string;
+}
+
 function CreateDialog({ projectId, initialStatus, onClose, onCreated }: CreateDialogProps) {
   const [title, setTitle] = React.useState('');
   const [status, setStatus] = React.useState<TaskStatus>(initialStatus);
   const [dueAt, setDueAt] = React.useState('');
-  const [assignee, setAssignee] = React.useState('');
+  const [assigneeId, setAssigneeId] = React.useState<string | null>(null);
+  const [person, setPerson] = React.useState<RelationRef | null>(null);
+  const [company, setCompany] = React.useState<RelationRef | null>(null);
+  const [lead, setLead] = React.useState<RelationRef | null>(null);
   const [body, setBody] = React.useState('');
   const [saving, setSaving] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+
+  const formRef = React.useRef<HTMLFormElement | null>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -400,8 +437,18 @@ function CreateDialog({ projectId, initialStatus, onClose, onCreated }: CreateDi
 
     const payload: Record<string, unknown> = { title: title.trim(), status };
     if (dueAt) payload.dueAt = dueAt;
-    if (assignee.trim()) payload.assignee = assignee.trim();
-    if (body.trim()) payload.body = body.trim();
+    // Write the member id to BOTH the `assignee` RELATION field (so the record
+    // renders an assignee) AND `assigneeId` (the key the assignment +
+    // notification subsystem reads — see ASSIGNEE_FIELD in assignment.server.ts).
+    if (assigneeId) {
+      payload.assignee = assigneeId;
+      payload.assigneeId = assigneeId;
+    }
+    if (person) payload.targetPeople = person.id;
+    if (company) payload.targetCompanies = company.id;
+    if (lead) payload.targetOpportunities = lead.id;
+    const b = isRichTextEmpty(body) ? '' : body.trim();
+    if (b) payload.body = b;
 
     const res = await createSabcrmRecordTw(TASKS_OBJECT, payload, projectId ?? undefined);
     setSaving(false);
@@ -431,7 +478,7 @@ function CreateDialog({ projectId, initialStatus, onClose, onCreated }: CreateDi
         </>
       }
     >
-      <form id={formId} onSubmit={handleSubmit} className="tk-create-form">
+      <form id={formId} ref={formRef} onSubmit={handleSubmit} className="tk-create-form">
         <Field label="Title" required>
           <Input
             value={title}
@@ -442,34 +489,82 @@ function CreateDialog({ projectId, initialStatus, onClose, onCreated }: CreateDi
           />
         </Field>
 
-        <Field label="Status">
-          <SelectField
-            value={status}
-            options={STATUS_SELECT_OPTIONS}
-            onChange={(v) => {
-              if (isTaskStatus(v)) setStatus(v);
-            }}
+        <div className="tk-form-grid">
+          <Field label="Status">
+            <SelectField
+              value={status}
+              options={STATUS_SELECT_OPTIONS}
+              onChange={(v) => {
+                if (isTaskStatus(v)) setStatus(v);
+              }}
+            />
+          </Field>
+
+          <Field label="Due">
+            <Input
+              type="datetime-local"
+              value={dueAt}
+              onChange={(e) => setDueAt(e.target.value)}
+            />
+          </Field>
+        </div>
+
+        <Field label="Assignee">
+          <MemberSelect
+            value={assigneeId}
+            projectId={projectId}
+            placeholder="Assign to a member…"
+            aria-label="Assignee"
+            onChange={(id) => setAssigneeId(id)}
           />
         </Field>
 
-        <Field label="Due date">
-          <Input type="date" value={dueAt} onChange={(e) => setDueAt(e.target.value)} />
-        </Field>
+        <div className="tk-form-grid">
+          <Field label="Contact">
+            <RecordRelationPicker
+              object="people"
+              value={person?.id ?? null}
+              valueLabel={person?.label ?? null}
+              projectId={projectId}
+              placeholder="Link a person…"
+              aria-label="Related contact"
+              onChange={(opt) => setPerson(opt ? { id: opt.id, label: opt.label } : null)}
+            />
+          </Field>
 
-        <Field label="Assignee">
-          <Input
-            value={assignee}
-            placeholder="Who owns it?"
-            onChange={(e) => setAssignee(e.target.value)}
+          <Field label="Company">
+            <RecordRelationPicker
+              object="companies"
+              value={company?.id ?? null}
+              valueLabel={company?.label ?? null}
+              projectId={projectId}
+              placeholder="Link a company…"
+              aria-label="Related company"
+              onChange={(opt) => setCompany(opt ? { id: opt.id, label: opt.label } : null)}
+            />
+          </Field>
+        </div>
+
+        <Field label="Deal / lead">
+          <RecordRelationPicker
+            object="leads"
+            value={lead?.id ?? null}
+            valueLabel={lead?.label ?? null}
+            projectId={projectId}
+            placeholder="Link a deal…"
+            aria-label="Related deal or lead"
+            onChange={(opt) => setLead(opt ? { id: opt.id, label: opt.label } : null)}
           />
         </Field>
 
         <Field label="Notes">
-          <Textarea
+          <RichTextEditor
             value={body}
-            rows={3}
-            placeholder="Optional details…"
-            onChange={(e) => setBody(e.target.value)}
+            onChange={setBody}
+            onSubmit={() => formRef.current?.requestSubmit()}
+            placeholder="Add details, context, links…"
+            ariaLabel="Task notes"
+            disabled={saving}
           />
         </Field>
 

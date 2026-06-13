@@ -39,7 +39,7 @@ import {
   searchSabcrmSupplyBoms,
   suggestNextSupplyNumber,
 } from '@/app/actions/sabcrm-supply-docs.actions';
-import { searchSabcrmFinanceParties } from '@/app/actions/sabcrm-finance-invoices.actions';
+import { searchSabcrmEmployees } from '@/app/actions/sabcrm-people-employees.actions';
 import { getSabcrmSupplyProductionOrderBomPrefill } from '@/app/actions/sabcrm-supply-production-orders.actions';
 import type { CrmProductionOrderDoc } from '@/lib/rust-client/sabcrm-supply';
 import type { SabcrmProductionOrderFullInput } from '@/app/actions/sabcrm-supply-production-orders.actions.types';
@@ -446,10 +446,10 @@ export function ProductionOrderForm({
                   value={state.machineOperatorId}
                   valueLabel={state.machineOperatorLabel}
                   search={async (q) => {
-                    const res = await searchSabcrmFinanceParties(q);
+                    const res = await searchSabcrmEmployees(q);
                     return res.ok ? res.data : [];
                   }}
-                  placeholder="Search people…"
+                  placeholder="Search employees…"
                   disabled={busy}
                   onChange={(opt) =>
                     patch({

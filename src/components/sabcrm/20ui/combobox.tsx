@@ -170,8 +170,14 @@ export const Combobox = React.forwardRef<HTMLInputElement, ComboboxProps>(
             setResults(res);
             setActive(0);
           })
-          .catch(() => {
-            if (!cancelled) setResults([]);
+          .catch((err) => {
+            if (!cancelled) {
+              // Log the rejection so a failing resolver is distinguishable from
+              // a genuinely empty result (which renders the same empty state).
+              // eslint-disable-next-line no-console
+              console.error('[Combobox] onSearch failed', err);
+              setResults([]);
+            }
           })
           .finally(() => {
             if (!cancelled) setLoading(false);

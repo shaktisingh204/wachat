@@ -20,6 +20,7 @@ import {
   SelectField,
   DatePicker,
 } from '@/components/sabcrm/20ui';
+import { MemberSelect } from '@/components/sabcrm/pickers/member-select';
 import {
   PROJECT_FIELDS,
   PROJECT_STATUSES,
@@ -36,6 +37,8 @@ interface ProjectFormDialogProps {
   initial?: ProjectVM | null;
   /** Seed the status in create mode (e.g. the board column "+" was used). */
   defaultStatus?: string;
+  /** Active project scope — backs the owner member picker. */
+  projectId?: string;
   /** Persist the field-keyed data. Resolve `true` on success so the form closes. */
   onSubmit: (data: Record<string, unknown>) => Promise<boolean>;
 }
@@ -57,6 +60,7 @@ export function ProjectFormDialog({
   onClose,
   initial,
   defaultStatus,
+  projectId,
   onSubmit,
 }: ProjectFormDialogProps): React.JSX.Element {
   const editing = Boolean(initial);
@@ -64,7 +68,10 @@ export function ProjectFormDialog({
   const [name, setName] = React.useState('');
   const [status, setStatus] = React.useState<string>(DEFAULT_PROJECT_STATUS);
   const [priority, setPriority] = React.useState<string>(DEFAULT_PROJECT_PRIORITY);
+  // `owner` is the display name (stored on the TEXT `owner` field); `ownerId`
+  // is the picked member's userId, written to `assigneeId` for assignment.
   const [owner, setOwner] = React.useState('');
+  const [ownerId, setOwnerId] = React.useState<string | null>(null);
   const [startDate, setStartDate] = React.useState<Date | undefined>(undefined);
   const [dueDate, setDueDate] = React.useState<Date | undefined>(undefined);
   const [progress, setProgress] = React.useState('');
@@ -82,6 +89,9 @@ export function ProjectFormDialog({
     setStatus(initial?.status ?? defaultStatus ?? DEFAULT_PROJECT_STATUS);
     setPriority(initial?.priority ?? DEFAULT_PROJECT_PRIORITY);
     setOwner(initial?.owner ?? '');
+    // Legacy projects store only a free-text owner name, so the member id can't
+    // be recovered on edit — start unset; the current name shows as a hint.
+    setOwnerId(null);
     setStartDate(parseDate(initial?.startDate ?? null) ?? undefined);
     setDueDate(parseDate(initial?.dueDate ?? null) ?? undefined);
     setProgress(initial?.progress == null ? '' : String(initial.progress));
@@ -116,11 +126,14 @@ export function ProjectFormDialog({
         budgetNum == null || Number.isNaN(budgetNum) ? null : budgetNum,
       [PROJECT_FIELDS.description]: description.trim(),
     };
+    // Only set `assigneeId` when a member was actively picked — the record
+    // update is a merge, so an untouched owner leaves any existing value intact.
+    if (ownerId) data.assigneeId = ownerId;
 
     const ok = await onSubmit(data);
     setSaving(false);
     if (!ok) setError('Could not save the project. Please try again.');
-  }, [name, status, priority, owner, startDate, dueDate, progress, budget, description, onSubmit]);
+  }, [name, status, priority, owner, ownerId, startDate, dueDate, progress, budget, description, onSubmit]);
 
   return (
     <Modal
@@ -198,8 +211,19 @@ export function ProjectFormDialog({
           </Field>
         </div>
 
-        <Field label="Owner">
-          <Input value={owner} onChange={(e) => setOwner(e.target.value)} placeholder="Who's accountable?" />
+        <Field label="Owner" help="The member accountable for the project.">
+          <MemberSelect
+            value={ownerId}
+            projectId={projectId}
+            placeholder={
+              !ownerId && owner ? `Current: ${owner}` : 'Assign to a member…'
+            }
+            aria-label="Project owner"
+            onChange={(id, label) => {
+              setOwnerId(id);
+              setOwner(label ?? '');
+            }}
+          />
         </Field>
 
         <Field label="Description">

@@ -30,7 +30,7 @@ import {
   searchSabcrmSupplyPurchaseOrders,
   suggestNextSupplyNumber,
 } from '@/app/actions/sabcrm-supply-docs.actions';
-import { searchSabcrmFinanceParties } from '@/app/actions/sabcrm-finance-invoices.actions';
+import { searchSabcrmEmployees } from '@/app/actions/sabcrm-people-employees.actions';
 import type { CrmGrnDoc } from '@/lib/rust-client/sabcrm-supply';
 
 import { GrnLinesEditor, blankGrnLine, type GrnLineDraft } from './grn-lines-editor';
@@ -132,10 +132,10 @@ export function buildGrnFormConfig(): DocFormConfig {
               value={extras.inspectorId || null}
               valueLabel={extras.inspectorLabel || null}
               search={async (q) => {
-                const res = await searchSabcrmFinanceParties(q);
+                const res = await searchSabcrmEmployees(q);
                 return res.ok ? res.data : [];
               }}
-              placeholder="Search people…"
+              placeholder="Search employees…"
               disabled={busy}
               onChange={(opt) =>
                 setExtra({

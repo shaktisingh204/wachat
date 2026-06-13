@@ -50,7 +50,8 @@ import type {
   SabcrmComment,
 } from '@/lib/rust-client/sabcrm-activities';
 import type { SabcrmRustFavorite } from '@/lib/rust-client/sabcrm-favorites';
-import { ensureStandardObjects } from '@/lib/sabcrm/objects.server';
+import { ensureStandardObjects, getObject } from '@/lib/sabcrm/objects.server';
+import { sabcrmRecordLabel } from '@/lib/sabcrm/record-label';
 import { normalizePhoneFields } from '@/lib/sabcrm/phone';
 import type { ActionResult, ObjectMetadata } from '@/lib/sabcrm/types';
 import type {
@@ -58,6 +59,7 @@ import type {
   CountSabcrmRecordsTwParams,
   AggregateSabcrmRecordsTwParams,
   SabcrmRecordsTwPage,
+  SabcrmRecordOption,
   SabcrmRecordTwGroups,
   SabcrmRecordTwAggregate,
   SabcrmRecordDuplicateGroup,
@@ -219,6 +221,53 @@ export async function listSabcrmRecordsTw(
     return { ok: true, data: { records: res.records, total: res.total } };
   } catch (e) {
     return fail(e, 'Failed to list records.');
+  }
+}
+
+/**
+ * Relation-picker search over the Rust records engine.
+ *
+ * Returns lightweight `{ id, label }` options for an object (people, companies,
+ * leads, workspaceMembers, …), with the label computed server-side via
+ * {@link sabcrmRecordLabel} so a raw record id never reaches the client. This is
+ * the SAME store + label path {@link listSabcrmRecordsTw} (and RecordSurface's
+ * relation resolver) use — deliberately NOT the native-Mongo
+ * `searchRecordsForPickerAction`, which is `userId`-scoped and can miss
+ * teammates' records (the two-store gotcha). Reusable for every CRM relation
+ * picker (Tasks / Notes / Projects).
+ */
+export async function searchSabcrmRecordOptionsTw(
+  object: string,
+  q: string,
+  limit = 20,
+  projectId?: string,
+): Promise<ActionResult<SabcrmRecordOption[]>> {
+  if (!object) return { ok: false, error: 'Object is required.' };
+
+  const g = await gate('view', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const objectMeta = await getObject(g.ctx.projectId, object);
+    if (!objectMeta) return { ok: false, error: `Unknown object: ${object}` };
+
+    const res = await sabcrmRecordsApi.list(object, {
+      projectId: g.ctx.projectId,
+      q: q?.trim() || undefined,
+      limit: Math.min(50, Math.max(1, limit)),
+      sortBy: 'updatedAt',
+      sortDir: 'desc',
+    });
+
+    return {
+      ok: true,
+      data: res.records.map((r) => ({
+        id: r.id,
+        label: sabcrmRecordLabel(objectMeta, r),
+      })),
+    };
+  } catch (e) {
+    return fail(e, 'Failed to search records.');
   }
 }
 

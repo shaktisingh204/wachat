@@ -173,3 +173,16 @@
   flex-direction: column;
   gap: var(--st-space-4, 16px);
 }
+
+/* Two-column field row inside the create form (status/due, contact/company). */
+:is(.\32 0ui, .ui20) .tk-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--st-space-4, 16px);
+}
+
+@media (max-width: 540px) {
+  :is(.\32 0ui, .ui20) .tk-form-grid {
+    grid-template-columns: 1fr;
+  }
+}

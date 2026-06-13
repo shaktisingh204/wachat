@@ -277,6 +277,7 @@ export function ProjectsWorkspace(): React.JSX.Element {
         onClose={() => setFormOpen(false)}
         initial={editing}
         defaultStatus={presetStatus}
+        projectId={projectArg}
         onSubmit={handleSubmit}
       />
 

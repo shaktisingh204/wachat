@@ -68,6 +68,16 @@ export interface SabcrmRecordsTwPage {
   total: number;
 }
 
+/**
+ * Lightweight `{ id, label }` option for record relation pickers, returned by
+ * {@link searchSabcrmRecordOptionsTw}. Labels are computed server-side via
+ * {@link sabcrmRecordLabel} so the client never sees a raw record id.
+ */
+export interface SabcrmRecordOption {
+  id: string;
+  label: string;
+}
+
 /** Options accepted by {@link countSabcrmRecordsTw} (scope + filter only). */
 export interface CountSabcrmRecordsTwParams {
   /** Free-text query (regex over common data.* fields, server-side). */
