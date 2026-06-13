@@ -8,8 +8,9 @@ set -euo pipefail
 # ---------------------------------------------------------------------------
 # Where the project lives on the server.
 PROJECT_DIR="${PROJECT_DIR:-/var/www/sabnode}"
-# Heap cap (MB) for the Next.js / Turbopack build. Bump if the build OOM-kills.
-NODE_BUILD_MEMORY="${NODE_BUILD_MEMORY:-8192}"
+# Heap cap (MB) for the Next.js / Turbopack build. Server has 120GB RAM, so
+# default high; the build only uses what it needs.
+NODE_BUILD_MEMORY="${NODE_BUILD_MEMORY:-32768}"
 # Set BUILD_RUST=0 to skip the cargo builds (e.g. when only JS/TS changed).
 BUILD_RUST="${BUILD_RUST:-1}"
 # Set DEPLOY_GIT_RESET=0 to deploy the current working tree instead of
