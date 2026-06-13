@@ -36,6 +36,7 @@ import {
   DocListPage,
   formatDocMoney,
   type DocListColumn,
+  type DocListFilters,
   type DocListPageConfig,
 } from '../_components/doc-surface';
 import {
@@ -113,6 +114,8 @@ export interface InvoicesClientProps {
   initialHasMore: boolean;
   initialError: string | null;
   kpis: SabcrmInvoiceKpis | null;
+  /** Statements drill-down deep-link seed (parsed from searchParams). */
+  initialFilters?: Partial<DocListFilters>;
 }
 
 export function InvoicesClient({
@@ -120,6 +123,7 @@ export function InvoicesClient({
   initialHasMore,
   initialError,
   kpis,
+  initialFilters,
 }: InvoicesClientProps): React.JSX.Element {
   const router = useRouter();
   const [formOpen, setFormOpen] = React.useState(false);
@@ -242,6 +246,7 @@ export function InvoicesClient({
         initialRows={initialRows}
         initialHasMore={initialHasMore}
         initialError={initialError}
+        initialFilters={initialFilters}
         refreshToken={refreshToken}
       />
 

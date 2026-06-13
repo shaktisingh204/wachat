@@ -33,6 +33,7 @@ import {
   DocListPage,
   formatDocMoney,
   type DocListColumn,
+  type DocListFilters,
   type DocListPageConfig,
 } from '../_components/doc-surface';
 import {
@@ -122,6 +123,8 @@ export interface ExpensesClientProps {
   initialHasMore: boolean;
   initialError: string | null;
   kpis: SabcrmExpenseKpis | null;
+  /** Statements drill-down deep-link seed (parsed from searchParams). */
+  initialFilters?: Partial<DocListFilters>;
 }
 
 export function ExpensesClient({
@@ -129,6 +132,7 @@ export function ExpensesClient({
   initialHasMore,
   initialError,
   kpis,
+  initialFilters,
 }: ExpensesClientProps): React.JSX.Element {
   const router = useRouter();
   const [formOpen, setFormOpen] = React.useState(false);
@@ -294,6 +298,7 @@ export function ExpensesClient({
         initialRows={initialRows}
         initialHasMore={initialHasMore}
         initialError={initialError}
+        initialFilters={initialFilters}
         refreshToken={refreshToken}
       />
 

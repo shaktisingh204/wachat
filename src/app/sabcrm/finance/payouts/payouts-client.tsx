@@ -34,6 +34,7 @@ import {
   DocListPage,
   formatDocMoney,
   type DocListColumn,
+  type DocListFilters,
   type DocListPageConfig,
 } from '../_components/doc-surface';
 import {
@@ -129,6 +130,8 @@ export interface PayoutsClientProps {
   initialError: string | null;
   kpis: SabcrmPayoutKpis | null;
   paymentAccounts: SabcrmPaymentAccountOption[];
+  /** Statements drill-down deep-link seed (parsed from searchParams). */
+  initialFilters?: Partial<DocListFilters>;
 }
 
 export function PayoutsClient({
@@ -137,6 +140,7 @@ export function PayoutsClient({
   initialError,
   kpis,
   paymentAccounts,
+  initialFilters,
 }: PayoutsClientProps): React.JSX.Element {
   const router = useRouter();
   const [formOpen, setFormOpen] = React.useState(false);
@@ -278,6 +282,7 @@ export function PayoutsClient({
         initialRows={initialRows}
         initialHasMore={initialHasMore}
         initialError={initialError}
+        initialFilters={initialFilters}
         refreshToken={refreshToken}
       />
 
