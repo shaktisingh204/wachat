@@ -24,6 +24,7 @@ import { SABMAIL_COLLECTIONS } from '@/lib/sabmail/db/collections';
 import { matchesSabmailRule, type SabmailRuleCompiled } from '@/lib/sabmail/rules-engine';
 import { enrollMatchingJourneys } from '@/lib/sabmail/journey-engine';
 import { isSabmailEngineEnabled, sabmailEngine } from '@/lib/sabmail/engine-client';
+import { applySabmailMailboxActionsForWorkspace } from '@/app/sabmail/inbox/actions';
 
 export interface InboundBindInput {
   workspaceId: string;
@@ -31,6 +32,17 @@ export interface InboundBindInput {
   fromName?: string;
   subject?: string;
   messageId?: string;
+  /**
+   * IMAP coordinates of the arriving message. Present only on the IMAP-sync
+   * path (the worker); ABSENT on the provider-webhook (Postmark-style parse)
+   * path, which has no UID and so records WITHOUT applying any mailbox action.
+   * When `accountId` + a numeric `uid` are present, matched-rule actions +
+   * screener-deny are applied to the real mailbox.
+   */
+  accountId?: string;
+  /** IMAP folder the message landed in (defaults to `INBOX`). */
+  folder?: string;
+  uid?: number;
 }
 
 export interface InboundRuleAction {
@@ -45,6 +57,11 @@ export interface InboundBindResult {
   via: 'engine' | 'in-process' | 'skipped';
   /** How many journeys the sender was enrolled into (inbound_email trigger). */
   enrolled: number;
+  /**
+   * Mailbox mutations actually applied to the real IMAP folder (`archive` /
+   * `markRead`). Empty unless IMAP coordinates were supplied (the worker path).
+   */
+  appliedActions: string[];
 }
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -56,7 +73,7 @@ export async function bindInboundMessage(
   const from = String(input.from ?? '').trim().toLowerCase();
   const workspaceId = String(input.workspaceId ?? '').trim();
   if (!workspaceId || !from || !EMAIL_RE.test(from)) {
-    return { screenerDecision: 'pending', ruleActions: [], bound: false, via: 'skipped', enrolled: 0 };
+    return { screenerDecision: 'pending', ruleActions: [], bound: false, via: 'skipped', enrolled: 0, appliedActions: [] };
   }
   const subject = String(input.subject ?? '').trim();
 
@@ -105,7 +122,40 @@ export async function bindInboundMessage(
     /* non-fatal */
   }
 
-  return { screenerDecision, ruleActions, bound, via, enrolled };
+  // Apply matched-rule actions + screener-deny to the REAL mailbox — but only
+  // when we have IMAP coordinates (the worker path). The provider-webhook path
+  // has no UID, so it records WITHOUT an apply step. Best-effort; never throws.
+  const appliedActions: string[] = [];
+  const accountId = String(input.accountId ?? '').trim();
+  if (accountId && typeof input.uid === 'number' && Number.isFinite(input.uid)) {
+    const mailboxActions: { archive?: boolean; markRead?: boolean } = {};
+    for (const ra of ruleActions) {
+      if (ra.action === 'archive') mailboxActions.archive = true;
+      else if (ra.action === 'markRead') mailboxActions.markRead = true;
+      // 'label' has no generic-IMAP primitive (no folder/keyword mapping here) → skip.
+    }
+    if (screenerDecision === 'denied') mailboxActions.archive = true;
+
+    if (mailboxActions.archive || mailboxActions.markRead) {
+      try {
+        const res = await applySabmailMailboxActionsForWorkspace(
+          workspaceId,
+          accountId,
+          input.folder ?? 'INBOX',
+          input.uid,
+          mailboxActions,
+        );
+        if (res.ok) {
+          if (mailboxActions.markRead) appliedActions.push('markRead');
+          if (mailboxActions.archive) appliedActions.push('archive');
+        }
+      } catch {
+        /* best-effort — a mailbox hiccup must not drop binding */
+      }
+    }
+  }
+
+  return { screenerDecision, ruleActions, bound, via, enrolled, appliedActions };
 }
 
 /* ── in-process binder (mirrors services/sabmail-engine/src/inbound.rs) ──── */

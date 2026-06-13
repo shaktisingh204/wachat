@@ -674,6 +674,67 @@ export async function setSabmailFlag(
   }
 }
 
+/**
+ * Apply matched-rule / screener-deny actions to the REAL mailbox for an
+ * EXPLICIT workspace — for contexts WITHOUT a session/cookie (the IMAP sync
+ * worker + the internal bind route). Resolves the account by `workspaceId`
+ * (never `loadAccount`, which is cookie-bound) and reuses the same
+ * `withImap` + special-folder + flag patterns as the cookie-bound mutations.
+ *
+ *   archive  → move the message to \Archive (Gmail "All Mail" fallback)
+ *   markRead → add the \Seen flag
+ *
+ * Best-effort: never throws — a mailbox hiccup must not drop binding.
+ */
+export async function applySabmailMailboxActionsForWorkspace(
+  workspaceId: string,
+  accountId: string,
+  path: string,
+  uid: number,
+  actions: { archive?: boolean; markRead?: boolean },
+): Promise<{ ok: boolean }> {
+  if (!actions.archive && !actions.markRead) return { ok: true };
+  const loaded = await loadAccountForWorkspace(workspaceId, accountId);
+  if (!loaded.ok) return { ok: false };
+  const folder = path || 'INBOX';
+  try {
+    await withImap(loaded.data, async (client) => {
+      if (actions.markRead) {
+        // Set \Seen first (before any move) — best-effort per action.
+        const lock = await client.getMailboxLock(folder);
+        try {
+          await client.messageFlagsAdd(String(uid), ['\\Seen'], { uid: true });
+        } catch {
+          /* read-only / perms — non-fatal */
+        } finally {
+          lock.release();
+        }
+      }
+      if (actions.archive) {
+        // Reuse the archive logic: resolve \Archive (Gmail "All Mail") + move.
+        const dest = await resolveSpecialFolder(client, '\\Archive', [
+          'Archive',
+          'All Mail',
+          '[Gmail]/All Mail',
+        ]);
+        if (dest && dest !== folder) {
+          const lock = await client.getMailboxLock(folder);
+          try {
+            await client.messageMove(String(uid), dest, { uid: true });
+          } catch {
+            /* no Archive / perms — non-fatal */
+          } finally {
+            lock.release();
+          }
+        }
+      }
+    });
+    return { ok: true };
+  } catch {
+    return { ok: false };
+  }
+}
+
 /* ── AI (summaries, drafts, write-with-AI) ───────────────────────────── */
 
 function bodyText(parsed: any): string {

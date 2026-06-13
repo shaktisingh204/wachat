@@ -175,6 +175,10 @@ async function bindInbound(payload: {
   fromName?: string;
   subject?: string;
   messageId?: string;
+  /** IMAP coordinates so the binder can apply matched-rule / screener-deny. */
+  accountId?: string;
+  folder?: string;
+  uid?: number;
 }): Promise<void> {
   const url = bindEndpoint();
   if (!url || !payload.from) return;
@@ -360,7 +364,7 @@ function runMailbox(account: ImapAccountDoc): RunningAccount {
     const lock = await client.getMailboxLock('INBOX');
     let highestUid = savedUidNext;
     let inserted = 0;
-    const arrived: Array<{ from: string; fromName: string; subject: string; messageId: string }> = [];
+    const arrived: Array<{ from: string; fromName: string; subject: string; messageId: string; uid: number }> = [];
     try {
       // Range is UID-based: from our cursor to the end of the mailbox.
       for await (const msg of client.fetch(
@@ -399,6 +403,7 @@ function runMailbox(account: ImapAccountDoc): RunningAccount {
             fromName: from.name,
             subject: doc.subject,
             messageId: doc.messageId ?? '',
+            uid,
           });
         }
         if (uid + 1 > highestUid) highestUid = uid + 1;
@@ -416,6 +421,9 @@ function runMailbox(account: ImapAccountDoc): RunningAccount {
         fromName: a.fromName,
         subject: a.subject,
         messageId: a.messageId,
+        accountId,
+        folder: 'INBOX',
+        uid: a.uid,
       });
     }
 

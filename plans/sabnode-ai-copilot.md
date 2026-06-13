@@ -1,123 +1,106 @@
-# SabNode AI ("SabAI") — In‑house, no‑third‑party copilot
+# SabNode AI ("SabAI") — In‑house copilot, scale‑optimized for 1000 concurrent users
 
-## Context & goal
+> Revised after a 6‑dimension R&D (12 agents, web‑researched + adversarially verified).
+> Bottom line: the original draft (Qwen3‑4B on **Ollama, CPU‑only**) was right about the
+> *application* design but wrong about the *substrate*. For 1000 concurrent users you need a
+> **GPU + a continuous‑batching server (vLLM)** — still 100% self‑hosted, no third‑party API.
 
-Build SabNode's **own** conversational assistant that runs **entirely on our own
-servers** (no external AI provider, no data leaving the box), knows **all of
-SabNode's features**, is grounded in **the tenant's own data**, and **performs
-actions across every module** by conversation — the canonical example:
+## Goal & constraints (unchanged)
 
-> User: "create a lead" → assistant asks for the missing details → it creates
-> the lead in CRM. The same pattern then works for *every* SabNode action
-> (send a campaign, create a task, draft a WhatsApp reply, build a flow, …).
+In‑house conversational agent, **no third‑party AI** (model + embeddings + vectors all on
+company‑controlled hardware), grounded in each tenant's data, that performs **structured
+actions across all SabNode modules** ("create a lead → ask details → create"), per‑tenant,
+RBAC + credit gated.
 
-This is feasible because the work is **intent → slot‑filling → tool‑call**, not
-open‑ended reasoning. We keep the model a **small, constrained cog**; a
-deterministic dialog engine + embeddings do the heavy lifting, and every action
-runs through our **existing server actions** so **RBAC + credit metering +
-validation are unchanged** (the AI is just another caller).
+## The capacity reframe (the most important finding)
 
-**Decided constraints (from brainstorming):**
-- **No third party.** Model + embeddings + vector store all self‑hosted.
-- **Model:** **Qwen3‑4B** via **Ollama** (OpenAI‑compatible at `127.0.0.1:11434`), thinking‑mode off for actions. Runner‑up Llama 3.2 3B for max speed.
-- **Hardware:** 120 GB RAM / 32 cores (doubling) — RAM is a non‑issue; keep model in the 3–8B range (CPU is memory‑bandwidth‑bound). 4B is the sweet spot for bounded actions.
-- **v1 scope:** structured actions across modules + **extractive** RAG ("how does feature X work"). **Defer** free‑form "analyze everything" synthesis (weak on a small CPU model) to a clearly‑labelled later/beta path.
+**1000 concurrent users ≠ 1000 concurrent requests.** A chat user is idle 90–95% of the time
+(reading/typing/thinking ~30–60 s between turns; a turn occupies the model ~2–5 s). By
+Little's Law: `in‑flight ≈ users × turn_time / (turn_time + think_time)`.
 
-## Principles & non‑goals
+- 1000 users × ~3 s turn / (~3 s + ~45 s think) ≈ **~60 steady‑state in‑flight requests**.
+- Engineer for **bursty peaks of ~100–150 in‑flight**.
+- Only the *RAG* subset ("how does X work") even touches the vector DB; slot‑filling/lead‑creation turns do **zero** vector search.
 
-- **Model as a cog, not the brain.** Routing = embeddings; dialog = deterministic; the LLM only does constrained JSON extraction (and, as a fallback, tool selection). This keeps LLM calls short → fast on CPU, and reliable.
-- **Reuse, don't rebuild.** We already have: an agent runtime (`src/lib/sabsms/agent/*` — runtime/tools/guardrails/handlers/store + an eval harness `scripts/sabsms-agent-eval.mjs`), two MCP servers (`/api/mcp/sabcrm`, `/api/mcp/ad-manager`), a CRM embeddings + semantic‑search stack (`src/app/actions/sabcrm-ask.actions.ts` + `src/lib/sabcrm/embeddings.server.ts`), an LLM gateway (`src/lib/sabcrm/ai-llm.server.ts`), a credits ledger (`src/lib/sabsms/credits/ledger.ts`), RBAC (`src/lib/rbac-server.ts`), and Postgres (`src/lib/postgres.ts`).
-- **Multi‑tenant by construction.** Every retrieval index and every action is scoped to the active project/workspace; the AI never gains more access than the calling user's RBAC allows.
-- **Non‑goals (v1):** training a shared model on tenant data (leakage risk — use per‑tenant RAG); frontier‑quality free‑form reasoning; autonomous multi‑step chains (single‑intent, single‑tool turns first).
+That is a **small, tractable** load — it fits comfortably on **one** modern GPU.
 
-## Architecture
+## Why the CPU/Ollama draft fails — and the fix
 
-```
-            ┌──────────────────────── SabAI turn ────────────────────────┐
- user msg → │ 1 Guardrails (PII/inject, rate, RBAC)                        │
-            │ 2 Intent router  ── embeddings + pgvector NN ──► tool id      │
-            │ 3 Dialog manager ── deterministic slot state machine ───────► │
-            │        asks for missing required fields (from tool schema)   │
-            │ 4 Extractor      ── Qwen3‑4B, JSON‑schema‑guided decoding ──► │
-            │        fills slots from the user's free‑text answers         │
-            │ 5 Confirm + Execute ── calls existing server action ────────► │
-            │        (RBAC + credits + validation enforced)                │
-            │ 6 Respond ── templated NLG (+ optional light paraphrase)      │
-            └──────────────────────────────────────────────────────────────┘
-   side channel: "explain X" → extractive RAG over feature‑docs index → snippet
-```
+- **Ollama/llama.cpp on CPU has no continuous batching**: it serializes requests (default `OLLAMA_NUM_PARALLEL` 1–4) and 503s once its FIFO queue fills. Independent benchmarks: it collapses past ~10–16 concurrent (54–122 s first‑token, timeouts), and runs **~19–29× slower than vLLM** on identical work. CPU throughput doesn't grow with concurrency — it degrades; doubling cores barely helps (memory‑bandwidth bound).
+- **Fix = vLLM (or SGLang) on a GPU.** Continuous batching + PagedAttention turn "many users" into batched work. A single mid‑tier GPU scales **near‑linearly to ~100–150 in‑flight** at 85–92% utilization — a **5–15× margin** over our ~60–150 peak. Still self‑hosted: Next.js talks to vLLM over its **OpenAI‑compatible HTTP API** (same pattern as the existing SabWa engine‑client), so the "no third party" rule holds.
 
-**Components (all new code under `src/lib/sabai/` + `src/app/api/sabai/` + a UI surface):**
+## Revised stack (the verdict)
 
-1. **Inference engine (on‑box).** Ollama serving `qwen3:4b` + a CPU embedding model `nomic-embed-text`. Runs as a managed process (PM2 app `sabnode-ai-ollama` or systemd). New client `src/lib/sabai/llm.local.ts` (OpenAI‑compatible `chat/completions` + `embeddings` against `127.0.0.1:11434`) mirroring the shape of `ai-llm.server.ts` but **local‑only** (no third‑party rungs). Supports **JSON‑schema‑guided/`format` constrained decoding** so even a small model always emits valid tool JSON.
-2. **Vector layer (on‑box).** **pgvector** on the existing Postgres (`SABNODE_PG_URL`, via `src/lib/postgres.ts`). Three index families, all per‑tenant‑scoped:
-   - `sabai_intents` — catalog of example phrasings → tool id (the router).
-   - `sabai_docs` — SabNode **feature documentation** chunks (for "how does X work").
-   - `sabai_data` — opt‑in tenant business‑data embeddings (reuse/repoint the existing `embeddings.server.ts` to the **local** embedder instead of a provider key).
-3. **Tool registry** — `src/lib/sabai/tools/` : each tool = `{ id, title, description, module, rbacKey, paramsSchema (zod/JSON‑schema), confirm:boolean, run(args, ctx) }`. `run` adapts structured args → the existing server action (e.g., `addCrmLead` is FormData‑shaped → the tool builds the FormData / calls a normalized inner fn). A generated **manifest** feeds router + extractor. Tools grouped into per‑module packs.
-4. **Dialog manager** — `src/lib/sabai/dialog/` : deterministic slot‑filling state machine. Knows each tool's required/optional fields from its schema; asks templated questions for missing slots; validates; handles "cancel"/"change"; confirms before execute.
-5. **Orchestrator/runtime** — `src/lib/sabai/runtime.ts` : ties guardrails → router → dialog → extractor → execute → respond. Modeled on `src/lib/sabsms/agent/runtime.ts`. Session state (current tool, filled slots, history) in **Redis** keyed by `{tenant, user, conversation}`.
-6. **API + UI** — `src/app/api/sabai/chat/route.ts` (streaming SSE) + a **20ui** copilot surface (a global launcher/drawer, and/or `/sabai`). Mounts in the app shell so it's reachable everywhere.
-7. **Guardrails, audit, eval** — prompt‑injection/PII checks (reuse `sabsms/agent/guardrails.ts` patterns), append‑only `sabai_audit` log of every tool execution, and an eval harness modeled on `scripts/sabsms-agent-eval.mjs` (golden intents → expected tool + slots).
+| Layer | Decision |
+|---|---|
+| **Inference engine** | **vLLM** (primary) on a GPU — continuous batching, **automatic prefix caching**, **guided/structured decoding** (XGrammar/llguidance). SGLang is the alt (RadixAttention) if prefix reuse is very high. Ollama → **local dev only**. |
+| **Model** | A **fine‑tuned small function‑calling model**, not a general 4B. Best pick: **Salesforce xLAM‑2‑3b‑fc‑r** (≈65.7% BFCL overall / 56% multi‑turn), or **LoRA‑fine‑tune Qwen3‑4B** on SabNode's own tool schemas. Reserve a 7–8B general model only for the RAG path. (A *general* Qwen3‑4B scores only ~35% multi‑turn BFCL — which is exactly why the LLM must stay a constrained cog, not run an open agent loop.) |
+| **Precision** | **FP8** (near‑lossless, ~+27% throughput, ~½ TTFT/TPOT) on FP8‑capable GPUs (L40S/H100). **AWQ‑INT4** for memory density / consumer‑GPU builds. Skip speculative decoding under load (inverts to <1× past batch ~8–48). |
+| **Hardware** | **One** L40S 48 GB (~$7.5–10K owned, ~$0.85–1.9/GPU‑hr rented) or A100 80 GB carries the whole 1000‑user copilot. Add a **2nd identical GPU for HA / rolling deploys / burst** (not throughput). Keep the **existing 120 GB/32‑core box as the app + orchestration + Postgres/pgvector + embeddings tier** (genuinely fine on CPU). |
+| **Vector** | **pgvector on Postgres** is the correct default and amply sufficient (copilot peaks at low‑double‑digit vector QPS; pgvector does 471 QPS@99% recall on 50M×768‑dim). **HNSW** (m=16, ef_construction 256–512), **never IVFFlat**; add **pgvectorscale** (StreamingDiskANN + binary quant) for headroom. **One shared table partitioned by `tenant_id` + RLS** — never collection‑per‑tenant. Migrate to Qdrant only past ~10–20M vectors with hot per‑tenant filtering. |
+| **Embeddings** | Self‑hosted **HF Text‑Embeddings‑Inference (TEI)** running `nomic‑embed`/`bge‑base` at 768‑dim (CPU fine for live queries; bulk ingest as a batch job). Cache embeddings in Redis. (Better than Ollama‑for‑embeddings.) |
+| **Routing / ops** | **vLLM Router** (KV‑cache‑aware, session affinity → big TTFT win on multi‑turn) in front of replicas; **Ray Serve** for autoscale + queue‑depth backpressure (single‑node fine; NVIDIA Dynamo only when multi‑node). Autoscale at ≈50–80% of profiled max in‑flight; shed with **429 + retry‑after** past the ceiling; **per‑tenant fair queueing**. |
+| **Guardrails** | **Llama Prompt Guard 2 (86M, <1 GB, ~20–90 ms)** input gate; per‑tenant least‑privilege tool scopes; **human‑confirm before any write/destructive tool**; server‑side re‑validation of every tool arg (never trust model output). |
+| **Observability/eval** | Self‑hosted **Langfuse + Arize Phoenix** via OpenInference/OpenTelemetry — track tool‑call success rate, hallucinated‑tool rate, TTFT/ITL/e2e percentiles per tenant; **nightly offline eval** over the fixed tool schemas. |
 
-## Data flow — the "create a lead" turn (the proof slice)
+## Application architecture (validated by the R&D — keep it)
 
-1. User opens copilot, types **"create a lead"**.
-2. **Router**: embed message → NN search `sabai_intents` (tenant or global) → top match `crm.createLead` (above confidence threshold; else ask the model to pick from the top‑k, or ask the user to disambiguate).
-3. **Dialog manager** loads the `crm.createLead` tool schema → required slots `{name, phone}` (+ optional `email, company, source, …`) → no slots filled yet → asks **"What's the lead's name and phone number?"** (templated).
-4. User: **"Rahul, +91 98xxxxxxx, from a webinar"**. **Extractor**: Qwen3‑4B with the tool's JSON schema as a guided‑decoding constraint → `{name:"Rahul", phone:"+9198xxxxxxx", source:"webinar"}`. Dialog manager merges slots; all required present.
-5. **Confirm** (templated): "Create lead **Rahul** (+91 98xxxxxxx, source: webinar)? yes/no". On "yes" →
-6. **Execute**: `crm.createLead.run(args, ctx)` → `requirePermission('crm_leads','create', projectId)` → calls `addCrmLead` (normalized) → on success, reserve/charge credits via the ledger, write `sabai_audit`.
-7. **Respond** (templated): "✅ Lead **Rahul** created. [Open lead]" with a deep link.
+The "model as a constrained cog, deterministic engine does the control flow" design is
+**confirmed correct** (the model's weak multi‑turn agentic scores are precisely why you keep
+the loop in code). Components, with **load‑shedding ordered by leverage**:
 
-Every other action is the *same pipeline* with a different tool — that's the generalization.
+1. **vLLM engine swap** *(the dividing line — do this first)*.
+2. **Embedding/deterministic intent router** (sub‑10 ms, no LLM) → most turns never invoke the model.
+3. **Exact + semantic response cache** (hash of normalized intent+slots, and canonical RAG questions) → deflects a meaningful share of repeat/RAG turns (studies show 40–69% on *favourable* workloads; real gains lower — measure).
+4. **Prefix/KV caching** of the shared system prompt + tool schemas (free after first call; cuts TTFT, frees KV memory).
+5. **Constrained decoding (XGrammar)** over a small fixed tool‑schema set → valid tool JSON first try, no retry storms.
+6. **Deterministic slot‑filling dialog manager** + **tool registry** wrapping existing server actions (RBAC + credits + validation enforced) + **per‑tenant Redis session state** (TTL'd) + **append‑only audit**.
+7. **Tiered cascade**: tiny router → fine‑tuned 1–3B extractor → 7–8B general only for RAG/ambiguous (≤10–25% of turns).
 
-## Phases
+**Turn flow (the "create a lead" proof slice) is unchanged:** route (embeddings) → ask for
+missing fields (deterministic) → extract to schema‑valid JSON (constrained model call) →
+confirm → call `addCrmLead` (RBAC+credits+audit) → templated reply. Every other action is the
+same pipeline with a different tool.
 
-- **P0 — On‑box inference + vector infra.** Install Ollama; `ollama pull qwen3:4b` + `nomic-embed-text`; run as PM2/systemd service with thread/parallel‑slot config for 32 cores. Enable `pgvector` on Postgres; migrations for `sabai_intents/docs/data/audit`. New `src/lib/sabai/llm.local.ts` (+ env: `SABAI_OLLAMA_URL`, `SABAI_MODEL`, `SABAI_EMBED_MODEL`). **Verify:** local chat + embeddings round‑trip; constrained JSON works.
-- **P1 — Tool registry + first tool.** Define the registry types + manifest generator; implement `crm.createLead` wrapping `addCrmLead` (RBAC + credits + audit). **Verify:** call the tool directly with fixed args → lead appears in CRM, scoped to the project.
-- **P2 — Dialog manager + extractor → the lead vertical slice (no UI yet).** Deterministic slot‑filling + guided‑decode extraction; drive it from a CLI/test script end‑to‑end ("create a lead" → Q&A → created). **Verify:** the proof slice passes via a script + unit tests.
-- **P3 — Intent router.** Seed `sabai_intents` with example phrasings for the v1 tools; embeddings‑NN routing with confidence threshold + model‑pick fallback + disambiguation. **Verify:** eval set of phrasings routes to the right tool ≥ target accuracy.
-- **P4 — Chat API + copilot UI.** `api/sabai/chat` SSE streaming; session state in Redis; 20ui copilot drawer mounted in the shell; wire RBAC + credits + audit + rate limiting. **Verify:** end‑to‑end in the browser, create a lead by chatting; another tenant sees isolated state.
-- **P5 — Extractive RAG ("how does X work").** Ingest SabNode feature docs → `sabai_docs` (local embedder); on "explain/how" intents return the best snippet(s) with citations (no synthesis). **Verify:** feature questions return correct, sourced snippets.
-- **P6 — Generalize across modules.** Add tool packs for CRM (more record types), WaChat, SabSMS, SabFlow, tasks, finance… Each tool = thin wrapper + schema + intent examples. **Verify:** a representative action per module works end‑to‑end through the same pipeline.
-- **P7 — Hardening.** Guardrails (injection/PII), per‑tenant isolation tests, concurrency/load (parallel Ollama slots / queue), eval harness in CI, audit review. **Verify:** isolation + load + eval gates green.
-- **P8 — Later/optional.** Per‑tenant opt‑in `sabai_data` retrieval for data‑aware answers; **LoRA fine‑tune** Qwen3‑4B on‑box for SabNode intents/tone; gated "beta" free‑form analysis path.
+## Phases (revised)
 
-## Key files / integration points
+- **P0 — GPU serving tier.** Stand up vLLM on a GPU (owned/colo or bare‑metal rental) serving the chosen FC model in FP8; enable automatic prefix caching + guided JSON decoding; expose OpenAI‑compatible API on the private network; new `src/lib/sabai/llm.local.ts` client (env `SABAI_LLM_URL`, `SABAI_MODEL`). **Verify:** constrained JSON round‑trip; load‑test to find the in‑flight knee.
+- **P1 — Tool registry + `crm.createLead`** wrapping `src/app/actions/crm-leads.actions.ts:addCrmLead` (FormData‑shaped → normalize), RBAC + credits + audit.
+- **P2 — Dialog manager + extractor → lead vertical slice** (CLI/test, no UI). **Verify:** "create a lead" → Q&A → record created, project‑scoped.
+- **P3 — Embedding intent router** (TEI + pgvector HNSW) + confidence threshold + cascade fallback. **Verify:** routing accuracy on an eval set.
+- **P4 — Chat API + 20ui copilot** (SSE streaming), per‑tenant Redis state, RBAC/credits/audit/rate‑limit, vLLM Router + Ray Serve backpressure.
+- **P5 — Extractive RAG** ("how does X work") → `sabai_docs` via TEI embeddings → cited snippets (no synthesis). Repoint the existing `src/lib/sabcrm/embeddings.server.ts` to the **local** embedder (also makes "SabCRM Ask" no‑third‑party).
+- **P6 — Generalize tool packs** across CRM/WaChat/SabSMS/SabFlow/tasks/finance.
+- **P7 — Hardening**: guardrails (Prompt Guard 2), per‑tenant isolation tests, autoscale/backpressure, Langfuse/Phoenix observability, nightly eval, HA second GPU.
+- **P8 — Later**: per‑tenant opt‑in data RAG; on‑box LoRA fine‑tune of the FC model on SabNode intents/tone; gated free‑form analysis beta.
 
-- **New:** `src/lib/sabai/` (`llm.local.ts`, `runtime.ts`, `tools/`, `dialog/`, `router.ts`, `guardrails.ts`, `audit.ts`), `src/app/api/sabai/chat/route.ts`, copilot UI under `src/components/sabai/` + shell mount, `scripts/sabai-eval.mjs`, pgvector migrations.
-- **Reuse / adapt:** `src/lib/sabsms/agent/*` (runtime/tools/guardrails/eval patterns), `src/lib/sabcrm/embeddings.server.ts` + `sabcrm-ask.actions.ts` (repoint embeddings to the local model), `src/lib/sabcrm/ai-llm.server.ts` (interface shape only — local client is separate, no third‑party rungs), `src/lib/postgres.ts` (pgvector), `src/lib/rbac-server.ts` (`requirePermission`), `src/lib/sabsms/credits/ledger.ts` (metering), `/api/mcp/*` (tool exposure pattern).
-- **First wrapped action:** `src/app/actions/crm-leads.actions.ts` → `addCrmLead` (FormData‑shaped → normalize in the tool).
-- **Ops:** add the Ollama service to `ecosystem.config.js` (or systemd); env in root `.env`.
+## Reuse (grounded in the codebase)
 
-## Tenancy, security, privacy
+`src/lib/sabsms/agent/*` (runtime/tools/guardrails + eval harness `scripts/sabsms-agent-eval.mjs`),
+`src/lib/sabcrm/embeddings.server.ts` + `sabcrm-ask.actions.ts` (repoint to local embedder),
+`src/lib/sabcrm/ai-llm.server.ts` (interface shape; the SabAI client is local‑only),
+`src/lib/postgres.ts` (pgvector), `src/lib/rbac-server.ts` (`requirePermission`),
+`src/lib/sabsms/credits/ledger.ts` (`reserveCredits`), `/api/mcp/*` (tool pattern),
+`src/app/actions/crm-leads.actions.ts:addCrmLead` (first wrapped action).
 
-- Per‑tenant vector namespaces; retrieval filtered by `projectId/workspaceId`.
-- AI inherits the **caller's** RBAC — every `tool.run` calls `requirePermission(rbacKey, action, projectId)`; no tool runs above the user's grants.
-- Confirm‑before‑write on mutating tools; append‑only `sabai_audit` (who/what/args/result).
-- Prompt‑injection/PII guardrails before tool execution; tool args re‑validated server‑side (never trust model output) via the tool's zod schema.
-- Credits metered per turn/tool via the existing ledger; fail‑closed when unconfigured.
+## Cost (rough, honest)
 
-## Hosting / ops
+- **Own/colo:** ~$16–28K capex for a **2× L40S** HA node (2× ~$8K GPU + ~$6–10K host), or ~$23–38K with 2× A100 80 GB; power <1 kW (~$0.7–1.5K/yr).
+- **Rent bare‑metal:** ~$1,200–2,800/mo for a 2‑GPU L40S/A100 node on committed pricing.
+- Start with **one** GPU + autoscale/queue; add the second for HA once live. The existing CPU box is reused (no new spend there).
 
-- Ollama bound to `127.0.0.1` only; `OLLAMA_NUM_PARALLEL`/threads tuned for the core count; keep model resident (`keep_alive`). With 120 GB/32c, run multiple parallel slots for concurrency; queue overflow.
-- Model/version pinned in env; updates are an explicit `ollama pull` + restart.
-- Health endpoint + PM2 autorestart; resource caps so inference can't starve the web app.
+## Evidence base & confidence
 
-## Verification (per phase)
+Findings converged across all six R&D dimensions and were adversarially re‑verified. **Honest caveats** the verifiers flagged: the headline vLLM throughput figures (15,243 tok/s; vLLM/TGI 3.67×) rest on a single un‑replicated Nov‑2025 preprint and are likely *overstated* for current software (confidence **medium** on those specific numbers); cache hit‑rates (60–76%) are best‑case synthetic Zipfian (real copilot gains lower); GPU prices are one provider on one date (hyperscaler on‑demand is higher); FP8/quant throughput multipliers were measured on larger models (for 3–4B the win is more VRAM than raw tok/s); "small FC model beats GPT‑4o" is BFCL‑snapshot‑sensitive. **What is strongly and consistently supported:** a single mid‑tier GPU on vLLM trivially serves a ~60–150 in‑flight chat copilot for 1000 users, while CPU+Ollama collapses at low‑double‑digit concurrency — and **pgvector is amply sufficient** for the vector layer.
 
-- **Eval harness** (`scripts/sabai-eval.mjs`): golden set of utterances → expected `(tool, slots)`; run in CI; track routing accuracy + extraction validity.
-- **Proof slice e2e:** "create a lead" by chat → record exists, project‑scoped, audited, credit‑charged.
-- **Isolation test:** tenant A's copilot cannot read/act on tenant B's data.
-- **Latency/concurrency:** measure tokens/sec for `qwen3:4b` on the box; confirm short constrained calls stay interactive under N concurrent chats.
-- **Guardrail tests:** injection/PII attempts blocked; RBAC denials respected.
+## The one decision this forces
 
-## Risks & tradeoffs
+The R&D is unambiguous: **1000 concurrent users requires a GPU** — the existing CPU‑only box
+cannot serve it (it's fine as the app/pgvector/embeddings tier, just not for generation).
+So the real choice is:
 
-- **Small‑model quality ceiling** — mitigated by the cog architecture (routing/dialog deterministic; extraction constrained); free‑form analysis deferred.
-- **CPU concurrency** — single instance serializes; mitigate with parallel slots + queue; GPU is a drop‑in later (design unchanged).
-- **Tool‑call reliability** — guaranteed by JSON‑schema‑guided decoding + server‑side re‑validation.
-- **Existing embeddings stack uses a provider key** — must repoint to the local embedder to honor "no third party".
-- **Action shape variance** — some server actions are FormData/`prevState` shaped; the tool layer normalizes (don't call form actions raw).
-```
+- **(A) Provision a GPU** (own/colo/bare‑metal rental — still no third‑party AI) → full 1000‑user target, this plan as written. **Recommended.**
+- **(B) Stay CPU‑only for now** → accept **dozens** of concurrent users (good for a pilot/internal rollout), same application design, swap the substrate to GPU later with **zero architecture change** (only `SABAI_LLM_URL` repoints).
+
+Everything above the inference engine (router, dialog, tools, RAG, RBAC, vector, UI) is
+**identical** in both — so building B first and upgrading to A is a safe, no‑rework path.

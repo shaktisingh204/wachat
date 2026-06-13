@@ -37,6 +37,10 @@ interface BindBody {
   fromName?: string;
   subject?: string;
   messageId?: string;
+  /** IMAP coordinates (worker path) — drive matched-rule / screener-deny apply. */
+  accountId?: string;
+  folder?: string;
+  uid?: number;
 }
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
@@ -67,6 +71,9 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       fromName: body.fromName,
       subject: body.subject,
       messageId: body.messageId,
+      accountId: body.accountId,
+      folder: body.folder,
+      uid: typeof body.uid === 'number' ? body.uid : undefined,
     });
     return NextResponse.json({ ok: true, ...result });
   } catch (e) {

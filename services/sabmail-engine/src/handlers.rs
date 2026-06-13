@@ -19,6 +19,7 @@ pub fn router(state: Arc<AppState>) -> Router {
         .route("/v1/send", post(send_handler))
         .route("/v1/journeys/tick", post(journeys_tick_handler))
         .route("/v1/inbound", post(inbound_handler))
+        .route("/v1/accounts/sync", post(accounts_sync))
         .route("/v1/internal/creds/invalidate", post(invalidate_creds))
         .route_layer(middleware::from_fn_with_state(
             state.clone(),
@@ -56,6 +57,17 @@ async fn inbound_handler(
 ) -> EngineResult<Json<inbound::InboundResult>> {
     let result = inbound::process_inbound(&state, req).await?;
     Ok(Json(result))
+}
+
+/// Parity endpoint for `engineClient.requestSync()`
+/// (`src/lib/sabmail/engine-client.ts`). This engine does NOT own IMAP sync —
+/// that is the job of the `sabmail-sync` PM2 worker, which polls connected
+/// accounts on its own schedule. The engine only sends (lettre) and ticks
+/// journeys, so there is nothing to enqueue here. We return an accepted
+/// no-op ack (`queued: false`) so the client contract matches and the call no
+/// longer 404s/swallows; the sync worker remains the source of truth.
+async fn accounts_sync() -> Json<Value> {
+    Json(json!({ "ok": true, "queued": false }))
 }
 
 /// Parity endpoint — this engine holds no per-request credential cache

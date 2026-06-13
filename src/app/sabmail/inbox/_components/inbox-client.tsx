@@ -303,9 +303,25 @@ export function SabmailInboxClient({ accounts }: { accounts: SabmailAccountRow[]
       setFull(res.message);
       setLoadingBody(false);
       // Optimistically mark the row read in the list.
+      const wasUnread = messages.find((m) => m.uid === uid)?.seen === false;
       setMessages((prev) => prev.map((m) => (m.uid === uid ? { ...m, seen: true } : m)));
+      // Only route a durable mark-read through the optimistic queue when the
+      // row was actually unread, to avoid redundant writes on re-open. The
+      // server's inline \Seen side-effect in getSabmailMessage stays as a
+      // belt-and-suspenders fallback.
+      if (wasUnread) {
+        const { ok } = await applySabmailMutation({
+          type: "markSeen",
+          accountId,
+          folder: folderPath,
+          uid,
+        });
+        if (!ok) {
+          setMessages((prev) => prev.map((m) => (m.uid === uid ? { ...m, seen: false } : m)));
+        }
+      }
     },
-    [accountId, folderPath, toast],
+    [accountId, folderPath, messages, toast],
   );
 
   const refreshList = React.useCallback(() => {
