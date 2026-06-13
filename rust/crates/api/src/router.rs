@@ -490,33 +490,25 @@ pub fn build(state: AppState) -> Router {
     let crm_attendance_alias = crm_attendance::router::<AppState>();
     let crm_leaves_alias = crm_leaves::router::<AppState>();
     let crm_departments = crm_departments::router::<AppState>();
-    let crm_brands = crm_brands::router::<AppState>();
-    let crm_tags = crm_tags::router::<AppState>();
-    let crm_labels = crm_labels::router::<AppState>();
-    let crm_branches = crm_branches::router::<AppState>();
     let crm_warehouses = crm_warehouses::router::<AppState>();
     let crm_stock_adjustments = crm_stock_adjustments::router::<AppState>();
     let crm_coupons = crm_coupons::router::<AppState>();
     let crm_gift_cards = crm_gift_cards::router::<AppState>();
     let crm_loyalty_programs = crm_loyalty_programs::router::<AppState>();
     let crm_budgets = crm_budgets::router::<AppState>();
-    let crm_loans = crm_loans::router::<AppState>();
     let crm_petty_cash = crm_petty_cash::router::<AppState>();
     let crm_bom = crm_bom::router::<AppState>();
     let crm_production_orders = crm_production_orders::router::<AppState>();
     let crm_proforma_invoices = crm_proforma_invoices::router::<AppState>();
     let crm_delivery_challans = crm_delivery_challans::router::<AppState>();
-    let crm_service_contracts = crm_service_contracts::router::<AppState>();
     let crm_tasks = crm_tasks::router::<AppState>();
     let crm_disciplinary = crm_disciplinary::router::<AppState>();
     let crm_vouchers = crm_vouchers::router::<AppState>();
-    let crm_contracts = crm_contracts::router::<AppState>();
     let crm_awards = crm_awards::router::<AppState>();
     let crm_kb_articles = crm_kb_articles::router::<AppState>();
     let crm_payment_accounts = crm_payment_accounts::router::<AppState>();
     let crm_slas = crm_slas::router::<AppState>();
     let crm_exits = crm_exits::router::<AppState>();
-    let crm_purchase_leads = crm_purchase_leads::router::<AppState>();
     let crm_automations_router = crm_automations::router::<AppState>();
     let crm_forms_router = crm_forms::router::<AppState>();
     // SabCRM web-to-lead forms — same crates + collections as the legacy
@@ -530,13 +522,10 @@ pub fn build(state: AppState) -> Router {
     let sabcrm_form_submissions = crm_form_submissions::project_router::<AppState>();
     let crm_saved_views_router = crm_saved_views::router::<AppState>();
     let crm_email_templates_router = crm_email_templates::router::<AppState>();
-    let crm_portal_users_router = crm_portal_users::router::<AppState>();
     let crm_appraisals_router = crm_appraisals::router::<AppState>();
     let crm_succession_router = crm_succession::router::<AppState>();
     let crm_reconciliation_router = crm_reconciliation::router::<AppState>();
     let crm_payroll_settings_router = crm_payroll_settings::router::<AppState>();
-    let crm_auto_leads_router = crm_auto_leads::router::<AppState>();
-    let crm_project_tasks_router = crm_project_tasks::router::<AppState>();
     let crm_payslips_router = crm_payslips::router::<AppState>();
     let crm_salary_structures_router = crm_salary_structures::router::<AppState>();
     let crm_products_router = crm_products::router::<AppState>();
@@ -554,14 +543,8 @@ pub fn build(state: AppState) -> Router {
     let crm_taxes_router = crm_taxes::router::<AppState>();
     let crm_units_router = crm_units::router::<AppState>();
     let crm_vendor_types_router = crm_vendor_types::router::<AppState>();
-    let crm_purchases_router = crm_purchases::router::<AppState>();
     let crm_leave_requests_router = crm_leave_requests::router::<AppState>();
-    let crm_subtasks_router = crm_subtasks::router::<AppState>();
-    let crm_milestones_router = crm_milestones::router::<AppState>();
-    let crm_issues_router = crm_issues::router::<AppState>();
     let crm_time_logs_router = crm_time_logs::router::<AppState>();
-    let crm_ticket_tags_router = crm_ticket_tags::router::<AppState>();
-    let crm_ticket_channels_router = crm_ticket_channels::router::<AppState>();
     let crm_reply_templates_router = crm_reply_templates::router::<AppState>();
     let crm_candidates_router = crm_candidates::router::<AppState>();
     let crm_jobs_router = crm_jobs::router::<AppState>();
@@ -572,23 +555,15 @@ pub fn build(state: AppState) -> Router {
     let crm_documents_router = crm_documents::router::<AppState>();
     let crm_training_router = crm_training::router::<AppState>();
     let crm_ticket_groups_router = crm_ticket_groups::router::<AppState>();
-    let crm_ticket_types_router = crm_ticket_types::router::<AppState>();
-    let crm_agent_groups_router = crm_agent_groups::router::<AppState>();
     let crm_shifts_router = crm_shifts::router::<AppState>();
     let crm_okrs_router = crm_okrs::router::<AppState>();
     let crm_policies_router = crm_policies::router::<AppState>();
     let crm_announcements_router = crm_announcements::router::<AppState>();
     let crm_events_router = crm_events::router::<AppState>();
     let crm_notices_router = crm_notices::router::<AppState>();
-    let crm_currencies_router = crm_currencies::router::<AppState>();
-    let crm_expense_categories_router = crm_expense_categories::router::<AppState>();
     let crm_custom_fields_router = crm_custom_fields::router::<AppState>();
-    let crm_company_profile_router = crm_company_profile::router::<AppState>();
     let crm_shift_rotations_router = crm_shift_rotations::router::<AppState>();
     let crm_one_on_ones_router = crm_one_on_ones::router::<AppState>();
-    let crm_project_categories_router = crm_project_categories::router::<AppState>();
-    let crm_task_labels_router = crm_task_labels::router::<AppState>();
-    let crm_taskboard_columns_router = crm_taskboard_columns::router::<AppState>();
     let wachat_flows = wachat_flows::router::<AppState>();
     let wachat_api_keys_admin = wachat_api_keys_admin::router::<AppState>();
     let fb_pages = wachat_facebook_pages::router::<AppState>();
@@ -868,44 +843,33 @@ pub fn build(state: AppState) -> Router {
         .nest("/v1/crm/grns", crm_grns)
         .nest("/v1/crm/fixed-assets", crm_fixed_assets)
         .nest("/v1/crm/bookings", crm_bookings)
-        .nest("/v1/crm/brands", crm_brands)
-        .nest("/v1/crm/tags", crm_tags)
-        .nest("/v1/crm/labels", crm_labels)
-        .nest("/v1/crm/branches", crm_branches)
         .nest("/v1/crm/warehouses", crm_warehouses)
         .nest("/v1/crm/stock-adjustments", crm_stock_adjustments)
         .nest("/v1/crm/coupons", crm_coupons)
         .nest("/v1/crm/gift-cards", crm_gift_cards)
         .nest("/v1/crm/loyalty-programs", crm_loyalty_programs)
         .nest("/v1/crm/budgets", crm_budgets)
-        .nest("/v1/crm/loans", crm_loans)
         .nest("/v1/crm/petty-cash", crm_petty_cash)
         .nest("/v1/crm/boms", crm_bom)
         .nest("/v1/crm/production-orders", crm_production_orders)
         .nest("/v1/crm/proforma-invoices", crm_proforma_invoices)
         .nest("/v1/crm/delivery-challans", crm_delivery_challans)
-        .nest("/v1/crm/service-contracts", crm_service_contracts)
         .nest("/v1/crm/tasks", crm_tasks)
         .nest("/v1/crm/disciplinary", crm_disciplinary)
         .nest("/v1/crm/voucher-books", crm_vouchers)
-        .nest("/v1/crm/contracts", crm_contracts)
         .nest("/v1/crm/award-programs", crm_awards)
         .nest("/v1/crm/kb-articles", crm_kb_articles)
         .nest("/v1/crm/payment-accounts", crm_payment_accounts)
         .nest("/v1/crm/slas", crm_slas)
         .nest("/v1/crm/exits", crm_exits)
-        .nest("/v1/crm/purchase-leads", crm_purchase_leads)
         .nest("/v1/crm/automations", crm_automations_router)
         .nest("/v1/crm/forms", crm_forms_router)
         .nest("/v1/crm/saved-views", crm_saved_views_router)
         .nest("/v1/crm/email-templates", crm_email_templates_router)
-        .nest("/v1/crm/portal-users", crm_portal_users_router)
         .nest("/v1/crm/appraisals", crm_appraisals_router)
         .nest("/v1/crm/succession-plans", crm_succession_router)
         .nest("/v1/crm/reconciliations", crm_reconciliation_router)
         .nest("/v1/crm/payroll-settings", crm_payroll_settings_router)
-        .nest("/v1/crm/auto-lead-rules", crm_auto_leads_router)
-        .nest("/v1/crm/project-tasks", crm_project_tasks_router)
         .nest("/v1/crm/payslips", crm_payslips_router)
         .nest("/v1/crm/salary-structures", crm_salary_structures_router)
         .nest("/v1/crm/products", crm_products_router)
@@ -923,14 +887,8 @@ pub fn build(state: AppState) -> Router {
         .nest("/v1/crm/taxes", crm_taxes_router)
         .nest("/v1/crm/units", crm_units_router)
         .nest("/v1/crm/vendor-types", crm_vendor_types_router)
-        .nest("/v1/crm/purchases", crm_purchases_router)
         .nest("/v1/crm/leave-requests", crm_leave_requests_router)
-        .nest("/v1/crm/subtasks", crm_subtasks_router)
-        .nest("/v1/crm/milestones", crm_milestones_router)
-        .nest("/v1/crm/issues", crm_issues_router)
         .nest("/v1/crm/time-logs", crm_time_logs_router)
-        .nest("/v1/crm/ticket-tags", crm_ticket_tags_router)
-        .nest("/v1/crm/ticket-channels", crm_ticket_channels_router)
         .nest("/v1/crm/reply-templates", crm_reply_templates_router)
         .nest("/v1/crm/candidates", crm_candidates_router)
         .nest("/v1/crm/jobs", crm_jobs_router)
@@ -941,23 +899,15 @@ pub fn build(state: AppState) -> Router {
         .nest("/v1/crm/documents", crm_documents_router)
         .nest("/v1/crm/training", crm_training_router)
         .nest("/v1/crm/ticket-groups", crm_ticket_groups_router)
-        .nest("/v1/crm/ticket-types", crm_ticket_types_router)
-        .nest("/v1/crm/agent-groups", crm_agent_groups_router)
         .nest("/v1/crm/shifts", crm_shifts_router)
         .nest("/v1/crm/okrs", crm_okrs_router)
         .nest("/v1/crm/policies", crm_policies_router)
         .nest("/v1/crm/announcements", crm_announcements_router)
         .nest("/v1/crm/events", crm_events_router)
         .nest("/v1/crm/notices", crm_notices_router)
-        .nest("/v1/crm/currencies", crm_currencies_router)
-        .nest("/v1/crm/expense-categories", crm_expense_categories_router)
         .nest("/v1/crm/custom-fields", crm_custom_fields_router)
-        .nest("/v1/crm/company-profile", crm_company_profile_router)
         .nest("/v1/crm/shift-rotations", crm_shift_rotations_router)
         .nest("/v1/crm/one-on-ones", crm_one_on_ones_router)
-        .nest("/v1/crm/project-categories", crm_project_categories_router)
-        .nest("/v1/crm/task-labels", crm_task_labels_router)
-        .nest("/v1/crm/taskboard-columns", crm_taskboard_columns_router)
         .nest("/v1/hrm/employees", crm_employees)
         .nest("/v1/hrm/attendance", crm_attendance)
         .nest("/v1/hrm/leaves", crm_leaves)
