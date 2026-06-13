@@ -23,7 +23,7 @@ import type { PermissionAction } from '@/lib/rbac';
 import { sabcrmPlanFeature } from '@/lib/plans';
 import { RustApiError } from '@/lib/rust-client/fetcher';
 import { sabcrmCommercePosApi } from '@/lib/rust-client/sabcrm-commerce';
-import type { CrmPosSessionDoc } from '@/lib/rust-client/sabcrm-commerce';
+import { posSessionToRow } from './sabcrm-commerce-pos-sessions.actions.types';
 import type { ActionResult } from '@/lib/sabcrm/types';
 import type {
   SabcrmPosSessionKpis,
@@ -90,22 +90,6 @@ function fail<T>(e: unknown, fallback: string): ActionResult<T> {
 
 const PAGE_LIMIT_DEFAULT = 25;
 const EXPORT_MAX_PAGES = 5;
-
-export function posSessionToRow(doc: CrmPosSessionDoc): SabcrmPosSessionListRow {
-  return {
-    id: doc._id,
-    terminalId: doc.terminalId,
-    openedBy: doc.openedBy,
-    openedAt: doc.openedAt,
-    openingCash: doc.openingCash ?? 0,
-    closedAt: doc.closedAt ?? null,
-    closingCash: doc.closingCash ?? null,
-    expectedCash: doc.expectedCash ?? null,
-    discrepancy: doc.discrepancy ?? null,
-    status: doc.status,
-    notes: doc.notes ?? null,
-  };
-}
 
 /* ─── Actions ────────────────────────────────────────────────────── */
 

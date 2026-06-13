@@ -10,6 +10,7 @@
  */
 
 import type { CrmPosSessionStatus } from '@/lib/rust-client/crm-pos';
+import type { CrmPosSessionDoc } from '@/lib/rust-client/sabcrm-commerce';
 
 export interface SabcrmPosSessionListFilters {
   page?: number;
@@ -32,6 +33,27 @@ export interface SabcrmPosSessionListRow {
   discrepancy: number | null;
   status: CrmPosSessionStatus;
   notes: string | null;
+}
+
+/**
+ * Map a raw POS-session doc to a display-ready row. Pure (no I/O) — lives here
+ * rather than in the `'use server'` actions module (which may only export async
+ * functions); shared by the list/export actions and the [sessionId] detail page.
+ */
+export function posSessionToRow(doc: CrmPosSessionDoc): SabcrmPosSessionListRow {
+  return {
+    id: doc._id,
+    terminalId: doc.terminalId,
+    openedBy: doc.openedBy,
+    openedAt: doc.openedAt,
+    openingCash: doc.openingCash ?? 0,
+    closedAt: doc.closedAt ?? null,
+    closingCash: doc.closingCash ?? null,
+    expectedCash: doc.expectedCash ?? null,
+    discrepancy: doc.discrepancy ?? null,
+    status: doc.status,
+    notes: doc.notes ?? null,
+  };
 }
 
 export interface SabcrmPosSessionListPage {

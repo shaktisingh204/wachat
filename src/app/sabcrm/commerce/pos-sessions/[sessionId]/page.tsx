@@ -14,7 +14,7 @@ import { notFound } from 'next/navigation';
 
 import { getSabcrmPosSession } from '@/app/actions/sabcrm-commerce-docs.actions';
 import { listSabcrmPosTransactions } from '@/app/actions/sabcrm-commerce.actions';
-import { posSessionToRow } from '@/app/actions/sabcrm-commerce-pos-sessions.actions';
+import { posSessionToRow } from '@/app/actions/sabcrm-commerce-pos-sessions.actions.types';
 import { PosSessionDetailClient } from './pos-session-detail-client';
 
 export const dynamic = 'force-dynamic';
