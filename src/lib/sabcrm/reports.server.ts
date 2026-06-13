@@ -36,6 +36,11 @@ import { ObjectId, type Filter } from "mongodb";
 import { sabcrmRecords, sabcrmReports, type SabcrmReportDoc } from "./db";
 import { getObject } from "./objects.server";
 import type { ObjectMetadata } from "./types";
+import {
+  sabcrmPipelinesApi,
+  type SabcrmRustPipeline,
+  type SabcrmRustPipelineStage,
+} from "@/lib/rust-client/sabcrm-pipelines";
 
 /* -------------------------------------------------------------------------- */
 /* Public types                                                                */
@@ -45,10 +50,36 @@ import type { ObjectMetadata } from "./types";
 export type ReportMetric = "count" | "sum" | "avg" | "min" | "max";
 
 /** Preferred chart surface — stored with the definition, used by the UI only. */
-export type ReportChartType = "bar" | "line" | "pie" | "number" | "table";
+export type ReportChartType =
+  | "bar"
+  | "line"
+  | "pie"
+  | "number"
+  | "table"
+  | "funnel";
 
 /** Time bucket granularity for DATE / DATE_TIME group-by fields. */
 export type ReportTimeBucket = "day" | "week" | "month" | "quarter" | "year";
+
+/**
+ * Report kind. `standard` is the legacy metric × group-by report (default when
+ * absent). `funnel` + `velocity` are pipeline-driven sales analytics.
+ */
+export type ReportKind = "standard" | "funnel" | "velocity";
+
+/** Headline numbers for funnel / velocity reports (carried beside `rows`). */
+export interface ReportSeriesMeta {
+  /** Won / (won + lost), 0–1. */
+  winRate?: number;
+  /** Deals classified as won within scope. */
+  wonCount?: number;
+  /** Mean won-deal amount. */
+  avgDealSize?: number;
+  /** Mean days from `createdAt` → `closeDate` for won deals. */
+  avgCycleDays?: number;
+  /** Sales velocity: (deals × avgDealSize × winRate) / max(avgCycleDays, 1). */
+  velocityPerDay?: number;
+}
 
 /**
  * A saved report definition in its serialisable API shape.
@@ -72,6 +103,10 @@ export interface SavedReport {
   /** Exact-match filters applied before the aggregation. */
   filters?: Record<string, unknown>;
   chartType?: ReportChartType;
+  /** Report kind. Absent / "standard" = the legacy metric report. */
+  kind?: ReportKind;
+  /** Pipeline whose ordered stages drive a funnel / velocity report. */
+  pipelineId?: string;
   createdBy: string;
   createdAt: string;
   updatedAt: string;
@@ -88,6 +123,8 @@ export interface CreateReportInput {
   timeBucket?: ReportTimeBucket;
   filters?: Record<string, unknown>;
   chartType?: ReportChartType;
+  kind?: ReportKind;
+  pipelineId?: string;
 }
 
 /** Fields that may be updated by {@link updateReport}. */
@@ -100,6 +137,8 @@ export interface UpdateReportPatch {
   timeBucket?: ReportTimeBucket;
   filters?: Record<string, unknown>;
   chartType?: ReportChartType;
+  kind?: ReportKind;
+  pipelineId?: string;
 }
 
 /** One row in an analytics data series. */
@@ -133,6 +172,8 @@ export interface ReportDataSeries {
   recordCount: number;
   /** ISO timestamp of when this series was computed. */
   computedAt: string;
+  /** Headline numbers for funnel / velocity reports (absent for standard). */
+  meta?: ReportSeriesMeta;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -159,6 +200,7 @@ const VALID_CHART_TYPES: ReadonlySet<string> = new Set<ReportChartType>([
   "pie",
   "number",
   "table",
+  "funnel",
 ]);
 
 const VALID_TIME_BUCKETS: ReadonlySet<string> = new Set<ReportTimeBucket>([
@@ -271,6 +313,8 @@ function docToReport(doc: SabcrmReportDoc): SavedReport {
     timeBucket: doc.timeBucket,
     filters: doc.filters,
     chartType: doc.chartType,
+    kind: doc.kind,
+    pipelineId: doc.pipelineId,
     createdBy: doc.createdBy,
     createdAt: doc.createdAt,
     updatedAt: doc.updatedAt,
@@ -364,6 +408,8 @@ export async function createReport(
     timeBucket: input.timeBucket ?? undefined,
     filters: input.filters ?? undefined,
     chartType: input.chartType ?? undefined,
+    kind: input.kind ?? undefined,
+    pipelineId: input.pipelineId ?? undefined,
     createdBy,
     createdAt: now,
     updatedAt: now,
@@ -437,6 +483,8 @@ export async function updateReport(
   if ("timeBucket" in patch) set.timeBucket = patch.timeBucket;
   if ("filters" in patch) set.filters = patch.filters;
   if ("chartType" in patch) set.chartType = patch.chartType;
+  if ("kind" in patch) set.kind = patch.kind;
+  if ("pipelineId" in patch) set.pipelineId = patch.pipelineId;
 
   const updated = await col.findOneAndUpdate(
     { _id: new ObjectId(id), projectId } as Filter<SabcrmReportDoc>,
@@ -514,10 +562,20 @@ export async function runReportDefinition(
     | "groupByField"
     | "timeBucket"
     | "filters"
+    | "kind"
+    | "pipelineId"
   >,
 ): Promise<ReportDataSeries> {
-  const { object: objectSlug, metric, metricField, groupByField, timeBucket, filters } =
-    definition;
+  const {
+    object: objectSlug,
+    metric,
+    metricField,
+    groupByField,
+    timeBucket,
+    filters,
+    kind,
+    pipelineId,
+  } = definition;
 
   // Resolve object metadata (needed for label lookup on SELECT groups).
   const objectMeta = await getObject(projectId, objectSlug);
@@ -553,6 +611,28 @@ export async function runReportDefinition(
     .aggregate([{ $match: matchStage }, { $count: "n" }])
     .toArray();
   const recordCount = (countResult[0] as { n?: number } | undefined)?.n ?? 0;
+
+  // ── Pipeline-driven reports (funnel / velocity) ───────────────────────────
+  if (kind === "funnel") {
+    const f = await computeFunnel(recordsCol, matchStage, projectId, pipelineId);
+    return {
+      metric,
+      rows: f.rows,
+      recordCount,
+      computedAt: new Date().toISOString(),
+      meta: f.meta,
+    };
+  }
+  if (kind === "velocity") {
+    const v = await computeVelocity(recordsCol, matchStage, projectId, pipelineId);
+    return {
+      metric,
+      rows: v.rows,
+      recordCount,
+      computedAt: new Date().toISOString(),
+      meta: v.meta,
+    };
+  }
 
   let rows: ReportDataPoint[];
 
@@ -616,6 +696,186 @@ export async function runReportDefinition(
 
 /** Cap on the number of rows returned by an analytics query. */
 const RUN_REPORT_CAP = 500;
+
+/** The records collection type, reused by the compute helpers. */
+type RecordsCol = Awaited<ReturnType<typeof sabcrmRecords>>;
+
+/* -------------------------------------------------------------------------- */
+/* Funnel / velocity (pipeline-driven) compute                                */
+/* -------------------------------------------------------------------------- */
+
+/** Won/lost/open kind for a stage: explicit `kind`, else a label heuristic. */
+function reportStageKind(
+  stage: SabcrmRustPipelineStage,
+): "open" | "won" | "lost" {
+  if (stage.kind === "open" || stage.kind === "won" || stage.kind === "lost") {
+    return stage.kind;
+  }
+  const label = (stage.label ?? stage.id ?? "").toLowerCase();
+  if (/\bwon\b|customer/.test(label)) return "won";
+  if (/\blost\b/.test(label)) return "lost";
+  return "open";
+}
+
+/** The requested pipeline, else the project default, else the first one. */
+async function resolveReportPipeline(
+  projectId: string,
+  pipelineId?: string,
+): Promise<SabcrmRustPipeline | null> {
+  const pipelines = await sabcrmPipelinesApi.list(projectId);
+  if (pipelines.length === 0) return null;
+  if (pipelineId) return pipelines.find((p) => p.id === pipelineId) ?? null;
+  return pipelines.find((p) => p.isDefault) ?? pipelines[0];
+}
+
+/**
+ * Funnel report: current-stage distribution across a pipeline's ordered
+ * stages (count per stage), plus a win-rate over won/lost stages. `rows` is
+ * one {@link ReportDataPoint} per stage (FunnelChart-ready).
+ */
+async function computeFunnel(
+  recordsCol: RecordsCol,
+  matchStage: Record<string, unknown>,
+  projectId: string,
+  pipelineId?: string,
+): Promise<{ rows: ReportDataPoint[]; meta: ReportSeriesMeta }> {
+  const pipeline = await resolveReportPipeline(projectId, pipelineId);
+  if (!pipeline) return { rows: [], meta: {} };
+
+  const grouped = await recordsCol
+    .aggregate([
+      { $match: matchStage },
+      { $group: { _id: { $ifNull: ["$data.stage", ""] }, count: { $sum: 1 } } },
+    ])
+    .toArray();
+  const byStage = new Map<string, number>();
+  for (const g of grouped as Array<{ _id: unknown; count: number }>) {
+    byStage.set(String(g._id), g.count);
+  }
+
+  const rows: ReportDataPoint[] = pipeline.stages.map((s) => ({
+    key: String(s.id),
+    label: s.label || String(s.id),
+    value: byStage.get(String(s.id)) ?? 0,
+    color: s.color,
+  }));
+
+  let won = 0;
+  let lost = 0;
+  for (const s of pipeline.stages) {
+    const k = reportStageKind(s);
+    const c = byStage.get(String(s.id)) ?? 0;
+    if (k === "won") won += c;
+    else if (k === "lost") lost += c;
+  }
+  const winRate = won + lost > 0 ? won / (won + lost) : 0;
+  return { rows, meta: { winRate, wonCount: won } };
+}
+
+/**
+ * Velocity report: sales velocity = (won deals × avg deal size × win-rate) /
+ * avg cycle length, where cycle = `createdAt → closeDate` over won deals.
+ * `rows` carries the won/open/lost split; `meta` carries the headline numbers.
+ */
+async function computeVelocity(
+  recordsCol: RecordsCol,
+  matchStage: Record<string, unknown>,
+  projectId: string,
+  pipelineId?: string,
+): Promise<{ rows: ReportDataPoint[]; meta: ReportSeriesMeta }> {
+  const pipeline = await resolveReportPipeline(projectId, pipelineId);
+  if (!pipeline) return { rows: [], meta: {} };
+
+  const wonStageIds = pipeline.stages
+    .filter((s) => reportStageKind(s) === "won")
+    .map((s) => String(s.id));
+  const lostStageIds = pipeline.stages
+    .filter((s) => reportStageKind(s) === "lost")
+    .map((s) => String(s.id));
+
+  const counts = await recordsCol
+    .aggregate([
+      { $match: matchStage },
+      {
+        $group: {
+          _id: {
+            $cond: [
+              { $in: ["$data.stage", wonStageIds] },
+              "won",
+              {
+                $cond: [
+                  { $in: ["$data.stage", lostStageIds] },
+                  "lost",
+                  "open",
+                ],
+              },
+            ],
+          },
+          n: { $sum: 1 },
+        },
+      },
+    ])
+    .toArray();
+  let won = 0;
+  let lost = 0;
+  let open = 0;
+  for (const c of counts as Array<{ _id: string; n: number }>) {
+    if (c._id === "won") won = c.n;
+    else if (c._id === "lost") lost = c.n;
+    else open = c.n;
+  }
+  const winRate = won + lost > 0 ? won / (won + lost) : 0;
+
+  const vel = await recordsCol
+    .aggregate([
+      { $match: { ...matchStage, "data.stage": { $in: wonStageIds } } },
+      {
+        $addFields: {
+          __amt: {
+            $convert: { input: "$data.amount", to: "double", onError: 0, onNull: 0 },
+          },
+          __cycle: {
+            $dateDiff: {
+              startDate: {
+                $convert: { input: "$createdAt", to: "date", onError: null, onNull: null },
+              },
+              endDate: {
+                $convert: { input: "$data.closeDate", to: "date", onError: null, onNull: null },
+              },
+              unit: "day",
+            },
+          },
+        },
+      },
+      { $match: { __cycle: { $ne: null, $gte: 0 } } },
+      {
+        $group: {
+          _id: null,
+          deals: { $sum: 1 },
+          avgSize: { $avg: "$__amt" },
+          avgCycle: { $avg: "$__cycle" },
+        },
+      },
+    ])
+    .toArray();
+  const v =
+    (vel[0] as { deals?: number; avgSize?: number; avgCycle?: number } | undefined) ?? {};
+  const deals = v.deals ?? 0;
+  const avgDealSize = v.avgSize ?? 0;
+  const avgCycleDays = v.avgCycle ?? 0;
+  const velocityPerDay =
+    (deals * avgDealSize * winRate) / Math.max(avgCycleDays, 1);
+
+  const rows: ReportDataPoint[] = [
+    { key: "won", label: "Won", value: won },
+    { key: "open", label: "Open", value: open },
+    { key: "lost", label: "Lost", value: lost },
+  ];
+  return {
+    rows,
+    meta: { winRate, wonCount: won, avgDealSize, avgCycleDays, velocityPerDay },
+  };
+}
 
 type AggregationDoc = Record<string, unknown>;
 

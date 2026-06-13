@@ -46,6 +46,10 @@ import {
   patchTouchesChangeFields,
 } from '@/lib/sabcrm/runtime';
 import { recomputeScoresForRecord } from '@/lib/sabcrm/scoring.server';
+import {
+  validateRecordWrite,
+  reparentInboundRelations,
+} from '@/lib/sabcrm/data-quality.server';
 import type {
   SabcrmRustActivity,
   SabcrmComment,
@@ -490,6 +494,11 @@ export async function createSabcrmRecordTw(
 
   try {
     data = await maybeNormalizePhones(object, g.ctx.projectId, data ?? {});
+    // Data-quality: block the create when a `block` validation rule fires.
+    const vCreate = await validateRecordWrite(g.ctx.projectId, object, data ?? {});
+    if (!vCreate.ok) {
+      return { ok: false, error: vCreate.blocked.map((b) => b.message).join(' ') };
+    }
     // Stamp Twenty-style ACTOR metadata (who created/updated this record).
     // No display name is exposed by the gate/session, so fall back to the
     // userId for `name`. Only fill fields the caller didn't already supply.
@@ -557,6 +566,25 @@ export async function updateSabcrmRecordTw(
 
   try {
     data = await maybeNormalizePhones(object, g.ctx.projectId, data ?? {});
+    // Data-quality: validate the MERGED record (existing + patch) and block on
+    // a `block` rule. Best-effort fetch; if unreadable, validate the patch alone.
+    {
+      const currentForValidation = await sabcrmRecordsApi
+        .get(object, id, g.ctx.projectId)
+        .catch(() => null);
+      const mergedForValidation = {
+        ...(currentForValidation?.data ?? {}),
+        ...(data ?? {}),
+      };
+      const vUpdate = await validateRecordWrite(
+        g.ctx.projectId,
+        object,
+        mergedForValidation,
+      );
+      if (!vUpdate.ok) {
+        return { ok: false, error: vUpdate.blocked.map((b) => b.message).join(' ') };
+      }
+    }
     // Stamp Twenty-style ACTOR metadata on the update (who last touched it).
     // Fall back to the userId for `name` (no display name in the gate/session);
     // don't clobber an `updatedBy` the caller explicitly supplied.
@@ -669,12 +697,18 @@ export async function mergeSabcrmRecordsTw(
   if (!g.ok) return { ok: false, error: g.error };
 
   try {
+    // Data-quality: re-point every INBOUND relation from the loser onto the
+    // survivor BEFORE the Rust merge hard-deletes the secondary (the Rust
+    // merge re-points activities + survivorship but leaves relations dangling).
+    await reparentInboundRelations(g.ctx.projectId, object, secondaryId, primaryId);
     const record = await sabcrmRecordsApi.merge(object, {
       projectId: g.ctx.projectId,
       primaryId,
       secondaryId,
       data,
     });
+    // Re-score the survivor (its merged data may change rule outcomes).
+    await recomputeScoresForRecord(g.ctx.projectId, object, primaryId);
     revalidatePath(`${TW_BASE_PATH}/${object}`);
     revalidatePath(`${TW_BASE_PATH}/${object}/${primaryId}`);
     return { ok: true, data: record };

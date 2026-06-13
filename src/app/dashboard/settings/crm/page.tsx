@@ -188,6 +188,12 @@ const GROUPS: readonly SettingsGroup[] = [
         icon: Target,
       },
       {
+        slug: 'validation',
+        label: 'Validation rules',
+        description: 'Block or warn on invalid record saves',
+        icon: ShieldCheck,
+      },
+      {
         slug: 'tags',
         label: 'Tags',
         description: 'Labels for categorising records',

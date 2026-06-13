@@ -62,6 +62,8 @@ export type {
   ReportChartType,
   ReportTimeBucket,
   ReportDataPoint,
+  ReportKind,
+  ReportSeriesMeta,
 } from '@/lib/sabcrm/reports.server';
 export type {
   CrmDashboardKpis,

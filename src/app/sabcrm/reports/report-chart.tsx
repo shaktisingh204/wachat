@@ -26,6 +26,7 @@ import {
   BarChart,
   LineChart,
   DonutChart,
+  FunnelChart,
   type ChartDatum,
 } from '@/components/sabcrm/20ui/composites/charts';
 import { Table, THead, TBody, TFoot, Tr, Th, Td } from '@/components/sabcrm/20ui';
@@ -130,6 +131,33 @@ function TableChart({ series }: { series: ReportDataSeries }): React.JSX.Element
   );
 }
 
+/** Headline metric tiles for a velocity report (reads `series.meta`). */
+function VelocityView({ series }: { series: ReportDataSeries }): React.JSX.Element {
+  const m = series.meta ?? {};
+  const tiles: Array<{ label: string; value: string }> = [
+    { label: 'Velocity / day', value: formatReportValue(m.velocityPerDay ?? 0) },
+    { label: 'Win rate', value: `${Math.round((m.winRate ?? 0) * 100)}%` },
+    { label: 'Avg deal size', value: formatReportValue(m.avgDealSize ?? 0) },
+    { label: 'Avg cycle (days)', value: formatReportValue(m.avgCycleDays ?? 0) },
+    { label: 'Won deals', value: String(m.wonCount ?? 0) },
+  ];
+  return (
+    <div>
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+        {tiles.map((t) => (
+          <div key={t.label} className="rp-metric">
+            <span className="rp-metric__value">{t.value}</span>
+            <span className="rp-metric__caption">{t.label}</span>
+          </div>
+        ))}
+      </div>
+      <div className="rp-result-foot">
+        <span>{series.recordCount} record(s) matched</span>
+      </div>
+    </div>
+  );
+}
+
 // ---------------------------------------------------------------------------
 // Public renderer
 // ---------------------------------------------------------------------------
@@ -154,6 +182,35 @@ export function ReportChart({
   metricCaption,
   showFooter = true,
 }: ReportChartProps): React.JSX.Element {
+  // Funnel report → value-weighted funnel of the pipeline's stages.
+  if (chartType === 'funnel') {
+    return (
+      <div>
+        <FunnelChart
+          stages={series.rows}
+          formatValue={formatReportValue}
+          emptyLabel="No deals in this pipeline yet."
+          label="Funnel"
+        />
+        {showFooter && (
+          <div className="rp-result-foot">
+            <span>
+              {series.meta?.winRate !== undefined
+                ? `Win rate ${Math.round(series.meta.winRate * 100)}% · `
+                : ''}
+              {series.recordCount} record(s) matched
+            </span>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Velocity report → headline metric tiles from series.meta.
+  if (series.meta?.velocityPerDay !== undefined) {
+    return <VelocityView series={series} />;
+  }
+
   // Single-value (or `number` chart) → big metric tile.
   if (chartType === 'number' || isSingleValueSeries(series)) {
     const value = series.rows[0]?.value ?? 0;

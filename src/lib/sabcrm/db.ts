@@ -196,7 +196,11 @@ export type SabcrmReportDoc = WithMongoId & {
    * data series regardless; this is purely a display hint stored alongside
    * the definition.
    */
-  chartType?: "bar" | "line" | "pie" | "number" | "table";
+  chartType?: "bar" | "line" | "pie" | "number" | "table" | "funnel";
+  /** Report kind — "standard" (default) | "funnel" | "velocity". */
+  kind?: "standard" | "funnel" | "velocity";
+  /** Pipeline driving a funnel / velocity report. */
+  pipelineId?: string;
   /** User id of the report owner (creator). */
   createdBy: string;
   createdAt: string;

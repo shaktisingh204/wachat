@@ -37,6 +37,7 @@ import {
   saveReportAction,
   runReportDefinitionAction,
 } from '@/app/actions/sabcrm.actions';
+import { listPipelinesTw } from '@/app/actions/sabcrm-pipelines.actions';
 import { useProject } from '@/context/project-context';
 import type { ObjectMetadata, FieldMetadata, FieldType } from '@/lib/sabcrm/types';
 import type {
@@ -45,6 +46,7 @@ import type {
   ReportMetric,
   ReportChartType,
   ReportTimeBucket,
+  ReportKind,
   SaveReportActionInput,
 } from '@/app/actions/sabcrm.actions.types';
 
@@ -108,6 +110,12 @@ const CHART_TYPES: ReadonlyArray<{ value: ReportChartType; label: string }> = [
   { value: 'table', label: 'Table' },
 ];
 
+const REPORT_KINDS: ReadonlyArray<{ value: ReportKind; label: string }> = [
+  { value: 'standard', label: 'Standard (metric × group)' },
+  { value: 'funnel', label: 'Funnel (pipeline stages)' },
+  { value: 'velocity', label: 'Sales velocity' },
+];
+
 const TIME_BUCKETS: ReadonlyArray<{ value: ReportTimeBucket; label: string }> = [
   { value: 'day', label: 'Day' },
   { value: 'week', label: 'Week' },
@@ -134,6 +142,8 @@ interface Draft {
   groupByField: string;
   timeBucket: ReportTimeBucket;
   chartType: ReportChartType;
+  kind: ReportKind;
+  pipelineId: string;
 }
 
 const EMPTY_DRAFT: Draft = {
@@ -145,6 +155,8 @@ const EMPTY_DRAFT: Draft = {
   groupByField: '',
   timeBucket: 'month',
   chartType: 'bar',
+  kind: 'standard',
+  pipelineId: '',
 };
 
 function draftFromReport(r: SavedReport): Draft {
@@ -158,6 +170,8 @@ function draftFromReport(r: SavedReport): Draft {
     groupByField: r.groupByField ?? '',
     timeBucket: r.timeBucket ?? 'month',
     chartType: r.chartType ?? 'bar',
+    kind: r.kind ?? 'standard',
+    pipelineId: r.pipelineId ?? '',
   };
 }
 
@@ -167,11 +181,13 @@ function buildSaveInput(d: Draft): SaveReportActionInput {
     object: d.object,
     metric: d.metric,
     chartType: d.chartType,
+    kind: d.kind,
   };
   if (d.id) input.id = d.id;
   if (d.description.trim()) input.description = d.description.trim();
   if (metricNeedsField(d.metric) && d.metricField) input.metricField = d.metricField;
   if (d.groupByField) input.groupByField = d.groupByField;
+  if (d.kind !== 'standard' && d.pipelineId) input.pipelineId = d.pipelineId;
   return input;
 }
 
@@ -206,6 +222,9 @@ export default function SabcrmReportBuilderPage(): React.JSX.Element {
   const { activeProjectId } = useProject();
 
   const [objects, setObjects] = React.useState<ObjectMetadata[]>([]);
+  const [pipelines, setPipelines] = React.useState<
+    Array<{ id: string; name: string }>
+  >([]);
   const [draft, setDraft] = React.useState<Draft>(EMPTY_DRAFT);
   const [loading, setLoading] = React.useState(true);
   const [pageError, setPageError] = React.useState<string | null>(null);
@@ -260,6 +279,21 @@ export default function SabcrmReportBuilderPage(): React.JSX.Element {
       setLoading(false);
     })();
 
+    return () => {
+      cancelled = true;
+    };
+  }, [activeProjectId]);
+
+  // Pipelines power the funnel / velocity report kinds.
+  React.useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      const res = await listPipelinesTw(activeProjectId ?? undefined);
+      if (cancelled) return;
+      if (res.ok) {
+        setPipelines(res.data.map((p) => ({ id: p.id, name: p.name })));
+      }
+    })();
     return () => {
       cancelled = true;
     };
@@ -335,6 +369,10 @@ export default function SabcrmReportBuilderPage(): React.JSX.Element {
               ? { timeBucket: draft.timeBucket }
               : null),
             chartType: draft.chartType,
+            kind: draft.kind,
+            ...(draft.kind !== 'standard' && draft.pipelineId
+              ? { pipelineId: draft.pipelineId }
+              : null),
           },
           activeProjectId ?? undefined,
         );
@@ -363,6 +401,8 @@ export default function SabcrmReportBuilderPage(): React.JSX.Element {
     draft.timeBucket,
     draft.chartType,
     draft.name,
+    draft.kind,
+    draft.pipelineId,
     groupByIsDate,
     activeProjectId,
   ]);
@@ -474,6 +514,52 @@ export default function SabcrmReportBuilderPage(): React.JSX.Element {
                 />
               </Field>
 
+              {/* Report type */}
+              <Field label="Report type" id="rep-kind">
+                <SelectField
+                  value={draft.kind}
+                  onChange={(v) =>
+                    setDraft((prev) => {
+                      const kind = (v as ReportKind) ?? 'standard';
+                      const chartType: ReportChartType =
+                        kind === 'funnel'
+                          ? 'funnel'
+                          : kind === 'velocity'
+                            ? 'number'
+                            : prev.chartType === 'funnel'
+                              ? 'bar'
+                              : prev.chartType;
+                      return { ...prev, kind, chartType };
+                    })
+                  }
+                  options={REPORT_KINDS.map((k) => ({
+                    value: k.value,
+                    label: k.label,
+                  }))}
+                />
+              </Field>
+
+              {/* Pipeline (funnel / velocity) */}
+              {draft.kind !== 'standard' && (
+                <Field
+                  label="Pipeline"
+                  id="rep-pipeline"
+                  help="Defaults to the project's default pipeline when left blank."
+                >
+                  <SelectField
+                    value={draft.pipelineId || null}
+                    onChange={(v) => set('pipelineId', v ?? '')}
+                    placeholder="Default pipeline"
+                    options={pipelines.map((p) => ({
+                      value: p.id,
+                      label: p.name,
+                    }))}
+                  />
+                </Field>
+              )}
+
+              {draft.kind === 'standard' && (
+                <>
               {/* Metric */}
               <Field label="Metric" required id="rep-metric">
                 <SelectField
@@ -552,6 +638,8 @@ export default function SabcrmReportBuilderPage(): React.JSX.Element {
                   }))}
                 />
               </Field>
+                </>
+              )}
 
               {/* Description */}
               <Field label="Description" id="rep-desc">
