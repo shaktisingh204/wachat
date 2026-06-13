@@ -160,6 +160,17 @@ export interface SabsmsProviderAccount {
   status: 'active' | 'disabled' | 'error';
   lastErrorAt?: Date;
   lastError?: string;
+  /**
+   * US 10DLC registration state for this provider account. Optional —
+   * only populated once a brand/campaign has been registered with the
+   * carrier (TCR) through the provider.
+   */
+  tenDlc?: {
+    status?: 'unregistered' | 'pending' | 'registered' | 'rejected';
+    brandId?: string;
+    campaignId?: string;
+    updatedAt?: Date;
+  };
   createdAt: Date;
   updatedAt: Date;
 }
@@ -241,6 +252,14 @@ export interface SabsmsMessage {
   price?: number;
   /** Wholesale cost in cents (USD) — for margin reporting. */
   cost?: number;
+  /** Engine-written provider charge in cents (USD), as billed upstream. */
+  providerCostCents?: number;
+  /**
+   * Engine-attached compliance trace (consent check, suppression lookup,
+   * 10DLC/DLT gate, opt-out state) surfaced by the logs page. Opaque —
+   * the engine owns the shape.
+   */
+  complianceTrace?: unknown;
   tags?: string[];
   /** V2.11 — RCS payload carried by the message (outbound). */
   rcs?: SabsmsRcsPayload;
@@ -337,6 +356,12 @@ export interface SabsmsCampaign {
   senderNumberIds?: string[];
   category: SabsmsMessageCategory;
   status: SabsmsCampaignStatus;
+  /** Resolved public media URLs (R2) sent as MMS attachments per recipient. */
+  mediaUrls?: string[];
+  /** V2.11 — RCS payload broadcast to RCS-capable recipients. */
+  rcs?: SabsmsRcsPayload;
+  /** V2.11 — requested channel strategy ('rcs_preferred' / 'sms'). */
+  channelRequested?: SabsmsChannelRequested;
   stats: {
     total: number;
     queued: number;
@@ -399,6 +424,36 @@ export interface SabsmsConsentEvent {
   doubleOptInVerifiedAt?: Date;
   metadata?: Record<string, unknown>;
   createdAt: Date;
+}
+
+/**
+ * Per-keyword inbound auto-reply / tagging rule (collection
+ * `sabsms_keyword_rules`). Distinct from the workspace-level opt-out
+ * override doc the engine's `keywords.rs` reads from the SAME collection
+ * via `find_one({ workspaceId })` (that doc carries `stopKeywords` /
+ * `helpKeywords` / `helpText` and no `keyword` field); a rule doc is
+ * keyed by its own `keyword`, so the two shapes coexist without clashing.
+ */
+export interface SabsmsKeywordRule {
+  _id?: ObjectId;
+  workspaceId: string;
+  /** The trigger keyword as entered by the operator (display form). */
+  keyword: string;
+  /** Uppercased, punctuation-stripped form used for matching. */
+  normalizedKeyword: string;
+  /** How the inbound body is compared against the keyword. */
+  match?: 'exact' | 'starts_with' | 'contains';
+  /** What happens when the rule fires. */
+  action: 'reply' | 'opt_out' | 'opt_in' | 'tag';
+  /** Literal reply body (when `action: 'reply'`). */
+  replyText?: string;
+  /** Template id to send instead of `replyText`. */
+  replyTemplateId?: string;
+  /** Tag to apply to the contact (when `action: 'tag'`). */
+  tag?: string;
+  enabled: boolean;
+  createdAt: Date;
+  updatedAt?: Date;
 }
 
 export interface SabsmsWebhookOut {

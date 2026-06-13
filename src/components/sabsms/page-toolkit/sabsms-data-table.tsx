@@ -183,14 +183,9 @@ export function SabsmsDataTable<T>({
                 {selectable && (
                   <Th className="w-[40px]">
                     <Checkbox
-                      checked={
-                        allOnPageSelected
-                          ? true
-                          : someOnPageSelected
-                            ? "indeterminate"
-                            : false
-                      }
-                      onCheckedChange={toggleAllOnPage}
+                      checked={allOnPageSelected === true}
+                      indeterminate={someOnPageSelected === true}
+                      onChange={toggleAllOnPage}
                       aria-label="Select all on page"
                     />
                   </Th>
@@ -269,7 +264,7 @@ export function SabsmsDataTable<T>({
                               <DropdownMenuItem
                                 key={a.label}
                                 onSelect={() => a.onSelect(row)}
-                                destructive={a.destructive}
+                                variant={a.destructive ? "danger" : undefined}
                               >
                                 {a.icon}
                                 <span className={a.icon ? "ml-2" : undefined}>

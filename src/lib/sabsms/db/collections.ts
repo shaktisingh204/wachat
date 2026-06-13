@@ -46,6 +46,7 @@ export const SABSMS_COLLECTIONS = {
   linkClicks: 'sabsms_link_clicks',
   settings: 'sabsms_settings',
   routingPolicies: 'sabsms_routing_policies',
+  keywordRules: 'sabsms_keyword_rules',
 } as const;
 
 export type SabsmsCollectionName =
@@ -382,6 +383,8 @@ export const SabsmsMessageSchema = z.object({
   segmentsCount: z.number().optional(),
   price: z.number().optional(),
   cost: z.number().optional(),
+  providerCostCents: z.number().optional(),
+  complianceTrace: z.unknown().optional(),
   tags: z.array(z.string()).optional(),
   // V2.11 — RCS (all additive/optional).
   rcs: SabsmsRcsPayloadSchema.optional(),
@@ -470,6 +473,10 @@ export const SabsmsCampaignSchema = z.object({
   senderNumberIds: z.array(z.string()).optional(),
   category: SabsmsMessageCategorySchema,
   status: SabsmsCampaignStatusSchema,
+  // V2.11 — additive/optional MMS + RCS broadcast fields.
+  mediaUrls: z.array(z.string()).optional(),
+  rcs: SabsmsRcsPayloadSchema.optional(),
+  channelRequested: z.string().optional(),
   stats: z.object({
     total: z.number(),
     queued: z.number(),

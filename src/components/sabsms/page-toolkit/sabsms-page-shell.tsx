@@ -139,7 +139,7 @@ export function SabsmsPageShell({
                       <DropdownMenuItem
                         key={`${a.label}-${i}`}
                         onSelect={a.onSelectAction}
-                        destructive={a.destructive}
+                        variant={a.destructive ? "danger" : undefined}
                       >
                         {a.icon}
                         <span className={a.icon ? "ml-2" : undefined}>

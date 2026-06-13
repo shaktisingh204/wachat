@@ -73,7 +73,7 @@ export function SabsmsBulkActionsBar<T>({
                 <DropdownMenuItem
                   key={a.label}
                   onSelect={() => a.onSelect(rows)}
-                  destructive={a.destructive}
+                  variant={a.destructive ? "danger" : undefined}
                 >
                   {a.icon}
                   <span className={a.icon ? "ml-2" : undefined}>{a.label}</span>

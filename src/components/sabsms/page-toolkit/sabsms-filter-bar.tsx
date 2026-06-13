@@ -138,7 +138,6 @@ export function SabsmsFilterBar({
               [dateRangeKey.to]: range?.to ? range.to.toISOString() : null,
             })
           }
-          align="start"
         />
       )}
 
