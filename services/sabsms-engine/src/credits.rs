@@ -72,7 +72,11 @@ pub async fn release_batch(
         workspace_id: workspace_id.to_string(),
         message_id: campaign_id.to_string(),
         reservation_token: reservation_token.to_string(),
-        actual_cost: 0,
+        // Release path — billing fields ignored by the route (charge=false).
+        actual_segments: 0,
+        channel: "sms".to_string(),
+        destination_country: String::new(),
+        provider_cost_cents: 0,
         charge: false,
     };
     if let Err(e) = finalise(state, &req).await {

@@ -135,6 +135,40 @@ fn parse_campaign_id(id: &str) -> EngineResult<ObjectId> {
     ObjectId::parse_str(id).map_err(|_| EngineError::BadRequest("invalid campaign id".into()))
 }
 
+/// Claim filter for one campaign's DUE pending recipients. V2.10
+/// smart-send stamps a per-recipient `notBeforeEpochMs`; a recipient is
+/// only claimable once that window has opened (or when the field is
+/// absent). Without the `$or` gate the per-contact best-hour windows are
+/// inert — every future-windowed recipient is claimed and sent at once.
+fn pending_claim_filter(campaign_id: &str, now_ms: i64) -> Document {
+    doc! {
+        "campaignId": campaign_id,
+        "status": "pending",
+        "$or": [
+            { "notBeforeEpochMs": { "$exists": false } },
+            { "notBeforeEpochMs": { "$lte": now_ms } },
+        ],
+    }
+}
+
+/// Pure predicate mirroring [`pending_claim_filter`]: a pending recipient
+/// is DUE iff it has no `notBeforeEpochMs` window or that window has
+/// already opened relative to `now_ms`. Used by the unit suite to pin the
+/// claim semantics (Mongo evaluates the filter itself in production).
+#[cfg(test)]
+fn recipient_is_due(recipient: &Document, now_ms: i64) -> bool {
+    match recipient.get("notBeforeEpochMs") {
+        None | Some(mongodb::bson::Bson::Null) => true,
+        Some(b) => b
+            .as_i64()
+            .or_else(|| b.as_i32().map(|n| n as i64))
+            .or_else(|| b.as_f64().map(|n| n as i64))
+            .map(|nb| nb <= now_ms)
+            // A non-numeric window value is treated as "no window".
+            .unwrap_or(true),
+    }
+}
+
 fn now_bson() -> mongodb::bson::DateTime {
     mongodb::bson::DateTime::from_millis(Utc::now().timestamp_millis())
 }
@@ -426,13 +460,16 @@ async fn process_campaign(state: &Arc<AppState>, campaign: &Document) -> anyhow:
         .mongo
         .collection::<Document>(db::COL_CAMPAIGN_RECIPIENTS);
 
-    // 1. Claim individually — atomic per doc (see module docs).
+    // 1. Claim individually — atomic per doc (see module docs). Only DUE
+    //    recipients are claimed: a per-recipient `notBeforeEpochMs`
+    //    (V2.10 smart-send best-hour window) must have opened.
     let now = now_bson();
+    let now_ms = Utc::now().timestamp_millis();
     let mut claimed: Vec<Document> = Vec::with_capacity(quota);
     for _ in 0..quota {
         let doc = recipients
             .find_one_and_update(
-                doc! { "campaignId": &campaign_id, "status": "pending" },
+                pending_claim_filter(&campaign_id, now_ms),
                 doc! { "$set": { "status": "claimed", "claimedAt": now } },
             )
             .await?;
@@ -775,5 +812,67 @@ mod tests {
     #[test]
     fn segments_total_empty_batch_is_zero() {
         assert_eq!(segments_total_for(std::iter::empty::<&str>()), 0);
+    }
+
+    #[test]
+    fn pending_claim_filter_gates_on_not_before_window() {
+        let now_ms = 1_700_000_000_000i64;
+        let f = pending_claim_filter("camp1", now_ms);
+        assert_eq!(f.get_str("campaignId").unwrap(), "camp1");
+        assert_eq!(f.get_str("status").unwrap(), "pending");
+        // The $or carries both the "no window" and the "window opened"
+        // clauses — without it, future-windowed recipients are claimed
+        // immediately and V2.10 best-hour windows are inert.
+        let or = f.get_array("$or").unwrap();
+        assert_eq!(or.len(), 2);
+        let exists_clause = or[0].as_document().unwrap();
+        assert!(exists_clause
+            .get_document("notBeforeEpochMs")
+            .unwrap()
+            .get_bool("$exists")
+            .map(|b| !b)
+            .unwrap_or(false));
+        let lte_clause = or[1].as_document().unwrap();
+        assert_eq!(
+            lte_clause
+                .get_document("notBeforeEpochMs")
+                .unwrap()
+                .get_i64("$lte")
+                .unwrap(),
+            now_ms
+        );
+    }
+
+    #[test]
+    fn recipient_is_due_honors_not_before_window() {
+        let now_ms = 1_700_000_000_000i64;
+
+        // Absent field → due now.
+        assert!(recipient_is_due(&doc! { "status": "pending" }, now_ms));
+        // Explicit null → due now.
+        assert!(recipient_is_due(
+            &doc! { "notBeforeEpochMs": mongodb::bson::Bson::Null },
+            now_ms
+        ));
+        // Past window → due.
+        assert!(recipient_is_due(
+            &doc! { "notBeforeEpochMs": now_ms - 1 },
+            now_ms
+        ));
+        // Exactly now → due ($lte boundary).
+        assert!(recipient_is_due(
+            &doc! { "notBeforeEpochMs": now_ms },
+            now_ms
+        ));
+        // Future window → NOT due (this is the bug the fix closes).
+        assert!(!recipient_is_due(
+            &doc! { "notBeforeEpochMs": now_ms + 60_000 },
+            now_ms
+        ));
+        // Numeric width independence — i32-stored window in the future.
+        assert!(!recipient_is_due(
+            &doc! { "notBeforeEpochMs": 2_000_000_000i64 + 1 },
+            2_000_000_000i64
+        ));
     }
 }

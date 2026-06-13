@@ -60,9 +60,17 @@ function toIso(d?: Date | string | null): string | null {
 // ─── Reads ───────────────────────────────────────────────────────────────
 
 export async function loadTemplates(
-  workspaceId: string,
+  _workspaceId: string,
   filters: TemplateListFilters,
 ): Promise<{ rows: TemplateRow[]; total: number }> {
+  // SECURITY (V2.1 IDOR): this is a `"use server"` module, so this is a
+  // POST-able endpoint. NEVER trust the caller-supplied id — always
+  // derive the workspace from the session. The leading param is kept
+  // only so the existing RSC call site type-checks; it is ignored.
+  const ws = await resolveWorkspace();
+  if (!ws.ok) return { rows: [], total: 0 };
+  const workspaceId = ws.workspaceId;
+
   const { cols } = await getSabsmsCollections();
   const filter: Filter<SabsmsTemplate> = { workspaceId };
 
@@ -120,9 +128,14 @@ export async function loadTemplates(
 
 // ─── Mutations ───────────────────────────────────────────────────────────
 
-export async function getTemplateKpis(workspaceId: string) {
+export async function getTemplateKpis(_workspaceId?: string) {
+  // SECURITY (V2.1 IDOR): ignore any caller-supplied id; resolve from session.
+  const ws = await resolveWorkspace();
+  if (!ws.ok) return { approvedCount: 0, pendingCount: 0, totalUsage: 0 };
+  const workspaceId = ws.workspaceId;
+
   const { cols } = await getSabsmsCollections();
-  
+
   const [approvedCount, pendingCount, usageResult] = await Promise.all([
     cols.templates.countDocuments({ workspaceId, status: "approved" }),
     cols.templates.countDocuments({ workspaceId, status: "submitted" }),
@@ -139,9 +152,14 @@ export async function getTemplateKpis(workspaceId: string) {
   };
 }
 
-export async function getAvailableTags(workspaceId: string): Promise<string[]> {
+export async function getAvailableTags(_workspaceId?: string): Promise<string[]> {
+  // SECURITY (V2.1 IDOR): ignore any caller-supplied id; resolve from session.
+  const ws = await resolveWorkspace();
+  if (!ws.ok) return [];
   const { cols } = await getSabsmsCollections();
-  return cols.templates.distinct("tags", { workspaceId }) as Promise<string[]>;
+  return cols.templates.distinct("tags", {
+    workspaceId: ws.workspaceId,
+  }) as Promise<string[]>;
 }
 
 export type TemplateActionResult =

@@ -227,8 +227,15 @@ pub async fn handle_account(
                 .parse_dlr(&payload)
                 .map_err(|e| EngineError::Provider(e.to_string()))?;
             let messages = state.mongo.collection::<Document>(db::COL_MESSAGES);
+            // Scope the lookup to the authenticated workspace — without
+            // this filter, a tenant with any valid provider account + its
+            // URL secret could forge DLRs for another workspace's message
+            // (cross-workspace IDOR) just by observing a providerMessageId.
             let original = messages
-                .find_one(doc! { "providerMessageId": &evt.provider_message_id })
+                .find_one(doc! {
+                    "providerMessageId": &evt.provider_message_id,
+                    "workspaceId": &workspace_id,
+                })
                 .await?;
             let original = match original {
                 Some(d) => d,

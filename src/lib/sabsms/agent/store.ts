@@ -29,6 +29,7 @@
 import { randomUUID } from 'node:crypto';
 import { ObjectId, type Db } from 'mongodb';
 
+import { coreHandles, instantDebit } from '../credits/core';
 import { hashPhone } from './guardrails';
 
 // ─── Collection names ──────────────────────────────────────────────────────
@@ -478,64 +479,18 @@ export function createMongoAgentStore(db: Db): AgentStore {
     },
 
     async chargeAgentTurnCredit(workspaceId, turnId) {
-      if (!ObjectId.isValid(workspaceId)) {
-        return { approved: false, reason: 'unknown_workspace' };
-      }
-      const users = db.collection('users');
-      const reservations = db.collection('sabsms_credit_reservations');
-      const ledger = db.collection('sabsms_credit_ledger');
-      const amount = 1;
-      const messageId = `agent:${turnId}`;
-
-      // Replay tolerance: the same turnId never double-charges.
-      const existing = await reservations.findOne({ messageId, workspaceId });
-      if (existing) return { approved: true };
-
-      // Atomic conditional debit — identical mechanics to
-      // `reserveCredits` in credits/ledger.ts.
-      const res = await users.updateOne(
-        { _id: new ObjectId(workspaceId), 'credits.sms': { $gte: amount } },
-        { $inc: { 'credits.sms': -amount } },
-      );
-      if (res.modifiedCount === 0) {
-        return { approved: false, reason: 'insufficient_credits' };
-      }
-
-      const now = new Date();
-      const token = randomUUID();
-      // Reserve-and-finalise in one write: the LLM charge has no async
-      // outcome to wait for, so the hold settles immediately.
-      await reservations.insertOne({
-        token,
+      // Single source of truth for credit movement: the worker-safe core
+      // (`credits/core.ts`) — the SAME atomic `$inc` recipe, reservation
+      // state machine, and ledger append that `credits/ledger.ts` uses, so
+      // agent-turn spend and message spend can never drift. `chargeType:
+      // 'agent_turn'` tags the ledger row so agent metering is a distinct
+      // spend bucket from message debits. Replay-safe on `agent:<turnId>`.
+      return instantDebit(coreHandles(db), {
         workspaceId,
-        messageId,
-        amount,
-        status: 'finalised',
-        createdAt: now,
-        expiresAt: now,
-        finalisedAt: now,
+        messageId: `agent:${turnId}`,
+        amount: 1,
+        chargeType: 'agent_turn',
       });
-      let balanceAfter: number | undefined;
-      try {
-        const user = await users.findOne(
-          { _id: new ObjectId(workspaceId) },
-          { projection: { 'credits.sms': 1 } },
-        );
-        const credits = (user as { credits?: { sms?: number } } | null)?.credits;
-        balanceAfter = typeof credits?.sms === 'number' ? credits.sms : undefined;
-      } catch {
-        balanceAfter = undefined;
-      }
-      await ledger.insertOne({
-        workspaceId,
-        messageId,
-        reservationToken: token,
-        delta: -amount,
-        kind: 'debit',
-        balanceAfter,
-        createdAt: now,
-      });
-      return { approved: true };
     },
   };
 }

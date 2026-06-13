@@ -20,7 +20,7 @@ use crate::{
 };
 
 pub const DEFAULT_STOP_KEYWORDS: &[&str] =
-    &["STOP", "STOPALL", "UNSUBSCRIBE", "CANCEL", "END", "QUIT"];
+    &["STOP", "STOPALL", "UNSUB", "UNSUBSCRIBE", "CANCEL", "END", "QUIT"];
 pub const DEFAULT_START_KEYWORDS: &[&str] = &["START", "UNSTOP"];
 pub const DEFAULT_HELP_KEYWORDS: &[&str] = &["HELP", "INFO"];
 pub const DEFAULT_CONFIRM_OPT_OUT_TEXT: &str =
@@ -163,14 +163,17 @@ pub async fn handle_inbound_keywords(
     match action {
         KeywordAction::Stop => {
             // 1. Suppress — upsert; a concurrent duplicate is fine.
+            //    Canonical schema (`SabsmsSuppressionSource`) owns `source`,
+            //    so source="stop" + reason="keyword:<normalized>" (the
+            //    suppressions facet maps "STOP keyword" → source "stop").
             let upsert = suppressions
                 .update_one(
                     doc! { "workspaceId": workspace_id, "phoneHash": &phone_hash },
                     doc! { "$setOnInsert": {
                         "workspaceId": workspace_id,
                         "phoneHash": &phone_hash,
-                        "reason": "stop",
-                        "source": "keyword",
+                        "source": "stop",
+                        "reason": format!("keyword:{normalized}"),
                         "createdAt": now,
                     }},
                 )
@@ -182,14 +185,17 @@ pub async fn handle_inbound_keywords(
                 }
             }
 
-            // 2. Consent log.
+            // 2. Consent log — canonical `kind`/`captureMethod` schema
+            //    (`SabsmsConsentEvent`) that the consent page + every Next
+            //    writer use. The TCPA "STOP keyword captures" badge counts
+            //    kind="opt_out_stop".
             consent_log
                 .insert_one(doc! {
                     "workspaceId": workspace_id,
                     "phoneHash": &phone_hash,
                     "phone": from_e164,
-                    "event": "opt_out",
-                    "method": "sms_keyword",
+                    "kind": "opt_out_stop",
+                    "captureMethod": "inbound_keyword",
                     "keyword": &normalized,
                     "createdAt": now,
                 })
@@ -222,13 +228,14 @@ pub async fn handle_inbound_keywords(
             .await?;
         }
         KeywordAction::Start => {
-            // Remove the suppression ONLY when it was created by a STOP
-            // keyword (manual/complaint suppressions stay).
+            // Remove any STOP-sourced suppression (covers both keyword and
+            // AI-guardrail STOPs, which both write source="stop").
+            // Manual/complaint/bounce/carrier_block suppressions stay.
             let deleted = suppressions
                 .delete_one(doc! {
                     "workspaceId": workspace_id,
                     "phoneHash": &phone_hash,
-                    "reason": "stop",
+                    "source": "stop",
                 })
                 .await?;
             tracing::info!(
@@ -236,13 +243,14 @@ pub async fn handle_inbound_keywords(
                 removed = deleted.deleted_count,
                 "START keyword processed"
             );
+            // Canonical consent schema — kind="opt_in_restart".
             consent_log
                 .insert_one(doc! {
                     "workspaceId": workspace_id,
                     "phoneHash": &phone_hash,
                     "phone": from_e164,
-                    "event": "opt_in_restored",
-                    "method": "sms_keyword",
+                    "kind": "opt_in_restart",
+                    "captureMethod": "inbound_keyword",
                     "keyword": &normalized,
                     "createdAt": now,
                 })
@@ -345,7 +353,7 @@ mod tests {
     #[test]
     fn classify_matches_default_stop_set() {
         let rules = KeywordRules::default();
-        for k in ["STOP", "STOPALL", "UNSUBSCRIBE", "CANCEL", "END", "QUIT"] {
+        for k in ["STOP", "STOPALL", "UNSUB", "UNSUBSCRIBE", "CANCEL", "END", "QUIT"] {
             assert_eq!(classify(k, &rules), Some(KeywordAction::Stop), "{k}");
         }
         // Through the normalizer, incl. lowercase + punctuation.

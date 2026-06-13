@@ -27,6 +27,7 @@ pub fn router(state: Arc<AppState>) -> Router {
         .route("/v1/campaigns/:id/cancel", post(campaigns::cancel))
         .route("/v1/numbers/search", post(numbers::search))
         .route("/v1/numbers/provision", post(numbers::provision))
+        .route("/v1/numbers/release", post(numbers::release))
         // V2.7 — engine-native OTP/Verify + fraud guard + lookup.
         .route("/v1/otp/send", post(otp::send))
         .route("/v1/otp/verify", post(otp::verify))

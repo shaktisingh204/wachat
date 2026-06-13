@@ -208,6 +208,116 @@ module.exports = {
     },
 
     // ---------------------------------------------------------------------
+    // SabSMS Credits Sweeper (Node — long-lived 60s interval that calls
+    // releaseExpiredHolds(200) so expired 15-min credit holds are refunded
+    // on a fixed clock instead of only on incoming credits-route traffic).
+    // Same tsx + NODE_PATH stub bootstrap as sabsms-events.
+    // ---------------------------------------------------------------------
+    {
+      name: 'sabsms-credits-sweeper',
+
+      script: './node_modules/.bin/tsx',
+      args: 'scripts/sabsms-credits-sweeper.mjs',
+
+      instances: 1,
+      exec_mode: 'fork',
+
+      watch: false,
+      autorestart: true,
+
+      restart_delay: 5000,
+      max_restarts: 50,
+      kill_timeout: 10000,
+
+      env: {
+        NODE_ENV: 'production',
+
+        MONGODB_URI: process.env.MONGODB_URI || process.env.MONGO_URL,
+        MONGODB_DB: process.env.MONGODB_DB || 'sabnode',
+
+        SABSMS_SWEEP_INTERVAL_MS: process.env.SABSMS_SWEEP_INTERVAL_MS || '60000',
+        SABSMS_SWEEP_BATCH: process.env.SABSMS_SWEEP_BATCH || '200',
+
+        // ledger.ts imports `server-only` → benign stub (see sabsms-events).
+        NODE_PATH: './src/workers/_stubs',
+      },
+    },
+
+    // ---------------------------------------------------------------------
+    // SabSMS Identity Nightly (V2.10 — recompute 30-day engagement
+    // counters + decay the send-time histogram on `sabsms_identities`).
+    // Run-to-completion: PM2 fires it daily via cron_restart, NOT a daemon,
+    // so autorestart is OFF — the process exits when the job finishes.
+    // ---------------------------------------------------------------------
+    {
+      name: 'sabsms-identity-nightly',
+
+      script: './node_modules/.bin/tsx',
+      args: 'scripts/sabsms-identity-nightly.mjs',
+
+      instances: 1,
+      exec_mode: 'fork',
+
+      watch: false,
+      autorestart: false,
+      cron_restart: '30 2 * * *', // 02:30 UTC daily
+
+      kill_timeout: 30000,
+
+      env: {
+        NODE_ENV: 'production',
+        TZ: 'UTC',
+
+        MONGODB_URI: process.env.MONGODB_URI || process.env.MONGO_URL,
+        MONGODB_DB: process.env.MONGODB_DB || 'sabnode',
+
+        // graph.ts is worker-safe (no server-only), but keep the stub on
+        // NODE_PATH for parity with the other SabSMS workers.
+        NODE_PATH: './src/workers/_stubs',
+      },
+    },
+
+    // ---------------------------------------------------------------------
+    // SabSMS Insights Nightly (V2.12 — LLM map-reduce miner that writes
+    // `sabsms_conversation_insights` for the inbox insights card). Same
+    // run-to-completion cron pattern as sabsms-identity-nightly; no-op
+    // exit-0 when no LLM gateway key is configured.
+    // ---------------------------------------------------------------------
+    {
+      name: 'sabsms-insights-nightly',
+
+      script: './node_modules/.bin/tsx',
+      args: 'scripts/sabsms-insights-nightly.mjs',
+
+      instances: 1,
+      exec_mode: 'fork',
+
+      watch: false,
+      autorestart: false,
+      cron_restart: '15 3 * * *', // 03:15 UTC daily
+
+      kill_timeout: 30000,
+
+      env: {
+        NODE_ENV: 'production',
+        TZ: 'UTC',
+
+        MONGODB_URI: process.env.MONGODB_URI || process.env.MONGO_URL,
+        MONGODB_DB: process.env.MONGODB_DB || 'sabnode',
+
+        // LLM gateway ladder (mining.ts → agent/llm.ts). All optional;
+        // with none set the run exits 0 having done nothing.
+        AI_GATEWAY_API_KEY: process.env.AI_GATEWAY_API_KEY,
+        ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY,
+        OPENAI_API_KEY: process.env.OPENAI_API_KEY,
+
+        // mining.ts is worker-safe (no server-only); keep the stub on
+        // NODE_PATH for parity with the other SabSMS workers.
+        NODE_PATH: './src/workers/_stubs',
+      },
+    },
+
+    // ---------------------------------------------------------------------
     // Next.js Frontend
     // ---------------------------------------------------------------------
     {

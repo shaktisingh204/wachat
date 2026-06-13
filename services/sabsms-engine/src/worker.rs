@@ -65,10 +65,16 @@ async fn run_one(worker_id: usize, state: Arc<AppState>) {
 /// forces the mock adapter regardless of the doc's provider field. A
 /// provider is selectable iff the registry has a live adapter for it.
 fn select_provider(doc_provider: &str) -> Option<ProviderId> {
-    if std::env::var("SABSMS_PROVIDER_MOCK").unwrap_or_default() == "true" {
+    let mock_enabled = std::env::var("SABSMS_PROVIDER_MOCK").unwrap_or_default() == "true";
+    if mock_enabled {
         return Some(ProviderId::Mock);
     }
-    ProviderId::parse(doc_provider).filter(|p| registry::provider(*p).is_some())
+    ProviderId::parse(doc_provider)
+        // Gate the mock the same way the webhook routes do: a message doc
+        // must never select the mock adapter in production (fake send +
+        // credit burn) just because its `provider` field says "mock".
+        .filter(|p| *p != ProviderId::Mock)
+        .filter(|p| registry::provider(*p).is_some())
 }
 
 /// Build per-send options from message-doc fields: resolved MMS URLs
@@ -588,7 +594,11 @@ async fn process_one(state: &Arc<AppState>, msg_id: &str) -> anyhow::Result<()> 
         workspace_id: workspace_id.clone(),
         message_id: msg_id.to_string(),
         reservation_token: token,
-        actual_cost: 0,
+        // Release path — billing fields ignored by the route (charge=false).
+        actual_segments: 0,
+        channel: "sms".to_string(),
+        destination_country: String::new(),
+        provider_cost_cents: 0,
         charge: false,
     };
 
@@ -825,7 +835,17 @@ async fn process_one(state: &Arc<AppState>, msg_id: &str) -> anyhow::Result<()> 
                         workspace_id: workspace_id.clone(),
                         message_id: msg_id.to_string(),
                         reservation_token: reservation.reservation_token.clone(),
-                        actual_cost: r.cost.unwrap_or(0),
+                        // Reprice from the REAL billed segment count + the
+                        // channel that actually carried the send. Provider
+                        // cents are analytics metadata only.
+                        actual_segments: r.segments,
+                        channel: if rcs_active {
+                            "rcs".to_string()
+                        } else {
+                            doc_channel.clone()
+                        },
+                        destination_country: country.clone(),
+                        provider_cost_cents: r.cost.unwrap_or(0),
                         charge: true,
                     },
                 )
@@ -1094,6 +1114,12 @@ mod tests {
 
     #[test]
     fn select_provider_uses_registry() {
+        // This test assumes SABSMS_PROVIDER_MOCK is not "true" (the normal
+        // unit-test environment) — when it IS set everything resolves to
+        // the mock adapter, which is exercised separately.
+        if std::env::var("SABSMS_PROVIDER_MOCK").unwrap_or_default() == "true" {
+            return;
+        }
         // All registry-backed providers are selectable...
         assert_eq!(select_provider("twilio"), Some(ProviderId::Twilio));
         assert_eq!(select_provider("telnyx"), Some(ProviderId::Telnyx));
@@ -1102,6 +1128,11 @@ mod tests {
         // ...providers without an adapter are not.
         assert_eq!(select_provider("vonage"), None);
         assert_eq!(select_provider("nonsense"), None);
+        // ...and the mock adapter is NOT selectable from a message doc's
+        // provider field in production (env flag unset) — even though the
+        // registry has a live mock adapter. Closes the fake-send /
+        // credit-burn hole.
+        assert_eq!(select_provider("mock"), None);
     }
 
     #[test]

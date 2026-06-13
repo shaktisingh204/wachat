@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.json",
+  "include": [
+    "next-env.d.ts",
+    "src/app/sabsms/**/*.ts",
+    "src/app/sabsms/**/*.tsx",
+    "src/app/api/sabsms/**/*.ts",
+    "src/app/api/v1/sms/**/*.ts",
+    "src/lib/sabsms/**/*.ts"
+  ]
+}

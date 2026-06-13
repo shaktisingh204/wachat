@@ -56,13 +56,24 @@ export async function listRateCards(resellerWorkspaceId: string): Promise<Sabsms
   return col.find({ workspaceId: resellerWorkspaceId }).sort({ createdAt: -1 }).limit(100).toArray();
 }
 
+/**
+ * Upper bound on a single rate row (V2.13 IDOR hardening). Without a
+ * ceiling, a hostile reseller could attach a child and bill astronomical
+ * credits per segment; clamp to a sane maximum so a mis-set or malicious
+ * card cannot drain a child's balance with one send.
+ */
+const MAX_CREDITS_PER_SEGMENT = 1000;
+
 function sanitizeRates(rates: SabsmsRateCardRate[]): SabsmsRateCardRate[] {
   return (rates ?? [])
     .map((r) => ({
       country: String(r.country ?? '').trim().toUpperCase() || '*',
       ...(r.channel ? { channel: r.channel } : {}),
       ...(r.category ? { category: r.category } : {}),
-      creditsPerSegment: Math.max(0.01, Number(r.creditsPerSegment) || 0),
+      creditsPerSegment: Math.min(
+        MAX_CREDITS_PER_SEGMENT,
+        Math.max(0.01, Number(r.creditsPerSegment) || 0),
+      ),
     }))
     .filter((r) => r.creditsPerSegment > 0)
     .slice(0, 200);
@@ -92,12 +103,55 @@ export async function upsertRateCard(input: {
     }
   }
 
+  const col = await cards();
+
+  // SECURITY (V2.13 IDOR): there is no platform-level parent/child
+  // workspace hierarchy yet, so attaching a child is the act that creates
+  // the reseller→child relationship. Without a guard, ANY workspace could
+  // attach ANY other workspace as a "child" and re-price its sends
+  // (findRateCardForChild resolves purely by `childWorkspaceIds`).
+  //
+  // Chosen rule (first-claim ownership / no-poaching): a child may be
+  // attached only if it is NOT already claimed by a DIFFERENT reseller's
+  // rate card. This makes the first attach authoritative and blocks a
+  // hostile reseller from hijacking and over-pricing a workspace that
+  // another reseller already legitimately prices. Combined with the
+  // self-attach rejection above and the per-segment clamp, a unilateral
+  // re-pricing attack on an already-served tenant cannot stand. (When a
+  // real opt-in / admin-attach link model lands, swap this for a verified
+  // parent→child lookup.)
+  if (childWorkspaceIds.length > 0) {
+    const claimQuery: Record<string, unknown> = {
+      childWorkspaceIds: { $in: childWorkspaceIds },
+      workspaceId: { $ne: input.resellerWorkspaceId },
+    };
+    if (input.id && ObjectId.isValid(input.id)) {
+      claimQuery._id = { $ne: new ObjectId(input.id) };
+    }
+    const conflicting = await col
+      .find(claimQuery)
+      .project<{ childWorkspaceIds: string[] }>({ childWorkspaceIds: 1 })
+      .limit(50)
+      .toArray();
+    const claimed = new Set(
+      conflicting
+        .flatMap((c) => c.childWorkspaceIds ?? [])
+        .filter((id) => childWorkspaceIds.includes(id)),
+    );
+    if (claimed.size > 0) {
+      const [first] = [...claimed];
+      return {
+        ok: false,
+        error: `Workspace "${first}" is already attached to another reseller's rate card`,
+      };
+    }
+  }
+
   const effectiveFrom =
     input.effectiveFrom instanceof Date && !Number.isNaN(input.effectiveFrom.getTime())
       ? input.effectiveFrom
       : new Date();
 
-  const col = await cards();
   if (input.id) {
     if (!ObjectId.isValid(input.id)) return { ok: false, error: 'Invalid card id' };
     const res = await col.updateOne(

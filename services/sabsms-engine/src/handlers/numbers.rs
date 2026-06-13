@@ -20,7 +20,7 @@ use std::sync::Arc;
 
 use axum::{extract::State, Json};
 use chrono::Utc;
-use mongodb::bson::{doc, Document};
+use mongodb::bson::{doc, oid::ObjectId, Document};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
@@ -446,6 +446,164 @@ pub async fn provision(
     }))
 }
 
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ReleaseNumberBody {
+    pub workspace_id: String,
+    /// Hex `_id` of the `sabsms_numbers` doc to release.
+    pub number_id: String,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ReleaseNumberResponse {
+    pub ok: bool,
+    pub number_id: String,
+    pub e164: String,
+    pub status: String,
+}
+
+/// Release a provisioned number AT THE PROVIDER, then mark the
+/// `sabsms_numbers` doc `released`. Workspace-scoped: a workspace can only
+/// release its own numbers.
+///
+///   Twilio: `DELETE /2010-04-01/Accounts/{sid}/IncomingPhoneNumbers/{numSid}.json`
+///   Telnyx: `DELETE /v2/phone_numbers/{id}`
+///
+/// MSG91 / Gupshup have no number inventory → 400.
+pub async fn release(
+    State(state): State<Arc<AppState>>,
+    Json(body): Json<ReleaseNumberBody>,
+) -> EngineResult<Json<ReleaseNumberResponse>> {
+    if body.workspace_id.is_empty() || body.number_id.is_empty() {
+        return Err(EngineError::BadRequest(
+            "workspaceId + numberId required".into(),
+        ));
+    }
+
+    // 1. Load the number doc — workspace-scoped.
+    let numbers = state.mongo.collection::<Document>(db::COL_NUMBERS);
+    let id_filter = match ObjectId::parse_str(&body.number_id) {
+        Ok(oid) => doc! { "_id": oid, "workspaceId": &body.workspace_id },
+        Err(_) => doc! { "_id": &body.number_id, "workspaceId": &body.workspace_id },
+    };
+    let number_doc = numbers
+        .find_one(id_filter.clone())
+        .await?
+        .ok_or(EngineError::NotFound)?;
+
+    let provider = ProviderId::parse(number_doc.get_str("provider").unwrap_or_default())
+        .ok_or_else(|| EngineError::BadRequest("number has no known provider".into()))?;
+    if !purchasable(provider) {
+        return Err(manual_sender_error(provider));
+    }
+    let e164 = number_doc.get_str("e164").unwrap_or_default().to_string();
+    let provider_number_id = number_doc
+        .get_str("providerNumberId")
+        .ok()
+        .filter(|s| !s.is_empty())
+        .map(|s| s.to_string())
+        .ok_or_else(|| {
+            EngineError::BadRequest("number has no providerNumberId to release".into())
+        })?;
+    let provider_account_id = number_doc
+        .get_str("providerAccountId")
+        .ok()
+        .map(|s| s.to_string());
+
+    // 2. Resolve creds + release at the provider.
+    let resolved = creds::resolve(
+        &state,
+        &body.workspace_id,
+        provider,
+        provider_account_id.as_deref(),
+    )
+    .await?;
+    match provider {
+        ProviderId::Twilio => {
+            twilio_release(&state, &resolved.creds.blob, &provider_number_id).await?
+        }
+        ProviderId::Telnyx => {
+            telnyx_release(&state, &resolved.creds.blob, &provider_number_id).await?
+        }
+        _ => unreachable!("guarded by purchasable()"),
+    }
+
+    // 3. Mark the doc released only after the provider release succeeds.
+    let now = mongodb::bson::DateTime::from_millis(Utc::now().timestamp_millis());
+    numbers
+        .update_one(
+            id_filter,
+            doc! { "$set": { "status": "released", "releasedAt": now, "updatedAt": now } },
+        )
+        .await?;
+
+    Ok(Json(ReleaseNumberResponse {
+        ok: true,
+        number_id: body.number_id.clone(),
+        e164,
+        status: "released".into(),
+    }))
+}
+
+/// Twilio `DELETE .../IncomingPhoneNumbers/{sid}.json`. A 404 is treated
+/// as success (already released at the provider).
+async fn twilio_release(
+    state: &Arc<AppState>,
+    blob: &Value,
+    number_sid: &str,
+) -> EngineResult<()> {
+    let sid = blob_str(blob, "accountSid")?;
+    let token = blob_str(blob, "authToken")?;
+    let url = format!(
+        "{}/2010-04-01/Accounts/{}/IncomingPhoneNumbers/{}.json",
+        twilio_base(),
+        sid,
+        number_sid
+    );
+    let resp = state
+        .http
+        .delete(&url)
+        .basic_auth(sid, Some(token))
+        .send()
+        .await
+        .map_err(|e| EngineError::Provider(format!("twilio release: {e}")))?;
+    let status = resp.status();
+    if status.is_success() || status == reqwest::StatusCode::NOT_FOUND {
+        return Ok(());
+    }
+    let raw = resp.text().await.unwrap_or_default();
+    Err(EngineError::Provider(format!(
+        "twilio release {status}: {raw}"
+    )))
+}
+
+/// Telnyx `DELETE /v2/phone_numbers/{id}`. A 404 is treated as success
+/// (already released at the provider).
+async fn telnyx_release(
+    state: &Arc<AppState>,
+    blob: &Value,
+    phone_number_id: &str,
+) -> EngineResult<()> {
+    let api_key = blob_str(blob, "apiKey")?;
+    let url = format!("{}/v2/phone_numbers/{}", telnyx_base(), phone_number_id);
+    let resp = state
+        .http
+        .delete(&url)
+        .bearer_auth(api_key)
+        .send()
+        .await
+        .map_err(|e| EngineError::Provider(format!("telnyx release: {e}")))?;
+    let status = resp.status();
+    if status.is_success() || status == reqwest::StatusCode::NOT_FOUND {
+        return Ok(());
+    }
+    let raw = resp.text().await.unwrap_or_default();
+    Err(EngineError::Provider(format!(
+        "telnyx release {status}: {raw}"
+    )))
+}
+
 async fn twilio_provision(
     state: &Arc<AppState>,
     blob: &Value,
@@ -535,21 +693,111 @@ async fn telnyx_provision(
     }
     let parsed: Value = serde_json::from_str(&raw)
         .map_err(|e| EngineError::Provider(format!("telnyx provision decode: {e}")))?;
-    // The order id is the durable handle for the purchased number.
-    let provider_number_id = parsed
+    // The number-ORDER id is NOT the durable handle — Telnyx release /
+    // messaging-profile / feature operations all key on the phone-number
+    // id from /v2/phone_numbers. Resolve it (and the real capabilities)
+    // after the order; fall back to the order id + sms-only on failure so
+    // a lookup blip never breaks provisioning.
+    let order_id = parsed
         .get("data")
         .and_then(|d| d.get("id"))
         .and_then(|v| v.as_str())
         .map(|s| s.to_string());
-    Ok((
-        provider_number_id,
-        NumberCapabilities {
-            sms: true,
-            mms: false,
-            rcs: false,
-            voice: false,
-        },
-    ))
+
+    match telnyx_resolve_phone_number(state, blob, phone_number).await {
+        Ok(Some((phone_number_id, caps))) => Ok((Some(phone_number_id), caps)),
+        Ok(None) => {
+            tracing::warn!(
+                phone_number,
+                "telnyx phone-number lookup found no match after order; \
+                 storing order id as providerNumberId (sms-only fallback)"
+            );
+            Ok((order_id, NumberCapabilities { sms: true, ..Default::default() }))
+        }
+        Err(e) => {
+            tracing::warn!(
+                ?e,
+                phone_number,
+                "telnyx phone-number lookup failed after order; \
+                 storing order id as providerNumberId (sms-only fallback)"
+            );
+            Ok((order_id, NumberCapabilities { sms: true, ..Default::default() }))
+        }
+    }
+}
+
+/// Resolve a freshly-ordered Telnyx number to its durable phone-number id
+/// and real capabilities via `GET /v2/phone_numbers?filter[phone_number]=…`.
+/// `Ok(None)` means the lookup succeeded but returned no match.
+async fn telnyx_resolve_phone_number(
+    state: &Arc<AppState>,
+    blob: &Value,
+    phone_number: &str,
+) -> EngineResult<Option<(String, NumberCapabilities)>> {
+    let api_key = blob_str(blob, "apiKey")?;
+    let url = format!(
+        "{}/v2/phone_numbers?filter[phone_number]={}",
+        telnyx_base(),
+        phone_number
+    );
+    let resp = state
+        .http
+        .get(&url)
+        .bearer_auth(api_key)
+        .send()
+        .await
+        .map_err(|e| EngineError::Provider(format!("telnyx phone_numbers: {e}")))?;
+    let status = resp.status();
+    let raw = resp
+        .text()
+        .await
+        .map_err(|e| EngineError::Provider(format!("telnyx phone_numbers body: {e}")))?;
+    if !status.is_success() {
+        return Err(EngineError::Provider(format!(
+            "telnyx phone_numbers {status}: {raw}"
+        )));
+    }
+    let parsed: Value = serde_json::from_str(&raw)
+        .map_err(|e| EngineError::Provider(format!("telnyx phone_numbers decode: {e}")))?;
+    let record = parsed
+        .get("data")
+        .and_then(|d| d.as_array())
+        .and_then(|arr| arr.first());
+    let record = match record {
+        Some(r) => r,
+        None => return Ok(None),
+    };
+    let id = match record.get("id").and_then(|v| v.as_str()) {
+        Some(id) if !id.is_empty() => id.to_string(),
+        _ => return Ok(None),
+    };
+    Ok(Some((id, telnyx_capabilities(record))))
+}
+
+/// Map a Telnyx phone-number record's features into NumberCapabilities.
+/// Telnyx reports per-number features as a string list (e.g.
+/// `["sms","mms","voice"]`) under `features`, sometimes as objects with a
+/// `name`. RCS is not a Telnyx number feature → always false.
+fn telnyx_capabilities(record: &Value) -> NumberCapabilities {
+    let mut caps = NumberCapabilities::default();
+    if let Some(features) = record.get("features").and_then(|v| v.as_array()) {
+        for f in features {
+            let name = f
+                .as_str()
+                .or_else(|| f.get("name").and_then(|n| n.as_str()))
+                .unwrap_or("")
+                .to_ascii_lowercase();
+            match name.as_str() {
+                "sms" => caps.sms = true,
+                "mms" => caps.mms = true,
+                "voice" => caps.voice = true,
+                _ => {}
+            }
+        }
+    }
+    // A number ordered through SMS provisioning always carries SMS.
+    caps.sms = true;
+    caps
 }
 
 /// Best-effort ISO-3166 country guess from an E.164 number.
@@ -606,5 +854,40 @@ mod tests {
     fn country_of_guesses_from_e164() {
         assert_eq!(country_of("+14155551234"), "US");
         assert_eq!(country_of("+919876543210"), "IN");
+    }
+
+    #[test]
+    fn telnyx_capabilities_maps_feature_list() {
+        // String-form features.
+        let record = serde_json::json!({
+            "id": "1234",
+            "features": ["sms", "mms", "voice"],
+        });
+        let caps = telnyx_capabilities(&record);
+        assert!(caps.sms);
+        assert!(caps.mms);
+        assert!(caps.voice);
+        assert!(!caps.rcs); // never a Telnyx number feature
+    }
+
+    #[test]
+    fn telnyx_capabilities_maps_object_form_and_defaults_sms() {
+        // Object-form features ({ name: "..." }), no sms listed — but a
+        // number ordered via SMS provisioning always carries SMS.
+        let record = serde_json::json!({
+            "id": "1234",
+            "features": [{ "name": "voice" }],
+        });
+        let caps = telnyx_capabilities(&record);
+        assert!(caps.sms);
+        assert!(caps.voice);
+        assert!(!caps.mms);
+        // No features array at all → sms-only.
+        let bare = serde_json::json!({ "id": "1234" });
+        let caps = telnyx_capabilities(&bare);
+        assert!(caps.sms);
+        assert!(!caps.mms);
+        assert!(!caps.voice);
+        assert!(!caps.rcs);
     }
 }

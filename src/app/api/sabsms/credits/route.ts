@@ -2,7 +2,6 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { randomUUID } from 'node:crypto';
 
 import type {
-  CreditFinaliseRequest,
   CreditReserveRequest,
   CreditReserveResponse,
 } from '@/lib/sabsms/types';
@@ -12,6 +11,10 @@ import {
   reserveBatch,
   reserveCredits,
 } from '@/lib/sabsms/credits/ledger';
+import {
+  normalizeChannel,
+  type SabsmsCreditFinaliseBody,
+} from '@/lib/sabsms/credits/types';
 import { creditCostForWorkspace } from '@/lib/sabsms/ratecards/store';
 
 /**
@@ -40,6 +43,8 @@ interface ReserveBatchBody {
   estimatedCost?: number;
   category?: CreditReserveRequest['category'];
   destinationCountry?: string;
+  /** Channel for the whole-batch hold; defaults to 'sms'. */
+  channel?: string;
 }
 
 export async function POST(req: NextRequest) {
@@ -76,13 +81,15 @@ async function handleOp(op: string | null, req: NextRequest): Promise<NextRespon
       });
     }
 
-    // The reserve body has no channel — 'sms' for now (derive later).
     // V2.13: per-workspace reseller rate cards resolve first, falling
-    // back to the platform default table (`creditCostFor`).
+    // back to the platform default table (`creditCostFor`). The engine
+    // sends the message's real channel (sms/mms/rcs), so MMS holds at the
+    // 3× multiplier and RCS at the flat per-message rate — never billed
+    // as plain per-segment SMS.
     const amount = await creditCostForWorkspace(body.workspaceId, {
       segments: body.segments,
       destinationCountry: body.destinationCountry ?? '',
-      channel: 'sms',
+      channel: normalizeChannel(body.channel),
       category: body.category,
     });
 
@@ -99,7 +106,10 @@ async function handleOp(op: string | null, req: NextRequest): Promise<NextRespon
   }
 
   if (op === 'finalise') {
-    const body = (await req.json()) as CreditFinaliseRequest;
+    // `actualCost` is the engine's LEGACY field name for the provider
+    // wholesale cost in cents; accepted here until the engine ships the
+    // `providerCostCents` rename. Never treated as credits.
+    const body = (await req.json()) as SabsmsCreditFinaliseBody & { actualCost?: number };
     if (!body?.workspaceId || !body?.messageId || !body?.reservationToken) {
       return NextResponse.json({ error: 'bad_request' }, { status: 400 });
     }
@@ -108,11 +118,39 @@ async function handleOp(op: string | null, req: NextRequest): Promise<NextRespon
       return NextResponse.json({ ok: true });
     }
 
+    // Reprice the TRUE credit charge from the provider's REAL billed
+    // segment count + channel (MMS 3×, RCS flat) — NEVER from provider
+    // cents. When the engine omits `actualSegments` (legacy finalise),
+    // the channel-priced hold stands and no true-up is applied.
+    let chargeCredits: number | undefined;
+    if (
+      body.charge &&
+      typeof body.actualSegments === 'number' &&
+      Number.isFinite(body.actualSegments) &&
+      body.actualSegments > 0
+    ) {
+      chargeCredits = await creditCostForWorkspace(body.workspaceId, {
+        segments: body.actualSegments,
+        destinationCountry: body.destinationCountry ?? '',
+        channel: normalizeChannel(body.channel),
+      });
+    }
+
+    // Provider wholesale cost (cents) is analytics metadata ONLY — it is
+    // recorded on the debit ledger row and never moves the credit balance.
+    const providerCostCents =
+      typeof body.providerCostCents === 'number'
+        ? body.providerCostCents
+        : typeof body.actualCost === 'number'
+          ? body.actualCost
+          : undefined;
+
     const result = await finaliseCredits({
       workspaceId: body.workspaceId,
       reservationToken: body.reservationToken,
-      actualCost: body.actualCost,
       charge: body.charge,
+      chargeCredits,
+      providerCostCents,
     });
     return NextResponse.json(result);
   }
@@ -124,11 +162,11 @@ async function handleOp(op: string | null, req: NextRequest): Promise<NextRespon
     }
 
     const segmentsTotal = Math.max(1, Math.floor(Number(body.segmentsTotal) || 0));
-    // V2.13: same rate-card-aware pricing for whole-campaign holds.
+    // V2.13: same rate-card-aware, channel-aware pricing for whole-campaign holds.
     const amount = await creditCostForWorkspace(body.workspaceId, {
       segments: segmentsTotal,
       destinationCountry: body.destinationCountry ?? '',
-      channel: 'sms',
+      channel: normalizeChannel(body.channel),
       category: body.category,
     });
 

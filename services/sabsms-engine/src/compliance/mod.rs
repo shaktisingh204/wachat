@@ -108,13 +108,28 @@ pub async fn is_suppressed(
         .is_some())
 }
 
-/// Consent events that grant marketing sendability. The LATEST event for
-/// the phone must be one of these (i.e. not `opt_out`).
+/// Canonical consent KINDS that grant marketing sendability
+/// (`SabsmsConsentKind`). The LATEST consent record for the phone must
+/// carry one of these (i.e. not an `opt_out_*` kind).
+pub const CONSENT_GRANTING_KINDS: &[&str] =
+    &["opt_in_single", "opt_in_double", "opt_in_restart"];
+
+/// Legacy consent EVENTS that grant sendability — read as a fallback for
+/// pre-schema-unify docs that still carry the old `event` field.
 pub const CONSENT_GRANTING_EVENTS: &[&str] = &["opt_in", "opt_in_restored", "double_opt_in"];
 
-/// Pure consent decision given the latest consent-log event (if any).
+/// Pure consent decision given the latest consent record's canonical
+/// `kind` and legacy `event` fields (either may be absent). Both writers
+/// now emit `kind`; `event` is honoured only during migration.
+pub fn consent_grants(latest_kind: Option<&str>, latest_event: Option<&str>) -> bool {
+    matches!(latest_kind, Some(k) if CONSENT_GRANTING_KINDS.contains(&k))
+        || matches!(latest_event, Some(e) if CONSENT_GRANTING_EVENTS.contains(&e))
+}
+
+/// Pure consent decision given only the legacy `event` field. Retained
+/// for the legacy code path / tests; new callers use [`consent_grants`].
 pub fn consent_event_grants(latest_event: Option<&str>) -> bool {
-    matches!(latest_event, Some(e) if CONSENT_GRANTING_EVENTS.contains(&e))
+    consent_grants(None, latest_event)
 }
 
 /// Pure 10DLC gating decision.
@@ -275,16 +290,20 @@ pub async fn pre_send_checks(
             .find_one(doc! { "workspaceId": ctx.workspace_id, "phoneHash": &phone_hash })
             .sort(doc! { "createdAt": -1 })
             .await?;
+        // Canonical `kind` is the primary signal; `event` is a legacy
+        // fallback during the schema-unify migration.
+        let latest_kind = latest.as_ref().and_then(|d| d.get_str("kind").ok());
         let latest_event = latest.as_ref().and_then(|d| d.get_str("event").ok());
-        if consent_event_grants(latest_event) {
+        if consent_grants(latest_kind, latest_event) {
             trace.push(TraceEntry::new(
                 "consent",
                 "allow",
-                latest_event.map(|e| e.to_string()),
+                latest_kind.or(latest_event).map(|e| e.to_string()),
             ));
         } else {
-            let detail = latest_event
-                .map(|e| format!("latest consent event is '{e}'"))
+            let detail = latest_kind
+                .or(latest_event)
+                .map(|e| format!("latest consent record is '{e}'"))
                 .unwrap_or_else(|| "no consent record".to_string());
             trace.push(TraceEntry::new("consent", "block", Some(detail)));
             return Ok((
@@ -499,6 +518,29 @@ mod tests {
         assert!(!consent_event_grants(Some("opt_out")));
         assert!(!consent_event_grants(None));
         assert!(!consent_event_grants(Some("something_else")));
+    }
+
+    #[test]
+    fn consent_grants_on_canonical_kinds() {
+        // The canonical `kind` schema the schema-unify fix writes/reads.
+        assert!(consent_grants(Some("opt_in_single"), None));
+        assert!(consent_grants(Some("opt_in_double"), None));
+        assert!(consent_grants(Some("opt_in_restart"), None));
+        // Opt-out kinds (incl. the keyword STOP kind) block.
+        assert!(!consent_grants(Some("opt_out_stop"), None));
+        assert!(!consent_grants(Some("opt_out_manual"), None));
+        assert!(!consent_grants(None, None));
+    }
+
+    #[test]
+    fn consent_grants_falls_back_to_legacy_event_during_migration() {
+        // No canonical kind yet, but a legacy granting event present.
+        assert!(consent_grants(None, Some("opt_in_restored")));
+        // A blocking canonical kind wins over a granting legacy event is
+        // NOT the design — most-recent record carries exactly one schema;
+        // but if both happen to be present, either granting signal allows.
+        assert!(consent_grants(Some("opt_in_single"), Some("opt_out")));
+        assert!(!consent_grants(Some("opt_out_stop"), Some("opt_out")));
     }
 
     #[test]

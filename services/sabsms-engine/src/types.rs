@@ -229,13 +229,35 @@ pub struct CampaignBatchReserveRequest {
     pub category: MessageCategory,
 }
 
+/// Body for the Next credits callback `op=finalise`. Mirrors the TS wire
+/// contract `SabsmsCreditFinaliseBody` in
+/// `src/lib/sabsms/credits/types.ts` exactly.
+///
+/// SHARED BILLING CONTRACT:
+///   - `actualSegments` — the REAL billed segment count from the provider
+///     send. The route reprices credits from this + `channel`, never from
+///     provider cents.
+///   - `providerCostCents` — provider wholesale cost in cents, recorded on
+///     the ledger row metadata for analytics ONLY. NEVER adjusts credits.
+///     (Formerly named `actualCost`.)
+///
+/// On the release paths (`charge: false`) the billing fields are ignored
+/// by the route — they exist only to satisfy the contract shape.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CreditFinaliseRequest {
     pub workspace_id: String,
     pub message_id: String,
     pub reservation_token: String,
-    pub actual_cost: i64,
+    /// Real billed segment count — drives the credit reprice on finalise.
+    pub actual_segments: u32,
+    /// Channel that actually carried the send (`"sms"` / `"mms"` /
+    /// `"rcs"`) — used by the route to reprice.
+    pub channel: String,
+    /// ISO 3166-1 alpha-2 destination; falls back to the default rate.
+    pub destination_country: String,
+    /// Provider wholesale cost in cents — analytics metadata only.
+    pub provider_cost_cents: i64,
     pub charge: bool,
 }
 
@@ -315,4 +337,38 @@ pub struct MessageDoc {
     pub failed_at: Option<DateTime<Utc>>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// The finalise contract must serialize to the exact camelCase wire
+    /// names the TS route (`SabsmsCreditFinaliseBody`) reads — the route
+    /// reprices credits from `actualSegments` + `channel` and records
+    /// `providerCostCents` as analytics metadata only.
+    #[test]
+    fn finalise_request_serializes_shared_billing_contract() {
+        let req = CreditFinaliseRequest {
+            workspace_id: "ws1".into(),
+            message_id: "m1".into(),
+            reservation_token: "rt1".into(),
+            actual_segments: 3,
+            channel: "mms".into(),
+            destination_country: "IN".into(),
+            provider_cost_cents: 4,
+            charge: true,
+        };
+        let v = serde_json::to_value(&req).unwrap();
+        assert_eq!(v["workspaceId"], "ws1");
+        assert_eq!(v["messageId"], "m1");
+        assert_eq!(v["reservationToken"], "rt1");
+        assert_eq!(v["actualSegments"], 3);
+        assert_eq!(v["channel"], "mms");
+        assert_eq!(v["destinationCountry"], "IN");
+        assert_eq!(v["providerCostCents"], 4);
+        assert_eq!(v["charge"], true);
+        // The legacy field name must be gone.
+        assert!(v.get("actualCost").is_none());
+    }
 }
