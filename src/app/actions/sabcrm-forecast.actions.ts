@@ -39,6 +39,10 @@ import type {
 import type { SabcrmRustRecord } from '@/lib/rust-client/sabcrm-records';
 import type { ActionResult } from '@/lib/sabcrm/types';
 import { listSabcrmRecordsTw } from './sabcrm-twenty.actions';
+import {
+  listAdjustmentsForPipeline,
+  sumAdjustmentsByCategory,
+} from '@/lib/sabcrm/forecast-adjustments.server';
 import type {
   SabcrmForecastOpts,
   SabcrmForecastPeriodKind,
@@ -580,6 +584,11 @@ export async function computeSabcrmForecast(
     const bestCase = commit + catBuckets.BEST_CASE.amount;
     const pipelineForecast = bestCase + catBuckets.PIPELINE.amount;
 
+    // Manager-adjustment overlay (additive; gross figures above are untouched).
+    const adjustmentDocs = await listAdjustmentsForPipeline(g.ctx.projectId, pipeline.id);
+    const adj = sumAdjustmentsByCategory(adjustmentDocs);
+    const hasAdj = adjustmentDocs.length > 0;
+
     return {
       ok: true,
       data: {
@@ -590,6 +599,14 @@ export async function computeSabcrmForecast(
         periods,
         byStage: [...stageRows.values()],
         byCategory,
+        adjustments: adjustmentDocs.map((a) => ({
+          id: a.id,
+          pipelineId: a.pipelineId,
+          periodStart: a.periodStart,
+          category: a.category,
+          amount: a.amount,
+          note: a.note,
+        })),
         unscheduled,
         totals: {
           openCount,
@@ -600,6 +617,13 @@ export async function computeSabcrmForecast(
           commit,
           bestCase,
           pipeline: pipelineForecast,
+          ...(hasAdj
+            ? {
+                adjustedCommit: commit + adj.commit,
+                adjustedBestCase: bestCase + adj.bestCase,
+                adjustedPipeline: pipelineForecast + adj.pipeline,
+              }
+            : null),
         },
         truncated: open.truncated || won.truncated,
       },

@@ -134,6 +134,22 @@ export interface SabcrmForecastTotals {
   bestCase: number;
   /** Cumulative forecast — won + commit + best-case + pipeline amount. */
   pipeline: number;
+  /** commit + manager adjustments (present when any adjustment exists). */
+  adjustedCommit?: number;
+  /** bestCase + manager adjustments. */
+  adjustedBestCase?: number;
+  /** pipeline + manager adjustments. */
+  adjustedPipeline?: number;
+}
+
+/** A manager forecast adjustment applied as an overlay (see forecast-adjustments.server). */
+export interface SabcrmForecastAdjustment {
+  id: string;
+  pipelineId: string;
+  periodStart: string;
+  category: 'commit' | 'bestCase' | 'pipeline';
+  amount: number;
+  note?: string;
 }
 
 /** Result of `computeSabcrmForecast`. */
@@ -147,6 +163,8 @@ export interface SabcrmForecastResult {
   byStage: SabcrmForecastStageRow[];
   /** Forecast-category breakdown (Pipeline / Best case / Commit / Closed / Omit). */
   byCategory: SabcrmForecastCategoryRow[];
+  /** Manager adjustments applied to this pipeline's forecast (overlay). */
+  adjustments: SabcrmForecastAdjustment[];
   unscheduled: SabcrmForecastUnscheduled;
   totals: SabcrmForecastTotals;
   /** True when the record cap was hit and numbers may undercount. */

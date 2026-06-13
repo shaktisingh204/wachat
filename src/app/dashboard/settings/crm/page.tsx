@@ -213,6 +213,12 @@ const GROUPS: readonly SettingsGroup[] = [
         icon: Sigma,
       },
       {
+        slug: 'forecast-adjustments',
+        label: 'Forecast adjustments',
+        description: 'Manager overlay on Commit / Best-case / Pipeline',
+        icon: SlidersHorizontal,
+      },
+      {
         slug: 'tags',
         label: 'Tags',
         description: 'Labels for categorising records',
