@@ -207,6 +207,12 @@ const GROUPS: readonly SettingsGroup[] = [
         icon: Sigma,
       },
       {
+        slug: 'rollups',
+        label: 'Rollup fields',
+        description: 'Aggregate related records onto a parent field',
+        icon: Sigma,
+      },
+      {
         slug: 'tags',
         label: 'Tags',
         description: 'Labels for categorising records',

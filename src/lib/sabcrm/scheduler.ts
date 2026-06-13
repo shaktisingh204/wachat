@@ -101,6 +101,10 @@ import {
   listProjectsWithEmbeddings,
   reindexAllProjectEmbeddings,
 } from './embeddings.server';
+import {
+  listProjectsWithRollups,
+  recomputeAllProjectRollups,
+} from './rollup.server';
 
 // ---------------------------------------------------------------------------
 // Caps — keep one invocation well inside the 300s function budget.
@@ -2031,6 +2035,25 @@ export async function runDueWorkflows(): Promise<SchedulerReport> {
                 if (s.scanned === 0 && s.updated === 0) continue;
                 report.scores.push({ projectId, ...s });
                 if (s.updated > 0) report.ran += 1;
+            }
+        }
+    } catch {
+        report.failed += 1;
+    }
+
+    // --- 10. Rollup fields backstop ----------------------------------------
+    // Reconcile parent rollups for records changed out-of-band + child
+    // deletes/relation-moves the inline hook can't see. Capped like the others.
+    try {
+        const rollupProjects = await listProjectsWithRollups(db);
+        for (const projectId of rollupProjects.slice(0, MAX_SCORING_PROJECTS_PER_RUN)) {
+            const sweeps = await recomputeAllProjectRollups(
+                projectId,
+                MAX_SCORING_RECORDS_PER_OBJECT,
+            );
+            for (const s of sweeps) {
+                if (s.scanned === 0) continue;
+                report.scores.push({ projectId, ...s });
             }
         }
     } catch {
