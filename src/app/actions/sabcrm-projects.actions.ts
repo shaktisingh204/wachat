@@ -16,7 +16,11 @@
  */
 
 import type { ActionResult } from '@/lib/sabcrm/types';
-import { listObjectsTw, createObjectTw } from '@/app/actions/sabcrm-objects.actions';
+import {
+  listObjectsTw,
+  createObjectTw,
+  updateObjectTw,
+} from '@/app/actions/sabcrm-objects.actions';
 import { PROJECTS_OBJECT, PROJECTS_SLUG } from '@/lib/sabcrm/projects-object';
 
 /** Outcome of an ensure call: whether the object already existed or was created. */
@@ -41,7 +45,22 @@ export async function ensureProjectsObjectTw(
   const list = await listObjectsTw(projectId);
   if (!list.ok) return { ok: false, error: list.error };
 
-  if (list.data.some((o) => o.slug === PROJECTS_SLUG)) {
+  const existing = list.data.find((o) => o.slug === PROJECTS_SLUG);
+  if (existing) {
+    // Idempotent schema reconcile: append any canonical fields the stored
+    // object is missing (e.g. the account / contact / deal relations added
+    // after this project first seeded). Additive only — existing fields and
+    // any user customisations are preserved, and record `data` is untouched.
+    const have = new Set(existing.fields.map((f) => f.key));
+    const missing = PROJECTS_OBJECT.fields.filter((f) => !have.has(f.key));
+    if (missing.length > 0) {
+      const patched = await updateObjectTw(
+        PROJECTS_SLUG,
+        { fields: [...existing.fields, ...missing] },
+        projectId,
+      );
+      if (!patched.ok) return { ok: false, error: patched.error };
+    }
     return { ok: true, data: { ready: true, created: false } };
   }
 

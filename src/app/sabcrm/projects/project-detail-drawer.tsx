@@ -14,6 +14,8 @@ import {
   Pencil,
   Trash2,
   User,
+  Building2,
+  Target,
   Calendar,
   CalendarClock,
   DollarSign,
@@ -106,6 +108,15 @@ export function ProjectDetailDrawer({
 
               <Row icon={User} label="Owner">
                 {project.owner || <span className="pj-muted">Unassigned</span>}
+              </Row>
+              <Row icon={Building2} label="Account">
+                {project.accountLabel || <span className="pj-muted">—</span>}
+              </Row>
+              <Row icon={User} label="Contact">
+                {project.contactLabel || <span className="pj-muted">—</span>}
+              </Row>
+              <Row icon={Target} label="Linked deal">
+                {project.dealLabel || <span className="pj-muted">—</span>}
               </Row>
               <Row icon={Calendar} label="Start date">
                 {project.startDate ? formatDate(project.startDate) : <span className="pj-muted">—</span>}

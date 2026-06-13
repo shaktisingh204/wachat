@@ -112,7 +112,8 @@ export function ProjectsWorkspace(): React.JSX.Element {
     }
     // No `sortBy` → the engine sorts by the top-level `updatedAt` (newest first);
     // the List view re-sorts on the client when a column header is activated.
-    const res = await listSabcrmRecordsTw(PROJECTS_SLUG, { limit: 500 }, projectArg);
+    // enrich → resolve account / contact / deal RELATION labels for display.
+    const res = await listSabcrmRecordsTw(PROJECTS_SLUG, { limit: 500 }, projectArg, true);
     setLoading(false);
     if (!res.ok) {
       setError(res.error);

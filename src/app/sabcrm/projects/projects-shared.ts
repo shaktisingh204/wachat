@@ -29,6 +29,13 @@ export interface ProjectVM {
   status: string;
   priority: string;
   owner: string;
+  /** Related record ids (RELATION fields) + enriched display labels. */
+  accountId: string | null;
+  accountLabel: string | null;
+  contactId: string | null;
+  contactLabel: string | null;
+  dealId: string | null;
+  dealLabel: string | null;
   /** ISO `yyyy-mm-dd` (or full ISO) start date, or null. */
   startDate: string | null;
   dueDate: string | null;
@@ -59,12 +66,23 @@ function isoDate(v: unknown): string | null {
 export function toProjectVM(rec: SabcrmRustRecord): ProjectVM {
   const d = rec.data ?? {};
   const progress = num(d[PROJECT_FIELDS.progress]);
+  // Relation labels come from the enriched `__relations` map (present when the
+  // record was listed with enrich); fall back to null when unenriched.
+  const rel = rec.__relations ?? {};
+  const relId = (key: string): string | null => str(d[key]).trim() || null;
+  const relLabel = (key: string): string | null => rel[key]?.label ?? null;
   return {
     id: rec.id,
     name: str(d[PROJECT_FIELDS.name]) || 'Untitled project',
     status: str(d[PROJECT_FIELDS.status]) || DEFAULT_PROJECT_STATUS,
     priority: str(d[PROJECT_FIELDS.priority]) || DEFAULT_PROJECT_PRIORITY,
     owner: str(d[PROJECT_FIELDS.owner]),
+    accountId: relId(PROJECT_FIELDS.accountId),
+    accountLabel: relLabel(PROJECT_FIELDS.accountId),
+    contactId: relId(PROJECT_FIELDS.contactId),
+    contactLabel: relLabel(PROJECT_FIELDS.contactId),
+    dealId: relId(PROJECT_FIELDS.dealId),
+    dealLabel: relLabel(PROJECT_FIELDS.dealId),
     startDate: isoDate(d[PROJECT_FIELDS.startDate]),
     dueDate: isoDate(d[PROJECT_FIELDS.dueDate]),
     progress: progress == null ? null : Math.max(0, Math.min(100, progress)),

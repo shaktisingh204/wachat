@@ -21,6 +21,7 @@ import {
   DatePicker,
 } from '@/components/sabcrm/20ui';
 import { MemberSelect } from '@/components/sabcrm/pickers/member-select';
+import { RecordRelationPicker } from '@/components/sabcrm/pickers/record-relation-picker';
 import {
   PROJECT_FIELDS,
   PROJECT_STATUSES,
@@ -29,6 +30,12 @@ import {
   DEFAULT_PROJECT_PRIORITY,
 } from '@/lib/sabcrm/projects-object';
 import { parseDate, type ProjectVM } from './projects-shared';
+
+/** A picked relation record (id + cached label for closed-state display). */
+interface RelationRef {
+  id: string;
+  label: string;
+}
 
 interface ProjectFormDialogProps {
   open: boolean;
@@ -72,6 +79,9 @@ export function ProjectFormDialog({
   // is the picked member's userId, written to `assigneeId` for assignment.
   const [owner, setOwner] = React.useState('');
   const [ownerId, setOwnerId] = React.useState<string | null>(null);
+  const [account, setAccount] = React.useState<RelationRef | null>(null);
+  const [contact, setContact] = React.useState<RelationRef | null>(null);
+  const [deal, setDeal] = React.useState<RelationRef | null>(null);
   const [startDate, setStartDate] = React.useState<Date | undefined>(undefined);
   const [dueDate, setDueDate] = React.useState<Date | undefined>(undefined);
   const [progress, setProgress] = React.useState('');
@@ -92,6 +102,19 @@ export function ProjectFormDialog({
     // Legacy projects store only a free-text owner name, so the member id can't
     // be recovered on edit — start unset; the current name shows as a hint.
     setOwnerId(null);
+    setAccount(
+      initial?.accountId
+        ? { id: initial.accountId, label: initial.accountLabel ?? '…' }
+        : null,
+    );
+    setContact(
+      initial?.contactId
+        ? { id: initial.contactId, label: initial.contactLabel ?? '…' }
+        : null,
+    );
+    setDeal(
+      initial?.dealId ? { id: initial.dealId, label: initial.dealLabel ?? '…' } : null,
+    );
     setStartDate(parseDate(initial?.startDate ?? null) ?? undefined);
     setDueDate(parseDate(initial?.dueDate ?? null) ?? undefined);
     setProgress(initial?.progress == null ? '' : String(initial.progress));
@@ -125,6 +148,9 @@ export function ProjectFormDialog({
       [PROJECT_FIELDS.budget]:
         budgetNum == null || Number.isNaN(budgetNum) ? null : budgetNum,
       [PROJECT_FIELDS.description]: description.trim(),
+      [PROJECT_FIELDS.accountId]: account?.id ?? '',
+      [PROJECT_FIELDS.contactId]: contact?.id ?? '',
+      [PROJECT_FIELDS.dealId]: deal?.id ?? '',
     };
     // Only set `assigneeId` when a member was actively picked — the record
     // update is a merge, so an untouched owner leaves any existing value intact.
@@ -133,7 +159,7 @@ export function ProjectFormDialog({
     const ok = await onSubmit(data);
     setSaving(false);
     if (!ok) setError('Could not save the project. Please try again.');
-  }, [name, status, priority, owner, ownerId, startDate, dueDate, progress, budget, description, onSubmit]);
+  }, [name, status, priority, owner, ownerId, account, contact, deal, startDate, dueDate, progress, budget, description, onSubmit]);
 
   return (
     <Modal
@@ -223,6 +249,43 @@ export function ProjectFormDialog({
               setOwnerId(id);
               setOwner(label ?? '');
             }}
+          />
+        </Field>
+
+        <div className="pj-form__row">
+          <Field label="Account">
+            <RecordRelationPicker
+              object="companies"
+              value={account?.id ?? null}
+              valueLabel={account?.label ?? null}
+              projectId={projectId}
+              placeholder="Link a company…"
+              aria-label="Account / client"
+              onChange={(opt) => setAccount(opt ? { id: opt.id, label: opt.label } : null)}
+            />
+          </Field>
+          <Field label="Primary contact">
+            <RecordRelationPicker
+              object="people"
+              value={contact?.id ?? null}
+              valueLabel={contact?.label ?? null}
+              projectId={projectId}
+              placeholder="Link a person…"
+              aria-label="Primary contact"
+              onChange={(opt) => setContact(opt ? { id: opt.id, label: opt.label } : null)}
+            />
+          </Field>
+        </div>
+
+        <Field label="Linked deal">
+          <RecordRelationPicker
+            object="leads"
+            value={deal?.id ?? null}
+            valueLabel={deal?.label ?? null}
+            projectId={projectId}
+            placeholder="Link a deal…"
+            aria-label="Linked deal"
+            onChange={(opt) => setDeal(opt ? { id: opt.id, label: opt.label } : null)}
           />
         </Field>
 
