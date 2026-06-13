@@ -1,0 +1,61 @@
+[package]
+name = "sabmail-engine"
+version = "0.1.0"
+edition = "2021"
+description = "SabMail — Rust email engine (send via SMTP/lettre, journey execution, inbound binding) over Mongo"
+publish = false
+
+[lib]
+name = "sabmail_engine"
+path = "src/lib.rs"
+
+[[bin]]
+name = "sabmail-engine"
+path = "src/main.rs"
+
+[dependencies]
+# HTTP server
+axum = { version = "0.7", features = ["macros"] }
+tokio = { version = "1.40", features = ["full"] }
+tower = "0.5"
+tower-http = { version = "0.6", features = ["trace", "cors", "limit"] }
+
+# HTTP client (Next callbacks)
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+
+# Storage
+mongodb = { version = "3.2", default-features = false, features = ["rustls-tls", "bson-2", "compat-3-3-0"] }
+
+# SMTP send (own-domain / transactional / campaign delivery)
+lettre = { version = "0.11", default-features = false, features = [
+    "builder",
+    "smtp-transport",
+    "tokio1",
+    "tokio1-rustls-tls",
+] }
+
+# Serde + time
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1", features = ["v4"] }
+
+# Credential decryption (matches src/lib/sabmail/credentials.ts: AES-256-GCM v1)
+base64 = "0.22"
+hex = "0.4"
+aes-gcm = "0.10"
+
+# Observability
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+
+# Errors + config
+anyhow = "1"
+thiserror = "2"
+dotenvy = "0.15"
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 16
+strip = true

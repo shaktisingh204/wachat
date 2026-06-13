@@ -36,6 +36,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 
 import { connectToDatabase } from '@/lib/mongodb';
 import { SABMAIL_COLLECTIONS } from '@/lib/sabmail/db/collections';
+import { bindInboundMessage } from '@/lib/sabmail/inbound-binding';
 import { getErrorMessage } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
@@ -189,6 +190,16 @@ async function handle(req: NextRequest): Promise<NextResponse> {
     }
 
     await db.collection(SABMAIL_COLLECTIONS.events).insertOne(doc as never);
+
+    // Live binding: conversation + screener + rules (engine-first, in-process
+    // fallback) and the `inbound_email` journey trigger. Best-effort — a
+    // binding error must not fail the webhook (the provider would retry/bounce).
+    const fromName = str(body.FromFull?.Name).trim();
+    try {
+      await bindInboundMessage({ workspaceId, from, fromName, subject, messageId });
+    } catch (e) {
+      console.error('[sabmail-inbound] binding failed:', getErrorMessage(e));
+    }
 
     return NextResponse.json({ ok: true });
   } catch (err) {

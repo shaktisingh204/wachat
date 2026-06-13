@@ -5,6 +5,7 @@ import { ObjectId, type WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSabmailWorkspaceId } from '@/lib/sabmail/workspace';
 import { SABMAIL_COLLECTIONS } from '@/lib/sabmail/db/collections';
+import { enrollMatchingJourneys } from '@/lib/sabmail/journey-engine';
 import { getErrorMessage } from '@/lib/utils';
 
 /* ──────────────────────────────────────────────────────────────────────
@@ -111,7 +112,7 @@ export async function createSabmailContact(input: {
     const { db } = await connectToDatabase();
     const col = db.collection<SabmailContact>(SABMAIL_COLLECTIONS.contacts);
 
-    await col.updateOne(
+    const upsertRes = await col.updateOne(
       { workspaceId, email },
       {
         ...(Object.keys(set).length ? { $set: set } : {}),
@@ -122,6 +123,17 @@ export async function createSabmailContact(input: {
 
     const doc = await col.findOne({ workspaceId, email });
     if (!doc) return { ok: false, error: 'Could not save the contact.' };
+
+    // Live trigger: only on a genuinely new contact (not a re-add of an
+    // existing one). Best-effort — never fail the create on enrollment error.
+    if (upsertRes.upsertedCount > 0) {
+      try {
+        await enrollMatchingJourneys(workspaceId, 'contact_created', email);
+      } catch {
+        /* non-fatal */
+      }
+    }
+
     return { ok: true, contact: toRow(doc as WithId<SabmailContact>) };
   } catch (err) {
     return { ok: false, error: getErrorMessage(err) };

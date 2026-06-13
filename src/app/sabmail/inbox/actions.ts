@@ -3,7 +3,7 @@
 import { ObjectId, type WithId } from 'mongodb';
 
 import { getSabmailWorkspaceId } from '@/lib/sabmail/workspace';
-import { getSabmailCollections } from '@/lib/sabmail/db/collections';
+import { getSabmailCollections, SABMAIL_COLLECTIONS } from '@/lib/sabmail/db/collections';
 import { decryptMailboxCreds } from '@/lib/sabmail/credentials';
 import { sabmailLlm } from '@/lib/sabmail/ai';
 import { isSabmailSuppressed } from '@/lib/sabmail/suppressions';
@@ -42,6 +42,12 @@ export interface SabmailMessageRow {
   /** From ENVELOPE (free, no header fetch) — powers client-side JWZ threading. */
   messageId: string | null;
   inReplyTo: string | null;
+  /**
+   * HEY-style screener verdict for the sender (`pending`/`allowed`/`denied`),
+   * or `null` when the sender has no screener record yet. Annotated from the
+   * `sabmail_screener` collection after the envelope fetch.
+   */
+  screenerDecision: string | null;
 }
 
 export interface SabmailAttachmentMeta {
@@ -240,6 +246,41 @@ export async function listSabmailFolders(
   }
 }
 
+/**
+ * Batch-annotate rows with each sender's screener verdict — one query per page
+ * (by unique fromEmails), then map decisions back onto the rows. Senders with
+ * no screener record keep `screenerDecision: null`. Best-effort.
+ */
+async function annotateScreenerDecisions(
+  workspaceId: string,
+  rows: SabmailMessageRow[],
+): Promise<void> {
+  if (!workspaceId || rows.length === 0) return;
+  const emails = Array.from(
+    new Set(rows.map((r) => r.fromEmail).filter((e): e is string => !!e)),
+  );
+  if (emails.length === 0) return;
+  try {
+    const { db } = await getSabmailCollections();
+    const docs = (await db
+      .collection(SABMAIL_COLLECTIONS.screener)
+      .find(
+        { workspaceId, email: { $in: emails } },
+        { projection: { email: 1, decision: 1 } },
+      )
+      .toArray()) as Array<{ email?: string; decision?: string }>;
+    const byEmail = new Map<string, string>();
+    for (const d of docs) {
+      if (d.email) byEmail.set(d.email, String(d.decision ?? 'pending'));
+    }
+    for (const r of rows) {
+      r.screenerDecision = byEmail.get(r.fromEmail) ?? null;
+    }
+  } catch {
+    /* best-effort — screener annotation is non-essential */
+  }
+}
+
 export async function listSabmailMessages(
   accountId: string,
   path = 'INBOX',
@@ -278,6 +319,7 @@ export async function listSabmailMessages(
             hasAttachments: hasAttachments(msg.bodyStructure),
             messageId: env.messageId ?? null,
             inReplyTo: env.inReplyTo ?? null,
+            screenerDecision: null,
           });
         }
         rows.reverse(); // newest first
@@ -286,6 +328,7 @@ export async function listSabmailMessages(
         lock.release();
       }
     });
+    await annotateScreenerDecisions(loaded.data.workspaceId, data.messages);
     return { ok: true, ...data };
   } catch (e) {
     return { ok: false, error: getErrorMessage(e) };
@@ -831,6 +874,7 @@ export async function searchSabmailMessages(
             hasAttachments: hasAttachments(msg.bodyStructure),
             messageId: env.messageId ?? null,
             inReplyTo: env.inReplyTo ?? null,
+            screenerDecision: null,
           });
         }
         rows.sort((a, b) => (Date.parse(b.date ?? '') || 0) - (Date.parse(a.date ?? '') || 0));
@@ -839,6 +883,7 @@ export async function searchSabmailMessages(
         lock.release();
       }
     });
+    await annotateScreenerDecisions(loaded.data.workspaceId, messages);
     return { ok: true, messages };
   } catch (e) {
     return { ok: false, error: getErrorMessage(e) };

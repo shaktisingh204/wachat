@@ -42,6 +42,16 @@ import { getErrorMessage } from '@/lib/utils';
 
 export type SabmailJourneyRunStatus = 'active' | 'completed' | 'failed';
 
+/**
+ * Real-world events that can auto-enroll a person into a journey. Bound to a
+ * journey via its trigger node's `data.event`. `manual` journeys never
+ * auto-fire (explicit/API enrollment only) so they are not in this union.
+ */
+export type SabmailTriggerEvent =
+  | 'form_submit'
+  | 'contact_created'
+  | 'inbound_email';
+
 export interface SabmailJourneyRunHistoryEntry {
   nodeId: string;
   type: string;
@@ -319,6 +329,54 @@ export async function enrollInJourney(
   } catch (e) {
     return { ok: false, error: getErrorMessage(e) };
   }
+}
+
+/**
+ * Fire a trigger event: enroll `personEmail` into every ENABLED journey whose
+ * trigger node opts into `event` (read off the trigger node's `data.event`).
+ * This is the live binding the originating actions call — form submit,
+ * contact created, inbound email. Best-effort and idempotent (the per-run
+ * re-entry guard prevents double enrollment); never throws into the caller.
+ */
+export async function enrollMatchingJourneys(
+  workspaceId: string,
+  event: SabmailTriggerEvent,
+  personEmail: string,
+): Promise<{ enrolled: number }> {
+  let enrolled = 0;
+  try {
+    if (!workspaceId) return { enrolled };
+    const email = String(personEmail ?? '').trim().toLowerCase();
+    if (!email) return { enrolled };
+
+    const journeys = await getJourneysCollection();
+    const candidates = (await journeys
+      .find({ workspaceId, enabled: true })
+      .limit(200)
+      .toArray()) as WithId<SabmailJourneyDoc>[];
+
+    for (const journey of candidates) {
+      const graph = buildGraph(journey);
+      if (!graph.entryId) continue;
+      const entry = graph.byId.get(graph.entryId);
+      // Only auto-enroll from an explicit trigger node that opts into this event.
+      if (nodeType(entry) !== 'trigger') continue;
+      const declared = String(
+        entry?.data?.event ??
+          entry?.data?.triggerType ??
+          entry?.data?.on ??
+          'manual',
+      )
+        .toLowerCase()
+        .trim();
+      if (declared !== event) continue;
+      const res = await enrollInJourney(workspaceId, String(journey._id), email);
+      if (res.ok) enrolled += 1;
+    }
+  } catch {
+    /* best-effort — never block the originating action */
+  }
+  return { enrolled };
 }
 
 /* ── tick (cron sweep across ALL workspaces) ─────────────────────────── */

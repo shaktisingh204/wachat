@@ -150,6 +150,49 @@ async function publishNewMail(
   }
 }
 
+/* ── inbound binding (delegate to the Next internal route) ─────────────────── */
+
+/**
+ * This worker runs under `tsx` and must NOT import the `server-only` binder, so
+ * it POSTs newly-seen mail to the Next internal route, which runs the shared
+ * `bindInboundMessage` (conversation + screener + rules + `inbound_email`
+ * journey trigger). No app URL configured → binding is skipped (the on-demand
+ * inbox read still shows the mail).
+ */
+function bindEndpoint(): string | null {
+  const base = (
+    process.env.SABMAIL_APP_URL ||
+    process.env.NEXT_PUBLIC_APP_URL ||
+    process.env.APP_URL ||
+    ''
+  ).replace(/\/+$/, '');
+  return base ? `${base}/api/sabmail/internal/bind-inbound` : null;
+}
+
+async function bindInbound(payload: {
+  workspaceId: string;
+  from: string;
+  fromName?: string;
+  subject?: string;
+  messageId?: string;
+}): Promise<void> {
+  const url = bindEndpoint();
+  if (!url || !payload.from) return;
+  try {
+    const secret = process.env.CRON_SECRET;
+    await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(secret ? { Authorization: `Bearer ${secret}` } : {}),
+      },
+      body: JSON.stringify(payload),
+    });
+  } catch (err) {
+    console.warn('[sabmail-sync] inbound bind failed:', errMsg(err));
+  }
+}
+
 /* ── small helpers ─────────────────────────────────────────────────────────── */
 
 function errMsg(e: unknown): string {
@@ -317,6 +360,7 @@ function runMailbox(account: ImapAccountDoc): RunningAccount {
     const lock = await client.getMailboxLock('INBOX');
     let highestUid = savedUidNext;
     let inserted = 0;
+    const arrived: Array<{ from: string; fromName: string; subject: string; messageId: string }> = [];
     try {
       // Range is UID-based: from our cursor to the end of the mailbox.
       for await (const msg of client.fetch(
@@ -349,10 +393,30 @@ function runMailbox(account: ImapAccountDoc): RunningAccount {
 
         await upsertMessage(messages, doc);
         inserted += 1;
+        if (from.email) {
+          arrived.push({
+            from: from.email,
+            fromName: from.name,
+            subject: doc.subject,
+            messageId: doc.messageId ?? '',
+          });
+        }
         if (uid + 1 > highestUid) highestUid = uid + 1;
       }
     } finally {
       lock.release();
+    }
+
+    // Bind each newly-arrived message (conversation + screener + rules +
+    // journey trigger) via the Next internal route — fire-and-forget.
+    for (const a of arrived) {
+      void bindInbound({
+        workspaceId,
+        from: a.from,
+        fromName: a.fromName,
+        subject: a.subject,
+        messageId: a.messageId,
+      });
     }
 
     // Advance the cursor past the newest UID we saw (and never below the box's).

@@ -23,6 +23,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 
 import { tickSabmailJourneys } from '@/lib/sabmail/journey-engine';
+import { isSabmailEngineEnabled } from '@/lib/sabmail/engine-client';
 import { getErrorMessage } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
@@ -43,6 +44,21 @@ function authorize(req: NextRequest): boolean {
 async function handle(req: NextRequest): Promise<NextResponse> {
   if (!authorize(req)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  // When the Rust engine is enabled, its in-process ticker is the SOLE journey
+  // driver — running the TS tick here too would risk double-advancing /
+  // double-sending the same run. Defer to the engine.
+  if (isSabmailEngineEnabled()) {
+    return NextResponse.json({
+      ok: true,
+      skipped: 'engine-owned',
+      processed: 0,
+      advanced: 0,
+      completed: 0,
+      failed: 0,
+      waited: 0,
+    });
   }
 
   try {

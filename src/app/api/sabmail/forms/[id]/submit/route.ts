@@ -24,6 +24,7 @@ import { ObjectId } from 'mongodb';
 
 import { connectToDatabase } from '@/lib/mongodb';
 import { SABMAIL_COLLECTIONS } from '@/lib/sabmail/db/collections';
+import { enrollMatchingJourneys } from '@/lib/sabmail/journey-engine';
 import { getErrorMessage } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
@@ -183,6 +184,14 @@ async function handle(
       } as never);
     } catch (e) {
       console.error('[sabmail] form_submit event insert failed:', getErrorMessage(e));
+    }
+
+    // Live trigger: enroll the submitter into any journey whose trigger node
+    // opts into `form_submit` (best-effort — never blocks the submission).
+    try {
+      await enrollMatchingJourneys(workspaceId, 'form_submit', email);
+    } catch (e) {
+      console.error('[sabmail] form_submit journey enroll failed:', getErrorMessage(e));
     }
 
     // Redirect when the form configured one (browser-friendly thank-you page).

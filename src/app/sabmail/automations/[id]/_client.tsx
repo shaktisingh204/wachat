@@ -30,7 +30,9 @@ import {
   Button,
   Card,
   Input,
+  SelectField,
   Switch,
+  Textarea,
   useToast,
 } from "@/components/sabcrm/20ui";
 import { CreatingOverlay, SuccessCheck } from "@/components/sabmail/motion";
@@ -60,6 +62,30 @@ const KIND_LABEL: Record<PaletteKind, string> = {
   condition: "Condition",
 };
 
+/**
+ * What real event enrolls a person when this journey is enabled. Read at
+ * runtime by `enrollMatchingJourneys()` (the trigger binding) off the trigger
+ * node's `data.event`. `manual` = only enrolled explicitly (never auto-fires).
+ */
+const TRIGGER_EVENTS: Array<{ value: string; label: string }> = [
+  { value: "manual", label: "Manual / API only" },
+  { value: "form_submit", label: "Form submission" },
+  { value: "contact_created", label: "Contact created" },
+  { value: "inbound_email", label: "Inbound email received" },
+];
+
+const WAIT_UNITS: Array<{ value: string; label: string }> = [
+  { value: "minutes", label: "Minutes" },
+  { value: "hours", label: "Hours" },
+  { value: "days", label: "Days" },
+  { value: "weeks", label: "Weeks" },
+];
+
+function dataStr(node: Node | null, key: string, fallback = ""): string {
+  const v = (node?.data as Record<string, unknown> | undefined)?.[key];
+  return v == null ? fallback : String(v);
+}
+
 let nodeSeq = 0;
 function nextNodeId(): string {
   nodeSeq += 1;
@@ -87,12 +113,36 @@ export function SabmailJourneyEditorClient({
   const [enabled, setEnabled] = React.useState(journey.enabled);
   const [saving, setSaving] = React.useState(false);
   const [savedTick, setSavedTick] = React.useState(false);
+  const [selectedNodeId, setSelectedNodeId] = React.useState<string | null>(null);
 
   const onConnect = React.useCallback(
     (connection: Connection) =>
       setEdges((eds) => addEdge(connection, eds)),
     [setEdges],
   );
+
+  const onNodeClick = React.useCallback(
+    (_: React.MouseEvent, node: Node) => setSelectedNodeId(node.id),
+    [],
+  );
+
+  const patchNodeData = React.useCallback(
+    (id: string, patch: Record<string, unknown>) => {
+      setNodes((nds) =>
+        nds.map((n) =>
+          n.id === id ? { ...n, data: { ...n.data, ...patch } } : n,
+        ),
+      );
+    },
+    [setNodes],
+  );
+
+  const selectedNode = React.useMemo(
+    () => nodes.find((n) => n.id === selectedNodeId) ?? null,
+    [nodes, selectedNodeId],
+  );
+  const selectedKind = (selectedNode?.data as { kind?: PaletteKind } | undefined)
+    ?.kind;
 
   const addNode = React.useCallback(
     (kind: PaletteKind) => {
@@ -205,11 +255,20 @@ export function SabmailJourneyEditorClient({
         role="note"
       >
         <Workflow className="h-3.5 w-3.5 shrink-0" aria-hidden />
-        <span>Automation runs when the engine is enabled (coming soon).</span>
+        <span>
+          Runs automatically while enabled — set the trigger node’s event to
+          decide what enrolls people. Click any node to edit its settings.
+        </span>
       </div>
 
-      {/* Builder: palette + canvas */}
-      <div className="grid min-h-0 flex-1 grid-cols-[200px_1fr] gap-3">
+      {/* Builder: palette + canvas + inspector */}
+      <div
+        className={`grid min-h-0 flex-1 gap-3 ${
+          selectedNode
+            ? "grid-cols-[200px_1fr_300px]"
+            : "grid-cols-[200px_1fr]"
+        }`}
+      >
         <Card className="flex flex-col gap-2 p-3">
           <div className="px-1 text-xs font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
             Add node
@@ -240,6 +299,7 @@ export function SabmailJourneyEditorClient({
               onNodesChange={onNodesChange}
               onEdgesChange={onEdgesChange}
               onConnect={onConnect}
+              onNodeClick={onNodeClick}
               fitView
               proOptions={{ hideAttribution: true }}
             >
@@ -249,6 +309,122 @@ export function SabmailJourneyEditorClient({
             </ReactFlow>
           </div>
         </Card>
+
+        {selectedNode ? (
+          <Card className="flex min-h-0 flex-col gap-3 overflow-y-auto p-3">
+            <div className="flex items-center justify-between">
+              <div className="text-xs font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
+                {(selectedKind ? KIND_LABEL[selectedKind] : "Node")} settings
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setSelectedNodeId(null)}
+                aria-label="Close settings"
+              >
+                ✕
+              </Button>
+            </div>
+
+            {selectedKind === "trigger" ? (
+              <label className="flex flex-col gap-1.5 text-xs text-[var(--st-text-secondary)]">
+                <span>Enroll people when…</span>
+                <SelectField
+                  value={dataStr(selectedNode, "event", "manual")}
+                  onChange={(v) =>
+                    patchNodeData(selectedNode.id, { event: v ?? "manual" })
+                  }
+                  options={TRIGGER_EVENTS}
+                  aria-label="Trigger event"
+                />
+                <span className="text-[var(--st-text-tertiary)]">
+                  “Manual” never auto-enrolls — use it for API/contact-list
+                  enrollment only.
+                </span>
+              </label>
+            ) : null}
+
+            {selectedKind === "send" ? (
+              <>
+                <label className="flex flex-col gap-1.5 text-xs text-[var(--st-text-secondary)]">
+                  <span>From mailbox ID</span>
+                  <Input
+                    value={dataStr(selectedNode, "accountId")}
+                    onChange={(e) =>
+                      patchNodeData(selectedNode.id, {
+                        accountId: e.target.value.trim(),
+                      })
+                    }
+                    placeholder="Defaults to the journey’s mailbox"
+                    aria-label="Send mailbox id"
+                  />
+                </label>
+                <label className="flex flex-col gap-1.5 text-xs text-[var(--st-text-secondary)]">
+                  <span>Subject</span>
+                  <Input
+                    value={dataStr(selectedNode, "subject")}
+                    onChange={(e) =>
+                      patchNodeData(selectedNode.id, { subject: e.target.value })
+                    }
+                    placeholder="Subject line"
+                    maxLength={998}
+                    aria-label="Email subject"
+                  />
+                </label>
+                <label className="flex flex-col gap-1.5 text-xs text-[var(--st-text-secondary)]">
+                  <span>Body (HTML)</span>
+                  <Textarea
+                    value={dataStr(selectedNode, "html")}
+                    onChange={(e) =>
+                      patchNodeData(selectedNode.id, { html: e.target.value })
+                    }
+                    rows={8}
+                    placeholder="<p>Hello {{name}}…</p>"
+                    aria-label="Email body"
+                  />
+                </label>
+              </>
+            ) : null}
+
+            {selectedKind === "wait" ? (
+              <div className="flex flex-col gap-3">
+                <label className="flex flex-col gap-1.5 text-xs text-[var(--st-text-secondary)]">
+                  <span>Wait amount</span>
+                  <Input
+                    type="number"
+                    min={1}
+                    value={dataStr(selectedNode, "delay", "1")}
+                    onChange={(e) =>
+                      patchNodeData(selectedNode.id, {
+                        delay: Number(e.target.value) || 1,
+                      })
+                    }
+                    aria-label="Wait amount"
+                  />
+                </label>
+                <label className="flex flex-col gap-1.5 text-xs text-[var(--st-text-secondary)]">
+                  <span>Unit</span>
+                  <SelectField
+                    value={dataStr(selectedNode, "unit", "days")}
+                    onChange={(v) =>
+                      patchNodeData(selectedNode.id, { unit: v ?? "days" })
+                    }
+                    options={WAIT_UNITS}
+                    aria-label="Wait unit"
+                  />
+                </label>
+              </div>
+            ) : null}
+
+            {selectedKind === "condition" ? (
+              <p className="text-xs text-[var(--st-text-tertiary)]">
+                Connect two edges from this node and label one
+                “yes”/“match”/“default” — that branch is taken when the
+                condition holds, otherwise the other edge is followed.
+              </p>
+            ) : null}
+          </Card>
+        ) : null}
       </div>
     </div>
   );

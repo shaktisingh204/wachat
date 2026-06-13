@@ -56,15 +56,12 @@ import "@/components/sabmail/motion/sabmail-motion.css";
 import type { SabmailAccountRow } from "@/app/actions/sabmail-projects.actions";
 import {
   aiDraftReply,
-  archiveSabmailMessage,
   categorizeSabmailMessages,
   getSabmailMessage,
   listSabmailFolders,
   listSabmailMessages,
   searchSabmailMessages,
-  setSabmailFlag,
   summarizeSabmailThread,
-  trashSabmailMessage,
   type SabmailCategory,
   type SabmailFolderRow,
   type SabmailMessageFull,
@@ -73,6 +70,7 @@ import {
 import { ComposeModal, buildReplyPrefill, textToHtml, type ComposePrefill } from "./compose-modal";
 import { groupThreads } from "./threading";
 import { cacheMessages, getCachedMessages } from "@/lib/sabmail/offline-cache";
+import { applySabmailMutation, flushSabmailMutations } from "@/lib/sabmail/optimistic";
 
 /* ── helpers ─────────────────────────────────────────────────────────── */
 
@@ -232,6 +230,12 @@ export function SabmailInboxClient({ accounts }: { accounts: SabmailAccountRow[]
   );
 
   // Load folders when the account changes.
+  // On mount, drain any writes left queued from a prior session (offline /
+  // crash / reload) so optimistic mutations eventually reach the server.
+  React.useEffect(() => {
+    void flushSabmailMutations();
+  }, []);
+
   React.useEffect(() => {
     if (!accountId) return;
     let cancelled = false;
@@ -402,30 +406,68 @@ export function SabmailInboxClient({ accounts }: { accounts: SabmailAccountRow[]
     [],
   );
 
+  // Optimistically remove a row but remember its slot so we can restore it
+  // if the durable write terminally fails.
+  const removeWithRestore = React.useCallback(
+    (uid: number): (() => void) => {
+      let snapshot: SabmailMessageRow | undefined;
+      let index = -1;
+      setMessages((prev) => {
+        index = prev.findIndex((m) => m.uid === uid);
+        snapshot = index >= 0 ? prev[index] : undefined;
+        return prev.filter((m) => m.uid !== uid);
+      });
+      setSelectedUid((cur) => (cur === uid ? null : cur));
+      setFull((cur) => (cur?.uid === uid ? null : cur));
+      return () => {
+        if (!snapshot) return;
+        setMessages((prev) => {
+          if (prev.some((m) => m.uid === uid)) return prev;
+          const next = [...prev];
+          next.splice(index >= 0 ? Math.min(index, next.length) : next.length, 0, snapshot!);
+          return next;
+        });
+      };
+    },
+    [],
+  );
+
   const doArchive = React.useCallback(
     async (uid: number) => {
-      const res = await archiveSabmailMessage(accountId, folderPath, uid);
-      if (!res.ok) {
-        toast({ title: "Couldn't archive", description: res.error, variant: "destructive" });
+      const restore = removeWithRestore(uid); // optimistic
+      const { ok } = await applySabmailMutation({
+        type: "archive",
+        accountId,
+        folder: folderPath,
+        uid,
+      });
+      if (!ok) {
+        restore();
+        toast({ title: "Couldn't archive", variant: "destructive" });
         return;
       }
-      removeFromList(uid);
       toast({ title: "Archived" });
     },
-    [accountId, folderPath, removeFromList, toast],
+    [accountId, folderPath, removeWithRestore, toast],
   );
 
   const doTrash = React.useCallback(
     async (uid: number) => {
-      const res = await trashSabmailMessage(accountId, folderPath, uid);
-      if (!res.ok) {
-        toast({ title: "Couldn't move to Trash", description: res.error, variant: "destructive" });
+      const restore = removeWithRestore(uid); // optimistic
+      const { ok } = await applySabmailMutation({
+        type: "delete",
+        accountId,
+        folder: folderPath,
+        uid,
+      });
+      if (!ok) {
+        restore();
+        toast({ title: "Couldn't move to Trash", variant: "destructive" });
         return;
       }
-      removeFromList(uid);
       toast({ title: "Moved to Trash" });
     },
-    [accountId, folderPath, removeFromList, toast],
+    [accountId, folderPath, removeWithRestore, toast],
   );
 
   const doToggleFlag = React.useCallback(
@@ -433,10 +475,15 @@ export function SabmailInboxClient({ accounts }: { accounts: SabmailAccountRow[]
       const cur = messages.find((m) => m.uid === uid)?.flagged ?? false;
       const next = !cur;
       setMessages((prev) => prev.map((m) => (m.uid === uid ? { ...m, flagged: next } : m)));
-      const res = await setSabmailFlag(accountId, folderPath, uid, "flagged", next);
-      if (!res.ok) {
+      const { ok } = await applySabmailMutation({
+        type: next ? "flag" : "unflag",
+        accountId,
+        folder: folderPath,
+        uid,
+      });
+      if (!ok) {
         setMessages((prev) => prev.map((m) => (m.uid === uid ? { ...m, flagged: cur } : m)));
-        toast({ title: "Couldn't update", description: res.error, variant: "destructive" });
+        toast({ title: "Couldn't update", variant: "destructive" });
       }
     },
     [accountId, folderPath, messages, toast],

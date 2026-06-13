@@ -112,6 +112,13 @@ function getDexieDb(): Promise<AnyDb | null> {
         messages: 'key',
         bodies: 'key',
       });
+      // v2 adds the optimistic-write mutation queue (`id` primary key,
+      // `createdAt` index for FIFO drain).
+      db.version(2).stores({
+        messages: 'key',
+        bodies: 'key',
+        mutations: 'id, createdAt',
+      });
       // `open()` is implicit on first access, but opening eagerly surfaces
       // unsupported-environment errors here where we can swallow them.
       await db.open();
@@ -249,6 +256,241 @@ export async function getCachedBody(accountId: any, uid: any): Promise<any | nul
   return null;
 }
 
+// ---------------------------------------------------------------------------
+// Optimistic-write mutation queue (Superhuman "modify() + persist()" model)
+// ---------------------------------------------------------------------------
+
+/** A queued inbox mutation: applied to the UI/cache instantly, persisted async. */
+export interface SabmailMutation {
+  /** Stable client id (also the Dexie/localStorage primary key). */
+  id: string;
+  /** What changed — the runner maps this to a server action. */
+  type: 'markSeen' | 'markUnseen' | 'flag' | 'unflag' | 'archive' | 'delete' | string;
+  accountId: string;
+  folder: string;
+  uid: number;
+  /** Optional extra args for the server action (e.g. target folder). */
+  payload?: Record<string, unknown>;
+  createdAt: number;
+  attempts: number;
+}
+
+const LS_MUTATIONS_KEY = `${LS_PREFIX}mutations`;
+
+/** Best-effort id generator (crypto.randomUUID when present, else timestamp+rand). */
+function newMutationId(): string {
+  try {
+    const c: any = (globalThis as any).crypto;
+    if (c?.randomUUID) return String(c.randomUUID());
+  } catch {
+    /* fall through */
+  }
+  return `m_${Date.now().toString(36)}_${Math.floor(Math.random() * 1e6).toString(36)}`;
+}
+
+function readLsMutations(): SabmailMutation[] {
+  if (!hasLocalStorage()) return [];
+  try {
+    const raw = window.localStorage.getItem(LS_MUTATIONS_KEY);
+    const arr = raw ? JSON.parse(raw) : [];
+    return Array.isArray(arr) ? (arr as SabmailMutation[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeLsMutations(list: SabmailMutation[]): void {
+  if (!hasLocalStorage()) return;
+  try {
+    window.localStorage.setItem(LS_MUTATIONS_KEY, JSON.stringify(list));
+  } catch {
+    /* quota — non-fatal */
+  }
+}
+
+/**
+ * Enqueue a mutation for async persistence. Returns the full record (with its
+ * generated id). Never throws.
+ */
+export async function enqueueMutation(
+  input: Omit<SabmailMutation, 'id' | 'createdAt' | 'attempts'> &
+    Partial<Pick<SabmailMutation, 'id' | 'createdAt' | 'attempts'>>,
+): Promise<SabmailMutation> {
+  const record: SabmailMutation = {
+    id: input.id ?? newMutationId(),
+    type: input.type,
+    accountId: String(input.accountId),
+    folder: String(input.folder),
+    uid: Number(input.uid),
+    payload: input.payload,
+    createdAt: input.createdAt ?? Date.now(),
+    attempts: input.attempts ?? 0,
+  };
+
+  const db = await getDexieDb();
+  if (db) {
+    try {
+      await db.table('mutations').put(record);
+      return record;
+    } catch {
+      // Fall through to localStorage.
+    }
+  }
+  const list = readLsMutations();
+  list.push(record);
+  writeLsMutations(list);
+  return record;
+}
+
+/** List queued mutations, oldest first. Never throws. */
+export async function listQueuedMutations(): Promise<SabmailMutation[]> {
+  const db = await getDexieDb();
+  if (db) {
+    try {
+      const all: SabmailMutation[] = await db.table('mutations').toArray();
+      return all.sort((a, b) => a.createdAt - b.createdAt);
+    } catch {
+      // Fall through to localStorage.
+    }
+  }
+  return readLsMutations().sort((a, b) => a.createdAt - b.createdAt);
+}
+
+/** Remove a mutation from the queue (after success or terminal failure). */
+export async function removeMutation(id: string): Promise<void> {
+  const db = await getDexieDb();
+  if (db) {
+    try {
+      await db.table('mutations').delete(id);
+      return;
+    } catch {
+      // Fall through to localStorage.
+    }
+  }
+  writeLsMutations(readLsMutations().filter((m) => m.id !== id));
+}
+
+/** Record a failed attempt (for backoff / max-retry decisions). */
+export async function bumpMutationAttempt(id: string): Promise<number> {
+  const db = await getDexieDb();
+  if (db) {
+    try {
+      const rec: SabmailMutation | undefined = await db.table('mutations').get(id);
+      if (rec) {
+        rec.attempts = (rec.attempts ?? 0) + 1;
+        await db.table('mutations').put(rec);
+        return rec.attempts;
+      }
+      return 0;
+    } catch {
+      // Fall through to localStorage.
+    }
+  }
+  const list = readLsMutations();
+  const rec = list.find((m) => m.id === id);
+  if (!rec) return 0;
+  rec.attempts = (rec.attempts ?? 0) + 1;
+  writeLsMutations(list);
+  return rec.attempts;
+}
+
+export interface FlushMutationsResult {
+  flushed: number;
+  failed: SabmailMutation[];
+}
+
+/** Outcome a runner returns for one mutation. */
+export type MutationRunResult =
+  | { ok: true }
+  | { ok: false; retry: boolean };
+
+/**
+ * Drain the queue through `runner` (which performs the real server write).
+ *   - `{ ok: true }`            → remove the mutation (reconciled).
+ *   - `{ ok: false, retry:true}`→ keep it (bump attempts) up to `maxAttempts`,
+ *                                  then drop it and report it as failed so the
+ *                                  caller can roll the optimistic edit back.
+ *   - `{ ok: false, retry:false}`→ terminal: drop + report failed (rollback).
+ * Never throws; returns the failed set for rollback/reconcile.
+ */
+export async function flushMutations(
+  runner: (m: SabmailMutation) => Promise<MutationRunResult>,
+  opts: { maxAttempts?: number } = {},
+): Promise<FlushMutationsResult> {
+  const maxAttempts = opts.maxAttempts ?? 5;
+  const queued = await listQueuedMutations();
+  let flushed = 0;
+  const failed: SabmailMutation[] = [];
+
+  for (const m of queued) {
+    let res: MutationRunResult;
+    try {
+      res = await runner(m);
+    } catch {
+      res = { ok: false, retry: true };
+    }
+
+    if (res.ok) {
+      await removeMutation(m.id);
+      flushed += 1;
+      continue;
+    }
+    if (res.retry) {
+      const attempts = await bumpMutationAttempt(m.id);
+      if (attempts >= maxAttempts) {
+        await removeMutation(m.id);
+        failed.push({ ...m, attempts });
+      }
+      // else leave it queued for the next flush.
+    } else {
+      await removeMutation(m.id);
+      failed.push(m);
+    }
+  }
+
+  return { flushed, failed };
+}
+
+/**
+ * Optimistically patch one cached row in a folder list and return the previous
+ * row snapshot (for rollback). Returns `null` when the row isn't cached. Never
+ * throws — the optimistic UI update itself is the source of truth; this just
+ * keeps the read-through cache consistent so a refresh doesn't flicker back.
+ */
+export async function patchCachedRow(
+  accountId: any,
+  folder: any,
+  uid: any,
+  patch: Record<string, unknown>,
+): Promise<Record<string, unknown> | null> {
+  const rows = await getCachedMessages(accountId, folder);
+  if (!rows) return null;
+  const idx = rows.findIndex((r: any) => Number(r?.uid) === Number(uid));
+  if (idx < 0) return null;
+  const prev = { ...rows[idx] };
+  rows[idx] = { ...rows[idx], ...patch };
+  await cacheMessages(accountId, folder, rows);
+  return prev;
+}
+
+/**
+ * Optimistically remove a cached row (archive/delete) and return it for
+ * rollback. Returns `null` when not cached. Never throws.
+ */
+export async function removeCachedRow(
+  accountId: any,
+  folder: any,
+  uid: any,
+): Promise<Record<string, unknown> | null> {
+  const rows = await getCachedMessages(accountId, folder);
+  if (!rows) return null;
+  const idx = rows.findIndex((r: any) => Number(r?.uid) === Number(uid));
+  if (idx < 0) return null;
+  const [removed] = rows.splice(idx, 1);
+  await cacheMessages(accountId, folder, rows);
+  return removed ?? null;
+}
+
 /**
  * Drop every SabMail cache entry from both Dexie and localStorage.
  * Never throws.
@@ -257,7 +499,11 @@ export async function clearSabmailCache(): Promise<void> {
   const db = await getDexieDb();
   if (db) {
     try {
-      await Promise.all([db.table('messages').clear(), db.table('bodies').clear()]);
+      await Promise.all([
+        db.table('messages').clear(),
+        db.table('bodies').clear(),
+        db.table('mutations').clear(),
+      ]);
     } catch {
       // Non-fatal; still attempt the localStorage sweep below.
     }

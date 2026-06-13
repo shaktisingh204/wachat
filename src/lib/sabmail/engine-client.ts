@@ -180,6 +180,66 @@ export const sabmailEngine = {
       return false;
     }
   },
+
+  /**
+   * Send a message through the engine's SMTP transport (lettre). Returns the
+   * generated Message-ID. Throws {@link SabmailEngineError} when the engine is
+   * disabled or the send fails — callers decide whether to fall back to the
+   * in-process nodemailer path.
+   */
+  async send(input: {
+    workspaceId: string;
+    accountId: string;
+    to: string[];
+    cc?: string[];
+    bcc?: string[];
+    subject: string;
+    html?: string;
+    text?: string;
+  }): Promise<{ ok: boolean; messageId: string }> {
+    return engineFetch<{ ok: boolean; messageId: string }>('/v1/send', {
+      method: 'POST',
+      json: input,
+      timeoutMs: 30_000,
+    });
+  },
+
+  /**
+   * Advance all due journey runs one tick. The engine's own ticker normally
+   * drives this; the cron route can call it as a safety net.
+   */
+  async tickJourneys(): Promise<{
+    processed: number;
+    sent: number;
+    completed: number;
+    failed: number;
+  }> {
+    return engineFetch('/v1/journeys/tick', { method: 'POST', timeoutMs: 60_000 });
+  },
+
+  /**
+   * Bind an inbound message into the collaboration/automation layers
+   * (conversation upsert + screener + rule evaluation) on the engine. Returns
+   * the screener decision and any matched rule actions. Throws when the engine
+   * is disabled — the caller should fall back to the in-process binder.
+   */
+  async processInbound(input: {
+    workspaceId: string;
+    from: string;
+    fromName?: string;
+    subject?: string;
+    messageId?: string;
+  }): Promise<{
+    screenerDecision: string;
+    ruleActions: Array<{ action: string; label?: string }>;
+    bound: boolean;
+  }> {
+    return engineFetch('/v1/inbound', {
+      method: 'POST',
+      json: input,
+      timeoutMs: 10_000,
+    });
+  },
 };
 
 export type SabmailEngine = typeof sabmailEngine;

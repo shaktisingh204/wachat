@@ -17,9 +17,9 @@ BUILD_RUST="${BUILD_RUST:-1}"
 # hard-resetting to origin/main (useful for hotfix/manual deploys).
 DEPLOY_GIT_RESET="${DEPLOY_GIT_RESET:-1}"
 # TCP ports the services bind to (sabnode-web, sabwa-node, sabsms-engine,
-# sabsites-postgrest, sabnode-api). Freed before restart to clear
-# stale/orphaned listeners.
-SERVICE_PORTS="${SERVICE_PORTS:-3002 4001 4002 4006 ${SABNODE_PORT:-8080}}"
+# sabmail-engine, sabsites-postgrest, sabnode-api). Freed before restart to
+# clear stale/orphaned listeners.
+SERVICE_PORTS="${SERVICE_PORTS:-3002 4001 4002 4003 4006 ${SABNODE_PORT:-8080}}"
 # Set BUILD_SABSITES=0 to skip the SabSites (vendored Webstudio) build.
 BUILD_SABSITES="${BUILD_SABSITES:-1}"
 # FORCE_RESTART=1 → hard restart (delete PM2 apps + kill the ports + fresh
@@ -109,6 +109,12 @@ if [ "$BUILD_RUST" = "1" ]; then
   if [ -f services/sabsms-engine/Cargo.toml ]; then
     echo "🦀 Building SabSMS engine..."
     ( cd services/sabsms-engine && cargo build --release )
+  fi
+
+  # 3b.2 SabMail engine — standalone Rust crate (SMTP send + journeys + inbound).
+  if [ -f services/sabmail-engine/Cargo.toml ]; then
+    echo "🦀 Building SabMail engine..."
+    ( cd services/sabmail-engine && cargo build --release )
   fi
 else
   echo "⏭️  Skipping Rust builds (BUILD_RUST=0)."

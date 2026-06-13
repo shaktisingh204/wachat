@@ -279,8 +279,46 @@ module.exports = {
         SABMAIL_CREDS_KEY: process.env.SABMAIL_CREDS_KEY || process.env.SABSMS_CREDS_KEY,
         SABMAIL_ENABLED: process.env.SABMAIL_ENABLED || 'false',
 
+        // Where the worker POSTs newly-seen mail for binding (conversation +
+        // screener + rules + journey trigger) via the internal route.
+        SABMAIL_APP_URL: process.env.SABMAIL_APP_URL || process.env.NEXT_PUBLIC_APP_URL,
+        CRON_SECRET: process.env.CRON_SECRET,
+
         // credentials.ts / imapflow are tsx-safe; server-only modules → stub.
         NODE_PATH: './src/workers/_stubs',
+      },
+    },
+
+    // ---------------------------------------------------------------------
+    // SabMail Engine (Rust — services/sabmail-engine). Owns SMTP send
+    // (lettre), journey execution (background ticker), and inbound binding
+    // (POST /v1/inbound). Shares the `sabmail_*` Mongo collections with the
+    // Next layer; reached via src/lib/sabmail/engine-client.ts when
+    // SABMAIL_ENABLED=true. Decrypts mailbox creds with SABMAIL_CREDS_KEY.
+    // ---------------------------------------------------------------------
+    {
+      name: 'sabmail-engine',
+      cwd: './services/sabmail-engine',
+      script: './target/release/sabmail-engine',
+      instances: 1,
+      exec_mode: 'fork',
+      max_memory_restart: '512M',
+      watch: false,
+      autorestart: true,
+      restart_delay: 5000,
+      max_restarts: 20,
+      kill_timeout: 10000,
+      env: {
+        SABMAIL_PORT: process.env.SABMAIL_PORT || '4003',
+        SABMAIL_ENGINE_TOKEN: process.env.SABMAIL_ENGINE_TOKEN,
+        SABMAIL_CREDS_KEY: process.env.SABMAIL_CREDS_KEY || process.env.SABSMS_CREDS_KEY,
+        SABMAIL_APP_CALLBACK_URL:
+          process.env.SABMAIL_APP_CALLBACK_URL || process.env.NEXT_PUBLIC_APP_URL,
+        SABMAIL_JOURNEY_TICK_SECS: process.env.SABMAIL_JOURNEY_TICK_SECS || '60',
+        MONGO_URL: process.env.MONGO_URL || process.env.MONGODB_URI,
+        MONGODB_URI: process.env.MONGODB_URI || process.env.MONGO_URL,
+        MONGODB_DB: process.env.MONGODB_DB || 'sabnode',
+        RUST_LOG: process.env.RUST_LOG || 'info,sabmail_engine=debug',
       },
     },
 
