@@ -1,9 +1,7 @@
 import React, { Suspense } from 'react';
 import { NotificationsClient } from './notifications-client';
-import {
-  defaultNotificationConfig,
-  getNotificationConfigAction,
-} from './actions';
+import { getNotificationConfigAction } from './actions';
+import { defaultNotificationConfig } from './config-defaults';
 
 export const dynamic = 'force-dynamic';
 

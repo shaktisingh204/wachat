@@ -658,11 +658,23 @@ async function runAbComparison(
  * them so the detail page no longer bypasses the engine with a bare Mongo
  * status flip (which left recipients pending and skipped transition guards).
  */
-export {
-  pauseCampaign,
-  resumeCampaign,
-  cancelCampaign,
+// `'use server'` modules can't re-export with `export { … } from`; wrap the
+// list-level async implementations (which own the engine plumbing) instead.
+import {
+  pauseCampaign as _pauseCampaign,
+  resumeCampaign as _resumeCampaign,
+  cancelCampaign as _cancelCampaign,
 } from "../actions";
+
+export async function pauseCampaign(input: { campaignId: string }) {
+  return _pauseCampaign(input);
+}
+export async function resumeCampaign(input: { campaignId: string }) {
+  return _resumeCampaign(input);
+}
+export async function cancelCampaign(input: { campaignId: string }) {
+  return _cancelCampaign(input);
+}
 
 export async function editSchedule(input: {
   campaignId: string;
