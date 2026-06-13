@@ -48,6 +48,8 @@ export type SabmailCollectionName =
 export interface SabmailCollections {
   accounts: Collection<SabmailAccount>;
   settings: Collection<SabmailSettings>;
+  /** Deliverability event stream (delivered/open/click/bounce/…) — drives analytics. */
+  events: Collection;
 }
 
 export async function getSabmailCollections(): Promise<{
@@ -58,6 +60,7 @@ export async function getSabmailCollections(): Promise<{
   const cols: SabmailCollections = {
     accounts: db.collection<SabmailAccount>(SABMAIL_COLLECTIONS.accounts),
     settings: db.collection<SabmailSettings>(SABMAIL_COLLECTIONS.settings),
+    events: db.collection(SABMAIL_COLLECTIONS.events),
   };
   return { db, cols };
 }
@@ -72,6 +75,9 @@ const INDEXES: Record<
     [{ workspaceId: 1, email: 1 }, { unique: true }],
   ],
   settings: [[{ workspaceId: 1 }, { unique: true }]],
+  // Analytics aggregates $match {workspaceId} (+ ts range) then $group by event —
+  // back them with compound indexes so they don't collection-scan at scale.
+  events: [[{ workspaceId: 1, ts: -1 }], [{ workspaceId: 1, event: 1 }]],
 };
 
 let indexesEnsured = false;

@@ -15,7 +15,9 @@ import { getErrorMessage } from '@/lib/utils';
  * A sending domain (`sabmail_domains`) carries the DNS the user must add so
  * SabMail can authenticate mail sent on their behalf: SPF (TXT), DMARC (TXT)
  * and a DKIM TXT record. Verification is REAL — it resolves the live DNS
- * records with Node's resolver and flips status accordingly.
+ * records with Node's resolver and flips status accordingly. DKIM is verified
+ * by matching the published `p=` base64 against the public key we stored for the
+ * domain (not mere presence); SPF/DMARC are matched by their version tags.
  *
  * The DKIM keypair is REAL and self-hosted: on add we generate a 2048-bit RSA
  * keypair with `node:crypto`, store ONLY the private key + selector in Mongo,
@@ -42,7 +44,7 @@ export interface SabmailDomainDoc {
   /** When the current DKIM keypair was generated. */
   dkimCreatedAt?: Date;
   status: SabmailDomainStatus;
-  checks: { spf: boolean; dmarc: boolean; checkedAt?: Date };
+  checks: { spf: boolean; dmarc: boolean; dkim: boolean; checkedAt?: Date };
   createdAt: Date;
 }
 
@@ -56,7 +58,7 @@ export interface SabmailDomainRow {
   dkimPublicKeyB64: string | null;
   dkimCreatedAt: string | null;
   status: SabmailDomainStatus;
-  checks: { spf: boolean; dmarc: boolean; checkedAt: string | null };
+  checks: { spf: boolean; dmarc: boolean; dkim: boolean; checkedAt: string | null };
   createdAt: string;
 }
 
@@ -87,6 +89,7 @@ function toRow(doc: WithId<SabmailDomainDoc>): SabmailDomainRow {
     checks: {
       spf: !!doc.checks?.spf,
       dmarc: !!doc.checks?.dmarc,
+      dkim: !!doc.checks?.dkim,
       checkedAt: doc.checks?.checkedAt ? new Date(doc.checks.checkedAt).toISOString() : null,
     },
     createdAt: new Date(doc.createdAt).toISOString(),
@@ -142,11 +145,20 @@ export async function getRecommendedRecords(
   const dkimValue = b64
     ? `v=DKIM1; k=rsa; p=${b64}`
     : 'v=DKIM1; k=rsa; p= (regenerate the DKIM key to populate this value)';
+
+  // SPF: prefer the ESP include configured via SABMAIL_SPF_INCLUDE
+  // (e.g. 'amazonses.com'), otherwise recommend a provider-agnostic policy with
+  // NO bogus host — the operator appends an `include:` once an ESP is wired in.
+  const spfInclude = (process.env.SABMAIL_SPF_INCLUDE || '').trim();
+  const spfValue = spfInclude
+    ? `v=spf1 include:${spfInclude} a mx ~all`
+    : 'v=spf1 a mx ~all'; // set SABMAIL_SPF_INCLUDE to append an ESP include (e.g. amazonses.com)
+
   return [
     {
       type: 'TXT',
       host: '@',
-      value: 'v=spf1 include:_spf.sabmail.example ~all',
+      value: spfValue,
       label: 'SPF',
     },
     {
@@ -217,7 +229,7 @@ export async function addSabmailDomain(
       dkimPublicKeyB64: keypair.publicKeyB64,
       dkimCreatedAt: now,
       status: 'pending',
-      checks: { spf: false, dmarc: false },
+      checks: { spf: false, dmarc: false, dkim: false },
       createdAt: now,
     };
     const ins = await col.insertOne(doc as never);
@@ -326,6 +338,31 @@ async function resolveTxtFlat(
   }
 }
 
+/**
+ * Pull the base64 body out of a DKIM `p=` tag and normalise it for comparison:
+ * strip surrounding quotes, then ALL whitespace (registrars line-wrap/space the
+ * key). Returns `null` when there's no `p=` tag at all. The `p=` value runs to
+ * the next semicolon (the only other DKIM tag separator) or end of string.
+ */
+function extractDkimPublicKeyB64(txt: string): string | null {
+  const m = /(?:^|;)\s*p\s*=\s*([^;]*)/i.exec(txt);
+  if (!m) return null;
+  return m[1].replace(/["']/g, '').replace(/\s+/g, '');
+}
+
+/**
+ * True when a published DKIM TXT value carries a `p=` whose base64 body matches
+ * our stored public key. Tolerant of whitespace/quotes/line-wrapping in the DNS
+ * value (see `extractDkimPublicKeyB64`); the stored key is already whitespace-
+ * free (see `generateDkimKeypair`).
+ */
+function dkimRecordMatches(txt: string, storedPublicKeyB64: string): boolean {
+  const stored = (storedPublicKeyB64 || '').replace(/\s+/g, '');
+  if (!stored) return false;
+  const published = extractDkimPublicKeyB64(txt);
+  return published !== null && published === stored;
+}
+
 export async function verifySabmailDomain(
   id: string,
 ): Promise<Result<{ domain: SabmailDomainRow }>> {
@@ -354,12 +391,26 @@ export async function verifySabmailDomain(
     const dmarcRecords = await resolveTxtFlat(dns.resolveTxt, `_dmarc.${existing.domain}`);
     const dmarc = dmarcRecords.some((r) => /^v=DMARC1\b/i.test(r.trim()));
 
+    // DKIM lives at `<selector>._domainkey.<domain>` as a TXT carrying `p=<b64>`.
+    // It's verified only when a published `p=` matches the public key we stored
+    // for this domain. A legacy domain with no stored key can never verify DKIM.
+    // `resolveTxtFlat` already swallows NXDOMAIN/ENODATA → [], so an absent
+    // record yields `dkim:false` without throwing.
+    let dkim = false;
+    if (existing.dkimPublicKeyB64) {
+      const dkimRecords = await resolveTxtFlat(
+        dns.resolveTxt,
+        `${existing.dkimSelector}._domainkey.${existing.domain}`,
+      );
+      dkim = dkimRecords.some((r) => dkimRecordMatches(r, existing.dkimPublicKeyB64 as string));
+    }
+
     const checkedAt = new Date();
-    const status: SabmailDomainStatus = spf && dmarc ? 'verified' : 'failed';
+    const status: SabmailDomainStatus = spf && dmarc && dkim ? 'verified' : 'failed';
 
     await col.updateOne(
       { _id: existing._id, workspaceId },
-      { $set: { status, checks: { spf, dmarc, checkedAt } } },
+      { $set: { status, checks: { spf, dmarc, dkim, checkedAt } } },
     );
 
     return {
@@ -367,7 +418,7 @@ export async function verifySabmailDomain(
       domain: toRow({
         ...existing,
         status,
-        checks: { spf, dmarc, checkedAt },
+        checks: { spf, dmarc, dkim, checkedAt },
       } as WithId<SabmailDomainDoc>),
     };
   } catch (err) {

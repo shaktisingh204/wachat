@@ -27,7 +27,12 @@ export type SabmailSuppressionReason =
   | 'manual';
 
 /** Where the suppression originated. */
-export type SabmailSuppressionSource = 'webhook' | 'manual' | 'import' | 'api';
+export type SabmailSuppressionSource =
+  | 'webhook'
+  | 'manual'
+  | 'import'
+  | 'api'
+  | 'list-unsubscribe';
 
 /** The stored shape of one suppression entry (one Mongo doc). */
 export interface SabmailSuppressionDoc {

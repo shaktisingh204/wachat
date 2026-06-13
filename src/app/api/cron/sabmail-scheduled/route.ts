@@ -66,6 +66,7 @@ async function handle(req: NextRequest): Promise<NextResponse> {
           bcc: item.payload?.bcc,
           subject: item.payload?.subject ?? '(no subject)',
           html: item.payload?.html,
+          unsubscribe: item.payload?.unsubscribe,
         });
         if (res.ok) {
           await col.updateOne(

@@ -7,6 +7,10 @@ import { getSabmailCollections, SABMAIL_COLLECTIONS } from '@/lib/sabmail/db/col
 import { decryptMailboxCreds } from '@/lib/sabmail/credentials';
 import { sabmailLlm } from '@/lib/sabmail/ai';
 import { isSabmailSuppressed } from '@/lib/sabmail/suppressions';
+import {
+  makeUnsubscribeToken,
+  buildUnsubscribeHeaders,
+} from '@/lib/sabmail/unsubscribe';
 import type { SabmailAccount } from '@/lib/sabmail/types';
 import { getErrorMessage } from '@/lib/utils';
 
@@ -422,6 +426,13 @@ export interface SabmailSendInput {
   references?: string[];
   /** SabFiles attachments — fetched by URL at send time. */
   attachments?: { filename: string; url: string }[];
+  /**
+   * Bulk-mail provenance: when present, this send gets a one-click
+   * `List-Unsubscribe` header (RFC 8058) + a `Feedback-ID` for Postmaster
+   * correlation. Set ONLY on campaign / bulk sends — 1:1 inbox replies omit
+   * it so they stay header-clean (transactional, never "unsubscribable").
+   */
+  unsubscribe?: { email: string; campaignId?: string };
 }
 
 /** Sanitize OUTGOING html: strip scripts/handlers but keep the user's images + formatting. */
@@ -542,6 +553,40 @@ async function sendWithLoaded(
     ? `"${account.displayName.replace(/"/g, '')}" <${account.email}>`
     : account.email;
 
+  // Bulk-mail headers (campaign sends only): one-click List-Unsubscribe (RFC
+  // 8058) + a Feedback-ID for Postmaster Tools correlation. Absent on 1:1
+  // replies so transactional mail stays clean.
+  const extraHeaders: Record<string, string> = {};
+  if (input.unsubscribe?.email) {
+    const appBaseUrl = (
+      process.env.SABMAIL_APP_URL ||
+      process.env.NEXT_PUBLIC_APP_URL ||
+      ''
+    ).trim();
+    // Skip the List-Unsubscribe header gracefully when no public URL is
+    // configured (a relative/empty link would be useless to mailbox providers).
+    if (appBaseUrl) {
+      const token = makeUnsubscribeToken(
+        loaded.workspaceId,
+        input.unsubscribe.email,
+        input.unsubscribe.campaignId,
+      );
+      Object.assign(
+        extraHeaders,
+        buildUnsubscribeHeaders(appBaseUrl, token, account.email),
+      );
+    } else {
+      // Observable failure: bulk mail without List-Unsubscribe fails Gmail/Yahoo
+      // one-click compliance. Make the misconfiguration visible in logs.
+      console.warn(
+        '[sabmail] bulk send missing SABMAIL_APP_URL/NEXT_PUBLIC_APP_URL — List-Unsubscribe header omitted',
+      );
+    }
+    // Postmaster correlation — campaign id (or 'tx') : workspace : sabmail.
+    extraHeaders['Feedback-ID'] =
+      `${input.unsubscribe.campaignId ?? 'tx'}:${loaded.workspaceId}:sabmail`;
+  }
+
   const mailOptions: Record<string, unknown> = {
     from,
     to: allowedTo,
@@ -559,6 +604,7 @@ async function sendWithLoaded(
             .map((a) => ({ filename: a.filename, href: a.url })),
         }
       : {}),
+    ...(Object.keys(extraHeaders).length ? { headers: extraHeaders } : {}),
   };
 
   const nm = (await import('nodemailer')) as any;

@@ -7,6 +7,7 @@ import {
   Clock,
   Copy,
   Globe,
+  KeyRound,
   Plus,
   RefreshCw,
   Trash2,
@@ -46,6 +47,7 @@ import { CreatingOverlay } from "@/components/sabmail/motion";
 import {
   addSabmailDomain,
   deleteSabmailDomain,
+  regenerateSabmailDkim,
   verifySabmailDomain,
   type SabmailDnsRecord,
   type SabmailDomainRow,
@@ -66,8 +68,14 @@ function recommendedRecords(
   const dkimValue = b64
     ? `v=DKIM1; k=rsa; p=${b64}`
     : "v=DKIM1; k=rsa; p= (regenerate the DKIM key to populate this value)";
+  // Provider-agnostic SPF; append an ESP include only when configured (matches
+  // the server-side SABMAIL_SPF_INCLUDE default). No bogus placeholder host.
+  const spfInclude = (process.env.NEXT_PUBLIC_SABMAIL_SPF_INCLUDE || "").trim();
+  const spfValue = spfInclude
+    ? `v=spf1 include:${spfInclude} a mx ~all`
+    : "v=spf1 a mx ~all";
   return [
-    { type: "TXT", host: "@", value: "v=spf1 include:_spf.sabmail.example ~all", label: "SPF" },
+    { type: "TXT", host: "@", value: spfValue, label: "SPF" },
     { type: "TXT", host: "_dmarc", value: `v=DMARC1; p=none; rua=mailto:dmarc@${d}`, label: "DMARC" },
     { type: "TXT", host: `${sel}._domainkey`, value: dkimValue, label: "DKIM" },
   ];
@@ -123,14 +131,18 @@ function DomainCard({
   domain,
   onVerify,
   onDelete,
+  onRegenerate,
   verifying,
   deleting,
+  regenerating,
 }: {
   domain: SabmailDomainRow;
   onVerify: (id: string) => void;
   onDelete: (id: string) => void;
+  onRegenerate: (id: string) => void;
   verifying: boolean;
   deleting: boolean;
+  regenerating: boolean;
 }) {
   const records = React.useMemo(
     () => recommendedRecords(domain.domain, domain.dkimSelector, domain.dkimPublicKeyB64),
@@ -147,7 +159,7 @@ function DomainCard({
           <div className="min-w-0">
             <CardTitle className="truncate">{domain.domain}</CardTitle>
             <CardDescription className="truncate">
-              SPF {domain.checks.spf ? "✓" : "—"} · DMARC {domain.checks.dmarc ? "✓" : "—"}
+              SPF {domain.checks.spf ? "✓" : "—"} · DMARC {domain.checks.dmarc ? "✓" : "—"} · DKIM {domain.checks.dkim ? "✓" : "—"}
               {domain.checks.checkedAt
                 ? ` · checked ${new Date(domain.checks.checkedAt).toLocaleString()}`
                 : ""}
@@ -206,7 +218,18 @@ function DomainCard({
             </TBody>
           </Table>
         </div>
-        <div className="mt-4 flex justify-end">
+        <div className="mt-4 flex justify-end gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            iconLeft={KeyRound}
+            loading={regenerating}
+            disabled={regenerating || verifying}
+            onClick={() => onRegenerate(domain.id)}
+            title="Generate a fresh DKIM keypair and update the DKIM record to publish"
+          >
+            Regenerate DKIM
+          </Button>
           <Button
             variant="primary"
             size="sm"
@@ -236,6 +259,7 @@ export function SabmailDomainsClient({
   const [busy, setBusy] = React.useState(false);
   const [verifyingId, setVerifyingId] = React.useState<string | null>(null);
   const [deletingId, setDeletingId] = React.useState<string | null>(null);
+  const [regeneratingId, setRegeneratingId] = React.useState<string | null>(null);
 
   const handleAdd = React.useCallback(async () => {
     const trimmed = newDomain.trim().toLowerCase();
@@ -272,9 +296,27 @@ export function SabmailDomainsClient({
         title: res.domain.status === "verified" ? "Domain verified" : "Records not found yet",
         description:
           res.domain.status === "verified"
-            ? "SPF and DMARC are live."
+            ? "SPF, DMARC and DKIM are live."
             : "DNS can take a while to propagate — try again shortly.",
         variant: res.domain.status === "verified" ? "default" : "destructive",
+      });
+    },
+    [toast],
+  );
+
+  const handleRegenerate = React.useCallback(
+    async (id: string) => {
+      setRegeneratingId(id);
+      const res = await regenerateSabmailDkim(id);
+      setRegeneratingId(null);
+      if (!res.ok) {
+        toast({ title: "Could not regenerate DKIM", description: res.error, variant: "destructive" });
+        return;
+      }
+      setDomains((prev) => prev.map((d) => (d.id === id ? res.domain : d)));
+      toast({
+        title: "DKIM key regenerated",
+        description: "Publish the new DKIM record, then verify.",
       });
     },
     [toast],
@@ -362,8 +404,10 @@ export function SabmailDomainsClient({
                   domain={d}
                   onVerify={(id) => void handleVerify(id)}
                   onDelete={(id) => void handleDelete(id)}
+                  onRegenerate={(id) => void handleRegenerate(id)}
                   verifying={verifyingId === d.id}
                   deleting={deletingId === d.id}
+                  regenerating={regeneratingId === d.id}
                 />
               </li>
             ))}

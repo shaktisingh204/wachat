@@ -32,6 +32,12 @@ export interface SabmailScheduledDoc {
     bcc?: string[];
     subject: string;
     html?: string;
+    /**
+     * Carried for bulk/campaign sends so the cron-driven send still emits the
+     * one-click List-Unsubscribe + Feedback-ID headers (Gmail/Yahoo bulk rules
+     * apply to scheduled sends too). Absent for plain 1:1 scheduled sends.
+     */
+    unsubscribe?: { email: string; campaignId?: string };
   };
   sendAt: Date;
   status: SabmailScheduledStatus;
@@ -68,6 +74,9 @@ export interface ScheduleSabmailSendInput {
   html?: string;
   /** ISO-8601 timestamp for when the message should be sent. */
   sendAtISO: string;
+  /** Bulk/campaign unsubscribe context — propagated to the cron send so the
+   *  List-Unsubscribe + Feedback-ID headers are emitted. */
+  unsubscribe?: { email: string; campaignId?: string };
 }
 
 function cleanList(value: string[] | undefined): string[] {
@@ -124,6 +133,7 @@ export async function scheduleSabmailSend(
     const bcc = cleanList(input.bcc);
     if (bcc.length) payload.bcc = bcc;
     if (html) payload.html = html;
+    if (input.unsubscribe?.email) payload.unsubscribe = input.unsubscribe;
 
     const now = new Date();
     const doc: SabmailScheduledDoc = {

@@ -440,6 +440,7 @@ export async function sendSabmailCampaign(
             subject,
             html,
             sendAtISO,
+            unsubscribe: { email: to, campaignId: String(_id) },
           });
           if (res.ok) queued += 1;
           else queueFailed += 1;
@@ -492,6 +493,7 @@ export async function sendSabmailCampaign(
     let bSent = 0;
     let bFailed = 0;
 
+    const campaignId = String(campaign._id);
     const sendOne = async (recipient: string, subject: string, html: string): Promise<boolean> => {
       try {
         const res = await sendSabmailMessage({
@@ -499,6 +501,8 @@ export async function sendSabmailCampaign(
           to: [recipient],
           subject,
           html,
+          // Bulk send → attach one-click List-Unsubscribe + Feedback-ID.
+          unsubscribe: { email: recipient, campaignId },
         });
         return res.ok;
       } catch {
