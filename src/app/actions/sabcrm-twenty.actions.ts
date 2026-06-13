@@ -52,6 +52,7 @@ import {
   deleteEmbeddingForRecord,
 } from '@/lib/sabcrm/embeddings.server';
 import { recomputeRollupsAround } from '@/lib/sabcrm/rollup.server';
+import { scoreWinForRecord } from '@/lib/sabcrm/predictive-scoring.server';
 import {
   validateRecordWrite,
   reparentInboundRelations,
@@ -552,6 +553,7 @@ export async function createSabcrmRecordTw(
     await recomputeFormulasForRecord(g.ctx.projectId, object, record.id);
     await indexEmbeddingForRecord(g.ctx.projectId, object, record.id);
     await recomputeRollupsAround(g.ctx.projectId, object, record.id);
+    await scoreWinForRecord(g.ctx.projectId, object, record.id);
 
     revalidatePath(`${TW_BASE_PATH}/${object}`);
     return { ok: true, data: record };
@@ -673,6 +675,7 @@ export async function updateSabcrmRecordTw(
     await recomputeFormulasForRecord(g.ctx.projectId, object, id);
     await indexEmbeddingForRecord(g.ctx.projectId, object, id);
     await recomputeRollupsAround(g.ctx.projectId, object, id);
+    await scoreWinForRecord(g.ctx.projectId, object, id);
 
     revalidatePath(`${TW_BASE_PATH}/${object}`);
     revalidatePath(`${TW_BASE_PATH}/${object}/${id}`);
