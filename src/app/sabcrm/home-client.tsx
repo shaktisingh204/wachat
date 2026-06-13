@@ -31,6 +31,13 @@ import {
   Sparkles,
   ArrowRight,
   Plus,
+  Receipt,
+  Truck,
+  Package,
+  FileText,
+  Store,
+  ClipboardList,
+  Send,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -77,6 +84,27 @@ const QUICK_ACTIONS: ReadonlyArray<{
   { href: '/sabcrm/ai', label: 'Ask AI', icon: Sparkles },
   { href: '/dashboard/settings/crm', label: 'Settings', icon: Settings },
   { href: '/sabcrm/getting-started', label: 'Getting Started', icon: Rocket },
+];
+
+/**
+ * Curated cross-suite destinations surfaced as cards on the hub — the
+ * high-value Finance / Supply / Commerce / People / Sales pages that aren't
+ * record-engine objects (so they don't appear in the object grid above).
+ */
+const HIGHLIGHT_PAGES: ReadonlyArray<{
+  href: string;
+  label: string;
+  desc: string;
+  icon: LucideIcon;
+}> = [
+  { href: '/sabcrm/finance/invoices', label: 'Invoices', desc: 'Create, issue and collect billing documents.', icon: Receipt },
+  { href: '/sabcrm/supply/vendors', label: 'Vendors', desc: 'Suppliers — GSTIN, banking and contacts.', icon: Truck },
+  { href: '/sabcrm/supply/items', label: 'Items', desc: 'Inventory catalog — SKUs, stock and pricing.', icon: Package },
+  { href: '/sabcrm/supply/purchase-orders', label: 'Purchase orders', desc: 'Procure from vendors; receive via GRN.', icon: FileText },
+  { href: '/sabcrm/commerce/register', label: 'POS register', desc: 'Ring up sales — cart, payments, hold & recall.', icon: Store },
+  { href: '/sabcrm/commerce/orders', label: 'Orders', desc: 'Storefront orders, payment and fulfilment.', icon: ClipboardList },
+  { href: '/sabcrm/people/employees', label: 'Employees', desc: 'Team directory, attendance and payroll.', icon: Users },
+  { href: '/sabcrm/sequences', label: 'Sequences', desc: 'Automated multi-step outreach cadences.', icon: Send },
 ];
 
 export function SabcrmHomeClient(): React.JSX.Element {
@@ -209,6 +237,31 @@ export function SabcrmHomeClient(): React.JSX.Element {
             })}
           </ul>
         )}
+
+        <section className="hub-highlights" aria-label="Highlighted pages">
+          <h2 className="hub-section-title">Highlights</h2>
+          <ul className="hub-grid">
+            {HIGHLIGHT_PAGES.map(({ href, label, desc, icon: Icon }) => (
+              <li key={href} className="hub-grid__item">
+                <Card variant="interactive" padding="none" className="hub-card-shell">
+                  <Link href={href} className="hub-card" aria-label={`${label}, open`}>
+                    <div className="hub-card__top">
+                      <span className="hub-card__icon" aria-hidden="true">
+                        <Icon size={18} />
+                      </span>
+                      <span className="hub-card__label">{label}</span>
+                    </div>
+                    <span className="hub-card__desc">{desc}</span>
+                    <span className="hub-card__cta">
+                      Open
+                      <ArrowRight size={13} aria-hidden="true" />
+                    </span>
+                  </Link>
+                </Card>
+              </li>
+            ))}
+          </ul>
+        </section>
 
         <nav className="hub-quick" aria-label="Quick links">
           {QUICK_ACTIONS.map(({ href, label, icon: Icon }) => (

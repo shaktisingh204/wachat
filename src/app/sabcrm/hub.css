@@ -37,6 +37,26 @@
   display: flex;
 }
 
+/* Highlighted-pages section (cross-suite destination cards) ---------------- */
+:is(.\32 0ui, .ui20) .hub-highlights {
+  margin-top: var(--st-space-2);
+}
+
+:is(.\32 0ui, .ui20) .hub-section-title {
+  margin: 0;
+  color: var(--st-text-secondary);
+  font-size: var(--st-font-size-sm);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* The section provides its own heading spacing, so the reused grid below it
+   shouldn't add the object-grid's large top margin. */
+:is(.\32 0ui, .ui20) .hub-highlights .hub-grid {
+  margin: var(--st-space-3) 0 var(--st-space-6);
+}
+
 /* Interactive 20ui Card shell wraps each object link; it owns the chrome
    (border, radius, hover lift, press, focus ring). The inner link is
    layout-only and stretches to fill the shell. */
