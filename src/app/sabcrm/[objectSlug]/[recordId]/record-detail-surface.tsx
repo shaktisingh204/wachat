@@ -42,6 +42,7 @@ import {
   Link2,
   Mail,
   MessageCircle,
+  MessageSquare,
   MoreHorizontal,
   Paperclip,
   Pencil,
@@ -135,6 +136,7 @@ import {
 } from '../record-surface-adapter';
 import { RecordDetailWhatsappTab } from './record-detail-whatsapp-tab';
 import { RecordDetailEmailTab } from './record-detail-email-tab';
+import { CommentsPanel } from './_comments/comments-panel';
 
 /* -------------------------------------------------------------- constants */
 
@@ -1767,6 +1769,18 @@ export function RecordDetailSurface(): React.JSX.Element {
             relations={relations}
             error={relationsError}
             allObjects={allObjects}
+          />
+        ),
+      },
+      {
+        id: 'comments',
+        label: 'Comments',
+        icon: MessageSquare,
+        content: (
+          <CommentsPanel
+            object={objectSlug}
+            recordId={recordId}
+            projectId={activeProjectId ?? undefined}
           />
         ),
       },

@@ -61,6 +61,7 @@ import {
   Wallet,
   Workflow,
   LifeBuoy,
+  Megaphone,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -74,6 +75,7 @@ import {
 import { CommandMenu } from '@/components/sabcrm/command-menu';
 import { useCommandMenu } from '@/components/sabcrm/use-command-menu';
 import { WorkspaceSwitcher } from '@/components/sabcrm/workspace-switcher';
+import { NotificationBell } from '@/components/sabcrm/notification-bell';
 import {
   SabcrmSettingsProvider,
   buildSabcrmFormatters,
@@ -333,6 +335,7 @@ export function SabcrmSuiteFrame({ children }: { children: React.ReactNode }) {
       { group: 'insights', id: 'reports', label: 'Reports', href: '/sabcrm/reports', icon: BarChart3 },
       { group: 'insights', id: 'data-quality', label: 'Data health', href: '/sabcrm/data-quality', icon: ShieldCheck },
       { group: 'insights', id: 'nba', label: 'Next best action', href: '/sabcrm/nba', icon: Sparkles },
+      { group: 'insights', id: 'attribution', label: 'Attribution', href: '/sabcrm/attribution', icon: Megaphone },
       { group: 'insights', id: 'activity', label: 'Activity', href: '/sabcrm/activity', icon: Activity },
       { group: 'insights', id: 'calendar', label: 'Calendar', href: '/sabcrm/calendar', icon: Calendar },
       { group: 'insights', id: 'map', label: 'Map', href: '/sabcrm/map', icon: MapPin },
@@ -440,7 +443,14 @@ export function SabcrmSuiteFrame({ children }: { children: React.ReactNode }) {
             caption={settingsValue.general.workspaceName || 'Suite workspace'}
             groups={groups}
             searchPlaceholder="Filter navigation…"
-            footer={<WorkspaceSwitcher />}
+            footer={
+              <div className="flex items-center gap-2">
+                <NotificationBell />
+                <div className="flex-1 min-w-0">
+                  <WorkspaceSwitcher />
+                </div>
+              </div>
+            }
           />
           <main className="st-main">{children}</main>
         </div>

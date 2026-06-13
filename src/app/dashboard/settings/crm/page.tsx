@@ -327,6 +327,12 @@ const GROUPS: readonly SettingsGroup[] = [
         icon: Webhook,
       },
       {
+        slug: 'webhook-deliveries',
+        label: 'Webhook deliveries',
+        description: 'Signed delivery log + retries',
+        icon: Webhook,
+      },
+      {
         slug: 'playground',
         label: 'API Playground',
         description: 'Test the REST record API live',

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="SabCRM">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#6366f1"/>
+      <stop offset="1" stop-color="#8b5cf6"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#g)"/>
+  <path fill="#ffffff" d="M256 120c-74 0-134 56-134 126 0 70 60 126 134 126 38 0 73-15 98-40l-42-38c-14 14-34 22-56 22-42 0-76-32-76-70s34-70 76-70c22 0 42 8 56 22l42-38c-25-25-60-40-98-40z"/>
+  <circle cx="256" cy="246" r="20" fill="#ffffff"/>
+</svg>

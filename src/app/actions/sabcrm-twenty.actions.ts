@@ -56,6 +56,10 @@ import { captureOutcome, patchTouchesStage } from '@/lib/sabcrm/win-loss.server'
 import { recomputeLookupsForRecord } from '@/lib/sabcrm/lookup.server';
 import { applyRecordTypeDefaults } from '@/lib/sabcrm/record-types.server';
 import { recomputeSlaForCase, CASES_SLUG } from '@/lib/sabcrm/cases.server';
+import {
+  fanoutRecordCreated,
+  fanoutRecordUpdated,
+} from '@/lib/sabcrm/record-fanout.server';
 import { scoreWinForRecord } from '@/lib/sabcrm/predictive-scoring.server';
 import {
   validateRecordWrite,
@@ -565,6 +569,14 @@ export async function createSabcrmRecordTw(
     if (object === CASES_SLUG) {
       await recomputeSlaForCase(g.ctx.projectId, record.id);
     }
+    // Collaboration / attribution / signed-webhook fan-out (best-effort).
+    await fanoutRecordCreated(
+      g.ctx.projectId,
+      g.ctx.userId,
+      object,
+      record.id,
+      data ?? {},
+    );
 
     revalidatePath(`${TW_BASE_PATH}/${object}`);
     return { ok: true, data: record };
@@ -713,6 +725,15 @@ export async function updateSabcrmRecordTw(
         record.data ?? patch,
       );
     }
+    // Collaboration / attribution / signed-webhook fan-out (best-effort).
+    await fanoutRecordUpdated(
+      g.ctx.projectId,
+      g.ctx.userId,
+      object,
+      id,
+      patch,
+      record.data ?? {},
+    );
 
     revalidatePath(`${TW_BASE_PATH}/${object}`);
     revalidatePath(`${TW_BASE_PATH}/${object}/${id}`);

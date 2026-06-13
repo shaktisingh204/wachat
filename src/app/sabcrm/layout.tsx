@@ -21,6 +21,7 @@ import { redirect } from 'next/navigation';
 import { SabcrmSuiteFrame } from '@/components/sabcrm/sabcrm-suite-frame';
 import { SabcrmOuterShell } from '@/components/sabcrm/sabcrm-outer-shell';
 import { SabcrmActorNameProvider } from '@/components/sabcrm/sabcrm-actors-context';
+import { PwaRegister } from '@/components/sabcrm/pwa-register';
 import { getCachedSession, getCachedProjects } from '@/lib/server-cache';
 import { RBACGuard } from '@/components/20ui-domain/rbac-guard';
 import { ProjectProvider } from '@/context/project-context';
@@ -68,6 +69,7 @@ export default async function SabcrmLayout({
     <RBACGuard>
       <LocaleProvider initialLocale={locale}>
         <ProjectProvider initialProjects={projects} user={user}>
+          <PwaRegister />
           <SabcrmActorNameProvider>
             <SabcrmOuterShell
               user={{
