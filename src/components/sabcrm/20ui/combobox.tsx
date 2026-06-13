@@ -141,6 +141,15 @@ export const Combobox = React.forwardRef<HTMLInputElement, ComboboxProps>(
 
     const isAsync = typeof onSearch === 'function';
 
+    // Hold the latest resolver in a ref so the debounced async effect below does
+    // NOT depend on `onSearch`'s identity. Callers routinely pass an inline
+    // resolver (a new function every render — e.g. doc-surface `config` object
+    // literals); if the effect listed `onSearch`, each run's `setLoading` would
+    // re-render → new `onSearch` → cleanup cancels the pending fetch → repeat,
+    // so the debounced fetch never resolves and every picker shows "No matches".
+    const onSearchRef = React.useRef(onSearch);
+    onSearchRef.current = onSearch;
+
     // Resolve the currently-selected option's label for the closed state.
     const selectedOption = React.useMemo<ComboboxOption | null>(() => {
       if (value == null) return null;
@@ -164,7 +173,7 @@ export const Combobox = React.forwardRef<HTMLInputElement, ComboboxProps>(
       let cancelled = false;
       setLoading(true);
       const handle = window.setTimeout(() => {
-        Promise.resolve(onSearch!(query))
+        Promise.resolve(onSearchRef.current!(query))
           .then((res) => {
             if (cancelled) return;
             setResults(res);
@@ -187,7 +196,7 @@ export const Combobox = React.forwardRef<HTMLInputElement, ComboboxProps>(
         cancelled = true;
         window.clearTimeout(handle);
       };
-    }, [isAsync, open, query, debounceMs, onSearch]);
+    }, [isAsync, open, query, debounceMs]);
 
     const enabled = React.useMemo(
       () => results.map((o, i) => ({ o, i })).filter(({ o }) => !o.disabled),
