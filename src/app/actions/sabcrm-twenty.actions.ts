@@ -48,6 +48,10 @@ import {
 import { recomputeScoresForRecord } from '@/lib/sabcrm/scoring.server';
 import { recomputeFormulasForRecord } from '@/lib/sabcrm/formula.server';
 import {
+  indexEmbeddingForRecord,
+  deleteEmbeddingForRecord,
+} from '@/lib/sabcrm/embeddings.server';
+import {
   validateRecordWrite,
   reparentInboundRelations,
 } from '@/lib/sabcrm/data-quality.server';
@@ -545,6 +549,7 @@ export async function createSabcrmRecordTw(
     // (best-effort; writes data.score/scoreTier without bumping updatedAt).
     await recomputeScoresForRecord(g.ctx.projectId, object, record.id);
     await recomputeFormulasForRecord(g.ctx.projectId, object, record.id);
+    await indexEmbeddingForRecord(g.ctx.projectId, object, record.id);
 
     revalidatePath(`${TW_BASE_PATH}/${object}`);
     return { ok: true, data: record };
@@ -664,6 +669,7 @@ export async function updateSabcrmRecordTw(
     // (best-effort; reads the merged record, skips when inputs are unchanged).
     await recomputeScoresForRecord(g.ctx.projectId, object, id);
     await recomputeFormulasForRecord(g.ctx.projectId, object, id);
+    await indexEmbeddingForRecord(g.ctx.projectId, object, id);
 
     revalidatePath(`${TW_BASE_PATH}/${object}`);
     revalidatePath(`${TW_BASE_PATH}/${object}/${id}`);
@@ -710,9 +716,12 @@ export async function mergeSabcrmRecordsTw(
       secondaryId,
       data,
     });
-    // Re-score + re-evaluate formulas on the survivor (its merged data changed).
+    // Re-score + re-evaluate formulas + re-embed the survivor; drop the loser's
+    // vector (its record was hard-deleted by the merge).
     await recomputeScoresForRecord(g.ctx.projectId, object, primaryId);
     await recomputeFormulasForRecord(g.ctx.projectId, object, primaryId);
+    await indexEmbeddingForRecord(g.ctx.projectId, object, primaryId);
+    await deleteEmbeddingForRecord(g.ctx.projectId, object, secondaryId);
     revalidatePath(`${TW_BASE_PATH}/${object}`);
     revalidatePath(`${TW_BASE_PATH}/${object}/${primaryId}`);
     return { ok: true, data: record };
@@ -752,6 +761,8 @@ export async function deleteSabcrmRecordTw(
       {},
       g.ctx.userId,
     );
+    // Drop the record's embedding so semantic search can't surface a ghost.
+    await deleteEmbeddingForRecord(g.ctx.projectId, object, id);
 
     revalidatePath(`${TW_BASE_PATH}/${object}`);
     return { ok: true, data: { ok: res.ok } };

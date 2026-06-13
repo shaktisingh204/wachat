@@ -41,21 +41,38 @@ export function queryTerms(query: string): string[] {
   );
 }
 
-/** Flatten a record's searchable text (label + primitive data values). */
-function recordText(rec: RagCandidate): string {
+/** Max chars fed to the embedding model (well under its ~8k-token ceiling). */
+export const EMBED_TEXT_CAP = 8000;
+
+/**
+ * Flatten a record's searchable text (label + primitive data values).
+ *
+ * - `embeddable = false` (default, keyword path): lowercased, all fields —
+ *   byte-identical to the original behavior.
+ * - `embeddable = true` (embedding path): case PRESERVED (models are
+ *   case-aware), reserved `__*` meta fields skipped, and capped at
+ *   {@link EMBED_TEXT_CAP} chars so an oversized record can't overflow the
+ *   model's token limit.
+ */
+export function recordText(rec: RagCandidate, embeddable = false): string {
   const parts: string[] = [rec.label || '', rec.object || ''];
-  for (const v of Object.values(rec.data ?? {})) {
+  for (const [k, v] of Object.entries(rec.data ?? {})) {
+    if (embeddable && k.startsWith('__')) continue;
     if (v === null || v === undefined) continue;
     if (typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean') {
       parts.push(String(v));
     } else if (typeof v === 'object') {
-      for (const k of ['label', 'name', 'value', 'title']) {
-        const c = (v as Record<string, unknown>)[k];
+      for (const kk of ['label', 'name', 'value', 'title']) {
+        const c = (v as Record<string, unknown>)[kk];
         if (typeof c === 'string' || typeof c === 'number') parts.push(String(c));
       }
     }
   }
-  return parts.join(' ').toLowerCase();
+  const joined = parts.join(' ');
+  if (embeddable) {
+    return joined.length > EMBED_TEXT_CAP ? joined.slice(0, EMBED_TEXT_CAP) : joined;
+  }
+  return joined.toLowerCase();
 }
 
 /** Keyword score = sum of term occurrence counts in the record's text. */

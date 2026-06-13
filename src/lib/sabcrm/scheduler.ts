@@ -97,6 +97,10 @@ import {
   listProjectsWithFormulas,
   recomputeAllProjectFormulas,
 } from './formula.server';
+import {
+  listProjectsWithEmbeddings,
+  reindexAllProjectEmbeddings,
+} from './embeddings.server';
 
 // ---------------------------------------------------------------------------
 // Caps — keep one invocation well inside the 300s function budget.
@@ -1998,6 +2002,28 @@ export async function runDueWorkflows(): Promise<SchedulerReport> {
         const formulaProjects = await listProjectsWithFormulas(db);
         for (const projectId of formulaProjects.slice(0, MAX_SCORING_PROJECTS_PER_RUN)) {
             const sweeps = await recomputeAllProjectFormulas(
+                projectId,
+                MAX_SCORING_RECORDS_PER_OBJECT,
+            );
+            for (const s of sweeps) {
+                if (s.scanned === 0 && s.updated === 0) continue;
+                report.scores.push({ projectId, ...s });
+                if (s.updated > 0) report.ran += 1;
+            }
+        }
+    } catch {
+        report.failed += 1;
+    }
+
+    // --- 9. Semantic embeddings backstop -----------------------------------
+    // Re-embed records changed out-of-band, for OPTED-IN projects only
+    // (listProjectsWithEmbeddings returns projects that already hold vectors).
+    // Dirty-skip (textHash) makes steady state ~free; cold backlog converges
+    // over ticks under the same caps as the scoring/formula sweeps.
+    try {
+        const embProjects = await listProjectsWithEmbeddings(db);
+        for (const projectId of embProjects.slice(0, MAX_SCORING_PROJECTS_PER_RUN)) {
+            const sweeps = await reindexAllProjectEmbeddings(
                 projectId,
                 MAX_SCORING_RECORDS_PER_OBJECT,
             );

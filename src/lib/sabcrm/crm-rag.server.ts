@@ -17,6 +17,7 @@ import 'server-only';
 import { listRecords } from './records.server';
 import { listObjects } from './objects.server';
 import { generateSabcrmText } from './ai-llm.server';
+import { semanticSearch } from './embeddings.server';
 import {
   rankCandidates,
   buildGroundingContext,
@@ -43,9 +44,47 @@ export type GroundedAnswer =
   | { ok: false; error: string };
 
 /**
+ * Keyword retrieval: owner-scoped substring search across the top objects,
+ * then keyword-relevance ranked. Best-effort (failures → fewer candidates).
+ */
+async function keywordRetrieve(
+  projectId: string,
+  userId: string,
+  q: string,
+  topK: number,
+): Promise<RagCandidate[]> {
+  const candidates: RagCandidate[] = [];
+  try {
+    const objects = await listObjects(projectId);
+    for (const obj of objects.slice(0, MAX_OBJECTS)) {
+      try {
+        const page = await listRecords(projectId, userId, {
+          object: obj.slug,
+          search: q,
+          pageSize: PER_OBJECT,
+        });
+        for (const r of page.records) {
+          candidates.push({ id: r._id, object: obj.slug, label: r.label, data: r.data ?? {} });
+        }
+      } catch {
+        /* skip an object that fails to search */
+      }
+    }
+  } catch {
+    /* no objects / engine down → empty */
+  }
+  return rankCandidates(candidates, q, topK);
+}
+
+/**
  * Answer a natural-language question grounded in the project's records.
- * Owner-scoped via `listRecords`. Never throws — retrieval failures degrade to
- * an empty context (the LLM then says nothing matched).
+ *
+ * Prefers SEMANTIC retrieval (embed query → cosine over `sabcrm_embeddings` →
+ * ACL-hydrated through the owner-scoped read in `semanticSearch`); falls back
+ * to keyword retrieval when embeddings are unavailable/unconfigured OR return
+ * nothing (cold index). Semantic candidates are already cosine-ranked, so they
+ * go straight to the context builder — running keyword `rankCandidates` on them
+ * would wrongly drop semantic-only matches. Never throws.
  */
 export async function groundedCrmAnswer(
   projectId: string,
@@ -55,40 +94,17 @@ export async function groundedCrmAnswer(
   const q = (query || '').trim();
   if (!q) return { ok: false, error: 'A question is required.' };
 
-  // 1. Retrieve candidates across the most relevant objects (best-effort).
-  const candidates: RagCandidate[] = [];
-  try {
-    const objects = await listObjects(projectId);
-    const scanned = objects.slice(0, MAX_OBJECTS);
-    for (const obj of scanned) {
-      try {
-        const page = await listRecords(projectId, userId, {
-          object: obj.slug,
-          search: q,
-          pageSize: PER_OBJECT,
-        });
-        for (const r of page.records) {
-          candidates.push({
-            id: r._id,
-            object: obj.slug,
-            label: r.label,
-            data: r.data ?? {},
-          });
-        }
-      } catch {
-        /* skip an object that fails to search */
-      }
-    }
-  } catch {
-    /* no objects / engine down → empty context */
+  let ranked: RagCandidate[];
+  const semantic = await semanticSearch(projectId, userId, q, { topK: TOP_K });
+  if (semantic && semantic.length > 0) {
+    ranked = semantic; // already ranked + ACL-hydrated — do NOT re-rank
+  } else {
+    ranked = await keywordRetrieve(projectId, userId, q, TOP_K);
   }
 
-  // 2. Rank + build the grounded prompt (pure).
-  const ranked = rankCandidates(candidates, q, TOP_K);
   const context = buildGroundingContext(ranked);
   const prompt = buildGroundedPrompt(q, context);
 
-  // 3. Ask the shared LLM (honest if unconfigured).
   const llm = await generateSabcrmText({ system: ASK_CRM_SYSTEM, prompt });
   if (!llm.ok) return { ok: false, error: llm.error };
 
