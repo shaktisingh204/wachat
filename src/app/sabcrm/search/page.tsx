@@ -75,6 +75,7 @@ import {
 } from 'lucide-react';
 
 import { globalSearchTw } from '@/app/actions/sabcrm-search.actions';
+import { searchTextTw } from '@/app/actions/sabcrm-textsearch.actions';
 import type { GlobalSearchHit } from '@/app/actions/sabcrm-search.actions.types';
 import {
   listSabcrmObjectsTw,
@@ -401,7 +402,17 @@ export default function SabcrmSearchPage(): React.JSX.Element {
     setSearching(true);
     setSearchError(null);
 
-    void globalSearchTw(q, activeProjectId ?? undefined).then((res) => {
+    void (async (): Promise<
+      { ok: true; data: GlobalHit[] } | { ok: false; error: string }
+    > => {
+      // Prefer the indexed ($text-ranked) search; fall back to the substring
+      // engine when it returns no index hit (or the term is index-ineligible).
+      const indexed = await searchTextTw(q, activeProjectId ?? undefined);
+      if (indexed.ok && indexed.data.length > 0) {
+        return { ok: true, data: indexed.data };
+      }
+      return globalSearchTw(q, activeProjectId ?? undefined);
+    })().then((res) => {
       if (cancelled || myReq !== reqIdRef.current) return; // superseded
 
       if (!res.ok) {

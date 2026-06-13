@@ -41,6 +41,7 @@ import {
   type DedupRecord,
   type DedupCluster,
 } from './dedup-match';
+import { validateDependencies } from './field-deps.server';
 
 export {
   evaluateValidation,
@@ -189,8 +190,28 @@ export async function validateRecordWrite(
 ): Promise<ValidationResult> {
   try {
     const sets = await listEnabledValidationSetsForObject(projectId, objectSlug);
-    if (sets.length === 0) return { ok: true, blocked: [], warnings: [] };
-    return mergeValidationResults(sets.map((s) => evaluateValidation(s, data)));
+    const base: ValidationResult =
+      sets.length === 0
+        ? { ok: true, blocked: [], warnings: [] }
+        : mergeValidationResults(sets.map((s) => evaluateValidation(s, data)));
+    // Dependent-picklist enforcement: a disallowed controlling/dependent combo
+    // becomes a `block` violation. Best-effort — validateDependencies degrades
+    // to ok when no rule restricts the data or the config read fails.
+    const dep = await validateDependencies(projectId, objectSlug, data);
+    if (!dep.ok) {
+      return {
+        ok: false,
+        blocked: [
+          ...base.blocked,
+          ...dep.violations.map((v) => ({
+            ruleId: v.dependencyId,
+            message: v.message,
+          })),
+        ],
+        warnings: base.warnings,
+      };
+    }
+    return base;
   } catch {
     return { ok: true, blocked: [], warnings: [] };
   }

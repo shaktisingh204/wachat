@@ -164,6 +164,15 @@ export async function upsertRecordType(
       );
     const saved = await getRecordType(projectId, input.id);
     if (saved) return saved;
+    // The upsert ran against _id=input.id; if the read-back transiently missed,
+    // construct the result from known fields rather than inserting a DUPLICATE
+    // doc with a fresh auto _id.
+    return toRecordType({
+      _id: new ObjectId(input.id),
+      projectId,
+      createdAt: now,
+      ...fields,
+    });
   }
   const res = await db
     .collection(RECORD_TYPES_COLL)

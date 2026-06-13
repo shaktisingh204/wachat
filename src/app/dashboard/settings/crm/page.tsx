@@ -34,6 +34,9 @@ import {
   Flag,
   MailOpen,
   CalendarClock,
+  Link2,
+  ListChecks,
+  Inbox,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -232,6 +235,36 @@ const GROUPS: readonly SettingsGroup[] = [
         label: 'Rollup fields',
         description: 'Aggregate related records onto a parent field',
         icon: Sigma,
+      },
+      {
+        slug: 'lookups',
+        label: 'Lookup fields',
+        description: 'Mirror a value from a related parent record',
+        icon: Link2,
+      },
+      {
+        slug: 'value-sets',
+        label: 'Global value sets',
+        description: 'Reusable picklists shared by many SELECT fields',
+        icon: ListChecks,
+      },
+      {
+        slug: 'field-dependencies',
+        label: 'Field dependencies',
+        description: 'Dependent picklists — option lists controlled by another field',
+        icon: Network,
+      },
+      {
+        slug: 'record-types',
+        label: 'Record types',
+        description: 'Per-object variants that constrain picklists + map a layout',
+        icon: Boxes,
+      },
+      {
+        slug: 'auto-capture',
+        label: 'Activity auto-capture',
+        description: 'Auto-log inbound email and calendar events as activities',
+        icon: Inbox,
       },
       {
         slug: 'forecast-adjustments',

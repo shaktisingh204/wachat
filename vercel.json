@@ -58,6 +58,10 @@
       "schedule": "*/5 * * * *"
     },
     {
+      "path": "/api/cron/sabcrm-autocapture",
+      "schedule": "*/15 * * * *"
+    },
+    {
       "path": "/api/cron/sabpay-settlements",
       "schedule": "30 1 * * *"
     },

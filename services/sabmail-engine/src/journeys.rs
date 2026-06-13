@@ -78,6 +78,80 @@ fn node_data_i64(node: &Document, key: &str) -> Option<i64> {
     })
 }
 
+/// Read a numeric `data.<key>` tolerating bson Double / Int64 / Int32 (the
+/// React-Flow editor writes a JS number → bson Double, which `node_data_i64`
+/// would miss).
+fn node_data_num(node: &Document, key: &str) -> Option<f64> {
+    let d = node.get_document("data").ok()?;
+    d.get_f64(key)
+        .ok()
+        .or_else(|| d.get_i64(key).ok().map(|v| v as f64))
+        .or_else(|| d.get_i32(key).ok().map(|v| v as f64))
+}
+
+/// Read a `data.<key>` string normalized (trimmed + lowercased) — for unit names.
+fn node_data_unit(node: &Document, key: &str) -> Option<String> {
+    node.get_document("data")
+        .ok()
+        .and_then(|d| d.get_str(key).ok())
+        .map(|s| s.trim().to_lowercase())
+        .filter(|s| !s.is_empty())
+}
+
+/// Seconds per time unit — mirrors the TS engine's MS_PER_UNIT table
+/// (src/lib/sabmail/journey-engine.ts). Unknown units return None so the caller
+/// can apply the same `?? days` default the TS side uses.
+fn unit_to_secs(unit: &str) -> Option<f64> {
+    match unit {
+        "ms" | "millisecond" | "milliseconds" => Some(0.001),
+        "s" | "sec" | "secs" | "second" | "seconds" => Some(1.0),
+        "m" | "min" | "mins" | "minute" | "minutes" => Some(60.0),
+        "h" | "hr" | "hrs" | "hour" | "hours" => Some(3_600.0),
+        "d" | "day" | "days" => Some(86_400.0),
+        "w" | "week" | "weeks" => Some(604_800.0),
+        _ => None,
+    }
+}
+
+/// Resolve a wait node's delay in SECONDS, mirroring the TS `readDelayMs`
+/// (src/lib/sabmail/journey-engine.ts). Precedence: explicit delayMs/durationMs;
+/// then amount (delay/duration/amount/value/wait) × unit (default days); then
+/// legacy delaySeconds; then a 24h fallback. Without this the editor's
+/// `{ delay, unit }` shape never matched and every Rust-engine wait collapsed
+/// to 24h.
+fn read_delay_secs(node: &Document) -> i64 {
+    // (a) explicit milliseconds
+    if let Some(ms) = node_data_num(node, "delayMs").or_else(|| node_data_num(node, "durationMs")) {
+        if ms.is_finite() && ms > 0.0 {
+            return (ms / 1000.0).max(1.0) as i64;
+        }
+    }
+    // (b) amount × unit
+    let amount = node_data_num(node, "delay")
+        .or_else(|| node_data_num(node, "duration"))
+        .or_else(|| node_data_num(node, "amount"))
+        .or_else(|| node_data_num(node, "value"))
+        .or_else(|| node_data_num(node, "wait"));
+    if let Some(amount) = amount {
+        if amount.is_finite() && amount > 0.0 {
+            let unit = node_data_unit(node, "unit")
+                .or_else(|| node_data_unit(node, "delayUnit"))
+                .or_else(|| node_data_unit(node, "durationUnit"))
+                .unwrap_or_else(|| "days".to_string());
+            let unit_secs = unit_to_secs(&unit).unwrap_or(86_400.0);
+            return (amount * unit_secs).max(1.0) as i64;
+        }
+    }
+    // (c) legacy delaySeconds
+    if let Some(s) = node_data_i64(node, "delaySeconds") {
+        if s > 0 {
+            return s;
+        }
+    }
+    // (d) default 24h
+    86_400
+}
+
 /// One tick: advance up to `limit` active runs whose `nextRunAt` is due.
 pub async fn tick(state: &Arc<AppState>) -> EngineResult<TickResult> {
     let mut out = TickResult::default();
@@ -183,7 +257,7 @@ pub async fn tick(state: &Arc<AppState>) -> EngineResult<TickResult> {
                 }
             }
             "wait" => {
-                let delay = node_data_i64(node, "delaySeconds").unwrap_or(86_400).max(1);
+                let delay = read_delay_secs(node).max(1);
                 let next_at = BsonDateTime::from_millis(
                     (now + chrono::Duration::seconds(delay)).timestamp_millis(),
                 );

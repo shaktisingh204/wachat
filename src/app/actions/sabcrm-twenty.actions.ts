@@ -53,6 +53,8 @@ import {
 } from '@/lib/sabcrm/embeddings.server';
 import { recomputeRollupsAround } from '@/lib/sabcrm/rollup.server';
 import { captureOutcome, patchTouchesStage } from '@/lib/sabcrm/win-loss.server';
+import { recomputeLookupsForRecord } from '@/lib/sabcrm/lookup.server';
+import { applyRecordTypeDefaults } from '@/lib/sabcrm/record-types.server';
 import { scoreWinForRecord } from '@/lib/sabcrm/predictive-scoring.server';
 import {
   validateRecordWrite,
@@ -502,6 +504,9 @@ export async function createSabcrmRecordTw(
 
   try {
     data = await maybeNormalizePhones(object, g.ctx.projectId, data ?? {});
+    // Record types: seed the chosen variant's default field values before
+    // validation + create see them (no-op when data.recordTypeId is unset).
+    data = await applyRecordTypeDefaults(g.ctx.projectId, object, data ?? {});
     // Data-quality: block the create when a `block` validation rule fires.
     const vCreate = await validateRecordWrite(g.ctx.projectId, object, data ?? {});
     if (!vCreate.ok) {
@@ -552,6 +557,7 @@ export async function createSabcrmRecordTw(
     // (best-effort; writes data.score/scoreTier without bumping updatedAt).
     await recomputeScoresForRecord(g.ctx.projectId, object, record.id);
     await recomputeFormulasForRecord(g.ctx.projectId, object, record.id);
+    await recomputeLookupsForRecord(g.ctx.projectId, object, record.id);
     await indexEmbeddingForRecord(g.ctx.projectId, object, record.id);
     await recomputeRollupsAround(g.ctx.projectId, object, record.id);
     await scoreWinForRecord(g.ctx.projectId, object, record.id);
@@ -674,6 +680,7 @@ export async function updateSabcrmRecordTw(
     // (best-effort; reads the merged record, skips when inputs are unchanged).
     await recomputeScoresForRecord(g.ctx.projectId, object, id);
     await recomputeFormulasForRecord(g.ctx.projectId, object, id);
+    await recomputeLookupsForRecord(g.ctx.projectId, object, id);
     await indexEmbeddingForRecord(g.ctx.projectId, object, id);
     await recomputeRollupsAround(g.ctx.projectId, object, id);
     await scoreWinForRecord(g.ctx.projectId, object, id);
