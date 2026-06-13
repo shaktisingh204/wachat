@@ -15,6 +15,9 @@ import { CanvasHandle } from '../handles/CanvasHandle';
 import { CanvasConnectionMode, type CanvasNode, type CanvasNodeData } from '../types';
 import { blockRegistryMap } from '@/components/sabflow/editor/blockRegistry';
 import { getBlockIcon, getBlockColor } from '@/lib/sabflow/blocks';
+import { getBlockBrandIcon, getBrandIconForSlug } from '@/lib/sabflow/blocks/icons';
+import { normalizeAppSlug } from '@/lib/sabflow/editor-catalog/useAppCatalog';
+import { BrandIcon } from '@/components/sabflow/BrandIcon';
 import { cn } from '@/lib/utils';
 
 type Props = NodeProps<CanvasNode> & {
@@ -101,6 +104,26 @@ export const CanvasNodeDefault = memo(function CanvasNodeDefault({
     entry?.icon ?? (d.blockType ? getBlockIcon(d.blockType) ?? undefined : undefined);
   const accent =
     entry?.color ?? (d.blockType ? getBlockColor(d.blockType) : 'var(--st-accent)');
+  // Real provider logo (Slack, OpenAI, Notion, …) for forge/preset/integration
+  // nodes — a locally vendored `/brand-logos/*.svg` or an iconify `logos:` mark.
+  // Resolved the same way the node palette does (useAppCatalog) so a node keeps
+  // its brand mark on the canvas after being dropped:
+  //   • app-preset instances carry the provider in `options.presetId`
+  //     (blockType is the generic `forge_app_preset` dispatcher)
+  //   • forge / rust integration blocks encode the provider in the block type
+  //   • otherwise a vendored slug logo may still match
+  // Falls back to the tinted Lucide icon below when nothing maps.
+  // `forge_app_preset` is a runtime dispatcher type the catalog casts onto
+  // `BlockType` (it isn't a literal member of the union), so compare as string.
+  const rawPresetId =
+    (d.blockType as string) === 'forge_app_preset'
+      ? d.block?.options?.presetId
+      : undefined;
+  const presetId = typeof rawPresetId === 'string' ? rawPresetId : undefined;
+  const brand =
+    (presetId ? getBrandIconForSlug(normalizeAppSlug(presetId)) : null) ??
+    (d.blockType ? getBlockBrandIcon(d.blockType) : null) ??
+    (d.blockType ? getBrandIconForSlug(normalizeAppSlug(d.blockType)) : null);
 
   const classes = useMemo(
     () =>
@@ -140,9 +163,25 @@ export const CanvasNodeDefault = memo(function CanvasNodeDefault({
         isReadOnly={isReadOnly}
       />
 
-      {/* Main icon. `accent` is a runtime, block-driven color. */}
+      {/* Main icon. `accent` is a runtime, block-driven color. A mapped brand
+         logo (full-colour <img>/iconify mark) wins; otherwise we fall back to
+         the tinted Lucide icon (or Play/Circle for triggers/unmapped nodes). */}
       <div className="sabflow-node__icon" style={{ color: accent }}>
-        {Icon ? (
+        {brand ? (
+          <BrandIcon
+            icon={brand}
+            className="h-6 w-6"
+            fallback={
+              Icon ? (
+                <Icon className="h-6 w-6" />
+              ) : d.isTrigger ? (
+                <Play className="h-6 w-6" aria-hidden="true" />
+              ) : (
+                <Circle className="h-6 w-6" aria-hidden="true" />
+              )
+            }
+          />
+        ) : Icon ? (
           <Icon className="h-6 w-6" />
         ) : d.isTrigger ? (
           <Play className="h-6 w-6" aria-hidden="true" />
