@@ -146,8 +146,10 @@ async function main() {
 
   const userId = new ObjectId();
   const poorUserId = new ObjectId();
+  const crossUserId = new ObjectId();
   const ws = userId.toHexString();
   const poorWs = poorUserId.toHexString();
+  const crossWs = crossUserId.toHexString();
   const createdMessageIds = [];
 
   try {
@@ -309,17 +311,173 @@ async function main() {
       if (r.json?.id) createdMessageIds.push(r.json.id);
       check('suppressed recipient → immediate status "suppressed"', r.json?.status === 'suppressed', `status=${r.json?.status}`);
     }
+
+    // ── 7. Retry → dead-letter refund: [FAIL] is a terminal provider reject ──
+    //    A non-retryable rejection settles the hold with charge=false, so the
+    //    reserved credit is REFUNDED (no net debit for a send that never left).
+    {
+      const before = (await users.findOne({ _id: userId }))?.credits?.sms ?? 0;
+      const r = await engineApi('POST', '/v1/messages', {
+        workspaceId: ws,
+        to: TO,
+        body: 'goodbye [FAIL]',
+        category: 'transactional',
+        provider: 'mock',
+        from: FROM,
+      });
+      const id = r.json?.id;
+      if (id) createdMessageIds.push(id);
+      let terminal = r.json?.status;
+      if (id && !(terminal === 'failed' || terminal === 'rejected')) {
+        const msg = await pollMessage(id, (m) => m.status === 'failed' || m.status === 'rejected', 15_000);
+        terminal = msg?.status;
+      }
+      check('[FAIL] send reaches terminal failed/rejected', terminal === 'failed' || terminal === 'rejected', `status=${terminal}`);
+      const after = await pollMongoDoc(users, { _id: userId }, (u) => (u?.credits?.sms ?? 0) === before, 10_000);
+      check('terminal-fail refunds the held credit (balance unchanged)', (after?.credits?.sms ?? -1) === before, `before=${before} after=${after?.credits?.sms}`);
+      const releaseRow = await pollMongoDoc(
+        ledger,
+        { workspaceId: ws, kind: 'release' },
+        () => true,
+        10_000,
+      );
+      check('release ledger row written for the dead-lettered send', !!releaseRow && releaseRow.delta > 0, releaseRow ? `delta=${releaseRow.delta}` : 'missing');
+    }
+
+    // ── 8. Cross-workspace credential isolation (AAD binding) ───────────────
+    //    Provider creds are sealed with AAD = workspaceId. A cipher minted for
+    //    one workspace cannot be decrypted by another, so a "borrowed" cipher
+    //    fails the send (GCM auth) instead of letting tenant B send on tenant
+    //    A's account. The send must NOT succeed and must NOT charge B.
+    {
+      await users.insertOne({
+        _id: crossUserId,
+        name: 'SabSMS E2E (cross-tenant)',
+        email: `sabsms-e2e-${crossWs}@example.test`,
+        credits: { sms: 50 },
+        createdAt: new Date(),
+      });
+      // Cipher sealed with a DIFFERENT workspace id as AAD (here: `ws`),
+      // then planted on crossWs's account — simulating a lifted credential.
+      await providerAccounts.insertOne({
+        workspaceId: crossWs,
+        provider: 'mock',
+        credentialsCipher: encryptProviderCreds(ws, { apiKey: 'mock-key' }, CREDS_KEY),
+        isDefault: true,
+        status: 'active',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+      await numbers.insertOne({
+        workspaceId: crossWs,
+        e164: FROM,
+        country: 'US',
+        type: 'longcode',
+        provider: 'mock',
+        capabilities: { sms: true, mms: false, rcs: false, voice: false },
+        status: 'active',
+        createdAt: new Date(),
+      });
+      const r = await engineApi('POST', '/v1/messages', {
+        workspaceId: crossWs,
+        to: TO,
+        body: 'using borrowed creds',
+        category: 'transactional',
+        provider: 'mock',
+        from: FROM,
+      });
+      const id = r.json?.id;
+      if (id) createdMessageIds.push(id);
+      let status = r.json?.status;
+      if (id && status === 'queued') {
+        const msg = await pollMessage(id, (m) => m.status === 'failed' || m.status === 'rejected' || m.status === 'sent', 15_000);
+        status = msg?.status;
+      }
+      check('cross-tenant cipher cannot send (not "sent")', status !== 'sent', `status=${status}`);
+      const cross = await users.findOne({ _id: crossUserId });
+      check('cross-tenant balance untouched (no charge on creds failure)', (cross?.credits?.sms ?? 0) === 50, `balance=${cross?.credits?.sms}`);
+    }
+
+    // ── 9. Campaign batch reserve + release (op=reserve-batch) ──────────────
+    //    The campaign ticker takes a single whole-batch affordability hold via
+    //    the Next credits route, then releases it (the per-message holds are
+    //    taken at send time). Exercise that round-trip directly.
+    {
+      const campaignId = new ObjectId().toHexString();
+      const before = (await users.findOne({ _id: userId }))?.credits?.sms ?? 0;
+      const segmentsTotal = 5;
+      const reserve = await fetch(`${NEXT}/api/sabsms/credits?op=reserve-batch`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', 'x-sabsms-service-token': TOKEN },
+        body: JSON.stringify({
+          workspaceId: ws,
+          campaignId,
+          count: 5,
+          segmentsTotal,
+          category: 'marketing',
+          destinationCountry: 'US',
+          channel: 'sms',
+        }),
+      });
+      const rj = await reserve.json().catch(() => ({}));
+      check('reserve-batch approved', reserve.status === 200 && rj?.approved === true && !!rj?.reservationToken, `status=${reserve.status} approved=${rj?.approved}`);
+      const held = await pollMongoDoc(users, { _id: userId }, (u) => (u?.credits?.sms ?? before) < before, 8_000);
+      check('reserve-batch holds credits (US sms = 5 segments → 5)', before - (held?.credits?.sms ?? before) === segmentsTotal, `held=${before - (held?.credits?.sms ?? before)}`);
+      if (rj?.reservationToken) {
+        const release = await fetch(`${NEXT}/api/sabsms/credits?op=finalise`, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json', 'x-sabsms-service-token': TOKEN },
+          body: JSON.stringify({ workspaceId: ws, messageId: campaignId, reservationToken: rj.reservationToken, charge: false }),
+        });
+        check('reserve-batch release accepted', release.status === 200, `status=${release.status}`);
+        const restored = await pollMongoDoc(users, { _id: userId }, (u) => (u?.credits?.sms ?? 0) === before, 8_000);
+        check('reserve-batch release refunds the whole hold', (restored?.credits?.sms ?? -1) === before, `balance=${restored?.credits?.sms} expected=${before}`);
+      }
+    }
+
+    // ── 10. Expired-hold sweep (releaseExpiredHolds via the lazy route sweep) ─
+    //    A held reservation past its expiry is refunded by the sweep that runs
+    //    opportunistically on every credits-route call (and on the PM2
+    //    credits-sweeper interval). Plant an already-expired hold, deduct the
+    //    balance to match, poke the route, and assert the refund.
+    {
+      const before = (await users.findOne({ _id: userId }))?.credits?.sms ?? 0;
+      const staleToken = `e2e-stale-${new ObjectId().toHexString()}`;
+      const amount = 3;
+      await users.updateOne({ _id: userId }, { $inc: { 'credits.sms': -amount } });
+      await reservations.insertOne({
+        token: staleToken,
+        workspaceId: ws,
+        messageId: `stale:${staleToken}`,
+        amount,
+        status: 'held',
+        createdAt: new Date(Date.now() - 30 * 60 * 1000),
+        expiresAt: new Date(Date.now() - 16 * 60 * 1000), // past the 15-min TTL
+      });
+      // Poke the route (unauthenticated is fine — the lazy sweep fires before
+      // auth rejection); fall back to an authenticated no-op reserve if needed.
+      await fetch(`${NEXT}/api/sabsms/credits?op=reserve`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', 'x-sabsms-service-token': TOKEN },
+        body: JSON.stringify({ workspaceId: '__admin_debug_dry_run__', messageId: 'sweep-poke' }),
+      }).catch(() => {});
+      const swept = await pollMongoDoc(reservations, { token: staleToken }, (d) => d?.status === 'released', 12_000);
+      check('expired hold swept to "released"', swept?.status === 'released', `status=${swept?.status}`);
+      const refunded = await pollMongoDoc(users, { _id: userId }, (u) => (u?.credits?.sms ?? 0) === before, 12_000);
+      check('expired-hold sweep refunds the balance', (refunded?.credits?.sms ?? -1) === before, `balance=${refunded?.credits?.sms} expected=${before}`);
+    }
   } finally {
     // ── 7. Cleanup — remove everything this run created ─────────────────────
     try {
-      await users.deleteMany({ _id: { $in: [userId, poorUserId] } });
-      await providerAccounts.deleteMany({ workspaceId: { $in: [ws, poorWs] } });
-      await numbers.deleteMany({ workspaceId: { $in: [ws, poorWs] } });
-      await messages.deleteMany({ workspaceId: { $in: [ws, poorWs] } });
-      await conversations.deleteMany({ workspaceId: { $in: [ws, poorWs] } });
-      await suppressions.deleteMany({ workspaceId: { $in: [ws, poorWs] } });
-      await reservations.deleteMany({ workspaceId: { $in: [ws, poorWs] } });
-      await ledger.deleteMany({ workspaceId: { $in: [ws, poorWs] } });
+      const allWs = [ws, poorWs, crossWs];
+      await users.deleteMany({ _id: { $in: [userId, poorUserId, crossUserId] } });
+      await providerAccounts.deleteMany({ workspaceId: { $in: allWs } });
+      await numbers.deleteMany({ workspaceId: { $in: allWs } });
+      await messages.deleteMany({ workspaceId: { $in: allWs } });
+      await conversations.deleteMany({ workspaceId: { $in: allWs } });
+      await suppressions.deleteMany({ workspaceId: { $in: allWs } });
+      await reservations.deleteMany({ workspaceId: { $in: allWs } });
+      await ledger.deleteMany({ workspaceId: { $in: allWs } });
       note('cleanup complete');
     } catch (e) {
       note(`cleanup failed: ${e?.message ?? e}`);
