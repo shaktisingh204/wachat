@@ -1,0 +1,79 @@
+# =============================================================================
+# stalwart-mail.service — systemd unit for the SabMail hosted MTA
+# =============================================================================
+#
+# WHY systemd and NOT PM2:
+#   A mail server binds PRIVILEGED ports (25, 465, 587, 993 — all < 1024).
+#   Binding those requires CAP_NET_BIND_SERVICE, which only the init system can
+#   grant cleanly to a NON-root process. systemd does this with
+#   `AmbientCapabilities=CAP_NET_BIND_SERVICE`: the binary runs as the
+#   unprivileged `stalwart` user yet may still bind low ports. PM2 (a userland
+#   Node process manager) has no equivalent capability mechanism — under PM2
+#   you'd be forced to run the MTA as root, which is exactly what you don't want
+#   for an Internet-facing daemon. This is also a standalone OS service with no
+#   relationship to the Node/PM2 app, so it belongs in systemd, the OS service
+#   manager, alongside other daemons (sshd, nginx, certbot.timer).
+#
+# Install:
+#   sudo cp deploy/stalwart/stalwart-mail.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now stalwart-mail
+#   journalctl -u stalwart-mail -f
+# -----------------------------------------------------------------------------
+
+[Unit]
+Description=Stalwart Mail Server (SabMail hosted MTA)
+Documentation=https://stalw.art/docs/
+# Mail needs DNS + the network fully up; if certs live on a separate mount add
+# it to After=/Requires= as well.
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+
+# Run as a dedicated unprivileged service account (create it once: see README
+# — `useradd --system --no-create-home --shell /usr/sbin/nologin stalwart`).
+User=stalwart
+Group=stalwart
+
+# Grant ONLY the capability needed to bind ports < 1024. The process otherwise
+# has no root powers. Both lines are required: the ambient set is what the
+# child process actually keeps; the bounding set must also permit it.
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+
+# Start the server with our config. Adjust the binary path to where you
+# installed Stalwart (the official installer drops it at /opt/stalwart/bin).
+ExecStart=/opt/stalwart/bin/stalwart --config /etc/stalwart/config.toml
+
+# Graceful reload (Stalwart re-reads config on SIGHUP) and always-restart so a
+# crash or OOM brings the MTA straight back — mail must not stay down.
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=5s
+
+# Writable state lives here; everything else can be read-only-ish. RocksDB data
+# from config.toml (/var/lib/stalwart) must be owned by `stalwart`.
+StateDirectory=stalwart
+WorkingDirectory=/var/lib/stalwart
+
+# --- Hardening (safe defaults for an Internet-facing daemon) ---------------
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+# Allow writing to its own data + reading the Let's Encrypt live certs.
+ReadWritePaths=/var/lib/stalwart
+ReadOnlyPaths=/etc/letsencrypt /etc/stalwart
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+RestrictNamespaces=true
+LockPersonality=true
+# Mail servers legitimately open many sockets/files; raise the limit.
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

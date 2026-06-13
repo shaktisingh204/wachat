@@ -116,6 +116,13 @@ if [ "$BUILD_RUST" = "1" ]; then
     echo "🦀 Building SabMail engine..."
     ( cd services/sabmail-engine && cargo build --release )
   fi
+
+  # 3b.3 SabMail hosted MTA (Stalwart) — NO build step here on purpose.
+  # Stalwart is an EXTERNAL systemd service on its own mail box (deploy/stalwart/),
+  # not a PM2 app and not compiled by this script. It binds privileged mail ports
+  # (25/465/587/993) under systemd with CAP_NET_BIND_SERVICE. The app only talks
+  # to it over SMTP submission (SABMAIL_SMTP_*) + the inbound webhook. To stand it
+  # up / update it, follow deploy/stalwart/README.md on the mail host.
 else
   echo "⏭️  Skipping Rust builds (BUILD_RUST=0)."
 fi

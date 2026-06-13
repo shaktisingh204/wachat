@@ -11,6 +11,7 @@ import {
   Inbox,
   LayoutDashboard,
   Lock,
+  Mailbox,
   Megaphone,
   ScrollText,
   Settings,
@@ -190,6 +191,13 @@ export function buildSabmailSidebarGroups(
           icon: React.createElement(AtSign),
           href: "/sabmail/accounts",
           active: isActive("/sabmail/accounts"),
+        },
+        {
+          id: "hosted-mail",
+          label: "Hosted mail",
+          icon: React.createElement(Mailbox),
+          href: "/sabmail/mailboxes",
+          active: isActive("/sabmail/mailboxes"),
         },
         {
           id: "domains",

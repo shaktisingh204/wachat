@@ -1,0 +1,230 @@
+# =============================================================================
+# Stalwart Mail Server — SabMail hosted MTA (BOX-ONLY, turnkey config)
+# =============================================================================
+#
+# This file configures a single self-hosted Stalwart Mail Server box that acts
+# as the SMTP/IMAP backend for SabMail. It does NOT belong to the Next.js app
+# or to PM2 — it is dropped onto a dedicated mail host (e.g. mail.example.com)
+# and run by systemd (see stalwart-mail.service). The Next.js side talks to it
+# only as a plain SMTP submission client (SABMAIL_SMTP_*) and receives inbound
+# mail via the webhook described in inbound-sieve.sieve + README.md.
+#
+# Stalwart loads TOML config from /etc/stalwart/config.toml (path is passed on
+# the binary's --config flag in the systemd unit). Settings can also live in the
+# built-in config store and be edited through the web-admin; this file is the
+# bootstrap baseline.
+#
+# Every `<SET_ME>` MUST be replaced before going live. Anything left as a
+# placeholder is called out in the comment immediately above it.
+#
+# Tested against the Stalwart 0.x TOML schema. If you run a newer release whose
+# keys drifted, cross-check https://stalw.art/docs/ — the BLOCK STRUCTURE and
+# intent below stay correct even if a key name moves.
+# -----------------------------------------------------------------------------
+
+
+# -----------------------------------------------------------------------------
+# [server] — identity + global TLS
+# -----------------------------------------------------------------------------
+# `hostname` is the box's FQDN. It MUST match:
+#   • the A record you create (mail.example.com → this box's public IP),
+#   • the reverse-DNS / PTR record for the IP (mandatory for deliverability),
+#   • the CN/SAN on the TLS certificate below,
+#   • the EHLO the box announces.
+# This is the value the rest of SabMail knows as ${SABMAIL_MAIL_HOST}.
+[server]
+hostname = "<SET_ME: mail.example.com>"            # == ${SABMAIL_MAIL_HOST}
+
+# Global default TLS used by every listener that says `tls.implicit`/STARTTLS
+# unless a listener overrides it. Certificates come from Let's Encrypt (certbot)
+# — see README.md for the certbot command. Point these at the LIVE symlinks so
+# a `certbot renew` rotates the cert with no edit here.
+[server.tls]
+enable = true
+# Full chain (leaf + intermediates) and the matching private key.
+certificate = "default"
+
+# Named certificate "default" → the actual PEM files on disk.
+[certificate.default]
+cert = "%{file:/etc/letsencrypt/live/<SET_ME: mail.example.com>/fullchain.pem}%"
+private-key = "%{file:/etc/letsencrypt/live/<SET_ME: mail.example.com>/privkey.pem}%"
+
+
+# -----------------------------------------------------------------------------
+# [server.listener.*] — the four mail listeners
+# -----------------------------------------------------------------------------
+# Stalwart binds one listener per protocol/port. These are PRIVILEGED ports
+# (25/465/587/993 are all < 1024), which is exactly why this runs under systemd
+# with CAP_NET_BIND_SERVICE — see stalwart-mail.service.
+
+# (1) SMTP :25 — inbound MX traffic from the public Internet (other mail
+#     servers delivering to your users). NO auth here (that's how SMTP works);
+#     STARTTLS is offered/advertised but cannot be required on :25 or remote
+#     senders that don't support it would be unable to deliver. Anti-spam /
+#     relay control is handled by the SMTP rules below, NOT by demanding auth.
+[server.listener.smtp]
+bind = ["[::]:25", "0.0.0.0:25"]
+protocol = "smtp"
+[server.listener.smtp.tls]
+implicit = false                                   # STARTTLS, opportunistic
+
+# (2) Submission :587 — outbound mail FROM your authenticated users/apps.
+#     This is what SABMAIL_SMTP_HOST:SABMAIL_SMTP_PORT(=587) connects to.
+#     Auth is REQUIRED and STARTTLS is REQUIRED (no plaintext creds ever).
+[server.listener.submission]
+bind = ["[::]:587", "0.0.0.0:587"]
+protocol = "smtp"
+[server.listener.submission.tls]
+implicit = false                                   # STARTTLS upgrade required (see auth.require below)
+
+# (3) Submissions / SMTPS :465 — same as 587 but implicit TLS from byte 0
+#     (the modern recommended submission port). Auth required.
+[server.listener.submissions]
+bind = ["[::]:465", "0.0.0.0:465"]
+protocol = "smtp"
+[server.listener.submissions.tls]
+implicit = true                                    # TLS-on-connect (SMTPS)
+
+# (4) IMAPS :993 — implicit-TLS IMAP for mail clients reading mailboxes.
+#     SabMail's inbox client can connect here; auth required.
+[server.listener.imaps]
+bind = ["[::]:993", "0.0.0.0:993"]
+protocol = "imap"
+[server.listener.imaps.tls]
+implicit = true                                    # TLS-on-connect (IMAPS)
+
+# (Optional) Management/web-admin HTTP — bound to LOOPBACK ONLY (127.0.0.1).
+# This is the privileged API/UI; never expose it publicly. Reach it from the
+# box itself or over an SSH tunnel. STALWART_ADMIN_URL on the app side points
+# here (typically through an SSH tunnel) for programmatic account provisioning.
+[server.listener.management]
+bind = ["127.0.0.1:8085"]
+protocol = "http"
+[server.listener.management.tls]
+implicit = false                                   # loopback only → plain HTTP is fine
+
+
+# -----------------------------------------------------------------------------
+# [authentication] — submission auth + the bootstrap admin
+# -----------------------------------------------------------------------------
+# Require AUTH on the submission listeners (587/465). Inbound :25 stays
+# unauthenticated (it must, to receive Internet mail).
+[session.auth]
+# Only allow auth once the connection is encrypted (post-STARTTLS on 587,
+# implicit TLS on 465). This is what makes 587 "auth required, STARTTLS".
+require = [ { if = "listener = 'submission' || listener = 'submissions'", then = true },
+            { else = false } ]
+# Bind the authenticated user to the envelope sender so a user can't spoof
+# another account's From on submission.
+must-match-sender = true
+mechanisms = ["plain", "login"]                    # over TLS only (see require)
+directory = "internal"                             # auth backend, defined below
+
+# The MANAGEMENT API / web-admin fallback administrator. Use this to log into
+# the admin UI and to authenticate STALWART_ADMIN_TOKEN-style calls. Generate
+# the secret with:  openssl rand -base64 24
+# Store the SAME value as STALWART_ADMIN_TOKEN in the SabNode env.
+[authentication.fallback-admin]
+user = "admin"
+secret = "<SET_ME: openssl rand -base64 24  → also set STALWART_ADMIN_TOKEN>"
+
+
+# -----------------------------------------------------------------------------
+# [storage] — built-in store (RocksDB) for everything
+# -----------------------------------------------------------------------------
+# A single embedded RocksDB store holds mailbox content (messages/blobs),
+# the directory (accounts), the queue, and config. Zero external DB to operate
+# — ideal for a turnkey single box. For HA you'd swap to Postgres/S3 later, but
+# RocksDB is the correct default here.
+[store.rocksdb]
+type = "rocksdb"
+path = "/var/lib/stalwart/data"                    # owned by user `stalwart` (see systemd unit)
+compression = "lz4"
+
+# Wire the abstract roles to the rocksdb store. Mail bodies/attachments
+# (blob), the message metadata (data), the full-text index (fts), and the
+# inbound/outbound queue (lookup) all live in the one embedded store.
+[storage]
+data = "rocksdb"
+blob = "rocksdb"
+fts = "rocksdb"
+lookup = "rocksdb"
+directory = "internal"
+
+
+# -----------------------------------------------------------------------------
+# [directory.internal] — auth / accounts backend
+# -----------------------------------------------------------------------------
+# The "internal" directory stores users, passwords (Argon2-hashed), groups and
+# email→account mapping inside the same RocksDB store. Accounts (mailboxes and
+# the SABMAIL_SMTP_USER submission account) are created via the management API
+# / web-admin / CLI — see README.md. This is the simplest correct backend for a
+# turnkey box; LDAP/SQL backends exist if you later centralize identity.
+[directory.internal]
+type = "internal"
+store = "rocksdb"
+
+
+# -----------------------------------------------------------------------------
+# Local mail domains
+# -----------------------------------------------------------------------------
+# Domains this server is authoritative for (accepts inbound mail for, and lets
+# accounts send as). This is ${STALWART_DEFAULT_DOMAIN}. Add more rows as you
+# host more domains. Each domain needs its DNS (MX/SPF/DKIM/DMARC) per README.
+[[directory.internal.domains]]
+name = "<SET_ME: example.com>"                     # == ${STALWART_DEFAULT_DOMAIN}
+
+
+# -----------------------------------------------------------------------------
+# DKIM signing
+# -----------------------------------------------------------------------------
+# Stalwart generates and stores a DKIM keypair per domain (do this in the
+# web-admin or CLI — see README). The PUBLIC key is published as the DNS TXT
+# record; the PRIVATE key signs outbound mail automatically. The selector below
+# must match the `<selector>._domainkey.<domain>` TXT record you publish.
+[auth.dkim]
+sign = ["rsa"]
+selector = "stalwart"                              # → stalwart._domainkey.<domain> TXT
+
+
+# -----------------------------------------------------------------------------
+# SMTP receive rules (relay / inbound policy)
+# -----------------------------------------------------------------------------
+# Accept inbound mail for our local domains; only let AUTHENTICATED sessions
+# relay to the outside world. This is the open-relay guard.
+[session.rcpt]
+# Accept for any recipient whose domain is one of our local domains, OR when
+# the session is authenticated (our own users relaying outbound).
+relay = [ { if = "!is_empty(authenticated_as)", then = true },
+          { else = false } ]
+# Direct/local delivery is decided by the directory (local domains) regardless
+# of auth, so inbound MX mail to our domains is accepted.
+directory = "internal"
+
+
+# -----------------------------------------------------------------------------
+# Sieve — inbound delivery scripting (mail → SabMail webhook)
+# -----------------------------------------------------------------------------
+# Run a Sieve script at delivery time. The script (inbound-sieve.sieve) is what
+# forwards each delivered message to the SabMail inbound webhook. See that file
+# for the script body and the milter/event-webhook alternative if your build's
+# Sieve can't make outbound HTTP calls.
+[sieve.trusted]
+# Load the delivery-time script from disk so you can edit it without rebuilding
+# config. Keep it owned by `stalwart`.
+from-file = "/etc/stalwart/inbound-sieve.sieve"
+
+[session.data.script]
+# Apply the trusted script during the DATA phase / final delivery.
+run = "trusted"
+
+
+# -----------------------------------------------------------------------------
+# Tracing / logging
+# -----------------------------------------------------------------------------
+# Log to stdout so `journalctl -u stalwart-mail` is the single source of truth
+# (systemd captures stdout). Bump `level` to "debug" while smoke-testing.
+[tracer.stdout]
+type = "stdout"
+level = "info"
+enable = true
