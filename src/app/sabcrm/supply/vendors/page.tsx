@@ -1,17 +1,20 @@
 /**
- * SabCRM Supply — Vendors (`/sabcrm/supply/vendors`), 20ui.
+ * SabCRM Supply — Vendors (`/sabcrm/supply/vendors`), rollout WI-7.
  *
- * Server entry: lists the active project's vendors through the gated
- * `listSabcrmSupplyVendors` action (crate `crm-vendors`,
- * `/v1/sabcrm/supply/vendors`) and renders via the shared
- * {@link SupplyClient}. Vendors stay a bespoke crate (NOT a metadata
- * object) — this page is their full CRUD surface.
+ * Server entry: the active project's vendors as display-ready rows
+ * (`listSabcrmSupplyVendorsPage`) + the KPI strip
+ * (`getSabcrmSupplyVendorKpis`), rendered through the doc-surface kit
+ * via {@link VendorsClient} (a full-field bespoke drawer for this
+ * master-data entity). Replaces the old generic `SupplyClient` mount.
  */
 
 import * as React from 'react';
 
-import { listSabcrmSupplyVendors } from '@/app/actions/sabcrm-supply.actions';
-import { SupplyClient, type SupplyRow } from '../_components/supply-client';
+import {
+  getSabcrmSupplyVendorKpis,
+  listSabcrmSupplyVendorsPage,
+} from '@/app/actions/sabcrm-supply-vendors.actions';
+import { VendorsClient } from './vendors-client';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,28 +23,17 @@ export const metadata = {
 };
 
 export default async function SabcrmSupplyVendorsPage(): Promise<React.JSX.Element> {
-  const res = await listSabcrmSupplyVendors({ limit: 100 });
-  const docs = res.ok ? res.data : [];
-
-  const rows: SupplyRow[] = docs.map((doc) => ({
-    id: doc._id ?? '',
-    label: doc.name,
-    status: 'active',
-    currency: 'INR',
-    cells: {
-      name: doc.name,
-      email: doc.email ?? '',
-      phone: doc.phone ?? '',
-      gstin: doc.gstin ?? '',
-      vendorType: doc.vendorType ?? '',
-    },
-  }));
+  const [listRes, kpiRes] = await Promise.all([
+    listSabcrmSupplyVendorsPage({ page: 1, limit: 25 }),
+    getSabcrmSupplyVendorKpis(),
+  ]);
 
   return (
-    <SupplyClient
-      kind="vendors"
-      initialRows={rows}
-      initialError={res.ok ? null : res.error}
+    <VendorsClient
+      initialRows={listRes.ok ? listRes.data.rows : []}
+      initialHasMore={listRes.ok ? listRes.data.hasMore : false}
+      initialError={listRes.ok ? null : listRes.error}
+      kpis={kpiRes.ok ? kpiRes.data : null}
     />
   );
 }

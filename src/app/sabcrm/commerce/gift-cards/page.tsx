@@ -1,19 +1,21 @@
 /**
  * SabCRM Commerce — Gift cards (`/sabcrm/commerce/gift-cards`), 20ui.
  *
- * Server entry: lists the active project's gift cards through the gated
- * `listSabcrmGiftCards` action (crate `crm-gift-cards`,
- * `/v1/sabcrm/commerce/gift-cards`) and renders via the shared
- * {@link CommerceClient}.
+ * Server entry for the doc-surface gift-card vertical. Fetches page 1
+ * of full-field rows plus the KPI strip in parallel through the gated
+ * actions, then hands everything to the kit-driven client. `?q= /
+ * ?status=` seed the toolbar; `?edit=<id>` opens the edit drawer
+ * client-side. An engine outage normalises into the kit's error state.
  */
 
 import * as React from 'react';
 
-import { listSabcrmGiftCards } from '@/app/actions/sabcrm-commerce.actions';
 import {
-  CommerceClient,
-  type CommerceRow,
-} from '../_components/commerce-client';
+  getSabcrmGiftCardKpis,
+  listSabcrmGiftCardsPage,
+} from '@/app/actions/sabcrm-commerce-gift-cards.actions';
+import type { CrmGiftCardStatus } from '@/lib/rust-client/crm-gift-cards';
+import { GiftCardsClient } from './gift-cards-client';
 
 export const dynamic = 'force-dynamic';
 
@@ -21,29 +23,32 @@ export const metadata = {
   title: 'Gift cards — SabCRM Commerce',
 };
 
-export default async function SabcrmCommerceGiftCardsPage(): Promise<React.JSX.Element> {
-  const res = await listSabcrmGiftCards({ limit: 100 });
-  const docs = res.ok ? res.data : [];
+interface PageProps {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
 
-  const rows: CommerceRow[] = docs.map((doc) => ({
-    id: doc._id,
-    label: doc.code,
-    status: doc.status ?? 'active',
-    currency: 'INR',
-    cells: {
-      code: doc.code,
-      value: doc.value,
-      balance: doc.balance,
-      issuedTo: doc.issuedTo ?? undefined,
-      expiryDate: doc.expiryDate ?? undefined,
-    },
-  }));
+function first(v: string | string[] | undefined): string | undefined {
+  return Array.isArray(v) ? v[0] : v;
+}
+
+export default async function SabcrmCommerceGiftCardsPage({
+  searchParams,
+}: PageProps): Promise<React.JSX.Element> {
+  const params = await searchParams;
+  const q = first(params.q) ?? '';
+  const status = (first(params.status) ?? '') as CrmGiftCardStatus | '';
+
+  const [pageRes, kpiRes] = await Promise.all([
+    listSabcrmGiftCardsPage({ page: 1, q: q || undefined, status }),
+    getSabcrmGiftCardKpis(),
+  ]);
 
   return (
-    <CommerceClient
-      kind="gift-cards"
-      initialRows={rows}
-      initialError={res.ok ? null : res.error}
+    <GiftCardsClient
+      initialRows={pageRes.ok ? pageRes.data.rows : []}
+      initialHasMore={pageRes.ok ? pageRes.data.hasMore : false}
+      initialError={pageRes.ok ? null : pageRes.error}
+      kpis={kpiRes.ok ? kpiRes.data : null}
     />
   );
 }

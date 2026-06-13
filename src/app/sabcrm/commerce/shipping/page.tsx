@@ -1,23 +1,23 @@
 /**
  * SabCRM Commerce — Shipping zones (`/sabcrm/commerce/shipping`), 20ui.
  *
- * Server entry: lists the active project's shipping zones through the
- * gated `listSabcrmShippingZones` action (crate `crm-store`,
- * `/v1/sabcrm/commerce/store/shipping-zones`). The "New shipping zone"
- * dialog needs the project's storefronts for its select, so both lists
- * are fetched in parallel.
+ * Server entry for the doc-surface shipping vertical. Fetches page 1
+ * of full-field rows (methods grid included so the edit drawer needs
+ * no second fetch; storefront labels resolved server-side) plus the
+ * KPI strip in parallel, then hands everything to the kit-driven
+ * client. `?q= / ?status= / ?partyId=(storefrontId)` seed the toolbar;
+ * `?edit=<id>` opens the drawer; an engine outage normalises into the
+ * kit's inline error state.
  */
 
 import * as React from 'react';
 
 import {
-  listSabcrmShippingZones,
-  listSabcrmStorefronts,
-} from '@/app/actions/sabcrm-commerce.actions';
-import {
-  CommerceClient,
-  type CommerceRow,
-} from '../_components/commerce-client';
+  getSabcrmShippingZoneKpis,
+  listSabcrmShippingZonesPage,
+} from '@/app/actions/sabcrm-commerce-shipping.actions';
+import type { CrmStoreShippingZoneStatus } from '@/lib/rust-client/crm-store';
+import { ShippingClient } from './shipping-client';
 
 export const dynamic = 'force-dynamic';
 
@@ -25,37 +25,38 @@ export const metadata = {
   title: 'Shipping zones — SabCRM Commerce',
 };
 
-export default async function SabcrmCommerceShippingPage(): Promise<React.JSX.Element> {
-  const [zonesRes, storefrontsRes] = await Promise.all([
-    listSabcrmShippingZones({ limit: 100 }),
-    listSabcrmStorefronts({ limit: 100 }),
-  ]);
-  const docs = zonesRes.ok ? zonesRes.data : [];
-  const storefronts = storefrontsRes.ok ? storefrontsRes.data : [];
+interface PageProps {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
 
-  const rows: CommerceRow[] = docs.map((doc) => ({
-    id: doc._id,
-    label: doc.name,
-    status: doc.status,
-    currency: 'INR',
-    cells: {
-      name: doc.name,
-      countries: (doc.countries ?? []).join(', '),
-      methods: doc.methods?.length ?? 0,
-    },
-  }));
+function first(v: string | string[] | undefined): string | undefined {
+  return Array.isArray(v) ? v[0] : v;
+}
+
+export default async function SabcrmCommerceShippingPage({
+  searchParams,
+}: PageProps): Promise<React.JSX.Element> {
+  const params = await searchParams;
+  const q = first(params.q) ?? '';
+  const status = (first(params.status) ?? '') as CrmStoreShippingZoneStatus | '';
+  const partyId = first(params.partyId) ?? '';
+
+  const [pageRes, kpiRes] = await Promise.all([
+    listSabcrmShippingZonesPage({
+      page: 1,
+      q: q || undefined,
+      status,
+      storefrontId: partyId || undefined,
+    }),
+    getSabcrmShippingZoneKpis(),
+  ]);
 
   return (
-    <CommerceClient
-      kind="shipping"
-      initialRows={rows}
-      initialError={zonesRes.ok ? null : zonesRes.error}
-      selectOptions={{
-        storefronts: storefronts.map((s) => ({
-          value: s._id,
-          label: s.name,
-        })),
-      }}
+    <ShippingClient
+      initialRows={pageRes.ok ? pageRes.data.rows : []}
+      initialHasMore={pageRes.ok ? pageRes.data.hasMore : false}
+      initialError={pageRes.ok ? null : pageRes.error}
+      kpis={kpiRes.ok ? kpiRes.data : null}
     />
   );
 }

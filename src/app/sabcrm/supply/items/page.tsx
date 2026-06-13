@@ -1,16 +1,20 @@
 /**
- * SabCRM Supply — Items (`/sabcrm/supply/items`), 20ui.
+ * SabCRM Supply — Items (`/sabcrm/supply/items`).
  *
- * Server entry: lists the active project's inventory items through the
- * gated `listSabcrmSupplyItems` action (crate `crm-items`,
- * `/v1/sabcrm/supply/items`) and renders via the shared
- * {@link SupplyClient}.
+ * Server entry for the doc-surface master-data surface (rollout WI-2):
+ * fetches the first page of display-ready item rows (per-warehouse stock
+ * labels batch-resolved server-side — never a raw ObjectId) and the KPI
+ * strip in parallel, then hands them to the bespoke-drawer client. The
+ * old generic `SupplyClient` is no longer mounted here.
  */
 
 import * as React from 'react';
 
-import { listSabcrmSupplyItems } from '@/app/actions/sabcrm-supply.actions';
-import { SupplyClient, type SupplyRow } from '../_components/supply-client';
+import {
+  getSabcrmSupplyItemKpis,
+  listSabcrmSupplyItemsPage,
+} from '@/app/actions/sabcrm-supply-items.actions';
+import { ItemsClient } from './items-client';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,29 +23,17 @@ export const metadata = {
 };
 
 export default async function SabcrmSupplyItemsPage(): Promise<React.JSX.Element> {
-  const res = await listSabcrmSupplyItems({ limit: 100 });
-  const docs = res.ok ? res.data : [];
-
-  const rows: SupplyRow[] = docs.map((doc) => ({
-    id: doc._id ?? '',
-    label: doc.name,
-    status: 'active',
-    currency: doc.currency || 'INR',
-    cells: {
-      name: doc.name,
-      sku: doc.sku,
-      itemType: doc.itemType === 'service' ? 'Service' : 'Goods',
-      costPrice: doc.costPrice ?? 0,
-      sellingPrice: doc.sellingPrice ?? 0,
-      totalStock: doc.totalStock ?? 0,
-    },
-  }));
+  const [listRes, kpiRes] = await Promise.all([
+    listSabcrmSupplyItemsPage({ page: 1, limit: 25 }),
+    getSabcrmSupplyItemKpis(),
+  ]);
 
   return (
-    <SupplyClient
-      kind="items"
-      initialRows={rows}
-      initialError={res.ok ? null : res.error}
+    <ItemsClient
+      initialRows={listRes.ok ? listRes.data.rows : []}
+      initialHasMore={listRes.ok ? listRes.data.hasMore : false}
+      initialError={listRes.ok ? null : listRes.error}
+      kpis={kpiRes.ok ? kpiRes.data : null}
     />
   );
 }

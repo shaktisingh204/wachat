@@ -1,16 +1,18 @@
 /**
- * SabCRM Supply — Bills of material (`/sabcrm/supply/bom`), 20ui.
+ * SabCRM Supply — Bills of material (`/sabcrm/supply/bom`, rollout WI-10).
  *
- * Server entry: lists the active project's BOMs through the gated
- * `listSabcrmSupplyBoms` action (crate `crm-bom`,
- * `/v1/sabcrm/supply/bom`) and renders via the shared
- * {@link SupplyClient}.
+ * Server entry: page 1 of list rows + the KPI strip in parallel through
+ * the gated actions, then the kit-driven client.
  */
 
 import * as React from 'react';
 
-import { listSabcrmSupplyBoms } from '@/app/actions/sabcrm-supply.actions';
-import { SupplyClient, type SupplyRow } from '../_components/supply-client';
+import {
+  getSabcrmSupplyBomKpis,
+  listSabcrmSupplyBomsPage,
+} from '@/app/actions/sabcrm-supply-bom.actions';
+import type { SabcrmBomStatus } from '@/app/actions/sabcrm-supply-docs.actions.types';
+import { BomClient } from './bom-client';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,29 +20,43 @@ export const metadata = {
   title: 'Bills of material — SabCRM Supply',
 };
 
-export default async function SabcrmSupplyBomPage(): Promise<React.JSX.Element> {
-  const res = await listSabcrmSupplyBoms({ limit: 100 });
-  const docs = res.ok ? res.data : [];
+interface PageProps {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
 
-  const rows: SupplyRow[] = docs.map((doc) => ({
-    id: doc._id,
-    label: doc.bomNo,
-    status: doc.status ?? 'draft',
-    currency: 'INR',
-    cells: {
-      bomNo: doc.bomNo,
-      finishedGoodName: doc.finishedGoodName,
-      outputQty: doc.outputQty,
-      unit: doc.unit,
-      version: doc.version,
-    },
-  }));
+function first(v: string | string[] | undefined): string | undefined {
+  return Array.isArray(v) ? v[0] : v;
+}
+
+export default async function SabcrmSupplyBomPage({
+  searchParams,
+}: PageProps): Promise<React.JSX.Element> {
+  const params = await searchParams;
+  const q = first(params.q) ?? '';
+  const status = (first(params.status) ?? '') as SabcrmBomStatus | '';
+  const from = first(params.from);
+  const to = first(params.to);
+
+  const [pageRes, kpiRes] = await Promise.all([
+    listSabcrmSupplyBomsPage({
+      page: 1,
+      q: q || undefined,
+      status,
+      from,
+      to,
+    }),
+    getSabcrmSupplyBomKpis(),
+  ]);
 
   return (
-    <SupplyClient
-      kind="bom"
-      initialRows={rows}
-      initialError={res.ok ? null : res.error}
+    <BomClient
+      initialRows={pageRes.ok ? pageRes.data.rows : []}
+      initialHasMore={pageRes.ok ? pageRes.data.hasMore : false}
+      initialError={pageRes.ok ? null : pageRes.error}
+      kpis={kpiRes.ok ? kpiRes.data : null}
+      initialFilters={
+        q || status || from || to ? { q, status, from, to } : undefined
+      }
     />
   );
 }

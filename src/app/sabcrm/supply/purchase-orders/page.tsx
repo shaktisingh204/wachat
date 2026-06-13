@@ -1,21 +1,29 @@
 /**
- * SabCRM Supply — Purchase orders (`/sabcrm/supply/purchase-orders`),
- * 20ui.
+ * SabCRM Supply — Purchase orders (`/sabcrm/supply/purchase-orders`).
  *
- * Server entry: lists the active project's purchase orders through the
- * gated `listSabcrmSupplyPurchaseOrders` action (crate
- * `crm-purchase-orders`, `/v1/sabcrm/supply/purchase-orders`). Vendors
- * are fetched in parallel — they feed both the Vendor column (id →
- * name) and the "New purchase order" dialog's picker.
+ * Server entry for the supply flagship doc-surface vertical (rollout
+ * WI-5). Fetches page 1 of display-ready rows (vendor labels resolved
+ * server-side — no ObjectIds reach the client) plus the KPI strip in
+ * parallel through the gated actions, then hands everything to the
+ * kit-driven client.
+ *
+ * Deep links: `?q= / ?status= / ?partyId= / ?from= / ?to=` seed the
+ * toolbar filters AND the initial fetch.
+ *
+ * Auth / onboarding / RBAC are enforced by the parent SabCRM layout;
+ * every action re-runs the full session → project → RBAC → plan gate.
+ * The Rust engine may be down at dev time — that normalises into an
+ * inline error state instead of crashing the route.
  */
 
 import * as React from 'react';
 
 import {
-  listSabcrmSupplyPurchaseOrders,
-  listSabcrmSupplyVendors,
-} from '@/app/actions/sabcrm-supply.actions';
-import { SupplyClient, type SupplyRow } from '../_components/supply-client';
+  getSabcrmSupplyPurchaseOrderKpis,
+  listSabcrmSupplyPurchaseOrdersPage,
+} from '@/app/actions/sabcrm-supply-purchase-orders.actions';
+import type { SabcrmPoStatus } from '@/app/actions/sabcrm-supply-docs.actions.types';
+import { PurchaseOrdersClient } from './purchase-orders-client';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,38 +31,47 @@ export const metadata = {
   title: 'Purchase orders — SabCRM Supply',
 };
 
-export default async function SabcrmSupplyPurchaseOrdersPage(): Promise<React.JSX.Element> {
-  const [res, vendorsRes] = await Promise.all([
-    listSabcrmSupplyPurchaseOrders({ limit: 100 }),
-    listSabcrmSupplyVendors({ limit: 100 }),
-  ]);
-  const docs = res.ok ? res.data : [];
-  const vendors = vendorsRes.ok ? vendorsRes.data : [];
-  const vendorName = new Map(vendors.map((v) => [v._id ?? '', v.name]));
+interface PageProps {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
 
-  const rows: SupplyRow[] = docs.map((doc) => ({
-    id: doc._id,
-    label: doc.poNo,
-    status: String(doc.status ?? 'draft'),
-    currency: doc.currency || 'INR',
-    cells: {
-      poNo: doc.poNo,
-      date: doc.date,
-      vendor: vendorName.get(doc.vendorId) ?? '—',
-      total: doc.totals?.total ?? 0,
-    },
-  }));
+function first(v: string | string[] | undefined): string | undefined {
+  return Array.isArray(v) ? v[0] : v;
+}
+
+export default async function SabcrmSupplyPurchaseOrdersPage({
+  searchParams,
+}: PageProps): Promise<React.JSX.Element> {
+  const params = await searchParams;
+  const q = first(params.q) ?? '';
+  const status = (first(params.status) ?? '') as SabcrmPoStatus | '';
+  const partyId = first(params.partyId) ?? '';
+  const from = first(params.from);
+  const to = first(params.to);
+
+  const [pageRes, kpiRes] = await Promise.all([
+    listSabcrmSupplyPurchaseOrdersPage({
+      page: 1,
+      q: q || undefined,
+      status,
+      vendorId: partyId || undefined,
+      from,
+      to,
+    }),
+    getSabcrmSupplyPurchaseOrderKpis(),
+  ]);
 
   return (
-    <SupplyClient
-      kind="purchase-orders"
-      initialRows={rows}
-      initialError={res.ok ? null : res.error}
-      selectOptions={{
-        vendors: vendors.flatMap((v) =>
-          v._id ? [{ value: v._id, label: v.name }] : [],
-        ),
-      }}
+    <PurchaseOrdersClient
+      initialRows={pageRes.ok ? pageRes.data.rows : []}
+      initialHasMore={pageRes.ok ? pageRes.data.hasMore : false}
+      initialError={pageRes.ok ? null : pageRes.error}
+      kpis={kpiRes.ok ? kpiRes.data : null}
+      initialFilters={
+        q || status || partyId || from || to
+          ? { q, status, partyId, from, to }
+          : undefined
+      }
     />
   );
 }

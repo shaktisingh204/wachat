@@ -40,6 +40,11 @@ import type {
   CrmPosTransactionDoc,
   CrmPosHoldDoc,
   CrmPosRefundDoc,
+  CrmPosLineItem,
+  CrmPosPaymentMethod,
+  CrmPosPaymentSplit,
+  CrmPosPaymentSplitMethod,
+  CrmPosRefundedLineItem,
 } from './crm-pos';
 import type {
   CrmStorefrontDoc,
@@ -48,6 +53,7 @@ import type {
   CrmStoreOrderDoc,
   CrmStoreShippingZoneDoc,
   CrmStoreShippingZoneCreateInput,
+  CrmStoreShippingZoneUpdateInput,
 } from './crm-store';
 import type {
   CrmCouponDoc,
@@ -57,6 +63,7 @@ import type {
 import type {
   CrmGiftCardDoc,
   CrmGiftCardCreateInput,
+  CrmGiftCardUpdateInput,
 } from './crm-gift-cards';
 
 /* ─── Re-exported wire types (same Rust DTOs as the legacy clients) ── */
@@ -94,6 +101,74 @@ export interface SabcrmCommerceListParams {
   [key: string]: string | number | undefined;
 }
 
+/* ─── POS wire inputs (mirror `crm-pos/src/dto.rs`, camelCase) ──────── */
+
+/**
+ * `PosLineItemInput` — `total` optional; the handler recomputes line +
+ * document totals from `quantity × rate (+ taxRate)` regardless, so
+ * callers keep their preview math client-side and never send totals.
+ */
+export interface SabcrmPosLineItemInput {
+  itemId?: string | null;
+  name: string;
+  quantity: number;
+  rate: number;
+  taxRate?: number;
+  total?: number;
+}
+
+/** `CreateTransactionInput` sans `projectId` (the client injects it). */
+export interface SabcrmPosTransactionCreateInput {
+  sessionId: string;
+  customerId?: string;
+  lineItems: SabcrmPosLineItemInput[];
+  paymentMethod: CrmPosPaymentMethod;
+  paymentSplits?: CrmPosPaymentSplit[];
+}
+
+/** `RefundTransactionInput` — refund totals are server-computed. */
+export interface SabcrmPosTransactionRefundInput {
+  reason: string;
+  refundedLineItems: CrmPosRefundedLineItem[];
+  refundMethod: CrmPosPaymentSplitMethod;
+}
+
+/** `RefundTransactionResponse` — the flipped txn + the minted refund. */
+export interface SabcrmPosTransactionRefundResponse {
+  transaction: CrmPosTransactionDoc;
+  refund: CrmPosRefundDoc;
+}
+
+/** `CreateHoldInput` sans `projectId`. */
+export interface SabcrmPosHoldCreateInput {
+  sessionId: string;
+  customerId?: string;
+  lineItems: SabcrmPosLineItemInput[];
+  holdReason?: string;
+}
+
+/**
+ * `RecallHoldInput` — the Rust recall ONLY flips `held → recalled`
+ * (+ links the minted transaction); payment happens via
+ * `transactions.create` first (see the rollout spec §5.2 — the legacy
+ * one-shot recall semantic is composed in the server action).
+ */
+export interface SabcrmPosHoldRecallInput {
+  recalledTransactionId?: string;
+}
+
+/** `RecallHoldResponse {hold, lineItems}`. */
+export interface SabcrmPosHoldRecallResponse {
+  hold: CrmPosHoldDoc;
+  lineItems: CrmPosLineItem[];
+}
+
+/** `UpdateRefundInput` — free-form on the wire; UI vocab guards it. */
+export interface SabcrmPosRefundUpdateInput {
+  status?: string;
+  reason?: string;
+}
+
 const POS = '/v1/sabcrm/commerce/pos';
 const STORE = '/v1/sabcrm/commerce/store';
 const COUPONS = '/v1/sabcrm/commerce/coupons';
@@ -117,6 +192,10 @@ export const sabcrmCommercePosApi = {
     list: (projectId: string, params?: SabcrmCommerceListParams) =>
       rustFetch<SabcrmCommerceList<CrmPosSessionDoc>>(
         `${POS}/sessions${qs({ ...params, projectId })}`,
+      ),
+    getById: (projectId: string, id: string) =>
+      rustFetch<CrmPosSessionDoc>(
+        `${POS}/sessions/${encodeURIComponent(id)}${qs({ projectId })}`,
       ),
     open: (projectId: string, input: CrmPosSessionOpenInput) =>
       rustFetch<{ id: string; entity: CrmPosSessionDoc }>(`${POS}/sessions`, {
@@ -148,16 +227,55 @@ export const sabcrmCommercePosApi = {
       rustFetch<CrmPosTransactionDoc>(
         `${POS}/transactions/${encodeURIComponent(id)}${qs({ projectId })}`,
       ),
+    /** Checkout — totals are computed server-side from `lineItems`. */
+    create: (projectId: string, input: SabcrmPosTransactionCreateInput) =>
+      rustFetch<{ id: string; entity: CrmPosTransactionDoc }>(
+        `${POS}/transactions`,
+        { method: 'POST', body: JSON.stringify({ ...input, projectId }) },
+      ),
     void: (projectId: string, id: string, reason?: string) =>
       rustFetch<CrmPosTransactionDoc>(
         `${POS}/transactions/${encodeURIComponent(id)}/void${qs({ projectId })}`,
         { method: 'POST', body: JSON.stringify({ reason }) },
+      ),
+    /** Mints a refund + flips the txn to `refunded` in one call. */
+    refund: (
+      projectId: string,
+      id: string,
+      input: SabcrmPosTransactionRefundInput,
+    ) =>
+      rustFetch<SabcrmPosTransactionRefundResponse>(
+        `${POS}/transactions/${encodeURIComponent(id)}/refund${qs({ projectId })}`,
+        { method: 'POST', body: JSON.stringify(input) },
+      ),
+    /** All refunds minted against one transaction (detail rail). */
+    listRefunds: (projectId: string, id: string) =>
+      rustFetch<SabcrmCommerceList<CrmPosRefundDoc>>(
+        `${POS}/transactions/${encodeURIComponent(id)}/refunds${qs({ projectId })}`,
       ),
   },
   holds: {
     list: (projectId: string, params?: SabcrmCommerceListParams) =>
       rustFetch<SabcrmCommerceList<CrmPosHoldDoc>>(
         `${POS}/holds${qs({ ...params, projectId })}`,
+      ),
+    getById: (projectId: string, id: string) =>
+      rustFetch<CrmPosHoldDoc>(
+        `${POS}/holds/${encodeURIComponent(id)}${qs({ projectId })}`,
+      ),
+    create: (projectId: string, input: SabcrmPosHoldCreateInput) =>
+      rustFetch<{ id: string; entity: CrmPosHoldDoc }>(`${POS}/holds`, {
+        method: 'POST',
+        body: JSON.stringify({ ...input, projectId }),
+      }),
+    /**
+     * Flips `held → recalled` (+ optional transaction link). Does NOT
+     * take payment — compose with `transactions.create` (spec §5.2).
+     */
+    recall: (projectId: string, id: string, input?: SabcrmPosHoldRecallInput) =>
+      rustFetch<SabcrmPosHoldRecallResponse>(
+        `${POS}/holds/${encodeURIComponent(id)}/recall${qs({ projectId })}`,
+        { method: 'POST', body: JSON.stringify(input ?? {}) },
       ),
     void: (projectId: string, id: string) =>
       rustFetch<{ deleted: boolean }>(
@@ -169,6 +287,15 @@ export const sabcrmCommercePosApi = {
     list: (projectId: string, params?: SabcrmCommerceListParams) =>
       rustFetch<SabcrmCommerceList<CrmPosRefundDoc>>(
         `${POS}/refunds${qs({ ...params, projectId })}`,
+      ),
+    getById: (projectId: string, id: string) =>
+      rustFetch<CrmPosRefundDoc>(
+        `${POS}/refunds/${encodeURIComponent(id)}${qs({ projectId })}`,
+      ),
+    update: (projectId: string, id: string, patch: SabcrmPosRefundUpdateInput) =>
+      rustFetch<CrmPosRefundDoc>(
+        `${POS}/refunds/${encodeURIComponent(id)}${qs({ projectId })}`,
+        { method: 'PATCH', body: JSON.stringify(patch) },
       ),
     archive: (projectId: string, id: string) =>
       rustFetch<{ deleted: boolean }>(
@@ -242,6 +369,15 @@ export const sabcrmCommerceStoreApi = {
         `${STORE}/shipping-zones`,
         { method: 'POST', body: JSON.stringify({ ...input, projectId }) },
       ),
+    update: (
+      projectId: string,
+      id: string,
+      patch: CrmStoreShippingZoneUpdateInput,
+    ) =>
+      rustFetch<CrmStoreShippingZoneDoc>(
+        `${STORE}/shipping-zones/${encodeURIComponent(id)}${qs({ projectId })}`,
+        { method: 'PATCH', body: JSON.stringify(patch) },
+      ),
     archive: (projectId: string, id: string) =>
       rustFetch<{ deleted: boolean }>(
         `${STORE}/shipping-zones/${encodeURIComponent(id)}${qs({ projectId })}`,
@@ -286,6 +422,11 @@ export const sabcrmCommerceGiftCardsApi = {
       method: 'POST',
       body: JSON.stringify({ ...input, projectId }),
     }),
+  update: (projectId: string, id: string, patch: CrmGiftCardUpdateInput) =>
+    rustFetch<CrmGiftCardDoc>(
+      `${GIFT_CARDS}/${encodeURIComponent(id)}${qs({ projectId })}`,
+      { method: 'PATCH', body: JSON.stringify(patch) },
+    ),
   archive: (projectId: string, id: string) =>
     rustFetch<{ deleted: boolean }>(
       `${GIFT_CARDS}/${encodeURIComponent(id)}${qs({ projectId })}`,

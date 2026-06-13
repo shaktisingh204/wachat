@@ -1,65 +1,54 @@
 'use client';
 
 /**
- * SabCRM Commerce — order detail-lite client, 20ui.
+ * SabCRM Commerce — order detail client (DocDetailPage adopter,
+ * spec WI-13).
  *
- * Renders one storefront order (line items, customer, addresses,
- * totals) with the two lifecycle actions the Rust crate exposes:
- * mark paid (`POST .../mark-paid`) and mark fulfilled
- * (`POST .../mark-fulfilled`). Cancel lives on the list page. Every
- * action re-runs the full session → project → RBAC → plan gate.
+ * The storefront order on the doc-surface paper: customer as the
+ * party, line items + totals as the document body, shipping method /
+ * payment ref / addresses in the meta + rail, and the two lifecycle
+ * transitions the `crm-store` crate exposes (mark paid / mark
+ * fulfilled) plus Cancel in the header actions bar. `linkedInvoiceId`
+ * links across to the finance invoice when set. Every action re-runs
+ * the full session → project → RBAC → plan gate.
  */
 
 import * as React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, CheckCircle2, PackageCheck } from 'lucide-react';
+import { CheckCircle2, PackageCheck, PackageX } from 'lucide-react';
 
 import {
-  Alert,
   Badge,
   Button,
   Card,
   CardBody,
   CardHeader,
   CardTitle,
-  PageActions,
-  PageDescription,
-  PageHeader,
-  PageHeaderHeading,
-  PageTitle,
-  Table,
-  TBody,
-  Td,
-  Th,
-  THead,
-  Tr,
-  type BadgeTone,
+  toast,
 } from '@/components/sabcrm/20ui';
+
+import {
+  DocDetailPage,
+  type DocDetailLine,
+} from '@/app/sabcrm/finance/_components/doc-surface';
+import {
+  ORDER_FULFILLMENT_LABEL,
+  ORDER_FULFILLMENT_TONE,
+  ORDER_PAYMENT_FLOW,
+  ORDER_PAYMENT_STATUSES,
+  ORDERS_PATH,
+} from '../orders-config';
 
 import {
   markSabcrmStoreOrderPaid,
   markSabcrmStoreOrderFulfilled,
+  cancelSabcrmStoreOrder,
 } from '@/app/actions/sabcrm-commerce.actions';
 import type { CrmStoreOrderDoc } from '@/lib/rust-client/sabcrm-commerce';
+import type { CrmStoreAddress } from '@/lib/rust-client/crm-store';
 
-import '@/components/sabcrm/20ui/surface-crm-base.css';
-
-const PAYMENT_TONE: Record<string, BadgeTone> = {
-  pending: 'warning',
-  paid: 'success',
-  failed: 'danger',
-  refunded: 'neutral',
-};
-
-const FULFILLMENT_TONE: Record<string, BadgeTone> = {
-  unfulfilled: 'warning',
-  partial: 'info',
-  fulfilled: 'success',
-  cancelled: 'danger',
-};
-
-function formatAmount(amount: number, currency: string): string {
+function fmtMoney(amount: number, currency: string): string {
   try {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
@@ -71,46 +60,43 @@ function formatAmount(amount: number, currency: string): string {
   }
 }
 
-function formatDate(iso: string): string {
-  const day = iso.slice(0, 10);
-  const [y, m, d] = day.split('-');
-  if (!y || !m || !d) return day || '—';
-  const months = [
-    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
-  ];
-  return `${Number(d)} ${months[Number(m) - 1] ?? m} ${y}`;
+function addressLines(addr: CrmStoreAddress | null | undefined): string[] {
+  if (!addr) return [];
+  return [
+    addr.line1,
+    addr.line2 || '',
+    [addr.city, addr.state, addr.postalCode].filter(Boolean).join(', '),
+    addr.country,
+  ].filter(Boolean);
 }
 
-function AddressBlock({
+function AddressCard({
   title,
-  address,
+  addr,
 }: {
   title: string;
-  address: CrmStoreOrderDoc['shippingAddress'] | null | undefined;
+  addr: CrmStoreAddress | null | undefined;
 }): React.JSX.Element {
+  const lines = addressLines(addr);
   return (
     <Card variant="outlined">
       <CardHeader>
         <CardTitle>{title}</CardTitle>
       </CardHeader>
       <CardBody>
-        {address ? (
+        {lines.length ? (
           <address className="not-italic text-sm leading-6">
-            {address.line1}
-            <br />
-            {address.line2 ? (
-              <>
-                {address.line2}
+            {lines.map((line, i) => (
+              <React.Fragment key={i}>
+                {line}
                 <br />
-              </>
-            ) : null}
-            {address.city}, {address.state} {address.postalCode}
-            <br />
-            {address.country}
+              </React.Fragment>
+            ))}
           </address>
         ) : (
-          <p className="text-sm">Same as shipping address.</p>
+          <span className="text-sm text-[var(--st-text-secondary)]">
+            Same as shipping address.
+          </span>
         )}
       </CardBody>
     </Card>
@@ -119,13 +105,14 @@ function AddressBlock({
 
 export interface OrderDetailClientProps {
   order: CrmStoreOrderDoc;
+  storefrontLabel: string | null;
 }
 
 export function OrderDetailClient({
   order,
+  storefrontLabel,
 }: OrderDetailClientProps): React.JSX.Element {
   const router = useRouter();
-  const [error, setError] = React.useState<string | null>(null);
   const [pending, startTransition] = React.useTransition();
 
   const canMarkPaid =
@@ -133,42 +120,86 @@ export function OrderDetailClient({
   const canMarkFulfilled =
     order.fulfillmentStatus === 'unfulfilled' ||
     order.fulfillmentStatus === 'partial';
+  const canCancel = order.fulfillmentStatus !== 'cancelled';
 
-  const run = (fn: () => Promise<{ ok: boolean; error?: string }>): void => {
-    setError(null);
+  const run = (
+    fn: () => Promise<{ ok: boolean; error?: string }>,
+    okMsg: string,
+  ): void => {
     startTransition(async () => {
       const res = await fn();
       if (!res.ok) {
-        setError(res.error ?? 'Something went wrong.');
+        toast.error(res.error ?? 'Something went wrong.');
         return;
       }
+      toast.success(okMsg);
       router.refresh();
     });
   };
 
-  return (
-    <div className="mx-auto w-full max-w-[1120px] px-6 pb-12 pt-6">
-      <div className="mb-2">
-        <Button variant="ghost" size="sm" iconLeft={ArrowLeft} asChild>
-          <Link href="/sabcrm/commerce/orders">Orders</Link>
-        </Button>
-      </div>
+  const lines: DocDetailLine[] = order.lineItems.map((li) => ({
+    description: li.title,
+    itemLabel: li.sku || null,
+    qty: li.quantity,
+    rate: li.price,
+    total: li.total,
+  }));
 
-      <PageHeader>
-        <PageHeaderHeading>
-          <PageTitle>{order.orderNumber}</PageTitle>
-          <PageDescription>
-            Placed {formatDate(order.placedAt)} by {order.customerName} (
-            {order.customerEmail}) — part of the SabCRM Commerce suite.
-          </PageDescription>
-        </PageHeaderHeading>
-        <PageActions>
+  const currency = order.currency || 'INR';
+
+  const meta: { label: string; value: React.ReactNode }[] = [
+    { label: 'Placed', value: order.placedAt.slice(0, 10) },
+    { label: 'Storefront', value: storefrontLabel ?? 'Unknown' },
+    { label: 'Payment method', value: order.paymentMethod || '—' },
+  ];
+  if (order.paymentRef) {
+    meta.push({ label: 'Payment ref', value: order.paymentRef });
+  }
+  meta.push({
+    label: 'Shipping',
+    value: fmtMoney(order.shippingTotal, currency),
+  });
+  meta.push({
+    label: 'Fulfilment',
+    value: (
+      <Badge tone={ORDER_FULFILLMENT_TONE[order.fulfillmentStatus] ?? 'neutral'} dot>
+        {ORDER_FULFILLMENT_LABEL[order.fulfillmentStatus] ?? order.fulfillmentStatus}
+      </Badge>
+    ),
+  });
+  if (order.linkedInvoiceId) {
+    meta.push({
+      label: 'Invoice',
+      value: (
+        <Link
+          href={`/sabcrm/finance/invoices/${encodeURIComponent(order.linkedInvoiceId)}`}
+          className="text-[var(--st-accent)] hover:underline"
+        >
+          View invoice
+        </Link>
+      ),
+    });
+  }
+
+  return (
+    <DocDetailPage
+      backHref={ORDERS_PATH}
+      backLabel="Orders"
+      docNumber={order.orderNumber}
+      entitySingular="Order"
+      statuses={ORDER_PAYMENT_STATUSES}
+      flow={ORDER_PAYMENT_FLOW}
+      status={order.paymentStatus}
+      actions={
+        <>
           {canMarkPaid ? (
             <Button
               variant="primary"
               iconLeft={CheckCircle2}
               loading={pending}
-              onClick={() => run(() => markSabcrmStoreOrderPaid(order._id))}
+              onClick={() =>
+                run(() => markSabcrmStoreOrderPaid(order._id), 'Order marked paid.')
+              }
             >
               Mark paid
             </Button>
@@ -179,117 +210,50 @@ export function OrderDetailClient({
               iconLeft={PackageCheck}
               loading={pending}
               onClick={() =>
-                run(() => markSabcrmStoreOrderFulfilled(order._id))
+                run(
+                  () => markSabcrmStoreOrderFulfilled(order._id),
+                  'Order marked fulfilled.',
+                )
               }
             >
               Mark fulfilled
             </Button>
           ) : null}
-        </PageActions>
-      </PageHeader>
-
-      <div className="mb-4 flex flex-wrap items-center gap-2">
-        <Badge tone={PAYMENT_TONE[order.paymentStatus] ?? 'neutral'} dot>
-          Payment: {order.paymentStatus}
-        </Badge>
-        <Badge
-          tone={FULFILLMENT_TONE[order.fulfillmentStatus] ?? 'neutral'}
-          dot
-        >
-          Fulfilment: {order.fulfillmentStatus}
-        </Badge>
-        <Badge tone="neutral">{order.paymentMethod}</Badge>
-        {order.paymentRef ? (
-          <Badge tone="neutral">Ref: {order.paymentRef}</Badge>
-        ) : null}
-      </div>
-
-      {error ? (
-        <div className="my-4">
-          <Alert tone="danger" role="alert">
-            {error}
-          </Alert>
-        </div>
-      ) : null}
-
-      <div className="mt-4">
-        <Table hover>
-          <THead>
-            <Tr>
-              <Th>Item</Th>
-              <Th>SKU</Th>
-              <Th align="right">Qty</Th>
-              <Th align="right">Price</Th>
-              <Th align="right">Total</Th>
-            </Tr>
-          </THead>
-          <TBody>
-            {order.lineItems.map((li, idx) => (
-              <Tr key={`${li.productId}-${idx}`}>
-                <Td>{li.title}</Td>
-                <Td>{li.sku}</Td>
-                <Td align="right">{li.quantity}</Td>
-                <Td align="right">{formatAmount(li.price, order.currency)}</Td>
-                <Td align="right">{formatAmount(li.total, order.currency)}</Td>
-              </Tr>
-            ))}
-            <Tr>
-              <Td>Subtotal</Td>
-              <Td />
-              <Td />
-              <Td />
-              <Td align="right">
-                {formatAmount(order.subtotal, order.currency)}
-              </Td>
-            </Tr>
-            {order.discount ? (
-              <Tr>
-                <Td>Discount</Td>
-                <Td />
-                <Td />
-                <Td />
-                <Td align="right">
-                  −{formatAmount(order.discount, order.currency)}
-                </Td>
-              </Tr>
-            ) : null}
-            <Tr>
-              <Td>Shipping</Td>
-              <Td />
-              <Td />
-              <Td />
-              <Td align="right">
-                {formatAmount(order.shippingTotal, order.currency)}
-              </Td>
-            </Tr>
-            <Tr>
-              <Td>Tax</Td>
-              <Td />
-              <Td />
-              <Td />
-              <Td align="right">
-                {formatAmount(order.taxTotal, order.currency)}
-              </Td>
-            </Tr>
-            <Tr>
-              <Td>
-                <strong>Total</strong>
-              </Td>
-              <Td />
-              <Td />
-              <Td />
-              <Td align="right">
-                <strong>{formatAmount(order.total, order.currency)}</strong>
-              </Td>
-            </Tr>
-          </TBody>
-        </Table>
-      </div>
-
-      <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
-        <AddressBlock title="Shipping address" address={order.shippingAddress} />
-        <AddressBlock title="Billing address" address={order.billingAddress} />
-      </div>
-    </div>
+          {canCancel ? (
+            <Button
+              variant="ghost"
+              iconLeft={PackageX}
+              loading={pending}
+              onClick={() =>
+                run(() => cancelSabcrmStoreOrder(order._id), 'Order cancelled.')
+              }
+            >
+              Cancel
+            </Button>
+          ) : null}
+        </>
+      }
+      party={{
+        label: order.customerName,
+        href: null,
+        meta: order.customerEmail,
+      }}
+      meta={meta}
+      currency={currency}
+      lines={lines}
+      totals={{
+        subTotal: order.subtotal,
+        discountTotal: order.discount ?? undefined,
+        taxTotal: order.taxTotal,
+        total: order.total,
+      }}
+      related={[]}
+      railExtra={
+        <>
+          <AddressCard title="Shipping address" addr={order.shippingAddress} />
+          <AddressCard title="Billing address" addr={order.billingAddress} />
+        </>
+      }
+    />
   );
 }

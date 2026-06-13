@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.json",
+  "include": [
+    "next-env.d.ts",
+    "src/app/sabcrm/supply/**/*.ts",
+    "src/app/sabcrm/supply/**/*.tsx",
+    "src/app/sabcrm/commerce/**/*.ts",
+    "src/app/sabcrm/commerce/**/*.tsx",
+    "src/app/actions/sabcrm-supply*.actions.ts",
+    "src/app/actions/sabcrm-supply*.actions.types.ts",
+    "src/app/actions/sabcrm-commerce*.actions.ts",
+    "src/app/actions/sabcrm-commerce*.actions.types.ts",
+    "src/lib/rust-client/sabcrm-supply.ts",
+    "src/lib/rust-client/sabcrm-commerce.ts"
+  ]
+}

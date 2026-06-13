@@ -1,20 +1,24 @@
 /**
  * SabCRM Commerce — Orders (`/sabcrm/commerce/orders`), 20ui.
  *
- * Server entry: lists the active project's storefront orders through
- * the gated `listSabcrmStoreOrders` action (crate `crm-store`,
- * `/v1/sabcrm/commerce/store/orders`). The badge column is the PAYMENT
- * status; fulfilment renders as text. Each row links to the
- * detail-lite page at `/sabcrm/commerce/orders/[orderId]`.
+ * Server entry for the doc-surface order vertical. Fetches page 1 of
+ * display-ready rows (storefront labels resolved server-side — no
+ * ObjectIds reach the client) plus the KPI strip in parallel through
+ * the gated actions, then hands everything to the kit-driven client.
+ * The kit `status` column is the PAYMENT status; fulfilment renders as
+ * a badge column. `?q= / ?status= / ?partyId= / ?from= / ?to=` seed
+ * the toolbar + initial fetch; an engine outage normalises into the
+ * kit's inline error state.
  */
 
 import * as React from 'react';
 
-import { listSabcrmStoreOrders } from '@/app/actions/sabcrm-commerce.actions';
 import {
-  CommerceClient,
-  type CommerceRow,
-} from '../_components/commerce-client';
+  getSabcrmStoreOrderKpis,
+  listSabcrmStoreOrdersPage,
+} from '@/app/actions/sabcrm-commerce-orders.actions';
+import type { CrmStoreOrderPaymentStatus } from '@/lib/rust-client/crm-store';
+import { OrdersClient } from './orders-client';
 
 export const dynamic = 'force-dynamic';
 
@@ -22,37 +26,47 @@ export const metadata = {
   title: 'Orders — SabCRM Commerce',
 };
 
-const FULFILLMENT_LABEL: Record<string, string> = {
-  unfulfilled: 'Unfulfilled',
-  partial: 'Partial',
-  fulfilled: 'Fulfilled',
-  cancelled: 'Cancelled',
-};
+interface PageProps {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
 
-export default async function SabcrmCommerceOrdersPage(): Promise<React.JSX.Element> {
-  const res = await listSabcrmStoreOrders({ limit: 100 });
-  const docs = res.ok ? res.data : [];
+function first(v: string | string[] | undefined): string | undefined {
+  return Array.isArray(v) ? v[0] : v;
+}
 
-  const rows: CommerceRow[] = docs.map((doc) => ({
-    id: doc._id,
-    label: doc.orderNumber,
-    status: doc.paymentStatus,
-    currency: doc.currency || 'INR',
-    cells: {
-      orderNumber: doc.orderNumber,
-      placedAt: doc.placedAt,
-      customerName: doc.customerName,
-      total: doc.total,
-      fulfillment:
-        FULFILLMENT_LABEL[doc.fulfillmentStatus] ?? doc.fulfillmentStatus,
-    },
-  }));
+export default async function SabcrmCommerceOrdersPage({
+  searchParams,
+}: PageProps): Promise<React.JSX.Element> {
+  const params = await searchParams;
+  const q = first(params.q) ?? '';
+  const status = (first(params.status) ?? '') as CrmStoreOrderPaymentStatus | '';
+  const partyId = first(params.partyId) ?? '';
+  const from = first(params.from);
+  const to = first(params.to);
+
+  const [pageRes, kpiRes] = await Promise.all([
+    listSabcrmStoreOrdersPage({
+      page: 1,
+      q: q || undefined,
+      status,
+      storefrontId: partyId || undefined,
+      from,
+      to,
+    }),
+    getSabcrmStoreOrderKpis(),
+  ]);
 
   return (
-    <CommerceClient
-      kind="orders"
-      initialRows={rows}
-      initialError={res.ok ? null : res.error}
+    <OrdersClient
+      initialRows={pageRes.ok ? pageRes.data.rows : []}
+      initialHasMore={pageRes.ok ? pageRes.data.hasMore : false}
+      initialError={pageRes.ok ? null : pageRes.error}
+      kpis={kpiRes.ok ? kpiRes.data : null}
+      initialFilters={
+        q || status || partyId || from || to
+          ? { q, status, partyId, from, to }
+          : undefined
+      }
     />
   );
 }
