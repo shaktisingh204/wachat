@@ -158,6 +158,71 @@ function VelocityView({ series }: { series: ReportDataSeries }): React.JSX.Eleme
   );
 }
 
+/** Pivot cross-tab / cohort grid renderer (cohort cells get heat intensity). */
+function MatrixView({ series }: { series: ReportDataSeries }): React.JSX.Element {
+  const m = series.matrix;
+  if (!m) return <div className="rp-result-foot">No matrix data.</div>;
+  const max = Math.max(1, ...m.cells.flat());
+  // Cohort uses "+N" offset columns → shade cells by intensity.
+  const heat = m.colKeys.length > 0 && m.colKeys.every((c) => c.startsWith('+'));
+  return (
+    <div className="rp-table-wrap">
+      <Table density="compact">
+        <THead>
+          <Tr>
+            <Th />
+            {m.colKeys.map((c, i) => (
+              <Th key={i} align="right">
+                {c}
+              </Th>
+            ))}
+            {m.rowTotals ? <Th align="right">Total</Th> : null}
+          </Tr>
+        </THead>
+        <TBody>
+          {m.rowKeys.map((r, ri) => (
+            <Tr key={ri}>
+              <Td>{r}</Td>
+              {m.cells[ri].map((v, ci) => (
+                <Td key={ci} align="right">
+                  {heat && v > 0 ? (
+                    <span
+                      style={{
+                        display: 'inline-block',
+                        padding: '0 6px',
+                        borderRadius: 4,
+                        background: `color-mix(in srgb, var(--st-accent) ${Math.round((v / max) * 70)}%, transparent)`,
+                      }}
+                    >
+                      {formatReportValue(v)}
+                    </span>
+                  ) : (
+                    formatReportValue(v)
+                  )}
+                </Td>
+              ))}
+              {m.rowTotals ? <Td align="right">{formatReportValue(m.rowTotals[ri])}</Td> : null}
+            </Tr>
+          ))}
+        </TBody>
+        {m.colTotals ? (
+          <TFoot>
+            <Tr>
+              <Td>Total</Td>
+              {m.colTotals.map((t, i) => (
+                <Td key={i} align="right">
+                  {formatReportValue(t)}
+                </Td>
+              ))}
+              <Td align="right">{formatReportValue(m.colTotals.reduce((a, b) => a + b, 0))}</Td>
+            </Tr>
+          </TFoot>
+        ) : null}
+      </Table>
+    </div>
+  );
+}
+
 // ---------------------------------------------------------------------------
 // Public renderer
 // ---------------------------------------------------------------------------
@@ -182,6 +247,23 @@ export function ReportChart({
   metricCaption,
   showFooter = true,
 }: ReportChartProps): React.JSX.Element {
+  // Pivot / cohort report → matrix grid.
+  if (series.matrix && series.matrix.rowKeys.length > 0) {
+    return (
+      <div>
+        <MatrixView series={series} />
+        {showFooter && (
+          <div className="rp-result-foot">
+            <span>
+              {series.matrix.rowKeys.length} × {series.matrix.colKeys.length} ·{' '}
+              {series.recordCount} record(s) matched
+            </span>
+          </div>
+        )}
+      </div>
+    );
+  }
+
   // Funnel report → value-weighted funnel of the pipeline's stages.
   if (chartType === 'funnel') {
     return (

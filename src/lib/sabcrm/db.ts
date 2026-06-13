@@ -197,10 +197,16 @@ export type SabcrmReportDoc = WithMongoId & {
    * the definition.
    */
   chartType?: "bar" | "line" | "pie" | "number" | "table" | "funnel";
-  /** Report kind — "standard" (default) | "funnel" | "velocity". */
-  kind?: "standard" | "funnel" | "velocity";
+  /** Report kind — standard | funnel | velocity | pivot | cohort. */
+  kind?: "standard" | "funnel" | "velocity" | "pivot" | "cohort";
   /** Pipeline driving a funnel / velocity report. */
   pipelineId?: string;
+  /** Pivot: column group-by field (row field = groupByField). */
+  pivotColField?: string;
+  /** Cohort: the date field whose period forms the cohort rows. */
+  cohortDateField?: string;
+  /** Cohort: period granularity. */
+  cohortInterval?: "day" | "week" | "month" | "quarter" | "year";
   /** User id of the report owner (creator). */
   createdBy: string;
   createdAt: string;

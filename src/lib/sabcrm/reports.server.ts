@@ -65,7 +65,26 @@ export type ReportTimeBucket = "day" | "week" | "month" | "quarter" | "year";
  * Report kind. `standard` is the legacy metric × group-by report (default when
  * absent). `funnel` + `velocity` are pipeline-driven sales analytics.
  */
-export type ReportKind = "standard" | "funnel" | "velocity";
+export type ReportKind =
+  | "standard"
+  | "funnel"
+  | "velocity"
+  | "pivot"
+  | "cohort";
+
+/** A matrix result (pivot cross-tab or cohort grid). */
+export interface ReportMatrix {
+  /** Row header labels (top→bottom). */
+  rowKeys: string[];
+  /** Column header labels (left→right). */
+  colKeys: string[];
+  /** `cells[r][c]` — the value at row r, column c. */
+  cells: number[][];
+  /** Per-row totals (optional; pivot). */
+  rowTotals?: number[];
+  /** Per-column totals (optional; pivot). */
+  colTotals?: number[];
+}
 
 /** Headline numbers for funnel / velocity reports (carried beside `rows`). */
 export interface ReportSeriesMeta {
@@ -107,6 +126,12 @@ export interface SavedReport {
   kind?: ReportKind;
   /** Pipeline whose ordered stages drive a funnel / velocity report. */
   pipelineId?: string;
+  /** Pivot: the second (column) group-by field. Row field is `groupByField`. */
+  pivotColField?: string;
+  /** Cohort: the date field whose period forms the cohort rows. */
+  cohortDateField?: string;
+  /** Cohort: the period granularity for cohort rows + columns. */
+  cohortInterval?: ReportTimeBucket;
   createdBy: string;
   createdAt: string;
   updatedAt: string;
@@ -125,6 +150,12 @@ export interface CreateReportInput {
   chartType?: ReportChartType;
   kind?: ReportKind;
   pipelineId?: string;
+  /** Pivot: the second (column) group-by field. Row field is `groupByField`. */
+  pivotColField?: string;
+  /** Cohort: the date field whose period forms the cohort rows. */
+  cohortDateField?: string;
+  /** Cohort: the period granularity for cohort rows + columns. */
+  cohortInterval?: ReportTimeBucket;
 }
 
 /** Fields that may be updated by {@link updateReport}. */
@@ -139,6 +170,12 @@ export interface UpdateReportPatch {
   chartType?: ReportChartType;
   kind?: ReportKind;
   pipelineId?: string;
+  /** Pivot: the second (column) group-by field. Row field is `groupByField`. */
+  pivotColField?: string;
+  /** Cohort: the date field whose period forms the cohort rows. */
+  cohortDateField?: string;
+  /** Cohort: the period granularity for cohort rows + columns. */
+  cohortInterval?: ReportTimeBucket;
 }
 
 /** One row in an analytics data series. */
@@ -174,6 +211,8 @@ export interface ReportDataSeries {
   computedAt: string;
   /** Headline numbers for funnel / velocity reports (absent for standard). */
   meta?: ReportSeriesMeta;
+  /** Cross-tab grid for pivot / cohort reports (absent otherwise). */
+  matrix?: ReportMatrix;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -315,6 +354,9 @@ function docToReport(doc: SabcrmReportDoc): SavedReport {
     chartType: doc.chartType,
     kind: doc.kind,
     pipelineId: doc.pipelineId,
+    pivotColField: doc.pivotColField,
+    cohortDateField: doc.cohortDateField,
+    cohortInterval: doc.cohortInterval,
     createdBy: doc.createdBy,
     createdAt: doc.createdAt,
     updatedAt: doc.updatedAt,
@@ -410,6 +452,9 @@ export async function createReport(
     chartType: input.chartType ?? undefined,
     kind: input.kind ?? undefined,
     pipelineId: input.pipelineId ?? undefined,
+    pivotColField: input.pivotColField ?? undefined,
+    cohortDateField: input.cohortDateField ?? undefined,
+    cohortInterval: input.cohortInterval ?? undefined,
     createdBy,
     createdAt: now,
     updatedAt: now,
@@ -485,6 +530,9 @@ export async function updateReport(
   if ("chartType" in patch) set.chartType = patch.chartType;
   if ("kind" in patch) set.kind = patch.kind;
   if ("pipelineId" in patch) set.pipelineId = patch.pipelineId;
+  if ("pivotColField" in patch) set.pivotColField = patch.pivotColField;
+  if ("cohortDateField" in patch) set.cohortDateField = patch.cohortDateField;
+  if ("cohortInterval" in patch) set.cohortInterval = patch.cohortInterval;
 
   const updated = await col.findOneAndUpdate(
     { _id: new ObjectId(id), projectId } as Filter<SabcrmReportDoc>,
@@ -564,6 +612,9 @@ export async function runReportDefinition(
     | "filters"
     | "kind"
     | "pipelineId"
+    | "pivotColField"
+    | "cohortDateField"
+    | "cohortInterval"
   >,
 ): Promise<ReportDataSeries> {
   const {
@@ -575,6 +626,9 @@ export async function runReportDefinition(
     filters,
     kind,
     pipelineId,
+    pivotColField,
+    cohortDateField,
+    cohortInterval,
   } = definition;
 
   // Resolve object metadata (needed for label lookup on SELECT groups).
@@ -631,6 +685,41 @@ export async function runReportDefinition(
       recordCount,
       computedAt: new Date().toISOString(),
       meta: v.meta,
+    };
+  }
+
+  // ── Matrix reports (pivot cross-tab / cohort grid) ────────────────────────
+  if (kind === "pivot") {
+    const p = await computePivot(
+      recordsCol,
+      matchStage,
+      metric,
+      metricField,
+      groupByField,
+      pivotColField,
+    );
+    return {
+      metric,
+      groupByField,
+      rows: p.rows,
+      matrix: p.matrix,
+      recordCount,
+      computedAt: new Date().toISOString(),
+    };
+  }
+  if (kind === "cohort") {
+    const c = await computeCohort(
+      recordsCol,
+      matchStage,
+      cohortDateField,
+      cohortInterval ?? "month",
+    );
+    return {
+      metric,
+      rows: c.rows,
+      matrix: c.matrix,
+      recordCount,
+      computedAt: new Date().toISOString(),
     };
   }
 
@@ -903,6 +992,143 @@ function buildAccumulator(
 }
 
 /** Computes a single scalar metric value with no group-by. */
+/* -------------------------------------------------------------------------- */
+/* Pivot + cohort (matrix) compute                                            */
+/* -------------------------------------------------------------------------- */
+
+const EMPTY_MATRIX: { rows: ReportDataPoint[]; matrix: ReportMatrix } = {
+  rows: [],
+  matrix: { rowKeys: [], colKeys: [], cells: [] },
+};
+
+/**
+ * Pivot cross-tab: rows = `groupByField`, columns = `pivotColField`, cells =
+ * the metric. `$group` on the (row,col) pair, then reshape into a dense grid
+ * with row/column totals.
+ */
+async function computePivot(
+  recordsCol: RecordsCol,
+  matchStage: Record<string, unknown>,
+  metric: ReportMetric,
+  metricField: string | undefined,
+  groupByField: string | undefined,
+  pivotColField: string | undefined,
+): Promise<{ rows: ReportDataPoint[]; matrix: ReportMatrix }> {
+  if (!groupByField || !pivotColField) return EMPTY_MATRIX;
+  const grouped = await recordsCol
+    .aggregate([
+      { $match: matchStage },
+      {
+        $group: {
+          _id: {
+            r: { $ifNull: [`$data.${groupByField}`, "(empty)"] },
+            c: { $ifNull: [`$data.${pivotColField}`, "(empty)"] },
+          },
+          v: buildAccumulator(metric, metricField),
+        },
+      },
+      { $limit: RUN_REPORT_CAP },
+    ])
+    .toArray();
+
+  const rowSet = new Set<string>();
+  const colSet = new Set<string>();
+  const cell = new Map<string, number>();
+  for (const g of grouped as Array<{ _id: { r: unknown; c: unknown }; v: number }>) {
+    const r = String(g._id.r);
+    const c = String(g._id.c);
+    rowSet.add(r);
+    colSet.add(c);
+    cell.set(`${r} ${c}`, Number(g.v) || 0);
+  }
+  const rowKeys = [...rowSet].sort();
+  const colKeys = [...colSet].sort();
+  const cells = rowKeys.map((r) => colKeys.map((c) => cell.get(`${r} ${c}`) ?? 0));
+  const rowTotals = cells.map((row) => row.reduce((a, b) => a + b, 0));
+  const colTotals = colKeys.map((_, ci) => cells.reduce((a, row) => a + row[ci], 0));
+  return { rows: [], matrix: { rowKeys, colKeys, cells, rowTotals, colTotals } };
+}
+
+/** Mongo `$dateTrunc` unit for a report time bucket. */
+function truncUnit(interval: ReportTimeBucket): string {
+  return interval === "day" || interval === "week" || interval === "quarter" || interval === "year"
+    ? interval
+    : "month";
+}
+
+/** Format a cohort bucket Date into a short label by interval. */
+function fmtCohort(d: unknown, interval: ReportTimeBucket): string {
+  if (!(d instanceof Date) || Number.isNaN(d.getTime())) return "(none)";
+  const iso = d.toISOString();
+  if (interval === "year") return iso.slice(0, 4);
+  if (interval === "day" || interval === "week") return iso.slice(0, 10);
+  return iso.slice(0, 7); // month / quarter → YYYY-MM (quarter start)
+}
+
+/**
+ * Cohort retention grid: rows = the `createdAt` cohort period, columns =
+ * period offset until `cohortDateField` (e.g. leads created in month X, how
+ * many reached their close month N periods later). Cells = record counts.
+ */
+async function computeCohort(
+  recordsCol: RecordsCol,
+  matchStage: Record<string, unknown>,
+  cohortDateField: string | undefined,
+  interval: ReportTimeBucket,
+): Promise<{ rows: ReportDataPoint[]; matrix: ReportMatrix }> {
+  if (!cohortDateField) return EMPTY_MATRIX;
+  const unit = truncUnit(interval);
+  const grouped = await recordsCol
+    .aggregate([
+      { $match: matchStage },
+      {
+        $addFields: {
+          __cohort: {
+            $dateTrunc: {
+              date: { $convert: { input: "$createdAt", to: "date", onError: null, onNull: null } },
+              unit,
+              timezone: "UTC",
+            },
+          },
+          __event: {
+            $dateTrunc: {
+              date: { $convert: { input: `$data.${cohortDateField}`, to: "date", onError: null, onNull: null } },
+              unit,
+              timezone: "UTC",
+            },
+          },
+        },
+      },
+      { $match: { __cohort: { $ne: null } } },
+      {
+        $addFields: {
+          __offset: {
+            $dateDiff: { startDate: "$__cohort", endDate: { $ifNull: ["$__event", "$__cohort"] }, unit },
+          },
+        },
+      },
+      { $match: { __offset: { $gte: 0 } } },
+      { $group: { _id: { cohort: "$__cohort", offset: "$__offset" }, n: { $sum: 1 } } },
+      { $limit: RUN_REPORT_CAP },
+    ])
+    .toArray();
+
+  const cohortSet = new Set<string>();
+  let maxOffset = 0;
+  const cell = new Map<string, number>();
+  for (const g of grouped as Array<{ _id: { cohort: unknown; offset: number }; n: number }>) {
+    const ck = fmtCohort(g._id.cohort, interval);
+    cohortSet.add(ck);
+    maxOffset = Math.max(maxOffset, g._id.offset ?? 0);
+    cell.set(`${ck}|${g._id.offset}`, g.n);
+  }
+  const rowKeys = [...cohortSet].sort();
+  const cols = Math.min(maxOffset + 1, 24); // bound the grid width
+  const colKeys = Array.from({ length: cols }, (_, i) => `+${i}`);
+  const cells = rowKeys.map((ck) => colKeys.map((_, off) => cell.get(`${ck}|${off}`) ?? 0));
+  return { rows: [], matrix: { rowKeys, colKeys, cells } };
+}
+
 async function computeSingleValue(
   col: Awaited<ReturnType<typeof sabcrmRecords>>,
   matchStage: Record<string, unknown>,

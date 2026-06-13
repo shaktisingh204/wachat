@@ -112,6 +112,8 @@ const CHART_TYPES: ReadonlyArray<{ value: ReportChartType; label: string }> = [
 
 const REPORT_KINDS: ReadonlyArray<{ value: ReportKind; label: string }> = [
   { value: 'standard', label: 'Standard (metric × group)' },
+  { value: 'pivot', label: 'Pivot table' },
+  { value: 'cohort', label: 'Cohort' },
   { value: 'funnel', label: 'Funnel (pipeline stages)' },
   { value: 'velocity', label: 'Sales velocity' },
 ];
@@ -144,6 +146,9 @@ interface Draft {
   chartType: ReportChartType;
   kind: ReportKind;
   pipelineId: string;
+  pivotColField: string;
+  cohortDateField: string;
+  cohortInterval: ReportTimeBucket;
 }
 
 const EMPTY_DRAFT: Draft = {
@@ -157,6 +162,9 @@ const EMPTY_DRAFT: Draft = {
   chartType: 'bar',
   kind: 'standard',
   pipelineId: '',
+  pivotColField: '',
+  cohortDateField: '',
+  cohortInterval: 'month',
 };
 
 function draftFromReport(r: SavedReport): Draft {
@@ -172,6 +180,9 @@ function draftFromReport(r: SavedReport): Draft {
     chartType: r.chartType ?? 'bar',
     kind: r.kind ?? 'standard',
     pipelineId: r.pipelineId ?? '',
+    pivotColField: r.pivotColField ?? '',
+    cohortDateField: r.cohortDateField ?? '',
+    cohortInterval: r.cohortInterval ?? 'month',
   };
 }
 
@@ -187,7 +198,14 @@ function buildSaveInput(d: Draft): SaveReportActionInput {
   if (d.description.trim()) input.description = d.description.trim();
   if (metricNeedsField(d.metric) && d.metricField) input.metricField = d.metricField;
   if (d.groupByField) input.groupByField = d.groupByField;
-  if (d.kind !== 'standard' && d.pipelineId) input.pipelineId = d.pipelineId;
+  if ((d.kind === 'funnel' || d.kind === 'velocity') && d.pipelineId) {
+    input.pipelineId = d.pipelineId;
+  }
+  if (d.kind === 'pivot' && d.pivotColField) input.pivotColField = d.pivotColField;
+  if (d.kind === 'cohort') {
+    if (d.cohortDateField) input.cohortDateField = d.cohortDateField;
+    input.cohortInterval = d.cohortInterval;
+  }
   return input;
 }
 
@@ -370,8 +388,17 @@ export default function SabcrmReportBuilderPage(): React.JSX.Element {
               : null),
             chartType: draft.chartType,
             kind: draft.kind,
-            ...(draft.kind !== 'standard' && draft.pipelineId
+            ...((draft.kind === 'funnel' || draft.kind === 'velocity') && draft.pipelineId
               ? { pipelineId: draft.pipelineId }
+              : null),
+            ...(draft.kind === 'pivot' && draft.pivotColField
+              ? { pivotColField: draft.pivotColField }
+              : null),
+            ...(draft.kind === 'cohort'
+              ? {
+                  ...(draft.cohortDateField ? { cohortDateField: draft.cohortDateField } : null),
+                  cohortInterval: draft.cohortInterval,
+                }
               : null),
           },
           activeProjectId ?? undefined,
@@ -403,6 +430,9 @@ export default function SabcrmReportBuilderPage(): React.JSX.Element {
     draft.name,
     draft.kind,
     draft.pipelineId,
+    draft.pivotColField,
+    draft.cohortDateField,
+    draft.cohortInterval,
     groupByIsDate,
     activeProjectId,
   ]);
@@ -540,7 +570,7 @@ export default function SabcrmReportBuilderPage(): React.JSX.Element {
               </Field>
 
               {/* Pipeline (funnel / velocity) */}
-              {draft.kind !== 'standard' && (
+              {(draft.kind === 'funnel' || draft.kind === 'velocity') && (
                 <Field
                   label="Pipeline"
                   id="rep-pipeline"
@@ -558,7 +588,42 @@ export default function SabcrmReportBuilderPage(): React.JSX.Element {
                 </Field>
               )}
 
-              {draft.kind === 'standard' && (
+              {/* Pivot: column field (row field = the Group-by below) */}
+              {draft.kind === 'pivot' && (
+                <Field label="Column field" id="rep-pivot-col" help="Pivot columns; rows come from Group by.">
+                  <SelectField
+                    value={draft.pivotColField || null}
+                    onChange={(v) => set('pivotColField', v ?? '')}
+                    placeholder="Select a column field"
+                    options={groupableFields.map((f) => ({ value: f.key, label: f.label }))}
+                  />
+                </Field>
+              )}
+
+              {/* Cohort: date field + interval */}
+              {draft.kind === 'cohort' && (
+                <>
+                  <Field label="Cohort date field" required id="rep-cohort-date" help="Records are cohorted by createdAt; columns = periods until this date.">
+                    <SelectField
+                      value={draft.cohortDateField || null}
+                      onChange={(v) => set('cohortDateField', v ?? '')}
+                      placeholder="e.g. closeDate"
+                      options={(selectedObject?.fields ?? [])
+                        .filter((f) => DATE_TYPES.has(f.type))
+                        .map((f) => ({ value: f.key, label: f.label }))}
+                    />
+                  </Field>
+                  <Field label="Interval" id="rep-cohort-interval">
+                    <SelectField
+                      value={draft.cohortInterval}
+                      onChange={(v) => v && set('cohortInterval', v as ReportTimeBucket)}
+                      options={TIME_BUCKETS.map((t) => ({ value: t.value, label: t.label }))}
+                    />
+                  </Field>
+                </>
+              )}
+
+              {(draft.kind === 'standard' || draft.kind === 'pivot') && (
                 <>
               {/* Metric */}
               <Field label="Metric" required id="rep-metric">
