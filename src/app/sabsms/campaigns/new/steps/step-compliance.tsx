@@ -387,8 +387,8 @@ export function StepCompliance({
           <label className="flex items-start gap-3">
             <Checkbox
               checked={draft.complianceAttested}
-              onCheckedChange={(v) =>
-                onChange({ complianceAttested: Boolean(v) })
+              onChange={(e) =>
+                onChange({ complianceAttested: e.target.checked })
               }
             />
             <span className="text-sm text-[var(--st-text)]">

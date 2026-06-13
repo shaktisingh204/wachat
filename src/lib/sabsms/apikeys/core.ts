@@ -32,8 +32,39 @@ export {
 // ─── Mint / hash ───────────────────────────────────────────────────────────
 
 export const SABSMS_KEY_LIVE_PREFIX = 'sk_live_';
+/**
+ * V2.13 sandbox keys — `sk_test_…`. A test key authenticates exactly like
+ * a live key (same scopes, rate limit, IP allowlist) but its `mode` is
+ * threaded into the request so test-mode sends can be zero-rated / labelled
+ * "test" downstream. Both prefixes are 8 chars, so the display prefix logic
+ * is unchanged.
+ */
+export const SABSMS_KEY_TEST_PREFIX = 'sk_test_';
+
+/** Live vs sandbox key. Absent on legacy docs → treated as 'live'. */
+export type SabsmsApiKeyMode = 'live' | 'test';
+
+/** All accepted raw-key prefixes (live first). */
+export const SABSMS_KEY_PREFIXES = [SABSMS_KEY_LIVE_PREFIX, SABSMS_KEY_TEST_PREFIX] as const;
+
 const BASE62 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 const KEY_RANDOM_LENGTH = 32;
+
+/** The raw-key prefix for a given mode. */
+export function prefixForMode(mode: SabsmsApiKeyMode): string {
+  return mode === 'test' ? SABSMS_KEY_TEST_PREFIX : SABSMS_KEY_LIVE_PREFIX;
+}
+
+/**
+ * The mode a raw key claims by its prefix (used by authentication, which
+ * accepts both prefixes — see `authenticateApiKey`). Returns null when the
+ * key carries no recognised prefix.
+ */
+export function modeFromRawKey(rawKey: string): SabsmsApiKeyMode | null {
+  if (rawKey.startsWith(SABSMS_KEY_LIVE_PREFIX)) return 'live';
+  if (rawKey.startsWith(SABSMS_KEY_TEST_PREFIX)) return 'test';
+  return null;
+}
 
 /** Number of raw-key chars persisted for display ("sk_live_aB3x"). */
 export const KEY_PREFIX_DISPLAY_LENGTH = 12;
@@ -46,19 +77,25 @@ export function hashApiKey(rawKey: string): string {
 }
 
 /**
- * Mint a fresh live key. `randomChar` is injectable for deterministic
- * tests; production uses crypto-grade `randomInt`.
+ * Mint a fresh key. `randomChar` is injectable for deterministic tests;
+ * production uses crypto-grade `randomInt`. The optional `mode` selects
+ * the prefix — `'live'` (default) → `sk_live_…`, `'test'` → `sk_test_…`.
+ *
+ * The `randomChar`-first signature is preserved for back-compat with the
+ * existing unit tests (`mintApiKey(() => 'A')`).
  */
 export function mintApiKey(
   randomChar: () => string = () => BASE62[randomInt(BASE62.length)],
-): { rawKey: string; keyHash: string; prefix: string } {
+  mode: SabsmsApiKeyMode = 'live',
+): { rawKey: string; keyHash: string; prefix: string; mode: SabsmsApiKeyMode } {
   let random = '';
   for (let i = 0; i < KEY_RANDOM_LENGTH; i += 1) random += randomChar();
-  const rawKey = `${SABSMS_KEY_LIVE_PREFIX}${random}`;
+  const rawKey = `${prefixForMode(mode)}${random}`;
   return {
     rawKey,
     keyHash: hashApiKey(rawKey),
     prefix: rawKey.slice(0, KEY_PREFIX_DISPLAY_LENGTH),
+    mode,
   };
 }
 
@@ -66,6 +103,18 @@ export function mintApiKey(
 export function isWellFormedApiKey(rawKey: string): boolean {
   if (!rawKey.startsWith(SABSMS_KEY_LIVE_PREFIX)) return false;
   const random = rawKey.slice(SABSMS_KEY_LIVE_PREFIX.length);
+  return random.length === KEY_RANDOM_LENGTH && /^[A-Za-z0-9]+$/.test(random);
+}
+
+/**
+ * Shape sanity for EITHER a live or a test key: a recognised prefix +
+ * exactly 32 base62 chars. (`isWellFormedApiKey` stays live-only so the
+ * minted-shape invariant for production keys is unchanged.)
+ */
+export function isWellFormedAnyApiKey(rawKey: string): boolean {
+  const mode = modeFromRawKey(rawKey);
+  if (!mode) return false;
+  const random = rawKey.slice(prefixForMode(mode).length);
   return random.length === KEY_RANDOM_LENGTH && /^[A-Za-z0-9]+$/.test(random);
 }
 
@@ -89,6 +138,8 @@ export interface SabsmsApiKeyDocLike {
   rateLimitPerMin?: number;
   ipAllowlist?: string[];
   revokedAt?: Date | null;
+  /** Live vs sandbox. Absent on legacy docs → 'live'. */
+  mode?: SabsmsApiKeyMode;
 }
 
 export type KeyAuthDecision =

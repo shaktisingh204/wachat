@@ -6,6 +6,7 @@ import {
   SabsmsExportMenu,
   SabsmsSavedViews,
   SabsmsDetailDrawer,
+  SabsmsEmpty,
   useSabsmsUrlState,
 } from "@/components/sabsms/page-toolkit";
 import { Sparkles, Filter, Eye, Layers, TrendingUp, Users, Target } from "lucide-react";
@@ -68,11 +69,27 @@ export function CohortsDashboard({ data, options }: CohortsDashboardProps) {
   const [selectedCell, setSelectedCell] = useState<{ rowId: string; period: number } | null>(null);
   const [multiMetric, setMultiMetric] = useState(false);
 
-  // Facets for filter bar
+  // Facets for filter bar (the bar reads/writes the URL itself).
   const facets = [
-    { id: "source", label: "Source", options: options.sources },
-    { id: "campaign", label: "Campaign", options: options.campaigns },
+    { key: "source", label: "Source", options: options.sources, multi: false },
+    { key: "campaign", label: "Campaign", options: options.campaigns, multi: false },
   ];
+
+  // CSV export of the retention matrix (one row per cohort × period).
+  const exportCsv = React.useCallback(async () => {
+    const header = "cohort,size,period,retentionPct,activeContacts,ltv";
+    const lines = data.rows.flatMap((row) =>
+      row.cells.map((c) =>
+        [row.id, row.size, c.period, c.value, c.absoluteValue, c.ltv].join(","),
+      ),
+    );
+    return [header, ...lines].join("\n");
+  }, [data]);
+
+  const exportJson = React.useCallback(
+    async () => data.rows.map((r) => JSON.stringify(r)).join("\n"),
+    [data],
+  );
 
   // Colors for heatmap
   function getHeatmapColor(percentage: number) {
@@ -126,29 +143,32 @@ export function CohortsDashboard({ data, options }: CohortsDashboardProps) {
     return best;
   }, [data]);
 
+  if (data.empty || data.rows.length === 0) {
+    return (
+      <div className="space-y-6">
+        <SabsmsFilterBar facets={facets} searchPlaceholder="Search cohorts..." />
+        <SabsmsEmpty
+          icon={<Users />}
+          title="No cohort data yet"
+          description="Cohorts are built from the first month you messaged each contact. Send outbound messages and replies will start populating the retention matrix here."
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <SabsmsFilterBar
           facets={facets}
-          onSearch={(q) => urlState.setParam("q", q)}
-          onFacetChange={(f, v) => urlState.setParam(f, v)}
           searchPlaceholder="Search cohorts..."
         />
         <div className="flex items-center gap-2">
-          <SabsmsSavedViews
-            views={[
-              { id: "v1", label: "Monthly by First Message", params: { definition: "first-message" } },
-              { id: "v2", label: "Weekly by Conversions", params: { metric: "conversions" } },
-            ]}
-            currentViewId="v1"
-            onSelectView={(v) => console.log(v)}
-            onSaveCurrent={() => console.log("save")}
-          />
+          <SabsmsSavedViews scope="analytics:cohorts" />
           <SabsmsExportMenu
-            onExportCsv={() => console.log("export csv")}
-            onExportExcel={() => console.log("export excel")}
-            onExportJson={() => console.log("export json")}
+            toCsv={exportCsv}
+            toJson={exportJson}
+            filename="sabsms-cohorts"
           />
         </div>
       </div>
@@ -158,8 +178,8 @@ export function CohortsDashboard({ data, options }: CohortsDashboardProps) {
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium text-[var(--st-text-secondary)]">Definition:</span>
           <Select
-            value={urlState.params.get("definition") || "first-message"}
-            onValueChange={(v) => urlState.setParam("definition", v)}
+            value={urlState.get("definition") || "first-message"}
+            onValueChange={(v) => urlState.setOne("definition", v)}
           >
             <SelectTrigger className="w-[170px]" aria-label="Cohort definition">
               <SelectValue placeholder="First Message" />
@@ -176,8 +196,8 @@ export function CohortsDashboard({ data, options }: CohortsDashboardProps) {
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium text-[var(--st-text-secondary)]">Metric:</span>
           <Select
-            value={urlState.params.get("metric") || "sends"}
-            onValueChange={(v) => urlState.setParam("metric", v)}
+            value={urlState.get("metric") || "sends"}
+            onValueChange={(v) => urlState.setOne("metric", v)}
           >
             <SelectTrigger className="w-[150px]" aria-label="Cohort metric">
               <SelectValue placeholder="Sends" />
@@ -195,8 +215,8 @@ export function CohortsDashboard({ data, options }: CohortsDashboardProps) {
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium text-[var(--st-text-secondary)]">Split by:</span>
           <Select
-            value={urlState.params.get("splitBy") || "none"}
-            onValueChange={(v) => urlState.setParam("splitBy", v)}
+            value={urlState.get("splitBy") || "none"}
+            onValueChange={(v) => urlState.setOne("splitBy", v)}
           >
             <SelectTrigger className="w-[150px]" aria-label="Split cohorts by">
               <SelectValue placeholder="None" />
@@ -297,7 +317,7 @@ export function CohortsDashboard({ data, options }: CohortsDashboardProps) {
                     borderRadius: "var(--st-radius-lg)",
                   }}
                   itemStyle={{ color: "var(--st-text)" }}
-                  formatter={(value: number) => [`${value}%`, undefined]}
+                  formatter={(value) => `${value}%`}
                 />
                 <Legend iconType="circle" wrapperStyle={{ fontSize: "12px", paddingTop: "10px" }} />
                 {data.rows.map((row, idx) => (
@@ -320,8 +340,8 @@ export function CohortsDashboard({ data, options }: CohortsDashboardProps) {
       {/* LTV Curve Chart */}
       <Card variant="elevated">
         <CardHeader>
-          <CardTitle>LTV Over Time</CardTitle>
-          <CardDescription>Cumulative Life-Time Value progression across all cohorts over time</CardDescription>
+          <CardTitle>Cumulative Messages per Contact</CardTitle>
+          <CardDescription>Cumulative messages-per-contact by cohort (volume proxy — no per-contact revenue source in SabSMS yet)</CardDescription>
         </CardHeader>
         <CardBody>
           <div className="h-[350px] w-full">
@@ -340,7 +360,7 @@ export function CohortsDashboard({ data, options }: CohortsDashboardProps) {
                   fontSize={12}
                   tickLine={false}
                   axisLine={false}
-                  tickFormatter={(val) => `$${val}`}
+                  tickFormatter={(val) => `${val}`}
                 />
                 <Tooltip
                   contentStyle={{
@@ -349,7 +369,7 @@ export function CohortsDashboard({ data, options }: CohortsDashboardProps) {
                     borderRadius: "var(--st-radius-lg)",
                   }}
                   itemStyle={{ color: "var(--st-text)" }}
-                  formatter={(value: number) => [`$${value}`, undefined]}
+                  formatter={(value) => `${value}`}
                 />
                 <Legend iconType="circle" wrapperStyle={{ fontSize: "12px", paddingTop: "10px" }} />
                 {data.rows.map((row, idx) => (
@@ -455,9 +475,13 @@ export function CohortsDashboard({ data, options }: CohortsDashboardProps) {
       <SabsmsDetailDrawer
         open={selectedCell !== null}
         onOpenChange={(open) => !open && setSelectedCell(null)}
-        title={`Cohort Drill-down`}
+        title={
+          <span className="flex items-center gap-2">
+            <Eye className="h-4 w-4" aria-hidden="true" />
+            Cohort Drill-down
+          </span>
+        }
         description={selectedCell ? `Viewing ${selectedCell.rowId} at Month ${selectedCell.period}` : ""}
-        icon={<Eye className="h-4 w-4" aria-hidden="true" />}
       >
         <div className="space-y-6 py-4">
           <p className="text-sm text-[var(--st-text-secondary)]">
@@ -488,9 +512,9 @@ export function CohortsDashboard({ data, options }: CohortsDashboardProps) {
             </Card>
             <Card variant="outlined" className="bg-[var(--st-bg-muted)]/30">
               <CardBody className="p-4 flex flex-col items-center justify-center text-center h-full">
-                <p className="text-xs text-[var(--st-text-secondary)] font-medium uppercase tracking-wider mb-2">LTV</p>
+                <p className="text-xs text-[var(--st-text-secondary)] font-medium uppercase tracking-wider mb-2">Msgs / Contact</p>
                 <p className="text-2xl font-bold font-mono text-[var(--st-text)]">
-                  ${selectedCell &&
+                  {selectedCell &&
                     data.rows
                       .find((r) => r.id === selectedCell.rowId)
                       ?.cells.find((c) => c.period === selectedCell.period)?.ltv}

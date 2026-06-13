@@ -75,7 +75,7 @@ export default async function SabsmsNumberDetailPage({ params }: PageProps) {
       }
       secondaryActions={[
         { label: "Back to numbers", onSelectHref: "/sabsms/numbers" },
-        { label: "Provision new", onSelectHref: "/sabsms/numbers/new" },
+        { label: "Buy number", onSelectHref: "/sabsms/numbers/buy" },
       ]}
     >
       <NumberDetailClient detail={detail} />

@@ -174,9 +174,11 @@ export async function loadConversations(
     ];
   } else if (scope === "mine") {
     filter.status = "open";
-    // TODO: thread the current user id through and match it here. For
-    // now "mine" returns assigned-to-anyone open conversations.
-    filter.assignedAgentId = { $exists: true, $ne: null } as never;
+    // "Mine" = open conversations assigned to the signed-in agent. The
+    // current user id comes from the session (never a spoofed arg).
+    const me = await resolveWorkspace();
+    const currentUserId = me.ok ? me.workspaceId : workspaceId;
+    filter.assignedAgentId = currentUserId as never;
   }
 
   if (filters.status && filters.status.length > 0) {
@@ -257,16 +259,22 @@ export async function loadTemplates(
 }
 
 export async function loadAgents(
-  _workspaceId: string,
+  workspaceId: string,
 ): Promise<InboxAgent[]> {
-  // TODO: when the agent/team collection ships, swap this for a real
-  // lookup. For now the page renders a stubbed pool so the assignment
-  // dropdown works end-to-end.
-  return [
-    { id: "agent.me", name: "Me" },
-    { id: "agent.support", name: "Support team" },
-    { id: "agent.sales", name: "Sales team" },
-  ];
+  // REAL directory — the same roster the /sabsms/settings/team surface
+  // shows: workspace owner + active project agents (platform RBAC model).
+  // Pending invites are excluded — you cannot assign a conversation to
+  // someone who has not accepted yet.
+  const { loadTeamMembers } = await import(
+    "@/app/sabsms/settings/team/actions"
+  );
+  const { rows } = await loadTeamMembers(workspaceId);
+  return rows
+    .filter((r) => r.status === "active")
+    .map((r) => ({
+      id: r.id,
+      name: r.name?.trim() || r.email || (r.isOwner ? "Owner" : "Agent"),
+    }));
 }
 
 // ─── Mutation results ─────────────────────────────────────────────────────
@@ -280,7 +288,13 @@ export type ActionResult =
 export async function replyToThread(input: {
   conversationId: string;
   body: string;
-  mediaSabFileIds?: string[];
+  /**
+   * MMS attachments — resolved SabFiles picks. Each carries the SabFile
+   * `id` plus the picker-resolved public R2 `url` so the engine can send
+   * the media (the worker only attaches MMS from `mediaUrls`). `mime` /
+   * `size` populate the stored `media` metadata. NEVER a free-text URL.
+   */
+  media?: { sabFileId: string; url: string; mime?: string; bytes?: number }[];
 }): Promise<{ ok: true; id: string } | { ok: false; error: string }> {
   const ws = await resolveWorkspace();
   if (!ws.ok) return ws;
@@ -312,6 +326,19 @@ export async function replyToThread(input: {
     return { ok: false, error: "No inbound message to reply to" };
   }
 
+  // V2.4 — resolve the SabFiles picks into the engine contract. The
+  // worker only sends MMS from `mediaUrls` (resolved public R2 URLs),
+  // so pass those alongside the `media` metadata and flip the channel to
+  // 'mms'. The URLs come from the SabFiles picker (public R2), never a
+  // free-text paste.
+  const picks = (input.media ?? []).filter((m) => m.url?.trim());
+  const mediaUrls = picks.map((m) => m.url.trim());
+  const mediaMeta = picks.map((m) => ({
+    sabFileId: m.sabFileId,
+    mime: m.mime?.trim() || "application/octet-stream",
+    bytes: typeof m.bytes === "number" && m.bytes > 0 ? m.bytes : 0,
+  }));
+
   try {
     const res = await sabsmsEngine.enqueueSend({
       workspaceId: ws.workspaceId,
@@ -320,11 +347,9 @@ export async function replyToThread(input: {
       body: input.body,
       category: "service",
       contactId: conv.contactId,
-      media: input.mediaSabFileIds?.map((id) => ({
-        sabFileId: id,
-        mime: "application/octet-stream",
-        bytes: 0,
-      })),
+      ...(mediaUrls.length > 0
+        ? { media: mediaMeta, mediaUrls, channel: "mms" as const }
+        : {}),
       eventKey: "sabsms.inbox.reply",
     });
 
@@ -389,19 +414,80 @@ export async function sendCannedResponse(input: {
   return replyToThread({ conversationId: input.conversationId, body });
 }
 
+/**
+ * On-demand AI reply suggestion for the inbox composer (Sparkles button).
+ *
+ * Real LLM call — NOT a canned string. Builds a PII-scrubbed transcript
+ * from the thread + the workspace agent's persona/knowledge config and
+ * runs it through the same worker-safe provider ladder the V2.12 agent
+ * uses (`defaultSabsmsLlmClient`: AI Gateway → Anthropic → OpenAI). When
+ * no provider key is configured the ladder returns an honest "AI is not
+ * configured" error, which surfaces in the composer — never a fake reply.
+ */
 export async function generateAiReply(conversationId: string): Promise<{ ok: true; suggestion: string } | { ok: false; error: string }> {
   const ws = await resolveWorkspace();
   if (!ws.ok) return ws;
-  
+
   const thread = await loadThread(ws.workspaceId, conversationId);
   if (!thread) return { ok: false, error: "Conversation not found" };
 
-  // In a real implementation this would call genkit or openai using the thread.messages context.
-  // For the purpose of the mock CRM, we return a heuristic or static string.
-  const inboundCount = thread.messages.filter(m => m.direction === 'inbound').length;
-  let suggestion = "Thank you for reaching out! We are looking into this for you right now and will get back to you shortly.";
-  if (inboundCount > 1) {
-    suggestion = "Thanks for following up! One of our agents will be with you momentarily to resolve this.";
+  const [{ defaultSabsmsLlmClient }, { scrubPii }, { agentStoreFor }] =
+    await Promise.all([
+      import("@/lib/sabsms/agent/llm"),
+      import("@/lib/sabsms/agent/guardrails"),
+      import("@/lib/sabsms/agent/store"),
+    ]);
+
+  // Reuse the workspace agent persona/knowledge so on-demand suggestions
+  // stay on-brand with the auto/suggest agent. getConfig returns sane
+  // defaults when no agent has been configured.
+  const { db } = await connectToDatabase();
+  const config = await agentStoreFor(db).getConfig(ws.workspaceId);
+
+  // PII-scrubbed transcript — the model never sees raw phone/card digits.
+  const transcript = thread.messages
+    .filter((m) => !m.isNote && m.body)
+    .slice(-12)
+    .map((m) => {
+      const who = m.direction === "inbound" ? "Customer" : "Business";
+      return `${who}: ${scrubPii(m.body).text}`;
+    })
+    .join("\n");
+
+  const lastInbound = [...thread.messages]
+    .reverse()
+    .find((m) => m.direction === "inbound" && m.body);
+  if (!lastInbound) {
+    return { ok: false, error: "No customer message to reply to yet" };
+  }
+
+  const system = [
+    "You are drafting a reply that a human support agent will review before sending over SMS.",
+    "Keep it under 300 characters, plain text, no markdown, warm and concise.",
+    config.persona ? `Business persona / instructions:\n${config.persona}` : "",
+    "Only use facts present in the conversation or knowledge base. Never invent specifics, prices, refunds, or legal/medical claims.",
+  ]
+    .filter(Boolean)
+    .join("\n\n");
+
+  const knowledge = config.knowledge
+    ? `\n\nKnowledge base (may be relevant):\n${config.knowledge.slice(0, 2000)}`
+    : "";
+
+  const prompt = [
+    "Conversation so far (oldest first):",
+    transcript || "(no prior messages)",
+    knowledge,
+    "",
+    "Write the single best reply for the agent to send next. Output only the reply text.",
+  ].join("\n");
+
+  const res = await defaultSabsmsLlmClient({ system, prompt, maxTokens: 300 });
+  if (!res.ok) return { ok: false, error: res.error };
+
+  const suggestion = res.text.trim().slice(0, 800);
+  if (!suggestion) {
+    return { ok: false, error: "The model returned an empty reply" };
   }
   return { ok: true, suggestion };
 }
@@ -492,6 +578,22 @@ export async function assignTo(input: {
     },
   );
   return { ok: true };
+}
+
+/**
+ * Assign a conversation to the signed-in agent. The agent id is resolved
+ * from the session server-side, so "Assign to me" never depends on a
+ * client-known id (and can't be spoofed to another agent).
+ */
+export async function assignToMe(input: {
+  conversationId: string;
+}): Promise<ActionResult> {
+  const ws = await resolveWorkspace();
+  if (!ws.ok) return ws;
+  return assignTo({
+    conversationId: input.conversationId,
+    agentId: ws.workspaceId,
+  });
 }
 
 export async function snoozeUntil(input: {

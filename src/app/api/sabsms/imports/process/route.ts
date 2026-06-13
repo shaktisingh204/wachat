@@ -15,7 +15,7 @@ export async function GET(request: Request) {
       };
 
       try {
-        const ws = await getWorkspace();
+        const ws = await resolveWorkspace();
         if (!ws.ok) throw new Error("Unauthorized");
 
         const { db } = await connectToDatabase();

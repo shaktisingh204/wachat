@@ -2,7 +2,10 @@
 
 import { useMemo } from "react";
 
-import { Badge, Card, CardBody, CardDescription, CardHeader, CardTitle, Progress, Separator } from '@/components/sabcrm/20ui';
+import { Badge, Card, CardBody, CardDescription, CardHeader, CardTitle, Separator } from '@/components/sabcrm/20ui';
+// Import the real Progress (with `indicatorClassName`) directly — the
+// barrel's same-named loading.tsx export shadows it.
+import { Progress } from "@/components/sabcrm/20ui/progress";
 
 import { creditCostFor } from "@/lib/sabsms/credits/rates";
 import { isGsm7, segmentInfo } from "@/lib/sabsms/segments";

@@ -73,6 +73,8 @@ export interface SendSmsInput {
   positional?: string[];
   category: SabsmsMessageCategory;
   from?: string;
+  /** V2.4 — MMS attachments as resolved public SabFiles (R2) URLs. */
+  mediaUrls?: string[];
   /** V2.4B — rewrite http(s) URLs in the body to tracked short links. */
   shortenLinks?: boolean;
   /** V2.11 — 'rcs_preferred' sends a rich card with SMS fallback. */
@@ -102,6 +104,10 @@ export async function sendSmsAction(input: SendSmsInput): Promise<SendSmsResult>
 
   let text = input.body ?? "";
   let templateId: string | undefined;
+  // V2.8 — DLT binding forwarded from the bound template doc into the
+  // enqueue input so the worker stamps the registered PEID / TE_ID.
+  let dltTemplateId: string | undefined;
+  let dltEntityId: string | undefined;
 
   if (input.templateId) {
     if (!ObjectId.isValid(input.templateId)) {
@@ -113,6 +119,25 @@ export async function sendSmsAction(input: SendSmsInput): Promise<SendSmsResult>
       workspaceId: ws.workspaceId,
     });
     if (!doc) return { ok: false, error: "Template not found" };
+
+    // V2.1 — approval enforcement. Marketing traffic (by the requested
+    // category OR the template's own category) may only send from an
+    // approved template; draft/submitted/rejected marketing bodies are
+    // rejected here regardless of which path reached us.
+    const isMarketing =
+      input.category === "marketing" || doc.category === "marketing";
+    if (isMarketing && doc.status !== "approved") {
+      return {
+        ok: false,
+        error:
+          "Marketing templates must be approved before they can be sent. " +
+          `This template is '${doc.status}'.`,
+      };
+    }
+
+    // V2.8 — carry the DLT registration forward (no-op when unbound).
+    dltTemplateId = doc.dlt?.templateId || undefined;
+    dltEntityId = doc.dlt?.principalEntityId || undefined;
 
     const rawBody =
       doc.bodies?.find((b) => b.locale === "en")?.body ??
@@ -144,6 +169,16 @@ export async function sendSmsAction(input: SendSmsInput): Promise<SendSmsResult>
       };
     }
     text = rendered.text;
+  }
+
+  // V2.1 — marketing sends are template-gated. A free-form marketing
+  // body has no approved template behind it, so it cannot send.
+  if (input.category === "marketing" && !templateId) {
+    return {
+      ok: false,
+      error:
+        "Marketing sends require an approved marketing template — pick one above.",
+    };
   }
 
   if (!text.trim()) return { ok: false, error: "Message body is required" };
@@ -196,6 +231,9 @@ export async function sendSmsAction(input: SendSmsInput): Promise<SendSmsResult>
   }
 
   try {
+    // V2.4 — MMS: forward resolved public R2 URLs and mark the channel.
+    const mediaUrls = (input.mediaUrls ?? []).filter((u) => u.trim().length > 0);
+
     const res = await sabsmsEngine.enqueueSend({
       workspaceId: ws.workspaceId,
       to: input.to,
@@ -203,6 +241,12 @@ export async function sendSmsAction(input: SendSmsInput): Promise<SendSmsResult>
       category: input.category,
       from: input.from || undefined,
       templateId,
+      // V2.8 — DLT binding carried from the bound template doc.
+      ...(dltTemplateId ? { dltTemplateId } : {}),
+      ...(dltEntityId ? { dltEntityId } : {}),
+      ...(mediaUrls.length > 0
+        ? { mediaUrls, channel: "mms" as const }
+        : {}),
       eventKey: "sabsms.send.composer",
       ...(rcsPayload
         ? { rcs: rcsPayload, channelRequested: "rcs_preferred" as const }

@@ -20,13 +20,14 @@ import {
   SabsmsEmpty,
 } from "@/components/sabsms/page-toolkit";
 
-import { assignTo, closeConversation } from "./actions";
+import { assignToMe, closeConversation } from "./actions";
 import type { InboxAgent, InboxConversationView } from "./types";
 import { computeSlaState, formatRelative, scopeMatches } from "./sla";
 
 export interface ConversationListProps {
   conversations: InboxConversationView[];
-  agents: InboxAgent[];
+  /** Roster for assignment labels (kept for parity with the layout). */
+  agents?: InboxAgent[];
   scope: "all" | "mine" | "unassigned" | "closed" | "snoozed";
   selectedId: string | null;
   onSelect: (id: string) => void;
@@ -46,7 +47,6 @@ const SCOPE_FACETS: Array<{
 
 export function ConversationList({
   conversations,
-  agents,
   scope,
   selectedId,
   onSelect,
@@ -111,9 +111,9 @@ export function ConversationList({
               {
                 label: "Assign to me",
                 onSelect: async (rows) => {
-                  const agentId = agents[0]?.id ?? "agent.me";
+                  // Resolves the signed-in agent server-side.
                   for (const row of rows) {
-                    await assignTo({ conversationId: row.id, agentId });
+                    await assignToMe({ conversationId: row.id });
                   }
                 },
               },
@@ -195,7 +195,7 @@ function ConversationRow({
       >
         <Checkbox
           checked={isSelected}
-          onCheckedChange={() => onToggleSelect()}
+          onChange={() => onToggleSelect()}
           aria-label="Select conversation"
         />
       </div>

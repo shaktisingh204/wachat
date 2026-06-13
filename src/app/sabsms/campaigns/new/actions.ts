@@ -12,9 +12,21 @@ import {
   SABSMS_COLLECTIONS,
 } from "@/lib/sabsms/db/collections";
 import { connectToDatabase } from "@/lib/mongodb";
-import type { SabsmsCampaign } from "@/lib/sabsms/types";
+import type {
+  SabsmsCampaign,
+  SabsmsCampaignAudience,
+  SabsmsMessageCategory,
+} from "@/lib/sabsms/types";
 
 import {
+  createCampaignAction,
+  launchCampaignAction,
+  type CreateCampaignInput,
+} from "../actions";
+import { csvRowsToContacts, parseCsv } from "../launch-helpers";
+
+import {
+  type AudienceDraft,
   type CampaignDraft,
   validateDraftForLaunch,
 } from "./types";
@@ -115,6 +127,74 @@ export async function saveDraft(
   }
 }
 
+/**
+ * Map the wizard's `AudienceDraft` onto the REAL `createCampaignAction`
+ * audience shape. CSV drafts carry only a SabFile id/url, which the engine
+ * recipient-render path can't resolve directly — so we fetch + parse the CSV
+ * here and hand the launch a concrete `phones` audience.
+ */
+async function resolveDraftAudience(
+  audience: AudienceDraft,
+): Promise<
+  { ok: true; audience: SabsmsCampaignAudience } | { ok: false; error: string }
+> {
+  switch (audience.kind) {
+    case "segment":
+      return { ok: true, audience: { kind: "segment", segmentId: audience.segmentId } };
+    case "contacts":
+      return {
+        ok: true,
+        audience: { kind: "contacts", contactIds: audience.contactIds },
+      };
+    case "csv": {
+      if (!audience.sabFileUrl) {
+        return {
+          ok: false,
+          error:
+            "Re-pick the CSV file — its source URL was not captured. SabFiles uploads carry a public URL the launch needs.",
+        };
+      }
+      try {
+        const res = await fetch(audience.sabFileUrl);
+        if (!res.ok) {
+          return { ok: false, error: `Failed to fetch CSV (${res.status}).` };
+        }
+        const text = await res.text();
+        // No explicit column mapping in the wizard — assume a `phone`
+        // column (case-insensitive), falling back to the first column.
+        const rows = parseCsv(text);
+        let contacts = csvRowsToContacts(rows, { phone: "phone" });
+        if (contacts.length === 0 && rows.length > 0) {
+          // First-column fallback when there's no `phone` header.
+          const header = rows[0]?.[0]?.trim();
+          if (header) contacts = csvRowsToContacts(rows, { phone: header });
+        }
+        const phones = contacts.map((c) => c.to).filter(Boolean);
+        if (phones.length === 0) {
+          return {
+            ok: false,
+            error: "CSV resolved to zero phone numbers (need a `phone` column).",
+          };
+        }
+        return { ok: true, audience: { kind: "phones", phones } };
+      } catch (e) {
+        return { ok: false, error: (e as Error)?.message ?? "CSV parse failed" };
+      }
+    }
+  }
+}
+
+/**
+ * Launch (or schedule) the campaign by delegating to the REAL path that the
+ * engine ticker consumes: `createCampaignAction` (writes the draft doc) →
+ * `launchCampaignAction` (resolves the audience, renders + stages per-recipient
+ * docs into `sabsms_campaign_recipients`, then launches via the engine, or
+ * leaves it `scheduled` for the engine's scheduled-campaign ticker).
+ *
+ * The previous implementation only flipped a campaign doc's `status` and never
+ * staged recipients — so a launched campaign sent NOTHING. This now goes
+ * through the same plumbing as the quick-create wizard.
+ */
 export async function launchCampaign(
   draft: CampaignDraft,
 ): Promise<ActionResult<{ id: string; scheduled: boolean }>> {
@@ -130,73 +210,90 @@ export async function launchCampaign(
     };
   }
 
-  const scheduled =
-    draft.schedule?.kind === "scheduled" ||
+  if (!draft.audience) {
+    return { ok: false, error: "Pick an audience before launching." };
+  }
+  if (
     draft.schedule?.kind === "recurring" ||
-    draft.schedule?.kind === "drip";
-  const status = scheduled ? "scheduled" : "running";
-
-  try {
-    const { cols } = await getSabsmsCollections();
-    const doc = draftToCampaignDoc({ ...draft, status }, ws.workspaceId);
-
-    let id: string;
-    if (draft.id && ObjectId.isValid(draft.id)) {
-      const _id = new ObjectId(draft.id);
-      await cols.campaigns.updateOne(
-        { _id, workspaceId: ws.workspaceId },
-        { $set: { ...doc, updatedAt: new Date() } },
-        { upsert: true },
-      );
-      id = draft.id;
-    } else {
-      const res = await cols.campaigns.insertOne(doc as SabsmsCampaign);
-      id = res.insertedId.toHexString();
-    }
-
-    // Audit log — use the existing `audit_logs` collection if present,
-    // otherwise console.log so we don't crash if it hasn't been created
-    // yet. TODO: harden this once a shared SabSMS audit collection
-    // exists.
-    try {
-      const { db } = await connectToDatabase();
-      const auditCol = db.collection("audit_logs");
-      await auditCol.insertOne({
-        workspaceId: ws.workspaceId,
-        module: "sabsms",
-        action: "campaign.launch",
-        resource: `${SABSMS_COLLECTIONS.campaigns}/${id}`,
-        meta: {
-          name: doc.name,
-          status,
-          scheduled,
-          category: doc.category,
-        },
-        createdAt: new Date(),
-      });
-    } catch {
-      // eslint-disable-next-line no-console
-      console.log("[sabsms.audit] campaign.launch", {
-        workspaceId: ws.workspaceId,
-        id,
-        name: doc.name,
-        status,
-      });
-    }
-
-    // TODO(Phase 4): enqueue per-recipient send jobs against the
-    // chosen audience. See `plans/sabsms-world-class-plan.md` Phase 4
-    // ("Campaign orchestration"). Phase 1 just inserts the doc and
-    // returns — the engine will pick the campaign up via a Mongo
-    // change-stream watcher.
-
-    return { ok: true, id, scheduled };
-  } catch (e) {
+    draft.schedule?.kind === "drip"
+  ) {
     return {
       ok: false,
-      error: (e as Error)?.message ?? "launchCampaign failed",
+      error:
+        draft.schedule.kind === "recurring"
+          ? "Recurring schedules aren't supported by the launch path yet — pick immediate or a single scheduled time."
+          : "Drip schedules run as journeys — build one under Drips instead of launching here.",
     };
   }
+
+  const resolved = await resolveDraftAudience(draft.audience);
+  if (!resolved.ok) return resolved;
+
+  const scheduledAt =
+    draft.schedule?.kind === "scheduled" && draft.schedule.sendAt
+      ? new Date(draft.schedule.sendAt)
+      : undefined;
+  if (scheduledAt && Number.isNaN(scheduledAt.getTime())) {
+    return { ok: false, error: "Invalid scheduled send time." };
+  }
+
+  // Pull the chosen template's first body so the real path has a body to
+  // render even when no inline override exists (createCampaignAction
+  // requires templateId OR body).
+  const createInput: CreateCampaignInput = {
+    name: draft.name || "Untitled campaign",
+    templateId: draft.templateId,
+    category: draft.category as SabsmsMessageCategory,
+    audience: resolved.audience,
+    schedule: scheduledAt
+      ? { kind: "scheduledAt", at: scheduledAt.toISOString() }
+      : { kind: "now" },
+    throttlePerSec: draft.throttlePerSecond,
+    senderNumberIds: draft.senderNumberIds,
+    smartSend: draft.sendTimeOptimization || undefined,
+    // Persist the per-campaign link-tracking flag (V2.4). The real
+    // launch path shortens + attributes links when this is on.
+    shortenLinks: draft.linkTracking ?? true,
+  };
+
+  const created = await createCampaignAction(createInput);
+  if (!created.ok) return created;
+
+  // Best-effort audit (non-blocking).
+  try {
+    const { db } = await connectToDatabase();
+    await db.collection("audit_logs").insertOne({
+      workspaceId: ws.workspaceId,
+      module: "sabsms",
+      action: "campaign.launch",
+      resource: `${SABSMS_COLLECTIONS.campaigns}/${created.id}`,
+      meta: { name: createInput.name, scheduled: Boolean(scheduledAt), category: createInput.category },
+      createdAt: new Date(),
+    });
+  } catch {
+    // eslint-disable-next-line no-console
+    console.log("[sabsms.audit] campaign.launch", { workspaceId: ws.workspaceId, id: created.id });
+  }
+
+  // Discard the local draft doc, if the wizard had persisted one — the real
+  // campaign is the canonical record now.
+  if (draft.id && ObjectId.isValid(draft.id)) {
+    try {
+      const { cols } = await getSabsmsCollections();
+      await cols.campaigns.deleteOne({
+        _id: new ObjectId(draft.id),
+        workspaceId: ws.workspaceId,
+        status: "draft",
+      });
+    } catch {
+      /* ignore — orphan draft cleanup is non-critical */
+    }
+  }
+
+  const launched = await launchCampaignAction({ campaignId: created.id });
+  if (!launched.ok) return { ok: false, error: launched.error };
+
+  return { ok: true, id: created.id, scheduled: launched.scheduled };
 }
 
 export async function scheduleCampaign(

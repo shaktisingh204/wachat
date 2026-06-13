@@ -650,35 +650,19 @@ async function runAbComparison(
 
 // ─── Mutations ────────────────────────────────────────────────────────────
 
-async function setStatus(
-  campaignId: string,
-  next: SabsmsCampaignStatus,
-): Promise<VoidActionResult> {
-  const ws = await resolveWorkspace();
-  if (!ws.ok) return ws;
-  if (!ObjectId.isValid(campaignId)) {
-    return { ok: false, error: "Invalid campaignId" };
-  }
-  const { cols } = await getSabsmsCollections();
-  const res = await cols.campaigns.updateOne(
-    { _id: new ObjectId(campaignId), workspaceId: ws.workspaceId },
-    { $set: { status: next, updatedAt: new Date() } },
-  );
-  if (res.matchedCount === 0) return { ok: false, error: "Campaign not found" };
-  return { ok: true };
-}
-
-export async function pauseCampaign(input: { campaignId: string }): Promise<VoidActionResult> {
-  return setStatus(input.campaignId, "paused");
-}
-
-export async function resumeCampaign(input: { campaignId: string }): Promise<VoidActionResult> {
-  return setStatus(input.campaignId, "running");
-}
-
-export async function cancelCampaign(input: { campaignId: string }): Promise<VoidActionResult> {
-  return setStatus(input.campaignId, "cancelled");
-}
+/**
+ * Pause / resume / cancel go THROUGH the engine (status-guarded, race-safe,
+ * with side effects — recipient cancellation, `campaignPaused` events). The
+ * list-level `../actions` implementations own that engine plumbing with a
+ * dev-mode plain-status fallback when the engine is disabled; we delegate to
+ * them so the detail page no longer bypasses the engine with a bare Mongo
+ * status flip (which left recipients pending and skipped transition guards).
+ */
+export {
+  pauseCampaign,
+  resumeCampaign,
+  cancelCampaign,
+} from "../actions";
 
 export async function editSchedule(input: {
   campaignId: string;

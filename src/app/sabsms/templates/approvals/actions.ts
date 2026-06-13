@@ -749,7 +749,7 @@ export async function runAutomatedApprovals(rules: Record<string, string>): Prom
     }
     
     // Check if any body matches the regex
-    const matches = doc.bodies.some(body => regex.test(body.content));
+    const matches = doc.bodies.some((body) => regex.test(body.body));
     if (matches) {
       await cols.templates.updateOne(
         { _id: doc._id! },

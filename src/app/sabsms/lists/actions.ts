@@ -342,7 +342,10 @@ export async function snapshotList(listId: string): Promise<{ ok: true; contactI
     const raw = await db.collection("sabsms_contacts").find({ workspaceId: ws.workspaceId }).toArray();
     const contacts = raw as unknown as SegmentContact[];
     const matched = contacts.filter((c) => evaluatePredicate(list.predicate!, c));
-    return { ok: true, contactIds: matched.map((c) => c.phone) };
+    const contactIds = matched
+      .map((c) => c.phone)
+      .filter((p): p is string => typeof p === "string" && p.length > 0);
+    return { ok: true, contactIds };
   }
 }
 

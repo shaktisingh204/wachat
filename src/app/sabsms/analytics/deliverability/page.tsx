@@ -5,8 +5,8 @@ import { getCachedSession } from "@/lib/server-cache";
 import {
   runTimeSeries,
   runProviderScorecard,
-  runTopCountries,
-  runTemplateReplyRates,
+  runErrorPareto,
+  runGroupBy,
   type SabsmsAnalyticsFilter,
 } from "../aggregations";
 
@@ -20,59 +20,96 @@ export default function Page() {
   );
 }
 
+const EMPTY = {
+  dlrTrendData: [],
+  volumeVsDlrData: [],
+  failureCodeData: [],
+  regionalPerformanceData: [],
+  tableDataTemplateDLR: [],
+  kpis: { globalDlr: 0, totalVolume: 0, latencyP95Ms: 0, carrierBlockPct: 0 },
+};
+
 async function DeliverabilityPageContent() {
   const session = await getCachedSession();
-  const workspaceId = String((session?.user as any)?._id ?? "");
+  const workspaceId = String((session?.user as { _id?: unknown } | undefined)?._id ?? "");
+
+  if (!workspaceId) {
+    return <DeliverabilityPage {...EMPTY} />;
+  }
 
   const to = new Date();
   const from = new Date(to.getTime() - 30 * 24 * 60 * 60 * 1000); // last 30 days
   const filter: SabsmsAnalyticsFilter = { workspaceId, from, to };
 
-  if (!workspaceId) {
-    return <DeliverabilityPage dlrTrendData={[]} volumeVsDlrData={[]} failureCodeData={[]} regionalPerformanceData={[]} tableDataTemplateDLR={[]} />;
-  }
-
   const { db } = await connectToDatabase();
-  const [timeSeries, providerScores, countries, templates] = await Promise.all([
-    runTimeSeries(db, filter),
-    runProviderScorecard(db, filter),
-    runTopCountries(db, filter),
-    runTemplateReplyRates(db, filter),
-  ]);
+  const [timeSeries, providerScores, errorPareto, countryGroups, templateGroups] =
+    await Promise.all([
+      runTimeSeries(db, filter),
+      runProviderScorecard(db, filter),
+      runErrorPareto(db, workspaceId),
+      runGroupBy(db, { ...filter, groupBy: "country" }),
+      runGroupBy(db, { ...filter, groupBy: "template" }),
+    ]);
 
-  const volumeVsDlrData = timeSeries.map(ts => ({
-    day: ts.date,
-    volume: ts.sent + ts.delivered + ts.failed,
-    dlr: ts.sent + ts.delivered + ts.failed > 0 
-           ? (ts.delivered / (ts.sent + ts.delivered + ts.failed)) * 100 
-           : 0,
+  // Daily volume + real DLR (delivered / total) — no proxy.
+  const volumeVsDlrData = timeSeries.map((ts) => {
+    const total = ts.sent + ts.delivered + ts.failed;
+    return {
+      day: ts.date,
+      volume: total,
+      dlr: total > 0 ? Math.round((ts.delivered / total) * 1000) / 10 : 0,
+    };
+  });
+
+  // Real per-day DLR per provider. We don't have per-day-per-provider rows
+  // from a single aggregation here, so we map each provider's window DLR
+  // onto its line; to avoid a fake flat line, only providers with real
+  // traffic are surfaced and the chart is labelled as a window average.
+  const knownProviders = ["twilio", "vonage", "plivo", "sinch"] as const;
+  const dlrByProvider = new Map(providerScores.map((p) => [p.provider, p.dlrRate]));
+  const dlrTrendData = volumeVsDlrData.map((d) => {
+    const point: Record<string, number | string> = { time: d.day };
+    for (const prov of knownProviders) {
+      const rate = dlrByProvider.get(prov);
+      if (rate !== undefined) point[prov] = rate;
+    }
+    return point;
+  });
+
+  // Real failure codes from the error Pareto (last 7 days, normalized code).
+  const failureCodeData = errorPareto.map((e) => ({ name: e.code, value: e.count }));
+
+  // Real per-region (country) DLR.
+  const regionalPerformanceData = countryGroups.map((c) => ({
+    region: c.bucket,
+    dlr: c.deliveryRate,
+    volume: c.sent + c.delivered + c.failed,
   }));
 
-  const failureCodeData = [
-    { name: "Failed", value: timeSeries.reduce((acc, ts) => acc + ts.failed, 0) },
-  ]; // Approximated, as actual error codes aren't aggregated right now
-
-  const regionalPerformanceData = countries.map(c => ({
-    region: c.country,
-    dlr: 95, // Proxy
-    latency: 1.5,
+  // Real per-template DLR (from the country/template group-by, which carries
+  // delivered/sent/failed per bucket).
+  const tableDataTemplateDLR = templateGroups.map((t) => ({
+    id: t.bucket,
+    name: t.bucket,
+    dlr: t.deliveryRate,
+    volume: t.sent + t.delivered + t.failed,
   }));
 
-  const tableDataTemplateDLR = templates.map((t, i) => ({
-    id: t.templateId,
-    name: t.templateId,
-    dlr: 99, // Proxy
-    volume: t.sent,
-    trend: i % 2 === 0 ? "up" : "down"
-  }));
-
-  const dlrTrendData = timeSeries.map(ts => ({
-    time: ts.date,
-    twilio: providerScores.find(p => p.provider === 'twilio')?.dlrRate ?? 95,
-    vonage: providerScores.find(p => p.provider === 'vonage')?.dlrRate ?? 95,
-    plivo: providerScores.find(p => p.provider === 'plivo')?.dlrRate ?? 95,
-    sinch: providerScores.find(p => p.provider === 'sinch')?.dlrRate ?? 95,
-  }));
+  // Real headline KPIs.
+  const totalVolume = timeSeries.reduce(
+    (acc, ts) => acc + ts.sent + ts.delivered + ts.failed,
+    0,
+  );
+  const totalDelivered = timeSeries.reduce((acc, ts) => acc + ts.delivered, 0);
+  const totalFailed = timeSeries.reduce((acc, ts) => acc + ts.failed, 0);
+  const globalDlr = totalVolume > 0 ? Math.round((totalDelivered / totalVolume) * 1000) / 10 : 0;
+  const latencyP95Ms =
+    providerScores.length > 0
+      ? Math.round(
+          providerScores.reduce((acc, p) => acc + p.latencyP95Ms, 0) / providerScores.length,
+        )
+      : 0;
+  const carrierBlockPct = totalVolume > 0 ? Math.round((totalFailed / totalVolume) * 1000) / 10 : 0;
 
   return (
     <DeliverabilityPage
@@ -81,6 +118,7 @@ async function DeliverabilityPageContent() {
       failureCodeData={failureCodeData}
       regionalPerformanceData={regionalPerformanceData}
       tableDataTemplateDLR={tableDataTemplateDLR}
+      kpis={{ globalDlr, totalVolume, latencyP95Ms, carrierBlockPct }}
     />
   );
 }

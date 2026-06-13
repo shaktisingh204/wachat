@@ -1,319 +1,263 @@
-"use client";
-
 import React from "react";
 import Link from "next/link";
-import { SabsmsPageShell } from "@/components/sabsms/page-toolkit/sabsms-page-shell";
-import { Card, CardHeader, CardTitle, CardDescription, CardBody, Button, Badge, Progress, Switch, Label, Avatar, AvatarImage, AvatarFallback, Table, THead, TBody, Tr, Th, Td, StatCard } from '@/components/sabcrm/20ui';
 import {
-  Download,
   Shield,
-  AlertTriangle,
-  Map,
-  Link as LinkIcon,
+  Map as MapIcon,
+  KeyRound,
+  ScrollText,
+  FileLock2,
+  ArrowRight,
+  Clock,
 } from "lucide-react";
 
-export default function ComplianceDashboardPage() {
-  const secondaryActions = [
-    {
-      label: "Export Audit (PDF)",
-      icon: <Download className="h-4 w-4" />,
-      onSelectAction: () => console.log("Exporting PDF"),
-    },
-    {
-      label: "Export Audit (CSV)",
-      icon: <Download className="h-4 w-4" />,
-      onSelectAction: () => console.log("Exporting CSV"),
-    },
-  ];
+import { SabsmsPageShell } from "@/components/sabsms/page-toolkit/sabsms-page-shell";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardBody,
+  Badge,
+  StatCard,
+  Button,
+} from "@/components/sabcrm/20ui";
+
+import { loadComplianceHub, type ComplianceHubData } from "./hub-actions";
+
+export const dynamic = "force-dynamic";
+
+function consentCoverage(d: ComplianceHubData): number | null {
+  // Coverage = opt-ins as a share of all consent decisions on record.
+  // Honest: this is opt-in / (opt-in + opt-out), not a fabricated %.
+  const denom = d.consent.optIns + d.consent.optOuts;
+  if (denom === 0) return null;
+  return Math.round((d.consent.optIns / denom) * 100);
+}
+
+function SubpageCard({
+  href,
+  icon,
+  title,
+  description,
+  meta,
+}: {
+  href: string;
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  meta?: React.ReactNode;
+}) {
+  return (
+    <Link href={href} className="block group">
+      <Card className="h-full transition-colors group-hover:border-[var(--st-border-strong)]">
+        <CardBody className="flex items-start gap-4 p-5">
+          <div className="h-10 w-10 shrink-0 rounded-full bg-[var(--st-bg-muted)] flex items-center justify-center text-[var(--st-text)]">
+            {icon}
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center justify-between gap-2">
+              <p className="font-medium text-[var(--st-text)]">{title}</p>
+              <ArrowRight className="h-4 w-4 text-[var(--st-text-secondary)] opacity-0 transition-opacity group-hover:opacity-100" />
+            </div>
+            <p className="mt-1 text-sm text-[var(--st-text-secondary)]">
+              {description}
+            </p>
+            {meta && <div className="mt-2">{meta}</div>}
+          </div>
+        </CardBody>
+      </Card>
+    </Link>
+  );
+}
+
+export default async function ComplianceHubPage() {
+  const res = await loadComplianceHub();
 
   return (
     <SabsmsPageShell
-      title="Compliance Dashboard"
+      title="Compliance"
       eyebrow="Workspace Governance"
-      description="Manage global regulations, consent status, and audit logs."
-      secondaryActions={secondaryActions}
+      description="Consent, suppression, and registry status — counted live from your workspace. Open a registry below to manage it."
     >
-      {/* Metrics Row */}
+      {!res.success ? (
+        <Card>
+          <CardBody>
+            <p className="text-sm text-[var(--st-text)]">{res.error}</p>
+          </CardBody>
+        </Card>
+      ) : (
+        <ComplianceHub data={res.data} />
+      )}
+    </SabsmsPageShell>
+  );
+}
+
+function ComplianceHub({ data }: { data: ComplianceHubData }) {
+  const coverage = consentCoverage(data);
+
+  return (
+    <>
+      {/* Real metrics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <StatCard
-          title="EU Consent Coverage"
-          value="89%"
-          description="+2% from last month"
+          label="Opt-in coverage"
+          value={coverage === null ? "—" : `${coverage}%`}
         />
         <StatCard
-          title="CASL Consent Coverage"
-          value="92%"
-          description="Stable"
+          label="Consent events"
+          value={data.consent.total.toLocaleString()}
         />
         <StatCard
-          title="TRAI Adherence"
-          value="99.9%"
-          description="Within SLA"
+          label="Suppressed numbers"
+          value={data.suppressions.total.toLocaleString()}
         />
         <StatCard
-          title="Suppression Coverage"
-          value="98.5%"
-          description="+0.5% from last month"
+          label="STOP opt-outs"
+          value={data.consent.stopKeywordOptOuts.toLocaleString()}
         />
       </div>
 
+      {/* Registry status — REAL counts, linked to the real subpages */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
         <Card>
           <CardHeader>
-            <CardTitle>Regional Registry Status</CardTitle>
-            <CardDescription>10DLC and DLT registrations</CardDescription>
+            <CardTitle>India DLT registry</CardTitle>
+            <CardDescription>
+              Mirrored operator-portal registrations the engine scrubs against.
+            </CardDescription>
           </CardHeader>
           <CardBody className="space-y-4">
-            <div className="flex justify-between items-center p-3 border rounded-md bg-white">
+            <div className="flex items-center justify-between rounded-md border border-[var(--st-border)] p-3">
               <div>
-                <p className="font-medium text-[var(--st-text)]">US 10DLC</p>
-                <p className="text-sm text-[var(--st-text)]">
-                  Brand: Approved, 2 Active Campaigns
+                <p className="font-medium text-[var(--st-text)]">DLT registry</p>
+                <p className="text-sm text-[var(--st-text-secondary)]">
+                  {data.dlt.entities} entities · {data.dlt.headers} headers ·{" "}
+                  {data.dlt.templates} templates
                 </p>
               </div>
-              <Badge variant="default" className="bg-[var(--st-text)] hover:bg-[var(--st-text)] text-white border-0">
-                Compliant
+              <Badge variant={data.dlt.configured ? "secondary" : "outline"}>
+                {data.dlt.configured ? "Configured" : "Not set up"}
               </Badge>
             </div>
-            <div className="flex justify-between items-center p-3 border rounded-md bg-white">
-              <div>
-                <p className="font-medium text-[var(--st-text)]">India DLT</p>
-                <p className="text-sm text-[var(--st-text)]">
-                  PEID: Active, 4 Headers, 12 Templates
-                </p>
-              </div>
-              <Badge variant="default" className="bg-[var(--st-text)] hover:bg-[var(--st-text)] text-white border-0">
-                Compliant
-              </Badge>
-            </div>
+            <Button asChild variant="outline" className="w-full">
+              <Link href="/sabsms/compliance/dlt">Manage DLT registry</Link>
+            </Button>
           </CardBody>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>Operational Risk</CardTitle>
-            <CardDescription>Violations & Backlogs</CardDescription>
+            <CardTitle>US 10DLC</CardTitle>
+            <CardDescription>
+              A2P brand/campaign registration per provider account.
+            </CardDescription>
           </CardHeader>
           <CardBody className="space-y-4">
-            <div className="flex justify-between items-center p-3 border rounded-md bg-[var(--st-bg-muted)]/50">
-              <div className="flex items-center gap-3">
-                <AlertTriangle className="h-5 w-5 text-[var(--st-text)]" />
-                <p className="font-medium text-[var(--st-text)]">TCPA Category Mismatches</p>
-              </div>
-              <span className="text-lg font-bold text-[var(--st-text)]">3</span>
-            </div>
-            <div className="flex justify-between items-center p-3 border rounded-md bg-[var(--st-bg-muted)]">
-              <div className="flex items-center gap-3">
-                <Shield className="h-5 w-5 text-[var(--st-text)]" />
-                <p className="font-medium text-[var(--st-text)]">SAR / Erasure Backlog</p>
-              </div>
-              <span className="text-lg font-bold text-[var(--st-text)]">5 Pending</span>
-            </div>
-          </CardBody>
-        </Card>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Keyword & Policy</CardTitle>
-          </CardHeader>
-          <CardBody className="space-y-5">
-            <div>
-              <p className="text-sm font-medium text-[var(--st-text)] mb-1.5">
-                STOP / HELP Config
-              </p>
-              <div className="bg-[var(--st-bg-muted)] p-3 text-xs rounded-md border font-mono text-[var(--st-text)]">
-                STOP: "You have been unsubscribed."
-                <br />
-                HELP: "Reply with your issue..."
-              </div>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-[var(--st-text)] mb-1.5">
-                Footer Policy Preview
-              </p>
-              <div className="bg-[var(--st-bg-muted)] p-3 text-xs rounded-md border text-[var(--st-text)] italic">
-                "Reply STOP to opt out. Msg&Data rates may apply."
-              </div>
-            </div>
-            <div className="flex items-center justify-between pt-2 border-t">
-              <Label htmlFor="auto-reply" className="text-sm font-medium text-[var(--st-text)]">Auto-reply STOP config</Label>
-              <Switch id="auto-reply" defaultChecked />
-            </div>
-          </CardBody>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Consent Freshness</CardTitle>
-          </CardHeader>
-          <CardBody>
-            <div className="space-y-5">
+            <div className="flex items-center justify-between rounded-md border border-[var(--st-border)] p-3">
               <div>
-                <div className="flex justify-between text-sm mb-1.5">
-                  <span className="font-medium text-[var(--st-text)]">&lt; 3 Months</span>
-                  <span className="text-[var(--st-text)] font-medium">65%</span>
-                </div>
-                <Progress value={65} className="h-2 bg-[var(--st-bg-muted)]" />
-              </div>
-              <div>
-                <div className="flex justify-between text-sm mb-1.5">
-                  <span className="font-medium text-[var(--st-text)]">3 - 6 Months</span>
-                  <span className="text-[var(--st-text)] font-medium">20%</span>
-                </div>
-                <Progress value={20} className="h-2 bg-[var(--st-bg-muted)]" />
-              </div>
-              <div>
-                <div className="flex justify-between text-sm mb-1.5">
-                  <span className="font-medium text-[var(--st-text)]">&gt; 6 Months</span>
-                  <span className="text-[var(--st-text)] font-medium">15%</span>
-                </div>
-                <Progress value={15} className="h-2 bg-[var(--st-bg-muted)]" />
-              </div>
-            </div>
-          </CardBody>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Governance</CardTitle>
-          </CardHeader>
-          <CardBody className="space-y-5">
-            <div className="flex items-center gap-3 border p-3 rounded-md bg-white">
-              <Avatar>
-                <AvatarImage src="https://i.pravatar.cc/150?u=a042581f4e29026704d" />
-                <AvatarFallback>AL</AvatarFallback>
-              </Avatar>
-              <div>
-                <p className="text-sm font-medium text-[var(--st-text)]">Compliance Officer</p>
-                <p className="text-xs text-[var(--st-text)]">Alice Liddell</p>
-              </div>
-            </div>
-            <div className="pt-1">
-              <p className="text-sm font-medium text-[var(--st-text)] mb-2">
-                Webhook Publisher
-              </p>
-              <div className="flex gap-2">
-                <Badge
-                  variant="outline"
-                  className="font-mono text-[10px] w-full justify-start truncate py-1.5 px-2 bg-[var(--st-bg-muted)]"
-                >
-                  https://api.acme.corp/webhooks/compliance
-                </Badge>
-              </div>
-            </div>
-          </CardBody>
-        </Card>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Rejected Templates</CardTitle>
-            <CardDescription>Flagged by carrier filters</CardDescription>
-          </CardHeader>
-          <CardBody>
-            <Table>
-              <THead>
-                <Tr>
-                  <Th>Template</Th>
-                  <Th>Reason</Th>
-                </Tr>
-              </THead>
-              <TBody>
-                <Tr>
-                  <Td className="font-medium text-sm">Crypto Promo A</Td>
-                  <Td className="text-sm text-[var(--st-text)]">SHAFT Violation</Td>
-                </Tr>
-                <Tr>
-                  <Td className="font-medium text-sm">Loan Offer Update</Td>
-                  <Td className="text-sm text-[var(--st-text)]">High Risk Category</Td>
-                </Tr>
-              </TBody>
-            </Table>
-          </CardBody>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Unsubscribes (24h)</CardTitle>
-            <CardDescription>Timeline of STOP events</CardDescription>
-          </CardHeader>
-          <CardBody>
-            <div className="space-y-4 mt-2">
-              <div className="flex gap-4">
-                <div className="w-16 text-xs text-[var(--st-text)] text-right pt-1">
-                  10:42 AM
-                </div>
-                <div className="flex-1 border-l-2 border-[var(--st-border)] pl-5 pb-4 relative">
-                  <div className="absolute w-2.5 h-2.5 bg-[var(--st-text)] rounded-full -left-[6px] top-1.5 shadow-sm" />
-                  <p className="text-sm font-medium text-[var(--st-text)]">+1 (555) 019-2834</p>
-                  <p className="text-xs text-[var(--st-text)] mt-0.5">Campaign: Summer Sale</p>
-                </div>
-              </div>
-              <div className="flex gap-4">
-                <div className="w-16 text-xs text-[var(--st-text)] text-right pt-1">
-                  09:15 AM
-                </div>
-                <div className="flex-1 border-l-2 border-[var(--st-border)] pl-5 pb-2 relative">
-                  <div className="absolute w-2.5 h-2.5 bg-[var(--st-text)] rounded-full -left-[6px] top-1.5 shadow-sm" />
-                  <p className="text-sm font-medium text-[var(--st-text)]">+44 7700 900077</p>
-                  <p className="text-xs text-[var(--st-text)] mt-0.5">Keyword: STOP</p>
-                </div>
-              </div>
-            </div>
-          </CardBody>
-        </Card>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Per-Country Quiet Hours</CardTitle>
-            <CardDescription>Active time restrictions</CardDescription>
-          </CardHeader>
-          <CardBody>
-            <div className="flex items-center gap-4 bg-[var(--st-bg-muted)] p-4 rounded-md border border-[var(--st-border)]">
-              <div className="bg-white p-2 rounded-full shadow-sm border border-[var(--st-border)]">
-                <Map className="h-5 w-5 text-[var(--st-text)]" />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-[var(--st-text)]">India (TRAI)</p>
-                <p className="text-xs text-[var(--st-text)] mt-0.5">
-                  21:00 - 09:00 IST blocked for Promotional traffic
+                <p className="font-medium text-[var(--st-text)]">
+                  Provider accounts
+                </p>
+                <p className="text-sm text-[var(--st-text-secondary)]">
+                  {data.tenDlc.registered} registered · {data.tenDlc.pending}{" "}
+                  pending · {data.tenDlc.accounts} total
                 </p>
               </div>
-            </div>
-          </CardBody>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Attestations & Resources</CardTitle>
-          </CardHeader>
-          <CardBody className="space-y-5">
-            <div className="flex justify-between items-center text-sm border-b border-[var(--st-border)] pb-3">
-              <span className="font-medium text-[var(--st-text)]">Required Attestation Matrix</span>
-              <Button variant="ghost" size="sm" className="h-8">
-                View Matrix
-              </Button>
-            </div>
-            <div className="flex justify-between items-center text-sm pt-1">
-              <div className="flex items-center gap-2">
-                <LinkIcon className="h-4 w-4 text-[var(--st-text-secondary)]" />
-                <span className="font-medium text-[var(--st-text)]">Compliance Roadmap</span>
-              </div>
-              <Link
-                href="/sabsms/roadmap#phase8"
-                className="text-[var(--st-text)] hover:text-[var(--st-text)] hover:underline font-medium text-xs"
+              <Badge
+                variant={data.tenDlc.registered > 0 ? "secondary" : "outline"}
               >
-                View Phase 8 Plan
-              </Link>
+                {data.tenDlc.registered > 0
+                  ? "Some cleared"
+                  : "None registered"}
+              </Badge>
             </div>
+            <Button asChild variant="outline" className="w-full">
+              <Link href="/sabsms/compliance/10dlc">Manage 10DLC</Link>
+            </Button>
           </CardBody>
         </Card>
       </div>
-    </SabsmsPageShell>
+
+      {/* Subpage navigation */}
+      <h2 className="mt-8 mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
+        Compliance tools
+      </h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <SubpageCard
+          href="/sabsms/compliance/dlt"
+          icon={<MapIcon className="h-5 w-5" />}
+          title="India DLT registry"
+          description="Principal entities, headers, content templates, and the PE→TM chain."
+        />
+        <SubpageCard
+          href="/sabsms/compliance/10dlc"
+          icon={<Shield className="h-5 w-5" />}
+          title="US 10DLC registration"
+          description="Record brand/campaign IDs to clear US marketing per account."
+        />
+        <SubpageCard
+          href="/sabsms/compliance/keywords"
+          icon={<KeyRound className="h-5 w-5" />}
+          title="STOP / HELP keywords"
+          description="Custom opt-out/help synonyms and the engine auto-reply text."
+        />
+        <SubpageCard
+          href="/sabsms/compliance/audit"
+          icon={<ScrollText className="h-5 w-5" />}
+          title="Audit ledger"
+          description="Append-only consent events and engine-blocked sends."
+        />
+        <SubpageCard
+          href="/sabsms/compliance/gdpr"
+          icon={<FileLock2 className="h-5 w-5" />}
+          title="GDPR & privacy"
+          description="Export the consent ledger that evidences GDPR/CCPA compliance."
+        />
+        <SubpageCard
+          href="/sabsms/suppressions"
+          icon={<Shield className="h-5 w-5" />}
+          title="Suppression list"
+          description={`${data.suppressions.total.toLocaleString()} suppressed numbers (${data.suppressions.fromStop.toLocaleString()} from STOP).`}
+        />
+      </div>
+
+      {/* Quiet hours — generated from the engine window table (correct copy) */}
+      <Card className="mt-8">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Clock className="h-4 w-4" /> Engine quiet-hours windows
+          </CardTitle>
+          <CardDescription>
+            Promotional traffic is only allowed inside these windows (from the
+            engine's quiet-hours table).
+          </CardDescription>
+        </CardHeader>
+        <CardBody className="grid gap-3 md:grid-cols-3">
+          <div className="rounded-md border border-[var(--st-border)] p-3">
+            <p className="text-sm font-medium text-[var(--st-text)]">
+              India (TRAI)
+            </p>
+            <p className="text-xs text-[var(--st-text-secondary)] mt-1">
+              Promo allowed 10:00–21:00 IST. Outside that window is blocked.
+            </p>
+          </div>
+          <div className="rounded-md border border-[var(--st-border)] p-3">
+            <p className="text-sm font-medium text-[var(--st-text)]">
+              United States
+            </p>
+            <p className="text-xs text-[var(--st-text-secondary)] mt-1">
+              Conservative ~11:00–21:00 ET window (legal in all continental
+              zones).
+            </p>
+          </div>
+          <div className="rounded-md border border-[var(--st-border)] p-3">
+            <p className="text-sm font-medium text-[var(--st-text)]">Canada</p>
+            <p className="text-xs text-[var(--st-text-secondary)] mt-1">
+              Same conservative window as the US.
+            </p>
+          </div>
+        </CardBody>
+      </Card>
+    </>
   );
 }

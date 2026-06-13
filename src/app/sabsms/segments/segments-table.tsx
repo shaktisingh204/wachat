@@ -308,7 +308,7 @@ export function SegmentsTable({
 
   // --- Columns ------------------------------------------------------------
 
-  const columns: SabsmsColumn<SegmentListRow>[] = [
+  const allColumns: SabsmsColumn<SegmentListRow>[] = [
     {
       id: "name",
       header: "Name",
@@ -462,7 +462,10 @@ export function SegmentsTable({
         </div>
       ),
     },
-  ].filter((col) => visibleColumns.includes(col.id));
+  ];
+  const columns: SabsmsColumn<SegmentListRow>[] = allColumns.filter((col) =>
+    visibleColumns.includes(col.id),
+  );
 
   const rowActions: SabsmsRowAction<SegmentListRow>[] = [
     {

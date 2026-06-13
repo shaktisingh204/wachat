@@ -28,6 +28,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  Checkbox,
   Field,
   IconButton,
   Input,
@@ -42,8 +43,10 @@ import {
 import {
   getRoutingHealthAction,
   getRoutingPolicyAction,
+  listNumbersForPoolAction,
   previewRouteAction,
   saveRoutingPolicyAction,
+  type PoolNumberOption,
   type RoutingRuleInput,
 } from "./actions";
 import { listProviderAccountsAction } from "../providers/actions";
@@ -70,6 +73,14 @@ const COUNTRIES = [
 
 const CATEGORIES = ["transactional", "otp", "marketing", "alert", "service"];
 const CHANNELS = ["sms", "mms", "rcs"];
+
+type PoolStrategy = "round_robin" | "sticky" | "least_used";
+
+const POOL_STRATEGY_OPTIONS: Array<{ value: PoolStrategy; label: string; hint: string }> = [
+  { value: "round_robin", label: "Round-robin", hint: "Rotate evenly across the pool" },
+  { value: "sticky", label: "Sticky (per-recipient)", hint: "Same number per contact (hashed)" },
+  { value: "least_used", label: "Least-used", hint: "Pick the lowest-volume number" },
+];
 
 interface AccountRow {
   id: string;
@@ -189,12 +200,49 @@ function RuleEditor({
   setDraft,
   accounts,
   health,
+  poolNumbers,
 }: {
   draft: RoutingRuleInput;
   setDraft: (r: RoutingRuleInput) => void;
   accounts: AccountRow[];
   health: SabsmsProviderHealthAccount[];
+  poolNumbers: PoolNumberOption[];
 }) {
+  const poolEnabled = !!draft.pool;
+  const poolStrategy: PoolStrategy = draft.pool?.strategy ?? "round_robin";
+  const poolNumberIds = draft.pool?.numberIds ?? [];
+
+  const setPoolEnabled = (on: boolean) => {
+    if (on) {
+      setDraft({
+        ...draft,
+        pool: { strategy: poolStrategy, numberIds: poolNumberIds },
+      });
+    } else {
+      const { pool: _omit, ...rest } = draft;
+      void _omit;
+      setDraft(rest);
+    }
+  };
+
+  const setPoolStrategy = (strategy: PoolStrategy) => {
+    setDraft({
+      ...draft,
+      pool: { strategy, numberIds: draft.pool?.numberIds ?? [] },
+    });
+  };
+
+  const togglePoolNumber = (numberId: string) => {
+    const current = draft.pool?.numberIds ?? [];
+    const next = current.includes(numberId)
+      ? current.filter((id) => id !== numberId)
+      : [...current, numberId];
+    setDraft({
+      ...draft,
+      pool: { strategy: draft.pool?.strategy ?? "round_robin", numberIds: next },
+    });
+  };
+
   const setMatch = (key: keyof RoutingRuleInput["match"], value: string | undefined) => {
     const match = { ...draft.match };
     if (!value) delete match[key];
@@ -410,6 +458,91 @@ function RuleEditor({
           aria-label="Sticky sender"
         />
       </div>
+
+      <div className="pt-4 border-t border-[var(--st-border)]">
+        <div className="flex items-center justify-between mb-1">
+          <div>
+            <h4 className="text-sm font-medium">Sender pool</h4>
+            <p className="text-xs text-[var(--st-text-secondary)] mt-1">
+              Spread this rule&apos;s sends across several of your numbers. The
+              engine picks the <span className="font-mono">from</span> using the
+              strategy below.
+            </p>
+          </div>
+          <Switch
+            checked={poolEnabled}
+            onCheckedChange={(v) => setPoolEnabled(!!v)}
+            aria-label="Enable sender pool"
+          />
+        </div>
+
+        {poolEnabled ? (
+          <div className="mt-3 space-y-4">
+            <Field label="Pool strategy">
+              <Select value={poolStrategy} onValueChange={(v) => setPoolStrategy(v as PoolStrategy)}>
+                <SelectTrigger aria-label="Pool strategy">
+                  <SelectValue placeholder="Strategy" />
+                </SelectTrigger>
+                <SelectContent>
+                  {POOL_STRATEGY_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-[var(--st-text-secondary)] mt-1">
+                {POOL_STRATEGY_OPTIONS.find((o) => o.value === poolStrategy)?.hint}
+              </p>
+            </Field>
+
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-medium text-[var(--st-text)]">
+                  Pool numbers
+                </span>
+                <span className="text-xs text-[var(--st-text-secondary)]">
+                  {poolNumberIds.length} selected
+                </span>
+              </div>
+              {poolNumbers.length === 0 ? (
+                <div className="text-sm text-[var(--st-text-secondary)] border border-dashed border-[var(--st-border)] rounded-[var(--st-radius)] p-4">
+                  No active numbers yet — buy or activate numbers under Numbers to
+                  build a pool.
+                </div>
+              ) : (
+                <div className="max-h-48 overflow-y-auto space-y-1 border border-[var(--st-border)] rounded-[var(--st-radius)] p-2">
+                  {poolNumbers.map((n) => {
+                    const checked = poolNumberIds.includes(n.id);
+                    return (
+                      <label
+                        key={n.id}
+                        className="flex items-center gap-2 px-2 py-1.5 rounded-[var(--st-radius)] hover:bg-[var(--st-bg-secondary)] cursor-pointer"
+                      >
+                        <Checkbox
+                          checked={checked}
+                          onChange={() => togglePoolNumber(n.id)}
+                          aria-label={`Include ${n.e164} in pool`}
+                        />
+                        <span className="font-mono text-sm text-[var(--st-text)]">{n.e164}</span>
+                        <span className="ml-auto text-xs text-[var(--st-text-secondary)] capitalize">
+                          {n.provider}
+                          {n.country ? ` · ${n.country}` : ""}
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
+              )}
+              {poolEnabled && poolNumberIds.length === 0 && poolNumbers.length > 0 ? (
+                <p className="text-xs text-[var(--st-warn)] mt-1">
+                  Select at least one number, or turn the pool off.
+                </p>
+              ) : null}
+            </div>
+          </div>
+        ) : null}
+      </div>
     </div>
   );
 }
@@ -563,6 +696,7 @@ export default function RoutingPage() {
   const [rules, setRules] = React.useState<RoutingRuleInput[]>([]);
   const [accounts, setAccounts] = React.useState<AccountRow[]>([]);
   const [health, setHealth] = React.useState<SabsmsProviderHealthAccount[]>([]);
+  const [poolNumbers, setPoolNumbers] = React.useState<PoolNumberOption[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [loadError, setLoadError] = React.useState<string | null>(null);
   const [saveError, setSaveError] = React.useState<string | null>(null);
@@ -573,10 +707,11 @@ export default function RoutingPage() {
 
   const load = React.useCallback(async () => {
     setLoadError(null);
-    const [policyRes, accountsRes, healthRes] = await Promise.all([
+    const [policyRes, accountsRes, healthRes, numbersRes] = await Promise.all([
       getRoutingPolicyAction(),
       listProviderAccountsAction(),
       getRoutingHealthAction(),
+      listNumbersForPoolAction(),
     ]);
     if (policyRes.success) setRules(policyRes.rules);
     else setLoadError(policyRes.error);
@@ -591,6 +726,7 @@ export default function RoutingPage() {
       );
     }
     if (healthRes.success) setHealth(healthRes.accounts);
+    if (numbersRes.success) setPoolNumbers(numbersRes.numbers);
     setLoading(false);
   }, []);
 
@@ -652,6 +788,10 @@ export default function RoutingPage() {
   const saveDraft = async () => {
     if (draft.routes.length === 0 || draft.routes.some((r) => !r.providerAccountId)) {
       setSaveError("Every route needs a provider account (at least one route per rule).");
+      return;
+    }
+    if (draft.pool && draft.pool.numberIds.length === 0) {
+      setSaveError("Sender pool is on but has no numbers — pick at least one or turn the pool off.");
       return;
     }
     const next =
@@ -719,6 +859,16 @@ export default function RoutingPage() {
               />
             </div>
           ))}
+          {row.pool ? (
+            <div className="flex items-center gap-1 pt-0.5">
+              <Badge tone="accent" kind="outline" className="text-[10px]">
+                pool · {row.pool.strategy.replace("_", "-")}
+              </Badge>
+              <span className="text-[10px] text-[var(--st-text-secondary)]">
+                {row.pool.numberIds.length} number{row.pool.numberIds.length === 1 ? "" : "s"}
+              </span>
+            </div>
+          ) : null}
         </div>
       ),
     },
@@ -850,7 +1000,13 @@ export default function RoutingPage() {
         title={editingId === "new" ? "Create rule" : "Edit rule"}
         description="Conditions, weighted failover routes, and sticky-sender behaviour."
       >
-        <RuleEditor draft={draft} setDraft={setDraft} accounts={accounts} health={health} />
+        <RuleEditor
+          draft={draft}
+          setDraft={setDraft}
+          accounts={accounts}
+          health={health}
+          poolNumbers={poolNumbers}
+        />
         <div className="flex gap-2 justify-between w-full pt-4 mt-2 border-t border-[var(--st-border)]">
           {editingId !== "new" && editingId ? (
             <Button

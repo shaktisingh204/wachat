@@ -11,6 +11,7 @@ import { renderTemplate } from '@/lib/sabsms/render';
 import { estimateSegments } from '@/lib/sabsms/segments';
 import type { SabsmsMessage, SabsmsMessageStatus } from '@/lib/sabsms/types';
 
+import { resolveMmsMedia, type ResolvedMedia } from './media';
 import { projectMessage } from './projection';
 
 /**
@@ -152,10 +153,28 @@ async function sendOnce(
     text = rendered.text;
   }
 
-  if (!text.trim()) {
+  // Resolve MMS media (if any) BEFORE the empty-body check — an MMS may
+  // carry media with no text body. The resolver loads the SabFiles docs
+  // workspace-scoped, 404s on missing/foreign ids, and produces the
+  // provider-fetchable `mediaUrls` the engine worker actually sends.
+  const mediaIds = input.mediaSabFileIds ?? [];
+  let resolved: ResolvedMedia | null = null;
+  if (mediaIds.length > 0) {
+    const outcome = await resolveMmsMedia(workspaceId, mediaIds);
+    if (!outcome.ok) {
+      return {
+        status: outcome.status,
+        body: { error: { code: outcome.code, message: outcome.message } },
+      };
+    }
+    resolved = outcome.resolved;
+  }
+  const hasMedia = !!resolved && resolved.mediaUrls.length > 0;
+
+  if (!text.trim() && !hasMedia) {
     return {
       status: 422,
-      body: { error: { code: 'validation_failed', message: 'body or templateId is required' } },
+      body: { error: { code: 'validation_failed', message: 'body, templateId or mediaSabFileIds is required' } },
     };
   }
 
@@ -166,13 +185,13 @@ async function sendOnce(
       to: input.to,
       body: text,
       category,
+      // Media present → MMS so the worker attaches mediaUrls + the rate
+      // card bills at the MMS multiplier (mirrors the rates table).
+      channel: hasMedia ? 'mms' : undefined,
       from: input.from || undefined,
       templateId: input.templateId,
-      media: input.mediaSabFileIds?.map((id) => ({
-        sabFileId: id,
-        mime: 'application/octet-stream',
-        bytes: 0,
-      })),
+      media: resolved ? resolved.media : undefined,
+      mediaUrls: resolved ? resolved.mediaUrls : undefined,
       eventKey: 'sabsms.api.messages',
     });
     return {
@@ -183,6 +202,10 @@ async function sendOnce(
         from: input.from ?? null,
         body: text,
         category,
+        channel: hasMedia ? 'mms' : 'sms',
+        media: resolved
+          ? resolved.media.map((m) => ({ sabFileId: m.sabFileId, mime: m.mime, bytes: m.bytes }))
+          : [],
         status: res.status,
         segments: res.segments ?? estimateSegments(text),
         createdAt: new Date().toISOString(),

@@ -428,7 +428,14 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
               No send events yet.
             </p>
           ) : (
-            <ChartContainer height={240}>
+            <ChartContainer
+              config={{
+                sent: { label: "Sent", color: CHART_PALETTE[0] },
+                delivered: { label: "Delivered", color: CHART_PALETTE[1] },
+                failed: { label: "Failed", color: CHART_PALETTE[3] },
+              }}
+              style={{ height: 240 }}
+            >
               <Recharts.LineChart
                 data={bundle.timeline}
                 margin={{ top: 8, right: 16, bottom: 0, left: -16 }}
@@ -488,7 +495,10 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
             </CardDescription>
           </CardHeader>
           <CardBody>
-            <ChartContainer height={220}>
+            <ChartContainer
+              config={{ count: { label: "Count", color: CHART_PALETTE[0] } }}
+              style={{ height: 220 }}
+            >
               <Recharts.BarChart
                 data={bundle.funnel}
                 layout="vertical"
@@ -531,7 +541,10 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
                 No data yet.
               </p>
             ) : (
-              <ChartContainer height={220}>
+              <ChartContainer
+                config={{ count: { label: "Volume", color: CHART_PALETTE[1] } }}
+                style={{ height: 220 }}
+              >
                 <Recharts.BarChart
                   data={bundle.providers}
                   margin={{ top: 8, right: 16, bottom: 0, left: -16 }}
@@ -577,7 +590,10 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
                 No data yet.
               </p>
             ) : (
-              <ChartContainer height={200}>
+              <ChartContainer
+                config={{ count: { label: "Count", color: CHART_PALETTE[2] } }}
+                style={{ height: 200 }}
+              >
                 <Recharts.BarChart
                   data={bundle.countries}
                   margin={{ top: 8, right: 16, bottom: 0, left: -16 }}
@@ -622,7 +638,10 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
                 No data yet.
               </p>
             ) : (
-              <ChartContainer height={200}>
+              <ChartContainer
+                config={{ count: { label: "Sends" } }}
+                style={{ height: 200 }}
+              >
                 <Recharts.PieChart>
                   <Recharts.Pie
                     data={bundle.senderRotation}
@@ -692,7 +711,10 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
                 No replies yet.
               </p>
             ) : (
-              <ChartContainer height={160}>
+              <ChartContainer
+                config={{ count: { label: "Replies", color: CHART_PALETTE[0] } }}
+                style={{ height: 160 }}
+              >
                 <Recharts.AreaChart
                   data={bundle.replies}
                   margin={{ top: 4, right: 12, bottom: 0, left: -20 }}
@@ -739,7 +761,10 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
                 No opt-outs yet.
               </p>
             ) : (
-              <ChartContainer height={160}>
+              <ChartContainer
+                config={{ count: { label: "Opt-outs", color: CHART_PALETTE[3] } }}
+                style={{ height: 160 }}
+              >
                 <Recharts.AreaChart
                   data={bundle.optOuts}
                   margin={{ top: 4, right: 12, bottom: 0, left: -20 }}

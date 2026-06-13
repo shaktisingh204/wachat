@@ -126,6 +126,7 @@ interface CreateFormState {
   scopes: string[];
   rateLimitPerMin: string;
   ipAllowlist: string;
+  mode: "live" | "test";
 }
 
 const EMPTY_FORM: CreateFormState = {
@@ -133,6 +134,7 @@ const EMPTY_FORM: CreateFormState = {
   scopes: ["messages:send", "messages:read"],
   rateLimitPerMin: "300",
   ipAllowlist: "",
+  mode: "live",
 };
 
 export default function ApiKeysPage() {
@@ -146,7 +148,11 @@ export default function ApiKeysPage() {
   const [form, setForm] = React.useState<CreateFormState>(EMPTY_FORM);
   const [creating, setCreating] = React.useState(false);
   /** Set right after a successful mint — the ONE place the raw key exists. */
-  const [mintedKey, setMintedKey] = React.useState<{ rawKey: string; name: string } | null>(null);
+  const [mintedKey, setMintedKey] = React.useState<{
+    rawKey: string;
+    name: string;
+    mode: "live" | "test";
+  } | null>(null);
 
   const [detailId, setDetailId] = React.useState<string | null>(null);
   const [revokeTarget, setRevokeTarget] = React.useState<SabsmsApiKeyRow | null>(null);
@@ -181,13 +187,14 @@ export default function ApiKeysPage() {
         .split("\n")
         .map((s) => s.trim())
         .filter(Boolean),
+      mode: form.mode,
     });
     setCreating(false);
     if (!res.success) {
       toast({ title: "Could not create key", description: res.error, tone: "danger" });
       return;
     }
-    setMintedKey({ rawKey: res.rawKey, name: form.name });
+    setMintedKey({ rawKey: res.rawKey, name: form.name, mode: res.mode });
     setForm(EMPTY_FORM);
     fetchKeys();
   }
@@ -215,6 +222,11 @@ export default function ApiKeysPage() {
           <div className="flex items-center gap-2 font-semibold text-[var(--st-text)]">
             <Key className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" aria-hidden="true" />
             {row.name}
+            {row.mode === "test" && (
+              <Badge variant="warning" className="px-1.5 py-0 text-[10px] font-semibold uppercase">
+                Test
+              </Badge>
+            )}
           </div>
           <div className="mt-1.5 flex flex-wrap gap-1.5">
             {row.scopes.map((s) => (
@@ -360,9 +372,23 @@ export default function ApiKeysPage() {
         {mintedKey ? (
           <div className="space-y-4 py-4">
             <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4">
-              <p className="mb-2 text-xs font-medium uppercase tracking-wider text-[var(--st-text)]">
+              <p className="mb-2 flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-[var(--st-text)]">
                 {mintedKey.name}
+                <Badge
+                  variant={mintedKey.mode === "test" ? "warning" : "success"}
+                  className="px-1.5 py-0 text-[10px]"
+                >
+                  {mintedKey.mode === "test" ? "Test" : "Live"}
+                </Badge>
               </p>
+              {mintedKey.mode === "test" && (
+                <p className="mb-2 text-[11px] text-[var(--st-text-secondary)]">
+                  This is a sandbox key — its requests are tagged <code>test</code> mode. It
+                  authenticates against the live API today; a fully mocked provider is on the
+                  roadmap, so test sends still hit the real send path unless you point it at a
+                  test recipient.
+                </p>
+              )}
               <div className="flex items-center justify-between gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2">
                 <code className="break-all font-mono text-xs text-[var(--st-text)]">
                   {mintedKey.rawKey}
@@ -403,6 +429,42 @@ export default function ApiKeysPage() {
                 placeholder="e.g. Production backend"
                 required
               />
+            </Field>
+
+            <Field
+              label="Mode"
+              help="Test keys (sk_test_…) authenticate against the same API for integration work. Their requests are tagged test; a fully mocked sandbox provider is on the roadmap."
+            >
+              <div className="grid grid-cols-2 gap-2">
+                {(["live", "test"] as const).map((m) => {
+                  const active = form.mode === m;
+                  return (
+                    <button
+                      key={m}
+                      type="button"
+                      onClick={() => setForm((prev) => ({ ...prev, mode: m }))}
+                      aria-pressed={active}
+                      className={`flex flex-col items-start gap-0.5 rounded-[var(--st-radius)] border px-3 py-2 text-left transition-colors ${
+                        active
+                          ? "border-[var(--st-accent)] bg-[var(--st-bg-secondary)]"
+                          : "border-[var(--st-border)] bg-[var(--st-bg)] hover:bg-[var(--st-bg-muted)]"
+                      }`}
+                    >
+                      <span className="flex items-center gap-1.5 text-sm font-semibold text-[var(--st-text)]">
+                        {m === "live" ? "Live" : "Test"}
+                        {m === "test" && (
+                          <Badge variant="warning" className="px-1.5 py-0 text-[10px]">
+                            sandbox
+                          </Badge>
+                        )}
+                      </span>
+                      <span className="font-mono text-[10px] text-[var(--st-text-secondary)]">
+                        {m === "live" ? "sk_live_…" : "sk_test_…"}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
             </Field>
 
             <div>
@@ -488,9 +550,16 @@ export default function ApiKeysPage() {
           <div className="space-y-5 py-4">
             <div className="flex items-center justify-between rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2">
               <code className="font-mono text-xs text-[var(--st-text)]">{detailKey.prefix}…</code>
-              <Badge variant={detailKey.revokedAt ? "destructive" : "success"}>
-                {detailKey.revokedAt ? "Revoked" : "Active"}
-              </Badge>
+              <span className="flex items-center gap-1.5">
+                {detailKey.mode === "test" && (
+                  <Badge variant="warning" className="px-1.5 py-0 text-[10px] uppercase">
+                    Test
+                  </Badge>
+                )}
+                <Badge variant={detailKey.revokedAt ? "destructive" : "success"}>
+                  {detailKey.revokedAt ? "Revoked" : "Active"}
+                </Badge>
+              </span>
             </div>
 
             <div>

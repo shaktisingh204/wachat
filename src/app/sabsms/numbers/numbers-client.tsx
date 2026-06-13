@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Activity, Trash, UserX, Star, Phone, History, ScrollText, RefreshCw, Link2 } from "lucide-react";
+import { Trash, Phone, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 
 import {
@@ -11,15 +11,16 @@ import {
   SabsmsDataTable,
   type SabsmsColumn,
   type SabsmsRowAction,
+  type SabsmsBulkAction,
   SabsmsDetailDrawer,
   SabsmsExportMenu,
   SabsmsColumnPicker,
   useSabsmsUrlState,
-  rowsToCsv
+  rowsToCsv,
 } from "@/components/sabsms/page-toolkit";
 
-import { Badge, Button } from '@/components/sabcrm/20ui';
-import { syncNumbersWithProvider, bulkUpdateNumbersConfig } from "./actions";
+import { Badge, Button } from "@/components/sabcrm/20ui";
+import { releaseNumbersAction } from "./actions";
 
 export interface NumberRow {
   id: string;
@@ -44,6 +45,9 @@ interface NumbersClientProps {
   fallbackFrom: string;
 }
 
+/** Providers whose numbers can actually be released at the carrier. */
+const RELEASABLE_PROVIDERS = new Set(["twilio", "telnyx"]);
+
 export function NumbersClient({ rows, fallbackFrom }: NumbersClientProps) {
   const router = useRouter();
   const urlState = useSabsmsUrlState();
@@ -57,15 +61,15 @@ export function NumbersClient({ rows, fallbackFrom }: NumbersClientProps) {
   const filterType = urlState.getAll("type");
   const filterProvider = urlState.getAll("provider");
   const filterCapabilities = urlState.getAll("capabilities");
-  
+
   const filteredRows = rows.filter((r) => {
     if (q && !r.e164.includes(q) && !r.country.toLowerCase().includes(q)) return false;
     if (filterCountry.length > 0 && !filterCountry.includes(r.country)) return false;
     if (filterType.length > 0 && !filterType.includes(r.type)) return false;
     if (filterProvider.length > 0 && !filterProvider.includes(r.provider)) return false;
-    
+
     if (filterCapabilities.length > 0) {
-      const hasCap = filterCapabilities.some(cap => {
+      const hasCap = filterCapabilities.some((cap) => {
         if (cap === "sms") return r.capabilities.sms;
         if (cap === "mms") return r.capabilities.mms;
         if (cap === "rcs") return r.capabilities.rcs;
@@ -74,13 +78,13 @@ export function NumbersClient({ rows, fallbackFrom }: NumbersClientProps) {
       });
       if (!hasCap) return false;
     }
-    
+
     return true;
   });
 
   // Unique facet options
-  const uniqueCountries = Array.from(new Set(rows.map(r => r.country))).filter(c => c !== "—");
-  const uniqueProviders = Array.from(new Set(rows.map(r => r.provider))).filter(p => p !== "—");
+  const uniqueCountries = Array.from(new Set(rows.map((r) => r.country))).filter((c) => c !== "—");
+  const uniqueProviders = Array.from(new Set(rows.map((r) => r.provider))).filter((p) => p !== "—");
 
   const capPill = (label: string, on: boolean) => (
     <Badge variant={on ? "default" : "secondary"} className="text-[10px]">
@@ -131,24 +135,32 @@ export function NumbersClient({ rows, fallbackFrom }: NumbersClientProps) {
       header: "Health",
       render: (r) => (
         <div className="flex items-center gap-2 text-xs">
-          <span className="text-[var(--st-text)] font-medium">{r.healthDlr ?? "99"}% DLR</span>
-          <span className="text-[var(--st-text)]">{r.healthComplaint ?? "<0.1"}% CMP</span>
+          <span className="text-[var(--st-text)] font-medium">
+            {r.healthDlr != null ? `${r.healthDlr}%` : "—"} DLR
+          </span>
+          <span className="text-[var(--st-text)]">
+            {r.healthComplaint != null ? `${r.healthComplaint}%` : "—"} CMP
+          </span>
         </div>
       ),
       width: "130px",
-      hideByDefault: false,
     },
     {
       id: "cost",
       header: "Monthly Cost",
-      render: (r) => <span className="text-xs">${r.monthlyCost?.toFixed(2) ?? "1.00"}</span>,
+      render: (r) =>
+        r.monthlyCost != null && r.monthlyCost > 0 ? (
+          <span className="text-xs">${(r.monthlyCost / 100).toFixed(2)}</span>
+        ) : (
+          <span className="text-xs text-[var(--st-text-secondary)]">—</span>
+        ),
       width: "100px",
       hideByDefault: true,
     },
     {
       id: "volume",
       header: "Vol (24h)",
-      render: (r) => <span className="text-xs">{r.sendVolume24h?.toLocaleString() ?? "0"} msgs</span>,
+      render: (r) => <span className="text-xs">{(r.sendVolume24h ?? 0).toLocaleString()} msgs</span>,
       width: "100px",
       hideByDefault: true,
     },
@@ -163,84 +175,70 @@ export function NumbersClient({ rows, fallbackFrom }: NumbersClientProps) {
       id: "status",
       header: "Status",
       render: (r) => (
-        <Badge variant={r.status === "active" ? "default" : "secondary"}>
-          {r.status}
-        </Badge>
+        <Badge variant={r.status === "active" ? "default" : "secondary"}>{r.status}</Badge>
       ),
       width: "90px",
     },
   ];
 
-  const handleSyncProvider = async (numberIds: string[]) => {
-    try {
-      await syncNumbersWithProvider(numberIds);
-      toast.success(`Successfully synced ${numberIds.length} number(s) with provider.`);
-      router.refresh();
-    } catch (err) {
-      toast.error("Failed to sync numbers with provider.");
+  const handleRelease = async (numberIds: string[]) => {
+    const releasable = numberIds.filter((id) => {
+      const row = rows.find((r) => r.id === id);
+      return row && RELEASABLE_PROVIDERS.has(row.provider);
+    });
+    if (releasable.length === 0) {
+      toast.error("Only Twilio/Telnyx numbers can be released at the provider.");
+      return;
     }
-  };
-
-  const handleBulkUpdateConfig = async (numberIds: string[]) => {
-    const webhookUrl = window.prompt("Enter new Webhook URL (leave empty to skip):") || undefined;
-    const routingUrl = window.prompt("Enter new Routing URL (leave empty to skip):") || undefined;
-
-    if (webhookUrl === undefined && routingUrl === undefined) return;
-    if (webhookUrl?.trim() === "" && routingUrl?.trim() === "") return;
-
-    try {
-      await bulkUpdateNumbersConfig(numberIds, { 
-        webhookUrl: webhookUrl?.trim(), 
-        routingUrl: routingUrl?.trim() 
-      });
-      toast.success(`Successfully updated routing/webhooks for ${numberIds.length} number(s).`);
-      router.refresh();
-    } catch (err) {
-      toast.error("Failed to update config.");
+    if (
+      !window.confirm(
+        `Release ${releasable.length} number(s) at the provider? This is permanent — the number is given up at Twilio/Telnyx and stops billing.`,
+      )
+    ) {
+      return;
     }
+    const res = await releaseNumbersAction(releasable);
+    if (!res.success) {
+      toast.error(res.error);
+      return;
+    }
+    const { released, errors } = res.result;
+    if (released.length > 0) {
+      toast.success(`Released ${released.length} number(s) at the provider.`);
+    }
+    for (const err of errors) {
+      const row = rows.find((r) => r.id === err.id);
+      toast.error(`${row?.e164 ?? err.id}: ${err.error}`);
+    }
+    setSelectedIds([]);
+    router.refresh();
   };
 
   const rowActions: SabsmsRowAction<NumberRow>[] = [
     {
-      label: "Sync with Provider",
-      icon: <RefreshCw className="h-4 w-4" />,
-      onSelect: (r) => handleSyncProvider([r.id]),
-    },
-    {
-      label: "Set as default sender",
-      icon: <Star className="h-4 w-4" />,
-      onSelect: (r) => console.log("Set default", r.id),
-    },
-    {
-      label: "Set as fallback sender",
-      onSelect: (r) => console.log("Set fallback", r.id),
-    },
-    {
-      label: "Edit quiet hours",
-      onSelect: (r) => console.log("Quiet hours", r.id),
-    },
-    {
-      label: "Edit throttle",
-      onSelect: (r) => console.log("Throttle", r.id),
-    },
-    {
-      label: "Assign to campaign",
-      onSelect: (r) => console.log("Campaign", r.id),
-    },
-    {
-      label: "Reassign workspace",
-      icon: <UserX className="h-4 w-4" />,
-      onSelect: (r) => console.log("Reassign", r.id),
+      label: "View details",
+      icon: <ExternalLink className="h-4 w-4" />,
+      onSelect: (r) => router.push(`/sabsms/numbers/${r.id}`),
     },
     {
       label: "Release number",
       icon: <Trash className="h-4 w-4" />,
       destructive: true,
-      onSelect: (r) => console.log("Release", r.id),
+      onSelect: (r) => void handleRelease([r.id]),
     },
   ];
 
-  const visibleColumnIds = urlState.get("cols")?.split(",") || columns.filter(c => !c.hideByDefault).map(c => c.id);
+  const bulkActions: SabsmsBulkAction<NumberRow>[] = [
+    {
+      label: "Release numbers",
+      icon: <Trash className="h-4 w-4" />,
+      destructive: true,
+      onSelect: (selected) => handleRelease(selected.map((r) => r.id)),
+    },
+  ];
+
+  const visibleColumnIds =
+    urlState.get("cols")?.split(",") || columns.filter((c) => !c.hideByDefault).map((c) => c.id);
 
   return (
     <div className="flex h-full flex-col">
@@ -249,22 +247,23 @@ export function NumbersClient({ rows, fallbackFrom }: NumbersClientProps) {
         description="Provisioned senders for this workspace."
         breadcrumbs={[
           { label: "Infrastructure", href: "/sabsms/numbers" },
-          { label: "Numbers" }
+          { label: "Numbers" },
         ]}
         primaryAction={{
-          label: "Provision new number",
-          onClick: () => router.push("/sabsms/numbers/new"),
+          label: "Buy number",
+          href: "/sabsms/numbers/buy",
         }}
         secondaryActions={[
           {
             label: "Configure providers",
-            onClick: () => router.push("/sabsms/providers"),
-          }
+            onSelectHref: "/sabsms/providers",
+          },
         ]}
-        helpContent={
+        helpTitle="About numbers"
+        helpBody={
           <div className="text-sm">
-            Manage your phone numbers across all providers. 
-            Phase 1 reads numbers from <code>sabsms_numbers</code> collection.
+            Manage your phone numbers across all providers. Numbers are bought and released
+            through the engine against your connected Twilio/Telnyx account.
           </div>
         }
       >
@@ -277,7 +276,7 @@ export function NumbersClient({ rows, fallbackFrom }: NumbersClientProps) {
                   key: "country",
                   label: "Country",
                   multi: true,
-                  options: uniqueCountries.map(c => ({ label: c, value: c }))
+                  options: uniqueCountries.map((c) => ({ label: c, value: c })),
                 },
                 {
                   key: "type",
@@ -287,14 +286,14 @@ export function NumbersClient({ rows, fallbackFrom }: NumbersClientProps) {
                     { label: "Longcode", value: "longcode" },
                     { label: "Shortcode", value: "shortcode" },
                     { label: "Toll-Free", value: "tollfree" },
-                    { label: "Alphanumeric", value: "alphanumeric" }
-                  ]
+                    { label: "Alphanumeric", value: "alphanumeric" },
+                  ],
                 },
                 {
                   key: "provider",
                   label: "Provider",
                   multi: true,
-                  options: uniqueProviders.map(p => ({ label: p, value: p }))
+                  options: uniqueProviders.map((p) => ({ label: p, value: p })),
                 },
                 {
                   key: "capabilities",
@@ -304,28 +303,33 @@ export function NumbersClient({ rows, fallbackFrom }: NumbersClientProps) {
                     { label: "SMS", value: "sms" },
                     { label: "MMS", value: "mms" },
                     { label: "RCS", value: "rcs" },
-                    { label: "Voice", value: "voice" }
-                  ]
-                }
+                    { label: "Voice", value: "voice" },
+                  ],
+                },
               ]}
               trailing={
                 <div className="flex gap-2">
                   <SabsmsColumnPicker
-                    columns={columns.map(c => ({ id: c.id, label: c.header as string, hideByDefault: c.hideByDefault }))}
-                    visibleIds={visibleColumnIds}
+                    columns={columns.map((c) => ({
+                      id: c.id,
+                      label: typeof c.header === "string" ? c.header : c.id,
+                      required: !c.hideByDefault,
+                    }))}
+                    visible={visibleColumnIds}
                     onChange={(ids) => urlState.setOne("cols", ids.join(","))}
                   />
                   <SabsmsExportMenu
-                    onExportCsv={() => {
-                      const csv = rowsToCsv(filteredRows, visibleColumnIds);
-                      const blob = new Blob([csv], { type: "text/csv" });
-                      const url = URL.createObjectURL(blob);
-                      const a = document.createElement("a");
-                      a.href = url;
-                      a.download = "numbers-export.csv";
-                      a.click();
-                      URL.revokeObjectURL(url);
-                    }}
+                    filename="numbers-export"
+                    toCsv={async () =>
+                      rowsToCsv(filteredRows as unknown as Record<string, unknown>[], [
+                        { key: "e164", header: "Number" },
+                        { key: "country", header: "Country" },
+                        { key: "type", header: "Type" },
+                        { key: "provider", header: "Provider" },
+                        { key: "status", header: "Status" },
+                        { key: "sendVolume24h", header: "Volume 24h" },
+                      ])
+                    }
                   />
                 </div>
               }
@@ -346,28 +350,11 @@ export function NumbersClient({ rows, fallbackFrom }: NumbersClientProps) {
             emptyDescription={
               fallbackFrom
                 ? `Sends will go out from ${fallbackFrom} (engine env fallback) until a workspace number is added.`
-                : "Configure a provider, then provision a number. The provisioning UI ships in Phase 1.5."
+                : "Configure a provider, then buy a number through the engine."
             }
             emptyAction={{ label: "Open providers", onClick: () => router.push("/sabsms/providers") }}
             emptyIcon={<Phone className="h-8 w-8 text-[var(--st-text-secondary)]" />}
-            bulkActions={[
-              {
-                label: "Bulk sync with provider",
-                onAction: (rows) => handleSyncProvider(rows.map(r => r.id))
-              },
-              {
-                label: "Bulk update routing / webhooks",
-                onAction: (rows) => handleBulkUpdateConfig(rows.map(r => r.id))
-              },
-              {
-                label: "Bulk port numbers",
-                onAction: (rows) => console.log("Porting", rows.map(r => r.id))
-              },
-              {
-                label: "Set as default sender",
-                onAction: (rows) => console.log("Set default", rows.map(r => r.id))
-              }
-            ]}
+            bulkActions={bulkActions}
           />
         </div>
       </SabsmsPageShell>
@@ -378,54 +365,61 @@ export function NumbersClient({ rows, fallbackFrom }: NumbersClientProps) {
           if (!open) setDetailRow(null);
         }}
         title={detailRow?.e164 ?? "Number details"}
-        subtitle={`${detailRow?.country} ${detailRow?.type}`}
-        tabs={[
-          {
-            value: "config",
-            label: "Routing & Webhooks",
-            icon: <Link2 className="h-4 w-4" />,
-            content: (
-              <div className="p-4 text-sm text-[var(--st-text)]">
-                <h4 className="font-medium text-[var(--st-text)] mb-2">Routing & Webhooks</h4>
-                <div className="flex flex-col gap-2">
-                  <div>
-                    <span className="font-medium">Webhook URL:</span> {detailRow?.webhookUrl || "Not configured"}
-                  </div>
-                  <div>
-                    <span className="font-medium">Routing URL:</span> {detailRow?.routingUrl || "Not configured"}
-                  </div>
-                </div>
+        description={detailRow ? `${detailRow.country} · ${detailRow.type} · ${detailRow.provider}` : undefined}
+      >
+        {detailRow ? (
+          <div className="space-y-4 py-2 text-sm text-[var(--st-text)]">
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge variant={detailRow.status === "active" ? "default" : "secondary"}>
+                {detailRow.status}
+              </Badge>
+              {capPill("SMS", detailRow.capabilities.sms)}
+              {capPill("MMS", detailRow.capabilities.mms)}
+              {capPill("RCS", detailRow.capabilities.rcs)}
+              {capPill("Voice", detailRow.capabilities.voice)}
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <div className="text-xs text-[var(--st-text-secondary)]">DLR (24h)</div>
+                <div>{detailRow.healthDlr != null ? `${detailRow.healthDlr}%` : "—"}</div>
               </div>
-            )
-          },
-          {
-            value: "history",
-            label: "Rental History",
-            icon: <History className="h-4 w-4" />,
-            content: (
-              <div className="p-4 text-sm text-[var(--st-text)]">
-                <h4 className="font-medium text-[var(--st-text)] mb-2">Rental History</h4>
-                <p>Provisioned on: 2026-05-01</p>
-                <p>Last billed: 2026-05-01 ($1.00)</p>
+              <div>
+                <div className="text-xs text-[var(--st-text-secondary)]">Complaint (24h)</div>
+                <div>{detailRow.healthComplaint != null ? `${detailRow.healthComplaint}%` : "—"}</div>
               </div>
-            )
-          },
-          {
-            value: "audit",
-            label: "Audit Log",
-            icon: <ScrollText className="h-4 w-4" />,
-            content: (
-              <div className="p-4 text-sm text-[var(--st-text)]">
-                <h4 className="font-medium text-[var(--st-text)] mb-2">Audit Log</h4>
-                <ul className="list-disc pl-4 space-y-1">
-                  <li>Added to sender pool (2026-05-01)</li>
-                  <li>Provisioned via Twilio (2026-05-01)</li>
-                </ul>
+              <div>
+                <div className="text-xs text-[var(--st-text-secondary)]">Volume (24h)</div>
+                <div>{(detailRow.sendVolume24h ?? 0).toLocaleString()} msgs</div>
               </div>
-            )
-          }
-        ]}
-      />
+              <div>
+                <div className="text-xs text-[var(--st-text-secondary)]">Last used</div>
+                <div>{detailRow.lastUsedAt ?? "Never"}</div>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-2 border-t border-[var(--st-border)] pt-3">
+              <Button
+                variant="outline"
+                onClick={() => router.push(`/sabsms/numbers/${detailRow.id}`)}
+              >
+                <ExternalLink className="mr-2 h-4 w-4" aria-hidden="true" />
+                Open full detail (history, charts, overrides)
+              </Button>
+              {RELEASABLE_PROVIDERS.has(detailRow.provider) ? (
+                <Button
+                  variant="ghost"
+                  className="text-[var(--st-danger)]"
+                  onClick={() => void handleRelease([detailRow.id])}
+                >
+                  <Trash className="mr-2 h-4 w-4" aria-hidden="true" />
+                  Release at provider
+                </Button>
+              ) : null}
+            </div>
+          </div>
+        ) : null}
+      </SabsmsDetailDrawer>
     </div>
   );
 }

@@ -80,11 +80,12 @@ export function StepSender({ draft, numbers, onChange }: StepSenderProps) {
                   >
                     <Checkbox
                       checked={checked}
-                      onCheckedChange={(v) => {
+                      onChange={(e) => {
+                        const v = e.target.checked;
                         if (draft.senderStrategy === "single") {
                           onChange({ senderNumberIds: v ? [n.id] : [] });
                         } else {
-                          toggle(n.id, Boolean(v));
+                          toggle(n.id, v);
                         }
                       }}
                     />

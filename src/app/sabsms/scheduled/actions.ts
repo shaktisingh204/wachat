@@ -19,8 +19,6 @@
  * callers can keep importing from `./actions`.
  *
  * Stubs noted in report:
- *  • The iCal subscription URL points at `/sabsms/scheduled/ical/[token]`
- *    which is a TODO page.
  *  • Holiday calendar is a static seed (`HOLIDAYS` in `./scheduling`).
  *  • Audit collection is best-effort (console.warn fallback).
  *  • Engine has no `rescheduleScheduledSend` endpoint yet; we mutate
@@ -108,7 +106,8 @@ export async function buildCountryHourHeatmapAsync(
   }));
 }
 
-export type ActionResult<T = Record<string, never>> =
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export type ActionResult<T = {}> =
   | ({ ok: true } & T)
   | { ok: false; error: string };
 
@@ -539,8 +538,9 @@ function escapeIcs(s: string): string {
 
 /**
  * Mint a read-only iCal subscription token. The companion route at
- * `/sabsms/scheduled/ical/[token]` is a TODO (called out in the report)
- * — for now we persist the token so the URL is at least valid + stable.
+ * `/sabsms/scheduled/ical/[token]/route.ts` resolves the token →
+ * workspaceId and serves a live `text/calendar` feed of upcoming
+ * scheduled sends, so a calendar app can subscribe to the URL.
  */
 export async function mintIcalSubscription(): Promise<
   ActionResult<{ url: string; token: string }>

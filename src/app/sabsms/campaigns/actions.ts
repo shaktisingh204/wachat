@@ -19,6 +19,8 @@ import { connectToDatabase } from "@/lib/mongodb";
 import { getCachedSession } from "@/lib/server-cache";
 import { getSabsmsCollections } from "@/lib/sabsms/db/collections";
 import { sabsmsEngine, SabsmsEngineError } from "@/lib/sabsms/engine-client";
+import { renderTemplate } from "@/lib/sabsms/render";
+import { shortenUrlsInBody } from "@/lib/sabsms/links";
 import {
   capabilityBatches,
   capabilityPercent,
@@ -721,11 +723,21 @@ const AudienceSchema = z.union([
     kind: z.literal("phones"),
     phones: z.array(z.string()).min(1).max(MAX_RECIPIENTS),
   }),
-  z.object({
-    kind: z.literal("csv"),
-    importId: z.string().min(1),
-    sabFileId: z.string().optional(),
-  }),
+  // `csv` mirrors the shared `SabsmsCampaignAudience` shape (types.ts) —
+  // both `importId` and `sabFileId` are optional so this union is a
+  // SUPERSET of the shared type and `SabsmsCampaignAudience` is assignable
+  // to `CreateCampaignInput["audience"]` (the wizard launch path hands us
+  // the shared type). At least one of the two must be present so the
+  // import resolver (`loadImportContacts`) has something to fetch.
+  z
+    .object({
+      kind: z.literal("csv"),
+      importId: z.string().optional(),
+      sabFileId: z.string().optional(),
+    })
+    .refine((v) => Boolean(v.importId || v.sabFileId), {
+      message: "CSV audience needs an importId or a sabFileId",
+    }),
 ]);
 
 const ScheduleSchema = z.union([
@@ -758,6 +770,31 @@ const CreateCampaignSchema = z
      * `applySmartSendSchedule` for the dual campaign/recipient design.
      */
     smartSend: z.boolean().optional(),
+    /**
+     * V2.4 link tracking — shorten URLs + attribute clicks per recipient.
+     * When true, each recipient body's URLs are replaced with attributed
+     * short slugs at launch (in `launchCampaignAction`).
+     */
+    shortenLinks: z.boolean().optional(),
+    /**
+     * V2.3 MMS — resolved public R2 media URLs (from SabFiles) broadcast as
+     * attachments on every recipient. Copied per-recipient at launch so the
+     * engine sends them (mirrors single-send's `mediaUrls`).
+     */
+    mediaUrls: z.array(z.string().url()).max(10).optional(),
+    /**
+     * V2.11 RCS — rich payload broadcast to RCS-capable recipients (with
+     * `channelRequested: 'rcs_preferred'` driving SMS fallback). Copied
+     * per-recipient at launch.
+     */
+    rcs: z
+      .object({
+        card: z.unknown().optional(),
+        suggestions: z.array(z.unknown()).default([]),
+        fallbackText: z.string(),
+      })
+      .optional(),
+    channelRequested: z.enum(["sms", "rcs_preferred"]).optional(),
   })
   .refine((v) => Boolean(v.templateId || v.body?.trim()), {
     message: "Pick a template or write a message body",
@@ -774,6 +811,8 @@ interface CampaignLaunchExtras {
   statusReason?: string;
   /** V2.10 — recipients get per-contact `notBeforeEpochMs` at launch. */
   smartSend?: boolean;
+  /** V2.4 — shorten + attribute links per recipient at launch. */
+  shortenLinks?: boolean;
 }
 
 /**
@@ -843,12 +882,18 @@ export async function createCampaignAction(
       unsubscribed: 0,
     },
     scheduledAt,
+    // V2.3 MMS / V2.11 RCS — broadcast media + rich payload on the campaign
+    // doc; copied per-recipient at launch so the engine sends them.
+    ...(v.mediaUrls && v.mediaUrls.length > 0 ? { mediaUrls: v.mediaUrls } : {}),
+    ...(v.rcs ? { rcs: v.rcs as SabsmsCampaign["rcs"] } : {}),
+    ...(v.channelRequested ? { channelRequested: v.channelRequested } : {}),
     createdAt: now,
     updatedAt: now,
     ...(v.body?.trim() ? { bodyOverride: v.body.trim() } : {}),
     ...(v.vars ? { templateVars: v.vars } : {}),
     ...(v.from ? { defaultFrom: v.from } : {}),
     ...(v.smartSend ? { smartSend: true } : {}),
+    ...(v.shortenLinks ? { shortenLinks: true } : {}),
   };
 
   const { cols } = await getSabsmsCollections();
@@ -1124,14 +1169,50 @@ export async function launchCampaignAction(input: {
     return { ok: false, error: "Audience resolved to zero valid recipients" };
   }
 
-  let recipientDocs: SmartSendRecipientDoc[] = buildRecipientDocs(contacts, {
-    campaignId: input.campaignId,
-    workspaceId: ws.workspaceId,
-    templateBody: body.body,
-    category: campaign.category,
-    from: campaign.defaultFrom,
-    baseVars: campaign.templateVars,
-  });
+  // ── V2.4 link tracking ──────────────────────────────────────────────
+  // When the campaign opted into link tracking, shorten + attribute URLs
+  // PER RECIPIENT so each contact gets its own click-attributed slug. We
+  // render the body per contact here and pass the shortened result into
+  // buildRecipientDocs as the body override. Best-effort: a failed mint
+  // leaves the raw URL in place (shortenUrlsInBody already degrades).
+  let bodyForContact: ((c: AudienceContact) => string) | undefined;
+  if (campaign.shortenLinks) {
+    const shortenedByKey = new Map<string, string>();
+    for (const contact of contacts) {
+      const rendered = renderTemplate(body.body, {
+        ...campaign.templateVars,
+        ...contact.vars,
+      }).text;
+      try {
+        const { body: shortened } = await shortenUrlsInBody(rendered, {
+          workspaceId: ws.workspaceId,
+          campaignId: input.campaignId,
+          contactId: contact.contactId,
+        });
+        shortenedByKey.set(contact.to, shortened);
+      } catch {
+        shortenedByKey.set(contact.to, rendered);
+      }
+    }
+    bodyForContact = (c) => shortenedByKey.get(c.to) ?? "";
+  }
+
+  let recipientDocs: SmartSendRecipientDoc[] = buildRecipientDocs(
+    contacts,
+    {
+      campaignId: input.campaignId,
+      workspaceId: ws.workspaceId,
+      templateBody: body.body,
+      category: campaign.category,
+      from: campaign.defaultFrom,
+      baseVars: campaign.templateVars,
+      // V2.3 MMS / V2.11 RCS — broadcast media + rich payload per recipient.
+      mediaUrls: campaign.mediaUrls,
+      rcs: campaign.rcs,
+      channelRequested: campaign.channelRequested,
+    },
+    bodyForContact,
+  );
 
   // ── V2.10 smart send, recipient level (FORWARD CONTRACT) ────────────
   // Stamp `notBeforeEpochMs` per recipient from the identity graph's

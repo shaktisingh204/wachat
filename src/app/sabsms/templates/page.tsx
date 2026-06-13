@@ -62,8 +62,6 @@ async function TemplatesDataLoader({ searchParams }: PageProps) {
         <StatCard
           label="Total Usage"
           value={fmtQty(kpis.totalUsage)}
-          delta={12.5}
-          period="vs last month"
           icon={<MessageSquare className="h-4 w-4" />}
         />
         <StatCard

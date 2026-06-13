@@ -377,7 +377,13 @@ export function ConsentTable({
             </CardTitle>
           </CardHeader>
           <CardBody>
-            <ChartContainer height={180}>
+            <ChartContainer
+              className="h-[180px]"
+              config={{
+                totalOptIn: { label: "Opt-ins", color: CHART_PALETTE[0] },
+                retained: { label: "Retained", color: CHART_PALETTE[1] },
+              }}
+            >
               <Recharts.BarChart data={cohort} margin={{ top: 4, right: 16, bottom: 0, left: 0 }}>
                 <Recharts.CartesianGrid
                   strokeDasharray="3 3"

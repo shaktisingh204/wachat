@@ -2,6 +2,8 @@
 
 import { randomUUID, createHash } from "node:crypto";
 
+import { ObjectId } from "mongodb";
+
 import { getCachedSession } from "@/lib/server-cache";
 import { connectToDatabase } from "@/lib/mongodb";
 import {
@@ -273,6 +275,22 @@ async function runQuickSendLoop(
 
   await runs.updateOne({ runId }, { $set: { status: "running" } });
 
+  // Resolve the selected sender number → from/senderId so the worker's
+  // sender_header picks the registered DLT header for IN traffic.
+  let fromNumber: string | undefined;
+  if (input.senderNumberId) {
+    try {
+      const senderDoc = await cols.numbers.findOne({
+        _id: new ObjectId(input.senderNumberId),
+        workspaceId,
+      });
+      fromNumber = (senderDoc as { e164?: string } | null)?.e164 || undefined;
+    } catch {
+      // Invalid id → leave `from` unset; the engine falls back to the
+      // workspace default sender.
+    }
+  }
+
   const throttleMs = Math.max(
     20,
     Math.floor(1000 / Math.max(1, Math.min(50, input.throttlePerSecond))),
@@ -338,15 +356,20 @@ async function runQuickSendLoop(
       }
 
       const tags = [`quick_send:${runId}`];
-      if (input.dltTemplateId) tags.push(`dlt_template:${input.dltTemplateId}`);
 
       const send = await sabsmsEngine.enqueueSend({
         workspaceId,
         to: row.phone,
         body,
         category: input.category,
+        from: fromNumber,
         eventKey: "sabsms.quick_send",
+        // US 10DLC campaign id (cosmetic id is no longer overloaded onto
+        // tags — it is the engine's campaignId field).
         campaignId: input.tendlcCampaignId,
+        // V2.8 — the IN-required DLT content-template id is now actually
+        // forwarded to the engine (previously dropped — only tagged).
+        ...(input.dltTemplateId ? { dltTemplateId: input.dltTemplateId } : {}),
         tags,
       });
       result.messageId = send.id;

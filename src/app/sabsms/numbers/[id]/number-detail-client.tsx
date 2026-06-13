@@ -51,6 +51,7 @@ import {
   Recharts,
   ChartContainer,
   ChartTooltip,
+  type ChartConfig,
   EmptyState,
   Field,
   Input,
@@ -101,6 +102,20 @@ interface Props {
   detail: NumberDetailView;
 }
 
+/**
+ * Series labels for the ChartContainer tooltip/legend. Line colours are
+ * set explicitly via `stroke` on each <Line>, so this only carries labels.
+ */
+const CHART_CONFIG = {
+  dlrRate: { label: "DLR %" },
+  complaintRate: { label: "Complaint %" },
+  sent: { label: "Sent" },
+  delivered: { label: "Delivered" },
+  failed: { label: "Failed" },
+  cost: { label: "Cost" },
+  revenue: { label: "Revenue" },
+} satisfies ChartConfig;
+
 export function NumberDetailClient({ detail }: Props) {
   const { toast } = useToast();
   const router = useRouter();
@@ -121,7 +136,6 @@ export function NumberDetailClient({ detail }: Props) {
   const [releaseOpen, setReleaseOpen] = React.useState(false);
   const [portOutOpen, setPortOutOpen] = React.useState(false);
   const [auditOpen, setAuditOpen] = React.useState(false);
-  const [graceHours, setGraceHours] = React.useState(48);
   const [portTarget, setPortTarget] = React.useState({
     newCarrier: "",
     contactEmail: "",
@@ -161,7 +175,6 @@ export function NumberDetailClient({ detail }: Props) {
     startAction(async () => {
       const res = await releaseNumber({
         numberId: detail.id,
-        graceHours,
       });
       if (!res.ok) {
         toast({
@@ -171,11 +184,12 @@ export function NumberDetailClient({ detail }: Props) {
         });
       } else {
         toast({
-          title: "Release scheduled",
-          description: `${graceHours}h grace, number will be released after that window.`,
+          title: "Number released",
+          description: `${detail.e164} was released at ${detail.provider}.`,
           tone: "success",
         });
         setReleaseOpen(false);
+        router.refresh();
       }
     });
   }
@@ -415,7 +429,7 @@ export function NumberDetailClient({ detail }: Props) {
             <CardDescription>DLR + complaint rate.</CardDescription>
           </CardHeader>
           <CardBody>
-            <ChartContainer height={220}>
+            <ChartContainer config={CHART_CONFIG} style={{ height: 220 }}>
               <Recharts.LineChart data={detail.health}>
                 <Recharts.CartesianGrid
                   strokeDasharray="3 3"
@@ -453,7 +467,7 @@ export function NumberDetailClient({ detail }: Props) {
             </CardDescription>
           </CardHeader>
           <CardBody>
-            <ChartContainer height={220}>
+            <ChartContainer config={CHART_CONFIG} style={{ height: 220 }}>
               <Recharts.LineChart data={detail.volume}>
                 <Recharts.CartesianGrid
                   strokeDasharray="3 3"
@@ -494,7 +508,7 @@ export function NumberDetailClient({ detail }: Props) {
             <CardDescription>USD per day, this number.</CardDescription>
           </CardHeader>
           <CardBody>
-            <ChartContainer height={220}>
+            <ChartContainer config={CHART_CONFIG} style={{ height: 220 }}>
               <Recharts.LineChart data={detail.cost}>
                 <Recharts.CartesianGrid
                   strokeDasharray="3 3"
@@ -536,7 +550,7 @@ export function NumberDetailClient({ detail }: Props) {
             </CardDescription>
           </CardHeader>
           <CardBody>
-            <ChartContainer height={220}>
+            <ChartContainer config={CHART_CONFIG} style={{ height: 220 }}>
               <Recharts.LineChart data={detail.health}>
                 <Recharts.CartesianGrid
                   strokeDasharray="3 3"
@@ -566,7 +580,7 @@ export function NumberDetailClient({ detail }: Props) {
             </CardDescription>
           </CardHeader>
           <CardBody>
-            <ChartContainer height={220}>
+            <ChartContainer config={CHART_CONFIG} style={{ height: 220 }}>
               <Recharts.LineChart data={detail.health}>
                 <Recharts.CartesianGrid
                   strokeDasharray="3 3"
@@ -599,7 +613,7 @@ export function NumberDetailClient({ detail }: Props) {
               Top destinations sent from this number.
             </CardDescription>
           </CardHeader>
-          <CardBody padding="none">
+          <CardBody>
             {detail.countries.length === 0 ? (
               <EmptyState
                 title="No traffic"
@@ -649,7 +663,7 @@ export function NumberDetailClient({ detail }: Props) {
               Top templates by send volume from this number.
             </CardDescription>
           </CardHeader>
-          <CardBody padding="none">
+          <CardBody>
             {detail.templatePerformance.length === 0 ? (
               <EmptyState
                 title="No template traffic"
@@ -1027,10 +1041,11 @@ export function NumberDetailClient({ detail }: Props) {
             </Button>
           </div>
           <Alert className="mt-3" tone="info" title="Heads-up">
-            Release transitions status to{" "}
-            <span className="font-mono">releasing</span> immediately and
-            schedules the final release after the grace window. Port-out files a
-            stub audit entry, the engine does not support carrier ports yet.
+            Release gives the number up at{" "}
+            <span className="font-mono">{detail.provider}</span> immediately
+            (Twilio/Telnyx DELETE) and is permanent — inbound traffic stops and
+            billing ends. Port-out files a stub audit entry; the engine does not
+            support carrier ports yet.
           </Alert>
         </CardBody>
       </Card>
@@ -1041,25 +1056,10 @@ export function NumberDetailClient({ detail }: Props) {
           <AlertDialogHeader>
             <AlertDialogTitle>Release this number?</AlertDialogTitle>
             <AlertDialogDescription>
-              After the grace window, the number will be released back to{" "}
-              {detail.provider}. Inbound traffic will be lost.
+              {detail.e164} will be released at {detail.provider} right now. This
+              is permanent — inbound traffic is lost and provider billing ends.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <div className="py-2">
-            <Field label="Grace period (hours)">
-              <Input
-                type="number"
-                min={0}
-                max={720}
-                value={graceHours}
-                onChange={(e) =>
-                  setGraceHours(
-                    Math.max(0, Math.min(720, Number(e.target.value) || 0)),
-                  )
-                }
-              />
-            </Field>
-          </div>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={actionPending}>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={doRelease} disabled={actionPending}>

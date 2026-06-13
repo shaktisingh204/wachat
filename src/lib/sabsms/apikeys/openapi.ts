@@ -146,7 +146,7 @@ const SEND_MESSAGE_BODY: SchemaObject = {
       type: 'array',
       items: { type: 'string' },
       description:
-        'SabFiles file ids for MMS media. Raw URLs are NOT accepted — every file lives in SabFiles.',
+        'SabFiles file ids (24-hex) for MMS media. Each id is resolved to its public URL and attached to the send; the message is billed and sent as MMS. Ids must exist in your workspace SabFiles library (404 otherwise). Raw URLs are NOT accepted — every file lives in SabFiles.',
     },
     idempotencyKeyNote: {
       type: 'string',
@@ -183,7 +183,7 @@ export function buildSabsmsOpenApiSpec(): SabsmsOpenApiSpec {
       title: 'SabSMS API',
       version: SABSMS_API_VERSION,
       description:
-        'Programmatic SMS/MMS sending, OTP verification, suppression management and analytics. Authenticate every request with `Authorization: Bearer sk_live_…` (mint keys at /sabsms/api-keys). Per-key rate limits apply; 429 responses carry a Retry-After header.',
+        'Programmatic SMS/MMS sending, OTP verification, suppression management and analytics. Authenticate every request with `Authorization: Bearer sk_live_…` (live) or `sk_test_…` (sandbox) — mint keys at /sabsms/api-keys. Every response echoes the key mode in the `X-Sabsms-Mode` header. Per-key rate limits apply; 429 responses carry a Retry-After header.',
     },
     servers: [{ url: SABSMS_API_BASE_PATH, description: 'Same-origin SabNode deployment' }],
     security: [{ apiKey: [] }],
@@ -192,8 +192,9 @@ export function buildSabsmsOpenApiSpec(): SabsmsOpenApiSpec {
         apiKey: {
           type: 'http',
           scheme: 'bearer',
-          bearerFormat: 'sk_live_…',
-          description: 'SabSMS API key (Authorization: Bearer sk_live_…).',
+          bearerFormat: 'sk_live_… / sk_test_…',
+          description:
+            'SabSMS API key (Authorization: Bearer sk_live_… for live, sk_test_… for sandbox).',
         },
       },
       schemas: {

@@ -400,7 +400,7 @@ export function QuickSendClient({
             <label className="flex items-start gap-2 rounded border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 text-sm text-[var(--st-text)]">
               <Checkbox
                 checked={marketingAttested}
-                onCheckedChange={(v) => setMarketingAttested(v === true)}
+                onChange={(e) => setMarketingAttested(e.target.checked)}
               />
               <span>
                 I attest every recipient on this list has given prior

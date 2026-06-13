@@ -18,7 +18,12 @@ import { estimateSegments } from "@/lib/sabsms/segments";
 import { countryFromE164 } from "@/lib/sabsms/phone";
 import { creditCostFor } from "@/lib/sabsms/credits/rates";
 import { normalisePhone } from "../lists/helpers";
-import type { SabsmsCampaignAudience, SabsmsMessageCategory } from "@/lib/sabsms/types";
+import type {
+  SabsmsCampaignAudience,
+  SabsmsChannelRequested,
+  SabsmsMessageCategory,
+  SabsmsRcsPayload,
+} from "@/lib/sabsms/types";
 
 export const RECIPIENT_CHUNK_SIZE = 1000;
 
@@ -111,6 +116,13 @@ export interface CampaignRecipientDoc {
   providerAccountId?: string;
   contactId?: string;
   category: SabsmsMessageCategory;
+  /** V2.3 MMS — public R2 media URLs copied from the campaign doc. The
+   *  engine forwards these onto the message doc as MMS attachments. */
+  mediaUrls?: string[];
+  /** V2.11 RCS — rich payload copied from the campaign doc. */
+  rcs?: SabsmsRcsPayload;
+  /** V2.11 — requested channel strategy ('rcs_preferred' / 'sms'). */
+  channelRequested?: SabsmsChannelRequested;
   chunk: number;
   status: "pending";
   idempotencyKey: string;
@@ -149,6 +161,12 @@ export interface BuildRecipientsInput {
   providerAccountId?: string;
   /** Extra vars applied to every recipient (campaign-level overrides). */
   baseVars?: Record<string, string | number>;
+  /** V2.3 MMS — campaign-level media broadcast to every recipient. */
+  mediaUrls?: string[];
+  /** V2.11 RCS — campaign-level rich payload broadcast to every recipient. */
+  rcs?: SabsmsRcsPayload;
+  /** V2.11 — campaign-level channel strategy. */
+  channelRequested?: SabsmsChannelRequested;
   now?: Date;
 }
 
@@ -161,13 +179,21 @@ export interface BuildRecipientsInput {
 export function buildRecipientDocs(
   contacts: AudienceContact[],
   input: BuildRecipientsInput,
+  /**
+   * Optional per-contact body override (e.g. a link-shortened body produced
+   * by the async launch path). When omitted the template is rendered with
+   * the contact's vars as before.
+   */
+  bodyForContact?: (contact: AudienceContact, index: number) => string,
 ): CampaignRecipientDoc[] {
   const now = input.now ?? new Date();
   return contacts.map((contact, i) => {
-    const { text } = renderTemplate(input.templateBody, {
-      ...input.baseVars,
-      ...contact.vars,
-    });
+    const text =
+      bodyForContact?.(contact, i) ??
+      renderTemplate(input.templateBody, {
+        ...input.baseVars,
+        ...contact.vars,
+      }).text;
     return {
       campaignId: input.campaignId,
       workspaceId: input.workspaceId,
@@ -179,6 +205,13 @@ export function buildRecipientDocs(
         : {}),
       ...(contact.contactId ? { contactId: contact.contactId } : {}),
       category: input.category,
+      // V2.3 MMS / V2.11 RCS — copy the campaign-level media + rich payload
+      // onto each recipient so the engine sends them (mirrors single-send).
+      ...(input.mediaUrls && input.mediaUrls.length > 0
+        ? { mediaUrls: input.mediaUrls }
+        : {}),
+      ...(input.rcs ? { rcs: input.rcs } : {}),
+      ...(input.channelRequested ? { channelRequested: input.channelRequested } : {}),
       chunk: chunkNumberFor(i),
       status: "pending" as const,
       idempotencyKey: idempotencyKeyFor(input.campaignId, contact),

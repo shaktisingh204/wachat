@@ -1,435 +1,596 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState, useTransition } from "react";
 import {
   SabsmsPageShell,
   SabsmsDataTable,
+  SabsmsEmpty,
+  type SabsmsColumn,
+  type SabsmsRowAction,
 } from "@/components/sabsms/page-toolkit";
-import { Button, Card, CardHeader, CardTitle, CardDescription, CardBody, CardFooter, Input, Label, Badge, StatCard, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Textarea, Checkbox } from '@/components/sabcrm/20ui';
-import { Key, ShieldAlert, Settings, Activity, Upload, Download, Sparkles, MessageSquare, Filter, Code2, ShieldCheck, ListFilter, Globe2 } from "lucide-react";
+import {
+  Button,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardBody,
+  CardFooter,
+  Input,
+  Label,
+  Badge,
+  StatCard,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  Textarea,
+  Switch,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/sabcrm/20ui";
+import {
+  Key,
+  ShieldCheck,
+  ShieldAlert,
+  Settings,
+  MessageSquare,
+  X,
+  Plus,
+  Info,
+  Trash,
+} from "lucide-react";
+import { toast } from "sonner";
+
+import {
+  ENGINE_DEFAULTS,
+  loadKeywordsPage,
+  saveKeywordOverride,
+  saveKeywordRule,
+  deleteKeywordRule,
+  type KeywordsPageData,
+  type KeywordOverrideView,
+  type KeywordRuleView,
+} from "./actions";
+
+type View = "stop-help" | "rules" | "stats";
+
+function KeywordChips({
+  values,
+  onRemove,
+  defaults,
+}: {
+  values: string[];
+  onRemove: (v: string) => void;
+  defaults: readonly string[];
+}) {
+  return (
+    <div className="flex flex-wrap gap-2">
+      {defaults.map((d) => (
+        <Badge
+          key={`def-${d}`}
+          variant="outline"
+          className="font-mono bg-[var(--st-bg-muted)]/40 text-[var(--st-text-secondary)]"
+          title="Built-in engine default (always active, cannot be removed)"
+        >
+          {d}
+        </Badge>
+      ))}
+      {values.map((v) => (
+        <Badge key={v} variant="secondary" className="font-mono gap-1.5">
+          {v}
+          <button
+            type="button"
+            aria-label={`Remove ${v}`}
+            onClick={() => onRemove(v)}
+            className="opacity-60 hover:opacity-100"
+          >
+            <X className="h-3 w-3" />
+          </button>
+        </Badge>
+      ))}
+      {values.length === 0 && (
+        <span className="text-xs text-[var(--st-text-secondary)] italic self-center">
+          No custom synonyms — engine defaults above still apply.
+        </span>
+      )}
+    </div>
+  );
+}
+
+const RULE_ACTION_LABEL: Record<KeywordRuleView["action"], string> = {
+  reply: "Auto-reply",
+  opt_out: "Opt-out",
+  opt_in: "Opt-in",
+  tag: "Tag",
+};
 
 export default function KeywordsPage() {
-  const [view, setView] = useState<"keywords" | "responses" | "config" | "tools">("keywords");
+  const [view, setView] = useState<View>("stop-help");
+  const [data, setData] = useState<KeywordsPageData | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
+
+  // editable override draft
+  const [override, setOverride] = useState<KeywordOverrideView>({
+    stopKeywords: [],
+    helpKeywords: [],
+    confirmOptOutText: "",
+    helpText: "",
+  });
+  const [newStop, setNewStop] = useState("");
+  const [newHelp, setNewHelp] = useState("");
+
+  // rule dialog
+  const [ruleDialogOpen, setRuleDialogOpen] = useState(false);
+  const [editingRule, setEditingRule] = useState<KeywordRuleView | null>(null);
+  const [ruleDraft, setRuleDraft] = useState<{
+    keyword: string;
+    match: KeywordRuleView["match"];
+    action: KeywordRuleView["action"];
+    replyText: string;
+    tag: string;
+    enabled: boolean;
+  }>({ keyword: "", match: "exact", action: "reply", replyText: "", tag: "", enabled: true });
+
+  const refresh = React.useCallback(() => {
+    loadKeywordsPage().then((res) => {
+      if (res.success) {
+        setData(res.data);
+        setOverride(res.data.override);
+        setLoadError(null);
+      } else {
+        setLoadError(res.error);
+      }
+    });
+  }, []);
+
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
+
+  const addStop = () => {
+    const v = newStop.trim().toUpperCase();
+    if (v && !override.stopKeywords.includes(v)) {
+      setOverride((o) => ({ ...o, stopKeywords: [...o.stopKeywords, v] }));
+    }
+    setNewStop("");
+  };
+  const addHelp = () => {
+    const v = newHelp.trim().toUpperCase();
+    if (v && !override.helpKeywords.includes(v)) {
+      setOverride((o) => ({ ...o, helpKeywords: [...o.helpKeywords, v] }));
+    }
+    setNewHelp("");
+  };
+
+  const handleSaveOverride = () => {
+    startTransition(async () => {
+      const res = await saveKeywordOverride({
+        stopKeywords: override.stopKeywords,
+        helpKeywords: override.helpKeywords,
+        confirmOptOutText: override.confirmOptOutText,
+        helpText: override.helpText,
+      });
+      if (res.success) {
+        setOverride(res.override);
+        toast.success("Custom keywords saved — the engine now uses them on inbound replies.");
+        refresh();
+      } else {
+        toast.error(res.error);
+      }
+    });
+  };
+
+  const openNewRule = () => {
+    setEditingRule(null);
+    setRuleDraft({ keyword: "", match: "exact", action: "reply", replyText: "", tag: "", enabled: true });
+    setRuleDialogOpen(true);
+  };
+  const openEditRule = (r: KeywordRuleView) => {
+    setEditingRule(r);
+    setRuleDraft({
+      keyword: r.keyword,
+      match: r.match,
+      action: r.action,
+      replyText: r.replyText ?? "",
+      tag: r.tag ?? "",
+      enabled: r.enabled,
+    });
+    setRuleDialogOpen(true);
+  };
+  const handleSaveRule = () => {
+    startTransition(async () => {
+      const res = await saveKeywordRule({
+        id: editingRule?.id,
+        keyword: ruleDraft.keyword,
+        match: ruleDraft.match,
+        action: ruleDraft.action,
+        replyText: ruleDraft.replyText,
+        tag: ruleDraft.tag,
+        enabled: ruleDraft.enabled,
+      });
+      if (res.success) {
+        toast.success("Rule saved (stored — per-keyword enforcement coming soon).");
+        setRuleDialogOpen(false);
+        refresh();
+      } else {
+        toast.error(res.error);
+      }
+    });
+  };
+  const handleDeleteRule = (r: KeywordRuleView) => {
+    startTransition(async () => {
+      const res = await deleteKeywordRule(r.id);
+      if (res.success) {
+        toast.success("Rule deleted.");
+        refresh();
+      } else {
+        toast.error(res.error);
+      }
+    });
+  };
+
+  const ruleColumns: SabsmsColumn<KeywordRuleView>[] = [
+    {
+      id: "keyword",
+      header: "Keyword",
+      render: (r) => (
+        <div className="flex flex-col">
+          <span className="font-mono font-semibold">{r.keyword}</span>
+          <span className="text-xs text-[var(--st-text-secondary)]">
+            {r.match} match
+          </span>
+        </div>
+      ),
+    },
+    {
+      id: "action",
+      header: "Action",
+      render: (r) => <Badge variant="outline">{RULE_ACTION_LABEL[r.action]}</Badge>,
+    },
+    {
+      id: "detail",
+      header: "Reply / Tag",
+      render: (r) => (
+        <span className="text-sm text-[var(--st-text-secondary)]">
+          {r.action === "reply" ? r.replyText || "—" : r.action === "tag" ? r.tag || "—" : "—"}
+        </span>
+      ),
+    },
+    {
+      id: "enabled",
+      header: "Enabled",
+      render: (r) => (
+        <Badge variant={r.enabled ? "secondary" : "outline"}>
+          {r.enabled ? "On" : "Off"}
+        </Badge>
+      ),
+    },
+  ];
+
+  const ruleActions: SabsmsRowAction<KeywordRuleView>[] = [
+    { label: "Edit", icon: <Settings className="h-4 w-4" />, onSelect: openEditRule },
+    { label: "Delete", icon: <Trash className="h-4 w-4" />, destructive: true, onSelect: handleDeleteRule },
+  ];
 
   return (
     <SabsmsPageShell
       title="STOP / HELP Keywords"
       eyebrow="Compliance"
-      description="Manage opt-out and help keywords, auto-responses, and carrier compliance rules."
+      description="Custom STOP/HELP synonyms and the auto-reply text the inbound engine sends. These genuinely change engine behaviour."
       breadcrumbs={[
         { label: "Compliance", href: "/sabsms/compliance" },
         { label: "Keywords" },
       ]}
       primaryAction={{
-        label: "Add Keyword",
-        onClick: () => {},
-      }}
-      secondaryAction={{
-        label: "Roadmap (Feature 20)",
-        onClick: () => {},
+        label: "Add reply rule",
+        onClick: openNewRule,
       }}
       helpTitle="Keyword Management"
-      helpBody="Configure standard opt-out/opt-in keywords (STOP, UNSTOP, HELP) and localized variants required by carriers."
+      helpBody="The engine's built-in STOP/START/HELP keywords are always active. Here you ADD custom synonyms and override the STOP confirmation + HELP auto-reply text the engine sends. Per-keyword reply rules are stored but not yet enforced."
     >
       <div className="mb-6 flex gap-2 overflow-x-auto">
-        <Button
-          variant={view === "keywords" ? "default" : "outline"}
-          onClick={() => setView("keywords")}
-        >
-          <Key className="mr-2 h-4 w-4" /> Keywords
+        <Button variant={view === "stop-help" ? "default" : "outline"} onClick={() => setView("stop-help")}>
+          <Key className="mr-2 h-4 w-4" /> STOP / HELP config
         </Button>
-        <Button
-          variant={view === "responses" ? "default" : "outline"}
-          onClick={() => setView("responses")}
-        >
-          <MessageSquare className="mr-2 h-4 w-4" /> Responses & Rules
+        <Button variant={view === "rules" ? "default" : "outline"} onClick={() => setView("rules")}>
+          <MessageSquare className="mr-2 h-4 w-4" /> Reply rules
         </Button>
-        <Button
-          variant={view === "config" ? "default" : "outline"}
-          onClick={() => setView("config")}
-        >
-          <Settings className="mr-2 h-4 w-4" /> Config & Import
-        </Button>
-        <Button
-          variant={view === "tools" ? "default" : "outline"}
-          onClick={() => setView("tools")}
-        >
-          <Activity className="mr-2 h-4 w-4" /> Tools & Audit
+        <Button variant={view === "stats" ? "default" : "outline"} onClick={() => setView("stats")}>
+          <ShieldAlert className="mr-2 h-4 w-4" /> Activity
         </Button>
       </div>
 
-      <div className="grid gap-6">
-        {view === "keywords" && (
-          <div className="space-y-6">
-            <div className="grid gap-4 md:grid-cols-4">
-              <StatCard
-                label="Active Keywords"
-                value="24"
-                delta={2}
-                period="Across 5 Locales"
-              />
-              <StatCard
-                label="Global Suppressions"
-                value="14,890"
-                delta={450}
-                period="Last 30 Days"
-              />
-              <StatCard
-                label="Auto-Responses Sent"
-                value="8,902"
-                delta={120}
-                period="Help & Info Requests"
-              />
-              <StatCard
-                label="Carrier Compliant"
-                value="100%"
-                period="CTIA / CWTA / TRAI"
-              />
-            </div>
+      {loadError && (
+        <Card className="mb-6">
+          <CardBody>
+            <p className="text-sm text-[var(--st-text)]">{loadError}</p>
+          </CardBody>
+        </Card>
+      )}
 
-            <Card className="border-[var(--st-border)] shadow-sm">
-              <CardHeader className="flex flex-row items-start justify-between bg-[var(--st-bg-muted)]/20 pb-4 border-b">
-                <div>
-                  <CardTitle className="text-xl">Keyword & Suppression Mapping</CardTitle>
-                  <CardDescription className="mt-1">
-                    Manage how inbound keywords (e.g., STOP, START) map to global and local suppression lists.
-                  </CardDescription>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Input placeholder="Search keywords..." className="w-64 bg-[var(--st-bg-secondary)]" />
-                  <Button variant="outline"><Filter className="w-4 h-4 mr-2" /> Filter</Button>
-                </div>
-              </CardHeader>
-              <CardBody className="p-0">
-                <SabsmsDataTable
-                  rowKey={(r) => r.id}
-                  columns={[
-                    { 
-                      id: "keyword", 
-                      header: "Keyword Pattern", 
-                      render: (r) => (
-                        <div className="flex flex-col py-2">
-                          <span className="font-mono font-bold text-[15px]">{r.keyword}</span>
-                          <span className="text-xs text-[var(--st-text-secondary)] flex items-center gap-1 mt-1">
-                            <Code2 className="w-3 h-3"/> {r.matchType} Match
-                          </span>
-                        </div>
-                      ) 
-                    },
-                    { 
-                      id: "actionType", 
-                      header: "Intent / Action", 
-                      render: (r) => (
-                        <Badge 
-                          variant={r.actionType === "Opt-out" ? "destructive" : r.actionType === "Opt-in" ? "default" : "secondary"}
-                          className={r.actionType === "Opt-in" ? "bg-[var(--st-text)]/10 text-[var(--st-text)] hover:bg-[var(--st-text)]/20 border-[var(--st-border)]/20" : ""}
-                        >
-                          {r.actionType}
-                        </Badge>
-                      ) 
-                    },
-                    { 
-                      id: "suppressionList", 
-                      header: "Suppression Routing", 
-                      render: (r) => (
-                        <div className="flex items-center gap-2">
-                          {r.actionType === "Opt-out" ? (
-                            <ShieldAlert className="w-4 h-4 text-[var(--st-text)]/70"/>
-                          ) : r.actionType === "Opt-in" ? (
-                            <ShieldCheck className="w-4 h-4 text-[var(--st-text)]/70"/>
-                          ) : (
-                            <ListFilter className="w-4 h-4 text-[var(--st-text-secondary)]"/>
-                          )}
-                          <span className="font-medium text-sm">{r.suppressionList}</span>
-                        </div>
-                      ) 
-                    },
-                    { 
-                      id: "locale", 
-                      header: "Locale", 
-                      render: (r) => (
-                        <div className="flex items-center gap-1.5 text-sm">
-                          <Globe2 className="w-3.5 h-3.5 text-[var(--st-text-secondary)]" /> {r.locale}
-                        </div>
-                      )
-                    },
-                    { 
-                      id: "network", 
-                      header: "Compliance Rules", 
-                      render: (r) => (
-                        <div className="flex flex-wrap gap-1">
-                          {r.networks.length > 0 ? r.networks.map(n => (
-                            <Badge key={n} variant="outline" className="text-[10px] uppercase font-semibold bg-[var(--st-bg-muted)]/30">
-                              {n}
-                            </Badge>
-                          )) : <span className="text-xs text-[var(--st-text-secondary)] italic">None</span>}
-                        </div>
-                      ) 
-                    },
-                    { 
-                      id: "count", 
-                      header: "Triggers (30d)", 
-                      render: (r) => <span className="font-mono text-sm">{r.count.toLocaleString()}</span> 
-                    },
-                    { 
-                      id: "status", 
-                      header: "Status", 
-                      render: (r) => (
-                        <div className="flex items-center gap-2 text-sm font-medium">
-                          <span className={`w-2 h-2 rounded-full ${r.status === 'Active' ? 'bg-[var(--st-text)] shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-[var(--st-text)]'}`} />
-                          {r.status}
-                        </div>
-                      )
-                    },
-                  ]}
-                  rows={[
-                    { id: "1", keyword: "STOP", matchType: "Exact", actionType: "Opt-out", suppressionList: "Global Master Suppression", locale: "en-US", networks: ["CTIA", "T-Mobile"], count: 12450, status: "Active" },
-                    { id: "2", keyword: "CANCEL", matchType: "Fuzzy", actionType: "Opt-out", suppressionList: "Global Master Suppression", locale: "en-US", networks: ["CTIA"], count: 3420, status: "Active" },
-                    { id: "3", keyword: "UNSUBSCRIBE", matchType: "Exact", actionType: "Opt-out", suppressionList: "Marketing Opt-outs", locale: "en-GB", networks: ["UK DPA"], count: 890, status: "Active" },
-                    { id: "4", keyword: "START", matchType: "Opt-in", suppressionList: "Remove from All Lists", locale: "en-US", networks: ["CTIA"], count: 520, status: "Active" },
-                    { id: "5", keyword: "UNSTOP", matchType: "Exact", actionType: "Opt-in", suppressionList: "Remove from All Lists", locale: "en-US", networks: ["CTIA", "AT&T"], count: 110, status: "Active" },
-                    { id: "6", keyword: "ARRET", matchType: "Exact", actionType: "Opt-out", suppressionList: "Global Master Suppression", locale: "fr-CA", networks: ["CWTA"], count: 45, status: "Active" },
-                    { id: "7", keyword: "HELP", matchType: "Exact", actionType: "Help", suppressionList: "N/A (Auto-Reply Only)", locale: "Global", networks: ["CTIA"], count: 8900, status: "Active" },
-                    { id: "8", keyword: "INFO", matchType: "Exact", actionType: "Help", suppressionList: "N/A (Auto-Reply Only)", locale: "en-US", networks: ["CTIA"], count: 1200, status: "Active" },
-                    { id: "9", keyword: "PROMO(.*)", matchType: "Regex", actionType: "Custom", suppressionList: "N/A", locale: "en-US", networks: [], count: 450, status: "Inactive" },
-                  ]}
-                />
-              </CardBody>
-            </Card>
+      {view === "stop-help" && (
+        <div className="space-y-6">
+          <div className="flex items-start gap-3 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)]/40 p-4 text-sm">
+            <Info className="h-5 w-5 shrink-0 text-[var(--st-text-secondary)]" />
+            <p className="text-[var(--st-text-secondary)]">
+              The engine always honours its built-in keywords (shown as muted
+              chips). Anything you add here is merged on top. Leaving an
+              auto-reply blank falls back to the engine default.
+            </p>
           </div>
-        )}
 
-        {view === "responses" && (
-          <>
-            <div className="grid gap-4 md:grid-cols-2">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Per-Keyword Response Template (Feature 2)</CardTitle>
-                  <CardDescription>Define the auto-reply when a keyword is triggered.</CardDescription>
-                </CardHeader>
-                <CardBody className="space-y-4">
-                  <div className="space-y-2">
-                    <Label>Select Keyword</Label>
-                    <Select>
-                      <SelectTrigger>
-                        <SelectValue placeholder="STOP" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="stop">STOP</SelectItem>
-                        <SelectItem value="help">HELP</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Response Message</Label>
-                    <Textarea placeholder="You have been unsubscribed. Reply START to resubscribe." rows={3} />
-                  </div>
-                </CardBody>
-                <CardFooter>
-                  <Button>Save Response</Button>
-                </CardFooter>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Confirmation Template Editor (Feature 9)</CardTitle>
-                  <CardDescription>Edit double opt-in or state change confirmations.</CardDescription>
-                </CardHeader>
-                <CardBody className="space-y-4">
-                  <div className="space-y-2">
-                    <Label>Template Body</Label>
-                    <Textarea placeholder="Please reply YES to confirm your subscription." rows={3} />
-                  </div>
-                </CardBody>
-                <CardFooter>
-                  <Button>Save Confirmation</Button>
-                </CardFooter>
-              </Card>
-            </div>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Handling Rules & Precedence</CardTitle>
-                <CardDescription>Configure edge cases and match order.</CardDescription>
-              </CardHeader>
-              <CardBody className="space-y-6">
-                <div className="space-y-2">
-                  <Label className="text-base">UNSTOP / START Handling Rules (Feature 12)</Label>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox id="auto-unsuppress" defaultChecked />
-                    <Label htmlFor="auto-unsuppress">Automatically remove from suppression list on START/UNSTOP</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox id="welcome-message" defaultChecked />
-                    <Label htmlFor="welcome-message">Send welcome message on resubscription</Label>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-base">Match Precedence Editor (Feature 15)</Label>
-                  <p className="text-sm text-[var(--st-text-secondary)]">Drag to reorder precedence (mocked UI).</p>
-                  <div className="p-3 border rounded-md bg-[var(--st-bg-muted)]/50 font-mono text-sm">
-                    1. Exact word match (e.g., "STOP")<br/>
-                    2. Prefix match (e.g., "STOP promotions")<br/>
-                    3. Fuzzy match / Typo tolerance
-                  </div>
-                </div>
-              </CardBody>
-            </Card>
-          </>
-        )}
-
-        {view === "config" && (
-          <>
-            <div className="grid gap-4 md:grid-cols-2">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Global Configuration</CardTitle>
-                  <CardDescription>Set rate limits and channel toggles.</CardDescription>
-                </CardHeader>
-                <CardBody className="space-y-6">
-                  <div className="space-y-2">
-                    <Label>Auto-reply Rate Limit (Feature 8)</Label>
-                    <div className="flex items-center gap-2">
-                      <Input type="number" defaultValue={1} className="w-24" />
-                      <span className="text-sm text-[var(--st-text-secondary)]">replies per minute per contact</span>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Per-Channel Toggle (Feature 10)</Label>
-                    <div className="flex gap-4">
-                      <div className="flex items-center space-x-2">
-                        <Checkbox id="ch-sms" defaultChecked />
-                        <Label htmlFor="ch-sms">SMS</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox id="ch-mms" defaultChecked />
-                        <Label htmlFor="ch-mms">MMS</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox id="ch-rcs" />
-                        <Label htmlFor="ch-rcs">RCS</Label>
-                      </div>
-                    </div>
-                  </div>
-                </CardBody>
-              </Card>
-
-              <Card className="border-[var(--st-border)] dark:border-[var(--st-border)]">
-                <CardHeader>
-                  <div className="flex items-center gap-2 text-[var(--st-text)] dark:text-[var(--st-text)]">
-                    <ShieldAlert className="h-5 w-5" />
-                    <CardTitle>Carrier-Blocked Warnings (Feature 11)</CardTitle>
-                  </div>
-                  <CardDescription>Alerts regarding carrier restrictions on keywords.</CardDescription>
-                </CardHeader>
-                <CardBody>
-                  <div className="text-sm p-3 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/30 rounded-md">
-                    <strong>Warning:</strong> The keyword <em>"FREE"</em> is heavily filtered by US carriers on 10DLC. Avoid using this as a custom trigger.
-                  </div>
-                </CardBody>
-              </Card>
-            </div>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Bulk Operations</CardTitle>
-                <CardDescription>Import or export your keyword set.</CardDescription>
-              </CardHeader>
-              <CardBody className="flex gap-4">
-                <Button variant="outline">
-                  <Upload className="mr-2 h-4 w-4" /> Bulk Import (Feature 16)
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <ShieldAlert className="h-4 w-4" /> STOP (opt-out) keywords
+              </CardTitle>
+              <CardDescription>
+                Inbound messages matching any of these suppress the contact.
+              </CardDescription>
+            </CardHeader>
+            <CardBody className="space-y-4">
+              <KeywordChips
+                values={override.stopKeywords}
+                defaults={ENGINE_DEFAULTS.stop}
+                onRemove={(v) =>
+                  setOverride((o) => ({
+                    ...o,
+                    stopKeywords: o.stopKeywords.filter((k) => k !== v),
+                  }))
+                }
+              />
+              <div className="flex gap-2 max-w-sm">
+                <Input
+                  placeholder="Add synonym e.g. ARRET"
+                  value={newStop}
+                  onChange={(e) => setNewStop(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addStop())}
+                />
+                <Button type="button" variant="outline" onClick={addStop}>
+                  <Plus className="h-4 w-4" />
                 </Button>
-                <Button variant="outline">
-                  <Download className="mr-2 h-4 w-4" /> Bulk Export (Feature 17)
+              </div>
+              <div className="space-y-2">
+                <Label>STOP confirmation auto-reply</Label>
+                <Textarea
+                  rows={2}
+                  placeholder={ENGINE_DEFAULTS.confirmOptOutText}
+                  value={override.confirmOptOutText}
+                  onChange={(e) =>
+                    setOverride((o) => ({ ...o, confirmOptOutText: e.target.value }))
+                  }
+                />
+                <p className="text-xs text-[var(--st-text-secondary)]">
+                  Sent automatically when a STOP fires. Blank → engine default.
+                </p>
+              </div>
+            </CardBody>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <ShieldCheck className="h-4 w-4" /> HELP keywords
+              </CardTitle>
+              <CardDescription>
+                Inbound messages matching any of these send the HELP auto-reply.
+              </CardDescription>
+            </CardHeader>
+            <CardBody className="space-y-4">
+              <KeywordChips
+                values={override.helpKeywords}
+                defaults={ENGINE_DEFAULTS.help}
+                onRemove={(v) =>
+                  setOverride((o) => ({
+                    ...o,
+                    helpKeywords: o.helpKeywords.filter((k) => k !== v),
+                  }))
+                }
+              />
+              <div className="flex gap-2 max-w-sm">
+                <Input
+                  placeholder="Add synonym e.g. SUPPORT"
+                  value={newHelp}
+                  onChange={(e) => setNewHelp(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addHelp())}
+                />
+                <Button type="button" variant="outline" onClick={addHelp}>
+                  <Plus className="h-4 w-4" />
                 </Button>
-              </CardBody>
-            </Card>
-          </>
-        )}
+              </div>
+              <div className="space-y-2">
+                <Label>HELP auto-reply</Label>
+                <Textarea
+                  rows={2}
+                  placeholder={ENGINE_DEFAULTS.helpText}
+                  value={override.helpText}
+                  onChange={(e) => setOverride((o) => ({ ...o, helpText: e.target.value }))}
+                />
+                <p className="text-xs text-[var(--st-text-secondary)]">
+                  Sent automatically when a HELP fires. Blank → engine default.
+                </p>
+              </div>
+            </CardBody>
+          </Card>
 
-        {view === "tools" && (
-          <>
-            <div className="grid gap-4 md:grid-cols-2">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Test Keyword (Feature 5)</CardTitle>
-                  <CardDescription>Simulate an inbound message.</CardDescription>
-                </CardHeader>
-                <CardBody className="space-y-4">
-                  <div className="space-y-2">
-                    <Label>Inbound Message Content</Label>
-                    <div className="flex gap-2">
-                      <Input placeholder="E.g., Pls stop sending" />
-                      <Button>Test</Button>
-                    </div>
-                  </div>
-                  <div className="p-3 border rounded text-sm text-[var(--st-text-secondary)]">
-                    Result: Matches <span className="font-bold text-[var(--st-text)]">STOP</span> (Fuzzy match)
-                  </div>
-                </CardBody>
-              </Card>
+          <div className="flex justify-end">
+            <Button onClick={handleSaveOverride} disabled={isPending}>
+              {isPending ? "Saving…" : "Save custom keywords"}
+            </Button>
+          </div>
+        </div>
+      )}
 
-              <Card className="bg-[var(--st-text)]/5 border-primary/20">
-                <CardHeader>
-                  <div className="flex items-center gap-2 text-[var(--st-text)]">
-                    <Sparkles className="h-5 w-5" />
-                    <CardTitle>AI Insights (Feature 18)</CardTitle>
-                  </div>
-                  <CardDescription>Suggest keywords from inbound corpus.</CardDescription>
-                </CardHeader>
-                <CardBody>
-                  <p className="text-sm mb-4">Analyze recent inbound messages to discover unrecognized opt-out intents.</p>
-                  <Button variant="default" className="w-full">
-                    <Sparkles className="mr-2 h-4 w-4" /> Suggest Keywords
-                  </Button>
-                </CardBody>
-              </Card>
+      {view === "rules" && (
+        <Card>
+          <CardHeader className="flex flex-row items-start justify-between">
+            <div>
+              <CardTitle>Per-keyword reply rules</CardTitle>
+              <CardDescription className="mt-1">
+                <Badge variant="outline" className="mr-2">
+                  Saved — enforcement coming soon
+                </Badge>
+                Stored on the workspace. The engine does not yet fire per-keyword
+                auto-replies for these, so they will not send until support ships.
+              </CardDescription>
             </div>
+            <Button variant="outline" size="sm" onClick={openNewRule}>
+              <Plus className="mr-2 h-4 w-4" /> New rule
+            </Button>
+          </CardHeader>
+          <CardBody>
+            {data && data.rules.length === 0 ? (
+              <SabsmsEmpty
+                title="No reply rules yet"
+                description="Add a rule to define a custom auto-reply or tag for a keyword. Note these are stored only until per-keyword enforcement ships."
+                action={{ label: "New rule", onClick: openNewRule }}
+              />
+            ) : (
+              <SabsmsDataTable
+                rowKey={(r) => r.id}
+                rows={data?.rules ?? []}
+                columns={ruleColumns}
+                rowActions={ruleActions}
+                loading={!data && !loadError}
+              />
+            )}
+          </CardBody>
+        </Card>
+      )}
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Audit Logs</CardTitle>
-                <CardDescription>Keyword fires and configuration changes.</CardDescription>
-              </CardHeader>
-              <CardBody className="space-y-6">
-                <div className="space-y-2">
-                  <Label className="text-base">Per-Keyword Fires (Feature 6)</Label>
-                  <SabsmsDataTable
-                    rowKey={(r) => r.keyword}
-                    columns={[
-                      { id: "keyword", header: "Keyword", render: (r) => r.keyword },
-                      { id: "count", header: "Fires (24h)", render: (r) => r.count },
-                      { id: "action", header: "Result", render: (r) => r.action },
-                    ]}
-                    rows={[
-                      { keyword: "STOP", count: 142, action: "Suppressed" },
-                      { keyword: "HELP", count: 38, action: "Auto-reply sent" },
-                    ]}
-                  />
-                </div>
+      {view === "stats" && (
+        <div className="space-y-6">
+          <div className="grid gap-4 md:grid-cols-3">
+            <StatCard
+              label="STOP suppressions"
+              value={data ? data.stats.stopSuppressions.toLocaleString() : "…"}
+            />
+            <StatCard
+              label="Inbound-keyword opt-outs"
+              value={data ? data.stats.inboundKeywordOptOuts.toLocaleString() : "…"}
+            />
+            <StatCard
+              label="Stored reply rules"
+              value={data ? data.stats.storedRules.toLocaleString() : "…"}
+            />
+          </div>
+          <Card>
+            <CardBody>
+              <p className="text-sm text-[var(--st-text-secondary)]">
+                STOP suppressions count rows in <code>sabsms_suppressions</code>{" "}
+                with source <code>stop</code>. Inbound-keyword opt-outs count
+                <code> sabsms_consent_log</code> events captured via{" "}
+                <code>inbound_keyword</code> — both written by the engine's
+                interceptor. These are real counts, not estimates.
+              </p>
+            </CardBody>
+          </Card>
+        </div>
+      )}
 
-                <div className="space-y-2">
-                  <Label className="text-base">System Audit Log (Feature 19)</Label>
-                  <SabsmsDataTable
-                    rowKey={(r) => r.id}
-                    columns={[
-                      { id: "time", header: "Time", render: (r) => r.time },
-                      { id: "user", header: "User", render: (r) => r.user },
-                      { id: "event", header: "Event", render: (r) => r.event },
-                    ]}
-                    rows={[
-                      { id: "1", time: "10 mins ago", user: "Admin", event: "Updated HELP response template" },
-                      { id: "2", time: "2 hours ago", user: "System", event: "Imported 5 keywords via Bulk Import" },
-                    ]}
-                  />
-                </div>
-              </CardBody>
-            </Card>
-          </>
-        )}
-      </div>
+      {/* Rule editor dialog */}
+      <Dialog open={ruleDialogOpen} onOpenChange={setRuleDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{editingRule ? "Edit reply rule" : "New reply rule"}</DialogTitle>
+            <DialogDescription>
+              Stored on the workspace. Per-keyword auto-reply enforcement is not
+              live yet — this rule will not fire until it ships.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label>Keyword</Label>
+              <Input
+                placeholder="e.g. BALANCE"
+                value={ruleDraft.keyword}
+                onChange={(e) => setRuleDraft((d) => ({ ...d, keyword: e.target.value }))}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Match</Label>
+                <Select
+                  value={ruleDraft.match}
+                  onValueChange={(v) =>
+                    setRuleDraft((d) => ({ ...d, match: v as KeywordRuleView["match"] }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="exact">Exact</SelectItem>
+                    <SelectItem value="starts_with">Starts with</SelectItem>
+                    <SelectItem value="contains">Contains</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Action</Label>
+                <Select
+                  value={ruleDraft.action}
+                  onValueChange={(v) =>
+                    setRuleDraft((d) => ({ ...d, action: v as KeywordRuleView["action"] }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="reply">Auto-reply</SelectItem>
+                    <SelectItem value="opt_out">Opt-out</SelectItem>
+                    <SelectItem value="opt_in">Opt-in</SelectItem>
+                    <SelectItem value="tag">Tag</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            {ruleDraft.action === "reply" && (
+              <div className="space-y-2">
+                <Label>Reply text</Label>
+                <Textarea
+                  rows={3}
+                  value={ruleDraft.replyText}
+                  onChange={(e) => setRuleDraft((d) => ({ ...d, replyText: e.target.value }))}
+                />
+              </div>
+            )}
+            {ruleDraft.action === "tag" && (
+              <div className="space-y-2">
+                <Label>Tag</Label>
+                <Input
+                  value={ruleDraft.tag}
+                  onChange={(e) => setRuleDraft((d) => ({ ...d, tag: e.target.value }))}
+                />
+              </div>
+            )}
+            <div className="flex items-center justify-between">
+              <Label htmlFor="rule-enabled">Enabled</Label>
+              <Switch
+                id="rule-enabled"
+                checked={ruleDraft.enabled}
+                onCheckedChange={(c) => setRuleDraft((d) => ({ ...d, enabled: c }))}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRuleDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveRule} disabled={isPending}>
+              {isPending ? "Saving…" : "Save rule"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </SabsmsPageShell>
   );
 }

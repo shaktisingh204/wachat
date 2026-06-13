@@ -25,6 +25,8 @@ export interface SabsmsApiKeyRow {
   scopes: string[];
   rateLimitPerMin: number;
   ipAllowlist: string[];
+  /** 'test' = sandbox key (sk_test_…); 'live' = production. */
+  mode: "live" | "test";
   lastUsedAt: string | null;
   revokedAt: string | null;
   createdAt: string;
@@ -52,6 +54,8 @@ export async function listApiKeysAction(): Promise<ActionResult<{ keys: SabsmsAp
       scopes: d.scopes,
       rateLimitPerMin: d.rateLimitPerMin,
       ipAllowlist: d.ipAllowlist ?? [],
+      // Legacy keys minted before test mode have no stored mode → 'live'.
+      mode: d.mode === "test" ? "test" : "live",
       lastUsedAt: d.lastUsedAt ? d.lastUsedAt.toISOString() : null,
       revokedAt: d.revokedAt ? d.revokedAt.toISOString() : null,
       createdAt: d.createdAt.toISOString(),
@@ -64,7 +68,9 @@ export async function createApiKeyAction(input: {
   scopes: string[];
   rateLimitPerMin?: number;
   ipAllowlist?: string[];
-}): Promise<ActionResult<{ id: string; rawKey: string; prefix: string }>> {
+  /** 'test' mints a sk_test_ sandbox key; defaults to 'live'. */
+  mode?: "live" | "test";
+}): Promise<ActionResult<{ id: string; rawKey: string; prefix: string; mode: "live" | "test" }>> {
   const workspaceId = await requireWorkspaceId();
   if (!workspaceId) return { success: false, error: "Unauthorized" };
 
@@ -84,6 +90,7 @@ export async function createApiKeyAction(input: {
       scopes,
       rateLimitPerMin: input.rateLimitPerMin,
       ipAllowlist: input.ipAllowlist,
+      mode: input.mode === "test" ? "test" : "live",
     });
     revalidatePath("/sabsms/api-keys");
     return { success: true, ...created };

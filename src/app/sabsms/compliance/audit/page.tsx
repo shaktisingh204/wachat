@@ -1,766 +1,329 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from "react";
-import { fmtDate, formatUTC } from "@/lib/utils";
-import { ColumnDef } from "@tanstack/react-table";
+import React, { useEffect, useMemo, useState, useCallback } from "react";
+import { formatUTC } from "@/lib/utils";
 import {
-  ShieldCheck,
-  Search,
-  Activity,
-  Lock,
-  Play,
-  FileJson,
-  Clock,
-  CheckCircle2,
   ShieldAlert,
-  Cpu,
-  Eye,
-  Archive,
-  Download,
-  RefreshCw,
-  Zap,
-  Bot,
-  Webhook,
-  Settings2,
-  Database,
-  History,
-  FileText,
   User,
-  Hash,
-  Share,
-  Share2,
-  MoreHorizontal,
-  BellRing,
+  Activity,
+  Database,
+  Info,
 } from "lucide-react";
-import { Button, Badge, Input, Label, Switch, Tabs, TabsList, TabsTrigger, TabsContent, ScrollArea, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/sabcrm/20ui';
+import { Badge, ScrollArea } from "@/components/sabcrm/20ui";
 import { toast } from "sonner";
 
 import {
   SabsmsPageShell,
   SabsmsFilterBar,
   SabsmsDetailDrawer,
-  useSabsmsUrlState,
-  SabsmsSavedViews,
   SabsmsRefreshButton,
+  SabsmsExportMenu,
+  SabsmsDataTable,
+  SabsmsEmpty,
+  useSabsmsUrlState,
+  rowsToCsv,
   type SabsmsFacet,
+  type SabsmsColumn,
 } from "@/components/sabsms/page-toolkit";
 
-import { DataTable, ActionSearchBar, type LegacyActionSearchAction, StatisticsCard1, type StatisticsCard1Item, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/sabcrm/20ui';
-
-// Mock Data Types
-type AuditAction = "template-approved" | "suppression-added" | "consent-changed" | "send-blocked" | "campaign-launched";
-type AuditActor = "user" | "system" | "admin" | "api-key";
-type AuditSubject = "phone" | "template" | "campaign" | "drip" | "number";
-type AuditSeverity = "info" | "warning" | "critical";
-
-interface AuditRecord {
-  id: string;
-  timestamp: string;
-  action: AuditAction;
-  actor: AuditActor;
-  actorName: string;
-  subject: AuditSubject;
-  subjectId: string;
-  workspaceId: string;
-  severity: AuditSeverity;
-  payload: any;
-  hash: string;
-  previousHash: string;
-  reversible: boolean;
-  diff?: {
-    field: string;
-    old: any;
-    new: any;
-  }[];
-}
-
-const mockAuditLogs: AuditRecord[] = [
-  {
-    id: "evt_01HVKXZ2K3",
-    timestamp: new Date(Date.now() - 1000 * 60 * 5).toISOString(),
-    action: "template-approved",
-    actor: "admin",
-    actorName: "Sarah Connor",
-    subject: "template",
-    subjectId: "tpl_promo_v2",
-    workspaceId: "ws_acme_corp",
-    severity: "info",
-    payload: { category: "marketing", body: "Sale ends tonight!" },
-    hash: "a4f8b9...c3d2",
-    previousHash: "e5d4c3...b2a1",
-    reversible: false,
-    diff: [
-      { field: "status", old: "pending", new: "approved" },
-      { field: "reviewedBy", old: null, new: "Sarah Connor" }
-    ]
-  },
-  {
-    id: "evt_01HVKXZ3L4",
-    timestamp: new Date(Date.now() - 1000 * 60 * 45).toISOString(),
-    action: "consent-changed",
-    actor: "system",
-    actorName: "Inbound webhook processor",
-    subject: "phone",
-    subjectId: "+15550102030",
-    workspaceId: "ws_acme_corp",
-    severity: "warning",
-    payload: { reason: "STOP keyword matched" },
-    hash: "99c3d4...88f2",
-    previousHash: "a4f8b9...c3d2",
-    reversible: true,
-    diff: [
-      { field: "consentStatus", old: "opt-in", new: "opt-out" },
-      { field: "captureMethod", old: "web-form", new: "inbound-sms" }
-    ]
-  },
-  {
-    id: "evt_01HVKXZ4M5",
-    timestamp: new Date(Date.now() - 1000 * 60 * 120).toISOString(),
-    action: "suppression-added",
-    actor: "api-key",
-    actorName: "CRM Sync Key",
-    subject: "phone",
-    subjectId: "+15550109999",
-    workspaceId: "ws_globex",
-    severity: "info",
-    payload: { source: "import", batchId: "batch_88" },
-    hash: "11a2b3...44c5",
-    previousHash: "99c3d4...88f2",
-    reversible: true,
-    diff: [
-      { field: "isSuppressed", old: false, new: true }
-    ]
-  },
-  {
-    id: "evt_01HVKXZ5N6",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
-    action: "send-blocked",
-    actor: "system",
-    actorName: "Compliance Engine",
-    subject: "campaign",
-    subjectId: "cmp_flash_sale",
-    workspaceId: "ws_acme_corp",
-    severity: "critical",
-    payload: { rule: "Quiet Hours (TRAI)" },
-    hash: "55d6e7...88f9",
-    previousHash: "11a2b3...44c5",
-    reversible: false
-  }
-];
+import { loadAuditPage, type AuditPageData, type AuditRow } from "./actions";
 
 const FACETS: SabsmsFacet[] = [
   {
-    id: "action",
-    label: "Action",
+    key: "kind",
+    label: "Type",
+    multi: true,
     options: [
-      { value: "template-approved", label: "Template Approved" },
-      { value: "suppression-added", label: "Suppression Added" },
-      { value: "consent-changed", label: "Consent Changed" },
-      { value: "send-blocked", label: "Send Blocked" },
-      { value: "campaign-launched", label: "Campaign Launched" },
+      { value: "consent", label: "Consent event" },
+      { value: "send-block", label: "Send blocked" },
     ],
   },
   {
-    id: "actor",
-    label: "Actor",
-    options: [
-      { value: "user", label: "User" },
-      { value: "system", label: "System" },
-      { value: "admin", label: "Admin" },
-      { value: "api-key", label: "API Key" },
-    ],
-  },
-  {
-    id: "severity",
+    key: "severity",
     label: "Severity",
+    multi: true,
     options: [
       { value: "info", label: "Info" },
       { value: "warning", label: "Warning" },
-      { value: "critical", label: "Critical" },
     ],
   },
 ];
 
 export default function ComplianceAuditPage() {
-  const { filters, setFilters, pagination, setPagination } = useSabsmsUrlState({
-    defaultPagination: { pageIndex: 0, pageSize: 20 },
-  });
+  const url = useSabsmsUrlState();
+  const [data, setData] = useState<AuditPageData | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [detailRowId, setDetailRowId] = useState<string | null>(null);
 
-  const [detailRecordId, setDetailRecordId] = useState<string | null>(null);
-  const [retentionDialogOpen, setRetentionDialogOpen] = useState(false);
-  const [webhookDialogOpen, setWebhookDialogOpen] = useState(false);
-  const [summarizeDialogOpen, setSummarizeDialogOpen] = useState(false);
-  const [alertsDialogOpen, setAlertsDialogOpen] = useState(false);
-  const [rowSelection, setRowSelection] = useState<AuditRecord[]>([]);
-  
-  const [logs, setLogs] = useState<AuditRecord[]>(mockAuditLogs);
-  const [isHashing, setIsHashing] = useState(true);
-
-  useEffect(() => {
-    const generateHashes = async () => {
-      const hashedLogs = [...mockAuditLogs].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
-      
-      let previousHash = "0000000000000000000000000000000000000000000000000000000000000000";
-      for (const log of hashedLogs) {
-        log.previousHash = previousHash;
-        const payloadString = JSON.stringify({
-          id: log.id,
-          timestamp: log.timestamp,
-          action: log.action,
-          actor: log.actor,
-          subjectId: log.subjectId,
-          severity: log.severity,
-          payload: log.payload,
-          previousHash: log.previousHash
-        });
-        
-        const encoder = new TextEncoder();
-        const dataBuffer = encoder.encode(payloadString);
-        const hashBuffer = await crypto.subtle.digest('SHA-256', dataBuffer);
-        const hashArray = Array.from(new Uint8Array(hashBuffer));
-        log.hash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-        previousHash = log.hash;
-      }
-      
-      setLogs(hashedLogs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()));
-      setIsHashing(false);
-    };
-    
-    generateHashes();
+  const refresh = useCallback(async () => {
+    setIsRefreshing(true);
+    const res = await loadAuditPage({ limit: 500 });
+    if (res.success) {
+      setData(res.data);
+      setLoadError(null);
+    } else {
+      setLoadError(res.error);
+    }
+    setIsRefreshing(false);
   }, []);
 
-  const selectedRecord = logs.find((r) => r.id === detailRecordId) || null;
+  useEffect(() => {
+    void refresh();
+  }, [refresh]);
 
-  const aiSummarizeAction = {
-    label: "Summarise this hour",
-    icon: <Bot className="h-4 w-4" />,
-    onClick: () => setSummarizeDialogOpen(true),
-    variant: "outline" as const,
-  };
+  const q = url.get("q")?.toLowerCase() ?? "";
+  const kindFilters = url.getAll("kind");
+  const severityFilters = url.getAll("severity");
 
-  const retentionAction = {
-    label: "Retention Policy",
-    icon: <Archive className="h-4 w-4" />,
-    onClick: () => setRetentionDialogOpen(true),
-    variant: "ghost" as const,
-  };
-
-  const webhookAction = {
-    label: "Audit Webhook",
-    icon: <Webhook className="h-4 w-4" />,
-    onClick: () => setWebhookDialogOpen(true),
-    variant: "ghost" as const,
-  };
-
-  const alertsAction = {
-    label: "Alert Rules",
-    icon: <BellRing className="h-4 w-4" />,
-    onClick: () => setAlertsDialogOpen(true),
-    variant: "outline" as const,
-  };
-
-  const handleExport = () => {
-    const data = JSON.stringify(filteredData, null, 2);
-    const blob = new Blob([data], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `audit-logs-siem-export-${format(new Date(), 'yyyyMMdd-HHmmss')}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-    toast.success("Logs exported for SIEM ingestion");
-  };
-
-  const verifyIntegrity = async () => {
-    try {
-      const sortedDesc = [...logs].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
-      let previousHash = "0000000000000000000000000000000000000000000000000000000000000000";
-      
-      for (const log of sortedDesc) {
-        if (log.previousHash !== previousHash) {
-          toast.error(`Integrity failed at ${log.id}. Previous hash mismatch.`);
-          return;
-        }
-        
-        const payloadString = JSON.stringify({
-          id: log.id,
-          timestamp: log.timestamp,
-          action: log.action,
-          actor: log.actor,
-          subjectId: log.subjectId,
-          severity: log.severity,
-          payload: log.payload,
-          previousHash: log.previousHash
-        });
-        
-        const encoder = new TextEncoder();
-        const dataBuffer = encoder.encode(payloadString);
-        const hashBuffer = await crypto.subtle.digest('SHA-256', dataBuffer);
-        const hashArray = Array.from(new Uint8Array(hashBuffer));
-        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-        
-        if (log.hash !== hashHex) {
-          toast.error(`Integrity failed at ${log.id}. Hash mismatch.`);
-          return;
-        }
-        
-        previousHash = hashHex;
+  const filteredRows = useMemo(() => {
+    const rows = data?.rows ?? [];
+    return rows.filter((r) => {
+      if (kindFilters.length && !kindFilters.includes(r.kind)) return false;
+      if (severityFilters.length && !severityFilters.includes(r.severity)) return false;
+      if (q) {
+        const hay = `${r.action} ${r.subject} ${r.detail ?? ""} ${r.source}`.toLowerCase();
+        if (!hay.includes(q)) return false;
       }
-      
-      toast.success("Chain is completely valid! No tampering detected.");
-    } catch (err) {
-      toast.error("Error verifying integrity");
-    }
-  };
-
-  const searchActions: LegacyActionSearchAction[] = useMemo(() => {
-    const actions: LegacyActionSearchAction[] = logs.map(log => ({
-      id: log.id,
-      label: `Hash: ${log.hash.substring(0, 16)}...`,
-      icon: <Hash className="h-4 w-4" />,
-      meta: log.action,
-      onSelect: () => setDetailRecordId(log.id),
-    }));
-    
-    actions.unshift({
-      id: "verify-integrity",
-      label: "Verify Global Chain Integrity",
-      icon: <ShieldCheck className="h-4 w-4" />,
-      shortcut: "⌘V",
-      onSelect: verifyIntegrity,
+      return true;
     });
+  }, [data, kindFilters, severityFilters, q]);
 
-    return actions;
-  }, [logs]);
+  const selectedRow = filteredRows.find((r) => r.id === detailRowId) ?? null;
 
-  const columns: ColumnDef<AuditRecord>[] = useMemo(() => [
+  const columns: SabsmsColumn<AuditRow>[] = [
     {
-      accessorKey: "timestamp",
+      id: "at",
       header: "Time",
-      cell: ({ row }) => formatUTC(new Date(row.original.timestamp), true),
-    },
-    {
-      accessorKey: "action",
-      header: "Action",
-      cell: ({ row }) => (
-        <div className="flex items-center gap-2">
-          {row.original.action === "send-blocked" ? (
-            <ShieldAlert className="h-4 w-4 text-[var(--st-text)]" />
-          ) : row.original.action === "consent-changed" ? (
-            <User className="h-4 w-4 text-[var(--st-text)]" />
-          ) : (
-            <Activity className="h-4 w-4 text-[var(--st-text)]" />
-          )}
-          <span className="font-medium">{row.original.action}</span>
-        </div>
-      ),
-    },
-    {
-      accessorKey: "actor",
-      header: "Actor",
-      cell: ({ row }) => (
-        <div className="flex flex-col">
-          <span className="font-medium">{row.original.actorName}</span>
-          <span className="text-xs text-[var(--st-text-secondary)]">{row.original.actor}</span>
-        </div>
-      ),
-    },
-    {
-      accessorKey: "subject",
-      header: "Subject",
-      cell: ({ row }) => (
-        <div className="flex flex-col">
-          <span className="font-medium">{row.original.subjectId}</span>
-          <span className="text-xs text-[var(--st-text-secondary)]">{row.original.subject}</span>
-        </div>
-      ),
-    },
-    {
-      accessorKey: "severity",
-      header: "Severity",
-      cell: ({ row }) => {
-        const variants = {
-          info: "secondary",
-          warning: "warning",
-          critical: "destructive",
-        } as const;
-        return <Badge variant={variants[row.original.severity] as any}>{row.original.severity}</Badge>;
-      },
-    },
-    {
-      accessorKey: "hash",
-      header: "Hash",
-      cell: ({ row }) => (
-        <span className="font-mono text-xs text-[var(--st-text-secondary)] bg-[var(--st-bg-muted)] px-2 py-1 rounded" title={row.original.hash}>
-          {isHashing ? "Hashing..." : `${row.original.hash.substring(0, 8)}...`}
+      render: (r) => (
+        <span className="text-sm whitespace-nowrap">
+          {formatUTC(new Date(r.at), true)}
         </span>
       ),
     },
     {
-      id: "actions",
-      header: "",
-      cell: ({ row }) => {
-        return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onSelect={() => setDetailRecordId(row.original.id)}>
-                <Eye className="mr-2 h-4 w-4" /> View Details
-              </DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => toast.success("Hash copied.")}>
-                <Hash className="mr-2 h-4 w-4" /> Copy Hash
-              </DropdownMenuItem>
-              <DropdownMenuItem disabled={!row.original.reversible}>
-                <Play className="mr-2 h-4 w-4" /> Replay Action
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        );
-      }
-    }
-  ], []);
-
-  // Filter the mock logs locally since we use TanStack Table internally 
-  const filteredData = useMemo(() => {
-    let data = [...logs];
-    if (filters.action) {
-      const actionFilters = Array.isArray(filters.action) ? filters.action : [filters.action];
-      if (actionFilters.length > 0) {
-        data = data.filter(d => actionFilters.includes(d.action));
-      }
-    }
-    if (filters.actor) {
-      const actorFilters = Array.isArray(filters.actor) ? filters.actor : [filters.actor];
-      if (actorFilters.length > 0) {
-        data = data.filter(d => actorFilters.includes(d.actor));
-      }
-    }
-    if (filters.severity) {
-      const severityFilters = Array.isArray(filters.severity) ? filters.severity : [filters.severity];
-      if (severityFilters.length > 0) {
-        data = data.filter(d => severityFilters.includes(d.severity));
-      }
-    }
-    return data;
-  }, [filters, logs]);
-
-  const statItems: StatisticsCard1Item[] = [
-    { label: "Valid Chains", value: "99.99%", delta: 0.01, meta: "Cryptographically verified" },
-    { label: "Critical Events", value: "24", delta: -12.5, meta: "Last 24 hours" },
-    { label: "Avg Block Time", value: "42ms", delta: 5.2, meta: "Tamper detection speed" },
+      id: "action",
+      header: "Action",
+      render: (r) => (
+        <div className="flex items-center gap-2">
+          {r.kind === "send-block" ? (
+            <ShieldAlert className="h-4 w-4 text-[var(--st-text-secondary)]" />
+          ) : (
+            <User className="h-4 w-4 text-[var(--st-text-secondary)]" />
+          )}
+          <span className="font-medium">{r.action}</span>
+        </div>
+      ),
+    },
+    {
+      id: "subject",
+      header: "Subject",
+      render: (r) => <span className="font-mono text-sm">{r.subject}</span>,
+    },
+    {
+      id: "detail",
+      header: "Detail",
+      render: (r) => (
+        <span className="text-sm text-[var(--st-text-secondary)]">
+          {r.detail || "—"}
+        </span>
+      ),
+    },
+    {
+      id: "severity",
+      header: "Severity",
+      render: (r) => (
+        <Badge variant={r.severity === "warning" ? "outline" : "secondary"}>
+          {r.severity}
+        </Badge>
+      ),
+    },
+    {
+      id: "source",
+      header: "Source",
+      render: (r) => (
+        <span className="font-mono text-xs text-[var(--st-text-secondary)]">
+          {r.source}
+        </span>
+      ),
+    },
   ];
+
+  const toCsv = useCallback(async () => {
+    return rowsToCsv(
+      filteredRows.map((r) => ({
+        time: r.at,
+        kind: r.kind,
+        action: r.action,
+        subject: r.subject,
+        detail: r.detail ?? "",
+        severity: r.severity,
+        source: r.source,
+      })),
+      [
+        { key: "time", header: "Time" },
+        { key: "kind", header: "Type" },
+        { key: "action", header: "Action" },
+        { key: "subject", header: "Subject" },
+        { key: "detail", header: "Detail" },
+        { key: "severity", header: "Severity" },
+        { key: "source", header: "Source" },
+      ],
+    );
+  }, [filteredRows]);
+
+  const toJson = useCallback(
+    async () => JSON.stringify(filteredRows, null, 2),
+    [filteredRows],
+  );
 
   return (
     <SabsmsPageShell
       title="Audit Log & Compliance"
-      description="Immutable, tamper-evident log of all system actions. Cryptographically verified."
+      eyebrow="Compliance"
+      description="Append-only compliance ledger — consent events and engine-blocked sends, straight from the live collections."
       breadcrumbs={[
         { label: "Compliance", href: "/sabsms/compliance" },
-        { label: "Audit Log", href: "/sabsms/compliance/audit", active: true },
+        { label: "Audit Log" },
       ]}
-      secondaryActions={[
-        webhookAction,
-        retentionAction,
-        alertsAction,
-        aiSummarizeAction,
-        {
-          label: "Export",
-          icon: <Download className="h-4 w-4" />,
-          onClick: handleExport,
-          variant: "outline",
-        }
-      ]}
-    >
-      <div className="space-y-8">
-
-        {/* Premium Data-Rich Header */}
-        <StatisticsCard1
-          headline="Total Audit Events"
-          value="1,492,034"
-          icon={<Database />}
-          items={statItems}
-          footer="Audit logs are retained in cold storage for 7 years as per compliance policy."
-          className="bg-white/50 backdrop-blur-md shadow-sm border-[var(--st-border)]"
-        />
-
-        {/* Filter Bar */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex-1 min-w-0 w-full">
+      toolbar={
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div className="flex-1 min-w-0">
             <SabsmsFilterBar
               facets={FACETS}
-              filters={filters}
-              onFiltersChange={setFilters}
-              placeholder="Search by ID or context..."
-              enableDateRange
+              searchKey="q"
+              searchPlaceholder="Search action, subject, detail…"
             />
           </div>
           <div className="flex items-center gap-2">
-            <SabsmsRefreshButton isRefreshing={false} onRefresh={() => toast.success("Refreshed")} />
-            <SabsmsSavedViews
-              currentViewId={null}
-              views={[{ id: "v1", name: "Consent Changes", filters: {} }]}
-              onLoadView={(v) => toast.info(`Loaded view ${v.name}`)}
-              onSaveView={(n) => toast.success(`Saved view ${n}`)}
+            <SabsmsRefreshButton onRefresh={refresh} />
+            <SabsmsExportMenu
+              toCsv={toCsv}
+              toJson={toJson}
+              filename="sabsms-audit-ledger"
             />
           </div>
         </div>
+      }
+    >
+      <div className="space-y-6">
+        <div className="flex items-start gap-3 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)]/40 p-4 text-sm">
+          <Info className="h-5 w-5 shrink-0 text-[var(--st-text-secondary)]" />
+          <p className="text-[var(--st-text-secondary)]">
+            These are real, append-only compliance events read live from{" "}
+            <code>sabsms_consent_log</code> and blocked rows in{" "}
+            <code>sabsms_messages</code>. There is no cryptographic hash chain
+            in this build, so no integrity-verification claim is made here.
+          </p>
+        </div>
 
-        {/* Highly Filterable DataTable utilizing ActionSearchBar */}
-        <DataTable
-          columns={columns}
-          data={filteredData}
-          filterColumn="action"
-          filterPlaceholder="Filter actions..."
-          showColumnMenu={true}
-          pageSize={10}
-          onRowSelectionChange={setRowSelection}
-          toolbar={
-            <ActionSearchBar 
-              actions={searchActions} 
-              placeholder="Search by hash, command (⌘K)..." 
-              className="w-72 md:w-96"
-            />
-          }
-        />
+        <div className="grid gap-4 md:grid-cols-3">
+          <div className="rounded-lg border border-[var(--st-border)] p-4">
+            <div className="flex items-center gap-2 text-[var(--st-text-secondary)]">
+              <Database className="h-4 w-4" />
+              <span className="text-sm">Consent events</span>
+            </div>
+            <p className="mt-2 text-2xl font-semibold">
+              {data ? data.totals.consentEvents.toLocaleString() : "…"}
+            </p>
+          </div>
+          <div className="rounded-lg border border-[var(--st-border)] p-4">
+            <div className="flex items-center gap-2 text-[var(--st-text-secondary)]">
+              <ShieldAlert className="h-4 w-4" />
+              <span className="text-sm">Sends blocked</span>
+            </div>
+            <p className="mt-2 text-2xl font-semibold">
+              {data ? data.totals.sendBlocks.toLocaleString() : "…"}
+            </p>
+          </div>
+          <div className="rounded-lg border border-[var(--st-border)] p-4">
+            <div className="flex items-center gap-2 text-[var(--st-text-secondary)]">
+              <Activity className="h-4 w-4" />
+              <span className="text-sm">Rows shown</span>
+            </div>
+            <p className="mt-2 text-2xl font-semibold">
+              {filteredRows.length.toLocaleString()}
+            </p>
+          </div>
+        </div>
+
+        {loadError ? (
+          <div className="rounded-lg border border-[var(--st-border)] p-6">
+            <p className="text-sm text-[var(--st-text)]">{loadError}</p>
+          </div>
+        ) : data && filteredRows.length === 0 ? (
+          <SabsmsEmpty
+            icon={<Database className="h-6 w-6" />}
+            title="No audit events"
+            description="No consent events or blocked sends match the current filters."
+          />
+        ) : (
+          <SabsmsDataTable
+            rowKey={(r) => r.id}
+            rows={filteredRows}
+            columns={columns}
+            onRowClick={(r) => setDetailRowId(r.id)}
+            loading={!data && !loadError}
+            pageSize={20}
+            total={filteredRows.length}
+          />
+        )}
       </div>
 
-      {/* Drill-Down Drawer (F12) */}
       <SabsmsDetailDrawer
-        open={!!detailRecordId}
-        onOpenChange={(v) => !v && setDetailRecordId(null)}
-        title={`Audit Record: ${selectedRecord?.id}`}
+        open={!!detailRowId}
+        onOpenChange={(v) => !v && setDetailRowId(null)}
+        title={selectedRow ? selectedRow.action : "Audit record"}
+        description={selectedRow?.source}
       >
-        {selectedRecord && (
-          <ScrollArea className="h-[calc(100vh-100px)] px-6 pb-6">
+        {selectedRow && (
+          <ScrollArea className="h-[calc(100vh-120px)] px-6 pb-6">
             <div className="space-y-6 pt-2">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-[var(--st-text-secondary)] mb-1">Time</p>
-                  <p className="font-medium">{formatUTC(new Date(selectedRecord.timestamp), true)}</p>
+                  <p className="font-medium">
+                    {formatUTC(new Date(selectedRow.at), true)}
+                  </p>
                 </div>
                 <div>
-                  <p className="text-sm text-[var(--st-text-secondary)] mb-1">Severity</p>
-                  <Badge variant={selectedRecord.severity === 'critical' ? 'destructive' : selectedRecord.severity === 'warning' ? 'secondary' : 'default' as any}>
-                    {selectedRecord.severity}
+                  <p className="text-sm text-[var(--st-text-secondary)] mb-1">
+                    Severity
+                  </p>
+                  <Badge
+                    variant={
+                      selectedRow.severity === "warning" ? "outline" : "secondary"
+                    }
+                  >
+                    {selectedRow.severity}
                   </Badge>
                 </div>
                 <div>
-                  <p className="text-sm text-[var(--st-text-secondary)] mb-1">Actor</p>
-                  <p className="font-medium">{selectedRecord.actorName}</p>
-                  <p className="text-xs text-[var(--st-text-secondary)]">{selectedRecord.actor}</p>
+                  <p className="text-sm text-[var(--st-text-secondary)] mb-1">
+                    Subject
+                  </p>
+                  <p className="font-mono text-sm">{selectedRow.subject}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-[var(--st-text-secondary)] mb-1">Subject</p>
-                  <p className="font-medium">{selectedRecord.subjectId}</p>
-                  <p className="text-xs text-[var(--st-text-secondary)]">{selectedRecord.subject}</p>
+                  <p className="text-sm text-[var(--st-text-secondary)] mb-1">
+                    Source
+                  </p>
+                  <p className="font-mono text-xs">{selectedRow.source}</p>
                 </div>
               </div>
 
-              <Tabs defaultValue="diff">
-                <TabsList className="w-full">
-                  <TabsTrigger value="diff" className="flex-1">Diff</TabsTrigger>
-                  <TabsTrigger value="payload" className="flex-1">Payload</TabsTrigger>
-                  <TabsTrigger value="hash" className="flex-1">Hash Chain</TabsTrigger>
-                </TabsList>
-                
-                {/* 7. Inline diff for change events */}
-                <TabsContent value="diff" className="mt-4">
-                  {selectedRecord.diff ? (
-                    <div className="border rounded-md overflow-hidden text-sm font-mono">
-                      {selectedRecord.diff.map((d, i) => (
-                        <div key={i} className="divide-y border-b last:border-b-0">
-                          <div className="bg-[var(--st-bg-muted)]/50 p-2 border-b">
-                            Field: <strong>{d.field}</strong>
-                          </div>
-                          <div className="bg-[var(--st-text)]/10 text-[var(--st-text)] p-2 flex gap-4">
-                            <span className="w-4 select-none opacity-50">-</span>
-                            <span>{JSON.stringify(d.old)}</span>
-                          </div>
-                          <div className="bg-[var(--st-text)]/10 text-[var(--st-text)] p-2 flex gap-4">
-                            <span className="w-4 select-none opacity-50">+</span>
-                            <span>{JSON.stringify(d.new)}</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="p-8 text-center text-[var(--st-text-secondary)] border rounded-md border-dashed">
-                      No diff available for this action.
-                    </div>
-                  )}
-                </TabsContent>
-                
-                {/* 19. Per-record raw payload viewer */}
-                <TabsContent value="payload" className="mt-4">
-                  <div className="bg-[var(--st-bg-muted)] p-4 rounded-md font-mono text-sm overflow-x-auto">
-                    <pre>{JSON.stringify(selectedRecord.payload, null, 2)}</pre>
-                  </div>
-                </TabsContent>
-                
-                {/* 16. Tamper-evident hash chain display */}
-                <TabsContent value="hash" className="mt-4">
-                  <div className="space-y-4">
-                    <div className="border rounded-md p-4 space-y-4 bg-[var(--st-bg-muted)]/30">
-                      <div className="flex items-start gap-3">
-                        <Lock className="h-5 w-5 text-[var(--st-text)] mt-0.5" />
-                        <div>
-                          <p className="font-medium">Current Record Hash</p>
-                          <p className="font-mono text-xs text-[var(--st-text-secondary)] mt-1 break-all bg-[var(--st-bg-muted)] p-2 rounded border">
-                            {selectedRecord.hash}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-3">
-                        <History className="h-5 w-5 text-[var(--st-text-secondary)] mt-0.5" />
-                        <div>
-                          <p className="font-medium">Previous Record Hash</p>
-                          <p className="font-mono text-xs text-[var(--st-text-secondary)] mt-1 break-all bg-[var(--st-bg-muted)] p-2 rounded border">
-                            {selectedRecord.previousHash}
-                          </p>
-                        </div>
-                      </div>
-                      <Button variant="outline" size="sm" className="w-full" onClick={verifyIntegrity}>
-                        <ShieldCheck className="h-4 w-4 mr-2" /> Verify Integrity
-                      </Button>
-                    </div>
-                  </div>
-                </TabsContent>
-              </Tabs>
+              <div>
+                <p className="text-sm text-[var(--st-text-secondary)] mb-2">
+                  Raw payload
+                </p>
+                <div className="bg-[var(--st-bg-muted)] p-4 rounded-md font-mono text-sm overflow-x-auto">
+                  <pre>{JSON.stringify(selectedRow.payload, null, 2)}</pre>
+                </div>
+              </div>
             </div>
           </ScrollArea>
         )}
       </SabsmsDetailDrawer>
-
-      {/* Dialogs */}
-      {/* 18. AI Summarise */}
-      <Dialog open={summarizeDialogOpen} onOpenChange={setSummarizeDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Bot className="h-5 w-5 text-[var(--st-text)]" /> AI Summary (Last Hour)
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 text-sm leading-relaxed text-[var(--st-text-secondary)]">
-            <p><strong>38 events</strong> occurred in the last hour across 2 workspaces.</p>
-            <ul className="list-disc pl-5 space-y-1">
-              <li><strong>12</strong> consent changes (mostly inbound STOP keywords).</li>
-              <li><strong>5</strong> campaign sends blocked due to quiet hours policy violations in <span className="text-[var(--st-text)] font-medium">ws_acme_corp</span>.</li>
-              <li><strong>1</strong> new API key provisioned by Admin.</li>
-            </ul>
-            <p>No anomalous activity detected. Hash chain integrity is 100% verified.</p>
-          </div>
-          <DialogFooter>
-            <Button onClick={() => setSummarizeDialogOpen(false)}>Close</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* 10. Retention Policy Editor & 15. Auto-archive */}
-      <Dialog open={retentionDialogOpen} onOpenChange={setRetentionDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Audit Log Retention Policy</DialogTitle>
-            <DialogDescription>
-              Configure how long audit logs are kept online and when they are archived.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-6 py-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <Label className="text-base">Auto-Archive Policy</Label>
-                <p className="text-sm text-[var(--st-text-secondary)]">Move logs to cold storage (S3 Glacier) after a set period.</p>
-              </div>
-              <Switch defaultChecked />
-            </div>
-            <div className="space-y-2">
-              <Label>Online Retention (Days)</Label>
-              <Input type="number" defaultValue={90} />
-            </div>
-            <div className="space-y-2">
-              <Label>Cold Storage Retention (Years)</Label>
-              <Input type="number" defaultValue={7} />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setRetentionDialogOpen(false)}>Cancel</Button>
-            <Button onClick={() => { toast.success("Retention policy updated."); setRetentionDialogOpen(false); }}>Save Changes</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* 9. Webhook Publisher */}
-      <Dialog open={webhookDialogOpen} onOpenChange={setWebhookDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Audit Event Webhook</DialogTitle>
-            <DialogDescription>
-              Stream audit log events to your external SIEM or compliance monitoring tool.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <Label>Enable Webhook</Label>
-              </div>
-              <Switch defaultChecked />
-            </div>
-            <div className="space-y-2">
-              <Label>Endpoint URL</Label>
-              <Input type="url" defaultValue="https://siem.acme-corp.com/ingest/sabsms" />
-            </div>
-            <div className="space-y-2">
-              <Label>Signing Secret (HMAC SHA-256)</Label>
-              <div className="flex gap-2">
-                <Input type="password" defaultValue="whsec_1234567890abcdef" readOnly />
-                <Button variant="outline" size="icon"><RefreshCw className="h-4 w-4" /></Button>
-              </div>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setWebhookDialogOpen(false)}>Cancel</Button>
-            <Button onClick={() => { toast.success("Webhook config saved."); setWebhookDialogOpen(false); }}>Save</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={alertsDialogOpen} onOpenChange={setAlertsDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Custom Alerts</DialogTitle>
-            <DialogDescription>
-              Configure alerts for critical audit events to be notified immediately.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <Label>Critical Severity Alerts</Label>
-                <p className="text-sm text-[var(--st-text-secondary)]">Notify when any critical event is logged.</p>
-              </div>
-              <Switch defaultChecked />
-            </div>
-            <div className="flex items-center justify-between">
-              <div>
-                <Label>Campaign Blocked Alerts</Label>
-                <p className="text-sm text-[var(--st-text-secondary)]">Notify when a campaign is blocked by compliance.</p>
-              </div>
-              <Switch defaultChecked />
-            </div>
-            <div className="space-y-2">
-              <Label>Notification Channels</Label>
-              <Input placeholder="Email (e.g. security@acme.com) or Slack Webhook URL" defaultValue="security@acme.com" />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setAlertsDialogOpen(false)}>Cancel</Button>
-            <Button onClick={() => { toast.success("Alert rules saved."); setAlertsDialogOpen(false); }}>Save Rules</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </SabsmsPageShell>
   );
 }

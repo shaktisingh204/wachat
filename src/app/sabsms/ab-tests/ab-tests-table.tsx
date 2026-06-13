@@ -743,7 +743,14 @@ function AbTestDetailDrawer({
                 </CardDescription>
               </CardHeader>
               <CardBody>
-                <ChartContainer height={180}>
+                <ChartContainer
+                  config={{
+                    sent: { label: "Sent", color: CHART_PALETTE[0] },
+                    clicked: { label: "Clicked", color: CHART_PALETTE[1] },
+                    replied: { label: "Replied", color: CHART_PALETTE[2] },
+                  }}
+                  style={{ height: 180 }}
+                >
                   <Recharts.BarChart
                     data={row.variants.map((v) => ({
                       name: v.label,
@@ -798,7 +805,10 @@ function AbTestDetailDrawer({
                   </CardDescription>
                 </CardHeader>
                 <CardBody>
-                  <ChartContainer height={140}>
+                  <ChartContainer
+                    config={{ pValue: { label: "p-value", color: CHART_PALETTE[3] } }}
+                    style={{ height: 140 }}
+                  >
                     <Recharts.LineChart data={row.simulation}>
                       <Recharts.CartesianGrid
                         strokeDasharray="3 3"

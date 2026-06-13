@@ -42,7 +42,14 @@ export type SenderStrategy = "single" | "pool" | "sticky_per_recipient";
 export type AudienceDraft =
   | { kind: "segment"; segmentId: string }
   | { kind: "contacts"; contactIds: string[] }
-  | { kind: "csv"; sabFileId: string; sabFileName?: string };
+  | {
+      kind: "csv";
+      sabFileId: string;
+      sabFileName?: string;
+      /** Public R2 URL captured from the SabFile picker — the launch path
+       *  fetches + parses it into concrete phone recipients. */
+      sabFileUrl?: string;
+    };
 
 export type ScheduleDraft =
   | { kind: "immediate" }
@@ -120,6 +127,8 @@ export interface CampaignDraft {
   frequencyCap: FrequencyCap;
   smartSuppression: boolean;
   sendTimeOptimization: boolean;
+  /** Shorten URLs + attribute clicks per recipient (V2.4 link tracking). */
+  linkTracking?: boolean;
   costCurrency: string;
   complianceAttested: boolean;
   /** Optional sandbox / single test recipient. */
@@ -151,6 +160,7 @@ export function makeEmptyDraft(workspaceId: string): CampaignDraft {
     },
     smartSuppression: false,
     sendTimeOptimization: false,
+    linkTracking: true,
     costCurrency: "USD",
     complianceAttested: false,
   };

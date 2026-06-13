@@ -1,15 +1,14 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
-import { 
-  Pause, Archive, Sparkles, AlertTriangle, 
-  Share, PieChart, FileText,
-  Activity, ArrowRight, Settings, Mail
+import {
+  Sparkles,
+  PieChart, FileText,
+  Activity, ArrowRight, Settings, Mail, Hash,
 } from "lucide-react";
 import {
-  AreaChart, Area, BarChart, Bar,
-  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
+  AreaChart, Area,
+  ResponsiveContainer,
 } from "recharts";
 
 import {
@@ -18,15 +17,17 @@ import {
   SabsmsDataTable,
   type SabsmsColumn,
   type SabsmsRowAction,
+  type SabsmsBulkAction,
   SabsmsDetailDrawer,
   SabsmsExportMenu,
   SabsmsSavedViews,
   SabsmsColumnPicker,
+  SabsmsEmpty,
   useSabsmsUrlState,
-  rowsToCsv
+  rowsToCsv,
 } from "@/components/sabsms/page-toolkit";
 
-import { Badge, Button, Progress } from '@/components/sabcrm/20ui';
+import { Badge, Button } from "@/components/sabcrm/20ui";
 
 export interface NumberTrendData {
   date: string;
@@ -34,71 +35,51 @@ export interface NumberTrendData {
   failed: number;
 }
 
-export interface CapacityData {
-  hour: string;
-  utilized: number;
-  available: number;
-}
-
+/**
+ * Per-number scorecard. Every field here is measured from
+ * `sabsms_messages` over the last 7 days (grouped by sender number). There
+ * is intentionally NO fabricated complaint-rate / ban-risk / warm-up /
+ * carrier-breakdown — those have no backend yet and are surfaced as honest
+ * "not available" in the UI rather than random numbers.
+ */
 export interface NumberScorecardRow {
   id: string;
   e164: string;
   provider: string;
   status: string;
   deliverabilityScore: number;
-  complaintRate: number;
   costPerDelivered: number;
   replyRate: number;
   blockRate: number;
-  banRisk: "low" | "medium" | "high";
-  warmupProgress: number;
   totalVolume: number;
-  carrierBreakdown: {
-    att: number;
-    verizon: number;
-    tmobile: number;
-  };
+  /** True when the number had any send activity in the window. */
+  hasData: boolean;
   trend?: NumberTrendData[];
 }
 
 interface NumbersAnalyticsClientProps {
   rows: NumberScorecardRow[];
-  capacityData: CapacityData[];
 }
 
-export function NumbersAnalyticsClient({ rows, capacityData }: NumbersAnalyticsClientProps) {
-  const router = useRouter();
+export function NumbersAnalyticsClient({ rows }: NumbersAnalyticsClientProps) {
   const urlState = useSabsmsUrlState();
 
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [detailRow, setDetailRow] = useState<NumberScorecardRow | null>(null);
 
-  // Filters
+  // Filters (the FilterBar reads/writes the URL itself).
   const q = urlState.get("q")?.toLowerCase() || "";
-  const filterBanRisk = urlState.getAll("banRisk");
   const filterProvider = urlState.getAll("provider");
-  const filterPeriod = urlState.get("period") || "7d"; // 11. Compare two periods
 
   const filteredRows = rows.filter((r) => {
-    if (q && !r.e164.includes(q)) return false;
-    if (filterBanRisk.length > 0 && !filterBanRisk.includes(r.banRisk)) return false;
+    if (q && !r.e164.toLowerCase().includes(q)) return false;
     if (filterProvider.length > 0 && !filterProvider.includes(r.provider)) return false;
     return true;
   });
 
-  const uniqueProviders = Array.from(new Set(rows.map(r => r.provider))).filter(p => p !== "—");
-
-  const renderBanRisk = (risk: string) => {
-    switch (risk) {
-      case "high":
-        return <Badge variant="destructive">High Risk</Badge>;
-      case "medium":
-        return <Badge variant="secondary" className="bg-[var(--st-bg-muted)] text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]">Medium</Badge>;
-      case "low":
-      default:
-        return <Badge variant="secondary" className="bg-[var(--st-bg-muted)] text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]">Low Risk</Badge>;
-    }
-  };
+  const uniqueProviders = Array.from(new Set(rows.map((r) => r.provider))).filter(
+    (p) => p !== "—",
+  );
 
   const columns: SabsmsColumn<NumberScorecardRow>[] = [
     {
@@ -108,284 +89,211 @@ export function NumbersAnalyticsClient({ rows, capacityData }: NumbersAnalyticsC
       width: "140px",
     },
     {
-      id: "deliverabilityScore", // 1. Per-number deliverability score
+      id: "deliverabilityScore",
       header: "Deliverability",
-      render: (r) => (
-        <div className="flex flex-col gap-1">
-          <span className={`text-xs font-medium ${r.deliverabilityScore < 95 ? 'text-[var(--st-text)]' : 'text-[var(--st-text)]'}`}>
-            {r.deliverabilityScore.toFixed(1)}%
-          </span>
-          {r.trend && (
-            <div className="h-6 w-16">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={r.trend}>
-                  <defs>
-                    <linearGradient id={`colorDelivered-${r.id}`} x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor={r.deliverabilityScore < 95 ? '#e11d48' : '#10b981'} stopOpacity={0.8}/>
-                      <stop offset="95%" stopColor={r.deliverabilityScore < 95 ? '#e11d48' : '#10b981'} stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
-                  <Area type="monotone" dataKey="delivered" stroke={r.deliverabilityScore < 95 ? '#e11d48' : '#10b981'} fillOpacity={1} fill={`url(#colorDelivered-${r.id})`} />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          )}
-        </div>
-      ),
-      width: "110px",
-    },
-    {
-      id: "complaintRate", // 2. Per-number complaint rate
-      header: "Complaint Rate",
-      render: (r) => <span className="text-xs">{r.complaintRate.toFixed(2)}%</span>,
-      width: "110px",
-    },
-    {
-      id: "costPerDelivered", // 3. Per-number cost per delivered
-      header: "Cost/Delivered",
-      render: (r) => <span className="text-xs">${r.costPerDelivered.toFixed(4)}</span>,
-      width: "120px",
-      hideByDefault: true,
-    },
-    {
-      id: "replyRate", // 4. Per-number reply rate
-      header: "Reply Rate",
-      render: (r) => <span className="text-xs">{r.replyRate.toFixed(1)}%</span>,
-      width: "100px",
-      hideByDefault: true,
-    },
-    {
-      id: "blockRate", // 5. Per-number block rate
-      header: "Block Rate",
-      render: (r) => (
-        <span className={`text-xs ${r.blockRate > 1.0 ? 'text-[var(--st-text)] font-medium' : ''}`}>
-          {r.blockRate.toFixed(2)}%
-        </span>
-      ),
-      width: "100px",
-    },
-    {
-      id: "banRisk", // 6. Per-number ban risk
-      header: "Ban Risk",
-      render: (r) => renderBanRisk(r.banRisk),
-      width: "110px",
-    },
-    {
-      id: "warmupProgress", // 18. New-number warm-up tracker
-      header: "Warm-up",
-      render: (r) => (
-        <div className="w-24 space-y-1">
-          <div className="flex justify-between text-[10px] text-[var(--st-text)]">
-            <span>{r.warmupProgress === 100 ? 'Ready' : 'Warming'}</span>
-            <span>{r.warmupProgress}%</span>
+      render: (r) =>
+        r.hasData ? (
+          <div className="flex flex-col gap-1">
+            <span className="text-xs font-medium text-[var(--st-text)]">
+              {r.deliverabilityScore.toFixed(1)}%
+            </span>
+            {r.trend && r.trend.length > 0 && (
+              <div className="h-6 w-16">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={r.trend}>
+                    <defs>
+                      <linearGradient id={`colorDelivered-${r.id}`} x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor={r.deliverabilityScore < 95 ? "#e11d48" : "#10b981"} stopOpacity={0.8} />
+                        <stop offset="95%" stopColor={r.deliverabilityScore < 95 ? "#e11d48" : "#10b981"} stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <Area type="monotone" dataKey="delivered" stroke={r.deliverabilityScore < 95 ? "#e11d48" : "#10b981"} fillOpacity={1} fill={`url(#colorDelivered-${r.id})`} />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            )}
           </div>
-          <Progress value={r.warmupProgress} className="h-1.5" />
-        </div>
+        ) : (
+          <span className="text-xs text-[var(--st-text-secondary)]">No sends (7d)</span>
+        ),
+      width: "110px",
+    },
+    {
+      id: "costPerDelivered",
+      header: "Cost/Delivered",
+      render: (r) => (
+        <span className="text-xs">{r.hasData && r.costPerDelivered > 0 ? `$${r.costPerDelivered.toFixed(4)}` : "—"}</span>
       ),
       width: "120px",
+      hideByDefault: true,
+    },
+    {
+      id: "replyRate",
+      header: "Reply Rate",
+      render: (r) => <span className="text-xs">{r.hasData ? `${r.replyRate.toFixed(1)}%` : "—"}</span>,
+      width: "100px",
+      hideByDefault: true,
+    },
+    {
+      id: "blockRate",
+      header: "Failure Rate",
+      render: (r) =>
+        r.hasData ? (
+          <span className={`text-xs ${r.blockRate > 1.0 ? "text-[var(--st-text)] font-medium" : ""}`}>
+            {r.blockRate.toFixed(2)}%
+          </span>
+        ) : (
+          <span className="text-xs text-[var(--st-text-secondary)]">—</span>
+        ),
+      width: "110px",
+    },
+    {
+      id: "totalVolume",
+      header: "Volume (7d)",
+      render: (r) => <span className="text-xs tabular-nums">{r.totalVolume.toLocaleString()}</span>,
+      width: "110px",
+    },
+    {
+      id: "status",
+      header: "Status",
+      render: (r) => (
+        <Badge variant="secondary" className="bg-[var(--st-bg-muted)] text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]">
+          {r.status}
+        </Badge>
+      ),
+      width: "100px",
     },
   ];
 
   const rowActions: SabsmsRowAction<NumberScorecardRow>[] = [
     {
-      label: "AI: Should I rotate?", // 7. AI: Should I rotate this number out?
-      icon: <Sparkles className="h-4 w-4 text-[var(--st-text)]" />,
-      onSelect: (r) => console.log("AI Analyze", r.id),
-    },
-    {
-      label: "Drill-down to raw events", // 12. Drill-down to raw events
-      icon: <Activity className="h-4 w-4" />,
-      onSelect: (r) => console.log("Raw events", r.id),
-    },
-    {
-      label: "View carrier breakdown", // 13. Per-carrier breakdown
+      label: "View details",
       icon: <PieChart className="h-4 w-4" />,
       onSelect: (r) => setDetailRow(r),
     },
     {
-      label: "Pause number",
-      icon: <Pause className="h-4 w-4" />,
-      onSelect: (r) => console.log("Pause", r.id),
-    },
-    {
-      label: "Archive number",
-      icon: <Archive className="h-4 w-4" />,
-      destructive: true,
-      onSelect: (r) => console.log("Archive", r.id),
+      label: "Drill-down to raw events",
+      icon: <Activity className="h-4 w-4" />,
+      onSelect: (r) => {
+        window.location.href = `/sabsms/logs?from=${encodeURIComponent(r.e164)}`;
+      },
     },
   ];
 
-  const visibleColumnIds = urlState.get("cols")?.split(",") || columns.filter(c => !c.hideByDefault).map(c => c.id);
+  const bulkActions: SabsmsBulkAction<NumberScorecardRow>[] = [
+    {
+      label: "Open selected in logs",
+      icon: <FileText className="h-4 w-4" />,
+      onSelect: (selected) => {
+        const first = selected[0];
+        if (first) window.location.href = `/sabsms/logs?from=${encodeURIComponent(first.e164)}`;
+      },
+    },
+  ];
+
+  // Columns are toggled via the URL `cols` param.
+  const defaultVisible = columns.filter((c) => !c.hideByDefault).map((c) => c.id);
+  const visibleColumnIds = urlState.get("cols")?.split(",").filter(Boolean) || defaultVisible;
+
+  // CSV export of the visible scorecard data (no fabricated columns).
+  const exportCsv = React.useCallback(async () => {
+    const csvRows = filteredRows.map((r) => ({
+      number: r.e164,
+      provider: r.provider,
+      status: r.status,
+      deliverabilityPct: r.hasData ? r.deliverabilityScore.toFixed(1) : "",
+      failureRatePct: r.hasData ? r.blockRate.toFixed(2) : "",
+      replyRatePct: r.hasData ? r.replyRate.toFixed(1) : "",
+      costPerDelivered: r.hasData && r.costPerDelivered > 0 ? r.costPerDelivered.toFixed(4) : "",
+      volume7d: r.totalVolume,
+    }));
+    return rowsToCsv(csvRows, [
+      { key: "number", header: "Number" },
+      { key: "provider", header: "Provider" },
+      { key: "status", header: "Status" },
+      { key: "deliverabilityPct", header: "Deliverability %" },
+      { key: "failureRatePct", header: "Failure Rate %" },
+      { key: "replyRatePct", header: "Reply Rate %" },
+      { key: "costPerDelivered", header: "Cost / Delivered" },
+      { key: "volume7d", header: "Volume (7d)" },
+    ]);
+  }, [filteredRows]);
 
   return (
     <div className="flex h-full flex-col">
       <SabsmsPageShell
         title="Number Scorecards"
-        description="Deliverability, cost, and health analytics per number."
+        description="Per-number deliverability, failure rate, reply rate, and cost measured from the last 7 days of message activity."
         breadcrumbs={[
           { label: "Insights", href: "/sabsms/analytics" },
-          { label: "Number Scorecards" }
+          { label: "Number Scorecards" },
         ]}
-        primaryAction={{
-          label: "Share Report", // 20. Public share link
-          icon: <Share className="h-4 w-4 mr-2" />,
-          onClick: () => console.log("Share link generated"),
-        }}
         secondaryActions={[
           {
-            label: "Schedule Email", // 16. Schedule periodic email
-            icon: <Mail className="h-4 w-4 mr-2" />,
-            onClick: () => console.log("Schedule Email Modal"),
+            label: "Schedule Email",
+            icon: <Mail className="h-4 w-4" />,
+            onSelectHref: "/sabsms/analytics",
           },
           {
-            label: "Auto-rotate config", // 17. Auto-rotate config (rules)
-            icon: <Settings className="h-4 w-4 mr-2" />,
-            onClick: () => console.log("Auto-rotate settings"),
-          }
+            label: "Number settings",
+            icon: <Settings className="h-4 w-4" />,
+            onSelectHref: "/sabsms/numbers",
+          },
         ]}
       >
-        {/* Visual Charts Area (Features 10, 19) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          <div className="rounded-xl border border-[var(--st-border)] bg-white p-5 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-[var(--st-text)] flex items-center gap-2">
-                <AlertTriangle className="h-4 w-4 text-[var(--st-text)]" />
-                Underperformer Volume
-              </h3>
-              <Button variant="outline" size="sm" className="h-7 text-xs">View Full</Button>
-            </div>
-            <div className="h-40 w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={capacityData.slice(0, 10)}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                  <XAxis dataKey="hour" fontSize={10} axisLine={false} tickLine={false} />
-                  <YAxis fontSize={10} axisLine={false} tickLine={false} />
-                  <Tooltip contentStyle={{ fontSize: '12px', borderRadius: '8px', border: '1px solid var(--st-border)' }} />
-                  <Bar dataKey="utilized" fill="#f97316" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-          
-          <div className="rounded-xl border border-[var(--st-border)] bg-white p-5 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-[var(--st-text)] flex items-center gap-2">
-                <Activity className="h-4 w-4 text-[var(--st-text)]" />
-                Capacity Utilisation
-              </h3>
-              <Button variant="outline" size="sm" className="h-7 text-xs">View Full</Button>
-            </div>
-            <div className="h-40 w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={capacityData}>
-                  <defs>
-                    <linearGradient id="colorUtilized" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8}/>
-                      <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                  <XAxis dataKey="hour" fontSize={10} axisLine={false} tickLine={false} />
-                  <YAxis fontSize={10} axisLine={false} tickLine={false} />
-                  <Tooltip contentStyle={{ fontSize: '12px', borderRadius: '8px', border: '1px solid var(--st-border)' }} />
-                  <Area type="monotone" dataKey="utilized" stroke="#3b82f6" fillOpacity={1} fill="url(#colorUtilized)" />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-        </div>
-
-        <div className="mb-4 flex flex-col gap-4">
-          <div className="flex items-center justify-between">
-            <SabsmsFilterBar
-              searchPlaceholder="Search numbers..."
-              facets={[
-                {
-                  key: "period",
-                  label: "Period", // 11. Compare two periods (Period selection)
-                  multi: false,
-                  options: [
-                    { label: "Last 7 Days vs Prior", value: "7d" },
-                    { label: "Last 30 Days vs Prior", value: "30d" },
-                    { label: "This Month", value: "this_month" }
-                  ]
-                },
-                {
-                  key: "banRisk",
-                  label: "Ban Risk",
-                  multi: true,
-                  options: [
-                    { label: "High Risk", value: "high" },
-                    { label: "Medium Risk", value: "medium" },
-                    { label: "Low Risk", value: "low" }
-                  ]
-                },
-                {
-                  key: "provider",
-                  label: "Provider",
-                  multi: true,
-                  options: uniqueProviders.map(p => ({ label: p, value: p }))
+        {rows.length === 0 ? (
+          <SabsmsEmpty
+            icon={<Hash />}
+            title="No numbers to score yet"
+            description="Once you have active numbers and 7 days of send activity, per-number deliverability scorecards will appear here."
+          />
+        ) : (
+          <div className="mb-4 flex flex-col gap-4">
+            <div className="flex items-center justify-between">
+              <SabsmsFilterBar
+                searchPlaceholder="Search numbers..."
+                facets={[
+                  {
+                    key: "provider",
+                    label: "Provider",
+                    multi: true,
+                    options: uniqueProviders.map((p) => ({ label: p, value: p })),
+                  },
+                ]}
+                trailing={
+                  <div className="flex gap-2">
+                    <SabsmsSavedViews scope="analytics:numbers" />
+                    <SabsmsColumnPicker
+                      columns={columns.map((c) => ({
+                        id: c.id,
+                        label: typeof c.header === "string" ? c.header : c.id,
+                        required: c.id === "number",
+                      }))}
+                      visible={visibleColumnIds}
+                      onChange={(ids) => urlState.setOne("cols", ids.join(","))}
+                    />
+                    <SabsmsExportMenu toCsv={exportCsv} filename="number-scorecards" />
+                  </div>
                 }
-              ]}
-              trailing={
-                <div className="flex gap-2">
-                  <SabsmsSavedViews
-                    views={[
-                      { id: "v1", name: "High Risk Numbers", urlQuery: "banRisk=high" },
-                      { id: "v2", name: "Poor Deliverability", urlQuery: "cols=number,deliverabilityScore&period=7d" }
-                    ]}
-                    currentViewId={null}
-                    onSelectView={(v) => console.log("Load view", v)}
-                    onSaveView={() => console.log("Save view")}
-                  />
-                  <SabsmsColumnPicker
-                    columns={columns.map(c => ({ id: c.id, label: c.header as string, hideByDefault: c.hideByDefault }))}
-                    visibleIds={visibleColumnIds}
-                    onChange={(ids) => urlState.setOne("cols", ids.join(","))}
-                  />
-                  <SabsmsExportMenu // 15. Export CSV
-                    onExportCsv={() => {
-                      const csv = rowsToCsv(filteredRows, visibleColumnIds);
-                      const blob = new Blob([csv], { type: "text/csv" });
-                      const url = URL.createObjectURL(blob);
-                      const a = document.createElement("a");
-                      a.href = url;
-                      a.download = "number-scorecards-export.csv";
-                      a.click();
-                      URL.revokeObjectURL(url);
-                    }}
-                  />
-                </div>
-              }
+              />
+            </div>
+
+            <SabsmsDataTable
+              rows={filteredRows}
+              columns={columns}
+              visibleColumnIds={visibleColumnIds}
+              rowKey={(r) => r.id}
+              selectable
+              selectedIds={selectedIds}
+              onSelectionChange={setSelectedIds}
+              rowActions={rowActions}
+              onRowClick={setDetailRow}
+              emptyTitle="No scorecards match these filters"
+              emptyDescription="Adjust the provider filter or search to see more numbers."
+              bulkActions={bulkActions}
             />
           </div>
-
-          <SabsmsDataTable
-            rows={filteredRows}
-            columns={columns}
-            visibleColumnIds={visibleColumnIds}
-            rowKey={(r) => r.id}
-            selectable
-            selectedIds={selectedIds}
-            onSelectionChange={setSelectedIds}
-            rowActions={rowActions}
-            onRowClick={setDetailRow}
-            emptyTitle="No scorecards generated yet"
-            emptyDescription="Send more volume to generate deliverability scorecards for your numbers."
-            bulkActions={[
-              {
-                label: "Bulk pause underperforming", // 8. Bulk pause underperforming
-                icon: <Pause className="h-4 w-4" />,
-                onAction: (rows) => console.log("Bulk pause", rows.map(r => r.id))
-              },
-              {
-                label: "Bulk archive", // 9. Bulk archive
-                icon: <Archive className="h-4 w-4" />,
-                onAction: (rows) => console.log("Bulk archive", rows.map(r => r.id))
-              }
-            ]}
-          />
-        </div>
+        )}
       </SabsmsPageShell>
 
       <SabsmsDetailDrawer
@@ -393,92 +301,70 @@ export function NumbersAnalyticsClient({ rows, capacityData }: NumbersAnalyticsC
         onOpenChange={(open) => {
           if (!open) setDetailRow(null);
         }}
-        title={`Scorecard: ${detailRow?.e164}`}
-        subtitle={`${detailRow?.provider} • ${detailRow?.totalVolume.toLocaleString()} sends`}
-        tabs={[
-          {
-            value: "carriers", // 13. Per-carrier breakdown
-            label: "Carrier Breakdown",
-            icon: <PieChart className="h-4 w-4" />,
-            content: (
-              <div className="p-4 space-y-6">
-                <div>
-                  <h4 className="font-medium text-[var(--st-text)] mb-4">Deliverability by Carrier</h4>
-                  <div className="space-y-4">
-                    <div>
-                      <div className="flex justify-between text-sm mb-1">
-                        <span className="font-medium">AT&T</span>
-                        <span className={detailRow?.carrierBreakdown.att && detailRow.carrierBreakdown.att < 95 ? "text-[var(--st-text)]" : "text-[var(--st-text)]"}>
-                          {detailRow?.carrierBreakdown.att.toFixed(1)}%
-                        </span>
-                      </div>
-                      <Progress value={detailRow?.carrierBreakdown.att} className="h-2" />
-                    </div>
-                    <div>
-                      <div className="flex justify-between text-sm mb-1">
-                        <span className="font-medium">Verizon</span>
-                        <span className={detailRow?.carrierBreakdown.verizon && detailRow.carrierBreakdown.verizon < 95 ? "text-[var(--st-text)]" : "text-[var(--st-text)]"}>
-                          {detailRow?.carrierBreakdown.verizon.toFixed(1)}%
-                        </span>
-                      </div>
-                      <Progress value={detailRow?.carrierBreakdown.verizon} className="h-2" />
-                    </div>
-                    <div>
-                      <div className="flex justify-between text-sm mb-1">
-                        <span className="font-medium">T-Mobile</span>
-                        <span className={detailRow?.carrierBreakdown.tmobile && detailRow.carrierBreakdown.tmobile < 95 ? "text-[var(--st-text)]" : "text-[var(--st-text)]"}>
-                          {detailRow?.carrierBreakdown.tmobile.toFixed(1)}%
-                        </span>
-                      </div>
-                      <Progress value={detailRow?.carrierBreakdown.tmobile} className="h-2" />
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="rounded-lg bg-[var(--st-bg-muted)] p-4 border border-[var(--st-border)]">
-                  <h4 className="font-medium text-[var(--st-text)] flex items-center gap-2 mb-2">
-                    <Sparkles className="h-4 w-4" /> AI Analysis
-                  </h4>
-                  <p className="text-sm text-[var(--st-text)] leading-relaxed">
-                    Based on the recent block rate of {detailRow?.blockRate.toFixed(2)}% across T-Mobile and Verizon, it is recommended to <strong>{detailRow?.banRisk === 'high' ? 'rotate this number out immediately' : 'monitor closely'}</strong>.
-                  </p>
-                </div>
+        title={
+          <span className="flex items-center gap-2">
+            <PieChart className="h-4 w-4" aria-hidden="true" />
+            Scorecard: {detailRow?.e164}
+          </span>
+        }
+        description={
+          detailRow
+            ? `${detailRow.provider} • ${detailRow.totalVolume.toLocaleString()} sends in the last 7 days`
+            : ""
+        }
+      >
+        {detailRow && (
+          <div className="space-y-6 p-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="rounded-lg border border-[var(--st-border)] p-4">
+                <p className="text-xs uppercase tracking-wider text-[var(--st-text-secondary)] mb-1">Deliverability</p>
+                <p className="text-2xl font-bold font-mono">
+                  {detailRow.hasData ? `${detailRow.deliverabilityScore.toFixed(1)}%` : "—"}
+                </p>
               </div>
-            )
-          },
-          {
-            value: "events", // 12. Drill-down to raw events (Drawer version)
-            label: "Raw Events",
-            icon: <FileText className="h-4 w-4" />,
-            content: (
-              <div className="p-4 text-sm text-[var(--st-text)]">
-                <div className="flex justify-between items-center mb-4">
-                  <h4 className="font-medium text-[var(--st-text)]">Recent Failures</h4>
-                  <Button variant="outline" size="sm" className="h-7 text-xs">
-                    View full logs <ArrowRight className="h-3 w-3 ml-1" />
-                  </Button>
-                </div>
-                <div className="space-y-3">
-                  <div className="p-3 border border-[var(--st-border)] rounded-md bg-[var(--st-bg-muted)]">
-                    <div className="flex justify-between mb-1">
-                      <span className="font-medium text-[var(--st-text)]">Error 30007</span>
-                      <span className="text-xs">10 mins ago</span>
-                    </div>
-                    <p className="text-xs text-[var(--st-text)]">Carrier Violation - Message blocked due to spam heuristics.</p>
-                  </div>
-                  <div className="p-3 border border-[var(--st-border)] rounded-md bg-[var(--st-bg-muted)]">
-                    <div className="flex justify-between mb-1">
-                      <span className="font-medium text-[var(--st-text)]">Error 30004</span>
-                      <span className="text-xs">1 hour ago</span>
-                    </div>
-                    <p className="text-xs text-[var(--st-text)]">Message blocked - Destination number opted out.</p>
-                  </div>
-                </div>
+              <div className="rounded-lg border border-[var(--st-border)] p-4">
+                <p className="text-xs uppercase tracking-wider text-[var(--st-text-secondary)] mb-1">Failure rate</p>
+                <p className="text-2xl font-bold font-mono">
+                  {detailRow.hasData ? `${detailRow.blockRate.toFixed(2)}%` : "—"}
+                </p>
               </div>
-            )
-          }
-        ]}
-      />
+              <div className="rounded-lg border border-[var(--st-border)] p-4">
+                <p className="text-xs uppercase tracking-wider text-[var(--st-text-secondary)] mb-1">Reply rate</p>
+                <p className="text-2xl font-bold font-mono">
+                  {detailRow.hasData ? `${detailRow.replyRate.toFixed(1)}%` : "—"}
+                </p>
+              </div>
+              <div className="rounded-lg border border-[var(--st-border)] p-4">
+                <p className="text-xs uppercase tracking-wider text-[var(--st-text-secondary)] mb-1">Cost / delivered</p>
+                <p className="text-2xl font-bold font-mono">
+                  {detailRow.hasData && detailRow.costPerDelivered > 0 ? `$${detailRow.costPerDelivered.toFixed(4)}` : "—"}
+                </p>
+              </div>
+            </div>
+
+            <div className="rounded-lg bg-[var(--st-bg-muted)] p-4 border border-[var(--st-border)]">
+              <h4 className="font-medium text-[var(--st-text)] flex items-center gap-2 mb-2">
+                <Sparkles className="h-4 w-4" /> Carrier &amp; ban-risk analysis
+              </h4>
+              <p className="text-sm text-[var(--st-text-secondary)] leading-relaxed">
+                Per-carrier deliverability and automated ban-risk scoring are not available yet — the
+                SabSMS engine does not surface carrier-level delivery receipts or a ban-risk signal.
+                The metrics above are measured directly from your message history.
+              </p>
+            </div>
+
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => {
+                window.location.href = `/sabsms/logs?from=${encodeURIComponent(detailRow.e164)}`;
+              }}
+            >
+              View full logs for this number <ArrowRight className="h-4 w-4 ml-1" />
+            </Button>
+          </div>
+        )}
+      </SabsmsDetailDrawer>
     </div>
   );
 }

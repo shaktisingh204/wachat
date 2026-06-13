@@ -324,7 +324,7 @@ export function InboxLayout({
       toolbar={filterBar}
     >
       <div className="h-[calc(100vh-280px)] min-h-[520px] overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
-        <ResizablePanelGroup direction="horizontal">
+        <ResizablePanelGroup orientation="horizontal">
           <ResizablePanel defaultSize={32} minSize={22} maxSize={45}>
             <ConversationList
               conversations={conversations}

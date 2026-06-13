@@ -342,22 +342,44 @@ export async function runCohort(
   filter: SabsmsAnalyticsFilter,
 ): Promise<SabsmsCohortCell[]> {
   const messages = db.collection(SABSMS_COLLECTIONS.messages);
-  // Lightweight cohort: cohort = ISO week of first outbound, retention =
-  // weeks-since-cohort that the contact replied. Capped for perf.
+  // Real cohort: cohort = ISO week of the contact's FIRST outbound in the
+  // window; weekOffset N = the contact had outbound activity N weeks later.
+  // Computed server-side in one pipeline ($setWindowFields → $min first week
+  // per recipient, then bucket by week-difference) so the hot path stays
+  // bounded — capped at MAX_BUCKETS cells. Earlier this returned a degenerate
+  // single week-0 column ($literal 0); it now carries real retention.
   const pipeline = [
-    { $match: buildMatch(filter, "primary") },
+    { $match: { ...buildMatch(filter, "primary"), to: { $nin: [null, ""] } } },
+    {
+      // First-outbound week per recipient, plus this row's own week.
+      $group: {
+        _id: "$to",
+        firstAt: { $min: "$createdAt" },
+        weeks: {
+          $addToSet: {
+            $dateTrunc: { date: "$createdAt", unit: "week" },
+          },
+        },
+      },
+    },
+    { $limit: 200_000 }, // bound the contact fan-out
+    { $unwind: "$weeks" },
+    {
+      $project: {
+        cohort: { $dateToString: { format: "%G-W%V", date: { $dateTrunc: { date: "$firstAt", unit: "week" } } } },
+        weekOffset: {
+          $dateDiff: { startDate: "$firstAt", endDate: "$weeks", unit: "week" },
+        },
+      },
+    },
+    { $match: { weekOffset: { $gte: 0, $lte: 11 } } },
     {
       $group: {
-        _id: {
-          cohort: {
-            $dateToString: { format: "%G-W%V", date: "$createdAt" },
-          },
-          weekOffset: { $literal: 0 },
-        },
+        _id: { cohort: "$cohort", weekOffset: "$weekOffset" },
         retained: { $sum: 1 },
       },
     },
-    { $sort: { "_id.cohort": 1 } },
+    { $sort: { "_id.cohort": 1, "_id.weekOffset": 1 } },
     { $limit: MAX_BUCKETS },
   ];
 
@@ -386,6 +408,24 @@ export async function runProviderScorecard(
   filter: SabsmsAnalyticsFilter,
 ): Promise<SabsmsProviderScore[]> {
   const messages = db.collection(SABSMS_COLLECTIONS.messages);
+  // p95 latency is computed with Mongo's `$percentile` accumulator
+  // (approximate / t-digest) instead of `$push`-ing every message latency
+  // into a per-provider array and sorting in JS. The old `$push` path built
+  // a multi-hundred-MB group accumulator on large windows and risked the
+  // 16MB BSON document limit; `$percentile` is bounded and runs server-side.
+  const latencyMs = {
+    $cond: [
+      {
+        $and: [
+          { $ifNull: ["$deliveredAt", false] },
+          { $ifNull: ["$sentAt", false] },
+        ],
+      },
+      { $subtract: ["$deliveredAt", "$sentAt"] },
+      "$$REMOVE", // excluded from the percentile input set entirely
+    ],
+  };
+
   const pipeline = [
     { $match: buildMatch(filter, "primary") },
     {
@@ -409,22 +449,16 @@ export async function runProviderScorecard(
             ],
           },
         },
-        latencies: {
-          $push: {
-            $cond: [
-              {
-                $and: [
-                  { $ifNull: ["$deliveredAt", false] },
-                  { $ifNull: ["$sentAt", false] },
-                ],
-              },
-              { $subtract: ["$deliveredAt", "$sentAt"] },
-              null,
-            ],
+        latencyP95: {
+          $percentile: {
+            input: latencyMs,
+            p: [0.95],
+            method: "approximate",
           },
         },
       },
     },
+    { $sort: { total: -1 } },
     { $limit: MAX_BUCKETS },
   ];
 
@@ -433,12 +467,10 @@ export async function runProviderScorecard(
     const total = Number(row.total ?? 0);
     const delivered = Number(row.delivered ?? 0);
     const failed = Number(row.failed ?? 0);
-    const lats = (row.latencies ?? [])
-      .filter((x: unknown): x is number => typeof x === "number")
-      .sort((a: number, b: number) => a - b);
-    const p95 = lats.length
-      ? lats[Math.min(lats.length - 1, Math.floor(lats.length * 0.95))]
-      : 0;
+    // `$percentile` returns an array (one entry per requested p); guard for
+    // older servers / empty input where the field may be missing/null.
+    const p95Raw = Array.isArray(row.latencyP95) ? row.latencyP95[0] : row.latencyP95;
+    const p95 = typeof p95Raw === "number" && Number.isFinite(p95Raw) ? p95Raw : 0;
     out.push({
       provider: String(row._id ?? "—"),
       dlrRate: total > 0 ? Math.round((delivered / total) * 100) : 0,
@@ -447,7 +479,6 @@ export async function runProviderScorecard(
       total,
     });
   }
-  out.sort((a, b) => b.total - a.total);
   return out.slice(0, MAX_BUCKETS);
 }
 
@@ -664,8 +695,10 @@ export async function runCampaignMoney(
 /**
  * V2.10 — error Pareto: top normalized failure codes over the LAST 7
  * DAYS (fixed window — the point is "what is breaking right now").
- * Uses the indexed `{workspaceId, status, queuedAt}` path and groups on
- * `normalizedCode` (falling back to the raw provider `errorCode`).
+ * Filters on `failedAt` (the moment the failure was recorded, matching
+ * reconcile semantics) rather than `updatedAt` so re-touched old failures
+ * don't leak into the 7-day window; groups on `normalizedCode` (falling
+ * back to the raw provider `errorCode`).
  */
 export interface SabsmsErrorParetoRow {
   code: string;
@@ -688,7 +721,12 @@ export async function runErrorPareto(
         workspaceId,
         direction: "outbound",
         status: { $in: ["failed", "undelivered", "rejected"] },
-        updatedAt: { $gte: since },
+        // `failedAt` is when the failure was recorded; fall back to
+        // `updatedAt` only for legacy docs that never got a `failedAt`.
+        $or: [
+          { failedAt: { $gte: since } },
+          { failedAt: { $exists: false }, updatedAt: { $gte: since } },
+        ],
       },
     },
     {

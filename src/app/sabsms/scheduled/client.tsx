@@ -255,7 +255,7 @@ export function ScheduledSendsClient({ workspaceId }: { workspaceId: string }) {
                 { value: "list", label: "List" },
               ]}
             />
-            <SabsmsRefreshButton refreshing={loading} onRefresh={reload} />
+            <SabsmsRefreshButton onRefresh={reload} />
           </div>
         </div>
       }

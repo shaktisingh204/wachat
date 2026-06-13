@@ -1,9 +1,9 @@
 import * as React from "react";
 
 import {
+  Activity,
   BarChart3,
   BookOpen,
-  Code2,
   FileSearch,
   FileText,
   GitBranch,
@@ -13,18 +13,22 @@ import {
   Layers,
   LayoutDashboard,
   Megaphone,
-  MessageSquare,
+  Network,
   Phone,
   Send,
   ServerCog,
   Settings,
   ShieldCheck,
-  Smartphone,
   Users,
   Webhook,
 } from "lucide-react";
 
-import { type SidebarGroup } from '@/components/sabcrm/20ui';
+// Import the `SidebarGroup` *interface* directly from the shell module.
+// The 20ui barrel re-exports both `sidebar.tsx`'s `SidebarGroup` component
+// (a value) and `shell.tsx`'s `SidebarGroup` interface via `export *`; the
+// value shadows the type, so `import { type SidebarGroup }` from the barrel
+// resolves to the value and trips TS2749. The module path is unambiguous.
+import { type SidebarGroup } from '@/components/sabcrm/20ui/shell';
 
 /**
  * SabSMS sidebar — grouped menu configuration.
@@ -147,11 +151,14 @@ export function buildSabsmsSidebarGroups(
           active: isActive("/sabsms/numbers"),
         },
         {
-          id: "pool",
-          label: "Sender Pools",
-          icon: React.createElement(Layers),
-          href: "/sabsms/pool",
-          active: isActive("/sabsms/pool"),
+          // The dedicated /sabsms/pool route is a bare redirect back to
+          // /sabsms/numbers (no pool config UI), so the sender-pool feature
+          // is configured on the routing rules surface. Point users there.
+          id: "routing",
+          label: "Routing rules",
+          icon: React.createElement(Network),
+          href: "/sabsms/routing",
+          active: isActive("/sabsms/routing"),
         },
         {
           id: "providers",
@@ -161,11 +168,27 @@ export function buildSabsmsSidebarGroups(
           active: isActive("/sabsms/providers"),
         },
         {
+          id: "health",
+          label: "Provider health",
+          icon: React.createElement(Activity),
+          href: "/sabsms/health",
+          active: isActive("/sabsms/health"),
+        },
+        {
           id: "compliance",
           label: "Compliance",
           icon: React.createElement(ShieldCheck),
           href: "/sabsms/compliance",
           active: isActive("/sabsms/compliance"),
+          children: [
+            {
+              id: "compliance-dlt",
+              label: "India DLT registry",
+              icon: React.createElement(Layers),
+              href: "/sabsms/compliance/dlt",
+              active: isActive("/sabsms/compliance/dlt"),
+            },
+          ],
         },
       ],
     },

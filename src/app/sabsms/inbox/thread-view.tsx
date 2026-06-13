@@ -12,6 +12,7 @@
  */
 
 import * as React from "react";
+import Link from "next/link";
 import {
   AtSign,
   Ban,
@@ -20,6 +21,7 @@ import {
   Circle,
   Clock,
   Inbox,
+  KeyRound,
   Link2,
   Loader2,
   Merge,
@@ -213,7 +215,14 @@ export function ThreadView({
     const res = await replyToThread({
       conversationId: conversation.id,
       body: composerBody.trim(),
-      mediaSabFileIds: attachments.map((a) => a.id),
+      // Pass the picker-resolved public R2 URL (+ mime/size) so the
+      // engine actually sends the MMS — it only attaches from mediaUrls.
+      media: attachments.map((a) => ({
+        sabFileId: a.id,
+        url: a.url,
+        mime: a.mime,
+        bytes: a.size,
+      })),
     });
     setBusy(false);
     if (res.ok) {
@@ -279,16 +288,22 @@ export function ThreadView({
       toast({ title: "Dismiss failed", description: res.error, tone: "danger" });
   }
 
+  // On-demand AI draft — calls the real LLM ladder server-side and fills
+  // the composer with the model's suggestion (the agent never sends it;
+  // the human reviews and sends). An honest error surfaces when AI is
+  // not configured.
   async function getAiSuggestion() {
     setBusy(true);
     const res = await generateAiReply(conversation.id);
     setBusy(false);
     if (res.ok) {
       setComposerBody(res.suggestion);
-      toast.success("AI suggestion applied");
+      setTab("reply");
+      composerRef.current?.focus();
+      toast.success("AI draft added — review before sending");
     } else {
       toast({
-        title: "Failed to generate AI suggestion",
+        title: "Couldn't generate an AI draft",
         description: res.error,
         tone: "danger",
       });
@@ -948,6 +963,19 @@ function ThreadHeader({
               </DropdownMenuItem>
               <DropdownMenuItem iconLeft={UserPlus} onSelect={() => void onAddToSegment()}>
                 Add to segment
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link
+                  href="/sabsms/compliance/keywords"
+                  className="flex w-full items-center"
+                >
+                  <KeyRound
+                    className="u-dropdown__item-icon"
+                    aria-hidden="true"
+                  />
+                  Keyword auto-reply rules
+                </Link>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

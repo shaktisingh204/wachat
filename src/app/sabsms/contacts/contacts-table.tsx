@@ -14,6 +14,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   CheckCircle2,
   CircleSlash,
@@ -149,6 +150,7 @@ export function ContactsTable({
   countryOptions,
 }: ContactsTableProps) {
   const { toast } = useToast();
+  const router = useRouter();
   const [rows, setRows] = React.useState(initialRows);
   const [selectedIds, setSelectedIds] = React.useState<string[]>([]);
   const [busy, setBusy] = React.useState<string | null>(null);
@@ -514,7 +516,7 @@ export function ContactsTable({
         trailing={
           <div className="flex items-center gap-2">
             <SabsmsSavedViews scope="sabsms.contacts" />
-            <SabsmsRefreshButton />
+            <SabsmsRefreshButton onRefresh={() => router.refresh()} />
             <SabsmsExportMenu
               filename="sabsms-contacts"
               toCsv={async () =>

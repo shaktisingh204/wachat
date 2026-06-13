@@ -28,6 +28,8 @@
 
 import { randomUUID } from 'node:crypto';
 
+import { ObjectId } from 'mongodb';
+
 import type { EnqueueSendInput, EnqueueSendResult } from '../types';
 import { quietHoursExpectation, scrubPii } from './guardrails';
 import { defaultSabsmsLlmClient, parseLlmJson, type SabsmsLlmClient } from './llm';
@@ -58,10 +60,25 @@ export const MAX_REPLY_CHARS = 800;
 
 export type AgentEnqueue = (input: EnqueueSendInput) => Promise<EnqueueSendResult>;
 
+/**
+ * Reverse an auto-turn credit charge. Called on the post-charge error
+ * paths (LLM failure, no-reply, enqueue failure, suppressed-empty-send)
+ * so a charged turn that never delivers a reply does not keep the
+ * customer's credit. Keyed on the synthetic ledger id `agent:{turnId}`,
+ * idempotent.
+ */
+export type AgentRefund = (workspaceId: string, turnId: string) => Promise<void>;
+
 export interface AgentRuntimeDeps {
   store: AgentStore;
   llm?: SabsmsLlmClient;
   enqueue?: AgentEnqueue;
+  /**
+   * Reverse a charged auto-turn credit on an error path. Defaults to a
+   * worker-safe Mongo release through the shared credits core; tests and
+   * the eval harness leave it unset (or inject a spy).
+   */
+  refundTurnCredit?: AgentRefund;
   now?: () => Date;
   log?: (message: string, extra?: Record<string, unknown>) => void;
 }
@@ -71,6 +88,59 @@ async function defaultEnqueue(input: EnqueueSendInput): Promise<EnqueueSendResul
   // touch the engine-client module at all (journeys executor pattern).
   const { sabsmsEngine } = await import('../engine-client');
   return sabsmsEngine.enqueueSend(input);
+}
+
+/**
+ * Default credit refund — reverses the finalised `instantDebit` the
+ * store made for this turn. Uses the SAME worker-safe credits core
+ * (`credits/core.ts`) that `chargeAgentTurnCredit` debits through, so
+ * the release row lands in the same ledger keyed on `agent:{turnId}`.
+ *
+ * Worker-safe & best-effort: the Mongo handle is lazy-imported exactly
+ * like the engine-client above (the PM2 worker resolves the NODE_PATH
+ * `server-only` stub). Any failure (e.g. no DB env in a unit test that
+ * exercises an error path) is swallowed — a refund must never turn an
+ * already-failed turn into a thrown turn. Idempotent on `agent:{turnId}`.
+ */
+async function defaultRefund(workspaceId: string, turnId: string): Promise<void> {
+  try {
+    const [{ connectToDatabase }, { coreHandles }] = await Promise.all([
+      import('../../mongodb'),
+      import('../credits/core'),
+    ]);
+    const { db } = await connectToDatabase();
+    const h = coreHandles(db);
+    const messageId = `agent:${turnId}`;
+
+    const reservation = await h.reservations.findOne({ workspaceId, messageId });
+    // Only a finalised debit can be released; a missing/already-released
+    // reservation means there is nothing to give back (idempotent).
+    if (!reservation || reservation.status !== 'finalised') return;
+
+    const claimed = await h.reservations.updateOne(
+      { token: reservation.token, status: 'finalised' },
+      { $set: { status: 'released', releasedAt: new Date() } },
+    );
+    if (claimed.modifiedCount === 0) return; // raced with another release
+
+    if (reservation.amount > 0 && ObjectId.isValid(workspaceId)) {
+      await h.users.updateOne(
+        { _id: new ObjectId(workspaceId) },
+        { $inc: { 'credits.sms': reservation.amount } },
+      );
+    }
+    await h.ledger.insertOne({
+      workspaceId,
+      messageId,
+      reservationToken: reservation.token,
+      delta: reservation.amount,
+      kind: 'release',
+      chargeType: 'agent_turn',
+      createdAt: new Date(),
+    });
+  } catch {
+    // Best-effort: never throw out of a refund.
+  }
 }
 
 export interface AgentTurnParams {
@@ -147,6 +217,7 @@ export async function runAgentTurn(
   const { store } = deps;
   const llm = deps.llm ?? defaultSabsmsLlmClient;
   const enqueue = deps.enqueue ?? defaultEnqueue;
+  const refundTurnCredit = deps.refundTurnCredit ?? defaultRefund;
   const now = deps.now ?? (() => new Date());
   const log = deps.log ?? (() => undefined);
 
@@ -163,6 +234,16 @@ export async function runAgentTurn(
   const toolCalls: SabsmsAgentToolCall[] = [];
   let promptTokens: number | undefined;
   let completionTokens: number | undefined;
+
+  // True once the auto-mode credit has actually been debited, so the
+  // error paths below know whether there is anything to give back.
+  let charged = false;
+  /** Reverse the auto-turn charge if (and only if) one was taken. */
+  const refundIfCharged = async (): Promise<void> => {
+    if (!charged) return;
+    charged = false; // never double-refund
+    await refundTurnCredit(params.workspaceId, turnId);
+  };
 
   const audit = async (
     outcome: SabsmsAgentTurnOutcome,
@@ -235,11 +316,18 @@ export async function runAgentTurn(
   }
 
   // Credit metering — auto turns only, BEFORE the LLM call, fail-closed.
+  // The charge stays pre-LLM so a zero-balance workspace never reaches
+  // the model (fail-closed). Because the store only exposes an instant
+  // debit (no release), the refund lives in the runtime: every error
+  // path below the charge calls `refundIfCharged`, which reverses this
+  // exact ledger row through the shared credits core. Net effect: a
+  // charged auto turn that never delivers a reply gives the credit back.
   if (config.mode === 'auto') {
     const charge = await store.chargeAgentTurnCredit(params.workspaceId, turnId);
     if (!charge.approved) {
       return guarded(charge.reason ?? 'insufficient_credits');
     }
+    charged = true;
   }
 
   // ── Context ──────────────────────────────────────────────────────────
@@ -281,6 +369,7 @@ export async function runAgentTurn(
 
       const res = await llm({ system, prompt, maxTokens: 400 });
       if (!res.ok) {
+        await refundIfCharged();
         await audit('error', { reason: `llm: ${res.error}` });
         return { outcome: 'error', reason: res.error, turnId };
       }
@@ -334,11 +423,13 @@ export async function runAgentTurn(
         continue;
       }
       // Unknown action shape → bail to error.
+      await refundIfCharged();
       await audit('error', { reason: 'unparseable_action' });
       return { outcome: 'error', reason: 'unparseable_action', turnId };
     }
   } catch (err) {
     const reason = err instanceof Error ? err.message : String(err);
+    await refundIfCharged();
     await audit('error', { reason });
     return { outcome: 'error', reason, turnId };
   }
@@ -349,6 +440,7 @@ export async function runAgentTurn(
   }
 
   if (!replyBody) {
+    await refundIfCharged();
     await audit('error', { reason: 'no_reply_produced' });
     return { outcome: 'error', reason: 'no_reply_produced', turnId };
   }
@@ -394,6 +486,18 @@ export async function runAgentTurn(
       eventKey: 'sabsms.agent.reply',
       idempotencyKey: `agent:${params.inboundMessageId}`,
     });
+    // Engine-disabled / suppressed short-circuit: the client returns
+    // `{ id: '', status: 'suppressed' }` with no message written. That is
+    // NOT a delivered reply — audit it as guarded and give the credit
+    // back rather than recording a phantom 'replied'.
+    if (!sent.id && sent.status === 'suppressed') {
+      await refundIfCharged();
+      await audit('guarded', { reason: 'engine_suppressed' });
+      log('agent: enqueue suppressed (engine disabled)', {
+        conversationId: params.conversationId,
+      });
+      return { outcome: 'guarded', reason: 'engine_suppressed', turnId };
+    }
     if (sent.id) {
       await store.stampMessageConversation(
         params.workspaceId,
@@ -414,6 +518,7 @@ export async function runAgentTurn(
     return { outcome: 'replied', replyMessageId: sent.id || undefined, turnId };
   } catch (err) {
     const reason = err instanceof Error ? err.message : String(err);
+    await refundIfCharged();
     await audit('error', { reason: `enqueue: ${reason}` });
     return { outcome: 'error', reason, turnId };
   }

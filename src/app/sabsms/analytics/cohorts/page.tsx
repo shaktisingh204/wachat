@@ -64,12 +64,9 @@ async function SabsmsCohortsPageContent({
         { label: "Analytics", href: "/sabsms/analytics" },
         { label: "Cohorts" },
       ]}
-      primaryAction={{ label: "Export PDF", onSelectHref: "#" }}
       secondaryActions={[
         { label: "Funnel Reports", onSelectHref: "/sabsms/analytics/funnel" },
         { label: "Logs", onSelectHref: "/sabsms/logs" },
-        { label: "Schedule periodic export", onSelectHref: "#" },
-        { label: "Public share link", onSelectHref: "#" },
       ]}
       helpTitle="How cohorts work"
       helpBody={

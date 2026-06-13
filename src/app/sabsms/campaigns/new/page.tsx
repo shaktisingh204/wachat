@@ -45,6 +45,28 @@ function numberToOption(n: SabsmsNumber): SenderNumberOption {
   };
 }
 
+/**
+ * Map a persisted campaign's audience onto the wizard's narrower
+ * `AudienceDraft`. The wizard only edits segment / contacts / CSV; list /
+ * phones audiences (set by the quick-create or API) are surfaced as an empty
+ * picker the user re-selects, rather than silently mistyped.
+ */
+function campaignAudienceToDraft(
+  audience: SabsmsCampaign["audience"],
+): CampaignDraft["audience"] {
+  switch (audience.kind) {
+    case "segment":
+      return { kind: "segment", segmentId: audience.segmentId };
+    case "contacts":
+      return { kind: "contacts", contactIds: audience.contactIds };
+    case "csv":
+      return { kind: "csv", sabFileId: audience.sabFileId ?? "" };
+    default:
+      // list / phones aren't wizard-editable — start fresh.
+      return undefined;
+  }
+}
+
 function campaignToDraft(
   c: SabsmsCampaign,
   workspaceId: string,
@@ -56,7 +78,7 @@ function campaignToDraft(
     workspaceId,
     name: c.name,
     templateId: c.templateId,
-    audience: c.audience,
+    audience: campaignAudienceToDraft(c.audience),
     schedule:
       c.schedule.kind === "scheduled"
         ? {

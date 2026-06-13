@@ -14,6 +14,15 @@ import {
  * Reads the precomputed `sabsms_stats_daily` rollups (never the raw
  * message collection) and returns totals + a dense per-day series for
  * the inclusive UTC date range. Defaults to the last 30 days.
+ *
+ * NOTE (V2.13 honest gap): an RCS→SMS *fallback rate* is intentionally
+ * NOT returned here. The `rcsFallback` signal lives only on individual
+ * message docs (`SabsmsMessage.rcsFallback`); the daily rollups carry a
+ * `channel` dim but no `channelRequested`/fallback counter, and
+ * `queryDailyStats` only exposes the `total | provider | campaignId`
+ * dims — so a fallback rate cannot be derived from the rollups without a
+ * new rollup counter (engine-side, out of this surface's scope). Rather
+ * than fabricate a number, the metric is left for a future rollup field.
  */
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;

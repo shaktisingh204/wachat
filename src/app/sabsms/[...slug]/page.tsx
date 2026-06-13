@@ -1,23 +1,13 @@
 import React from "react";
-import { RouteComingSoon } from '@/components/sabcrm/20ui';
+import Link from "next/link";
+import { RouteComingSoon, Button } from '@/components/sabcrm/20ui';
 
 export const dynamic = "force-dynamic";
 
-const TITLES: Record<string, string> = {
-  // /sabsms, /sabsms/send, /sabsms/inbox, /sabsms/logs, /sabsms/numbers,
-  // /sabsms/providers all have real pages — they never hit this catch-all.
-  campaigns: "Campaigns — Coming in Phase 4",
-  templates: "Templates — Coming in Phase 3",
-  drips: "Drip sequences — Coming in Phase 4",
-  contacts: "Contacts — Coming in Phase 2",
-  suppressions: "Suppressions — Coming in Phase 8",
-  consent: "Consent log — Coming in Phase 8",
-  analytics: "Analytics — Coming in Phase 11",
-  compliance: "Compliance — Coming in Phase 8",
-  webhooks: "Outbound webhooks — Coming in Phase 12",
-  "api-keys": "API keys — Coming in Phase 12",
-  settings: "Settings — Coming in Phase 1.5",
-};
+// Nearly every SabSMS surface now has a real page; this catch-all only
+// fires for genuinely-unmapped paths. Keep the copy generic — the named
+// routes below no longer carry stale "Coming in Phase N" promises.
+const TITLES: Record<string, string> = {};
 
 async function SabsmsCatchAllPageContent({
   params,
@@ -30,9 +20,12 @@ async function SabsmsCatchAllPageContent({
   return (
     <RouteComingSoon
       title={title}
-      description="The route is reserved — the feature ships in a follow-up phase. See plans/sabsms-world-class-plan.md for the schedule."
-      parentHref="/sabsms"
-      parentLabel="Back to SabSMS overview"
+      description="This route isn't mapped to a SabSMS surface yet. See plans/sabsms-v2-beyond-world-class.md for the roadmap."
+      action={
+        <Button asChild variant="outline" size="sm">
+          <Link href="/sabsms">Back to SabSMS overview</Link>
+        </Button>
+      }
     />
   );
 }

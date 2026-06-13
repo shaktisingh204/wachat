@@ -79,11 +79,13 @@ async function ApprovalsDataLoader({ searchParams }: PageProps) {
         <StatCard
           label="Avg time-to-approval"
           value={avgMinutesOverall > 0 ? `${avgMinutesOverall} min` : "—"}
-          period={
-            categoryDecisions > 0
-              ? `from ${categoryDecisions} recent decisions`
-              : "no decisions yet"
-          }
+          delta={{
+            value:
+              categoryDecisions > 0
+                ? `from ${categoryDecisions} recent decisions`
+                : "no decisions yet",
+            tone: "neutral",
+          }}
         />
       </section>
 

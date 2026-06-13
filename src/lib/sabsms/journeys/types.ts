@@ -239,6 +239,9 @@ export const SabsmsJourneyRunSchema = z.object({
   /** Claim stamp — `processing` rows older than the stale window are
    *  reclaimed so runs survive worker crashes/restarts. */
   processingAt: z.date().optional(),
+  /** Transient send-step retries already attempted (enqueue exceptions
+   *  re-park the run with backoff up to a cap; reset on success). */
+  retryCount: z.number().int().nonnegative().optional(),
   waitingFor: JourneyRunWaitingForSchema.optional(),
   vars: z.record(z.string(), z.string()),
   history: z.array(JourneyRunHistoryEntrySchema),

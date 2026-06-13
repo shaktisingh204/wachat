@@ -294,6 +294,94 @@ describe('executor — idempotent re-execution', () => {
   });
 });
 
+// ─── Send-failure classification (V2.9 retry) ──────────────────────────────
+
+describe('executor — send failure classification', () => {
+  it('keeps template_missing terminal (run fails, no retry)', async () => {
+    const clock = makeClock();
+    const q = makeEnqueue();
+    const journeyId = store.addJourney(
+      journeyDoc([{ id: 's1', kind: 'send', templateId: 'missingTpl' }]),
+    );
+    const started = await startJourneyRun(store, journeyId, { phone: PHONE }, { now: clock.now });
+    const runId = (started as { runId: string }).runId;
+
+    await tickJourneys({ store, now: clock.now, enqueue: q.enqueue });
+    const run = (await store.getRun(runId))!;
+    assert.equal(run.status, 'failed');
+    assert.equal(q.calls.length, 0);
+    assert.ok(run.history.some((h) => h.result.startsWith('error:template_missing')));
+  });
+
+  it('re-parks the run on a transient enqueue exception, then recovers', async () => {
+    const clock = makeClock();
+    let throwOnce = true;
+    const calls: EnqueueSendInput[] = [];
+    const enqueue = async (input: EnqueueSendInput): Promise<EnqueueSendResult> => {
+      if (throwOnce) {
+        throwOnce = false;
+        throw new Error('engine unreachable');
+      }
+      calls.push(input);
+      return { id: 'msg-1', status: 'queued', segments: 1 };
+    };
+    const journeyId = store.addJourney(
+      journeyDoc([{ id: 's1', kind: 'send', templateId: 'tplA' }]),
+    );
+    const started = await startJourneyRun(
+      store,
+      journeyId,
+      { phone: PHONE, vars: { name: 'Asha' } },
+      { now: clock.now },
+    );
+    const runId = (started as { runId: string }).runId;
+
+    // Tick 1: enqueue throws → run re-parks (waiting), NOT failed.
+    let res = await tickJourneys({ store, now: clock.now, enqueue });
+    assert.equal(res.failed, 0);
+    let run = (await store.getRun(runId))!;
+    assert.equal(run.status, 'waiting');
+    assert.equal(run.retryCount, 1);
+    assert.equal(calls.length, 0);
+    assert.ok(run.history.some((h) => h.result.startsWith('retry:1:error:enqueue')));
+    assert.ok(run.wakeAt && run.wakeAt.getTime() > clock.now().getTime());
+
+    // Tick 2 (due): enqueue succeeds → run completes, retryCount cleared.
+    clock.advance(2 * 60_000);
+    res = await tickJourneys({ store, now: clock.now, enqueue });
+    run = (await store.getRun(runId))!;
+    assert.equal(run.status, 'completed');
+    assert.equal(run.retryCount, 0);
+    assert.equal(calls.length, 1);
+  });
+
+  it('finally fails after exhausting the retry cap', async () => {
+    const clock = makeClock();
+    const enqueue = async (): Promise<EnqueueSendResult> => {
+      throw new Error('engine still down');
+    };
+    const journeyId = store.addJourney(
+      journeyDoc([{ id: 's1', kind: 'send', templateId: 'tplA' }]),
+    );
+    const started = await startJourneyRun(
+      store,
+      journeyId,
+      { phone: PHONE, vars: { name: 'Asha' } },
+      { now: clock.now },
+    );
+    const runId = (started as { runId: string }).runId;
+
+    // Drive enough due-ticks to exceed MAX_SEND_RETRIES (5).
+    for (let i = 0; i < 8; i++) {
+      await tickJourneys({ store, now: clock.now, enqueue });
+      clock.advance(60 * 60_000); // jump past any backoff window
+    }
+    const run = (await store.getRun(runId))!;
+    assert.equal(run.status, 'failed');
+    assert.ok((run.retryCount ?? 0) >= 5);
+  });
+});
+
 // ─── Exit rules ───────────────────────────────────────────────────────────
 
 describe('exit rules', () => {

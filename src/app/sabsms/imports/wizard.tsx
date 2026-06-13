@@ -155,7 +155,7 @@ export function ImportsWizard({
 
   // Parse CSV when a SabFile is picked (Chunked to prevent timeout on large files).
   React.useEffect(() => {
-    if (!picked?.url) return;
+    if (!picked?.url) return undefined;
     let cancelled = false;
     setParsing(true);
     setParseError(null);
@@ -202,7 +202,9 @@ export function ImportsWizard({
         if (!cancelled) setParsing(false);
       }
     })();
-    return () => cancelled = true;
+    return () => {
+      cancelled = true;
+    };
   }, [picked]);
 
   // AI-powered mapping
@@ -761,7 +763,7 @@ function OptionsStep({
       <div className="space-y-3">
         <Checkbox
           checked={skipSuppressed}
-          onCheckedChange={(v) => onSkipSuppressed(v === true)}
+          onChange={(e) => onSkipSuppressed(e.target.checked)}
           className="items-start"
           label={
             <span className="text-sm text-[var(--st-text)]">
@@ -771,7 +773,7 @@ function OptionsStep({
         />
         <Checkbox
           checked={skipDuplicates}
-          onCheckedChange={(v) => onSkipDuplicates(v === true)}
+          onChange={(e) => onSkipDuplicates(e.target.checked)}
           className="items-start"
           label={
             <span className="text-sm text-[var(--st-text)]">
@@ -781,7 +783,7 @@ function OptionsStep({
         />
         <Checkbox
           checked={consentAttested}
-          onCheckedChange={(v) => onConsentAttested(v === true)}
+          onChange={(e) => onConsentAttested(e.target.checked)}
           className="items-start rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] p-3"
           label={
             <span className="text-sm text-[var(--st-text)]">

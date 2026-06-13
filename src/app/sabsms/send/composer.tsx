@@ -17,7 +17,10 @@ import {
   X,
 } from "lucide-react";
 
-import { Badge, Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, Input, Label, Progress, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Switch, Textarea } from '@/components/sabcrm/20ui';
+import { Badge, Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Switch, Textarea } from '@/components/sabcrm/20ui';
+// The barrel re-exports two `Progress` symbols (loading.tsx + progress.tsx);
+// the one carrying `indicatorClassName` is the real bar — import it directly.
+import { Progress } from "@/components/sabcrm/20ui/progress";
 import { SabFilePickerButton, type SabFilePick } from "@/components/sabfiles";
 
 import { creditCostFor } from "@/lib/sabsms/credits/rates";
@@ -323,6 +326,8 @@ export function SabsmsSendComposer() {
   const [templateId, setTemplateId] = useState<string>(NO_TEMPLATE);
   const [vars, setVars] = useState<Record<string, string>>({});
   const [shortenLinks, setShortenLinks] = useState(false);
+  // V2.4 — MMS attachments (resolved public SabFiles/R2 URLs).
+  const [mediaFiles, setMediaFiles] = useState<SabFilePick[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [messageId, setMessageId] = useState<string | null>(null);
   const [status, setStatus] = useState<SabsmsMessageStatus | null>(null);
@@ -484,6 +489,10 @@ export function SabsmsSendComposer() {
         : undefined,
       category,
       shortenLinks,
+      // V2.4 — MMS: resolved public SabFiles URLs (never free-text).
+      ...(mediaFiles.length > 0
+        ? { mediaUrls: mediaFiles.map((f) => f.url) }
+        : {}),
       // V2.11 — RCS preferred: rich card + suggestions + SMS fallback.
       ...(rcsMode
         ? {
@@ -802,6 +811,57 @@ export function SabsmsSendComposer() {
                 http(s) URLs become tracked short links at send time
               </span>
             </div>
+          </div>
+
+          {/* V2.4 — MMS attachments. Picks resolve to public SabFiles/R2
+              URLs (SabFilePick.url); the send input forwards them as
+              mediaUrls and flips the channel to MMS. Never a free-text URL. */}
+          <div className="space-y-2 rounded border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3">
+            <div className="flex items-center justify-between gap-2">
+              <Label className="text-xs font-medium text-[var(--st-text)]">
+                Attachments (MMS){mediaFiles.length > 0 ? ` · ${mediaFiles.length}` : ""}
+              </Label>
+              <SabFilePickerButton
+                variant="outline"
+                accept="image"
+                onPick={(pick) =>
+                  setMediaFiles((prev) =>
+                    prev.some((f) => f.id === pick.id) ? prev : [...prev, pick],
+                  )
+                }
+              >
+                <ImageIcon className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
+                Add media
+              </SabFilePickerButton>
+            </div>
+            {mediaFiles.length === 0 ? (
+              <p className="text-[11px] text-[var(--st-text-secondary)]">
+                Adding an image or video upgrades this send to MMS. Files come
+                from your SabFiles library.
+              </p>
+            ) : (
+              <ul className="flex flex-wrap gap-2">
+                {mediaFiles.map((f) => (
+                  <li
+                    key={f.id}
+                    className="inline-flex max-w-[200px] items-center gap-1.5 rounded border border-[var(--st-border)] bg-[var(--st-bg)] px-2 py-1 text-xs text-[var(--st-text)]"
+                  >
+                    <ImageIcon className="h-3 w-3 shrink-0" aria-hidden="true" />
+                    <span className="truncate">{f.name}</span>
+                    <button
+                      type="button"
+                      aria-label={`Remove ${f.name}`}
+                      className="shrink-0 rounded p-0.5 hover:bg-[var(--st-bg-muted)]"
+                      onClick={() =>
+                        setMediaFiles((prev) => prev.filter((m) => m.id !== f.id))
+                      }
+                    >
+                      <X className="h-3 w-3" aria-hidden="true" />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
 
           {rcsMode && (

@@ -140,6 +140,48 @@ export async function previewRouteAction(input: {
   }
 }
 
+/** One active sender number, for the rule editor's pool multi-select. */
+export interface PoolNumberOption {
+  id: string;
+  e164: string;
+  provider: string;
+  country: string;
+}
+
+/**
+ * Active workspace numbers the sender-pool picker chooses a `from` out of.
+ * The engine's pool strategies (round_robin / sticky / least_used) index
+ * into exactly these `sabsms_numbers` ids.
+ */
+export async function listNumbersForPoolAction(): Promise<
+  | { success: true; numbers: PoolNumberOption[] }
+  | { success: false; error: string }
+> {
+  const workspaceId = await requireWorkspaceId();
+  if (!workspaceId) return { success: false as const, error: "Unauthorized" };
+
+  const { db } = await connectToDatabase();
+  const docs = await db
+    .collection(SABSMS_COLLECTIONS.numbers)
+    .find(
+      { workspaceId, status: "active" },
+      { projection: { e164: 1, provider: 1, country: 1 } },
+    )
+    .sort({ createdAt: -1 })
+    .limit(500)
+    .toArray();
+
+  return {
+    success: true as const,
+    numbers: docs.map((d: any) => ({
+      id: String(d._id),
+      e164: String(d.e164 ?? ""),
+      provider: String(d.provider ?? ""),
+      country: String(d.country ?? ""),
+    })),
+  };
+}
+
 /** Live per-account health for the route-row badges. */
 export async function getRoutingHealthAction(): Promise<
   | { success: true; accounts: SabsmsProviderHealthAccount[] }

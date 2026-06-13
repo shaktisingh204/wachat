@@ -42,6 +42,20 @@ const MAX_CHAINED_STEPS = 25;
 /** Re-check interval when a run's journey is paused. */
 const PAUSED_RECHECK_MS = 5 * 60 * 1000;
 
+/**
+ * Transient send retries (enqueue threw — engine unreachable / 5xx / network)
+ * re-park the run with exponential backoff instead of killing it. After this
+ * many attempts the run finally fails so a permanently broken send can't loop
+ * forever.
+ */
+const MAX_SEND_RETRIES = 5;
+
+/** Backoff (ms) before the run is re-claimed after a transient send failure. */
+function sendRetryBackoffMs(attempt: number): number {
+  // 1m, 2m, 4m, 8m, 16m — capped.
+  return Math.min(16 * 60_000, 60_000 * 2 ** Math.max(0, attempt));
+}
+
 /** A/B promotion sweep throttle per journey. */
 const AB_CHECK_INTERVAL_MS = 60 * 1000;
 
@@ -191,6 +205,20 @@ export async function executeClaimedRun(
         if (!alreadyExecuted) {
           const sent = await executeSendStep(journey, run, step, key, deps);
           if (!sent.ok) {
+            // Transient (enqueue exception — engine unreachable / 5xx /
+            // network) re-parks the run with backoff so it retries on a
+            // later tick, up to a cap. Terminal failures (template missing,
+            // unresolved vars) kill the run as before.
+            if (sent.transient && (run.retryCount ?? 0) < MAX_SEND_RETRIES) {
+              const attempt = (run.retryCount ?? 0) + 1;
+              const wakeAt = new Date(now().getTime() + sendRetryBackoffMs(attempt));
+              await store.updateRun(
+                runId,
+                { status: 'waiting', wakeAt, retryCount: attempt },
+                { unset: ['processingAt'], pushHistory: hist(step.id, now(), `retry:${attempt}:${sent.note}`) },
+              );
+              return 'waiting';
+            }
             await store.updateRun(
               runId,
               { status: 'failed', completedAt: now() },
@@ -199,7 +227,11 @@ export async function executeClaimedRun(
             await store.incJourneyStats(run.journeyId, { failed: 1 });
             return 'failed';
           }
-          run = { ...run, idempotency: { lastExecutedStepKey: key } };
+          // Successful send — clear any accumulated transient-retry count.
+          if (run.retryCount) {
+            await store.updateRun(runId, { retryCount: 0 });
+          }
+          run = { ...run, retryCount: 0, idempotency: { lastExecutedStepKey: key } };
         } else {
           log('send step replayed — side effect skipped', { runId, stepId: step.id });
         }
@@ -295,13 +327,31 @@ async function finishCompleted(
   return 'completed';
 }
 
+/**
+ * Send-step outcome. `transient: true` means the failure is retryable
+ * (enqueue threw — engine unreachable / 5xx / network) and the caller should
+ * re-park the run with backoff. Terminal failures (template missing,
+ * unresolved vars) carry `transient: false` and kill the run.
+ */
+type SendStepResult =
+  | { ok: true }
+  | { ok: false; note: string; transient: boolean };
+
+function isDuplicateKeyError(err: unknown): boolean {
+  if (typeof err !== 'object' || err === null) return false;
+  const code = (err as { code?: number; status?: number }).code;
+  const status = (err as { status?: number }).status;
+  const message = String((err as { message?: unknown }).message ?? '');
+  return code === 11000 || status === 409 || /E11000|duplicate key/i.test(message);
+}
+
 async function executeSendStep(
   journey: SabsmsJourney,
   run: SabsmsJourneyRun,
   step: JourneySendStep,
   key: string,
   deps: ExecutorDeps,
-): Promise<{ ok: true } | { ok: false; note: string }> {
+): Promise<SendStepResult> {
   const now = deps.now ?? (() => new Date());
   const store = deps.store;
   const enqueue = deps.enqueue ?? defaultEnqueue;
@@ -315,13 +365,15 @@ async function executeSendStep(
 
   const rawBody = await store.getTemplateBody(run.workspaceId, templateId);
   if (!rawBody || !rawBody.trim()) {
-    return { ok: false, note: `error:template_missing:${templateId}` };
+    // Terminal: a missing template body never resolves on retry.
+    return { ok: false, note: `error:template_missing:${templateId}`, transient: false };
   }
 
   const rendered = renderTemplate(rawBody, run.vars ?? {});
   if (rendered.missing.length > 0) {
-    // Never push a body with literal placeholders to a carrier.
-    return { ok: false, note: `error:missing_vars:${rendered.missing.join(',')}` };
+    // Terminal: never push a body with literal placeholders to a carrier,
+    // and the run's vars won't change on a later tick.
+    return { ok: false, note: `error:missing_vars:${rendered.missing.join(',')}`, transient: false };
   }
 
   // Tracked links so waitUntil('clicked') can resolve back to this run.
@@ -356,9 +408,25 @@ async function executeSendStep(
       tags: journeyMessageTags(journeyId, step.id, variantTemplateId),
     });
   } catch (err) {
+    // A duplicate-key / 409 on our idempotency key means the engine already
+    // accepted this exact send (e.g. a replay that raced the run state) —
+    // treat it as a success-skip and let the run advance rather than retry.
+    if (isDuplicateKeyError(err)) {
+      await store.updateRun(runId, {}, {
+        pushHistory: hist(step.id, now(), 'sent:duplicate', { variantTemplateId }),
+      });
+      return { ok: true };
+    }
+    // Everything else (engine unreachable, 5xx, network) is transient —
+    // re-park the run with backoff instead of killing it permanently. The
+    // enqueue DEFINITIVELY threw (no message left), so clear the step
+    // idempotency key we wrote pre-send; otherwise the retry would treat the
+    // step as already-executed and skip the (never-sent) message.
+    await store.setRunStepKey(runId, '');
     return {
       ok: false,
       note: `error:enqueue:${err instanceof Error ? err.message : String(err)}`,
+      transient: true,
     };
   }
 

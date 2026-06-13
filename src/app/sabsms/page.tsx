@@ -1,55 +1,185 @@
 import Link from "next/link";
 
-import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Table, THead, Tr, Th, TBody, Td } from '@/components/sabcrm/20ui';
+import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, EmptyState, Table, THead, Tr, Th, TBody, Td } from '@/components/sabcrm/20ui';
 
 import { SabsmsPageShell } from "@/components/sabsms/page-toolkit";
+import { connectToDatabase } from "@/lib/mongodb";
+import { getCachedSession } from "@/lib/server-cache";
+import {
+  kpisFromRows,
+  queryDailyStats,
+  utcDateKey,
+  type SabsmsStatsKpis,
+} from "@/lib/sabsms/analytics/rollups";
+import { loadCampaigns, type CampaignRow } from "./campaigns/actions";
 import { SabsmsDashboardWidgets, type MetricData } from "./_components/sabsms-dashboard-widgets";
-const { getRedisClient } = require('@/lib/redis');
 
-const mockActiveCampaigns = [
-  { id: "camp_1", name: "Black Friday Promo", status: "Sending", sent: 4500, target: 10000 },
-  { id: "camp_2", name: "Welcome Series (Drip)", status: "Active", sent: 1250, target: "-" },
-  { id: "camp_3", name: "Re-engagement Batch 4", status: "Scheduled", sent: 0, target: 5000 },
-];
+export const dynamic = "force-dynamic";
 
-async function getDashboardMetrics(): Promise<MetricData[]> {
-  let redis;
+const DAY_MS = 24 * 60 * 60 * 1000;
+const REDIS_TTL_SECONDS = 60;
+
+/** Percentage change of `now` vs `prev`, 1dp. `undefined` when no prior data. */
+function pctDelta(now: number, prev: number): number | undefined {
+  if (prev <= 0) return undefined;
+  return Math.round(((now - prev) / prev) * 1000) / 10;
+}
+
+function moneyFromCents(cents: number): string {
+  return new Intl.NumberFormat(undefined, {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 4,
+  }).format(cents / 100);
+}
+
+/**
+ * Real module KPIs from the `sabsms_stats_daily` rollups — the same source
+ * as /sabsms/analytics. Compares the trailing 30 days against the prior 30
+ * for the MoM deltas. No fabricated numbers; an empty workspace shows zeros.
+ */
+async function computeDashboardMetrics(workspaceId: string): Promise<MetricData[]> {
+  const { db } = await connectToDatabase();
+
+  const now = Date.now();
+  const fromDate = utcDateKey(now - 30 * DAY_MS);
+  const toDate = utcDateKey(now);
+  const prevFromDate = utcDateKey(now - 60 * DAY_MS);
+  const prevToDate = utcDateKey(now - 31 * DAY_MS);
+
+  const [rows, prevRows] = await Promise.all([
+    queryDailyStats(db, { workspaceId, fromDate, toDate, dim: "total" }),
+    queryDailyStats(db, { workspaceId, fromDate: prevFromDate, toDate: prevToDate, dim: "total" }),
+  ]);
+
+  const kpi: SabsmsStatsKpis = kpisFromRows(rows);
+  const prev: SabsmsStatsKpis = kpisFromRows(prevRows);
+
+  const avgCostCents = kpi.sent > 0 ? kpi.costCents / kpi.sent : 0;
+  const prevAvgCostCents = prev.sent > 0 ? prev.costCents / prev.sent : 0;
+
+  return [
+    {
+      id: "totalSent",
+      label: "Sent (30d)",
+      value: kpi.sent.toLocaleString(),
+      delta: pctDelta(kpi.sent, prev.sent),
+      period: "vs prior 30d",
+      iconName: "Activity",
+    },
+    {
+      id: "deliveryRate",
+      label: "Delivery rate",
+      value: `${kpi.deliveryRatePct.toFixed(1)}%`,
+      delta: pctDelta(kpi.deliveryRatePct, prev.deliveryRatePct),
+      period: "vs prior 30d",
+      iconName: "CheckCircle2",
+    },
+    {
+      id: "delivered",
+      label: "Delivered (30d)",
+      value: kpi.delivered.toLocaleString(),
+      delta: pctDelta(kpi.delivered, prev.delivered),
+      period: "vs prior 30d",
+      iconName: "PlayCircle",
+    },
+    {
+      id: "failedDeliveries",
+      label: "Failed (30d)",
+      value: kpi.failed.toLocaleString(),
+      delta: pctDelta(kpi.failed, prev.failed),
+      invertDelta: true,
+      period: "vs prior 30d",
+      iconName: "AlertCircle",
+    },
+    {
+      id: "avgCost",
+      label: "Avg cost / SMS",
+      value: moneyFromCents(avgCostCents),
+      delta: pctDelta(avgCostCents, prevAvgCostCents),
+      invertDelta: true,
+      period: "vs prior 30d",
+      iconName: "DollarSign",
+    },
+    {
+      id: "clicks",
+      label: "Clicks (30d)",
+      value: kpi.clicks.toLocaleString(),
+      delta: pctDelta(kpi.clicks, prev.clicks),
+      period: "vs prior 30d",
+      iconName: "TrendingUp",
+    },
+    {
+      id: "optOuts",
+      label: "Opt-outs (30d)",
+      value: kpi.optOuts.toLocaleString(),
+      delta: pctDelta(kpi.optOuts, prev.optOuts),
+      invertDelta: true,
+      period: "vs prior 30d",
+      iconName: "UserMinus",
+    },
+  ];
+}
+
+type RedisLike = {
+  get: (k: string) => Promise<string | null>;
+  set: (k: string, v: string, o: { EX: number }) => Promise<unknown>;
+};
+
+/** Read the cached metrics, computing + caching the real values on a miss. */
+async function getDashboardMetrics(workspaceId: string): Promise<MetricData[]> {
+  const cacheKey = `sabsms:dashboard_metrics:${workspaceId}`;
+  // `@/lib/redis` is a CommonJS module — load it loosely and narrow.
+  const redisModule = (await import("@/lib/redis")) as unknown as {
+    getRedisClient: () => Promise<RedisLike>;
+  };
+  let redis: RedisLike | undefined;
   try {
-    redis = await getRedisClient();
-    const cached = await redis.get("sabsms:dashboard_metrics");
-    if (cached) {
-      return JSON.parse(cached);
-    }
+    redis = await redisModule.getRedisClient();
+    const cached = await redis?.get(cacheKey);
+    if (cached) return JSON.parse(cached) as MetricData[];
   } catch (e) {
-    console.error("Redis cache error:", e);
+    console.error("[sabsms] dashboard cache read error:", e);
   }
 
-  // Simulate complex aggregation from DB
-  await new Promise(resolve => setTimeout(resolve, 800));
-
-  const metrics: MetricData[] = [
-    { id: "totalSent", label: "Total Sent", value: "1,254,300", delta: 12.5, period: "vs last month", iconName: "Activity" },
-    { id: "deliveryRate", label: "Delivery Rate", value: "99.04%", delta: 0.2, period: "vs last month", iconName: "CheckCircle2" },
-    { id: "activeCampaigns", label: "Active Campaigns", value: "3", delta: 50, period: "vs last month", iconName: "PlayCircle" },
-    { id: "failedDeliveries", label: "Failed Deliveries", value: "1,200", delta: -1.2, invertDelta: true, period: "vs last month", iconName: "AlertCircle" },
-    { id: "avgCost", label: "Avg Cost / SMS", value: "$0.008", delta: -5, invertDelta: true, period: "vs last month", iconName: "DollarSign" },
-    { id: "conversionRate", label: "Conversion Rate", value: "4.2%", delta: 1.1, period: "vs last month", iconName: "TrendingUp" },
-    { id: "unsubscribeRate", label: "Opt-out Rate", value: "0.1%", delta: 0, period: "vs last month", iconName: "UserMinus" }
-  ];
+  const metrics = await computeDashboardMetrics(workspaceId);
 
   if (redis) {
     try {
-      await redis.set("sabsms:dashboard_metrics", JSON.stringify(metrics), { EX: 60 });
+      await redis.set(cacheKey, JSON.stringify(metrics), { EX: REDIS_TTL_SECONDS });
     } catch (e) {
-      console.error("Redis set error:", e);
+      console.error("[sabsms] dashboard cache write error:", e);
     }
   }
-
   return metrics;
 }
 
+/** Real running/scheduled campaigns for this workspace. */
+async function getActiveCampaigns(workspaceId: string): Promise<CampaignRow[]> {
+  const { rows } = await loadCampaigns(workspaceId, {
+    status: ["running", "scheduled"],
+    sort: "newest",
+  });
+  return rows.slice(0, 8);
+}
+
+function statusVariant(status: string): "default" | "secondary" | "destructive" | "outline" {
+  if (status === "running") return "default";
+  if (status === "scheduled") return "outline";
+  return "secondary";
+}
+
 export default async function SabsmsOverviewPage() {
-  const metrics = await getDashboardMetrics();
+  const session = await getCachedSession();
+  const workspaceId = String((session?.user as any)?._id ?? "");
+
+  const [metrics, activeCampaigns] = workspaceId
+    ? await Promise.all([
+        getDashboardMetrics(workspaceId),
+        getActiveCampaigns(workspaceId),
+      ])
+    : [[] as MetricData[], [] as CampaignRow[]];
 
   return (
     <SabsmsPageShell
@@ -57,7 +187,7 @@ export default async function SabsmsOverviewPage() {
       description="SabSMS Dashboard: High-throughput, multi-provider messaging engine."
       primaryAction={{
         label: "New Campaign",
-        href: "/sabsms/campaigns/new",
+        href: "/sabsms/campaigns/create",
       }}
       secondaryActions={[
         { label: "System Logs", onSelectHref: "/sabsms/logs" }
@@ -72,39 +202,59 @@ export default async function SabsmsOverviewPage() {
             <CardDescription>Currently running or scheduled.</CardDescription>
           </CardHeader>
           <CardBody className="p-0 flex-1">
-            <div className="w-full overflow-hidden">
-              <Table className="border-0 shadow-none rounded-none w-full">
-                <THead className="bg-[var(--st-bg-muted)]/50 border-b border-[var(--st-border)]">
-                  <Tr className="border-none hover:bg-transparent">
-                    <Th className="h-9">Campaign</Th>
-                    <Th className="h-9">Status</Th>
-                    <Th className="h-9 text-right">Sent / Target</Th>
-                  </Tr>
-                </THead>
-                <TBody>
-                  {mockActiveCampaigns.map((camp) => (
-                    <Tr key={camp.id} className="group">
-                      <Td className="font-medium text-[var(--st-text)] text-sm">
-                        {camp.name}
-                      </Td>
-                      <Td>
-                        <Badge 
-                          variant={camp.status === "Sending" ? "default" : "secondary"} 
-                          className={`text-xs px-2 py-0.5 border-0 ${
-                            camp.status === "Sending" ? "bg-[var(--st-status-ok)]/15 text-[var(--st-status-ok)]" : ""
-                          }`}
-                        >
-                          {camp.status}
-                        </Badge>
-                      </Td>
-                      <Td className="text-right text-sm text-[var(--st-text-secondary)] group-hover:text-[var(--st-text)] transition-colors">
-                        {camp.sent.toLocaleString()} / {camp.target.toLocaleString()}
-                      </Td>
+            {activeCampaigns.length === 0 ? (
+              <div className="p-10">
+                <EmptyState
+                  title="No active campaigns"
+                  description="Running and scheduled campaigns appear here. Launch one to get started."
+                  action={
+                    <Button asChild>
+                      <Link href="/sabsms/campaigns/create">New campaign</Link>
+                    </Button>
+                  }
+                />
+              </div>
+            ) : (
+              <div className="w-full overflow-hidden">
+                <Table className="border-0 shadow-none rounded-none w-full">
+                  <THead className="bg-[var(--st-bg-muted)]/50 border-b border-[var(--st-border)]">
+                    <Tr className="border-none hover:bg-transparent">
+                      <Th className="h-9">Campaign</Th>
+                      <Th className="h-9">Status</Th>
+                      <Th className="h-9 text-right">Sent / Audience</Th>
                     </Tr>
-                  ))}
-                </TBody>
-              </Table>
-            </div>
+                  </THead>
+                  <TBody>
+                    {activeCampaigns.map((camp) => {
+                      const sent = camp.stats?.sent ?? 0;
+                      return (
+                        <Tr key={camp.id} className="group">
+                          <Td className="font-medium text-[var(--st-text)] text-sm">
+                            <Link
+                              href={`/sabsms/campaigns/${camp.id}`}
+                              className="hover:underline"
+                            >
+                              {camp.name}
+                            </Link>
+                          </Td>
+                          <Td>
+                            <Badge
+                              variant={statusVariant(camp.status)}
+                              className="text-xs px-2 py-0.5 capitalize"
+                            >
+                              {camp.status}
+                            </Badge>
+                          </Td>
+                          <Td className="text-right text-sm text-[var(--st-text-secondary)] group-hover:text-[var(--st-text)] transition-colors">
+                            {sent.toLocaleString()} / {camp.audienceSize.toLocaleString()}
+                          </Td>
+                        </Tr>
+                      );
+                    })}
+                  </TBody>
+                </Table>
+              </div>
+            )}
           </CardBody>
           <div className="p-4 border-t border-[var(--st-border)] bg-[var(--st-bg-muted)]/30">
             <Button variant="ghost" className="w-full text-xs font-medium" asChild>

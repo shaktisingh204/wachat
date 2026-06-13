@@ -1,12 +1,13 @@
-export const dynamic = 'force-dynamic';
+import { redirect } from "next/navigation";
 
-import React, { Suspense } from 'react';
-import CreateSMSTemplateClient from './client';
-
-export default function CreateTemplatePage() {
-  return (
-    <Suspense fallback={<div className="h-screen w-full bg-[var(--st-bg-muted)] animate-pulse" />}>
-      <CreateSMSTemplateClient />
-    </Suspense>
-  );
+/**
+ * Legacy `/sabsms/templates/create` was a dead mock (no save handler,
+ * fake DLT import, hardcoded duplicate-check). The canonical create
+ * surface is the real template editor at `/sabsms/templates/new`
+ * (`templates/[id]/page.tsx` with `id === "new"`), which is fully wired
+ * to the template store (saveDraft / publishTemplate / submitForApproval).
+ * This route now redirects there so no one lands on the theater page.
+ */
+export default function CreateTemplateRedirect(): never {
+  redirect("/sabsms/templates/new");
 }

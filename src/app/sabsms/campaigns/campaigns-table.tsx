@@ -494,7 +494,7 @@ export function CampaignsTable({
             </CardDescription>
           </CardHeader>
           <CardBody>
-            <ChartContainer height={140}>
+            <ChartContainer config={{ count: { label: "Campaigns", color: CHART_PALETTE[0] } }} style={{ height: 140 }}>
               <Recharts.BarChart
                 data={chartSeries}
                 margin={{ top: 4, right: 12, bottom: 0, left: -20 }}

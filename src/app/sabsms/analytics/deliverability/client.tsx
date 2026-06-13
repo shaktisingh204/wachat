@@ -2,8 +2,8 @@
 
 import React, { useState } from "react";
 import {
-  Activity, AlertTriangle, Bell, Globe, Layers, Network, RefreshCw,
-  ShieldAlert, ActivitySquare, TrendingUp, ArrowUpRight, ArrowDownRight,
+  Globe, Layers, RefreshCw,
+  ShieldAlert, ActivitySquare,
 } from "lucide-react";
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid,
@@ -15,13 +15,13 @@ import {
   SabsmsFilterBar,
   SabsmsExportMenu,
   SabsmsSavedViews,
-  useSabsmsUrlState,
+  SabsmsEmpty,
+  rowsToCsv,
 } from "@/components/sabsms/page-toolkit";
 import {
   Badge,
   Button,
   Card,
-  EmptyState,
   SegmentedControl,
   Table,
   THead,
@@ -49,11 +49,77 @@ const chartConfig = {
 // category here, so these stay as concrete values (runtime-applied per Cell).
 const COLORS = ["#3b82f6", "#ef4444", "#f59e0b", "#10b981", "#8b5cf6"];
 
-export default function DeliverabilityPage({ dlrTrendData, volumeVsDlrData, failureCodeData, regionalPerformanceData, tableDataTemplateDLR }: any) {
-  const urlState = useSabsmsUrlState();
+interface VolumeDlrPoint {
+  day: string;
+  volume: number;
+  dlr: number;
+}
+interface FailureSlice {
+  name: string;
+  value: number;
+}
+interface RegionRow {
+  region: string;
+  dlr: number;
+  volume: number;
+}
+interface TemplateDlrRow {
+  id: string;
+  name: string;
+  dlr: number;
+  volume: number;
+}
+interface DeliverabilityKpis {
+  globalDlr: number;
+  totalVolume: number;
+  latencyP95Ms: number;
+  carrierBlockPct: number;
+}
+interface DeliverabilityPageProps {
+  dlrTrendData: Array<Record<string, number | string>>;
+  volumeVsDlrData: VolumeDlrPoint[];
+  failureCodeData: FailureSlice[];
+  regionalPerformanceData: RegionRow[];
+  tableDataTemplateDLR: TemplateDlrRow[];
+  kpis: DeliverabilityKpis;
+}
+
+function fmtCompact(n: number): string {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}k`;
+  return String(n);
+}
+
+export default function DeliverabilityPage({
+  dlrTrendData,
+  volumeVsDlrData,
+  failureCodeData,
+  regionalPerformanceData,
+  tableDataTemplateDLR,
+  kpis,
+}: DeliverabilityPageProps) {
   const [activeTab, setActiveTab] = useState("templates");
   const [trendMetric, setTrendMetric] = useState("dlr");
-  const [showReroute, setShowReroute] = useState(true);
+
+  const totalFailures = failureCodeData.reduce((acc, f) => acc + f.value, 0);
+
+  const exportCsv = React.useCallback(
+    async () =>
+      rowsToCsv(regionalPerformanceData as unknown as Array<Record<string, unknown>>, [
+        { key: "region", header: "Region" },
+        { key: "dlr", header: "DLR %" },
+        { key: "volume", header: "Volume" },
+      ]),
+    [regionalPerformanceData],
+  );
+
+  const exportJson = React.useCallback(
+    async () =>
+      [...regionalPerformanceData, ...tableDataTemplateDLR]
+        .map((r) => JSON.stringify(r))
+        .join("\n"),
+    [regionalPerformanceData, tableDataTemplateDLR],
+  );
 
   return (
     <div className="20ui flex h-full flex-col overflow-y-auto bg-[var(--st-bg-secondary)] pb-12">
@@ -66,15 +132,14 @@ export default function DeliverabilityPage({ dlrTrendData, volumeVsDlrData, fail
         ]}
         primaryAction={{
           label: "Refresh Analytics",
-          icon: <RefreshCw className="h-4 w-4" aria-hidden="true" />,
-          onClick: () => console.log("Refreshing data..."),
+          href: "/sabsms/analytics/deliverability",
         }}
         secondaryActions={[
           {
-            label: "Alert Subscriptions",
-            icon: <Bell className="h-4 w-4" aria-hidden="true" />,
-            onClick: () => console.log("Configuring alerts..."),
-          }
+            label: "View raw logs",
+            icon: <RefreshCw className="h-4 w-4" aria-hidden="true" />,
+            onSelectHref: "/sabsms/logs",
+          },
         ]}
       >
         {/* Filters and Actions */}
@@ -105,23 +170,18 @@ export default function DeliverabilityPage({ dlrTrendData, volumeVsDlrData, fail
             ]}
             trailing={
               <div className="flex gap-2">
-                <SabsmsSavedViews
-                  currentView={null}
-                  savedViews={[{ id: "1", name: "Global Degradation Watch" }]}
-                  onSaveCurrentView={() => console.log("Saved")}
-                  onSelectView={() => console.log("Selected")}
-                  onDeleteView={() => console.log("Deleted")}
-                />
+                <SabsmsSavedViews scope="analytics:deliverability" />
                 <SabsmsExportMenu
-                  onExportCsv={() => console.log("Exporting CSV")}
-                  onExportJson={() => console.log("Exporting JSONL")}
+                  toCsv={exportCsv}
+                  toJson={exportJson}
+                  filename="deliverability"
                 />
               </div>
             }
           />
         </Card>
 
-        {/* Massive KPI Row */}
+        {/* KPI Row — real values from the last 30 days. */}
         <div className="mb-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <Card className="relative overflow-hidden group p-5">
             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
@@ -129,13 +189,9 @@ export default function DeliverabilityPage({ dlrTrendData, volumeVsDlrData, fail
             </div>
             <p className="text-sm text-[var(--st-text-secondary)] font-medium uppercase tracking-wider mb-1">Global DLR</p>
             <div className="flex items-end gap-3 mb-2">
-              <h2 className="text-4xl font-bold text-[var(--st-text)]">98.4%</h2>
-              <Badge tone="success" className="mb-1">
-                <ArrowUpRight className="h-3 w-3 mr-1" aria-hidden="true" />
-                0.6%
-              </Badge>
+              <h2 className="text-4xl font-bold text-[var(--st-text)]">{kpis.globalDlr}%</h2>
             </div>
-            <p className="text-xs text-[var(--st-text-tertiary)]">vs 97.8% trailing 7 days</p>
+            <p className="text-xs text-[var(--st-text-tertiary)]">delivered / total over the last 30 days</p>
           </Card>
 
           <Card className="relative overflow-hidden group p-5">
@@ -144,11 +200,7 @@ export default function DeliverabilityPage({ dlrTrendData, volumeVsDlrData, fail
             </div>
             <p className="text-sm text-[var(--st-text-secondary)] font-medium uppercase tracking-wider mb-1">Total Volume</p>
             <div className="flex items-end gap-3 mb-2">
-              <h2 className="text-4xl font-bold text-[var(--st-text)]">3.2M</h2>
-              <Badge tone="success" className="mb-1">
-                <ArrowUpRight className="h-3 w-3 mr-1" aria-hidden="true" />
-                12.4%
-              </Badge>
+              <h2 className="text-4xl font-bold text-[var(--st-text)]">{fmtCompact(kpis.totalVolume)}</h2>
             </div>
             <p className="text-xs text-[var(--st-text-tertiary)]">Messages processed this period</p>
           </Card>
@@ -159,61 +211,24 @@ export default function DeliverabilityPage({ dlrTrendData, volumeVsDlrData, fail
             </div>
             <p className="text-sm text-[var(--st-text-secondary)] font-medium uppercase tracking-wider mb-1">Avg Latency (p95)</p>
             <div className="flex items-end gap-3 mb-2">
-              <h2 className="text-4xl font-bold text-[var(--st-text)]">2.4s</h2>
-              <Badge tone="warning" className="mb-1">
-                <ArrowUpRight className="h-3 w-3 mr-1" aria-hidden="true" />
-                0.3s
-              </Badge>
+              <h2 className="text-4xl font-bold text-[var(--st-text)]">
+                {kpis.latencyP95Ms > 0 ? `${(kpis.latencyP95Ms / 1000).toFixed(1)}s` : "—"}
+              </h2>
             </div>
-            <p className="text-xs text-[var(--st-text-tertiary)]">Elevated latency in APAC region</p>
+            <p className="text-xs text-[var(--st-text-tertiary)]">sent → delivered, avg across providers</p>
           </Card>
 
           <Card className="relative overflow-hidden group p-5">
             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
               <ShieldAlert className="h-16 w-16 text-[var(--st-text)]" aria-hidden="true" />
             </div>
-            <p className="text-sm text-[var(--st-text-secondary)] font-medium uppercase tracking-wider mb-1">Carrier Blocks</p>
+            <p className="text-sm text-[var(--st-text-secondary)] font-medium uppercase tracking-wider mb-1">Failure Rate</p>
             <div className="flex items-end gap-3 mb-2">
-              <h2 className="text-4xl font-bold text-[var(--st-text)]">1.2%</h2>
-              <Badge tone="success" className="mb-1">
-                <ArrowDownRight className="h-3 w-3 mr-1" aria-hidden="true" />
-                0.2%
-              </Badge>
+              <h2 className="text-4xl font-bold text-[var(--st-text)]">{kpis.carrierBlockPct}%</h2>
             </div>
-            <p className="text-xs text-[var(--st-text-tertiary)]">Improved spam detection rates</p>
+            <p className="text-xs text-[var(--st-text-tertiary)]">failed / total over the last 30 days</p>
           </Card>
         </div>
-
-        {/* Machine Learning / Intelligent Reroute Alert */}
-        {showReroute && (
-          <Card className="mb-6 p-5">
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-              <div className="flex items-start gap-4">
-                <div className="bg-[var(--st-bg-secondary)] p-2 rounded-[var(--st-radius)] mt-1">
-                  <Network className="h-6 w-6 text-[var(--st-accent)]" aria-hidden="true" />
-                </div>
-                <div>
-                  <h4 className="font-bold text-[var(--st-text)] text-lg flex items-center gap-2">
-                    Intelligent Re-route Recommendation
-                    <Badge tone="accent">AI Optimization</Badge>
-                  </h4>
-                  <p className="text-[var(--st-text-secondary)] mt-1 max-w-3xl">
-                    Our routing engine detected a <strong>12% DLR drop</strong> on Plivo for <strong>India (IN)</strong> traffic over the last 2 hours.
-                    Shifting traffic to Twilio will restore DLR to ~94% and reduce p95 latency by 3.1s. Estimated cost impact: +$45/day.
-                  </p>
-                </div>
-              </div>
-              <div className="flex gap-3 shrink-0">
-                <Button variant="outline" onClick={() => setShowReroute(false)}>
-                  Dismiss
-                </Button>
-                <Button variant="primary" onClick={() => setShowReroute(false)}>
-                  Execute Failover
-                </Button>
-              </div>
-            </div>
-          </Card>
-        )}
 
         {/* Main Dashboard Grid */}
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-6">
@@ -305,7 +320,7 @@ export default function DeliverabilityPage({ dlrTrendData, volumeVsDlrData, fail
                     paddingAngle={5}
                     dataKey="value"
                   >
-                    {failureCodeData.map((entry, index) => (
+                    {failureCodeData.map((entry: FailureSlice, index: number) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
@@ -313,13 +328,13 @@ export default function DeliverabilityPage({ dlrTrendData, volumeVsDlrData, fail
                 </PieChart>
               </ChartContainer>
               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                <span className="text-3xl font-bold text-[var(--st-text)]">12.5k</span>
-                <span className="text-xs text-[var(--st-text-tertiary)] uppercase tracking-wider font-medium">Total Failures</span>
+                <span className="text-3xl font-bold text-[var(--st-text)]">{fmtCompact(totalFailures)}</span>
+                <span className="text-xs text-[var(--st-text-tertiary)] uppercase tracking-wider font-medium">Failures (7d)</span>
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-x-2 gap-y-3 mt-4">
-              {failureCodeData.slice(0,4).map((item, i) => (
+              {failureCodeData.slice(0,4).map((item: FailureSlice, i: number) => (
                 <div key={item.name} className="flex items-center gap-2">
                   <span className="w-3 h-3 rounded-sm shrink-0" aria-hidden="true" style={{ backgroundColor: COLORS[i] }} />
                   <div className="flex flex-col">
@@ -367,11 +382,11 @@ export default function DeliverabilityPage({ dlrTrendData, volumeVsDlrData, fail
               <ChartContainer config={chartConfig} className="h-full w-full">
                 <BarChart data={regionalPerformanceData} layout="vertical" margin={{ top: 0, right: 30, left: 20, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="var(--st-border)" />
-                  <XAxis type="number" domain={[80, 100]} axisLine={false} tickLine={false} tick={{ fill: 'var(--st-text-secondary)', fontSize: 12 }} tickFormatter={(val) => `${val}%`} />
+                  <XAxis type="number" domain={[0, 100]} axisLine={false} tickLine={false} tick={{ fill: 'var(--st-text-secondary)', fontSize: 12 }} tickFormatter={(val) => `${val}%`} />
                   <YAxis dataKey="region" type="category" axisLine={false} tickLine={false} tick={{ fill: 'var(--st-text-secondary)', fontSize: 12, fontWeight: 500 }} width={100} />
                   <ChartTooltip content={<ChartTooltipContent />} />
                   <Bar dataKey="dlr" radius={[0, 4, 4, 0]} barSize={24}>
-                    {regionalPerformanceData.map((entry, index) => (
+                    {regionalPerformanceData.map((entry: RegionRow, index: number) => (
                       <Cell key={`cell-${index}`} fill={entry.dlr > 98 ? 'var(--st-status-ok)' : entry.dlr > 95 ? 'var(--st-accent)' : 'var(--st-warn)'} />
                     ))}
                   </Bar>
@@ -391,8 +406,7 @@ export default function DeliverabilityPage({ dlrTrendData, volumeVsDlrData, fail
               onChange={setActiveTab}
               items={[
                 { value: "templates", label: "Template Performance" },
-                { value: "routes", label: "Route Health" },
-                { value: "anomalies", label: (<span className="flex items-center gap-2">Detected Anomalies<Badge tone="accent">3 New</Badge></span>) },
+                { value: "failures", label: "Failure Codes (7d)" },
               ]}
             />
           </div>
@@ -410,79 +424,72 @@ export default function DeliverabilityPage({ dlrTrendData, volumeVsDlrData, fail
                   </Tr>
                 </THead>
                 <TBody>
-                  {tableDataTemplateDLR.map(t => (
-                    <Tr key={t.id}>
-                      <Td className="font-medium text-[var(--st-text)]">{t.name}</Td>
-                      <Td>
-                        <div className="flex items-center gap-2">
+                  {tableDataTemplateDLR.length === 0 ? (
+                    <Tr>
+                      <Td colSpan={5} className="py-8 text-center text-sm text-[var(--st-text-secondary)]">
+                        No template sends in the last 30 days.
+                      </Td>
+                    </Tr>
+                  ) : (
+                    tableDataTemplateDLR.map((t: TemplateDlrRow) => (
+                      <Tr key={t.id}>
+                        <Td className="font-mono text-xs text-[var(--st-text)]">{t.name}</Td>
+                        <Td>
                           <span className={`font-semibold ${t.dlr >= 98 ? 'text-[var(--st-status-ok)]' : t.dlr >= 90 ? 'text-[var(--st-text)]' : 'text-[var(--st-danger)]'}`}>
                             {t.dlr}%
                           </span>
-                          {t.trend === 'up' && <TrendingUp className="h-4 w-4 text-[var(--st-status-ok)]" aria-hidden="true" />}
-                          {t.trend === 'down' && <TrendingUp className="h-4 w-4 text-[var(--st-danger)] rotate-180" aria-hidden="true" />}
-                        </div>
-                      </Td>
-                      <Td className="text-[var(--st-text-secondary)]">{t.volume.toLocaleString()}</Td>
-                      <Td>
-                        {t.dlr >= 98 ? (
-                          <Badge tone="success">Excellent</Badge>
-                        ) : t.dlr >= 90 ? (
-                          <Badge tone="info">Fair</Badge>
-                        ) : (
-                          <Badge tone="danger">Poor</Badge>
-                        )}
-                      </Td>
-                      <Td align="right">
-                        <Button variant="ghost" size="sm">Inspect</Button>
-                      </Td>
-                    </Tr>
-                  ))}
+                        </Td>
+                        <Td className="text-[var(--st-text-secondary)]">{t.volume.toLocaleString()}</Td>
+                        <Td>
+                          {t.dlr >= 98 ? (
+                            <Badge tone="success">Excellent</Badge>
+                          ) : t.dlr >= 90 ? (
+                            <Badge tone="info">Fair</Badge>
+                          ) : (
+                            <Badge tone="danger">Poor</Badge>
+                          )}
+                        </Td>
+                        <Td align="right">
+                          <Button variant="ghost" size="sm">Inspect</Button>
+                        </Td>
+                      </Tr>
+                    ))
+                  )}
                 </TBody>
               </Table>
             )}
 
-            {activeTab === 'routes' && (
-              <div className="p-8">
-                <EmptyState
-                  icon={Network}
-                  title="Route Health Matrix"
-                  description="Detailed route performance matrix is loaded dynamically based on selected timeframe and provider."
-                  action={<Button variant="outline">Load Route Matrix</Button>}
-                />
-              </div>
-            )}
-
-            {activeTab === 'anomalies' && (
-              <div className="divide-y divide-[var(--st-border)]">
-                <div className="p-6 flex items-start gap-4 hover:bg-[var(--st-bg-secondary)] transition-colors">
-                  <div className="bg-[var(--st-bg-secondary)] p-2 rounded-full shrink-0">
-                    <AlertTriangle className="h-5 w-5 text-[var(--st-warn)]" aria-hidden="true" />
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="text-[var(--st-text)] font-semibold text-base mb-1">Spam Block Spike: "Promo Flash Sale"</h4>
-                    <p className="text-[var(--st-text-secondary)] text-sm mb-3">Carrier filtering rates for this template increased by 45% in the last 2 hours, primarily affecting Verizon US subscribers.</p>
-                    <div className="flex gap-2">
-                      <Button size="sm" variant="primary">Pause Campaign</Button>
-                      <Button size="sm" variant="outline">View Filtered Logs</Button>
-                    </div>
-                  </div>
-                  <span className="text-xs text-[var(--st-text-tertiary)] font-medium whitespace-nowrap">2 hrs ago</span>
+            {activeTab === 'failures' && (
+              failureCodeData.length === 0 ? (
+                <div className="p-8">
+                  <SabsmsEmpty
+                    icon={<ShieldAlert />}
+                    title="No failures in the last 7 days"
+                    description="When messages fail, their normalized error codes appear here ranked by frequency."
+                  />
                 </div>
-
-                <div className="p-6 flex items-start gap-4 hover:bg-[var(--st-bg-secondary)] transition-colors">
-                  <div className="bg-[var(--st-bg-secondary)] p-2 rounded-full shrink-0">
-                    <Activity className="h-5 w-5 text-[var(--st-accent)]" aria-hidden="true" />
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="text-[var(--st-text)] font-semibold text-base mb-1">API Throttling: Vonage UK</h4>
-                    <p className="text-[var(--st-text-secondary)] text-sm mb-3">Sender +44 7700 900000 is hitting rate limits (HTTP 429). 2,400 messages queued.</p>
-                    <div className="flex gap-2">
-                      <Button size="sm" variant="outline">Adjust Throughput</Button>
-                    </div>
-                  </div>
-                  <span className="text-xs text-[var(--st-text-tertiary)] font-medium whitespace-nowrap">4 hrs ago</span>
-                </div>
-              </div>
+              ) : (
+                <Table hover className="w-full whitespace-nowrap">
+                  <THead>
+                    <Tr>
+                      <Th>Failure Code</Th>
+                      <Th align="right">Count</Th>
+                      <Th align="right">Share</Th>
+                    </Tr>
+                  </THead>
+                  <TBody>
+                    {failureCodeData.map((f: FailureSlice) => (
+                      <Tr key={f.name}>
+                        <Td className="font-mono text-xs text-[var(--st-text)]">{f.name}</Td>
+                        <Td align="right" className="tabular-nums">{f.value.toLocaleString()}</Td>
+                        <Td align="right" className="text-[var(--st-text-secondary)]">
+                          {totalFailures > 0 ? `${Math.round((f.value / totalFailures) * 1000) / 10}%` : "—"}
+                        </Td>
+                      </Tr>
+                    ))}
+                  </TBody>
+                </Table>
+              )
             )}
           </div>
         </Card>

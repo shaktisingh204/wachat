@@ -28,8 +28,22 @@ interface LogRow {
   errorCode?: string;
   error?: string;
   attempts?: Array<{ at?: string; error?: string; status?: string }>;
+  complianceTrace?: Array<{ check: string; verdict: string; detail?: string }>;
+  rescheduledUntil?: string;
+  rescheduleCode?: string;
   rawJson: string;
 }
+
+const VERDICT_VARIANT: Record<
+  string,
+  "default" | "secondary" | "destructive" | "outline"
+> = {
+  allow: "default",
+  skipped: "secondary",
+  warn: "outline",
+  block: "destructive",
+  reschedule: "outline",
+};
 
 const PAGE_SIZE = 50;
 
@@ -110,6 +124,17 @@ async function loadLogs(
           status: a?.status != null ? String(a.status) : undefined,
         }))
       : undefined,
+    complianceTrace: Array.isArray(d.complianceTrace)
+      ? d.complianceTrace.map((t: any) => ({
+          check: String(t?.check ?? "—"),
+          verdict: String(t?.verdict ?? "—"),
+          detail: t?.detail != null ? String(t.detail) : undefined,
+        }))
+      : undefined,
+    rescheduledUntil: d.rescheduledUntil
+      ? new Date(d.rescheduledUntil).toISOString()
+      : undefined,
+    rescheduleCode: d.rescheduleCode != null ? String(d.rescheduleCode) : undefined,
     rawJson: JSON.stringify(d, null, 2),
   }));
 
@@ -370,6 +395,57 @@ export default async function SabsmsLogsPage({
                                     </li>
                                   ))}
                                 </ol>
+                              </div>
+                            )}
+
+                            {r.complianceTrace && r.complianceTrace.length > 0 && (
+                              <div className="rounded-md border border-[var(--st-border)] p-3 text-xs">
+                                <div className="mb-2 font-semibold uppercase tracking-wide text-[var(--st-text)]">
+                                  Compliance ({r.complianceTrace.length})
+                                </div>
+                                <ul className="space-y-1.5">
+                                  {r.complianceTrace.map((t, i) => (
+                                    <li
+                                      key={`${t.check}-${i}`}
+                                      className="flex flex-wrap items-baseline gap-2"
+                                    >
+                                      <Badge
+                                        variant={VERDICT_VARIANT[t.verdict] ?? "secondary"}
+                                        className="uppercase text-[10px]"
+                                      >
+                                        {t.verdict}
+                                      </Badge>
+                                      <span className="font-medium text-[var(--st-text)]">
+                                        {t.check}
+                                      </span>
+                                      {t.detail && (
+                                        <span className="text-[var(--st-text-secondary)]">
+                                          {t.detail}
+                                        </span>
+                                      )}
+                                    </li>
+                                  ))}
+                                </ul>
+                                {(r.rescheduledUntil || r.rescheduleCode) && (
+                                  <div className="mt-2 border-t border-[var(--st-border)] pt-2 text-[var(--st-text-secondary)]">
+                                    {r.rescheduleCode && (
+                                      <div>
+                                        <span className="font-medium text-[var(--st-text)]">
+                                          Reschedule reason:
+                                        </span>{" "}
+                                        <code>{r.rescheduleCode}</code>
+                                      </div>
+                                    )}
+                                    {r.rescheduledUntil && (
+                                      <div>
+                                        <span className="font-medium text-[var(--st-text)]">
+                                          Rescheduled until:
+                                        </span>{" "}
+                                        {formatTimestamp(r.rescheduledUntil)}
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
                               </div>
                             )}
 

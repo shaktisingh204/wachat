@@ -22,6 +22,7 @@ import { ObjectId } from "mongodb";
 
 import { connectToDatabase } from "@/lib/mongodb";
 import { getCachedSession } from "@/lib/server-cache";
+import { coreHandles, instantDebit } from "@/lib/sabsms/credits/core";
 import {
   sabsmsEngine,
   SabsmsEngineError,
@@ -40,6 +41,29 @@ import {
 const OTP_CONFIGS_COLLECTION = "sabsms_otp_configs";
 const FRAUD_BLOCKS_COLLECTION = "sabsms_fraud_blocks";
 const EVENT_LOG_COLLECTION = "sabsms_event_log";
+const SETTINGS_COLLECTION = "sabsms_settings";
+/** Per-(workspace, UTC-day) lookup counter — feeds the daily cap. */
+const LOOKUP_USAGE_COLLECTION = "sabsms_lookup_usage";
+
+/**
+ * Carrier/line-type lookups cost real provider money per call (Twilio
+ * Lookup v2 / Telnyx) and, with `SABSMS_ALLOW_ENV_CREDS`, can bill the
+ * platform's own Twilio creds. The engine is a thin pass-through that
+ * documents "plan gating happens Next-side" — so the gate lives HERE:
+ *
+ *   1. credit charge   — `LOOKUP_CREDIT_COST` debited per lookup (the real
+ *                        cost teeth; insufficient balance → denied);
+ *   2. daily cap       — `LOOKUP_DAILY_CAP` lookups per workspace per UTC
+ *                        day (a runaway-loop guard, defence in depth);
+ *   3. feature flag    — optional `sabsms_settings.lookupEnabled === false`
+ *                        hard-disables the feature for a workspace.
+ */
+const LOOKUP_CREDIT_COST = 1;
+const LOOKUP_DAILY_CAP = 500;
+
+function utcDayKey(at: Date = new Date()): string {
+  return at.toISOString().slice(0, 10);
+}
 
 type ActionResult<T> = ({ success: true } & T) | { success: false; error: string };
 
@@ -176,13 +200,81 @@ export async function testOtpResendAction(input: {
 
 export async function lookupNumberAction(input: {
   to: string;
-}): Promise<ActionResult<{ result: SabsmsLookupResult }>> {
+}): Promise<ActionResult<{ result: SabsmsLookupResult; charged: number }>> {
   const workspaceId = await requireWorkspaceId();
   if (!workspaceId) return { success: false, error: "Unauthorized" };
-  if (!input.to.trim()) return { success: false, error: "Phone number required" };
+  const to = input.to.trim();
+  if (!to) return { success: false, error: "Phone number required" };
+
+  const { db } = await connectToDatabase();
+
+  // 1. Feature flag — a workspace can be hard-disabled for lookups. Read
+  //    untyped (the field is optional and not in the shared settings type);
+  //    absent/true → allowed so existing tenants are not broken.
+  const settings = await db
+    .collection(SETTINGS_COLLECTION)
+    .findOne({ workspaceId }, { projection: { lookupEnabled: 1 } });
+  if (settings && settings.lookupEnabled === false) {
+    return {
+      success: false,
+      error: "Number lookup is disabled for this workspace. Contact support to enable it.",
+    };
+  }
+
+  // 2. Daily cap — count + reserve a slot atomically for this UTC day.
+  //    The unique (workspaceId, day) index makes the conditional upsert
+  //    race-safe: a second concurrent insert raises E11000 (treated as
+  //    cap-reached), and an existing-doc-at-cap fails the `$lt` filter.
+  const day = utcDayKey();
+  const usage = db.collection(LOOKUP_USAGE_COLLECTION);
+  void usage
+    .createIndex({ workspaceId: 1, day: 1 }, { unique: true })
+    .catch(() => undefined);
+
+  let capRes: { count?: number } | null;
   try {
-    const result = await sabsmsEngine.lookupNumber({ workspaceId, to: input.to.trim() });
-    return { success: true, result };
+    capRes = (await usage.findOneAndUpdate(
+      { workspaceId, day, count: { $lt: LOOKUP_DAILY_CAP } },
+      { $inc: { count: 1 }, $setOnInsert: { workspaceId, day, createdAt: new Date() } },
+      { upsert: true, returnDocument: "after" },
+    )) as { count?: number } | null;
+  } catch (e) {
+    // E11000 duplicate key: a doc already exists for (workspace, day) but
+    // failed the `count < cap` filter → the cap is reached.
+    if (e && typeof e === "object" && (e as { code?: number }).code === 11000) {
+      return {
+        success: false,
+        error: `Daily lookup limit reached (${LOOKUP_DAILY_CAP}/day). Resets at 00:00 UTC.`,
+      };
+    }
+    throw e;
+  }
+  if (!capRes) {
+    return {
+      success: false,
+      error: `Daily lookup limit reached (${LOOKUP_DAILY_CAP}/day). Resets at 00:00 UTC.`,
+    };
+  }
+
+  // 3. Credit charge — replay-safe instant debit. The synthetic messageId
+  //    keys the ledger row + replay guard (one charge per (workspace, day,
+  //    sequence)). Insufficient credits → denied BEFORE the provider call.
+  const seq = Number(capRes.count ?? 1);
+  const charge = await instantDebit(coreHandles(db), {
+    workspaceId,
+    messageId: `lookup:${workspaceId}:${day}:${seq}`,
+    amount: LOOKUP_CREDIT_COST,
+  });
+  if (!charge.approved) {
+    if (charge.reason === "insufficient_credits") {
+      return { success: false, error: "Not enough SMS credits for a number lookup." };
+    }
+    return { success: false, error: "Could not authorise the lookup charge." };
+  }
+
+  try {
+    const result = await sabsmsEngine.lookupNumber({ workspaceId, to });
+    return { success: true, result, charged: LOOKUP_CREDIT_COST };
   } catch (e) {
     return { success: false, error: engineErrorMessage(e) };
   }

@@ -1,21 +1,39 @@
 /**
  * Segment counter test for the SabSMS template editor.
  *
- * Mirrors `src/app/sabsms/send/composer.tsx`'s GSM-7 / UCS-2 math —
- * the editor's `preview.tsx` shares the same logic re-exported from
- * `../preview`.
+ * The editor's `preview.tsx` derives its char counter / segment split
+ * from the shared parity module `@/lib/sabsms/segments` (`segmentInfo`),
+ * pinned to the Rust engine by the segment-vectors fixture. We import
+ * that PURE function here directly — importing the `../preview` client
+ * component pulls 20ui CSS, which `tsx --test` cannot parse.
  *
- * Note: The task spec mentions Vitest, but `package.json` does not
- * include vitest. The rest of the repo (e.g.
- * `src/lib/__tests__/qr-utils.test.ts`) standardises on Node's built-in
- * `node:test` runner, so this test uses the same to stay green under
- * the project's existing test command.
+ * The tiny `segmentCount` wrapper below reproduces `preview.tsx`'s exact
+ * UI conventions on top of the pure counter: an empty body shows 0
+ * segments (you can't send one from the editor, even though the engine
+ * bills an empty body as 1), and the human-facing "GSM-7"/"UCS-2"
+ * encoding labels.
+ *
+ * Run: NODE_PATH=src/workers/_stubs npx tsx --test \
+ *   src/app/sabsms/templates/[id]/__tests__/segment.test.ts
  */
 
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { segmentCount } from "../preview";
+import { segmentInfo } from "../../../../../lib/sabsms/segments";
+
+/** Mirror of `preview.tsx`'s `segmentCount` (pure logic only). */
+function segmentCount(body: string): {
+  segments: number;
+  encoding: "GSM-7" | "UCS-2";
+} {
+  if (!body) return { segments: 0, encoding: "GSM-7" };
+  const info = segmentInfo(body);
+  return {
+    segments: info.segments,
+    encoding: info.encoding === "gsm7" ? "GSM-7" : "UCS-2",
+  };
+}
 
 test("segmentCount empty body returns zero segments / GSM-7", () => {
   const r = segmentCount("");

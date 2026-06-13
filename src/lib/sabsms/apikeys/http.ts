@@ -80,7 +80,11 @@ export function withSabsmsApi<P extends Record<string, string> = Record<string, 
       const auth = await authenticateApiKey(req);
       if (!auth) {
         return finish(
-          apiError('auth_required', 'Missing or invalid API key (Authorization: Bearer sk_live_…)', 401),
+          apiError(
+            'auth_required',
+            'Missing or invalid API key (Authorization: Bearer sk_live_… or sk_test_…)',
+            401,
+          ),
         );
       }
 
@@ -113,6 +117,8 @@ export function withSabsmsApi<P extends Record<string, string> = Record<string, 
       const res = await handler(req, { auth, requestId, params });
       setHeader(res, 'X-RateLimit-Limit', String(rl.limit));
       setHeader(res, 'X-RateLimit-Remaining', String(rl.remaining));
+      // Honest labelling: every response says which mode the key is in.
+      setHeader(res, 'X-Sabsms-Mode', auth.mode);
       return finish(res);
     } catch (err) {
       console.error('[sabsms/api] unhandled error', { requestId }, err);

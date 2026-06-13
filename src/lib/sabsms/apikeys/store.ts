@@ -11,7 +11,8 @@ import {
   isSabsmsApiScope,
   minuteBucket,
   mintApiKey,
-  SABSMS_KEY_LIVE_PREFIX,
+  modeFromRawKey,
+  type SabsmsApiKeyMode,
   type SabsmsApiScope,
 } from './core';
 
@@ -51,6 +52,11 @@ export interface SabsmsApiKeyDoc {
   scopes: SabsmsApiScope[];
   rateLimitPerMin: number;
   ipAllowlist?: string[];
+  /**
+   * V2.13 — live vs sandbox key. Absent on keys minted before test mode
+   * existed → treated as `'live'` everywhere it is read.
+   */
+  mode?: SabsmsApiKeyMode;
   lastUsedAt?: Date;
   revokedAt?: Date | null;
   createdAt: Date;
@@ -96,6 +102,7 @@ export interface CreatedApiKey {
   /** Full raw key — shown ONCE, never persisted. */
   rawKey: string;
   prefix: string;
+  mode: SabsmsApiKeyMode;
 }
 
 export async function createSabsmsApiKey(input: {
@@ -104,11 +111,14 @@ export async function createSabsmsApiKey(input: {
   scopes: string[];
   rateLimitPerMin?: unknown;
   ipAllowlist?: string[];
+  /** `'test'` mints a `sk_test_…` sandbox key; defaults to `'live'`. */
+  mode?: SabsmsApiKeyMode;
 }): Promise<CreatedApiKey> {
   const scopes = [...new Set(input.scopes)].filter(isSabsmsApiScope);
   if (scopes.length === 0) throw new Error('At least one valid scope is required');
 
-  const minted = mintApiKey();
+  const mode: SabsmsApiKeyMode = input.mode === 'test' ? 'test' : 'live';
+  const minted = mintApiKey(undefined, mode);
   const { keys } = await handles();
   const _id = new ObjectId();
   await keys.insertOne({
@@ -123,10 +133,11 @@ export async function createSabsmsApiKey(input: {
       .map((s) => s.trim())
       .filter(Boolean)
       .slice(0, 32),
+    mode,
     revokedAt: null,
     createdAt: new Date(),
   });
-  return { id: _id.toHexString(), rawKey: minted.rawKey, prefix: minted.prefix };
+  return { id: _id.toHexString(), rawKey: minted.rawKey, prefix: minted.prefix, mode };
 }
 
 export async function listSabsmsApiKeys(workspaceId: string): Promise<SabsmsApiKeyDoc[]> {
@@ -154,6 +165,12 @@ export interface AuthenticatedApiKey {
   scopes: SabsmsApiScope[];
   keyId: string;
   rateLimitPerMin: number;
+  /**
+   * Live vs sandbox. Threaded through `withSabsmsApi` so handlers can
+   * zero-rate / label test-mode traffic. Legacy keys (no stored mode)
+   * resolve to `'live'`.
+   */
+  mode: SabsmsApiKeyMode;
 }
 
 function extractBearer(req: Request): string | null {
@@ -173,7 +190,9 @@ export function clientIpOf(req: Request): string {
 }
 
 /**
- * Authenticate a public-API request via `Authorization: Bearer sk_live_…`.
+ * Authenticate a public-API request via `Authorization: Bearer sk_live_…`
+ * OR `sk_test_…` (V2.13 sandbox keys). Both prefixes go through the same
+ * checks; the resolved `mode` is returned to the caller.
  *
  *   - constant-time hash verification ([`verifyApiKeyHash`])
  *   - revoked keys rejected
@@ -185,7 +204,7 @@ export function clientIpOf(req: Request): string {
  */
 export async function authenticateApiKey(req: Request): Promise<AuthenticatedApiKey | null> {
   const rawKey = extractBearer(req);
-  if (!rawKey || !rawKey.startsWith(SABSMS_KEY_LIVE_PREFIX)) return null;
+  if (!rawKey || modeFromRawKey(rawKey) === null) return null;
 
   let doc: SabsmsApiKeyDoc | null;
   try {
@@ -219,11 +238,16 @@ export async function authenticateApiKey(req: Request): Promise<AuthenticatedApi
       .catch(() => undefined);
   }
 
+  // The stored doc mode is authoritative; fall back to the prefix the raw
+  // key carried (legacy live keys have no stored mode).
+  const mode: SabsmsApiKeyMode = doc.mode ?? modeFromRawKey(rawKey) ?? 'live';
+
   return {
     workspaceId: doc.workspaceId,
     scopes: doc.scopes,
     keyId: doc._id.toHexString(),
     rateLimitPerMin: clampRateLimitPerMin(doc.rateLimitPerMin),
+    mode,
   };
 }
 

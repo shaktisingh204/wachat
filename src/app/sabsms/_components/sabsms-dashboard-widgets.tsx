@@ -2,13 +2,14 @@
 
 import React, { useState, useEffect } from "react";
 import { Activity, AlertCircle, PlayCircle, CheckCircle2, DollarSign, TrendingUp, UserMinus, Settings2 } from "lucide-react";
-import { StatCard, Button, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuCheckboxItem, DropdownMenuLabel, DropdownMenuSeparator, Recharts, ChartContainer, CHART_PALETTE } from '@/components/sabcrm/20ui';
+import { StatCard, Button, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuCheckboxItem, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/sabcrm/20ui';
 
 export type MetricData = {
   id: string;
   label: string;
   value: string;
-  delta: number;
+  /** Optional MoM delta. Omitted when the period has no prior comparison. */
+  delta?: number;
   period: string;
   iconName: string;
   invertDelta?: boolean;
@@ -24,27 +25,6 @@ const iconMap: Record<string, React.ReactNode> = {
   UserMinus: <UserMinus />
 };
 
-const mockSparklineData = [
-  { val: 10 }, { val: 25 }, { val: 15 }, { val: 40 }, { val: 35 }, { val: 50 }, { val: 45 }
-];
-
-function Sparkline() {
-  return (
-    <ChartContainer height={40} className="w-full mt-2">
-      <Recharts.LineChart data={mockSparklineData} margin={{ top: 5, right: 0, left: 0, bottom: 5 }}>
-        <Recharts.Line
-          type="monotone"
-          dataKey="val"
-          stroke={CHART_PALETTE[0]}
-          strokeWidth={2}
-          dot={false}
-          isAnimationActive={false}
-        />
-      </Recharts.LineChart>
-    </ChartContainer>
-  );
-}
-
 export function SabsmsDashboardWidgets({ allMetrics }: { allMetrics: MetricData[] }) {
   const [pinned, setPinned] = useState<string[]>([]);
   const [mounted, setMounted] = useState(false);
@@ -57,8 +37,8 @@ export function SabsmsDashboardWidgets({ allMetrics }: { allMetrics: MetricData[
         setPinned(JSON.parse(saved));
       } catch(e) {}
     } else {
-      // default
-      setPinned(["totalSent", "deliveryRate", "activeCampaigns", "failedDeliveries"]);
+      // default — must match metric ids emitted by the dashboard page.
+      setPinned(["totalSent", "deliveryRate", "delivered", "failedDeliveries"]);
     }
   }, []);
 
@@ -125,18 +105,29 @@ export function SabsmsDashboardWidgets({ allMetrics }: { allMetrics: MetricData[
             No metrics pinned. Use the Customize button to add some.
           </div>
         ) : (
-          displayedMetrics.map(m => (
-            <StatCard
-              key={m.id}
-              label={m.label}
-              value={m.value}
-              delta={m.delta}
-              period={m.period}
-              invertDelta={m.invertDelta}
-              icon={iconMap[m.iconName] || <Activity />}
-              chart={<Sparkline />}
-            />
-          ))
+          displayedMetrics.map(m => {
+            // StatCard's delta is { value: string; tone }. A positive delta is
+            // "up"; invertDelta flips the good/bad sense (e.g. failure rate down
+            // is good → render as up-tone). undefined delta hides the chip.
+            let delta: { value: string; tone: "up" | "down" | "neutral" } | undefined;
+            if (typeof m.delta === "number") {
+              const raw = m.delta;
+              const sign = raw > 0 ? "+" : "";
+              const isGood = m.invertDelta ? raw < 0 : raw > 0;
+              const tone: "up" | "down" | "neutral" =
+                raw === 0 ? "neutral" : isGood ? "up" : "down";
+              delta = { value: `${sign}${raw}% ${m.period}`, tone };
+            }
+            return (
+              <StatCard
+                key={m.id}
+                label={m.label}
+                value={m.value}
+                delta={delta}
+                icon={iconMap[m.iconName] || <Activity />}
+              />
+            );
+          })
         )}
       </div>
     </div>

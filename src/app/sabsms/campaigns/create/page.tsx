@@ -28,7 +28,7 @@ import {
 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { PageHeader, Alert, AlertDescription, AlertTitle, Card, CardHeader, CardTitle, CardDescription, CardBody, CardFooter, Accordion, AccordionItem, AccordionTrigger, AccordionContent, Button, Input, Label, Textarea, Switch, Badge, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, cn } from '@/components/sabcrm/20ui';
+import { PageHeader, PageHeading, PageTitle, PageDescription, PageActions, Alert, AlertDescription, AlertTitle, Card, CardHeader, CardTitle, CardDescription, CardBody, CardFooter, Accordion, AccordionItem, AccordionTrigger, AccordionContent, Button, Input, Label, Textarea, Switch, Badge, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, cn } from '@/components/sabcrm/20ui';
 
 import { listSegments, type SegmentListRow } from "../../segments/actions"
 import {
@@ -75,6 +75,7 @@ export default function CreateCampaignPage() {
   const [scheduledAt, setScheduledAt] = useState("")
   const [smartRouting, setSmartRouting] = useState(true)
   const [abTest, setAbTest] = useState(false)
+  const [linkTracking, setLinkTracking] = useState(true)
   const [isMounted, setIsMounted] = useState(false)
 
   // Real data wiring (V2.3)
@@ -179,6 +180,7 @@ export default function CreateCampaignPage() {
             : { kind: "now" },
         throttlePerSec: 10,
         from: senderId,
+        shortenLinks: linkTracking,
       })
       if (!created.ok) {
         setLaunchError(created.error)
@@ -215,6 +217,7 @@ export default function CreateCampaignPage() {
         if (parsed.scheduledAt) setScheduledAt(parsed.scheduledAt)
         if (parsed.smartRouting !== undefined) setSmartRouting(parsed.smartRouting)
         if (parsed.abTest !== undefined) setAbTest(parsed.abTest)
+        if (parsed.linkTracking !== undefined) setLinkTracking(parsed.linkTracking)
       } catch (e) {
         console.error("Failed to parse quick campaign draft", e)
       }
@@ -225,10 +228,10 @@ export default function CreateCampaignPage() {
   useEffect(() => {
     if (!isMounted) return
     const draft = {
-      step, campaignName, senderId, campaignType, selectedSegment, message, scheduleType, scheduledAt, smartRouting, abTest
+      step, campaignName, senderId, campaignType, selectedSegment, message, scheduleType, scheduledAt, smartRouting, abTest, linkTracking
     }
     localStorage.setItem("sabsms_quick_campaign_draft", JSON.stringify(draft))
-  }, [isMounted, step, campaignName, senderId, campaignType, selectedSegment, message, scheduleType, scheduledAt, smartRouting, abTest])
+  }, [isMounted, step, campaignName, senderId, campaignType, selectedSegment, message, scheduleType, scheduledAt, smartRouting, abTest, linkTracking])
 
   // Template variables — resolved per-recipient from contact fields at
   // launch time; unresolved ones surface in the server estimate's
@@ -253,28 +256,31 @@ export default function CreateCampaignPage() {
 
   return (
     <div className="container mx-auto p-4 md:p-8 max-w-7xl min-h-screen">
-      <PageHeader
-        title="Create Campaign"
-        subtitle="Configure your quick SMS broadcast. For advanced multi-step automation, use the new Advanced Campaign builder."
-        icon={Zap}
-        breadcrumb={<span className="text-[var(--st-text-secondary)]">SAB SMS / Campaigns / Quick Create</span>}
-        mesh
-        actions={
-          <div className="flex items-center gap-2">
-            <Link href="/sabsms/campaigns/new">
-              <Button variant="outline" className="gap-2">
-                Switch to Advanced Builder <ExternalLink className="h-4 w-4" />
-              </Button>
-            </Link>
-            <Button variant="secondary" onClick={() => localStorage.removeItem("sabsms_quick_campaign_draft")}>Clear Draft</Button>
-            {isLastStep && (
-              <Button variant="premium" onClick={handleLaunch} disabled={launching}>
-                {launching ? "Launching…" : "Launch Campaign"} <Send className="ml-2 h-4 w-4" />
-              </Button>
-            )}
-          </div>
-        }
-      />
+      <PageHeader>
+        <PageHeading>
+          <p className="text-xs text-[var(--st-text-secondary)]">SAB SMS / Campaigns / Quick Create</p>
+          <PageTitle className="flex items-center gap-2">
+            <Zap className="h-5 w-5 text-[var(--st-text)]" aria-hidden="true" />
+            Create Campaign
+          </PageTitle>
+          <PageDescription>
+            Configure your quick SMS broadcast. For advanced multi-step automation, use the new Advanced Campaign builder.
+          </PageDescription>
+        </PageHeading>
+        <PageActions>
+          <Link href="/sabsms/campaigns/new">
+            <Button variant="outline" className="gap-2">
+              Switch to Advanced Builder <ExternalLink className="h-4 w-4" />
+            </Button>
+          </Link>
+          <Button variant="secondary" onClick={() => localStorage.removeItem("sabsms_quick_campaign_draft")}>Clear Draft</Button>
+          {isLastStep && (
+            <Button variant="gradient" onClick={handleLaunch} disabled={launching}>
+              {launching ? "Launching…" : "Launch Campaign"} <Send className="ml-2 h-4 w-4" />
+            </Button>
+          )}
+        </PageActions>
+      </PageHeader>
 
       <Alert className="mb-8 border-[var(--st-border)] bg-[var(--st-text)]">
         <Info className="h-4 w-4 text-[var(--st-text)]" />
@@ -442,7 +448,7 @@ export default function CreateCampaignPage() {
                       {segments.map(seg => (
                         <Card
                           key={seg.id}
-                          variant={selectedSegment === seg.id ? "interactive" : "default"}
+                          variant={selectedSegment === seg.id ? "interactive" : "outlined"}
                           className={cn(
                             "cursor-pointer transition-all",
                             selectedSegment === seg.id ? "border-[var(--st-border)] ring-1 ring-[var(--st-border)] bg-[var(--st-text)]" : ""
@@ -452,7 +458,7 @@ export default function CreateCampaignPage() {
                           <div className="p-4 space-y-3">
                             <div className="flex items-center justify-between">
                               <h4 className="font-semibold">{seg.name}</h4>
-                              <Badge variant={seg.kind === 'dynamic' ? 'prism' : 'secondary'}>{seg.kind === 'dynamic' ? 'Dynamic' : 'Static'}</Badge>
+                              <Badge variant={seg.kind === 'dynamic' ? 'accent' : 'secondary'}>{seg.kind === 'dynamic' ? 'Dynamic' : 'Static'}</Badge>
                             </div>
                             <div className="flex items-center justify-between text-sm text-[var(--st-text-secondary)]">
                               <span className="flex items-center gap-1"><Users className="h-3 w-3" /> {seg.size.toLocaleString()}</span>
@@ -532,7 +538,7 @@ export default function CreateCampaignPage() {
                       <h4 className="text-sm font-semibold flex items-center gap-2 mb-2"><Globe2 className="h-4 w-4" /> Link Tracking</h4>
                       <div className="flex items-center justify-between">
                         <p className="text-xs text-[var(--st-text-secondary)]">Automatically shorten URLs and track click-through rates.</p>
-                        <Switch defaultChecked />
+                        <Switch checked={linkTracking} onCheckedChange={setLinkTracking} />
                       </div>
                     </div>
                   </CardBody>
@@ -548,8 +554,8 @@ export default function CreateCampaignPage() {
                   </CardHeader>
                   <CardBody className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <Card 
-                        variant={scheduleType === 'now' ? "interactive" : "default"}
+                      <Card
+                        variant={scheduleType === 'now' ? "interactive" : "outlined"}
                         className={cn("cursor-pointer", scheduleType === 'now' ? "border-[var(--st-border)]" : "")}
                         onClick={() => setScheduleType('now')}
                       >
@@ -564,8 +570,8 @@ export default function CreateCampaignPage() {
                         </div>
                       </Card>
                       
-                      <Card 
-                        variant={scheduleType === 'later' ? "interactive" : "default"}
+                      <Card
+                        variant={scheduleType === 'later' ? "interactive" : "outlined"}
                         className={cn("cursor-pointer", scheduleType === 'later' ? "border-[var(--st-border)]" : "")}
                         onClick={() => setScheduleType('later')}
                       >
@@ -688,7 +694,7 @@ export default function CreateCampaignPage() {
               </Button>
             ) : (
               <Button
-                variant="premium"
+                variant="gradient"
                 size="lg"
                 className="w-40 font-bold"
                 onClick={handleLaunch}
@@ -704,7 +710,7 @@ export default function CreateCampaignPage() {
         <div className="lg:col-span-1">
           <div className="sticky top-6 space-y-6">
             {/* Phone Preview */}
-            <Card variant="glass" className="overflow-hidden border-0 shadow-xl bg-gradient-to-b from-card to-muted/50">
+            <Card variant="elevated" className="overflow-hidden border-0 shadow-xl bg-gradient-to-b from-card to-muted/50">
               <CardHeader className="pb-4 bg-[var(--st-bg-muted)]/50 border-b flex flex-row items-center justify-center gap-2">
                 <Smartphone className="h-4 w-4 text-[var(--st-text-secondary)]" />
                 <CardTitle className="text-sm font-medium text-[var(--st-text-secondary)]">Device Preview</CardTitle>
@@ -740,7 +746,7 @@ export default function CreateCampaignPage() {
             </Card>
 
             {/* Campaign Stats Mini */}
-            <Card variant="default">
+            <Card variant="outlined">
               <CardBody className="p-4 space-y-4">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-[var(--st-text)] text-[var(--st-text)] rounded-lg">

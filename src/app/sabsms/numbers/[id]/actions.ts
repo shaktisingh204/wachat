@@ -55,7 +55,7 @@ import {
 } from "./helpers";
 
 export type ActionResult<
-  T extends Record<string, unknown> = Record<string, never>,
+  T extends Record<string, unknown> = Record<never, never>,
 > = ({ ok: true } & T) | { ok: false; error: string };
 
 // ─── Workspace helpers ────────────────────────────────────────────────────
@@ -82,6 +82,59 @@ async function writeAuditLog(entry: {
     detail: entry.detail,
     createdAt: new Date(),
   });
+}
+
+// ─── Engine release (inline; engine-client lives outside this cluster) ──────
+
+interface EngineReleaseResponse {
+  ok: boolean;
+  numberId: string;
+  e164: string;
+  status: string;
+}
+
+async function engineReleaseNumber(
+  workspaceId: string,
+  numberId: string,
+): Promise<{ ok: true; e164: string } | { ok: false; error: string }> {
+  if ((process.env.SABSMS_ENABLED ?? "false").toLowerCase() !== "true") {
+    return { ok: false, error: "SabSMS engine is disabled (SABSMS_ENABLED=false)" };
+  }
+  const base = (process.env.SABSMS_ENGINE_URL ?? "http://localhost:4002").replace(/\/+$/, "");
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 30_000);
+  try {
+    const res = await fetch(`${base}/v1/numbers/release`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        "X-Sabsms-Service-Token": process.env.SABSMS_ENGINE_TOKEN ?? "",
+      },
+      body: JSON.stringify({ workspaceId, numberId }),
+      signal: controller.signal,
+    });
+    const payload = (await res.json().catch(() => null)) as
+      | EngineReleaseResponse
+      | { error?: string }
+      | null;
+    if (!res.ok) {
+      const message =
+        payload && typeof payload === "object" && "error" in payload && payload.error
+          ? String(payload.error)
+          : `SabSMS engine ${res.status}`;
+      return { ok: false, error: message };
+    }
+    return { ok: true, e164: (payload as EngineReleaseResponse)?.e164 ?? "" };
+  } catch (e) {
+    const err = e as Error;
+    if (err?.name === "AbortError") {
+      return { ok: false, error: "SabSMS engine request timed out" };
+    }
+    return { ok: false, error: "SabSMS engine is unreachable — try again shortly" };
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 // ─── Detail view shape ───────────────────────────────────────────────────
@@ -338,53 +391,44 @@ export async function saveNumberOverrides(
   });
 
   revalidatePath(`/sabsms/numbers/${patch.numberId}`);
-  return { ok: true };
+  return { ok: true as const };
 }
 
-// ─── Mutation: release with grace ────────────────────────────────────────
+// ─── Mutation: release at the provider (immediate) ───────────────────────
 
+/**
+ * Release a number AT THE PROVIDER via the engine
+ * (`POST /v1/numbers/release` → Twilio/Telnyx DELETE). The engine only
+ * flips the `sabsms_numbers` doc to `released` after the provider call
+ * succeeds, so this never reports a release that didn't happen.
+ *
+ * Release is immediate — there is no scheduler that consumes a grace
+ * window, so we do NOT fake one. msg91 / gupshup have no number
+ * inventory and the engine rejects them with a 400.
+ */
 export async function releaseNumber(input: {
   numberId: string;
-  graceHours: number;
-}): Promise<ActionResult> {
+}): Promise<ActionResult<{ e164: string }>> {
   const ws = await resolveWorkspaceOk();
   if (!ws.ok) return ws;
   if (!ObjectId.isValid(input.numberId)) {
     return { ok: false, error: "Invalid numberId" };
   }
-  if (input.graceHours < 0 || input.graceHours > 24 * 30) {
-    return { ok: false, error: "Grace must be 0–720 hours" };
-  }
-  const { cols } = await getSabsmsCollections();
-  const releaseAt = new Date(Date.now() + input.graceHours * 3600 * 1000);
 
-  await cols.numbers.updateOne(
-    {
-      _id: new ObjectId(input.numberId),
-      workspaceId: ws.workspaceId,
-    },
-    {
-      $set: {
-        status: "releasing",
-        updatedAt: new Date(),
-        ...({ scheduledReleaseAt: releaseAt } as Record<string, unknown>),
-      },
-    },
-  );
+  const res = await engineReleaseNumber(ws.workspaceId, input.numberId);
+  if (!res.ok) {
+    return { ok: false, error: res.error };
+  }
 
   await writeAuditLog({
     workspaceId: ws.workspaceId,
     action: "sabsms.number.release",
-    detail: {
-      numberId: input.numberId,
-      graceHours: input.graceHours,
-      releaseAt: releaseAt.toISOString(),
-    },
+    detail: { numberId: input.numberId, e164: res.e164 },
   });
 
   revalidatePath(`/sabsms/numbers/${input.numberId}`);
   revalidatePath("/sabsms/numbers");
-  return { ok: true };
+  return { ok: true as const, e164: res.e164 };
 }
 
 // ─── Mutation: port-out (stub) ───────────────────────────────────────────
@@ -414,7 +458,7 @@ export async function requestPortOut(input: {
     action: "sabsms.number.port_out_request",
     detail: { ...input, stub: true },
   });
-  return { ok: true };
+  return { ok: true as const };
 }
 
 // ─── Mutation: reassign to sender pool ──────────────────────────────────

@@ -10,6 +10,7 @@ import {
 import { getSabsmsSettingsAction } from "./actions";
 import { getAgentConfigAction } from "./agent-actions";
 import { AgentSettingsCard } from "./agent-card";
+import { RcsSettingsCard } from "./rcs-card";
 import { ResellerSettingsCard } from "./reseller-card";
 import { ShortLinksSettingsCard } from "./short-links-card";
 
@@ -25,10 +26,13 @@ async function SettingsContent() {
     );
   }
   return (
-    <ShortLinksSettingsCard
-      initialDomain={res.settings.shortLinkDomain}
-      initialBase={res.settings.effectiveShortLinkBase}
-    />
+    <div className="space-y-6">
+      <ShortLinksSettingsCard
+        initialDomain={res.settings.shortLinkDomain}
+        initialBase={res.settings.effectiveShortLinkBase}
+      />
+      <RcsSettingsCard initialEnabled={res.settings.rcsEnabled} />
+    </div>
   );
 }
 

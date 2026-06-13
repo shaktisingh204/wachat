@@ -132,8 +132,8 @@ export function StepAudience({
                     >
                       <Checkbox
                         checked={checked}
-                        onCheckedChange={(v) => {
-                          const next = v
+                        onChange={(e) => {
+                          const next = e.target.checked
                             ? Array.from(new Set([...ids, c.id]))
                             : ids.filter((x) => x !== c.id);
                           onChange({
@@ -176,6 +176,7 @@ export function StepAudience({
                     kind: "csv",
                     sabFileId: p.id,
                     sabFileName: p.name,
+                    sabFileUrl: p.url,
                   },
                 })
               }

@@ -384,6 +384,27 @@ export function ResellerSettingsCard() {
           </form>
         )}
 
+        {/* White-label + carrier-fee pass-through — plan-deferred (net-new).
+            Shown honestly as coming soon; not faked. The rate-card CRUD and
+            margin report above are real and fully wired. */}
+        <div className="rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)]/40 p-4">
+          <div className="flex items-center gap-2">
+            <h4 className="text-sm font-semibold text-[var(--st-text)]">
+              White-label &amp; carrier-fee pass-through
+            </h4>
+            <Badge tone="neutral" kind="soft">
+              Coming soon
+            </Badge>
+          </div>
+          <p className="mt-1 text-xs text-[var(--st-text-secondary)]">
+            Per-tenant brand name/logo white-labelling and itemised carrier-fee
+            pass-through line items are planned for a future release. They are not
+            available yet — no carrier-fee field is charged and no white-label
+            branding is applied today. Per-country/channel/category pricing (above)
+            is fully live.
+          </p>
+        </div>
+
         {/* Margin report */}
         <div>
           <h4 className="mb-2 text-sm font-semibold text-[var(--st-text)]">

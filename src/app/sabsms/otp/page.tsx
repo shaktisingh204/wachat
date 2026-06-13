@@ -393,7 +393,7 @@ function TestConsole() {
               setLookup(res.result);
               return {
                 tone: "ok",
-                text: `${res.result.lineType ?? "unknown line type"} · ${res.result.carrierName ?? "unknown carrier"} (${res.result.source})`,
+                text: `${res.result.lineType ?? "unknown line type"} · ${res.result.carrierName ?? "unknown carrier"} (${res.result.source}) · ${res.charged} credit${res.charged === 1 ? "" : "s"}`,
               };
             })
           }

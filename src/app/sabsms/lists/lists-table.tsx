@@ -607,7 +607,10 @@ function CreateListDialog({
                 </div>
               </div>
               <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3">
-                <PredicateCanvas predicate={predicate} onChange={setPredicate} />
+                <PredicateCanvas
+                  predicate={predicate}
+                  onChange={(next) => setPredicate(next ?? emptyGroup("and"))}
+                />
               </div>
             </div>
           )}
@@ -1309,7 +1312,10 @@ function EditListDialog({
                 {locked ? (
                   <div className="p-4 text-center text-sm text-[var(--st-text)]">Filters are locked</div>
                 ) : (
-                  <PredicateCanvas predicate={predicate} onChange={setPredicate} />
+                  <PredicateCanvas
+                    predicate={predicate}
+                    onChange={(next) => setPredicate(next ?? emptyGroup("and"))}
+                  />
                 )}
               </div>
             </div>
