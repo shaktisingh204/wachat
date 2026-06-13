@@ -14,14 +14,27 @@ import 'server-only';
  * Wire types are re-exported from the legacy `crm-attendance.ts`
  * client — they mirror `hrm_payroll_types::Attendance` and the
  * `crm-attendance` crate DTOs exactly.
+ *
+ * Extended-JSON notes (verified against the crate + bson 2.15 source):
+ *
+ *   - RESPONSES carry `{$oid}` / `{$date}` wrappers (the gen-1 model
+ *     uses `chrono_datetime_as_bson_datetime`); every read below
+ *     deflates them back into plain scalars.
+ *   - The create/update DTO's top-level `date` uses plain chrono serde
+ *     (RFC3339 string), BUT the nested `punchIn` / `punchOut` /
+ *     `breaks` reuse the MODEL structs — their datetimes only
+ *     deserialize from relaxed extended JSON `{"$date": "<rfc3339>"}`.
+ *     The `Sabcrm*Wire` input types below encode that requirement;
+ *     `ObjectId` fields (`selfieFileId`) accept plain hex strings.
+ *   - The punch routes' `PunchInput.at` is plain chrono — no wrapper.
  */
 
 import { rustFetch } from './fetcher';
+import { deflateDoc, deflateDocs } from '@/lib/sabcrm/finance-extjson';
 import type {
   CrmAttendanceCreateInput,
   CrmAttendanceDoc,
   CrmAttendancePunchInput,
-  CrmAttendanceUpdateInput,
 } from './crm-attendance';
 
 export type {
@@ -34,6 +47,43 @@ export type {
   CrmBreakSlot,
   CrmPunchPoint,
 } from './crm-attendance';
+
+/* ─── Wire-input shapes (extended-JSON nested dates) ─────────────── */
+
+/** Relaxed extended-JSON datetime — what the model structs parse. */
+export interface SabcrmWireDate {
+  $date: string;
+}
+
+/** `PunchPoint` as the create/update DTO actually accepts it. */
+export interface SabcrmPunchPointWire {
+  at: SabcrmWireDate;
+  lat?: number;
+  lng?: number;
+  ip?: string;
+  device?: string;
+  /** SabFiles `_id` — plain 24-char hex (ObjectId accepts strings). */
+  selfieFileId?: string;
+}
+
+/** `BreakSlot` as the create/update DTO actually accepts it. */
+export interface SabcrmBreakSlotWire {
+  in: SabcrmWireDate;
+  out?: SabcrmWireDate;
+}
+
+/** `CreateAttendanceInput` with the nested model-struct wire shapes. */
+export interface SabcrmAttendanceCreateWire
+  extends Omit<
+    CrmAttendanceCreateInput,
+    'punchIn' | 'punchOut' | 'breaks' | 'projectId'
+  > {
+  punchIn?: SabcrmPunchPointWire;
+  punchOut?: SabcrmPunchPointWire;
+  breaks?: SabcrmBreakSlotWire[];
+}
+
+export type SabcrmAttendanceUpdateWire = Partial<SabcrmAttendanceCreateWire>;
 
 export interface SabcrmAttendanceListParams {
   page?: number;
@@ -63,44 +113,60 @@ function qs(
 const BASE = '/v1/sabcrm/people/attendance';
 
 export const sabcrmPeopleAttendanceApi = {
-  list: (projectId: string, p?: SabcrmAttendanceListParams) =>
-    rustFetch<CrmAttendanceDoc[]>(
-      `${BASE}${qs(projectId, {
-        page: p?.page,
-        limit: p?.limit,
-        employeeId: p?.employeeId,
-        dateFrom: p?.dateFrom,
-        dateTo: p?.dateTo,
-        status: p?.status,
-      })}`,
+  list: async (projectId: string, p?: SabcrmAttendanceListParams) =>
+    deflateDocs(
+      await rustFetch<CrmAttendanceDoc[]>(
+        `${BASE}${qs(projectId, {
+          page: p?.page,
+          limit: p?.limit,
+          employeeId: p?.employeeId,
+          dateFrom: p?.dateFrom,
+          dateTo: p?.dateTo,
+          status: p?.status,
+        })}`,
+      ),
     ),
-  getById: (projectId: string, id: string) =>
-    rustFetch<CrmAttendanceDoc>(
-      `${BASE}/${encodeURIComponent(id)}${qs(projectId)}`,
+  getById: async (projectId: string, id: string) =>
+    deflateDoc(
+      await rustFetch<CrmAttendanceDoc>(
+        `${BASE}/${encodeURIComponent(id)}${qs(projectId)}`,
+      ),
     ),
-  create: (projectId: string, input: CrmAttendanceCreateInput) =>
-    rustFetch<CrmAttendanceDoc>(BASE, {
-      method: 'POST',
-      body: JSON.stringify({ ...input, projectId }),
-    }),
-  update: (projectId: string, id: string, patch: CrmAttendanceUpdateInput) =>
-    rustFetch<CrmAttendanceDoc>(
-      `${BASE}/${encodeURIComponent(id)}${qs(projectId)}`,
-      { method: 'PATCH', body: JSON.stringify(patch) },
+  create: async (projectId: string, input: SabcrmAttendanceCreateWire) =>
+    deflateDoc(
+      await rustFetch<CrmAttendanceDoc>(BASE, {
+        method: 'POST',
+        body: JSON.stringify({ ...input, projectId }),
+      }),
+    ),
+  update: async (
+    projectId: string,
+    id: string,
+    patch: SabcrmAttendanceUpdateWire,
+  ) =>
+    deflateDoc(
+      await rustFetch<CrmAttendanceDoc>(
+        `${BASE}/${encodeURIComponent(id)}${qs(projectId)}`,
+        { method: 'PATCH', body: JSON.stringify(patch) },
+      ),
     ),
   delete: (projectId: string, id: string) =>
     rustFetch<{ ok: boolean; deleted?: boolean }>(
       `${BASE}/${encodeURIComponent(id)}${qs(projectId)}`,
       { method: 'DELETE' },
     ),
-  punchIn: (projectId: string, input: CrmAttendancePunchInput) =>
-    rustFetch<CrmAttendanceDoc>(`${BASE}/punch-in`, {
-      method: 'POST',
-      body: JSON.stringify({ ...input, projectId }),
-    }),
-  punchOut: (projectId: string, input: CrmAttendancePunchInput) =>
-    rustFetch<CrmAttendanceDoc>(`${BASE}/punch-out`, {
-      method: 'POST',
-      body: JSON.stringify({ ...input, projectId }),
-    }),
+  punchIn: async (projectId: string, input: CrmAttendancePunchInput) =>
+    deflateDoc(
+      await rustFetch<CrmAttendanceDoc>(`${BASE}/punch-in`, {
+        method: 'POST',
+        body: JSON.stringify({ ...input, projectId }),
+      }),
+    ),
+  punchOut: async (projectId: string, input: CrmAttendancePunchInput) =>
+    deflateDoc(
+      await rustFetch<CrmAttendanceDoc>(`${BASE}/punch-out`, {
+        method: 'POST',
+        body: JSON.stringify({ ...input, projectId }),
+      }),
+    ),
 };

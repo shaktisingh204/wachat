@@ -1,0 +1,23 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "incremental": false
+  },
+  "include": [
+    "next-env.d.ts",
+    "src/types/**/*.d.ts",
+    "src/lib/rust-client/sabcrm-people-employees.ts",
+    "src/lib/rust-client/sabcrm-people-attendance.ts",
+    "src/lib/rust-client/sabcrm-people-holidays.ts",
+    "src/app/actions/sabcrm-people-employees.actions.ts",
+    "src/app/actions/sabcrm-people-employees.actions.types.ts",
+    "src/app/actions/sabcrm-people-attendance.actions.ts",
+    "src/app/actions/sabcrm-people-attendance.actions.types.ts",
+    "src/app/actions/sabcrm-people-holidays.actions.ts",
+    "src/app/actions/sabcrm-people-holidays.actions.types.ts",
+    "src/app/sabcrm/people/employees/**/*",
+    "src/app/sabcrm/people/attendance/**/*",
+    "src/app/sabcrm/people/holidays/**/*"
+  ]
+}

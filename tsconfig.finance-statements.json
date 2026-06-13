@@ -1,0 +1,29 @@
+{
+  "extends": "./tsconfig.json",
+  "include": [],
+  "files": [
+    "next-env.d.ts",
+    "src/app/actions/sabcrm-statements.actions.ts",
+    "src/app/actions/sabcrm-statements.actions.types.ts",
+    "src/app/sabcrm/finance/_components/finance-report.tsx",
+    "src/app/sabcrm/finance/_components/statement-export-button.tsx",
+    "src/app/sabcrm/finance/trial-balance/page.tsx",
+    "src/app/sabcrm/finance/pnl/page.tsx",
+    "src/app/sabcrm/finance/balance-sheet/page.tsx",
+    "src/app/sabcrm/finance/cash-flow/page.tsx",
+    "src/app/sabcrm/finance/gst/page.tsx",
+    "src/app/sabcrm/finance/eway-bills/page.tsx",
+    "src/app/sabcrm/finance/invoices/page.tsx",
+    "src/app/sabcrm/finance/invoices/invoices-client.tsx",
+    "src/app/sabcrm/finance/bills/page.tsx",
+    "src/app/sabcrm/finance/bills/bills-client.tsx",
+    "src/app/sabcrm/finance/expenses/page.tsx",
+    "src/app/sabcrm/finance/expenses/expenses-client.tsx",
+    "src/app/sabcrm/finance/payouts/page.tsx",
+    "src/app/sabcrm/finance/payouts/payouts-client.tsx",
+    "src/app/sabcrm/finance/payment-receipts/page.tsx",
+    "src/app/sabcrm/finance/payment-receipts/payment-receipts-client.tsx",
+    "src/app/sabcrm/finance/journal-entries/page.tsx",
+    "src/app/sabcrm/finance/journal-entries/journal-entries-client.tsx"
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "incremental": false
+  },
+  "include": [
+    "next-env.d.ts",
+    "src/types/**/*.d.ts",
+    "src/lib/rust-client/sabcrm-people-payroll-runs.ts",
+    "src/lib/rust-client/sabcrm-people-payslips.ts",
+    "src/lib/rust-client/sabcrm-people-salary-structures.ts",
+    "src/lib/rust-client/sabcrm-people-payroll-settings.ts",
+    "src/lib/rust-client/sabcrm-people-time-logs.ts",
+    "src/lib/rust-client/sabcrm-people-hr-pickers.ts",
+    "src/app/actions/sabcrm-people-payroll-runs.actions.ts",
+    "src/app/actions/sabcrm-people-payroll-runs.actions.types.ts",
+    "src/app/actions/sabcrm-people-payslips.actions.ts",
+    "src/app/actions/sabcrm-people-payslips.actions.types.ts",
+    "src/app/actions/sabcrm-people-salary-structures.actions.ts",
+    "src/app/actions/sabcrm-people-salary-structures.actions.types.ts",
+    "src/app/actions/sabcrm-people-payroll-settings.actions.ts",
+    "src/app/actions/sabcrm-people-payroll-settings.actions.types.ts",
+    "src/app/actions/sabcrm-people-time-logs.actions.ts",
+    "src/app/actions/sabcrm-people-time-logs.actions.types.ts",
+    "src/app/sabcrm/people/payroll-runs/**/*",
+    "src/app/sabcrm/people/payslips/**/*",
+    "src/app/sabcrm/people/salary-structures/**/*",
+    "src/app/sabcrm/people/settings/**/*",
+    "src/app/sabcrm/people/time-logs/**/*"
+  ]
+}

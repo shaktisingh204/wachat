@@ -198,6 +198,23 @@ export async function exportSabcrmHolidayRows(
   }
 }
 
+/* ─── Get (deep-linked edit drawer) ───────────────────────────── */
+
+export async function getSabcrmHoliday(
+  id: string,
+  projectId?: string,
+): Promise<ActionResult<SabcrmHolidayListRow>> {
+  const g = await gate('view', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const doc = await sabcrmPeopleHolidaysApi.getById(g.ctx.projectId, id);
+    return { ok: true, data: toListRow(doc) };
+  } catch (e) {
+    return fail(e, 'Failed to load the holiday.');
+  }
+}
+
 /* ─── Create / update / delete ────────────────────────────────── */
 
 function buildInput(

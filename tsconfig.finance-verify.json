@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "include": [
+    "next-env.d.ts",
+    "src/app/sabcrm/finance/**/*.ts",
+    "src/app/sabcrm/finance/**/*.tsx",
+    "src/app/actions/sabcrm-finance*.actions.ts",
+    "src/app/actions/sabcrm-finance*.actions.types.ts",
+    "src/app/actions/sabcrm-statements.actions.ts",
+    "src/app/actions/sabcrm-statements.actions.types.ts"
+  ]
+}

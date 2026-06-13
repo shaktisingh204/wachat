@@ -12,7 +12,7 @@ import {
   reserveBatch,
   reserveCredits,
 } from '@/lib/sabsms/credits/ledger';
-import { creditCostFor } from '@/lib/sabsms/credits/rates';
+import { creditCostForWorkspace } from '@/lib/sabsms/ratecards/store';
 
 /**
  * Credit reservation + finalisation callback.
@@ -77,7 +77,9 @@ async function handleOp(op: string | null, req: NextRequest): Promise<NextRespon
     }
 
     // The reserve body has no channel — 'sms' for now (derive later).
-    const amount = creditCostFor({
+    // V2.13: per-workspace reseller rate cards resolve first, falling
+    // back to the platform default table (`creditCostFor`).
+    const amount = await creditCostForWorkspace(body.workspaceId, {
       segments: body.segments,
       destinationCountry: body.destinationCountry ?? '',
       channel: 'sms',
@@ -122,7 +124,8 @@ async function handleOp(op: string | null, req: NextRequest): Promise<NextRespon
     }
 
     const segmentsTotal = Math.max(1, Math.floor(Number(body.segmentsTotal) || 0));
-    const amount = creditCostFor({
+    // V2.13: same rate-card-aware pricing for whole-campaign holds.
+    const amount = await creditCostForWorkspace(body.workspaceId, {
       segments: segmentsTotal,
       destinationCountry: body.destinationCountry ?? '',
       channel: 'sms',

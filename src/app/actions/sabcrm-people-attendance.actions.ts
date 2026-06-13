@@ -27,11 +27,11 @@ import { sabcrmPlanFeature } from '@/lib/plans';
 import { RustApiError } from '@/lib/rust-client/fetcher';
 import {
   sabcrmPeopleAttendanceApi,
-  type CrmAttendanceCreateInput,
   type CrmAttendanceDoc,
-  type CrmAttendanceUpdateInput,
-  type CrmBreakSlot,
-  type CrmPunchPoint,
+  type SabcrmAttendanceCreateWire,
+  type SabcrmAttendanceUpdateWire,
+  type SabcrmBreakSlotWire,
+  type SabcrmPunchPointWire,
 } from '@/lib/rust-client/sabcrm-people-attendance';
 import {
   sabcrmPeopleEmployeesApi,
@@ -367,16 +367,23 @@ export async function getSabcrmAttendance(
 
 /* ─── Create / update / delete ────────────────────────────────── */
 
+/**
+ * Nested punch/break datetimes must be RELAXED EXTENDED JSON
+ * (`{"$date": "<rfc3339>"}`) — the crate's create/update DTO reuses
+ * the gen-1 model structs whose dates only deserialize through
+ * `bson::DateTime` (plain strings are rejected with "expecting
+ * DateTime"). The top-level `date` stays a plain RFC3339 string.
+ */
 function toWirePunch(
   p: SabcrmPunchPointValues | null | undefined,
-): CrmPunchPoint | undefined {
+): SabcrmPunchPointWire | undefined {
   if (!p || !p.at) return undefined;
   const at = toIso(p.at);
   if (!at) return undefined;
   const lat = p.lat?.trim() ? Number(p.lat) : undefined;
   const lng = p.lng?.trim() ? Number(p.lng) : undefined;
   return {
-    at,
+    at: { $date: at },
     lat: Number.isFinite(lat) ? lat : undefined,
     lng: Number.isFinite(lng) ? lng : undefined,
     ip: p.ip?.trim() || undefined,
@@ -387,15 +394,16 @@ function toWirePunch(
 
 function toWireBreaks(
   rows: { in: string; out?: string }[],
-): CrmBreakSlot[] | undefined {
-  const out: CrmBreakSlot[] = [];
+): SabcrmBreakSlotWire[] | undefined {
+  const out: SabcrmBreakSlotWire[] = [];
   for (const row of rows) {
     if (!row.in) continue;
     const inIso = toIso(row.in);
     if (!inIso) continue;
+    const outIso = row.out ? toIso(row.out) : null;
     out.push({
-      in: inIso,
-      out: row.out ? (toIso(row.out) ?? undefined) : undefined,
+      in: { $date: inIso },
+      out: outIso ? { $date: outIso } : undefined,
     });
   }
   return out.length > 0 ? out : undefined;
@@ -403,7 +411,7 @@ function toWireBreaks(
 
 function buildCreateInput(
   values: SabcrmAttendanceFormValues,
-): CrmAttendanceCreateInput | string {
+): SabcrmAttendanceCreateWire | string {
   if (!values.employeeId) return 'Pick an employee.';
   if (!values.status) return 'Pick a status.';
   const date = toIso(values.date);
@@ -456,10 +464,9 @@ export async function updateSabcrmAttendance(
 
   const built = buildCreateInput(values);
   if (typeof built === 'string') return { ok: false, error: built };
-  const { ...patch } = built;
   // PATCH replaces the breaks array wholesale; send [] to clear.
-  const wire: CrmAttendanceUpdateInput = {
-    ...patch,
+  const wire: SabcrmAttendanceUpdateWire = {
+    ...built,
     breaks: toWireBreaks(values.breaks ?? []) ?? [],
   };
 

@@ -13,9 +13,15 @@ import 'server-only';
  * Wire types are re-exported from the legacy `crm-holidays.ts` client —
  * they mirror `hrm_payroll_types::Holiday` and the `crm-holidays`
  * crate DTOs exactly.
+ *
+ * Engine responses serialize `ObjectId`/`DateTime` as Mongo extended
+ * JSON (`{$oid}`/`{$date}` — gen-1 bson serde helpers); every read
+ * below deflates them back into plain scalars. Input DTOs are plain
+ * chrono serde (RFC3339 strings) — no inflation needed.
  */
 
 import { rustFetch } from './fetcher';
+import { deflateDoc, deflateDocs } from '@/lib/sabcrm/finance-extjson';
 import type {
   CrmHolidayCreateInput,
   CrmHolidayDoc,
@@ -54,28 +60,36 @@ function qs(
 const BASE = '/v1/sabcrm/people/holidays';
 
 export const sabcrmPeopleHolidaysApi = {
-  list: (projectId: string, p?: SabcrmHolidayListParams) =>
-    rustFetch<CrmHolidayDoc[]>(
-      `${BASE}${qs(projectId, {
-        page: p?.page,
-        limit: p?.limit,
-        year: p?.year,
-        holidayType: p?.holidayType,
-      })}`,
+  list: async (projectId: string, p?: SabcrmHolidayListParams) =>
+    deflateDocs(
+      await rustFetch<CrmHolidayDoc[]>(
+        `${BASE}${qs(projectId, {
+          page: p?.page,
+          limit: p?.limit,
+          year: p?.year,
+          holidayType: p?.holidayType,
+        })}`,
+      ),
     ),
-  getById: (projectId: string, id: string) =>
-    rustFetch<CrmHolidayDoc>(
-      `${BASE}/${encodeURIComponent(id)}${qs(projectId)}`,
+  getById: async (projectId: string, id: string) =>
+    deflateDoc(
+      await rustFetch<CrmHolidayDoc>(
+        `${BASE}/${encodeURIComponent(id)}${qs(projectId)}`,
+      ),
     ),
-  create: (projectId: string, input: CrmHolidayCreateInput) =>
-    rustFetch<CrmHolidayDoc>(BASE, {
-      method: 'POST',
-      body: JSON.stringify({ ...input, projectId }),
-    }),
-  update: (projectId: string, id: string, patch: CrmHolidayUpdateInput) =>
-    rustFetch<CrmHolidayDoc>(
-      `${BASE}/${encodeURIComponent(id)}${qs(projectId)}`,
-      { method: 'PATCH', body: JSON.stringify(patch) },
+  create: async (projectId: string, input: CrmHolidayCreateInput) =>
+    deflateDoc(
+      await rustFetch<CrmHolidayDoc>(BASE, {
+        method: 'POST',
+        body: JSON.stringify({ ...input, projectId }),
+      }),
+    ),
+  update: async (projectId: string, id: string, patch: CrmHolidayUpdateInput) =>
+    deflateDoc(
+      await rustFetch<CrmHolidayDoc>(
+        `${BASE}/${encodeURIComponent(id)}${qs(projectId)}`,
+        { method: 'PATCH', body: JSON.stringify(patch) },
+      ),
     ),
   delete: (projectId: string, id: string) =>
     rustFetch<{ ok: boolean; deleted?: boolean }>(

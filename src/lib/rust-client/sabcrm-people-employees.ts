@@ -19,9 +19,16 @@ import 'server-only';
  * structures) plus the activity-rail reads (attendance / leave
  * applications / payslips for one employee). They live HERE — not in a
  * shared client — so parallel surface agents never edit the same file.
+ *
+ * Engine responses serialize `ObjectId`/`DateTime` as Mongo extended
+ * JSON (`{$oid}`/`{$date}` — the gen-1 models use the bson serde
+ * helpers); every read below deflates them back into the plain scalars
+ * the declared TS types advertise. Input DTOs are unaffected (the
+ * crate DTOs use plain chrono serde — RFC3339 strings).
  */
 
 import { rustFetch } from './fetcher';
+import { deflateDoc, deflateDocs } from '@/lib/sabcrm/finance-extjson';
 import type {
   CrmEmployeeCreateInput,
   CrmEmployeeDoc,
@@ -143,30 +150,38 @@ const BASE = '/v1/sabcrm/people/employees';
 /* ─── Employees CRUD ─────────────────────────────────────────────── */
 
 export const sabcrmPeopleEmployeesApi = {
-  list: (projectId: string, p?: SabcrmEmployeeListParams) =>
-    rustFetch<SabcrmEmployeeDoc[]>(
-      `${BASE}${qs(projectId, {
-        page: p?.page,
-        limit: p?.limit,
-        q: p?.q,
-        departmentId: p?.departmentId,
-        designationId: p?.designationId,
-        status: p?.status,
-      })}`,
+  list: async (projectId: string, p?: SabcrmEmployeeListParams) =>
+    deflateDocs(
+      await rustFetch<SabcrmEmployeeDoc[]>(
+        `${BASE}${qs(projectId, {
+          page: p?.page,
+          limit: p?.limit,
+          q: p?.q,
+          departmentId: p?.departmentId,
+          designationId: p?.designationId,
+          status: p?.status,
+        })}`,
+      ),
     ),
-  getById: (projectId: string, id: string) =>
-    rustFetch<SabcrmEmployeeDoc>(
-      `${BASE}/${encodeURIComponent(id)}${qs(projectId)}`,
+  getById: async (projectId: string, id: string) =>
+    deflateDoc(
+      await rustFetch<SabcrmEmployeeDoc>(
+        `${BASE}/${encodeURIComponent(id)}${qs(projectId)}`,
+      ),
     ),
-  create: (projectId: string, input: CrmEmployeeCreateInput) =>
-    rustFetch<SabcrmEmployeeDoc>(BASE, {
-      method: 'POST',
-      body: JSON.stringify({ ...input, projectId }),
-    }),
-  update: (projectId: string, id: string, patch: CrmEmployeeUpdateInput) =>
-    rustFetch<SabcrmEmployeeDoc>(
-      `${BASE}/${encodeURIComponent(id)}${qs(projectId)}`,
-      { method: 'PATCH', body: JSON.stringify(patch) },
+  create: async (projectId: string, input: CrmEmployeeCreateInput) =>
+    deflateDoc(
+      await rustFetch<SabcrmEmployeeDoc>(BASE, {
+        method: 'POST',
+        body: JSON.stringify({ ...input, projectId }),
+      }),
+    ),
+  update: async (projectId: string, id: string, patch: CrmEmployeeUpdateInput) =>
+    deflateDoc(
+      await rustFetch<SabcrmEmployeeDoc>(
+        `${BASE}/${encodeURIComponent(id)}${qs(projectId)}`,
+        { method: 'PATCH', body: JSON.stringify(patch) },
+      ),
     ),
   delete: (projectId: string, id: string) =>
     rustFetch<{ ok: boolean; deleted?: boolean }>(
@@ -195,21 +210,29 @@ export interface SabcrmSalaryStructureOptionDoc {
 }
 
 export const sabcrmPeopleEmployeeOptionsApi = {
-  searchShifts: (projectId: string, q?: string) =>
-    rustFetch<SabcrmShiftOptionDoc[]>(
-      `/v1/sabcrm/people/shifts${qs(projectId, { q, limit: 20 })}`,
+  searchShifts: async (projectId: string, q?: string) =>
+    deflateDocs(
+      await rustFetch<SabcrmShiftOptionDoc[]>(
+        `/v1/sabcrm/people/shifts${qs(projectId, { q, limit: 20 })}`,
+      ),
     ),
-  getShift: (projectId: string, id: string) =>
-    rustFetch<SabcrmShiftOptionDoc>(
-      `/v1/sabcrm/people/shifts/${encodeURIComponent(id)}${qs(projectId)}`,
+  getShift: async (projectId: string, id: string) =>
+    deflateDoc(
+      await rustFetch<SabcrmShiftOptionDoc>(
+        `/v1/sabcrm/people/shifts/${encodeURIComponent(id)}${qs(projectId)}`,
+      ),
     ),
-  searchSalaryStructures: (projectId: string, q?: string) =>
-    rustFetch<SabcrmSalaryStructureOptionDoc[]>(
-      `/v1/sabcrm/people/salary-structures${qs(projectId, { q, limit: 20 })}`,
+  searchSalaryStructures: async (projectId: string, q?: string) =>
+    deflateDocs(
+      await rustFetch<SabcrmSalaryStructureOptionDoc[]>(
+        `/v1/sabcrm/people/salary-structures${qs(projectId, { q, limit: 20 })}`,
+      ),
     ),
-  getSalaryStructure: (projectId: string, id: string) =>
-    rustFetch<SabcrmSalaryStructureOptionDoc>(
-      `/v1/sabcrm/people/salary-structures/${encodeURIComponent(id)}${qs(projectId)}`,
+  getSalaryStructure: async (projectId: string, id: string) =>
+    deflateDoc(
+      await rustFetch<SabcrmSalaryStructureOptionDoc>(
+        `/v1/sabcrm/people/salary-structures/${encodeURIComponent(id)}${qs(projectId)}`,
+      ),
     ),
 };
 
@@ -245,23 +268,33 @@ export interface SabcrmEmployeePayslipSlice {
 }
 
 export const sabcrmPeopleEmployeeActivityApi = {
-  listAttendance: (projectId: string, employeeId: string, dateFromIso: string) =>
-    rustFetch<SabcrmEmployeeAttendanceSlice[]>(
-      `/v1/sabcrm/people/attendance${qs(projectId, {
-        employeeId,
-        dateFrom: dateFromIso,
-        limit: 100,
-      })}`,
+  listAttendance: async (
+    projectId: string,
+    employeeId: string,
+    dateFromIso: string,
+  ) =>
+    deflateDocs(
+      await rustFetch<SabcrmEmployeeAttendanceSlice[]>(
+        `/v1/sabcrm/people/attendance${qs(projectId, {
+          employeeId,
+          dateFrom: dateFromIso,
+          limit: 100,
+        })}`,
+      ),
     ),
-  listLeaveApplications: (projectId: string, employeeId: string) =>
-    rustFetch<SabcrmEmployeeLeaveSlice[]>(
-      `/v1/sabcrm/people/leaves/applications${qs(projectId, {
-        employeeId,
-        limit: 50,
-      })}`,
+  listLeaveApplications: async (projectId: string, employeeId: string) =>
+    deflateDocs(
+      await rustFetch<SabcrmEmployeeLeaveSlice[]>(
+        `/v1/sabcrm/people/leaves/applications${qs(projectId, {
+          employeeId,
+          limit: 50,
+        })}`,
+      ),
     ),
-  listPayslips: (projectId: string, employeeId: string) =>
-    rustFetch<SabcrmEmployeePayslipSlice[]>(
-      `/v1/sabcrm/people/payslips${qs(projectId, { employeeId, limit: 50 })}`,
+  listPayslips: async (projectId: string, employeeId: string) =>
+    deflateDocs(
+      await rustFetch<SabcrmEmployeePayslipSlice[]>(
+        `/v1/sabcrm/people/payslips${qs(projectId, { employeeId, limit: 50 })}`,
+      ),
     ),
 };

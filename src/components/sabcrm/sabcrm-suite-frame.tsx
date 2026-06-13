@@ -312,6 +312,18 @@ export function SabcrmSuiteFrame({ children }: { children: React.ReactNode }) {
       { group: 'commerce', id: 'coupons', label: 'Coupons', href: '/sabcrm/commerce/coupons', icon: Percent },
       { group: 'commerce', id: 'gift-cards', label: 'Gift cards', href: '/sabcrm/commerce/gift-cards', icon: CreditCard },
       { group: 'commerce', id: 'shipping', label: 'Shipping', href: '/sabcrm/commerce/shipping', icon: Workflow },
+      { group: 'people', id: 'employees', label: 'Employees', href: '/sabcrm/people/employees', icon: Users },
+      { group: 'people', id: 'attendance', label: 'Attendance', href: '/sabcrm/people/attendance', icon: UserCheck },
+      { group: 'people', id: 'leave', label: 'Leave', href: '/sabcrm/people/leave', icon: Calendar },
+      { group: 'people', id: 'shifts', label: 'Shifts', href: '/sabcrm/people/shifts', icon: Calendar },
+      { group: 'people', id: 'shift-rotations', label: 'Shift rotations', href: '/sabcrm/people/shift-rotations', icon: Shuffle },
+      { group: 'people', id: 'shift-changes', label: 'Shift changes', href: '/sabcrm/people/shift-changes', icon: Shuffle },
+      { group: 'people', id: 'time-logs', label: 'Time logs', href: '/sabcrm/people/time-logs', icon: Activity },
+      { group: 'people', id: 'holidays', label: 'Holidays', href: '/sabcrm/people/holidays', icon: Calendar },
+      { group: 'people', id: 'payroll-runs', label: 'Payroll runs', href: '/sabcrm/people/payroll-runs', icon: Wallet },
+      { group: 'people', id: 'payslips', label: 'Payslips', href: '/sabcrm/people/payslips', icon: Receipt },
+      { group: 'people', id: 'salary-structures', label: 'Salary structures', href: '/sabcrm/people/salary-structures', icon: FileText },
+      { group: 'people', id: 'people-settings', label: 'Payroll settings', href: '/sabcrm/people/settings', icon: Settings },
       { group: 'insights', id: 'forecast', label: 'Forecast', href: '/sabcrm/forecast', icon: TrendingUp },
       { group: 'insights', id: 'dashboards', label: 'Dashboards', href: '/sabcrm/dashboard', icon: LayoutDashboard },
       { group: 'insights', id: 'reports', label: 'Reports', href: '/sabcrm/reports', icon: BarChart3 },
@@ -383,6 +395,11 @@ export function SabcrmSuiteFrame({ children }: { children: React.ReactNode }) {
       id: 'commerce',
       label: 'Commerce',
       items: entries.filter((e) => e.group === 'commerce').map(toLeaf),
+    });
+    result.push({
+      id: 'people',
+      label: 'People',
+      items: entries.filter((e) => e.group === 'people').map(toLeaf),
     });
     result.push({
       id: 'insights',
