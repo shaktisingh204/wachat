@@ -7,7 +7,7 @@ import * as React from 'react';
 // not only when a record is opened *through* the menu. Same localStorage list
 // the command menu reads to render its "Recent" group. (The menu itself now
 // lives at `@/components/sabcrm/command-menu`; its data layer owns recents.)
-export { recordRecents } from '../command-menu-data';
+export { recordRecents } from './command-menu-data';
 
 /**
  * Controls the SabCRM global command menu (⌘K / Ctrl+K) and the keyboard

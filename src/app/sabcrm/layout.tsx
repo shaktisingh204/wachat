@@ -19,8 +19,8 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 
 import { SabcrmSuiteFrame } from '@/components/sabcrm/sabcrm-suite-frame';
-import { SabcrmOuterShell } from '@/components/sabcrm/twenty/sabcrm-outer-shell';
-import { SabcrmActorNameProvider } from '@/components/sabcrm/twenty/sabcrm-actors-context';
+import { SabcrmOuterShell } from '@/components/sabcrm/sabcrm-outer-shell';
+import { SabcrmActorNameProvider } from '@/components/sabcrm/sabcrm-actors-context';
 import { getCachedSession, getCachedProjects } from '@/lib/server-cache';
 import { RBACGuard } from '@/components/20ui-domain/rbac-guard';
 import { ProjectProvider } from '@/context/project-context';

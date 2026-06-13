@@ -45,7 +45,7 @@ import {
 import { Avatar, type AvatarShape } from '@/components/sabcrm/20ui/avatar';
 import { Modal } from '@/components/sabcrm/20ui/modal';
 import { Kbd } from '@/components/sabcrm/20ui/misc';
-import { useSabcrmSettings } from '@/components/sabcrm/twenty/sabcrm-settings-context';
+import { useSabcrmSettings } from '@/components/sabcrm/sabcrm-settings-context';
 
 import {
   GLOBAL_NAV_COMMANDS,

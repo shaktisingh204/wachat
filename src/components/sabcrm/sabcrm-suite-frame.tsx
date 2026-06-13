@@ -71,7 +71,7 @@ import {
   type SabSidebarLeaf,
 } from '@/components/sabcrm/20ui/composites/shell/app-sidebar';
 import { CommandMenu } from '@/components/sabcrm/command-menu';
-import { useCommandMenu } from '@/components/sabcrm/twenty/use-command-menu';
+import { useCommandMenu } from '@/components/sabcrm/use-command-menu';
 import { WorkspaceSwitcher } from '@/components/sabcrm/workspace-switcher';
 import {
   SabcrmSettingsProvider,
@@ -82,7 +82,7 @@ import {
   type SabcrmAppearancePrefs,
   type SabcrmLocalizationPrefs,
   type SabcrmNotificationPrefs,
-} from '@/components/sabcrm/twenty/sabcrm-settings-context';
+} from '@/components/sabcrm/sabcrm-settings-context';
 import { ICONS } from '@/components/sabcrm/20ui';
 import { listSabcrmFavoritesTw } from '@/app/actions/sabcrm-twenty.actions';
 import type { SabcrmRustFavorite } from '@/app/actions/sabcrm-twenty.actions.types';
