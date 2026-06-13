@@ -386,6 +386,18 @@ export function ForecastClient({
     [forecast],
   );
 
+  const categoryRows = React.useMemo(
+    () =>
+      (forecast?.byCategory ?? [])
+        .filter((c) => c.category !== 'OMIT')
+        .map((c) => ({
+          label: `${c.label} · ${c.count}`,
+          value: Math.round(c.amount),
+          color: c.color,
+        })),
+    [forecast],
+  );
+
   // -- target CRUD ------------------------------------------------------------
 
   const openNew = (): void => {
@@ -607,6 +619,33 @@ export function ForecastClient({
             />
           </div>
 
+          {/* Forecast categories — cumulative (Commit ⊆ Best case ⊆ Pipeline,
+              with Closed always counted; Omit excluded). */}
+          <div className="mt-3 grid grid-cols-2 gap-3 lg:grid-cols-4">
+            <KpiCard
+              label="Commit"
+              value={formatAmount(forecast.totals.commit)}
+              delta="Closed + Commit"
+            />
+            <KpiCard
+              label="Best case"
+              value={formatAmount(forecast.totals.bestCase)}
+              delta="+ Best-case deals"
+            />
+            <KpiCard
+              label="Pipeline (all)"
+              value={formatAmount(forecast.totals.pipeline)}
+              delta="Won + all open"
+            />
+            <KpiCard
+              label="Closed"
+              value={formatAmount(forecast.totals.wonAmount)}
+              delta={`${forecast.totals.wonCount} deal${
+                forecast.totals.wonCount === 1 ? '' : 's'
+              } won`}
+            />
+          </div>
+
           <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
             <section aria-label="Weighted value by stage">
               <h2 className="mb-2 text-sm font-medium">
@@ -640,6 +679,23 @@ export function ForecastClient({
               ) : null}
             </section>
           </div>
+
+          <section aria-label="Forecast by category" className="mt-6">
+            <h2 className="mb-2 text-sm font-medium">Forecast by category</h2>
+            <BarChart
+              data={categoryRows}
+              layout="horizontal"
+              seriesLabel="Amount"
+              formatValue={formatAmount}
+              emptyLabel="No open or won deals to categorize yet."
+            />
+            <p className="mt-2 text-xs text-[var(--st-text-muted,inherit)]">
+              Categories default from each stage&rsquo;s probability (≥80% Commit,
+              ≥50% Best case, else Pipeline); won deals are Closed. Set a{' '}
+              <code>forecastCategory</code> field on the object to let reps
+              override per deal.
+            </p>
+          </section>
         </>
       ) : null}
 

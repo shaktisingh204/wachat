@@ -1,4 +1,5 @@
 "use server";
+import { getSabsmsWorkspaceId } from "@/lib/sabsms/workspace";
 
 /**
  * SabSMS templates list — server actions.
@@ -32,7 +33,7 @@ async function resolveWorkspace(): Promise<
   const session = await getCachedSession();
   const userId = (session?.user as { _id?: unknown } | undefined)?._id;
   if (!userId) return { ok: false, error: "unauthorized" };
-  return { ok: true, workspaceId: String(userId) };
+  return { ok: true, workspaceId: (await getSabsmsWorkspaceId()) ?? "" };
 }
 
 // ─── View model ──────────────────────────────────────────────────────────

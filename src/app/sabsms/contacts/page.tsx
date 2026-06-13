@@ -1,3 +1,4 @@
+import { getSabsmsWorkspaceId } from "@/lib/sabsms/workspace";
 /**
  * SabSMS contacts — server entry.
  *
@@ -49,7 +50,7 @@ export default async function SabsmsContactsPage({ searchParams }: PageProps) {
     name?: string;
     workspaceName?: string;
   } | undefined;
-  const workspaceId = String(user?._id ?? "");
+  const workspaceId = (await getSabsmsWorkspaceId()) ?? "";
 
   if (!workspaceId) {
     return (

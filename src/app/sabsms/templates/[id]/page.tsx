@@ -1,3 +1,4 @@
+import { getSabsmsWorkspaceId } from "@/lib/sabsms/workspace";
 import { ObjectId } from "mongodb";
 import { notFound } from "next/navigation";
 import React, { Suspense } from "react";
@@ -50,7 +51,7 @@ async function loadTemplate(
 
 async function TemplateDataLoader({ id, isNew }: { id: string; isNew: boolean }) {
   const session = await getCachedSession();
-  const workspaceId = String((session?.user as any)?._id ?? "");
+  const workspaceId = (await getSabsmsWorkspaceId()) ?? "";
 
   if (!workspaceId) {
     return (

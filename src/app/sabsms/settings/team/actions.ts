@@ -1,4 +1,5 @@
 "use server";
+import { getSabsmsWorkspaceId } from "@/lib/sabsms/workspace";
 
 /**
  * SabSMS settings — team members.
@@ -23,7 +24,6 @@ import { ObjectId, type Db } from "mongodb";
 
 import { connectToDatabase } from "@/lib/mongodb";
 import { requirePermission } from "@/lib/rbac-server";
-import { getCachedSession } from "@/lib/server-cache";
 
 export type Role = "owner" | "admin" | "agent" | "marketer" | "developer" | "member" | string;
 
@@ -49,9 +49,7 @@ export interface MemberAuditEntry {
 }
 
 async function requireWorkspaceId(): Promise<string | null> {
-  const session = await getCachedSession();
-  const workspaceId = String((session?.user as { _id?: unknown } | undefined)?._id ?? "");
-  return workspaceId || null;
+  return getSabsmsWorkspaceId();
 }
 
 function toId(v: unknown): string {

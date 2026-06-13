@@ -1,3 +1,4 @@
+import { getSabsmsWorkspaceId } from "@/lib/sabsms/workspace";
 import React from "react";
 import DeliverabilityPage from "./client";
 import { connectToDatabase } from "@/lib/mongodb";
@@ -31,7 +32,7 @@ const EMPTY = {
 
 async function DeliverabilityPageContent() {
   const session = await getCachedSession();
-  const workspaceId = String((session?.user as { _id?: unknown } | undefined)?._id ?? "");
+  const workspaceId = (await getSabsmsWorkspaceId()) ?? "";
 
   if (!workspaceId) {
     return <DeliverabilityPage {...EMPTY} />;

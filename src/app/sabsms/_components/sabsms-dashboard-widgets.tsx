@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { Activity, AlertCircle, PlayCircle, CheckCircle2, DollarSign, TrendingUp, UserMinus, Settings2 } from "lucide-react";
 import { StatCard, Button, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuCheckboxItem, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/sabcrm/20ui';
+import "@/components/sabsms/motion/sabsms-motion.css";
 
 export type MetricData = {
   id: string;
@@ -99,13 +100,13 @@ export function SabsmsDashboardWidgets({ allMetrics }: { allMetrics: MetricData[
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="sabsms-motion grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
         {displayedMetrics.length === 0 ? (
           <div className="col-span-full text-center p-8 text-[var(--st-text-secondary)] bg-[var(--st-bg-muted)] rounded-xl">
             No metrics pinned. Use the Customize button to add some.
           </div>
         ) : (
-          displayedMetrics.map(m => {
+          displayedMetrics.map((m, i) => {
             // StatCard's delta is { value: string; tone }. A positive delta is
             // "up"; invertDelta flips the good/bad sense (e.g. failure rate down
             // is good → render as up-tone). undefined delta hides the chip.
@@ -119,13 +120,18 @@ export function SabsmsDashboardWidgets({ allMetrics }: { allMetrics: MetricData[
               delta = { value: `${sign}${raw}% ${m.period}`, tone };
             }
             return (
-              <StatCard
+              <div
                 key={m.id}
-                label={m.label}
-                value={m.value}
-                delta={delta}
-                icon={iconMap[m.iconName] || <Activity />}
-              />
+                className="sabsms-stagger-item"
+                style={{ ["--i" as string]: i } as React.CSSProperties}
+              >
+                <StatCard
+                  label={m.label}
+                  value={m.value}
+                  delta={delta}
+                  icon={iconMap[m.iconName] || <Activity />}
+                />
+              </div>
             );
           })
         )}

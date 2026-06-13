@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { ObjectId } from "mongodb";
 import { connectToDatabase } from "@/lib/mongodb";
-import { resolveWorkspace } from '@/lib/server-cache';
+import { getSabsmsWorkspaceId } from '@/lib/sabsms/workspace';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -15,13 +15,13 @@ export async function GET(request: Request) {
       };
 
       try {
-        const ws = await resolveWorkspace();
-        if (!ws.ok) throw new Error("Unauthorized");
+        const workspaceId = await getSabsmsWorkspaceId();
+        if (!workspaceId) throw new Error("Unauthorized");
 
         const { db } = await connectToDatabase();
         const col = db.collection("sabsms_imports");
-        
-        let doc = await col.findOne({ _id: new ObjectId(importId), workspaceId: ws.workspaceId });
+
+        let doc = await col.findOne({ _id: new ObjectId(importId), workspaceId });
         if (!doc) throw new Error("Import not found");
 
         if (doc.status === "completed" || doc.status === "failed" || doc.status === "cancelled") {

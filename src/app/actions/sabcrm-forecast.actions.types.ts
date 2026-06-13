@@ -64,6 +64,32 @@ export interface SabcrmForecastStageRow {
   weighted: number;
 }
 
+/**
+ * Salesforce-style forecast category. Open deals fall into Pipeline / Best
+ * case / Commit (by a per-record `data.forecastCategory` override, else the
+ * stage probability band); won deals are Closed; Omit is excluded from the
+ * forecast. Categories are CUMULATIVE: Commit ⊆ Best case ⊆ Pipeline, with
+ * Closed always added in.
+ */
+export type SabcrmForecastCategory =
+  | 'PIPELINE'
+  | 'BEST_CASE'
+  | 'COMMIT'
+  | 'CLOSED'
+  | 'OMIT';
+
+/** Per-category breakdown row (drives the forecast-category tiles + bar). */
+export interface SabcrmForecastCategoryRow {
+  category: SabcrmForecastCategory;
+  label: string;
+  /** `--st-*` token / hex for the tile + bar segment. */
+  color?: string;
+  /** Records in this category. */
+  count: number;
+  /** Unweighted amount sum in this category. */
+  amount: number;
+}
+
 /** One period of the forecast series (oldest → newest). */
 export interface SabcrmForecastPeriodRow {
   /** Stable bucket key — `YYYY-MM` (month) or `YYYY-Qn` (quarter). */
@@ -102,6 +128,12 @@ export interface SabcrmForecastTotals {
   /** Won amount inside the horizon. */
   wonAmount: number;
   wonCount: number;
+  /** Cumulative forecast — won + commit-category amount. */
+  commit: number;
+  /** Cumulative forecast — won + commit + best-case amount. */
+  bestCase: number;
+  /** Cumulative forecast — won + commit + best-case + pipeline amount. */
+  pipeline: number;
 }
 
 /** Result of `computeSabcrmForecast`. */
@@ -113,6 +145,8 @@ export interface SabcrmForecastResult {
   periodKind: SabcrmForecastPeriodKind;
   periods: SabcrmForecastPeriodRow[];
   byStage: SabcrmForecastStageRow[];
+  /** Forecast-category breakdown (Pipeline / Best case / Commit / Closed / Omit). */
+  byCategory: SabcrmForecastCategoryRow[];
   unscheduled: SabcrmForecastUnscheduled;
   totals: SabcrmForecastTotals;
   /** True when the record cap was hit and numbers may undercount. */

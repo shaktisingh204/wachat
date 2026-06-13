@@ -1,4 +1,5 @@
 "use server";
+import { getSabsmsWorkspaceId } from "@/lib/sabsms/workspace";
 
 /**
  * SabSMS settings — notification routing config.
@@ -16,7 +17,6 @@
 
 import { connectToDatabase } from "@/lib/mongodb";
 import { requirePermission } from "@/lib/rbac-server";
-import { getCachedSession } from "@/lib/server-cache";
 import { defaultNotificationConfig } from "./config-defaults";
 
 const COLLECTION = "sabsms_notification_settings";
@@ -51,9 +51,7 @@ export interface NotificationConfig {
 }
 
 async function requireWorkspaceId(): Promise<string | null> {
-  const session = await getCachedSession();
-  const workspaceId = String((session?.user as { _id?: unknown } | undefined)?._id ?? "");
-  return workspaceId || null;
+  return getSabsmsWorkspaceId();
 }
 
 /** Merge a stored (possibly partial) config over the defaults. */

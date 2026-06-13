@@ -1,9 +1,9 @@
-import { Loader2 } from "lucide-react";
+import { DashboardSkeleton } from "@/components/sabsms/motion/skeletons";
 
 export default function Loading() {
   return (
-    <div className="flex items-center justify-center min-h-[400px] w-full">
-      <Loader2 className="w-8 h-8 animate-spin text-[var(--st-text-secondary)]" />
+    <div className="p-6">
+      <DashboardSkeleton />
     </div>
   );
 }

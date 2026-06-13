@@ -1,3 +1,4 @@
+import { getSabsmsWorkspaceId } from "@/lib/sabsms/workspace";
 /**
  * /sabsms/providers/[id] — provider account detail.
  *
@@ -24,7 +25,7 @@ export default async function SabsmsProviderDetailPage({ params }: PageProps) {
   const { id } = await params;
 
   const session = await getCachedSession();
-  const workspaceId = String((session?.user as any)?._id ?? "");
+  const workspaceId = (await getSabsmsWorkspaceId()) ?? "";
   if (!workspaceId) redirect("/sabsms/providers");
 
   const res = await getProviderAccountAction(id);

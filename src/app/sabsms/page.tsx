@@ -1,3 +1,4 @@
+import { getSabsmsWorkspaceId } from "@/lib/sabsms/workspace";
 import Link from "next/link";
 
 import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, EmptyState, Table, THead, Tr, Th, TBody, Td } from '@/components/sabcrm/20ui';
@@ -172,7 +173,7 @@ function statusVariant(status: string): "default" | "secondary" | "destructive" 
 
 export default async function SabsmsOverviewPage() {
   const session = await getCachedSession();
-  const workspaceId = String((session?.user as any)?._id ?? "");
+  const workspaceId = (await getSabsmsWorkspaceId()) ?? "";
 
   const [metrics, activeCampaigns] = workspaceId
     ? await Promise.all([

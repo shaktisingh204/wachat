@@ -1,0 +1,146 @@
+"use client";
+
+import * as React from "react";
+import { AtSign, Plus, Trash2, X } from "lucide-react";
+
+import {
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  EmptyState,
+  PageDescription,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  useToast,
+} from "@/components/sabcrm/20ui";
+import {
+  deleteSabmailAccount,
+  type SabmailAccountRow,
+} from "@/app/actions/sabmail-projects.actions";
+
+import { MailboxConnectForm } from "../_components/mailbox-connect-form";
+
+export function SabmailAccountsClient({
+  projectId,
+  initialAccounts,
+}: {
+  projectId: string;
+  initialAccounts: SabmailAccountRow[];
+}) {
+  const { toast } = useToast();
+  const [accounts, setAccounts] = React.useState<SabmailAccountRow[]>(initialAccounts);
+  const [adding, setAdding] = React.useState(initialAccounts.length === 0);
+
+  const removeAccount = React.useCallback(
+    async (id: string) => {
+      const res = await deleteSabmailAccount(id);
+      if (!res.success) {
+        toast({ title: "Could not remove mailbox", description: res.error, variant: "destructive" });
+        return;
+      }
+      setAccounts((prev) => prev.filter((a) => a.id !== id));
+      toast({ title: "Mailbox removed" });
+    },
+    [toast],
+  );
+
+  return (
+    <div className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageTitle>Accounts</PageTitle>
+          <PageDescription>
+            Connected mailboxes for this workspace. Add Gmail, Outlook or any
+            IMAP account — they sync into one unified inbox.
+          </PageDescription>
+        </PageHeaderHeading>
+        {!adding ? (
+          <Button variant="primary" size="sm" iconLeft={Plus} onClick={() => setAdding(true)}>
+            Connect mailbox
+          </Button>
+        ) : null}
+      </PageHeader>
+
+      <div className="mt-6 grid gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Connected mailboxes</CardTitle>
+            <CardDescription>{accounts.length} connected</CardDescription>
+          </CardHeader>
+          <CardBody>
+            {accounts.length === 0 ? (
+              <EmptyState
+                icon={<AtSign aria-hidden />}
+                title="No mailboxes connected"
+                description="Connect your first mailbox below to start receiving and sending mail."
+              />
+            ) : (
+              <ul className="flex flex-col gap-2">
+                {accounts.map((a) => (
+                  <li
+                    key={a.id}
+                    className="flex items-center justify-between gap-3 rounded-md border border-[var(--st-border)] px-3 py-2.5"
+                  >
+                    <div className="flex min-w-0 items-center gap-3">
+                      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-md bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
+                        <AtSign className="h-4 w-4" aria-hidden />
+                      </span>
+                      <div className="min-w-0">
+                        <div className="truncate text-sm font-medium text-[var(--st-text)]">
+                          {a.displayName ? `${a.displayName} · ${a.email}` : a.email}
+                        </div>
+                        <div className="truncate text-xs text-[var(--st-text-secondary)]">
+                          {a.provider.toUpperCase()}
+                          {a.imapHost ? ` · ${a.imapHost}` : ""}
+                          {a.lastError ? ` · ${a.lastError}` : ""}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex shrink-0 items-center gap-2">
+                      <Badge variant={a.status === "active" ? "default" : "outline"} className="capitalize">
+                        {a.status}
+                      </Badge>
+                      <Button variant="ghost" size="sm" iconLeft={Trash2} onClick={() => void removeAccount(a.id)}>
+                        Remove
+                      </Button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </CardBody>
+        </Card>
+
+        {adding ? (
+          <Card>
+            <CardHeader className="flex flex-row items-start justify-between">
+              <div>
+                <CardTitle>Connect a mailbox</CardTitle>
+                <CardDescription>We verify credentials live before saving.</CardDescription>
+              </div>
+              {accounts.length > 0 ? (
+                <Button variant="ghost" size="sm" iconLeft={X} onClick={() => setAdding(false)}>
+                  Cancel
+                </Button>
+              ) : null}
+            </CardHeader>
+            <CardBody>
+              <MailboxConnectForm
+                projectId={projectId}
+                onConnected={(acct) => {
+                  setAccounts((prev) => [acct, ...prev.filter((p) => p.id !== acct.id)]);
+                  setAdding(false);
+                }}
+              />
+            </CardBody>
+          </Card>
+        ) : null}
+      </div>
+    </div>
+  );
+}

@@ -1944,6 +1944,71 @@ export type Project = {
         industry?: string;
         website?: string;
     };
+    /**
+     * SabSMS workspace profile + setup state. Only populated on
+     * `kind: 'sms'` projects (SabSMS has its own project list + create
+     * flow). A project cannot be used in SabSMS until `setupComplete` is
+     * true — the layout gate redirects to `/sabsms/setup` otherwise.
+     * The project `_id` is the `workspaceId` every SabSMS collection /
+     * the Rust engine scopes by.
+     */
+    sabsms?: {
+        setupComplete?: boolean;
+        setupCompletedAt?: Date;
+        /** Drives which compliance track the setup wizard enforces. */
+        region?: 'IN' | 'US' | 'OTHER';
+        businessName?: string;
+        businessProfile?: {
+            website?: string;
+            industry?: string;
+            useCase?: string;
+        };
+        /** Region-specific registration identifiers captured during setup. */
+        compliance?: {
+            /** India DLT principal entity id. */
+            dltEntityId?: string;
+            dltHeaderId?: string;
+            /** US 10DLC brand + campaign ids. */
+            tenDlcBrandId?: string;
+            tenDlcCampaignId?: string;
+            /** OTHER regions: explicit opt-in / sender-id attestation. */
+            acknowledged?: boolean;
+        };
+        /** Per-step completion flags driving the wizard + gate. */
+        setupSteps?: {
+            profile?: boolean;
+            provider?: boolean;
+            sender?: boolean;
+            compliance?: boolean;
+        };
+    };
+    /**
+     * SabMail workspace profile + setup state. Only populated on
+     * `kind: 'mail'` projects (SabMail has its own project list + create
+     * flow). A project cannot be used in SabMail until `setupComplete` is
+     * true — the layout gate redirects to `/sabmail/setup` otherwise. The
+     * project `_id` is the `workspaceId` every SabMail collection / the
+     * future Rust engine scopes by.
+     */
+    sabmail?: {
+        setupComplete?: boolean;
+        setupCompletedAt?: Date;
+        /** How the workspace uses SabMail (drives defaults + later gating). */
+        intent?: 'personal' | 'team' | 'platform';
+        /** Compliance / deliverability track. */
+        region?: 'IN' | 'US' | 'OTHER';
+        businessName?: string;
+        businessProfile?: {
+            website?: string;
+            industry?: string;
+            useCase?: string;
+        };
+        /** Per-step completion flags driving the wizard + gate. */
+        setupSteps?: {
+            profile?: boolean;
+            connection?: boolean;
+        };
+    };
 };
 
 export type Template = {

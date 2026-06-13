@@ -1,4 +1,5 @@
 "use server";
+import { getSabsmsWorkspaceId } from "@/lib/sabsms/workspace";
 
 /**
  * SabSMS suppressions — server actions + read paths.
@@ -87,7 +88,7 @@ async function resolveWorkspace(): Promise<WorkspaceResolution> {
   );
   return {
     ok: true,
-    workspaceId: String(userId),
+    workspaceId: (await getSabsmsWorkspaceId()) ?? "",
     userId: String(userId),
     isAdmin: role === "admin",
   };

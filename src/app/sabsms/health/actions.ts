@@ -1,6 +1,6 @@
 "use server";
+import { getSabsmsWorkspaceId } from "@/lib/sabsms/workspace";
 
-import { getCachedSession } from "@/lib/server-cache";
 import {
   sabsmsEngine,
   SabsmsEngineError,
@@ -8,9 +8,7 @@ import {
 } from "@/lib/sabsms/engine-client";
 
 async function requireWorkspaceId(): Promise<string | null> {
-  const session = await getCachedSession();
-  const workspaceId = String((session?.user as any)?._id ?? "");
-  return workspaceId || null;
+  return getSabsmsWorkspaceId();
 }
 
 /**

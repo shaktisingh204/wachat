@@ -1,3 +1,4 @@
+import { getSabsmsWorkspaceId } from "@/lib/sabsms/workspace";
 import { connectToDatabase } from "@/lib/mongodb";
 import { getCachedSession } from "@/lib/server-cache";
 import { SABSMS_COLLECTIONS } from "@/lib/sabsms/db/collections";
@@ -44,7 +45,7 @@ const PROVIDER_CATALOG: ProviderCatalogItem[] = [
 
 export default async function SabsmsProvidersPage() {
   const session = await getCachedSession();
-  const workspaceId = String((session?.user as any)?._id ?? "");
+  const workspaceId = (await getSabsmsWorkspaceId()) ?? "";
   const rows = workspaceId ? await loadProviders(workspaceId) : [];
 
   return <ProvidersClient initialRows={rows} catalog={PROVIDER_CATALOG} />;

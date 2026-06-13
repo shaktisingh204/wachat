@@ -1,3 +1,4 @@
+import { getSabsmsWorkspaceId } from "@/lib/sabsms/workspace";
 import { redirect } from "next/navigation";
 
 import { SabsmsPageShell } from "@/components/sabsms/page-toolkit";
@@ -14,7 +15,7 @@ export default async function SabsmsQuickSendPage() {
   if (!userId) {
     redirect("/login?next=/sabsms/quick-send");
   }
-  const workspaceId = String(userId);
+  const workspaceId = (await getSabsmsWorkspaceId()) ?? "";
 
   // Sender pool — read directly from `sabsms_numbers` via the server action.
   const senderNumbers = await listSenderNumbers();

@@ -1,3 +1,4 @@
+import { getSabsmsWorkspaceId } from "@/lib/sabsms/workspace";
 import React from "react";
 
 import { connectToDatabase } from "@/lib/mongodb";
@@ -17,7 +18,7 @@ const WINDOW_DAYS = 30;
 
 async function FunnelPageContent() {
   const session = await getCachedSession();
-  const workspaceId = String((session?.user as { _id?: unknown } | undefined)?._id ?? "");
+  const workspaceId = (await getSabsmsWorkspaceId()) ?? "";
 
   if (!workspaceId) {
     return <FunnelAnalyticsPage steps={[]} trend={[]} />;

@@ -1,4 +1,5 @@
 "use server";
+import { getSabsmsWorkspaceId } from "@/lib/sabsms/workspace";
 
 /**
  * SabSMS compliance hub — REAL aggregate counts for the dashboard.
@@ -11,7 +12,6 @@
  */
 
 import { connectToDatabase } from "@/lib/mongodb";
-import { getCachedSession } from "@/lib/server-cache";
 import { SABSMS_COLLECTIONS } from "@/lib/sabsms/db/collections";
 
 const COL_CONSENT = SABSMS_COLLECTIONS.consentLog;
@@ -47,9 +47,7 @@ export interface ComplianceHubData {
 }
 
 async function requireWorkspaceId(): Promise<string | null> {
-  const session = await getCachedSession();
-  const workspaceId = String((session?.user as { _id?: unknown })?._id ?? "");
-  return workspaceId || null;
+  return getSabsmsWorkspaceId();
 }
 
 export async function loadComplianceHub(): Promise<

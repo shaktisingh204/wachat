@@ -1,3 +1,4 @@
+import { getSabsmsWorkspaceId } from "@/lib/sabsms/workspace";
 import React from "react";
 
 import { connectToDatabase } from "@/lib/mongodb";
@@ -157,7 +158,7 @@ async function loadNumberScorecards(workspaceId: string): Promise<NumberScorecar
 
 async function SabsmsNumbersAnalyticsPageContent() {
   const session = await getCachedSession();
-  const workspaceId = String((session?.user as { _id?: unknown } | undefined)?._id ?? "");
+  const workspaceId = (await getSabsmsWorkspaceId()) ?? "";
   const rows = workspaceId ? await loadNumberScorecards(workspaceId) : [];
 
   return <NumbersAnalyticsClient rows={rows} />;

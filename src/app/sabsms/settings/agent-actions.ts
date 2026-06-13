@@ -1,4 +1,5 @@
 "use server";
+import { getSabsmsWorkspaceId } from "@/lib/sabsms/workspace";
 
 /**
  * SabSMS settings — AI agent configuration actions (V2.12).
@@ -10,7 +11,6 @@
 
 import { connectToDatabase } from "@/lib/mongodb";
 import { requirePermission } from "@/lib/rbac-server";
-import { getCachedSession } from "@/lib/server-cache";
 import {
   DEFAULT_ALLOWED_TOOLS,
   DEFAULT_HANDOFF_KEYWORDS,
@@ -20,9 +20,7 @@ import {
 } from "@/lib/sabsms/agent/store";
 
 async function requireWorkspaceId(): Promise<string | null> {
-  const session = await getCachedSession();
-  const workspaceId = String((session?.user as { _id?: unknown } | undefined)?._id ?? "");
-  return workspaceId || null;
+  return getSabsmsWorkspaceId();
 }
 
 export interface AgentConfigView {

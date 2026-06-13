@@ -1,3 +1,4 @@
+import { getSabsmsWorkspaceId } from "@/lib/sabsms/workspace";
 import React from "react";
 import { ObjectId } from "mongodb";
 
@@ -100,7 +101,7 @@ function campaignToDraft(
 async function NewCampaignPageContent({ searchParams }: PageProps) {
   const sp = await searchParams;
   const session = await getCachedSession();
-  const workspaceId = String((session?.user as any)?._id ?? "");
+  const workspaceId = (await getSabsmsWorkspaceId()) ?? "";
 
   const { cols, db } = await getSabsmsCollections();
 

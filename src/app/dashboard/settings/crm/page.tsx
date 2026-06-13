@@ -15,6 +15,7 @@ import {
   FlaskConical,
   CreditCard,
   Tag,
+  Target,
   Gauge,
   Lock,
   AtSign,
@@ -179,6 +180,12 @@ const GROUPS: readonly SettingsGroup[] = [
         label: 'Pipelines',
         description: 'Deal stages and pipeline configuration',
         icon: GitBranch,
+      },
+      {
+        slug: 'scoring',
+        label: 'Lead scoring',
+        description: 'Rule-based lead and deal scoring',
+        icon: Target,
       },
       {
         slug: 'tags',

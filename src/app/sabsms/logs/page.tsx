@@ -1,3 +1,4 @@
+import { getSabsmsWorkspaceId } from "@/lib/sabsms/workspace";
 import Link from "next/link";
 import { ObjectId } from "mongodb";
 import { FileSearch, Inbox, Eye } from "lucide-react";
@@ -184,7 +185,7 @@ export default async function SabsmsLogsPage({
 }) {
   const sp = await searchParams;
   const session = await getCachedSession();
-  const workspaceId = String((session?.user as any)?._id ?? "");
+  const workspaceId = (await getSabsmsWorkspaceId()) ?? "";
   const statusFilter = sp.status || undefined;
 
   const { rows, hasNext, hasPrev } = workspaceId

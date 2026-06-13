@@ -1,4 +1,5 @@
 "use server";
+import { getSabsmsWorkspaceId } from "@/lib/sabsms/workspace";
 
 import { ObjectId } from "mongodb";
 
@@ -51,7 +52,7 @@ async function resolveWorkspace(): Promise<
   if (!userId) return { ok: false, error: "unauthorized" };
   // Phase 1: workspace == user id. A multi-project picker will swap
   // this for the active project id once SabSMS gets per-project scoping.
-  return { ok: true, workspaceId: String(userId) };
+  return { ok: true, workspaceId: (await getSabsmsWorkspaceId()) ?? "" };
 }
 
 /** Legacy free-form send — kept as a thin alias over `sendSmsAction`. */

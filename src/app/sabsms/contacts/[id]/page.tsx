@@ -1,3 +1,4 @@
+import { getSabsmsWorkspaceId } from "@/lib/sabsms/workspace";
 /**
  * SabSMS contact detail — server entry.
  *
@@ -30,7 +31,7 @@ export default async function SabsmsContactDetailPage({ params }: PageProps) {
   const user = session?.user as
     | { _id?: unknown; role?: string }
     | undefined;
-  const workspaceId = String(user?._id ?? "");
+  const workspaceId = (await getSabsmsWorkspaceId()) ?? "";
   const isAdmin = user?.role === "admin" || user?.role === "owner";
 
   if (!workspaceId) {

@@ -1,9 +1,9 @@
 "use server";
+import { getSabsmsWorkspaceId } from "@/lib/sabsms/workspace";
 
 import { randomUUID } from "node:crypto";
 
 import { connectToDatabase } from "@/lib/mongodb";
-import { getCachedSession } from "@/lib/server-cache";
 
 /**
  * Server actions for `/sabsms/analytics`.
@@ -22,9 +22,7 @@ export type ActionResult<T = unknown> =
   | { ok: false; error: string };
 
 async function requireWorkspaceId(): Promise<string | null> {
-  const session = await getCachedSession();
-  const id = (session?.user as any)?._id;
-  return id ? String(id) : null;
+  return getSabsmsWorkspaceId();
 }
 
 export interface ScheduleEmailReportInput {

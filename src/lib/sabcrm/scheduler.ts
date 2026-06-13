@@ -89,6 +89,10 @@ import { recordUsage } from '@/lib/billing/usage-meter';
 import { aiFieldConfig, type FieldMetadata } from './types';
 import { aiSourceFields, aiSourceValue, aiInputsHash } from './ai-fields';
 import { evaluateAiField } from './ai-fields.server';
+import {
+  listProjectsWithScoring,
+  recomputeAllProjectScores,
+} from './scoring.server';
 
 // ---------------------------------------------------------------------------
 // Caps — keep one invocation well inside the 300s function budget.
@@ -124,6 +128,10 @@ const MAX_AI_FIELD_OBJECTS_PER_RUN = 10;
 const MAX_AI_FIELD_EVALS_PER_RUN = 20;
 /** Max records scanned per AI field per invocation. */
 const MAX_RECORDS_PER_AI_FIELD = 200;
+/** Max projects swept by the rule-based scoring backstop per invocation. */
+const MAX_SCORING_PROJECTS_PER_RUN = 25;
+/** Max records re-scored per object by the scoring backstop per invocation. */
+const MAX_SCORING_RECORDS_PER_OBJECT = 500;
 /**
  * How long a claimed (`pending`) AI-field row blocks re-evaluation. If the
  * tick crashes mid-LLM-call the row retries after this delay instead of
@@ -237,8 +245,22 @@ export interface SchedulerReport {
      * tick (steady-state in-sync records produce NO line). Additive.
      */
     aiFields: AiFieldItemReport[];
+    /**
+     * Rule-based scoring backstop outcomes — one line per object swept this
+     * tick (records changed out-of-band, e.g. CSV import / public API / the
+     * Rust write path). Additive; in-sync records produce no work.
+     */
+    scores: ScoreSweepReport[];
     /** Milliseconds spent. */
     durationMs: number;
+}
+
+/** One scoring-sweep line: an object whose records were re-scored this tick. */
+export interface ScoreSweepReport {
+    projectId: string;
+    objectSlug: string;
+    scanned: number;
+    updated: number;
 }
 
 // ---------------------------------------------------------------------------
@@ -1240,6 +1262,7 @@ export async function runDueWorkflows(): Promise<SchedulerReport> {
         rotting: [],
         sequences: [],
         aiFields: [],
+        scores: [],
         durationMs: 0,
     };
 
@@ -1939,6 +1962,31 @@ export async function runDueWorkflows(): Promise<SchedulerReport> {
         report.failed += 1;
     }
 
+    // --- 7. Rule-based scoring backstop -------------------------------------
+    // Re-score records changed OUTSIDE the record actions (CSV import, public
+    // API, the Rust write path); the per-mutation recompute in
+    // sabcrm-twenty.actions.ts covers UI edits. Skips in-sync records via the
+    // stored inputs hash. Best-effort — a failure must not fail the tick.
+    try {
+        const scoringProjects = await listProjectsWithScoring(db);
+        for (const projectId of scoringProjects.slice(
+            0,
+            MAX_SCORING_PROJECTS_PER_RUN,
+        )) {
+            const sweeps = await recomputeAllProjectScores(
+                projectId,
+                MAX_SCORING_RECORDS_PER_OBJECT,
+            );
+            for (const s of sweeps) {
+                if (s.scanned === 0 && s.updated === 0) continue;
+                report.scores.push({ projectId, ...s });
+                if (s.updated > 0) report.ran += 1;
+            }
+        }
+    } catch {
+        report.failed += 1;
+    }
+
     report.durationMs = Date.now() - startedAt;
     const rotTagged = report.rotting.reduce((n, r) => n + r.tagged, 0);
     const rotUntagged = report.rotting.reduce((n, r) => n + r.untagged, 0);
@@ -1949,6 +1997,7 @@ export async function runDueWorkflows(): Promise<SchedulerReport> {
         `rotting ${rotTagged} tagged / ${rotUntagged} untagged, ` +
         `sequences ${report.sequences.filter((s) => s.status === 'ran').length} step(s), ` +
         `AI fields ${report.aiFields.filter((a) => a.status === 'ran').length} computed; ` +
+        `scoring ${report.scores.reduce((n, s) => n + s.updated, 0)} re-scored; ` +
         `${report.ran} ran, ${report.failed} failed` +
         (report.engineReachable ? '' : ' (engine appears unreachable — check RUST_API_URL)');
     return report;

@@ -1,3 +1,4 @@
+import { getSabsmsWorkspaceId } from "@/lib/sabsms/workspace";
 import React from "react";
 import Link from "next/link";
 
@@ -332,7 +333,7 @@ async function SabsmsAnalyticsPageContent({
 }) {
   const sp = await searchParams;
   const session = await getCachedSession();
-  const workspaceId = String((session?.user as any)?._id ?? "");
+  const workspaceId = (await getSabsmsWorkspaceId()) ?? "";
 
   const range = parseRange(sp);
   const groupBy = parseGroupBy(sp);

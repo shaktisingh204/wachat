@@ -1,3 +1,4 @@
+import { getSabsmsWorkspaceId } from "@/lib/sabsms/workspace";
 import React, { Suspense } from "react";
 import { getCachedSession } from "@/lib/server-cache";
 import { SabsmsPageShell } from "@/components/sabsms/page-toolkit";
@@ -14,7 +15,7 @@ const ADMIN_ROLES = new Set(["owner", "admin", "sabsms_admin"]);
 async function TeamDataLoader() {
   const session = await getCachedSession();
   const user = session?.user as { _id?: unknown } | undefined;
-  const workspaceId = String(user?._id ?? "");
+  const workspaceId = (await getSabsmsWorkspaceId()) ?? "";
 
   if (!workspaceId) {
     return <div className="text-sm text-[var(--st-text)]">Please sign in to continue.</div>;

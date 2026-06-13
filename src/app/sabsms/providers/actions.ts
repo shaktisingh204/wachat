@@ -1,8 +1,8 @@
 "use server";
+import { getSabsmsWorkspaceId } from "@/lib/sabsms/workspace";
 
 import { randomBytes } from "node:crypto";
 import { connectToDatabase } from "@/lib/mongodb";
-import { getCachedSession } from "@/lib/server-cache";
 import { SABSMS_COLLECTIONS, SabsmsProviderIdSchema } from "@/lib/sabsms/db/collections";
 import { encryptProviderCreds, decryptProviderCreds } from "@/lib/sabsms/credentials";
 import { sabsmsEngine, SabsmsEngineError } from "@/lib/sabsms/engine-client";
@@ -10,9 +10,7 @@ import { buildSabsmsWebhookUrls, maskCredentialValue, type SabsmsWebhookUrls } f
 import { ObjectId } from "mongodb";
 
 async function requireWorkspaceId(): Promise<string | null> {
-  const session = await getCachedSession();
-  const workspaceId = String((session?.user as any)?._id ?? "");
-  return workspaceId || null;
+  return getSabsmsWorkspaceId();
 }
 
 function newWebhookSecret(): string {

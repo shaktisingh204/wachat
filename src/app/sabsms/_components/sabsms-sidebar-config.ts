@@ -6,6 +6,7 @@ import {
   BookOpen,
   FileSearch,
   FileText,
+  FolderKanban,
   GitBranch,
   Inbox,
   KeyRound,
@@ -53,6 +54,13 @@ export function buildSabsmsSidebarGroups(
       label: "Workspace",
       defaultOpen: true,
       items: [
+        {
+          id: "projects",
+          label: "Projects",
+          icon: React.createElement(FolderKanban),
+          href: "/sabsms/projects",
+          active: isActive("/sabsms/projects"),
+        },
         {
           id: "overview",
           label: "Overview",

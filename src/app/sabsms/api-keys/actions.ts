@@ -1,8 +1,8 @@
 "use server";
+import { getSabsmsWorkspaceId } from "@/lib/sabsms/workspace";
 
 import { revalidatePath } from "next/cache";
 
-import { getCachedSession } from "@/lib/server-cache";
 import { SABSMS_API_SCOPES, isSabsmsApiScope } from "@/lib/sabsms/apikeys/core";
 import {
   createSabsmsApiKey,
@@ -35,9 +35,7 @@ export interface SabsmsApiKeyRow {
 type ActionResult<T> = ({ success: true } & T) | { success: false; error: string };
 
 async function requireWorkspaceId(): Promise<string | null> {
-  const session = await getCachedSession();
-  const workspaceId = String((session?.user as { _id?: unknown } | undefined)?._id ?? "");
-  return workspaceId || null;
+  return getSabsmsWorkspaceId();
 }
 
 export async function listApiKeysAction(): Promise<ActionResult<{ keys: SabsmsApiKeyRow[] }>> {

@@ -45,6 +45,8 @@ import type {
   SabcrmForecastPeriodRow,
   SabcrmForecastResult,
   SabcrmForecastStageRow,
+  SabcrmForecastCategory,
+  SabcrmForecastCategoryRow,
 } from './sabcrm-forecast.actions.types';
 
 // ---------------------------------------------------------------------------
@@ -198,6 +200,61 @@ function resolveStageMetas(stages: SabcrmRustPipelineStage[]): StageMeta[] {
       probabilitySource: 'default' as const,
     };
   });
+}
+
+// ---------------------------------------------------------------------------
+// Forecast categories (Pipeline / Best case / Commit / Closed / Omit)
+// ---------------------------------------------------------------------------
+
+/** Display metadata + render order for the five forecast categories. */
+const CATEGORY_META: Record<
+  SabcrmForecastCategory,
+  { label: string; color: string }
+> = {
+  PIPELINE: { label: 'Pipeline', color: 'var(--st-text-secondary)' },
+  BEST_CASE: { label: 'Best case', color: 'var(--st-info, #38bdf8)' },
+  COMMIT: { label: 'Commit', color: 'var(--st-accent)' },
+  CLOSED: { label: 'Closed', color: 'var(--st-success, #22c55e)' },
+  OMIT: { label: 'Omit', color: 'var(--st-danger, #ef4444)' },
+};
+
+const CATEGORY_ORDER: SabcrmForecastCategory[] = [
+  'PIPELINE',
+  'BEST_CASE',
+  'COMMIT',
+  'CLOSED',
+  'OMIT',
+];
+
+const VALID_CATEGORIES: ReadonlySet<string> = new Set(CATEGORY_ORDER);
+
+/**
+ * Default forecast category for an open stage from its resolved probability:
+ * won → Closed, lost → Omit, ≥80% → Commit, ≥50% → Best case, else Pipeline.
+ */
+function defaultCategoryFor(meta: StageMeta): SabcrmForecastCategory {
+  if (meta.kind === 'won') return 'CLOSED';
+  if (meta.kind === 'lost') return 'OMIT';
+  if (meta.probabilityPct >= 80) return 'COMMIT';
+  if (meta.probabilityPct >= 50) return 'BEST_CASE';
+  return 'PIPELINE';
+}
+
+/**
+ * A record's forecast category: the per-record `data.forecastCategory`
+ * override when it is one of the five valid values (forward-compatible — takes
+ * effect the moment the optional SELECT field is added to the object),
+ * otherwise the stage default.
+ */
+function recordCategory(
+  record: SabcrmRustRecord,
+  fallback: SabcrmForecastCategory,
+): SabcrmForecastCategory {
+  const raw = record.data?.forecastCategory;
+  if (typeof raw === 'string' && VALID_CATEGORIES.has(raw)) {
+    return raw as SabcrmForecastCategory;
+  }
+  return fallback;
 }
 
 // ---------------------------------------------------------------------------
@@ -431,6 +488,18 @@ export async function computeSabcrmForecast(
     let openAmount = 0;
     let weightedPipeline = 0;
 
+    // Forecast-category buckets (Pipeline / Best case / Commit / Closed / Omit).
+    const catBuckets: Record<
+      SabcrmForecastCategory,
+      { count: number; amount: number }
+    > = {
+      PIPELINE: { count: 0, amount: 0 },
+      BEST_CASE: { count: 0, amount: 0 },
+      COMMIT: { count: 0, amount: 0 },
+      CLOSED: { count: 0, amount: 0 },
+      OMIT: { count: 0, amount: 0 },
+    };
+
     for (const record of open.records) {
       const stageId = recordStageId(record);
       const meta = metaByStageId.get(stageId);
@@ -442,6 +511,10 @@ export async function computeSabcrmForecast(
       openCount += 1;
       openAmount += amount;
       weightedPipeline += weighted;
+
+      const cat = recordCategory(record, defaultCategoryFor(meta));
+      catBuckets[cat].count += 1;
+      catBuckets[cat].amount += amount;
 
       const row = stageRows.get(stageId);
       if (row) {
@@ -484,11 +557,28 @@ export async function computeSabcrmForecast(
       period.wonCount += 1;
       wonAmount += amount;
       wonCount += 1;
+
+      const cat = recordCategory(record, 'CLOSED');
+      catBuckets[cat].count += 1;
+      catBuckets[cat].amount += amount;
     }
 
     for (const period of periods) {
       period.forecast = period.won + period.weighted;
     }
+
+    // Forecast-category breakdown + cumulative rollup (Commit ⊆ Best case ⊆
+    // Pipeline, with Closed always added in; Omit excluded).
+    const byCategory: SabcrmForecastCategoryRow[] = CATEGORY_ORDER.map((c) => ({
+      category: c,
+      label: CATEGORY_META[c].label,
+      color: CATEGORY_META[c].color,
+      count: catBuckets[c].count,
+      amount: catBuckets[c].amount,
+    }));
+    const commit = catBuckets.CLOSED.amount + catBuckets.COMMIT.amount;
+    const bestCase = commit + catBuckets.BEST_CASE.amount;
+    const pipelineForecast = bestCase + catBuckets.PIPELINE.amount;
 
     return {
       ok: true,
@@ -499,8 +589,18 @@ export async function computeSabcrmForecast(
         periodKind,
         periods,
         byStage: [...stageRows.values()],
+        byCategory,
         unscheduled,
-        totals: { openCount, openAmount, weightedPipeline, wonAmount, wonCount },
+        totals: {
+          openCount,
+          openAmount,
+          weightedPipeline,
+          wonAmount,
+          wonCount,
+          commit,
+          bestCase,
+          pipeline: pipelineForecast,
+        },
         truncated: open.truncated || won.truncated,
       },
     };

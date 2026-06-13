@@ -1,4 +1,5 @@
 "use server";
+import { getSabsmsWorkspaceId } from "@/lib/sabsms/workspace";
 
 /**
  * SabSMS consent log — server actions + read paths.
@@ -98,7 +99,7 @@ async function resolveWorkspace(): Promise<WorkspaceResolution> {
   const role = String(
     (session?.user as { role?: unknown } | undefined)?.role ?? "",
   );
-  return { ok: true, workspaceId: String(userId), isAdmin: role === "admin" };
+  return { ok: true, workspaceId: (await getSabsmsWorkspaceId()) ?? "", isAdmin: role === "admin" };
 }
 
 function toIso(d?: Date | string): string | undefined {

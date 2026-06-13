@@ -1,4 +1,5 @@
 "use server";
+import { getSabsmsWorkspaceId } from "@/lib/sabsms/workspace";
 
 import { ObjectId } from "mongodb";
 
@@ -41,7 +42,7 @@ async function resolveWorkspace(): Promise<
   const session = await getCachedSession();
   const userId = (session?.user as any)?._id;
   if (!userId) return { ok: false, error: "unauthorized" };
-  return { ok: true, workspaceId: String(userId) };
+  return { ok: true, workspaceId: (await getSabsmsWorkspaceId()) ?? "" };
 }
 
 /**

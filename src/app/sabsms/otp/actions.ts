@@ -1,4 +1,5 @@
 "use server";
+import { getSabsmsWorkspaceId } from "@/lib/sabsms/workspace";
 
 /**
  * /sabsms/otp server actions (V2.7).
@@ -21,7 +22,6 @@
 import { ObjectId } from "mongodb";
 
 import { connectToDatabase } from "@/lib/mongodb";
-import { getCachedSession } from "@/lib/server-cache";
 import { coreHandles, instantDebit } from "@/lib/sabsms/credits/core";
 import {
   sabsmsEngine,
@@ -68,9 +68,7 @@ function utcDayKey(at: Date = new Date()): string {
 type ActionResult<T> = ({ success: true } & T) | { success: false; error: string };
 
 async function requireWorkspaceId(): Promise<string | null> {
-  const session = await getCachedSession();
-  const workspaceId = String((session?.user as { _id?: unknown } | undefined)?._id ?? "");
-  return workspaceId || null;
+  return getSabsmsWorkspaceId();
 }
 
 function engineErrorMessage(e: unknown): string {

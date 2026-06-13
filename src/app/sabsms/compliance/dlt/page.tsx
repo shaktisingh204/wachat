@@ -1,3 +1,4 @@
+import { getSabsmsWorkspaceId } from "@/lib/sabsms/workspace";
 import { Suspense } from "react";
 
 import { SabsmsPageShell } from "@/components/sabsms/page-toolkit/sabsms-page-shell";
@@ -10,7 +11,7 @@ export const dynamic = "force-dynamic";
 
 async function DltDataLoader() {
   const session = await getCachedSession();
-  const workspaceId = String((session?.user as any)?._id ?? "");
+  const workspaceId = (await getSabsmsWorkspaceId()) ?? "";
   if (!workspaceId) {
     return (
       <p className="text-sm text-[var(--st-text)]">

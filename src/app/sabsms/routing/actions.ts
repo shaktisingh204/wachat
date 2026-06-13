@@ -1,8 +1,8 @@
 "use server";
+import { getSabsmsWorkspaceId } from "@/lib/sabsms/workspace";
 
 import { z } from "zod";
 import { connectToDatabase } from "@/lib/mongodb";
-import { getCachedSession } from "@/lib/server-cache";
 import {
   SABSMS_COLLECTIONS,
   SabsmsRoutingRuleSchema,
@@ -15,9 +15,7 @@ import {
 } from "@/lib/sabsms/engine-client";
 
 async function requireWorkspaceId(): Promise<string | null> {
-  const session = await getCachedSession();
-  const workspaceId = String((session?.user as any)?._id ?? "");
-  return workspaceId || null;
+  return getSabsmsWorkspaceId();
 }
 
 /** Client-facing rule shape (already validated camelCase wire form). */

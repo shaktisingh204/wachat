@@ -1,3 +1,4 @@
+import { getSabsmsWorkspaceId } from "@/lib/sabsms/workspace";
 import React from "react";
 
 import { ObjectId } from "mongodb";
@@ -89,7 +90,7 @@ async function CostPageContent({
 }) {
   const sp = await searchParams;
   const session = await getCachedSession();
-  const workspaceId = String((session?.user as any)?._id ?? "");
+  const workspaceId = (await getSabsmsWorkspaceId()) ?? "";
 
   const days = presetDays(sp);
   const to = new Date();

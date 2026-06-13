@@ -1,6 +1,6 @@
 "use server";
+import { getSabsmsWorkspaceId } from "@/lib/sabsms/workspace";
 
-import { getCachedSession } from "@/lib/server-cache";
 import type { SabsmsRateCardRate } from "@/lib/sabsms/ratecards/resolve";
 import {
   deleteRateCard,
@@ -32,9 +32,7 @@ export interface RateCardRow {
 type ActionResult<T> = ({ success: true } & T) | { success: false; error: string };
 
 async function requireWorkspaceId(): Promise<string | null> {
-  const session = await getCachedSession();
-  const workspaceId = String((session?.user as { _id?: unknown } | undefined)?._id ?? "");
-  return workspaceId || null;
+  return getSabsmsWorkspaceId();
 }
 
 export async function listRateCardsAction(): Promise<ActionResult<{ cards: RateCardRow[] }>> {

@@ -1,7 +1,7 @@
 "use server";
+import { getSabsmsWorkspaceId } from "@/lib/sabsms/workspace";
 
 import { connectToDatabase } from "@/lib/mongodb";
-import { getCachedSession } from "@/lib/server-cache";
 import { SABSMS_COLLECTIONS } from "@/lib/sabsms/db/collections";
 import { sabsmsEngine, SabsmsEngineError } from "@/lib/sabsms/engine-client";
 import type { SabsmsAvailableNumber } from "@/lib/sabsms/types";
@@ -18,9 +18,7 @@ import type { SabsmsAvailableNumber } from "@/lib/sabsms/types";
  */
 
 async function requireWorkspaceId(): Promise<string | null> {
-  const session = await getCachedSession();
-  const workspaceId = String((session?.user as any)?._id ?? "");
-  return workspaceId || null;
+  return getSabsmsWorkspaceId();
 }
 
 const SEARCHABLE_PROVIDERS = ["twilio", "telnyx"] as const;

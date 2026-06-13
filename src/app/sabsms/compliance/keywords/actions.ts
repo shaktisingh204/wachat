@@ -1,4 +1,5 @@
 "use server";
+import { getSabsmsWorkspaceId } from "@/lib/sabsms/workspace";
 
 /**
  * SabSMS compliance · Custom keywords — REAL engine-backed config.
@@ -26,7 +27,6 @@ import { ObjectId } from "mongodb";
 import { revalidatePath } from "next/cache";
 
 import { connectToDatabase } from "@/lib/mongodb";
-import { getCachedSession } from "@/lib/server-cache";
 import { SABSMS_COLLECTIONS } from "@/lib/sabsms/db/collections";
 import { sabsmsEngine } from "@/lib/sabsms/engine-client";
 import type { SabsmsKeywordRule } from "@/lib/sabsms/types";
@@ -50,9 +50,7 @@ type ActionErr = { success: false; error: string };
 const unauthorized: ActionErr = { success: false, error: "Unauthorized" };
 
 async function requireWorkspaceId(): Promise<string | null> {
-  const session = await getCachedSession();
-  const workspaceId = String((session?.user as { _id?: unknown })?._id ?? "");
-  return workspaceId || null;
+  return getSabsmsWorkspaceId();
 }
 
 /** Normalize like the engine: trim, strip trailing punctuation, uppercase. */

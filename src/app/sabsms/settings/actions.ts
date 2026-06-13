@@ -1,7 +1,7 @@
 "use server";
+import { getSabsmsWorkspaceId } from "@/lib/sabsms/workspace";
 
 import { requirePermission } from "@/lib/rbac-server";
-import { getCachedSession } from "@/lib/server-cache";
 import {
   ensureSabsmsIndexes,
   getSabsmsCollections,
@@ -12,9 +12,7 @@ import {
 } from "@/lib/sabsms/links-core";
 
 async function requireWorkspaceId(): Promise<string | null> {
-  const session = await getCachedSession();
-  const workspaceId = String((session?.user as any)?._id ?? "");
-  return workspaceId || null;
+  return getSabsmsWorkspaceId();
 }
 
 export interface SabsmsSettingsView {

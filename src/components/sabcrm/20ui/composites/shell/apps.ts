@@ -313,12 +313,16 @@ const SAB_APPS_ALL: SabAppDescriptor[] = [
   },
   // ─── Productivity & collaboration modules ────────────────────────────
   {
+    // SabMail is a top-level, project-gated module (own layout + setup gate),
+    // mirroring SabSMS — NOT a /dashboard child. The legacy /dashboard/sabmail
+    // + /dashboard/email surfaces are consolidated into /sabmail across the
+    // SabMail roadmap.
     id: "sabmail",
     name: "SabMail",
-    href: "/dashboard/sabmail",
+    href: "/sabmail",
     Icon: SabMailIcon,
     migration: "done",
-    isActive: (p) => !!p?.startsWith("/dashboard/sabmail"),
+    isActive: (p) => p === "/sabmail" || !!p?.startsWith("/sabmail/"),
   },
   {
     id: "sabmeet",

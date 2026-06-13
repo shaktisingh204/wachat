@@ -1,3 +1,4 @@
+import { getSabsmsWorkspaceId } from "@/lib/sabsms/workspace";
 import { Suspense } from "react";
 
 import { connectToDatabase } from "@/lib/mongodb";
@@ -71,7 +72,7 @@ async function loadNumbers(workspaceId: string): Promise<NumberRow[]> {
 
 export default async function SabsmsNumbersPage() {
   const session = await getCachedSession();
-  const workspaceId = String((session?.user as any)?._id ?? "");
+  const workspaceId = (await getSabsmsWorkspaceId()) ?? "";
   const rows = workspaceId ? await loadNumbers(workspaceId) : [];
 
   const fallbackFrom = process.env.SABSMS_TWILIO_DEFAULT_FROM ?? "";

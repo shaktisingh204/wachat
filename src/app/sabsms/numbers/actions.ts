@@ -1,10 +1,10 @@
 "use server";
+import { getSabsmsWorkspaceId } from "@/lib/sabsms/workspace";
 
 import { ObjectId } from "mongodb";
 import { revalidatePath } from "next/cache";
 
 import { connectToDatabase } from "@/lib/mongodb";
-import { getCachedSession } from "@/lib/server-cache";
 import { SABSMS_COLLECTIONS } from "@/lib/sabsms/db/collections";
 
 /**
@@ -24,9 +24,7 @@ import { SABSMS_COLLECTIONS } from "@/lib/sabsms/db/collections";
  */
 
 async function requireWorkspaceId(): Promise<string | null> {
-  const session = await getCachedSession();
-  const workspaceId = String((session?.user as { _id?: unknown } | undefined)?._id ?? "");
-  return workspaceId || null;
+  return getSabsmsWorkspaceId();
 }
 
 // ── Engine call (inline; engine-client lives outside this cluster) ──────────

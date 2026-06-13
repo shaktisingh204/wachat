@@ -1,4 +1,5 @@
 "use server";
+import { getSabsmsWorkspaceId } from "@/lib/sabsms/workspace";
 
 /**
  * SabSMS settings — billing/credits actions.
@@ -15,14 +16,11 @@
 
 import { connectToDatabase } from "@/lib/mongodb";
 import { requirePermission } from "@/lib/rbac-server";
-import { getCachedSession } from "@/lib/server-cache";
 import { SABSMS_CREDIT_COLLECTIONS } from "@/lib/sabsms/credits/core";
 import { getSmsCreditBalance } from "@/lib/sabsms/credits/ledger";
 
 async function requireWorkspaceId(): Promise<string | null> {
-  const session = await getCachedSession();
-  const workspaceId = String((session?.user as { _id?: unknown } | undefined)?._id ?? "");
-  return workspaceId || null;
+  return getSabsmsWorkspaceId();
 }
 
 export type BillingLedgerKind = "debit" | "release" | "adjust";

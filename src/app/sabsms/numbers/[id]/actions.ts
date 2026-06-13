@@ -1,4 +1,5 @@
 "use server";
+import { getSabsmsWorkspaceId } from "@/lib/sabsms/workspace";
 
 /**
  * SabSMS — number detail server actions.
@@ -66,7 +67,7 @@ async function resolveWorkspaceOk(): Promise<
   const session = await getCachedSession();
   const userId = (session?.user as { _id?: unknown } | undefined)?._id;
   if (!userId) return { ok: false, error: "unauthorized" };
-  return { ok: true, workspaceId: String(userId) };
+  return { ok: true, workspaceId: (await getSabsmsWorkspaceId()) ?? "" };
 }
 
 async function writeAuditLog(entry: {

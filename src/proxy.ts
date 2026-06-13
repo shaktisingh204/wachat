@@ -186,6 +186,13 @@ export const config = {
   matcher: [
     '/dashboard/:path*',
     '/wachat/:path*',
+    // SabSMS is gated in its layout (project + mandatory setup). It is NOT
+    // added to PROTECTED_PREFIXES — the proxy just passes through and sets
+    // the `x-url` header so the layout can read the current pathname.
+    '/sabsms/:path*',
+    // SabMail uses the same in-layout project + setup gate; the proxy just
+    // passes through and sets `x-url` for the layout to read.
+    '/sabmail/:path*',
     '/admin/dashboard/:path*',
     '/login',
     '/signup',

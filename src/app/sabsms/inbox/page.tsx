@@ -1,3 +1,4 @@
+import { getSabsmsWorkspaceId } from "@/lib/sabsms/workspace";
 import { Suspense } from "react";
 
 import { connectToDatabase } from "@/lib/mongodb";
@@ -38,7 +39,7 @@ export default async function SabsmsInboxPage({
 }: SabsmsInboxPageProps) {
   const sp = await searchParams;
   const session = await getCachedSession();
-  const workspaceId = String((session?.user as { _id?: unknown } | undefined)?._id ?? "");
+  const workspaceId = (await getSabsmsWorkspaceId()) ?? "";
 
   if (!workspaceId) {
     return (

@@ -45,6 +45,7 @@ import {
   runRecordChangeWorkflows,
   patchTouchesChangeFields,
 } from '@/lib/sabcrm/runtime';
+import { recomputeScoresForRecord } from '@/lib/sabcrm/scoring.server';
 import type {
   SabcrmRustActivity,
   SabcrmComment,
@@ -530,6 +531,9 @@ export async function createSabcrmRecordTw(
       data ?? {},
       g.ctx.userId,
     );
+    // Rule-based scoring: recompute this record's score from the full record
+    // (best-effort; writes data.score/scoreTier without bumping updatedAt).
+    await recomputeScoresForRecord(g.ctx.projectId, object, record.id);
 
     revalidatePath(`${TW_BASE_PATH}/${object}`);
     return { ok: true, data: record };
@@ -626,6 +630,9 @@ export async function updateSabcrmRecordTw(
         g.ctx.userId,
       );
     }
+    // Rule-based scoring: re-score from the full record after the patch lands
+    // (best-effort; reads the merged record, skips when inputs are unchanged).
+    await recomputeScoresForRecord(g.ctx.projectId, object, id);
 
     revalidatePath(`${TW_BASE_PATH}/${object}`);
     revalidatePath(`${TW_BASE_PATH}/${object}/${id}`);

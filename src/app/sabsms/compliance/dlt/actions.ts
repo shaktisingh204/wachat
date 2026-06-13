@@ -1,4 +1,5 @@
 "use server";
+import { getSabsmsWorkspaceId } from "@/lib/sabsms/workspace";
 
 /**
  * SabSMS V2.8 — server actions for the India DLT registries.
@@ -18,7 +19,6 @@ import { ObjectId } from "mongodb";
 import { revalidatePath } from "next/cache";
 
 import { connectToDatabase } from "@/lib/mongodb";
-import { getCachedSession } from "@/lib/server-cache";
 import { sabsmsEngine, SabsmsEngineError, type SabsmsDltScrubPreview } from "@/lib/sabsms/engine-client";
 
 import {
@@ -46,9 +46,7 @@ const PAGE_PATH = "/sabsms/compliance/dlt";
 // ─── Auth + helpers (pattern: ../../providers/actions.ts) ────────────────
 
 async function requireWorkspaceId(): Promise<string | null> {
-  const session = await getCachedSession();
-  const workspaceId = String((session?.user as any)?._id ?? "");
-  return workspaceId || null;
+  return getSabsmsWorkspaceId();
 }
 
 type ActionErr = { success: false; error: string };
