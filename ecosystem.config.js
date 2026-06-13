@@ -290,6 +290,44 @@ module.exports = {
     },
 
     // ---------------------------------------------------------------------
+    // SabMail Push-Sync Worker — drains Gmail Pub/Sub + Graph change-notif
+    // markers from sabmail_events and POSTs each to the internal push-sync
+    // route, which hydrates messages via the provider adapters. No-ops until
+    // an OAuth-connected Gmail/Outlook account exists + SABMAIL_APP_URL is set.
+    // ---------------------------------------------------------------------
+    {
+      name: 'sabmail-push-sync',
+
+      script: './node_modules/.bin/tsx',
+      args: 'src/workers/sabmail-push-sync.ts',
+
+      instances: 1,
+      exec_mode: 'fork',
+
+      watch: false,
+      autorestart: true,
+
+      restart_delay: 5000,
+      max_restarts: 50,
+      kill_timeout: 10000,
+
+      env: {
+        NODE_ENV: 'production',
+
+        MONGODB_URI: process.env.MONGODB_URI || process.env.MONGO_URL,
+        MONGODB_DB: process.env.MONGODB_DB || 'sabnode',
+
+        // POSTs markers to /api/sabmail/internal/push-sync (CRON_SECRET-auth).
+        SABMAIL_APP_URL: process.env.SABMAIL_APP_URL || process.env.NEXT_PUBLIC_APP_URL,
+        CRON_SECRET: process.env.CRON_SECRET,
+
+        // Worker inlines the events collection name, but keep the stub on
+        // NODE_PATH for parity with sabmail-sync (any future server-only pull).
+        NODE_PATH: './src/workers/_stubs',
+      },
+    },
+
+    // ---------------------------------------------------------------------
     // SabMail Engine (Rust — services/sabmail-engine). Owns SMTP send
     // (lettre), journey execution (background ticker), and inbound binding
     // (POST /v1/inbound). Shares the `sabmail_*` Mongo collections with the

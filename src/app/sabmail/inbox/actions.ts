@@ -12,6 +12,12 @@ import {
   buildUnsubscribeHeaders,
 } from '@/lib/sabmail/unsubscribe';
 import type { SabmailAccount } from '@/lib/sabmail/types';
+import {
+  getMailProvider,
+  buildProviderContext,
+  type MailProvider,
+  type MailProviderContext,
+} from '@/lib/sabmail/providers/types';
 import { getErrorMessage } from '@/lib/utils';
 
 /* ──────────────────────────────────────────────────────────────────────
@@ -127,6 +133,98 @@ async function loadAccount(accountId: string): Promise<LoadAccountResult> {
   return loadAccountForWorkspace(workspaceId, accountId);
 }
 
+/* ── provider dispatch (non-IMAP) ────────────────────────────────────────
+ *
+ * IMAP accounts keep flowing through `loadAccount`/`loadAccountForWorkspace` +
+ * `withImap` UNCHANGED. For every OTHER provider ('gmail' | 'outlook' |
+ * 'hosted'→graph/imap-adapter) the public actions short-circuit to the
+ * provider registry BEFORE touching any IMAP code, so the same inbox UI works
+ * across transports.
+ *
+ * The IMAP-specific account loaders above intentionally reject non-IMAP
+ * accounts ("This mailbox is not an IMAP account."); these resolvers instead
+ * load the account for the registry path WITHOUT that IMAP-only validation,
+ * then build the `MailProviderContext` (which decrypts the OAuth/other creds).
+ *
+ * uid/id boundary: the inbox actions speak numeric `uid`; the `MailProvider`
+ * contract speaks string `id`. We map `String(uid)` on the way in. Adapters
+ * return the `Sabmail*` shapes directly (incl. the numeric `uid` on
+ * `SabmailMessageFull`), so no Number()-cast is needed on the way out — the
+ * adapter owns round-tripping its id form back into the numeric field.
+ * ──────────────────────────────────────────────────────────────────── */
+
+interface ResolvedProvider {
+  workspaceId: string;
+  provider: MailProvider;
+  ctx: MailProviderContext;
+}
+
+type ResolveProviderResult =
+  | { ok: true; data: ResolvedProvider }
+  | { ok: false; error: string };
+
+/** Load a (non-IMAP) account for an EXPLICIT workspace and resolve its adapter. */
+async function resolveProviderForWorkspace(
+  workspaceId: string,
+  accountId: string,
+): Promise<ResolveProviderResult> {
+  if (!workspaceId) return { ok: false, error: 'No active SabMail project.' };
+  if (!accountId || !ObjectId.isValid(accountId)) {
+    return { ok: false, error: 'Invalid account id.' };
+  }
+  const { cols } = await getSabmailCollections();
+  const account = (await cols.accounts.findOne({
+    _id: new ObjectId(accountId),
+    workspaceId,
+  })) as WithId<SabmailAccount> | null;
+  if (!account) return { ok: false, error: 'Mailbox not found.' };
+
+  const provider = await getMailProvider(account);
+  if (!provider) {
+    return {
+      ok: false,
+      error: 'This mailbox provider is not supported yet.',
+    };
+  }
+  let ctx: MailProviderContext;
+  try {
+    ctx = await buildProviderContext(workspaceId, account);
+  } catch (e) {
+    return { ok: false, error: getErrorMessage(e) };
+  }
+  return { ok: true, data: { workspaceId, provider, ctx } };
+}
+
+/** True when an account should dispatch through the provider registry (non-IMAP). */
+function isNonImap(provider: SabmailAccount['provider'] | string | undefined): boolean {
+  return provider !== 'imap';
+}
+
+/**
+ * Cheap provider-kind peek for dispatch routing — reads ONLY the `provider`
+ * field so we can decide IMAP-inline vs registry-dispatch without paying for
+ * the IMAP credential decrypt the loaders do. Scoped to the workspace, so it
+ * doubles as the not-found / wrong-tenant guard before either path runs.
+ * Returns `undefined` when the account is missing/invalid (callers fall through
+ * to the IMAP loaders, which produce the canonical "Mailbox not found." error).
+ */
+async function peekAccountProvider(
+  workspaceId: string,
+  accountId: string,
+): Promise<string | undefined> {
+  if (!workspaceId || !accountId || !ObjectId.isValid(accountId)) return undefined;
+  try {
+    const { cols } = await getSabmailCollections();
+    const doc = (await cols.accounts.findOne(
+      { _id: new ObjectId(accountId), workspaceId },
+      { projection: { provider: 1 } },
+    )) as { provider?: string } | null;
+    return doc?.provider;
+  } catch {
+    return undefined;
+  }
+}
+
 /** Connect, run `fn`, always log out. imapflow is typed loosely (no bundled d.ts in strict mode). */
 async function withImap<T>(
   loaded: LoadedAccount,
@@ -232,6 +330,19 @@ async function sanitizeEmailHtml(html: string, showRemoteImages: boolean): Promi
 export async function listSabmailFolders(
   accountId: string,
 ): Promise<Result<{ folders: SabmailFolderRow[] }>> {
+  const workspaceId = await getSabmailWorkspaceId();
+  if (!workspaceId) return { ok: false, error: 'No active SabMail project.' };
+  const kind = await peekAccountProvider(workspaceId, accountId);
+  if (isNonImap(kind)) {
+    const resolved = await resolveProviderForWorkspace(workspaceId, accountId);
+    if (!resolved.ok) return { ok: false, error: resolved.error };
+    try {
+      const folders = await resolved.data.provider.listFolders(resolved.data.ctx);
+      return { ok: true, folders };
+    } catch (e) {
+      return { ok: false, error: getErrorMessage(e) };
+    }
+  }
   const loaded = await loadAccount(accountId);
   if (!loaded.ok) return { ok: false, error: loaded.error };
   try {
@@ -291,6 +402,25 @@ export async function listSabmailMessages(
   page = 0,
   pageSize = 30,
 ): Promise<Result<{ messages: SabmailMessageRow[]; total: number }>> {
+  const workspaceId = await getSabmailWorkspaceId();
+  if (!workspaceId) return { ok: false, error: 'No active SabMail project.' };
+  const kind = await peekAccountProvider(workspaceId, accountId);
+  if (isNonImap(kind)) {
+    const resolved = await resolveProviderForWorkspace(workspaceId, accountId);
+    if (!resolved.ok) return { ok: false, error: resolved.error };
+    try {
+      const data = await resolved.data.provider.listMessages(
+        resolved.data.ctx,
+        path,
+        page,
+        pageSize,
+      );
+      await annotateScreenerDecisions(resolved.data.workspaceId, data.messages);
+      return { ok: true, ...data };
+    } catch (e) {
+      return { ok: false, error: getErrorMessage(e) };
+    }
+  }
   const loaded = await loadAccount(accountId);
   if (!loaded.ok) return { ok: false, error: loaded.error };
   try {
@@ -345,6 +475,28 @@ export async function getSabmailMessage(
   uid: number,
   opts?: { showRemoteImages?: boolean; markSeen?: boolean },
 ): Promise<Result<{ message: SabmailMessageFull }>> {
+  const workspaceId = await getSabmailWorkspaceId();
+  if (!workspaceId) return { ok: false, error: 'No active SabMail project.' };
+  const kind = await peekAccountProvider(workspaceId, accountId);
+  if (isNonImap(kind)) {
+    const resolved = await resolveProviderForWorkspace(workspaceId, accountId);
+    if (!resolved.ok) return { ok: false, error: resolved.error };
+    try {
+      // uid/id boundary: the action signature stays numeric (`uid`); the
+      // adapter contract takes a string id. For non-IMAP the id round-trips as
+      // the numeric form rendered to string here — the adapter returns the full
+      // shape (incl. the numeric `uid`) directly, so no cast on the way back.
+      const message = await resolved.data.provider.getMessage(
+        resolved.data.ctx,
+        path,
+        String(uid),
+        opts,
+      );
+      return { ok: true, message };
+    } catch (e) {
+      return { ok: false, error: getErrorMessage(e) };
+    }
+  }
   const loaded = await loadAccount(accountId);
   if (!loaded.ok) return { ok: false, error: loaded.error };
   const showRemoteImages = !!opts?.showRemoteImages;
@@ -492,6 +644,18 @@ async function resolveSpecialFolder(
 export async function sendSabmailMessage(
   input: SabmailSendInput,
 ): Promise<Result<{ messageId: string }>> {
+  const workspaceId = await getSabmailWorkspaceId();
+  if (!workspaceId) return { ok: false, error: 'No active SabMail project.' };
+  const kind = await peekAccountProvider(workspaceId, input.accountId);
+  if (isNonImap(kind)) {
+    const resolved = await resolveProviderForWorkspace(workspaceId, input.accountId);
+    if (!resolved.ok) return { ok: false, error: resolved.error };
+    try {
+      return { ok: true, ...(await resolved.data.provider.send(resolved.data.ctx, input)) };
+    } catch (e) {
+      return { ok: false, error: getErrorMessage(e) };
+    }
+  }
   const loaded = await loadAccount(input.accountId);
   if (!loaded.ok) return { ok: false, error: loaded.error };
   return sendWithLoaded(loaded.data, input);
@@ -505,6 +669,19 @@ export async function sendSabmailMessageForWorkspace(
   workspaceId: string,
   input: SabmailSendInput,
 ): Promise<Result<{ messageId: string }>> {
+  // Non-IMAP (Gmail/Outlook) accounts dispatch through the provider registry —
+  // so scheduled/bulk campaign sends from those mailboxes work too, not just
+  // the interactive path.
+  const kind = await peekAccountProvider(workspaceId, input.accountId);
+  if (isNonImap(kind)) {
+    const resolved = await resolveProviderForWorkspace(workspaceId, input.accountId);
+    if (!resolved.ok) return { ok: false, error: resolved.error };
+    try {
+      return { ok: true, ...(await resolved.data.provider.send(resolved.data.ctx, input)) };
+    } catch (e) {
+      return { ok: false, error: getErrorMessage(e) };
+    }
+  }
   const loaded = await loadAccountForWorkspace(workspaceId, input.accountId);
   if (!loaded.ok) return { ok: false, error: loaded.error };
   return sendWithLoaded(loaded.data, input);
@@ -680,6 +857,19 @@ export async function archiveSabmailMessage(
   path: string,
   uid: number,
 ): Promise<VoidResult> {
+  const workspaceId = await getSabmailWorkspaceId();
+  if (!workspaceId) return { ok: false, error: 'No active SabMail project.' };
+  const kind = await peekAccountProvider(workspaceId, accountId);
+  if (isNonImap(kind)) {
+    const resolved = await resolveProviderForWorkspace(workspaceId, accountId);
+    if (!resolved.ok) return { ok: false, error: resolved.error };
+    try {
+      await resolved.data.provider.archive(resolved.data.ctx, path, String(uid));
+      return { ok: true };
+    } catch (e) {
+      return { ok: false, error: getErrorMessage(e) };
+    }
+  }
   return moveToSpecial(accountId, path, uid, '\\Archive', ['Archive', 'All Mail', '[Gmail]/All Mail']);
 }
 
@@ -688,6 +878,19 @@ export async function trashSabmailMessage(
   path: string,
   uid: number,
 ): Promise<VoidResult> {
+  const workspaceId = await getSabmailWorkspaceId();
+  if (!workspaceId) return { ok: false, error: 'No active SabMail project.' };
+  const kind = await peekAccountProvider(workspaceId, accountId);
+  if (isNonImap(kind)) {
+    const resolved = await resolveProviderForWorkspace(workspaceId, accountId);
+    if (!resolved.ok) return { ok: false, error: resolved.error };
+    try {
+      await resolved.data.provider.trash(resolved.data.ctx, path, String(uid));
+      return { ok: true };
+    } catch (e) {
+      return { ok: false, error: getErrorMessage(e) };
+    }
+  }
   return moveToSpecial(accountId, path, uid, '\\Trash', ['Trash', 'Deleted', 'Deleted Items', '[Gmail]/Trash']);
 }
 
@@ -698,6 +901,19 @@ export async function setSabmailFlag(
   flag: 'seen' | 'flagged',
   value: boolean,
 ): Promise<VoidResult> {
+  const workspaceId = await getSabmailWorkspaceId();
+  if (!workspaceId) return { ok: false, error: 'No active SabMail project.' };
+  const kind = await peekAccountProvider(workspaceId, accountId);
+  if (isNonImap(kind)) {
+    const resolved = await resolveProviderForWorkspace(workspaceId, accountId);
+    if (!resolved.ok) return { ok: false, error: resolved.error };
+    try {
+      await resolved.data.provider.setFlag(resolved.data.ctx, path, String(uid), flag, value);
+      return { ok: true };
+    } catch (e) {
+      return { ok: false, error: getErrorMessage(e) };
+    }
+  }
   const loaded = await loadAccount(accountId);
   if (!loaded.ok) return { ok: false, error: loaded.error };
   const imapFlag = flag === 'seen' ? '\\Seen' : '\\Flagged';
