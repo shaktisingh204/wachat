@@ -18,6 +18,7 @@ import {
   type MailProvider,
   type MailProviderContext,
 } from '@/lib/sabmail/providers/types';
+import { getActiveSnoozedUids } from './snooze-actions';
 import { getErrorMessage } from '@/lib/utils';
 
 /* ──────────────────────────────────────────────────────────────────────
@@ -396,6 +397,30 @@ async function annotateScreenerDecisions(
   }
 }
 
+/**
+ * Drop currently-snoozed messages from a freshly-built page, decrementing the
+ * reported total accordingly. Best-effort: a snooze-lookup failure (or no
+ * workspace) leaves the list untouched so snooze never breaks inbox loading.
+ * `folder` is the IMAP path (e.g. 'INBOX'); the param order mirrors the
+ * `getActiveSnoozedUids(workspaceId, accountId, folder)` helper.
+ */
+async function filterSnoozedMessages(
+  workspaceId: string,
+  accountId: string,
+  folder: string,
+  data: { messages: SabmailMessageRow[]; total: number },
+): Promise<{ messages: SabmailMessageRow[]; total: number }> {
+  try {
+    const hidden = new Set(await getActiveSnoozedUids(workspaceId, accountId, folder));
+    if (hidden.size === 0) return data;
+    const kept = data.messages.filter((row) => !hidden.has(row.uid));
+    const removed = data.messages.length - kept.length;
+    return { messages: kept, total: Math.max(0, data.total - removed) };
+  } catch {
+    return data;
+  }
+}
+
 export async function listSabmailMessages(
   accountId: string,
   path = 'INBOX',
@@ -416,7 +441,13 @@ export async function listSabmailMessages(
         pageSize,
       );
       await annotateScreenerDecisions(resolved.data.workspaceId, data.messages);
-      return { ok: true, ...data };
+      const visible = await filterSnoozedMessages(
+        resolved.data.workspaceId,
+        accountId,
+        path,
+        data,
+      );
+      return { ok: true, ...visible };
     } catch (e) {
       return { ok: false, error: getErrorMessage(e) };
     }
@@ -463,7 +494,13 @@ export async function listSabmailMessages(
       }
     });
     await annotateScreenerDecisions(loaded.data.workspaceId, data.messages);
-    return { ok: true, ...data };
+    const visible = await filterSnoozedMessages(
+      loaded.data.workspaceId,
+      accountId,
+      path,
+      data,
+    );
+    return { ok: true, ...visible };
   } catch (e) {
     return { ok: false, error: getErrorMessage(e) };
   }

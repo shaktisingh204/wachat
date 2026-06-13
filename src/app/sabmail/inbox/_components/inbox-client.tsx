@@ -4,6 +4,7 @@ import * as React from "react";
 import {
   Archive,
   AtSign,
+  Clock,
   FileText,
   Folder,
   Forward,
@@ -35,6 +36,10 @@ import {
   CommandList,
   CommandShortcut,
   EmptyState,
+  Popover,
+  PopoverClose,
+  PopoverContent,
+  PopoverTrigger,
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
@@ -67,6 +72,8 @@ import {
   type SabmailMessageFull,
   type SabmailMessageRow,
 } from "../actions";
+import { snoozeSabmailMessage } from "../snooze-actions";
+import { useSabmailStream } from "./use-sabmail-stream";
 import { ComposeModal, buildReplyPrefill, textToHtml, type ComposePrefill } from "./compose-modal";
 import { groupThreads } from "./threading";
 import { cacheMessages, getCachedMessages } from "@/lib/sabmail/offline-cache";
@@ -118,6 +125,57 @@ function buildSrcDoc(html: string): string {
     pre{white-space:pre-wrap;word-break:break-word}
   </style></head><body>${html}</body></html>`;
 }
+
+/* ── snooze presets (computed client-side, in the user's local time) ───── */
+
+interface SnoozePreset {
+  label: string;
+  /** Returns the resurface time as an ISO string, relative to "now". */
+  at: () => string;
+}
+
+const SNOOZE_PRESETS: SnoozePreset[] = [
+  {
+    label: "Later today",
+    at: () => new Date(Date.now() + 3 * 60 * 60 * 1000).toISOString(),
+  },
+  {
+    label: "Tomorrow 9am",
+    at: () => {
+      const d = new Date();
+      d.setDate(d.getDate() + 1);
+      d.setHours(9, 0, 0, 0);
+      return d.toISOString();
+    },
+  },
+  {
+    label: "This weekend",
+    at: () => {
+      // Next Saturday at 9am (if today is already Sat/Sun, jump to the
+      // upcoming Saturday so the message doesn't resurface immediately).
+      const d = new Date();
+      const day = d.getDay(); // 0 = Sun … 6 = Sat
+      let add = (6 - day + 7) % 7; // days until the next Saturday
+      if (add === 0) add = 7;
+      d.setDate(d.getDate() + add);
+      d.setHours(9, 0, 0, 0);
+      return d.toISOString();
+    },
+  },
+  {
+    label: "Next week",
+    at: () => {
+      // Next Monday at 9am.
+      const d = new Date();
+      const day = d.getDay();
+      let add = (1 - day + 7) % 7; // days until the next Monday
+      if (add === 0) add = 7;
+      d.setDate(d.getDate() + add);
+      d.setHours(9, 0, 0, 0);
+      return d.toISOString();
+    },
+  },
+];
 
 /* ── component ───────────────────────────────────────────────────────── */
 
@@ -328,6 +386,22 @@ export function SabmailInboxClient({ accounts }: { accounts: SabmailAccountRow[]
     void loadMessages(accountId, folderPath);
   }, [accountId, folderPath, loadMessages]);
 
+  // ── Real-time: refresh the open folder when the worker reports new mail ──
+  // The SSE `new_mail` payload carries the affected `accountId`; refresh only
+  // when it matches the active account (or when absent — polling-fallback ticks
+  // send `{}`). A live search is left untouched so results don't get clobbered.
+  const { connected: liveConnected } = useSabmailStream({
+    enabled: !!accountId,
+    onNewMail: React.useCallback(
+      (payload: { accountId?: string; path?: string; count?: number }) => {
+        if (payload.accountId && payload.accountId !== accountId) return;
+        if (searchActive) return;
+        void loadMessages(accountId, folderPath);
+      },
+      [accountId, folderPath, loadMessages, searchActive],
+    ),
+  });
+
   const startCompose = React.useCallback((title: string, prefill?: ComposePrefill) => {
     composeNonce.current += 1;
     setCompose({ title, prefill });
@@ -503,6 +577,33 @@ export function SabmailInboxClient({ accounts }: { accounts: SabmailAccountRow[]
       }
     },
     [accountId, folderPath, messages, toast],
+  );
+
+  const doSnooze = React.useCallback(
+    async (uid: number, preset: SnoozePreset) => {
+      const subject =
+        messages.find((m) => m.uid === uid)?.subject ??
+        (full?.uid === uid ? full.subject : undefined);
+      const untilISO = preset.at();
+      const restore = removeWithRestore(uid); // optimistic — hide until it resurfaces
+      const res = await snoozeSabmailMessage({
+        accountId,
+        folder: folderPath,
+        uid,
+        untilISO,
+        ...(subject ? { subject } : {}),
+      });
+      if (!res.ok) {
+        restore();
+        toast({ title: "Couldn't snooze", description: res.error, variant: "destructive" });
+        return;
+      }
+      toast({
+        title: "Snoozed",
+        description: `Back ${preset.label.toLowerCase()}.`,
+      });
+    },
+    [accountId, folderPath, messages, full, removeWithRestore, toast],
   );
 
   const moveSelection = React.useCallback(
@@ -690,6 +791,13 @@ export function SabmailInboxClient({ accounts }: { accounts: SabmailAccountRow[]
                       {messages.length}
                     </Badge>
                   ) : null}
+                  {liveConnected ? (
+                    <span
+                      className="inline-flex h-2 w-2 shrink-0 rounded-full bg-emerald-500"
+                      title="Live — new mail appears automatically"
+                      aria-label="Live updates connected"
+                    />
+                  ) : null}
                 </div>
               )}
               {!searchOpen ? (
@@ -797,18 +905,21 @@ export function SabmailInboxClient({ accounts }: { accounts: SabmailAccountRow[]
                   const unread = th.unread;
                   const cat = threadCategory(th.uids, categories);
                   return (
-                    <button
+                    <div
                       key={th.key}
+                      className="sabmail-stagger-item group relative"
+                      style={{ ["--i" as string]: Math.min(i, 20) } as React.CSSProperties}
+                    >
+                    <button
                       type="button"
                       onClick={() => void openMessage(m.uid)}
-                      className={`sabmail-stagger-item sabmail-row flex w-full flex-col gap-1 border-b border-l-2 border-[var(--st-border)] px-3 py-2.5 text-left ${
+                      className={`sabmail-row flex w-full flex-col gap-1 border-b border-l-2 border-[var(--st-border)] px-3 py-2.5 text-left ${
                         active
                           ? "border-l-[var(--st-accent)] bg-[var(--st-bg-muted)]"
                           : unread
                             ? "border-l-[var(--st-accent)] hover:bg-[var(--st-bg-muted)]"
                             : "border-l-transparent hover:bg-[var(--st-bg-muted)]"
                       }`}
-                      style={{ ["--i" as string]: Math.min(i, 20) } as React.CSSProperties}
                     >
                       <div className="flex items-center justify-between gap-2">
                         <span className="flex min-w-0 items-center gap-1.5">
@@ -852,6 +963,40 @@ export function SabmailInboxClient({ accounts }: { accounts: SabmailAccountRow[]
                         ) : null}
                       </div>
                     </button>
+                    {/* Hover action: snooze the latest message in this thread. */}
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button
+                          type="button"
+                          aria-label="Snooze"
+                          title="Snooze"
+                          onClick={(e) => e.stopPropagation()}
+                          className="absolute right-2 top-2 hidden rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] p-1 text-[var(--st-text-secondary)] shadow-sm hover:text-[var(--st-text)] group-hover:block data-[state=open]:block"
+                        >
+                          <Clock className="h-3.5 w-3.5" aria-hidden />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent align="end" className="w-52 p-1.5">
+                        <div className="mb-1 px-1.5 pt-0.5 text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
+                          Snooze until
+                        </div>
+                        <div className="flex flex-col">
+                          {SNOOZE_PRESETS.map((p) => (
+                            <PopoverClose key={p.label} asChild>
+                              <button
+                                type="button"
+                                onClick={() => void doSnooze(m.uid, p)}
+                                className="flex items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]"
+                              >
+                                <Clock className="h-3.5 w-3.5 shrink-0 text-[var(--st-text-secondary)]" aria-hidden />
+                                {p.label}
+                              </button>
+                            </PopoverClose>
+                          ))}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                    </div>
                   );
                 })
               )}
@@ -953,6 +1098,32 @@ export function SabmailInboxClient({ accounts }: { accounts: SabmailAccountRow[]
                         aria-hidden
                       />
                     </Button>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="ghost" size="sm" aria-label="Snooze">
+                          <Clock className="h-4 w-4" aria-hidden />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent align="start" className="w-52 p-1.5">
+                        <div className="mb-1 px-1.5 pt-0.5 text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
+                          Snooze until
+                        </div>
+                        <div className="flex flex-col">
+                          {SNOOZE_PRESETS.map((p) => (
+                            <PopoverClose key={p.label} asChild>
+                              <button
+                                type="button"
+                                onClick={() => void doSnooze(full.uid, p)}
+                                className="flex items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]"
+                              >
+                                <Clock className="h-3.5 w-3.5 shrink-0 text-[var(--st-text-secondary)]" aria-hidden />
+                                {p.label}
+                              </button>
+                            </PopoverClose>
+                          ))}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
                     <span className="mx-1 h-5 w-px bg-[var(--st-border)]" aria-hidden />
                     <Button
                       variant="ghost"

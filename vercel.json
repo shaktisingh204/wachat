@@ -26,6 +26,10 @@
       "schedule": "* * * * *"
     },
     {
+      "path": "/api/cron/sabmail-snooze",
+      "schedule": "* * * * *"
+    },
+    {
       "path": "/api/cron/sabmail-brief",
       "schedule": "0 7 * * *"
     },

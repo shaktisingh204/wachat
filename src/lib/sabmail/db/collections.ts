@@ -40,6 +40,7 @@ export const SABMAIL_COLLECTIONS = {
   audit: 'sabmail_audit',
   screener: 'sabmail_screener',
   pgpKeys: 'sabmail_pgp_keys',
+  snoozes: 'sabmail_snoozes',
 } as const;
 
 export type SabmailCollectionName =
