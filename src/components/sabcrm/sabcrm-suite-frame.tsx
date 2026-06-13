@@ -62,6 +62,9 @@ import {
   Workflow,
   LifeBuoy,
   Megaphone,
+  Bot,
+  ListFilter,
+  Trophy,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -335,6 +338,9 @@ export function SabcrmSuiteFrame({ children }: { children: React.ReactNode }) {
       { group: 'insights', id: 'reports', label: 'Reports', href: '/sabcrm/reports', icon: BarChart3 },
       { group: 'insights', id: 'data-quality', label: 'Data health', href: '/sabcrm/data-quality', icon: ShieldCheck },
       { group: 'insights', id: 'nba', label: 'Next best action', href: '/sabcrm/nba', icon: Sparkles },
+      { group: 'insights', id: 'copilot', label: 'Copilot', href: '/sabcrm/copilot', icon: Bot },
+      { group: 'insights', id: 'list-builder', label: 'List builder', href: '/sabcrm/list-builder', icon: ListFilter },
+      { group: 'insights', id: 'leaderboard', label: 'Leaderboard', href: '/sabcrm/leaderboard', icon: Trophy },
       { group: 'insights', id: 'attribution', label: 'Attribution', href: '/sabcrm/attribution', icon: Megaphone },
       { group: 'insights', id: 'activity', label: 'Activity', href: '/sabcrm/activity', icon: Activity },
       { group: 'insights', id: 'calendar', label: 'Calendar', href: '/sabcrm/calendar', icon: Calendar },

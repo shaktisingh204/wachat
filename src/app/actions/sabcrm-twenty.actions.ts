@@ -60,6 +60,7 @@ import {
   fanoutRecordCreated,
   fanoutRecordUpdated,
 } from '@/lib/sabcrm/record-fanout.server';
+import { scoreCalibrated } from '@/lib/sabcrm/predictive-calibration.server';
 import { scoreWinForRecord } from '@/lib/sabcrm/predictive-scoring.server';
 import {
   validateRecordWrite,
@@ -566,6 +567,7 @@ export async function createSabcrmRecordTw(
     await indexEmbeddingForRecord(g.ctx.projectId, object, record.id);
     await recomputeRollupsAround(g.ctx.projectId, object, record.id);
     await scoreWinForRecord(g.ctx.projectId, object, record.id);
+    await scoreCalibrated(g.ctx.projectId, object, record.id);
     if (object === CASES_SLUG) {
       await recomputeSlaForCase(g.ctx.projectId, record.id);
     }
@@ -700,6 +702,7 @@ export async function updateSabcrmRecordTw(
     await indexEmbeddingForRecord(g.ctx.projectId, object, id);
     await recomputeRollupsAround(g.ctx.projectId, object, id);
     await scoreWinForRecord(g.ctx.projectId, object, id);
+    await scoreCalibrated(g.ctx.projectId, object, id);
     if (object === CASES_SLUG) {
       await recomputeSlaForCase(g.ctx.projectId, id);
     }

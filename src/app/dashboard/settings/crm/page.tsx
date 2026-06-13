@@ -38,6 +38,7 @@ import {
   ListChecks,
   Inbox,
   LifeBuoy,
+  Brain,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -194,6 +195,12 @@ const GROUPS: readonly SettingsGroup[] = [
         label: 'Lead scoring',
         description: 'Rule-based lead and deal scoring',
         icon: Target,
+      },
+      {
+        slug: 'predictive',
+        label: 'Predictive win-scoring',
+        description: 'Calibrated, per-segment AI win-probability with explanations',
+        icon: Brain,
       },
       {
         slug: 'win-loss',

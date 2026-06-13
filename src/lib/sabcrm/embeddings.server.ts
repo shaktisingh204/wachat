@@ -320,6 +320,35 @@ export async function semanticSearch(
 ): Promise<RagCandidate[] | null> {
   const qv = await embedText(query, { maxRetries: 2 });
   if (!qv) return null;
+
+  // ANN fast-path (opt-in, large corpora): our own in-house LSH index. Reuses
+  // the already-computed query vector (zero extra embedding cost) and the EXACT
+  // owner-scoped ACL hydration. Returns null below the corpus threshold / on any
+  // failure, so the brute-force cosine path below always remains the safety net.
+  try {
+    const { annSemanticSearch, ANN_MIN_CORPUS } = await import('./ann-index.server');
+    const { db } = await connectToDatabase();
+    const col = await embCollection(db);
+    const corpus = await col.countDocuments(
+      {
+        projectId,
+        dim: EMBED_DIM,
+        model: OPENAI_EMBED_MODEL,
+        ...(opts?.objects?.length ? { object: { $in: opts.objects } } : {}),
+      },
+      { limit: ANN_MIN_CORPUS },
+    );
+    if (corpus >= ANN_MIN_CORPUS) {
+      const ann = await annSemanticSearch(projectId, userId, qv, {
+        objects: opts?.objects,
+        topK: opts?.topK ?? 12,
+      });
+      if (ann) return ann;
+    }
+  } catch {
+    /* fall through to brute-force */
+  }
+
   try {
     const topK = opts?.topK ?? 12;
     // Our own vector store: brute-force cosine over the Mongo-stored vectors.
