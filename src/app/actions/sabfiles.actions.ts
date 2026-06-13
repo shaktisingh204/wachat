@@ -16,10 +16,14 @@
  */
 
 import { revalidatePath } from 'next/cache';
+import { ObjectId } from 'mongodb';
 
 import { rustClient, RustApiError } from '@/lib/rust-client';
 import { getSession } from '@/app/actions/user.actions';
 import { recordFlowAction } from '@/lib/sabflow/audit/middleware';
+import { connectToDatabase } from '@/lib/mongodb';
+import { listCrmMembers } from '@/lib/sabcrm/members.server';
+import { notifyTeamMember } from '@/lib/team-notifications';
 import type {
     SabfilesNode,
     ListNodesQuery,
@@ -27,7 +31,13 @@ import type {
     PresignUploadBody,
     ConfirmUploadBody,
     CreateShareBody,
+    SabfilesMemberRole,
 } from '@/lib/rust-client/sabfiles';
+import type {
+    SabFileMember,
+    SabFileRole,
+    SabFolderRollupMap,
+} from '@/components/sabfiles/views/types';
 
 async function getActorId(): Promise<string | null> {
     const session = await getSession();
@@ -337,6 +347,201 @@ export async function getLibrary(q?: LibraryQuery) {
 export async function searchFiles(q: string) {
     try {
         return await rustClient.sabfiles.search(q);
+    } catch (e) {
+        return { ...asError(e), nodes: [] as SabfilesNode[] };
+    }
+}
+
+// ───────────────────────────────────────────────────────────────────────
+// Folder rollups (per-folder file count + size for the folder cards)
+// ───────────────────────────────────────────────────────────────────────
+
+export async function getFolderRollups(parentId: string | null): Promise<SabFolderRollupMap> {
+    try {
+        const { rollups } = await rustClient.sabfiles.folderRollups(parentId);
+        const out: SabFolderRollupMap = {};
+        for (const [id, r] of Object.entries(rollups)) {
+            out[id] = { fileCount: r.file_count, totalBytes: r.total_bytes };
+        }
+        return out;
+    } catch {
+        // Rollups are decorative — never block the page on a failure.
+        return {};
+    }
+}
+
+// ───────────────────────────────────────────────────────────────────────
+// Collaborators (share files/folders with other SabNode users)
+// ───────────────────────────────────────────────────────────────────────
+
+export type SabfilesUserProfile = {
+    userId: string;
+    name: string;
+    email: string;
+    image?: string;
+};
+
+/** Resolve a batch of user ids to display profiles (name/email/avatar). */
+async function enrichProfiles(
+    userIds: string[],
+): Promise<Record<string, SabfilesUserProfile>> {
+    const unique = Array.from(new Set(userIds.filter(Boolean)));
+    if (unique.length === 0) return {};
+    const oids: ObjectId[] = [];
+    for (const id of unique) {
+        try {
+            oids.push(new ObjectId(id));
+        } catch {
+            // Skip non-ObjectId ids rather than failing the whole batch.
+        }
+    }
+    if (oids.length === 0) return {};
+    const { db } = await connectToDatabase();
+    const docs = await db
+        .collection('users')
+        .find({ _id: { $in: oids } }, { projection: { name: 1, email: 1, image: 1 } })
+        .toArray();
+    const out: Record<string, SabfilesUserProfile> = {};
+    for (const d of docs) {
+        const id = String(d._id);
+        out[id] = {
+            userId: id,
+            name: (d.name as string) || '',
+            email: (d.email as string) || '',
+            image: (d.image as string) || undefined,
+        };
+    }
+    return out;
+}
+
+/** Batch profile lookup for the file table / grid member avatars. */
+export async function getUserProfiles(userIds: string[]) {
+    try {
+        return { profiles: await enrichProfiles(userIds) };
+    } catch (e) {
+        return { ...asError(e), profiles: {} as Record<string, SabfilesUserProfile> };
+    }
+}
+
+/** The owner + collaborators on a node, enriched with profiles. */
+export async function listFileMembers(
+    nodeId: string,
+): Promise<{ members: SabFileMember[]; error?: string }> {
+    try {
+        const { members } = await rustClient.sabfiles.listMembers(nodeId);
+        const profiles = await enrichProfiles(members.map((m) => m.user_id));
+        const enriched: SabFileMember[] = members.map((m) => {
+            const p = profiles[m.user_id];
+            return {
+                userId: m.user_id,
+                name: p?.name || p?.email || 'Unknown user',
+                email: p?.email || '',
+                image: p?.image,
+                role: m.role as SabFileRole,
+                isOwner: m.is_owner,
+            };
+        });
+        return { members: enriched };
+    } catch (e) {
+        return { ...asError(e), members: [] };
+    }
+}
+
+/** Workspace members the current user can share with (for the share dialog). */
+export async function listShareablePeople(): Promise<{
+    people: { userId: string; name: string; email: string; image?: string }[];
+}> {
+    try {
+        const session = await getSession();
+        const projectId = (session?.user as { activeProjectId?: string } | undefined)?.activeProjectId;
+        if (!projectId) return { people: [] };
+        const members = await listCrmMembers(projectId);
+        return {
+            people: members.map((m) => ({
+                userId: m.userId,
+                name: m.name || m.email,
+                email: m.email,
+                image: m.image,
+            })),
+        };
+    } catch {
+        return { people: [] };
+    }
+}
+
+/** Add (or update the role of) a collaborator on a node, by email. */
+export async function addFileMember(
+    nodeId: string,
+    email: string,
+    role: SabFileRole,
+    parentId: string | null,
+) {
+    const session = await getSession();
+    if (!session?.user) return { error: 'Unauthorized' };
+    const normalized = email.trim().toLowerCase();
+    if (!normalized) return { error: 'Email is required' };
+    try {
+        const { db } = await connectToDatabase();
+        const target = await db
+            .collection('users')
+            .findOne({ email: normalized }, { projection: { name: 1, email: 1, image: 1 } });
+        if (!target) return { error: 'No SabNode account uses that email.' };
+        const targetId = String(target._id);
+        const nextRole: SabfilesMemberRole = role === 'editor' ? 'editor' : 'viewer';
+        await rustClient.sabfiles.addMember(nodeId, targetId, nextRole);
+        revalidatePath(pathFor(parentId));
+        revalidatePath('/dashboard/sabfiles/shared-with-me');
+        const sharer = session.user as { name?: string; email?: string };
+        const sharerName = sharer.name || sharer.email || 'Someone';
+        void notifyTeamMember({
+            recipientUserId: targetId,
+            message: `${sharerName} shared a file with you`,
+            link: '/dashboard/sabfiles/shared-with-me',
+            eventType: 'FILE_SHARED',
+        });
+        const actorId = await getActorId();
+        if (actorId) {
+            void recordFlowAction('sabfile.member.added', {
+                userId: actorId,
+                target: nodeId,
+                metadata: { targetId, role: nextRole },
+            });
+        }
+        const member: SabFileMember = {
+            userId: targetId,
+            name: (target.name as string) || (target.email as string) || normalized,
+            email: (target.email as string) || normalized,
+            image: (target.image as string) || undefined,
+            role: nextRole,
+            isOwner: false,
+        };
+        return { ok: true, member };
+    } catch (e) {
+        return asError(e);
+    }
+}
+
+/** Remove a collaborator from a node. */
+export async function removeFileMember(
+    nodeId: string,
+    userId: string,
+    parentId: string | null,
+) {
+    const session = await getSession();
+    if (!session?.user) return { error: 'Unauthorized' };
+    try {
+        const res = await rustClient.sabfiles.removeMember(nodeId, userId);
+        revalidatePath(pathFor(parentId));
+        revalidatePath('/dashboard/sabfiles/shared-with-me');
+        return res;
+    } catch (e) {
+        return asError(e);
+    }
+}
+
+export async function getSharedWithMe() {
+    try {
+        return await rustClient.sabfiles.sharedWithMe();
     } catch (e) {
         return { ...asError(e), nodes: [] as SabfilesNode[] };
     }

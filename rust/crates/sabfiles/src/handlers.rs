@@ -240,7 +240,8 @@ pub async fn get_node(
     let oid = node_oid(&id)?;
     let coll = s.mongo.collection::<Document>(NODES_COLL);
     let d = coll
-        .find_one(doc! { "_id": oid, "userId": user_id })
+        // Owner OR a collaborator (a user this node is shared with) may read it.
+        .find_one(doc! { "_id": oid, "$or": [ { "userId": user_id }, { "members.userId": user_id } ] })
         .await
         .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?
         .ok_or_else(|| ApiError::NotFound("node".to_owned()))?;
@@ -580,7 +581,12 @@ pub async fn node_download(
     let oid = node_oid(&id)?;
     let coll = s.mongo.collection::<Document>(NODES_COLL);
     let d = coll
-        .find_one(doc! { "_id": oid, "userId": user_id, "type": "file" })
+        // Owner OR a collaborator may download the file.
+        .find_one(doc! {
+            "_id": oid,
+            "type": "file",
+            "$or": [ { "userId": user_id }, { "members.userId": user_id } ],
+        })
         .await
         .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?
         .ok_or_else(|| ApiError::NotFound("file".to_owned()))?;
@@ -604,7 +610,12 @@ pub async fn node_preview(
     let oid = node_oid(&id)?;
     let coll = s.mongo.collection::<Document>(NODES_COLL);
     let d = coll
-        .find_one(doc! { "_id": oid, "userId": user_id, "type": "file" })
+        // Owner OR a collaborator may preview the file.
+        .find_one(doc! {
+            "_id": oid,
+            "type": "file",
+            "$or": [ { "userId": user_id }, { "members.userId": user_id } ],
+        })
         .await
         .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?
         .ok_or_else(|| ApiError::NotFound("file".to_owned()))?;
@@ -616,6 +627,262 @@ pub async fn node_preview(
             .await
             .map_err(ApiError::Internal)?;
     Ok(Json(DownloadUrlResponse { url }))
+}
+
+/// Pull a non-negative integer out of an aggregation row, tolerating the
+/// i32/i64/f64 shapes Mongo may return for `$sum`/`$size`.
+fn extract_u64(d: &Document, key: &str) -> u64 {
+    d.get_i64(key)
+        .map(|v| v.max(0) as u64)
+        .or_else(|_| d.get_i32(key).map(|v| v.max(0) as u64))
+        .or_else(|_| d.get_f64(key).map(|v| v.max(0.0) as u64))
+        .unwrap_or(0)
+}
+
+/// Recursive rollup (file count + byte total) for every immediate sub-folder
+/// of `parent`. Powers the "N files · X used" line on the folder cards. One
+/// `$graphLookup` per request walks each child folder's whole subtree.
+pub async fn folder_rollups(
+    user: AuthUser,
+    State(s): State<SabfilesState>,
+    Query(q): Query<FolderRollupsQuery>,
+) -> Result<Json<FolderRollupsResponse>> {
+    let user_id = user_oid(&user)?;
+    let parent = parent_filter(q.parent.as_deref())?;
+    let coll = s.mongo.collection::<Document>(NODES_COLL);
+    let pipeline = vec![
+        doc! { "$match": {
+            "userId": user_id,
+            "parentId": parent,
+            "type": "folder",
+            "trashed": { "$ne": true },
+        }},
+        doc! { "$graphLookup": {
+            "from": NODES_COLL,
+            "startWith": "$_id",
+            "connectFromField": "_id",
+            "connectToField": "parentId",
+            "as": "descendants",
+            "restrictSearchWithMatch": { "userId": user_id, "trashed": { "$ne": true } },
+        }},
+        doc! { "$project": {
+            "files": {
+                "$filter": {
+                    "input": "$descendants",
+                    "as": "d",
+                    "cond": { "$eq": [ "$$d.type", "file" ] },
+                }
+            },
+        }},
+        doc! { "$project": {
+            "fileCount": { "$size": "$files" },
+            "totalBytes": {
+                "$sum": {
+                    "$map": {
+                        "input": "$files",
+                        "as": "f",
+                        "in": { "$ifNull": [ "$$f.size", 0_i64 ] },
+                    }
+                }
+            },
+        }},
+    ];
+    let mut cursor = coll
+        .aggregate(pipeline)
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
+    let mut rollups: std::collections::HashMap<String, FolderRollup> = std::collections::HashMap::new();
+    while let Some(d) = cursor
+        .try_next()
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?
+    {
+        let Ok(oid) = d.get_object_id("_id") else {
+            continue;
+        };
+        rollups.insert(
+            oid.to_hex(),
+            FolderRollup {
+                file_count: extract_u64(&d, "fileCount"),
+                total_bytes: extract_u64(&d, "totalBytes"),
+            },
+        );
+    }
+    Ok(Json(FolderRollupsResponse { rollups }))
+}
+
+/// Nodes another user has shared WITH the caller (caller is a member but not
+/// the owner). Powers the "Shared with me" page.
+pub async fn list_shared_with_me(
+    user: AuthUser,
+    State(s): State<SabfilesState>,
+) -> Result<Json<NodesResponse>> {
+    let user_id = user_oid(&user)?;
+    let coll = s.mongo.collection::<Document>(NODES_COLL);
+    let mut cursor = coll
+        .find(doc! {
+            "members.userId": user_id,
+            "userId": { "$ne": user_id },
+            "trashed": { "$ne": true },
+        })
+        .with_options(FindOptions::builder().sort(doc! { "updatedAt": -1 }).build())
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
+    let mut out = Vec::new();
+    while let Some(d) = cursor
+        .try_next()
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?
+    {
+        out.push(decorate_node(&s.r2, d));
+    }
+    Ok(Json(NodesResponse { nodes: out }))
+}
+
+/// The owner + every collaborator on a node. Readable by owner or any member.
+pub async fn list_members(
+    user: AuthUser,
+    State(s): State<SabfilesState>,
+    Path(id): Path<String>,
+) -> Result<Json<MembersResponse>> {
+    let user_id = user_oid(&user)?;
+    let oid = node_oid(&id)?;
+    let coll = s.mongo.collection::<Document>(NODES_COLL);
+    let d = coll
+        .find_one(doc! {
+            "_id": oid,
+            "$or": [ { "userId": user_id }, { "members.userId": user_id } ],
+        })
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?
+        .ok_or_else(|| ApiError::NotFound("node".to_owned()))?;
+
+    let mut members: Vec<MemberDto> = Vec::new();
+    if let Ok(owner) = d.get_object_id("userId") {
+        members.push(MemberDto {
+            user_id: owner.to_hex(),
+            role: "owner".to_owned(),
+            added_at: None,
+            is_owner: true,
+        });
+    }
+    if let Ok(arr) = d.get_array("members") {
+        for m in arr {
+            if let Bson::Document(md) = m {
+                if let Ok(uid) = md.get_object_id("userId") {
+                    members.push(MemberDto {
+                        user_id: uid.to_hex(),
+                        role: md.get_str("role").unwrap_or("viewer").to_owned(),
+                        added_at: md
+                            .get_datetime("addedAt")
+                            .ok()
+                            .map(|dt| dt.to_chrono().to_rfc3339()),
+                        is_owner: false,
+                    });
+                }
+            }
+        }
+    }
+    Ok(Json(MembersResponse { members }))
+}
+
+/// Add (or update the role of) a collaborator. Owner or an editor may manage.
+pub async fn add_member(
+    user: AuthUser,
+    State(s): State<SabfilesState>,
+    Path(id): Path<String>,
+    Json(body): Json<AddMemberBody>,
+) -> Result<Json<OkResponse>> {
+    let user_id = user_oid(&user)?;
+    let oid = node_oid(&id)?;
+    let target = ObjectId::parse_str(&body.user_id)
+        .map_err(|_| ApiError::BadRequest("invalid user id".to_owned()))?;
+    if target == user_id {
+        return Err(ApiError::BadRequest(
+            "the owner is always a member".to_owned(),
+        ));
+    }
+    let role = match body.role.as_deref() {
+        Some("editor") => "editor",
+        _ => "viewer",
+    };
+    let coll = s.mongo.collection::<Document>(NODES_COLL);
+    // Manage gate: owner OR an existing editor.
+    coll.find_one(doc! {
+        "_id": oid,
+        "$or": [
+            { "userId": user_id },
+            { "members": { "$elemMatch": { "userId": user_id, "role": "editor" } } },
+        ],
+    })
+    .await
+    .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?
+    .ok_or_else(|| ApiError::NotFound("node".to_owned()))?;
+
+    let now = Utc::now();
+    // Upsert the member: drop any existing entry, then push the fresh one.
+    coll.update_one(
+        doc! { "_id": oid },
+        doc! { "$pull": { "members": { "userId": target } } },
+    )
+    .await
+    .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
+    coll.update_one(
+        doc! { "_id": oid },
+        doc! {
+            "$push": { "members": {
+                "userId": target,
+                "role": role,
+                "addedAt": bson::DateTime::from_chrono(now),
+            }},
+            "$set": { "updatedAt": bson::DateTime::from_chrono(now) },
+        },
+    )
+    .await
+    .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
+    Ok(Json(OkResponse {
+        ok: true,
+        affected: Some(1),
+    }))
+}
+
+/// Remove a collaborator. Owner or an editor may manage.
+pub async fn remove_member(
+    user: AuthUser,
+    State(s): State<SabfilesState>,
+    Path(id): Path<String>,
+    Json(body): Json<RemoveMemberBody>,
+) -> Result<Json<OkResponse>> {
+    let user_id = user_oid(&user)?;
+    let oid = node_oid(&id)?;
+    let target = ObjectId::parse_str(&body.user_id)
+        .map_err(|_| ApiError::BadRequest("invalid user id".to_owned()))?;
+    let coll = s.mongo.collection::<Document>(NODES_COLL);
+    coll.find_one(doc! {
+        "_id": oid,
+        "$or": [
+            { "userId": user_id },
+            { "members": { "$elemMatch": { "userId": user_id, "role": "editor" } } },
+        ],
+    })
+    .await
+    .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?
+    .ok_or_else(|| ApiError::NotFound("node".to_owned()))?;
+
+    let res = coll
+        .update_one(
+            doc! { "_id": oid },
+            doc! {
+                "$pull": { "members": { "userId": target } },
+                "$set": { "updatedAt": bson::DateTime::from_chrono(Utc::now()) },
+            },
+        )
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
+    Ok(Json(OkResponse {
+        ok: true,
+        affected: Some(res.modified_count),
+    }))
 }
 
 // ───────────────────────────────────────────────────────────────────────

@@ -2,18 +2,20 @@
 
 import * as React from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
     Download,
     File as FileIcon,
-    FileText,
-    FolderPlus,
     Folder,
     FolderOpen,
+    FolderPlus,
     HardDrive,
-    Image as ImageIcon,
+    LayoutGrid,
     Link2,
+    List as ListIcon,
     MoreHorizontal,
     Pencil,
+    Plus,
     Share2,
     Star,
     Trash2,
@@ -26,35 +28,27 @@ import {
     Button,
     Card,
     CardBody,
-    CardHeader,
-    CardTitle,
     Dialog,
     DialogContent,
     DialogDescription,
     DialogFooter,
     DialogHeader,
     DialogTitle,
-    EmptyState,
     Field,
     IconButton,
     Input,
     Menu,
     MenuItem,
     MenuSeparator,
+    PageActions,
+    PageDescription,
+    PageEyebrow,
     PageHeader,
     PageHeaderHeading,
-    PageEyebrow,
     PageTitle,
-    PageDescription,
-    PageActions,
     Progress,
+    SegmentedControl,
     StatCard,
-    Table,
-    TBody,
-    Td,
-    Th,
-    THead,
-    Tr,
     BreadcrumbList,
     BreadcrumbItem,
     BreadcrumbLink,
@@ -62,7 +56,20 @@ import {
     BreadcrumbSeparator,
     useToast,
 } from '@/components/sabcrm/20ui';
-import { SabFileToFileButton } from '@/components/sabfiles';
+
+import {
+    SabFolderCard,
+    SabFileTable,
+    SabFileGridCard,
+    SabFileDetailsPanel,
+    SabUploadDropzone,
+    SabSectionHeading,
+    SabFilePeopleShareDialog,
+    useNodeMembers,
+    formatBytes,
+    type SabFileView,
+    type SabFolderRollupMap,
+} from '@/components/sabfiles/views';
 
 import {
     confirmUpload,
@@ -87,29 +94,19 @@ interface FileManagerProps {
     parentId: string | null;
     initialNodes: SabfilesNode[];
     initialBreadcrumb: SabfilesBreadcrumbEntry[];
+    initialRollups?: SabFolderRollupMap;
 }
 
-function formatBytes(bytes?: number): string {
-    if (bytes == null || Number.isNaN(bytes)) return '-';
-    if (bytes === 0) return '0 B';
-    const units = ['B', 'KB', 'MB', 'GB', 'TB'];
-    const i = Math.min(units.length - 1, Math.floor(Math.log(bytes) / Math.log(1024)));
-    const value = bytes / 1024 ** i;
-    return `${value.toFixed(i === 0 ? 0 : 1)} ${units[i]}`;
-}
-
-function formatDate(value?: string): string {
-    if (!value) return '-';
-    const d = new Date(value);
-    if (Number.isNaN(d.getTime())) return '-';
-    return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
-}
-
-function nodeIcon(node: SabfilesNode) {
-    if (node.type === 'folder') return Folder;
-    if (node.mime?.startsWith('image/')) return ImageIcon;
-    if (node.mime?.startsWith('text/') || node.mime === 'application/pdf') return FileText;
-    return FileIcon;
+function useMediaQuery(query: string): boolean {
+    const [matches, setMatches] = React.useState(false);
+    React.useEffect(() => {
+        const m = window.matchMedia(query);
+        const handler = () => setMatches(m.matches);
+        handler();
+        m.addEventListener('change', handler);
+        return () => m.removeEventListener('change', handler);
+    }, [query]);
+    return matches;
 }
 
 function FilesBreadcrumb({ crumbs }: { crumbs: SabfilesBreadcrumbEntry[] }) {
@@ -199,111 +196,43 @@ function UploadDock({
     );
 }
 
-function FileRow({
-    node,
-    onRename,
-    onStar,
-    onDownload,
-    onCopyLink,
-    onDelete,
-}: {
-    node: SabfilesNode;
-    onRename: () => void;
-    onStar: () => void;
-    onDownload: () => void;
-    onCopyLink: () => void;
-    onDelete: () => void;
-}) {
-    const Icon = nodeIcon(node);
-    const isFolder = node.type === 'folder';
-    return (
-        <Tr>
-            <Td>
-                <div className="flex items-center gap-3">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)]">
-                        <Icon size={18} aria-hidden="true" />
-                    </span>
-                    {isFolder ? (
-                        <Link
-                            href={`/dashboard/sabfiles/folder/${node.id}`}
-                            className="truncate text-left font-medium text-[var(--st-text)] hover:underline"
-                        >
-                            {node.name}
-                        </Link>
-                    ) : (
-                        <span className="truncate font-medium text-[var(--st-text)]">{node.name}</span>
-                    )}
-                    {node.starred ? (
-                        <Badge tone="warning" kind="soft" dot>
-                            Starred
-                        </Badge>
-                    ) : null}
-                    {node.shareToken ? (
-                        <Badge tone="info" kind="soft">
-                            Shared
-                        </Badge>
-                    ) : null}
-                </div>
-            </Td>
-            <Td align="right" className="text-[var(--st-text-secondary)]">
-                {isFolder ? '-' : formatBytes(node.size)}
-            </Td>
-            <Td align="right" className="text-[var(--st-text-secondary)]">
-                {formatDate(node.updatedAt)}
-            </Td>
-            <Td align="right">
-                <Menu
-                    align="end"
-                    label={`Actions for ${node.name}`}
-                    trigger={
-                        <IconButton label={`Actions for ${node.name}`} icon={MoreHorizontal} variant="ghost" size="sm" />
-                    }
-                >
-                    <MenuItem icon={Pencil} onSelect={onRename}>
-                        Rename
-                    </MenuItem>
-                    <MenuItem icon={Star} onSelect={onStar}>
-                        {node.starred ? 'Remove star' : 'Add star'}
-                    </MenuItem>
-                    {!isFolder ? (
-                        <MenuItem icon={Download} onSelect={onDownload}>
-                            Download
-                        </MenuItem>
-                    ) : null}
-                    {node.shareToken ? (
-                        <MenuItem icon={Link2} onSelect={onCopyLink}>
-                            Copy share link
-                        </MenuItem>
-                    ) : null}
-                    <MenuSeparator />
-                    <MenuItem icon={Trash2} danger onSelect={onDelete}>
-                        Move to trash
-                    </MenuItem>
-                </Menu>
-            </Td>
-        </Tr>
-    );
-}
-
 export function FileManager({
     parentId,
     initialNodes,
     initialBreadcrumb,
+    initialRollups,
 }: FileManagerProps) {
     const { toast } = useToast();
+    const router = useRouter();
+    const isWide = useMediaQuery('(min-width: 1280px)');
 
     const [nodes, setNodes] = React.useState<SabfilesNode[]>(initialNodes);
     const [uploads, setUploads] = React.useState<UploadTask[]>([]);
+    const [view, setView] = React.useState<SabFileView>('list');
+    const [selectedId, setSelectedId] = React.useState<string | null>(null);
 
-    // New folder dialog state.
     const [showNewFolder, setShowNewFolder] = React.useState(false);
     const [newFolderName, setNewFolderName] = React.useState('');
 
-    // Inline rename dialog state.
     const [renameTarget, setRenameTarget] = React.useState<SabfilesNode | null>(null);
     const [renameValue, setRenameValue] = React.useState('');
 
-    // R2 upload logic - drives the SabFiles backend via presigned PUT.
+    const [shareTarget, setShareTarget] = React.useState<SabfilesNode | null>(null);
+    const [shareOpen, setShareOpen] = React.useState(false);
+
+    const headerUploadRef = React.useRef<HTMLInputElement>(null);
+
+    React.useEffect(() => setNodes(initialNodes), [initialNodes]);
+
+    const folders = React.useMemo(() => nodes.filter((n) => n.type === 'folder'), [nodes]);
+    const files = React.useMemo(() => nodes.filter((n) => n.type !== 'folder'), [nodes]);
+    const membersByNode = useNodeMembers(files);
+    const selectedNode = React.useMemo(
+        () => files.find((n) => n.id === selectedId) ?? null,
+        [files, selectedId],
+    );
+
+    // ── Upload (presign → PUT → confirm), preserved from the prior browser ──
     const startUpload = React.useCallback(
         async (file: File): Promise<void> => {
             const taskId = `${file.name}-${file.size}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -381,8 +310,8 @@ export function FileManager({
     );
 
     const handleUpload = React.useCallback(
-        (files: File[]) => {
-            for (const f of files) void startUpload(f);
+        (list: File[]) => {
+            for (const f of list) void startUpload(f);
         },
         [startUpload],
     );
@@ -431,9 +360,10 @@ export function FileManager({
                 return;
             }
             setNodes((curr) => curr.filter((n) => n.id !== node.id));
+            if (selectedId === node.id) setSelectedId(null);
             toast.success('1 item moved to trash');
         },
-        [parentId, toast],
+        [parentId, toast, selectedId],
     );
 
     const handleStar = React.useCallback(
@@ -476,7 +406,12 @@ export function FileManager({
         [toast],
     );
 
-    // Drag-and-drop overlay logic.
+    const openShare = React.useCallback((node: SabfilesNode) => {
+        setShareTarget(node);
+        setShareOpen(true);
+    }, []);
+
+    // Drag-and-drop overlay.
     const [isDragging, setIsDragging] = React.useState(false);
     const onDragOver = React.useCallback((e: React.DragEvent) => {
         if (e.dataTransfer.types.includes('Files')) {
@@ -491,30 +426,85 @@ export function FileManager({
         (e: React.DragEvent) => {
             e.preventDefault();
             setIsDragging(false);
-            if (e.dataTransfer.files) {
-                handleUpload(Array.from(e.dataTransfer.files));
-            }
+            if (e.dataTransfer.files) handleUpload(Array.from(e.dataTransfer.files));
         },
         [handleUpload],
     );
 
-    // Derived KPI metrics for the stat strip (this folder's contents only).
-    const folderCount = nodes.filter((n) => n.type === 'folder').length;
-    const fileCount = nodes.length - folderCount;
-    const sharedCount = nodes.filter((n) => n.shareToken).length;
-    const sizeInView = nodes.reduce((sum, n) => sum + (n.type === 'folder' ? 0 : n.size ?? 0), 0);
+    // KPIs for the compact stat strip (this folder only).
+    const folderCount = folders.length;
+    const fileCount = files.length;
+    const sharedCount = nodes.filter((n) => n.shareToken || (n.members?.length ?? 0) > 0).length;
+    const sizeInView = files.reduce((sum, n) => sum + (n.size ?? 0), 0);
 
     const here = initialBreadcrumb[initialBreadcrumb.length - 1];
     const isRoot = !here?.id;
     const title = isRoot ? 'My files' : here?.name || 'Folder';
+    const pathLabel = initialBreadcrumb.map((c) => c.name).join(' / ');
 
-    const uploadAction = (
-        <SabFileToFileButton variant="default" onPickFile={(file) => startUpload(file)}>
-            <span className="inline-flex items-center gap-2">
-                <Upload size={14} aria-hidden="true" />
-                Upload file
-            </span>
-        </SabFileToFileButton>
+    const currentFolderNode: SabfilesNode | null =
+        !isRoot && here?.id
+            ? {
+                  _id: here.id,
+                  id: here.id,
+                  userId: '',
+                  parentId: null,
+                  type: 'folder',
+                  name: here.name,
+                  createdAt: '',
+                  updatedAt: '',
+              }
+            : null;
+
+    // Per-node actions menu, shared by folder cards, file cards and the table.
+    const nodeMenu = React.useCallback(
+        (node: SabfilesNode): React.ReactNode => (
+            <Menu
+                align="end"
+                label={`Actions for ${node.name}`}
+                trigger={
+                    <IconButton label={`Actions for ${node.name}`} icon={MoreHorizontal} variant="ghost" size="sm" />
+                }
+            >
+                <MenuItem icon={Pencil} onSelect={() => openRename(node)}>
+                    Rename
+                </MenuItem>
+                <MenuItem icon={Star} onSelect={() => void handleStar(node)}>
+                    {node.starred ? 'Remove star' : 'Add star'}
+                </MenuItem>
+                {node.type === 'file' ? (
+                    <MenuItem icon={Download} onSelect={() => void handleDownload(node)}>
+                        Download
+                    </MenuItem>
+                ) : null}
+                <MenuItem icon={Share2} onSelect={() => openShare(node)}>
+                    Share
+                </MenuItem>
+                {node.shareToken ? (
+                    <MenuItem icon={Link2} onSelect={() => handleCopyLink(node)}>
+                        Copy link
+                    </MenuItem>
+                ) : null}
+                <MenuSeparator />
+                <MenuItem icon={Trash2} danger onSelect={() => void handleDelete(node)}>
+                    Move to trash
+                </MenuItem>
+            </Menu>
+        ),
+        [openRename, handleStar, handleDownload, openShare, handleCopyLink, handleDelete],
+    );
+
+    const viewToggle = (
+        <SegmentedControl<SabFileView>
+            items={[
+                { value: 'list', label: 'List', icon: ListIcon },
+                { value: 'grid', label: 'Grid', icon: LayoutGrid },
+            ]}
+            value={view}
+            onChange={setView}
+            size="sm"
+            aria-label="File view mode"
+        />
     );
 
     return (
@@ -533,12 +523,40 @@ export function FileManager({
                     </PageDescription>
                 </PageHeaderHeading>
                 <PageActions>
-                    <Button variant="secondary" iconLeft={FolderPlus} onClick={() => setShowNewFolder(true)}>
-                        New folder
-                    </Button>
-                    {uploadAction}
+                    <Menu
+                        align="end"
+                        label="Create new"
+                        trigger={
+                            <Button variant="primary" iconLeft={Plus}>
+                                Create New
+                            </Button>
+                        }
+                    >
+                        <MenuItem icon={FolderPlus} onSelect={() => setShowNewFolder(true)}>
+                            New folder
+                        </MenuItem>
+                        <MenuItem icon={Upload} onSelect={() => headerUploadRef.current?.click()}>
+                            Upload file
+                        </MenuItem>
+                    </Menu>
+                    {currentFolderNode ? (
+                        <Button variant="secondary" iconLeft={Share2} onClick={() => openShare(currentFolderNode)}>
+                            Share
+                        </Button>
+                    ) : null}
                 </PageActions>
             </PageHeader>
+
+            <input
+                ref={headerUploadRef}
+                type="file"
+                multiple
+                hidden
+                onChange={(e) => {
+                    if (e.target.files?.length) handleUpload(Array.from(e.target.files));
+                    if (headerUploadRef.current) headerUploadRef.current.value = '';
+                }}
+            />
 
             <div className="grid grid-cols-2 gap-[var(--st-space-3)] md:grid-cols-4">
                 <StatCard label="Files" value={fileCount} icon={FileIcon} />
@@ -551,60 +569,118 @@ export function FileManager({
 
             {nodes.length === 0 ? (
                 <Card variant="ghost" padding="lg">
-                    <EmptyState
-                        icon={FolderOpen}
-                        title="This folder is empty"
-                        description="Drop files anywhere on this page, or use Upload to add your first file."
-                        action={uploadAction}
-                    />
+                    <div className="mx-auto flex max-w-md flex-col items-center gap-4 py-6 text-center">
+                        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)]">
+                            <FolderOpen size={24} aria-hidden="true" />
+                        </span>
+                        <div>
+                            <div className="text-base font-semibold text-[var(--st-text)]">This folder is empty</div>
+                            <p className="text-sm text-[var(--st-text-secondary)]">
+                                Drop files here or use Create New to add your first file.
+                            </p>
+                        </div>
+                        <SabUploadDropzone onFiles={handleUpload} className="w-full" />
+                    </div>
                 </Card>
             ) : (
-                <Card padding="none">
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                            <Folder size={16} aria-hidden="true" />
-                            Contents
-                            <Badge tone="neutral" kind="soft">
-                                {nodes.length}
-                            </Badge>
-                        </CardTitle>
-                    </CardHeader>
-                    <Table hover>
-                        <THead>
-                            <Tr>
-                                <Th>Name</Th>
-                                <Th align="right" width={120}>
-                                    Size
-                                </Th>
-                                <Th align="right" width={140}>
-                                    Modified
-                                </Th>
-                                <Th align="right" width={64}>
-                                    <span className="sr-only">Actions</span>
-                                </Th>
-                            </Tr>
-                        </THead>
-                        <TBody>
-                            {nodes.map((node) => (
-                                <FileRow
-                                    key={node.id}
-                                    node={node}
-                                    onRename={() => openRename(node)}
-                                    onStar={() => void handleStar(node)}
-                                    onDownload={() => void handleDownload(node)}
-                                    onCopyLink={() => handleCopyLink(node)}
-                                    onDelete={() => void handleDelete(node)}
-                                />
-                            ))}
-                        </TBody>
-                    </Table>
-                </Card>
+                <div className="flex items-start gap-[var(--st-space-5)]">
+                    <div className="flex min-w-0 flex-1 flex-col gap-[var(--st-space-5)]">
+                        {folders.length > 0 ? (
+                            <section className="flex flex-col gap-3">
+                                <SabSectionHeading title="Folders" count={folders.length} />
+                                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
+                                    {folders.map((node) => (
+                                        <SabFolderCard
+                                            key={node.id}
+                                            node={node}
+                                            rollup={initialRollups?.[node.id]}
+                                            onOpen={() => router.push(`/dashboard/sabfiles/folder/${node.id}`)}
+                                            menu={nodeMenu(node)}
+                                        />
+                                    ))}
+                                </div>
+                            </section>
+                        ) : null}
+
+                        <section className="flex flex-col gap-3">
+                            <SabSectionHeading title="Files" count={files.length} action={viewToggle} />
+                            {files.length === 0 ? (
+                                <Card variant="ghost" padding="lg">
+                                    <p className="py-4 text-center text-sm text-[var(--st-text-secondary)]">
+                                        No files in this folder yet.
+                                    </p>
+                                </Card>
+                            ) : view === 'grid' ? (
+                                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5">
+                                    {files.map((node) => (
+                                        <SabFileGridCard
+                                            key={node.id}
+                                            node={node}
+                                            members={membersByNode[node.id]}
+                                            selected={selectedId === node.id}
+                                            onOpen={() => setSelectedId(node.id)}
+                                            menu={nodeMenu(node)}
+                                        />
+                                    ))}
+                                </div>
+                            ) : (
+                                <Card padding="none">
+                                    <SabFileTable
+                                        nodes={files}
+                                        membersByNode={membersByNode}
+                                        selectedId={selectedId}
+                                        onOpen={(node) => setSelectedId(node.id)}
+                                        renderActions={(node) => nodeMenu(node)}
+                                    />
+                                </Card>
+                            )}
+                        </section>
+                    </div>
+
+                    {isWide ? (
+                        <SabFileDetailsPanel
+                            node={selectedNode}
+                            members={selectedNode ? membersByNode[selectedNode.id] : undefined}
+                            pathLabel={pathLabel}
+                            mode="rail"
+                            open={!!selectedNode}
+                            onClose={() => setSelectedId(null)}
+                            onDownload={handleDownload}
+                            onShare={openShare}
+                            onRename={openRename}
+                            onTrash={handleDelete}
+                        />
+                    ) : null}
+                </div>
             )}
+
+            {!isWide ? (
+                <SabFileDetailsPanel
+                    node={selectedNode}
+                    members={selectedNode ? membersByNode[selectedNode.id] : undefined}
+                    pathLabel={pathLabel}
+                    mode="sheet"
+                    open={!!selectedNode}
+                    onClose={() => setSelectedId(null)}
+                    onDownload={handleDownload}
+                    onShare={openShare}
+                    onRename={openRename}
+                    onTrash={handleDelete}
+                />
+            ) : null}
 
             <UploadDock
                 tasks={uploads}
                 onClear={() => setUploads([])}
                 onDismiss={(id) => setUploads((u) => u.filter((t) => t.id !== id))}
+            />
+
+            <SabFilePeopleShareDialog
+                node={shareTarget}
+                open={shareOpen}
+                onOpenChange={setShareOpen}
+                parentId={parentId}
+                onChanged={() => router.refresh()}
             />
 
             <Dialog open={showNewFolder} onOpenChange={setShowNewFolder}>

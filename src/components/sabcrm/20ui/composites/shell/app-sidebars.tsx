@@ -1141,6 +1141,7 @@ export const SAB_APP_SIDEBARS: SabAppSidebarConfig[] = [
           leaf("recent", "Recent", "/dashboard/sabfiles/recent", History, p),
           leaf("starred", "Starred", "/dashboard/sabfiles/starred", Star, p),
           leaf("shared", "Shared by me", "/dashboard/sabfiles/shared", Share2, p),
+          leaf("shared-with-me", "Shared with me", "/dashboard/sabfiles/shared-with-me", Users, p),
           leaf("trash", "Trash", "/dashboard/sabfiles/trash", Trash2, p),
         ],
       },

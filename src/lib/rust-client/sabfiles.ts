@@ -26,6 +26,8 @@ export type SabfilesNode = {
     shareExpiresAt?: string;
     shareDownloadEnabled?: boolean;
     sharePassword?: string;
+    /** Collaborators (people the node is shared with). userId is a hex string. */
+    members?: { userId: string; role: string; addedAt?: string }[];
     createdAt: string;
     updatedAt: string;
 };
@@ -36,6 +38,22 @@ export type SabfilesBreadcrumbEntry = { id: string | null; name: string };
 export type SabfilesBreadcrumbResponse = { crumbs: SabfilesBreadcrumbEntry[] };
 export type SabfilesOk = { ok: boolean; affected?: number };
 export type SabfilesStorage = { used: number; count: number; quota?: number };
+
+/** Recursive aggregate for one folder ("N files · X used"). */
+export type SabfilesFolderRollup = { file_count: number; total_bytes: number };
+export type SabfilesFolderRollupsResponse = {
+    rollups: Record<string, SabfilesFolderRollup>;
+};
+
+export type SabfilesMemberRole = 'owner' | 'editor' | 'viewer';
+/** Raw collaborator record (profile fields are joined in the server action). */
+export type SabfilesMember = {
+    user_id: string;
+    role: SabfilesMemberRole;
+    added_at?: string;
+    is_owner: boolean;
+};
+export type SabfilesMembersResponse = { members: SabfilesMember[] };
 
 export type PresignUploadBody = {
     name: string;
@@ -143,7 +161,25 @@ export const sabfilesApi = {
     recent: () => rustFetch<SabfilesNodesResponse>(`/v1/sabfiles/recent`),
     trash: () => rustFetch<SabfilesNodesResponse>(`/v1/sabfiles/trash`),
     shared: () => rustFetch<SabfilesNodesResponse>(`/v1/sabfiles/shared`),
+    sharedWithMe: () => rustFetch<SabfilesNodesResponse>(`/v1/sabfiles/shared-with-me`),
     storage: () => rustFetch<SabfilesStorage>(`/v1/sabfiles/storage`),
+    folderRollups: (parent?: string | null) =>
+        rustFetch<SabfilesFolderRollupsResponse>(
+            `/v1/sabfiles/folder-rollups${qs({ parent: parent ?? undefined })}`,
+        ),
+
+    listMembers: (id: string) =>
+        rustFetch<SabfilesMembersResponse>(`/v1/sabfiles/nodes/${id}/members`),
+    addMember: (id: string, userId: string, role: SabfilesMemberRole) =>
+        rustFetch<SabfilesOk>(`/v1/sabfiles/nodes/${id}/members`, {
+            method: 'POST',
+            body: JSON.stringify({ user_id: userId, role }),
+        }),
+    removeMember: (id: string, userId: string) =>
+        rustFetch<SabfilesOk>(`/v1/sabfiles/nodes/${id}/members`, {
+            method: 'DELETE',
+            body: JSON.stringify({ user_id: userId }),
+        }),
 
     createFolder: (body: CreateFolderBody) =>
         rustFetch<SabfilesNodeResponse>(`/v1/sabfiles/folders`, {

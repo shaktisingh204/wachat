@@ -83,9 +83,12 @@ where
         .route("/recent", get(handlers::list_recent))
         .route("/trash", get(handlers::list_trash))
         .route("/shared", get(handlers::list_shared))
+        .route("/shared-with-me", get(handlers::list_shared_with_me))
         .route("/storage", get(handlers::storage_usage))
+        .route("/folder-rollups", get(handlers::folder_rollups))
         .route("/nodes/{id}/download", get(handlers::node_download))
         .route("/nodes/{id}/preview", get(handlers::node_preview))
+        .route("/nodes/{id}/members", get(handlers::list_members))
         // Mutations.
         .route("/folders", post(handlers::create_folder))
         .route("/upload/presign", post(handlers::presign_upload))
@@ -101,4 +104,7 @@ where
         // Sharing.
         .route("/nodes/{id}/share", post(handlers::create_share))
         .route("/nodes/{id}/share", delete(handlers::revoke_share))
+        // Collaborators (people the node is shared with).
+        .route("/nodes/{id}/members", post(handlers::add_member))
+        .route("/nodes/{id}/members", delete(handlers::remove_member))
 }

@@ -22,9 +22,6 @@ import {
     Check,
     File as FileIcon,
     FileImage,
-    FileText,
-    FileVideo,
-    FileAudio,
     Loader2,
     RefreshCw,
     Search,
@@ -57,6 +54,10 @@ import {
     presignUpload,
 } from '@/app/actions/sabfiles.actions';
 import { getCrmStorageDefaults } from '@/app/actions/crm/module-connections.actions';
+// Import the lightweight view helpers directly (NOT the views barrel) so the
+// picker — used by ~191 call sites — doesn't pull in the share dialog/actions.
+import { SabUploadDropzone } from './views/sab-upload-dropzone';
+import { fileTypeBadge, isImageNode, tint } from './views/lib';
 import type {
     SabfilesCategory,
     SabfilesNode,
@@ -116,14 +117,6 @@ function categoryAccept(c: SabfilesCategory): string | undefined {
     if (c === 'audio') return 'audio/*';
     if (c === 'document') return '.pdf,.doc,.docx,.xls,.xlsx,.csv,.ppt,.pptx,.txt,.rtf';
     return undefined;
-}
-
-function iconFor(mime?: string): React.ReactElement {
-    if (mime?.startsWith('image/')) return <FileImage className="text-[var(--st-text)]" aria-hidden="true" />;
-    if (mime?.startsWith('video/')) return <FileVideo className="text-[var(--st-text)]" aria-hidden="true" />;
-    if (mime?.startsWith('audio/')) return <FileAudio className="text-[var(--st-text)]" aria-hidden="true" />;
-    if (mime?.includes('pdf') || mime?.includes('text')) return <FileText className="text-[var(--st-text)]" aria-hidden="true" />;
-    return <FileIcon className="text-[var(--st-text-secondary)]" aria-hidden="true" />;
 }
 
 function fmtSize(bytes?: number): string {
@@ -201,7 +194,6 @@ export function SabFilePicker({
     // refresh button and immediately after an upload confirms so files
     // dropped here AND files added in another tab both appear.
     const [refreshTick, setRefreshTick] = React.useState(0);
-    const fileInputRef = React.useRef<HTMLInputElement>(null);
     const { toast } = useToast();
     // Keep toast in a ref so the library effect doesn't re-fire on every
     // render just because the hook returned a new function reference.
@@ -267,7 +259,7 @@ export function SabFilePicker({
         : undefined;
 
     const onUploadFiles = React.useCallback(
-        (list: FileList | null) => {
+        (list: File[] | FileList | null) => {
             if (!list || list.length === 0) return;
             for (const f of Array.from(list)) {
                 if (f.size > maxSize) {
@@ -556,17 +548,18 @@ export function SabFilePicker({
                                     <ul className="grid grid-cols-2 gap-2 p-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
                                         {items.map((n) => {
                                             const selected = selectedId === n.id;
+                                            const badge = fileTypeBadge(n);
                                             return (
                                                 <li key={n.id}>
-                                                    <Button
+                                                    <button
                                                         type="button"
-                                                        variant="ghost"
                                                         aria-pressed={selected}
                                                         aria-label={`Select ${n.name}`}
                                                         className={cn(
-                                                            'group !h-auto !w-full !items-stretch !justify-start gap-1.5 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] !p-2 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-[var(--st-text)]/40 hover:shadow-md [&_.u-btn__label]:flex [&_.u-btn__label]:w-full [&_.u-btn__label]:flex-col [&_.u-btn__label]:gap-1.5',
-                                                            selected &&
-                                                                'border-[var(--st-text)] ring-2 ring-[var(--st-text)]/30',
+                                                            'group flex w-full flex-col gap-1.5 rounded-[var(--st-radius-lg)] border p-2 text-left transition-all hover:-translate-y-0.5 hover:shadow-[var(--st-shadow-md)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-accent-ring)]',
+                                                            selected
+                                                                ? 'border-[var(--st-accent)] ring-2 ring-[var(--st-accent-ring)]'
+                                                                : 'border-[var(--st-border)] bg-[var(--st-bg)]',
                                                         )}
                                                         onClick={() => setSelectedId(n.id)}
                                                         onDoubleClick={() => {
@@ -574,9 +567,8 @@ export function SabFilePicker({
                                                             setTimeout(onConfirmPick, 0);
                                                         }}
                                                     >
-                                                        <span className="relative flex h-24 w-full items-center justify-center overflow-hidden rounded-[var(--st-radius-sm)] bg-[var(--st-bg-secondary)]">
-                                                            {n.mime?.startsWith('image/') &&
-                                                            n.url ? (
+                                                        <span className="relative flex h-24 w-full items-center justify-center overflow-hidden rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)]">
+                                                            {isImageNode(n) ? (
                                                                 // eslint-disable-next-line @next/next/no-img-element
                                                                 <img
                                                                     src={n.url}
@@ -585,12 +577,16 @@ export function SabFilePicker({
                                                                     loading="lazy"
                                                                 />
                                                             ) : (
-                                                                <span className="[&>svg]:h-8 [&>svg]:w-8">
-                                                                    {iconFor(n.mime)}
+                                                                <span
+                                                                    className="flex h-11 w-11 items-center justify-center rounded-[var(--st-radius)]"
+                                                                    style={{ background: tint(badge.color, 16), color: badge.color }}
+                                                                    aria-hidden="true"
+                                                                >
+                                                                    <badge.Icon size={22} />
                                                                 </span>
                                                             )}
                                                             {selected && (
-                                                                <span className="absolute right-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-[var(--st-text)] text-[var(--st-text-inverted)] shadow">
+                                                                <span className="absolute right-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-[var(--st-accent)] text-[var(--st-text-inverted)] shadow">
                                                                     <Check className="h-3 w-3" aria-hidden="true" />
                                                                 </span>
                                                             )}
@@ -601,7 +597,7 @@ export function SabFilePicker({
                                                         <span className="text-[10px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                                                             {fmtSize(n.size)}
                                                         </span>
-                                                    </Button>
+                                                    </button>
                                                 </li>
                                             );
                                         })}
@@ -613,48 +609,15 @@ export function SabFilePicker({
 
                     {mode === 'upload' && (
                         <div className="flex min-h-0 flex-1 flex-col gap-3">
-                            <div
-                                role="button"
-                                tabIndex={0}
-                                aria-label="Choose or drop files to upload"
-                                onClick={() => fileInputRef.current?.click()}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter' || e.key === ' ') {
-                                        e.preventDefault();
-                                        fileInputRef.current?.click();
-                                    }
-                                }}
-                                onDragOver={(e) => {
-                                    e.preventDefault();
-                                }}
-                                onDrop={(e) => {
-                                    e.preventDefault();
-                                    onUploadFiles(e.dataTransfer.files);
-                                }}
-                                className="flex min-h-[180px] cursor-pointer flex-col items-center justify-center gap-2 rounded-[var(--st-radius-lg)] border-2 border-dashed border-[var(--st-border)] bg-[var(--st-bg-secondary)]/40 p-6 text-center transition-colors hover:border-[var(--st-text)]/40 hover:bg-[var(--st-bg-secondary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-accent)]"
-                            >
-                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg)] text-[var(--st-text-secondary)] shadow-sm">
-                                    <Upload className="h-5 w-5" aria-hidden="true" />
-                                </div>
-                                <div className="text-sm font-medium text-[var(--st-text)]">
-                                    Click or drag files here
-                                </div>
-                                <div className="text-xs text-[var(--st-text-secondary)]">
-                                    Files upload directly to your SabFiles library.
-                                    {acceptAttr && <> Accepts {acceptAttr}.</>} Max{' '}
-                                    {fmtSize(maxSize)} per file.
-                                </div>
-                            </div>
-                            <input
-                                ref={fileInputRef}
-                                type="file"
-                                multiple
-                                hidden
+                            <SabUploadDropzone
+                                onFiles={(files) => onUploadFiles(files)}
                                 accept={acceptAttr}
-                                onChange={(e) => {
-                                    onUploadFiles(e.target.files);
-                                    if (fileInputRef.current) fileInputRef.current.value = '';
-                                }}
+                                hint={
+                                    <>
+                                        Files upload directly to your SabFiles library.
+                                        {acceptAttr && <> Accepts {acceptAttr}.</>} Max {fmtSize(maxSize)} per file.
+                                    </>
+                                }
                             />
                             {tasks.length > 0 && (
                                 <div className="flex min-h-0 flex-1 flex-col rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)]">

@@ -189,3 +189,58 @@ pub struct LibraryQuery {
     #[serde(default)]
     pub limit: Option<u32>,
 }
+
+// ───────────────────────────────────────────────────────────────────────
+// Folder rollups (recursive file count + byte total per child folder)
+// ───────────────────────────────────────────────────────────────────────
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct FolderRollupsQuery {
+    /// `"root"` or a folder id whose immediate sub-folders are rolled up.
+    #[serde(default)]
+    pub parent: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct FolderRollup {
+    pub file_count: u64,
+    pub total_bytes: u64,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct FolderRollupsResponse {
+    /// Folder id (hex) → its recursive rollup.
+    pub rollups: std::collections::HashMap<String, FolderRollup>,
+}
+
+// ───────────────────────────────────────────────────────────────────────
+// Collaborators (people a node is shared with)
+// ───────────────────────────────────────────────────────────────────────
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct AddMemberBody {
+    /// Target user id (hex). The Next.js action resolves email → user id.
+    pub user_id: String,
+    /// `"viewer"` (default) or `"editor"`.
+    #[serde(default)]
+    pub role: Option<String>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct RemoveMemberBody {
+    pub user_id: String,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct MemberDto {
+    pub user_id: String,
+    pub role: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub added_at: Option<String>,
+    pub is_owner: bool,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct MembersResponse {
+    pub members: Vec<MemberDto>,
+}
