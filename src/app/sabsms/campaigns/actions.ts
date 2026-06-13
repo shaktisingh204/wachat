@@ -19,6 +19,11 @@ import { connectToDatabase } from "@/lib/mongodb";
 import { getCachedSession } from "@/lib/server-cache";
 import { getSabsmsCollections } from "@/lib/sabsms/db/collections";
 import { sabsmsEngine, SabsmsEngineError } from "@/lib/sabsms/engine-client";
+import {
+  capabilityBatches,
+  capabilityPercent,
+  sampleForCapability,
+} from "@/lib/sabsms/rcs";
 // V2.10 smart send — identity-graph best-hour lookups.
 import {
   phoneHashFor,
@@ -1012,6 +1017,55 @@ export async function estimateCampaignAction(
     return { ok: true, estimate };
   } catch (e) {
     return { ok: false, error: (e as Error).message ?? "estimate failed" };
+  }
+}
+
+/**
+ * V2.11 — "~N% RCS-capable" audience hint for the campaign wizard.
+ * Samples ≤200 audience phones (deterministic even-spread) against the
+ * engine's batch capability endpoint (≤100/call, identity-graph
+ * cached). Read-only; failures degrade to `ok: false` and the wizard
+ * simply hides the hint.
+ */
+export async function rcsCapabilityEstimateAction(input: {
+  audience: SabsmsCampaignAudience;
+}): Promise<
+  ActionResult<{ percent: number; sampled: number; capable: number }>
+> {
+  const ws = await resolveWorkspace();
+  if (!ws.ok) return ws;
+  const audience = AudienceSchema.safeParse(input.audience);
+  if (!audience.success) return { ok: false, error: "Invalid audience" };
+
+  try {
+    const contacts = await resolveAudience(
+      audience.data as SabsmsCampaignAudience,
+      audienceDepsFor(ws.workspaceId),
+    );
+    const sample = sampleForCapability(contacts.map((c) => c.to));
+    if (sample.length === 0) {
+      return { ok: false, error: "Audience resolved to zero phones" };
+    }
+    const merged: Record<string, { capable: boolean }> = {};
+    for (const batch of capabilityBatches(sample)) {
+      const res = await sabsmsEngine.rcsCapability(ws.workspaceId, batch);
+      Object.assign(merged, res.capabilities);
+    }
+    const capable = Object.values(merged).filter((e) => e.capable).length;
+    return {
+      ok: true,
+      percent: capabilityPercent(merged),
+      sampled: Object.keys(merged).length,
+      capable,
+    };
+  } catch (e) {
+    if (e instanceof SabsmsEngineError) {
+      return { ok: false, error: `${e.status} ${e.message}` };
+    }
+    return {
+      ok: false,
+      error: (e as Error).message ?? "capability estimate failed",
+    };
   }
 }
 

@@ -1,21 +1,40 @@
 use async_trait::async_trait;
 use base64::Engine;
 use hmac::{Hmac, Mac};
+use once_cell::sync::Lazy;
 use serde::Deserialize;
+use serde_json::Value;
 use sha1::Sha1;
+use std::collections::hash_map::DefaultHasher;
 use std::collections::HashMap;
+use std::hash::{Hash, Hasher};
+use std::sync::Mutex;
+use std::time::{Duration, Instant};
 
 use super::{
-    DlrEvent, InboundMessage, ProviderCreds, ProviderError, SendOptions, SendRequest, SendResult,
-    SmsProvider,
+    DlrEvent, InboundMessage, ProviderCreds, ProviderError, RcsPayload, RcsSuggestion,
+    SendOptions, SendRequest, SendResult, SmsProvider,
 };
 use crate::types::{MessageStatus, ProviderId};
 
 const DEFAULT_BASE_URL: &str = "https://api.twilio.com";
+const DEFAULT_CONTENT_BASE_URL: &str = "https://content.twilio.com";
+
+/// V2.11 — ContentSid cache, keyed `{accountSid}:{payload hash}`, 24h
+/// TTL. NOTE: the plan called for Redis; the adapter trait has no Redis
+/// handle, so this is an in-process cache with the same key/TTL
+/// semantics (per-worker duplication is acceptable — a cache miss just
+/// re-creates an identical Content resource, which Twilio tolerates).
+static CONTENT_SID_CACHE: Lazy<Mutex<HashMap<String, (String, Instant)>>> =
+    Lazy::new(|| Mutex::new(HashMap::new()));
+const CONTENT_SID_TTL: Duration = Duration::from_secs(24 * 60 * 60);
 
 pub struct TwilioProvider {
     http: reqwest::Client,
     base_url: String,
+    /// Twilio Content API host (`https://content.twilio.com`) — a
+    /// DIFFERENT host from the messaging API.
+    content_base_url: String,
 }
 
 impl TwilioProvider {
@@ -23,14 +42,18 @@ impl TwilioProvider {
         Self {
             http,
             base_url: DEFAULT_BASE_URL.to_string(),
+            content_base_url: DEFAULT_CONTENT_BASE_URL.to_string(),
         }
     }
 
-    /// Test-only constructor pointing the adapter at a wiremock server.
+    /// Test-only constructor pointing the adapter (messaging AND content
+    /// hosts) at a wiremock server.
     pub fn with_base_url(http: reqwest::Client, base_url: impl Into<String>) -> Self {
+        let base = base_url.into();
         Self {
             http,
-            base_url: base_url.into(),
+            base_url: base.clone(),
+            content_base_url: base,
         }
     }
 
@@ -49,6 +72,129 @@ impl TwilioProvider {
             .to_string();
         Ok((sid, token))
     }
+
+    /// Resolve (create or cache-hit) a Content API ContentSid for an RCS
+    /// payload: `POST {content_base}/v1/Content` with a `twilio/card` +
+    /// `twilio/text` (fallback) document, then cached 24h by payload hash.
+    async fn resolve_content_sid(
+        &self,
+        sid: &str,
+        token: &str,
+        rcs: &RcsPayload,
+    ) -> Result<String, ProviderError> {
+        let payload_json = serde_json::to_string(rcs)
+            .map_err(|e| ProviderError::Decode(format!("rcs payload serialize: {e}")))?;
+        let mut hasher = DefaultHasher::new();
+        sid.hash(&mut hasher);
+        payload_json.hash(&mut hasher);
+        let key = format!("{sid}:{:016x}", hasher.finish());
+
+        if let Ok(cache) = CONTENT_SID_CACHE.lock() {
+            if let Some((content_sid, at)) = cache.get(&key) {
+                if at.elapsed() < CONTENT_SID_TTL {
+                    return Ok(content_sid.clone());
+                }
+            }
+        }
+
+        let url = format!("{}/v1/Content", self.content_base_url);
+        let body = content_create_json(rcs, &key);
+        let resp = self
+            .http
+            .post(&url)
+            .basic_auth(sid, Some(token))
+            .json(&body)
+            .send()
+            .await
+            .map_err(|e| ProviderError::Network(e.to_string()))?;
+
+        let status = resp.status();
+        let raw = resp
+            .text()
+            .await
+            .map_err(|e| ProviderError::Network(e.to_string()))?;
+        if status.as_u16() == 429 {
+            return Err(ProviderError::Throttled {
+                retry_after_secs: None,
+            });
+        }
+        if !status.is_success() {
+            let code = serde_json::from_str::<Value>(&raw)
+                .ok()
+                .and_then(|v| v.get("code").and_then(|c| c.as_i64()))
+                .map(|c| c.to_string());
+            return Err(ProviderError::Rejected {
+                code,
+                message: format!("twilio content {}: {}", status, raw),
+            });
+        }
+        let content_sid = serde_json::from_str::<Value>(&raw)
+            .ok()
+            .and_then(|v| v.get("sid").and_then(|s| s.as_str()).map(|s| s.to_string()))
+            .ok_or_else(|| {
+                ProviderError::Decode("twilio content response: missing sid".into())
+            })?;
+
+        if let Ok(mut cache) = CONTENT_SID_CACHE.lock() {
+            cache.insert(key, (content_sid.clone(), Instant::now()));
+        }
+        Ok(content_sid)
+    }
+}
+
+/// V2.11 — map our [`RcsPayload`] onto a Twilio Content API create body:
+/// `twilio/card` (rich card + suggestion actions) plus `twilio/text`
+/// (the SMS fallback Twilio uses for non-RCS-reachable handsets).
+/// Wiremock tests pin this shape.
+pub fn content_create_json(rcs: &RcsPayload, key: &str) -> Value {
+    let actions: Vec<Value> = rcs
+        .suggestions
+        .iter()
+        .map(|s| match s {
+            RcsSuggestion::Reply {
+                text,
+                postback_data,
+            } => serde_json::json!({
+                "type": "QUICK_REPLY",
+                "title": text,
+                "id": postback_data,
+            }),
+            RcsSuggestion::OpenUrl { text, url } => serde_json::json!({
+                "type": "URL",
+                "title": text,
+                "url": url,
+            }),
+            RcsSuggestion::Dial { text, phone } => serde_json::json!({
+                "type": "PHONE_NUMBER",
+                "title": text,
+                "phone": phone,
+            }),
+        })
+        .collect();
+
+    let mut card = serde_json::Map::new();
+    if let Some(c) = &rcs.card {
+        card.insert("title".into(), Value::String(c.title.clone()));
+        card.insert("subtitle".into(), Value::String(c.description.clone()));
+        if let Some(media_url) = &c.media_url {
+            card.insert(
+                "media".into(),
+                Value::Array(vec![Value::String(media_url.clone())]),
+            );
+        }
+    }
+    if !actions.is_empty() {
+        card.insert("actions".into(), Value::Array(actions));
+    }
+
+    serde_json::json!({
+        "friendly_name": format!("sabsms-rcs-{key}"),
+        "language": "en",
+        "types": {
+            "twilio/card": Value::Object(card),
+            "twilio/text": { "body": rcs.fallback_text },
+        }
+    })
 }
 
 #[async_trait]
@@ -69,14 +215,28 @@ impl SmsProvider for TwilioProvider {
             self.base_url, sid
         );
 
+        // V2.11 — RCS via the Content API: create (or cache-hit) the
+        // content document first, then send with ContentSid instead of
+        // Body (the card media lives inside the content, so MediaUrl is
+        // skipped too).
+        let content_sid = match &opts.rcs {
+            Some(rcs) => Some(self.resolve_content_sid(&sid, &token, rcs).await?),
+            None => None,
+        };
+
         let mut form = vec![
             ("From", req.from.to_string()),
             ("To", req.to.to_string()),
-            ("Body", req.body.to_string()),
         ];
-        // MMS: repeated MediaUrl params, one per attachment.
-        for media_url in &opts.media_urls {
-            form.push(("MediaUrl", media_url.clone()));
+        match &content_sid {
+            Some(cs) => form.push(("ContentSid", cs.clone())),
+            None => {
+                form.push(("Body", req.body.to_string()));
+                // MMS: repeated MediaUrl params, one per attachment.
+                for media_url in &opts.media_urls {
+                    form.push(("MediaUrl", media_url.clone()));
+                }
+            }
         }
         if let Some(cb) = &opts.callback_url {
             form.push(("StatusCallback", cb.clone()));
@@ -230,6 +390,7 @@ impl SmsProvider for TwilioProvider {
             to,
             body,
             media_urls,
+            postback_data: None,
         })
     }
 
@@ -369,6 +530,7 @@ mod tests {
             media_urls: vec!["https://r2.example.com/a.jpg".into()],
             dlt: None,
             callback_url: Some("https://app.example.com/cb".into()),
+            rcs: None,
         };
         let r = p.send(req("hello"), &opts, &creds()).await.unwrap();
         assert_eq!(r.provider_message_id, "SM42");
@@ -395,6 +557,117 @@ mod tests {
             .await
             .unwrap_err();
         assert_eq!(e.provider_code(), Some("21211"));
+        assert!(!e.is_retryable());
+    }
+
+    // ── V2.11 — RCS via the Content API ─────────────────────────────────
+
+    fn rcs_payload(marker: &str) -> RcsPayload {
+        RcsPayload {
+            card: Some(super::super::RcsCard {
+                title: format!("Card {marker}"),
+                description: "Desc".into(),
+                media_url: Some("https://r2.example.com/card.jpg".into()),
+                orientation: None,
+            }),
+            suggestions: vec![
+                RcsSuggestion::Reply {
+                    text: "Yes".into(),
+                    postback_data: "yes_tap".into(),
+                },
+                RcsSuggestion::OpenUrl {
+                    text: "Open".into(),
+                    url: "https://x.example.com".into(),
+                },
+                RcsSuggestion::Dial {
+                    text: "Call".into(),
+                    phone: "+15550002222".into(),
+                },
+            ],
+            fallback_text: format!("Fallback {marker}"),
+        }
+    }
+
+    #[test]
+    fn content_create_json_pins_card_and_text_types() {
+        let v = content_create_json(&rcs_payload("a"), "k1");
+        assert_eq!(v["language"], "en");
+        assert_eq!(v["friendly_name"], "sabsms-rcs-k1");
+        let card = &v["types"]["twilio/card"];
+        assert_eq!(card["title"], "Card a");
+        assert_eq!(card["subtitle"], "Desc");
+        assert_eq!(card["media"][0], "https://r2.example.com/card.jpg");
+        let actions = card["actions"].as_array().unwrap();
+        assert_eq!(actions[0]["type"], "QUICK_REPLY");
+        assert_eq!(actions[0]["id"], "yes_tap");
+        assert_eq!(actions[1]["type"], "URL");
+        assert_eq!(actions[1]["url"], "https://x.example.com");
+        assert_eq!(actions[2]["type"], "PHONE_NUMBER");
+        assert_eq!(actions[2]["phone"], "+15550002222");
+        assert_eq!(v["types"]["twilio/text"]["body"], "Fallback a");
+    }
+
+    #[tokio::test]
+    async fn send_rcs_creates_content_then_sends_with_content_sid() {
+        let server = MockServer::start().await;
+        // 1) Content create.
+        Mock::given(method("POST"))
+            .and(path("/v1/Content"))
+            .and(body_string_contains("twilio/card"))
+            .and(body_string_contains("Fallback b"))
+            .respond_with(ResponseTemplate::new(201).set_body_raw(
+                r#"{"sid":"HX123","friendly_name":"sabsms-rcs"}"#,
+                "application/json",
+            ))
+            .expect(1)
+            .mount(&server)
+            .await;
+        // 2) Message send with ContentSid (and no Body param).
+        Mock::given(method("POST"))
+            .and(path("/2010-04-01/Accounts/ACxxxx/Messages.json"))
+            .and(body_string_contains("ContentSid=HX123"))
+            .respond_with(ResponseTemplate::new(201).set_body_raw(
+                r#"{"sid":"SM77","status":"queued","num_segments":"1","price":null}"#,
+                "application/json",
+            ))
+            .expect(2)
+            .mount(&server)
+            .await;
+
+        let p = TwilioProvider::with_base_url(reqwest::Client::new(), server.uri());
+        let opts = SendOptions {
+            rcs: Some(rcs_payload("b")),
+            ..SendOptions::default()
+        };
+        let r = p.send(req("ignored"), &opts, &creds()).await.unwrap();
+        assert_eq!(r.provider_message_id, "SM77");
+
+        // Second send with the SAME payload — ContentSid comes from the
+        // in-process cache, so /v1/Content is hit exactly once (`expect(1)`
+        // above) while Messages is hit twice.
+        let r2 = p.send(req("ignored"), &opts, &creds()).await.unwrap();
+        assert_eq!(r2.provider_message_id, "SM77");
+    }
+
+    #[tokio::test]
+    async fn send_rcs_content_create_error_is_rejected() {
+        let server = MockServer::start().await;
+        Mock::given(method("POST"))
+            .and(path("/v1/Content"))
+            .respond_with(ResponseTemplate::new(400).set_body_raw(
+                r#"{"code":20422,"message":"Invalid content"}"#,
+                "application/json",
+            ))
+            .mount(&server)
+            .await;
+
+        let p = TwilioProvider::with_base_url(reqwest::Client::new(), server.uri());
+        let opts = SendOptions {
+            rcs: Some(rcs_payload("c")),
+            ..SendOptions::default()
+        };
+        let e = p.send(req("x"), &opts, &creds()).await.unwrap_err();
+        assert_eq!(e.provider_code(), Some("20422"));
         assert!(!e.is_retryable());
     }
 

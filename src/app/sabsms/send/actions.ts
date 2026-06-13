@@ -11,12 +11,19 @@ import {
 } from "@/lib/sabsms/engine-client";
 import { attachMessageIdToLinks, shortenUrlsInBody } from "@/lib/sabsms/links";
 import { countryFromE164 } from "@/lib/sabsms/phone";
+import {
+  deriveRcsFallbackText,
+  SabsmsRcsPayloadSchema,
+} from "@/lib/sabsms/rcs";
 import { renderTemplate } from "@/lib/sabsms/render";
 import { estimateSegments, segmentInfo, type SegmentInfo } from "@/lib/sabsms/segments";
 import type {
   SabsmsMessage,
   SabsmsMessageCategory,
   SabsmsMessageStatus,
+  SabsmsRcsCard,
+  SabsmsRcsPayload,
+  SabsmsRcsSuggestion,
   SabsmsTemplate,
   SabsmsTemplateCategory,
   SabsmsTemplateStatus,
@@ -68,6 +75,14 @@ export interface SendSmsInput {
   from?: string;
   /** V2.4B — rewrite http(s) URLs in the body to tracked short links. */
   shortenLinks?: boolean;
+  /** V2.11 — 'rcs_preferred' sends a rich card with SMS fallback. */
+  channel?: "sms" | "rcs_preferred";
+  /** V2.11 — rich card + suggestions; `fallbackText` defaults to body. */
+  rcs?: {
+    card?: SabsmsRcsCard;
+    suggestions?: SabsmsRcsSuggestion[];
+    fallbackText?: string;
+  };
 }
 
 export type SendSmsResult =
@@ -154,6 +169,32 @@ export async function sendSmsAction(input: SendSmsInput): Promise<SendSmsResult>
     }
   }
 
+  // V2.11 — RCS preferred: validate the payload against the engine
+  // wire schema (camelCase, kind-tagged suggestions) and derive the
+  // SMS fallback from the rendered body when none was typed. The card
+  // image arrives as a resolved public SabFiles URL from the picker —
+  // the same URL contract MMS attachments use.
+  let rcsPayload: SabsmsRcsPayload | undefined;
+  if (input.channel === "rcs_preferred") {
+    const candidate: SabsmsRcsPayload = {
+      card: input.rcs?.card,
+      suggestions: (input.rcs?.suggestions ?? []).slice(0, 4),
+      fallbackText: deriveRcsFallbackText(
+        text,
+        input.rcs?.fallbackText,
+        input.rcs?.card,
+      ),
+    };
+    const parsed = SabsmsRcsPayloadSchema.safeParse(candidate);
+    if (!parsed.success) {
+      return {
+        ok: false,
+        error: `Invalid RCS payload: ${parsed.error.issues[0]?.message ?? "validation failed"}`,
+      };
+    }
+    rcsPayload = parsed.data as SabsmsRcsPayload;
+  }
+
   try {
     const res = await sabsmsEngine.enqueueSend({
       workspaceId: ws.workspaceId,
@@ -163,6 +204,9 @@ export async function sendSmsAction(input: SendSmsInput): Promise<SendSmsResult>
       from: input.from || undefined,
       templateId,
       eventKey: "sabsms.send.composer",
+      ...(rcsPayload
+        ? { rcs: rcsPayload, channelRequested: "rcs_preferred" as const }
+        : {}),
     });
     if (shortenedSlugs.length > 0) {
       // Fire-and-forget — attribution back-fill must never fail the send.
@@ -246,6 +290,48 @@ export async function listSendableTemplates(): Promise<SendableTemplate[]> {
     status: d.status,
     variables: d.variables ?? [],
   }));
+}
+
+/**
+ * V2.11 — RCS composer gate. Plan flag `sabsms.rcs_enabled` has no
+ * helper in `src/lib/plans.ts` yet (only module-level toggles), so the
+ * gate is the workspace settings boolean `rcsEnabled` (see
+ * `SabsmsSettings`); flip it via the settings collection. Ships dark
+ * (false) until an RBM agent is live, per the plan.
+ */
+export async function getRcsComposerContext(): Promise<{ rcsEnabled: boolean }> {
+  const ws = await resolveWorkspace();
+  if (!ws.ok) return { rcsEnabled: false };
+  try {
+    const { cols } = await getSabsmsCollections();
+    const settings = await cols.settings.findOne({ workspaceId: ws.workspaceId });
+    return { rcsEnabled: Boolean(settings?.rcsEnabled) };
+  } catch {
+    return { rcsEnabled: false };
+  }
+}
+
+/**
+ * V2.11 — single-recipient capability probe for the composer's
+ * "recipient is RCS-capable" hint. Engine-cached (identity graph, 7d).
+ */
+export async function checkRcsCapabilityAction(
+  to: string,
+): Promise<{ ok: true; capable: boolean; source: string } | { ok: false; error: string }> {
+  const ws = await resolveWorkspace();
+  if (!ws.ok) return ws;
+  if (!to.trim()) return { ok: false, error: "Recipient is required" };
+  try {
+    const res = await sabsmsEngine.rcsCapability(ws.workspaceId, [to.trim()]);
+    const entry = Object.values(res.capabilities)[0];
+    if (!entry) return { ok: false, error: "No capability result" };
+    return { ok: true, capable: entry.capable, source: entry.source };
+  } catch (e) {
+    if (e instanceof SabsmsEngineError) {
+      return { ok: false, error: `${e.status} ${e.message}` };
+    }
+    return { ok: false, error: (e as Error)?.message ?? "capability check failed" };
+  }
 }
 
 export async function fetchSendStatus(id: string): Promise<FetchResult> {

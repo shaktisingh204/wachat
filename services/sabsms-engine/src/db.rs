@@ -24,6 +24,11 @@ pub const COL_DLT_ENTITIES: &str = "sabsms_dlt_entities";
 pub const COL_DLT_HEADERS: &str = "sabsms_dlt_headers";
 pub const COL_DLT_TEMPLATES: &str = "sabsms_dlt_templates";
 pub const COL_DLT_CHAINS: &str = "sabsms_dlt_chains";
+/// V2.10/V2.11 — identity graph. The TS events consumer owns the write
+/// path (`src/lib/sabsms/identity/graph.ts`); the engine reads it for
+/// channel selection and writes ONLY the `rcsCapable` sub-doc from the
+/// capability endpoint. Field names match the TS shape exactly.
+pub const COL_IDENTITIES: &str = "sabsms_identities";
 
 /// True when a Mongo error is an E11000 duplicate-key write error —
 /// used to detect idempotent re-deliveries (webhook retries) and
@@ -233,6 +238,17 @@ pub async fn ensure_indexes(db: &Database) -> Result<()> {
             .build()])
         .await
         .context("creating dlt entity indexes")?;
+
+    // identity graph — unique per (workspace, phoneHash); the TS side
+    // declares the same index in `identity/graph.ts` (idempotent).
+    let identities = db.collection::<mongodb::bson::Document>(COL_IDENTITIES);
+    identities
+        .create_indexes(vec![IndexModel::builder()
+            .keys(doc! { "workspaceId": 1, "phoneHash": 1 })
+            .options(IndexOptions::builder().unique(true).build())
+            .build()])
+        .await
+        .context("creating identity indexes")?;
 
     let dlt_chains = db.collection::<mongodb::bson::Document>(COL_DLT_CHAINS);
     dlt_chains

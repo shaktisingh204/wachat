@@ -439,6 +439,11 @@ async fn inbound_core(
     if !parsed.media_urls.is_empty() {
         msg.insert("mediaUrls", &parsed.media_urls);
     }
+    // V2.11 — RCS suggestion-postback taps carry the suggestion's
+    // postback data; stored on the doc so the inbox can badge them.
+    if let Some(postback) = &parsed.postback_data {
+        msg.insert("postbackData", postback);
+    }
     if let Some(cid) = &conversation_id {
         msg.insert("conversationId", cid);
     }
@@ -466,6 +471,7 @@ async fn inbound_core(
                     conversation_id: conversation_id.clone().unwrap_or_default(),
                     from: parsed.from.clone(),
                     body: parsed.body.clone(),
+                    postback_data: parsed.postback_data.clone(),
                 },
             )
             .await;

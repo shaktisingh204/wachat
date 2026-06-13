@@ -41,6 +41,44 @@ pub struct DltParams {
     pub header: Option<String>,
 }
 
+/// V2.11 — RCS rich card. CamelCase on the wire; mirrors
+/// `SabsmsRcsCard` in `src/lib/sabsms/types.ts`.
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct RcsCard {
+    pub title: String,
+    pub description: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub media_url: Option<String>,
+    /// "vertical" (default) | "horizontal".
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub orientation: Option<String>,
+}
+
+/// V2.11 — RCS suggestion chip. Tagged `kind` on the wire:
+/// `{"kind":"reply","text":"...","postbackData":"..."}` /
+/// `{"kind":"openUrl",...}` / `{"kind":"dial",...}`.
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
+#[serde(tag = "kind", rename_all = "camelCase", rename_all_fields = "camelCase")]
+pub enum RcsSuggestion {
+    Reply { text: String, postback_data: String },
+    OpenUrl { text: String, url: String },
+    Dial { text: String, phone: String },
+}
+
+/// V2.11 — full RCS payload attached to a send. `fallback_text` is the
+/// plain-SMS body used when the recipient is not RCS-capable (or the
+/// adapter rejects the RCS attempt).
+#[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct RcsPayload {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub card: Option<RcsCard>,
+    #[serde(default)]
+    pub suggestions: Vec<RcsSuggestion>,
+    pub fallback_text: String,
+}
+
 /// Per-send options threaded through every adapter. Built by the worker
 /// from message-doc fields; adapters use what applies and ignore the rest.
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
@@ -52,6 +90,12 @@ pub struct SendOptions {
     pub dlt: Option<DltParams>,
     /// Per-message status-callback URL (when the provider supports one).
     pub callback_url: Option<String>,
+    /// V2.11 — when set, the adapter should send an RCS rich message
+    /// (Gupshup RBM / Twilio Content API). Adapters without an RCS path
+    /// return `ProviderError::Rejected("rcs_not_supported")` so the
+    /// worker can fall back to SMS.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub rcs: Option<RcsPayload>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -70,6 +114,10 @@ pub struct InboundMessage {
     pub to: String,
     pub body: String,
     pub media_urls: Vec<String>,
+    /// V2.11 — RCS suggestion postback data, when the inbound message is
+    /// a suggested-reply tap (Gupshup RBM delivers it alongside the text).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub postback_data: Option<String>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -218,6 +266,7 @@ mod tests {
                 header: Some("SABNDE".into()),
             }),
             callback_url: Some("https://cb.example.com".into()),
+            rcs: None,
         };
         let v = serde_json::to_value(&opts).unwrap();
         assert_eq!(v["mediaUrls"][0], "https://r2.example.com/a.jpg");
@@ -225,6 +274,69 @@ mod tests {
         assert_eq!(v["dlt"]["templateId"], "TE1");
         assert_eq!(v["dlt"]["header"], "SABNDE");
         assert_eq!(v["callbackUrl"], "https://cb.example.com");
+        // `rcs: None` stays off the wire entirely.
+        assert!(v.get("rcs").is_none());
+    }
+
+    /// V2.11 wire-shape pin — the TS side (`src/lib/sabsms/types.ts` +
+    /// zod schemas) round-trips this EXACT camelCase shape; change only
+    /// together with the TS fixture in
+    /// `src/lib/sabsms/__tests__/rcs.test.ts`.
+    #[test]
+    fn rcs_payload_serializes_camel_case_with_kind_tags() {
+        let payload = RcsPayload {
+            card: Some(RcsCard {
+                title: "Summer sale".into(),
+                description: "Up to 50% off".into(),
+                media_url: Some("https://r2.example.com/card.jpg".into()),
+                orientation: Some("vertical".into()),
+            }),
+            suggestions: vec![
+                RcsSuggestion::Reply {
+                    text: "Show me".into(),
+                    postback_data: "show_offers".into(),
+                },
+                RcsSuggestion::OpenUrl {
+                    text: "Shop now".into(),
+                    url: "https://shop.example.com".into(),
+                },
+                RcsSuggestion::Dial {
+                    text: "Call us".into(),
+                    phone: "+15550001111".into(),
+                },
+            ],
+            fallback_text: "Summer sale: up to 50% off. https://shop.example.com".into(),
+        };
+        let v = serde_json::to_value(&payload).unwrap();
+        assert_eq!(v["card"]["title"], "Summer sale");
+        assert_eq!(v["card"]["description"], "Up to 50% off");
+        assert_eq!(v["card"]["mediaUrl"], "https://r2.example.com/card.jpg");
+        assert_eq!(v["card"]["orientation"], "vertical");
+        assert_eq!(v["suggestions"][0]["kind"], "reply");
+        assert_eq!(v["suggestions"][0]["text"], "Show me");
+        assert_eq!(v["suggestions"][0]["postbackData"], "show_offers");
+        assert_eq!(v["suggestions"][1]["kind"], "openUrl");
+        assert_eq!(v["suggestions"][1]["url"], "https://shop.example.com");
+        assert_eq!(v["suggestions"][2]["kind"], "dial");
+        assert_eq!(v["suggestions"][2]["phone"], "+15550001111");
+        assert_eq!(
+            v["fallbackText"],
+            "Summer sale: up to 50% off. https://shop.example.com"
+        );
+
+        // Round-trip back.
+        let back: RcsPayload = serde_json::from_value(v).unwrap();
+        assert_eq!(back, payload);
+    }
+
+    #[test]
+    fn rcs_payload_minimal_deserializes_with_defaults() {
+        // Card-less, suggestion-less payload — only fallbackText required.
+        let p: RcsPayload =
+            serde_json::from_str(r#"{"fallbackText":"plain"}"#).unwrap();
+        assert!(p.card.is_none());
+        assert!(p.suggestions.is_empty());
+        assert_eq!(p.fallback_text, "plain");
     }
 
     #[test]

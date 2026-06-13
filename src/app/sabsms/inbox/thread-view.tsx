@@ -20,9 +20,13 @@ import {
   Circle,
   Clock,
   Inbox,
+  Link2,
   Loader2,
   Merge,
+  MessageSquare,
+  MousePointerClick,
   Paperclip,
+  Phone,
   Send,
   Smile,
   StickyNote,
@@ -959,9 +963,59 @@ interface MessageBubbleProps {
   onInspect: () => void;
 }
 
+/** V2.11 — suggestion-chip icon for the RCS card preview. */
+function rcsSuggestionIcon(kind: "reply" | "openUrl" | "dial") {
+  if (kind === "openUrl") return <Link2 className="h-3 w-3" aria-hidden="true" />;
+  if (kind === "dial") return <Phone className="h-3 w-3" aria-hidden="true" />;
+  return <MessageSquare className="h-3 w-3" aria-hidden="true" />;
+}
+
+/** V2.11 — outbound RCS rich-card preview inside the message bubble. */
+function RcsCardBubble({ rcs }: { rcs: NonNullable<InboxMessageView["rcs"]> }) {
+  return (
+    <div className="overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text)]">
+      {rcs.card?.mediaUrl && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={rcs.card.mediaUrl}
+          alt={rcs.card.title || "RCS card media"}
+          className="h-28 w-full object-cover"
+        />
+      )}
+      {rcs.card && (
+        <div className="space-y-0.5 p-2">
+          <div className="text-sm font-semibold">{rcs.card.title}</div>
+          {rcs.card.description && (
+            <div className="text-xs text-[var(--st-text-secondary)]">
+              {rcs.card.description}
+            </div>
+          )}
+        </div>
+      )}
+      {rcs.suggestions.length > 0 && (
+        <div className="flex flex-wrap gap-1 border-t border-[var(--st-border)] p-2">
+          {rcs.suggestions.map((s, i) => (
+            <span
+              key={i}
+              className="inline-flex items-center gap-1 rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 py-0.5 text-[11px] font-medium"
+            >
+              {rcsSuggestionIcon(s.kind)}
+              {s.text}
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function MessageBubble({ message, onReact, onInspect }: MessageBubbleProps) {
   const isInbound = message.direction === "inbound";
   const isNote = message.isNote;
+  // V2.11 — show the rich card only when RCS actually carried the
+  // message; a fallback send delivered plain text.
+  const showRcsCard =
+    !isInbound && !isNote && !!message.rcs && message.channelUsed === "rcs";
 
   return (
     <div className={cn("flex", isInbound ? "justify-start" : "justify-end")}>
@@ -980,7 +1034,19 @@ function MessageBubble({ message, onReact, onInspect }: MessageBubbleProps) {
             <StickyNote className="h-3 w-3" aria-hidden="true" /> Internal note
           </div>
         )}
-        <div className="whitespace-pre-wrap break-words">{message.body}</div>
+        {isInbound && !isNote && message.postbackData && (
+          <Badge tone="accent">
+            <MousePointerClick className="mr-1 h-3 w-3" aria-hidden="true" />
+            tapped: {message.body || message.postbackData}
+          </Badge>
+        )}
+        {showRcsCard && message.rcs ? (
+          <RcsCardBubble rcs={message.rcs} />
+        ) : isInbound && !isNote && message.postbackData ? null : (
+          // Postback taps render only the "tapped: …" badge above —
+          // the body IS the tapped chip text.
+          <div className="whitespace-pre-wrap break-words">{message.body}</div>
+        )}
         {message.mediaIds.length > 0 && (
           <div className="flex flex-wrap gap-1">
             {message.mediaIds.map((id) => (
@@ -991,7 +1057,7 @@ function MessageBubble({ message, onReact, onInspect }: MessageBubbleProps) {
           </div>
         )}
         <div className="flex items-center justify-between gap-2 text-[10px] opacity-70">
-          <span>
+          <span className="flex items-center gap-1.5">
             {message.createdAt
               ? new Date(message.createdAt).toLocaleString(undefined, {
                   month: "short",
@@ -1000,6 +1066,19 @@ function MessageBubble({ message, onReact, onInspect }: MessageBubbleProps) {
                   minute: "2-digit",
                 })
               : "-"}
+            {!isNote && message.channelUsed && (
+              <span
+                className="rounded border border-current px-1 font-semibold uppercase tracking-wide"
+                title={
+                  message.rcsFallback
+                    ? "RCS was requested but fell back to SMS"
+                    : `Carried over ${message.channelUsed.toUpperCase()}`
+                }
+              >
+                {message.channelUsed}
+                {message.rcsFallback ? " (fallback)" : ""}
+              </span>
+            )}
           </span>
           {!isNote && !isInbound && <DeliveryTicks status={message.status} />}
         </div>

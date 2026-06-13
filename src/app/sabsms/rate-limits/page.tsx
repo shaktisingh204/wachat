@@ -1,13 +1,9 @@
-import { getCachedSession } from "@/lib/server-cache";
-import RateLimitsClient from "./rate-limits-client";
+import { redirect } from "next/navigation";
 
-export const dynamic = "force-dynamic";
-
-export default async function RateLimitsPage() {
-  const session = await getCachedSession();
-  const workspaceId = String((session?.user as any)?._id ?? "");
-
-  // In a real app we might fetch global rate limits config here
-  // For now, we mock data for the UI
-  return <RateLimitsClient workspaceId={workspaceId} />;
+/**
+ * /sabsms/rate-limits was folded into /sabsms/api-keys (V2.13) — rate
+ * limits are configured per API key on that surface.
+ */
+export default function SabsmsRateLimitsRedirect() {
+  redirect("/sabsms/api-keys");
 }

@@ -1,10 +1,16 @@
 import React, { Suspense } from "react";
 import { getCachedSession } from "@/lib/server-cache";
+import { connectToDatabase } from "@/lib/mongodb";
 import { SabsmsPageShell } from "@/components/sabsms/page-toolkit";
+import { StatCard } from "@/components/sabcrm/20ui";
+import { fmtQty } from "@/lib/utils";
+import {
+  WEBHOOK_DELIVERIES_COLLECTION,
+  type WebhookDeliveryDoc,
+} from "@/lib/sabsms/webhooks-out/dispatch";
+
 import { loadWebhooks, type WebhookListFilters } from "./actions";
 import { WebhooksTable } from "./webhooks-table";
-import { StatCard } from '@/components/sabcrm/20ui';
-import { fmtQty } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -19,6 +25,26 @@ interface PageProps {
 function toArray(value: string | string[] | undefined): string[] | undefined {
   if (!value) return undefined;
   return Array.isArray(value) ? value : [value];
+}
+
+async function deliveryStats24h(workspaceId: string): Promise<{
+  total: number;
+  delivered: number;
+  failed: number;
+}> {
+  try {
+    const { db } = await connectToDatabase();
+    const col = db.collection<WebhookDeliveryDoc>(WEBHOOK_DELIVERIES_COLLECTION);
+    const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const [total, delivered, failed] = await Promise.all([
+      col.countDocuments({ workspaceId, createdAt: { $gte: since } }),
+      col.countDocuments({ workspaceId, createdAt: { $gte: since }, status: "delivered" }),
+      col.countDocuments({ workspaceId, createdAt: { $gte: since }, status: "failed" }),
+    ]);
+    return { total, delivered, failed };
+  } catch {
+    return { total: 0, delivered: 0, failed: 0 };
+  }
 }
 
 async function WebhooksDataLoader({ searchParams }: PageProps) {
@@ -36,36 +62,24 @@ async function WebhooksDataLoader({ searchParams }: PageProps) {
     event: toArray(sp.event),
   };
 
-  const rows = await loadWebhooks(workspaceId, filters);
+  const [rows, stats] = await Promise.all([
+    loadWebhooks(workspaceId, filters),
+    deliveryStats24h(workspaceId),
+  ]);
+
+  const successRate =
+    stats.total > 0 ? `${Math.round((stats.delivered / stats.total) * 1000) / 10}%` : "—";
 
   return (
     <>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6">
+      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard label="Endpoints" value={fmtQty(rows.length)} />
         <StatCard
-          label="Total Webhooks"
-          value={fmtQty(rows.length)}
-          delta={2}
-          period="vs last month"
-        />
-        <StatCard
-          label="Active Endpoints"
+          label="Active endpoints"
           value={fmtQty(rows.filter((r) => r.isActive).length)}
-          delta={5}
-          period="vs last month"
         />
-        <StatCard
-          label="Avg Success Rate"
-          value="99.9%"
-          delta={0.1}
-          period="vs last month"
-        />
-        <StatCard
-          label="Failed Deliveries (24h)"
-          value="12"
-          delta={-5}
-          invertDelta
-          period="vs last month"
-        />
+        <StatCard label="Success rate (24h)" value={successRate} />
+        <StatCard label="Failed deliveries (24h)" value={fmtQty(stats.failed)} />
       </div>
 
       <WebhooksTable workspaceId={workspaceId} initialRows={rows} />
@@ -97,7 +111,7 @@ export default async function SabsmsWebhooksPage(props: PageProps) {
     <SabsmsPageShell
       eyebrow="SabSMS"
       title="Outbound Webhooks"
-      description="Configure and manage outbound webhooks to receive real-time updates for DLRs, inbound messages, and more."
+      description="Signed real-time events (HMAC-SHA256) for delivery receipts, inbound messages, opt-outs and link clicks — with automatic retries and replay."
       breadcrumbs={[{ label: "Webhooks" }]}
       primaryAction={{
         label: "Add endpoint",
@@ -117,18 +131,15 @@ export default async function SabsmsWebhooksPage(props: PageProps) {
       helpBody={
         <ul className="list-disc space-y-1 pl-4">
           <li>
-            Use webhooks to sync delivery receipts and inbound messages to your system.
+            Verify payloads: hex HMAC-SHA256 of the raw body with your endpoint secret must equal
+            the X-Sabsms-Signature header (X-Sabsms-Timestamp carries the send time).
           </li>
-          <li>
-            Verify incoming payloads using the HMAC-SHA256 signature provided in the headers.
-          </li>
-          <li>
-            Endpoints that repeatedly fail or time out will be disabled automatically.
-          </li>
+          <li>Failed deliveries retry on a 30s → 5m → 1h → 6h backoff, then go terminal.</li>
+          <li>Any delivery can be replayed from the log below.</li>
         </ul>
       }
     >
-      <Suspense fallback={<div className="h-96 w-full animate-pulse bg-[var(--st-bg-muted)] rounded-xl" />}>
+      <Suspense fallback={<div className="h-96 w-full animate-pulse rounded-xl bg-[var(--st-bg-muted)]" />}>
         <WebhooksDataLoader {...props} />
       </Suspense>
     </SabsmsPageShell>

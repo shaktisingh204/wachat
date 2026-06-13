@@ -102,7 +102,69 @@ fn send_options_from_doc(doc: &mongodb::bson::Document) -> SendOptions {
         media_urls,
         dlt,
         callback_url: None,
+        rcs: None,
     }
+}
+
+/// V2.11 — outcome of the `rcs_preferred` channel-selection check.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum RcsDecision {
+    /// Plain send — RCS was not requested (or no payload was attached).
+    NotRequested,
+    /// Recipient is RCS-capable (fresh cache entry) — attempt RCS.
+    SendRcs,
+    /// Requested but incapable / unknown / stale — send SMS with the
+    /// payload's fallback text and record `rcs_fallback`.
+    SmsFallback,
+}
+
+/// Pure channel-selection matrix (unit-tested):
+///   - not `rcs_preferred` or no payload      → NotRequested
+///   - identity says capable AND fresh (<7d)  → SendRcs
+///   - incapable / unknown / stale            → SmsFallback
+///
+/// `capability` is `Some((capable, fresh))` from the identity graph, or
+/// `None` when no identity doc / `rcsCapable` entry exists.
+pub fn rcs_decision(
+    channel_requested: Option<&str>,
+    has_payload: bool,
+    capability: Option<(bool, bool)>,
+) -> RcsDecision {
+    if channel_requested != Some("rcs_preferred") || !has_payload {
+        return RcsDecision::NotRequested;
+    }
+    match capability {
+        Some((true, true)) => RcsDecision::SendRcs,
+        _ => RcsDecision::SmsFallback,
+    }
+}
+
+/// Direct Mongo read of the identity graph's `rcsCapable` entry — no
+/// HTTP hop (the capability ENDPOINT refreshes the cache; the worker
+/// only consumes it). Returns `(capable, fresh)`; `None` when the
+/// identity (or its `rcsCapable` sub-doc) doesn't exist.
+async fn identity_rcs_capability(
+    state: &Arc<AppState>,
+    workspace_id: &str,
+    to_e164: &str,
+) -> Option<(bool, bool)> {
+    let phone_hash = compliance::hash_phone(to_e164);
+    let identities = state
+        .mongo
+        .collection::<mongodb::bson::Document>(db::COL_IDENTITIES);
+    let doc = identities
+        .find_one(doc! { "workspaceId": workspace_id, "phoneHash": &phone_hash })
+        .await
+        .ok()??;
+    let rcs = doc.get_document("rcsCapable").ok()?;
+    let capable = rcs.get_bool("capable").unwrap_or(false);
+    let checked_ms = rcs
+        .get_datetime("checkedAt")
+        .map(|d| d.timestamp_millis())
+        .unwrap_or(0);
+    let fresh =
+        crate::handlers::rcs::cache_fresh(checked_ms, Utc::now().timestamp_millis());
+    Some((capable, fresh))
 }
 
 /// V2.8 conservative DLT auto-attach: when an IN-bound doc carries no
@@ -436,6 +498,43 @@ async fn process_one(state: &Arc<AppState>, msg_id: &str) -> anyhow::Result<()> 
         return Ok(());
     }
 
+    // V2.11 — channel selection for `rcs_preferred` sends: a fresh
+    // identity-graph entry saying "capable" attempts RCS; everything
+    // else (incapable / unknown / stale) falls back to SMS with the
+    // payload's fallback text, recorded as `rcs_fallback`.
+    let channel_requested = doc
+        .get_str("channelRequested")
+        .ok()
+        .map(|s| s.to_string());
+    let rcs_payload: Option<providers::RcsPayload> = doc
+        .get_document("rcs")
+        .ok()
+        .and_then(|d| mongodb::bson::from_document(d.clone()).ok());
+    let rcs_requested =
+        channel_requested.as_deref() == Some("rcs_preferred") && rcs_payload.is_some();
+    let mut rcs_active = false;
+    let mut body_to_send = body.clone();
+    if rcs_requested {
+        let capability = identity_rcs_capability(state, &workspace_id, &to).await;
+        match rcs_decision(channel_requested.as_deref(), true, capability) {
+            RcsDecision::SendRcs => rcs_active = true,
+            _ => {
+                if let Some(p) = &rcs_payload {
+                    if !p.fallback_text.is_empty() {
+                        body_to_send = p.fallback_text.clone();
+                    }
+                }
+                record_routing_attempt(
+                    &messages,
+                    &oid,
+                    "channel_select",
+                    "rcs_fallback: recipient not RCS-capable (or capability unknown/stale)",
+                )
+                .await;
+            }
+        }
+    }
+
     // Reserve credits.
     let reserve_req = CreditReserveRequest {
         workspace_id: workspace_id.clone(),
@@ -444,6 +543,13 @@ async fn process_one(state: &Arc<AppState>, msg_id: &str) -> anyhow::Result<()> 
         estimated_cost: 0,
         category,
         destination_country: country.clone(),
+        // RCS is priced flat per message; everything else keeps the
+        // doc's own channel (sms/mms per-segment rates).
+        channel: Some(if rcs_active {
+            "rcs".to_string()
+        } else {
+            doc_channel.clone()
+        }),
     };
     let reservation = match credits::reserve(state, &reserve_req).await {
         Ok(r) if r.approved => r,
@@ -520,7 +626,11 @@ async fn process_one(state: &Arc<AppState>, msg_id: &str) -> anyhow::Result<()> 
     // drives the RouteFailover event on the next attempt.
     let mut advance_from: Option<(String, String)> = None;
 
-    for cand in &candidates {
+    // Index loop (not `for`) so a V2.11 RCS adapter rejection can retry
+    // the SAME candidate as plain SMS without burning it.
+    let mut cand_idx = 0usize;
+    while cand_idx < candidates.len() {
+        let cand = &candidates[cand_idx];
         let acct_label = cand
             .provider_account_id
             .clone()
@@ -535,6 +645,7 @@ async fn process_one(state: &Arc<AppState>, msg_id: &str) -> anyhow::Result<()> 
                     last_code = "circuit_open".to_string();
                     last_msg = format!("account {acct} circuit open for {country}");
                     last_normalized = None;
+                    cand_idx += 1;
                     continue;
                 }
                 routing::circuit::Gate::Allow | routing::circuit::Gate::Probe => {}
@@ -546,6 +657,7 @@ async fn process_one(state: &Arc<AppState>, msg_id: &str) -> anyhow::Result<()> 
             last_msg = format!("provider '{}' has no engine adapter", cand.provider.as_str());
             last_normalized = None;
             advance_from = Some((acct_label, last_code.clone()));
+            cand_idx += 1;
             continue;
         };
 
@@ -576,6 +688,7 @@ async fn process_one(state: &Arc<AppState>, msg_id: &str) -> anyhow::Result<()> 
                     last_msg = e.to_string();
                     last_normalized = None;
                     advance_from = Some((acct_label, last_code.clone()));
+                    cand_idx += 1;
                     continue;
                 }
             }
@@ -597,6 +710,7 @@ async fn process_one(state: &Arc<AppState>, msg_id: &str) -> anyhow::Result<()> 
                 last_msg = "no sender configured".to_string();
                 last_normalized = None;
                 advance_from = Some((acct_label, last_code.clone()));
+                cand_idx += 1;
                 continue;
             }
         };
@@ -620,11 +734,16 @@ async fn process_one(state: &Arc<AppState>, msg_id: &str) -> anyhow::Result<()> 
         let send_req = SendRequest {
             from: &resolved_from,
             to: &to,
-            body: &body,
-            channel: Channel::Sms,
+            body: &body_to_send,
+            channel: if rcs_active { Channel::Rcs } else { Channel::Sms },
             category,
         };
         let mut send_opts = send_options_from_doc(&doc);
+        // V2.11 — attach the RCS payload only while the RCS attempt is
+        // live; an SMS fallback clears it.
+        if rcs_active {
+            send_opts.rcs = rcs_payload.clone();
+        }
         // V2.8 — thread the auto-attached DLT params into the adapter
         // (the doc's own header wins when both carry one).
         if let Some(params) = auto_attached.as_ref() {
@@ -683,7 +802,12 @@ async fn process_one(state: &Arc<AppState>, msg_id: &str) -> anyhow::Result<()> 
                     "updatedAt": now,
                     "cost": r.cost.unwrap_or(0),
                     "segmentsCount": r.segments as i32,
+                    // V2.11 — channel that actually carried the message.
+                    "channelUsed": if rcs_active { "rcs" } else { "sms" },
                 };
+                if rcs_requested {
+                    set.insert("rcsFallback", !rcs_active);
+                }
                 if let Some(account_id) = sent_account.clone() {
                     set.insert("providerAccountId", account_id);
                 }
@@ -728,6 +852,7 @@ async fn process_one(state: &Arc<AppState>, msg_id: &str) -> anyhow::Result<()> 
                         message_id: msg_id.to_string(),
                         provider: cand.provider.as_str().to_string(),
                         segments: r.segments,
+                        rcs_fallback: rcs_requested && !rcs_active,
                     },
                 )
                 .await;
@@ -771,6 +896,27 @@ async fn process_one(state: &Arc<AppState>, msg_id: &str) -> anyhow::Result<()> 
                 return Ok(());
             }
             Err(e) => {
+                // V2.11 — an adapter rejecting the RCS attempt (e.g.
+                // "rcs_not_supported", or an RBM-side error) is NOT a
+                // route failure: retry the SAME candidate as plain SMS
+                // with the payload's fallback text.
+                if rcs_active {
+                    record_routing_attempt(
+                        &messages,
+                        &oid,
+                        &acct_label,
+                        &format!("rcs_fallback: {e}"),
+                    )
+                    .await;
+                    rcs_active = false;
+                    if let Some(p) = &rcs_payload {
+                        if !p.fallback_text.is_empty() {
+                            body_to_send = p.fallback_text.clone();
+                        }
+                    }
+                    continue; // same cand_idx — SMS retry
+                }
+
                 // Synchronous rejection — safe to fail over.
                 let raw_code = e.provider_code().map(|s| s.to_string());
                 let normalized = raw_code
@@ -823,6 +969,7 @@ async fn process_one(state: &Arc<AppState>, msg_id: &str) -> anyhow::Result<()> 
                         .map(|c| c.to_string())
                         .unwrap_or_else(|| last_code.clone()),
                 ));
+                cand_idx += 1;
                 continue;
             }
         }
@@ -980,5 +1127,85 @@ mod tests {
         assert!(opts.media_urls.is_empty());
         assert!(opts.dlt.is_none());
         assert!(opts.callback_url.is_none());
+        assert!(opts.rcs.is_none());
+    }
+
+    // ── V2.11 — channel-selection matrix ────────────────────────────────
+
+    #[test]
+    fn rcs_decision_capable_and_fresh_sends_rcs() {
+        assert_eq!(
+            rcs_decision(Some("rcs_preferred"), true, Some((true, true))),
+            RcsDecision::SendRcs
+        );
+    }
+
+    #[test]
+    fn rcs_decision_incapable_falls_back() {
+        assert_eq!(
+            rcs_decision(Some("rcs_preferred"), true, Some((false, true))),
+            RcsDecision::SmsFallback
+        );
+    }
+
+    #[test]
+    fn rcs_decision_unknown_identity_falls_back() {
+        assert_eq!(
+            rcs_decision(Some("rcs_preferred"), true, None),
+            RcsDecision::SmsFallback
+        );
+    }
+
+    #[test]
+    fn rcs_decision_stale_capability_falls_back() {
+        // Even a "capable" entry falls back when stale (>7d) — the
+        // capability endpoint is the refresh path.
+        assert_eq!(
+            rcs_decision(Some("rcs_preferred"), true, Some((true, false))),
+            RcsDecision::SmsFallback
+        );
+        assert_eq!(
+            rcs_decision(Some("rcs_preferred"), true, Some((false, false))),
+            RcsDecision::SmsFallback
+        );
+    }
+
+    #[test]
+    fn rcs_decision_not_requested_is_plain_send() {
+        assert_eq!(
+            rcs_decision(None, true, Some((true, true))),
+            RcsDecision::NotRequested
+        );
+        assert_eq!(
+            rcs_decision(Some("sms"), true, Some((true, true))),
+            RcsDecision::NotRequested
+        );
+        // Requested but without a payload → nothing to send richly.
+        assert_eq!(
+            rcs_decision(Some("rcs_preferred"), false, Some((true, true))),
+            RcsDecision::NotRequested
+        );
+    }
+
+    #[test]
+    fn rcs_payload_deserializes_from_message_doc_bson() {
+        // The worker reads the payload back from the Mongo doc exactly
+        // as `handlers/send.rs` wrote it (camelCase bson).
+        let doc = doc! {
+            "rcs": {
+                "card": { "title": "T", "description": "D", "mediaUrl": "https://x/i.jpg" },
+                "suggestions": [
+                    { "kind": "reply", "text": "Yes", "postbackData": "yes" },
+                ],
+                "fallbackText": "plain fallback",
+            }
+        };
+        let parsed: providers::RcsPayload = mongodb::bson::from_document(
+            doc.get_document("rcs").unwrap().clone(),
+        )
+        .unwrap();
+        assert_eq!(parsed.fallback_text, "plain fallback");
+        assert_eq!(parsed.card.as_ref().unwrap().title, "T");
+        assert_eq!(parsed.suggestions.len(), 1);
     }
 }

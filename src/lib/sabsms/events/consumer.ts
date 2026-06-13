@@ -40,6 +40,12 @@ import { registerAnalyticsEventHandlers } from '../analytics/handlers';
 import { registerIdentityEventHandlers } from '../identity/handlers';
 // V2.12 — AI agent guardrails + runtime (additive registration).
 import { registerAgentEventHandlers } from '../agent/handlers';
+// V2.13 — outbound webhooks (additive registration + delivery ticker).
+import {
+  ensureWebhookDeliveryIndexes,
+  registerWebhookOutEventHandlers,
+  tickWebhookDeliveries,
+} from '../webhooks-out/dispatch';
 
 // ─── Constants (mirror services/sabsms-engine/src/events.rs) ─────────────
 
@@ -265,6 +271,11 @@ export function createDefaultRouter(): SabsmsEventRouter {
   // see `../agent/handlers.ts`). No-ops without `ctx.db`.
   registerAgentEventHandlers(router);
 
+  // V2.13 — outbound webhooks: wildcard fan-out into
+  // `sabsms_webhook_deliveries` (replay-tolerant upsert on the stream
+  // entry id). Delivery itself runs on the webhook ticker below.
+  registerWebhookOutEventHandlers(router);
+
   return router;
 }
 
@@ -281,6 +292,10 @@ export interface SabsmsEventsConsumerOptions {
   journeyTickMs?: number;
   /** Disable the in-process journey ticker (tests / secondary consumers). */
   disableJourneyTicker?: boolean;
+  /** V2.13 webhook delivery tick interval (default 5 s). */
+  webhookTickMs?: number;
+  /** Disable the in-process webhook delivery ticker (tests / secondary consumers). */
+  disableWebhookTicker?: boolean;
 }
 
 export interface SabsmsEventsConsumer {
@@ -410,6 +425,35 @@ export async function runSabsmsEventsConsumer(
     }, options.journeyTickMs ?? 5_000);
   }
 
+  // ─── V2.13 webhook delivery ticker ──────────────────────────────────
+  // Outbound webhook deliveries ride the same worker (it already owns
+  // the Mongo handle + lifecycle): a 5 s interval claims due deliveries
+  // and drives the [30s, 5m, 1h, 6h] backoff. Overlap-guarded like the
+  // journey ticker so a slow endpoint never stacks ticks.
+  let webhookTicker: ReturnType<typeof setInterval> | null = null;
+  if (!options.disableWebhookTicker) {
+    await ensureWebhookDeliveryIndexes(db);
+    let webhookTickInFlight = false;
+    webhookTicker = setInterval(() => {
+      if (webhookTickInFlight || !running) return;
+      webhookTickInFlight = true;
+      tickWebhookDeliveries({ db, log })
+        .then((res) => {
+          if (res.claimed > 0) {
+            log('webhook delivery tick', { ...res });
+          }
+        })
+        .catch((err) => {
+          log('webhook delivery tick failed', {
+            error: err instanceof Error ? err.message : String(err),
+          });
+        })
+        .finally(() => {
+          webhookTickInFlight = false;
+        });
+    }, options.webhookTickMs ?? 5_000);
+  }
+
   async function handleEntries(entries: StreamEntry[]): Promise<void> {
     for (const [id, fields] of entries) {
       const parsed = parseStreamEntry(id, fields);
@@ -502,6 +546,7 @@ export async function runSabsmsEventsConsumer(
     }
 
     if (journeyTicker) clearInterval(journeyTicker);
+    if (webhookTicker) clearInterval(webhookTicker);
     redis.disconnect();
     await mongoClient.close().catch(() => undefined);
     log('consumer stopped');

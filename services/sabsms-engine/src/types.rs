@@ -170,6 +170,14 @@ pub struct EnqueueSendInput {
     pub idempotency_key: Option<String>,
     #[serde(default)]
     pub tags: Option<Vec<String>>,
+    /// V2.11 — RCS rich-card payload (card + suggestions + SMS fallback).
+    #[serde(default)]
+    pub rcs: Option<crate::providers::RcsPayload>,
+    /// V2.11 — requested channel strategy: `"rcs_preferred"` lets the
+    /// worker pick RCS or SMS-fallback at send time; absent/`"sms"`
+    /// keeps the plain path.
+    #[serde(default)]
+    pub channel_requested: Option<String>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -192,6 +200,11 @@ pub struct CreditReserveRequest {
     pub estimated_cost: i64,
     pub category: MessageCategory,
     pub destination_country: String,
+    /// V2.11 — channel the rate card should price (`"sms"` / `"mms"` /
+    /// `"rcs"`; RCS is flat 1 credit). Additive — the Next credits route
+    /// tolerates the extra field.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub channel: Option<String>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -282,6 +295,17 @@ pub struct MessageDoc {
     pub cost: Option<i64>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tags: Option<Vec<String>>,
+    /// V2.11 — RCS payload carried to the worker (mirror of
+    /// `EnqueueSendInput.rcs`).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub rcs: Option<crate::providers::RcsPayload>,
+    /// V2.11 — requested channel strategy (`"rcs_preferred"` / `"sms"`).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub channel_requested: Option<String>,
+    /// V2.11 — channel that actually carried the message (`"rcs"` /
+    /// `"sms"`), stamped by the worker at send time.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub channel_used: Option<String>,
     pub queued_at: DateTime<Utc>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub sent_at: Option<DateTime<Utc>>,

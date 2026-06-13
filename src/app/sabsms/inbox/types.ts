@@ -68,6 +68,22 @@ export interface InboxMessageView {
   deliveredAt?: string;
   errorCode?: string;
   errorMessage?: string;
+  /** V2.11 — channel that actually carried the message ('rcs' / 'sms'). */
+  channelUsed?: string;
+  /** V2.11 — outbound RCS card + suggestion chips, when present. */
+  rcs?: {
+    card?: { title: string; description: string; mediaUrl?: string };
+    suggestions: Array<
+      | { kind: "reply"; text: string; postbackData: string }
+      | { kind: "openUrl"; text: string; url: string }
+      | { kind: "dial"; text: string; phone: string }
+    >;
+    fallbackText: string;
+  };
+  /** V2.11 — true when an rcs_preferred send fell back to SMS. */
+  rcsFallback?: boolean;
+  /** V2.11 — inbound suggestion-tap postback data. */
+  postbackData?: string;
 }
 
 export interface InboxThreadView {

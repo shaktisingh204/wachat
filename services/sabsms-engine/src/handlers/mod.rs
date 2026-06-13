@@ -8,6 +8,7 @@ pub mod dlt;
 pub mod health;
 pub mod internal;
 pub mod numbers;
+pub mod rcs;
 pub mod send;
 pub mod webhook;
 
@@ -32,6 +33,8 @@ pub fn router(state: Arc<AppState>) -> Router {
         .route("/v1/otp/resend", post(otp::resend))
         .route("/v1/otp/stats", axum::routing::get(otp::stats))
         .route("/v1/lookup", post(otp::lookup))
+        // V2.11 — batch RCS capability (cached to the identity graph).
+        .route("/v1/rcs/capability", post(rcs::capability))
         // V2.8 — India DLT scrub preview + registry cache invalidation.
         .route("/v1/dlt/scrub-preview", post(dlt::scrub_preview))
         .route("/v1/internal/dlt/invalidate", post(dlt::invalidate))

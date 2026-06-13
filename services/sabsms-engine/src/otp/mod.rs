@@ -275,6 +275,8 @@ fn otp_enqueue_input(
         dlt_template_id: None,
         idempotency_key: None,
         tags: Some(vec!["otp".to_string()]),
+        rcs: None,
+        channel_requested: None,
     }
 }
 

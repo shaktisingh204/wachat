@@ -29,6 +29,10 @@ pub enum EngineEvent {
         message_id: String,
         provider: String,
         segments: u32,
+        /// V2.11 — true when an `rcs_preferred` send fell back to SMS
+        /// (incapable recipient or adapter rejection). Always present so
+        /// fallback-rate analytics can aggregate without null handling.
+        rcs_fallback: bool,
     },
     MessageFailed {
         workspace_id: String,
@@ -54,6 +58,10 @@ pub enum EngineEvent {
         conversation_id: String,
         from: String,
         body: String,
+        /// V2.11 — RCS suggestion postback data when the inbound is a
+        /// suggested-reply tap (omitted from the wire when absent).
+        #[serde(skip_serializing_if = "Option::is_none")]
+        postback_data: Option<String>,
     },
     ContactUnsubscribed {
         workspace_id: String,
@@ -172,6 +180,7 @@ mod tests {
             message_id: "m1".into(),
             provider: "twilio".into(),
             segments: 2,
+            rcs_fallback: false,
         };
         let v = serde_json::to_value(&e).unwrap();
         assert_eq!(v["kind"], "messageSent");
@@ -179,6 +188,34 @@ mod tests {
         assert_eq!(v["messageId"], "m1");
         assert_eq!(v["provider"], "twilio");
         assert_eq!(v["segments"], 2);
+        assert_eq!(v["rcsFallback"], false);
+    }
+
+    #[test]
+    fn inbound_event_carries_optional_postback_data() {
+        // With postback (RCS suggestion tap).
+        let e = EngineEvent::MessageInbound {
+            workspace_id: "w".into(),
+            message_id: "m".into(),
+            conversation_id: "c".into(),
+            from: "+15551230000".into(),
+            body: "Show offers".into(),
+            postback_data: Some("show_offers".into()),
+        };
+        let v = serde_json::to_value(&e).unwrap();
+        assert_eq!(v["postbackData"], "show_offers");
+
+        // Without — the key stays off the wire.
+        let e = EngineEvent::MessageInbound {
+            workspace_id: "w".into(),
+            message_id: "m".into(),
+            conversation_id: "c".into(),
+            from: "+15551230000".into(),
+            body: "hi".into(),
+            postback_data: None,
+        };
+        let v = serde_json::to_value(&e).unwrap();
+        assert!(v.get("postbackData").is_none());
     }
 
     #[test]
@@ -210,6 +247,7 @@ mod tests {
                 conversation_id: "c".into(),
                 from: "+15551230000".into(),
                 body: "hi".into(),
+                postback_data: None,
             },
             EngineEvent::ContactUnsubscribed {
                 workspace_id: "w".into(),

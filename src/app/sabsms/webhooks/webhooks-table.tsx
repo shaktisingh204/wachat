@@ -1,24 +1,24 @@
 "use client";
 
 import * as React from "react";
-import { fmtDate } from "@/lib/utils";
 import { useRouter } from "next/navigation";
+import { fmtDate } from "@/lib/utils";
 import {
   Activity,
+  Check,
+  Copy,
+  KeyRound,
   Power,
   PowerOff,
   Settings,
+  Trash2,
   Webhook,
-  Upload,
 } from "lucide-react";
 
 import {
   SabsmsDetailDrawer,
-  SabsmsExportMenu,
   SabsmsFilterBar,
   SabsmsRefreshButton,
-  SabsmsSavedViews,
-  rowsToCsv,
 } from "@/components/sabsms/page-toolkit";
 import {
   Badge,
@@ -34,24 +34,21 @@ import {
   DialogTitle,
   EmptyState,
   Field,
+  IconButton,
   Input,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  StatCard,
-  Textarea,
   useToast,
 } from "@/components/sabcrm/20ui";
 
+import { SUBSCRIBABLE_EVENTS } from "@/lib/sabsms/webhooks-out/events";
+
 import {
-  toggleWebhook,
-  rotateSecret,
   deleteWebhook,
+  rotateSecret,
+  saveWebhook,
   testFireEndpoint,
-  replayEvents,
+  toggleWebhook,
 } from "./actions";
+import { DeliveriesPanel } from "./deliveries-panel";
 import type { WebhookRow } from "./projection";
 
 interface WebhooksTableProps {
@@ -64,78 +61,65 @@ const STATUS_OPTIONS = [
   { value: "disabled", label: "Disabled" },
 ];
 
-const EVENT_OPTIONS = [
-  { value: "message.delivered", label: "message.delivered" },
-  { value: "message.failed", label: "message.failed" },
-  { value: "message.inbound", label: "message.inbound" },
-  { value: "consent.opt_out", label: "consent.opt_out" },
-];
+const EVENT_OPTIONS = SUBSCRIBABLE_EVENTS.map((e) => ({ value: e, label: e }));
+
+function SecretOncePanel({ secret, onDismiss }: { secret: string; onDismiss: () => void }) {
+  const { toast } = useToast();
+  const [copied, setCopied] = React.useState(false);
+  return (
+    <div className="space-y-3 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4">
+      <p className="text-sm font-semibold text-[var(--st-text)]">Signing secret — shown once</p>
+      <div className="flex items-center justify-between gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2">
+        <code className="break-all font-mono text-xs text-[var(--st-text)]">{secret}</code>
+        <IconButton
+          size="sm"
+          label={copied ? "Copied" : "Copy secret"}
+          icon={copied ? Check : Copy}
+          onClick={() => {
+            navigator.clipboard.writeText(secret);
+            setCopied(true);
+            toast.success("Secret copied");
+            setTimeout(() => setCopied(false), 2000);
+          }}
+        />
+      </div>
+      <p className="text-[11px] text-[var(--st-text-secondary)]">
+        Verify every delivery: hex HMAC-SHA256 of the raw request body with this secret must equal the
+        <code className="mx-1">X-Sabsms-Signature</code> header.
+      </p>
+      <Button variant="primary" size="sm" onClick={onDismiss}>
+        Done — secret stored
+      </Button>
+    </div>
+  );
+}
 
 export function WebhooksTable({ workspaceId, initialRows }: WebhooksTableProps) {
+  void workspaceId;
   const router = useRouter();
   const { toast } = useToast();
 
-  const [selectedIds, setSelectedIds] = React.useState<string[]>([]);
   const [detailId, setDetailId] = React.useState<string | null>(null);
-  const [importOpen, setImportOpen] = React.useState(false);
-  const [importJson, setImportJson] = React.useState("");
+  const [deleteTarget, setDeleteTarget] = React.useState<WebhookRow | null>(null);
+  const [secretOnce, setSecretOnce] = React.useState<string | null>(null);
+  const [isSaving, setIsSaving] = React.useState(false);
+  const [testFiringId, setTestFiringId] = React.useState<string | null>(null);
+  const [formData, setFormData] = React.useState<{
+    id?: string;
+    url: string;
+    urlAlias: string;
+    events: string[];
+  }>({ url: "", urlAlias: "", events: [] });
 
   const selectedRow = React.useMemo(
     () => initialRows.find((r) => r.id === detailId),
     [initialRows, detailId]
   );
 
-  function notifyResult(
-    res: { ok: true } | { ok: false; error: string },
-    okMessage: string,
-  ) {
-    if (res.ok) {
-      toast.success(okMessage);
-      router.refresh();
-    } else {
-      toast({
-        title: "Action failed",
-        description: res.error,
-        tone: "danger",
-      });
-    }
-  }
-
-  async function handleToggle(row: WebhookRow) {
-    const res = await toggleWebhook(row.id, !row.isActive);
-    notifyResult(res, `Webhook ${row.isActive ? "disabled" : "enabled"}`);
-  }
-
-  async function handleRotate(row: WebhookRow) {
-    const res = await rotateSecret(row.id);
-    notifyResult(res, "Secret rotated. Update your endpoint immediately.");
-  }
-
-  async function handleTestFire(row: WebhookRow) {
-    const res = await testFireEndpoint(row.id);
-    notifyResult(res, "Test event sent.");
-  }
-
-  async function handleReplay(row: WebhookRow) {
-    const res = await replayEvents(row.id, 10);
-    notifyResult(res, "Replay of last 10 events initiated.");
-  }
-
-  function handleImportFromText() {
-    toast.success("Imported config successfully");
-    setImportOpen(false);
-    setImportJson("");
-    router.refresh();
-  }
-
-
-
-  const [isSaving, setIsSaving] = React.useState(false);
-  const [formData, setFormData] = React.useState<any>({});
-
   React.useEffect(() => {
     function handleHashChange() {
       if (window.location.hash === "#new-webhook") {
+        setSecretOnce(null);
         setDetailId("new");
         window.history.replaceState(null, "", window.location.pathname + window.location.search);
       }
@@ -147,53 +131,77 @@ export function WebhooksTable({ workspaceId, initialRows }: WebhooksTableProps) 
 
   React.useEffect(() => {
     if (detailId === "new") {
-      setFormData({
-        url: "",
-        urlAlias: "",
-        hmacAlgorithm: "sha256",
-        events: ["message.delivered", "message.failed"],
-        retryConfig: {
-          maxRetries: 5,
-          backoffStrategy: "exponential",
-          baseDelayMs: 1000,
-        },
-        dlqUrl: "",
-        skipValidation: false,
-      });
+      setFormData({ url: "", urlAlias: "", events: ["message.delivered", "message.failed"] });
     } else if (selectedRow) {
       setFormData({
         id: selectedRow.id,
         url: selectedRow.url,
         urlAlias: selectedRow.urlAlias || "",
-        hmacAlgorithm: selectedRow.hmacAlgorithm || "sha256",
         events: selectedRow.events || [],
-        retryConfig: selectedRow.retryConfig || {
-          maxRetries: 5,
-          backoffStrategy: "exponential",
-          baseDelayMs: 1000,
-        },
-        dlqUrl: selectedRow.dlqUrl || "",
-        skipValidation: true, // Typically skip on edit unless forced
       });
     }
   }, [detailId, selectedRow]);
+
+  function notifyResult(
+    res: { ok: true } | { ok: false; error: string },
+    okMessage: string,
+  ) {
+    if (res.ok) {
+      toast.success(okMessage);
+      router.refresh();
+    } else {
+      toast({ title: "Action failed", description: res.error, tone: "danger" });
+    }
+  }
+
+  async function handleToggle(row: WebhookRow) {
+    const res = await toggleWebhook(row.id, !row.isActive);
+    notifyResult(res, `Webhook ${row.isActive ? "disabled" : "enabled"}`);
+  }
+
+  async function handleRotate(row: WebhookRow) {
+    const res = await rotateSecret(row.id);
+    if (res.ok && res.secret) {
+      setDetailId(row.id);
+      setSecretOnce(res.secret);
+      toast.success("Secret rotated — update your endpoint now");
+      router.refresh();
+    } else if (!res.ok) {
+      toast({ title: "Rotation failed", description: res.error, tone: "danger" });
+    }
+  }
+
+  async function handleTestFire(row: WebhookRow) {
+    setTestFiringId(row.id);
+    const res = await testFireEndpoint(row.id);
+    setTestFiringId(null);
+    notifyResult(res, "Ping delivered (2xx) — see the deliveries log below.");
+  }
+
+  async function handleDelete() {
+    if (!deleteTarget) return;
+    const res = await deleteWebhook(deleteTarget.id);
+    setDeleteTarget(null);
+    notifyResult(res, "Endpoint deleted");
+  }
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     setIsSaving(true);
     try {
-      const { saveWebhook } = await import("./actions");
       const res = await saveWebhook(formData);
       if (res.ok) {
-        toast.success("Webhook saved successfully");
-        setDetailId(null);
+        if (res.secret) {
+          // Creation path — keep the drawer open to show the secret ONCE.
+          setSecretOnce(res.secret);
+          toast.success("Endpoint created");
+        } else {
+          toast.success("Endpoint updated");
+          setDetailId(null);
+        }
         router.refresh();
       } else {
-        toast({
-          title: "Failed to save webhook",
-          description: res.error,
-          tone: "danger",
-        });
+        toast({ title: "Failed to save webhook", description: res.error, tone: "danger" });
       }
     } finally {
       setIsSaving(false);
@@ -201,10 +209,10 @@ export function WebhooksTable({ workspaceId, initialRows }: WebhooksTableProps) 
   }
 
   function handleEventToggle(event: string) {
-    setFormData((prev: any) => ({
+    setFormData((prev) => ({
       ...prev,
       events: prev.events.includes(event)
-        ? prev.events.filter((e: string) => e !== event)
+        ? prev.events.filter((e) => e !== event)
         : [...prev.events, event],
     }));
   }
@@ -217,33 +225,7 @@ export function WebhooksTable({ workspaceId, initialRows }: WebhooksTableProps) 
           { key: "status", label: "Status", options: STATUS_OPTIONS, multi: true },
           { key: "event", label: "Events", options: EVENT_OPTIONS, multi: true },
         ]}
-        trailing={
-          <>
-            <SabsmsSavedViews scope="webhooks.list" />
-            <Button variant="outline" size="sm" iconLeft={Upload} onClick={() => setImportOpen(true)}>
-              Import config
-            </Button>
-            <SabsmsExportMenu
-              filename="sabsms-webhooks"
-              toCsv={async () =>
-                rowsToCsv(
-                  initialRows.map((r) => ({
-                    url: r.url,
-                    status: r.isActive ? "active" : "disabled",
-                    events: r.events.join(","),
-                  })),
-                  [
-                    { key: "url", header: "URL" },
-                    { key: "status", header: "Status" },
-                    { key: "events", header: "Events" },
-                  ],
-                )
-              }
-              toJson={async () => JSON.stringify(initialRows, null, 2)}
-            />
-            <SabsmsRefreshButton onRefresh={() => router.refresh()} />
-          </>
-        }
+        trailing={<SabsmsRefreshButton onRefresh={() => router.refresh()} />}
       />
 
       <div className="grid grid-cols-1 gap-4">
@@ -251,9 +233,16 @@ export function WebhooksTable({ workspaceId, initialRows }: WebhooksTableProps) 
           <EmptyState
             icon={Webhook}
             title="No webhooks configured"
-            description="Add an endpoint to start receiving real-time delivery and inbound messages."
+            description="Add an https endpoint to receive signed real-time events: delivery receipts, inbound messages, opt-outs and link clicks."
             action={
-              <Button variant="primary" iconLeft={Webhook} onClick={() => setDetailId("new")}>
+              <Button
+                variant="primary"
+                iconLeft={Webhook}
+                onClick={() => {
+                  setSecretOnce(null);
+                  setDetailId("new");
+                }}
+              >
                 Add webhook
               </Button>
             }
@@ -261,13 +250,13 @@ export function WebhooksTable({ workspaceId, initialRows }: WebhooksTableProps) 
         ) : (
           initialRows.map((row) => (
             <Card key={row.id} variant="elevated" padding="none" className="overflow-hidden">
-              <CardBody className="p-5 flex flex-col xl:flex-row xl:items-center gap-6">
+              <CardBody className="flex flex-col gap-6 p-5 xl:flex-row xl:items-center">
                 <div className="flex-1 space-y-3">
                   <div className="flex items-center gap-3">
                     <Badge tone={row.isActive ? "success" : "neutral"} dot>
                       {row.isActive ? "Active" : "Disabled"}
                     </Badge>
-                    <span className="font-semibold text-[var(--st-text)] text-lg truncate">
+                    <span className="truncate text-lg font-semibold text-[var(--st-text)]">
                       {row.url}
                     </span>
                     {row.urlAlias && (
@@ -278,47 +267,56 @@ export function WebhooksTable({ workspaceId, initialRows }: WebhooksTableProps) 
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="text-sm font-medium text-[var(--st-text-secondary)]">Events:</span>
-                    {row.events.map((e) => (
-                      <Badge key={e} tone="neutral" className="text-xs font-mono">
-                        {e}
-                      </Badge>
-                    ))}
+                    {row.events.length === 0 ? (
+                      <Badge tone="neutral" className="font-mono text-xs">all events</Badge>
+                    ) : (
+                      row.events.map((e) => (
+                        <Badge key={e} tone="neutral" className="font-mono text-xs">
+                          {e}
+                        </Badge>
+                      ))
+                    )}
                   </div>
-                  <div className="text-xs text-[var(--st-text-tertiary)] font-mono">
-                    HMAC: {row.hmacAlgorithm} . Updated: {row.updatedAt ? fmtDate(row.updatedAt) : "-"}
+                  <div className="font-mono text-xs text-[var(--st-text-tertiary)]">
+                    HMAC-SHA256 (X-Sabsms-Signature) · Updated {row.updatedAt ? fmtDate(row.updatedAt) : "—"}
                   </div>
                 </div>
 
-                <div className="flex flex-wrap md:flex-nowrap gap-4 items-center bg-[var(--st-bg-secondary)] p-4 rounded-[var(--st-radius)] border border-[var(--st-border)]">
-                  <StatCard
-                    label="Success Rate"
-                    value={row.lastDeliveryStatus === "failed" ? "82.4%" : "99.9%"}
-                    delta={
-                      row.lastDeliveryStatus === "failed"
-                        ? { value: "-5.2%", tone: "down" }
-                        : { value: "+0.1%", tone: "up" }
-                    }
-                    className="min-w-[140px]"
-                  />
-                  <StatCard
-                    label="Avg Latency"
-                    value="142ms"
-                    delta={{ value: "-12ms", tone: "up" }}
-                    className="min-w-[140px]"
-                  />
-                  <StatCard
-                    label="Deliveries (24h)"
-                    value={row.lastDeliveryStatus === "failed" ? "12k" : "145k"}
-                    className="min-w-[140px]"
-                  />
-                </div>
-
-                <div className="flex flex-row xl:flex-col gap-2 items-center xl:items-end justify-center xl:w-48 shrink-0">
-                  <Button variant="outline" size="sm" block iconLeft={Settings} className="justify-start" onClick={() => setDetailId(row.id)}>
-                    Details &amp; Config
+                <div className="flex shrink-0 flex-row items-center justify-center gap-2 xl:w-48 xl:flex-col xl:items-end">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    block
+                    iconLeft={Settings}
+                    className="justify-start"
+                    onClick={() => {
+                      setSecretOnce(null);
+                      setDetailId(row.id);
+                    }}
+                  >
+                    Edit endpoint
                   </Button>
-                  <Button variant="outline" size="sm" block iconLeft={Activity} className="justify-start" onClick={() => handleTestFire(row)}>
-                    Test Fire
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    block
+                    iconLeft={Activity}
+                    className="justify-start"
+                    loading={testFiringId === row.id}
+                    disabled={testFiringId === row.id}
+                    onClick={() => handleTestFire(row)}
+                  >
+                    Test fire
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    block
+                    iconLeft={KeyRound}
+                    className="justify-start"
+                    onClick={() => handleRotate(row)}
+                  >
+                    Rotate secret
                   </Button>
                   <Button
                     variant={row.isActive ? "secondary" : "primary"}
@@ -330,6 +328,16 @@ export function WebhooksTable({ workspaceId, initialRows }: WebhooksTableProps) 
                   >
                     {row.isActive ? "Disable" : "Enable"}
                   </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    block
+                    iconLeft={Trash2}
+                    className="justify-start"
+                    onClick={() => setDeleteTarget(row)}
+                  >
+                    Delete
+                  </Button>
                 </div>
               </CardBody>
             </Card>
@@ -337,54 +345,65 @@ export function WebhooksTable({ workspaceId, initialRows }: WebhooksTableProps) 
         )}
       </div>
 
+      {/* V2.13 — real delivery log with replay. */}
+      <DeliveriesPanel />
+
       <SabsmsDetailDrawer
         open={detailId !== null}
-        onOpenChange={(open) => !open && setDetailId(null)}
-        title={detailId === "new" ? "Add Webhook" : "Webhook Config"}
-        description={detailId === "new" ? "Configure a new endpoint to receive events." : "View and update detailed configuration for this endpoint."}
+        onOpenChange={(open) => {
+          if (!open) {
+            setDetailId(null);
+            setSecretOnce(null);
+          }
+        }}
+        title={detailId === "new" ? "Add webhook" : "Webhook endpoint"}
+        description={
+          secretOnce
+            ? "Copy the signing secret now — it is shown only once."
+            : detailId === "new"
+              ? "Endpoints must be https. Deliveries are signed with HMAC-SHA256."
+              : "Update the endpoint URL, alias and event filter."
+        }
       >
-        {formData && (
-          <form onSubmit={handleSave} className="space-y-6 flex flex-col h-full">
-            <div className="space-y-4 flex-1 overflow-y-auto pb-4">
-              <Field label="Endpoint URL" required>
+        {secretOnce ? (
+          <div className="py-4">
+            <SecretOncePanel
+              secret={secretOnce}
+              onDismiss={() => {
+                setSecretOnce(null);
+                setDetailId(null);
+              }}
+            />
+          </div>
+        ) : (
+          <form onSubmit={handleSave} className="flex h-full flex-col space-y-6">
+            <div className="flex-1 space-y-4 overflow-y-auto pb-4">
+              <Field label="Endpoint URL (https only)" required>
                 <Input
-                  value={formData.url || ""}
+                  value={formData.url}
                   onChange={(e) => setFormData({ ...formData, url: e.target.value })}
                   placeholder="https://api.example.com/webhooks/sabsms"
                   required
                 />
               </Field>
 
-              <div className="grid grid-cols-2 gap-4">
-                <Field label="Alias (e.g., Staging/Prod)">
-                  <Input
-                    value={formData.urlAlias || ""}
-                    onChange={(e) => setFormData({ ...formData, urlAlias: e.target.value })}
-                    placeholder="Production Endpoint"
-                  />
-                </Field>
-                <Field label="HMAC Algorithm">
-                  <Select
-                    value={formData.hmacAlgorithm || "sha256"}
-                    onValueChange={(value) => setFormData({ ...formData, hmacAlgorithm: value })}
-                  >
-                    <SelectTrigger aria-label="HMAC Algorithm">
-                      <SelectValue placeholder="Select algorithm" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="sha256">HMAC-SHA256</SelectItem>
-                      <SelectItem value="sha512">HMAC-SHA512</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </Field>
-              </div>
+              <Field label="Alias (e.g. Staging / Prod)">
+                <Input
+                  value={formData.urlAlias}
+                  onChange={(e) => setFormData({ ...formData, urlAlias: e.target.value })}
+                  placeholder="Production endpoint"
+                />
+              </Field>
 
-              <Field label="Subscribed Events">
-                <div className="grid grid-cols-2 gap-2 mt-2">
+              <Field
+                label="Subscribed events"
+                help="Leave everything unchecked to receive ALL events."
+              >
+                <div className="mt-2 grid grid-cols-2 gap-2">
                   {EVENT_OPTIONS.map((opt) => (
                     <Checkbox
                       key={opt.value}
-                      checked={(formData.events || []).includes(opt.value)}
+                      checked={formData.events.includes(opt.value)}
                       onChange={() => handleEventToggle(opt.value)}
                       label={opt.label}
                     />
@@ -392,98 +411,39 @@ export function WebhooksTable({ workspaceId, initialRows }: WebhooksTableProps) 
                 </div>
               </Field>
 
-              <div className="space-y-4 border-t border-[var(--st-border)] pt-4">
-                <h4 className="text-sm font-medium text-[var(--st-text)]">Retry Policy &amp; Error Handling</h4>
-                <div className="grid grid-cols-2 gap-4">
-                  <Field label="Max Retries">
-                    <Input
-                      type="number"
-                      min={0}
-                      max={10}
-                      value={formData.retryConfig?.maxRetries ?? 5}
-                      onChange={(e) => setFormData({
-                        ...formData,
-                        retryConfig: { ...formData.retryConfig, maxRetries: parseInt(e.target.value) }
-                      })}
-                    />
-                  </Field>
-                  <Field label="Backoff Strategy">
-                    <Select
-                      value={formData.retryConfig?.backoffStrategy || "exponential"}
-                      onValueChange={(value) => setFormData({
-                        ...formData,
-                        retryConfig: { ...formData.retryConfig, backoffStrategy: value }
-                      })}
-                    >
-                      <SelectTrigger aria-label="Backoff Strategy">
-                        <SelectValue placeholder="Select strategy" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="exponential">Exponential</SelectItem>
-                        <SelectItem value="linear">Linear</SelectItem>
-                        <SelectItem value="fixed">Fixed</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </Field>
-                </div>
-                <Field
-                  label="Dead Letter Queue (DLQ) URL"
-                  help="Failed events after max retries will be pushed here."
-                >
-                  <Input
-                    value={formData.dlqUrl || ""}
-                    onChange={(e) => setFormData({ ...formData, dlqUrl: e.target.value })}
-                    placeholder="https://api.example.com/webhooks/dlq"
-                  />
-                </Field>
-              </div>
-
-              <div className="space-y-2 border-t border-[var(--st-border)] pt-4">
-                <Checkbox
-                  checked={formData.skipValidation || false}
-                  onChange={(e) => setFormData({ ...formData, skipValidation: e.target.checked })}
-                  label="Skip endpoint validation"
-                />
-                <p className="text-xs text-[var(--st-text-secondary)] ml-6">
-                  Check this if your server is slow to respond or not fully deployed yet.
-                </p>
+              <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3 text-xs text-[var(--st-text-secondary)]">
+                Retries: failed deliveries back off 30s → 5m → 1h → 6h (5 attempts total), then go
+                terminal. Use Replay in the deliveries log to re-send any delivery.
               </div>
             </div>
 
-            <div className="pt-4 border-t border-[var(--st-border)] flex justify-end gap-2">
+            <div className="flex justify-end gap-2 border-t border-[var(--st-border)] pt-4">
               <Button type="button" variant="outline" onClick={() => setDetailId(null)}>
                 Cancel
               </Button>
               <Button type="submit" variant="primary" loading={isSaving} disabled={isSaving}>
-                {isSaving ? "Saving..." : "Save Config"}
+                {isSaving ? "Saving…" : detailId === "new" ? "Create endpoint" : "Save changes"}
               </Button>
             </div>
           </form>
         )}
       </SabsmsDetailDrawer>
 
-      <Dialog open={importOpen} onOpenChange={setImportOpen}>
+      <Dialog open={deleteTarget !== null} onOpenChange={(open) => !open && setDeleteTarget(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Import Webhook Config</DialogTitle>
+            <DialogTitle>Delete this endpoint?</DialogTitle>
             <DialogDescription>
-              Paste JSON containing endpoint definitions to import.
+              {deleteTarget?.url} stops receiving events immediately. Past deliveries stay in the
+              log for 90 days.
             </DialogDescription>
           </DialogHeader>
-          <Field label="Config JSON">
-            <Textarea
-              value={importJson}
-              onChange={(e) => setImportJson(e.target.value)}
-              placeholder='[{"url": "https://...", "events": ["message.delivered"]}]'
-              className="min-h-[200px] font-mono text-xs"
-            />
-          </Field>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setImportOpen(false)}>
+            <Button variant="outline" onClick={() => setDeleteTarget(null)}>
               Cancel
             </Button>
-            <Button variant="primary" onClick={handleImportFromText} disabled={!importJson.trim()}>
-              Import
+            <Button variant="destructive" onClick={handleDelete}>
+              Delete endpoint
             </Button>
           </DialogFooter>
         </DialogContent>

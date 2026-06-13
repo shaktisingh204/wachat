@@ -33,7 +33,7 @@ impl SmsProvider for MockProvider {
     async fn send(
         &self,
         req: SendRequest<'_>,
-        _opts: &SendOptions,
+        opts: &SendOptions,
         _creds: &ProviderCreds,
     ) -> Result<SendResult, ProviderError> {
         if req.body.contains("[FAIL]") {
@@ -48,6 +48,24 @@ impl SmsProvider for MockProvider {
         if req.body.contains("[THROTTLE]") {
             return Err(ProviderError::Throttled {
                 retry_after_secs: Some(1),
+            });
+        }
+        // V2.11 — RCS marker: `[RCS_REJECT]` in the fallback text forces
+        // an adapter-level RCS rejection (exercises the worker's SMS
+        // fallback); otherwise the mock ACCEPTS RCS and echoes it in the
+        // provider message id so tests can assert the channel taken.
+        if let Some(rcs) = &opts.rcs {
+            if rcs.fallback_text.contains("[RCS_REJECT]") {
+                return Err(ProviderError::Rejected {
+                    code: None,
+                    message: "rcs_not_supported".into(),
+                });
+            }
+            return Ok(SendResult {
+                provider_message_id: format!("mock-rcs-{}", uuid::Uuid::new_v4()),
+                status: MessageStatus::Sent,
+                segments: 1,
+                cost: Some(1),
             });
         }
         Ok(SendResult {
@@ -90,6 +108,7 @@ impl SmsProvider for MockProvider {
             to: parsed.to,
             body: parsed.body,
             media_urls: Vec::new(),
+            postback_data: None,
         })
     }
 
@@ -192,6 +211,38 @@ mod tests {
             }
         ));
         assert!(e.is_retryable());
+    }
+
+    #[tokio::test]
+    async fn send_rcs_accepts_and_echoes_marker_id() {
+        let p = MockProvider::new();
+        let opts = SendOptions {
+            rcs: Some(super::super::RcsPayload {
+                card: None,
+                suggestions: vec![],
+                fallback_text: "fallback".into(),
+            }),
+            ..SendOptions::default()
+        };
+        let r = p.send(req("hello"), &opts, &creds()).await.unwrap();
+        assert!(r.provider_message_id.starts_with("mock-rcs-"));
+        assert_eq!(r.status, MessageStatus::Sent);
+    }
+
+    #[tokio::test]
+    async fn send_rcs_reject_marker_rejects_with_rcs_not_supported() {
+        let p = MockProvider::new();
+        let opts = SendOptions {
+            rcs: Some(super::super::RcsPayload {
+                card: None,
+                suggestions: vec![],
+                fallback_text: "x [RCS_REJECT] x".into(),
+            }),
+            ..SendOptions::default()
+        };
+        let e = p.send(req("hello"), &opts, &creds()).await.unwrap_err();
+        assert!(matches!(e, ProviderError::Rejected { .. }));
+        assert!(e.to_string().contains("rcs_not_supported"));
     }
 
     #[test]

@@ -171,6 +171,37 @@ export interface SabsmsMedia {
   bytes: number;
 }
 
+// ─── V2.11 — RCS ──────────────────────────────────────────────────────────
+// Wire shapes mirror `services/sabsms-engine/src/providers/mod.rs`
+// (`RcsPayload` / `RcsCard` / `RcsSuggestion`) EXACTLY — camelCase, with
+// suggestions tagged by `kind`. Pinned by the Rust serde test
+// `rcs_payload_serializes_camel_case_with_kind_tags` and the TS fixture
+// in `src/lib/sabsms/__tests__/rcs.test.ts`.
+
+export interface SabsmsRcsCard {
+  title: string;
+  description: string;
+  /** Resolved public URL (SabFiles) for the card image. */
+  mediaUrl?: string;
+  /** 'vertical' (default) | 'horizontal'. */
+  orientation?: string;
+}
+
+export type SabsmsRcsSuggestion =
+  | { kind: 'reply'; text: string; postbackData: string }
+  | { kind: 'openUrl'; text: string; url: string }
+  | { kind: 'dial'; text: string; phone: string };
+
+export interface SabsmsRcsPayload {
+  card?: SabsmsRcsCard;
+  suggestions: SabsmsRcsSuggestion[];
+  /** Plain-SMS body used when the recipient is not RCS-capable. */
+  fallbackText: string;
+}
+
+/** Channel strategy on an enqueue: `rcs_preferred` = RCS with SMS fallback. */
+export type SabsmsChannelRequested = 'sms' | 'rcs_preferred';
+
 export interface SabsmsMessage {
   _id?: ObjectId;
   workspaceId: string;
@@ -211,6 +242,16 @@ export interface SabsmsMessage {
   /** Wholesale cost in cents (USD) — for margin reporting. */
   cost?: number;
   tags?: string[];
+  /** V2.11 — RCS payload carried by the message (outbound). */
+  rcs?: SabsmsRcsPayload;
+  /** V2.11 — requested channel strategy ('rcs_preferred' / 'sms'). */
+  channelRequested?: string;
+  /** V2.11 — channel that actually carried the message ('rcs' / 'sms'). */
+  channelUsed?: string;
+  /** V2.11 — true when an rcs_preferred send fell back to SMS. */
+  rcsFallback?: boolean;
+  /** V2.11 — RCS suggestion postback data (inbound suggestion taps). */
+  postbackData?: string;
   queuedAt?: Date;
   sentAt?: Date;
   deliveredAt?: Date;
@@ -420,6 +461,13 @@ export interface SabsmsSettings {
   workspaceId: string;
   /** Branded short-link domain — bare hostname, e.g. "sab.sm". */
   shortLinkDomain?: string;
+  /**
+   * V2.11 — RCS composer gate. The plan called for a `sabsms.rcs_enabled`
+   * plan flag; no per-feature plan-flag helper exists for SabSMS yet
+   * (`src/lib/plans.ts` only carries module-level toggles), so this
+   * workspace boolean is the gate until plan flags grow feature keys.
+   */
+  rcsEnabled?: boolean;
   updatedAt: Date;
 }
 
@@ -450,6 +498,10 @@ export interface EnqueueSendInput {
   dltTemplateId?: string;
   idempotencyKey?: string;
   tags?: string[];
+  /** V2.11 — RCS rich-card payload (card + suggestions + SMS fallback). */
+  rcs?: SabsmsRcsPayload;
+  /** V2.11 — `'rcs_preferred'` lets the worker pick RCS or SMS fallback. */
+  channelRequested?: SabsmsChannelRequested;
 }
 
 export interface EnqueueSendResult {
@@ -466,6 +518,8 @@ export interface CreditReserveRequest {
   estimatedCost: number;
   category: SabsmsMessageCategory;
   destinationCountry: string;
+  /** V2.11 — channel to price ('sms' / 'mms' / 'rcs'; RCS is flat 1). */
+  channel?: string;
 }
 
 export interface CreditReserveResponse {

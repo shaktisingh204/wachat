@@ -3,15 +3,7 @@ import type { SabsmsWebhookOut } from "@/lib/sabsms/types";
 
 export interface WebhookDocExt extends SabsmsWebhookOut {
   _id: ObjectId;
-  lastDeliveryStatus?: "delivered" | "failed" | "pending";
-  hmacAlgorithm?: string;
   urlAlias?: string;
-  retryConfig?: {
-    maxRetries: number;
-    backoffStrategy: "exponential" | "linear" | "fixed";
-    baseDelayMs: number;
-  };
-  dlqUrl?: string;
 }
 
 export interface WebhookRow {
@@ -20,14 +12,6 @@ export interface WebhookRow {
   urlAlias: string;
   isActive: boolean;
   events: string[];
-  lastDeliveryStatus: "delivered" | "failed" | "pending" | "unknown";
-  hmacAlgorithm: string;
-  retryConfig: {
-    maxRetries: number;
-    backoffStrategy: "exponential" | "linear" | "fixed";
-    baseDelayMs: number;
-  };
-  dlqUrl: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -38,11 +22,8 @@ export function projectWebhook(doc: WebhookDocExt): WebhookRow {
     url: doc.url,
     urlAlias: doc.urlAlias || "",
     isActive: doc.isActive,
+    // Empty filter = subscribed to everything (dispatcher semantics).
     events: doc.events || [],
-    lastDeliveryStatus: doc.lastDeliveryStatus ?? "unknown",
-    hmacAlgorithm: doc.hmacAlgorithm ?? "sha256",
-    retryConfig: doc.retryConfig ?? { maxRetries: 5, backoffStrategy: "exponential", baseDelayMs: 1000 },
-    dlqUrl: doc.dlqUrl ?? "",
     createdAt: doc.createdAt.toISOString(),
     updatedAt: doc.updatedAt.toISOString(),
   };

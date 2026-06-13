@@ -128,6 +128,23 @@ function projectMessage(
     deliveredAt: toIso(doc.deliveredAt),
     errorCode: doc.errorCode,
     errorMessage: doc.errorMessage,
+    // V2.11 — RCS rendering data (all optional/additive).
+    channelUsed: doc.channelUsed,
+    rcs: doc.rcs
+      ? {
+          card: doc.rcs.card
+            ? {
+                title: doc.rcs.card.title,
+                description: doc.rcs.card.description,
+                mediaUrl: doc.rcs.card.mediaUrl,
+              }
+            : undefined,
+          suggestions: doc.rcs.suggestions ?? [],
+          fallbackText: doc.rcs.fallbackText,
+        }
+      : undefined,
+    rcsFallback: doc.rcsFallback,
+    postbackData: doc.postbackData,
   };
 }
 

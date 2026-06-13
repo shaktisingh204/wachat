@@ -144,6 +144,18 @@ export interface SabsmsDltScrubPreview {
   blockCheck: string | null;
 }
 
+/** One phone's entry from `POST /v1/rcs/capability` (V2.11). */
+export interface SabsmsRcsCapabilityEntry {
+  capable: boolean;
+  /** "cache" | "provider" | "unknown" | "invalid". */
+  source: string;
+}
+
+/** Response of `POST /v1/rcs/capability` (V2.11). */
+export interface SabsmsRcsCapabilityResult {
+  capabilities: Record<string, SabsmsRcsCapabilityEntry>;
+}
+
 export class SabsmsEngineError extends Error {
   public readonly status: number;
   public readonly path: string;
@@ -506,6 +518,24 @@ export const sabsmsEngine = {
     return engineFetch<SabsmsOtpSendResult>('/v1/otp/resend', {
       method: 'POST',
       json: input,
+    });
+  },
+
+  /**
+   * V2.11 — batch RCS capability check (`POST /v1/rcs/capability`,
+   * ≤100 phones per call). Cached engine-side in the identity graph
+   * (7-day freshness); Gupshup RBM answers cache misses, Twilio has no
+   * public per-number lookup so unknowns come back `capable: false,
+   * source: "unknown"`.
+   */
+  async rcsCapability(
+    workspaceId: string,
+    phones: string[],
+  ): Promise<SabsmsRcsCapabilityResult> {
+    return engineFetch<SabsmsRcsCapabilityResult>('/v1/rcs/capability', {
+      method: 'POST',
+      json: { workspaceId, phones },
+      timeoutMs: 30_000,
     });
   },
 

@@ -4,12 +4,9 @@ import React, { useState } from "react";
 import {
   Code,
   Search,
-  Sparkles,
-  Terminal,
   AlertTriangle,
   Book,
   Activity,
-  Play,
   Copy,
   Check,
   Menu,
@@ -20,246 +17,26 @@ import {
   Button,
   IconButton,
   Input,
-  Field,
   Badge,
-  Switch,
   ScrollArea,
   SegmentedControl,
   cn,
 } from "@/components/sabcrm/20ui";
 
+import {
+  SABSMS_API_BASE_PATH,
+  sabsmsDocEndpoints,
+  type SabsmsDocEndpoint,
+} from "@/lib/sabsms/apikeys/openapi";
+
 // ---------------------------------------------------------------------------
-// DATA MODEL
+// DATA MODEL — derived from the OpenAPI spec object (single source of
+// truth, also served at GET /api/v1/sms/openapi.json).
 // ---------------------------------------------------------------------------
 
-type Parameter = {
-  name: string;
-  type: string;
-  required: boolean;
-  description: string;
-};
+type Endpoint = SabsmsDocEndpoint;
 
-type Endpoint = {
-  id: string;
-  method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
-  path: string;
-  group: string;
-  title: string;
-  description: string;
-  badges: string[];
-  parameters: Parameter[];
-  codeExamples: Record<string, string>;
-  response: string | null;
-};
-
-const ENDPOINTS: Endpoint[] = [
-  {
-    id: "send-message",
-    method: "POST",
-    path: "/v1/messages",
-    group: "Messages",
-    title: "Send a Message",
-    description: "Send an outbound SMS, MMS, or WhatsApp message to a single recipient.",
-    badges: ["Core API"],
-    parameters: [
-      { name: "to", type: "string (E.164)", required: true, description: "The destination phone number in E.164 format." },
-      { name: "from", type: "string", required: false, description: "The sender phone number or alphanumeric sender ID." },
-      { name: "body", type: "string", required: true, description: "The text content of the message." },
-      { name: "media_urls", type: "array[string]", required: false, description: "An array of URLs for media attachments (MMS/WhatsApp)." },
-      { name: "status_callback", type: "string (URL)", required: false, description: "A URL to receive delivery status webhooks." },
-    ],
-    codeExamples: {
-      cURL: `curl -X POST https://api.sabsms.com/v1/messages \\
-  -H "Authorization: Bearer sk_live_your_api_key" \\
-  -H "Content-Type: application/json" \\
-  -d '{
-    "to": "+1234567890",
-    "from": "+1987654321",
-    "body": "Your verification code is 49201"
-  }'`,
-      "Node.js": `const { SabSMS } = require('sabsms');
-const client = new SabSMS('sk_live_your_api_key');
-
-const message = await client.messages.create({
-  to: '+1234567890',
-  from: '+1987654321',
-  body: 'Your verification code is 49201'
-});
-
-console.log(message.id);`,
-      "Python": `from sabsms import SabSMS
-
-client = SabSMS('sk_live_your_api_key')
-
-message = client.messages.create(
-    to='+1234567890',
-    from_='+1987654321',
-    body='Your verification code is 49201'
-)
-
-print(message.id)`,
-    },
-    response: `{
-  "id": "msg_01H1234567890ABCDEF",
-  "to": "+1234567890",
-  "from": "+1987654321",
-  "body": "Your verification code is 49201",
-  "status": "queued",
-  "direction": "outbound-api",
-  "segments": 1,
-  "price": "0.015",
-  "created_at": "2026-05-22T12:00:00Z"
-}`
-  },
-  {
-    id: "list-messages",
-    method: "GET",
-    path: "/v1/messages",
-    group: "Messages",
-    title: "List Messages",
-    description: "Retrieve a list of messages associated with your workspace. Results are paginated.",
-    badges: [],
-    parameters: [
-      { name: "limit", type: "integer", required: false, description: "Number of messages to return. Max 100. Default 20." },
-      { name: "status", type: "string", required: false, description: "Filter by status (e.g., delivered, failed, queued)." },
-      { name: "to", type: "string", required: false, description: "Filter by destination number." },
-      { name: "cursor", type: "string", required: false, description: "Pagination cursor for the next page of results." },
-    ],
-    codeExamples: {
-      cURL: `curl -X GET "https://api.sabsms.com/v1/messages?limit=10" \\
-  -H "Authorization: Bearer sk_live_your_api_key"`,
-      "Node.js": `const { SabSMS } = require('sabsms');
-const client = new SabSMS('sk_live_your_api_key');
-
-const messages = await client.messages.list({ limit: 10 });
-console.log(messages.data);`,
-    },
-    response: `{
-  "data": [
-    {
-      "id": "msg_01H1234567890ABCDEF",
-      "to": "+1234567890",
-      "from": "+1987654321",
-      "body": "Your verification code is 49201",
-      "status": "delivered",
-      "created_at": "2026-05-22T12:00:00Z"
-    }
-  ],
-  "has_more": false,
-  "next_cursor": null
-}`
-  },
-  {
-    id: "retrieve-message",
-    method: "GET",
-    path: "/v1/messages/{id}",
-    group: "Messages",
-    title: "Retrieve a Message",
-    description: "Fetch the details of a specific message by its unique ID.",
-    badges: [],
-    parameters: [
-      { name: "id", type: "path", required: true, description: "The unique identifier of the message." },
-    ],
-    codeExamples: {
-      cURL: `curl -X GET "https://api.sabsms.com/v1/messages/msg_01H1234567890ABCDEF" \\
-  -H "Authorization: Bearer sk_live_your_api_key"`,
-      "Node.js": `const { SabSMS } = require('sabsms');
-const client = new SabSMS('sk_live_your_api_key');
-
-const message = await client.messages.retrieve('msg_01H1234567890ABCDEF');
-console.log(message.status);`,
-    },
-    response: `{
-  "id": "msg_01H1234567890ABCDEF",
-  "to": "+1234567890",
-  "from": "+1987654321",
-  "body": "Your verification code is 49201",
-  "status": "delivered",
-  "error_code": null,
-  "created_at": "2026-05-22T12:00:00Z",
-  "updated_at": "2026-05-22T12:00:05Z"
-}`
-  },
-  {
-    id: "create-phone-number",
-    method: "POST",
-    path: "/v1/phone-numbers",
-    group: "Phone Numbers",
-    title: "Provision a Number",
-    description: "Purchase and provision a new phone number for your workspace.",
-    badges: ["Billing Affected"],
-    parameters: [
-      { name: "phone_number", type: "string", required: true, description: "The specific phone number to provision." },
-      { name: "capabilities", type: "array[string]", required: false, description: "Desired capabilities: ['sms', 'mms', 'voice']." },
-    ],
-    codeExamples: {
-      cURL: `curl -X POST https://api.sabsms.com/v1/phone-numbers \\
-  -H "Authorization: Bearer sk_live_your_api_key" \\
-  -H "Content-Type: application/json" \\
-  -d '{
-    "phone_number": "+1234567890",
-    "capabilities": ["sms", "mms"]
-  }'`,
-      "Node.js": `const { SabSMS } = require('sabsms');
-const client = new SabSMS('sk_live_your_api_key');
-
-const number = await client.phoneNumbers.create({
-  phoneNumber: '+1234567890',
-  capabilities: ['sms', 'mms']
-});`,
-    },
-    response: `{
-  "id": "pn_01H...",
-  "phone_number": "+1234567890",
-  "capabilities": ["sms", "mms"],
-  "status": "active",
-  "monthly_fee": "1.00",
-  "created_at": "2026-05-22T12:10:00Z"
-}`
-  },
-  {
-    id: "verify-signature",
-    method: "POST",
-    path: "/v1/webhooks/verify",
-    group: "Webhooks",
-    title: "Verify Signature",
-    description: "Learn how to cryptographically verify that webhooks originated from SabSMS. This is not an actual endpoint you call, but a standard for validating incoming requests.",
-    badges: ["Security", "Guide"],
-    parameters: [
-      { name: "SabSMS-Signature", type: "header", required: true, description: "The signature to verify, provided in the request headers." },
-      { name: "SabSMS-Timestamp", type: "header", required: true, description: "The timestamp of the webhook, used to prevent replay attacks." },
-    ],
-    codeExamples: {
-      "Node.js": `const crypto = require('crypto');
-
-function verifySignature(payload, signature, timestamp, secret) {
-  const data = timestamp + '.' + payload;
-  const expectedSignature = crypto
-    .createHmac('sha256', secret)
-    .update(data)
-    .digest('hex');
-
-  return crypto.timingSafeEqual(
-    Buffer.from(signature),
-    Buffer.from(expectedSignature)
-  );
-}`,
-      "Python": `import hmac
-import hashlib
-
-def verify_signature(payload: str, signature: str, timestamp: str, secret: str) -> bool:
-    data = f"{timestamp}.{payload}".encode('utf-8')
-    expected_signature = hmac.new(
-        secret.encode('utf-8'),
-        data,
-        hashlib.sha256
-    ).hexdigest()
-
-    return hmac.compare_digest(signature, expected_signature)`
-    },
-    response: null
-  }
-];
+const ENDPOINTS: Endpoint[] = sabsmsDocEndpoints();
 
 // ---------------------------------------------------------------------------
 // UTILS
@@ -336,63 +113,6 @@ function CodeBlock({ code, language = "json", className }: { code: string; langu
         <pre className="text-[13px] leading-relaxed font-mono text-[var(--st-text-secondary)]">
           <code dangerouslySetInnerHTML={{ __html: processedCode }} />
         </pre>
-      </div>
-    </div>
-  );
-}
-
-function InteractivePlayground({ endpoint }: { endpoint: Endpoint }) {
-  const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<string | null>(null);
-
-  const handleRun = () => {
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      setResult(endpoint.response || '{\n  "success": true\n}');
-    }, 800);
-  };
-
-  const requiredParams = endpoint.parameters.filter((p) => p.required);
-
-  return (
-    <div className="mt-8 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] shadow-sm overflow-hidden">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
-        <div className="flex items-center gap-2 text-sm font-medium text-[var(--st-text)]">
-          <Play className="h-4 w-4 text-[var(--st-text)]" aria-hidden="true" />
-          Test Endpoint
-        </div>
-        <Badge tone="neutral">Using Test Key</Badge>
-      </div>
-      <div className="p-4 space-y-4">
-        {requiredParams.length > 0 && (
-          <div className="space-y-3">
-            {requiredParams.map((p) => (
-              <Field key={p.name} label={p.name}>
-                <Input placeholder={`Enter ${p.name}...`} inputSize="sm" className="font-mono" />
-              </Field>
-            ))}
-          </div>
-        )}
-        <Button
-          onClick={handleRun}
-          loading={loading}
-          variant="primary"
-          block
-          iconLeft={loading ? undefined : Terminal}
-        >
-          {loading ? "Sending Request..." : "Send Request"}
-        </Button>
-
-        {result && (
-          <div className="mt-4">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="h-2 w-2 rounded-full bg-[var(--st-status-ok)]" aria-hidden="true" />
-              <span className="text-xs font-medium text-[var(--st-text)]">200 OK</span>
-            </div>
-            <CodeBlock code={result} language="json" />
-          </div>
-        )}
       </div>
     </div>
   );
@@ -553,10 +273,10 @@ export default function ApiDocsClient() {
               <div className="max-w-3xl mx-auto xl:max-w-none">
 
                 <div className="flex items-center gap-3 mb-4">
-                  {endpointData.badges.map((badge) => (
-                    <Badge key={badge} tone="accent">
-                      <Sparkles className="h-3 w-3 mr-1" aria-hidden="true" />
-                      {badge}
+                  {endpointData.scopes.map((scope) => (
+                    <Badge key={scope} tone="accent">
+                      <Lock className="h-3 w-3 mr-1" aria-hidden="true" />
+                      {scope}
                     </Badge>
                   ))}
                 </div>
@@ -577,7 +297,7 @@ export default function ApiDocsClient() {
                     {endpointData.method}
                   </span>
                   <div className="flex items-center px-2 py-1.5 overflow-x-auto w-full">
-                    <span className="text-[var(--st-text-secondary)] font-mono text-sm shrink-0">https://api.sabsms.com</span>
+                    <span className="text-[var(--st-text-secondary)] font-mono text-sm shrink-0">{SABSMS_API_BASE_PATH}</span>
                     <span className="text-[var(--st-text)] font-mono text-sm font-semibold whitespace-nowrap ml-1">{endpointData.path}</span>
                   </div>
                 </div>
@@ -667,8 +387,6 @@ export default function ApiDocsClient() {
                       <CodeBlock code={endpointData.response} language="json" />
                     </div>
                   )}
-
-                  <InteractivePlayground endpoint={endpointData} />
                 </div>
 
               </div>
@@ -712,25 +430,19 @@ export default function ApiDocsClient() {
                 )}
 
                 <div className="pt-8 border-t border-[var(--st-border)]">
-                  <h3 className="text-sm font-bold text-[var(--st-text)] uppercase tracking-wider mb-6">Playground</h3>
-                  <div className="bg-[var(--st-bg)] border border-[var(--st-border)] rounded-[var(--st-radius)] p-5 shadow-sm">
-                    <div className="flex items-center justify-between mb-4">
-                      <span className="text-sm font-medium text-[var(--st-text-secondary)]">Sandbox Test</span>
-                      <Switch defaultChecked id="desktop-sandbox" aria-label="Toggle sandbox test mode" />
-                    </div>
-
-                    <div className="space-y-4">
-                      {endpointData.parameters.filter((p) => p.required).map((p) => (
-                        <Field key={p.name} label={p.name}>
-                          <Input placeholder={`Enter ${p.name}...`} inputSize="sm" className="font-mono" />
-                        </Field>
-                      ))}
-
-                      <Button variant="primary" block iconLeft={Play}>
-                        Send API Request
-                      </Button>
-                    </div>
-                  </div>
+                  <h3 className="text-sm font-bold text-[var(--st-text)] uppercase tracking-wider mb-4">Spec</h3>
+                  <p className="text-xs text-[var(--st-text-secondary)] leading-relaxed">
+                    This reference is rendered from the machine-readable OpenAPI 3.1 spec served at{" "}
+                    <a
+                      href="/api/v1/sms/openapi.json"
+                      className="font-mono underline underline-offset-2"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      /api/v1/sms/openapi.json
+                    </a>
+                    . Mint keys at <a href="/sabsms/api-keys" className="underline underline-offset-2">/sabsms/api-keys</a>.
+                  </p>
                 </div>
 
               </div>

@@ -1,7 +1,10 @@
-import { IdempotencyMonitor } from "./idempotency-monitor";
+import { redirect } from "next/navigation";
 
-export const dynamic = "force-dynamic";
-
-export default function SabsmsIdempotencyPage() {
-  return <IdempotencyMonitor />;
+/**
+ * /sabsms/idempotency was folded into /sabsms/api-keys (V2.13) —
+ * idempotency is an API behaviour (Idempotency-Key header, 24h replay)
+ * documented on the developer surfaces, not a standalone console.
+ */
+export default function SabsmsIdempotencyRedirect() {
+  redirect("/sabsms/api-keys");
 }

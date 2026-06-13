@@ -35,6 +35,7 @@ import {
   createCampaignAction,
   estimateCampaignAction,
   launchCampaignAction,
+  rcsCapabilityEstimateAction,
 } from "../actions"
 import { segmentInfo } from "@/lib/sabsms/segments"
 import type { CampaignEstimate } from "../launch-helpers"
@@ -82,6 +83,10 @@ export default function CreateCampaignPage() {
   const [segmentsError, setSegmentsError] = useState<string | null>(null)
   const [estimate, setEstimate] = useState<CampaignEstimate | null>(null)
   const [estimateLoading, setEstimateLoading] = useState(false)
+  // V2.11 — sampled RCS-capability estimate for the review step.
+  const [rcsEstimate, setRcsEstimate] = useState<
+    { percent: number; sampled: number; capable: number } | null
+  >(null)
   const [launching, setLaunching] = useState(false)
   const [launchError, setLaunchError] = useState<string | null>(null)
 
@@ -128,6 +133,24 @@ export default function CreateCampaignPage() {
       alive = false
     }
   }, [step, selectedSegment, message, campaignType])
+
+  // V2.11 — "~N% RCS-capable" audience hint (sampled ≤200 phones via the
+  // engine's identity-graph-cached capability endpoint). Best-effort:
+  // failures simply hide the hint.
+  useEffect(() => {
+    if (step !== 4 || !selectedSegment) return
+    let alive = true
+    rcsCapabilityEstimateAction({
+      audience: { kind: "segment", segmentId: selectedSegment },
+    })
+      .then((res) => {
+        if (alive) setRcsEstimate(res.ok ? res : null)
+      })
+      .catch(() => alive && setRcsEstimate(null))
+    return () => {
+      alive = false
+    }
+  }, [step, selectedSegment])
 
   async function handleLaunch() {
     setLaunchError(null)
@@ -609,6 +632,19 @@ export default function CreateCampaignPage() {
                             </span>
                           </div>
                         </div>
+                        {rcsEstimate && (
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-[var(--st-text-secondary)]">RCS reach</span>
+                            <div className="text-right">
+                              <span className="font-medium text-[var(--st-text)] block">
+                                ~{rcsEstimate.percent}% RCS-capable
+                              </span>
+                              <span className="text-[10px] text-[var(--st-text-secondary)]">
+                                {rcsEstimate.capable} of {rcsEstimate.sampled} sampled phones
+                              </span>
+                            </div>
+                          </div>
+                        )}
                       </div>
 
                       {estimate && estimate.warnings.length > 0 && (

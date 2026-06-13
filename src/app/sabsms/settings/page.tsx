@@ -10,6 +10,7 @@ import {
 import { getSabsmsSettingsAction } from "./actions";
 import { getAgentConfigAction } from "./agent-actions";
 import { AgentSettingsCard } from "./agent-card";
+import { ResellerSettingsCard } from "./reseller-card";
 import { ShortLinksSettingsCard } from "./short-links-card";
 
 export const dynamic = "force-dynamic";
@@ -63,6 +64,11 @@ export default function SabsmsSettingsPage() {
 
       <Suspense fallback={null}>
         <AgentContent />
+      </Suspense>
+
+      {/* V2.13 — reseller engine (rate cards + margin report). */}
+      <Suspense fallback={null}>
+        <ResellerSettingsCard />
       </Suspense>
     </div>
   );

@@ -342,6 +342,16 @@ export const SabsmsMediaSchema = z.object({
   bytes: z.number(),
 });
 
+// V2.11 — RCS wire schemas (canonical copies live in `../rcs.ts`,
+// worker-safe; re-exported here so DB-layer callers keep one import).
+import {
+  SabsmsRcsCardSchema,
+  SabsmsRcsPayloadSchema,
+  SabsmsRcsSuggestionSchema,
+} from '../rcs';
+
+export { SabsmsRcsCardSchema, SabsmsRcsPayloadSchema, SabsmsRcsSuggestionSchema };
+
 export const SabsmsMessageSchema = z.object({
   _id: z.instanceof(ObjectId).optional(),
   workspaceId: z.string(),
@@ -373,6 +383,12 @@ export const SabsmsMessageSchema = z.object({
   price: z.number().optional(),
   cost: z.number().optional(),
   tags: z.array(z.string()).optional(),
+  // V2.11 — RCS (all additive/optional).
+  rcs: SabsmsRcsPayloadSchema.optional(),
+  channelRequested: z.string().optional(),
+  channelUsed: z.string().optional(),
+  rcsFallback: z.boolean().optional(),
+  postbackData: z.string().optional(),
   queuedAt: z.date().optional(),
   sentAt: z.date().optional(),
   deliveredAt: z.date().optional(),
@@ -574,6 +590,8 @@ export const SabsmsSettingsSchema = z.object({
   _id: z.instanceof(ObjectId).optional(),
   workspaceId: z.string(),
   shortLinkDomain: z.string().optional(),
+  /** V2.11 — RCS composer gate (see `SabsmsSettings.rcsEnabled`). */
+  rcsEnabled: z.boolean().optional(),
   updatedAt: z.date(),
 });
 

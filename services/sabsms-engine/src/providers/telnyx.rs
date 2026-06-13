@@ -90,6 +90,14 @@ impl SmsProvider for TelnyxProvider {
         opts: &SendOptions,
         creds: &ProviderCreds,
     ) -> Result<SendResult, ProviderError> {
+        // V2.11 — no Telnyx RCS path yet; reject so the worker falls
+        // back to SMS with the payload's fallback text.
+        if opts.rcs.is_some() {
+            return Err(ProviderError::Rejected {
+                code: None,
+                message: "rcs_not_supported".into(),
+            });
+        }
         let api_key = Self::api_key(creds)?;
         let url = format!("{}/v2/messages", self.base_url);
 
@@ -293,6 +301,7 @@ impl SmsProvider for TelnyxProvider {
             to,
             body,
             media_urls,
+            postback_data: None,
         })
     }
 

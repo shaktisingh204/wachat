@@ -134,6 +134,14 @@ impl SmsProvider for Msg91Provider {
         opts: &SendOptions,
         creds: &ProviderCreds,
     ) -> Result<SendResult, ProviderError> {
+        // V2.11 — no MSG91 RCS path yet; reject so the worker falls
+        // back to SMS with the payload's fallback text.
+        if opts.rcs.is_some() {
+            return Err(ProviderError::Rejected {
+                code: None,
+                message: "rcs_not_supported".into(),
+            });
+        }
         let auth_key = Self::auth_key(creds)?;
         let url = format!("{}/api/v5/sms/", self.base_url);
 
@@ -269,6 +277,7 @@ impl SmsProvider for Msg91Provider {
             to,
             body,
             media_urls: Vec::new(),
+            postback_data: None,
         })
     }
 
@@ -352,6 +361,7 @@ mod tests {
                 header: Some("SABNDE".into()),
             }),
             callback_url: None,
+            rcs: None,
         };
         let r = p.send(req("otp 1234"), &opts, &creds()).await.unwrap();
         assert_eq!(r.provider_message_id, "376185bd1244");
