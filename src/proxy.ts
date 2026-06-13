@@ -140,6 +140,29 @@ export async function proxy(request: NextRequest) {
     return sameHostRedirect(request, POST_LOGIN_LANDING);
   }
 
+  // P9: legacy CRM module deleted — permanent redirect into the SabCRM suite.
+  // (Unauthenticated /dashboard/crm/* already bounced to /login by the user gate.)
+  const LEGACY_CRM_PREFIX = '/dashboard/crm';
+  if (
+    pathname === LEGACY_CRM_PREFIX ||
+    pathname.startsWith(`${LEGACY_CRM_PREFIX}/`)
+  ) {
+    const LEGACY_CRM_MAP: Array<[string, string]> = [
+      ['/dashboard/crm/sales/invoices', '/sabcrm/finance/invoices'],
+      ['/dashboard/crm/sales/quotations', '/sabcrm/finance/quotations'],
+      ['/dashboard/crm/sales/credit-notes', '/sabcrm/finance/credit-notes'],
+      ['/dashboard/crm/sales/receipts', '/sabcrm/finance/payment-receipts'],
+      ['/dashboard/crm/purchases', '/sabcrm/supply'],
+      ['/dashboard/crm/inventory', '/sabcrm/supply/items'],
+      ['/dashboard/crm/tasks', '/sabcrm/tasks'],
+      ['/dashboard/crm/projects', '/sabcrm/projects'],
+    ];
+    const hit = LEGACY_CRM_MAP.find(([from]) => pathname.startsWith(from));
+    const url = request.nextUrl.clone();
+    url.pathname = hit ? hit[1] : '/sabcrm';
+    return NextResponse.redirect(url, 308);
+  }
+
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set('x-url', pathname);
 

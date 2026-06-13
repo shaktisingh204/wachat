@@ -15,7 +15,7 @@ import * as React from "react";
 import {
   SettingsDeepPage,
   type SettingsColumn,
-} from "../../crm/_components/settings-deep-page";
+} from "@/components/crm/settings-deep-page";
 import {
   bulkDeleteTicketTags,
   deleteTicketTag,

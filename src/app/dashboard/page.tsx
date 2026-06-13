@@ -370,7 +370,7 @@ export default async function HomePage() {
                 <CardDescription>Your team in real time</CardDescription>
               </div>
               <Link
-                href="/dashboard/crm/activity"
+                href="/sabcrm/activity"
                 className="inline-flex items-center gap-0.5 rounded-[var(--st-radius)] px-2 py-1 text-[11px] font-medium text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-secondary)] hover:text-[var(--st-text)]"
               >
                 Feed <ArrowRight size={12} aria-hidden="true" />

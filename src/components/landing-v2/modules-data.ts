@@ -381,7 +381,7 @@ export const MODULES: ModuleDef[] = [
     // ──────── SALES & COMMERCE ────────
     build('crm', 'CRM', 'Sales + ops in one stack', 'Pipelines. Invoices. Inventory. Bookings. Loyalty.',
         'Replaces HubSpot + Zoho + QuickBooks + Calendly + Loyalzoo, with one shared customer.',
-        '/products/crm', '/dashboard/crm', Users, 'Sales & Commerce', 'sky',
+        '/products/crm', '/sabcrm', Users, 'Sales & Commerce', 'sky',
         [{ value: '6', label: 'Tools replaced' }, { value: '∞', label: 'Custom fields' }, { value: 'GST', label: 'Compliant' }, { value: 'API', label: 'First class' }],
         [
             { title: 'Pipelines + deals', desc: 'Drag stages, weighted forecasts, win/loss reasons.', icon: TrendingUp },

@@ -37,7 +37,6 @@ export function AdminLayout({ children }: AdminLayoutProps) {
         else if (pathname.startsWith('/dashboard/ad-manager')) { currentApp = 'ad-manager'; }
         else if (pathname.startsWith('/dashboard/facebook')) { currentApp = 'facebook'; }
         else if (pathname.startsWith('/dashboard/instagram')) { currentApp = 'instagram'; }
-        else if (pathname.startsWith('/dashboard/crm')) { currentApp = 'crm'; }
         else if (pathname.startsWith('/dashboard/team')) { currentApp = 'team'; }
         else if (pathname.startsWith('/dashboard/email')) { currentApp = 'email'; }
         else if (pathname.startsWith('/sabsms')) { currentApp = 'sabsms'; }

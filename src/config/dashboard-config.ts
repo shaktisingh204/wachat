@@ -40,7 +40,6 @@ export const appIcons = [
     { id: 'ad-manager', href: '/dashboard/ad-manager/ad-accounts', icon: Target, label: 'Ad Manager' },
     { id: 'telegram', href: '/dashboard/telegram', icon: TelegramIcon, label: 'Telegram' },
     { id: 'instagram', href: '/dashboard/instagram/connections', icon: InstagramIcon, label: 'Instagram' },
-    { id: 'crm', href: '/dashboard/crm', icon: CrmIcon, label: 'CRM' },
     { id: 'sabcheckout', href: '/dashboard/sabcheckout', icon: CreditCard, label: 'SabCheckout' },
     { id: 'sabcreator', href: '/dashboard/sabcreator', icon: LayoutTemplate, label: 'SabCreator' },
     { id: 'hrm', href: '/dashboard/hrm', icon: BriefcaseBusiness, label: 'HRM' },

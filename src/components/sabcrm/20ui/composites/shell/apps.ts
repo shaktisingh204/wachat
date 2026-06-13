@@ -91,9 +91,9 @@ export function isWindowableApp(app: SabAppDescriptor): boolean {
  * Modules hidden from ALL navigation per product decision (their code + routes
  * stay intact, they're just no longer surfaced).
  */
-// `sabcrm` was un-hidden when it became the suite that absorbs the legacy
-// `crm` module (which stays hidden until its P9 deletion).
-const HIDDEN_APP_IDS = new Set(["sabwa", "crm", "hrm", "seo"]);
+// `sabcrm` is the suite that absorbed the legacy `crm` module; `crm` was
+// deleted in P9 (routes + actions removed) and is no longer an app at all.
+const HIDDEN_APP_IDS = new Set(["sabwa", "hrm", "seo"]);
 
 const SAB_APPS_ALL: SabAppDescriptor[] = [
   {
@@ -170,14 +170,6 @@ const SAB_APPS_ALL: SabAppDescriptor[] = [
     Icon: InstagramIcon,
     migration: "done",
     isActive: (p) => !!p?.startsWith("/dashboard/instagram"),
-  },
-  {
-    id: "crm",
-    name: "CRM",
-    href: "/dashboard/crm",
-    Icon: CrmIcon,
-    migration: "done",
-    isActive: (p) => !!p?.startsWith("/dashboard/crm"),
   },
   {
     id: "sabcrm",

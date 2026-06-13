@@ -230,7 +230,6 @@ function SabHomeShellContent({
             items: [
               { id: "wachat", label: "WaChat inbox", icon: <Smartphone />, href: "/wachat" },
               { id: "sabflow", label: "Flows", icon: <Workflow />, href: "/dashboard/sabflow/flow-builder" },
-              { id: "crm", label: "CRM", icon: <Briefcase />, href: "/dashboard/crm" },
             ],
           },
         ];

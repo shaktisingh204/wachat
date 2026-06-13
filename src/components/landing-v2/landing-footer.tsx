@@ -11,7 +11,7 @@ const cols = [
             { label: 'Wachat', href: '/dashboard/wachat' },
             { label: 'SabFlow', href: '/dashboard/sabflow' },
             { label: 'SabChat', href: '/dashboard/sabchat' },
-            { label: 'CRM', href: '/dashboard/crm' },
+            { label: 'CRM', href: '/sabcrm' },
             { label: 'SEO', href: '/dashboard/seo' },
             { label: 'HRM', href: '/dashboard/hrm' },
         ],

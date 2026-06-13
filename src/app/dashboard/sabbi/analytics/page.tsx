@@ -22,8 +22,8 @@ import {
     HubQuickLinkGrid,
     type HubKpi,
     type HubQuickLink,
-} from '../../crm/_components/hub-kpi-grid';
-import { countByUser, formatCurrency } from '../../crm/_components/hub-data';
+} from '@/components/crm/hub-kpi-grid';
+import { countByUser, formatCurrency } from '@/components/crm/hub-data';
 
 export const dynamic = 'force-dynamic';
 

@@ -49,7 +49,6 @@ const ALL_APPS: { id: string; label: string; icon: any; href: string; permission
     { id: 'ad-manager',     label: 'Ad Manager',     icon: Target,           href: '/dashboard/ad-manager/ad-accounts', permissionKey: 'ad_manager_accounts' },
     { id: 'telegram',       label: 'Telegram',       icon: TelegramIcon,     href: '/dashboard/telegram',               permissionKey: null },
     { id: 'instagram',      label: 'Instagram',      icon: InstagramIcon,    href: '/dashboard/instagram/connections',  permissionKey: 'instagram_dashboard' },
-    { id: 'crm',            label: 'CRM',            icon: CrmIcon,          href: '/dashboard/crm',                    permissionKey: 'crm_dashboard' },
     { id: 'team',           label: 'Team',           icon: UsersRound,       href: '/dashboard/team',                   permissionKey: 'team_users' },
     { id: 'email',          label: 'Email',          icon: Mail,             href: '/dashboard/email',                  permissionKey: 'email_dashboard' },
     { id: 'sabsms',         label: 'SabSMS',         icon: MessageSquareText,href: '/sabsms',                           permissionKey: 'sabsms_overview' },
