@@ -56,6 +56,57 @@ export interface AccessFilter {
   projection?: Record<string, 0>;
 }
 
+/** A workspace-member node for subtree resolution. */
+export interface MemberNode {
+  /** The member record id (string). */
+  id: string;
+  /** The user this member maps to. */
+  userId?: string;
+  /** The member id of this member's manager (forms the hierarchy edge). */
+  managerId?: string;
+}
+
+/**
+ * Collect the set of user ids in `selfUserId`'s management subtree (self +
+ * everyone who reports up to them, transitively) via BFS over `managerId`
+ * edges. Pure + cycle-safe; falls back to `[selfUserId]` when the actor has no
+ * member node. Used by `resolveManagedSubtree` in the server resolver.
+ */
+export function collectSubtreeUserIds(
+  members: MemberNode[],
+  selfUserId: string,
+): string[] {
+  const byId = new Map<string, MemberNode>();
+  const childrenOf = new Map<string, string[]>();
+  let selfMemberId: string | undefined;
+  for (const m of members) {
+    if (!m.id) continue;
+    byId.set(m.id, m);
+    if (m.userId === selfUserId) selfMemberId = m.id;
+    if (m.managerId) {
+      const arr = childrenOf.get(m.managerId) ?? [];
+      arr.push(m.id);
+      childrenOf.set(m.managerId, arr);
+    }
+  }
+  if (!selfMemberId) return [selfUserId];
+
+  const userIds = new Set<string>([selfUserId]);
+  const seen = new Set<string>();
+  const queue = [selfMemberId];
+  while (queue.length > 0) {
+    const memberId = queue.shift() as string;
+    if (seen.has(memberId)) continue; // cycle guard
+    seen.add(memberId);
+    const uid = byId.get(memberId)?.userId;
+    if (uid) userIds.add(uid);
+    for (const childId of childrenOf.get(memberId) ?? []) {
+      if (!seen.has(childId)) queue.push(childId);
+    }
+  }
+  return [...userIds];
+}
+
 /** Build the `{ 'data.<key>': 0 }` projection for role-hidden fields. */
 export function buildFieldProjection(
   hiddenFields?: string[],

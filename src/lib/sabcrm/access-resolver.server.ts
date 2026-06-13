@@ -22,9 +22,11 @@ import {
   buildAccessibleByFilter,
   canAccessRecord,
   buildFieldProjection,
+  collectSubtreeUserIds,
   type AccessContext,
   type AccessFilter,
   type OwdLevel,
+  type MemberNode,
 } from './access-compiler';
 
 export {
@@ -81,25 +83,38 @@ export async function setObjectOwd(
 }
 
 /**
- * The set of user ids the actor may act for in private mode.
+ * The set of user ids the actor may act for in private mode: self + the
+ * management subtree (everyone reporting up to them, transitively) resolved
+ * over `workspaceMembers.managerId` edges. Degrades to `[selfId]` when there
+ * is no member hierarchy (the common case until managers are assigned).
  *
- * Today: just the actor (matches the legacy "own / assigned-to-self" rule).
- * EXTENSION POINT — once `workspaceMembers` carries a `managerId` relation,
- * resolve the manager's subtree here via `$graphLookup`:
- *
- *   db.collection('sabcrm_records').aggregate([
- *     { $match: { projectId, object: 'workspaceMembers', 'data.userId': selfId } },
- *     { $graphLookup: { from: 'sabcrm_records', startWith: '$_id',
- *         connectFromField: '_id', connectToField: 'data.managerId',
- *         as: 'reports', restrictSearchWithMatch: { object: 'workspaceMembers', projectId } } },
- *   ])
- * → flatten reports' `data.userId` into the returned set.
+ * Uses an in-JS BFS (`collectSubtreeUserIds`) rather than `$graphLookup` so it
+ * is robust to whether `managerId` is stored as an id-string or ObjectId, and
+ * so the traversal logic is unit-tested. Best-effort.
  */
 export async function resolveManagedSubtree(
-  _projectId: string,
+  projectId: string,
   selfId: string,
 ): Promise<string[]> {
-  return [selfId];
+  try {
+    if (!projectId || !selfId) return [selfId];
+    const { db } = await connectToDatabase();
+    const rows = (await db
+      .collection('sabcrm_records')
+      .find({ projectId, object: 'workspaceMembers' })
+      .project({ _id: 1, 'data.userId': 1, 'data.managerId': 1 })
+      .limit(5000)
+      .toArray()) as Array<{ _id: unknown; data?: { userId?: unknown; managerId?: unknown } }>;
+    if (rows.length === 0) return [selfId];
+    const members: MemberNode[] = rows.map((r) => ({
+      id: String(r._id),
+      userId: r.data?.userId != null ? String(r.data.userId) : undefined,
+      managerId: r.data?.managerId != null ? String(r.data.managerId) : undefined,
+    }));
+    return collectSubtreeUserIds(members, selfId);
+  } catch {
+    return [selfId];
+  }
 }
 
 /**
