@@ -14,7 +14,12 @@
  *   • 500 { error }  unexpected
  *
  * Internals:
- *   - Looks up the template from `sabflow_marketplace_templates` by ObjectId.
+ *   - ObjectId `templateId` → looks up `sabflow_marketplace_templates` and
+ *     clones the published `flow.json`.
+ *   - Slug `templateId` → materialises a first-party template from the
+ *     in-memory registry (built-in recipes + chatbots), which the browse grid
+ *     also lists. Recipes rekey their declared graph per tenant; chatbots are
+ *     built fresh via `template.build()`.
  *   - Clones the `flow.json` into `sabflows` with the requester's `userId`.
  *   - Records the install in `sabflow_marketplace_installs`.
  *   - Increments `installCount` on the template document atomically.
@@ -36,6 +41,15 @@ import {
 } from '@/lib/sabflow/marketplace/templates';
 import { remapFlowIds } from '@/lib/sabflow/marketplace/install';
 import { trackTemplateInstall } from '@/lib/sabflow/marketplace/telemetry';
+import {
+  getTemplate,
+  instantiateRecipeTemplate,
+} from '@/lib/sabflow/marketplace/registry';
+// Side-effect bootstraps so the in-memory registry is populated (built-in
+// recipes + chatbots register at import time). Same imports the marketplace
+// browse route uses.
+import '@/lib/sabflow/recipes';
+import '@/components/sabflow/templates';
 import type { SabFlowDoc } from '@/lib/sabflow/types';
 
 export const dynamic = 'force-dynamic';
@@ -146,6 +160,111 @@ async function incrementInstallCountById(
   }
 }
 
+/* ── Registry (code-defined) template install ──────────────────────────── */
+
+/**
+ * Install a first-party template from the in-memory registry (built-in
+ * recipes + chatbots) rather than the Mongo collection. These are surfaced on
+ * the browse grid alongside published Mongo rows but carry slug ids, so they
+ * are materialised here instead of cloned:
+ *   • recipe  — `instantiateRecipeTemplate()` rekeys the declared graph per tenant
+ *   • chatbot — `template.build()` returns a fresh graph instance (new ids)
+ *
+ * The caller has already enforced auth, RBAC, and the install rate limit.
+ */
+async function installRegistryTemplate(
+  templateId: string,
+  userId: string,
+  workspaceId: string,
+): Promise<NextResponse> {
+  const tpl = getTemplate(templateId);
+  if (!tpl) {
+    return NextResponse.json({ error: 'Template not found.' }, { status: 404 });
+  }
+
+  try {
+    const now = new Date();
+    const docOid = new ObjectId();
+
+    // Materialise the graph for the requesting tenant.
+    let graph:
+      | Pick<SabFlowDoc, 'events' | 'groups' | 'edges' | 'variables' | 'theme' | 'settings'>
+      | null = null;
+    let name = tpl.displayName;
+
+    if (tpl.kind === 'recipe') {
+      const recipeDoc = instantiateRecipeTemplate(templateId, userId);
+      if (recipeDoc) {
+        name = recipeDoc.name;
+        graph = {
+          events: recipeDoc.events,
+          groups: recipeDoc.groups,
+          edges: recipeDoc.edges,
+          variables: recipeDoc.variables,
+          theme: recipeDoc.theme ?? {},
+          settings: recipeDoc.settings ?? {},
+        };
+      }
+    } else if (tpl.kind === 'chatbot' && typeof tpl.build === 'function') {
+      const instance = tpl.build();
+      graph = {
+        events: instance.events,
+        groups: instance.groups,
+        edges: instance.edges,
+        variables: instance.variables,
+        theme: instance.theme ?? {},
+        settings: instance.settings ?? {},
+      };
+    }
+
+    if (!graph) {
+      return NextResponse.json(
+        { error: 'This template cannot be installed automatically.' },
+        { status: 422 },
+      );
+    }
+
+    const doc: SabFlowDoc = {
+      _id: docOid,
+      userId,
+      name,
+      events: graph.events,
+      groups: graph.groups,
+      edges: graph.edges,
+      variables: graph.variables,
+      annotations: [],
+      theme: graph.theme ?? {},
+      settings: {
+        ...(graph.settings ?? {}),
+        marketplaceSource: {
+          templateId,
+          installedAt: now.toISOString(),
+        },
+      },
+      status: 'DRAFT',
+      createdAt: now,
+      updatedAt: now,
+    } as SabFlowDoc;
+
+    const flowCol = await getSabFlowCollection();
+    await flowCol.insertOne(doc);
+    const docId = docOid.toHexString();
+
+    // Record the install + telemetry (best-effort). No Mongo installCount to
+    // bump — registry templates have no backing document.
+    await recordInstall({ templateId, userId, workspaceId, installedAt: now, docId });
+    trackTemplateInstall(templateId, userId);
+
+    return NextResponse.json(
+      { docId, editorUrl: `/dashboard/sabflow/flow-builder/${docId}` },
+      { status: 201 },
+    );
+  } catch (err) {
+    console.error('[SABFLOW MARKETPLACE TEMPLATES INSTALL] registry install error:', err);
+    return NextResponse.json({ error: 'Internal server error.' }, { status: 500 });
+  }
+}
+
 /* ── Route handler ─────────────────────────────────────────────────────── */
 
 export async function POST(
@@ -182,11 +301,16 @@ export async function POST(
 
   /* ── 4. Resolve templateId ───────────────────────────────────────────── */
   const { templateId } = await context.params;
-  if (!templateId || !ObjectId.isValid(templateId)) {
-    return NextResponse.json(
-      { error: 'Invalid templateId.' },
-      { status: 400 },
-    );
+  if (!templateId) {
+    return NextResponse.json({ error: 'Invalid templateId.' }, { status: 400 });
+  }
+
+  // The browse grid also lists first-party templates from the in-memory
+  // registry (built-in recipes + chatbots). Those carry slug ids rather than
+  // Mongo ObjectIds, so they materialise via the registry path. Auth, RBAC,
+  // and the rate limit above already applied.
+  if (!ObjectId.isValid(templateId)) {
+    return installRegistryTemplate(templateId, userId, workspaceId);
   }
 
   /* ── 5. Fetch the template ───────────────────────────────────────────── */
