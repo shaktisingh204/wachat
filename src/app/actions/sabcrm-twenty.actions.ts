@@ -46,6 +46,7 @@ import {
   patchTouchesChangeFields,
 } from '@/lib/sabcrm/runtime';
 import { recomputeScoresForRecord } from '@/lib/sabcrm/scoring.server';
+import { recomputeFormulasForRecord } from '@/lib/sabcrm/formula.server';
 import {
   validateRecordWrite,
   reparentInboundRelations,
@@ -543,6 +544,7 @@ export async function createSabcrmRecordTw(
     // Rule-based scoring: recompute this record's score from the full record
     // (best-effort; writes data.score/scoreTier without bumping updatedAt).
     await recomputeScoresForRecord(g.ctx.projectId, object, record.id);
+    await recomputeFormulasForRecord(g.ctx.projectId, object, record.id);
 
     revalidatePath(`${TW_BASE_PATH}/${object}`);
     return { ok: true, data: record };
@@ -661,6 +663,7 @@ export async function updateSabcrmRecordTw(
     // Rule-based scoring: re-score from the full record after the patch lands
     // (best-effort; reads the merged record, skips when inputs are unchanged).
     await recomputeScoresForRecord(g.ctx.projectId, object, id);
+    await recomputeFormulasForRecord(g.ctx.projectId, object, id);
 
     revalidatePath(`${TW_BASE_PATH}/${object}`);
     revalidatePath(`${TW_BASE_PATH}/${object}/${id}`);
@@ -707,8 +710,9 @@ export async function mergeSabcrmRecordsTw(
       secondaryId,
       data,
     });
-    // Re-score the survivor (its merged data may change rule outcomes).
+    // Re-score + re-evaluate formulas on the survivor (its merged data changed).
     await recomputeScoresForRecord(g.ctx.projectId, object, primaryId);
+    await recomputeFormulasForRecord(g.ctx.projectId, object, primaryId);
     revalidatePath(`${TW_BASE_PATH}/${object}`);
     revalidatePath(`${TW_BASE_PATH}/${object}/${primaryId}`);
     return { ok: true, data: record };

@@ -16,6 +16,7 @@ import {
   CreditCard,
   Tag,
   Target,
+  Sigma,
   Gauge,
   Lock,
   AtSign,
@@ -198,6 +199,12 @@ const GROUPS: readonly SettingsGroup[] = [
         label: 'SabFlow automations',
         description: 'Run a SabFlow flow when a CRM event fires',
         icon: Zap,
+      },
+      {
+        slug: 'formulas',
+        label: 'Formula fields',
+        description: 'Computed fields from spreadsheet-style expressions',
+        icon: Sigma,
       },
       {
         slug: 'tags',
