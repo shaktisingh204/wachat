@@ -39,6 +39,8 @@ import {
   Inbox,
   LifeBuoy,
   Brain,
+  Share2,
+  Map,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -159,6 +161,36 @@ const GROUPS: readonly SettingsGroup[] = [
         label: 'Roles',
         description: 'Permission sets and access control',
         icon: ShieldCheck,
+      },
+      {
+        slug: 'sharing-rules',
+        label: 'Sharing rules',
+        description: 'Grant extra read access by ownership or record criteria',
+        icon: Share2,
+      },
+      {
+        slug: 'territories',
+        label: 'Territories',
+        description: 'Territory hierarchy + assignment rules that stamp records',
+        icon: Map,
+      },
+      {
+        slug: 'field-security',
+        label: 'Field-level security',
+        description: 'Hide or lock individual fields per role (default-off)',
+        icon: Lock,
+      },
+      {
+        slug: 'access-control',
+        label: 'Access control',
+        description: 'Enforce OWD + role hierarchy + sharing at the data layer (default-off)',
+        icon: ShieldAlert,
+      },
+      {
+        slug: 'privacy',
+        label: 'Data privacy',
+        description: 'GDPR consent, DSAR export and right-to-be-forgotten erasure',
+        icon: ShieldAlert,
       },
       {
         slug: 'data-model',
