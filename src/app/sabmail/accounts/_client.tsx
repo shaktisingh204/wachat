@@ -24,6 +24,7 @@ import {
 } from "@/app/actions/sabmail-projects.actions";
 
 import { MailboxConnectForm } from "../_components/mailbox-connect-form";
+import "@/components/sabmail/motion/sabmail-motion.css";
 
 export function SabmailAccountsClient({
   projectId,
@@ -80,11 +81,12 @@ export function SabmailAccountsClient({
                 description="Connect your first mailbox below to start receiving and sending mail."
               />
             ) : (
-              <ul className="flex flex-col gap-2">
-                {accounts.map((a) => (
+              <ul className="sabmail-motion flex flex-col gap-2">
+                {accounts.map((a, idx) => (
                   <li
                     key={a.id}
-                    className="flex items-center justify-between gap-3 rounded-md border border-[var(--st-border)] px-3 py-2.5"
+                    className="sabmail-stagger-item sabmail-row flex items-center justify-between gap-3 rounded-md border border-[var(--st-border)] px-3 py-2.5 hover:bg-[var(--st-bg-muted)]"
+                    style={{ ["--i" as string]: idx } as React.CSSProperties}
                   >
                     <div className="flex min-w-0 items-center gap-3">
                       <span className="grid h-9 w-9 shrink-0 place-items-center rounded-md bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">

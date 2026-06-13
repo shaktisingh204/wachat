@@ -93,7 +93,9 @@ export function isWindowableApp(app: SabAppDescriptor): boolean {
  */
 // `sabcrm` is the suite that absorbed the legacy `crm` module; `crm` was
 // deleted in P9 (routes + actions removed) and is no longer an app at all.
-const HIDDEN_APP_IDS = new Set(["sabwa", "hrm", "seo"]);
+// `email` is retired — its surfaces are consolidated into SabMail (/sabmail),
+// which has its own dock app; the proxy 308-redirects /dashboard/email/* there.
+const HIDDEN_APP_IDS = new Set(["sabwa", "hrm", "seo", "email"]);
 
 const SAB_APPS_ALL: SabAppDescriptor[] = [
   {

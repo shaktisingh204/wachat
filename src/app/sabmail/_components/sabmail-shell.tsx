@@ -7,6 +7,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { SabHomeShell } from "@/components/sabcrm/20ui";
 
 import { buildSabmailSidebarGroups } from "./sabmail-sidebar-config";
+import { LiveDot } from "@/components/sabmail/motion";
 
 export interface SabmailShellProps {
   user?: {
@@ -88,14 +89,7 @@ export function SabmailShell({
           )}
         </span>
         <span className="flex items-center gap-1.5">
-          <span
-            aria-hidden
-            className={`inline-block h-1.5 w-1.5 rounded-full ${
-              engineEnabled
-                ? "bg-[var(--st-status-ok,#16a34a)]"
-                : "bg-[var(--st-text-secondary)]"
-            }`}
-          />
+          <LiveDot active={engineEnabled} />
           <span className="truncate">
             {engineEnabled ? "Engine online" : "Engine disabled"} ·{" "}
             {engineUrl.replace(/^https?:\/\//, "")}

@@ -68,6 +68,22 @@ echo "📦 Installing root dependencies..."
 npm install
 
 # ---------------------------------------------------------------------------
+# 2b. SabMail optional feature packages — activate the degrade-safe features
+#     (OpenPGP E2EE, Dexie offline cache, GrapesJS visual builder, Amazon SES
+#     sending). The app loads each via a dynamic optional-import, so it runs
+#     fine WITHOUT them; installing here flips them from degrade-mode to live.
+#     Re-installed every deploy because step 1's `git reset` restores
+#     package.json. Best-effort — a registry hiccup must NOT block the deploy.
+#     SabMail also needs SABMAIL_CREDS_KEY in .env to connect mailboxes; the
+#     scheduled/journeys/brief crons + the sabmail-sync PM2 worker need
+#     CRON_SECRET / SABMAIL_ENABLED respectively (see ecosystem.config.js).
+# ---------------------------------------------------------------------------
+echo "📦 Installing SabMail optional feature packages (best-effort)..."
+npm install --no-audit --no-fund \
+  openpgp dexie grapesjs grapesjs-preset-newsletter @aws-sdk/client-ses \
+  || echo "⚠️  SabMail optional packages failed to install — E2EE/offline cache/visual builder/SES stay in degrade mode."
+
+# ---------------------------------------------------------------------------
 # 3. Build everything (all builds must succeed before anything restarts)
 # ---------------------------------------------------------------------------
 

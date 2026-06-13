@@ -29,6 +29,17 @@ export const SABMAIL_COLLECTIONS = {
   events: 'sabmail_events',
   webhooksOut: 'sabmail_webhooks_out',
   settings: 'sabmail_settings',
+  scheduled: 'sabmail_scheduled',
+  conversations: 'sabmail_conversations',
+  comments: 'sabmail_comments',
+  segments: 'sabmail_segments',
+  journeyRuns: 'sabmail_journey_runs',
+  ragChunks: 'sabmail_rag_chunks',
+  forms: 'sabmail_forms',
+  rules: 'sabmail_rules',
+  audit: 'sabmail_audit',
+  screener: 'sabmail_screener',
+  pgpKeys: 'sabmail_pgp_keys',
 } as const;
 
 export type SabmailCollectionName =

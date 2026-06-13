@@ -2,9 +2,25 @@ import * as React from "react";
 
 import {
   AtSign,
+  BarChart3,
+  Bot,
+  FileText,
+  Filter,
   FolderKanban,
+  Globe,
   Inbox,
   LayoutDashboard,
+  Lock,
+  Megaphone,
+  ScrollText,
+  Settings,
+  ShieldBan,
+  ShieldQuestion,
+  Sparkles,
+  SquarePen,
+  Users,
+  UsersRound,
+  Workflow,
 } from "lucide-react";
 
 // Import the `SidebarGroup` *interface* directly from the shell module (not
@@ -13,12 +29,9 @@ import {
 import { type SidebarGroup } from "@/components/sabcrm/20ui/shell";
 
 /**
- * SabMail sidebar — grouped menu configuration.
- *
- * Phase 0 lists only routes that exist (no dead links). New groups —
- * Inbox / Threads / Compose, Contacts, Campaigns, Automations, Templates,
- * Domains & Deliverability, Analytics, Settings, AI — are added as their
- * phases land (see the SabMail roadmap).
+ * SabMail sidebar — grouped menu configuration. Covers the full module:
+ * inbox client, outbound (campaigns/templates/automations), audience,
+ * insights, AI, deliverability, and settings.
  */
 export function buildSabmailSidebarGroups(
   pathname: string | null,
@@ -56,12 +69,120 @@ export function buildSabmailSidebarGroups(
           href: "/sabmail/inbox",
           active: isActive("/sabmail/inbox"),
         },
+        {
+          id: "ask-ai",
+          label: "Ask AI",
+          icon: React.createElement(Sparkles),
+          href: "/sabmail/ai",
+          active: isActive("/sabmail/ai"),
+        },
+      ],
+    },
+    {
+      id: "outbound",
+      label: "Outbound",
+      defaultOpen: true,
+      items: [
+        {
+          id: "campaigns",
+          label: "Campaigns",
+          icon: React.createElement(Megaphone),
+          href: "/sabmail/campaigns",
+          active: isActive("/sabmail/campaigns"),
+        },
+        {
+          id: "templates",
+          label: "Templates",
+          icon: React.createElement(FileText),
+          href: "/sabmail/templates",
+          active: isActive("/sabmail/templates"),
+        },
+        {
+          id: "automations",
+          label: "Automations",
+          icon: React.createElement(Workflow),
+          href: "/sabmail/automations",
+          active: isActive("/sabmail/automations"),
+        },
+        {
+          id: "forms",
+          label: "Forms",
+          icon: React.createElement(SquarePen),
+          href: "/sabmail/forms",
+          active: isActive("/sabmail/forms"),
+        },
+      ],
+    },
+    {
+      id: "ai-rules",
+      label: "AI & rules",
+      items: [
+        {
+          id: "autopilot",
+          label: "Autopilot",
+          icon: React.createElement(Bot),
+          href: "/sabmail/autopilot",
+          active: isActive("/sabmail/autopilot"),
+        },
+        {
+          id: "rules",
+          label: "Rules",
+          icon: React.createElement(ScrollText),
+          href: "/sabmail/rules",
+          active: isActive("/sabmail/rules"),
+        },
+        {
+          id: "screener",
+          label: "Screener",
+          icon: React.createElement(ShieldQuestion),
+          href: "/sabmail/screener",
+          active: isActive("/sabmail/screener"),
+        },
+      ],
+    },
+    {
+      id: "audience",
+      label: "Audience",
+      items: [
+        {
+          id: "contacts",
+          label: "Contacts",
+          icon: React.createElement(Users),
+          href: "/sabmail/contacts",
+          active: isActive("/sabmail/contacts"),
+        },
+        {
+          id: "segments",
+          label: "Segments",
+          icon: React.createElement(Filter),
+          href: "/sabmail/segments",
+          active: isActive("/sabmail/segments"),
+        },
+        {
+          id: "suppressions",
+          label: "Suppressions",
+          icon: React.createElement(ShieldBan),
+          href: "/sabmail/suppressions",
+          active: isActive("/sabmail/suppressions"),
+        },
+      ],
+    },
+    {
+      id: "team",
+      label: "Team",
+      items: [
+        {
+          id: "team-inbox",
+          label: "Shared inbox",
+          icon: React.createElement(UsersRound),
+          href: "/sabmail/team",
+          active: isActive("/sabmail/team"),
+        },
       ],
     },
     {
       id: "mailboxes",
       label: "Mailboxes",
-      defaultOpen: true,
       items: [
         {
           id: "accounts",
@@ -69,6 +190,46 @@ export function buildSabmailSidebarGroups(
           icon: React.createElement(AtSign),
           href: "/sabmail/accounts",
           active: isActive("/sabmail/accounts"),
+        },
+        {
+          id: "domains",
+          label: "Domains & deliverability",
+          icon: React.createElement(Globe),
+          href: "/sabmail/domains",
+          active: isActive("/sabmail/domains"),
+        },
+      ],
+    },
+    {
+      id: "insights",
+      label: "Insights",
+      items: [
+        {
+          id: "analytics",
+          label: "Analytics",
+          icon: React.createElement(BarChart3),
+          href: "/sabmail/analytics",
+          active: isActive("/sabmail/analytics"),
+        },
+      ],
+    },
+    {
+      id: "developer",
+      label: "Developer",
+      items: [
+        {
+          id: "settings",
+          label: "Settings",
+          icon: React.createElement(Settings),
+          href: "/sabmail/settings",
+          active: isActive("/sabmail/settings"),
+        },
+        {
+          id: "security",
+          label: "Security & encryption",
+          icon: React.createElement(Lock),
+          href: "/sabmail/security",
+          active: isActive("/sabmail/security"),
         },
       ],
     },

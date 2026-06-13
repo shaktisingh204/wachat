@@ -18,6 +18,7 @@ import {
   connectSabmailImapAccount,
   type SabmailAccountRow,
 } from "@/app/actions/sabmail-projects.actions";
+import { CreatingOverlay } from "@/components/sabmail/motion";
 
 interface Preset {
   label: string;
@@ -177,7 +178,14 @@ export function MailboxConnectForm({
   ]);
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="relative flex flex-col gap-4">
+      <CreatingOverlay
+        show={busy}
+        variant="connect"
+        title="Connecting mailbox…"
+        subtitle={email.trim() || "Verifying your credentials"}
+        icon={<Plug className="h-1/2 w-1/2" />}
+      />
       <Field label="Provider">
         <Select value={presetKey} onValueChange={applyPreset}>
           <SelectTrigger>

@@ -30,6 +30,7 @@ import {
   useToast,
 } from "@/components/sabcrm/20ui";
 import { useProject } from "@/context/project-context";
+import { CreatingOverlay } from "@/components/sabmail/motion";
 import {
   createSabmailProject,
   setActiveSabmailProject,
@@ -58,6 +59,7 @@ export function SabmailProjectsClient({
   const [name, setName] = React.useState("");
   const [createErr, setCreateErr] = React.useState<string | null>(null);
   const [busy, setBusy] = React.useState(false);
+  const [creating, setCreating] = React.useState(false);
   const [selectingId, setSelectingId] = React.useState<string | null>(null);
 
   const goToProject = React.useCallback(
@@ -105,6 +107,7 @@ export function SabmailProjectsClient({
       return;
     }
     setOpen(false);
+    setCreating(true);
     const sel = await setActiveSabmailProject(res.projectId);
     if (!sel.success) {
       toast({
@@ -112,6 +115,7 @@ export function SabmailProjectsClient({
         description: sel.error,
         variant: "destructive",
       });
+      setCreating(false);
       setBusy(false);
       return;
     }
@@ -121,6 +125,12 @@ export function SabmailProjectsClient({
 
   return (
     <div className="relative mx-auto w-full max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+      <CreatingOverlay
+        show={creating}
+        variant="connect"
+        title="Creating project…"
+        subtitle="Setting up your isolated SabMail workspace"
+      />
       <PageHeader>
         <PageHeaderHeading>
           <PageTitle>SabMail projects</PageTitle>
@@ -170,11 +180,15 @@ export function SabmailProjectsClient({
           </Card>
         ) : (
           <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {projects.map((p) => {
+            {projects.map((p, idx) => {
               const isActive = p.id === activeProjectId;
               const selecting = selectingId === p.id;
               return (
-                <li key={p.id}>
+                <li
+                  key={p.id}
+                  className="sabmail-stagger-item"
+                  style={{ ["--i" as string]: idx } as React.CSSProperties}
+                >
                   <Card
                     className={`flex h-full flex-col gap-3 p-5 transition-colors ${
                       isActive

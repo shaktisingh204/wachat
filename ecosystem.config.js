@@ -244,6 +244,47 @@ module.exports = {
     },
 
     // ---------------------------------------------------------------------
+    // SabMail Sync Worker — long-lived IMAP IDLE listener per connected
+    // mailbox; fans new mail into Mongo + publishes to Redis (real-time inbox).
+    // Same tsx + NODE_PATH-stub bootstrap as sabsms-events. No-ops until
+    // mailboxes are connected; needs SABMAIL_CREDS_KEY to decrypt creds.
+    // ---------------------------------------------------------------------
+    {
+      name: 'sabmail-sync',
+
+      script: './node_modules/.bin/tsx',
+      args: 'src/workers/sabmail-sync.ts',
+
+      instances: 1,
+      exec_mode: 'fork',
+
+      watch: false,
+      autorestart: true,
+
+      restart_delay: 5000,
+      max_restarts: 50,
+      kill_timeout: 10000,
+
+      env: {
+        NODE_ENV: 'production',
+
+        MONGODB_URI: process.env.MONGODB_URI || process.env.MONGO_URL,
+        MONGODB_DB: process.env.MONGODB_DB || 'sabnode',
+
+        REDIS_URL: process.env.REDIS_URL,
+        REDIS_HOST: process.env.REDIS_HOST || '127.0.0.1',
+        REDIS_PORT: process.env.REDIS_PORT || '6379',
+        REDIS_PASSWORD: process.env.REDIS_PASSWORD,
+
+        SABMAIL_CREDS_KEY: process.env.SABMAIL_CREDS_KEY || process.env.SABSMS_CREDS_KEY,
+        SABMAIL_ENABLED: process.env.SABMAIL_ENABLED || 'false',
+
+        // credentials.ts / imapflow are tsx-safe; server-only modules → stub.
+        NODE_PATH: './src/workers/_stubs',
+      },
+    },
+
+    // ---------------------------------------------------------------------
     // SabSMS Identity Nightly (V2.10 — recompute 30-day engagement
     // counters + decay the send-time histogram on `sabsms_identities`).
     // Run-to-completion: PM2 fires it daily via cron_restart, NOT a daemon,

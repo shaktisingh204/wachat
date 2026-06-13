@@ -18,6 +18,18 @@
       "schedule": "* * * * *"
     },
     {
+      "path": "/api/cron/sabmail-scheduled",
+      "schedule": "* * * * *"
+    },
+    {
+      "path": "/api/cron/sabmail-journeys",
+      "schedule": "* * * * *"
+    },
+    {
+      "path": "/api/cron/sabmail-brief",
+      "schedule": "0 7 * * *"
+    },
+    {
       "path": "/api/cron/sabflow-gc",
       "schedule": "0 */6 * * *"
     },

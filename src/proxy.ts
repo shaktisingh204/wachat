@@ -172,6 +172,42 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(url, 308);
   }
 
+  // Legacy email surfaces retired into the unified SabMail module (/sabmail).
+  const LEGACY_MAIL_PREFIXES = [
+    '/dashboard/email',
+    '/dashboard/mailbox',
+    '/dashboard/sabmail',
+  ];
+  if (
+    LEGACY_MAIL_PREFIXES.some(
+      (p) => pathname === p || pathname.startsWith(`${p}/`),
+    )
+  ) {
+    // Longest-prefix-first (first startsWith match wins) — subpaths before the bare prefix.
+    const LEGACY_MAIL_MAP: Array<[string, string]> = [
+      ['/dashboard/email/campaigns', '/sabmail/campaigns'],
+      ['/dashboard/email/templates', '/sabmail/templates'],
+      ['/dashboard/email/journeys', '/sabmail/automations'],
+      ['/dashboard/email/audience', '/sabmail/contacts'],
+      ['/dashboard/email/contacts', '/sabmail/contacts'],
+      ['/dashboard/email/deliverability', '/sabmail/domains'],
+      ['/dashboard/email/reports', '/sabmail/analytics'],
+      ['/dashboard/email/analytics', '/sabmail/analytics'],
+      ['/dashboard/email/integrations', '/sabmail/settings'],
+      ['/dashboard/email/settings', '/sabmail/settings'],
+      ['/dashboard/email', '/sabmail'],
+      ['/dashboard/sabmail/inbox', '/sabmail/inbox'],
+      ['/dashboard/sabmail/crm-email', '/sabmail/inbox'],
+      ['/dashboard/sabmail', '/sabmail'],
+      ['/dashboard/mailbox', '/sabmail/inbox'],
+    ];
+    const hit = LEGACY_MAIL_MAP.find(([from]) => pathname.startsWith(from));
+    const url = request.nextUrl.clone();
+    url.pathname = hit ? hit[1] : '/sabmail';
+    url.search = '';
+    return NextResponse.redirect(url, 308);
+  }
+
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set('x-url', pathname);
 

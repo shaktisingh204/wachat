@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
   ArrowLeft,
   ArrowRight,
@@ -39,6 +40,7 @@ import {
 } from "@/app/actions/sabmail-projects.actions";
 
 import { MailboxConnectForm } from "../_components/mailbox-connect-form";
+import { SuccessCheck } from "@/components/sabmail/motion";
 
 const STEPS = [
   { id: "profile", title: "Profile", icon: Building2 },
@@ -96,6 +98,8 @@ export function SabmailSetupClient({
 
   const [accounts, setAccounts] = React.useState<SabmailAccountRow[]>(initialAccounts);
   const [finishing, setFinishing] = React.useState(false);
+  const [done, setDone] = React.useState(false);
+  const reduce = useReducedMotion();
 
   const profileDone =
     !!businessName.trim() && intent !== "" && region !== "";
@@ -142,8 +146,8 @@ export function SabmailSetupClient({
       toast({ title: "Setup incomplete", description: res.error, variant: "destructive" });
       return;
     }
-    toast({ title: "SabMail is ready", description: "Your inbox workspace is set up." });
-    router.push("/sabmail");
+    setDone(true);
+    window.setTimeout(() => router.push("/sabmail"), 1100);
   }, [projectId, router, toast]);
 
   return (
@@ -195,7 +199,15 @@ export function SabmailSetupClient({
         })}
       </ol>
 
-      <Card className="mt-6 p-6">
+      <Card className="mt-6 overflow-hidden p-6">
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={step}
+            initial={reduce ? { opacity: 0 } : { opacity: 0, x: 14 }}
+            animate={reduce ? { opacity: 1 } : { opacity: 1, x: 0 }}
+            exit={reduce ? { opacity: 0 } : { opacity: 0, x: -14 }}
+            transition={{ duration: 0.22, ease: [0.23, 1, 0.32, 1] }}
+          >
         {step === 0 ? (
           <div className="flex flex-col gap-4">
             <div>
@@ -364,7 +376,26 @@ export function SabmailSetupClient({
             </div>
           </div>
         ) : null}
+          </motion.div>
+        </AnimatePresence>
       </Card>
+
+      <AnimatePresence>
+        {done ? (
+          <motion.div
+            className="fixed inset-0 z-50 grid place-items-center bg-[color-mix(in_srgb,var(--st-bg)_80%,transparent)] backdrop-blur-sm"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <div className="flex flex-col items-center gap-3 text-center">
+              <SuccessCheck size={64} />
+              <p className="text-base font-semibold text-[var(--st-text)]">SabMail is ready</p>
+              <p className="text-sm text-[var(--st-text-secondary)]">Opening your inbox…</p>
+            </div>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
     </div>
   );
 }
