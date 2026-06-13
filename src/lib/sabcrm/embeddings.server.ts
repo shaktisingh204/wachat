@@ -30,6 +30,13 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { getRecord } from './records.server';
 import { recordText, type RagCandidate } from './crm-rag';
 import { topKByCosine } from './vector-index';
+import {
+  isQdrantEnabled,
+  ensureQdrantCollection,
+  qdrantUpsert,
+  qdrantDelete,
+  qdrantSearch,
+} from './qdrant.server';
 
 /** Embedding model — gateway slug + direct API id resolve to the same space. */
 export const GATEWAY_EMBED_MODEL = 'openai/text-embedding-3-small';
@@ -214,11 +221,21 @@ export async function indexEmbeddingForRecord(
       },
       { upsert: true },
     );
+    // Mirror to Qdrant when configured (config-gated; no-op otherwise).
+    if (isQdrantEnabled()) {
+      if (!_qdrantEnsured) {
+        _qdrantEnsured = true;
+        await ensureQdrantCollection(EMBED_DIM);
+      }
+      await qdrantUpsert(projectId, objectSlug, recordId, vector);
+    }
     return true;
   } catch {
     return false;
   }
 }
+
+let _qdrantEnsured = false;
 
 export async function deleteEmbeddingForRecord(
   projectId: string,
@@ -230,6 +247,7 @@ export async function deleteEmbeddingForRecord(
     const { db } = await connectToDatabase();
     const col = await embCollection(db);
     const res = await col.deleteOne({ projectId, object: objectSlug, recordId });
+    if (isQdrantEnabled()) await qdrantDelete(projectId, objectSlug, recordId);
     return res.deletedCount > 0;
   } catch {
     return false;
@@ -320,26 +338,35 @@ export async function semanticSearch(
   const qv = await embedText(query, { maxRetries: 2 });
   if (!qv) return null;
   try {
-    const { db } = await connectToDatabase();
-    const col = await embCollection(db);
-    const filter: Record<string, unknown> = {
-      projectId,
-      dim: EMBED_DIM,
-      model: OPENAI_EMBED_MODEL,
-    };
-    if (opts?.objects?.length) filter.object = { $in: opts.objects };
-    const rows = (await col
-      .find(filter)
-      .project({ recordId: 1, object: 1, vector: 1, dim: 1 })
-      .limit(opts?.maxScan ?? DEFAULT_MAX_SCAN)
-      .toArray()) as unknown as Array<{
-      recordId: string;
-      object: string;
-      vector: number[];
-      dim: number;
-    }>;
     const topK = opts?.topK ?? 12;
-    const ranked = topKByCosine(qv, rows, topK * 4, EMBED_DIM); // over-fetch for the ACL pass
+    let ranked: Array<{ recordId: string; object: string }>;
+    if (isQdrantEnabled()) {
+      // Vector backend: Qdrant ANN search (scales past brute-force cosine).
+      const hits = await qdrantSearch(projectId, qv, topK * 4, opts?.objects);
+      if (hits === null) return null; // Qdrant unreachable → keyword fallback upstream
+      ranked = hits;
+    } else {
+      // In-app brute-force cosine over the Mongo-stored vectors (default).
+      const { db } = await connectToDatabase();
+      const col = await embCollection(db);
+      const filter: Record<string, unknown> = {
+        projectId,
+        dim: EMBED_DIM,
+        model: OPENAI_EMBED_MODEL,
+      };
+      if (opts?.objects?.length) filter.object = { $in: opts.objects };
+      const rows = (await col
+        .find(filter)
+        .project({ recordId: 1, object: 1, vector: 1, dim: 1 })
+        .limit(opts?.maxScan ?? DEFAULT_MAX_SCAN)
+        .toArray()) as unknown as Array<{
+        recordId: string;
+        object: string;
+        vector: number[];
+        dim: number;
+      }>;
+      ranked = topKByCosine(qv, rows, topK * 4, EMBED_DIM); // over-fetch for the ACL pass
+    }
 
     // ACL re-apply: drop anything the caller can't see via the owner-scoped read.
     const visible: RagCandidate[] = [];
