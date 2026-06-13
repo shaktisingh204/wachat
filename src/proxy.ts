@@ -147,13 +147,22 @@ export async function proxy(request: NextRequest) {
     pathname === LEGACY_CRM_PREFIX ||
     pathname.startsWith(`${LEGACY_CRM_PREFIX}/`)
   ) {
+    // Ordered longest-prefix-first (first startsWith match wins).
     const LEGACY_CRM_MAP: Array<[string, string]> = [
       ['/dashboard/crm/sales/invoices', '/sabcrm/finance/invoices'],
       ['/dashboard/crm/sales/quotations', '/sabcrm/finance/quotations'],
       ['/dashboard/crm/sales/credit-notes', '/sabcrm/finance/credit-notes'],
       ['/dashboard/crm/sales/receipts', '/sabcrm/finance/payment-receipts'],
+      ['/dashboard/crm/sales-crm', '/sabcrm/leads'],
+      ['/dashboard/crm/hr-payroll/employees', '/sabcrm/people/employees'],
+      ['/dashboard/crm/hr-payroll', '/sabcrm/people'],
+      ['/dashboard/crm/purchase-orders', '/sabcrm/supply/purchase-orders'],
       ['/dashboard/crm/purchases', '/sabcrm/supply'],
       ['/dashboard/crm/inventory', '/sabcrm/supply/items'],
+      ['/dashboard/crm/accounts', '/sabcrm/companies'],
+      ['/dashboard/crm/products', '/sabcrm/products'],
+      ['/dashboard/crm/deals', '/sabcrm/leads'],
+      ['/dashboard/crm/leads', '/sabcrm/leads'],
       ['/dashboard/crm/tasks', '/sabcrm/tasks'],
       ['/dashboard/crm/projects', '/sabcrm/projects'],
     ];
