@@ -3,11 +3,12 @@ import 'server-only';
 /**
  * SabCRM — conversation intelligence (server-only).
  *
- * Analyzes a call/meeting transcript via the shared LLM into structured
+ * Analyzes a conversation transcript via the shared LLM into structured
  * insights (summary / next steps / sentiment / deal-risk). Pure prompt + parse
  * live in `./conversation-intel.ts`. Honest degradation: returns an error when
- * no LLM provider is configured. The audio→transcript ASR step is a separate
- * provider hook (not implemented here).
+ * no LLM provider is configured. Fully in-house: the transcript is TEXT the CRM
+ * already holds (typed recap, or WhatsApp / SMS / email thread bodies + notes) —
+ * no audio, no speech-to-text, no third-party ASR.
  */
 
 import { generateSabcrmText } from './ai-llm.server';

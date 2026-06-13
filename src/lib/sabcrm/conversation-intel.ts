@@ -2,13 +2,14 @@
  * SabCRM — conversation intelligence — PURE prompt + parse.
  *
  * `'server-only'`- and I/O-free (unit-testable). Builds the LLM prompt that
- * turns a call/meeting TRANSCRIPT into structured insights, and parses the
+ * turns a conversation TRANSCRIPT into structured insights, and parses the
  * model's JSON reply defensively. The LLM call + (optional) timeline write live
  * in `./conversation-intel.server.ts`.
  *
- * NOTE: the audio→transcript step (ASR — Whisper / Deepgram / Recall.ai) is a
- * provider integration that needs audio infra; this module operates on a
- * transcript that's already text, which is the verifiable, in-house core.
+ * Fully in-house: it analyzes transcript TEXT that SabNode already holds — a
+ * typed/pasted call recap, or the WhatsApp / SMS / email thread bodies and notes
+ * the CRM already captures (SabWa / SabSMS / SabMail). No audio pipeline, no
+ * speech-to-text, and no third-party provider — only our own LLM (ai-llm.server).
  */
 
 export type Sentiment = 'positive' | 'neutral' | 'negative' | 'unknown';
