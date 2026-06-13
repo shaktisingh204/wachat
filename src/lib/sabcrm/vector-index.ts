@@ -3,8 +3,9 @@
  *
  * `'server-only'`- and I/O-free (unit-testable), and intentionally dependency
  * free (no `ai` SDK import) so the worker/cron bundle and the tests stay light.
- * Cosine + brute-force top-K is the only algorithm; a Qdrant/Atlas
- * `$vectorSearch` retriever can replace the scan later behind the same shape.
+ * Cosine + brute-force top-K is the only algorithm — our own vector search, no
+ * third-party vector DB. If scale ever demands it, a custom in-house ANN index
+ * (HNSW/LSH in TS) can replace the scan behind this same shape.
  */
 
 export interface ScoredId {
