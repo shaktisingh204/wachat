@@ -8,6 +8,8 @@
  * The per-call `token` re-issues an access token for that media server.
  */
 
+import { createHmac } from 'crypto';
+
 import { rustClient } from '@/lib/rust-client';
 import { runWithRustTenant } from '@/lib/rust-client/fetcher';
 import { getSabchatWorkspaceId } from '@/lib/sabchat/workspace';
@@ -68,20 +70,34 @@ export async function getCallToken(
 }
 
 /**
- * ICE/STUN-TURN server config for the browser RTCPeerConnection, read from
- * env (SABCHAT_TURN_URL/USER/CRED). Returns an empty list until a TURN relay
- * is provisioned — the call UI then runs STUN-only (works on the same LAN /
- * with public IPs) and is documented as needing coturn for NAT traversal.
+ * ICE/STUN-TURN config for the browser RTCPeerConnection.
+ *
+ * Always returns a public STUN server (works on the same LAN / with public
+ * IPs). When a coturn relay is provisioned (`SABCHAT_TURN_URL`) it adds a TURN
+ * entry. Auth prefers the **REST API time-limited credential** scheme — if
+ * `SABCHAT_TURN_SECRET` is set we mint `username = <expiry>:sabchat` +
+ * `credential = base64(HMAC-SHA1(secret, username))`, exactly what coturn's
+ * `use-auth-secret` verifies (services/sabchat-turn/) — so creds expire and
+ * there are no per-user accounts. Falls back to static `SABCHAT_TURN_USER/CRED`.
  */
 export async function getIceServers(): Promise<{ iceServers: RTCIceServer[] }> {
   const url = process.env.SABCHAT_TURN_URL?.trim();
   const servers: RTCIceServer[] = [{ urls: 'stun:stun.l.google.com:19302' }];
   if (url) {
-    servers.push({
-      urls: url,
-      username: process.env.SABCHAT_TURN_USER?.trim() || undefined,
-      credential: process.env.SABCHAT_TURN_CRED?.trim() || undefined,
-    });
+    const secret = process.env.SABCHAT_TURN_SECRET?.trim();
+    if (secret) {
+      // 12h TTL — comfortably longer than any call.
+      const expiry = Math.floor(Date.now() / 1000) + 12 * 3600;
+      const username = `${expiry}:sabchat`;
+      const credential = createHmac('sha1', secret).update(username).digest('base64');
+      servers.push({ urls: url, username, credential });
+    } else {
+      servers.push({
+        urls: url,
+        username: process.env.SABCHAT_TURN_USER?.trim() || undefined,
+        credential: process.env.SABCHAT_TURN_CRED?.trim() || undefined,
+      });
+    }
   }
   return { iceServers: servers };
 }
