@@ -140,15 +140,31 @@ async fn handle_inbound(state: &AppState, ch: AriChannel) -> anyhow::Result<()> 
     cdr::write(
         &state.db,
         CdrInput {
-            tenant: decision.tenant,
-            from_number: caller,
-            to_number: dialed,
+            tenant: decision.tenant.clone(),
+            from_number: caller.clone(),
+            to_number: dialed.clone(),
             direction: "inbound",
             status: "completed".to_owned(),
             duration_secs: 0,
             did_id: decision.did_id,
             provider_call_sid: Some(ch.id.clone()),
         },
+    )
+    .await;
+
+    // Notify the app so it can persist a recording (→ R2/SabFiles), run STT, and
+    // enrich the CDR. Best-effort; no-op when SABCALL_EVENTS_URL is unset.
+    crate::events::emit(
+        state,
+        serde_json::json!({
+            "type": "call.completed",
+            "tenant": decision.tenant,
+            "channelId": ch.id,
+            "from": caller,
+            "to": dialed,
+            "direction": "inbound",
+            "digits": result.digits,
+        }),
     )
     .await;
 

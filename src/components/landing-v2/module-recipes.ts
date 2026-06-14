@@ -39,18 +39,15 @@ export const MODULE_RECIPES: Record<ModuleSlug, Recipe> = {
     sabcreator:    { bespoke: 'affiliate',         sections: ['trust', 'features', 'bespoke', 'spotlights', 'stats', 'integrations', 'pricing', 'faq', 'related'] },
     sabcatalyst:   { bespoke: 'ab-test',           sections: ['trust', 'bespoke', 'features', 'workflow', 'spotlights', 'ai', 'integrations', 'pricing', 'faq', 'related'] },
     'ad-manager':  { bespoke: 'marketing',         sections: ['trust', 'features', 'bespoke', 'spotlights', 'stats', 'comparison', 'integrations', 'pricing', 'faq', 'related'] },
-    sabthrive:     { bespoke: 'loyalty',           sections: ['trust', 'bespoke', 'features', 'spotlights', 'stats', 'use-cases', 'pricing', 'faq', 'related'] },
 
     // ── Sales & Commerce ──
     crm:           { bespoke: 'commerce',          sections: ['trust', 'features', 'bespoke', 'spotlights', 'flow', 'stats', 'integrations', 'comparison', 'security', 'use-cases', 'testimonial', 'pricing', 'faq', 'related'] },
     sabshop:       { bespoke: 'storefront',        sections: ['trust', 'bespoke', 'features', 'spotlights', 'flow', 'integrations', 'stats', 'pricing', 'faq', 'related'] },
     sabcheckout:   { bespoke: 'commerce',          sections: ['trust', 'features', 'bespoke', 'workflow', 'spotlights', 'security', 'integrations', 'pricing', 'faq', 'related'] },
-    sabrewards:    { bespoke: 'loyalty',           sections: ['trust', 'bespoke', 'features', 'spotlights', 'stats', 'use-cases', 'integrations', 'pricing', 'faq', 'related'] },
 
     // ── Customer Success ──
     sabdesk:       { bespoke: 'knowledge-base',    sections: ['trust', 'features', 'bespoke', 'spotlights', 'ai', 'stats', 'security', 'integrations', 'testimonial', 'pricing', 'faq', 'related'] },
     sabrequests:   { bespoke: 'success',           sections: ['trust', 'bespoke', 'features', 'workflow', 'spotlights', 'security', 'pricing', 'faq', 'related'] },
-    sabconnect:    { bespoke: 'community',         sections: ['trust', 'features', 'bespoke', 'spotlights', 'use-cases', 'integrations', 'pricing', 'faq', 'related'] },
 
     // ── People & Operations ──
     hrm:           { bespoke: 'people',            sections: ['trust', 'problem', 'bespoke', 'features', 'spotlights', 'flow', 'stats', 'security', 'use-cases', 'testimonial', 'pricing', 'faq', 'related'] },
@@ -78,7 +75,6 @@ export const MODULE_RECIPES: Record<ModuleSlug, Recipe> = {
     // ── Files & Documents ──
     sabfiles:      { bespoke: 'files',             sections: ['trust', 'features', 'bespoke', 'spotlights', 'security', 'integrations', 'pricing', 'faq', 'related'] },
     sabsign:       { bespoke: 'esign',             sections: ['trust', 'bespoke', 'features', 'spotlights', 'flow', 'security', 'pricing', 'faq', 'related'] },
-    sabvault:      { bespoke: 'vault',             sections: ['trust', 'problem', 'bespoke', 'features', 'spotlights', 'security', 'integrations', 'pricing', 'faq', 'related'] },
     sabsheet:      { bespoke: 'sheet',             sections: ['trust', 'features', 'bespoke', 'spotlights', 'integrations', 'use-cases', 'pricing', 'faq', 'related'] },
     sabtables:     { bespoke: 'tables',            sections: ['trust', 'bespoke', 'features', 'spotlights', 'workflow', 'integrations', 'pricing', 'faq', 'related'] },
     sabprep:       { bespoke: 'knowledge-base',    sections: ['trust', 'features', 'bespoke', 'spotlights', 'use-cases', 'pricing', 'faq', 'related'] },

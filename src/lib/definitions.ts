@@ -2514,8 +2514,6 @@ export type PlanFeaturePermissions = {
     sabcall: boolean;
     sabsign: boolean;
     sabwebinar: boolean;
-    sabconnect: boolean;
-    sabvault: boolean;
     sabsheet: boolean;
     sabshow: boolean;
     sabtables: boolean;
@@ -2537,8 +2535,6 @@ export type PlanFeaturePermissions = {
     sabshop: boolean;
     sabcheckout: boolean;
     sabdesk: boolean;
-    sabthrive: boolean;
-    sabrewards: boolean;
 };
 
 export type PlanMessageCosts = {

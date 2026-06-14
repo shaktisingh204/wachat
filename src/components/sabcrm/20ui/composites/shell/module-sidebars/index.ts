@@ -19,7 +19,6 @@ import { SABBIGIN_SIDEBAR } from "./sabbigin";
 import { SABBUGS_SIDEBAR } from "./sabbugs";
 import { SABCATALYST_SIDEBAR } from "./sabcatalyst";
 import { SABCHECKOUT_SIDEBAR } from "./sabcheckout";
-import { SABCONNECT_SIDEBAR } from "./sabconnect";
 import { SABCREATOR_SIDEBAR } from "./sabcreator";
 import { SABLENS_SIDEBAR } from "./sablens";
 import { SABMAIL_SIDEBAR } from "./sabmail";
@@ -30,7 +29,6 @@ import { SABPRACTICE_SIDEBAR } from "./sabpractice";
 import { SABPREP_SIDEBAR } from "./sabprep";
 import { SABPUBLISH_SIDEBAR } from "./sabpublish";
 import { SABREQUESTS_SIDEBAR } from "./sabrequests";
-import { SABREWARDS_SIDEBAR } from "./sabrewards";
 import { SABSENSE_SIDEBAR } from "./sabsense";
 import { SABSHEET_SIDEBAR } from "./sabsheet";
 import { SABSHOP_SIDEBAR } from "./sabshop";
@@ -38,8 +36,6 @@ import { SABSHOW_SIDEBAR } from "./sabshow";
 import { SABSIGN_SIDEBAR } from "./sabsign";
 import { SABSPRINTS_SIDEBAR } from "./sabsprints";
 import { SABTABLES_SIDEBAR } from "./sabtables";
-import { SABTHRIVE_SIDEBAR } from "./sabthrive";
-import { SABVAULT_SIDEBAR } from "./sabvault";
 import { SABWEBINAR_SIDEBAR } from "./sabwebinar";
 import { SABWORKERLY_SIDEBAR } from "./sabworkerly";
 
@@ -53,7 +49,6 @@ export const MODULE_SIDEBARS: SabAppSidebarConfig[] = [
   SABBUGS_SIDEBAR,
   SABCATALYST_SIDEBAR,
   SABCHECKOUT_SIDEBAR,
-  SABCONNECT_SIDEBAR,
   SABCREATOR_SIDEBAR,
   SABLENS_SIDEBAR,
   SABMAIL_SIDEBAR,
@@ -64,7 +59,6 @@ export const MODULE_SIDEBARS: SabAppSidebarConfig[] = [
   SABPREP_SIDEBAR,
   SABPUBLISH_SIDEBAR,
   SABREQUESTS_SIDEBAR,
-  SABREWARDS_SIDEBAR,
   SABSENSE_SIDEBAR,
   SABSHEET_SIDEBAR,
   SABSHOP_SIDEBAR,
@@ -72,8 +66,6 @@ export const MODULE_SIDEBARS: SabAppSidebarConfig[] = [
   SABSIGN_SIDEBAR,
   SABSPRINTS_SIDEBAR,
   SABTABLES_SIDEBAR,
-  SABTHRIVE_SIDEBAR,
-  SABVAULT_SIDEBAR,
   SABWEBINAR_SIDEBAR,
   SABWORKERLY_SIDEBAR,
 ];

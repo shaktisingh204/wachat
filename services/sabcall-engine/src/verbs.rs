@@ -47,6 +47,10 @@ pub enum Verb {
         #[serde(default = "default_pause")]
         ms: u64,
     },
+    /// Fork the channel's audio to an external websocket host (live STT/AI).
+    Stream { url: String },
+    /// Join the caller into a named conference (mixing bridge).
+    Conference { name: String },
     /// End the call.
     Hangup,
 }
@@ -81,8 +85,10 @@ pub async fn execute_flow(state: &AppState, channel_id: &str, flow: &[Verb]) -> 
     for verb in flow {
         match verb {
             Verb::Say { text } => {
-                tracing::debug!(channel = channel_id, %text, "verb: say (TTS placeholder)");
-                let _ = state.ari.play(channel_id, &state.cfg.default_greeting).await;
+                let media = crate::tts::synthesize(state, text)
+                    .await
+                    .unwrap_or_else(|| state.cfg.default_greeting.clone());
+                let _ = state.ari.play(channel_id, &media).await;
             }
             Verb::Play { media } => {
                 let _ = state.ari.play(channel_id, media).await;
@@ -115,6 +121,17 @@ pub async fn execute_flow(state: &AppState, channel_id: &str, flow: &[Verb]) -> 
             Verb::Pause { ms } => {
                 tokio::time::sleep(Duration::from_millis(*ms)).await;
             }
+            Verb::Stream { url } => {
+                if let Err(e) = state.ari.external_media(url, "slin16").await {
+                    tracing::warn!(error = %e, "verb: stream failed");
+                }
+            }
+            Verb::Conference { name } => match state.conference_bridge(name).await {
+                Ok(bridge) => {
+                    let _ = state.ari.add_to_bridge(&bridge, channel_id).await;
+                }
+                Err(e) => tracing::warn!(error = %e, "verb: conference failed"),
+            },
             Verb::Hangup => {
                 let _ = state.ari.hangup(channel_id).await;
                 result.hung_up = true;

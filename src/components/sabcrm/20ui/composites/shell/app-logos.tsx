@@ -263,28 +263,6 @@ const GLYPHS: Record<string, React.ReactNode> = {
     </>
   ),
 
-  /* SabThrive — heart with pulse. */
-  sabthrive: (
-    <>
-      <path
-        fill="#fff"
-        d="M24 37.4c-8.4-5.8-13.5-10.2-13.5-16A7.3 7.3 0 0 1 24 17.6a7.3 7.3 0 0 1 13.5 3.8c0 5.8-5.1 10.2-13.5 16Z"
-      />
-      <path fill="none" stroke="#000" opacity={0.22} strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" d="M14.5 24h4.6l2.4-4 3.6 8 3-5h5.4" />
-    </>
-  ),
-
-  /* SabRewards — gift box. */
-  sabrewards: (
-    <>
-      <rect x={12} y={21.5} width={24} height={15.5} rx={2} fill="#fff" />
-      <rect x={10.2} y={15.5} width={27.6} height={6} rx={2} fill="#fff" />
-      <rect x={22.4} y={15.5} width={3.2} height={21.5} fill="#000" opacity={0.2} />
-      <S d="M24 15.5c-4.5 0-7-2.2-6-4.4 1-2.1 4.5-1.4 6 4.4Z" strokeWidth={2.2} />
-      <S d="M24 15.5c4.5 0 7-2.2 6-4.4-1-2.1-4.5-1.4-6 4.4Z" strokeWidth={2.2} />
-    </>
-  ),
-
   /* SabMail — @ sign. */
   sabmail: (
     <>
@@ -329,24 +307,6 @@ const GLYPHS: Record<string, React.ReactNode> = {
       <rect x={22} y={29.5} width={4} height={4.5} fill="#fff" />
       <rect x={16} y={34} width={16} height={3} rx={1.5} fill="#fff" />
     </>
-  ),
-
-  /* SabConnect — power plug. */
-  sabconnect: (
-    <g fill="#fff">
-      <rect x={18.4} y={9.5} width={3.2} height={8} rx={1.6} />
-      <rect x={26.4} y={9.5} width={3.2} height={8} rx={1.6} />
-      <path d="M15.5 18.5h17a1 1 0 0 1 1 1V24a9.5 9.5 0 0 1-7.5 9.28V37a1.5 1.5 0 0 1-1.5 1.5h-1A1.5 1.5 0 0 1 22 37v-3.72A9.5 9.5 0 0 1 14.5 24v-4.5a1 1 0 0 1 1-1Z" />
-    </g>
-  ),
-
-  /* SabVault — shield with keyhole. */
-  sabvault: (
-    <path
-      fill="#fff"
-      fillRule="evenodd"
-      d="M24 9.8 36.5 14.4a1 1 0 0 1 .66.94V24c0 7.6-5.1 12.9-12.7 15.1a1.6 1.6 0 0 1-.92 0C15.94 36.9 10.84 31.6 10.84 24v-8.66a1 1 0 0 1 .66-.94L24 9.8Zm0 9.2a3.2 3.2 0 0 0-1.3 6.12V29.5a1.3 1.3 0 0 0 2.6 0v-4.38A3.2 3.2 0 0 0 24 19Z"
-    />
   ),
 
   /* SabSheet — spreadsheet. */

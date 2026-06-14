@@ -27,6 +27,18 @@ pub struct EngineConfig {
     /// Default greeting media URI played when an application has no audio of
     /// its own (Asterisk media id, e.g. `sound:hello-world`).
     pub default_greeting: String,
+
+    /// Optional HTTP TTS endpoint — POST `{text, format}` → audio bytes. When
+    /// unset, `Say` falls back to the default greeting.
+    pub tts_url: Option<String>,
+    /// Optional HTTP STT endpoint — POST `{audioUrl}` → `{text}`.
+    pub stt_url: Option<String>,
+    /// Where synthesized TTS clips are written (must be readable by Asterisk).
+    pub sounds_dir: String,
+    /// Optional Next.js callback URL for call events (recording done, call
+    /// ended, transcript ready) — lets the app persist recordings to R2/SabFiles
+    /// and CDR enrichment without the engine holding S3 creds.
+    pub events_url: Option<String>,
 }
 
 fn env_or(key: &str, default: &str) -> String {
@@ -53,6 +65,10 @@ impl EngineConfig {
             ari_password: env_or("ASTERISK_ARI_PASS", "sabcall"),
             ari_app: env_or("ASTERISK_ARI_APP", "sabcall"),
             default_greeting: env_or("SABCALL_DEFAULT_GREETING", "sound:hello-world"),
+            tts_url: std::env::var("SABCALL_TTS_URL").ok().filter(|s| !s.is_empty()),
+            stt_url: std::env::var("SABCALL_STT_URL").ok().filter(|s| !s.is_empty()),
+            sounds_dir: env_or("ASTERISK_SOUNDS_DIR", "/var/lib/asterisk/sounds/sabcall"),
+            events_url: std::env::var("SABCALL_EVENTS_URL").ok().filter(|s| !s.is_empty()),
         }
     }
 }

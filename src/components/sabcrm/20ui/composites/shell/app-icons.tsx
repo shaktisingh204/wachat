@@ -352,18 +352,6 @@ export function SabRequestsIcon(props: IconProps) {
   );
 }
 
-// Two people connected.
-export function SabConnectIcon(props: IconProps) {
-  return (
-    <svg {...base(props)}>
-      <circle cx="8" cy="8.5" r="3" />
-      <circle cx="16" cy="8.5" r="3" />
-      <path d="M3.5 19c.5-3 2.5-4.5 4.5-4.5s4 1.5 4.5 4.5" />
-      <path d="M11.5 19c.5-3 2.5-4.5 4.5-4.5s4 1.5 4.5 4.5" />
-    </svg>
-  );
-}
-
 // Eye with heatmap dot.
 export function SabSenseIcon(props: IconProps) {
   return (
@@ -421,15 +409,6 @@ export function SabBugsIcon(props: IconProps) {
       <path d="M17 11h3.5" />
       <path d="M7 17H3.5" />
       <path d="M17 17h3.5" />
-    </svg>
-  );
-}
-
-// Star award.
-export function SabRewardsIcon(props: IconProps) {
-  return (
-    <svg {...base(props)}>
-      <path d="m12 3 2.5 5.5L20 9.5l-4 4 1 5.5-5-2.75-5 2.75 1-5.5-4-4 5.5-1Z" />
     </svg>
   );
 }
@@ -568,19 +547,6 @@ export function SabMonitorIcon(props: IconProps) {
   );
 }
 
-// Safe / vault with dial.
-export function SabVaultIcon(props: IconProps) {
-  return (
-    <svg {...base(props)}>
-      <rect x="3.5" y="4" width="17" height="14" rx="2" />
-      <circle cx="12" cy="11" r="3.5" />
-      <path d="M12 11v-1.5" />
-      <path d="M17 18v2" />
-      <path d="M7 18v2" />
-    </svg>
-  );
-}
-
 // Database tables / records.
 export function SabTablesIcon(props: IconProps) {
   return (
@@ -599,22 +565,6 @@ export function SabDeskIcon(props: IconProps) {
       <path d="M4.5 14v-2A7.5 7.5 0 0 1 12 4.5a7.5 7.5 0 0 1 7.5 7.5v2" />
       <rect x="3.5" y="13.5" width="4" height="6" rx="1.25" />
       <rect x="16.5" y="13.5" width="4" height="6" rx="1.25" />
-    </svg>
-  );
-}
-
-// Sparkle / thrive.
-export function SabThriveIcon(props: IconProps) {
-  return (
-    <svg {...base(props)}>
-      <path d="M12 3v5" />
-      <path d="M12 16v5" />
-      <path d="M3 12h5" />
-      <path d="M16 12h5" />
-      <path d="m6 6 3.5 3.5" />
-      <path d="m14.5 14.5 3.5 3.5" />
-      <path d="m6 18 3.5-3.5" />
-      <path d="m14.5 9.5 3.5-3.5" />
     </svg>
   );
 }

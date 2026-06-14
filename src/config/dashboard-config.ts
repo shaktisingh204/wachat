@@ -6,7 +6,7 @@ import {
     Video, ShieldCheck, Key, BookCopy, Rss, TrendingUp, Calendar,
     Newspaper, Clapperboard, BarChart2, Landmark, Users as UsersIcon,
     LifeBuoy, HelpCircle, Bot, Wrench, Megaphone, Globe, LucideIcon, Database, Layers, FileText,
-    Cable, Activity, Share2, ShieldAlert, UserCheck, Building2, DollarSign, ClipboardList, UserCog,
+    Cable, Activity, ShieldAlert, UserCheck, Building2, DollarSign, ClipboardList, UserCog,
     Workflow, MessageSquareText, UsersRound, Target, LayoutTemplate, BriefcaseBusiness, FileSignature, FileKey, Shield,
     Smartphone, LayoutGrid, LayoutPanelTop, Zap, PieChart, Eye, CheckSquare, Check,
     Network, Store, Heart, Star, Gift, Truck, Receipt,
@@ -57,7 +57,6 @@ export const appIcons = [
     { id: 'sabmeet', icon: Video, label: 'SabMeet', href: '/dashboard/sabmeet/rooms' },
     { id: 'sabwebinar', icon: Clapperboard, label: 'SabWebinar', href: '/dashboard/sabwebinar/webinars' },
     { id: 'sabsprints', icon: FolderKanban, label: 'SabSprints', href: '/dashboard/sabsprints/sprints' },
-    { id: 'sabvault', icon: ShieldAlert, label: 'SabVault', href: '/dashboard/sabvault' },
     { id: 'sabsign', icon: FileSignature, label: 'SabSign', href: '/sabsign' },
     { id: 'sabpractice', icon: Briefcase, label: 'SabPractice', href: '/dashboard/sabpractice/clients' },
     { id: 'sabtables', icon: Database, label: 'SabTables', href: '/dashboard/sabtables/bases' },
@@ -893,17 +892,6 @@ export const sabmeetMenuGroups: MenuGroup[] = [
             { href: '/dashboard/sabmeet/rooms', label: 'Rooms', icon: Video, permissionKey: 'sabmeet_rooms' },
             { href: '/dashboard/sabmeet/recordings', label: 'Recordings', icon: Clapperboard, permissionKey: 'sabmeet_recordings' },
             { href: '/dashboard/sabmeet/polls', label: 'Polls', icon: BarChart, permissionKey: 'sabmeet_polls' },
-        ]
-    }
-];
-
-export const sabvaultMenuGroups: MenuGroup[] = [
-    {
-        title: 'Vault Management',
-        items: [
-            { href: '/dashboard/sabvault', label: 'Secrets', icon: Key, permissionKey: 'sabvault_secrets' },
-            { href: '/dashboard/sabvault/shares', label: 'Shares', icon: Share2, permissionKey: 'sabvault_shares' },
-            { href: '/dashboard/sabvault/breach-alerts', label: 'Breach Alerts', icon: ShieldAlert, permissionKey: 'sabvault_breach_alerts' },
         ]
     }
 ];

@@ -9,7 +9,6 @@
  * through to the legacy path.
  */
 
-import { revalidatePath } from 'next/cache';
 import { ObjectId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
@@ -131,8 +130,6 @@ export async function updateLoyaltyProgram(
             /* non-fatal */
         }
 
-        revalidatePath('/dashboard/sabthrive/loyalty');
-        revalidatePath(`/dashboard/sabthrive/loyalty/${loyaltyId}`);
         return { message: 'Loyalty program updated successfully.', id: loyaltyId };
     } catch (e) {
         return { error: getErrorMessage(e) };
@@ -213,7 +210,6 @@ export async function saveLoyaltyProgram(
             /* non-fatal */
         }
 
-        revalidatePath('/dashboard/sabthrive/loyalty');
         return {
             message: 'Loyalty program created successfully.',
             id: result.insertedId.toString(),
@@ -404,7 +400,6 @@ export async function bulkLoyaltyAction(
             }
         }
 
-        revalidatePath('/dashboard/sabthrive/loyalty');
         return { success: true, processed };
     } catch (e) {
         return { success: false, processed: 0, error: getErrorMessage(e) };

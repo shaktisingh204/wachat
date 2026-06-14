@@ -79,14 +79,11 @@ export type ModuleSlug =
     | 'sabshow'
     | 'sabdesk'
     | 'sabrequests'
-    | 'sabconnect'
     | 'sabpublish'
     | 'sabcreator'
     | 'sabcatalyst'
     | 'sabshop'
     | 'sabcheckout'
-    | 'sabrewards'
-    | 'sabthrive'
     | 'sabworkerly'
     | 'sabpractice'
     | 'sablens'
@@ -99,7 +96,6 @@ export type ModuleSlug =
     | 'sabsprints'
     | 'sabfiles'
     | 'sabsign'
-    | 'sabvault'
     | 'sabsheet'
     | 'sabtables'
     | 'sabprep'
@@ -390,19 +386,6 @@ export const MODULES: ModuleDef[] = [
             { title: 'Webhooks', desc: 'Every event to your stack — idempotent, signed.', icon: Webhook },
         ], ['Build page', 'Capture lead', 'Charge', 'Renew', 'Recover']),
 
-    build('sabrewards', 'SabRewards', 'Loyalty, points + referrals', 'Make every customer come back.',
-        'Tiers, points expiry, referral codes, wallets, affiliate engine — shared across modules.',
-        '/products/sabrewards', '/dashboard/sabrewards', Star, 'Sales & Commerce', 'yellow',
-        [{ value: 'Tiers', label: '∞' }, { value: 'Wallet', label: 'Built-in' }, { value: 'Refer', label: 'Native' }, { value: 'Affiliate', label: 'Linked' }],
-        [
-            { title: 'Tiers + rules', desc: 'Visual rule builder, expiry windows, lifetime maths.', icon: Layers },
-            { title: 'Referral codes', desc: 'Trackable, fraud-aware, dedupe by device + phone.', icon: Share2 },
-            { title: 'Wallet ledger', desc: 'Earn, spend, refund — every transaction signed.', icon: Wallet },
-            { title: 'Affiliate engine', desc: 'Multi-tier commissions, payouts, leaderboards.', icon: TrendingUp },
-            { title: 'Storefront UI', desc: 'Drop-in widgets for shops, checkouts, member portals.', icon: Sparkles },
-            { title: 'Reports', desc: 'Cohort retention, LTV lift, referrer ROI.', icon: BarChart3 },
-        ], ['Earn', 'Tier up', 'Refer', 'Redeem', 'Repeat']),
-
     // ──────── CUSTOMER SUCCESS ────────
     build('sabdesk', 'SabDesk', 'Helpdesk + knowledge base', 'Tickets, SLAs, agent groups, help portal.',
         'Multi-channel tickets, SLA timers, public help portal, agent collision, AI deflection.',
@@ -429,19 +412,6 @@ export const MODULES: ModuleDef[] = [
             { title: 'Integrations', desc: 'Trigger HRM payroll, vault provision, finance posting.', icon: Webhook },
             { title: 'Analytics', desc: 'Backlog, throughput, SLA breach, by team.', icon: BarChart3 },
         ], ['Submit', 'Approve', 'Execute', 'SLA', 'Audit']),
-
-    build('sabconnect', 'SabConnect', 'Employee + community hub', 'A social layer for your org.',
-        'Feed, groups, announcements, events, recognition — the intranet that people open.',
-        '/products/sabconnect', '/dashboard/sabconnect', Users, 'Customer Success', 'violet',
-        [{ value: 'Feed', label: 'Native' }, { value: 'Groups', label: 'Open + private' }, { value: 'Events', label: 'RSVP' }, { value: 'Awards', label: 'Built-in' }],
-        [
-            { title: 'Feed', desc: 'Posts, polls, image / video, reactions, AI moderation.', icon: Sparkles },
-            { title: 'Groups', desc: 'Open + private, with role-based moderation.', icon: Users },
-            { title: 'Announcements', desc: 'Mandatory-read, channel-pinned, with acknowledge logs.', icon: Megaphone },
-            { title: 'Events', desc: 'RSVP, calendars, livestream embeds, ticket links.', icon: Calendar },
-            { title: 'Recognition', desc: 'Peer kudos, badges, leaderboards linked to rewards.', icon: Star },
-            { title: 'Search', desc: 'Federated search across posts, files, people.', icon: Filter },
-        ], ['Post', 'React', 'Discover', 'RSVP', 'Recognise']),
 
     // ──────── PEOPLE & OPERATIONS ────────
     build('hrm', 'HRM', 'People + payroll', 'Run your team like a product — with metrics and motion.',
@@ -669,19 +639,6 @@ export const MODULES: ModuleDef[] = [
             { title: 'Templates', desc: 'Reusable agreements with pre-mapped fields.', icon: Layers },
         ], ['Upload', 'Map fields', 'Send', 'Sign', 'Archive']),
 
-    build('sabvault', 'SabVault', 'Secrets + credential vault', 'Where keys live — and who can use them.',
-        'Encrypted secrets, role gating, just-in-time grants, scope leases, audit on every read.',
-        '/products/sabvault', '/dashboard/sabvault', Key, 'Files & Documents', 'slate',
-        [{ value: 'AES-256', label: 'At rest' }, { value: 'JIT', label: 'Grants' }, { value: 'Audit', label: 'Per read' }, { value: 'Rotation', label: 'Auto' }],
-        [
-            { title: 'Encrypted secrets', desc: 'AES-256 at rest, project-scoped keys, BYOK supported.', icon: Key },
-            { title: 'Just-in-time grants', desc: 'Time-bound, reason-required, auto-revoke.', icon: Activity },
-            { title: 'Role gating', desc: 'Per-app + per-environment access, group-based.', icon: UserCheck },
-            { title: 'Rotation', desc: 'Programmatic rotation with safe rollback windows.', icon: GitBranch },
-            { title: 'Audit log', desc: 'Every read recorded, anomaly detection on patterns.', icon: ClipboardList },
-            { title: 'CLI + SDK', desc: 'Pull secrets into CI / runtime with short-lived tokens.', icon: Webhook },
-        ], ['Store', 'Grant', 'Use', 'Rotate', 'Audit']),
-
     build('sabsheet', 'SabSheet', 'Spreadsheets with data ops', 'Sheets that talk to your data.',
         'Real-time multi-user sheets, formulas, scripting, scheduled pulls from DB / APIs.',
         '/products/sabsheet', '/dashboard/sabsheet', FileSpreadsheet, 'Files & Documents', 'lime',
@@ -773,20 +730,6 @@ export const MODULES: ModuleDef[] = [
             { title: 'Bulk', desc: 'Generate thousands; CSV import, ZIP export.', icon: Files },
             { title: 'Payments', desc: 'UPI QR with reconciliation built in.', icon: CreditCard },
         ], ['Design', 'Print', 'Scan', 'Track', 'Optimise']),
-
-    // ── (sabthrive) — engagement
-    build('sabthrive', 'SabThrive', 'Affiliate + loyalty growth ops', 'Power the growth loop.',
-        'Loyalty programs, affiliate tracking, referral campaigns, retention plays — all from one console.',
-        '/products/sabthrive', '/dashboard/sabthrive', TrendingUp, 'Marketing', 'teal',
-        [{ value: 'Loyalty', label: 'Tiers' }, { value: 'Affiliate', label: 'Multi-tier' }, { value: 'Referral', label: 'Tracked' }, { value: 'LTV', label: 'Lifted' }],
-        [
-            { title: 'Loyalty programs', desc: 'Tiers, points, expiry, redemption modes per channel.', icon: Star },
-            { title: 'Affiliate tracking', desc: 'Multi-tier, fraud-aware, payout automation.', icon: TrendingUp },
-            { title: 'Referral campaigns', desc: 'Personalised codes, social share, leaderboard.', icon: Share2 },
-            { title: 'Retention plays', desc: 'Trigger-based win-back across channels.', icon: Activity },
-            { title: 'Reporting', desc: 'Cohort retention, LTV deltas, channel attribution.', icon: BarChart3 },
-            { title: 'API', desc: 'Mint, redeem, refund — programmatically.', icon: Webhook },
-        ], ['Reward', 'Refer', 'Convert', 'Retain', 'Repeat']),
 ];
 
 export const MODULES_BY_SLUG: Record<ModuleSlug, ModuleDef> = MODULES.reduce(

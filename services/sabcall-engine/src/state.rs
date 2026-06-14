@@ -8,6 +8,7 @@ use tokio::sync::mpsc;
 
 use crate::ari::AriClient;
 use crate::config::EngineConfig;
+use crate::errors::EngineResult;
 
 /// Per-channel DTMF fan-out: the Stasis loop pushes each received digit to the
 /// sender registered for that channel, and the verb runtime's `gather` awaits
@@ -21,6 +22,8 @@ pub struct AppState {
     pub ari: AriClient,
     pub http: reqwest::Client,
     pub dtmf: DtmfRegistry,
+    /// Named conference bridges (conference name → ARI bridge id).
+    pub conferences: Arc<Mutex<HashMap<String, String>>>,
 }
 
 impl AppState {
@@ -32,7 +35,20 @@ impl AppState {
             ari,
             http: reqwest::Client::new(),
             dtmf: Arc::new(Mutex::new(HashMap::new())),
+            conferences: Arc::new(Mutex::new(HashMap::new())),
         }
+    }
+
+    /// Resolve a named conference to a (lazily created) mixing bridge id.
+    pub async fn conference_bridge(&self, name: &str) -> EngineResult<String> {
+        if let Some(id) = self.conferences.lock().ok().and_then(|m| m.get(name).cloned()) {
+            return Ok(id);
+        }
+        let id = self.ari.create_bridge().await?;
+        if let Ok(mut m) = self.conferences.lock() {
+            m.insert(name.to_owned(), id.clone());
+        }
+        Ok(id)
     }
 
     /// Register a DTMF receiver for a channel; returns the receiver end.

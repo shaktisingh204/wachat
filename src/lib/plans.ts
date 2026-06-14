@@ -3,9 +3,9 @@ import {
     LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, FileText, Phone, Webhook,
     Briefcase, CreditCard, Megaphone, ServerCog, ShoppingBag, Link as LinkIcon, QrCode, BarChart,
     Newspaper, Clapperboard, Video, Bot, ShieldCheck, Mail, Database, Brush, TrendingUp, Handshake, Building, Zap,
-    Mic, PenSquare, PieChart, ClipboardList, Network, KeyRound, Sheet, Presentation, Table2, Kanban,
+    Mic, PenSquare, PieChart, ClipboardList, Sheet, Presentation, Table2, Kanban,
     Bug, Calculator, FlaskConical, Eye, Wand2, Cloud, Wrench, Activity,
-    Camera, MapPin, ShoppingCart, Headphones, Sparkles, Award, Building2
+    Camera, MapPin, ShoppingCart, Headphones, Sparkles, Building2
 } from 'lucide-react';
 import { MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, InstagramIcon, SabChatIcon } from '@/components/20ui-domain/custom-sidebar-components';
 
@@ -134,8 +134,6 @@ export const PLAN_FEATURE_GROUPS: PlanFeatureGroup[] = [
             { id: 'sabcall', name: 'SabCall — Cloud PBX & Calling', icon: Mic },
             { id: 'sabsign', name: 'SabSign — E-Signatures', icon: PenSquare },
             { id: 'sabwebinar', name: 'SabWebinar — Live + Registration', icon: Video },
-            { id: 'sabconnect', name: 'SabConnect — Intranet', icon: Network },
-            { id: 'sabvault', name: 'SabVault — Password Manager', icon: KeyRound },
             { id: 'sabsheet', name: 'SabSheet — Spreadsheets', icon: Sheet },
             { id: 'sabshow', name: 'SabShow — Presentations', icon: Presentation },
             { id: 'sabtables', name: 'SabTables — Airtable-style DB', icon: Table2 },
@@ -157,8 +155,6 @@ export const PLAN_FEATURE_GROUPS: PlanFeatureGroup[] = [
             { id: 'sabshop', name: 'SabShop — Storefront', icon: ShoppingCart },
             { id: 'sabcheckout', name: 'SabCheckout — Payment Pages', icon: CreditCard },
             { id: 'sabdesk', name: 'SabDesk — Helpdesk', icon: Headphones },
-            { id: 'sabthrive', name: 'SabThrive — Rewards Storefront', icon: Sparkles },
-            { id: 'sabrewards', name: 'SabRewards — Loyalty + Coupons', icon: Award },
         ],
     },
 ];
@@ -243,8 +239,6 @@ export const planFeaturesDefaults: PlanFeaturePermissions = {
     sabcall: true,
     sabsign: true,
     sabwebinar: true,
-    sabconnect: true,
-    sabvault: true,
     sabsheet: true,
     sabshow: true,
     sabtables: true,
@@ -266,6 +260,4 @@ export const planFeaturesDefaults: PlanFeaturePermissions = {
     sabshop: true,
     sabcheckout: true,
     sabdesk: true,
-    sabthrive: true,
-    sabrewards: true,
 };

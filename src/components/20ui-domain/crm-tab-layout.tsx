@@ -132,7 +132,6 @@ const crmMenuItems = [
             { href: "/dashboard/crm/sales/pipelines", label: "Sales Pipelines" },
             { href: "/dashboard/crm/sales/forms", label: "Sales Forms" },
             { href: "/dashboard/crm/sales/coupons", label: "Coupons & Promotions" },
-            { href: "/dashboard/sabthrive/loyalty", label: "Loyalty Program" },
             { href: "/dashboard/crm/sales/gift-cards", label: "Gift Cards" },
         ]
     },

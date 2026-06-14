@@ -10,12 +10,15 @@ pub mod cdr;
 pub mod config;
 pub mod db;
 pub mod errors;
+pub mod events;
 pub mod flow;
 pub mod http;
 pub mod pjsip;
 pub mod routing;
 pub mod stasis;
 pub mod state;
+pub mod stt;
+pub mod tts;
 pub mod verbs;
 
 pub use config::EngineConfig;

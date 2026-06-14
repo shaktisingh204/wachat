@@ -30,7 +30,7 @@ const CERTS = [
 const PILLARS = [
     { icon: Lock, t: 'Encryption everywhere', d: 'AES-256 at rest, TLS 1.3 in transit, BYO-KMS / HSM on Enterprise.' },
     { icon: Globe2, t: 'Region pinning', d: 'Choose IN / EU / US. Data never leaves the region, backups too.' },
-    { icon: Key, t: 'Just-in-time secrets', d: 'SabVault gates every key with role, reason, and auto-revoke.' },
+    { icon: Key, t: 'Encrypted document vault', d: 'SabFiles Vault encrypts sensitive files in your browser — zero-knowledge, with access controls and a full audit trail.' },
     { icon: UserCheck, t: 'SSO + SCIM', d: 'SAML, OIDC, group provisioning. Per-module and per-env roles.' },
     { icon: Database, t: 'Backups + restore', d: 'Daily snapshots, configurable retention, point-in-time restore.' },
     { icon: Webhook, t: 'Signed webhooks', d: 'HMAC + timestamp, replay protection, audit log per event.' },
