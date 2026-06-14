@@ -49,24 +49,37 @@ export function signUrl(env: SabSignEnvelopeDoc, signer: EnvelopeSigner): string
   return base ? `${base}${path}` : path;
 }
 
-function inviteHtml(env: SabSignEnvelopeDoc, signer: EnvelopeSigner, url: string): string {
+/** Build the {subject, html} for one signer's invite (or reminder) email. */
+export function buildSignerEmail(
+  env: SabSignEnvelopeDoc,
+  signer: EnvelopeSigner,
+  opts?: { reminder?: boolean },
+): { subject: string; html: string; url: string } {
   const docName = env.docName || env.name;
-  const heading = env.subject || `Please sign: ${docName}`;
+  const url = signUrl(env, signer);
+  const reminder = !!opts?.reminder;
+  const subject = reminder
+    ? `Reminder: please sign ${docName}`
+    : env.subject || `Signature requested: ${docName}`;
+  const heading = reminder
+    ? `Reminder — your signature is still needed`
+    : env.subject || `Please sign: ${docName}`;
   const message = env.message
     ? `<p style="margin:0 0 16px;color:#444;">${escapeHtml(env.message)}</p>`
     : '';
-  return `<div style="font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;max-width:520px;margin:0 auto;padding:8px;">
+  const html = `<div style="font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;max-width:520px;margin:0 auto;padding:8px;">
   <h2 style="font-size:18px;color:#111;margin:0 0 12px;">${escapeHtml(heading)}</h2>
   <p style="margin:0 0 8px;color:#444;">Hi ${escapeHtml(signer.name || 'there')},</p>
-  <p style="margin:0 0 16px;color:#444;">You've been requested to review and sign <strong>${escapeHtml(
-    docName,
-  )}</strong>.</p>
+  <p style="margin:0 0 16px;color:#444;">${
+    reminder ? 'This is a friendly reminder to review and sign' : "You've been requested to review and sign"
+  } <strong>${escapeHtml(docName)}</strong>.</p>
   ${message}
   <p style="margin:0 0 20px;">
     <a href="${url}" style="display:inline-block;background:#7c3aed;color:#fff;padding:11px 20px;border-radius:8px;text-decoration:none;font-weight:600;">Review &amp; sign</a>
   </p>
   <p style="margin:0;color:#999;font-size:12px;">If the button doesn't work, paste this link into your browser:<br><span style="word-break:break-all;">${url}</span></p>
 </div>`;
+  return { subject, html, url };
 }
 
 /**
@@ -86,13 +99,12 @@ export async function sendSignInvites(
   );
   for (const signer of targets) {
     try {
-      const url = signUrl(env, signer);
-      const subject = env.subject || `Signature requested: ${env.docName || env.name}`;
+      const { subject, html } = buildSignerEmail(env, signer);
       const res = await dispatchTransactionalEmail({
         tenantUserId: owner,
         to: signer.email,
         subject,
-        html: inviteHtml(env, signer, url),
+        html,
         templateId: 'sabsign.invite',
       });
       if (res.ok) sent += 1;
@@ -103,6 +115,40 @@ export async function sendSignInvites(
     } catch (e) {
       failed += 1;
       console.warn(`[sabsign] invite email to ${signer.email} threw:`, e);
+    }
+  }
+  return { sent, failed };
+}
+
+/**
+ * Re-send the signing link to every signer who hasn't finished yet (status not
+ * `completed`/`declined`). Used by the reminders cron. Best-effort.
+ */
+export async function sendReminderEmails(
+  env: SabSignEnvelopeDoc,
+): Promise<{ sent: number; failed: number }> {
+  let sent = 0;
+  let failed = 0;
+  const owner = env.userId;
+  if (!owner) return { sent, failed };
+
+  const targets = (env.signers ?? []).filter(
+    (s) => !!s.email && s.status !== 'completed' && s.status !== 'declined',
+  );
+  for (const signer of targets) {
+    try {
+      const { subject, html } = buildSignerEmail(env, signer, { reminder: true });
+      const res = await dispatchTransactionalEmail({
+        tenantUserId: owner,
+        to: signer.email,
+        subject,
+        html,
+        templateId: 'sabsign.reminder',
+      });
+      if (res.ok) sent += 1;
+      else failed += 1;
+    } catch {
+      failed += 1;
     }
   }
   return { sent, failed };
