@@ -11,6 +11,7 @@ import { getSabchatReports } from "@/app/actions/sabchat-analytics.actions";
 import {
   gamificationLeaderboard,
   adAttributionReport,
+  aiQaLeaderboard,
 } from "@/app/actions/sabchat-ops.actions";
 
 export const dynamic = "force-dynamic";
@@ -92,10 +93,11 @@ function Table({
 }
 
 export default async function SabchatReportsPage() {
-  const [reports, leaderboard, adReport] = await Promise.all([
+  const [reports, leaderboard, adReport, qa] = await Promise.all([
     getSabchatReports(),
     gamificationLeaderboard(),
     adAttributionReport("campaign"),
+    aiQaLeaderboard(),
   ]);
   if (!reports) redirect("/sabchat/projects");
 
@@ -231,6 +233,22 @@ export default async function SabchatReportsPage() {
             money(r.revenueMinor, r.currency),
           ])}
           empty="No attributed revenue in this window."
+        />
+      </Card>
+
+      {/* AI Quality Assurance */}
+      <h2 className="mt-8 mb-2 text-sm font-semibold text-[var(--st-text)]">
+        AI quality score <span className="text-xs font-normal text-[var(--st-text-secondary)]">· by agent</span>
+      </h2>
+      <Card className="p-0">
+        <Table
+          head={["Agent", "Avg score", "Graded"]}
+          rows={qa.map((r) => [
+            r.agentId,
+            `${Math.round((r.mean ?? 0) * 100) / 100}`,
+            r.count,
+          ])}
+          empty="No AI-graded conversations yet (define a rubric first)."
         />
       </Card>
     </div>

@@ -237,6 +237,19 @@ export async function adAttributionReport(
   }
 }
 
+/* ── AI Quality Assurance (leaderboard) ────────────────────────────────── */
+
+export async function aiQaLeaderboard(): Promise<
+  Array<{ agentId: string; mean: number; count: number }>
+> {
+  try {
+    const res = await scoped(() => rustClient.sabchatAiQa.leaderboard({ limit: 50 }));
+    return res.items;
+  } catch {
+    return [];
+  }
+}
+
 /* ── Compliance: retention rules ───────────────────────────────────────── */
 
 export async function listRetention(): Promise<SabChatRetentionRule[]> {
