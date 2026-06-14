@@ -8,6 +8,7 @@ import {
   PageTitle,
 } from "@/components/sabcrm/20ui";
 import { getSabchatReports } from "@/app/actions/sabchat-analytics.actions";
+import { gamificationLeaderboard } from "@/app/actions/sabchat-ops.actions";
 
 export const dynamic = "force-dynamic";
 
@@ -88,7 +89,10 @@ function Table({
 }
 
 export default async function SabchatReportsPage() {
-  const reports = await getSabchatReports();
+  const [reports, leaderboard] = await Promise.all([
+    getSabchatReports(),
+    gamificationLeaderboard(),
+  ]);
   if (!reports) redirect("/sabchat/projects");
 
   const { live, responseTimes, csat, byAgent, byInbox, byChannel } = reports;
@@ -184,6 +188,24 @@ export default async function SabchatReportsPage() {
             c.resolvedCount,
           ])}
           empty="No channel activity in this window."
+        />
+      </Card>
+
+      {/* Gamification leaderboard */}
+      <h2 className="mt-8 mb-2 text-sm font-semibold text-[var(--st-text)]">
+        Leaderboard <span className="text-xs font-normal text-[var(--st-text-secondary)]">· this month</span>
+      </h2>
+      <Card className="p-0">
+        <Table
+          head={["#", "Agent", "Points", "Resolved", "Badges"]}
+          rows={leaderboard.map((r, i) => [
+            i + 1,
+            r.agentId,
+            r.points,
+            r.resolvedCount,
+            r.badges,
+          ])}
+          empty="No leaderboard activity yet."
         />
       </Card>
     </div>

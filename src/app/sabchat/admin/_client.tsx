@@ -2,7 +2,16 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { Inbox as InboxIcon, MessageSquareText, Plus, Tag, Trash2 } from "lucide-react";
+import {
+  Inbox as InboxIcon,
+  MessageSquareText,
+  Plus,
+  ScrollText,
+  Send,
+  Tag,
+  Trash2,
+  Webhook,
+} from "lucide-react";
 
 import {
   Badge,
@@ -31,26 +40,39 @@ import {
   saveMacro,
   setInboxEnabled,
 } from "@/app/actions/sabchat-config.actions";
+import {
+  SABCHAT_WEBHOOK_EVENTS,
+  deleteWebhook,
+  saveWebhook,
+  testWebhook,
+} from "@/app/actions/sabchat-ops.actions";
 import type { SabChatInbox } from "@/lib/rust-client/sabchat";
 import type { SabChatMacro } from "@/lib/rust-client/sabchat-macros";
 import type { SabChatDisposition } from "@/lib/rust-client/sabchat-dispositions";
+import type { SabChatWebhookEndpoint } from "@/lib/rust-client/sabchat-webhooks";
 
-type Tab = "inboxes" | "macros" | "dispositions";
+type Tab = "inboxes" | "macros" | "dispositions" | "webhooks" | "audit";
 
 const TABS: { id: Tab; label: string; icon: typeof InboxIcon }[] = [
   { id: "inboxes", label: "Inboxes", icon: InboxIcon },
   { id: "macros", label: "Canned responses", icon: MessageSquareText },
   { id: "dispositions", label: "Dispositions", icon: Tag },
+  { id: "webhooks", label: "Webhooks", icon: Webhook },
+  { id: "audit", label: "Audit log", icon: ScrollText },
 ];
 
 export function AdminClient({
   initialInboxes,
   initialMacros,
   initialDispositions,
+  initialWebhooks,
+  initialAudit,
 }: {
   initialInboxes: SabChatInbox[];
   initialMacros: SabChatMacro[];
   initialDispositions: SabChatDisposition[];
+  initialWebhooks: SabChatWebhookEndpoint[];
+  initialAudit: unknown[];
 }) {
   const router = useRouter();
   const { toast } = useToast();
@@ -113,6 +135,10 @@ export function AdminClient({
         {tab === "dispositions" && (
           <DispositionsSection dispositions={initialDispositions} onAction={handle} />
         )}
+        {tab === "webhooks" && (
+          <WebhooksSection webhooks={initialWebhooks} onAction={handle} />
+        )}
+        {tab === "audit" && <AuditSection events={initialAudit} />}
       </div>
     </div>
   );
@@ -122,6 +148,155 @@ type ActionRunner = (
   fn: () => Promise<{ ok: boolean; error?: string }>,
   okMsg?: string,
 ) => Promise<boolean>;
+
+/* -- Webhooks ------------------------------------------------------------ */
+
+function WebhooksSection({
+  webhooks,
+  onAction,
+}: {
+  webhooks: SabChatWebhookEndpoint[];
+  onAction: ActionRunner;
+}) {
+  const [open, setOpen] = React.useState(false);
+  const [url, setUrl] = React.useState("");
+  const [events, setEvents] = React.useState<string[]>([...SABCHAT_WEBHOOK_EVENTS]);
+  const [busy, setBusy] = React.useState(false);
+
+  const toggleEvent = (ev: string) =>
+    setEvents((p) => (p.includes(ev) ? p.filter((x) => x !== ev) : [...p, ev]));
+
+  return (
+    <div>
+      <div className="mb-2 flex items-center justify-between">
+        <p className="text-xs text-[var(--st-text-secondary)]">
+          POST conversation/message events to your endpoints (HMAC-signed).
+        </p>
+        <Button variant="primary" size="sm" iconLeft={Plus} onClick={() => setOpen(true)}>
+          New endpoint
+        </Button>
+      </div>
+      <Card className="divide-y divide-[var(--st-border)] p-0">
+        {webhooks.length === 0 ? (
+          <p className="p-6 text-center text-sm text-[var(--st-text-secondary)]">
+            No webhook endpoints yet.
+          </p>
+        ) : (
+          webhooks.map((w) => (
+            <div key={w._id} className="flex items-center justify-between gap-3 p-4">
+              <div className="min-w-0">
+                <p className="truncate text-sm font-medium text-[var(--st-text)]">{w.url}</p>
+                <p className="truncate text-xs text-[var(--st-text-secondary)]">
+                  {(w.events ?? []).length} events
+                </p>
+              </div>
+              <Badge variant={w.active ? "default" : "outline"}>
+                {w.active ? "Active" : "Paused"}
+              </Badge>
+              <Button
+                variant="outline"
+                size="sm"
+                iconLeft={Send}
+                onClick={() => void onAction(() => testWebhook(w._id), "Test sent")}
+              >
+                Test
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                iconLeft={Trash2}
+                onClick={() => void onAction(() => deleteWebhook(w._id), "Deleted")}
+              />
+            </div>
+          ))
+        )}
+      </Card>
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>New webhook endpoint</DialogTitle>
+          </DialogHeader>
+          <Field label="URL">
+            <Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://…" autoFocus />
+          </Field>
+          <Field label="Events">
+            <div className="grid grid-cols-2 gap-1.5">
+              {SABCHAT_WEBHOOK_EVENTS.map((ev) => (
+                <label key={ev} className="flex items-center gap-1.5 text-xs text-[var(--st-text)]">
+                  <input
+                    type="checkbox"
+                    checked={events.includes(ev)}
+                    onChange={() => toggleEvent(ev)}
+                  />
+                  {ev}
+                </label>
+              ))}
+            </div>
+          </Field>
+          <DialogFooter>
+            <Button variant="outline" size="sm" onClick={() => setOpen(false)} disabled={busy}>
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              loading={busy}
+              disabled={busy || !url.trim() || !events.length}
+              onClick={async () => {
+                setBusy(true);
+                const ok = await onAction(() => saveWebhook({ url, events }), "Created");
+                setBusy(false);
+                if (ok) {
+                  setUrl("");
+                  setOpen(false);
+                }
+              }}
+            >
+              Create
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
+/* -- Audit log ----------------------------------------------------------- */
+
+function AuditSection({ events }: { events: unknown[] }) {
+  const rows = events as Array<Record<string, unknown>>;
+  const fmt = (v: unknown) => {
+    if (typeof v !== "string") return "";
+    const d = new Date(v);
+    return Number.isNaN(d.getTime()) ? v : d.toLocaleString();
+  };
+  return (
+    <Card className="p-0">
+      {rows.length === 0 ? (
+        <p className="p-6 text-center text-sm text-[var(--st-text-secondary)]">
+          No audit events yet.
+        </p>
+      ) : (
+        <div className="divide-y divide-[var(--st-border)]">
+          {rows.map((e, i) => (
+            <div key={i} className="flex items-center justify-between gap-3 px-4 py-2.5 text-sm">
+              <span className="font-medium text-[var(--st-text)]">
+                {String(e.action ?? "event")}
+              </span>
+              <span className="text-xs text-[var(--st-text-secondary)]">
+                {String(e.actorType ?? "")}
+              </span>
+              <span className="text-xs text-[var(--st-text-secondary)]">
+                {fmt(e.createdAt)}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+    </Card>
+  );
+}
 
 /* -- Inboxes ------------------------------------------------------------- */
 
