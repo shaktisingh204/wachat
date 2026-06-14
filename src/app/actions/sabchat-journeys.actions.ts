@@ -13,6 +13,7 @@ import { revalidatePath } from 'next/cache';
 import { rustClient } from '@/lib/rust-client';
 import { runWithRustTenant } from '@/lib/rust-client/fetcher';
 import { getSabchatWorkspaceId } from '@/lib/sabchat/workspace';
+import { deliverChatOutbox } from '@/lib/sabchat/journey-dispatch';
 import { getErrorMessage } from '@/lib/utils';
 import type {
   SabChatJourney,
@@ -106,18 +107,33 @@ export async function enrollContacts(
   }
 }
 
-/** Manually advance due runs (the cron route does this on a schedule). */
+/**
+ * Manually advance due runs AND deliver the resulting chat messages (the cron
+ * route does both on a schedule). Returns the combined tick + delivery counts.
+ */
 export async function tickJourneys(): Promise<
-  { ok: true; advanced: number; messagesEnqueued: number; completed: number } | { ok: false; error: string }
+  | {
+      ok: true;
+      advanced: number;
+      messagesEnqueued: number;
+      completed: number;
+      delivered: number;
+    }
+  | { ok: false; error: string }
 > {
   try {
-    const res = await scoped(() => rustClient.sabchatJourneys.tick({}));
+    const res = await scoped(async () => {
+      const tick = await rustClient.sabchatJourneys.tick({});
+      const drain = await deliverChatOutbox();
+      return { tick, drain };
+    });
     revalidatePath(JOURNEYS_PATH);
     return {
       ok: true,
-      advanced: res.advanced,
-      messagesEnqueued: res.messagesEnqueued,
-      completed: res.completed,
+      advanced: res.tick.advanced,
+      messagesEnqueued: res.tick.messagesEnqueued,
+      completed: res.tick.completed,
+      delivered: res.drain.delivered,
     };
   } catch (e) {
     return { ok: false, error: getErrorMessage(e) };

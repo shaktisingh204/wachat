@@ -27,6 +27,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import { rustClient } from '@/lib/rust-client';
 import { runWithRustTenantAs } from '@/lib/rust-client/fetcher';
+import { deliverChatOutbox } from '@/lib/sabchat/journey-dispatch';
 import { getErrorMessage } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
@@ -67,18 +68,24 @@ async function handle(req: NextRequest): Promise<NextResponse> {
     let advanced = 0;
     let messagesEnqueued = 0;
     let completed = 0;
+    let delivered = 0;
     let failed = 0;
 
     for (const p of projects) {
       const tid = String(p._id);
       try {
-        // Per-tenant tick via the no-cookie override (cron has no session).
-        const report = await runWithRustTenantAs(tid, tid, () =>
-          rustClient.sabchatJourneys.tick({}),
-        );
-        advanced += report.advanced;
-        messagesEnqueued += report.messagesEnqueued;
-        completed += report.completed;
+        // Per-tenant tick + chat delivery via the no-cookie override (cron has
+        // no session). The tick enqueues message steps; the drain delivers the
+        // chat channel in-app and marks those outbox rows sent.
+        const report = await runWithRustTenantAs(tid, tid, async () => {
+          const tick = await rustClient.sabchatJourneys.tick({});
+          const drain = await deliverChatOutbox();
+          return { tick, drain };
+        });
+        advanced += report.tick.advanced;
+        messagesEnqueued += report.tick.messagesEnqueued;
+        completed += report.tick.completed;
+        delivered += report.drain.delivered;
       } catch (err) {
         failed += 1;
         console.error(`[sabchat-journeys] tick failed for project ${tid}:`, getErrorMessage(err));
@@ -91,6 +98,7 @@ async function handle(req: NextRequest): Promise<NextResponse> {
       advanced,
       messagesEnqueued,
       completed,
+      delivered,
       failed,
     });
   } catch (err) {
