@@ -74,7 +74,7 @@ export function SabchatSetupClient({
     if (s) setState(s);
   }, [projectId]);
 
-  /* ── step 0 — profile ──────────────────────────────────────────────── */
+  /* -- step 0 — profile ------------------------------------------------ */
   const [businessName, setBusinessName] = React.useState(
     initial.businessName ?? "",
   );
@@ -113,7 +113,7 @@ export function SabchatSetupClient({
     return true;
   };
 
-  /* ── step 1 — first inbox ──────────────────────────────────────────── */
+  /* -- step 1 — first inbox -------------------------------------------- */
   const [inboxName, setInboxName] = React.useState("Website");
 
   const createInbox = async () => {
@@ -143,7 +143,7 @@ export function SabchatSetupClient({
     }
   };
 
-  /* ── finish ────────────────────────────────────────────────────────── */
+  /* -- finish ---------------------------------------------------------- */
   const finish = async () => {
     setBusy(true);
     setFinishing(true);
@@ -382,7 +382,7 @@ export function SabchatSetupClient({
           </div>
         )}
 
-        {/* ── Footer ── */}
+        {/* -- Footer -- */}
         <div className="mt-6 flex items-center justify-between border-t border-[var(--st-border)] pt-4">
           <Button
             variant="outline"

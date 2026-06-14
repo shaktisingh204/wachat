@@ -123,7 +123,7 @@ type ActionRunner = (
   okMsg?: string,
 ) => Promise<boolean>;
 
-/* ── Inboxes ───────────────────────────────────────────────────────────── */
+/* -- Inboxes ------------------------------------------------------------- */
 
 function InboxesSection({
   inboxes,
@@ -216,7 +216,7 @@ function InboxesSection({
   );
 }
 
-/* ── Macros ────────────────────────────────────────────────────────────── */
+/* -- Macros -------------------------------------------------------------- */
 
 function MacrosSection({
   macros,
@@ -321,7 +321,7 @@ function MacrosSection({
   );
 }
 
-/* ── Dispositions ──────────────────────────────────────────────────────── */
+/* -- Dispositions -------------------------------------------------------- */
 
 function DispositionsSection({
   dispositions,

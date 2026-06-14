@@ -43,7 +43,7 @@ function slugify(s: string): string {
     .slice(0, 80) || `item-${Date.now()}`;
 }
 
-/* ── Knowledge base ────────────────────────────────────────────────────── */
+/* -- Knowledge base ------------------------------------------------------ */
 
 const KB_PATH = '/sabchat/knowledge';
 
@@ -98,16 +98,16 @@ export async function saveKbArticle(input: {
   );
 }
 
-export const publishKbArticle = (id: string) =>
+export const publishKbArticle = async (id: string) =>
   mutate(() => rustClient.sabchatKb.articles.publish(id), KB_PATH);
 
-export const archiveKbArticle = (id: string) =>
+export const archiveKbArticle = async (id: string) =>
   mutate(() => rustClient.sabchatKb.articles.archive(id), KB_PATH);
 
-export const deleteKbArticle = (id: string) =>
+export const deleteKbArticle = async (id: string) =>
   mutate(() => rustClient.sabchatKb.articles.delete(id), KB_PATH);
 
-/* ── SLA policies ──────────────────────────────────────────────────────── */
+/* -- SLA policies -------------------------------------------------------- */
 
 const SETTINGS_PATH = '/sabchat/settings';
 
@@ -145,10 +145,10 @@ export async function saveSla(input: {
   );
 }
 
-export const deleteSla = (id: string) =>
+export const deleteSla = async (id: string) =>
   mutate(() => rustClient.sabchatSla.delete(id), SETTINGS_PATH);
 
-/* ── CSAT surveys ──────────────────────────────────────────────────────── */
+/* -- CSAT surveys -------------------------------------------------------- */
 
 export async function listSurveys(): Promise<SabChatSurvey[]> {
   try {
@@ -177,5 +177,5 @@ export async function saveSurvey(input: {
   );
 }
 
-export const deleteSurvey = (id: string) =>
+export const deleteSurvey = async (id: string) =>
   mutate(() => rustClient.sabchatCsat.deleteSurvey(id), SETTINGS_PATH);

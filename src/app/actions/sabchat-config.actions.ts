@@ -45,7 +45,7 @@ async function mutate(
   }
 }
 
-/* ── Inboxes ───────────────────────────────────────────────────────────── */
+/* -- Inboxes ------------------------------------------------------------- */
 
 export async function listAdminInboxes(): Promise<{ items: SabChatInbox[]; error?: string }> {
   try {
@@ -75,13 +75,13 @@ export async function createInbox(input: {
   }
 }
 
-export const setInboxEnabled = (id: string, enabled: boolean) =>
+export const setInboxEnabled = async (id: string, enabled: boolean) =>
   mutate(() => rustClient.sabchat.inboxes.update(id, { enabled }));
 
-export const deleteInbox = (id: string) =>
+export const deleteInbox = async (id: string) =>
   mutate(() => rustClient.sabchat.inboxes.delete(id));
 
-/* ── Macros (canned responses) ─────────────────────────────────────────── */
+/* -- Macros (canned responses) ------------------------------------------- */
 
 export async function listMacros(): Promise<SabChatMacro[]> {
   try {
@@ -108,10 +108,10 @@ export async function saveMacro(input: {
   );
 }
 
-export const deleteMacro = (id: string) =>
+export const deleteMacro = async (id: string) =>
   mutate(() => rustClient.sabchatMacros.delete(id));
 
-/* ── Dispositions (close reasons) ──────────────────────────────────────── */
+/* -- Dispositions (close reasons) ---------------------------------------- */
 
 export async function listDispositions(): Promise<SabChatDisposition[]> {
   try {
@@ -138,7 +138,7 @@ export async function saveDisposition(input: {
   );
 }
 
-export const deleteDisposition = (id: string) =>
+export const deleteDisposition = async (id: string) =>
   mutate(() => rustClient.sabchatDispositions.delete(id));
 
 /** Apply a disposition to a conversation (optionally resolving it). */

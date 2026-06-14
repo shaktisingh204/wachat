@@ -154,34 +154,34 @@ export async function sendAgentText(
   return sendAgentMessage(conversationId, { kind: 'text', text }, opts);
 }
 
-export const setConversationStatus = (id: string, status: ConversationStatus) =>
+export const setConversationStatus = async (id: string, status: ConversationStatus) =>
   mutate(() => rustClient.sabchat.conversations.setStatus(id, status));
 
-export const setConversationPriority = (id: string, priority: ConversationPriority) =>
+export const setConversationPriority = async (id: string, priority: ConversationPriority) =>
   mutate(() => rustClient.sabchat.conversations.setPriority(id, priority));
 
-export const setConversationAssignee = (
+export const setConversationAssignee = async (
   id: string,
   assigneeId: string | null,
   reason?: string,
 ) => mutate(() => rustClient.sabchat.conversations.setAssignee(id, assigneeId, reason));
 
-export const addConversationLabel = (id: string, label: string) =>
+export const addConversationLabel = async (id: string, label: string) =>
   mutate(() => rustClient.sabchat.conversations.addLabel(id, label));
 
-export const removeConversationLabel = (id: string, label: string) =>
+export const removeConversationLabel = async (id: string, label: string) =>
   mutate(() => rustClient.sabchat.conversations.removeLabel(id, label));
 
-export const snoozeConversation = (id: string, until: string) =>
+export const snoozeConversation = async (id: string, until: string) =>
   mutate(() => rustClient.sabchat.conversations.snooze(id, until));
 
-export const resolveConversation = (id: string) =>
+export const resolveConversation = async (id: string) =>
   mutate(() => rustClient.sabchat.conversations.resolve(id));
 
-export const reopenConversation = (id: string) =>
+export const reopenConversation = async (id: string) =>
   mutate(() => rustClient.sabchat.conversations.reopen(id));
 
-export const autoAssignConversation = (
+export const autoAssignConversation = async (
   id: string,
   strategy: 'round_robin' | 'manual' | 'sticky' | 'unassign' = 'round_robin',
   agentId?: string,

@@ -41,7 +41,7 @@ export default async function SabchatLayout({
     redirect("/onboarding");
   }
 
-  /* ── SabChat gate: project → mandatory setup → use ─────────────────────
+  /* -- SabChat gate: project → mandatory setup → use ---------------------
    * The selected chat project lives in the `sabchat_project` cookie (server-
    * readable, unlike the client-only `activeProjectId`). The current path is
    * read from the `x-url` header the proxy sets on `/sabchat/*`.

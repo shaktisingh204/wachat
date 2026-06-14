@@ -59,9 +59,9 @@ import type {
 import type { SabChatMacro } from "@/lib/rust-client/sabchat-macros";
 import type { SabChatDisposition } from "@/lib/rust-client/sabchat-dispositions";
 
-/* ────────────────────────────────────────────────────────────────────────
+/* ------------------------------------------------------------------------
  * Helpers
- * ──────────────────────────────────────────────────────────────────────── */
+ * ------------------------------------------------------------------------ */
 
 const STATUS_TABS: { id: ConversationStatus; label: string }[] = [
   { id: "open", label: "Open" },
@@ -147,9 +147,9 @@ function previewOf(content: ContentBlock | undefined, fallback?: string): string
   }
 }
 
-/* ────────────────────────────────────────────────────────────────────────
+/* ------------------------------------------------------------------------
  * Message bubble
- * ──────────────────────────────────────────────────────────────────────── */
+ * ------------------------------------------------------------------------ */
 
 function MessageContent({ content }: { content: ContentBlock }) {
   switch (content.kind) {
@@ -234,9 +234,9 @@ function MessageBubble({ m }: { m: SabChatMessage }) {
   );
 }
 
-/* ────────────────────────────────────────────────────────────────────────
+/* ------------------------------------------------------------------------
  * Main client
- * ──────────────────────────────────────────────────────────────────────── */
+ * ------------------------------------------------------------------------ */
 
 export function InboxClient({
   currentUserId,
@@ -282,7 +282,7 @@ export function InboxClient({
   const threadRef = React.useRef<HTMLDivElement | null>(null);
   const refetchTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  /* ── conversation list fetch (filters) ─────────────────────────────── */
+  /* -- conversation list fetch (filters) ------------------------------- */
   const refetchConversations = React.useCallback(() => {
     startRefresh(async () => {
       const res = await listConversations({
@@ -304,7 +304,7 @@ export function InboxClient({
     return () => clearTimeout(t);
   }, [refetchConversations]);
 
-  /* ── prefetch contact names for visible rows ───────────────────────── */
+  /* -- prefetch contact names for visible rows ------------------------- */
   React.useEffect(() => {
     const missing = conversations
       .map((c) => c.contactId)
@@ -329,7 +329,7 @@ export function InboxClient({
     };
   }, [conversations, contactsById]);
 
-  /* ── load a thread when selection changes ──────────────────────────── */
+  /* -- load a thread when selection changes ---------------------------- */
   const openConversation = React.useCallback(async (conv: SabChatConversation) => {
     setSelectedId(conv._id);
     setLoadingThread(true);
@@ -361,7 +361,7 @@ export function InboxClient({
     if (el) el.scrollTop = el.scrollHeight;
   }, [messages, selectedId]);
 
-  /* ── realtime ──────────────────────────────────────────────────────── */
+  /* -- realtime -------------------------------------------------------- */
   const onEvent = React.useCallback(
     (ev: SabchatWsEvent) => {
       const p = ev.payload ?? {};
@@ -444,7 +444,7 @@ export function InboxClient({
     return () => clearInterval(t);
   }, []);
 
-  /* ── macros (canned responses) + dispositions ──────────────────────── */
+  /* -- macros (canned responses) + dispositions ------------------------ */
   const [macros, setMacros] = React.useState<SabChatMacro[]>([]);
   const [dispositions, setDispositions] = React.useState<SabChatDisposition[]>([]);
   const [resolveOpen, setResolveOpen] = React.useState(false);
@@ -461,7 +461,7 @@ export function InboxClient({
     };
   }, []);
 
-  /* ── composer ──────────────────────────────────────────────────────── */
+  /* -- composer -------------------------------------------------------- */
   const [draft, setDraft] = React.useState("");
   const [isPrivate, setIsPrivate] = React.useState(false);
   const [sending, setSending] = React.useState(false);
@@ -494,7 +494,7 @@ export function InboxClient({
     setDraft(draft.slice(0, start) + "@" + label + " ");
   };
 
-  /* ── bulk select ───────────────────────────────────────────────────── */
+  /* -- bulk select ----------------------------------------------------- */
   const [selectMode, setSelectMode] = React.useState(false);
   const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set());
   const [bulkBusy, setBulkBusy] = React.useState(false);
@@ -530,7 +530,7 @@ export function InboxClient({
     });
   };
 
-  /* ── command palette (⌘K) ──────────────────────────────────────────── */
+  /* -- command palette (⌘K) -------------------------------------------- */
   const [paletteOpen, setPaletteOpen] = React.useState(false);
   const [paletteQuery, setPaletteQuery] = React.useState("");
   React.useEffect(() => {
@@ -587,7 +587,7 @@ export function InboxClient({
     [selectedId, isPrivate, appendLocal, toast],
   );
 
-  /* ── conversation actions ──────────────────────────────────────────── */
+  /* -- conversation actions -------------------------------------------- */
   const patchSelected = React.useCallback(
     (patch: Partial<SabChatConversation>) => {
       if (!selectedId) return;
@@ -626,7 +626,7 @@ export function InboxClient({
     setResolveOpen(false);
   };
 
-  /* ── AI copilot ────────────────────────────────────────────────────── */
+  /* -- AI copilot ------------------------------------------------------ */
   const [copilotOpen, setCopilotOpen] = React.useState(false);
   const [copilotBusy, setCopilotBusy] = React.useState<string | null>(null);
   const [summary, setSummary] = React.useState<string | null>(null);
@@ -692,7 +692,7 @@ export function InboxClient({
     setCopilotOpen(false);
   }, [selectedId]);
 
-  /* ── derived: pinned / all (apply client-side "unassigned" filter) ─── */
+  /* -- derived: pinned / all (apply client-side "unassigned" filter) --- */
   const visible =
     assignFilter === "unassigned"
       ? conversations.filter((c) => !c.assigneeId)
@@ -712,7 +712,7 @@ export function InboxClient({
       : conversations
   ).slice(0, 12);
 
-  /* ────────────────────────────────────────────────────────────────── */
+  /* ------------------------------------------------------------------ */
   return (
     <div className="flex h-[calc(100vh-var(--st-shell-header,56px))] min-h-0 w-full">
       {/* Pane 1 — conversation list */}
@@ -1294,9 +1294,9 @@ export function InboxClient({
   );
 }
 
-/* ────────────────────────────────────────────────────────────────────────
+/* ------------------------------------------------------------------------
  * Sub-components
- * ──────────────────────────────────────────────────────────────────────── */
+ * ------------------------------------------------------------------------ */
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
