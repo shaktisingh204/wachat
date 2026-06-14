@@ -1,7 +1,7 @@
 import 'server-only';
 
 /**
- * BI Workbooks client — wraps `/v1/bi/workbooks`. A workbook is a named
+ * BI Workbooks client — wraps `/v1/sabbi/workbooks`. A workbook is a named
  * collection of datasets + chart configs (the workbook's curated list).
  */
 import { rustFetch } from './fetcher';
@@ -51,7 +51,7 @@ export interface BiWorkbookUpdateInput {
   status?: BiWorkbookStatus;
 }
 
-const BASE = '/v1/bi/workbooks';
+const BASE = '/v1/sabbi/workbooks';
 
 function buildQuery(params?: BiWorkbookListParams): string {
   if (!params) return '';

@@ -9,6 +9,7 @@
 
 pub mod dto;
 pub mod handlers;
+pub mod metric_query;
 pub mod query_exec;
 pub mod router;
 pub mod types;

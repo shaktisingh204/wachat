@@ -4,15 +4,16 @@ use axum::{
     Json,
     extract::{Path, Query, State},
 };
-use bson::{DateTime as BsonDateTime, Document, doc, oid::ObjectId};
+use bson::{Bson, DateTime as BsonDateTime, Document, doc, oid::ObjectId};
 use chrono::Utc;
 use crm_common::{
     pagination::{clamp_limit, skip_for},
     search::build_q_filter,
-    tenant::user_oid,
+    tenant::tenant_oid as user_oid,
 };
 use futures::TryStreamExt;
 use mongodb::options::FindOptions;
+use sabbi_semantic::BiModel;
 use sabnode_auth::AuthUser;
 use sabnode_common::{ApiError, Result};
 use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
@@ -22,7 +23,10 @@ use crate::dto::{
     CreateChartInput, CreateChartResponse, DeleteChartResponse, ListQuery, RunChartInput,
     RunChartResponse, UpdateChartInput,
 };
-use crate::query_exec::{ChartSpec, clamp_run_limit, run_chart};
+use crate::metric_query::{
+    MetricQuery, RawQuery, compile_to_spec, resolve_scope, validate_stages,
+};
+use crate::query_exec::{ChartSpec, clamp_run_limit, run_chart, run_pipeline, scope_match};
 use crate::types::BiChart;
 
 pub(crate) const COLL: &str = "sabbi_charts";
@@ -323,17 +327,84 @@ pub async fn run_chart_handler(
         .to_owned();
 
     let spec = ChartSpec {
-        user_id,
+        scope_value: Bson::ObjectId(user_id),
+        scope_field: "userId".to_owned(),
         chart_type: chart.chart_type.clone(),
         collection_name: coll_name,
         config: chart.config_json.clone(),
         filters: chart.filters_json.clone(),
         extra_filters: input.extra_filters,
+        base_filter: Document::new(),
         limit: clamp_run_limit(input.limit),
     };
 
     let result = run_chart(&mongo, spec).await?;
     Ok(Json(result))
+}
+
+/// Run a `MetricQuery` against a governed semantic model — the live query
+/// endpoint the visual builder, AI copilot, and model-backed dashboards use.
+/// Loads the model (tenant scoped), compiles the AST to a `ChartSpec`, and
+/// executes it. Unlike `/{chartId}/run`, the query is supplied inline rather
+/// than persisted as a chart.
+#[instrument(skip_all, fields(user_id = %user.user_id))]
+pub async fn run_metric_query(
+    user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Json(mq): Json<MetricQuery>,
+) -> Result<Json<RunChartResponse>> {
+    // The model doc itself lives in a SabBI collection (scoped by the project
+    // tenant, ObjectId).
+    let user_id = user_oid(&user)?;
+    let model_oid = oid_from_str(&mq.model_id)?;
+    let models = mongo.collection::<BiModel>("sabbi_models");
+    let model = models
+        .find_one(doc! { "_id": model_oid, "userId": user_id })
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabbi_charts.model.find")))?
+        .ok_or_else(|| ApiError::NotFound("model".to_owned()))?;
+
+    let scope_value = resolve_scope(&user, &model)?;
+    let spec = compile_to_spec(&model, &mq, scope_value)?;
+    let result = run_chart(&mongo, spec).await?;
+    Ok(Json(result))
+}
+
+/// Run a raw, governed aggregation pipeline (the Query Lab). The mandatory
+/// tenant + base-filter `$match` is prepended automatically and write/code-exec
+/// stages are rejected, so a power user gets the full aggregation surface
+/// without escaping the project sandbox.
+#[instrument(skip_all, fields(user_id = %user.user_id))]
+pub async fn run_raw_query(
+    user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Json(raw): Json<RawQuery>,
+) -> Result<Json<RunChartResponse>> {
+    validate_stages(&raw.stages)?;
+    let user_id = user_oid(&user)?;
+    let model_oid = oid_from_str(&raw.model_id)?;
+    let models = mongo.collection::<BiModel>("sabbi_models");
+    let model = models
+        .find_one(doc! { "_id": model_oid, "userId": user_id })
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabbi_charts.raw.model")))?
+        .ok_or_else(|| ApiError::NotFound("model".to_owned()))?;
+
+    let scope_value = resolve_scope(&user, &model)?;
+    let scope_field = model.scope_field.as_deref().unwrap_or("userId");
+    let base = model.base_filter.clone().unwrap_or_default();
+
+    // Pipeline = mandatory tenant scope → user stages → safety limit.
+    let mut pipeline = vec![doc! { "$match": scope_match(&scope_value, scope_field, &base) }];
+    pipeline.extend(raw.stages.iter().cloned());
+    pipeline.push(doc! { "$limit": clamp_run_limit(raw.limit) as i64 });
+
+    let rows = run_pipeline(&mongo, &model.collection, pipeline).await?;
+    Ok(Json(RunChartResponse {
+        rows,
+        columns: vec![],
+        mode: "raw".to_owned(),
+    }))
 }
 
 #[cfg(test)]

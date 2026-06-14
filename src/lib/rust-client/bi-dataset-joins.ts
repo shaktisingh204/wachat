@@ -1,7 +1,7 @@
 import 'server-only';
 
 /**
- * BI Dataset Joins client — wraps `/v1/bi/dataset-joins`. Saved join
+ * BI Dataset Joins client — wraps `/v1/sabbi/dataset-joins`. Saved join
  * definitions between two datasets (inner/left/right/outer).
  */
 import { rustFetch } from './fetcher';
@@ -60,7 +60,7 @@ export interface BiJoinUpdateInput {
   status?: BiJoinStatus;
 }
 
-const BASE = '/v1/bi/dataset-joins';
+const BASE = '/v1/sabbi/dataset-joins';
 
 function buildQuery(params?: BiJoinListParams): string {
   if (!params) return '';

@@ -23,6 +23,7 @@ tracing = "0.1"
 anyhow = "1.0"
 
 crm-common = { path = "../crm-common" }
+sabbi-semantic = { path = "../sabbi-semantic" }
 sabnode-auth = { path = "../auth" }
 sabnode-common = { path = "../common" }
 sabnode-db = { path = "../db" }

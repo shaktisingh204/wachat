@@ -1,136 +1,170 @@
-"use client";
+/**
+ * Datasets list. Connect-source / upload-CSV entry point.
+ */
+import Link from 'next/link';
+import {
+  Combine,
+  Database,
+  FileSpreadsheet,
+  Globe,
+  LayoutDashboard,
+  Rows3,
+  Table2,
+} from 'lucide-react';
 
-import React, { useState } from 'react';
-import { Card, CardHeader, CardTitle, CardDescription, CardBody, Table, THead, TBody, Tr, Th, Td, Button, Badge, Input } from '@/components/sabcrm/20ui';
-import { Database, Plus, RefreshCw, FileText, UploadCloud, Link2, Search, Trash2, Edit } from 'lucide-react';
+import {
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  CardTitle,
+  EmptyState,
+  PageActions,
+  PageDescription,
+  PageEyebrow,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  StatCard,
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+} from '@/components/sabcrm/20ui';
+import { listDatasetsAction } from '@/app/actions/analytics-bi.actions';
 
-const mockDatasets = [
-  { id: '1', name: 'Q1 Sales Data', source: 'csv_upload', rows: 14500, status: 'active', lastRefresh: '2026-05-20T10:30:00Z' },
-  { id: '2', name: 'CRM Accounts', source: 'mongo_collection', rows: 3200, status: 'active', lastRefresh: '2026-06-01T08:15:00Z' },
-  { id: '3', name: 'Zendesk Tickets', source: 'rest_api', rows: 890, status: 'syncing', lastRefresh: '2026-06-03T09:00:00Z' },
-  { id: '4', name: 'Legacy Customers', source: 'csv_upload', rows: 54200, status: 'archived', lastRefresh: '2025-12-01T11:20:00Z' },
-];
+import { NewDatasetPanel } from './_components/new-dataset-panel';
 
-export default function DatasetsPage() {
-  const [search, setSearch] = useState('');
+export const dynamic = 'force-dynamic';
 
-  const getSourceIcon = (source: string) => {
-    switch(source) {
-      case 'csv_upload': return <UploadCloud className="w-4 h-4 mr-2 text-blue-500" />;
-      case 'mongo_collection': return <Database className="w-4 h-4 mr-2 text-green-500" />;
-      case 'rest_api': return <Link2 className="w-4 h-4 mr-2 text-purple-500" />;
-      default: return <FileText className="w-4 h-4 mr-2 text-gray-500" />;
-    }
-  };
+const SOURCE_LABEL: Record<string, string> = {
+  csv_upload: 'CSV',
+  mongo_collection: 'Collection',
+  rest_api: 'REST',
+};
 
-  const getSourceLabel = (source: string) => {
-    switch(source) {
-      case 'csv_upload': return 'CSV Upload';
-      case 'mongo_collection': return 'Mongo Collection';
-      case 'rest_api': return 'REST API';
-      default: return source;
-    }
-  };
+function sourceIcon(source: string) {
+  switch (source) {
+    case 'csv_upload':
+      return <FileSpreadsheet size={13} aria-hidden="true" />;
+    case 'rest_api':
+      return <Globe size={13} aria-hidden="true" />;
+    default:
+      return <Database size={13} aria-hidden="true" />;
+  }
+}
 
-  const getStatusBadge = (status: string) => {
-    switch(status) {
-      case 'active': return <Badge variant="default" className="bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20">Active</Badge>;
-      case 'syncing': return <Badge variant="outline" className="border-blue-500/30 text-blue-600">Syncing...</Badge>;
-      case 'archived': return <Badge variant="secondary">Archived</Badge>;
-      default: return <Badge>{status}</Badge>;
-    }
-  };
+export default async function DatasetsPage() {
+  let items: Awaited<ReturnType<typeof listDatasetsAction>>['items'] = [];
+  try {
+    const res = await listDatasetsAction({ limit: 200 });
+    items = res.items;
+  } catch {
+    items = [];
+  }
 
-  const filtered = mockDatasets.filter(d => d.name.toLowerCase().includes(search.toLowerCase()));
+  const totalRows = items.reduce((acc, d) => acc + (d.rowCount ?? 0), 0);
+  const sourceCount = new Set(items.map((d) => d.source)).size;
 
   return (
-    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-      <div className="flex items-center justify-between space-y-2">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight text-[var(--st-text)]">Datasets</h2>
-          <p className="text-muted-foreground text-[var(--st-text)]/60">
-            Manage data sources and sync external records for BI analysis.
-          </p>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Button variant="outline">
-            <RefreshCw className="mr-2 h-4 w-4" />
-            Sync All
+    <div className="20ui flex flex-col gap-[var(--st-space-5)] p-[var(--st-space-5)]">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageEyebrow>SabBI</PageEyebrow>
+          <PageTitle>Datasets</PageTitle>
+          <PageDescription>
+            Bring tabular data from SabFiles, system collections, or a REST URL.
+          </PageDescription>
+        </PageHeaderHeading>
+        <PageActions>
+          <Button variant="ghost" asChild>
+            <Link href="/dashboard/sabbi/datasets/joins">
+              <Combine size={16} aria-hidden="true" />
+              Joins
+            </Link>
           </Button>
-          <Button>
-            <Plus className="mr-2 h-4 w-4" />
-            Add Dataset
+          <Button variant="ghost" asChild>
+            <Link href="/dashboard/sabbi/workbooks">
+              <LayoutDashboard size={16} aria-hidden="true" />
+              Workbooks
+            </Link>
           </Button>
-        </div>
+        </PageActions>
+      </PageHeader>
+
+      <div className="grid grid-cols-1 gap-[var(--st-space-4)] sm:grid-cols-3">
+        <StatCard
+          label="Datasets"
+          value={items.length}
+          icon={Database}
+          accent="var(--st-accent)"
+        />
+        <StatCard
+          label="Total rows"
+          value={totalRows.toLocaleString()}
+          icon={Rows3}
+        />
+        <StatCard label="Source types" value={sourceCount} icon={Table2} />
       </div>
+
+      <NewDatasetPanel />
 
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Data Sources</CardTitle>
-              <CardDescription>
-                A list of all tabular data pointers available to SabBI.
-              </CardDescription>
-            </div>
-            <div className="flex items-center space-x-2">
-              <div className="relative">
-                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type="search"
-                  placeholder="Search datasets..."
-                  className="w-64 pl-8"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                />
-              </div>
-            </div>
-          </div>
+          <CardTitle className="flex items-center gap-2">
+            <Database size={16} aria-hidden="true" />
+            Your datasets
+          </CardTitle>
         </CardHeader>
         <CardBody>
-          <Table>
-            <THead>
-              <Tr>
-                <Th>Name</Th>
-                <Th>Source</Th>
-                <Th>Rows</Th>
-                <Th>Status</Th>
-                <Th>Last Refresh</Th>
-                <Th className="text-right">Actions</Th>
-              </Tr>
-            </THead>
-            <TBody>
-              {filtered.map((dataset) => (
-                <Tr key={dataset.id}>
-                  <Td className="font-medium">{dataset.name}</Td>
-                  <Td>
-                    <div className="flex items-center">
-                      {getSourceIcon(dataset.source)}
-                      {getSourceLabel(dataset.source)}
-                    </div>
-                  </Td>
-                  <Td>{dataset.rows.toLocaleString()}</Td>
-                  <Td>{getStatusBadge(dataset.status)}</Td>
-                  <Td>{new Date(dataset.lastRefresh).toLocaleDateString()}</Td>
-                  <Td className="text-right">
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-[var(--st-text)]/60 hover:text-[var(--st-text)]">
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500/60 hover:text-red-600">
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </Td>
-                </Tr>
-              ))}
-              {filtered.length === 0 && (
+          {items.length === 0 ? (
+            <EmptyState
+              icon={Database}
+              tone="info"
+              title="No datasets yet"
+              description="Connect a CSV, system collection, or REST endpoint above to get started."
+            />
+          ) : (
+            <Table>
+              <THead>
                 <Tr>
-                  <Td colSpan={6} className="h-24 text-center text-muted-foreground">
-                    No datasets found.
-                  </Td>
+                  <Th align="left">Name</Th>
+                  <Th align="left">Source</Th>
+                  <Th align="right">Rows</Th>
+                  <Th align="left">Last refresh</Th>
                 </Tr>
-              )}
-            </TBody>
-          </Table>
+              </THead>
+              <TBody>
+                {items.map((d) => (
+                  <Tr key={d._id}>
+                    <Td>
+                      <Link
+                        href={`/dashboard/sabbi/datasets/${d._id}`}
+                        className="font-medium text-[var(--st-text)] hover:underline"
+                      >
+                        {d.name}
+                      </Link>
+                    </Td>
+                    <Td>
+                      <Badge tone="neutral">
+                        {sourceIcon(d.source)}
+                        {SOURCE_LABEL[d.source] ?? d.source}
+                      </Badge>
+                    </Td>
+                    <Td align="right" className="tabular-nums">
+                      {d.rowCount != null ? d.rowCount.toLocaleString() : '-'}
+                    </Td>
+                    <Td className="text-[var(--st-text-secondary)]">
+                      {d.lastRefreshAt ?? '-'}
+                    </Td>
+                  </Tr>
+                ))}
+              </TBody>
+            </Table>
+          )}
         </CardBody>
       </Card>
     </div>

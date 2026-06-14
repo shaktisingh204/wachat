@@ -1,7 +1,7 @@
 import 'server-only';
 
 /**
- * BI Schedules client — wraps `/v1/bi/schedules`. Cron-driven workbook
+ * BI Schedules client — wraps `/v1/sabbi/schedules`. Cron-driven workbook
  * report delivery to email recipients in pdf | csv | inline format.
  */
 import { rustFetch } from './fetcher';
@@ -55,7 +55,7 @@ export interface BiScheduleUpdateInput {
   status?: BiScheduleStatus;
 }
 
-const BASE = '/v1/bi/schedules';
+const BASE = '/v1/sabbi/schedules';
 
 function buildQuery(params?: BiScheduleListParams): string {
   if (!params) return '';

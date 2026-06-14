@@ -1,7 +1,7 @@
 import 'server-only';
 
 /**
- * BI Charts client — wraps `/v1/bi/charts`. Owns chart CRUD + the run
+ * BI Charts client — wraps `/v1/sabbi/charts`. Owns chart CRUD + the run
  * endpoint that materialises aggregated rows for a chart.
  */
 import { rustFetch } from './fetcher';
@@ -113,7 +113,7 @@ export interface BiChartRunResponse {
   mode: 'renderable' | 'raw' | 'unsupported';
 }
 
-const BASE = '/v1/bi/charts';
+const BASE = '/v1/sabbi/charts';
 
 function buildQuery(params?: BiChartListParams): string {
   if (!params) return '';

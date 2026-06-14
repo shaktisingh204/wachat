@@ -9,7 +9,7 @@
 //! query exec layer must first fetch / parse / cache rows. Until that's
 //! wired, `run_chart` returns `mode = "unsupported"` for those sources.
 
-use bson::{Bson, Document, doc, oid::ObjectId};
+use bson::{Bson, Document, doc};
 use futures::TryStreamExt;
 use mongodb::options::AggregateOptions;
 use sabnode_common::{ApiError, Result};
@@ -22,12 +22,23 @@ const RUN_MAX_LIMIT: u32 = 5000;
 
 #[derive(Debug, Clone)]
 pub struct ChartSpec {
-    pub user_id: ObjectId,
+    /// The tenant scope value matched against `scope_field`. A `Bson::ObjectId`
+    /// for SabBI's own collections and ObjectId-keyed modules (SabPay), or a
+    /// `Bson::String` for string-keyed modules (SabCRM `projectId`, billing
+    /// `tenantId`).
+    pub scope_value: Bson,
+    /// The collection field that holds the tenant key (`userId` for SabBI's own
+    /// collections; `projectId` / `tenantId` for cross-module connectors).
+    pub scope_field: String,
     pub chart_type: String,
     pub collection_name: String,
     pub config: Document,
     pub filters: Vec<Document>,
     pub extra_filters: Vec<Document>,
+    /// Raw always-applied `$match` clause from the semantic model
+    /// (`BiModel.base_filter`, e.g. `{ "object": "leads" }`). Empty for
+    /// dataset-backed charts. ANDed into the match alongside the tenant scope.
+    pub base_filter: Document,
     pub limit: u32,
 }
 
@@ -39,8 +50,16 @@ pub fn clamp_run_limit(input: Option<u32>) -> u32 {
 /// Translate `{ column, op, value }` filter docs into a `$match` clause.
 /// Supported ops: `eq`, `ne`, `in`, `nin`, `gt`, `gte`, `lt`, `lte`,
 /// `contains`. Unknown ops are dropped silently — the editor validates.
-fn filters_to_match(user_id: ObjectId, filters: &[Document]) -> Document {
-    let mut and: Vec<Document> = vec![doc! { "userId": user_id }];
+fn filters_to_match(
+    scope_value: &Bson,
+    scope_field: &str,
+    base_filter: &Document,
+    filters: &[Document],
+) -> Document {
+    let mut and: Vec<Document> = vec![doc! { scope_field: scope_value.clone() }];
+    if !base_filter.is_empty() {
+        and.push(base_filter.clone());
+    }
     for f in filters {
         let col = match f.get_str("column") {
             Ok(s) if !s.is_empty() => s,
@@ -126,7 +145,8 @@ fn measure_accumulator(m: &Measure) -> Document {
 fn build_agg_pipeline(spec: &ChartSpec, dims: &[String], meas: &[Measure]) -> Vec<Document> {
     let mut all_filters: Vec<Document> = spec.filters.clone();
     all_filters.extend(spec.extra_filters.iter().cloned());
-    let match_doc = filters_to_match(spec.user_id, &all_filters);
+    let match_doc =
+        filters_to_match(&spec.scope_value, &spec.scope_field, &spec.base_filter, &all_filters);
 
     let mut group_id = Document::new();
     for d in dims {
@@ -173,7 +193,8 @@ fn build_agg_pipeline(spec: &ChartSpec, dims: &[String], meas: &[Measure]) -> Ve
 fn build_table_pipeline(spec: &ChartSpec) -> Vec<Document> {
     let mut all_filters = spec.filters.clone();
     all_filters.extend(spec.extra_filters.iter().cloned());
-    let match_doc = filters_to_match(spec.user_id, &all_filters);
+    let match_doc =
+        filters_to_match(&spec.scope_value, &spec.scope_field, &spec.base_filter, &all_filters);
 
     let mut pipeline = vec![doc! { "$match": match_doc }];
     if let Ok(cols) = spec.config.get_array("selectColumns") {
@@ -210,6 +231,33 @@ fn build_columns(chart_type: &str, dims: &[String], meas: &[Measure]) -> Vec<Cha
         return vec![];
     }
     out
+}
+
+/// The leading tenant-scope `$match` for a collection — `{ scope_field:
+/// scope_value }` plus the model's `base_filter`. Public so the raw-pipeline
+/// lab can prepend it (governance is never bypassed).
+pub fn scope_match(scope_value: &Bson, scope_field: &str, base_filter: &Document) -> Document {
+    filters_to_match(scope_value, scope_field, base_filter, &[])
+}
+
+/// Run an arbitrary (already governance-prefixed) aggregation pipeline against
+/// `collection_name` and collect the rows. Used by the raw Query Lab.
+pub async fn run_pipeline(
+    mongo: &MongoHandle,
+    collection_name: &str,
+    pipeline: Vec<Document>,
+) -> Result<Vec<Document>> {
+    let coll = mongo.collection::<Document>(collection_name);
+    let opts = AggregateOptions::builder().allow_disk_use(true).build();
+    let cursor = coll
+        .aggregate(pipeline)
+        .with_options(opts)
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabbi_charts.raw.aggregate")))?;
+    cursor
+        .try_collect()
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabbi_charts.raw.collect")))
 }
 
 pub async fn run_chart(mongo: &MongoHandle, spec: ChartSpec) -> Result<RunChartResponse> {
@@ -258,6 +306,8 @@ pub async fn run_chart(mongo: &MongoHandle, spec: ChartSpec) -> Result<RunChartR
 
 #[cfg(test)]
 mod tests {
+    use bson::oid::ObjectId;
+
     use super::*;
 
     #[test]
@@ -268,7 +318,7 @@ mod tests {
             doc! { "column": "amount", "op": "gt", "value": 100 },
             doc! { "column": "name", "op": "contains", "value": "acme" },
         ];
-        let m = filters_to_match(uid, &filters);
+        let m = filters_to_match(&Bson::ObjectId(uid), "userId", &Document::new(), &filters);
         assert!(m.contains_key("$and"));
     }
 
@@ -282,7 +332,8 @@ mod tests {
     #[test]
     fn bar_pipeline_has_group_and_project() {
         let spec = ChartSpec {
-            user_id: ObjectId::new(),
+            scope_value: Bson::ObjectId(ObjectId::new()),
+            scope_field: "userId".into(),
             chart_type: "bar".into(),
             collection_name: "sales".into(),
             config: doc! {
@@ -291,6 +342,7 @@ mod tests {
             },
             filters: vec![],
             extra_filters: vec![],
+            base_filter: Document::new(),
             limit: 100,
         };
         let dims = dimensions(&spec.config);

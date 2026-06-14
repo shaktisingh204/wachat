@@ -2,6 +2,7 @@
 
 import {
   BarChart3,
+  Bell,
   Briefcase,
   Cake,
   CalendarClock,
@@ -18,6 +19,7 @@ import {
   Handshake,
   Layers,
   LayoutDashboard,
+  LayoutGrid,
   LineChart,
   ListChecks,
   Package,
@@ -26,7 +28,10 @@ import {
   Plug,
   Receipt,
   Scale,
+  ScanSearch,
+  Sparkles,
   Target,
+  Terminal,
   Ticket,
   TrendingDown,
   TrendingUp,
@@ -47,6 +52,8 @@ export const SABBI_SIDEBAR: SabAppSidebarConfig = {
       label: "Overview",
       items: [
         leaf("analytics", "Analytics", "/dashboard/sabbi/analytics", LineChart, p),
+        leaf("copilot", "Copilot", "/dashboard/sabbi/copilot", Sparkles, p),
+        leaf("alerts", "Alerts", "/dashboard/sabbi/alerts", Bell, p),
       ],
     },
     {
@@ -56,12 +63,15 @@ export const SABBI_SIDEBAR: SabAppSidebarConfig = {
         leaf("models", "Models & metrics", "/dashboard/sabbi/models", Layers, p),
         leaf("connectors", "Connectors", "/dashboard/sabbi/connectors", Plug, p),
         leaf("explore", "Explore", "/dashboard/sabbi/explore", Compass, p),
+        leaf("query-lab", "Query Lab", "/dashboard/sabbi/sql", Terminal, p),
+        leaf("xray", "X-ray", "/dashboard/sabbi/xray", ScanSearch, p),
       ],
     },
     {
       id: "sabbi-build",
       label: "Build",
       items: [
+        leaf("boards", "Boards", "/dashboard/sabbi/boards", LayoutGrid, p),
         leaf("dashboards", "Dashboards", "/dashboard/sabbi/dashboards", LayoutDashboard, p),
         leaf("workbooks", "Workbooks", "/dashboard/sabbi/workbooks", Library, p),
         leaf("charts", "Charts", "/dashboard/sabbi/charts", BarChart3, p),

@@ -1,8 +1,8 @@
 import 'server-only';
 
 /**
- * BI Embeds client — wraps `/v1/bi/embeds` (auth) and
- * `/public/bi/embeds` (anonymous public token resolution).
+ * BI Embeds client — wraps `/v1/sabbi/embeds` (auth) and
+ * `/public/sabbi/embeds` (anonymous public token resolution).
  */
 import { rustFetch } from './fetcher';
 
@@ -60,8 +60,8 @@ export interface BiEmbedResolved {
   allowOrigins: string[];
 }
 
-const BASE = '/v1/bi/embeds';
-const PUBLIC_BASE = '/public/bi/embeds';
+const BASE = '/v1/sabbi/embeds';
+const PUBLIC_BASE = '/public/sabbi/embeds';
 
 function buildQuery(params?: BiEmbedListParams): string {
   if (!params) return '';

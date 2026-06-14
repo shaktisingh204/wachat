@@ -377,6 +377,7 @@ members = [
     "crates/sabbi-datasets",
     "crates/sabbi-embeds",
     "crates/sabbi-schedules",
+    "crates/sabbi-semantic",
     "crates/sabbi-workbooks",
     "crates/sabsheet-engine",
     "crates/sabsheet-ops",

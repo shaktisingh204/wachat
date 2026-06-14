@@ -8,7 +8,7 @@ use bson::{DateTime as BsonDateTime, Document, doc, oid::ObjectId};
 use chrono::Utc;
 use crm_common::{
     pagination::{clamp_limit, skip_for},
-    tenant::user_oid,
+    tenant::tenant_oid as user_oid,
 };
 use futures::TryStreamExt;
 use mongodb::options::FindOptions;

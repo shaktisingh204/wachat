@@ -47,6 +47,7 @@ pub fn build(state: AppState) -> Router {
     let sabbi_dataset_joins_r = sabbi_dataset_joins::router::<AppState>();
     let sabbi_datasets_r = sabbi_datasets::router::<AppState>();
     let sabbi_schedules_r = sabbi_schedules::router::<AppState>();
+    let sabbi_semantic_r = sabbi_semantic::router::<AppState>();
     let sabbi_workbooks_r = sabbi_workbooks::router::<AppState>();
     let sabbigin_config_r = sabbigin_config::router::<AppState>();
     let sabbigin_bookings_r = sabbigin_bookings::router::<AppState>();
@@ -1077,6 +1078,7 @@ pub fn build(state: AppState) -> Router {
         .nest("/v1/sabbi/dataset-joins", sabbi_dataset_joins_r)
         .nest("/v1/sabbi/datasets", sabbi_datasets_r)
         .nest("/v1/sabbi/schedules", sabbi_schedules_r)
+        .nest("/v1/sabbi/models", sabbi_semantic_r)
         .nest("/v1/sabbi/workbooks", sabbi_workbooks_r)
         .nest("/v1/sabbigin/config", sabbigin_config_r)
         .nest("/v1/sabbigin/bookings", sabbigin_bookings_r)

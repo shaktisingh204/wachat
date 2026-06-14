@@ -9,7 +9,7 @@ use chrono::Utc;
 use crm_common::{
     pagination::{clamp_limit, skip_for},
     search::build_q_filter,
-    tenant::user_oid,
+    tenant::tenant_oid as user_oid,
 };
 use futures::TryStreamExt;
 use mongodb::options::FindOptions;

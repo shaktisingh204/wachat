@@ -27,4 +27,6 @@ where
                 .delete(handlers::delete_chart),
         )
         .route("/{chartId}/run", post(handlers::run_chart_handler))
+        .route("/run-query", post(handlers::run_metric_query))
+        .route("/run-pipeline", post(handlers::run_raw_query))
 }

@@ -364,6 +364,7 @@ sabbi-dataset-joins = { path = "../sabbi-dataset-joins" }
 sabbi-datasets = { path = "../sabbi-datasets" }
 sabbi-embeds = { path = "../sabbi-embeds" }
 sabbi-schedules = { path = "../sabbi-schedules" }
+sabbi-semantic = { path = "../sabbi-semantic" }
 sabbi-workbooks = { path = "../sabbi-workbooks" }
 sabbigin-config = { path = "../sabbigin-config" }
 sabbigin-bookings = { path = "../sabbigin-bookings" }

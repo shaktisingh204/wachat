@@ -1,7 +1,7 @@
 import 'server-only';
 
 /**
- * BI Datasets client — wraps `/v1/bi/datasets`.
+ * BI Datasets client — wraps `/v1/sabbi/datasets`.
  *
  * A dataset points at a tabular source: SabFiles-hosted CSV, system Mongo
  * collection, or a saved REST endpoint. The query exec layer materialises
@@ -77,7 +77,7 @@ export interface BiDatasetPreviewResponse {
   columns: string[];
 }
 
-const BASE = '/v1/bi/datasets';
+const BASE = '/v1/sabbi/datasets';
 
 function buildQuery(params?: BiDatasetListParams): string {
   if (!params) return '';

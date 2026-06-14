@@ -15,6 +15,19 @@ pub fn user_oid(user: &AuthUser) -> Result<ObjectId> {
         .map_err(|_| ApiError::Unauthorized("subject is not a valid ObjectId".to_owned()))
 }
 
+/// Parse the calling principal's **tenant** [`ObjectId`] from the JWT `tid`
+/// claim (the active project/workspace), rather than the acting user (`sub`).
+///
+/// Project-scoped modules (SabBI, SabChat, …) bind every Rust call to the
+/// selected project via `runWithRustTenant` on the TS side, which sets `tid`
+/// to the project id; these crates scope their Mongo collections by this value
+/// so data isolates per workspace rather than per user. Returns `Unauthorized`
+/// if `tid` is not a hex `ObjectId`.
+pub fn tenant_oid(user: &AuthUser) -> Result<ObjectId> {
+    ObjectId::parse_str(&user.tenant_id)
+        .map_err(|_| ApiError::Unauthorized("tenant is not a valid ObjectId".to_owned()))
+}
+
 /// `{ userId, archived: { $ne: true } }` — the canonical tenant filter that
 /// excludes soft-deleted rows. Most list/get/update/delete handlers want
 /// this; raw archival listings should use [`tenant_filter_with_archived`].
