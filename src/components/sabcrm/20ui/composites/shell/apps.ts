@@ -327,10 +327,10 @@ const SAB_APPS_ALL: SabAppDescriptor[] = [
   {
     id: "sabsign",
     name: "SabSign",
-    href: "/dashboard/sabsign",
+    href: "/sabsign",
     Icon: SabSignIcon,
     migration: "done",
-    isActive: (p) => !!p?.startsWith("/dashboard/sabsign"),
+    isActive: (p) => !!p?.startsWith("/sabsign"),
   },
   {
     id: "sabwebinar",

@@ -21,7 +21,7 @@ import {
 import { leaf, type SabAppSidebarConfig } from "./_shared";
 
 export const SABSIGN_SIDEBAR: SabAppSidebarConfig = {
-  prefix: "/dashboard/sabsign",
+  prefix: "/sabsign",
   heading: "SabSign",
   caption: "E-signatures & envelopes",
   build: (p) => [
@@ -29,39 +29,39 @@ export const SABSIGN_SIDEBAR: SabAppSidebarConfig = {
       id: "sign-envelopes",
       label: "Envelopes",
       items: [
-        leaf("envelopes", "Envelopes", "/dashboard/sabsign", FileSignature, p, { exact: true }),
-        leaf("new", "New envelope", "/dashboard/sabsign/new", Plus, p),
-        leaf("bulk", "Bulk send", "/dashboard/sabsign/bulk", Send, p),
-        leaf("templates", "Templates", "/dashboard/sabsign/templates", Layers, p),
+        leaf("envelopes", "Envelopes", "/sabsign", FileSignature, p, { exact: true }),
+        leaf("new", "New envelope", "/sabsign/new", Plus, p),
+        leaf("bulk", "Bulk send", "/sabsign/bulk", Send, p),
+        leaf("templates", "Templates", "/sabsign/templates", Layers, p),
       ],
     },
     {
       id: "sign-documents",
       label: "Documents",
       items: [
-        leaf("docs", "Documents", "/dashboard/sabsign/docs", FileText, p),
-        leaf("doc-templates", "Document templates", "/dashboard/sabsign/docs/templates", Files, p),
-        leaf("form-builder", "Form builder", "/dashboard/sabsign/form-builder", ClipboardList, p),
+        leaf("docs", "Documents", "/sabsign/docs", FileText, p),
+        leaf("doc-templates", "Document templates", "/sabsign/docs/templates", Files, p),
+        leaf("form-builder", "Form builder", "/sabsign/form-builder", ClipboardList, p),
       ],
     },
     {
       id: "sign-people",
       label: "People & compliance",
       items: [
-        leaf("contacts", "Address book", "/dashboard/sabsign/contacts", Users, p),
-        leaf("notary", "Notary", "/dashboard/sabsign/notary", Stamp, p),
-        leaf("audit", "Audit log", "/dashboard/sabsign/audit", History, p),
+        leaf("contacts", "Address book", "/sabsign/contacts", Users, p),
+        leaf("notary", "Notary", "/sabsign/notary", Stamp, p),
+        leaf("audit", "Audit log", "/sabsign/audit", History, p),
       ],
     },
     {
       id: "sign-workspace",
       label: "Workspace",
       items: [
-        leaf("reports", "Reports", "/dashboard/sabsign/reports", BarChart3, p),
-        leaf("integrations", "Integrations", "/dashboard/sabsign/integrations", Puzzle, p),
-        leaf("api", "Developer API", "/dashboard/sabsign/api", Code2, p),
-        leaf("billing", "Billing", "/dashboard/sabsign/billing", CreditCard, p),
-        leaf("settings", "Settings", "/dashboard/sabsign/settings", Settings, p),
+        leaf("reports", "Reports", "/sabsign/reports", BarChart3, p),
+        leaf("integrations", "Integrations", "/sabsign/integrations", Puzzle, p),
+        leaf("api", "Developer API", "/sabsign/api", Code2, p),
+        leaf("billing", "Billing", "/sabsign/billing", CreditCard, p),
+        leaf("settings", "Settings", "/sabsign/settings", Settings, p),
       ],
     },
   ],
