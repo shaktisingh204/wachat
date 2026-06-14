@@ -247,6 +247,12 @@ const GROUPS: readonly SettingsGroup[] = [
         icon: MailOpen,
       },
       {
+        slug: 'email-dropbox',
+        label: 'BCC dropbox',
+        description: 'A per-project address to BCC so email auto-logs onto records',
+        icon: Inbox,
+      },
+      {
         slug: 'booking',
         label: 'Booking links',
         description: 'Calendly-style public links that create CRM records',

@@ -25,6 +25,7 @@ import 'server-only';
 
 import { dispatchTransactionalEmail } from '@/lib/email-dispatcher';
 import { createTrackedMessage } from './email-tracking.server';
+import { sendViaSabmail } from './sabmail-bridge.server';
 import { rustFetchAs } from '@/lib/rust-client/fetcher';
 import type { SabcrmRustActivity } from '@/lib/rust-client/sabcrm-activities';
 import type { OutboundMailEnvelope } from '@/lib/mailbox/imail-transport';
@@ -121,6 +122,12 @@ export interface SendSabcrmEmailCoreInput {
   subject: string;
   /** Plain text or HTML body. */
   body: string;
+  /**
+   * Optional Message-Id of the message being replied to. When set, a SabMail
+   * send threads the reply (In-Reply-To + References). Ignored by the
+   * transactional fallback. Additive/optional — existing callers unaffected.
+   */
+  inReplyTo?: string;
 }
 
 export interface SendSabcrmEmailCoreResult {
@@ -177,30 +184,50 @@ export async function sendSabcrmEmailCore(
     /* tracking is best-effort; deliver the original html */
   }
 
-  // 1. real delivery via the platform transport (tenant `email_settings`).
-  const delivery = await dispatchTransactionalEmail({
-    tenantUserId: input.userId,
+  // 1a. Prefer SabMail's OWN mailbox (engine or hosted transport): the send
+  //     lands in SabMail (folder `sent`) and threads with the inbound reply.
+  //     Best-effort — returns { ok:false } when SabMail isn't configured.
+  const sabmailSend = await sendViaSabmail({
+    userId: input.userId,
     to,
     subject,
     html,
-    body: input.body,
+    text: input.body,
+    inReplyTo: input.inReplyTo,
   });
-  if (!delivery.ok) {
-    return {
-      ok: false,
-      activity: null,
-      error:
-        delivery.error === 'email_settings_missing'
-          ? 'No sender is configured yet. Set one up under Email settings.'
-          : delivery.error?.startsWith('send_failed')
-            ? 'Email could not be delivered. Check your email settings.'
-            : delivery.error ?? 'Send failed.',
-    };
+  const sabmailMessageId = sabmailSend.ok ? sabmailSend.messageId : undefined;
+
+  // 1b. Fall back to the platform transactional transport (tenant
+  //     `email_settings`) ONLY when SabMail didn't deliver — keeps today's
+  //     behaviour byte-for-byte when SabMail is absent.
+  let delivery: Awaited<ReturnType<typeof dispatchTransactionalEmail>> | null =
+    null;
+  if (!sabmailMessageId) {
+    delivery = await dispatchTransactionalEmail({
+      tenantUserId: input.userId,
+      to,
+      subject,
+      html,
+      body: input.body,
+    });
+    if (!delivery.ok) {
+      return {
+        ok: false,
+        activity: null,
+        error:
+          delivery.error === 'email_settings_missing'
+            ? 'No sender is configured yet. Set one up under Email settings.'
+            : delivery.error?.startsWith('send_failed')
+              ? 'Email could not be delivered. Check your email settings.'
+              : delivery.error ?? 'Send failed.',
+      };
+    }
   }
 
   // 2. record into SabMail (best-effort; needs a session — silently skipped
-  //    in sessionless contexts like the sequences scheduler).
-  try {
+  //    in sessionless contexts like the sequences scheduler). Skipped when
+  //    step 1a already delivered through SabMail (no double-record).
+  if (!sabmailMessageId) try {
     const { listMailAccounts, sendMailMessage } = await import(
       '@/app/actions/mailbox.actions'
     );
@@ -247,5 +274,9 @@ export async function sendSabcrmEmailCore(
     activity = null;
   }
 
-  return { ok: true, messageId: delivery.messageId, activity };
+  return {
+    ok: true,
+    messageId: sabmailMessageId ?? delivery?.messageId,
+    activity,
+  };
 }

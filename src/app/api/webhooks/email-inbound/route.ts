@@ -3,6 +3,8 @@ import crypto from 'node:crypto';
 
 import { ingestTicketEmail } from '@/lib/crm/ticket-email.server';
 import { routeInboundSabcrmEmail } from '@/lib/sabcrm/email-inbound';
+import { isDropboxAddress } from '@/lib/sabcrm/email-dropbox';
+import { captureDropboxEmail } from '@/lib/sabcrm/email-dropbox.server';
 
 const LOG_PREFIX = '[EMAIL INBOUND]';
 
@@ -112,6 +114,19 @@ export async function POST(req: NextRequest) {
     sequencesUnenrolled: 0,
     reason: 'route-failed',
   }));
+
+  // BCC-dropbox capture — when the recipient is a project dropbox address,
+  // log the message onto the record matched by the SENDER (`from`). Additive,
+  // best-effort, and a no-op for ordinary (non-dropbox) recipients.
+  if (isDropboxAddress(envelope.to)) {
+    captureDropboxEmail(
+      envelope.to,
+      envelope.from,
+      envelope.subject,
+      envelope.bodyText ?? envelope.bodyHtml ?? '',
+      envelope.messageId,
+    ).catch(() => undefined);
+  }
 
   try {
     const result = await ingestTicketEmail(envelope);

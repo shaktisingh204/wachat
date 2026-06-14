@@ -55,6 +55,8 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { SABMAIL_COLLECTIONS } from '@/lib/sabmail/db/collections';
 import { bindInboundMessage } from '@/lib/sabmail/inbound-binding';
 import { getErrorMessage } from '@/lib/utils';
+import { isDropboxAddress } from '@/lib/sabcrm/email-dropbox';
+import { captureDropboxEmail } from '@/lib/sabcrm/email-dropbox.server';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -364,6 +366,39 @@ async function handle(req: NextRequest): Promise<NextResponse> {
       });
     } catch (e) {
       console.error('[sabmail-inbound] binding failed:', getErrorMessage(e));
+    }
+
+    // ── SabCRM bridge: route this received message onto the matching CRM
+    // record(s) (close inbound 2-way). Additive + best-effort: dynamically
+    // imported so the CRM/Rust graph never loads unless mail arrives, wrapped
+    // so it can never affect SabMail's own handling, and a silent no-op when
+    // the workspace can't be mapped to a CRM user.
+    try {
+      const { routeSabmailInboundToCrm } = await import(
+        '@/lib/sabcrm/sabmail-inbound-bridge.server'
+      );
+      await routeSabmailInboundToCrm({
+        workspaceId,
+        from,
+        fromName,
+        to,
+        subject,
+        bodyText: text || undefined,
+        bodyHtml: html || undefined,
+        messageId: messageId || undefined,
+        receivedAt: date || undefined,
+      });
+    } catch (e) {
+      console.error('[sabmail-inbound] CRM bridge failed:', getErrorMessage(e));
+    }
+
+    // BCC-dropbox capture — when the recipient (`to`) is a SabCRM project dropbox
+    // address, log this inbound onto the record matched by the SENDER (`from`).
+    // Additive, best-effort, and a no-op for ordinary recipients.
+    if (isDropboxAddress(to)) {
+      captureDropboxEmail(to, from, subject, text || '', messageId).catch(
+        () => undefined,
+      );
     }
 
     return NextResponse.json({ ok: true });
