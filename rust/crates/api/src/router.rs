@@ -637,6 +637,7 @@ pub fn build(state: AppState) -> Router {
     let sabchat_journeys_r = sabchat_journeys::router::<AppState>();
     let sabchat_ai_actions_r = sabchat_ai_actions::router::<AppState>();
     let sabchat_collab_r = sabchat_collab::router::<AppState>();
+    let sabchat_wfm_r = sabchat_wfm::router::<AppState>();
     let sabchat_csat_r = sabchat_csat::router::<AppState>();
     let sabchat_csat_public_r = sabchat_csat::public_router::<AppState>();
     let sabchat_dispositions_r = sabchat_dispositions::router::<AppState>();
@@ -1042,6 +1043,7 @@ pub fn build(state: AppState) -> Router {
         .nest("/v1/sabchat/journeys", sabchat_journeys_r)
         .nest("/v1/sabchat/ai/actions", sabchat_ai_actions_r)
         .nest("/v1/sabchat/collab", sabchat_collab_r)
+        .nest("/v1/sabchat/wfm", sabchat_wfm_r)
         .nest("/v1/sabchat/csat", sabchat_csat_r)
         .nest("/v1/sabchat/csat-public", sabchat_csat_public_r)
         .nest("/v1/sabchat/dispositions", sabchat_dispositions_r)
