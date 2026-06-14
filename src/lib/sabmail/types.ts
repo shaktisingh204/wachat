@@ -49,6 +49,16 @@ export interface SabmailAccount {
   lastSyncedAt?: Date;
   /** Sync cursor (Gmail historyId / Graph deltaLink / IMAP UIDVALIDITY:UID) — set in Phase 1. */
   syncCursor?: string;
+  /** Azure AD tenant for Outlook accounts (per-account override of SABMAIL_MS_AUTHORITY). */
+  tenantId?: string;
+  /** OAuth scopes granted at connect time (audit / re-consent decisions). */
+  oauthScopes?: string;
+  /** Microsoft Graph push subscription id (set when a webhook subscription is registered). */
+  graphSubscriptionId?: string;
+  /** ISO expiry of the Graph subscription — the renewal cron PATCHes before this. */
+  graphSubscriptionExpiry?: string;
+  /** Last time the Gmail watch / Graph subscription was (re-)armed. */
+  pushRenewedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
