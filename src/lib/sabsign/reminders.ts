@@ -2,6 +2,7 @@ import 'server-only';
 
 import { connectToDatabase } from '@/lib/mongodb';
 import { sendReminderEmails } from '@/lib/sabsign/notify';
+import { emitWebhookEvent } from '@/lib/sabsign/webhooks';
 import type { SabSignEnvelopeDoc } from '@/lib/rust-client/sabsign-envelopes';
 
 /**
@@ -19,11 +20,21 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 export async function sweepExpirations(): Promise<number> {
   const { db } = await connectToDatabase();
   const now = new Date().toISOString();
-  const res = await db.collection('esign_envelopes').updateMany(
-    { status: { $in: ACTIVE }, expiresAt: { $type: 'string', $lt: now } },
+  const expiring = await db
+    .collection('esign_envelopes')
+    .find({ status: { $in: ACTIVE }, expiresAt: { $type: 'string', $lt: now } })
+    .limit(1000)
+    .toArray();
+  if (!expiring.length) return 0;
+  await db.collection('esign_envelopes').updateMany(
+    { _id: { $in: expiring.map((e) => e._id) } },
     { $set: { status: 'expired', updatedAt: now } },
   );
-  return res.modifiedCount ?? 0;
+  for (const e of expiring) {
+    const ws = (e as { tenantId?: string }).tenantId;
+    if (ws) await emitWebhookEvent(ws, 'submission.expired', { envelopeId: String(e._id) });
+  }
+  return expiring.length;
 }
 
 /**

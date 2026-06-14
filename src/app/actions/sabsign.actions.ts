@@ -42,6 +42,7 @@ import { downloadSabfileBytes, uploadSabfileBytes } from '@/lib/sabsign/pdf/sabf
 import { renderSignedPdf } from '@/lib/sabsign/pdf/render-signed-pdf';
 import { renderAuditTrailPdf } from '@/lib/sabsign/pdf/render-audit-trail-pdf';
 import { sendSignInvites, sendOtpSms } from '@/lib/sabsign/notify';
+import { emitWebhookEvent } from '@/lib/sabsign/webhooks';
 import type {
   CreateEnvelopeInput,
   EnvelopeListParams,
@@ -125,6 +126,8 @@ export async function createEnvelope(input: CreateEnvelopeInput) {
   const payload = normaliseEnvelopeForCreate(input);
   const res = await withTenant(() => sabsignEnvelopesApi.create(payload));
   revalidatePath('/sabsign');
+  const ws = await getSabsignWorkspaceId();
+  if (ws) await emitWebhookEvent(ws, 'submission.created', { envelopeId: res.id, name: res.entity.name });
   return res;
 }
 
@@ -153,6 +156,8 @@ export async function sendEnvelope(id: string, rotateTokens = false) {
     console.warn('[sabsign] sendSignInvites failed:', e);
   }
   revalidatePath('/sabsign');
+  const ws = await getSabsignWorkspaceId();
+  if (ws) await emitWebhookEvent(ws, 'submission.sent', { envelopeId: id, name: res.name });
   return res;
 }
 
@@ -160,6 +165,8 @@ export async function voidEnvelope(id: string, reason?: string) {
   await requireUser();
   const res = await withTenant(() => sabsignEnvelopesApi.void(id, reason));
   revalidatePath('/sabsign');
+  const ws = await getSabsignWorkspaceId();
+  if (ws) await emitWebhookEvent(ws, 'submission.voided', { envelopeId: id, reason });
   return res;
 }
 
@@ -190,7 +197,31 @@ export async function submitSignature(envelopeId: string, input: SignSubmissionI
       hdrs.get('x-real-ip') ||
       undefined;
   }
-  return sabsignEnvelopesApi.submit(envelopeId, { ...input, ip });
+  const out = await sabsignEnvelopesApi.submit(envelopeId, { ...input, ip });
+
+  // Emit webhooks — public context has no session, so resolve the tenant from
+  // the stored envelope (`esign_envelopes._id` is a string).
+  try {
+    const { db } = await connectToDatabase();
+    const envDoc = await db
+      .collection('esign_envelopes')
+      .findOne({ _id: envelopeId as never }, { projection: { tenantId: 1 } });
+    const ws = (envDoc as { tenantId?: string } | null)?.tenantId;
+    if (ws) {
+      if (input.decline) {
+        await emitWebhookEvent(ws, 'form.declined', { envelopeId, signerId: input.signerId });
+        if (out.envelopeStatus === 'declined')
+          await emitWebhookEvent(ws, 'submission.declined', { envelopeId });
+      } else {
+        await emitWebhookEvent(ws, 'form.completed', { envelopeId, signerId: input.signerId });
+        if (out.envelopeStatus === 'completed')
+          await emitWebhookEvent(ws, 'submission.completed', { envelopeId });
+      }
+    }
+  } catch (e) {
+    console.warn('[sabsign] submit webhook emit failed:', e);
+  }
+  return out;
 }
 
 /**
@@ -585,6 +616,14 @@ export async function finalizeEnvelope(envelopeId: string) {
   await db.collection('esign_envelopes').updateOne(filter, {
     $set: { signedDocId, auditTrailPdfId, updatedAt: new Date().toISOString() },
   });
+
+  if (ws && signedDocId) {
+    await emitWebhookEvent(ws, 'documents.ready', {
+      envelopeId,
+      signedDocId,
+      auditTrailPdfId,
+    });
+  }
 
   revalidatePath('/sabsign');
   return { ok: true as const, signedDocId, auditTrailPdfId };
