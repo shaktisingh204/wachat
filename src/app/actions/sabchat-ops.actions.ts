@@ -515,3 +515,40 @@ export async function gradeConversation(
     return { ok: false, error: getErrorMessage(e) };
   }
 }
+
+export async function manualGradeConversation(
+  conversationId: string,
+  rubricId: string,
+  scores: { key: string; score: number; notes?: string }[],
+  coaching?: string,
+): Promise<{ ok: true; score: SabChatQaScore } | { ok: false; error: string }> {
+  if (!conversationId || !rubricId) return { ok: false, error: 'Conversation and rubric are required.' };
+  if (!scores.length) return { ok: false, error: 'Score at least one criterion.' };
+  try {
+    const score = await scoped(() =>
+      rustClient.sabchatAiQa.manualGrade(conversationId, {
+        rubricId,
+        scores: scores.map((s) => ({
+          key: s.key,
+          score: Number(s.score) || 0,
+          notes: s.notes?.trim() || undefined,
+        })),
+        coaching: coaching?.trim() || undefined,
+      }),
+    );
+    return { ok: true, score };
+  } catch (e) {
+    return { ok: false, error: getErrorMessage(e) };
+  }
+}
+
+export async function listQaScores(
+  q: { rubricId?: string; agentId?: string; gradedBy?: 'ai' | 'agent' } = {},
+): Promise<SabChatQaScore[]> {
+  try {
+    const res = await scoped(() => rustClient.sabchatAiQa.listScores({ ...q, limit: 100 }));
+    return res.items;
+  } catch {
+    return [];
+  }
+}
