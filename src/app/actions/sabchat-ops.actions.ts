@@ -25,6 +25,11 @@ import type {
 import type { SabChatAdReportRow } from '@/lib/rust-client/sabchat-ad-attribution';
 import type { SabChatRetentionRule } from '@/lib/rust-client/sabchat-compliance';
 import type { SabChatShiftRule } from '@/lib/rust-client/sabchat-shifts';
+import type {
+  SabChatSsoConfig,
+  SabChatScimToken,
+  SabChatSsoProvider,
+} from '@/lib/rust-client/sabchat-sso';
 
 async function scoped<T>(fn: () => Promise<T>): Promise<T> {
   const wsId = await getSabchatWorkspaceId();
@@ -292,3 +297,95 @@ export async function listShiftRules(): Promise<SabChatShiftRule[]> {
 
 export const deleteShiftRule = (id: string) =>
   mutate(() => rustClient.sabchatShifts.deleteRule(id), ADMIN_PATH);
+
+export async function saveShiftRule(input: {
+  id?: string;
+  name: string;
+  timezone?: string;
+  presentStatus?: string;
+  absentStatus?: string;
+  enabled?: boolean;
+}): Promise<Mut> {
+  const name = input.name?.trim();
+  if (!name) return { ok: false, error: 'Name is required.' };
+  const body = {
+    name,
+    timezone: input.timezone,
+    presentStatus: input.presentStatus,
+    absentStatus: input.absentStatus,
+    enabled: input.enabled,
+  };
+  return mutate(
+    () =>
+      input.id
+        ? rustClient.sabchatShifts.updateRule(input.id, body)
+        : rustClient.sabchatShifts.createRule(body),
+    ADMIN_PATH,
+  );
+}
+
+/* ── SSO / SCIM ────────────────────────────────────────────────────────── */
+
+export async function listSso(): Promise<SabChatSsoConfig[]> {
+  try {
+    const res = await scoped(() => rustClient.sabchatSso.listConfigs());
+    return res.items;
+  } catch {
+    return [];
+  }
+}
+
+export async function saveSso(input: {
+  id?: string;
+  provider: SabChatSsoProvider;
+  domain?: string;
+  metadataUrl?: string;
+  issuer?: string;
+  clientId?: string;
+  enabled?: boolean;
+}): Promise<Mut> {
+  const body = {
+    provider: input.provider,
+    domain: input.domain,
+    metadataUrl: input.metadataUrl,
+    issuer: input.issuer,
+    clientId: input.clientId,
+    enabled: input.enabled ?? true,
+  };
+  return mutate(
+    () =>
+      input.id
+        ? rustClient.sabchatSso.updateConfig(input.id, body)
+        : rustClient.sabchatSso.createConfig(body),
+    SETTINGS_PATH,
+  );
+}
+
+export const deleteSso = (id: string) =>
+  mutate(() => rustClient.sabchatSso.deleteConfig(id), SETTINGS_PATH);
+
+export async function listScimTokens(): Promise<SabChatScimToken[]> {
+  try {
+    const res = await scoped(() => rustClient.sabchatSso.listScimTokens());
+    return res.items;
+  } catch {
+    return [];
+  }
+}
+
+export async function createScimToken(
+  label: string,
+): Promise<{ ok: true; token?: string } | { ok: false; error: string }> {
+  const l = label?.trim();
+  if (!l) return { ok: false, error: 'Label is required.' };
+  try {
+    const res = await scoped(() => rustClient.sabchatSso.createScimToken({ label: l }));
+    revalidatePath(SETTINGS_PATH);
+    return { ok: true, token: res.token };
+  } catch (e) {
+    return { ok: false, error: getErrorMessage(e) };
+  }
+}
+
+export const revokeScimToken = (id: string) =>
+  mutate(() => rustClient.sabchatSso.revokeScimToken(id), SETTINGS_PATH);

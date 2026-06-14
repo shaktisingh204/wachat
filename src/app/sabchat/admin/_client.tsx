@@ -3,6 +3,7 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import {
+  CalendarClock,
   Inbox as InboxIcon,
   MessageSquareText,
   Plus,
@@ -42,7 +43,9 @@ import {
 } from "@/app/actions/sabchat-config.actions";
 import {
   SABCHAT_WEBHOOK_EVENTS,
+  deleteShiftRule,
   deleteWebhook,
+  saveShiftRule,
   saveWebhook,
   testWebhook,
 } from "@/app/actions/sabchat-ops.actions";
@@ -50,14 +53,16 @@ import type { SabChatInbox } from "@/lib/rust-client/sabchat";
 import type { SabChatMacro } from "@/lib/rust-client/sabchat-macros";
 import type { SabChatDisposition } from "@/lib/rust-client/sabchat-dispositions";
 import type { SabChatWebhookEndpoint } from "@/lib/rust-client/sabchat-webhooks";
+import type { SabChatShiftRule } from "@/lib/rust-client/sabchat-shifts";
 
-type Tab = "inboxes" | "macros" | "dispositions" | "webhooks" | "audit";
+type Tab = "inboxes" | "macros" | "dispositions" | "webhooks" | "shifts" | "audit";
 
 const TABS: { id: Tab; label: string; icon: typeof InboxIcon }[] = [
   { id: "inboxes", label: "Inboxes", icon: InboxIcon },
   { id: "macros", label: "Canned responses", icon: MessageSquareText },
   { id: "dispositions", label: "Dispositions", icon: Tag },
   { id: "webhooks", label: "Webhooks", icon: Webhook },
+  { id: "shifts", label: "Shifts", icon: CalendarClock },
   { id: "audit", label: "Audit log", icon: ScrollText },
 ];
 
@@ -67,12 +72,14 @@ export function AdminClient({
   initialDispositions,
   initialWebhooks,
   initialAudit,
+  initialShifts,
 }: {
   initialInboxes: SabChatInbox[];
   initialMacros: SabChatMacro[];
   initialDispositions: SabChatDisposition[];
   initialWebhooks: SabChatWebhookEndpoint[];
   initialAudit: unknown[];
+  initialShifts: SabChatShiftRule[];
 }) {
   const router = useRouter();
   const { toast } = useToast();
@@ -138,6 +145,7 @@ export function AdminClient({
         {tab === "webhooks" && (
           <WebhooksSection webhooks={initialWebhooks} onAction={handle} />
         )}
+        {tab === "shifts" && <ShiftsSection shifts={initialShifts} onAction={handle} />}
         {tab === "audit" && <AuditSection events={initialAudit} />}
       </div>
     </div>
@@ -249,6 +257,122 @@ function WebhooksSection({
                 setBusy(false);
                 if (ok) {
                   setUrl("");
+                  setOpen(false);
+                }
+              }}
+            >
+              Create
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
+/* -- Shifts -------------------------------------------------------------- */
+
+function ShiftsSection({
+  shifts,
+  onAction,
+}: {
+  shifts: SabChatShiftRule[];
+  onAction: ActionRunner;
+}) {
+  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+  const [open, setOpen] = React.useState(false);
+  const [name, setName] = React.useState("");
+  const [timezone, setTimezone] = React.useState(tz);
+  const [present, setPresent] = React.useState("online");
+  const [absent, setAbsent] = React.useState("offline");
+  const [busy, setBusy] = React.useState(false);
+
+  return (
+    <div>
+      <div className="mb-2 flex items-center justify-between">
+        <p className="text-xs text-[var(--st-text-secondary)]">
+          Auto-set agent presence on a schedule (online during shifts, offline
+          otherwise).
+        </p>
+        <Button variant="primary" size="sm" iconLeft={Plus} onClick={() => setOpen(true)}>
+          New rule
+        </Button>
+      </div>
+      <Card className="divide-y divide-[var(--st-border)] p-0">
+        {shifts.length === 0 ? (
+          <p className="p-6 text-center text-sm text-[var(--st-text-secondary)]">
+            No shift rules yet.
+          </p>
+        ) : (
+          shifts.map((s) => (
+            <div key={s._id} className="flex items-center justify-between gap-3 p-4">
+              <div>
+                <p className="text-sm font-medium text-[var(--st-text)]">{s.name}</p>
+                <p className="text-xs text-[var(--st-text-secondary)]">
+                  {s.timezone ?? "—"} · {s.presentStatus ?? "online"} /{" "}
+                  {s.absentStatus ?? "offline"}
+                </p>
+              </div>
+              <Badge variant={s.enabled ? "default" : "outline"}>
+                {s.enabled ? "Active" : "Paused"}
+              </Badge>
+              <Button
+                variant="ghost"
+                size="sm"
+                iconLeft={Trash2}
+                onClick={() => void onAction(() => deleteShiftRule(s._id), "Deleted")}
+              />
+            </div>
+          ))
+        )}
+      </Card>
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>New shift rule</DialogTitle>
+          </DialogHeader>
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="Name">
+              <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Day shift" autoFocus />
+            </Field>
+            <Field label="Timezone">
+              <Input value={timezone} onChange={(e) => setTimezone(e.target.value)} />
+            </Field>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="Present status">
+              <Input value={present} onChange={(e) => setPresent(e.target.value)} />
+            </Field>
+            <Field label="Absent status">
+              <Input value={absent} onChange={(e) => setAbsent(e.target.value)} />
+            </Field>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" size="sm" onClick={() => setOpen(false)} disabled={busy}>
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              loading={busy}
+              disabled={busy || !name.trim()}
+              onClick={async () => {
+                setBusy(true);
+                const ok = await onAction(
+                  () =>
+                    saveShiftRule({
+                      name,
+                      timezone,
+                      presentStatus: present,
+                      absentStatus: absent,
+                      enabled: true,
+                    }),
+                  "Created",
+                );
+                setBusy(false);
+                if (ok) {
+                  setName("");
                   setOpen(false);
                 }
               }}
