@@ -323,6 +323,7 @@ sabchat-cobrowse = { path = "../sabchat-cobrowse" }
 sabchat-shifts = { path = "../sabchat-shifts" }
 sabchat-community = { path = "../sabchat-community" }
 sabchat-journeys = { path = "../sabchat-journeys" }
+sabchat-ai-actions = { path = "../sabchat-ai-actions" }
 sabchat-csat = { path = "../sabchat-csat" }
 sabchat-dispositions = { path = "../sabchat-dispositions" }
 sabchat-gamification = { path = "../sabchat-gamification" }
