@@ -1,0 +1,153 @@
+/* =========================================================================
+   RecordMapView — location-grouped explorer presentation (composites/record).
+
+   In-house only — NO map SDK. A responsive grid of location cards. Tokens
+   only (--st-*); dark mode comes for free. Scoped under the 20ui roots —
+   `:is(.\32 0ui, .ui20)` — NEVER a bare `.20ui.foo` compound (see 20ui
+   scope-rename fallout).
+
+   Class prefix: `.rmap-*` (record map).
+   ========================================================================= */
+
+:is(.\32 0ui, .ui20) .rmap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-3);
+  min-height: 0;
+  flex: 1;
+  overflow-y: auto;
+  font-family: var(--st-font);
+  font-size: var(--st-font-size);
+  color: var(--st-text);
+}
+
+:is(.\32 0ui, .ui20) .rmap-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 240px;
+}
+
+/* ------------------------------------------------------------- header strip */
+
+:is(.\32 0ui, .ui20) .rmap-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--st-space-2);
+}
+
+:is(.\32 0ui, .ui20) .rmap-head__meta {
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-soft, var(--st-text));
+  font-variant-numeric: tabular-nums;
+}
+
+/* -------------------------------------------------------------------- grid */
+
+:is(.\32 0ui, .ui20) .rmap-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--st-space-3);
+  align-items: start;
+}
+
+/* ---------------------------------------------------------------- location card */
+
+:is(.\32 0ui, .ui20) .rmap-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-2);
+  padding: var(--st-space-3);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-bg, transparent);
+  min-width: 0;
+}
+
+:is(.\32 0ui, .ui20) .rmap-card__head {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  min-width: 0;
+}
+
+:is(.\32 0ui, .ui20) .rmap-card__pin {
+  flex: none;
+  color: var(--st-accent);
+}
+
+:is(.\32 0ui, .ui20) .rmap-card__title {
+  flex: 1;
+  min-width: 0;
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+:is(.\32 0ui, .ui20) .rmap-card__count {
+  flex: none;
+}
+
+:is(.\32 0ui, .ui20) .rmap-card__list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  min-width: 0;
+}
+
+:is(.\32 0ui, .ui20) .rmap-item {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-1);
+  min-width: 0;
+  padding: 2px var(--st-space-1);
+  border-radius: var(--st-radius-sm);
+}
+
+:is(.\32 0ui, .ui20) .rmap-item:hover {
+  background: var(--st-bg-hover, var(--st-bg-secondary));
+}
+
+:is(.\32 0ui, .ui20) .rmap-item__title {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text);
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+:is(.\32 0ui, .ui20) .rmap-item__title:hover {
+  color: var(--st-accent);
+  text-decoration: underline;
+}
+
+:is(.\32 0ui, .ui20) .rmap-card__toggle {
+  align-self: flex-start;
+  margin: 0;
+  padding: var(--st-space-1) var(--st-space-1);
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: var(--st-font-size-sm);
+  color: var(--st-accent);
+  cursor: pointer;
+}
+
+:is(.\32 0ui, .ui20) .rmap-card__toggle:hover {
+  text-decoration: underline;
+}

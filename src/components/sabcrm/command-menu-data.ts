@@ -40,6 +40,7 @@ import {
   listSabcrmObjectsTw,
   listSabcrmRecordsTw,
 } from '@/app/actions/sabcrm-twenty.actions';
+import { searchTextTw } from '@/app/actions/sabcrm-textsearch.actions';
 import type {
   ObjectMetadata,
   SabcrmRustRecord,
@@ -583,6 +584,23 @@ export function useRecordSearch(
     const handle = window.setTimeout(() => {
       void (async () => {
         try {
+          // 1) INDEXED text search first ($text over sabcrm_records, ranked).
+          //    On success WITH hits we use it directly; on error or zero hits
+          //    we fall through to the per-object fan-out below.
+          const indexed = await searchTextTw(term, projectId);
+          if (cancelled) return;
+          if (indexed.ok && indexed.data.length > 0) {
+            // TextSearchHit { object, id, label, snippet?, score } -> RecordResult.
+            const mapped: RecordResult[] = indexed.data.map((hit) => ({
+              slug: hit.object,
+              id: hit.id,
+              label: hit.label,
+            }));
+            setRecords(mapped);
+            return;
+          }
+
+          // 2) Fallback: the existing per-object fan-out via listSabcrmRecordsTw.
           const settled = await Promise.all(
             searchObjects.map(async (obj) => {
               const res = await listSabcrmRecordsTw(

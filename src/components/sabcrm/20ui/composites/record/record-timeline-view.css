@@ -1,0 +1,200 @@
+/* =========================================================================
+   RecordTimelineView — chronological list presentation (composites/record).
+
+   Calm, dense, Linear-grade. Tokens only (--st-*); dark mode comes for free.
+   Scoped under the 20ui roots — `:is(.\32 0ui, .ui20)` — NEVER a bare
+   `.20ui.foo` compound (see 20ui scope-rename fallout).
+
+   Class prefix: `.rtl-*` (record timeline).
+   ========================================================================= */
+
+:is(.\32 0ui, .ui20) .rtl {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-3);
+  min-height: 0;
+  flex: 1;
+  overflow-y: auto;
+  font-family: var(--st-font);
+  font-size: var(--st-font-size);
+  color: var(--st-text);
+}
+
+:is(.\32 0ui, .ui20) .rtl-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 240px;
+}
+
+/* ------------------------------------------------------------- header strip */
+
+:is(.\32 0ui, .ui20) .rtl-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--st-space-2);
+}
+
+:is(.\32 0ui, .ui20) .rtl-head__meta {
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-soft, var(--st-text));
+  font-variant-numeric: tabular-nums;
+}
+
+/* -------------------------------------------------------------------- body */
+
+:is(.\32 0ui, .ui20) .rtl-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-4);
+}
+
+:is(.\32 0ui, .ui20) .rtl-period {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-2);
+  min-width: 0;
+}
+
+:is(.\32 0ui, .ui20) .rtl-period__head {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  margin: 0;
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text-soft, var(--st-text));
+}
+
+:is(.\32 0ui, .ui20) .rtl-period__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.4em;
+  height: 1.4em;
+  padding: 0 0.35em;
+  border-radius: var(--st-radius-full, 999px);
+  background: var(--st-bg-secondary, transparent);
+  font-size: var(--st-font-size-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+:is(.\32 0ui, .ui20) .rtl-list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  min-width: 0;
+}
+
+/* --------------------------------------------------------------------- row */
+
+:is(.\32 0ui, .ui20) .rtl-row {
+  display: grid;
+  grid-template-columns: 20px 8.5em 1fr auto;
+  align-items: start;
+  gap: var(--st-space-2);
+  padding: var(--st-space-2) var(--st-space-2);
+  border-radius: var(--st-radius-sm);
+  min-width: 0;
+}
+
+:is(.\32 0ui, .ui20) .rtl-row:hover {
+  background: var(--st-bg-hover, var(--st-bg-secondary));
+}
+
+:is(.\32 0ui, .ui20) .rtl-row__rail {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-self: stretch;
+  min-height: 100%;
+}
+
+/* The vertical thread connecting the nodes. */
+:is(.\32 0ui, .ui20) .rtl-row__rail::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: -1px;
+  width: 1px;
+  background: var(--st-border);
+}
+
+:is(.\32 0ui, .ui20) .rtl-row__node {
+  position: relative;
+  z-index: 1;
+  margin-top: 0.45em;
+  width: 7px;
+  height: 7px;
+  border-radius: var(--st-radius-full, 999px);
+  background: var(--st-accent);
+  box-shadow: 0 0 0 2px var(--st-bg, transparent);
+}
+
+:is(.\32 0ui, .ui20) .rtl-row__when {
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-soft, var(--st-text));
+  font-variant-numeric: tabular-nums;
+  padding-top: 0.15em;
+  white-space: nowrap;
+}
+
+:is(.\32 0ui, .ui20) .rtl-row__main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-1);
+  min-width: 0;
+}
+
+:is(.\32 0ui, .ui20) .rtl-row__title {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text);
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+:is(.\32 0ui, .ui20) .rtl-row__title:hover {
+  color: var(--st-accent);
+  text-decoration: underline;
+}
+
+/* ------------------------------------------------------------------- chips */
+
+:is(.\32 0ui, .ui20) .rtl-row__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--st-space-1) var(--st-space-3);
+  min-width: 0;
+}
+
+:is(.\32 0ui, .ui20) .rtl-chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--st-space-1);
+  min-width: 0;
+  font-size: var(--st-font-size-sm);
+}
+
+:is(.\32 0ui, .ui20) .rtl-chip__label {
+  color: var(--st-text-tertiary, var(--st-text-soft, var(--st-text)));
+  font-size: var(--st-font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+:is(.\32 0ui, .ui20) .rtl-chip__value {
+  color: var(--st-text-soft, var(--st-text));
+  min-width: 0;
+}

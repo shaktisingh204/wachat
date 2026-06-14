@@ -29,6 +29,7 @@ import {
   type DocFormValues,
   type DocLineDraft,
 } from '../_components/doc-surface';
+import { QuotePricingPreview } from './quote-pricing-preview';
 
 /* ─── Extras bag (typed access) ───────────────────────────────── */
 
@@ -141,6 +142,7 @@ export function buildQuotationFormConfig(opts: {
               disabled={busy}
             />
           </Field>
+          <QuotePricingPreview values={values} patch={patch} busy={busy} />
         </>
       );
     },

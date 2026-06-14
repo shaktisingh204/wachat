@@ -53,6 +53,11 @@ import {
   RecordBoard,
   RecordCell,
   RecordQueue,
+  RecordCalendarView,
+  RecordMapView,
+  RecordTimelineView,
+  pickDateField,
+  pickLocationField,
   ViewBar,
   EMPTY_FILTER_GROUP,
   filterableFields,
@@ -126,6 +131,7 @@ import {
 } from '@/app/actions/sabcrm-stage-gates.actions';
 import { listPipelinesTw } from '@/app/actions/sabcrm-pipelines.actions';
 import { nlToFilterTw } from '@/app/actions/sabcrm-ai.actions';
+import { useFieldOptions } from './use-field-options';
 import type {
   SabcrmRustPipeline,
   SabcrmRustPipelineStage,
@@ -371,15 +377,22 @@ function CreateRecordDialog({
   onClose,
   onCreated,
 }: CreateRecordDialogProps): React.JSX.Element {
+  // Resolve global value-set options for the create form's SELECT/MULTI_SELECT
+  // fields (degrades to inline options on any failure).
+  const { resolveFields } = useFieldOptions(object.slug, object.fields, projectId);
   const primaryFields = React.useMemo(
     () =>
-      object.fields.filter((f) => !f.system && (f.required || f.inTable)),
-    [object],
+      resolveFields(
+        object.fields.filter((f) => !f.system && (f.required || f.inTable)),
+      ),
+    [object, resolveFields],
   );
   const extraFields = React.useMemo(
     () =>
-      object.fields.filter((f) => !f.system && !(f.required || f.inTable)),
-    [object],
+      resolveFields(
+        object.fields.filter((f) => !f.system && !(f.required || f.inTable)),
+      ),
+    [object, resolveFields],
   );
   const [showAll, setShowAll] = React.useState(false);
 
@@ -1107,8 +1120,18 @@ export function RecordSurface(): React.JSX.Element {
 
   const canBoard = !!groupField;
   const availableViews = React.useMemo<RecordViewType[]>(
-    () => (canBoard ? ['table', 'board', 'queue'] : ['table', 'queue']),
-    [canBoard],
+    () => {
+      const objFields = object?.fields ?? [];
+      const hasDate = pickDateField(objFields) !== null;
+      const hasLocation = pickLocationField(objFields) !== null;
+      const out: RecordViewType[] = ['table'];
+      if (canBoard) out.push('board');
+      if (hasDate) out.push('calendar', 'timeline');
+      if (hasLocation) out.push('map');
+      out.push('queue');
+      return out;
+    },
+    [canBoard, object],
   );
 
   // Only snap board → table once the object is KNOWN to lack a group field —
@@ -1588,6 +1611,14 @@ export function RecordSurface(): React.JSX.Element {
   // The first visible column carries the favorite star.
   const firstColumnKey = columns[0]?.key;
 
+  // Resolve global value-set options (settings.valueSetId) for SELECT /
+  // MULTI_SELECT cells; degrades to each field's own inline options on failure.
+  const { resolveField } = useFieldOptions(
+    objectSlug,
+    object?.fields,
+    activeProjectId,
+  );
+
   const renderCell = React.useCallback(
     (record: CrmRecord, field: FieldMetadata): React.ReactNode => {
       const isEditing =
@@ -1600,7 +1631,7 @@ export function RecordSurface(): React.JSX.Element {
             onKeyDown={(e) => e.stopPropagation()}
           >
             <RecordCell
-              field={field}
+              field={resolveField(field)}
               value={record.data[field.key]}
               record={record}
               mode="edit"
@@ -1615,7 +1646,7 @@ export function RecordSurface(): React.JSX.Element {
       const isFav = withStar && favoriteIds.has(record._id);
       const cell = (
         <RecordCell
-          field={field}
+          field={resolveField(field)}
           value={record.data[field.key]}
           record={record}
           relationResolver={relationResolver}
@@ -1680,7 +1711,7 @@ export function RecordSurface(): React.JSX.Element {
         </span>
       );
     },
-    [editing, relationResolver, commitFieldEdit, firstColumnKey, favoriteIds, toggleFavorite, canEdit],
+    [editing, relationResolver, commitFieldEdit, firstColumnKey, favoriteIds, toggleFavorite, canEdit, resolveField],
   );
 
   // Commit a finished resize gesture into the working width set; the active
@@ -2254,6 +2285,94 @@ export function RecordSurface(): React.JSX.Element {
             ) : null}
           </>
         )
+      ) : viewType === 'calendar' && pickDateField(object.fields) ? (
+        <RecordCalendarView
+          object={object}
+          records={records}
+          fields={object.fields}
+          preferredDateKey={groupBy}
+          loading={loadingData}
+          onOpen={(recordId) =>
+            router.push(`/sabcrm/${objectSlug}/${recordId}`)
+          }
+          rowLabel={(record) =>
+            sabcrmRecordLabel(object, { id: record._id, data: record.data })
+          }
+          emptyState={
+            <EmptyState
+              icon={Inbox}
+              title={
+                q || countLeaves(filters) > 0
+                  ? 'No records match'
+                  : `No ${object.labelPlural.toLowerCase()} yet`
+              }
+              description={
+                q || countLeaves(filters) > 0
+                  ? 'Try clearing the search or filters.'
+                  : 'Create the first record to get started.'
+              }
+            />
+          }
+        />
+      ) : viewType === 'timeline' && pickDateField(object.fields) ? (
+        <RecordTimelineView
+          object={object}
+          records={records}
+          fields={object.fields}
+          columns={columns}
+          preferredDateKey={groupBy}
+          loading={loadingData}
+          relationResolver={relationResolver}
+          onOpen={(recordId) =>
+            router.push(`/sabcrm/${objectSlug}/${recordId}`)
+          }
+          rowLabel={(record) =>
+            sabcrmRecordLabel(object, { id: record._id, data: record.data })
+          }
+          emptyState={
+            <EmptyState
+              icon={Inbox}
+              title={
+                q || countLeaves(filters) > 0
+                  ? 'No records match'
+                  : `No ${object.labelPlural.toLowerCase()} yet`
+              }
+              description={
+                q || countLeaves(filters) > 0
+                  ? 'Try clearing the search or filters.'
+                  : 'Create the first record to get started.'
+              }
+            />
+          }
+        />
+      ) : viewType === 'map' && pickLocationField(object.fields) ? (
+        <RecordMapView
+          object={object}
+          records={records}
+          fields={object.fields}
+          loading={loadingData}
+          onOpen={(recordId) =>
+            router.push(`/sabcrm/${objectSlug}/${recordId}`)
+          }
+          rowLabel={(record) =>
+            sabcrmRecordLabel(object, { id: record._id, data: record.data })
+          }
+          emptyState={
+            <EmptyState
+              icon={Inbox}
+              title={
+                q || countLeaves(filters) > 0
+                  ? 'No records match'
+                  : `No ${object.labelPlural.toLowerCase()} yet`
+              }
+              description={
+                q || countLeaves(filters) > 0
+                  ? 'Try clearing the search or filters.'
+                  : 'Create the first record to get started.'
+              }
+            />
+          }
+        />
       ) : (
         <RecordGrid
           object={object}

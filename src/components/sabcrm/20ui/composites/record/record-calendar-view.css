@@ -1,0 +1,195 @@
+/* =========================================================================
+   RecordCalendarView — month-grid presentation (composites/record).
+
+   Calm, dense, Linear-grade. Tokens only (--st-*); dark mode comes for free
+   through the token layer. Every rule is scoped under the 20ui roots —
+   `:is(.\32 0ui, .ui20)` — NEVER a bare `.20ui.foo` compound (the leading
+   digit breaks the selector; see 20ui scope-rename fallout).
+
+   Class prefix: `.rcal-*` (record calendar), mirroring RecordQueue's `.rq-*`.
+   ========================================================================= */
+
+:is(.\32 0ui, .ui20) .rcal {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-3);
+  min-height: 0;
+  flex: 1;
+  font-family: var(--st-font);
+  font-size: var(--st-font-size);
+  color: var(--st-text);
+}
+
+:is(.\32 0ui, .ui20) .rcal-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 240px;
+}
+
+/* ------------------------------------------------------------- header strip */
+
+:is(.\32 0ui, .ui20) .rcal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--st-space-2);
+}
+
+:is(.\32 0ui, .ui20) .rcal-head__nav {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-2);
+}
+
+:is(.\32 0ui, .ui20) .rcal-head__title {
+  margin: 0;
+  min-width: 9.5em;
+  text-align: center;
+  font-size: var(--st-font-size);
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text);
+}
+
+:is(.\32 0ui, .ui20) .rcal-head__meta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-soft, var(--st-text));
+  font-variant-numeric: tabular-nums;
+}
+
+/* -------------------------------------------------------------------- grid */
+
+:is(.\32 0ui, .ui20) .rcal-grid {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  overflow: hidden;
+  background: var(--st-bg, transparent);
+}
+
+:is(.\32 0ui, .ui20) .rcal-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  border-bottom: 1px solid var(--st-border);
+  background: var(--st-bg-secondary, transparent);
+}
+
+:is(.\32 0ui, .ui20) .rcal-weekday {
+  padding: var(--st-space-1) var(--st-space-2);
+  font-size: var(--st-font-size-xs);
+  font-weight: var(--st-fw-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--st-text-tertiary, var(--st-text-soft, var(--st-text)));
+  text-align: left;
+}
+
+:is(.\32 0ui, .ui20) .rcal-weeks {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  grid-auto-rows: minmax(96px, 1fr);
+}
+
+/* --------------------------------------------------------------- day cells */
+
+:is(.\32 0ui, .ui20) .rcal-cell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-1);
+  min-width: 0;
+  padding: var(--st-space-1) var(--st-space-2) var(--st-space-2);
+  border-right: 1px solid var(--st-border);
+  border-bottom: 1px solid var(--st-border);
+  background: var(--st-bg, transparent);
+}
+
+/* Trim the trailing borders so the grid edge stays clean. */
+:is(.\32 0ui, .ui20) .rcal-weeks > .rcal-cell:nth-child(7n) {
+  border-right: 0;
+}
+:is(.\32 0ui, .ui20) .rcal-weeks > .rcal-cell:nth-last-child(-n + 7) {
+  border-bottom: 0;
+}
+
+:is(.\32 0ui, .ui20) .rcal-cell--muted {
+  background: var(--st-bg-secondary, transparent);
+}
+
+:is(.\32 0ui, .ui20) .rcal-cell--muted .rcal-cell__num {
+  color: var(--st-text-tertiary, var(--st-text-soft, var(--st-text)));
+}
+
+:is(.\32 0ui, .ui20) .rcal-cell__num {
+  font-size: var(--st-font-size-xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--st-text-soft, var(--st-text));
+  align-self: flex-start;
+}
+
+:is(.\32 0ui, .ui20) .rcal-cell--today .rcal-cell__num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.4em;
+  height: 1.4em;
+  padding: 0 0.3em;
+  border-radius: var(--st-radius-full, 999px);
+  background: var(--st-accent);
+  color: var(--st-on-accent, #fff);
+  font-weight: var(--st-fw-medium);
+}
+
+:is(.\32 0ui, .ui20) .rcal-cell__events {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  min-width: 0;
+}
+
+:is(.\32 0ui, .ui20) .rcal-event {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 1px var(--st-space-1);
+  border: 0;
+  border-radius: var(--st-radius-sm);
+  background: var(--st-accent-soft, var(--st-bg-secondary));
+  font: inherit;
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text);
+  cursor: pointer;
+  text-align: left;
+}
+
+:is(.\32 0ui, .ui20) .rcal-event:hover {
+  background: var(--st-bg-hover, var(--st-bg-secondary));
+}
+
+:is(.\32 0ui, .ui20) .rcal-event__dot {
+  flex: none;
+  color: var(--st-accent);
+}
+
+:is(.\32 0ui, .ui20) .rcal-event__label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+:is(.\32 0ui, .ui20) .rcal-cell__more {
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-soft, var(--st-text));
+  padding: 0 var(--st-space-1);
+}

@@ -48,6 +48,7 @@ import {
   parseExchangeRate,
   readQuotationExtras,
 } from './quotation-form';
+import { maybeRequestDiscountApproval } from './quote-approval-submit';
 
 import { searchSabcrmFinanceParties } from '@/app/actions/sabcrm-finance-invoices.actions';
 import {
@@ -298,6 +299,11 @@ export function QuotationsClient({
               ? `${res.data.quotationNo} sent.`
               : `${res.data.quotationNo} saved as draft.`,
           );
+          void maybeRequestDiscountApproval({
+            lines: values.lines,
+            quoteRef: res.data.quotationNo,
+            targetRecordId: res.data._id,
+          });
           setRefreshToken((t) => t + 1);
           router.refresh();
           return { ok: true };

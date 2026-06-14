@@ -98,6 +98,8 @@ import {
   quotationToFormValues,
   readQuotationExtras,
 } from '../quotation-form';
+import { QuoteShareButton } from '../quote-share-button';
+import { maybeRequestDiscountApproval } from '../quote-approval-submit';
 
 /* ─── Main client ─────────────────────────────────────────────── */
 
@@ -324,6 +326,13 @@ export function QuotationDetailClient({
       >
         Print
       </Button>
+      {status !== 'draft' && status !== 'converted' ? (
+        <QuoteShareButton
+          quoteId={quotation._id}
+          quotationNo={quotation.quotationNo}
+          disabled={transitioning}
+        />
+      ) : null}
       {canEdit ? (
         <Button
           variant="secondary"
@@ -507,6 +516,11 @@ export function QuotationDetailClient({
           });
           if (!res.ok) return res;
           toast.success(`${res.data.quotationNo} updated.`);
+          void maybeRequestDiscountApproval({
+            lines: values.lines,
+            quoteRef: res.data.quotationNo,
+            targetRecordId: quotation._id,
+          });
           refresh();
           return { ok: true };
         }}

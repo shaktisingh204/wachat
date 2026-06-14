@@ -31,7 +31,11 @@ import "server-only";
 
 import { ObjectId, type Filter, type Sort } from "mongodb";
 
-import { sabcrmRecords } from "./db";
+import { sabcrmRecords, type SabcrmRecordDoc } from "./db";
+import {
+  applyReadEnforcement,
+  redactReadResults,
+} from "./access-readpath.server";
 import { getObject } from "./objects.server";
 import type {
   CrmRecord,
@@ -629,7 +633,18 @@ export async function listRecords(
   }
 
   const col = await sabcrmRecords();
-  const filter = buildFilter(projectId, userId, query, object);
+  const baseFilter = buildFilter(projectId, userId, query, object);
+  // DEFAULT-OFF read-path access enforcement: returns baseFilter UNCHANGED (same
+  // reference) when all per-project enforcement flags are off — byte-for-byte
+  // today's read. When ON, AND-narrows with the compiled accessible clause
+  // (+ additive sharing / territory owner union), deny-by-default, fail-closed.
+  // NATIVE-TS read path only; the Rust read path is NOT covered (two-store gap).
+  const filter = await applyReadEnforcement(
+    projectId,
+    userId,
+    query.object,
+    baseFilter as unknown as Record<string, unknown>,
+  );
   const sort = buildSort(query, object);
   const page = clampPage(query.page);
   const pageSize = clampPageSize(query.pageSize);
@@ -646,8 +661,16 @@ export async function listRecords(
     col.countDocuments(filter as unknown as Filter<Record<string, unknown>>),
   ]);
 
-  const records = rawDocs.map((doc) =>
+  const mapped = rawDocs.map((doc) =>
     withLabel(toCrmRecord(asStored(doc as Record<string, unknown>)), object),
+  );
+  // DEFAULT-OFF FLS read redaction: returns `mapped` UNCHANGED when the FLS flag
+  // is off; strips hidden field data for the viewer's role when on (fail-OPEN).
+  const records = await redactReadResults(
+    projectId,
+    userId,
+    query.object,
+    mapped,
   );
 
   return { records, total, page, pageSize };
@@ -666,18 +689,41 @@ export async function getRecord(
   if (!_id) return null;
 
   const col = await sabcrmRecords();
-  const raw = await col.findOne({
-    _id,
-    projectId,
-    userId,
-  } as unknown as Filter<Record<string, unknown>>);
+  const baseFilter: Record<string, unknown> = { _id, projectId, userId };
+  const raw = await col.findOne(
+    baseFilter as unknown as Filter<Record<string, unknown>>,
+  );
   if (!raw) return null;
 
   const record = toCrmRecord(asStored(raw as Record<string, unknown>));
   const object = await getObject(projectId, record.object);
   if (!object) return null;
 
-  return withLabel(record, object);
+  // DEFAULT-OFF read-path access enforcement on the single-record fetch. When
+  // all per-project flags are off, applyReadEnforcement returns the SAME
+  // baseFilter reference, so this branch is skipped and the fetch above already
+  // settled the result (byte-for-byte today). When ON, re-confirm visibility of
+  // THIS record under the accessible clause; a denied record (or fail-closed
+  // error) yields null. NATIVE-TS read path only (two-store gap).
+  const enforcedFilter = await applyReadEnforcement(
+    projectId,
+    userId,
+    record.object,
+    baseFilter,
+  );
+  if (enforcedFilter !== baseFilter) {
+    const visible = await col.findOne(
+      enforcedFilter as unknown as Filter<SabcrmRecordDoc>,
+    );
+    if (!visible) return null;
+  }
+
+  // DEFAULT-OFF FLS read redaction for the single record (fail-OPEN).
+  const labelled = withLabel(record, object);
+  const [redacted] = await redactReadResults(projectId, userId, record.object, [
+    labelled,
+  ]);
+  return redacted ?? labelled;
 }
 
 /**

@@ -134,6 +134,8 @@ import {
   rustRecordToCrm,
   collectRelationLabels,
 } from '../record-surface-adapter';
+import { useFieldOptions } from '../use-field-options';
+import { putRecord } from '@/lib/sabcrm/offline-cache';
 import { RecordDetailWhatsappTab } from './record-detail-whatsapp-tab';
 import { RecordDetailEmailTab } from './record-detail-email-tab';
 import { CommentsPanel } from './_comments/comments-panel';
@@ -1160,6 +1162,29 @@ export function RecordDetailSurface(): React.JSX.Element {
     [rustRecord],
   );
 
+  // Resolve global value-set options (settings.valueSetId) for SELECT /
+  // MULTI_SELECT fields. Degrades to each field's own inline options on any
+  // failure, so the detail panel renders exactly as today when nothing resolves.
+  const { resolveFields } = useFieldOptions(
+    objectSlug,
+    object?.fields,
+    activeProjectId,
+  );
+
+  // Best-effort offline cache: once a record is loaded, stash a snapshot so the
+  // PWA shell can render its last-seen state offline. Browser-guarded + failure-
+  // swallowing inside putRecord — a no-op on the server / when IndexedDB is
+  // unavailable, and never able to disturb the surface.
+  React.useEffect(() => {
+    if (!record || !object || !rustRecord) return;
+    void putRecord({
+      _id: record._id,
+      object: record.object,
+      data: record.data,
+      label: sabcrmRecordLabel(object, rustRecord),
+    });
+  }, [record, object, rustRecord]);
+
   /* ---- relation labels (list-surface convention) -------------------------- */
 
   const relationLabelsRef = React.useRef(new Map<string, string>());
@@ -1932,7 +1957,7 @@ export function RecordDetailSurface(): React.JSX.Element {
         <RecordDetail
           object={object}
           record={record}
-          fields={object.fields}
+          fields={resolveFields(object.fields)}
           titleFieldKey={titleFieldKey}
           onFieldCommit={handleFieldCommit}
           relationResolver={relationResolver}
