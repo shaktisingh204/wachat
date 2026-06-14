@@ -4,6 +4,7 @@ import * as React from "react";
 import {
   ArrowDownToLine,
   ArrowUpFromLine,
+  BookOpen,
   Building2,
   CheckCheck,
   CheckCircle2,
@@ -62,6 +63,7 @@ import {
   pullContactFromCrm,
   pushContactToCrm,
 } from "@/app/actions/sabchat-crm-bridge.actions";
+import { gradeConversation, listQaRubrics } from "@/app/actions/sabchat-ops.actions";
 import type {
   ContentBlock,
   ConversationStatus,
@@ -72,6 +74,7 @@ import type {
 } from "@/lib/rust-client/sabchat";
 import type { SabChatMacro } from "@/lib/rust-client/sabchat-macros";
 import type { SabChatDisposition } from "@/lib/rust-client/sabchat-dispositions";
+import type { ResolveBotSource } from "@/lib/rust-client/sabchat-ai-resolve-bot";
 
 /* ------------------------------------------------------------------------
  * Helpers
@@ -725,6 +728,14 @@ export function InboxClient({
   const [copilotBusy, setCopilotBusy] = React.useState<string | null>(null);
   const [summary, setSummary] = React.useState<string | null>(null);
   const [churnRisk, setChurnRisk] = React.useState<number | null>(null);
+  // Answer inspection — provenance of the last KB-suggested reply.
+  const [kbInspect, setKbInspect] = React.useState<{
+    confidence: number;
+    escalate: boolean;
+    sources: ResolveBotSource[];
+  } | null>(null);
+  // CX score — quality grade for this conversation (no survey needed).
+  const [cxScore, setCxScore] = React.useState<{ total: number; max: number } | null>(null);
 
   const runDraft = async () => {
     if (!selectedId) return;
@@ -773,9 +784,37 @@ export function InboxClient({
     setCopilotBusy(null);
     if (res.ok) {
       setDraft(res.answer);
-      setCopilotOpen(false);
+      // Keep the panel open and surface provenance (answer inspection) so the
+      // agent can see which KB sources produced the reply + the confidence.
+      setKbInspect({
+        confidence: res.confidence,
+        escalate: res.escalate,
+        sources: res.sources ?? [],
+      });
     } else {
       toast({ title: "Copilot failed", description: res.error, variant: "destructive" });
+    }
+  };
+
+  const runGrade = async () => {
+    if (!selectedId) return;
+    setCopilotBusy("grade");
+    const rubrics = await listQaRubrics();
+    const rubric = rubrics.find((r) => r.active) ?? rubrics[0];
+    if (!rubric) {
+      setCopilotBusy(null);
+      toast({
+        title: "No QA rubric defined",
+        description: "Create one under Admin › Quality (QA) first.",
+      });
+      return;
+    }
+    const res = await gradeConversation(selectedId, rubric._id);
+    setCopilotBusy(null);
+    if (res.ok) {
+      setCxScore({ total: res.score.total, max: res.score.max });
+    } else {
+      toast({ title: "Grading failed", description: res.error, variant: "destructive" });
     }
   };
 
@@ -783,6 +822,8 @@ export function InboxClient({
   React.useEffect(() => {
     setSummary(null);
     setChurnRisk(null);
+    setKbInspect(null);
+    setCxScore(null);
     setCopilotOpen(false);
   }, [selectedId]);
 
@@ -1071,7 +1112,61 @@ export function InboxClient({
                         >
                           Sentiment
                         </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          loading={copilotBusy === "grade"}
+                          onClick={() => void runGrade()}
+                        >
+                          Grade CX
+                        </Button>
                       </div>
+                      {kbInspect ? (
+                        <div className="mt-2 rounded-md bg-[var(--st-bg-muted)] p-2 text-xs text-[var(--st-text)]">
+                          <p className="mb-1 flex items-center justify-between font-semibold">
+                            <span>Answer source</span>
+                            <span
+                              className={
+                                kbInspect.confidence >= 0.6
+                                  ? "text-[var(--st-status-ok)]"
+                                  : "text-amber-500"
+                              }
+                            >
+                              {Math.round(kbInspect.confidence * 100)}% conf.
+                            </span>
+                          </p>
+                          {kbInspect.sources.length ? (
+                            <ul className="space-y-0.5">
+                              {kbInspect.sources.map((s) => (
+                                <li key={s.id} className="flex items-center gap-1 truncate">
+                                  <BookOpen className="h-3 w-3 shrink-0 opacity-60" aria-hidden />
+                                  <span className="truncate">{s.title}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          ) : (
+                            <p className="text-[var(--st-text-secondary)]">
+                              No KB source — answer generated without a matching article.
+                            </p>
+                          )}
+                          {kbInspect.escalate ? (
+                            <p className="mt-1 font-medium text-amber-500">
+                              Low confidence — consider escalating to a human.
+                            </p>
+                          ) : null}
+                        </div>
+                      ) : null}
+                      {cxScore ? (
+                        <div className="mt-2 flex items-center justify-between rounded-md bg-[var(--st-bg-muted)] p-2 text-xs">
+                          <span className="font-semibold text-[var(--st-text)]">CX score</span>
+                          <span className="font-semibold text-[var(--st-text)]">
+                            {cxScore.total}/{cxScore.max}
+                            <span className="ml-1 font-normal text-[var(--st-text-secondary)]">
+                              ({cxScore.max ? Math.round((cxScore.total / cxScore.max) * 100) : 0}%)
+                            </span>
+                          </span>
+                        </div>
+                      ) : null}
                       {summary ? (
                         <div className="mt-2 rounded-md bg-[var(--st-bg-muted)] p-2 text-xs text-[var(--st-text)]">
                           <p className="mb-1 font-semibold">Summary</p>
