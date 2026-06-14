@@ -193,7 +193,7 @@ export function JourneysClient({
     if (res.ok) {
       toast({
         title: "Tick complete",
-        description: `${res.advanced} advanced · ${res.messagesEnqueued} queued · ${res.completed} done`,
+        description: `${res.advanced} advanced · ${res.delivered} delivered · ${res.completed} done`,
       });
       void refreshList();
     } else {
