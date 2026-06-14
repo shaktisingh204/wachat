@@ -40,7 +40,6 @@ import {
   SabThriveIcon,
   SabVaultIcon,
   SabCallIcon,
-  SabWaIcon,
   SabWebinarIcon,
   SabWorkerlyIcon,
   SettingsIcon,
@@ -94,7 +93,7 @@ export function isWindowableApp(app: SabAppDescriptor): boolean {
 // deleted in P9 (routes + actions removed) and is no longer an app at all.
 // `email` is retired — its surfaces are consolidated into SabMail (/sabmail),
 // which has its own dock app; the proxy 308-redirects /dashboard/email/* there.
-const HIDDEN_APP_IDS = new Set(["sabwa", "hrm", "seo", "email"]);
+const HIDDEN_APP_IDS = new Set(["hrm", "seo", "email"]);
 
 const SAB_APPS_ALL: SabAppDescriptor[] = [
   {
@@ -112,14 +111,6 @@ const SAB_APPS_ALL: SabAppDescriptor[] = [
     Icon: WaChatIcon,
     migration: "done", // 95/95 pages on SabUI
     isActive: (p) => p === "/wachat" || !!p?.startsWith("/wachat/"),
-  },
-  {
-    id: "sabwa",
-    name: "SabWa",
-    href: "/sabwa",
-    Icon: SabWaIcon,
-    migration: "done",
-    isActive: (p) => p === "/sabwa" || !!p?.startsWith("/sabwa/"),
   },
   {
     id: "facebook",

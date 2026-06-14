@@ -67,21 +67,6 @@ export function SabPayIcon(props: IconProps) {
   );
 }
 
-// Three QR finder squares + WhatsApp chat bubble in the fourth corner.
-export function SabWaIcon(props: IconProps) {
-  return (
-    <svg {...base(props)}>
-      <rect x="3" y="3" width="7" height="7" rx="1" />
-      <rect x="5.5" y="5.5" width="2" height="2" fill="currentColor" stroke="none" />
-      <rect x="14" y="3" width="7" height="7" rx="1" />
-      <rect x="16.5" y="5.5" width="2" height="2" fill="currentColor" stroke="none" />
-      <rect x="3" y="14" width="7" height="7" rx="1" />
-      <rect x="5.5" y="16.5" width="2" height="2" fill="currentColor" stroke="none" />
-      <path d="M14 14.5a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 .5.5v4.5a.5.5 0 0 1-.5.5H17l-2 2v-2h-.5a.5.5 0 0 1-.5-.5v-4.5Z" />
-    </svg>
-  );
-}
-
 // Two interlocked circles — Meta infinity. r=4.25 each, centers 8 apart.
 export function MetaSuiteIcon(props: IconProps) {
   return (

@@ -572,15 +572,6 @@ const GLYPHS: Record<string, React.ReactNode> = {
     </>
   ),
 
-  /* Hidden-but-registered modules — covered so nothing ever falls back. */
-  sabwa: (
-    <>
-      <path fill="#fff" fillRule="evenodd" d="M11 11h9.5v9.5H11V11Zm2.8 2.8v3.9h3.9v-3.9h-3.9Z" />
-      <path fill="#fff" fillRule="evenodd" d="M11 27.5h9.5V37H11v-9.5Zm2.8 2.8v3.9h3.9v-3.9h-3.9Z" />
-      <path fill="#fff" d="M25.5 12.5h8a3.5 3.5 0 0 1 3.5 3.5v3a3.5 3.5 0 0 1-3.5 3.5h-3.4L26 25.6a.7.7 0 0 1-1.13-.55V22.4a3.5 3.5 0 0 1-2.87-3.4v-3a3.5 3.5 0 0 1 3.5-3.5Z" />
-      <rect x={25.5} y={27.5} width={11.5} height={9.5} rx={2.4} fill="#fff" opacity={0.65} />
-    </>
-  ),
   crm: (
     <g fill="#fff">
       <path d="M13 17.5h22a3 3 0 0 1 3 3V34a3 3 0 0 1-3 3H13a3 3 0 0 1-3-3V20.5a3 3 0 0 1 3-3Z" />

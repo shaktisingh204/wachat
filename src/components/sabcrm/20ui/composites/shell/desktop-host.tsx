@@ -32,7 +32,7 @@ import { useIsEmbedded } from "./use-chromeless";
  * SabHomeShell today (so the dock keeps appearing where it used to). `/sabcrm`
  * is intentionally excluded: it uses its own outer shell (app rail, no dock).
  */
-const APP_PREFIXES = ["/dashboard", "/wachat", "/sabsms", "/sabmail", "/sabpay", "/sabwa"];
+const APP_PREFIXES = ["/dashboard", "/wachat", "/sabsms", "/sabmail", "/sabpay"];
 
 function isDesktopRoute(pathname: string | null): boolean {
   if (!pathname) return false;
