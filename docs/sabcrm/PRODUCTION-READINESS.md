@@ -71,11 +71,20 @@ byte-for-byte identical to today. **Do NOT enable in production without:**
 
 1. **A security review** of the resolver + each tenant's config (sharing targets,
    territory trees, FLS matrices, owner-field coverage).
-2. **Closing the two-store gap (the one real code task):** the read-path enforcement
-   (`access-readpath.server`) attaches to the **native-TS** read path only. The **Rust**
-   read path (`/v1/sabcrm/*` record reads) is NOT covered — add the parallel filter
-   crate-side, or enforcement is bypassable via the Rust API. Until then the flag is not
-   a hard boundary.
+2. **Two-store gap — now closed in code (still gated on the review above).** The
+   read-path enforcement now covers BOTH stores: `resolveAccessFilterParam`
+   (`access-readpath.server`) serializes the composed clause and the Rust
+   `sabcrm-records` crate `$and`-merges it server-side (`apply_access_filter`,
+   `$where`/`$expr`/`$function`/`$accumulator` rejected, 6 unit tests green), plus
+   FLS redaction on the returned rows. It is threaded through the central Tw read
+   seams (`listSabcrmRecordsTw`, `count`, `group`, `aggregate`, `get`, `related`,
+   relation-picker `search-options`). The access POLICY still lives in ONE place
+   (the TS engine); Rust only applies the resolved clause. **Remaining seams to
+   wire the same way before treating the flag as a hard boundary:** the
+   cross-object global `search` endpoint and any bespoke call site that hits
+   `sabcrmRecordsApi` directly instead of the Tw seams. The Rust write path
+   (create/update/delete) is gated separately and is out of scope for read
+   enforcement.
 3. **Per-role dry-run** (`dryRunForViewer`) to confirm expected access loss before flip.
 4. Rollback is a single toggle (set the flag false ⇒ instant return to today's behavior).
 
