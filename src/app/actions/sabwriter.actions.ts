@@ -67,8 +67,8 @@ async function requireUser() {
   return session.user;
 }
 
-const DOCS_LIST_PATH = '/dashboard/sabsign/docs';
-const DOC_PATH = (id: string) => `/dashboard/sabsign/docs/${id}`;
+const DOCS_LIST_PATH = '/sabsign/docs';
+const DOC_PATH = (id: string) => `/sabsign/docs/${id}`;
 
 // ── Documents ────────────────────────────────────────────────────────
 
@@ -373,7 +373,7 @@ export async function sendDocumentForSignature(
   });
 
   revalidatePath(DOC_PATH(docId));
-  revalidatePath('/dashboard/sabsign');
+  revalidatePath('/sabsign');
   return { documentId: docId, envelopeId };
 }
 

@@ -1,509 +1,345 @@
-use crate::mock_db::MockDb;
-use crate::models::*;
+//! HTTP handlers for the SabSign templates API (`/v1/sabsign/templates`).
+//!
+//! Tenant-scoped CRUD over `esign_templates`. `instantiate` binds concrete
+//! signers to a template's recipient slots and writes a fresh draft envelope
+//! into `esign_envelopes` (the same collection the envelopes crate owns).
+
 use axum::{
-    extract::{Path, Query, State},
-    http::StatusCode,
-    response::IntoResponse,
     Json,
+    extract::{Path, Query, State},
 };
+use bson::{Document, doc};
 use chrono::Utc;
-use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+use crm_common::{
+    pagination::{clamp_limit, skip_for},
+    search::build_q_filter,
+};
+use futures::TryStreamExt;
+use mongodb::options::FindOptions;
+use sabnode_auth::AuthUser;
+use sabnode_common::{ApiError, Result};
+use sabnode_db::mongo::MongoHandle;
+use sabsign_envelopes::types::{EnvelopeSigner, SabSignEnvelope};
+use serde_json::json;
+use tracing::{instrument, warn};
 use uuid::Uuid;
 
-#[derive(Deserialize)]
-pub struct PaginationParams {
-    pub page: Option<usize>,
-    pub limit: Option<usize>,
+use crate::dto::{
+    CreateTemplateInput, CreateTemplateResponse, DeleteTemplateResponse, InstantiateInput,
+    InstantiateResponse, ListQuery, ListResponse, UpdateTemplateInput,
+};
+use crate::types::{SabSignTemplate, VALID_STATUSES};
+
+const COLL: &str = "esign_templates";
+const ENVELOPES_COLL: &str = "esign_envelopes";
+const VALID_ROUTING_ORDERS: &[&str] = &["sequential", "parallel", "conditional"];
+
+fn now_iso() -> String {
+    Utc::now().to_rfc3339()
 }
 
-#[derive(Deserialize)]
-pub struct SearchParams {
-    pub query: Option<String>,
-    pub tag: Option<String>,
+fn gen_id() -> String {
+    bson::oid::ObjectId::new().to_hex()
 }
 
-// 1. Create Template
-pub async fn create_template(
-    State(db): State<MockDb>,
-    Json(payload): Json<CreateTemplateRequest>,
-) -> impl IntoResponse {
-    let id = Uuid::new_v4();
-    let now = Utc::now();
-    let user_id = Uuid::new_v4(); // Mock user
-
-    let template = Template {
-        id,
-        name: payload.name,
-        description: payload.description,
-        created_by: user_id,
-        created_at: now,
-        updated_at: now,
-        is_active: true,
-        tags: payload.tags,
-        version: 1,
-        roles: payload.roles,
-        merge_fields: payload.merge_fields,
-        settings: payload.settings,
-    };
-
-    let version = TemplateVersion {
-        version_id: Uuid::new_v4(),
-        template_id: id,
-        version_number: 1,
-        created_at: now,
-        created_by: user_id,
-        snapshot: template.clone(),
-        change_log: "Initial creation".to_string(),
-    };
-
-    db.templates.write().await.insert(id, template.clone());
-    db.template_versions.write().await.insert(id, vec![version]);
-
-    (StatusCode::CREATED, Json(template))
+fn gen_token() -> String {
+    format!("{}{}", Uuid::new_v4().simple(), Uuid::new_v4().simple())
 }
 
-// 2. Get Template
-pub async fn get_template(State(db): State<MockDb>, Path(id): Path<Uuid>) -> impl IntoResponse {
-    let templates = db.templates.read().await;
-    match templates.get(&id) {
-        Some(t) => (StatusCode::OK, Json(t.clone())).into_response(),
-        None => (StatusCode::NOT_FOUND, "Template not found").into_response(),
-    }
-}
-
-// 3. Update Template (creates new version)
-pub async fn update_template(
-    State(db): State<MockDb>,
-    Path(id): Path<Uuid>,
-    Json(payload): Json<UpdateTemplateRequest>,
-) -> impl IntoResponse {
-    let mut templates = db.templates.write().await;
-    if let Some(template) = templates.get_mut(&id) {
-        let old_version = template.version;
-        template.version += 1;
-        template.updated_at = Utc::now();
-
-        if let Some(n) = payload.name {
-            template.name = n;
-        }
-        if let Some(d) = payload.description {
-            template.description = Some(d);
-        }
-        if let Some(a) = payload.is_active {
-            template.is_active = a;
-        }
-        if let Some(r) = payload.roles {
-            template.roles = r;
-        }
-        if let Some(m) = payload.merge_fields {
-            template.merge_fields = m;
-        }
-        if let Some(s) = payload.settings {
-            template.settings = s;
-        }
-        if let Some(t) = payload.tags {
-            template.tags = t;
-        }
-
-        let version_snap = TemplateVersion {
-            version_id: Uuid::new_v4(),
-            template_id: id,
-            version_number: template.version,
-            created_at: Utc::now(),
-            created_by: template.created_by,
-            snapshot: template.clone(),
-            change_log: payload
-                .change_log
-                .unwrap_or_else(|| format!("Updated from version {}", old_version)),
-        };
-
-        let mut versions = db.template_versions.write().await;
-        versions.entry(id).or_default().push(version_snap);
-
-        (StatusCode::OK, Json(template.clone())).into_response()
+fn validate_status(s: &str) -> Result<()> {
+    if VALID_STATUSES.contains(&s) {
+        Ok(())
     } else {
-        (StatusCode::NOT_FOUND, "Template not found").into_response()
+        Err(ApiError::Validation(format!(
+            "status must be one of {VALID_STATUSES:?}"
+        )))
     }
 }
 
-// 4. Delete Template
-pub async fn delete_template(State(db): State<MockDb>, Path(id): Path<Uuid>) -> impl IntoResponse {
-    let mut templates = db.templates.write().await;
-    if templates.remove(&id).is_some() {
-        let mut versions = db.template_versions.write().await;
-        versions.remove(&id);
-        (StatusCode::NO_CONTENT, "").into_response()
+fn validate_routing_order(s: &str) -> Result<()> {
+    if VALID_ROUTING_ORDERS.contains(&s) {
+        Ok(())
     } else {
-        (StatusCode::NOT_FOUND, "Template not found").into_response()
+        Err(ApiError::Validation(format!(
+            "routingOrder must be one of {VALID_ROUTING_ORDERS:?}"
+        )))
     }
 }
 
-// 5. List Templates (Paginated)
+/// Ensure each instantiated signer carries an id + access token + order +
+/// status + auth method.
+fn normalise_signers(signers: Vec<EnvelopeSigner>) -> Result<Vec<EnvelopeSigner>> {
+    let mut out = Vec::new();
+    for (i, mut s) in signers.into_iter().enumerate() {
+        if s.email.trim().is_empty() {
+            return Err(ApiError::Validation("every signer needs an email".into()));
+        }
+        if s.id.trim().is_empty() {
+            s.id = gen_token();
+        }
+        if s.access_token.as_deref().unwrap_or("").is_empty() {
+            s.access_token = Some(gen_token());
+        }
+        if s.order == 0 {
+            s.order = (i as i32) + 1;
+        }
+        if s.status.trim().is_empty() {
+            s.status = "pending".into();
+        }
+        if s.auth_method.trim().is_empty() {
+            s.auth_method = "email".into();
+        }
+        out.push(s);
+    }
+    Ok(out)
+}
+
+async fn load_scoped(mongo: &MongoHandle, tenant: &str, id: &str) -> Result<SabSignTemplate> {
+    mongo
+        .collection::<SabSignTemplate>(COLL)
+        .find_one(doc! { "_id": id, "tenantId": tenant })
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("esign_templates.find_one")))?
+        .ok_or_else(|| ApiError::NotFound("template".into()))
+}
+
+#[instrument(skip_all, fields(tenant = %user.tenant_id))]
 pub async fn list_templates(
-    State(db): State<MockDb>,
-    Query(params): Query<PaginationParams>,
-) -> impl IntoResponse {
-    let templates = db.templates.read().await;
-    let page = params.page.unwrap_or(1).max(1);
-    let limit = params.limit.unwrap_or(10).max(1);
-
-    let all: Vec<_> = templates.values().cloned().collect();
-    let total = all.len();
-    let skip = (page - 1) * limit;
-
-    let data = all.into_iter().skip(skip).take(limit).collect();
-
-    Json(PaginatedResponse {
-        data,
-        total,
-        page,
-        limit,
-    })
-}
-
-// 6. Clone Template
-pub async fn clone_template(
-    State(db): State<MockDb>,
-    Path(id): Path<Uuid>,
-    Json(payload): Json<CloneTemplateRequest>,
-) -> impl IntoResponse {
-    let templates_read = db.templates.read().await;
-    if let Some(source) = templates_read.get(&id) {
-        let new_id = Uuid::new_v4();
-        let now = Utc::now();
-        let mut cloned = source.clone();
-
-        cloned.id = new_id;
-        cloned.name = payload.new_name;
-        cloned.created_at = now;
-        cloned.updated_at = now;
-        cloned.version = 1;
-
-        drop(templates_read);
-
-        let version = TemplateVersion {
-            version_id: Uuid::new_v4(),
-            template_id: new_id,
-            version_number: 1,
-            created_at: now,
-            created_by: cloned.created_by,
-            snapshot: cloned.clone(),
-            change_log: format!("Cloned from {}", id),
-        };
-
-        db.templates.write().await.insert(new_id, cloned.clone());
-        db.template_versions
-            .write()
-            .await
-            .insert(new_id, vec![version]);
-
-        (StatusCode::CREATED, Json(cloned)).into_response()
-    } else {
-        (StatusCode::NOT_FOUND, "Source template not found").into_response()
+    user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Query(q): Query<ListQuery>,
+) -> Result<Json<ListResponse>> {
+    let mut filter = doc! { "tenantId": &user.tenant_id };
+    if let Some(s) = q.status.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+        if s != "all" {
+            filter.insert("status", s);
+        }
     }
-}
-
-// 7. Archive Template
-pub async fn archive_template(State(db): State<MockDb>, Path(id): Path<Uuid>) -> impl IntoResponse {
-    let mut templates = db.templates.write().await;
-    if let Some(t) = templates.get_mut(&id) {
-        t.is_active = false;
-        t.updated_at = Utc::now();
-        (StatusCode::OK, Json(t.clone())).into_response()
-    } else {
-        (StatusCode::NOT_FOUND, "Template not found").into_response()
+    if let Some(needle) = q.q.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+        let or = build_q_filter(needle, &["name", "description", "docName"]);
+        if let Ok(arr) = or.get_array("$or") {
+            filter.insert("$or", arr.clone());
+        }
     }
-}
-
-// 8. Unarchive Template
-pub async fn unarchive_template(
-    State(db): State<MockDb>,
-    Path(id): Path<Uuid>,
-) -> impl IntoResponse {
-    let mut templates = db.templates.write().await;
-    if let Some(t) = templates.get_mut(&id) {
-        t.is_active = true;
-        t.updated_at = Utc::now();
-        (StatusCode::OK, Json(t.clone())).into_response()
-    } else {
-        (StatusCode::NOT_FOUND, "Template not found").into_response()
+    let limit = clamp_limit(q.limit);
+    let skip = skip_for(q.page, limit);
+    let opts = FindOptions::builder()
+        .sort(doc! { "createdAt": -1 })
+        .skip(skip)
+        .limit(limit + 1)
+        .build();
+    let coll = mongo.collection::<SabSignTemplate>(COLL);
+    let mut rows: Vec<SabSignTemplate> = coll
+        .find(filter)
+        .with_options(opts)
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("esign_templates.find")))?
+        .try_collect()
+        .await
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("esign_templates.collect"))
+        })?;
+    let has_more = rows.len() as i64 > limit;
+    if has_more {
+        rows.truncate(limit as usize);
     }
+    Ok(Json(ListResponse {
+        items: rows,
+        page: q.page.unwrap_or(0),
+        limit: limit as u32,
+        has_more,
+    }))
 }
 
-// 9. Add Role
-pub async fn add_role(
-    State(db): State<MockDb>,
-    Path(id): Path<Uuid>,
-    Json(role): Json<RoleTemplate>,
-) -> impl IntoResponse {
-    let mut templates = db.templates.write().await;
-    if let Some(t) = templates.get_mut(&id) {
-        t.roles.push(role);
-        t.updated_at = Utc::now();
-        (StatusCode::OK, Json(t.clone())).into_response()
-    } else {
-        (StatusCode::NOT_FOUND, "Template not found").into_response()
+#[instrument(skip_all, fields(tenant = %user.tenant_id, id = %id))]
+pub async fn get_template(
+    user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Path(id): Path<String>,
+) -> Result<Json<SabSignTemplate>> {
+    Ok(Json(load_scoped(&mongo, &user.tenant_id, &id).await?))
+}
+
+#[instrument(skip_all, fields(tenant = %user.tenant_id))]
+pub async fn create_template(
+    user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Json(input): Json<CreateTemplateInput>,
+) -> Result<Json<CreateTemplateResponse>> {
+    if input.name.trim().is_empty() {
+        return Err(ApiError::Validation("name is required".into()));
     }
-}
-
-// 10. Remove Role
-pub async fn remove_role(
-    State(db): State<MockDb>,
-    Path((id, role_id)): Path<(Uuid, Uuid)>,
-) -> impl IntoResponse {
-    let mut templates = db.templates.write().await;
-    if let Some(t) = templates.get_mut(&id) {
-        t.roles.retain(|r| r.role_id != role_id);
-        t.updated_at = Utc::now();
-        (StatusCode::OK, Json(t.clone())).into_response()
-    } else {
-        (StatusCode::NOT_FOUND, "Template not found").into_response()
+    if input.doc_id.trim().is_empty() {
+        return Err(ApiError::Validation("docId is required".into()));
     }
-}
+    let routing_order = input.routing_order.unwrap_or_else(|| "sequential".into());
+    validate_routing_order(&routing_order)?;
 
-// 11. Add Merge Field
-pub async fn add_merge_field(
-    State(db): State<MockDb>,
-    Path(id): Path<Uuid>,
-    Json(field): Json<MergeField>,
-) -> impl IntoResponse {
-    let mut templates = db.templates.write().await;
-    if let Some(t) = templates.get_mut(&id) {
-        t.merge_fields.push(field);
-        t.updated_at = Utc::now();
-        (StatusCode::OK, Json(t.clone())).into_response()
-    } else {
-        (StatusCode::NOT_FOUND, "Template not found").into_response()
-    }
-}
-
-// 12. Remove Merge Field
-pub async fn remove_merge_field(
-    State(db): State<MockDb>,
-    Path((id, field_id)): Path<(Uuid, Uuid)>,
-) -> impl IntoResponse {
-    let mut templates = db.templates.write().await;
-    if let Some(t) = templates.get_mut(&id) {
-        t.merge_fields.retain(|f| f.field_id != field_id);
-        t.updated_at = Utc::now();
-        (StatusCode::OK, Json(t.clone())).into_response()
-    } else {
-        (StatusCode::NOT_FOUND, "Template not found").into_response()
-    }
-}
-
-// 13. Apply Template to Envelope
-pub async fn apply_to_envelope(
-    State(db): State<MockDb>,
-    Path(id): Path<Uuid>,
-    Json(payload): Json<ApplyTemplateRequest>,
-) -> impl IntoResponse {
-    let templates = db.templates.read().await;
-    let _template = match templates.get(&id) {
-        Some(t) => t.clone(),
-        None => return (StatusCode::NOT_FOUND, "Template not found").into_response(),
+    let tmpl = SabSignTemplate {
+        id: gen_id(),
+        user_id: Some(user.user_id.clone()),
+        tenant_id: user.tenant_id.clone(),
+        name: input.name.trim().to_owned(),
+        description: input.description,
+        doc_id: input.doc_id,
+        doc_url: input.doc_url,
+        doc_name: input.doc_name,
+        routing_order,
+        routing_rules: input.routing_rules,
+        recipient_slots: input.recipient_slots.unwrap_or_default(),
+        fields: input.fields.unwrap_or_default(),
+        status: "active".into(),
+        created_at: now_iso(),
+        updated_at: None,
     };
-    drop(templates);
-
-    let mut envelopes = db.envelopes.write().await;
-    let envelope = envelopes
-        .entry(payload.envelope_id)
-        .or_insert_with(|| Envelope {
-            envelope_id: payload.envelope_id,
-            template_id: Some(id),
-            status: "draft".to_string(),
-            created_at: Utc::now(),
-            custom_fields: HashMap::new(),
-        });
-
-    // Mock applying roles and fields...
-    envelope.template_id = Some(id);
-
-    (StatusCode::OK, Json(envelope.clone())).into_response()
+    mongo
+        .collection::<SabSignTemplate>(COLL)
+        .insert_one(&tmpl)
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("esign_templates.insert")))?;
+    Ok(Json(CreateTemplateResponse {
+        id: tmpl.id.clone(),
+        entity: tmpl,
+    }))
 }
 
-// 14. List Versions
-pub async fn list_versions(State(db): State<MockDb>, Path(id): Path<Uuid>) -> impl IntoResponse {
-    let versions = db.template_versions.read().await;
-    if let Some(v) = versions.get(&id) {
-        (StatusCode::OK, Json(v.clone())).into_response()
-    } else {
-        (StatusCode::NOT_FOUND, "Template not found").into_response()
+#[instrument(skip_all, fields(tenant = %user.tenant_id, id = %id))]
+pub async fn update_template(
+    user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Path(id): Path<String>,
+    Json(patch): Json<UpdateTemplateInput>,
+) -> Result<Json<SabSignTemplate>> {
+    let _ = load_scoped(&mongo, &user.tenant_id, &id).await?;
+
+    let mut set = doc! { "updatedAt": now_iso() };
+    if let Some(v) = patch.name {
+        set.insert("name", v.trim().to_owned());
     }
-}
-
-// 15. Get Specific Version
-pub async fn get_version(
-    State(db): State<MockDb>,
-    Path((id, version_num)): Path<(Uuid, u32)>,
-) -> impl IntoResponse {
-    let versions = db.template_versions.read().await;
-    if let Some(v_list) = versions.get(&id) {
-        if let Some(v) = v_list.iter().find(|x| x.version_number == version_num) {
-            return (StatusCode::OK, Json(v.clone())).into_response();
-        }
+    if let Some(v) = patch.description {
+        set.insert("description", v);
     }
-    (StatusCode::NOT_FOUND, "Version not found").into_response()
+    if let Some(v) = patch.doc_id {
+        set.insert("docId", v);
+    }
+    if let Some(v) = patch.doc_url {
+        set.insert("docUrl", v);
+    }
+    if let Some(v) = patch.doc_name {
+        set.insert("docName", v);
+    }
+    if let Some(v) = patch.routing_order {
+        validate_routing_order(&v)?;
+        set.insert("routingOrder", v);
+    }
+    if let Some(v) = patch.status {
+        validate_status(&v)?;
+        set.insert("status", v);
+    }
+    if let Some(v) = patch.routing_rules {
+        set.insert(
+            "routingRules",
+            bson::to_bson(&v).map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?,
+        );
+    }
+    if let Some(v) = patch.recipient_slots {
+        set.insert(
+            "recipientSlots",
+            bson::to_bson(&v).map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?,
+        );
+    }
+    if let Some(v) = patch.fields {
+        set.insert(
+            "fields",
+            bson::to_bson(&v).map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?,
+        );
+    }
+    let update: Document = doc! { "$set": set };
+    mongo
+        .collection::<SabSignTemplate>(COLL)
+        .update_one(doc! { "_id": &id, "tenantId": &user.tenant_id }, update)
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("esign_templates.update")))?;
+    Ok(Json(load_scoped(&mongo, &user.tenant_id, &id).await?))
 }
 
-// 16. Rollback to Version
-pub async fn rollback_version(
-    State(db): State<MockDb>,
-    Path((id, version_num)): Path<(Uuid, u32)>,
-) -> impl IntoResponse {
-    let versions_read = db.template_versions.read().await;
-    let snapshot = if let Some(v_list) = versions_read.get(&id) {
-        if let Some(v) = v_list.iter().find(|x| x.version_number == version_num) {
-            Some(v.snapshot.clone())
-        } else {
-            None
-        }
-    } else {
-        None
+#[instrument(skip_all, fields(tenant = %user.tenant_id, id = %id))]
+pub async fn delete_template(
+    user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Path(id): Path<String>,
+) -> Result<Json<DeleteTemplateResponse>> {
+    let res = mongo
+        .collection::<SabSignTemplate>(COLL)
+        .delete_one(doc! { "_id": &id, "tenantId": &user.tenant_id })
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("esign_templates.delete")))?;
+    Ok(Json(DeleteTemplateResponse {
+        deleted: res.deleted_count > 0,
+    }))
+}
+
+#[instrument(skip_all, fields(tenant = %user.tenant_id, id = %id))]
+pub async fn instantiate_template(
+    user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Path(id): Path<String>,
+    Json(input): Json<InstantiateInput>,
+) -> Result<Json<InstantiateResponse>> {
+    let tmpl = load_scoped(&mongo, &user.tenant_id, &id).await?;
+    let now = now_iso();
+    let env = SabSignEnvelope {
+        id: gen_id(),
+        user_id: Some(user.user_id.clone()),
+        tenant_id: user.tenant_id.clone(),
+        name: input.envelope_name.unwrap_or_else(|| tmpl.name.clone()),
+        subject: input.subject,
+        message: input.message,
+        doc_id: tmpl.doc_id.clone(),
+        doc_url: tmpl.doc_url.clone(),
+        doc_name: tmpl.doc_name.clone(),
+        status: "draft".into(),
+        routing_order: tmpl.routing_order.clone(),
+        routing_rules: tmpl.routing_rules.clone(),
+        signers: normalise_signers(input.signers)?,
+        fields: tmpl.fields.clone(),
+        expires_at: None,
+        reminder_days: None,
+        completed_at: None,
+        signed_doc_id: None,
+        audit_trail_pdf_id: None,
+        bulk_batch_id: None,
+        template_id: Some(tmpl.id.clone()),
+        in_person: None,
+        void_reason: None,
+        created_at: now,
+        updated_at: None,
     };
-    drop(versions_read);
+    mongo
+        .collection::<SabSignEnvelope>(ENVELOPES_COLL)
+        .insert_one(&env)
+        .await
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("esign_templates.instantiate.insert"))
+        })?;
 
-    if let Some(mut snap) = snapshot {
-        let mut templates = db.templates.write().await;
-        if let Some(t) = templates.get_mut(&id) {
-            let new_version_num = t.version + 1;
-            snap.version = new_version_num;
-            snap.updated_at = Utc::now();
-            *t = snap.clone();
-
-            let version_record = TemplateVersion {
-                version_id: Uuid::new_v4(),
-                template_id: id,
-                version_number: new_version_num,
-                created_at: Utc::now(),
-                created_by: t.created_by,
-                snapshot: t.clone(),
-                change_log: format!("Rolled back to version {}", version_num),
-            };
-
-            let mut versions = db.template_versions.write().await;
-            versions.entry(id).or_default().push(version_record);
-
-            return (StatusCode::OK, Json(t.clone())).into_response();
-        }
-    }
-    (StatusCode::NOT_FOUND, "Template or version not found").into_response()
-}
-
-// 17. Bulk Create
-pub async fn bulk_create(
-    State(db): State<MockDb>,
-    Json(payload): Json<BulkCreateRequest>,
-) -> impl IntoResponse {
-    let mut success_count = 0;
-
-    for req in payload.templates {
-        let id = Uuid::new_v4();
-        let now = Utc::now();
-        let t = Template {
-            id,
-            name: req.name,
-            description: req.description,
-            created_by: Uuid::new_v4(),
-            created_at: now,
-            updated_at: now,
-            is_active: true,
-            tags: req.tags,
-            version: 1,
-            roles: req.roles,
-            merge_fields: req.merge_fields,
-            settings: req.settings,
-        };
-        db.templates.write().await.insert(id, t);
-        success_count += 1;
+    let actor = env.user_id.as_deref().unwrap_or(env.tenant_id.as_str());
+    if let Err(e) = sabsign_audit::append_event(
+        &mongo,
+        &env.tenant_id,
+        &env.id,
+        actor,
+        None,
+        "submission.created",
+        None,
+        Some(json!({ "templateId": tmpl.id, "name": env.name })),
+    )
+    .await
+    {
+        warn!("[sabsign] instantiate audit failed for {}: {}", env.id, e);
     }
 
-    Json(BulkActionResponse {
-        success_count,
-        failed_count: 0,
-        errors: vec![],
-    })
-}
-
-// 18. Bulk Delete
-#[derive(Deserialize)]
-pub struct BulkDeleteRequest {
-    pub ids: Vec<Uuid>,
-}
-
-pub async fn bulk_delete(
-    State(db): State<MockDb>,
-    Json(payload): Json<BulkDeleteRequest>,
-) -> impl IntoResponse {
-    let mut success_count = 0;
-    let mut failed_count = 0;
-    let mut templates = db.templates.write().await;
-    let mut versions = db.template_versions.write().await;
-
-    for id in payload.ids {
-        if templates.remove(&id).is_some() {
-            versions.remove(&id);
-            success_count += 1;
-        } else {
-            failed_count += 1;
-        }
-    }
-
-    Json(BulkActionResponse {
-        success_count,
-        failed_count,
-        errors: vec![],
-    })
-}
-
-// 19. Search Templates
-pub async fn search_templates(
-    State(db): State<MockDb>,
-    Query(params): Query<SearchParams>,
-) -> impl IntoResponse {
-    let templates = db.templates.read().await;
-    let mut results: Vec<Template> = templates.values().cloned().collect();
-
-    if let Some(q) = params.query {
-        let q_lower = q.to_lowercase();
-        results.retain(|t| {
-            t.name.to_lowercase().contains(&q_lower)
-                || t.description
-                    .as_deref()
-                    .unwrap_or("")
-                    .to_lowercase()
-                    .contains(&q_lower)
-        });
-    }
-
-    if let Some(tag) = params.tag {
-        let tag_lower = tag.to_lowercase();
-        results.retain(|t| t.tags.iter().any(|tg| tg.to_lowercase() == tag_lower));
-    }
-
-    Json(results)
-}
-
-// 20. Analytics
-#[derive(Serialize)]
-pub struct TemplateAnalytics {
-    pub total_templates: usize,
-    pub active_templates: usize,
-    pub total_versions: usize,
-}
-
-pub async fn get_analytics(State(db): State<MockDb>) -> impl IntoResponse {
-    let templates = db.templates.read().await;
-    let versions = db.template_versions.read().await;
-
-    let total = templates.len();
-    let active = templates.values().filter(|t| t.is_active).count();
-    let total_v: usize = versions.values().map(|v| v.len()).sum();
-
-    Json(TemplateAnalytics {
-        total_templates: total,
-        active_templates: active,
-        total_versions: total_v,
-    })
+    Ok(Json(InstantiateResponse {
+        envelope_id: env.id,
+    }))
 }

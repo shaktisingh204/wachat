@@ -2537,7 +2537,6 @@ export type PlanFeaturePermissions = {
     sabshop: boolean;
     sabcheckout: boolean;
     sabdesk: boolean;
-    sabcampaigns: boolean;
     sabthrive: boolean;
     sabrewards: boolean;
 };

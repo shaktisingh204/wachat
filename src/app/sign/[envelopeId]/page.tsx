@@ -37,7 +37,7 @@ import {
   SelectItem,
   useToast,
 } from '@/components/sabcrm/20ui';
-import { issueSignerOtp, submitSignature } from '@/app/actions/sabsign.actions';
+import { getSignView, issueSignerOtp, submitSignature } from '@/app/actions/sabsign.actions';
 
 interface SignPagePayload {
   _id: string;
@@ -58,6 +58,7 @@ interface SignPagePayload {
     role: string;
     name: string;
     email: string;
+    phone?: string;
     authMethod: 'email' | 'sms_otp' | 'kba' | 'pin';
     kbaQuestions?: Array<{ question: string }>;
   };
@@ -75,23 +76,42 @@ export default function PublicSignPage() {
   const [otp, setOtp] = React.useState('');
   const [pin, setPin] = React.useState('');
   const [kbaAnswers, setKbaAnswers] = React.useState<string[]>([]);
+  const [consent, setConsent] = React.useState(false);
   const [busy, setBusy] = React.useState(false);
   const [done, setDone] = React.useState<string | null>(null);
   const [error, setError] = React.useState<string | null>(null);
 
-  // The public sign page hydrates via `/api/sign/[envelopeId]` (TODO:
-  // wire this read-only public endpoint). For now we fetch the envelope
-  // via a server action that re-derives the public projection.
+  // Hydrate the (sanitized) envelope via the public, token-authed sign view.
+  // Verifies `(signerId, token)` server-side and marks the signer `viewed`.
   React.useEffect(() => {
     let mounted = true;
-    fetch(`/api/sign/${params.envelopeId}?signerId=${signerId}&t=${accessToken}`)
-      .then((r) => r.json())
-      .then((data: SignPagePayload) => {
+    getSignView(params.envelopeId, signerId, accessToken)
+      .then((view) => {
         if (!mounted) return;
-        setPayload(data);
-        setKbaAnswers(new Array(data.signer.kbaQuestions?.length || 0).fill(''));
+        const signer = view.envelope.signers.find((s) => s.id === signerId);
+        if (!signer) {
+          setError('This signing link is not valid for any recipient.');
+          return;
+        }
+        setPayload({
+          _id: view.envelope._id,
+          docUrl: view.envelope.docUrl,
+          docName: view.envelope.docName,
+          name: view.envelope.name,
+          fields: view.envelope.fields,
+          signer: {
+            id: signer.id,
+            role: signer.role,
+            name: signer.name,
+            email: signer.email,
+            phone: signer.phone,
+            authMethod: signer.authMethod,
+            kbaQuestions: signer.kbaQuestions,
+          },
+        });
+        setKbaAnswers(new Array(signer.kbaQuestions?.length || 0).fill(''));
       })
-      .catch((err) => setError(String(err)));
+      .catch((err) => setError(err?.message || String(err)));
     return () => {
       mounted = false;
     };
@@ -101,8 +121,13 @@ export default function PublicSignPage() {
     if (!payload) return;
     setBusy(true);
     try {
-      const res = await issueSignerOtp(params.envelopeId, payload.signer.id);
+      const res = await issueSignerOtp(
+        params.envelopeId,
+        payload.signer.id,
+        payload.signer.phone,
+      );
       if (res.otpPreview) toast.info(`Dev OTP: ${res.otpPreview}`);
+      else toast.info('Verification code sent.');
     } finally {
       setBusy(false);
     }
@@ -110,6 +135,10 @@ export default function PublicSignPage() {
 
   const submit = async (decline = false) => {
     if (!payload) return;
+    if (!decline && !consent) {
+      setError('Please agree to sign this document electronically before submitting.');
+      return;
+    }
     setBusy(true);
     setError(null);
     try {
@@ -125,6 +154,7 @@ export default function PublicSignPage() {
         })),
         decline,
         declineReason: decline ? prompt('Reason for declining?') || undefined : undefined,
+        userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : undefined,
       });
       setDone(
         decline
@@ -307,9 +337,27 @@ export default function PublicSignPage() {
             </CardBody>
           </Card>
 
+          <Card>
+            <CardBody>
+              <Checkbox
+                label="I agree to sign this document electronically, and that my electronic signature is the legal equivalent of my handwritten signature."
+                checked={consent}
+                onChange={(e) => setConsent(e.target.checked)}
+              />
+            </CardBody>
+          </Card>
+
+          {error ? (
+            <p className="text-sm text-[var(--st-status-danger,#dc2626)]">{error}</p>
+          ) : null}
+
           <div className="flex gap-2">
-            <Button className="flex-1" disabled={busy} onClick={() => submit(false)}>
-              Submit
+            <Button
+              className="flex-1"
+              disabled={busy || !consent}
+              onClick={() => submit(false)}
+            >
+              {busy ? 'Submitting…' : 'Finish & sign'}
             </Button>
             <Button variant="outline" disabled={busy} onClick={() => submit(true)}>
               Decline

@@ -46,6 +46,8 @@ import {
   registerWebhookOutEventHandlers,
   tickWebhookDeliveries,
 } from '../webhooks-out/dispatch';
+// V3.7 — event streams + sinks (wildcard fan-out to customer sinks).
+import { registerSinkEventHandlers } from '../sinks/handlers';
 
 // ─── Constants (mirror services/sabsms-engine/src/events.rs) ─────────────
 
@@ -275,6 +277,12 @@ export function createDefaultRouter(): SabsmsEventRouter {
   // `sabsms_webhook_deliveries` (replay-tolerant upsert on the stream
   // entry id). Delivery itself runs on the webhook ticker below.
   registerWebhookOutEventHandlers(router);
+
+  // V3.7 — event streams: wildcard fan-out to customer-configured sinks
+  // (webhook/http_batch/segment/kafka/kinesis), with retry bookkeeping in
+  // `sabsms_sink_deliveries`. The sink's own event filter gates what it
+  // receives; no-ops fast when the workspace has no sinks.
+  registerSinkEventHandlers(router);
 
   return router;
 }

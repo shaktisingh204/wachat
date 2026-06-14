@@ -157,7 +157,6 @@ export const PLAN_FEATURE_GROUPS: PlanFeatureGroup[] = [
             { id: 'sabshop', name: 'SabShop — Storefront', icon: ShoppingCart },
             { id: 'sabcheckout', name: 'SabCheckout — Payment Pages', icon: CreditCard },
             { id: 'sabdesk', name: 'SabDesk — Helpdesk', icon: Headphones },
-            { id: 'sabcampaigns', name: 'SabCampaigns — Email Mktg', icon: Megaphone },
             { id: 'sabthrive', name: 'SabThrive — Rewards Storefront', icon: Sparkles },
             { id: 'sabrewards', name: 'SabRewards — Loyalty + Coupons', icon: Award },
         ],
@@ -267,7 +266,6 @@ export const planFeaturesDefaults: PlanFeaturePermissions = {
     sabshop: true,
     sabcheckout: true,
     sabdesk: true,
-    sabcampaigns: true,
     sabthrive: true,
     sabrewards: true,
 };

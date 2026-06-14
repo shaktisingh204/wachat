@@ -1,417 +1,641 @@
-use crate::mock_db::AppState;
-use crate::models::{
-    Document, Envelope, EnvelopeStatus, ExpireSettings, Recipient, ReminderSettings, RoutingOrder,
-    SignaturePlacement,
-};
+//! HTTP handlers for the SabSign envelopes API (`/v1/sabsign/envelopes`).
+//!
+//! Authenticated CRUD + lifecycle (`send`, `void`) is tenant-scoped by the
+//! JWT `tid`. The public sign endpoints (`/{id}/sign`, `/{id}/submit`) carry
+//! no session — the external signer is authenticated by a per-signer
+//! `accessToken` that this module verifies against the stored envelope.
+//!
+//! Completion side-effects that need tenant context (signed-PDF generation,
+//! SabFiles upload, e-mail) are intentionally NOT done here — the public
+//! submit only advances the state machine + appends audit; the authed
+//! Next.js `finalizeEnvelope` action performs the PDF/e-mail work.
+
 use axum::{
-    extract::{Path, Query, State},
-    http::StatusCode,
     Json,
+    extract::{Path, Query, State},
 };
+use bson::{Document, doc};
 use chrono::Utc;
-use serde::Deserialize;
+use crm_common::{
+    pagination::{clamp_limit, skip_for},
+    search::build_q_filter,
+};
+use futures::TryStreamExt;
+use mongodb::options::FindOptions;
+use sabnode_auth::AuthUser;
+use sabnode_common::{ApiError, Result};
+use sabnode_db::mongo::MongoHandle;
+use serde_json::json;
+use tracing::{instrument, warn};
 use uuid::Uuid;
 
-#[derive(Deserialize)]
-pub struct CreateEnvelopeReq {
-    pub title: String,
-    pub sender_id: Uuid,
+use crate::dto::{
+    CreateEnvelopeInput, CreateResponse, DeleteResponse, ListQuery, ListResponse, SendBody,
+    SignSubmissionInput, SignSubmissionResponse, SignViewQuery, SignViewResponse,
+    UpdateEnvelopeInput, VoidBody,
+};
+use crate::types::{
+    EnvelopeSigner, SabSignEnvelope, VALID_AUTH_METHODS, VALID_FIELD_TYPES, VALID_ROUTING_ORDERS,
+    VALID_STATUSES,
+};
+
+const COLL: &str = "esign_envelopes";
+
+// ── small helpers ────────────────────────────────────────────────────
+
+fn now_iso() -> String {
+    Utc::now().to_rfc3339()
 }
 
-pub async fn create_envelope(
-    State(state): State<AppState>,
-    Json(payload): Json<CreateEnvelopeReq>,
-) -> (StatusCode, Json<Envelope>) {
-    let envelope = Envelope {
-        id: Uuid::new_v4(),
-        title: payload.title,
-        status: EnvelopeStatus::Draft,
-        sender_id: payload.sender_id,
-        created_at: Utc::now(),
-        updated_at: Utc::now(),
-        sent_at: None,
-        voided_at: None,
-        void_reason: None,
-        documents: vec![],
-        recipients: vec![],
-        routing_order: None,
-        reminder_settings: None,
-        expire_settings: None,
-        custom_fields: vec![],
-    };
-    state.insert_envelope(envelope.clone()).await;
-    (StatusCode::CREATED, Json(envelope))
+fn gen_id() -> String {
+    bson::oid::ObjectId::new().to_hex()
 }
 
-pub async fn get_envelope(
-    State(state): State<AppState>,
-    Path(id): Path<Uuid>,
-) -> Result<Json<Envelope>, StatusCode> {
-    state
-        .get_envelope(&id)
-        .await
-        .map(Json)
-        .ok_or(StatusCode::NOT_FOUND)
+fn gen_token() -> String {
+    format!("{}{}", Uuid::new_v4().simple(), Uuid::new_v4().simple())
 }
 
-pub async fn list_envelopes(State(state): State<AppState>) -> Json<Vec<Envelope>> {
-    Json(state.list_envelopes().await)
-}
-
-#[derive(Deserialize)]
-pub struct StatusQuery {
-    pub status: Option<String>,
-}
-
-pub async fn filter_envelopes(
-    State(state): State<AppState>,
-    Query(query): Query<StatusQuery>,
-) -> Json<Vec<Envelope>> {
-    let all = state.list_envelopes().await;
-    if let Some(s) = query.status {
-        let status = match s.as_str() {
-            "Draft" => EnvelopeStatus::Draft,
-            "Sent" => EnvelopeStatus::Sent,
-            "Delivered" => EnvelopeStatus::Delivered,
-            "Completed" => EnvelopeStatus::Completed,
-            "Declined" => EnvelopeStatus::Declined,
-            "Voided" => EnvelopeStatus::Voided,
-            _ => return Json(all),
-        };
-        Json(all.into_iter().filter(|e| e.status == status).collect())
+fn validate_routing_order(s: &str) -> Result<()> {
+    if VALID_ROUTING_ORDERS.contains(&s) {
+        Ok(())
     } else {
-        Json(all)
+        Err(ApiError::Validation(format!(
+            "routingOrder must be one of {VALID_ROUTING_ORDERS:?}"
+        )))
     }
 }
 
-pub async fn delete_envelope(State(state): State<AppState>, Path(id): Path<Uuid>) -> StatusCode {
-    if state.delete_envelope(&id).await {
-        StatusCode::NO_CONTENT
+fn validate_status(s: &str) -> Result<()> {
+    if VALID_STATUSES.contains(&s) {
+        Ok(())
     } else {
-        StatusCode::NOT_FOUND
+        Err(ApiError::Validation(format!(
+            "status must be one of {VALID_STATUSES:?}"
+        )))
     }
 }
 
-#[derive(Deserialize)]
-pub struct AddDocumentReq {
-    pub name: String,
-    pub file_extension: String,
-    pub size_bytes: u64,
-    pub pages: u32,
-    pub document_base64: Option<String>,
-    pub order: i32,
-}
-
-pub async fn add_document(
-    State(state): State<AppState>,
-    Path(envelope_id): Path<Uuid>,
-    Json(payload): Json<AddDocumentReq>,
-) -> Result<Json<Envelope>, StatusCode> {
-    let mut env = state
-        .get_envelope(&envelope_id)
-        .await
-        .ok_or(StatusCode::NOT_FOUND)?;
-
-    let doc = Document {
-        id: Uuid::new_v4(),
-        envelope_id,
-        name: payload.name,
-        file_extension: payload.file_extension,
-        size_bytes: payload.size_bytes,
-        pages: payload.pages,
-        document_base64: payload.document_base64,
-        order: payload.order,
-    };
-
-    env.documents.push(doc);
-    env.updated_at = Utc::now();
-    state.update_envelope(&envelope_id, env.clone()).await;
-    Ok(Json(env))
-}
-
-pub async fn list_documents(
-    State(state): State<AppState>,
-    Path(envelope_id): Path<Uuid>,
-) -> Result<Json<Vec<Document>>, StatusCode> {
-    let env = state
-        .get_envelope(&envelope_id)
-        .await
-        .ok_or(StatusCode::NOT_FOUND)?;
-    Ok(Json(env.documents))
-}
-
-pub async fn get_document(
-    State(state): State<AppState>,
-    Path((envelope_id, doc_id)): Path<(Uuid, Uuid)>,
-) -> Result<Json<Document>, StatusCode> {
-    let env = state
-        .get_envelope(&envelope_id)
-        .await
-        .ok_or(StatusCode::NOT_FOUND)?;
-    env.documents
-        .into_iter()
-        .find(|d| d.id == doc_id)
-        .map(Json)
-        .ok_or(StatusCode::NOT_FOUND)
-}
-
-pub async fn delete_document(
-    State(state): State<AppState>,
-    Path((envelope_id, doc_id)): Path<(Uuid, Uuid)>,
-) -> Result<StatusCode, StatusCode> {
-    let mut env = state
-        .get_envelope(&envelope_id)
-        .await
-        .ok_or(StatusCode::NOT_FOUND)?;
-    let initial_len = env.documents.len();
-    env.documents.retain(|d| d.id != doc_id);
-    if env.documents.len() < initial_len {
-        env.updated_at = Utc::now();
-        state.update_envelope(&envelope_id, env).await;
-        Ok(StatusCode::NO_CONTENT)
-    } else {
-        Err(StatusCode::NOT_FOUND)
-    }
-}
-
-pub async fn add_recipient(
-    State(state): State<AppState>,
-    Path(envelope_id): Path<Uuid>,
-    Json(mut recipient): Json<Recipient>,
-) -> Result<Json<Envelope>, StatusCode> {
-    let mut env = state
-        .get_envelope(&envelope_id)
-        .await
-        .ok_or(StatusCode::NOT_FOUND)?;
-    recipient.id = Uuid::new_v4();
-    recipient.envelope_id = envelope_id;
-    env.recipients.push(recipient);
-    env.updated_at = Utc::now();
-    state.update_envelope(&envelope_id, env.clone()).await;
-    Ok(Json(env))
-}
-
-pub async fn list_recipients(
-    State(state): State<AppState>,
-    Path(envelope_id): Path<Uuid>,
-) -> Result<Json<Vec<Recipient>>, StatusCode> {
-    let env = state
-        .get_envelope(&envelope_id)
-        .await
-        .ok_or(StatusCode::NOT_FOUND)?;
-    Ok(Json(env.recipients))
-}
-
-pub async fn delete_recipient(
-    State(state): State<AppState>,
-    Path((envelope_id, rec_id)): Path<(Uuid, Uuid)>,
-) -> Result<StatusCode, StatusCode> {
-    let mut env = state
-        .get_envelope(&envelope_id)
-        .await
-        .ok_or(StatusCode::NOT_FOUND)?;
-    let initial_len = env.recipients.len();
-    env.recipients.retain(|r| r.id != rec_id);
-    if env.recipients.len() < initial_len {
-        env.updated_at = Utc::now();
-        state.update_envelope(&envelope_id, env).await;
-        Ok(StatusCode::NO_CONTENT)
-    } else {
-        Err(StatusCode::NOT_FOUND)
-    }
-}
-
-pub async fn add_signature_placement(
-    State(state): State<AppState>,
-    Path((envelope_id, rec_id)): Path<(Uuid, Uuid)>,
-    Json(mut placement): Json<SignaturePlacement>,
-) -> Result<Json<Envelope>, StatusCode> {
-    let mut env = state
-        .get_envelope(&envelope_id)
-        .await
-        .ok_or(StatusCode::NOT_FOUND)?;
-    if let Some(rec) = env.recipients.iter_mut().find(|r| r.id == rec_id) {
-        placement.id = Uuid::new_v4();
-        rec.signature_placements.push(placement);
-        env.updated_at = Utc::now();
-        state.update_envelope(&envelope_id, env.clone()).await;
-        Ok(Json(env))
-    } else {
-        Err(StatusCode::NOT_FOUND)
-    }
-}
-
-pub async fn send_envelope(
-    State(state): State<AppState>,
-    Path(envelope_id): Path<Uuid>,
-) -> Result<Json<Envelope>, StatusCode> {
-    let mut env = state
-        .get_envelope(&envelope_id)
-        .await
-        .ok_or(StatusCode::NOT_FOUND)?;
-    if env.status != EnvelopeStatus::Draft {
-        return Err(StatusCode::BAD_REQUEST);
-    }
-
-    env.status = EnvelopeStatus::Sent;
-    env.sent_at = Some(Utc::now());
-    env.updated_at = Utc::now();
-
-    // Sort recipients by routing order
-    env.recipients.sort_by_key(|r| r.routing_order);
-
-    // Initialize routing
-    if let Some(first_rec) = env.recipients.first() {
-        env.routing_order = Some(RoutingOrder {
-            current_order: first_rec.routing_order,
-            current_recipient_id: Some(first_rec.id),
-            is_sequential: true,
-        });
-    }
-
-    state.update_envelope(&envelope_id, env.clone()).await;
-    Ok(Json(env))
-}
-
-#[derive(Deserialize)]
-pub struct VoidReq {
-    pub reason: String,
-}
-
-pub async fn void_envelope(
-    State(state): State<AppState>,
-    Path(envelope_id): Path<Uuid>,
-    Json(payload): Json<VoidReq>,
-) -> Result<Json<Envelope>, StatusCode> {
-    let mut env = state
-        .get_envelope(&envelope_id)
-        .await
-        .ok_or(StatusCode::NOT_FOUND)?;
-    if env.status == EnvelopeStatus::Completed || env.status == EnvelopeStatus::Voided {
-        return Err(StatusCode::BAD_REQUEST);
-    }
-
-    env.status = EnvelopeStatus::Voided;
-    env.voided_at = Some(Utc::now());
-    env.void_reason = Some(payload.reason);
-    env.updated_at = Utc::now();
-
-    state.update_envelope(&envelope_id, env.clone()).await;
-    Ok(Json(env))
-}
-
-pub async fn calculate_routing(
-    State(state): State<AppState>,
-    Path(envelope_id): Path<Uuid>,
-) -> Result<Json<RoutingOrder>, StatusCode> {
-    let env = state
-        .get_envelope(&envelope_id)
-        .await
-        .ok_or(StatusCode::NOT_FOUND)?;
-    if let Some(ro) = env.routing_order {
-        Ok(Json(ro))
-    } else {
-        Err(StatusCode::BAD_REQUEST)
-    }
-}
-
-pub async fn advance_routing(
-    State(state): State<AppState>,
-    Path(envelope_id): Path<Uuid>,
-) -> Result<Json<Envelope>, StatusCode> {
-    let mut env = state
-        .get_envelope(&envelope_id)
-        .await
-        .ok_or(StatusCode::NOT_FOUND)?;
-    if env.status != EnvelopeStatus::Sent && env.status != EnvelopeStatus::Delivered {
-        return Err(StatusCode::BAD_REQUEST);
-    }
-
-    if let Some(mut ro) = env.routing_order {
-        let current_order = ro.current_order;
-        // find next recipient
-        let next_rec = env
-            .recipients
-            .iter()
-            .find(|r| r.routing_order > current_order);
-        if let Some(next) = next_rec {
-            ro.current_order = next.routing_order;
-            ro.current_recipient_id = Some(next.id);
-            env.routing_order = Some(ro);
-            env.updated_at = Utc::now();
-            state.update_envelope(&envelope_id, env.clone()).await;
-            Ok(Json(env))
-        } else {
-            // Completed
-            env.status = EnvelopeStatus::Completed;
-            env.routing_order = None;
-            env.updated_at = Utc::now();
-            state.update_envelope(&envelope_id, env.clone()).await;
-            Ok(Json(env))
+/// Normalise + validate the signer list at create time: ensure every signer
+/// has an id + access token + order + status, and a known auth method.
+fn normalise_signers(signers: Option<Vec<EnvelopeSigner>>) -> Result<Vec<EnvelopeSigner>> {
+    let mut out = Vec::new();
+    for (i, mut s) in signers.unwrap_or_default().into_iter().enumerate() {
+        if s.email.trim().is_empty() {
+            return Err(ApiError::Validation("every signer needs an email".into()));
         }
-    } else {
-        Err(StatusCode::BAD_REQUEST)
+        if s.id.trim().is_empty() {
+            s.id = gen_token();
+        }
+        if s.access_token.as_deref().unwrap_or("").is_empty() {
+            s.access_token = Some(gen_token());
+        }
+        if s.order == 0 {
+            s.order = (i as i32) + 1;
+        }
+        if s.status.trim().is_empty() {
+            s.status = "pending".into();
+        }
+        if s.auth_method.trim().is_empty() {
+            s.auth_method = "email".into();
+        }
+        if !VALID_AUTH_METHODS.contains(&s.auth_method.as_str()) {
+            return Err(ApiError::Validation(format!(
+                "authMethod must be one of {VALID_AUTH_METHODS:?}"
+            )));
+        }
+        out.push(s);
+    }
+    Ok(out)
+}
+
+fn validate_field_types(env: &SabSignEnvelope) -> Result<()> {
+    for f in &env.fields {
+        if !VALID_FIELD_TYPES.contains(&f.field_type.as_str()) {
+            return Err(ApiError::Validation(format!(
+                "unknown fieldType `{}` (expected one of {VALID_FIELD_TYPES:?})",
+                f.field_type
+            )));
+        }
+    }
+    Ok(())
+}
+
+async fn load_scoped(mongo: &MongoHandle, tenant: &str, id: &str) -> Result<SabSignEnvelope> {
+    mongo
+        .collection::<SabSignEnvelope>(COLL)
+        .find_one(doc! { "_id": id, "tenantId": tenant })
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("esign_envelopes.find_one")))?
+        .ok_or_else(|| ApiError::NotFound("envelope".into()))
+}
+
+async fn load_public(mongo: &MongoHandle, id: &str) -> Result<SabSignEnvelope> {
+    mongo
+        .collection::<SabSignEnvelope>(COLL)
+        .find_one(doc! { "_id": id })
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("esign_envelopes.find_pub")))?
+        .ok_or_else(|| ApiError::NotFound("envelope".into()))
+}
+
+async fn replace_scoped(mongo: &MongoHandle, tenant: &str, env: &SabSignEnvelope) -> Result<()> {
+    mongo
+        .collection::<SabSignEnvelope>(COLL)
+        .replace_one(doc! { "_id": &env.id, "tenantId": tenant }, env)
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("esign_envelopes.replace")))?;
+    Ok(())
+}
+
+async fn replace_public(mongo: &MongoHandle, env: &SabSignEnvelope) -> Result<()> {
+    mongo
+        .collection::<SabSignEnvelope>(COLL)
+        .replace_one(doc! { "_id": &env.id }, env)
+        .await
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("esign_envelopes.replace_pub"))
+        })?;
+    Ok(())
+}
+
+async fn audit(
+    mongo: &MongoHandle,
+    env: &SabSignEnvelope,
+    signer_id: Option<&str>,
+    event_type: &str,
+    ip: Option<&str>,
+    data: Option<serde_json::Value>,
+) {
+    let actor = env.user_id.as_deref().unwrap_or(env.tenant_id.as_str());
+    if let Err(e) = sabsign_audit::append_event(
+        mongo,
+        &env.tenant_id,
+        &env.id,
+        actor,
+        signer_id,
+        event_type,
+        ip,
+        data,
+    )
+    .await
+    {
+        warn!("[sabsign] audit append failed for {}: {}", env.id, e);
     }
 }
 
-pub async fn dispatch_reminders(State(state): State<AppState>) -> Json<usize> {
-    let mut count = 0;
-    let all = state.list_envelopes().await;
-    for mut env in all {
-        if env.status == EnvelopeStatus::Sent || env.status == EnvelopeStatus::Delivered {
-            if let Some(settings) = &env.reminder_settings {
-                if settings.reminder_enabled {
-                    // Logic to send reminder...
-                    count += 1;
-                    env.updated_at = Utc::now();
-                    let id = env.id;
-                    state.update_envelope(&id, env).await;
+/// Next signer to act, given `current` just completed. `None` ⇒ no one left.
+fn next_signer(env: &SabSignEnvelope, current: &str) -> Option<String> {
+    let pending: Vec<&EnvelopeSigner> = env
+        .signers
+        .iter()
+        .filter(|s| s.id != current && s.status != "completed" && s.status != "declined")
+        .collect();
+    if pending.is_empty() {
+        return None;
+    }
+    if env.routing_order == "sequential" {
+        pending.iter().min_by_key(|s| s.order).map(|s| s.id.clone())
+    } else {
+        pending.first().map(|s| s.id.clone())
+    }
+}
+
+// ── authenticated CRUD ───────────────────────────────────────────────
+
+#[instrument(skip_all, fields(tenant = %user.tenant_id))]
+pub async fn list_envelopes(
+    user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Query(q): Query<ListQuery>,
+) -> Result<Json<ListResponse>> {
+    let mut filter = doc! { "tenantId": &user.tenant_id };
+    if let Some(s) = q.status.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+        if s != "all" {
+            filter.insert("status", s);
+        }
+    }
+    if let Some(t) = q
+        .template_id
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+    {
+        filter.insert("templateId", t);
+    }
+    if let Some(b) = q
+        .bulk_batch_id
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+    {
+        filter.insert("bulkBatchId", b);
+    }
+    if let Some(needle) = q.q.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+        let or = build_q_filter(needle, &["name", "docName", "subject"]);
+        if let Ok(arr) = or.get_array("$or") {
+            filter.insert("$or", arr.clone());
+        }
+    }
+
+    let limit = clamp_limit(q.limit);
+    let skip = skip_for(q.page, limit);
+    let opts = FindOptions::builder()
+        .sort(doc! { "createdAt": -1 })
+        .skip(skip)
+        .limit(limit + 1)
+        .build();
+    let coll = mongo.collection::<SabSignEnvelope>(COLL);
+    let mut rows: Vec<SabSignEnvelope> = coll
+        .find(filter)
+        .with_options(opts)
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("esign_envelopes.find")))?
+        .try_collect()
+        .await
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("esign_envelopes.collect"))
+        })?;
+    let has_more = rows.len() as i64 > limit;
+    if has_more {
+        rows.truncate(limit as usize);
+    }
+    Ok(Json(ListResponse {
+        items: rows,
+        page: q.page.unwrap_or(0),
+        limit: limit as u32,
+        has_more,
+    }))
+}
+
+#[instrument(skip_all, fields(tenant = %user.tenant_id, id = %id))]
+pub async fn get_envelope(
+    user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Path(id): Path<String>,
+) -> Result<Json<SabSignEnvelope>> {
+    Ok(Json(load_scoped(&mongo, &user.tenant_id, &id).await?))
+}
+
+#[instrument(skip_all, fields(tenant = %user.tenant_id))]
+pub async fn create_envelope(
+    user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Json(input): Json<CreateEnvelopeInput>,
+) -> Result<Json<CreateResponse>> {
+    if input.name.trim().is_empty() {
+        return Err(ApiError::Validation("name is required".into()));
+    }
+    if input.doc_id.trim().is_empty() {
+        return Err(ApiError::Validation("docId is required".into()));
+    }
+    let routing_order = input.routing_order.unwrap_or_else(|| "sequential".into());
+    validate_routing_order(&routing_order)?;
+
+    let now = now_iso();
+    let env = SabSignEnvelope {
+        id: gen_id(),
+        user_id: Some(user.user_id.clone()),
+        tenant_id: user.tenant_id.clone(),
+        name: input.name.trim().to_owned(),
+        subject: input.subject,
+        message: input.message,
+        doc_id: input.doc_id,
+        doc_url: input.doc_url,
+        doc_name: input.doc_name,
+        status: "draft".into(),
+        routing_order,
+        routing_rules: input.routing_rules,
+        signers: normalise_signers(input.signers)?,
+        fields: input.fields.unwrap_or_default(),
+        expires_at: input.expires_at,
+        reminder_days: input.reminder_days,
+        completed_at: None,
+        signed_doc_id: None,
+        audit_trail_pdf_id: None,
+        bulk_batch_id: input.bulk_batch_id,
+        template_id: input.template_id,
+        in_person: input.in_person,
+        void_reason: None,
+        created_at: now,
+        updated_at: None,
+    };
+    validate_field_types(&env)?;
+
+    mongo
+        .collection::<SabSignEnvelope>(COLL)
+        .insert_one(&env)
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("esign_envelopes.insert")))?;
+    audit(
+        &mongo,
+        &env,
+        None,
+        "submission.created",
+        None,
+        Some(json!({ "name": env.name, "signers": env.signers.len() })),
+    )
+    .await;
+
+    Ok(Json(CreateResponse {
+        id: env.id.clone(),
+        entity: env,
+    }))
+}
+
+#[instrument(skip_all, fields(tenant = %user.tenant_id, id = %id))]
+pub async fn update_envelope(
+    user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Path(id): Path<String>,
+    Json(patch): Json<UpdateEnvelopeInput>,
+) -> Result<Json<SabSignEnvelope>> {
+    // Ensure it exists + is in this tenant.
+    let _ = load_scoped(&mongo, &user.tenant_id, &id).await?;
+
+    let mut set = doc! { "updatedAt": now_iso() };
+    if let Some(v) = patch.name {
+        set.insert("name", v.trim().to_owned());
+    }
+    if let Some(v) = patch.subject {
+        set.insert("subject", v);
+    }
+    if let Some(v) = patch.message {
+        set.insert("message", v);
+    }
+    if let Some(v) = patch.routing_order {
+        validate_routing_order(&v)?;
+        set.insert("routingOrder", v);
+    }
+    if let Some(v) = patch.status {
+        validate_status(&v)?;
+        set.insert("status", v);
+    }
+    if let Some(v) = patch.expires_at {
+        set.insert("expiresAt", v);
+    }
+    if let Some(v) = patch.reminder_days {
+        set.insert("reminderDays", v);
+    }
+    if let Some(v) = patch.routing_rules {
+        set.insert(
+            "routingRules",
+            bson::to_bson(&v).map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?,
+        );
+    }
+    if let Some(v) = patch.signers {
+        let v = normalise_signers(Some(v))?;
+        set.insert(
+            "signers",
+            bson::to_bson(&v).map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?,
+        );
+    }
+    if let Some(v) = patch.fields {
+        set.insert(
+            "fields",
+            bson::to_bson(&v).map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?,
+        );
+    }
+
+    let update: Document = doc! { "$set": set };
+    mongo
+        .collection::<SabSignEnvelope>(COLL)
+        .update_one(doc! { "_id": &id, "tenantId": &user.tenant_id }, update)
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("esign_envelopes.update")))?;
+
+    Ok(Json(load_scoped(&mongo, &user.tenant_id, &id).await?))
+}
+
+#[instrument(skip_all, fields(tenant = %user.tenant_id, id = %id))]
+pub async fn delete_envelope(
+    user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Path(id): Path<String>,
+) -> Result<Json<DeleteResponse>> {
+    let res = mongo
+        .collection::<SabSignEnvelope>(COLL)
+        .delete_one(doc! { "_id": &id, "tenantId": &user.tenant_id })
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("esign_envelopes.delete")))?;
+    Ok(Json(DeleteResponse {
+        deleted: res.deleted_count > 0,
+    }))
+}
+
+#[instrument(skip_all, fields(tenant = %user.tenant_id, id = %id))]
+pub async fn send_envelope(
+    user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Path(id): Path<String>,
+    Json(body): Json<SendBody>,
+) -> Result<Json<SabSignEnvelope>> {
+    let mut env = load_scoped(&mongo, &user.tenant_id, &id).await?;
+    if env.status == "voided" {
+        return Err(ApiError::Validation("a voided envelope cannot be sent".into()));
+    }
+    if env.signers.is_empty() {
+        return Err(ApiError::Validation("envelope has no signers".into()));
+    }
+    let now = now_iso();
+    // W0.1: notify ALL signers up-front so the Next.js action e-mails everyone.
+    // (Sequential next-signer-only e-mailing is a W1 automation concern.)
+    for s in &mut env.signers {
+        if body.rotate_tokens || s.access_token.as_deref().unwrap_or("").is_empty() {
+            s.access_token = Some(gen_token());
+        }
+        if s.status == "pending" {
+            s.status = "notified".into();
+            s.notified_at = Some(now.clone());
+        }
+    }
+    env.status = "sent".into();
+    env.updated_at = Some(now.clone());
+    replace_scoped(&mongo, &user.tenant_id, &env).await?;
+    audit(&mongo, &env, None, "submission.sent", None, None).await;
+    Ok(Json(env))
+}
+
+#[instrument(skip_all, fields(tenant = %user.tenant_id, id = %id))]
+pub async fn void_envelope(
+    user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Path(id): Path<String>,
+    Json(body): Json<VoidBody>,
+) -> Result<Json<SabSignEnvelope>> {
+    let mut env = load_scoped(&mongo, &user.tenant_id, &id).await?;
+    env.status = "voided".into();
+    env.void_reason = body.reason.clone();
+    env.updated_at = Some(now_iso());
+    replace_scoped(&mongo, &user.tenant_id, &env).await?;
+    audit(
+        &mongo,
+        &env,
+        None,
+        "submission.voided",
+        None,
+        body.reason.map(|r| json!({ "reason": r })),
+    )
+    .await;
+    Ok(Json(env))
+}
+
+// ── public signer endpoints (no session) ─────────────────────────────
+
+#[instrument(skip_all, fields(id = %id))]
+pub async fn sign_view(
+    State(mongo): State<MongoHandle>,
+    Path(id): Path<String>,
+    Query(q): Query<SignViewQuery>,
+) -> Result<Json<SignViewResponse>> {
+    let mut env = load_public(&mongo, &id).await?;
+    let ok = env
+        .signers
+        .iter()
+        .any(|s| s.id == q.signer_id && s.access_token.as_deref() == Some(q.token.as_str()));
+    if !ok {
+        return Err(ApiError::Unauthorized("invalid signer or token".into()));
+    }
+    if env.status == "voided" || env.status == "expired" {
+        return Err(ApiError::Validation(
+            "this envelope is no longer available".into(),
+        ));
+    }
+
+    let now = now_iso();
+    if let Some(s) = env.signers.iter_mut().find(|s| s.id == q.signer_id) {
+        if s.viewed_at.is_none() {
+            s.viewed_at = Some(now.clone());
+        }
+        if s.status == "pending" || s.status == "notified" {
+            s.status = "viewed".into();
+        }
+    }
+    if env.status == "sent" {
+        env.status = "in_progress".into();
+    }
+    env.updated_at = Some(now);
+    replace_public(&mongo, &env).await?;
+    let signer_id = q.signer_id.clone();
+    audit(&mongo, &env, Some(&signer_id), "form.viewed", None, None).await;
+
+    Ok(Json(SignViewResponse {
+        envelope: env.sanitized_for_public(),
+        signer_id,
+    }))
+}
+
+#[instrument(skip_all, fields(id = %id))]
+pub async fn submit_envelope(
+    State(mongo): State<MongoHandle>,
+    Path(id): Path<String>,
+    Json(input): Json<SignSubmissionInput>,
+) -> Result<Json<SignSubmissionResponse>> {
+    let mut env = load_public(&mongo, &id).await?;
+    let signer_idx = env
+        .signers
+        .iter()
+        .position(|s| s.id == input.signer_id)
+        .ok_or_else(|| ApiError::NotFound("signer".into()))?;
+    if env.signers[signer_idx].access_token.as_deref() != Some(input.access_token.as_str()) {
+        return Err(ApiError::Unauthorized("invalid access token".into()));
+    }
+    if matches!(env.status.as_str(), "voided" | "expired" | "completed") {
+        return Err(ApiError::Validation(
+            "this envelope is no longer signable".into(),
+        ));
+    }
+    if env.signers[signer_idx].status == "completed" {
+        return Err(ApiError::Validation("you have already signed".into()));
+    }
+
+    let now = now_iso();
+    let ip = input.ip.clone();
+
+    // ── decline path ─────────────────────────────────────────────
+    if input.decline.unwrap_or(false) {
+        {
+            let s = &mut env.signers[signer_idx];
+            s.status = "declined".into();
+            s.declined_at = Some(now.clone());
+            s.decline_reason = input.decline_reason.clone();
+            s.ip_address = ip.clone();
+            s.user_agent = input.user_agent.clone();
+        }
+        env.status = "declined".into();
+        env.updated_at = Some(now.clone());
+        replace_public(&mongo, &env).await?;
+        audit(
+            &mongo,
+            &env,
+            Some(&input.signer_id),
+            "form.declined",
+            ip.as_deref(),
+            input.decline_reason.map(|r| json!({ "reason": r })),
+        )
+        .await;
+        return Ok(Json(SignSubmissionResponse {
+            ok: true,
+            envelope_status: "declined".into(),
+            next_signer_id: None,
+        }));
+    }
+
+    // ── completion path ──────────────────────────────────────────
+    if let Some(fvs) = &input.field_values {
+        for fv in fvs {
+            if let Some(f) = env.fields.iter_mut().find(|f| f.id == fv.field_id) {
+                f.value = Some(fv.value.clone());
+                f.filled_at = Some(now.clone());
+            }
+        }
+    }
+    {
+        let s = &mut env.signers[signer_idx];
+        s.status = "completed".into();
+        s.completed_at = Some(now.clone());
+        s.ip_address = ip.clone();
+        s.user_agent = input.user_agent.clone();
+    }
+
+    let all_done = env.signers.iter().all(|s| s.status == "completed");
+    let next = if all_done {
+        None
+    } else {
+        next_signer(&env, &input.signer_id)
+    };
+    if all_done {
+        env.status = "completed".into();
+        env.completed_at = Some(now.clone());
+    } else {
+        env.status = "in_progress".into();
+        if let Some(nid) = &next {
+            if let Some(ns) = env.signers.iter_mut().find(|s| &s.id == nid) {
+                if ns.status == "pending" {
+                    ns.status = "notified".into();
+                    ns.notified_at = Some(now.clone());
                 }
             }
         }
     }
-    Json(count)
-}
+    env.updated_at = Some(now.clone());
+    replace_public(&mongo, &env).await?;
 
-pub async fn set_reminder_settings(
-    State(state): State<AppState>,
-    Path(envelope_id): Path<Uuid>,
-    Json(settings): Json<ReminderSettings>,
-) -> Result<Json<Envelope>, StatusCode> {
-    let mut env = state
-        .get_envelope(&envelope_id)
-        .await
-        .ok_or(StatusCode::NOT_FOUND)?;
-    env.reminder_settings = Some(settings);
-    env.updated_at = Utc::now();
-    state.update_envelope(&envelope_id, env.clone()).await;
-    Ok(Json(env))
-}
+    audit(
+        &mongo,
+        &env,
+        Some(&input.signer_id),
+        "form.completed",
+        ip.as_deref(),
+        None,
+    )
+    .await;
+    if all_done {
+        audit(&mongo, &env, None, "submission.completed", None, None).await;
+    }
 
-pub async fn set_expire_settings(
-    State(state): State<AppState>,
-    Path(envelope_id): Path<Uuid>,
-    Json(settings): Json<ExpireSettings>,
-) -> Result<Json<Envelope>, StatusCode> {
-    let mut env = state
-        .get_envelope(&envelope_id)
-        .await
-        .ok_or(StatusCode::NOT_FOUND)?;
-    env.expire_settings = Some(settings);
-    env.updated_at = Utc::now();
-    state.update_envelope(&envelope_id, env.clone()).await;
-    Ok(Json(env))
-}
-
-pub async fn get_envelope_audit_trail(
-    State(_state): State<AppState>,
-    Path(_envelope_id): Path<Uuid>,
-) -> Json<Vec<String>> {
-    // Mocking audit trail
-    Json(vec![
-        "Envelope Created".into(),
-        "Document Added".into(),
-        "Recipient Added".into(),
-        "Envelope Sent".into(),
-    ])
+    Ok(Json(SignSubmissionResponse {
+        ok: true,
+        envelope_status: env.status.clone(),
+        next_signer_id: next,
+    }))
 }

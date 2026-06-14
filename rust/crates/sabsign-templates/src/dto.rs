@@ -1,10 +1,10 @@
-//! Request / response DTOs for sabsign-templates.
+//! Request / response DTOs for sabsign-templates. Mirrors the TS
+//! `sabsign-templates.ts` client one-for-one.
 
+use sabsign_envelopes::types::{EnvelopeField, EnvelopeSigner, RoutingRule};
 use serde::{Deserialize, Serialize};
 
-use sabsign_envelopes::types::{EnvelopeField, EnvelopeSigner, RoutingOrder, RoutingRule};
-
-use crate::types::{EsignTemplate, TemplateRecipientSlot};
+use crate::types::{SabSignTemplate, TemplateRecipientSlot};
 
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -15,6 +15,7 @@ pub struct ListQuery {
     pub limit: Option<u32>,
     #[serde(default)]
     pub q: Option<String>,
+    /// `"active"` | `"archived"` | `"all"`.
     #[serde(default)]
     pub status: Option<String>,
 }
@@ -31,13 +32,13 @@ pub struct CreateTemplateInput {
     #[serde(default)]
     pub description: Option<String>,
     #[serde(default)]
-    pub routing_order: Option<RoutingOrder>,
+    pub routing_order: Option<String>,
     #[serde(default)]
-    pub routing_rules: Vec<RoutingRule>,
+    pub routing_rules: Option<Vec<RoutingRule>>,
     #[serde(default)]
-    pub recipient_slots: Vec<TemplateRecipientSlot>,
+    pub recipient_slots: Option<Vec<TemplateRecipientSlot>>,
     #[serde(default)]
-    pub fields: Vec<EnvelopeField>,
+    pub fields: Option<Vec<EnvelopeField>>,
 }
 
 #[derive(Debug, Clone, Default, Deserialize)]
@@ -54,7 +55,7 @@ pub struct UpdateTemplateInput {
     #[serde(default)]
     pub doc_name: Option<String>,
     #[serde(default)]
-    pub routing_order: Option<RoutingOrder>,
+    pub routing_order: Option<String>,
     #[serde(default)]
     pub routing_rules: Option<Vec<RoutingRule>>,
     #[serde(default)]
@@ -83,7 +84,7 @@ pub struct InstantiateInput {
 #[serde(rename_all = "camelCase")]
 pub struct CreateTemplateResponse {
     pub id: String,
-    pub entity: EsignTemplate,
+    pub entity: SabSignTemplate,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -95,7 +96,7 @@ pub struct DeleteTemplateResponse {
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ListResponse {
-    pub items: Vec<EsignTemplate>,
+    pub items: Vec<SabSignTemplate>,
     pub page: u32,
     pub limit: u32,
     pub has_more: bool,

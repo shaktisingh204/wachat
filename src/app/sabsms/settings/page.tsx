@@ -10,8 +10,10 @@ import {
 import { getSabsmsSettingsAction } from "./actions";
 import { getAgentConfigAction } from "./agent-actions";
 import { getGovernanceSettingsAction } from "./governance-actions";
+import { listSinksAction } from "./sinks-actions";
 import { AgentSettingsCard } from "./agent-card";
 import { GovernanceSettingsCard } from "./governance-card";
+import { SinksSettingsCard } from "./sinks-card";
 import { RcsSettingsCard } from "./rcs-card";
 import { ResellerSettingsCard } from "./reseller-card";
 import { ShortLinksSettingsCard } from "./short-links-card";
@@ -64,6 +66,19 @@ async function GovernanceContent() {
   return <GovernanceSettingsCard initial={res.settings} />;
 }
 
+/** V3.7 — Event Streams + Sinks management. */
+async function SinksContent() {
+  const res = await listSinksAction();
+  if (!res.success) {
+    return (
+      <p className="rounded border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 text-sm text-[var(--st-text)]">
+        {res.error}
+      </p>
+    );
+  }
+  return <SinksSettingsCard initial={res.sinks} />;
+}
+
 export default function SabsmsSettingsPage() {
   return (
     <div className="space-y-6 p-6">
@@ -88,6 +103,11 @@ export default function SabsmsSettingsPage() {
       {/* V3 — channel governance + WhatsApp linkage. */}
       <Suspense fallback={null}>
         <GovernanceContent />
+      </Suspense>
+
+      {/* V3.7 — event streams + sinks. */}
+      <Suspense fallback={null}>
+        <SinksContent />
       </Suspense>
 
       {/* V2.13 — reseller engine (rate cards + margin report). */}

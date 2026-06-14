@@ -1,15 +1,20 @@
+//! # sabsign-audit
+//!
+//! Tamper-evident audit trail for SabSign. Every envelope lifecycle event is
+//! appended to `esign_audit_events` with a SHA-256 hash chained off the
+//! previous event for the same envelope, so the trail can be verified
+//! end-to-end (`chainValid`).
+//!
+//! Ids and timestamps are stored and returned as plain strings to match the
+//! TS wire contract (`SabSignAuditEvent`) exactly — no `{$oid}`/`{$date}`
+//! extended-JSON wrappers leak to the browser.
+
+pub mod chain;
+pub mod dto;
 pub mod handlers;
-pub mod mock_db;
-pub mod models;
-pub mod routes;
+pub mod router;
+pub mod types;
 
-pub use mock_db::AppState;
-pub use routes::create_router;
-
-pub async fn run() {
-    let state = AppState::new();
-    let app = create_router(state);
-
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:8080").await.unwrap();
-    axum::serve(listener, app).await.unwrap();
-}
+pub use chain::{append_event, hash_event, verify_chain};
+pub use router::router;
+pub use types::EsignAuditEvent;

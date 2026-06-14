@@ -80,7 +80,6 @@ export type ModuleSlug =
     | 'sabdesk'
     | 'sabrequests'
     | 'sabconnect'
-    | 'sabcampaigns'
     | 'sabpublish'
     | 'sabcreator'
     | 'sabcatalyst'
@@ -298,19 +297,6 @@ export const MODULES: ModuleDef[] = [
             { title: 'Suppression lists', desc: 'Auto-clean, global + project-level, regex match.', icon: Filter },
             { title: 'Inbox preview', desc: 'Render across Gmail, Outlook, Apple Mail before send.', icon: Layers },
         ], ['Verify domain', 'Build template', 'Send', 'Measure', 'Iterate']),
-
-    build('sabcampaigns', 'SabCampaigns', 'Cross-channel campaign engine', 'Run one campaign — across WA, email, SMS, push.',
-        'Audience builder, frequency caps, holdout groups, lift reports, attribution across channels.',
-        '/products/sabcampaigns', '/dashboard/sabcampaigns', Megaphone, 'Marketing', 'rose',
-        [{ value: 'X-channel', label: 'Native' }, { value: 'Lift', label: 'Built-in' }, { value: 'Holdout', label: 'Auto' }, { value: 'Caps', label: 'Per user' }],
-        [
-            { title: 'Audience builder', desc: 'Visual segment editor, real-time counts, save + share.', icon: Users },
-            { title: 'Channel mix', desc: 'WA + email + SMS + push — pick per cohort.', icon: Share2 },
-            { title: 'Frequency caps', desc: 'Per channel + global, time-window aware, save trust.', icon: Filter },
-            { title: 'Lift + holdout', desc: 'Automatic control group, stat-sig uplift, no spreadsheets.', icon: TrendingUp },
-            { title: 'Attribution', desc: 'First / last / multi-touch with custom decay.', icon: BarChart3 },
-            { title: 'Approvals', desc: 'Workflow with reviewers, locks on send, audit trail.', icon: ClipboardList },
-        ], ['Define audience', 'Pick channels', 'Schedule', 'Send', 'Measure lift']),
 
     build('sabpublish', 'SabPublish', 'Social publishing + scheduling', 'Schedule everywhere from one calendar.',
         'Cross-post to WA Status, IG, FB, LinkedIn, X, YT Shorts. Approvals, asset library, time-zone smart.',

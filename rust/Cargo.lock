@@ -9336,7 +9336,49 @@ dependencies = [
 ]
 
 [[package]]
+name = "sabcall-acls"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum 0.8.9",
+ "bson",
+ "chrono",
+ "crm-common",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "sabnode-rbac",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
 name = "sabcall-agents-presence"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum 0.8.9",
+ "bson",
+ "chrono",
+ "crm-common",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "sabnode-rbac",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "sabcall-applications"
 version = "0.1.0"
 dependencies = [
  "anyhow",
@@ -9378,7 +9420,70 @@ dependencies = [
 ]
 
 [[package]]
+name = "sabcall-contacts"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum 0.8.9",
+ "bson",
+ "chrono",
+ "crm-common",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "sabnode-rbac",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "sabcall-credentials"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum 0.8.9",
+ "bson",
+ "chrono",
+ "crm-common",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "sabnode-rbac",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
 name = "sabcall-dids"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum 0.8.9",
+ "bson",
+ "chrono",
+ "crm-common",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "sabnode-rbac",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "sabcall-domains"
 version = "0.1.0"
 dependencies = [
  "anyhow",
@@ -9421,6 +9526,27 @@ dependencies = [
 
 [[package]]
 name = "sabcall-queues"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum 0.8.9",
+ "bson",
+ "chrono",
+ "crm-common",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "sabnode-rbac",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "sabcall-trunks"
 version = "0.1.0"
 dependencies = [
  "anyhow",
@@ -13339,11 +13465,17 @@ dependencies = [
  "sabbugs-history",
  "sabbugs-saved-filters",
  "sabbugs-versions",
+ "sabcall-acls",
  "sabcall-agents-presence",
+ "sabcall-applications",
  "sabcall-calls",
+ "sabcall-contacts",
+ "sabcall-credentials",
  "sabcall-dids",
+ "sabcall-domains",
  "sabcall-ivrs",
  "sabcall-queues",
+ "sabcall-trunks",
  "sabcall-voicemail",
  "sabcatalyst-api-keys",
  "sabcatalyst-auth-sessions",
@@ -15730,25 +15862,43 @@ dependencies = [
 name = "sabsign-audit"
 version = "0.1.0"
 dependencies = [
- "axum 0.7.9",
+ "anyhow",
+ "axum 0.8.9",
+ "bson",
  "chrono",
+ "crm-common",
+ "futures",
+ "hex",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
  "serde",
  "serde_json",
+ "sha2 0.10.9",
  "tokio",
  "tracing",
- "tracing-subscriber",
- "uuid",
 ]
 
 [[package]]
 name = "sabsign-envelopes"
 version = "0.1.0"
 dependencies = [
- "axum 0.7.9",
+ "anyhow",
+ "axum 0.8.9",
+ "bson",
  "chrono",
+ "crm-common",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "sabsign-audit",
  "serde",
  "serde_json",
  "tokio",
+ "tracing",
  "uuid",
 ]
 
@@ -15842,11 +15992,22 @@ dependencies = [
 name = "sabsign-templates"
 version = "0.1.0"
 dependencies = [
- "axum 0.7.9",
+ "anyhow",
+ "axum 0.8.9",
+ "bson",
  "chrono",
+ "crm-common",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "sabsign-audit",
+ "sabsign-envelopes",
  "serde",
  "serde_json",
  "tokio",
+ "tracing",
  "uuid",
 ]
 

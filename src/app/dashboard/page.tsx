@@ -285,12 +285,6 @@ export default async function HomePage() {
                 <CardTitle>Recent broadcasts</CardTitle>
                 <CardDescription>Latest sends across your channels</CardDescription>
               </div>
-              <Link
-                href="/dashboard/sabcampaigns"
-                className="inline-flex items-center gap-0.5 rounded-[var(--st-radius)] px-2 py-1 text-[11px] font-medium text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-secondary)] hover:text-[var(--st-text)]"
-              >
-                View all <ArrowRight size={12} aria-hidden="true" />
-              </Link>
             </CardHeader>
             <div>
               {recentBroadcasts.length === 0 ? (
@@ -300,14 +294,6 @@ export default async function HomePage() {
                     icon={<Megaphone className="h-7 w-7 text-white" />}
                     title="No broadcasts yet"
                     description="Create your first campaign to reach your audience."
-                    action={
-                      <Link
-                        href="/dashboard/sabcampaigns"
-                        className="inline-flex items-center rounded-[var(--st-radius)] bg-[var(--st-accent)] px-3 py-1.5 text-[13px] font-semibold text-[var(--st-text-inverted)] transition-colors hover:bg-[var(--st-accent-hover)] active:scale-[0.98]"
-                      >
-                        <span>Create broadcast</span>
-                      </Link>
-                    }
                   />
                 </div>
               ) : (

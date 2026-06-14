@@ -35,7 +35,7 @@ pub async fn per_envelope(
 mod tests {
     use crate::types::VALID_FIELD_TYPES;
     #[test]
-    fn field_catalog_has_six_types() {
-        assert_eq!(VALID_FIELD_TYPES.len(), 6);
+    fn field_catalog_has_twelve_types() {
+        assert_eq!(VALID_FIELD_TYPES.len(), 12);
     }
 }

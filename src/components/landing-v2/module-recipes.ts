@@ -35,7 +35,6 @@ export const MODULE_RECIPES: Record<ModuleSlug, Recipe> = {
 
     // ── Marketing ──
     sabmail:       { bespoke: 'marketing',         sections: ['trust', 'features', 'bespoke', 'spotlights', 'workflow', 'stats', 'integrations', 'security', 'pricing', 'faq', 'related'] },
-    sabcampaigns:  { bespoke: 'marketing',         sections: ['trust', 'problem', 'bespoke', 'spotlights', 'features', 'ai', 'stats', 'integrations', 'testimonial', 'pricing', 'faq', 'related'] },
     sabpublish:    { bespoke: 'booking',           sections: ['trust', 'bespoke', 'features', 'spotlights', 'use-cases', 'integrations', 'pricing', 'faq', 'related'] },
     sabcreator:    { bespoke: 'affiliate',         sections: ['trust', 'features', 'bespoke', 'spotlights', 'stats', 'integrations', 'pricing', 'faq', 'related'] },
     sabcatalyst:   { bespoke: 'ab-test',           sections: ['trust', 'bespoke', 'features', 'workflow', 'spotlights', 'ai', 'integrations', 'pricing', 'faq', 'related'] },

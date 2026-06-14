@@ -8,13 +8,11 @@ import {
   MessageCircle,
   MoreVertical,
   BarChart,
-  Activity,
   Megaphone,
   Target,
   Link as LinkIcon,
   Share2,
   TrendingUp,
-  Mail,
 } from 'lucide-react';
 
 import {
@@ -35,12 +33,10 @@ import { createInboxMessage, updateInboxMessage } from '@/app/actions/marketing/
 
 export function UniversalInboxClient({
   initialData,
-  campaigns = [],
   utmLinks = [],
   socialPosts = [],
 }: {
   initialData: any[];
-  campaigns?: any[];
   utmLinks?: any[];
   socialPosts?: any[];
 }) {
@@ -206,8 +202,7 @@ export function UniversalInboxClient({
                 </Badge>
               </div>
 
-              <div className="mb-4 grid grid-cols-2 gap-4 md:grid-cols-4">
-                <StatCard icon={Activity} label="Active drips" value={campaigns.filter((c) => c.status === 'active').length} accent="#7c3aed" />
+              <div className="mb-4 grid grid-cols-2 gap-4 md:grid-cols-3">
                 <StatCard icon={Share2} label="Social posts" value={socialPosts.length} accent="#3b7af5" />
                 <StatCard icon={LinkIcon} label="UTM links" value={utmLinks.length} accent="#1f9d55" />
                 <StatCard icon={MessageCircle} label="Messages" value={messages.length} accent="#e0844e" />
@@ -215,44 +210,6 @@ export function UniversalInboxClient({
             </div>
 
             <div className="grid flex-1 grid-cols-1 gap-8 p-8 pt-6 lg:grid-cols-2">
-              {/* Campaigns List */}
-              <div className="flex flex-col gap-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="flex items-center gap-2 text-base font-semibold tracking-tight text-[var(--st-text)]">
-                    <Mail className="h-5 w-5 text-[var(--st-text-secondary)]" aria-hidden="true" />
-                    Drip campaigns
-                  </h3>
-                  <Button asChild variant="ghost" size="sm">
-                    <Link href="/dashboard/sabcampaigns">View all</Link>
-                  </Button>
-                </div>
-
-                <div className="grid grid-cols-1 gap-3">
-                  {campaigns.length === 0 ? (
-                    <EmptyState icon={Mail} title="No active campaigns" description="Drip campaigns you launch will show up here." size="sm" />
-                  ) : (
-                    campaigns.slice(0, 4).map((campaign) => (
-                      <Card key={campaign._id} variant="outlined" padding="md">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <Dot tone={campaign.status === 'active' ? 'accent' : 'neutral'} aria-label={campaign.status} />
-                            <div>
-                              <p className="text-sm font-medium text-[var(--st-text)]">{campaign.name}</p>
-                              <span className="text-[10px] font-semibold uppercase text-[var(--st-text-secondary)]">
-                                {campaign.status}
-                              </span>
-                            </div>
-                          </div>
-                          <Button variant="outline" size="sm">
-                            Manage
-                          </Button>
-                        </div>
-                      </Card>
-                    ))
-                  )}
-                </div>
-              </div>
-
               {/* UTM Links List */}
               <div className="flex flex-col gap-4">
                 <div className="flex items-center justify-between">

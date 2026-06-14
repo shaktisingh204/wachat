@@ -169,12 +169,25 @@ export interface SignSubmissionInput {
   fieldValues?: Array<{ fieldId: string; value: string }>;
   decline?: boolean;
   declineReason?: string;
+  /** Captured server-side for the audit trail. */
+  ip?: string;
+  userAgent?: string;
 }
 
 export interface SignSubmissionResponse {
   ok: boolean;
   envelopeStatus: EnvelopeStatus;
   nextSignerId?: string | null;
+}
+
+/**
+ * Sanitized, signer-scoped envelope returned by the public sign endpoint —
+ * access tokens, PIN hashes, and KBA answer hashes are stripped before it
+ * leaves the server.
+ */
+export interface SignViewResponse {
+  envelope: SabSignEnvelopeDoc;
+  signerId: string;
 }
 
 function qs(params?: EnvelopeListParams): string {
@@ -221,6 +234,17 @@ export const sabsignEnvelopesApi = {
     rustFetch<SabSignEnvelopeDoc>(
       `/v1/sabsign/envelopes/${encodeURIComponent(id)}/void`,
       { method: 'POST', body: JSON.stringify({ reason }) },
+    ),
+  /**
+   * Public, signer-scoped envelope view for the sign page. Verifies
+   * `(signerId, token)`, marks the signer `viewed`, and returns the
+   * sanitized envelope. Uses `rustPublicFetch` (no session).
+   */
+  signView: (id: string, signerId: string, token: string) =>
+    rustPublicFetch<SignViewResponse>(
+      `/v1/sabsign/envelopes/${encodeURIComponent(id)}/sign?signerId=${encodeURIComponent(
+        signerId,
+      )}&token=${encodeURIComponent(token)}`,
     ),
   /**
    * Public sign-page submission. Uses `rustPublicFetch` since the signer

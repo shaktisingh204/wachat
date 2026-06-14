@@ -14,6 +14,8 @@ import type {
   SabsmsProviderAccount,
   SabsmsSettings,
   SabsmsShortLink,
+  SabsmsEventSink,
+  SabsmsSinkDelivery,
   SabsmsSuppression,
   SabsmsTemplate,
   SabsmsVerification,
@@ -49,6 +51,8 @@ export const SABSMS_COLLECTIONS = {
   routingPolicies: 'sabsms_routing_policies',
   keywordRules: 'sabsms_keyword_rules',
   verifications: 'sabsms_verifications',
+  eventSinks: 'sabsms_event_sinks',
+  sinkDeliveries: 'sabsms_sink_deliveries',
 } as const;
 
 export type SabsmsCollectionName =
@@ -71,6 +75,8 @@ export interface SabsmsCollections {
   settings: Collection<SabsmsSettings>;
   routingPolicies: Collection<SabsmsRoutingPolicyDoc>;
   verifications: Collection<SabsmsVerification>;
+  eventSinks: Collection<SabsmsEventSink>;
+  sinkDeliveries: Collection<SabsmsSinkDelivery>;
 }
 
 export async function getSabsmsCollections(): Promise<{
@@ -108,6 +114,10 @@ export async function getSabsmsCollections(): Promise<{
     ),
     verifications: db.collection<SabsmsVerification>(
       SABSMS_COLLECTIONS.verifications,
+    ),
+    eventSinks: db.collection<SabsmsEventSink>(SABSMS_COLLECTIONS.eventSinks),
+    sinkDeliveries: db.collection<SabsmsSinkDelivery>(
+      SABSMS_COLLECTIONS.sinkDeliveries,
     ),
   };
   return { db, cols };
@@ -186,6 +196,13 @@ const INDEXES: Record<
     [{ workspaceId: 1, verificationId: 1 }, { unique: true }],
     // TTL — drop verification records once expired (status is terminal by then).
     [{ expiresAt: 1 }, { expireAfterSeconds: 24 * 60 * 60 }],
+  ],
+  eventSinks: [[{ workspaceId: 1, enabled: 1 }]],
+  sinkDeliveries: [
+    [{ workspaceId: 1, sinkId: 1, createdAt: -1 }],
+    [{ status: 1, nextRetryAt: 1 }],
+    // TTL — drop delivery records after 30 days.
+    [{ createdAt: 1 }, { expireAfterSeconds: 30 * 24 * 60 * 60 }],
   ],
 };
 

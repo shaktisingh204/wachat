@@ -28,6 +28,10 @@ import { RecipientChips } from "../../_components/recipient-chips";
 import { RichTextEditor, type RichTextEditorHandle } from "../../_components/rich-text-editor";
 import { aiWriteCompose, sendSabmailMessage } from "../actions";
 import { scheduleSabmailSend } from "../../scheduled/actions";
+import { useSabmailDraftPresence } from "@/lib/sabmail/collab/use-draft-presence";
+import { useSabmailCollabDoc } from "@/lib/sabmail/collab/use-collab-doc";
+import { useSabmailCollabBinding } from "@/lib/sabmail/collab/use-collab-binding";
+import { CollabPresenceBar } from "./collab-presence-bar";
 import "../../_components/sabmail-app.css";
 
 export interface ComposePrefill {
@@ -69,6 +73,7 @@ export function ComposeModal({
   accountEmail,
   title = "New Message",
   prefill,
+  draftId,
   onClose,
   onSent,
 }: {
@@ -77,6 +82,12 @@ export function ComposeModal({
   accountEmail: string;
   title?: string;
   prefill?: ComposePrefill;
+  /**
+   * Stable id for this draft's collaboration room. Pass one (e.g. derived from
+   * the reply's Message-ID) so two people replying to the same thread co-edit
+   * together; omit for a fresh per-session room.
+   */
+  draftId?: string;
   onClose: () => void;
   onSent?: () => void;
 }) {
@@ -95,6 +106,42 @@ export function ComposeModal({
   const [aiBusy, setAiBusy] = React.useState(false);
   const [attachments, setAttachments] = React.useState<{ filename: string; url: string }[]>([]);
   const editorRef = React.useRef<RichTextEditorHandle>(null);
+
+  /* ── Collaborative drafting (presence always-on; CRDT optional) ───────── */
+  const subjectRef = React.useRef(subject);
+  subjectRef.current = subject;
+  const applyingRemoteRef = React.useRef(false);
+
+  const [activeDraftId, setActiveDraftId] = React.useState<string | null>(null);
+  React.useEffect(() => {
+    if (open) {
+      setActiveDraftId(
+        draftId ??
+          (prefill?.inReplyTo
+            ? `reply:${prefill.inReplyTo}`
+            : `compose:${accountId}:${Math.random().toString(36).slice(2)}`),
+      );
+    } else {
+      setActiveDraftId(null);
+    }
+  }, [open, draftId, prefill?.inReplyTo, accountId]);
+
+  const { others } = useSabmailDraftPresence(activeDraftId, open);
+  const { doc, status, live } = useSabmailCollabDoc(activeDraftId, open);
+  const { onLocalBody, onLocalSubject } = useSabmailCollabBinding(doc, live, {
+    applyBody: (html) => {
+      applyingRemoteRef.current = true;
+      bodyRef.current = html;
+      editorRef.current?.setHtml(html);
+      applyingRemoteRef.current = false;
+    },
+    getBody: () => bodyRef.current,
+    applySubject: (s) => {
+      setShowSubject(true);
+      setSubject(s);
+    },
+    getSubject: () => subjectRef.current,
+  });
 
   /* ── AI: write / formalize / rewrite (all via aiWriteCompose) ─────────── */
   const runAi = React.useCallback(
@@ -271,6 +318,9 @@ export function ComposeModal({
               </button>
             </div>
 
+            {/* collaborators (presence + live-sync status) */}
+            <CollabPresenceBar others={others} status={status} />
+
             {/* recipients */}
             <div className="px-5">
               <div className="relative">
@@ -307,7 +357,10 @@ export function ComposeModal({
                   <span className="w-10 shrink-0 text-xs font-medium text-[var(--st-text-secondary)]">Subj</span>
                   <Input
                     value={subject}
-                    onChange={(e) => setSubject(e.target.value)}
+                    onChange={(e) => {
+                      setSubject(e.target.value);
+                      onLocalSubject(e.target.value);
+                    }}
                     placeholder="Subject"
                     className="border-0 bg-transparent px-0 shadow-none focus-visible:ring-0"
                   />
@@ -323,6 +376,7 @@ export function ComposeModal({
                   initialHtml={prefill?.bodyHtml}
                   onChange={(html) => {
                     bodyRef.current = html;
+                    if (!applyingRemoteRef.current) onLocalBody(html);
                   }}
                 />
                 {aiBusy ? (

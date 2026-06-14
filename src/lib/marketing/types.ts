@@ -1,12 +1,3 @@
-export interface DripCampaign {
-  id: string;
-  name: string;
-  status: 'draft' | 'active' | 'paused' | 'completed';
-  audienceId: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
 export interface UtmLink {
   id: string;
   url: string;

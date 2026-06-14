@@ -483,6 +483,21 @@ export interface SabsmsEventSink {
   updatedAt: Date;
 }
 
+/** One delivery attempt of an event to a sink (retry bookkeeping). */
+export interface SabsmsSinkDelivery {
+  _id?: ObjectId;
+  workspaceId: string;
+  sinkId: string;
+  eventId: string;
+  eventType: string;
+  status: 'pending' | 'delivered' | 'failed';
+  attempts: number;
+  lastError?: string;
+  nextRetryAt?: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export interface SabsmsConsentEvent {
   _id?: ObjectId;
   workspaceId: string;

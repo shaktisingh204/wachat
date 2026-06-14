@@ -7,8 +7,14 @@ pub const VALID_FIELD_TYPES: &[&str] = &[
     "initials",
     "date",
     "text",
+    "number",
     "checkbox",
+    "radio",
     "dropdown",
+    "image",
+    "file",
+    "stamp",
+    "phone",
 ];
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
