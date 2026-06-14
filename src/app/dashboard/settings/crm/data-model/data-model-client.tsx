@@ -72,6 +72,8 @@ import {
   reorderFieldsAction,
   createRelationAction,
 } from '@/app/actions/sabcrm.actions';
+import { listValueSetsTw } from '@/app/actions/sabcrm-valuesets.actions';
+import type { GlobalValueSet } from '@/lib/sabcrm/value-sets';
 import type {
   ObjectMetadata,
   FieldMetadata,
@@ -79,6 +81,9 @@ import type {
   FieldOption,
   FieldRelation,
 } from '@/lib/sabcrm/types';
+
+/** Field-settings key a SELECT/MULTI_SELECT field uses to reference a value set. */
+const VALUE_SET_FIELD_KEY = 'valueSetId';
 
 /* -------------------------------------------------------------------------- */
 /*  Static field-type catalogue                                               */
@@ -561,6 +566,10 @@ interface FieldDraft {
   inTable: boolean;
   isLabel: boolean;
   options: FieldOption[];
+  /** Optional global value-set this SELECT/MULTI_SELECT field draws options from. */
+  valueSetId: string;
+  /** The field's existing settings blob, preserved on save (e.g. settings.ai). */
+  baseSettings: Record<string, unknown>;
 }
 
 function emptyDraft(): FieldDraft {
@@ -574,10 +583,13 @@ function emptyDraft(): FieldDraft {
     inTable: true,
     isLabel: false,
     options: [],
+    valueSetId: '',
+    baseSettings: {},
   };
 }
 
 function draftFromField(field: FieldMetadata): FieldDraft {
+  const settings = (field.settings ?? {}) as Record<string, unknown>;
   return {
     key: field.key,
     label: field.label,
@@ -588,6 +600,11 @@ function draftFromField(field: FieldMetadata): FieldDraft {
     inTable: field.inTable ?? false,
     isLabel: field.isLabel ?? false,
     options: field.options ? field.options.map((o) => ({ ...o })) : [],
+    valueSetId:
+      typeof settings[VALUE_SET_FIELD_KEY] === 'string'
+        ? (settings[VALUE_SET_FIELD_KEY] as string)
+        : '',
+    baseSettings: settings,
   };
 }
 
@@ -927,6 +944,18 @@ function FieldForm({
   const [saving, setSaving] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
+  // Global value sets a SELECT/MULTI_SELECT field can draw its options from.
+  const [valueSets, setValueSets] = React.useState<GlobalValueSet[]>([]);
+  React.useEffect(() => {
+    let alive = true;
+    void listValueSetsTw(projectId).then((res) => {
+      if (alive && res.ok) setValueSets(res.data);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [projectId]);
+
   const existingKeys = React.useMemo(
     () => new Set(object.fields.map((f) => f.key)),
     [object.fields],
@@ -948,7 +977,9 @@ function FieldForm({
     draft.label.trim().length > 0 &&
     draft.key.trim().length > 0 &&
     !keyConflict &&
-    (!needsOptions || draft.options.length > 0) &&
+    (!needsOptions ||
+      draft.options.length > 0 ||
+      draft.valueSetId.trim().length > 0) &&
     !saving;
 
   const addOption = () =>
@@ -983,6 +1014,16 @@ function FieldForm({
           .filter((o) => o.value)
       : undefined;
 
+    // Preserve the field's existing settings; set/clear the value-set reference
+    // (SELECT/MULTI_SELECT only). When set, the record form resolves options from
+    // the value set; inline options remain as a fallback.
+    const nextSettings: Record<string, unknown> = { ...draft.baseSettings };
+    if (needsOptions && draft.valueSetId.trim()) {
+      nextSettings[VALUE_SET_FIELD_KEY] = draft.valueSetId.trim();
+    } else {
+      delete nextSettings[VALUE_SET_FIELD_KEY];
+    }
+
     try {
       if (editing) {
         const res = await updateFieldAction(
@@ -995,7 +1036,7 @@ function FieldForm({
             required: draft.required,
             inTable: draft.inTable,
             isLabel: draft.isLabel,
-            ...(needsOptions ? { options } : {}),
+            ...(needsOptions ? { options, settings: nextSettings } : {}),
           },
           projectId,
         );
@@ -1019,6 +1060,9 @@ function FieldForm({
           inTable: draft.inTable,
           isLabel: draft.isLabel,
           ...(options ? { options } : {}),
+          ...(needsOptions && Object.keys(nextSettings).length
+            ? { settings: nextSettings }
+            : {}),
         };
         const res = await addFieldAction(object.slug, field, projectId);
         if (res.ok) {
@@ -1119,6 +1163,37 @@ function FieldForm({
 
       {needsOptions ? (
         <div className="grid gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] p-3">
+          {valueSets.length > 0 ? (
+            <Field
+              label="Value set (optional)"
+              help="Draw this field's options from a shared global value set. Leave as “None” to use the manual options below."
+            >
+              <Select
+                value={draft.valueSetId || '__none__'}
+                onValueChange={(v) =>
+                  set('valueSetId', v === '__none__' ? '' : v)
+                }
+              >
+                <SelectTrigger aria-label="Value set">
+                  <SelectValue placeholder="None (manual options)" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none__">None (manual options)</SelectItem>
+                  {valueSets.map((vs) => (
+                    <SelectItem key={vs.id} value={vs.id}>
+                      {vs.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
+          ) : null}
+          {draft.valueSetId ? (
+            <p className="text-[11px] text-[var(--st-text-secondary)]">
+              Options come from the selected value set. The manual options below
+              are kept only as a fallback.
+            </p>
+          ) : null}
           <div className="flex items-center justify-between">
             <Label>Options</Label>
             <Button

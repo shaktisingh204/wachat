@@ -799,6 +799,8 @@ export interface UpdateFieldPatch {
   options?: FieldMetadata["options"];
   defaultValue?: unknown;
   relation?: FieldRelation;
+  /** Per-field settings blob (e.g. SELECT value-set reference settings.valueSetId). */
+  settings?: Record<string, unknown>;
 }
 
 /**
@@ -853,6 +855,7 @@ export async function updateField(
   if (patch.defaultValue !== undefined) merged.defaultValue = patch.defaultValue;
   if (patch.relation !== undefined) merged.relation = patch.relation;
   if (patch.isLabel !== undefined) merged.isLabel = patch.isLabel;
+  if (patch.settings !== undefined) merged.settings = patch.settings;
 
   // Re-validate the merged shape (key/type are unchanged from `target`).
   assertValidField(merged);
