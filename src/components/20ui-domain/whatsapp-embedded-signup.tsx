@@ -10,7 +10,7 @@ import { WhatsAppIcon } from './custom-sidebar-components';
 import { completeWhatsAppEmbeddedSignup } from '@/app/actions/facebook.actions';
 
 // Must match the Graph version used in the server-side token exchange.
-const GRAPH_VERSION = 'v24.0';
+const GRAPH_VERSION = 'v25.0';
 const FB_SDK_SRC = `https://connect.facebook.net/en_US/sdk.js`;
 
 // Facebook posts the WA_EMBEDDED_SIGNUP session info from these origins.

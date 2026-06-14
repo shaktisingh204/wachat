@@ -399,7 +399,7 @@ export default function MessengerSettingsPage(): React.JSX.Element {
                     <div className="flex items-end">
                       <Button
                         variant="ghost"
-                        size="icon-sm"
+                        size="sm"
                         onClick={() =>
                           setIceBreakers((p) => p.filter((_, j) => j !== i))
                         }

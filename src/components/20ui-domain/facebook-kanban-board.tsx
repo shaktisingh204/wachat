@@ -112,10 +112,10 @@ export function FacebookKanbanBoard() {
         startLoadingTransition(async () => {
             const result = await saveFacebookKanbanStatuses(project._id.toString(), allStatusNames);
             if (!result.success) {
-                toast({ title: "Error", description: "Could not save new list.", tone: "danger" });
+                toast({ title: "Error", description: "Could not save new list.", variant: "destructive" });
                 fetchData(); // Revert on failure
             } else {
-                 toast({ title: "Success", description: `List "${name}" added.`, tone: "success" });
+                 toast({ title: "Success", description: `List "${name}" added.`, variant: "success" });
             }
         });
     };

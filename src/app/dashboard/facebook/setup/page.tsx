@@ -72,6 +72,7 @@ import * as React from "react";
 
 import { ManualSetupDialog } from "../_components/manual-setup-dialog";
 import { FacebookGlyph, WhatsAppGlyph } from "../_components/icons";
+import FacebookLoginForBusiness from "@/components/20ui-domain/facebook-login-for-business";
 
 const META_SUITE_LOGIN = "/api/auth/meta-suite/login";
 
@@ -192,12 +193,16 @@ function StepBadge({ label }: { label: string }) {
 
 function ConnectStep({
   appId,
+  configId,
   onConnect,
   onManualSuccess,
+  onConnected,
 }: {
   appId: string | undefined;
+  configId: string | undefined;
   onConnect: () => void;
   onManualSuccess: () => void;
+  onConnected: () => void;
 }) {
   return (
     <Card padding="lg">
@@ -214,7 +219,17 @@ function ConnectStep({
       </div>
 
       <div className="mt-5 flex flex-wrap items-center gap-2">
-        {appId ? (
+        {appId && configId ? (
+          // Modern Facebook Login for Business (config_id via the JS SDK).
+          <FacebookLoginForBusiness
+            appId={appId}
+            configId={configId}
+            navigateOnSuccess={false}
+            onConnected={onConnected}
+            size="lg"
+          />
+        ) : appId ? (
+          // Fallback: legacy redirect OAuth (no Login-for-Business config set).
           <Button variant="primary" size="lg" iconLeft={Facebook} iconRight={ArrowRight} onClick={onConnect}>
             Connect with Facebook
           </Button>
@@ -279,12 +294,14 @@ function PickPageStep({
   onSelect,
   onConnectAnother,
   appId,
+  configId,
 }: {
   projects: WithId<Project>[];
   selectedId: string | null;
   onSelect: (id: string) => void;
   onConnectAnother: () => void;
   appId: string | undefined;
+  configId: string | undefined;
 }) {
   return (
     <Card padding="lg">
@@ -373,7 +390,22 @@ function PickPageStep({
           );
         })}
 
-        {appId ? (
+        {appId && configId ? (
+          <div className="flex flex-col items-center justify-center gap-2 rounded-[var(--st-radius-lg)] border-2 border-dashed border-[var(--st-border)] bg-[var(--st-bg)] p-6 text-center">
+            <span className="flex h-10 w-10 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
+              <FacebookGlyph className="h-5 w-5" aria-hidden="true" />
+            </span>
+            <p className="text-[12.5px] text-[var(--st-text)]">Connect another page</p>
+            <FacebookLoginForBusiness
+              appId={appId}
+              configId={configId}
+              size="sm"
+              label="Connect"
+              navigateOnSuccess={false}
+              onConnected={onConnectAnother}
+            />
+          </div>
+        ) : appId ? (
           <Link
             href={META_SUITE_LOGIN}
             onClick={onConnectAnother}
@@ -512,6 +544,7 @@ export default function FacebookSetupPage() {
   const [igChecking, setIgChecking] = useState(false);
 
   const appId = process.env.NEXT_PUBLIC_FACEBOOK_APP_ID;
+  const configId = process.env.NEXT_PUBLIC_META_FB_PAGES_CONFIG_ID;
 
   const fetchProjects = useCallback(() => {
     startLoading(async () => {
@@ -639,8 +672,10 @@ export default function FacebookSetupPage() {
         {step === "connect" ? (
           <ConnectStep
             appId={appId}
+            configId={configId}
             onConnect={startMetaOAuth}
             onManualSuccess={fetchProjects}
+            onConnected={fetchProjects}
           />
         ) : null}
 
@@ -665,6 +700,7 @@ export default function FacebookSetupPage() {
               onSelect={handlePickPage}
               onConnectAnother={fetchProjects}
               appId={appId}
+              configId={configId}
             />
           )
         ) : null}

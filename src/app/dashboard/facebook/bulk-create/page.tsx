@@ -276,19 +276,16 @@ export default function BulkCreatePage() {
             <StatCard
               label="Rows"
               value={rows.length.toLocaleString()}
-              period="In editor"
               icon={<FileUp />}
             />
             <StatCard
               label="Valid posts"
               value={validCount.toLocaleString()}
-              period="With message text"
               icon={<CheckCircle2 />}
             />
             <StatCard
               label="Scheduled"
               value={scheduledCount.toLocaleString()}
-              period="With future time"
               icon={<Send />}
             />
           </div>
@@ -355,7 +352,7 @@ export default function BulkCreatePage() {
             <CardBody>
               {rows.length === 0 ? (
                 <EmptyState
-                  compact
+                  size="sm"
                   icon={<Upload />}
                   title="No rows"
                   description="Upload a CSV or add a row to start."
@@ -413,7 +410,7 @@ export default function BulkCreatePage() {
                           <Td>
                             <Button
                               variant="ghost"
-                              size="icon-sm"
+                              size="sm"
                               onClick={() => removeRow(i)}
                               disabled={rows.length <= 1}
                               aria-label="Remove row"

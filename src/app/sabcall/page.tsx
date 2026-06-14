@@ -119,7 +119,7 @@ export default function VoiceCallHubPage() {
           </PageDescription>
         </PageHeaderHeading>
         <PageActions>
-          <Button asChild variant="primary">
+          <Button asChild variant="primary" className="sc-press">
             <Link href="/sabcall/dids">
               <Plus className="h-4 w-4" aria-hidden="true" />
               Buy a number
@@ -172,7 +172,7 @@ export default function VoiceCallHubPage() {
             <Link key={s.href} href={s.href} className="group block focus:outline-none">
               <Card
                 variant="interactive"
-                className="flex h-full flex-col gap-[var(--st-space-2)] group-focus-visible:ring-2 group-focus-visible:ring-[var(--st-accent)]"
+                className="sc-card flex h-full flex-col gap-[var(--st-space-2)] group-focus-visible:ring-2 group-focus-visible:ring-[var(--st-accent)]"
               >
                 <div className="flex items-start justify-between">
                   <span

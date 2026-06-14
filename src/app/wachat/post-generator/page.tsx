@@ -34,6 +34,7 @@ import * as React from 'react';
 import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport } from 'ai';
 import { useProject } from '@/context/project-context';
+import { AiPostGenerator } from '@/components/wachat/growth/ai-post-generator';
 import {
   getPostDrafts,
   savePostDraft,
@@ -270,6 +271,8 @@ export default function PostGeneratorPage() {
           generate and copy suggestions without one.
         </Alert>
       ) : null}
+
+      <AiPostGenerator className="mb-2" />
 
       <div className="grid gap-6 md:grid-cols-2">
         <Card padding="none">

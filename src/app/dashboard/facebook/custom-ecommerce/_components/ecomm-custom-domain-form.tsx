@@ -230,7 +230,7 @@ export function EcommCustomDomainForm() {
                         <span className="break-all">cname.sabnode.com</span>
                         <Button
                           variant="ghost"
-                          size="icon-sm"
+                          size="sm"
                           onClick={() => copy("cname.sabnode.com")}
                           aria-label="Copy CNAME target"
                         >
@@ -253,7 +253,7 @@ export function EcommCustomDomainForm() {
                         </span>
                         <Button
                           variant="ghost"
-                          size="icon-sm"
+                          size="sm"
                           onClick={() => copy(domain.verificationCode)}
                           aria-label="Copy verification code"
                         >

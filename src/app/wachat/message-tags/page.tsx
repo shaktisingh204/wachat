@@ -21,7 +21,7 @@ import {
   Input,
   Skeleton,
   useToast,
-  Select,
+  SelectField as Select,
 } from '@/components/sabcrm/20ui';
 import {
   useEffect,

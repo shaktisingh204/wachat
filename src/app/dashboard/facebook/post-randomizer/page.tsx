@@ -99,7 +99,7 @@ function RandomizerPostCard({
         <div className="flex flex-col gap-1">
           <Button
             variant="ghost"
-            size="icon-sm"
+            size="sm"
             disabled
             aria-label="Edit pool post"
           >
@@ -107,7 +107,7 @@ function RandomizerPostCard({
           </Button>
           <Button
             variant="ghost"
-            size="icon-sm"
+            size="sm"
             aria-label="Remove from pool"
             onClick={() => onDelete(post._id.toString())}
             disabled={isDeleting}
@@ -287,7 +287,7 @@ export default function PostRandomizerPage() {
             </PageDescription>
           </PageHeading>
           <PageActions>
-            <Badge variant={settings.enabled ? "success" : "ghost"}>
+            <Badge variant={settings.enabled ? "success" : "secondary"}>
               <Repeat />
               {settings.enabled ? "Active" : "Paused"}
             </Badge>

@@ -21,7 +21,7 @@ import {
   EmptyState,
   Field,
   Input,
-  Select,
+  SelectField as Select,
   Drawer,
   DrawerContent,
   DrawerDescription,
@@ -47,6 +47,7 @@ import {
 import { useProject } from '@/context/project-context';
 
 import { WachatPage } from '@/app/wachat/_components/wachat-page';
+import { AiSegmentSuggester } from '@/components/wachat/broadcasts/ai-segment-suggester';
 
 /**
  * Wachat Broadcast Segments — saved audience segments, 20ui rebuild.
@@ -264,6 +265,7 @@ export default function BroadcastSegmentsPage() {
       }
     >
       <div className="flex flex-col gap-6">
+        <AiSegmentSuggester />
         {/* Segments grid */}
         <div>
           <CardTitle className="text-[18px] tracking-tight leading-none">

@@ -193,7 +193,7 @@ export default function SipAclsPage() {
           </PageDescription>
         </PageHeaderHeading>
         <PageActions>
-          <Button variant="primary" iconLeft={Plus} onClick={openCreate}>
+          <Button variant="primary" iconLeft={Plus} onClick={openCreate} className="sc-press">
             New ACL
           </Button>
         </PageActions>
@@ -245,7 +245,7 @@ export default function SipAclsPage() {
               title="No ACLs yet"
               description="Create your first rule to allow or deny SIP traffic by IP range."
               action={
-                <Button variant="primary" iconLeft={Plus} onClick={openCreate}>
+                <Button variant="primary" iconLeft={Plus} onClick={openCreate} className="sc-press">
                   New ACL
                 </Button>
               }
@@ -298,6 +298,7 @@ export default function SipAclsPage() {
                             size="sm"
                             iconLeft={Pencil}
                             onClick={() => openEdit(a)}
+                            className="sc-press"
                           >
                             Edit
                           </Button>
@@ -307,6 +308,7 @@ export default function SipAclsPage() {
                             iconLeft={Trash2}
                             loading={deletingId === a._id}
                             onClick={() => handleDelete(a)}
+                            className="sc-press"
                           >
                             Delete
                           </Button>
@@ -331,7 +333,7 @@ export default function SipAclsPage() {
             <Button variant="secondary" onClick={() => setIsFormOpen(false)}>
               Cancel
             </Button>
-            <Button variant="primary" onClick={handleSave} loading={saving}>
+            <Button variant="primary" onClick={handleSave} loading={saving} className="sc-press">
               {editing ? 'Save changes' : 'Create ACL'}
             </Button>
           </>

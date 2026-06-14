@@ -125,7 +125,7 @@ export default function SabcallSecretsPage() {
             reference that trunks and credentials point at.
           </PageDescription>
         </PageHeaderHeading>
-        <Button variant="primary" size="sm" iconLeft={Plus} onClick={openNew}>
+        <Button variant="primary" size="sm" iconLeft={Plus} onClick={openNew} className="sc-press">
           New secret
         </Button>
       </PageHeader>
@@ -148,7 +148,7 @@ export default function SabcallSecretsPage() {
         <ul className="flex flex-col gap-2">
           {rows.map((s) => (
             <li key={s._id}>
-              <Card className="flex items-center gap-3 p-3">
+              <Card className="sc-card flex items-center gap-3 p-3">
                 <span className="grid h-9 w-9 shrink-0 place-items-center rounded-md bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                   <KeyRound className="h-4 w-4" aria-hidden />
                 </span>
@@ -159,10 +159,10 @@ export default function SabcallSecretsPage() {
                   </div>
                 </div>
                 <Badge variant="outline">{s.kind}</Badge>
-                <Button size="sm" variant="ghost" iconLeft={Pencil} onClick={() => openEdit(s)}>
+                <Button size="sm" variant="ghost" iconLeft={Pencil} onClick={() => openEdit(s)} className="sc-press">
                   Edit
                 </Button>
-                <Button size="sm" variant="ghost" iconLeft={Trash2} onClick={() => void remove(s._id)}>
+                <Button size="sm" variant="ghost" iconLeft={Trash2} onClick={() => void remove(s._id)} className="sc-press">
                   Delete
                 </Button>
               </Card>
@@ -222,7 +222,7 @@ export default function SabcallSecretsPage() {
             <Button variant="outline" size="sm" onClick={() => setOpen(false)} disabled={busy}>
               Cancel
             </Button>
-            <Button variant="primary" size="sm" loading={busy} disabled={busy} onClick={() => void save()}>
+            <Button variant="primary" size="sm" loading={busy} disabled={busy} onClick={() => void save()} className="sc-press">
               {editId ? "Save" : "Add secret"}
             </Button>
           </DialogFooter>

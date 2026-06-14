@@ -140,7 +140,7 @@ function StoryTile({ story }: { story: Story }) {
         <div className="flex items-center justify-between gap-2">
           <Badge variant="secondary">{story.media_type ?? "photo"}</Badge>
           {story.status && (
-            <Badge variant={isPublished ? "success" : "ghost"}>
+            <Badge variant={isPublished ? "success" : "secondary"}>
               {story.status}
             </Badge>
           )}
@@ -419,7 +419,7 @@ function CreateStoryDialog({
         <div className="flex flex-col gap-4 py-2">
           <RadioGroup
             value={mode}
-            onValueChange={(val: "upload" | "url") => setMode(val)}
+            onValueChange={(val) => setMode(val as "upload" | "url")}
             className="grid grid-cols-2"
           >
             <RadioCard

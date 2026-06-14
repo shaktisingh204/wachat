@@ -8,10 +8,12 @@ import {
   useState,
   useTransition } from 'react';
 import { AlertCircle,
+  Download,
   Plus,
   RefreshCw,
   Users } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { m } from 'motion/react';
 
 import { useProject } from '@/context/project-context';
 import {
@@ -196,6 +198,23 @@ export default function FacebookAudiencePage(): React.JSX.Element {
 
   const buckets = useMemo(() => normalizeDemographics(demographics), [demographics]);
 
+  const exportCsv = useCallback(() => {
+    const rows: string[] = ['category,label,value'];
+    const push = (cat: string, list: DemoBucket[]) =>
+      list.forEach((b) => rows.push(`${cat},${b.label},${b.value}`));
+    push('gender', buckets.gender);
+    push('age', buckets.age);
+    push('country', buckets.countries);
+    if (rows.length === 1) return;
+    const blob = new Blob([rows.join('\n')], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'facebook-audience.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [buckets]);
+
   const resetForm = () => {
     setFormName('');
     setFormDesc('');
@@ -268,6 +287,9 @@ export default function FacebookAudiencePage(): React.JSX.Element {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={exportCsv} iconLeft={Download}>
+            CSV
+          </Button>
           <Button variant="ghost" onClick={refresh} disabled={loading}>
             <RefreshCw className={loading ? 'mr-2 h-4 w-4 animate-spin' : 'mr-2 h-4 w-4'} />
             Refresh
@@ -287,7 +309,12 @@ export default function FacebookAudiencePage(): React.JSX.Element {
         </Alert>
       )}
 
-      <section className="grid grid-cols-1 gap-3 md:grid-cols-3">
+      <m.section
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+        className="grid grid-cols-1 gap-3 md:grid-cols-3"
+      >
         {loading && !demographics ? (
           <>
             <Skeleton className="h-40 w-full" />
@@ -301,7 +328,7 @@ export default function FacebookAudiencePage(): React.JSX.Element {
             <DemoBars title="Top countries" buckets={buckets.countries} />
           </>
         )}
-      </section>
+      </m.section>
 
       <Card>
         <CardHeader>

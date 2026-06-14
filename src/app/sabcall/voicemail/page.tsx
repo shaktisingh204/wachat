@@ -143,7 +143,7 @@ export default function VoicemailInboxPage() {
       ) : (
         <div className="flex flex-col gap-[var(--st-space-3)]">
           {data.map((v) => (
-            <Card key={v._id} variant="outlined" className="flex flex-col gap-[var(--st-space-2)]">
+            <Card key={v._id} variant="outlined" className="sc-card flex flex-col gap-[var(--st-space-2)]">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span
@@ -172,10 +172,10 @@ export default function VoicemailInboxPage() {
                 </blockquote>
               ) : null}
               <div className="flex gap-2">
-                <Button size="sm" variant="outline" iconLeft={Play} onClick={() => handleListen(v._id)}>
+                <Button size="sm" variant="outline" iconLeft={Play} onClick={() => handleListen(v._id)} className="sc-press">
                   Listen
                 </Button>
-                <Button size="sm" variant="ghost" iconLeft={Archive} onClick={() => handleArchive(v._id)}>
+                <Button size="sm" variant="ghost" iconLeft={Archive} onClick={() => handleArchive(v._id)} className="sc-press">
                   Archive
                 </Button>
               </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { AnimatePresence, m } from "motion/react";
 import {
   Headphones,
   Pause,
@@ -111,9 +112,16 @@ export default function SabcallAgentConsolePage() {
         </Card>
       ) : (
         <ul className="flex flex-col gap-2">
+          <AnimatePresence initial={false}>
           {calls.map((c) => (
-            <li key={c.id}>
-              <Card className="flex flex-col gap-3 p-3">
+            <m.li
+              key={c.id}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.97 }}
+              transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <Card className="sc-card flex flex-col gap-3 p-3">
                 <div className="flex items-center gap-3">
                   <span className="grid h-9 w-9 shrink-0 place-items-center rounded-md bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                     <Radio className="h-4 w-4" aria-hidden />
@@ -126,6 +134,7 @@ export default function SabcallAgentConsolePage() {
                       Channel {c.id}
                     </div>
                   </div>
+                  <span className="sc-live-dot h-2 w-2 shrink-0 rounded-full bg-[var(--st-status-ok)]" aria-hidden />
                   <Badge variant="default">{c.state || "up"}</Badge>
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -163,8 +172,9 @@ export default function SabcallAgentConsolePage() {
                   </div>
                 ) : null}
               </Card>
-            </li>
+            </m.li>
           ))}
+          </AnimatePresence>
         </ul>
       )}
     </main>

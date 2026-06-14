@@ -1,0 +1,461 @@
+/* ====================================================================
+ * WhatsApp live-preview styling
+ *
+ * A faithful-enough recreation of WhatsApp's chat surface for in-app
+ * previews (template / broadcast / flow / carousel / composer). Uses the
+ * recognizable WhatsApp palette (not --st-* tokens) so the preview looks
+ * like the real client regardless of the app theme; `data-theme` toggles
+ * the WA light/dark skins. Kept self-contained under `.wa-preview`.
+ * ==================================================================== */
+
+.wa-preview {
+  --wa-out-bg: #d9fdd3;
+  --wa-out-text: #111b21;
+  --wa-in-bg: #ffffff;
+  --wa-in-text: #111b21;
+  --wa-meta: #667781;
+  --wa-link: #027eb5;
+  --wa-btn-text: #027eb5;
+  --wa-chrome: #008069;
+  --wa-wallpaper: #efeae2;
+  --wa-divider: rgba(0, 0, 0, 0.08);
+  font-family:
+    "Segoe UI", "Helvetica Neue", Helvetica, system-ui, -apple-system, sans-serif;
+}
+.wa-preview[data-theme="dark"] {
+  --wa-out-bg: #005c4b;
+  --wa-out-text: #e9edef;
+  --wa-in-bg: #202c33;
+  --wa-in-text: #e9edef;
+  --wa-meta: #8696a0;
+  --wa-link: #53bdeb;
+  --wa-btn-text: #53bdeb;
+  --wa-chrome: #202c33;
+  --wa-wallpaper: #0b141a;
+  --wa-divider: rgba(255, 255, 255, 0.1);
+}
+
+/* ---- phone frame ------------------------------------------------- */
+.wa-phone {
+  position: relative;
+  width: 300px;
+  max-width: 100%;
+  border-radius: 38px;
+  background: #111;
+  padding: 10px;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.18),
+    0 12px 40px rgba(0, 0, 0, 0.28);
+}
+.wa-phone__notch {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 92px;
+  height: 20px;
+  border-radius: 0 0 12px 12px;
+  background: #111;
+  z-index: 3;
+}
+.wa-phone__screen {
+  position: relative;
+  border-radius: 30px;
+  overflow: hidden;
+  background: var(--wa-wallpaper);
+  height: 540px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* WhatsApp doodle wallpaper (subtle, theme-aware) */
+.wa-phone__screen::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(
+    circle at 20% 30%,
+    color-mix(in srgb, var(--wa-meta) 7%, transparent) 0,
+    transparent 36%
+  ),
+  radial-gradient(
+    circle at 80% 70%,
+    color-mix(in srgb, var(--wa-meta) 6%, transparent) 0,
+    transparent 36%
+  );
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* ---- chat top bar ----------------------------------------------- */
+.wa-topbar {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 12px 8px;
+  background: var(--wa-chrome);
+  color: #fff;
+}
+.wa-preview[data-theme="dark"] .wa-topbar {
+  color: var(--wa-in-text);
+}
+.wa-topbar__avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+  font-weight: 600;
+}
+.wa-topbar__name {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.1;
+}
+.wa-topbar__status {
+  font-size: 11px;
+  opacity: 0.85;
+}
+
+/* ---- messages scroll area --------------------------------------- */
+.wa-msgs {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.wa-msgs::-webkit-scrollbar {
+  width: 5px;
+}
+.wa-msgs::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--wa-meta) 30%, transparent);
+  border-radius: 999px;
+}
+
+.wa-row {
+  display: flex;
+}
+.wa-row--out {
+  justify-content: flex-end;
+}
+.wa-row--in {
+  justify-content: flex-start;
+}
+
+/* ---- bubble ----------------------------------------------------- */
+.wa-bubble {
+  position: relative;
+  max-width: 85%;
+  padding: 6px 9px 8px;
+  border-radius: 8px;
+  font-size: 13.5px;
+  line-height: 1.35;
+  box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.13);
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+.wa-bubble--out {
+  background: var(--wa-out-bg);
+  color: var(--wa-out-text);
+  border-top-right-radius: 2px;
+}
+.wa-bubble--in {
+  background: var(--wa-in-bg);
+  color: var(--wa-in-text);
+  border-top-left-radius: 2px;
+}
+.wa-bubble__header {
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+.wa-bubble__footer {
+  margin-top: 4px;
+  font-size: 11.5px;
+  color: var(--wa-meta);
+}
+.wa-bubble__meta {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 3px;
+  margin-top: 2px;
+  font-size: 10.5px;
+  color: var(--wa-meta);
+  line-height: 1;
+}
+.wa-bubble a,
+.wa-link {
+  color: var(--wa-link);
+  text-decoration: none;
+}
+
+/* ---- media ------------------------------------------------------ */
+.wa-media {
+  margin: -2px -3px 4px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--wa-meta) 18%, transparent);
+}
+.wa-media img,
+.wa-media video {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 220px;
+  object-fit: cover;
+}
+.wa-media__placeholder {
+  display: grid;
+  place-items: center;
+  height: 150px;
+  color: var(--wa-meta);
+}
+.wa-doc {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--wa-meta) 12%, transparent);
+}
+.wa-doc__icon {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--wa-meta) 22%, transparent);
+  color: var(--wa-meta);
+  flex: none;
+}
+.wa-doc__name {
+  font-size: 12.5px;
+  font-weight: 500;
+}
+.wa-doc__sub {
+  font-size: 11px;
+  color: var(--wa-meta);
+}
+.wa-audio {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 180px;
+}
+.wa-audio__track {
+  flex: 1;
+  height: 3px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--wa-meta) 35%, transparent);
+  position: relative;
+}
+.wa-audio__track::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--wa-meta);
+}
+
+/* ---- location --------------------------------------------------- */
+.wa-loc {
+  margin: -2px -3px 4px;
+  border-radius: 6px;
+  overflow: hidden;
+}
+.wa-loc__map {
+  height: 120px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #cfe9d9, #add6c0);
+  color: #2c6e49;
+}
+.wa-preview[data-theme="dark"] .wa-loc__map {
+  background: linear-gradient(135deg, #1f3b30, #16302a);
+  color: #7fd1a8;
+}
+
+/* ---- buttons (under-bubble actions) ----------------------------- */
+.wa-actions {
+  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.wa-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px;
+  border-radius: 8px;
+  background: var(--wa-in-bg);
+  color: var(--wa-btn-text);
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.13);
+}
+.wa-preview[data-theme="dark"] .wa-action {
+  background: #202c33;
+}
+
+/* ---- interactive list ------------------------------------------- */
+.wa-listbtn {
+  margin-top: 4px;
+  padding: 10px;
+  border-radius: 8px;
+  background: var(--wa-in-bg);
+  color: var(--wa-btn-text);
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.13);
+}
+.wa-preview[data-theme="dark"] .wa-listbtn {
+  background: #202c33;
+}
+.wa-listpanel {
+  margin-top: 6px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--wa-in-bg);
+}
+.wa-preview[data-theme="dark"] .wa-listpanel {
+  background: #111b21;
+}
+.wa-listsection__title {
+  padding: 8px 12px 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--wa-link);
+}
+.wa-listrow {
+  padding: 9px 12px;
+  border-top: 1px solid var(--wa-divider);
+}
+.wa-listrow__title {
+  font-size: 13px;
+  color: var(--wa-in-text);
+}
+.wa-listrow__desc {
+  font-size: 11.5px;
+  color: var(--wa-meta);
+}
+
+/* ---- carousel --------------------------------------------------- */
+.wa-carousel {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scroll-snap-type: x mandatory;
+}
+.wa-carousel::-webkit-scrollbar {
+  height: 4px;
+}
+.wa-carousel__card {
+  flex: 0 0 78%;
+  scroll-snap-align: start;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--wa-in-bg);
+  color: var(--wa-in-text);
+  box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.13);
+}
+.wa-preview[data-theme="dark"] .wa-carousel__card {
+  background: #202c33;
+}
+.wa-carousel__body {
+  padding: 8px 9px;
+  font-size: 12.5px;
+}
+
+/* ---- catalog / product ------------------------------------------ */
+.wa-product {
+  display: flex;
+  gap: 9px;
+  padding: 8px;
+  border-radius: 8px;
+  background: var(--wa-in-bg);
+  color: var(--wa-in-text);
+}
+.wa-preview[data-theme="dark"] .wa-product {
+  background: #202c33;
+}
+.wa-product__thumb {
+  width: 54px;
+  height: 54px;
+  border-radius: 6px;
+  object-fit: cover;
+  background: color-mix(in srgb, var(--wa-meta) 18%, transparent);
+  flex: none;
+  display: grid;
+  place-items: center;
+  color: var(--wa-meta);
+}
+.wa-product__price {
+  font-weight: 600;
+  font-size: 13px;
+}
+
+/* ---- template category badge ------------------------------------ */
+.wa-tplbadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 7px;
+  margin-bottom: 4px;
+  border-radius: 4px;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: color-mix(in srgb, var(--wa-meta) 16%, transparent);
+  color: var(--wa-meta);
+}
+
+/* ---- composer bar (decorative) ---------------------------------- */
+.wa-composer {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+}
+.wa-composer__field {
+  flex: 1;
+  height: 36px;
+  border-radius: 999px;
+  background: var(--wa-in-bg);
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  font-size: 12.5px;
+  color: var(--wa-meta);
+}
+.wa-composer__send {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--wa-chrome);
+  display: grid;
+  place-items: center;
+  color: #fff;
+  flex: none;
+}
+.wa-preview[data-theme="dark"] .wa-composer__send {
+  background: #00a884;
+}

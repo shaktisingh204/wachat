@@ -76,8 +76,8 @@ export default function CapiPage() {
     };
 
     const endpoint = selectedPixelId
-        ? `https://graph.facebook.com/v23.0/${selectedPixelId}/events`
-        : 'https://graph.facebook.com/v23.0/{pixel_id}/events';
+        ? `https://graph.facebook.com/v25.0/${selectedPixelId}/events`
+        : 'https://graph.facebook.com/v25.0/{pixel_id}/events';
 
     return (
         <div className="space-y-6 max-w-4xl">

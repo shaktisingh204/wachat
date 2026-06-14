@@ -27,6 +27,7 @@ import {
   publishPageReel,
   } from "@/app/actions/facebook.actions";
 import {
+  presignUpload,
   confirmUpload,
   } from "@/app/actions/sabfiles.actions";
 import { useProject } from "@/context/project-context";
@@ -393,7 +394,6 @@ function UploadReelDialog({
         size: file.size,
         mime: file.type,
         parent_id: projectId,
-        module_id: "facebook",
       });
 
       if ("error" in presign) throw new Error(presign.error as string);
@@ -428,7 +428,6 @@ function UploadReelDialog({
         size: file.size,
         mime: file.type,
         parent_id: projectId,
-        module_id: "facebook",
       });
 
       if ("error" in confirm) throw new Error(confirm.error as string);

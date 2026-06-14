@@ -14,7 +14,7 @@ import {
   Input,
   Modal,
   SegmentedControl,
-  Select,
+  SelectField as Select,
   Textarea,
   useToast,
 } from "@/components/sabcrm/20ui";
@@ -39,6 +39,8 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 
 import { useProject } from "@/context/project-context";
+import { AiTemplateGenerator } from "@/components/wachat/templates/ai-template-generator";
+import type { GeneratedTemplate } from "@/lib/wachat/ai/types";
 
 function cx(...a: Array<string | false | null | undefined>): string {
   return a.filter(Boolean).join(" ");
@@ -105,6 +107,16 @@ export default function TemplateBuilderPage() {
   );
   const [footer, setFooter] = useState("Powered by Wachat");
   const [buttons, setButtons] = useState<TplButton[]>([]);
+
+  const applyGenerated = (t: GeneratedTemplate) => {
+    setCategory(t.category.toLowerCase());
+    setBody(t.body);
+    setFooter(t.footer ?? "");
+    if (t.header) {
+      setHeaderType("text");
+      setHeaderText(t.header);
+    }
+  };
 
   const [blocks, setBlocks] = useState([
     "category",
@@ -429,6 +441,10 @@ export default function TemplateBuilderPage() {
     >
       <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
         <div className="flex flex-col gap-4 pl-8">
+          <AiTemplateGenerator
+            onApply={applyGenerated}
+            brand={{ businessName: activeProject?.name ?? undefined }}
+          />
           <DndContext
             sensors={sensors}
             collisionDetection={closestCenter}

@@ -100,6 +100,23 @@ export function ChatMessageInput({ project, contact, templates, replyToMessageId
         getCannedMessages(contact.projectId.toString()).then(setCannedMessages);
     }, [contact.projectId]);
 
+    // AI Copilot bridge: the copilot dock dispatches `wachat:copilot-insert`
+    // with the generated draft. Insert it into THIS composer when the event
+    // targets the active contact (additive; no prop drilling through ChatWindow).
+    useEffect(() => {
+        function onCopilotInsert(e: Event) {
+            const detail = (e as CustomEvent).detail as
+                | { contactId?: string; text?: string }
+                | undefined;
+            if (!detail?.text) return;
+            if (detail.contactId && detail.contactId !== contact._id.toString()) return;
+            setInputValue((prev) => (prev ? `${prev.trim()} ${detail.text}` : detail.text!));
+        }
+        window.addEventListener('wachat:copilot-insert', onCopilotInsert as EventListener);
+        return () =>
+            window.removeEventListener('wachat:copilot-insert', onCopilotInsert as EventListener);
+    }, [contact]);
+
     useEffect(() => {
         if (sendState.error) {
             toast({ title: 'Error sending message', description: sendState.error, variant: 'destructive' });

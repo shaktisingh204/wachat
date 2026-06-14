@@ -14,7 +14,7 @@ import {
   RefreshCw,
   Users,
   } from 'lucide-react';
-import { useForm } from 'react-hook-form';
+import { useForm, type Resolver } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/sabcrm/20ui';
@@ -47,6 +47,8 @@ const pageDetailsSchema = z.object({
   syncPageIds: z.array(z.string()).default([]),
 });
 
+type FormValues = z.infer<typeof pageDetailsSchema>;
+
 function formatNumber(n: number | undefined): string {
   if (n == null || Number.isNaN(n)) return '—';
   return new Intl.NumberFormat().format(n);
@@ -63,8 +65,8 @@ export default function FacebookConnectedPagesPage(): React.JSX.Element {
   const [saving, startSaving] = useTransition();
 
   const [editing, setEditing] = useState(false);
-  const form = useForm<z.infer<typeof pageDetailsSchema>>({
-    resolver: zodResolver(pageDetailsSchema),
+  const form = useForm<FormValues>({
+    resolver: zodResolver(pageDetailsSchema) as Resolver<FormValues>,
     defaultValues: {
       about: '',
       phone: '',
@@ -329,8 +331,8 @@ export default function FacebookConnectedPagesPage(): React.JSX.Element {
                       <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                         <FormControl>
                           <Checkbox
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
+                            checked={field.value === true}
+                            onChange={(e) => field.onChange(e.target.checked)}
                           />
                         </FormControl>
                         <div className="space-y-1 leading-none">
@@ -371,13 +373,14 @@ export default function FacebookConnectedPagesPage(): React.JSX.Element {
                                     >
                                       <FormControl>
                                         <Checkbox
-                                          checked={field.value?.includes(page.id)}
-                                          onCheckedChange={(checked) => {
+                                          checked={field.value?.includes(page.id) === true}
+                                          onChange={(e) => {
+                                            const checked = e.target.checked;
                                             return checked
                                               ? field.onChange([...field.value, page.id])
                                               : field.onChange(
                                                   field.value?.filter(
-                                                    (value) => value !== page.id
+                                                    (value: string) => value !== page.id
                                                   )
                                                 )
                                           }}
@@ -438,7 +441,7 @@ export default function FacebookConnectedPagesPage(): React.JSX.Element {
                     </p>
                     <div className="mt-2 flex flex-wrap gap-1">
                       {(p.tasks ?? []).slice(0, 4).map((t) => (
-                        <Badge key={t} variant="ghost">
+                        <Badge key={t} variant="secondary">
                           {t}
                         </Badge>
                       ))}

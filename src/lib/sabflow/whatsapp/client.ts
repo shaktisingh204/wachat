@@ -13,7 +13,7 @@ import 'server-only';
 import type { WhatsAppMessage } from './types';
 
 /** Graph API version used for all calls. */
-const GRAPH_API_VERSION = 'v18.0';
+const GRAPH_API_VERSION = 'v25.0';
 
 /** Arguments to {@link sendMessage}. */
 export interface SendMessageArgs {

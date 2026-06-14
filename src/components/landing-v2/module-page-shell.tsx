@@ -46,6 +46,7 @@ import {
     CommunityFeed, BookingCalendar, AffiliateBoard, AbTestRunner, FieldJobsMap,
     ClientPortal, OpsCommand,
 } from './bespoke-extras';
+import { SabCallShowcase } from './sections/sabcall-showcase';
 import { recipeFor, type BespokeId, type SectionId } from './module-recipes';
 
 interface ModulePageShellProps {
@@ -162,6 +163,7 @@ function renderBespoke(id: BespokeId, mod: (typeof MODULES)[number]) {
         case 'field-jobs':        return <FieldJobsMap mod={mod} />;
         case 'client-portal':     return <ClientPortal mod={mod} />;
         case 'ops-command':       return <OpsCommand mod={mod} />;
+        case 'sabcall':           return <SabCallShowcase mod={mod} />;
         default:                  return null;
     }
 }

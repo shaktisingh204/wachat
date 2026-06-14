@@ -21,7 +21,7 @@ import {
   EmptyState,
   Field,
   Input,
-  Select,
+  SelectField as Select,
   Table,
   THead,
   TBody,

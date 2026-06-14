@@ -60,4 +60,4 @@ pub const OUTGOING_MESSAGES_COLL: &str = "outgoing_messages";
 ///
 /// Re-exported as a constant so callers building a [`MetaClient`] for this
 /// slice can do so without re-encoding the version string.
-pub const META_API_VERSION: &str = "v23.0";
+pub const META_API_VERSION: &str = "v25.0";

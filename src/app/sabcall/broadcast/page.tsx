@@ -109,6 +109,7 @@ export default function SabcallBroadcastPage() {
             loading={busy}
             disabled={busy}
             onClick={() => void run()}
+            className="sc-press"
           >
             Start broadcast
           </Button>

@@ -1,6 +1,6 @@
 "use client";
 
-import { Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, DataTable, EmptyState, PageActions, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, Skeleton, useToast } from '@/components/sabcrm/20ui';
+import { Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, DataTable, EmptyState, PageActions, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, Skeleton, useToast, type DataTableColumn } from '@/components/sabcrm/20ui';
 import {
   useCallback,
   useEffect,
@@ -12,7 +12,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { format,
   formatDistanceToNow } from "date-fns";
-import type { ColumnDef } from "@tanstack/react-table";
 import {
   CalendarClock,
   CalendarRange,
@@ -56,12 +55,12 @@ import {
 
 function ScheduleBadge({ post }: { post: FacebookPost }) {
   if (!post.scheduled_publish_time) {
-    return <Badge variant="ghost">Draft</Badge>;
+    return <Badge variant="secondary">Draft</Badge>;
   }
   const at = new Date(post.scheduled_publish_time * 1000);
   const isPast = at.getTime() < Date.now();
   return (
-    <Badge variant={isPast ? "danger" : "warning"}>
+    <Badge variant={isPast ? "destructive" : "warning"}>
       <CalendarClock />
       {isPast ? "Overdue" : "Queued"}
     </Badge>
@@ -137,7 +136,7 @@ function RowActions({
       />
       <Button
         variant="ghost"
-        size="icon-sm"
+        size="sm"
         aria-label="Publish now"
         onClick={onPublishNow}
         disabled={isPublishing}
@@ -146,7 +145,7 @@ function RowActions({
       </Button>
       <Button
         variant="ghost"
-        size="icon-sm"
+        size="sm"
         aria-label="Edit scheduled post"
         onClick={() => setIsEditOpen(true)}
       >
@@ -205,14 +204,13 @@ export default function ScheduledPostsPage() {
     fetchPosts();
   }, [fetchPosts]);
 
-  const columns = useMemo<ColumnDef<FacebookPost>[]>(
+  const columns = useMemo<DataTableColumn<FacebookPost>[]>(
     () => [
       {
-        id: "post",
-        accessorFn: (row) => row.message ?? "",
+        key: "post",
         header: "Post",
-        cell: ({ row }) => {
-          const post = row.original;
+        render: (row) => {
+          const post = row;
           return (
             <div className="flex min-w-0 items-center gap-3">
               <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)]">
@@ -250,11 +248,10 @@ export default function ScheduledPostsPage() {
         },
       },
       {
-        id: "scheduledFor",
+        key: "scheduledFor",
         header: "Scheduled for",
-        accessorFn: (row) => row.scheduled_publish_time ?? 0,
-        cell: ({ row }) => {
-          const t = row.original.scheduled_publish_time;
+        render: (row) => {
+          const t = row.scheduled_publish_time;
           if (!t) return <span className="text-[var(--st-text-secondary)]">—</span>;
           const at = new Date(t * 1000);
           return (
@@ -270,16 +267,16 @@ export default function ScheduledPostsPage() {
         },
       },
       {
-        id: "status",
+        key: "status",
         header: "Status",
-        cell: ({ row }) => <ScheduleBadge post={row.original} />,
+        render: (row) => <ScheduleBadge post={row} />,
       },
       {
-        id: "actions",
-        header: () => <span className="sr-only">Actions</span>,
-        cell: ({ row }) => (
+        key: "actions",
+        header: <span className="sr-only">Actions</span>,
+        render: (row) => (
           <RowActions
-            post={row.original}
+            post={row}
             projectId={projectId ?? ""}
             onActionComplete={handleActionComplete}
           />
@@ -326,7 +323,7 @@ export default function ScheduledPostsPage() {
           <div className="flex items-center gap-1 rounded-[var(--st-radius-sm)] border border-[var(--st-border)] p-1 bg-[var(--st-bg-secondary)]">
             <Button
               variant={view === "table" ? "secondary" : "ghost"}
-              size="icon-sm"
+              size="sm"
               onClick={() => setView("table")}
               title="Table View"
             >
@@ -334,7 +331,7 @@ export default function ScheduledPostsPage() {
             </Button>
             <Button
               variant={view === "calendar" ? "secondary" : "ghost"}
-              size="icon-sm"
+              size="sm"
               onClick={() => setView("calendar")}
               title="Calendar View"
             >
@@ -383,10 +380,8 @@ export default function ScheduledPostsPage() {
         ) : (
           <DataTable
             columns={columns}
-            data={posts}
-            filterColumn="post"
-            filterPlaceholder="Search scheduled posts…"
-            pageSize={10}
+            rows={posts}
+            getRowId={(row) => row.id}
           />
         )}
       </div>

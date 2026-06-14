@@ -65,7 +65,7 @@ const entityHref: Record<EntityKey, (id: string) => string> = {
   contact: (id) => `/dashboard/crm/contacts/${id}`,
   vendor: (id) => `/dashboard/crm/purchases/vendors/${id}`,
   item: (id) => `/dashboard/crm/inventory/items/${id}`,
-  employee: (id) => `/dashboard/hrm/payroll/employees/${id}`,
+  employee: (id) => `/sabcrm/people/employees/${id}`,
   // Users currently route to the team manage-users page; the lookup
   // registry only resolves the current user safely (RBAC reasons).
   user: () => `/dashboard/team/manage-users`,
@@ -80,8 +80,8 @@ const entityHref: Record<EntityKey, (id: string) => string> = {
   country: () => `/dashboard/crm/settings`,
   currency: () => `/dashboard/crm/settings`,
   deal: (id) => `/dashboard/crm/deals/${id}`,
-  department: () => `/dashboard/hrm/payroll/departments`,
-  designation: () => `/dashboard/hrm/payroll/designations`,
+  department: () => `/sabcrm/people/settings`,
+  designation: () => `/sabcrm/people/settings`,
   // The `enum` key is a form-field-only picker (status, priority, etc.) —
   // there is no detail page, so the fallback just routes to settings.
   enum: () => `/dashboard/crm/settings`,
@@ -111,7 +111,7 @@ const entityHref: Record<EntityKey, (id: string) => string> = {
   // No detail route for tasks yet — fall back to the tasks list.
   subtask: (id) => `/dashboard/crm/projects/subtasks/${id}`,
   task: () => `/dashboard/crm/sales-crm/tasks`,
-  asset: (id) => `/dashboard/hrm/hr/assets/${id}`,
+  asset: () => `/sabcrm/people/settings`,
   ticket: (id) => `/dashboard/sabdesk/${id}`,
   ticketGroup: () => `/dashboard/sabdesk/groups`,
   vendorBill: (id) => `/dashboard/crm/purchases/expenses/${id}`,
@@ -218,8 +218,8 @@ const quickActions: QuickAction[] = [
   { id: 'qa-bill',        label: 'New bill',               hint: 'Purchases',  href: '/dashboard/crm/purchases/expenses/new' },
   { id: 'qa-vendor',      label: 'New vendor',             hint: 'Purchases',  href: '/dashboard/crm/purchases/vendors/new' },
   { id: 'qa-item',        label: 'New item',               hint: 'Inventory',  href: '/dashboard/crm/inventory/items/new' },
-  { id: 'qa-payroll',     label: 'Run payroll',            hint: 'HRM',        href: '/dashboard/hrm/payroll/payroll' },
-  { id: 'qa-employee',    label: 'Add employee',           hint: 'HRM',        href: '/dashboard/hrm/payroll/employees/new' },
+  { id: 'qa-payroll',     label: 'Run payroll',            hint: 'People',     href: '/sabcrm/people/payroll-runs' },
+  { id: 'qa-employee',    label: 'Add employee',           hint: 'Admin',      href: '/sabadmin/people' },
   { id: 'qa-coa',         label: 'Open chart of accounts', hint: 'Accounting', href: '/dashboard/crm/accounting/charts' },
   { id: 'qa-warehouses',  label: 'Open warehouses',        hint: 'Inventory',  href: '/dashboard/crm/inventory/warehouses' },
 ];

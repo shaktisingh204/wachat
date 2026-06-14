@@ -32,6 +32,7 @@ import { useProject } from '@/context/project-context';
 import { getWabaHealthStatus } from '@/app/actions/whatsapp.actions';
 import { SyncProjectsDialog } from '@/app/wachat/_components/sync-projects-dialog';
 import { WachatPage } from '@/app/wachat/_components/wachat-page';
+import '@/components/wachat/motion/wachat-motion.css';
 
 /**
  * /wachat — WhatsApp project picker, rebuilt on 20ui primitives.
@@ -398,13 +399,18 @@ export default function SelectProjectPage() {
           <ProjectsEmptyState query={search} reloadProjects={reloadProjects} />
         ) : (
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-3">
-            {paginated.map((p) => (
-              <ProjectRow
+            {paginated.map((p, i) => (
+              <div
                 key={p._id.toString()}
-                project={p}
-                onSelect={handleSelect}
-                healthStatus={healthMap[p._id.toString()]}
-              />
+                className="wachat-stagger-item"
+                style={{ ['--i' as string]: Math.min(i, 12) } as React.CSSProperties}
+              >
+                <ProjectRow
+                  project={p}
+                  onSelect={handleSelect}
+                  healthStatus={healthMap[p._id.toString()]}
+                />
+              </div>
             ))}
           </div>
         )}

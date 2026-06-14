@@ -213,7 +213,7 @@ export default function BusinessHoursPage() {
           </PageDescription>
         </PageHeaderHeading>
         <PageActions>
-          <Button variant="primary" iconLeft={Plus} onClick={openCreate}>
+          <Button variant="primary" iconLeft={Plus} onClick={openCreate} className="sc-press">
             New schedule
           </Button>
         </PageActions>
@@ -252,7 +252,7 @@ export default function BusinessHoursPage() {
               title="No business hours yet"
               description="Create a weekly schedule to control open and closed call routing."
               action={
-                <Button variant="primary" iconLeft={Plus} onClick={openCreate}>
+                <Button variant="primary" iconLeft={Plus} onClick={openCreate} className="sc-press">
                   New schedule
                 </Button>
               }
@@ -296,6 +296,7 @@ export default function BusinessHoursPage() {
                             size="sm"
                             iconLeft={Pencil}
                             onClick={() => openEdit(h)}
+                            className="sc-press"
                           >
                             Edit
                           </Button>
@@ -305,6 +306,7 @@ export default function BusinessHoursPage() {
                             iconLeft={Trash2}
                             loading={deletingId === h._id}
                             onClick={() => handleDelete(h._id, h.name)}
+                            className="sc-press"
                           >
                             Delete
                           </Button>
@@ -329,7 +331,7 @@ export default function BusinessHoursPage() {
             <Button variant="secondary" onClick={() => setIsFormOpen(false)}>
               Cancel
             </Button>
-            <Button variant="primary" onClick={handleSave} loading={saving}>
+            <Button variant="primary" onClick={handleSave} loading={saving} className="sc-press">
               {editingId ? 'Save changes' : 'Create schedule'}
             </Button>
           </>

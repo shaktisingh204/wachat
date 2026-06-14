@@ -134,6 +134,7 @@ export function SabcallProjectsClient({
           variant="primary"
           size="sm"
           iconLeft={Plus}
+          className="sc-press"
           onClick={() => {
             setName("");
             setCreateErr(null);
@@ -156,6 +157,7 @@ export function SabcallProjectsClient({
                   variant="primary"
                   size="sm"
                   iconLeft={Plus}
+                  className="sc-press"
                   onClick={() => {
                     setName("");
                     setCreateErr(null);
@@ -175,7 +177,7 @@ export function SabcallProjectsClient({
               return (
                 <li key={p.id}>
                   <Card
-                    className={`flex h-full flex-col gap-3 p-5 transition-colors ${
+                    className={`sc-card flex h-full flex-col gap-3 p-5 transition-colors ${
                       isActive
                         ? "ring-2 ring-[var(--st-primary,var(--st-accent))]"
                         : ""
@@ -213,7 +215,7 @@ export function SabcallProjectsClient({
                       <Button
                         variant={p.setupComplete ? "outline" : "primary"}
                         size="sm"
-                        className="w-full"
+                        className="sc-press w-full"
                         loading={selecting}
                         disabled={selecting}
                         iconRight={ArrowRight}
@@ -270,6 +272,7 @@ export function SabcallProjectsClient({
               variant="primary"
               size="sm"
               iconLeft={Plus}
+              className="sc-press"
               loading={busy}
               disabled={busy || !name.trim()}
               onClick={() => void handleCreate()}

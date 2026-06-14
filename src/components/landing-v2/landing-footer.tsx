@@ -13,7 +13,6 @@ const cols = [
             { label: 'SabChat', href: '/dashboard/sabchat' },
             { label: 'CRM', href: '/sabcrm' },
             { label: 'SEO', href: '/dashboard/seo' },
-            { label: 'HRM', href: '/dashboard/hrm' },
         ],
     },
     {

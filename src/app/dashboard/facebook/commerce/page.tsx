@@ -177,7 +177,7 @@ export default function FacebookCommercePage(): React.JSX.Element {
             </div>
             <p className="text-xs text-[var(--st-text-secondary)]">{t.description}</p>
             <footer className="flex items-center justify-between border-t border-[var(--st-border)] pt-3">
-              <Badge variant="ghost">live</Badge>
+              <Badge variant="secondary">live</Badge>
               <Button asChild variant="ghost" size="sm">
                 <Link href={t.href} className="inline-flex items-center">
                   Open

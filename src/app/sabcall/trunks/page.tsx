@@ -183,7 +183,7 @@ export default function SipTrunksPage() {
           </PageDescription>
         </PageHeaderHeading>
         <PageActions>
-          <Button variant="primary" iconLeft={Plus} onClick={openCreate}>
+          <Button variant="primary" iconLeft={Plus} onClick={openCreate} className="sc-press">
             New trunk
           </Button>
         </PageActions>
@@ -222,7 +222,7 @@ export default function SipTrunksPage() {
               title="No trunks yet"
               description="Add a SIP trunk to route calls through your carrier."
               action={
-                <Button variant="primary" iconLeft={Plus} onClick={openCreate}>
+                <Button variant="primary" iconLeft={Plus} onClick={openCreate} className="sc-press">
                   New trunk
                 </Button>
               }
@@ -271,6 +271,7 @@ export default function SipTrunksPage() {
                             size="sm"
                             iconLeft={Pencil}
                             onClick={() => openEdit(t)}
+                            className="sc-press"
                           >
                             Edit
                           </Button>
@@ -280,6 +281,7 @@ export default function SipTrunksPage() {
                             iconLeft={Trash2}
                             loading={deletingId === t._id}
                             onClick={() => handleDelete(t._id, t.name)}
+                            className="sc-press"
                           >
                             Delete
                           </Button>
@@ -304,7 +306,7 @@ export default function SipTrunksPage() {
             <Button variant="secondary" onClick={() => setIsFormOpen(false)}>
               Cancel
             </Button>
-            <Button variant="primary" onClick={handleSave} loading={saving}>
+            <Button variant="primary" onClick={handleSave} loading={saving} className="sc-press">
               {editingId ? 'Save changes' : 'Create trunk'}
             </Button>
           </>

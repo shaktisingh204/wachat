@@ -1,6 +1,6 @@
 'use client';
 
-import { Alert, AlertDescription, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardHeader, CardTitle, DataTable, EmptyState, Label, PageActions, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, Progress, Skeleton, StatCard, Textarea, cn, useToast } from '@/components/sabcrm/20ui';
+import { Alert, AlertDescription, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardHeader, CardTitle, DataTable, EmptyState, Label, PageActions, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, Progress, Skeleton, StatCard, Textarea, cn, useToast, type DataTableColumn } from '@/components/sabcrm/20ui';
 import {
   useActionState,
   useCallback,
@@ -13,7 +13,6 @@ import {
 import { useFormStatus } from 'react-dom';
 import { formatDistanceToNow } from 'date-fns';
 import type { WithId } from 'mongodb';
-import type { ColumnDef } from '@tanstack/react-table';
 import {
   AlertCircle,
   ArrowLeft,
@@ -277,38 +276,38 @@ export default function FacebookBroadcastsPage() {
     return { total, completed, inFlight };
   }, [broadcasts]);
 
-  const columns = useMemo<ColumnDef<BroadcastRow>[]>(
+  const columns = useMemo<DataTableColumn<BroadcastRow>[]>(
     () => [
       {
-        accessorKey: 'createdAt',
+        key: 'createdAt',
         header: 'Created',
-        cell: ({ row }) => (
+        render: (row) => (
           <span className="text-[12px] text-[var(--st-text-secondary)]">
-            {formatDistanceToNow(new Date(row.original.createdAt), {
+            {formatDistanceToNow(new Date(row.createdAt), {
               addSuffix: true,
             })}
           </span>
         ),
       },
       {
-        accessorKey: 'status',
+        key: 'status',
         header: 'Status',
-        cell: ({ row }) => <StatusBadge status={row.original.status} />,
+        render: (row) => <StatusBadge status={row.status} />,
       },
       {
-        accessorKey: 'message',
+        key: 'message',
         header: 'Message',
-        cell: ({ row }) => (
+        render: (row) => (
           <span className="line-clamp-1 max-w-[420px] text-[12.5px] text-[var(--st-text)]">
-            {row.original.message}
+            {row.message}
           </span>
         ),
       },
       {
-        id: 'stats',
+        key: 'stats',
         header: 'Stats',
-        cell: ({ row }) => {
-          const b = row.original;
+        render: (row) => {
+          const b = row;
           const sent = b.successCount + b.failedCount;
           const pct =
             b.totalRecipients > 0
@@ -391,19 +390,16 @@ export default function FacebookBroadcastsPage() {
               <StatCard
                 label="Total broadcasts"
                 value={stats.total.toLocaleString()}
-                period="Lifetime"
                 icon={<Send />}
               />
               <StatCard
                 label="Completed"
                 value={stats.completed.toLocaleString()}
-                period="Successful runs"
                 icon={<CheckCircle2 />}
               />
               <StatCard
                 label="In progress"
                 value={stats.inFlight.toLocaleString()}
-                period="Queued or processing"
                 icon={<Users />}
               />
             </div>
@@ -551,8 +547,8 @@ export default function FacebookBroadcastsPage() {
                 ) : (
                   <DataTable
                     columns={columns}
-                    data={broadcasts}
-                    showColumnMenu={false}
+                    rows={broadcasts}
+                    getRowId={(row) => row._id.toString()}
                   />
                 )}
               </div>

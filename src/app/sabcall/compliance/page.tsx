@@ -240,6 +240,7 @@ export default function SabcallCompliancePage() {
               loading={saving}
               disabled={saving}
               onClick={() => void save()}
+              className="sc-press"
             >
               Save
             </Button>

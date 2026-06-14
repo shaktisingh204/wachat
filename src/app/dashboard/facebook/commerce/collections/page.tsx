@@ -1,6 +1,6 @@
 "use client";
 
-import { Alert, AlertDescription, AlertTitle, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, DataTable, EmptyState, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, useToast } from '@/components/sabcrm/20ui';
+import { Alert, AlertDescription, AlertTitle, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, DataTable, EmptyState, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, useToast, type DataTableColumn } from '@/components/sabcrm/20ui';
 import {
   useCallback,
   useEffect,
@@ -8,7 +8,6 @@ import {
   useState,
   useTransition } from "react";
 import Link from "next/link";
-import type { ColumnDef } from "@tanstack/react-table";
 import { AlertCircle,
   ExternalLink,
   Layers,
@@ -125,42 +124,42 @@ export default function CommerceCollectionsPage() {
     !!activeProject?.facebookPageId && !activeProject?.wabaId;
   const hasCatalogAccess = activeProject?.hasCatalogManagement === true;
 
-  const columns = useMemo<ColumnDef<CollectionRow>[]>(
+  const columns = useMemo<DataTableColumn<CollectionRow>[]>(
     () => [
       {
-        accessorKey: "name",
+        key: "name",
         header: "Collection",
-        cell: ({ row }) => (
-          <span className="font-medium text-[var(--st-text)]">{row.original.name}</span>
+        render: (row) => (
+          <span className="font-medium text-[var(--st-text)]">{row.name}</span>
         ),
       },
       {
-        accessorKey: "catalogName",
+        key: "catalogName",
         header: "Catalog",
-        cell: ({ row }) => (
+        render: (row) => (
           <Link
-            href={`/dashboard/facebook/commerce/products/${row.original.catalogId}`}
+            href={`/dashboard/facebook/commerce/products/${row.catalogId}`}
             className="text-[var(--st-text)] underline-offset-2 hover:underline"
           >
-            {row.original.catalogName}
+            {row.catalogName}
           </Link>
         ),
       },
       {
-        accessorKey: "product_count",
+        key: "product_count",
         header: "Products",
-        cell: ({ row }) => row.original.product_count ?? 0,
+        render: (row) => row.product_count ?? 0,
       },
       {
-        id: "actions",
-        header: () => <span className="sr-only">Actions</span>,
-        cell: ({ row }) => (
+        key: "actions",
+        header: <span className="sr-only">Actions</span>,
+        render: (row) => (
           <div className="flex justify-end">
             <Button
               variant="ghost"
-              size="icon-sm"
+              size="sm"
               aria-label="Delete collection"
-              onClick={() => setDeleteCollection(row.original)}
+              onClick={() => setDeleteCollection(row)}
             >
               <Trash2 />
             </Button>
@@ -318,10 +317,8 @@ export default function CommerceCollectionsPage() {
         <div className="mt-8">
           <DataTable
             columns={columns}
-            data={collections}
-            filterColumn="name"
-            filterPlaceholder="Search collections…"
-            pageSize={10}
+            rows={collections}
+            getRowId={(_, i) => String(i)}
           />
         </div>
       )}

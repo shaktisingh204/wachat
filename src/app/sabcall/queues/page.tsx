@@ -158,7 +158,7 @@ export default function VoiceQueuesPage() {
           <PageDescription>Distribute incoming calls across your agents.</PageDescription>
         </PageHeaderHeading>
         <PageActions>
-          <Button variant="primary" iconLeft={Plus} onClick={openCreate}>
+          <Button variant="primary" iconLeft={Plus} onClick={openCreate} className="sc-press">
             New queue
           </Button>
         </PageActions>
@@ -188,7 +188,7 @@ export default function VoiceQueuesPage() {
             title="No queues yet"
             description="Create a queue to route inbound calls to the right group of agents."
             action={
-              <Button variant="primary" iconLeft={Plus} onClick={openCreate}>
+              <Button variant="primary" iconLeft={Plus} onClick={openCreate} className="sc-press">
                 New queue
               </Button>
             }
@@ -197,7 +197,7 @@ export default function VoiceQueuesPage() {
       ) : (
         <div className="grid grid-cols-1 gap-[var(--st-space-3)] md:grid-cols-2">
           {data.map((q) => (
-            <Card key={q._id} variant="outlined" className="flex flex-col gap-[var(--st-space-2)]">
+            <Card key={q._id} variant="outlined" className="sc-card flex flex-col gap-[var(--st-space-2)]">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span
@@ -237,10 +237,10 @@ export default function VoiceQueuesPage() {
                 </div>
               </dl>
               <div className="mt-auto flex gap-2 pt-1">
-                <Button size="sm" variant="outline" iconLeft={Edit2} onClick={() => openEdit(q)}>
+                <Button size="sm" variant="outline" iconLeft={Edit2} onClick={() => openEdit(q)} className="sc-press">
                   Edit
                 </Button>
-                <Button size="sm" variant="ghost" iconLeft={Trash2} onClick={() => remove(q._id)}>
+                <Button size="sm" variant="ghost" iconLeft={Trash2} onClick={() => remove(q._id)} className="sc-press">
                   Archive
                 </Button>
               </div>
@@ -259,7 +259,7 @@ export default function VoiceQueuesPage() {
             <Button variant="secondary" onClick={() => setOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={save} loading={submitting} disabled={submitting || !name.trim()}>
+            <Button onClick={save} loading={submitting} disabled={submitting || !name.trim()} className="sc-press">
               {editing ? 'Save queue' : 'Create queue'}
             </Button>
           </>

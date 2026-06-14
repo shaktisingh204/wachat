@@ -225,7 +225,7 @@ export default function FacebookAgentsPage(): React.JSX.Element {
                     <div className="min-w-0">
                       <p className="line-clamp-1 text-base text-[var(--st-text)]">{a.name}</p>
                       <Badge
-                        variant={a.isActive ? 'success' : 'ghost'}
+                        variant={a.isActive ? 'success' : 'secondary'}
                         className="mt-1"
                       >
                         {a.isActive ? 'Active' : 'Paused'}
@@ -234,7 +234,7 @@ export default function FacebookAgentsPage(): React.JSX.Element {
                     <div className="flex items-center gap-1">
                       <Button
                         variant="ghost"
-                        size="icon-sm"
+                        size="sm"
                         onClick={() => onToggleActive(a)}
                         disabled={mutating}
                         aria-label={a.isActive ? 'Pause agent' : 'Resume agent'}
@@ -247,7 +247,7 @@ export default function FacebookAgentsPage(): React.JSX.Element {
                       </Button>
                       <Button
                         variant="ghost"
-                        size="icon-sm"
+                        size="sm"
                         onClick={() => onDelete(a)}
                         disabled={mutating}
                         aria-label="Delete agent"

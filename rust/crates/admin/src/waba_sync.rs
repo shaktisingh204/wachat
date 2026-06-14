@@ -38,7 +38,7 @@ use crate::guard::require_admin;
 
 const PROJECTS_COLL: &str = "projects";
 const PROJECT_GROUPS_COLL: &str = "project_groups";
-const META_API_VERSION: &str = "v23.0";
+const META_API_VERSION: &str = "v25.0";
 /// Default messages-per-second new projects start at; matches the value
 /// the TS handler set on insert (`messagesPerSecond: 80`).
 const DEFAULT_MPS: i64 = 80;

@@ -5,7 +5,7 @@ import {
   IconButton,
   Input,
   Field,
-  Select,
+  SelectField as Select,
   Separator,
   Popover,
   PopoverContent,

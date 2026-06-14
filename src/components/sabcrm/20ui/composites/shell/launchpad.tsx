@@ -22,6 +22,9 @@ import { useRouter } from "next/navigation";
 import { AnimatePresence, m, useReducedMotion } from "motion/react";
 import { Pin, PinOff, Search } from "lucide-react";
 
+import { useOptionalProject } from "@/context/project-context";
+import { isElevatedRole } from "@/lib/rbac";
+
 import { cn } from "../lib/cn";
 import { SAB_APPS, isWindowableApp, type SabAppDescriptor } from "./apps";
 import { SabAppLogo } from "./app-logos";
@@ -42,6 +45,12 @@ export function SabLaunchpad({ open, onClose }: SabLaunchpadProps) {
   // Open apps as live desktop windows (state preserved). Null if rendered
   // outside the desktop host — then fall back to navigation.
   const wm = useDesktopWindows();
+  // Owner/admin gate for `adminOnly` apps (same signal as the dock + sidebar).
+  const project = useOptionalProject();
+  const isAdmin =
+    project === null ||
+    Boolean(project.effectivePermissions?.isOwner) ||
+    isElevatedRole(project.effectivePermissions?.role);
   const [query, setQuery] = React.useState("");
   const searchRef = React.useRef<HTMLInputElement>(null);
   const restoreFocusRef = React.useRef<HTMLElement | null>(null);
@@ -68,10 +77,11 @@ export function SabLaunchpad({ open, onClose }: SabLaunchpadProps) {
   }, [open, onClose]);
 
   const apps = React.useMemo(() => {
+    const base = SAB_APPS.filter((app) => !app.adminOnly || isAdmin);
     const q = query.trim().toLowerCase();
-    if (!q) return SAB_APPS;
-    return SAB_APPS.filter((app) => app.name.toLowerCase().includes(q));
-  }, [query]);
+    if (!q) return base;
+    return base.filter((app) => app.name.toLowerCase().includes(q));
+  }, [query, isAdmin]);
 
   function openApp(app: SabAppDescriptor) {
     onClose();

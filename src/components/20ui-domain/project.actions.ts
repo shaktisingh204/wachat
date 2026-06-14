@@ -33,7 +33,7 @@ export async function handleManualWachatSetup(prevState: any, formData: FormData
         let businessId: string | undefined = undefined;
         if (includeCatalog) {
             try {
-                const businessesResponse = await axios.get(`https://graph.facebook.com/v23.0/me/businesses`, {
+                const businessesResponse = await axios.get(`https://graph.facebook.com/v25.0/me/businesses`, {
                     params: { access_token: accessToken }
                 });
                 const businesses = businessesResponse.data.data;
@@ -48,7 +48,7 @@ export async function handleManualWachatSetup(prevState: any, formData: FormData
             }
         }
 
-        const projectDetailsResponse = await fetch(`https://graph.facebook.com/v23.0/${wabaId}?fields=name&access_token=${accessToken}`);
+        const projectDetailsResponse = await fetch(`https://graph.facebook.com/v25.0/${wabaId}?fields=name&access_token=${accessToken}`);
         const projectData = await projectDetailsResponse.json();
 
         if (projectData.error) {

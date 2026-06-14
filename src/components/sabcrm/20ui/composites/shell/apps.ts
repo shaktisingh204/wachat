@@ -5,7 +5,6 @@ import {
   CrmIcon,
   EmailIcon,
   HomeIcon,
-  HrmIcon,
   InstagramIcon,
   MetaSuiteIcon,
   QrCodeIcon,
@@ -35,6 +34,7 @@ import {
   SabSprintsIcon,
   SabTablesIcon,
   SabCallIcon,
+  SabHrmIcon,
   SabWebinarIcon,
   SabWorkerlyIcon,
   SettingsIcon,
@@ -67,6 +67,12 @@ export interface SabAppDescriptor {
   isActive: (pathname: string | null) => boolean;
   /** Defaults to "window" when omitted. */
   renderMode?: SabAppRenderMode;
+  /**
+   * Restrict the app to the tenant owner / elevated admin (mirrors the sidebar
+   * `adminOnly` flag). Filtered out of the dock + launchpad for invited team
+   * members; the route itself is still gated server-side.
+   */
+  adminOnly?: boolean;
 }
 
 /** True when the app opens as a live desktop window (vs a hard navigation). */
@@ -88,7 +94,7 @@ export function isWindowableApp(app: SabAppDescriptor): boolean {
 // deleted in P9 (routes + actions removed) and is no longer an app at all.
 // `email` is retired — its surfaces are consolidated into SabMail (/sabmail),
 // which has its own dock app; the proxy 308-redirects /dashboard/email/* there.
-const HIDDEN_APP_IDS = new Set(["hrm", "seo", "email"]);
+const HIDDEN_APP_IDS = new Set(["seo", "email"]);
 
 const SAB_APPS_ALL: SabAppDescriptor[] = [
   {
@@ -173,20 +179,27 @@ const SAB_APPS_ALL: SabAppDescriptor[] = [
     renderMode: "hard-nav",
   },
   {
-    id: "hrm",
-    name: "HRM",
-    href: "/dashboard/hrm",
-    Icon: HrmIcon,
-    migration: "done",
-    isActive: (p) => !!p?.startsWith("/dashboard/hrm"),
-  },
-  {
     id: "team",
     name: "Team",
     href: "/dashboard/team/manage-users",
     Icon: TeamIcon,
     migration: "done",
     isActive: (p) => !!p?.startsWith("/dashboard/team"),
+  },
+  {
+    // SabAdmin — the Microsoft-365-style Admin Center. Owner/admin-only console
+    // that onboards employees with a company email + login, an Outlook-style
+    // mailbox, and granter-bounded tool access. Gated server-side in
+    // /sabadmin/layout.tsx (getSabAdminContext); it's a hard-nav route (own
+    // chrome via SabHomeShell), not a chromeless window.
+    id: "sabadmin",
+    name: "Admin Center",
+    href: "/sabadmin",
+    Icon: TeamIcon,
+    migration: "done",
+    isActive: (p) => p === "/sabadmin" || !!p?.startsWith("/sabadmin/"),
+    renderMode: "hard-nav",
+    adminOnly: true,
   },
   {
     id: "email",
@@ -305,6 +318,14 @@ const SAB_APPS_ALL: SabAppDescriptor[] = [
     Icon: SabSignIcon,
     migration: "done",
     isActive: (p) => p === "/sabsign" || !!p?.startsWith("/sabsign/"),
+  },
+  {
+    id: "sabhrm",
+    name: "SabHRM",
+    href: "/sabhrm",
+    Icon: SabHrmIcon,
+    migration: "done",
+    isActive: (p) => p === "/sabhrm" || !!p?.startsWith("/sabhrm/"),
   },
   {
     id: "sabwebinar",

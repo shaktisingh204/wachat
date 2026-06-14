@@ -853,7 +853,7 @@ export async function syncProductsToMetaCatalog(projectId: string, shopId: strin
 
         for (let i = 0; i < batchOps.length; i += BATCH_SIZE) {
             const batch = batchOps.slice(i, i + BATCH_SIZE);
-            const response = await axios.post(`https://graph.facebook.com/v23.0/`, {
+            const response = await axios.post(`https://graph.facebook.com/v25.0/`, {
                 access_token: accessToken,
                 batch: JSON.stringify(batch),
             });

@@ -307,13 +307,26 @@ pub async fn handle_facebook_oauth_callback(
     );
 
     // ----- Step 1: short-lived token exchange -----
-    let short_url = format!(
-        "oauth/access_token?client_id={}&redirect_uri={}&client_secret={}&code={}",
-        urlencoding::encode(app_id),
-        urlencoding::encode(&redirect_uri),
-        urlencoding::encode(app_secret),
-        urlencoding::encode(&body.code),
-    );
+    // Facebook Login for Business (JS-SDK `FB.login`) never performed a server
+    // redirect, so its `code` must be exchanged WITHOUT a `redirect_uri` —
+    // sending one would fail with a redirect_uri mismatch. The classic redirect
+    // OAuth flow keeps the `redirect_uri`.
+    let short_url = if body.embedded {
+        format!(
+            "oauth/access_token?client_id={}&client_secret={}&code={}",
+            urlencoding::encode(app_id),
+            urlencoding::encode(app_secret),
+            urlencoding::encode(&body.code),
+        )
+    } else {
+        format!(
+            "oauth/access_token?client_id={}&redirect_uri={}&client_secret={}&code={}",
+            urlencoding::encode(app_id),
+            urlencoding::encode(&redirect_uri),
+            urlencoding::encode(app_secret),
+            urlencoding::encode(&body.code),
+        )
+    };
     let short_resp: OauthTokenResponse = match s.meta.get_json(&short_url, "").await {
         Ok(r) => r,
         Err(e) => {

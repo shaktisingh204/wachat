@@ -1,6 +1,6 @@
 "use client";
 
-import { Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, EmptyState, FullscreenCalendar, PageActions, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, Skeleton, type LegacyFullscreenCalendarEvent } from '@/components/sabcrm/20ui';
+import { Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, EmptyState, FullscreenCalendar, PageActions, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, Skeleton, type CalendarEvent } from '@/components/sabcrm/20ui';
 import {
   useCallback,
   useEffect,
@@ -36,6 +36,7 @@ import {
   ErrorState,
   NoProjectState,
 } from "../_components/no-project-state";
+import { RescheduleStrip, type ScheduledItem } from "../_components/reschedule-strip";
 
 /* ── helpers ─────────────────────────────────────────────────────── */
 
@@ -133,29 +134,18 @@ export default function CalendarPage() {
     if (projectId) fetchData();
   }, [projectId, fetchData]);
 
-  const events = useMemo<LegacyFullscreenCalendarEvent[]>(
+  const events = useMemo<CalendarEvent[]>(
     () =>
       posts.map((p) => ({
         id: `${p.kind}-${p.id}`,
         date: p.date,
+        color:
+          p.kind === "scheduled"
+            ? "var(--st-warn, #d97706)"
+            : "var(--st-status-ok, #16a34a)",
         title: (
-          <span className="flex items-center gap-1.5">
-            <span
-              aria-hidden
-              className={
-                p.kind === "scheduled"
-                  ? "h-1.5 w-1.5 rounded-full bg-[var(--st-warn)]"
-                  : "h-1.5 w-1.5 rounded-full bg-[var(--st-status-ok)]"
-              }
-            />
-            <span className="truncate">
-              {p.message?.slice(0, 60) || "Media post"}
-            </span>
-          </span>
-        ),
-        meta: (
-          <span className="text-[10.5px] text-[var(--st-text-tertiary)]">
-            {format(p.date, "p")}
+          <span className="truncate">
+            {format(p.date, "p")} · {p.message?.slice(0, 50) || "Media post"}
           </span>
         ),
       })),
@@ -171,6 +161,14 @@ export default function CalendarPage() {
     }
     return { published, scheduled };
   }, [posts]);
+
+  const scheduledItems = useMemo<ScheduledItem[]>(
+    () =>
+      posts
+        .filter((p) => p.kind === "scheduled")
+        .map((p) => ({ id: p.id, message: p.message, date: p.date })),
+    [posts],
+  );
 
   if (!projectIdReady || (isLoading && posts.length === 0 && !error)) {
     return <CalendarPageSkeleton />;
@@ -244,14 +242,17 @@ export default function CalendarPage() {
             }
           />
         ) : (
-          <div className="h-[720px]">
-            <FullscreenCalendar
-              events={events}
-              onCreateEvent={() => {
-                // Defer to dedicated create page; calendar primitive
-                // exposes the event as a hint only.
-              }}
-            />
+          <div className="flex flex-col gap-4">
+            <div className="h-[720px]">
+              <FullscreenCalendar events={events} />
+            </div>
+            {projectId ? (
+              <RescheduleStrip
+                projectId={projectId}
+                items={scheduledItems}
+                onChanged={fetchData}
+              />
+            ) : null}
           </div>
         )}
       </div>

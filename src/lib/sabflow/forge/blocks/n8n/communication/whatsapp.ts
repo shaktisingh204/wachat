@@ -24,7 +24,7 @@ import { registerForgeBlock } from '../../../registry';
 import type { ForgeActionContext, ForgeActionResult, ForgeBlock } from '../../../types';
 import { apiRequest, asString, requireCredential } from '../_shared/http';
 
-const WHATSAPP_BASE = 'https://graph.facebook.com/v19.0';
+const WHATSAPP_BASE = 'https://graph.facebook.com/v25.0';
 
 type WhatsAppCred = { phoneNumberId: string; accessToken: string; businessAccountId?: string };
 

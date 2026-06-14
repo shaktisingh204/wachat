@@ -53,4 +53,4 @@ pub const OUTGOING_MESSAGES_COLL: &str = "outgoing_messages";
 
 /// Meta Graph API version the TS pins. Source of truth: `API_VERSION` in
 /// `whatsapp.actions.ts`.
-pub const META_API_VERSION: &str = "v23.0";
+pub const META_API_VERSION: &str = "v25.0";

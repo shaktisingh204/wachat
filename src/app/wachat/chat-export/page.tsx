@@ -7,7 +7,7 @@ import {
   CardTitle,
   Field,
   Input,
-  Select,
+  SelectField as Select,
   Alert,
 } from '@/components/sabcrm/20ui';
 import {

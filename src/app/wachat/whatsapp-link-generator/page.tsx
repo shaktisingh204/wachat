@@ -33,6 +33,7 @@ import { Link as LinkIcon,
 
 import { useProject } from '@/context/project-context';
 import { parsePhoneNumberFromString } from 'libphonenumber-js';
+import { AiPostGenerator } from '@/components/wachat/growth/ai-post-generator';
 import {
   listGeneratedLinks,
   saveGeneratedLink,
@@ -185,6 +186,7 @@ export default function WhatsAppLinkGeneratorPage() {
       title="WhatsApp Link Generator"
       description="Generate wa.me links with pre-filled messages for easy sharing."
     >
+      <AiPostGenerator className="mb-6" />
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Form column */}
         <Card className="flex flex-col gap-4" padding="lg">

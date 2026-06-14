@@ -1,6 +1,6 @@
 "use client";
 
-import { Alert, AlertDescription, AlertTitle, Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, DataTable, EmptyState, Skeleton } from '@/components/sabcrm/20ui';
+import { Alert, AlertDescription, AlertTitle, Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, DataTable, EmptyState, Skeleton, type DataTableColumn } from '@/components/sabcrm/20ui';
 import {
   useCallback,
   useEffect,
@@ -10,7 +10,6 @@ import {
 import Link from "next/link";
 import Image from "next/image";
 import { useParams } from "next/navigation";
-import type { ColumnDef } from "@tanstack/react-table";
 import {
   AlertCircle,
   ChevronLeft,
@@ -152,17 +151,17 @@ export default function CatalogDetailPage() {
     fetchData();
   }, [fetchData]);
 
-  const productColumns = useMemo<ColumnDef<ProductRow>[]>(
+  const productColumns = useMemo<DataTableColumn<ProductRow>[]>(
     () => [
       {
-        id: "image",
-        header: () => <span className="sr-only">Image</span>,
-        cell: ({ row }) => (
+        key: "image",
+        header: <span className="sr-only">Image</span>,
+        render: (row) => (
           <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-muted)]">
-            {row.original.image_url ? (
+            {row.image_url ? (
               <Image
-                src={row.original.image_url}
-                alt={row.original.name ?? ""}
+                src={row.image_url}
+                alt={row.name ?? ""}
                 width={48}
                 height={48}
                 className="h-full w-full object-cover"
@@ -174,44 +173,44 @@ export default function CatalogDetailPage() {
         ),
       },
       {
-        accessorKey: "name",
+        key: "name",
         header: "Name",
-        cell: ({ row }) => (
-          <span className="font-medium text-[var(--st-text)]">{row.original.name ?? "—"}</span>
+        render: (row) => (
+          <span className="font-medium text-[var(--st-text)]">{row.name ?? "—"}</span>
         ),
       },
       {
-        accessorKey: "price",
+        key: "price",
         header: "Price",
-        cell: ({ row }) => {
+        render: (row) => {
           const price =
-            typeof row.original.price === "number"
-              ? row.original.price
-              : Number(row.original.price);
+            typeof row.price === "number"
+              ? row.price
+              : Number(row.price);
           if (!Number.isFinite(price)) return <span>—</span>;
           return (
             <span>
               {new Intl.NumberFormat("en-US", {
                 style: "currency",
-                currency: row.original.currency || "USD",
+                currency: row.currency || "USD",
               }).format(price / 100)}
             </span>
           );
         },
       },
       {
-        accessorKey: "inventory",
+        key: "inventory",
         header: "Inventory",
-        cell: ({ row }) =>
-          typeof row.original.inventory === "number"
-            ? row.original.inventory.toLocaleString()
+        render: (row) =>
+          typeof row.inventory === "number"
+            ? row.inventory.toLocaleString()
             : "—",
       },
       {
-        accessorKey: "availability",
+        key: "availability",
         header: "Availability",
-        cell: ({ row }) => {
-          const a = row.original.availability;
+        render: (row) => {
+          const a = row.availability;
           if (!a) return <span>—</span>;
           return (
             <Badge
@@ -224,40 +223,40 @@ export default function CatalogDetailPage() {
         },
       },
       {
-        accessorKey: "retailer_id",
+        key: "retailer_id",
         header: "SKU",
-        cell: ({ row }) => (
+        render: (row) => (
           <span className="font-mono text-[11px] text-[var(--st-text-secondary)]">
-            {row.original.retailer_id ?? "—"}
+            {row.retailer_id ?? "—"}
           </span>
         ),
       },
       {
-        id: "actions",
-        header: () => <span className="sr-only">Actions</span>,
-        cell: ({ row }) => (
+        key: "actions",
+        header: <span className="sr-only">Actions</span>,
+        render: (row) => (
           <div className="flex justify-end gap-1">
             <Button
               variant="ghost"
-              size="icon-sm"
+              size="sm"
               aria-label="Edit product"
-              onClick={() => setEditProduct(row.original)}
+              onClick={() => setEditProduct(row)}
             >
               <Edit />
             </Button>
             <Button
               variant="ghost"
-              size="icon-sm"
+              size="sm"
               aria-label="View tagged media"
-              onClick={() => setTaggedProduct(row.original)}
+              onClick={() => setTaggedProduct(row)}
             >
               <Tags />
             </Button>
             <Button
               variant="ghost"
-              size="icon-sm"
+              size="sm"
               aria-label="Delete product"
-              onClick={() => setDeleteProduct(row.original)}
+              onClick={() => setDeleteProduct(row)}
             >
               <Trash2 />
             </Button>
@@ -268,34 +267,34 @@ export default function CatalogDetailPage() {
     [],
   );
 
-  const collectionColumns = useMemo<ColumnDef<ProductSet>[]>(
+  const collectionColumns = useMemo<DataTableColumn<ProductSet>[]>(
     () => [
       {
-        accessorKey: "name",
+        key: "name",
         header: "Collection",
-        cell: ({ row }) => (
-          <span className="font-medium text-[var(--st-text)]">{row.original.name}</span>
+        render: (row) => (
+          <span className="font-medium text-[var(--st-text)]">{row.name}</span>
         ),
       },
       {
-        accessorKey: "product_count",
+        key: "product_count",
         header: "Products",
-        cell: ({ row }) => (
+        render: (row) => (
           <span className="text-[var(--st-text)]">
-            {row.original.product_count ?? 0}
+            {row.product_count ?? 0}
           </span>
         ),
       },
       {
-        id: "actions",
-        header: () => <span className="sr-only">Actions</span>,
-        cell: ({ row }) => (
+        key: "actions",
+        header: <span className="sr-only">Actions</span>,
+        render: (row) => (
           <div className="flex justify-end">
             <Button
               variant="ghost"
-              size="icon-sm"
+              size="sm"
               aria-label="Delete collection"
-              onClick={() => setDeleteCollection(row.original)}
+              onClick={() => setDeleteCollection(row)}
             >
               <Trash2 />
             </Button>
@@ -383,7 +382,7 @@ export default function CatalogDetailPage() {
         <CardBody>
           {products.length === 0 ? (
             <EmptyState
-              compact
+              size="sm"
               icon={<ShoppingBag />}
               title="No products in this catalog"
               description="Add a product to get started, or push existing products from Commerce Manager."
@@ -399,10 +398,8 @@ export default function CatalogDetailPage() {
           ) : (
             <DataTable
               columns={productColumns}
-              data={products}
-              filterColumn="name"
-              filterPlaceholder="Search products…"
-              pageSize={10}
+              rows={products}
+              getRowId={(row) => row.id}
             />
           )}
         </CardBody>
@@ -433,7 +430,7 @@ export default function CatalogDetailPage() {
         <CardBody>
           {collections.length === 0 ? (
             <EmptyState
-              compact
+              size="sm"
               icon={<Layers />}
               title="No collections yet"
               description="Create a collection to organize products for promotions or browsing."
@@ -453,9 +450,8 @@ export default function CatalogDetailPage() {
           ) : (
             <DataTable
               columns={collectionColumns}
-              data={collections}
-              pageSize={10}
-              showColumnMenu={false}
+              rows={collections}
+              getRowId={(row) => row.id}
             />
           )}
         </CardBody>

@@ -33,6 +33,7 @@ import { Eye,
 import { useProject } from '@/context/project-context';
 import { getWebhookLogs, replayWebhookLog } from '@/app/actions/wachat-features.actions';
 import { WachatPage } from '@/app/wachat/_components/wachat-page';
+import { AiWebhookExplainer } from '@/components/wachat/webhooks/ai-webhook-explainer';
 
 /**
  * Wachat Webhook Logs — 20ui migration.
@@ -191,6 +192,10 @@ export default function WebhookLogsPage() {
         </Button>
       }
     >
+      <AiWebhookExplainer
+        className="mb-4"
+        initialPayload={logs[0]?.payload ? JSON.stringify(logs[0].payload, null, 2) : ''}
+      />
       {isLoading && logs.length === 0 ? (
         <div className="flex flex-col gap-2">
           <Skeleton height={36} />

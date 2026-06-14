@@ -16,7 +16,7 @@ import {
   Field,
   RadioCardGroup,
   RadioCard,
-  Select,
+  SelectField as Select,
   Separator,
   Spinner,
   Table,

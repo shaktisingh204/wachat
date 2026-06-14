@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/app/actions/user.actions';
 import { getCookieSecureFlag } from '@/lib/cookies';
+import { META_OAUTH_DIALOG } from '@/lib/meta/graph-version';
 
 export async function GET(request: NextRequest) {
   const session = await getSession();
@@ -22,7 +23,7 @@ export async function GET(request: NextRequest) {
   // Scopes required for managing ads
   const scopes = 'ads_read,ads_management,business_management';
 
-  const facebookLoginUrl = new URL('https://www.facebook.com/v24.0/dialog/oauth');
+  const facebookLoginUrl = new URL(META_OAUTH_DIALOG);
   facebookLoginUrl.searchParams.set('client_id', appId);
   facebookLoginUrl.searchParams.set('redirect_uri', redirectUri);
   facebookLoginUrl.searchParams.set('scope', scopes);

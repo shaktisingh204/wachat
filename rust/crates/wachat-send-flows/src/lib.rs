@@ -73,4 +73,4 @@ pub const OUTGOING_MESSAGES_COLL: &str = "outgoing_messages";
 /// ```text
 /// const API_VERSION = 'v23.0';
 /// ```
-pub const META_API_VERSION: &str = "v23.0";
+pub const META_API_VERSION: &str = "v25.0";

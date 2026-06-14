@@ -32,6 +32,11 @@ use wachat_analytics::WachatAnalyticsState;
 use wachat_api_keys_admin::WachatApiKeysAdminState;
 use wachat_broadcast::WachatBroadcastState;
 use wachat_calling::WachatCallingState;
+use wachat_marketing::WachatMarketingState;
+use wachat_carousel::WachatCarouselState;
+use wachat_identity::WachatIdentityState;
+use wachat_interactive::WachatInteractiveState;
+use wachat_webhook_calls::WachatWebhookCallsState;
 use wachat_chat_mark::ChatMarker;
 use wachat_config::WachatConfigState;
 use wachat_contacts::WachatContactsState;
@@ -219,7 +224,7 @@ async fn run() -> anyhow::Result<()> {
     let broadcast = WachatBroadcastState {
         mongo: mongo.clone(),
         bull: bull.clone(),
-        media: MediaUploader::new("v23.0"),
+        media: MediaUploader::new("v25.0"),
     };
     let webhook = WebhookState {
         mongo: mongo.clone(),
@@ -236,8 +241,8 @@ async fn run() -> anyhow::Result<()> {
     // Templates stack: shared MetaClient (the Cloud API HTTP wrapper) +
     // MediaUploader (resumable uploads for template header images), plus
     // one engine per concern. Pin Meta to v23.0 (matches Node code today).
-    let meta = MetaClient::new("v23.0");
-    let media = MediaUploader::new("v23.0");
+    let meta = MetaClient::new("v25.0");
+    let media = MediaUploader::new("v25.0");
     let templates_reader = Arc::new(TemplatesReader::new(mongo.clone()));
     let templates_mutator = Arc::new(TemplatesMutator::new(mongo.clone(), meta.clone(), media));
     let templates_syncer = Arc::new(TemplatesSyncer::new(mongo.clone(), meta.clone()));
@@ -267,7 +272,7 @@ async fn run() -> anyhow::Result<()> {
     let message_sender = Arc::new(MessageSender::new(
         mongo.clone(),
         meta.clone(),
-        MediaUploader::new("v23.0"),
+        MediaUploader::new("v25.0"),
     ));
     let send = WachatSendState {
         message: message_sender.clone(),
@@ -286,6 +291,12 @@ async fn run() -> anyhow::Result<()> {
     let pay = WachatPayState::new(mongo.clone(), meta.clone());
 
     let calling = WachatCallingState::new(mongo.clone(), meta.clone());
+
+    let marketing = WachatMarketingState::new(mongo.clone(), meta.clone());
+    let carousel = WachatCarouselState::new(mongo.clone(), meta.clone());
+    let identity = WachatIdentityState::new(mongo.clone());
+    let interactive = WachatInteractiveState::new(mongo.clone(), meta.clone());
+    let webhook_calls = WachatWebhookCallsState::new(mongo.clone());
 
     let analytics = WachatAnalyticsState::new(mongo.clone(), meta.clone());
 
@@ -561,6 +572,11 @@ async fn run() -> anyhow::Result<()> {
         pay,
         broadcast,
         calling,
+        marketing,
+        carousel,
+        identity,
+        interactive,
+        webhook_calls,
         features,
         analytics,
         webhook_actions,

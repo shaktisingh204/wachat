@@ -9,7 +9,7 @@ import {
   Card,
   Field,
   Input,
-  Select,
+  SelectField as Select,
   Skeleton,
   Textarea,
   useToast,

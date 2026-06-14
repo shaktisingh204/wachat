@@ -1,6 +1,6 @@
 "use client";
 
-import { Alert, AlertDescription, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, DataTable, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSeparator, DropdownMenuTrigger, EmptyState, PageActions, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, Skeleton, useToast } from '@/components/sabcrm/20ui';
+import { Alert, AlertDescription, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, DataTable, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSeparator, DropdownMenuTrigger, EmptyState, PageActions, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, Skeleton, useToast, type DataTableColumn } from '@/components/sabcrm/20ui';
 import {
   useCallback,
   useEffect,
@@ -8,7 +8,6 @@ import {
   useTransition } from "react";
 import Image from "next/image";
 import { formatDistanceToNow } from "date-fns";
-import type { ColumnDef } from "@tanstack/react-table";
 import {
   AlertCircle,
   Edit,
@@ -74,7 +73,7 @@ function TypeBadge({ type }: { type: PostType }) {
       <Newspaper />
     );
   return (
-    <Badge variant="ghost">
+    <Badge variant="secondary">
       {icon}
       {TYPE_LABEL[type]}
     </Badge>
@@ -147,7 +146,7 @@ function RowActions({
       />
       <Button
         variant="ghost"
-        size="icon-sm"
+        size="sm"
         aria-label="Like"
         onClick={onLike}
         disabled={isLiking}
@@ -156,14 +155,14 @@ function RowActions({
       </Button>
       <Button
         variant="ghost"
-        size="icon-sm"
+        size="sm"
         aria-label="Edit"
         onClick={() => setIsUpdateOpen(true)}
       >
         <Edit />
       </Button>
       {post.permalink_url && (
-        <Button variant="ghost" size="icon-sm" aria-label="Open" asChild>
+        <Button variant="ghost" size="sm" aria-label="Open" asChild>
           <a
             href={post.permalink_url}
             target="_blank"
@@ -228,14 +227,13 @@ export default function FacebookPostsPage() {
     return posts.filter((p) => detectType(p) === typeFilter);
   }, [posts, typeFilter]);
 
-  const columns = React.useMemo<ColumnDef<FacebookPost>[]>(
+  const columns = React.useMemo<DataTableColumn<FacebookPost>[]>(
     () => [
       {
-        id: "post",
-        accessorFn: (row) => row.message ?? "",
+        key: "post",
         header: "Post",
-        cell: ({ row }) => {
-          const post = row.original;
+        render: (row) => {
+          const post = row;
           const type = detectType(post);
           return (
             <div className="flex min-w-0 items-center gap-3">
@@ -274,21 +272,20 @@ export default function FacebookPostsPage() {
         },
       },
       {
-        id: "type",
+        key: "type",
         header: "Type",
-        accessorFn: (row) => detectType(row),
-        cell: ({ row }) => <TypeBadge type={detectType(row.original)} />,
+        render: (row) => <TypeBadge type={detectType(row)} />,
       },
       {
-        id: "status",
+        key: "status",
         header: "Status",
-        cell: ({ row }) => <PostStatusBadge post={row.original} />,
+        render: (row) => <PostStatusBadge post={row} />,
       },
       {
-        id: "engagement",
+        key: "engagement",
         header: "Engagement",
-        cell: ({ row }) => {
-          const p = row.original;
+        render: (row) => {
+          const p = row;
           const reactions = p.reactions?.summary?.total_count ?? 0;
           const comments = p.comments?.summary?.total_count ?? 0;
           const shares = p.shares?.count ?? 0;
@@ -308,11 +305,11 @@ export default function FacebookPostsPage() {
         },
       },
       {
-        id: "actions",
-        header: () => <span className="sr-only">Actions</span>,
-        cell: ({ row }) => (
+        key: "actions",
+        header: <span className="sr-only">Actions</span>,
+        render: (row) => (
           <RowActions
-            post={row.original}
+            post={row}
             projectId={projectId ?? ""}
             onActionComplete={handleActionComplete}
           />
@@ -415,10 +412,8 @@ export default function FacebookPostsPage() {
         ) : (
           <DataTable
             columns={columns}
-            data={filtered}
-            filterColumn="post"
-            filterPlaceholder="Search posts…"
-            pageSize={10}
+            rows={filtered}
+            getRowId={(row) => row.id}
           />
         )}
       </div>

@@ -4,8 +4,8 @@
 
 export const dynamic = 'force-static';
 
-const modules: Array<{ name: string; count: number }> = [{"name":"ad-manager","count":188},{"name":"broadcasts","count":6},{"name":"builder","count":564},{"name":"calling","count":96},{"name":"contacts","count":2},{"name":"crm","count":6675},{"name":"email","count":237},{"name":"embed","count":141},{"name":"facebook","count":522},{"name":"identity","count":11},{"name":"instagram","count":281},{"name":"integrations","count":141},{"name":"messages","count":1},{"name":"meta","count":139},{"name":"notifications","count":142},{"name":"oauth","count":3},{"name":"portfolio","count":235},{"name":"qr-codes","count":47},{"name":"reports","count":65},{"name":"sabchat","count":188},{"name":"sabfiles","count":45},{"name":"seo","count":223},{"name":"shop","count":846},{"name":"telegram","count":714},{"name":"url-shortener","count":47},{"name":"usage","count":4},{"name":"wachat","count":117},{"name":"webhooks","count":8}];
-const total = 11688;
+const modules: Array<{ name: string; count: number }> = [{"name":"ad-manager","count":188},{"name":"broadcasts","count":6},{"name":"builder","count":564},{"name":"calling","count":96},{"name":"contacts","count":2},{"name":"crm","count":6675},{"name":"email","count":237},{"name":"embed","count":141},{"name":"facebook","count":522},{"name":"identity","count":11},{"name":"instagram","count":281},{"name":"integrations","count":141},{"name":"messages","count":1},{"name":"meta","count":139},{"name":"notifications","count":142},{"name":"oauth","count":3},{"name":"portfolio","count":235},{"name":"qr-codes","count":47},{"name":"reports","count":65},{"name":"sabchat","count":188},{"name":"sabfiles","count":45},{"name":"seo","count":223},{"name":"shop","count":846},{"name":"telegram","count":714},{"name":"url-shortener","count":47},{"name":"usage","count":4},{"name":"wachat","count":127},{"name":"webhooks","count":8}];
+const total = 11698;
 
 export default function Page() {
   return (

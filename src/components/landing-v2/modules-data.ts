@@ -66,7 +66,6 @@ export type ModuleSlug =
     | 'sabchat'
     | 'crm'
     | 'seo'
-    | 'hrm'
     | 'sabmail'
     | 'telegram'
     | 'instagram'
@@ -267,18 +266,21 @@ export const MODULES: ModuleDef[] = [
             { title: 'Compliance log', desc: 'Audit consent, opt-outs, header approvals.', icon: ClipboardList },
         ], ['Register DLT', 'Pick route', 'Send', 'Track DLR', 'Settle']),
 
-    build('sabcall', 'SabCall', 'Voice + IVR cloud', 'Calls, IVR, agent dashboards and DIDs.',
-        'Inbound DIDs, IVR builder, call recording, AI assist, agent supervisor — full contact center.',
+    build('sabcall', 'SabCall', 'Superphone-class calling cloud', 'Your whole phone system — in the browser, with AI on every call.',
+        'A WebRTC softphone, unified call inbox, visual IVR, queues, live coaching, AI call intelligence and an outbound dialer — on a self-hosted SIP engine you own.',
         '/products/sabcall', '/sabcall', Phone, 'Conversation', 'indigo',
-        [{ value: 'IVR', label: 'Drag-drop' }, { value: 'Rec', label: 'Compliant' }, { value: 'DID', label: 'Global' }, { value: 'AI', label: 'Assist' }],
+        [{ value: 'Browser', label: 'Softphone' }, { value: '<200ms', label: 'Call routing' }, { value: 'AI', label: 'On every call' }, { value: 'BYOC', label: 'Any SIP trunk' }],
         [
-            { title: 'Visual IVR', desc: 'Build menus, route by time/skill, conditional branching.', icon: Workflow },
-            { title: 'Agent dashboard', desc: 'Hold/transfer/conference, screen pops, dispositions.', icon: Users },
-            { title: 'Call recording', desc: 'Encrypted, redacted, retention policies built in.', icon: ShieldlessLock },
-            { title: 'AI assist', desc: 'Live transcription, sentiment, next-best-action.', icon: Sparkles },
-            { title: 'Supervisor mode', desc: 'Whisper, barge, listen — coach in real time.', icon: UserCheck },
-            { title: 'Outbound dialer', desc: 'Preview / progressive / predictive with DNC scrub.', icon: Send },
-        ], ['Buy DID', 'Build IVR', 'Route', 'Talk', 'Review']),
+            { title: 'In-browser softphone', desc: 'Click-to-call from any screen. Hold, mute, transfer, conference and record — no desk phone, no plugin.', icon: Phone },
+            { title: 'Unified call inbox', desc: 'Every call, voicemail and recording in one searchable timeline, linked to the contact.', icon: Inbox },
+            { title: 'Visual IVR builder', desc: 'Drag-drop menus, time-of-day and skill routing, conditional branches — no code.', icon: Workflow },
+            { title: 'Queues & ring groups', desc: 'ACD with skills, overflow, business hours and ring groups so the right person answers.', icon: Users },
+            { title: 'Supervisor & coaching', desc: 'Monitor, whisper, and barge into live calls to coach agents in real time.', icon: UserCheck },
+            { title: 'AI call intelligence', desc: 'Live transcription, summaries, sentiment and next-best-action on every call — automatically.', icon: Sparkles },
+            { title: 'Dialer & voice broadcast', desc: 'Preview / progressive / predictive dialing and TTS broadcasts to a segment, with DNC scrub.', icon: Send },
+            { title: 'Bring your own carrier', desc: 'Connect any SIP trunk — Twilio, Telnyx, Plivo — or our DIDs. Domains, credentials and ACLs you control.', icon: Network },
+            { title: 'Trust & compliance', desc: 'STIR/SHAKEN attestation, encrypted recordings with retention, consent and fraud guards built in.', icon: ShieldlessLock },
+        ], ['Get a number', 'Build your flow', 'Route the call', 'Talk + AI assist', 'Summarize + sync'], true),
 
     // ──────── MARKETING ────────
     build('sabmail', 'SabMail', 'Transactional + lifecycle email', 'Deliver mail like a sender that actually lands.',
@@ -409,24 +411,11 @@ export const MODULES: ModuleDef[] = [
             { title: 'Blueprints', desc: 'Visual workflow builder, branching, parallel paths.', icon: Workflow },
             { title: 'Approval chains', desc: 'Role / manager / value-based, with mobile approvals.', icon: UserCheck },
             { title: 'SLA timers', desc: 'Per-department, with reassign + escalate triggers.', icon: Activity },
-            { title: 'Integrations', desc: 'Trigger HRM payroll, vault provision, finance posting.', icon: Webhook },
+            { title: 'Integrations', desc: 'Trigger payroll, vault provision, finance posting.', icon: Webhook },
             { title: 'Analytics', desc: 'Backlog, throughput, SLA breach, by team.', icon: BarChart3 },
         ], ['Submit', 'Approve', 'Execute', 'SLA', 'Audit']),
 
     // ──────── PEOPLE & OPERATIONS ────────
-    build('hrm', 'HRM', 'People + payroll', 'Run your team like a product — with metrics and motion.',
-        'Roster, shifts, attendance, leaves, payroll, performance, roadmaps. Self-service portal included.',
-        '/products/hrm', '/dashboard/hrm', Briefcase, 'People & Operations', 'cyan',
-        [{ value: '1-click', label: 'Payroll' }, { value: 'Geo', label: 'Attendance' }, { value: '360°', label: 'Reviews' }, { value: 'Self-svc', label: 'Portal' }],
-        [
-            { title: 'Shift roster', desc: 'Drag-drop weekly grid, swap requests, multi-location.', icon: Calendar },
-            { title: 'Geo attendance', desc: 'Face + GPS punch, IP-fence, manual reconcile.', icon: UserCheck },
-            { title: 'Leaves + holidays', desc: 'Per-policy accrual, balance projection, approvals.', icon: Ticket },
-            { title: 'Payroll engine', desc: 'CTC → in-hand, PT, PF, ESI, TDS — payslips signed.', icon: Wallet },
-            { title: 'Roadmaps + reviews', desc: 'Quarterly roadmaps, OKRs, 360° reviews, calibration.', icon: TrendingUp },
-            { title: 'Employee portal', desc: 'Tasks, payslips, leaves, docs, support.', icon: Users },
-        ], ['Onboard', 'Roster', 'Punch', 'Review', 'Pay'], true),
-
     build('sabops', 'SabOps', 'Operations control tower', 'See the org run, in real time.',
         'Live ops dashboard, on-call rotations, runbooks, incident drills — the operations layer.',
         '/products/sabops', '/dashboard/sabops', Building2, 'People & Operations', 'slate',

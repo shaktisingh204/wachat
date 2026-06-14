@@ -161,6 +161,7 @@ export function SabcallSetupClient({
             variant="primary"
             size="sm"
             iconRight={ArrowRight}
+            className="sc-press"
             loading={busy}
             disabled={busy}
             onClick={() => void finish()}

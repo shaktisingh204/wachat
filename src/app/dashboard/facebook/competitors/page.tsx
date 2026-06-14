@@ -1,10 +1,10 @@
 'use client';
 
-import { Alert, AlertDescription, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, Skeleton, DataTable, toast } from '@/components/sabcrm/20ui';
+import { Alert, AlertDescription, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, Skeleton, DataTable, toast, type DataTableColumn } from '@/components/sabcrm/20ui';
 import { useCallback, useEffect, useState, useTransition, useMemo } from 'react';
-import { AlertCircle, ExternalLink, Plus, Radar, RefreshCw, Trash2, TrendingUp } from 'lucide-react';
+import { AlertCircle, Download, ExternalLink, Plus, Radar, RefreshCw, Trash2, TrendingUp } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
-import { type ColumnDef } from '@tanstack/react-table';
+import { m } from 'motion/react';
 
 import { useProject } from '@/context/project-context';
 import {
@@ -160,21 +160,21 @@ export default function FacebookCompetitorsPage() {
     })();
   };
 
-  const columns = useMemo<ColumnDef<Competitor>[]>(() => [
+  const columns = useMemo<DataTableColumn<Competitor>[]>(() => [
     {
-      accessorKey: 'name',
+      key: 'name',
       header: 'Name',
-      cell: ({ row }) => (
+      render: (row) => (
         <span className="font-medium text-[var(--st-text)]">
-          {row.original.name ?? row.original.pageId ?? '—'}
+          {row.name ?? row.pageId ?? '—'}
         </span>
       ),
     },
     {
-      accessorKey: 'page',
+      key: 'page',
       header: 'Page',
-      cell: ({ row }) => {
-        const c = row.original;
+      render: (row) => {
+        const c = row;
         return c.pageUrl ? (
           <a
             href={c.pageUrl}
@@ -193,43 +193,43 @@ export default function FacebookCompetitorsPage() {
       },
     },
     {
-      accessorKey: 'followers',
+      key: 'followers',
       header: 'Followers',
-      cell: ({ row }) => (
+      render: (row) => (
         <div className="text-right">
-          {(row.original.followers ?? 0).toLocaleString()}
+          {(row.followers ?? 0).toLocaleString()}
         </div>
       ),
     },
     {
-      accessorKey: 'posts7d',
+      key: 'posts7d',
       header: 'Posts (7d)',
-      cell: ({ row }) => (
+      render: (row) => (
         <div className="text-right">
-          {(row.original.posts7d ?? 0).toLocaleString()}
+          {(row.posts7d ?? 0).toLocaleString()}
         </div>
       ),
     },
     {
-      accessorKey: 'lastSyncedAt',
+      key: 'lastSyncedAt',
       header: 'Last synced',
-      cell: ({ row }) => (
+      render: (row) => (
         <div className="text-xs text-[var(--st-text-secondary)]">
-          {fmtDate(row.original.lastSyncedAt) || 'never'}
+          {fmtDate(row.lastSyncedAt) || 'never'}
         </div>
       ),
     },
     {
-      id: 'actions',
-      header: () => <div className="text-right">Actions</div>,
-      cell: ({ row }) => {
-        const c = row.original;
+      key: 'actions',
+      header: <div className="text-right">Actions</div>,
+      render: (row) => {
+        const c = row;
         const id = c._id ?? c.id ?? '';
         const isSyncing = syncingId === id;
         return (
           <div className="flex items-center justify-end gap-1">
             <Button
-              size="icon-sm"
+              size="sm"
               variant="ghost"
               onClick={() => handleAnalyze(c)}
               aria-label="Analyze Trends"
@@ -238,7 +238,7 @@ export default function FacebookCompetitorsPage() {
               <TrendingUp className="h-3.5 w-3.5" />
             </Button>
             <Button
-              size="icon-sm"
+              size="sm"
               variant="ghost"
               onClick={() => handleSync(c)}
               disabled={isSyncing}
@@ -250,7 +250,7 @@ export default function FacebookCompetitorsPage() {
               />
             </Button>
             <Button
-              size="icon-sm"
+              size="sm"
               variant="ghost"
               onClick={() => setConfirmRemove(c)}
               aria-label="Remove"
@@ -263,6 +263,29 @@ export default function FacebookCompetitorsPage() {
       },
     },
   ], [syncingId]);
+
+  const exportCsv = () => {
+    if (competitors.length === 0) return;
+    const rows = ['name,pageId,followers,posts7d,lastSyncedAt'];
+    for (const c of competitors) {
+      rows.push(
+        [
+          JSON.stringify(c.name ?? ''),
+          c.pageId ?? '',
+          c.followers ?? 0,
+          c.posts7d ?? 0,
+          c.lastSyncedAt ?? '',
+        ].join(','),
+      );
+    }
+    const blob = new Blob([rows.join('\n')], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'facebook-competitors.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   if (!projectId) {
     return (
@@ -302,6 +325,9 @@ export default function FacebookCompetitorsPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={exportCsv} disabled={competitors.length === 0} iconLeft={Download}>
+            CSV
+          </Button>
           <Button variant="ghost" onClick={refresh} disabled={loading}>
             <RefreshCw className={loading ? 'mr-2 h-4 w-4 animate-spin' : 'mr-2 h-4 w-4'} />
             Refresh
@@ -321,6 +347,11 @@ export default function FacebookCompetitorsPage() {
         </Alert>
       )}
 
+      <m.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+      >
       <Card>
         <CardBody className="pt-6">
           {loading && competitors.length === 0 ? (
@@ -332,9 +363,8 @@ export default function FacebookCompetitorsPage() {
           ) : (
             <DataTable
               columns={columns}
-              data={competitors}
-              filterColumn="name"
-              filterPlaceholder="Filter competitors..."
+              rows={competitors}
+              getRowId={(row, index) => row._id ?? row.id ?? String(index)}
               empty={
                 <EmptyState
                   icon={<Radar />}
@@ -346,6 +376,7 @@ export default function FacebookCompetitorsPage() {
           )}
         </CardBody>
       </Card>
+      </m.div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>

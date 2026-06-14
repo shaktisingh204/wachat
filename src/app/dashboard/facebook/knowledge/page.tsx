@@ -64,13 +64,13 @@ function safeWhen(iso?: string): string {
   return formatDistanceToNow(d, { addSuffix: true });
 }
 
-function statusVariant(s?: string): 'success' | 'warning' | 'danger' | 'ghost' {
-  if (!s) return 'ghost';
+function statusVariant(s?: string): 'success' | 'warning' | 'destructive' | 'secondary' {
+  if (!s) return 'secondary';
   const v = s.toLowerCase();
   if (v === 'ready' || v === 'indexed' || v === 'active') return 'success';
   if (v === 'processing' || v === 'pending') return 'warning';
-  if (v === 'failed' || v === 'error') return 'danger';
-  return 'ghost';
+  if (v === 'failed' || v === 'error') return 'destructive';
+  return 'secondary';
 }
 
 function fmtSize(kb?: number): string {
@@ -263,7 +263,7 @@ export default function KnowledgeBasePage(): React.JSX.Element {
                   ) : null}
                   <Button
                     variant="ghost"
-                    size="icon-sm"
+                    size="sm"
                     aria-label="Delete document"
                     onClick={() => setConfirmDelete(d)}
                   >

@@ -43,9 +43,9 @@ interface Rule {
   isActive?: boolean;
 }
 
-const ACTION_OPTIONS: { value: RuleAction; label: string; tone: 'warning' | 'danger' | 'info' }[] = [
+const ACTION_OPTIONS: { value: RuleAction; label: string; tone: 'warning' | 'destructive' | 'info' }[] = [
   { value: 'hide', label: 'Hide comment', tone: 'warning' },
-  { value: 'delete', label: 'Delete comment', tone: 'danger' },
+  { value: 'delete', label: 'Delete comment', tone: 'destructive' },
   { value: 'flag', label: 'Flag for review', tone: 'info' },
 ];
 
@@ -53,7 +53,7 @@ function getRuleId(r: Rule): string {
   return String(r._id ?? r.id ?? '');
 }
 
-function actionVariant(action?: string): 'warning' | 'danger' | 'info' | 'default' {
+function actionVariant(action?: string): 'warning' | 'destructive' | 'info' | 'default' {
   const found = ACTION_OPTIONS.find((o) => o.value === action);
   return found?.tone ?? 'default';
 }
@@ -272,7 +272,7 @@ export default function FacebookModerationPage(): React.JSX.Element {
                       </div>
                       <Button
                         variant="ghost"
-                        size="icon-sm"
+                        size="sm"
                         onClick={() => onDelete(r)}
                         disabled={mutating}
                         aria-label="Delete rule"

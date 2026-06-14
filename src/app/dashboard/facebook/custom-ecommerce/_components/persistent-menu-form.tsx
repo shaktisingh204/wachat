@@ -126,7 +126,7 @@ export function PersistentMenuForm({ shop }: PersistentMenuFormProps) {
             >
               <Button
                 variant="ghost"
-                size="icon-sm"
+                size="sm"
                 type="button"
                 className="absolute right-2 top-2"
                 onClick={() => handleRemoveItem(index)}

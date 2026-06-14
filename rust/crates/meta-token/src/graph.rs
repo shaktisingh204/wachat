@@ -16,7 +16,7 @@ use wachat_types::Project;
 
 /// Graph API version — keep in lockstep with the legacy TS
 /// (`meta-token.actions.ts`, `const API_VERSION = 'v23.0'`).
-pub const API_VERSION: &str = "v23.0";
+pub const API_VERSION: &str = "v25.0";
 
 const PROJECTS_COLL: &str = "projects";
 

@@ -17,7 +17,7 @@ use crate::types::mask;
 /// Graph API version used by the legacy TS code (`meta-token.actions.ts`,
 /// `const API_VERSION = 'v23.0'`). Centralized here so a future bump only
 /// touches one place.
-pub const GRAPH_API_VERSION: &str = "v23.0";
+pub const GRAPH_API_VERSION: &str = "v25.0";
 
 /// Result of a `debug_token` call — narrowed to the fields callers care about.
 #[derive(Debug, Clone)]

@@ -67,7 +67,7 @@ export function CancelScheduleDialog({
         ) : (
           <Button
             variant="ghost"
-            size="icon-sm"
+            size="sm"
             aria-label="Cancel schedule"
           >
             <XCircle />

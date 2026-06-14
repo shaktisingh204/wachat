@@ -23,7 +23,7 @@ use serde_json::Value;
 
 use crate::dto::ValidationError;
 
-const GRAPH_API_VERSION: &str = "v23.0";
+const GRAPH_API_VERSION: &str = "v25.0";
 const GRAPH_BASE: &str = "https://graph.facebook.com";
 
 /// Error returned by all helpers in this module.

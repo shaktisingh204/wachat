@@ -73,7 +73,7 @@ const recipe: Recipe = {
       groupId: 'g_dm',
       type: 'webhook',
       options: {
-        url: 'https://graph.facebook.com/v19.0/{{ig.accountId}}/messages',
+        url: 'https://graph.facebook.com/v25.0/{{ig.accountId}}/messages',
         method: 'POST',
         headers: [
           { id: 'h1', key: 'Authorization', value: 'Bearer {{META_PAGE_TOKEN}}' },
@@ -91,7 +91,7 @@ const recipe: Recipe = {
       groupId: 'g_like',
       type: 'webhook',
       options: {
-        url: 'https://graph.facebook.com/v19.0/{{comment.id}}',
+        url: 'https://graph.facebook.com/v25.0/{{comment.id}}',
         method: 'POST',
         headers: [
           { id: 'h1', key: 'Authorization', value: 'Bearer {{META_PAGE_TOKEN}}' },

@@ -46,6 +46,7 @@ import dynamic from 'next/dynamic';
 import { useProject } from '@/context/project-context';
 import { getDashboardSummary } from '@/app/actions/wachat-analytics.actions';
 import { getBroadcasts } from '@/app/actions/broadcast.actions';
+import { AiInsightsCard } from '@/components/wachat/analytics';
 
 function cx(...a: Array<string | false | null | undefined>): string {
   return a.filter(Boolean).join(' ');
@@ -384,6 +385,27 @@ export default function OverviewPage() {
             />
           </div>
         )}
+
+        {/* AI insights — Claude narrates the live metrics */}
+        {stats ? (
+          <AiInsightsCard
+            projectId={projectId ?? ''}
+            context="WhatsApp project overview (last 30 days)"
+            brand={{ businessName: activeProject?.name ?? undefined }}
+            metrics={{
+              'Messages sent': stats.totalSent,
+              'Total messages': stats.totalMessages,
+              Delivered: stats.totalDelivered,
+              Read: stats.totalRead,
+              Failed: stats.totalFailed,
+              'Delivery rate %': derived?.deliveryRate ?? 0,
+              'Read rate %': derived?.readRate ?? 0,
+              'Fail rate %': derived?.failRate ?? 0,
+              Campaigns: stats.totalCampaigns,
+              '7-day send trend %': derived?.trend.delta ?? 0,
+            }}
+          />
+        ) : null}
 
         {/* Middle row: Funnel / Actions / Chart */}
         {(layout.funnel || layout.actions || layout.chart) && (

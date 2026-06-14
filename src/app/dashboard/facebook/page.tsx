@@ -172,7 +172,7 @@ function PostItemCard({ post }: { post: FacebookPost }) {
         </p>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon-sm" aria-label="Post actions">
+            <Button variant="ghost" size="sm" aria-label="Post actions">
               <MoreHorizontal />
             </Button>
           </DropdownMenuTrigger>
@@ -438,8 +438,10 @@ function FacebookOverviewContent() {
   // Comparative Analytics calculation
   const engagementTrend = useMemo(() => {
     if (!detailedInsights || !Array.isArray(detailedInsights)) return null;
+    // page_engaged_users was removed in the v25 deprecation; page_post_engagements
+    // (in the default v25 metric set) is the supported engagement series.
     const engagedUsers = detailedInsights.find(
-      (i: any) => i.name === "page_engaged_users",
+      (i: any) => i.name === "page_post_engagements",
     );
     if (engagedUsers?.values?.length >= 2) {
       const vals = engagedUsers.values;
@@ -734,7 +736,7 @@ function FacebookOverviewContent() {
           <PostColumn title="Latest posts" count={posts.slice(0, 3).length}>
             {posts.slice(0, 3).length === 0 ? (
               <EmptyState
-                compact
+                size="sm"
                 icon={<Newspaper />}
                 title="No posts yet"
                 description="Create your first post to see it here."
@@ -749,7 +751,7 @@ function FacebookOverviewContent() {
           <PostColumn title="Top posts" count={topPosts.length}>
             {topPosts.length === 0 ? (
               <EmptyState
-                compact
+                size="sm"
                 icon={<Sparkles />}
                 title="No top posts"
                 description="Engagement insights appear once your posts collect reactions."
@@ -762,7 +764,7 @@ function FacebookOverviewContent() {
           <PostColumn title="Recent comments" count={recentComments.length}>
             {recentComments.length === 0 ? (
               <EmptyState
-                compact
+                size="sm"
                 icon={<MessageSquare />}
                 title="No comments yet"
                 description="Replies and comments on your posts will show up here."

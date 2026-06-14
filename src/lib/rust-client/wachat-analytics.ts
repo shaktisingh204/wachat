@@ -35,7 +35,7 @@ export type ConversationAnalyticsGranularity = 'HALF_HOUR' | 'DAILY' | 'MONTHLY'
  * and `dimensions` arrays is optional — empty/omitted means "no filter on
  * this axis". The Rust handler builds the Meta `conversation_analytics.start
  * (...).end(...).granularity(...)` field-spec from these and forwards to
- * `GET https://graph.facebook.com/v23.0/{wabaId}`.
+ * `GET https://graph.facebook.com/v25.0/{wabaId}`.
  */
 export interface ConversationAnalyticsBody {
     startTimestamp: number;

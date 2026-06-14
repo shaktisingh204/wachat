@@ -190,7 +190,7 @@ impl AppConfig {
             retry_delay_ms: env_u64("BROADCAST_RETRY_DELAY_MS", 5_000),
             checkpoint_every: env_usize("BROADCAST_CHECKPOINT_EVERY", 10),
             cancel_check_every: env_usize("BROADCAST_CANCEL_CHECK_EVERY", 50),
-            api_version: std::env::var("META_GRAPH_VERSION").unwrap_or_else(|_| "v23.0".to_owned()),
+            api_version: std::env::var("META_GRAPH_VERSION").unwrap_or_else(|_| "v25.0".to_owned()),
             http_connections: env_usize("BROADCAST_HTTP_CONNECTIONS", 256),
         })
     }

@@ -5,7 +5,7 @@ import {
   Field,
   Input,
   Modal,
-  Select,
+  SelectField as Select,
   useToast,
 } from '@/components/sabcrm/20ui';
 import {

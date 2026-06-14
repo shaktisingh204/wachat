@@ -25,7 +25,7 @@ import {
   Td,
   Badge,
   useToast,
-  Select,
+  SelectField as Select,
   Field,
   Alert,
 } from '@/components/sabcrm/20ui';

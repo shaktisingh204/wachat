@@ -486,7 +486,7 @@ mod tests {
 
     #[test]
     fn meta_api_version_matches_ts() {
-        assert_eq!(crate::META_API_VERSION, "v23.0");
+        assert_eq!(crate::META_API_VERSION, "v25.0");
     }
 
     #[test]

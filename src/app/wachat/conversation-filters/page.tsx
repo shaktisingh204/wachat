@@ -7,7 +7,7 @@ import {
   Card,
   Field,
   Input,
-  Select,
+  SelectField as Select,
   Drawer,
   DrawerContent,
   DrawerHeader,

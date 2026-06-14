@@ -7,7 +7,7 @@ import {
   ButtonGroup,
   IconButton,
   Input,
-  Select,
+  SelectField as Select,
   Separator,
   Skeleton,
   useToast,

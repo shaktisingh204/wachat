@@ -209,6 +209,7 @@ function NodeEditor({
             size="sm"
             iconLeft={Plus}
             onClick={() => addChild(t)}
+            className="sc-press"
           >
             {t}
           </Button>
@@ -326,7 +327,7 @@ export default function VoiceIvrPage() {
           </PageDescription>
         </PageHeaderHeading>
         <PageActions>
-          <Button variant="primary" iconLeft={Plus} onClick={openCreate}>
+          <Button variant="primary" iconLeft={Plus} onClick={openCreate} className="sc-press">
             New IVR
           </Button>
         </PageActions>
@@ -351,7 +352,7 @@ export default function VoiceIvrPage() {
             title="No IVR flows yet"
             description="Create your first call-routing tree to greet and direct incoming calls."
             action={
-              <Button variant="primary" iconLeft={Plus} onClick={openCreate}>
+              <Button variant="primary" iconLeft={Plus} onClick={openCreate} className="sc-press">
                 New IVR
               </Button>
             }
@@ -360,7 +361,7 @@ export default function VoiceIvrPage() {
       ) : (
         <div className="grid grid-cols-1 gap-[var(--st-space-3)] md:grid-cols-2">
           {data.map((ivr) => (
-            <Card key={ivr._id} variant="outlined" className="flex flex-col gap-[var(--st-space-2)]">
+            <Card key={ivr._id} variant="outlined" className="sc-card flex flex-col gap-[var(--st-space-2)]">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span
@@ -383,7 +384,7 @@ export default function VoiceIvrPage() {
                 <span className="tabular-nums">{ivr.rootNode.children?.length ?? 0}</span> child node(s)
               </div>
               <div className="mt-auto flex gap-2 pt-1">
-                <Button size="sm" variant="outline" iconLeft={Edit2} onClick={() => openEdit(ivr)}>
+                <Button size="sm" variant="outline" iconLeft={Edit2} onClick={() => openEdit(ivr)} className="sc-press">
                   Edit
                 </Button>
                 <Button
@@ -391,6 +392,7 @@ export default function VoiceIvrPage() {
                   variant="ghost"
                   iconLeft={Trash2}
                   onClick={() => handleDelete(ivr._id)}
+                  className="sc-press"
                 >
                   Archive
                 </Button>
@@ -416,6 +418,7 @@ export default function VoiceIvrPage() {
               onClick={handleSave}
               loading={submitting}
               disabled={submitting || !name.trim()}
+              className="sc-press"
             >
               {editing ? 'Save IVR' : 'Create IVR'}
             </Button>

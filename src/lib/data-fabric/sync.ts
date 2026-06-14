@@ -1,7 +1,7 @@
 /**
  * Cross-module backfill orchestrator.
  *
- * Walks the four read-only adapters (Wachat, CRM, sabChat, HRM) and, for
+ * Walks the read-only adapters (Wachat, CRM, sabChat) and, for
  * every adapter row, resolves the canonical contact, mirrors the row's
  * traits onto it (last-write-wins), and emits a `contact.upserted`
  * domain event onto the data-fabric event bus.
@@ -29,13 +29,12 @@ import {
   iterateSabChatCustomers,
   SABCHAT_ADAPTER_SOURCE,
 } from './adapters/sabchat';
-import { iterateHrmEmployees, HRM_ADAPTER_SOURCE } from './adapters/hrm';
 
 /* ══════════════════════════════════════════════════════════
    Types
    ══════════════════════════════════════════════════════════ */
 
-export type AdapterSource = 'wachat' | 'crm' | 'sabchat' | 'hrm';
+export type AdapterSource = 'wachat' | 'crm' | 'sabchat';
 
 export interface BackfillResult {
   tenantId: string;
@@ -54,7 +53,7 @@ export interface BackfillOptions {
   limitPerSource?: number;
   /**
    * If supplied, restricts the run to a subset of adapters. Defaults to all
-   * four. Order is preserved and matters for trait LWW (later wins on tie).
+   * of them. Order is preserved and matters for trait LWW (later wins on tie).
    */
   sources?: AdapterSource[];
 }
@@ -69,7 +68,6 @@ const ADAPTERS: Record<AdapterSource, { iter: AdapterIter; source: string }> = {
   wachat: { iter: iterateWachatContacts, source: WACHAT_ADAPTER_SOURCE },
   crm: { iter: iterateCrmLeads, source: CRM_ADAPTER_SOURCE },
   sabchat: { iter: iterateSabChatCustomers, source: SABCHAT_ADAPTER_SOURCE },
-  hrm: { iter: iterateHrmEmployees, source: HRM_ADAPTER_SOURCE },
 };
 
 /* ══════════════════════════════════════════════════════════
@@ -184,7 +182,7 @@ export async function backfillFromAdapters(
 ): Promise<BackfillResult> {
   if (!tenantId) throw new Error('tenantId is required');
 
-  const sources: AdapterSource[] = opts.sources ?? ['wachat', 'crm', 'sabchat', 'hrm'];
+  const sources: AdapterSource[] = opts.sources ?? ['wachat', 'crm', 'sabchat'];
   const result: BackfillResult = {
     tenantId,
     scanned: 0,
@@ -194,7 +192,6 @@ export async function backfillFromAdapters(
       wachat: { scanned: 0, upserted: 0, failed: 0 },
       crm: { scanned: 0, upserted: 0, failed: 0 },
       sabchat: { scanned: 0, upserted: 0, failed: 0 },
-      hrm: { scanned: 0, upserted: 0, failed: 0 },
     },
   };
 

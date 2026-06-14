@@ -25,7 +25,7 @@ use wachat_meta_client::MetaClient;
 use wachat_templates_sync::TemplatesSyncer;
 use wachat_types::Project;
 
-const META_VERSION: &str = "v22.0";
+const META_VERSION: &str = "v25.0";
 
 fn meta_client_for(server: &MockServer) -> MetaClient {
     let base =

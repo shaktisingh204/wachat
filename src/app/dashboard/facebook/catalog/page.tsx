@@ -185,7 +185,7 @@ export default function FacebookCatalogPage(): React.JSX.Element {
                   <p className="line-clamp-1 text-base text-[var(--st-text)]">{c.name}</p>
                   <p className="font-mono text-[11px] text-[var(--st-text-secondary)]">{c.id}</p>
                 </div>
-                <Badge variant="ghost">
+                <Badge variant="secondary">
                   <Package className="mr-1 h-3 w-3" />
                   {c.product_count ?? 0}
                 </Badge>

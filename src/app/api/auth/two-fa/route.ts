@@ -112,6 +112,7 @@ export async function POST(request: NextRequest) {
       email: user.email,
       name: user.name,
       isApproved: (user as any).isApproved || false,
+      mustChangePassword: (user as any).mustChangePassword === true,
     } as any);
     const token = await createSessionToken(sessionPayload as any);
 
