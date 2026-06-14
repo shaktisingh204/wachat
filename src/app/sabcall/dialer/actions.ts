@@ -117,7 +117,13 @@ export async function launchCampaign(
     let failed = 0;
     for (const to of numbers) {
       try {
-        await sabcallEngine.originate({ tenant: workspaceId, to, callerId: campaign.callerId });
+        await sabcallEngine.originate({
+          tenant: workspaceId,
+          to,
+          callerId: campaign.callerId,
+          amd: campaign.amd,
+          voicemailDrop: campaign.voicemailDrop,
+        });
         queued += 1;
       } catch {
         failed += 1;

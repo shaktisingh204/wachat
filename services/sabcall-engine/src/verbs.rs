@@ -188,7 +188,7 @@ async fn dial(state: &AppState, inbound: &str, target: &str) -> anyhow::Result<(
         format!("PJSIP/{target}")
     };
     let bridge = state.ari.create_bridge().await?;
-    let out = state.ari.originate(&endpoint, None, "dialed").await?;
+    let out = state.ari.originate(&endpoint, None, "dialed", None).await?;
     if let Some(out_id) = out.get("id").and_then(serde_json::Value::as_str) {
         state.ari.add_to_bridge(&bridge, inbound).await?;
         state.ari.add_to_bridge(&bridge, out_id).await?;

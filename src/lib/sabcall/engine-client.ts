@@ -40,6 +40,10 @@ export interface OriginateInput {
   /** Destination number or full ARI endpoint. */
   to: string;
   callerId?: string;
+  /** Run answering-machine detection on this call. */
+  amd?: boolean;
+  /** Pre-recorded message to drop if a machine answers. */
+  voicemailDrop?: string;
 }
 
 export const sabcallEngine = {

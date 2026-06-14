@@ -94,19 +94,39 @@ impl AriClient {
         .await
     }
 
-    /// Originate an outbound channel into this Stasis app.
+    /// Originate an outbound channel into this Stasis app. `variables` are set
+    /// as Asterisk channel variables (e.g. AMD / voicemail-drop flags the media
+    /// tier acts on).
     pub async fn originate(
         &self,
         endpoint: &str,
         caller_id: Option<&str>,
         app_args: &str,
+        variables: Option<Value>,
     ) -> EngineResult<Value> {
         let mut query: Vec<(&str, &str)> =
             vec![("endpoint", endpoint), ("app", &self.app), ("appArgs", app_args)];
         if let Some(cid) = caller_id {
             query.push(("callerId", cid));
         }
-        self.send(reqwest::Method::POST, "/channels", &query).await
+        let body = serde_json::json!({
+            "variables": variables.unwrap_or_else(|| serde_json::json!({})),
+        });
+        let resp = self
+            .http
+            .request(reqwest::Method::POST, self.url("/channels"))
+            .basic_auth(&self.user, Some(&self.pass))
+            .query(&query)
+            .json(&body)
+            .send()
+            .await
+            .map_err(|e| EngineError::Ari(format!("request failed: {e}")))?;
+        let status = resp.status();
+        let text = resp.text().await.unwrap_or_default();
+        if !status.is_success() {
+            return Err(EngineError::Ari(format!("{status}: {text}")));
+        }
+        Ok(serde_json::from_str(&text).unwrap_or(Value::Null))
     }
 
     /// Create a mixing bridge for connecting two legs.

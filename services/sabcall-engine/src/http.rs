@@ -189,6 +189,12 @@ struct OriginateReq {
     to: String,
     #[serde(default)]
     caller_id: Option<String>,
+    /// Run answering-machine detection on this leg (media tier acts on it).
+    #[serde(default)]
+    amd: Option<bool>,
+    /// Pre-recorded message to drop if a machine answers (voicemail-drop).
+    #[serde(default)]
+    voicemail_drop: Option<String>,
 }
 
 #[derive(Debug, Serialize)]
@@ -219,9 +225,17 @@ async fn originate(
         format!("PJSIP/{}", req.to.trim())
     };
 
+    let mut vars = serde_json::Map::new();
+    if req.amd.unwrap_or(false) {
+        vars.insert("AMD".to_owned(), Value::String("true".to_owned()));
+    }
+    if let Some(vd) = req.voicemail_drop.as_deref().filter(|s| !s.is_empty()) {
+        vars.insert("VOICEMAIL_DROP".to_owned(), Value::String(vd.to_owned()));
+    }
+    let variables = if vars.is_empty() { None } else { Some(Value::Object(vars)) };
     let out = state
         .ari
-        .originate(&endpoint, req.caller_id.as_deref(), "outbound")
+        .originate(&endpoint, req.caller_id.as_deref(), "outbound", variables)
         .await?;
     let channel_id = out
         .get("id")
