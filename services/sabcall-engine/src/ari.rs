@@ -163,6 +163,102 @@ impl AriClient {
         .await
         .map(|_| ())
     }
+
+    /// List all active channels (for the live agent console).
+    pub async fn list_channels(&self) -> EngineResult<Value> {
+        self.send(reqwest::Method::GET, "/channels", &[]).await
+    }
+
+    /// Put a channel on hold (plays music-on-hold to the other leg).
+    pub async fn hold(&self, channel_id: &str) -> EngineResult<()> {
+        self.send(reqwest::Method::POST, &format!("/channels/{channel_id}/hold"), &[])
+            .await
+            .map(|_| ())
+    }
+
+    pub async fn unhold(&self, channel_id: &str) -> EngineResult<()> {
+        self.send(reqwest::Method::DELETE, &format!("/channels/{channel_id}/hold"), &[])
+            .await
+            .map(|_| ())
+    }
+
+    /// Mute a channel (`direction` = "in" | "out" | "both").
+    pub async fn mute(&self, channel_id: &str, direction: &str) -> EngineResult<()> {
+        self.send(
+            reqwest::Method::POST,
+            &format!("/channels/{channel_id}/mute"),
+            &[("direction", direction)],
+        )
+        .await
+        .map(|_| ())
+    }
+
+    pub async fn unmute(&self, channel_id: &str, direction: &str) -> EngineResult<()> {
+        self.send(
+            reqwest::Method::DELETE,
+            &format!("/channels/{channel_id}/mute"),
+            &[("direction", direction)],
+        )
+        .await
+        .map(|_| ())
+    }
+
+    /// Blind-transfer (redirect) a channel to a new endpoint.
+    pub async fn redirect(&self, channel_id: &str, endpoint: &str) -> EngineResult<()> {
+        self.send(
+            reqwest::Method::POST,
+            &format!("/channels/{channel_id}/redirect"),
+            &[("endpoint", endpoint)],
+        )
+        .await
+        .map(|_| ())
+    }
+
+    /// Create a holding bridge (used for park + queue waiting rooms).
+    pub async fn create_holding_bridge(&self) -> EngineResult<String> {
+        let v = self
+            .send(reqwest::Method::POST, "/bridges", &[("type", "holding")])
+            .await?;
+        v.get("id")
+            .and_then(Value::as_str)
+            .map(str::to_owned)
+            .ok_or_else(|| EngineError::Ari("holding bridge create returned no id".to_owned()))
+    }
+
+    /// Snoop on a channel for supervisor coaching.
+    /// `spy` = "in"|"out"|"both"|"none" (listen); `whisper` = "in"|"out"|"both"|"none" (talk).
+    /// monitor = spy:both/whisper:none · whisper = spy:both/whisper:out · barge = spy:both/whisper:both.
+    pub async fn snoop(
+        &self,
+        channel_id: &str,
+        spy: &str,
+        whisper: &str,
+    ) -> EngineResult<Value> {
+        self.send(
+            reqwest::Method::POST,
+            &format!("/channels/{channel_id}/snoop"),
+            &[("spy", spy), ("whisper", whisper), ("app", &self.app)],
+        )
+        .await
+    }
+
+    /// Fork a channel's audio to an external host (websocket) for live STT/AI.
+    pub async fn external_media(
+        &self,
+        external_host: &str,
+        format: &str,
+    ) -> EngineResult<Value> {
+        self.send(
+            reqwest::Method::POST,
+            "/channels/externalMedia",
+            &[
+                ("app", &self.app),
+                ("external_host", external_host),
+                ("format", format),
+            ],
+        )
+        .await
+    }
 }
 
 /* ── Event views ─────────────────────────────────────────────────────── */

@@ -57,6 +57,40 @@ export const sabcallEngine = {
       { method: 'POST' },
     ),
 
+  /** List all live channels (the agent console). */
+  listChannels: () => engineFetch<unknown[]>('/v1/channels'),
+
+  hold: (channelId: string, held: boolean) =>
+    engineFetch<{ held: boolean }>(
+      `/v1/channels/${encodeURIComponent(channelId)}/hold`,
+      { method: held ? 'POST' : 'DELETE' },
+    ),
+
+  mute: (channelId: string, muted: boolean, direction: 'in' | 'out' | 'both' = 'both') =>
+    engineFetch<{ muted: boolean }>(
+      `/v1/channels/${encodeURIComponent(channelId)}/mute?direction=${direction}`,
+      { method: muted ? 'POST' : 'DELETE' },
+    ),
+
+  transfer: (channelId: string, endpoint: string) =>
+    engineFetch<{ transferred: boolean }>(
+      `/v1/channels/${encodeURIComponent(channelId)}/transfer`,
+      { method: 'POST', body: JSON.stringify({ endpoint }) },
+    ),
+
+  /** Supervisor coaching: mode = monitor (listen) | whisper (to agent) | barge (both). */
+  snoop: (channelId: string, mode: 'monitor' | 'whisper' | 'barge') =>
+    engineFetch<{ id?: string }>(
+      `/v1/channels/${encodeURIComponent(channelId)}/snoop`,
+      { method: 'POST', body: JSON.stringify({ mode }) },
+    ),
+
+  record: (channelId: string, name?: string, maxSeconds?: number) =>
+    engineFetch<{ name?: string }>(
+      `/v1/channels/${encodeURIComponent(channelId)}/record`,
+      { method: 'POST', body: JSON.stringify({ name, maxSeconds }) },
+    ),
+
   /** Rendered pjsip.conf text for a tenant's trunks + credentials. */
   pjsipConf: async (tenant: string): Promise<string> => {
     const headers = new Headers();

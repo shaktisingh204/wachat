@@ -1,7 +1,7 @@
 //! HTTP control surface for the Next.js side (originate, hangup, pjsip config).
 
 use axum::{
-    extract::{Path, State},
+    extract::{Path, Query, State},
     http::HeaderMap,
     routing::{get, post},
     Json, Router,
@@ -19,9 +19,138 @@ pub fn router(state: AppState) -> Router {
     Router::new()
         .route("/health", get(health))
         .route("/v1/originate", post(originate))
+        .route("/v1/channels", get(list_channels))
         .route("/v1/channels/{channelId}/hangup", post(hangup))
+        .route("/v1/channels/{channelId}/hold", post(hold).delete(unhold))
+        .route("/v1/channels/{channelId}/mute", post(mute).delete(unmute))
+        .route("/v1/channels/{channelId}/transfer", post(transfer))
+        .route("/v1/channels/{channelId}/snoop", post(snoop))
+        .route("/v1/channels/{channelId}/record", post(record_channel))
         .route("/v1/tenants/{tenant}/pjsip.conf", get(pjsip_conf))
         .with_state(state)
+}
+
+async fn list_channels(
+    State(state): State<AppState>,
+    headers: HeaderMap,
+) -> EngineResult<Json<Value>> {
+    require_token(&state, &headers)?;
+    Ok(Json(state.ari.list_channels().await?))
+}
+
+async fn hold(
+    State(state): State<AppState>,
+    headers: HeaderMap,
+    Path(id): Path<String>,
+) -> EngineResult<Json<Value>> {
+    require_token(&state, &headers)?;
+    state.ari.hold(&id).await?;
+    Ok(Json(json!({ "held": true })))
+}
+
+async fn unhold(
+    State(state): State<AppState>,
+    headers: HeaderMap,
+    Path(id): Path<String>,
+) -> EngineResult<Json<Value>> {
+    require_token(&state, &headers)?;
+    state.ari.unhold(&id).await?;
+    Ok(Json(json!({ "held": false })))
+}
+
+#[derive(Debug, Deserialize)]
+struct DirectionQuery {
+    #[serde(default)]
+    direction: Option<String>,
+}
+
+async fn mute(
+    State(state): State<AppState>,
+    headers: HeaderMap,
+    Path(id): Path<String>,
+    Query(q): Query<DirectionQuery>,
+) -> EngineResult<Json<Value>> {
+    require_token(&state, &headers)?;
+    state.ari.mute(&id, q.direction.as_deref().unwrap_or("both")).await?;
+    Ok(Json(json!({ "muted": true })))
+}
+
+async fn unmute(
+    State(state): State<AppState>,
+    headers: HeaderMap,
+    Path(id): Path<String>,
+    Query(q): Query<DirectionQuery>,
+) -> EngineResult<Json<Value>> {
+    require_token(&state, &headers)?;
+    state.ari.unmute(&id, q.direction.as_deref().unwrap_or("both")).await?;
+    Ok(Json(json!({ "muted": false })))
+}
+
+#[derive(Debug, Deserialize)]
+struct TransferReq {
+    endpoint: String,
+}
+
+async fn transfer(
+    State(state): State<AppState>,
+    headers: HeaderMap,
+    Path(id): Path<String>,
+    Json(req): Json<TransferReq>,
+) -> EngineResult<Json<Value>> {
+    require_token(&state, &headers)?;
+    let ep = if req.endpoint.contains('/') {
+        req.endpoint.clone()
+    } else {
+        format!("PJSIP/{}", req.endpoint.trim())
+    };
+    state.ari.redirect(&id, &ep).await?;
+    Ok(Json(json!({ "transferred": true })))
+}
+
+#[derive(Debug, Deserialize)]
+struct SnoopReq {
+    /// "monitor" (listen) | "whisper" (talk to agent) | "barge" (talk to both).
+    #[serde(default)]
+    mode: Option<String>,
+}
+
+async fn snoop(
+    State(state): State<AppState>,
+    headers: HeaderMap,
+    Path(id): Path<String>,
+    Json(req): Json<SnoopReq>,
+) -> EngineResult<Json<Value>> {
+    require_token(&state, &headers)?;
+    let (spy, whisper) = match req.mode.as_deref().unwrap_or("monitor") {
+        "barge" => ("both", "both"),
+        "whisper" => ("both", "out"),
+        _ => ("both", "none"),
+    };
+    let res = state.ari.snoop(&id, spy, whisper).await?;
+    Ok(Json(res))
+}
+
+#[derive(Debug, Deserialize)]
+struct RecordReq {
+    #[serde(default)]
+    name: Option<String>,
+    #[serde(default)]
+    max_seconds: Option<u32>,
+}
+
+async fn record_channel(
+    State(state): State<AppState>,
+    headers: HeaderMap,
+    Path(id): Path<String>,
+    Json(req): Json<RecordReq>,
+) -> EngineResult<Json<Value>> {
+    require_token(&state, &headers)?;
+    let name = req.name.unwrap_or_else(|| format!("sabcall-{id}"));
+    let res = state
+        .ari
+        .record(&id, &name, "wav", req.max_seconds.unwrap_or(3600))
+        .await?;
+    Ok(Json(res))
 }
 
 async fn health(State(state): State<AppState>) -> Json<Value> {
