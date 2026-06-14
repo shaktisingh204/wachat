@@ -136,7 +136,7 @@ export const PLAN_FEATURE_GROUPS: PlanFeatureGroup[] = [
         features: [
             { id: 'sabmail', name: 'SabMail — Hosted Email', icon: Mail },
             { id: 'sabmeet', name: 'SabMeet — Video Rooms', icon: Video },
-            { id: 'sabvoice', name: 'SabVoice — Cloud PBX', icon: Mic },
+            { id: 'sabcall', name: 'SabCall — Cloud PBX & Calling', icon: Mic },
             { id: 'sabsign', name: 'SabSign — E-Signatures', icon: PenSquare },
             { id: 'sabwebinar', name: 'SabWebinar — Live + Registration', icon: Video },
             { id: 'sabconnect', name: 'SabConnect — Intranet', icon: Network },
@@ -248,7 +248,7 @@ export const planFeaturesDefaults: PlanFeaturePermissions = {
     // §17 Sab-* application gates — default ON for all plans.
     sabmail: true,
     sabmeet: true,
-    sabvoice: true,
+    sabcall: true,
     sabsign: true,
     sabwebinar: true,
     sabconnect: true,

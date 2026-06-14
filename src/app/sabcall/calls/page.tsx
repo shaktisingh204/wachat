@@ -32,7 +32,7 @@ import {
   Pause,
   Timer,
 } from 'lucide-react';
-import { listVoiceCallCdrs } from '@/app/actions/sabvoice.actions';
+import { listVoiceCallCdrs } from '@/app/actions/sabcall.actions';
 
 type CallRow = {
   _id: string;
@@ -105,7 +105,7 @@ export default function VoiceCallsLogPage() {
     <main className="mx-auto flex w-full max-w-6xl flex-col gap-[var(--st-space-5)]">
       <PageHeader>
         <PageHeaderHeading>
-          <PageEyebrow>SabVoice</PageEyebrow>
+          <PageEyebrow>SabCall</PageEyebrow>
           <PageTitle>Call log</PageTitle>
           <PageDescription>
             Every inbound, outbound, missed, and voicemail call with playback.

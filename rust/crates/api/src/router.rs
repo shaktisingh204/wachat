@@ -124,12 +124,12 @@ pub fn build(state: AppState) -> Router {
     let sabsprints_sprints_r = sabsprints_sprints::router::<AppState>();
     //     let sabsprints_stories_r = sabsprints_stories::router::<AppState>();
     let sabsprints_velocity_r = sabsprints_velocity::router::<AppState>();
-    let sabvoice_agents_presence_r = sabvoice_agents_presence::router::<AppState>();
-    let sabvoice_calls_r = sabvoice_calls::router::<AppState>();
-    let sabvoice_dids_r = sabvoice_dids::router::<AppState>();
-    let sabvoice_ivrs_r = sabvoice_ivrs::router::<AppState>();
-    let sabvoice_queues_r = sabvoice_queues::router::<AppState>();
-    let sabvoice_voicemail_r = sabvoice_voicemail::router::<AppState>();
+    let sabcall_agents_presence_r = sabcall_agents_presence::router::<AppState>();
+    let sabcall_calls_r = sabcall_calls::router::<AppState>();
+    let sabcall_dids_r = sabcall_dids::router::<AppState>();
+    let sabcall_ivrs_r = sabcall_ivrs::router::<AppState>();
+    let sabcall_queues_r = sabcall_queues::router::<AppState>();
+    let sabcall_voicemail_r = sabcall_voicemail::router::<AppState>();
 
     let sabbi_embeds_r = sabbi_embeds::router::<AppState>();
     let sabprep_profiles_r = sabprep_profiles::router::<AppState>();
@@ -152,10 +152,6 @@ pub fn build(state: AppState) -> Router {
     let sabops_agent_tokens_r = sabops_agent_tokens::router::<AppState>();
 
     // ─── §17 newly wired sab-* module routers ───────────────────────
-    let sabassist_access_tokens_r = sabassist_access_tokens::router::<AppState>();
-    let sabassist_actions_log_r = sabassist_actions_log::router::<AppState>();
-    let sabassist_devices_r = sabassist_devices::router::<AppState>();
-    let sabassist_sessions_r = sabassist_sessions::router::<AppState>();
     let sabbackstage_orders_r = sabbackstage_orders::router::<AppState>();
     let sabbackstage_public_pages_r = sabbackstage_public_pages::router::<AppState>();
     let sabbackstage_sponsors_r = sabbackstage_sponsors::router::<AppState>();
@@ -1161,12 +1157,12 @@ pub fn build(state: AppState) -> Router {
         .nest("/v1/sabsprints/sprints", sabsprints_sprints_r)
         //         .nest("/v1/sabsprints/stories", sabsprints_stories_r)
         .nest("/v1/agile/velocity", sabsprints_velocity_r)
-        .nest("/v1/sabvoice/agents-presence", sabvoice_agents_presence_r)
-        .nest("/v1/sabvoice/calls", sabvoice_calls_r)
-        .nest("/v1/sabvoice/dids", sabvoice_dids_r)
-        .nest("/v1/sabvoice/ivrs", sabvoice_ivrs_r)
-        .nest("/v1/sabvoice/queues", sabvoice_queues_r)
-        .nest("/v1/sabvoice/voicemail", sabvoice_voicemail_r)
+        .nest("/v1/sabcall/agents-presence", sabcall_agents_presence_r)
+        .nest("/v1/sabcall/calls", sabcall_calls_r)
+        .nest("/v1/sabcall/dids", sabcall_dids_r)
+        .nest("/v1/sabcall/ivrs", sabcall_ivrs_r)
+        .nest("/v1/sabcall/queues", sabcall_queues_r)
+        .nest("/v1/sabcall/voicemail", sabcall_voicemail_r)
         .nest("/v1/sabbi/embeds", sabbi_embeds_r)
         .nest("/v1/sabprep/profiles", sabprep_profiles_r)
         .nest("/v1/sabprep/runs", sabprep_runs_r)
@@ -1185,10 +1181,6 @@ pub fn build(state: AppState) -> Router {
         // .nest("/v1/sabops/alerts", sabops_alerts_r)
         .nest("/v1/sabops/agent-tokens", sabops_agent_tokens_r)
         // ─── §17 newly wired sab-* module routers ───────────────────────
-        .nest("/v1/sabassist/access-tokens", sabassist_access_tokens_r)
-        .nest("/v1/sabassist/actions-log", sabassist_actions_log_r)
-        .nest("/v1/sabassist/devices", sabassist_devices_r)
-        .nest("/v1/sabassist/sessions", sabassist_sessions_r)
         .nest("/v1/sabbackstage/orders", sabbackstage_orders_r)
         .nest("/v1/sabbackstage/public-pages", sabbackstage_public_pages_r)
         .nest("/v1/sabbackstage/sponsors", sabbackstage_sponsors_r)

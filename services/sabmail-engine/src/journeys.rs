@@ -62,6 +62,340 @@ fn first_next(edges: &[Bson], from_id: &str) -> Option<String> {
         .map(|s| s.to_string())
 }
 
+/* ── condition / branch evaluation (mirrors the TS engine) ───────────────
+ *
+ * A condition node carries a single predicate at `node.data.predicate`
+ * (a flat `node.data.{field,op,value}` is accepted as a fallback). The
+ * predicate is evaluated against a per-person context (the contact doc + the
+ * person's recent deliverability events) so the journey branches per person.
+ * Mirrors src/lib/sabmail/journey-engine.ts exactly: supported fields, ops,
+ * derived flags/counts and the yes/no edge-picking logic.
+ * ──────────────────────────────────────────────────────────────────────── */
+
+/// A condition predicate as authored by the visual builder.
+struct ConditionPredicate {
+    field: String,
+    op: String,
+    value: Option<String>,
+}
+
+/// The per-person facts a predicate is evaluated against.
+#[derive(Default)]
+struct ConditionContext {
+    email: String,
+    name: Option<String>,
+    tags: Vec<String>,
+    /// Flattened custom fields off the contact doc (string-coerced).
+    custom: std::collections::HashMap<String, String>,
+    opened: bool,
+    clicked: bool,
+    replied: bool,
+    bounced: bool,
+    inbound_count: i64,
+    event_count: i64,
+}
+
+const CONDITION_OPS: &[&str] = &[
+    "equals", "notEquals", "contains", "exists", "notExists", "gt", "lt",
+];
+
+/// Read a condition node's predicate from `node.data.predicate`, falling back to
+/// a flat `node.data.{field,op,value}`. Returns `None` when no usable field/op is
+/// present (the caller then keeps the historic structural default).
+fn read_predicate(node: &Document) -> Option<ConditionPredicate> {
+    let data = node.get_document("data").ok()?;
+    // Prefer a nested `predicate` object; otherwise read field/op/value off data.
+    let src: &Document = data.get_document("predicate").unwrap_or(data);
+    let field = src.get_str("field").ok()?.trim().to_string();
+    let op = src.get_str("op").ok()?.trim().to_string();
+    if field.is_empty() || !CONDITION_OPS.contains(&op.as_str()) {
+        return None;
+    }
+    // value tolerates string / number / bool in bson.
+    let value = match src.get("value") {
+        Some(Bson::String(s)) => Some(s.clone()),
+        Some(Bson::Int32(n)) => Some(n.to_string()),
+        Some(Bson::Int64(n)) => Some(n.to_string()),
+        Some(Bson::Double(n)) => Some(n.to_string()),
+        Some(Bson::Boolean(b)) => Some(b.to_string()),
+        _ => None,
+    };
+    Some(ConditionPredicate { field, op, value })
+}
+
+/// Coerce a bson value to a comparable lowercased/trimmed string.
+fn bson_cmp_string(b: &Bson) -> String {
+    match b {
+        Bson::String(s) => s.trim().to_lowercase(),
+        Bson::Int32(n) => n.to_string(),
+        Bson::Int64(n) => n.to_string(),
+        Bson::Double(n) => n.to_string(),
+        Bson::Boolean(v) => v.to_string(),
+        Bson::Array(a) => a
+            .iter()
+            .map(bson_cmp_string)
+            .collect::<Vec<_>>()
+            .join(",")
+            .to_lowercase(),
+        _ => String::new(),
+    }
+}
+
+/// Build the per-person context: contact doc ({workspaceId,email}) + recent
+/// events ({workspaceId, email|from === personEmail}); derive flags/counts.
+/// Defensive — any Mongo error yields an empty context (predicate → false).
+async fn build_condition_context(
+    state: &Arc<AppState>,
+    workspace_id: &str,
+    person_email: &str,
+) -> ConditionContext {
+    let email = person_email.trim().to_lowercase();
+    let mut ctx = ConditionContext {
+        email: email.clone(),
+        ..Default::default()
+    };
+    if workspace_id.is_empty() || email.is_empty() {
+        return ctx;
+    }
+
+    let contacts = state.mongo.collection::<Document>(db::COL_CONTACTS);
+    if let Ok(Some(contact)) = contacts
+        .find_one(doc! { "workspaceId": workspace_id, "email": &email })
+        .await
+    {
+        ctx.name = contact.get_str("name").ok().map(|s| s.to_string());
+        if let Ok(tags) = contact.get_array("tags") {
+            ctx.tags = tags
+                .iter()
+                .map(bson_cmp_string)
+                .filter(|s| !s.is_empty())
+                .collect();
+        }
+        // Flatten remaining scalar fields as custom fields (string-coerced).
+        for (k, v) in contact.iter() {
+            match k.as_str() {
+                "_id" | "workspaceId" | "email" | "name" | "tags" => continue,
+                _ => {
+                    ctx.custom.insert(k.clone(), bson_cmp_string(v));
+                }
+            }
+        }
+    }
+
+    // Outbound deliverability events key off `email`; inbound replies off `from`.
+    let events_col = state.mongo.collection::<Document>(db::COL_EVENTS);
+    let filter = doc! {
+        "workspaceId": workspace_id,
+        "$or": [ { "email": &email }, { "from": &email } ],
+    };
+    if let Ok(mut cursor) = events_col.find(filter).sort(doc! { "ts": -1 }).limit(200).await {
+        use futures_util_compat::Streamish;
+        if let Ok(events) = Streamish::collect(&mut cursor).await {
+            ctx.event_count = events.len() as i64;
+            for ev in &events {
+                let name = ev.get_str("event").unwrap_or_default().to_lowercase();
+                match name.as_str() {
+                    "open" => ctx.opened = true,
+                    "click" => ctx.clicked = true,
+                    "bounce" => ctx.bounced = true,
+                    "inbound" => {
+                        let from = ev.get_str("from").unwrap_or_default().trim().to_lowercase();
+                        if from == email {
+                            ctx.replied = true;
+                            ctx.inbound_count += 1;
+                        }
+                    }
+                    _ => {}
+                }
+            }
+        }
+    }
+
+    ctx
+}
+
+/// Resolve a predicate field against the context. Returns
+/// (kind, string_value, bool_value, number_value, is_tag, tags_present).
+/// kind: 0=string, 1=boolean, 2=number, 3=tag.
+struct Resolved {
+    kind: u8,
+    s: String,
+    b: bool,
+    n: f64,
+    present: bool,
+}
+
+fn resolve_field(field: &str, ctx: &ConditionContext) -> Resolved {
+    let str_resolved = |val: String| Resolved {
+        kind: 0,
+        present: !val.trim().is_empty(),
+        s: val,
+        b: false,
+        n: f64::NAN,
+    };
+    let bool_resolved = |val: bool| Resolved {
+        kind: 1,
+        present: val,
+        s: String::new(),
+        b: val,
+        n: f64::NAN,
+    };
+    let num_resolved = |val: i64| Resolved {
+        kind: 2,
+        present: true,
+        s: String::new(),
+        b: false,
+        n: val as f64,
+    };
+
+    match field {
+        "tag" => Resolved {
+            kind: 3,
+            present: !ctx.tags.is_empty(),
+            s: String::new(),
+            b: false,
+            n: f64::NAN,
+        },
+        "email" => str_resolved(ctx.email.clone()),
+        "name" => str_resolved(ctx.name.clone().unwrap_or_default().to_lowercase()),
+        // "domain" is an alias healing graphs saved with the legacy key.
+        "emailDomain" | "domain" => {
+            let domain = ctx
+                .email
+                .rsplit_once('@')
+                .map(|(_, d)| d.to_string())
+                .unwrap_or_default();
+            str_resolved(domain)
+        }
+        "opened" => bool_resolved(ctx.opened),
+        "clicked" => bool_resolved(ctx.clicked),
+        "replied" => bool_resolved(ctx.replied),
+        "bounced" => bool_resolved(ctx.bounced),
+        "inboundCount" => num_resolved(ctx.inbound_count),
+        "eventCount" => num_resolved(ctx.event_count),
+        // Any other string → a custom field on the contact doc.
+        other => str_resolved(ctx.custom.get(other).cloned().unwrap_or_default()),
+    }
+}
+
+/// Evaluate a predicate against the context. Defensive — unknown op / field
+/// returns false. Mirrors `evaluateSabmailCondition` in the TS engine.
+fn evaluate_condition(pred: &ConditionPredicate, ctx: &ConditionContext) -> bool {
+    if pred.field.is_empty() || !CONDITION_OPS.contains(&pred.op.as_str()) {
+        return false;
+    }
+    let r = resolve_field(&pred.field, ctx);
+    let wanted = pred.value.clone().unwrap_or_default();
+    let wanted_lc = wanted.trim().to_lowercase();
+
+    match pred.op.as_str() {
+        "exists" => r.present,
+        "notExists" => !r.present,
+        "equals" => match r.kind {
+            3 => ctx.tags.iter().any(|t| t.trim().to_lowercase() == wanted_lc),
+            1 => {
+                let want = if pred.value.is_none() { true } else { wanted_lc == "true" };
+                r.b == want
+            }
+            2 => r.n.to_string() == wanted_lc,
+            _ => r.s == wanted_lc,
+        },
+        "notEquals" => match r.kind {
+            3 => !ctx.tags.iter().any(|t| t.trim().to_lowercase() == wanted_lc),
+            1 => {
+                let want = if pred.value.is_none() { true } else { wanted_lc == "true" };
+                r.b != want
+            }
+            2 => r.n.to_string() != wanted_lc,
+            _ => r.s != wanted_lc,
+        },
+        "contains" => match r.kind {
+            3 => ctx
+                .tags
+                .iter()
+                .any(|t| t.to_lowercase().contains(&wanted_lc)),
+            _ => r.s.contains(&wanted_lc),
+        },
+        "gt" => {
+            let a = if r.kind == 2 { r.n } else { r.s.parse::<f64>().unwrap_or(f64::NAN) };
+            let b = wanted.trim().parse::<f64>().unwrap_or(f64::NAN);
+            a.is_finite() && b.is_finite() && a > b
+        }
+        "lt" => {
+            let a = if r.kind == 2 { r.n } else { r.s.parse::<f64>().unwrap_or(f64::NAN) };
+            let b = wanted.trim().parse::<f64>().unwrap_or(f64::NAN);
+            a.is_finite() && b.is_finite() && a < b
+        }
+        _ => false,
+    }
+}
+
+/// An edge's handle/label, lowercased — used for yes/no branch matching.
+fn edge_handle(edge: &Document) -> String {
+    edge.get_str("sourceHandle")
+        .ok()
+        .or_else(|| edge.get_str("label").ok())
+        .or_else(|| {
+            edge.get_document("data")
+                .ok()
+                .and_then(|d| d.get_str("label").ok())
+        })
+        .unwrap_or_default()
+        .to_lowercase()
+}
+
+fn handle_is_yes(h: &str) -> bool {
+    h.contains("yes") || h.contains("true") || h.contains("match") || h.contains("default") || h.contains("positive")
+}
+
+fn handle_is_no(h: &str) -> bool {
+    h.contains("no") || h.contains("false") || h.contains("else") || h.contains("negative")
+}
+
+/// Outgoing edges of a node, in stable order.
+fn outgoing<'a>(edges: &'a [Bson], from_id: &str) -> Vec<&'a Document> {
+    edges
+        .iter()
+        .filter_map(|e| e.as_document())
+        .filter(|e| e.get_str("source").map(|v| v == from_id).unwrap_or(false))
+        .collect()
+}
+
+fn edge_target(edge: &Document) -> Option<String> {
+    edge.get_str("target").ok().map(|s| s.to_string())
+}
+
+/// Pick the successor of a condition node given an evaluated result, mirroring
+/// `pickConditionNextByResult` in the TS engine. Falls back to `first_next` so a
+/// mis-wired branch still advances.
+fn pick_condition_next(edges: &[Bson], from_id: &str, result: bool) -> Option<String> {
+    let out = outgoing(edges, from_id);
+    if out.is_empty() {
+        return None;
+    }
+    if result {
+        let yes = out.iter().find(|e| handle_is_yes(&edge_handle(e)));
+        let chosen = yes.copied().unwrap_or(out[0]);
+        return edge_target(chosen).or_else(|| first_next(edges, from_id));
+    }
+    // result == false
+    if let Some(no) = out.iter().find(|e| handle_is_no(&edge_handle(e))) {
+        return edge_target(no).or_else(|| first_next(edges, from_id));
+    }
+    // No explicit "no" edge — take the first edge that ISN'T the yes/match edge.
+    let yes_target = out
+        .iter()
+        .find(|e| handle_is_yes(&edge_handle(e)))
+        .and_then(|e| edge_target(e));
+    if let Some(other) = out
+        .iter()
+        .find(|e| edge_target(e) != yes_target)
+    {
+        return edge_target(other).or_else(|| first_next(edges, from_id));
+    }
+    first_next(edges, from_id)
+}
+
 fn node_data_str(node: &Document, key: &str) -> Option<String> {
     node.get_document("data")
         .ok()
@@ -270,8 +604,27 @@ pub async fn tick(state: &Arc<AppState>) -> EngineResult<TickResult> {
                 complete(&runs_col, &run_id, "completed").await?;
                 out.completed += 1;
             }
+            "condition" => {
+                // Real per-person branching: read the predicate, build the
+                // context, evaluate, and pick the yes/no edge. No predicate →
+                // historic structural default (prefer yes-edge, else first).
+                let next = match read_predicate(node) {
+                    Some(pred) => {
+                        let ctx =
+                            build_condition_context(state, &workspace_id, &person).await;
+                        let result = evaluate_condition(&pred, &ctx);
+                        pick_condition_next(edges, &cur_id, result)
+                    }
+                    None => pick_condition_next(edges, &cur_id, true),
+                };
+                let terminal = next.is_none();
+                advance(&runs_col, &run_id, next, now_bson).await?;
+                if terminal {
+                    out.completed += 1;
+                }
+            }
             _ => {
-                // condition / other → take the first outgoing edge, run now.
+                // other / pass-through → take the first outgoing edge, run now.
                 advance(&runs_col, &run_id, first_next(edges, &cur_id), now_bson).await?;
                 if first_next(edges, &cur_id).is_none() {
                     out.completed += 1;

@@ -11,10 +11,21 @@
  *   · campaigns → recent sends summed (sent / failed) + recent sent/failed count
  *   · events    → recent bounces / complaints / opens
  *   · scheduled → upcoming pending sends
- * Optionally summarises the stats with `sabmailLlm` (skipped if it returns
- * not-ok — e.g. no provider key). Each digest is stored as a single doc in
- * `SABMAIL_COLLECTIONS.events`:
- *   { workspaceId, event: 'brief', summary, stats, ts }
+ *   · inbox     → a lightweight recent-unread digest across the workspace's
+ *                 active mailboxes (top unread subjects/senders) so the brief
+ *                 says "what needs attention in your inbox", not just ops stats
+ *
+ * The inbox digest is intentionally COOKIE-FREE: this route has no session, so
+ * it MUST NOT import the cookie-bound inbox server actions (which call
+ * `getSabmailWorkspaceId()`). Instead it reads the `sabmail_messages` cache
+ * collection directly — the same cache the IMAP sync worker
+ * (`src/workers/sabmail-sync.ts`) and the hosted inbound webhook populate —
+ * filtered by `{ workspaceId, accountId, seen:false }`, newest-first.
+ *
+ * Optionally summarises the stats + inbox with `sabmailLlm` (skipped if it
+ * returns not-ok — e.g. no provider key). Each digest is stored as a single
+ * doc in `SABMAIL_COLLECTIONS.events`:
+ *   { workspaceId, event: 'brief', summary, stats, inbox, ts }
  *
  * Auth mirrors the other SabMail cron routes: accept
  * `Authorization: Bearer $CRON_SECRET` OR `x-cron-secret` header OR `?secret=`.
@@ -45,6 +56,13 @@ const RECENT_WINDOW_MS = 24 * 60 * 60 * 1000;
 /** Upper bound for "upcoming" scheduled sends surfaced in the brief. */
 const UPCOMING_WINDOW_MS = 24 * 60 * 60 * 1000;
 
+/** Hard cap on active mailboxes inspected per workspace (defensive + fast). */
+const MAX_ACCOUNTS_PER_WORKSPACE = 25;
+/** How many unread messages to surface in the inbox digest. */
+const MAX_UNREAD_SAMPLE = 10;
+/** Max length of a subject/sender string fed into the prompt (token budget). */
+const MAX_FIELD_LEN = 120;
+
 interface BriefStats {
   campaignsRecentSent: number;
   campaignsRecentFailed: number;
@@ -56,9 +74,28 @@ interface BriefStats {
   upcomingScheduled: number;
 }
 
+/** A single unread message surfaced in the inbox digest. */
+interface UnreadItem {
+  /** The mailbox this unread landed in. */
+  account: string;
+  from: string;
+  subject: string;
+}
+
+/** Lightweight, cookie-free recent-unread summary for one workspace. */
+interface InboxDigest {
+  /** Total unread across the workspace's active mailboxes (>= sample.length). */
+  unreadTotal: number;
+  /** Number of active mailboxes inspected. */
+  accountsActive: number;
+  /** Newest unread messages (capped at MAX_UNREAD_SAMPLE). */
+  sample: UnreadItem[];
+}
+
 interface BriefResult {
   workspaceId: string;
   stats: BriefStats;
+  inbox: InboxDigest;
   summary: string | null;
   stored: boolean;
 }
@@ -195,9 +232,98 @@ async function computeStats(
   return stats;
 }
 
-/** Build the LLM prompt body from the computed stats. */
-function statsPrompt(stats: BriefStats): string {
-  return [
+function clip(value: unknown, fallback = ''): string {
+  const s = (typeof value === 'string' ? value : value == null ? '' : String(value)).trim();
+  const out = s || fallback;
+  return out.length > MAX_FIELD_LEN ? `${out.slice(0, MAX_FIELD_LEN - 1)}…` : out;
+}
+
+/**
+ * Lightweight, COOKIE-FREE recent-unread digest for one workspace.
+ *
+ * Resolves the workspace's active mailboxes from `sabmail_accounts`
+ * (`status:'active'`) and reads the `sabmail_messages` cache directly for
+ * `{ workspaceId, accountId, seen:false }`, newest-first. This deliberately
+ * avoids the cookie-bound inbox actions (no live IMAP/OAuth fetch) — it only
+ * consults the cache the sync worker + hosted webhook already populate, so it
+ * stays fast and never opens a network connection.
+ *
+ * Best-effort throughout: any query failure degrades to an empty digest rather
+ * than throwing, so a single bad collection can't sink the brief.
+ */
+async function computeInboxDigest(
+  db: Awaited<ReturnType<typeof connectToDatabase>>['db'],
+  workspaceId: string,
+): Promise<InboxDigest> {
+  const digest: InboxDigest = { unreadTotal: 0, accountsActive: 0, sample: [] };
+
+  let accounts: Array<{ _id: unknown; email?: unknown }> = [];
+  try {
+    accounts = (await db
+      .collection(SABMAIL_COLLECTIONS.accounts)
+      .find({ workspaceId, status: 'active' })
+      .project({ _id: 1, email: 1 })
+      .limit(MAX_ACCOUNTS_PER_WORKSPACE)
+      .toArray()) as Array<{ _id: unknown; email?: unknown }>;
+  } catch (e) {
+    console.error('[sabmail-brief] account lookup failed', workspaceId, getErrorMessage(e));
+    return digest;
+  }
+  digest.accountsActive = accounts.length;
+  if (accounts.length === 0) return digest;
+
+  const accountIds = accounts.map((a) => String(a._id));
+  const emailById = new Map(accounts.map((a) => [String(a._id), clip(a.email, 'inbox')]));
+
+  const messagesCol = db.collection(SABMAIL_COLLECTIONS.messages);
+
+  // Total unread count across the active mailboxes.
+  try {
+    digest.unreadTotal = await messagesCol.countDocuments({
+      workspaceId,
+      accountId: { $in: accountIds },
+      seen: false,
+    });
+  } catch (e) {
+    console.error('[sabmail-brief] unread count failed', workspaceId, getErrorMessage(e));
+  }
+
+  // Newest-first sample of unread subjects/senders. `date` is the message date
+  // (worker + persisted-store shape); fall back to `syncedAt` when absent.
+  try {
+    const docs = (await messagesCol
+      .find({ workspaceId, accountId: { $in: accountIds }, seen: false })
+      .project({ accountId: 1, subject: 1, fromName: 1, fromEmail: 1, date: 1, syncedAt: 1 })
+      .sort({ date: -1, syncedAt: -1 })
+      .limit(MAX_UNREAD_SAMPLE)
+      .toArray()) as Array<{
+      accountId?: unknown;
+      subject?: unknown;
+      fromName?: unknown;
+      fromEmail?: unknown;
+    }>;
+    digest.sample = docs.map((d) => {
+      const name = clip(d.fromName);
+      const email = clip(d.fromEmail);
+      const from = name && email ? `${name} <${email}>` : name || email || 'unknown sender';
+      return {
+        account: emailById.get(String(d.accountId)) ?? 'inbox',
+        from: clip(from, 'unknown sender'),
+        subject: clip(d.subject, '(no subject)'),
+      };
+    });
+    // If the count query failed but we have a sample, reflect at least the sample.
+    if (digest.unreadTotal < digest.sample.length) digest.unreadTotal = digest.sample.length;
+  } catch (e) {
+    console.error('[sabmail-brief] unread sample failed', workspaceId, getErrorMessage(e));
+  }
+
+  return digest;
+}
+
+/** Build the LLM prompt body from the computed stats + inbox digest. */
+function statsPrompt(stats: BriefStats, inbox: InboxDigest): string {
+  const lines = [
     'Activity in the last 24 hours for one email workspace:',
     `- Campaigns sent: ${stats.campaignsRecentSent}`,
     `- Campaigns failed: ${stats.campaignsRecentFailed}`,
@@ -208,8 +334,24 @@ function statsPrompt(stats: BriefStats): string {
     `- Opens: ${stats.opens}`,
     `- Upcoming scheduled sends (next 24h): ${stats.upcomingScheduled}`,
     '',
-    'Write a 2-3 sentence morning brief for the team. Be concrete, flag anything that needs attention (bounces/complaints), and stay neutral if it was a quiet day.',
-  ].join('\n');
+    `Inbox: ${inbox.unreadTotal} unread across ${inbox.accountsActive} active mailbox(es).`,
+  ];
+
+  if (inbox.sample.length > 0) {
+    lines.push('Most recent unread messages (newest first):');
+    for (const item of inbox.sample) {
+      lines.push(`- [${item.account}] ${item.from} — ${item.subject}`);
+    }
+  } else {
+    lines.push('No unread messages waiting in the connected mailboxes.');
+  }
+
+  lines.push(
+    '',
+    'Write a 2-3 sentence morning brief for the team. Cover both the sending stats AND what needs attention in the inbox (call out notable unread senders/subjects). Be concrete, flag anything that needs attention (bounces/complaints/urgent-looking unread mail), and stay neutral if it was a quiet day.',
+  );
+
+  return lines.join('\n');
 }
 
 async function handle(req: NextRequest): Promise<NextResponse> {
@@ -241,14 +383,17 @@ async function handle(req: NextRequest): Promise<NextResponse> {
       workspaces += 1;
 
       try {
-        const stats = await computeStats(db, workspaceId, since, upcomingUntil);
+        const [stats, inbox] = await Promise.all([
+          computeStats(db, workspaceId, since, upcomingUntil),
+          computeInboxDigest(db, workspaceId),
+        ]);
 
         let summary: string | null = null;
         const llm = await sabmailLlm({
           system:
-            'You are an email operations assistant. You write terse, useful daily briefs. No fluff, no markdown headers.',
-          prompt: statsPrompt(stats),
-          maxTokens: 256,
+            'You are an email operations assistant. You write terse, useful daily briefs covering both sending health and the inbox. No fluff, no markdown headers.',
+          prompt: statsPrompt(stats, inbox),
+          maxTokens: 320,
         });
         if (llm.ok) summary = llm.text.trim();
 
@@ -260,6 +405,7 @@ async function handle(req: NextRequest): Promise<NextResponse> {
             event: 'brief',
             summary,
             stats,
+            inbox,
             ts,
           });
           stored = true;
@@ -267,7 +413,7 @@ async function handle(req: NextRequest): Promise<NextResponse> {
           console.error('[sabmail-brief] store failed', workspaceId, getErrorMessage(e));
         }
 
-        briefs.push({ workspaceId, stats, summary, stored });
+        briefs.push({ workspaceId, stats, inbox, summary, stored });
       } catch (e) {
         console.error('[sabmail-brief] workspace failed', workspaceId, getErrorMessage(e));
       }

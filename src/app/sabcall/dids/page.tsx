@@ -35,7 +35,7 @@ import {
   searchAvailableDids,
   purchaseVoiceDid,
   releaseVoiceDid,
-} from '@/app/actions/sabvoice.actions';
+} from '@/app/actions/sabcall.actions';
 
 type DidRow = {
   _id: string;
@@ -154,7 +154,7 @@ export default function VoiceDidsPage() {
     <main className="mx-auto flex w-full max-w-6xl flex-col gap-[var(--st-space-5)]">
       <PageHeader>
         <PageHeaderHeading>
-          <PageEyebrow>SabVoice</PageEyebrow>
+          <PageEyebrow>SabCall</PageEyebrow>
           <PageTitle>Phone numbers</PageTitle>
           <PageDescription>Provision, route, and release voice numbers (DIDs).</PageDescription>
         </PageHeaderHeading>

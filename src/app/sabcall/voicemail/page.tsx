@@ -23,7 +23,7 @@ import {
   listVoicemails,
   markVoicemailListened,
   deleteVoicemail,
-} from '@/app/actions/sabvoice.actions';
+} from '@/app/actions/sabcall.actions';
 
 type VmRow = {
   _id: string;
@@ -94,7 +94,7 @@ export default function VoicemailInboxPage() {
     <main className="mx-auto flex w-full max-w-4xl flex-col gap-[var(--st-space-5)]">
       <PageHeader>
         <PageHeaderHeading>
-          <PageEyebrow>SabVoice</PageEyebrow>
+          <PageEyebrow>SabCall</PageEyebrow>
           <PageTitle>Voicemail</PageTitle>
           <PageDescription>Listen, read transcripts, and triage missed-call voicemails.</PageDescription>
         </PageHeaderHeading>

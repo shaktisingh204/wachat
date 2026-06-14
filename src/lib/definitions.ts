@@ -2041,6 +2041,30 @@ export type Project = {
             inbox?: boolean;
         };
     };
+    /**
+     * SabCall workspace profile + setup state. Only populated on
+     * `kind: 'call'` projects (SabCall has its own project list + create
+     * flow). A project cannot be used in SabCall until `setupComplete` is
+     * true — the layout gate redirects to `/sabcall/setup` otherwise. The
+     * project `_id` is the workspace id every SabCall collection / the future
+     * Rust `sabcall-*` engine scopes by (sent as the JWT `tid` claim).
+     */
+    sabcall?: {
+        setupComplete?: boolean;
+        setupCompletedAt?: Date;
+        /** Drives which compliance track later phases enforce. */
+        region?: 'IN' | 'US' | 'OTHER';
+        businessName?: string;
+        businessProfile?: {
+            website?: string;
+            industry?: string;
+            useCase?: string;
+        };
+        /** Per-step completion flags driving the wizard + gate. */
+        setupSteps?: {
+            profile?: boolean;
+        };
+    };
 };
 
 export type Template = {
@@ -2514,7 +2538,7 @@ export type PlanFeaturePermissions = {
     // can flip per-plan in /dashboard/admin/plans.
     sabmail: boolean;
     sabmeet: boolean;
-    sabvoice: boolean;
+    sabcall: boolean;
     sabsign: boolean;
     sabwebinar: boolean;
     sabconnect: boolean;

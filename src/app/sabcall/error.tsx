@@ -13,7 +13,7 @@ export default function SabvoiceError({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error('[sabvoice]', error);
+    console.error('[sabcall]', error);
   }, [error]);
 
   return (
@@ -22,7 +22,7 @@ export default function SabvoiceError({
         icon={AlertCircle}
         tone="danger"
         title="Something went wrong"
-        description={error.message || 'We could not load this SabVoice page. Please try again.'}
+        description={error.message || 'We could not load this SabCall page. Please try again.'}
         action={
           <Button variant="outline" onClick={() => reset()}>
             Try again

@@ -315,7 +315,7 @@ export function SabMeetIcon(props: IconProps) {
 }
 
 // Phone receiver with sound waves.
-export function SabVoiceIcon(props: IconProps) {
+export function SabCallIcon(props: IconProps) {
   return (
     <svg {...base(props)}>
       <path d="M5 4.75A1.75 1.75 0 0 1 6.75 3h2l2 4.5-2 1.25a11 11 0 0 0 5 5l1.25-2 4.5 2v2A1.75 1.75 0 0 1 17.75 17.5 13.5 13.5 0 0 1 5 4.75Z" />

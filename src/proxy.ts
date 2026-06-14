@@ -262,6 +262,9 @@ export const config = {
     // SabChat uses the same in-layout project + setup gate; the proxy passes
     // through and sets `x-url` for the layout to read.
     '/sabchat/:path*',
+    // SabCall uses the same in-layout project + setup gate; the proxy passes
+    // through and sets `x-url` for the layout to read.
+    '/sabcall/:path*',
     '/admin/dashboard/:path*',
     '/login',
     '/signup',

@@ -29,7 +29,7 @@ import {
   createVoiceQueue,
   updateVoiceQueue,
   deleteVoiceQueue,
-} from '@/app/actions/sabvoice.actions';
+} from '@/app/actions/sabcall.actions';
 
 type QueueRow = {
   _id: string;
@@ -153,7 +153,7 @@ export default function VoiceQueuesPage() {
     <main className="mx-auto flex w-full max-w-5xl flex-col gap-[var(--st-space-5)]">
       <PageHeader>
         <PageHeaderHeading>
-          <PageEyebrow>SabVoice</PageEyebrow>
+          <PageEyebrow>SabCall</PageEyebrow>
           <PageTitle>Call queues</PageTitle>
           <PageDescription>Distribute incoming calls across your agents.</PageDescription>
         </PageHeaderHeading>

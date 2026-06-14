@@ -4,6 +4,15 @@ import { AtSign, ChevronRight, Inbox, Plug, Sparkles } from "lucide-react";
 import {
   Badge,
   Button,
+  Card,
+  CardBody,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  PageDescription,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
 } from "@/components/sabcrm/20ui";
 
 import { getActiveSabmailProject } from "@/lib/sabmail/workspace";

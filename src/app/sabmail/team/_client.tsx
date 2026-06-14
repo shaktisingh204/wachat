@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import {
+  AlertTriangle,
   CheckCircle2,
   Clock,
   Inbox,
@@ -9,6 +10,7 @@ import {
   MessageSquarePlus,
   Plus,
   Send,
+  Timer,
   User,
   Users,
 } from "lucide-react";
@@ -113,6 +115,64 @@ function relativeTime(iso: string): string {
   const day = Math.round(hr / 24);
   if (day < 7) return `${day}d ago`;
   return new Date(iso).toLocaleDateString();
+}
+
+/**
+ * Human label for an SLA deadline. Returns the time-remaining string ("Due in
+ * 3h", "Due in 12m") for an upcoming deadline, or `null` when there is no SLA.
+ * `overdue` is decided server-side, so callers branch on the row's flag.
+ */
+function slaRemainingLabel(iso: string | null): string | null {
+  if (!iso) return null;
+  const due = new Date(iso).getTime();
+  if (Number.isNaN(due)) return null;
+  const diff = due - Date.now();
+  if (diff <= 0) return "Overdue";
+  const min = Math.round(diff / 60000);
+  if (min < 60) return `Due in ${min}m`;
+  const hr = Math.round(min / 60);
+  if (hr < 48) return `Due in ${hr}h`;
+  const day = Math.round(hr / 24);
+  return `Due in ${day}d`;
+}
+
+/**
+ * SLA badge for a conversation row — danger "Overdue" or a token-toned
+ * "Due in Xh" countdown. Renders nothing when the conversation has no SLA
+ * (e.g. snoozed/closed threads carry no live deadline).
+ */
+function SlaBadge({
+  conversation,
+}: {
+  conversation: SabmailConversationRow;
+}): React.JSX.Element | null {
+  if (!conversation.slaDueAt) return null;
+  // Only OPEN conversations have a live first-response SLA — never show the badge
+  // (or a stale "Overdue") on assigned/closed/snoozed threads. Mirrors the
+  // server's isSlaTrackedStatus policy.
+  if (conversation.status !== "open") return null;
+
+  if (conversation.overdue) {
+    return (
+      <Badge tone="danger" kind="soft" className="gap-1">
+        <AlertTriangle className="h-3 w-3" aria-hidden />
+        Overdue
+      </Badge>
+    );
+  }
+
+  // Only open conversations actively count down; otherwise show a neutral due time.
+  const label = slaRemainingLabel(conversation.slaDueAt);
+  if (!label) return null;
+
+  // "Due in <1h" is getting tight — warn; otherwise neutral token text.
+  const tight = /Due in \d+m$/.test(label);
+  return (
+    <Badge tone={tight ? "warning" : "neutral"} kind="soft" className="gap-1">
+      <Timer className="h-3 w-3" aria-hidden />
+      {label}
+    </Badge>
+  );
 }
 
 function initials(value: string): string {
@@ -305,11 +365,12 @@ function ConversationList({
                     <div className="mt-1 truncate text-xs text-[var(--st-text-secondary)]">
                       {c.fromEmail}
                     </div>
-                    <div className="mt-2 flex items-center gap-2">
+                    <div className="mt-2 flex flex-wrap items-center gap-2">
                       <Badge variant={statusVariant(c.status)} className="gap-1 capitalize">
                         {statusIcon(c.status)}
                         {c.status}
                       </Badge>
+                      <SlaBadge conversation={c} />
                       {c.assigneeName ? (
                         <span className="inline-flex items-center gap-1 text-[11px] text-[var(--st-text-secondary)]">
                           <User className="h-3 w-3" aria-hidden />
@@ -474,10 +535,13 @@ function DetailPanel({
               {conversation.fromEmail}
             </p>
           </div>
-          <Badge variant={statusVariant(conversation.status)} className="gap-1 capitalize">
-            {statusIcon(conversation.status)}
-            {conversation.status}
-          </Badge>
+          <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
+            <Badge variant={statusVariant(conversation.status)} className="gap-1 capitalize">
+              {statusIcon(conversation.status)}
+              {conversation.status}
+            </Badge>
+            <SlaBadge conversation={conversation} />
+          </div>
         </div>
 
         {/* controls */}

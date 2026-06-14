@@ -16,6 +16,7 @@ import type {
   SabsmsShortLink,
   SabsmsSuppression,
   SabsmsTemplate,
+  SabsmsVerification,
   SabsmsWebhookDelivery,
   SabsmsWebhookOut,
 } from '../types';
@@ -47,6 +48,7 @@ export const SABSMS_COLLECTIONS = {
   settings: 'sabsms_settings',
   routingPolicies: 'sabsms_routing_policies',
   keywordRules: 'sabsms_keyword_rules',
+  verifications: 'sabsms_verifications',
 } as const;
 
 export type SabsmsCollectionName =
@@ -68,6 +70,7 @@ export interface SabsmsCollections {
   linkClicks: Collection<SabsmsLinkClick>;
   settings: Collection<SabsmsSettings>;
   routingPolicies: Collection<SabsmsRoutingPolicyDoc>;
+  verifications: Collection<SabsmsVerification>;
 }
 
 export async function getSabsmsCollections(): Promise<{
@@ -102,6 +105,9 @@ export async function getSabsmsCollections(): Promise<{
     settings: db.collection<SabsmsSettings>(SABSMS_COLLECTIONS.settings),
     routingPolicies: db.collection<SabsmsRoutingPolicyDoc>(
       SABSMS_COLLECTIONS.routingPolicies,
+    ),
+    verifications: db.collection<SabsmsVerification>(
+      SABSMS_COLLECTIONS.verifications,
     ),
   };
   return { db, cols };
@@ -176,6 +182,11 @@ const INDEXES: Record<
   ],
   settings: [[{ workspaceId: 1 }, { unique: true }]],
   routingPolicies: [[{ workspaceId: 1 }, { unique: true }]],
+  verifications: [
+    [{ workspaceId: 1, verificationId: 1 }, { unique: true }],
+    // TTL — drop verification records once expired (status is terminal by then).
+    [{ expiresAt: 1 }, { expireAfterSeconds: 24 * 60 * 60 }],
+  ],
 };
 
 let indexesEnsured = false;

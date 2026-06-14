@@ -411,6 +411,78 @@ export interface SabsmsSuppression {
   expiresAt?: Date;
 }
 
+// ─── V3.1 Verify (multi-channel OTP orchestration) ────────────────────────
+
+export type SabsmsVerificationStatus =
+  | 'pending'
+  | 'verified'
+  | 'expired'
+  | 'max_attempts'
+  | 'failed';
+
+/**
+ * One verification attempt, owned by the Next-side Verify orchestrator
+ * (`verify/orchestrator.ts`). The orchestrator generates the code, stores
+ * only its salted hash, and delivers it over the first working channel in
+ * `channelOrder` via the omnichannel dispatcher. No PII at rest: the
+ * recipient is stored hashed.
+ */
+export interface SabsmsVerification {
+  _id?: ObjectId;
+  workspaceId: string;
+  /** Public, opaque id returned to the caller and used by `verifyCheck`. */
+  verificationId: string;
+  /** sha256 of the E.164 phone or lowercased email — no raw recipient. */
+  recipientHash: string;
+  /** sha256(code + salt) — mirrors the engine's OTP store hashing. */
+  codeHash: string;
+  salt: string;
+  /** Channels the orchestrator was asked to try, in order. */
+  channelOrder: string[];
+  /** Channels actually attempted, in order. */
+  channelsTried: string[];
+  /** The channel that accepted the code for delivery, if any. */
+  channelUsed?: string;
+  status: SabsmsVerificationStatus;
+  attempts: number;
+  maxAttempts: number;
+  category: SabsmsMessageCategory;
+  expiresAt: Date;
+  createdAt: Date;
+  verifiedAt?: Date;
+}
+
+// ─── V3.7 Event Streams + Sinks (customer-facing) ─────────────────────────
+
+/**
+ * Where a customer wants their SabSMS events streamed. `webhook` and
+ * `http_batch` and `segment` deliver over signed HTTP; `kafka`/`kinesis`
+ * push to a streaming transport. Extends the existing `webhooks-out`
+ * delivery machinery (signing + backoff) with more destinations and a
+ * versioned envelope.
+ */
+export type SabsmsEventSinkKind =
+  | 'webhook'
+  | 'http_batch'
+  | 'kafka'
+  | 'kinesis'
+  | 'segment';
+
+export interface SabsmsEventSink {
+  _id?: ObjectId;
+  workspaceId: string;
+  kind: SabsmsEventSinkKind;
+  /** Subscribed public event names; empty = all events. */
+  events: string[];
+  enabled: boolean;
+  /** HMAC secret for the HTTP-delivered kinds. */
+  secret?: string;
+  /** Kind-specific connection config (url / brokers+topic / stream / writeKey). */
+  config: Record<string, unknown>;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export interface SabsmsConsentEvent {
   _id?: ObjectId;
   workspaceId: string;
@@ -511,11 +583,61 @@ export interface SabsmsLinkClick {
  * Next-owned per-workspace settings (the Rust engine never reads this
  * collection — it is UX-layer state, like campaigns being composed).
  */
+/**
+ * V3.4 — per-workspace geo permissions. `allow_all` is the default when
+ * no config is set. `allowlist` sends ONLY to the listed countries;
+ * `denylist` blocks the listed countries and sends everywhere else.
+ * Countries are ISO 3166-1 alpha-2 (matches `countryFromE164`).
+ */
+export interface SabsmsGeoPermissions {
+  mode: 'allow_all' | 'allowlist' | 'denylist';
+  countries: string[];
+}
+
+/**
+ * V3.4 — per-contact global frequency cap, enforced in the channel
+ * pre-flight across ALL campaigns/journeys (not per-campaign). Applies to
+ * marketing/normal sends only; transactional flows that set
+ * `allowSuppressed` (OTP, opt-out confirmations) bypass it. Either bound
+ * may be set independently.
+ */
+export interface SabsmsFrequencyCap {
+  /** Max outbound messages to one contact per rolling hour. */
+  perHour?: number;
+  /** Max outbound messages to one contact per rolling 24h. */
+  perDay?: number;
+}
+
+/**
+ * V3.1 — maps a SabSMS workspace's WhatsApp channel onto a WaChat project +
+ * WABA phone number, so the dispatcher can hand WhatsApp sends to the
+ * (separate, fully-working) WaChat module. Without this, the WhatsApp
+ * adapter degrades to `not_configured` and Verify falls back to another
+ * channel.
+ */
+export interface SabsmsWhatsappChannelConfig {
+  /** WaChat project that owns the WABA. */
+  wachatProjectId: string;
+  /** WABA phone-number id to send from. */
+  phoneNumberId: string;
+  /** Rust tenant for the WaChat call; defaults to `wachatProjectId`
+   *  (the documented `tid=projectId` scoping) when omitted. */
+  tenantId?: string;
+  /** Default approved template id for OTP/verification sends. */
+  otpTemplateId?: string;
+}
+
 export interface SabsmsSettings {
   _id?: ObjectId;
   workspaceId: string;
   /** Branded short-link domain — bare hostname, e.g. "sab.sm". */
   shortLinkDomain?: string;
+  /** V3.4 — geo-permission gate enforced in the channel pre-flight. */
+  geoPermissions?: SabsmsGeoPermissions;
+  /** V3.4 — per-contact global frequency cap. */
+  frequencyCap?: SabsmsFrequencyCap;
+  /** V3.1 — WhatsApp channel → WaChat linkage. */
+  whatsapp?: SabsmsWhatsappChannelConfig;
   /**
    * V2.11 — RCS composer gate. The plan called for a `sabsms.rcs_enabled`
    * plan flag; no per-feature plan-flag helper exists for SabSMS yet

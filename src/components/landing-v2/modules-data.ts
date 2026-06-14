@@ -74,7 +74,7 @@ export type ModuleSlug =
     | 'meta-suite'
     | 'ad-manager'
     | 'sabsms'
-    | 'sabvoice'
+    | 'sabcall'
     | 'sabmeet'
     | 'sabwebinar'
     | 'sabshow'
@@ -286,9 +286,9 @@ export const MODULES: ModuleDef[] = [
             { title: 'Compliance log', desc: 'Audit consent, opt-outs, header approvals.', icon: ClipboardList },
         ], ['Register DLT', 'Pick route', 'Send', 'Track DLR', 'Settle']),
 
-    build('sabvoice', 'SabVoice', 'Voice + IVR cloud', 'Calls, IVR, agent dashboards and DIDs.',
+    build('sabcall', 'SabCall', 'Voice + IVR cloud', 'Calls, IVR, agent dashboards and DIDs.',
         'Inbound DIDs, IVR builder, call recording, AI assist, agent supervisor — full contact center.',
-        '/products/sabvoice', '/dashboard/sabvoice', Phone, 'Conversation', 'indigo',
+        '/products/sabcall', '/sabcall', Phone, 'Conversation', 'indigo',
         [{ value: 'IVR', label: 'Drag-drop' }, { value: 'Rec', label: 'Compliant' }, { value: 'DID', label: 'Global' }, { value: 'AI', label: 'Assist' }],
         [
             { title: 'Visual IVR', desc: 'Build menus, route by time/skill, conditional branching.', icon: Workflow },

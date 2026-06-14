@@ -349,8 +349,8 @@ export async function rustFetchAs<T>(
 
 /**
  * Variant of {@link rustFetch} for endpoints intentionally exposed without
- * tenant authentication — e.g. SabAssist's `/v1/sabassist/public/redeem`,
- * which is hit directly from a customer browser via a share link.
+ * tenant authentication — e.g. SabPay's `/v1/sabpay/public/*` checkout
+ * endpoints, which are hit directly from a customer browser via a link.
  *
  * Skips the JWT mint so the request goes through unauthenticated. JSON
  * defaulting and error parsing are otherwise identical.

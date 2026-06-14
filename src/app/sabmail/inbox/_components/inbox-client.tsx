@@ -14,6 +14,7 @@ import {
   Inbox as InboxIcon,
   Mail,
   MailOpen,
+  MessageSquarePlus,
   MoreHorizontal,
   Paperclip,
   Pin,
@@ -68,6 +69,7 @@ import {
   listSabmailFolders,
   listSabmailMessages,
   searchSabmailMessages,
+  suggestSabmailReplies,
   summarizeSabmailThread,
   type SabmailCategory,
   type SabmailFolderRow,
@@ -239,6 +241,12 @@ export function SabmailInboxClient({ accounts }: { accounts: SabmailAccountRow[]
   const [summarizing, setSummarizing] = React.useState(false);
   const [aiReplyBusy, setAiReplyBusy] = React.useState(false);
 
+  // Precomputed suggested replies — lazily fetched on demand for the open
+  // message; `null` = not requested yet, `[]` = requested but none available.
+  const [suggestions, setSuggestions] = React.useState<string[] | null>(null);
+  const [suggesting, setSuggesting] = React.useState(false);
+  const suggestReq = React.useRef(0);
+
   const [searchQuery, setSearchQuery] = React.useState("");
   const [searching, setSearching] = React.useState(false);
   const [searchActive, setSearchActive] = React.useState(false);
@@ -350,6 +358,12 @@ export function SabmailInboxClient({ accounts }: { accounts: SabmailAccountRow[]
       setLoadingBody(true);
       if (!withImages) setShowRemoteImages(false);
       if (!withImages) setSummary(null);
+      if (!withImages) {
+        // New message opened — drop any prior reply suggestions (re-fetched on demand).
+        suggestReq.current += 1;
+        setSuggestions(null);
+        setSuggesting(false);
+      }
       setFull(null);
       const res = await getSabmailMessage(accountId, folderPath, uid, {
         showRemoteImages: withImages,
@@ -436,6 +450,37 @@ export function SabmailInboxClient({ accounts }: { accounts: SabmailAccountRow[]
     const base = buildReplyPrefill(full, "reply", activeAccount.email);
     startCompose("Reply", { ...base, bodyHtml: textToHtml(res.draft) + (base.bodyHtml ?? "") });
   }, [full, activeAccount, accountId, folderPath, toast, startCompose]);
+
+  // Lazily fetch up to 3 short suggested replies for the open message. Cheap +
+  // on-demand: only runs when the user reveals suggestions. Defensive — a
+  // not-configured / empty result just shows "No suggestions".
+  const doSuggestReplies = React.useCallback(async () => {
+    if (!full) return;
+    const token = ++suggestReq.current;
+    setSuggesting(true);
+    const res = await suggestSabmailReplies(accountId, folderPath, full.uid);
+    if (token !== suggestReq.current) return; // stale (message switched)
+    setSuggesting(false);
+    if (!res.ok) {
+      setSuggestions([]);
+      toast({ title: "No suggestions", description: res.error, variant: "destructive" });
+      return;
+    }
+    setSuggestions(res.suggestions);
+  }, [full, accountId, folderPath, toast]);
+
+  // Clicking a suggestion opens the composer prefilled with that reply text.
+  const useSuggestion = React.useCallback(
+    (text: string) => {
+      if (!full || !activeAccount) return;
+      const base = buildReplyPrefill(full, "reply", activeAccount.email);
+      startCompose("Reply", {
+        ...base,
+        bodyHtml: textToHtml(text) + (base.bodyHtml ?? ""),
+      });
+    },
+    [full, activeAccount, startCompose],
+  );
 
   const runSearch = React.useCallback(async () => {
     const q = searchQuery.trim();
@@ -1190,6 +1235,50 @@ export function SabmailInboxClient({ accounts }: { accounts: SabmailAccountRow[]
                     </button>
                   </div>
                 )}
+
+                {/* suggested replies — lazy chips (fetched on demand) */}
+                <div className="px-5 pt-2">
+                  {suggestions === null ? (
+                    <button
+                      type="button"
+                      onClick={() => void doSuggestReplies()}
+                      disabled={suggesting}
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-[var(--sabmail-tint-border)] px-3 py-1.5 text-xs font-medium text-[var(--st-accent)] hover:bg-[var(--sabmail-tint)] disabled:opacity-60"
+                    >
+                      {suggesting ? (
+                        <Spinner size={14} className="text-[var(--st-accent)]" />
+                      ) : (
+                        <MessageSquarePlus className="h-3.5 w-3.5" aria-hidden />
+                      )}
+                      Suggest replies
+                    </button>
+                  ) : suggestions.length === 0 ? (
+                    <span className="inline-flex items-center gap-1.5 text-xs text-[var(--st-text-secondary)]">
+                      <MessageSquarePlus className="h-3.5 w-3.5" aria-hidden />
+                      No suggestions available.
+                    </span>
+                  ) : (
+                    <div className="sabmail-fade-up flex flex-col gap-1.5">
+                      <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
+                        <MessageSquarePlus className="h-3.5 w-3.5 text-[var(--st-accent)]" aria-hidden />
+                        Suggested replies
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {suggestions.map((s, i) => (
+                          <button
+                            key={i}
+                            type="button"
+                            onClick={() => useSuggestion(s)}
+                            title={s}
+                            className="max-w-full truncate rounded-full border border-[var(--sabmail-tint-border)] bg-[var(--sabmail-tint)] px-3 py-1.5 text-left text-xs font-medium text-[var(--st-text)] hover:border-[var(--st-accent)] hover:text-[var(--st-accent)]"
+                          >
+                            {s}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
 
                 {/* sender + recipients */}
                 <div className="px-5 pt-4">

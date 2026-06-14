@@ -9,7 +9,9 @@ import {
 
 import { getSabsmsSettingsAction } from "./actions";
 import { getAgentConfigAction } from "./agent-actions";
+import { getGovernanceSettingsAction } from "./governance-actions";
 import { AgentSettingsCard } from "./agent-card";
+import { GovernanceSettingsCard } from "./governance-card";
 import { RcsSettingsCard } from "./rcs-card";
 import { ResellerSettingsCard } from "./reseller-card";
 import { ShortLinksSettingsCard } from "./short-links-card";
@@ -49,6 +51,19 @@ async function AgentContent() {
   return <AgentSettingsCard initialConfig={res.config} />;
 }
 
+/** V3 — channel governance (geo + frequency cap) + WhatsApp linkage. */
+async function GovernanceContent() {
+  const res = await getGovernanceSettingsAction();
+  if (!res.success) {
+    return (
+      <p className="rounded border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 text-sm text-[var(--st-text)]">
+        {res.error}
+      </p>
+    );
+  }
+  return <GovernanceSettingsCard initial={res.settings} />;
+}
+
 export default function SabsmsSettingsPage() {
   return (
     <div className="space-y-6 p-6">
@@ -68,6 +83,11 @@ export default function SabsmsSettingsPage() {
 
       <Suspense fallback={null}>
         <AgentContent />
+      </Suspense>
+
+      {/* V3 — channel governance + WhatsApp linkage. */}
+      <Suspense fallback={null}>
+        <GovernanceContent />
       </Suspense>
 
       {/* V2.13 — reseller engine (rate cards + margin report). */}

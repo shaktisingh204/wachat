@@ -34,6 +34,10 @@
       "schedule": "0 7 * * *"
     },
     {
+      "path": "/api/cron/sabmail-rag",
+      "schedule": "0 */6 * * *"
+    },
+    {
       "path": "/api/cron/sabflow-gc",
       "schedule": "0 */6 * * *"
     },

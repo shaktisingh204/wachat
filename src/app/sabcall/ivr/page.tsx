@@ -41,7 +41,7 @@ import {
   deleteVoiceIvr,
   type VoiceIvrNode,
   type VoiceIvrNodeType,
-} from '@/app/actions/sabvoice.actions';
+} from '@/app/actions/sabcall.actions';
 
 type IvrRow = {
   _id: string;
@@ -319,7 +319,7 @@ export default function VoiceIvrPage() {
     <main className="mx-auto flex w-full max-w-5xl flex-col gap-[var(--st-space-5)]">
       <PageHeader>
         <PageHeaderHeading>
-          <PageEyebrow>SabVoice</PageEyebrow>
+          <PageEyebrow>SabCall</PageEyebrow>
           <PageTitle>IVR flows</PageTitle>
           <PageDescription>
             Design call-routing trees: menus, playback, forwards, and voicemail.

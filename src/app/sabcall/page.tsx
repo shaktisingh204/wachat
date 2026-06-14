@@ -22,10 +22,9 @@ import {
   Voicemail,
   Users,
   ChevronRight,
-  ScreenShare,
   Plus,
 } from 'lucide-react';
-import { getVoiceLiveKpis } from '@/app/actions/sabvoice.actions';
+import { getVoiceLiveKpis } from '@/app/actions/sabcall.actions';
 
 type Kpis = {
   agentsAvailable: number;
@@ -47,53 +46,46 @@ type Section = {
 
 const SECTIONS: Section[] = [
   {
-    href: '/dashboard/sabvoice/dids',
+    href: '/sabcall/dids',
     title: 'Phone numbers',
     description: 'Buy, route, and release DIDs across providers.',
     icon: <Phone className="h-5 w-5" aria-hidden="true" />,
     accent: '#3b7af5',
   },
   {
-    href: '/dashboard/sabvoice/ivr',
+    href: '/sabcall/ivr',
     title: 'IVR flows',
     description: 'Build menu, playback, forward, and voicemail trees.',
     icon: <Workflow className="h-5 w-5" aria-hidden="true" />,
     accent: '#7c3aed',
   },
   {
-    href: '/dashboard/sabvoice/queues',
+    href: '/sabcall/queues',
     title: 'Call queues',
     description: 'Distribute calls with round-robin, least-busy, or ring-all.',
     icon: <Layers className="h-5 w-5" aria-hidden="true" />,
     accent: '#1f9d55',
   },
   {
-    href: '/dashboard/sabvoice/calls',
+    href: '/sabcall/calls',
     title: 'Call log',
     description: 'Browse the CDR with playback, filters, and status.',
     icon: <PhoneCall className="h-5 w-5" aria-hidden="true" />,
     accent: '#0ea5e9',
   },
   {
-    href: '/dashboard/sabvoice/voicemail',
+    href: '/sabcall/voicemail',
     title: 'Voicemail',
     description: 'Triage the inbox with transcripts and read receipts.',
     icon: <Voicemail className="h-5 w-5" aria-hidden="true" />,
     accent: '#d97706',
   },
   {
-    href: '/dashboard/sabvoice/agent-dashboard',
+    href: '/sabcall/agent-dashboard',
     title: 'Agent dashboard',
     description: 'Watch live presence, active calls, and queue depth.',
     icon: <Users className="h-5 w-5" aria-hidden="true" />,
     accent: '#db2777',
-  },
-  {
-    href: '/dashboard/sabvoice/assist',
-    title: 'Remote assist',
-    description: 'Run screen-share sessions linked to live calls.',
-    icon: <ScreenShare className="h-5 w-5" aria-hidden="true" />,
-    accent: '#0d9488',
   },
 ];
 
@@ -120,7 +112,7 @@ export default function VoiceCallHubPage() {
     <main className="mx-auto flex w-full max-w-6xl flex-col gap-[var(--st-space-6)]">
       <PageHeader>
         <PageHeaderHeading>
-          <PageEyebrow>SabVoice</PageEyebrow>
+          <PageEyebrow>SabCall</PageEyebrow>
           <PageTitle>Cloud PBX</PageTitle>
           <PageDescription>
             Manage numbers, routing, queues, agents, and recordings from one console.
@@ -128,7 +120,7 @@ export default function VoiceCallHubPage() {
         </PageHeaderHeading>
         <PageActions>
           <Button asChild variant="primary">
-            <Link href="/dashboard/sabvoice/dids">
+            <Link href="/sabcall/dids">
               <Plus className="h-4 w-4" aria-hidden="true" />
               Buy a number
             </Link>

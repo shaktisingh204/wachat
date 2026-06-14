@@ -312,8 +312,8 @@ const GLYPHS: Record<string, React.ReactNode> = {
     </g>
   ),
 
-  /* SabVoice — phone handset. */
-  sabvoice: (
+  /* SabCall — phone handset. */
+  sabcall: (
     <path
       fill="#fff"
       d="M14.8 10.9c1.9-.8 4 .1 4.9 2l1.9 3.8c.8 1.6.4 3.5-1 4.6l-1.8 1.5c1.6 3.9 4.7 7 8.6 8.6l1.5-1.8c1.1-1.4 3-1.8 4.6-1l3.8 1.9c1.9.9 2.8 3 2 4.9l-1 2.3c-.9 2.1-3.1 3.4-5.4 3-12.1-2.5-21.6-12-24.1-24.1-.4-2.3.9-4.5 3-5.4l3-1.3Z"

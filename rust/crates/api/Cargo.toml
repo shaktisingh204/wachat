@@ -435,12 +435,12 @@ sabsign-audit = { path = "../sabsign-audit" }
 sabsign-envelopes = { path = "../sabsign-envelopes" }
 sabsign-fields = { path = "../sabsign-fields" }
 sabsign-templates = { path = "../sabsign-templates" }
-sabvoice-agents-presence = { path = "../sabvoice-agents-presence" }
-sabvoice-calls = { path = "../sabvoice-calls" }
-sabvoice-dids = { path = "../sabvoice-dids" }
-sabvoice-ivrs = { path = "../sabvoice-ivrs" }
-sabvoice-queues = { path = "../sabvoice-queues" }
-sabvoice-voicemail = { path = "../sabvoice-voicemail" }
+sabcall-agents-presence = { path = "../sabcall-agents-presence" }
+sabcall-calls = { path = "../sabcall-calls" }
+sabcall-dids = { path = "../sabcall-dids" }
+sabcall-ivrs = { path = "../sabcall-ivrs" }
+sabcall-queues = { path = "../sabcall-queues" }
+sabcall-voicemail = { path = "../sabcall-voicemail" }
 
 # SabOps — endpoint / MDM / AD / patch management
 sabops-endpoints = { path = "../sabops-endpoints" }
@@ -457,10 +457,6 @@ sabops-agent-tokens = { path = "../sabops-agent-tokens" }
 
 
 # ─── §17: new sab-* module routers wired into the API ──────────────────
-sabassist-access-tokens = { path = "../sabassist-access-tokens" }
-sabassist-actions-log = { path = "../sabassist-actions-log" }
-sabassist-devices = { path = "../sabassist-devices" }
-sabassist-sessions = { path = "../sabassist-sessions" }
 sabbackstage-orders = { path = "../sabbackstage-orders" }
 sabbackstage-public-pages = { path = "../sabbackstage-public-pages" }
 sabbackstage-sponsors = { path = "../sabbackstage-sponsors" }

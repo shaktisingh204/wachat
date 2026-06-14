@@ -8974,91 +8974,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9774ba4a74de5f7b1c1451ed6cd5285a32eddb5cccb8cc655a4e50009e06477f"
 
 [[package]]
-name = "sabassist-access-tokens"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "axum 0.8.9",
- "bson",
- "chrono",
- "crm-common",
- "futures",
- "mongodb",
- "rand 0.8.6",
- "sabnode-auth",
- "sabnode-common",
- "sabnode-db",
- "sabnode-rbac",
- "serde",
- "serde_json",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "sabassist-actions-log"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "axum 0.8.9",
- "bson",
- "chrono",
- "crm-common",
- "futures",
- "mongodb",
- "sabnode-auth",
- "sabnode-common",
- "sabnode-db",
- "sabnode-rbac",
- "serde",
- "serde_json",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "sabassist-devices"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "axum 0.8.9",
- "bson",
- "chrono",
- "crm-common",
- "futures",
- "mongodb",
- "sabnode-auth",
- "sabnode-common",
- "sabnode-db",
- "sabnode-rbac",
- "serde",
- "serde_json",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "sabassist-sessions"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "axum 0.8.9",
- "bson",
- "chrono",
- "crm-common",
- "futures",
- "mongodb",
- "sabnode-auth",
- "sabnode-common",
- "sabnode-db",
- "sabnode-rbac",
- "serde",
- "serde_json",
- "tokio",
- "tracing",
-]
-
-[[package]]
 name = "sabbackstage-orders"
 version = "0.1.0"
 dependencies = [
@@ -9414,6 +9329,132 @@ dependencies = [
  "sabnode-auth",
  "sabnode-common",
  "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "sabcall-agents-presence"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum 0.8.9",
+ "bson",
+ "chrono",
+ "crm-common",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "sabnode-rbac",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "sabcall-calls"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum 0.8.9",
+ "bson",
+ "chrono",
+ "crm-common",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "sabnode-rbac",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "sabcall-dids"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum 0.8.9",
+ "bson",
+ "chrono",
+ "crm-common",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "sabnode-rbac",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "sabcall-ivrs"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum 0.8.9",
+ "bson",
+ "chrono",
+ "crm-common",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "sabnode-rbac",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "sabcall-queues"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum 0.8.9",
+ "bson",
+ "chrono",
+ "crm-common",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "sabnode-rbac",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "sabcall-voicemail"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum 0.8.9",
+ "bson",
+ "chrono",
+ "crm-common",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "sabnode-rbac",
  "serde",
  "serde_json",
  "tokio",
@@ -13280,10 +13321,6 @@ dependencies = [
  "meta-token",
  "qr-codes",
  "reqwest",
- "sabassist-access-tokens",
- "sabassist-actions-log",
- "sabassist-devices",
- "sabassist-sessions",
  "sabbackstage-orders",
  "sabbackstage-public-pages",
  "sabbackstage-sponsors",
@@ -13302,6 +13339,12 @@ dependencies = [
  "sabbugs-history",
  "sabbugs-saved-filters",
  "sabbugs-versions",
+ "sabcall-agents-presence",
+ "sabcall-calls",
+ "sabcall-dids",
+ "sabcall-ivrs",
+ "sabcall-queues",
+ "sabcall-voicemail",
  "sabcatalyst-api-keys",
  "sabcatalyst-auth-sessions",
  "sabcatalyst-file-store",
@@ -13584,12 +13627,6 @@ dependencies = [
  "sabvault-folders",
  "sabvault-secrets",
  "sabvault-shares",
- "sabvoice-agents-presence",
- "sabvoice-calls",
- "sabvoice-dids",
- "sabvoice-ivrs",
- "sabvoice-queues",
- "sabvoice-voicemail",
  "sabwebinar-analytics",
  "sabwebinar-polls",
  "sabwebinar-qna",
@@ -16305,132 +16342,6 @@ dependencies = [
  "sabnode-auth",
  "sabnode-common",
  "sabnode-db",
- "serde",
- "serde_json",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "sabvoice-agents-presence"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "axum 0.8.9",
- "bson",
- "chrono",
- "crm-common",
- "futures",
- "mongodb",
- "sabnode-auth",
- "sabnode-common",
- "sabnode-db",
- "sabnode-rbac",
- "serde",
- "serde_json",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "sabvoice-calls"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "axum 0.8.9",
- "bson",
- "chrono",
- "crm-common",
- "futures",
- "mongodb",
- "sabnode-auth",
- "sabnode-common",
- "sabnode-db",
- "sabnode-rbac",
- "serde",
- "serde_json",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "sabvoice-dids"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "axum 0.8.9",
- "bson",
- "chrono",
- "crm-common",
- "futures",
- "mongodb",
- "sabnode-auth",
- "sabnode-common",
- "sabnode-db",
- "sabnode-rbac",
- "serde",
- "serde_json",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "sabvoice-ivrs"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "axum 0.8.9",
- "bson",
- "chrono",
- "crm-common",
- "futures",
- "mongodb",
- "sabnode-auth",
- "sabnode-common",
- "sabnode-db",
- "sabnode-rbac",
- "serde",
- "serde_json",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "sabvoice-queues"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "axum 0.8.9",
- "bson",
- "chrono",
- "crm-common",
- "futures",
- "mongodb",
- "sabnode-auth",
- "sabnode-common",
- "sabnode-db",
- "sabnode-rbac",
- "serde",
- "serde_json",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "sabvoice-voicemail"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "axum 0.8.9",
- "bson",
- "chrono",
- "crm-common",
- "futures",
- "mongodb",
- "sabnode-auth",
- "sabnode-common",
- "sabnode-db",
- "sabnode-rbac",
  "serde",
  "serde_json",
  "tokio",

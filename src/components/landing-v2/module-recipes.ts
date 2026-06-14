@@ -32,7 +32,7 @@ export const MODULE_RECIPES: Record<ModuleSlug, Recipe> = {
     instagram:    { bespoke: 'conversation',      sections: ['trust', 'bespoke', 'spotlights', 'features', 'ai', 'use-cases', 'integrations', 'pricing', 'faq', 'related'] },
     'meta-suite': { bespoke: 'conversation',      sections: ['trust', 'features', 'bespoke', 'spotlights', 'workflow', 'integrations', 'security', 'pricing', 'faq', 'related'] },
     sabsms:       { bespoke: 'broadcast',         sections: ['trust', 'features', 'bespoke', 'flow', 'spotlights', 'integrations', 'comparison', 'pricing', 'faq', 'related'] },
-    sabvoice:     { bespoke: 'call-queue',        sections: ['trust', 'bespoke', 'features', 'spotlights', 'ai', 'security', 'integrations', 'pricing', 'faq', 'related'] },
+    sabcall:      { bespoke: 'call-queue',        sections: ['trust', 'bespoke', 'features', 'spotlights', 'ai', 'security', 'integrations', 'pricing', 'faq', 'related'] },
 
     // ── Marketing ──
     sabmail:       { bespoke: 'marketing',         sections: ['trust', 'features', 'bespoke', 'spotlights', 'workflow', 'stats', 'integrations', 'security', 'pricing', 'faq', 'related'] },

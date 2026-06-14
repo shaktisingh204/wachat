@@ -25,6 +25,29 @@ import { getErrorMessage } from '@/lib/utils';
 
 export type SabmailConversationStatus = 'open' | 'snoozed' | 'closed';
 
+/* ── SLA policy ──────────────────────────────────────────────────────────
+ * Default first-response SLA window. A conversation gets a `slaDueAt` when it
+ * is created (and refreshed when re-assigned). The window is a const so it is
+ * easy to tune in one place; callers may override it per-conversation.
+ * ──────────────────────────────────────────────────────────────────────── */
+
+/**
+ * Default first-response SLA window, in hours. Module-private (this is a
+ * `'use server'` file — every *export* must be an async function), but callers
+ * can override the window per-conversation via `createTeamConversation`.
+ */
+const DEFAULT_SLA_HOURS = 24;
+
+/** Compute the SLA deadline from a base time + a window (hours). */
+function computeSlaDueAt(from: Date, hours: number = DEFAULT_SLA_HOURS): Date {
+  return new Date(from.getTime() + hours * 60 * 60 * 1000);
+}
+
+/** A conversation only "breaches" while it is still awaiting a response. */
+function isSlaTrackedStatus(status: SabmailConversationStatus): boolean {
+  return status === 'open';
+}
+
 /** The stored shape of a shared-inbox conversation (one Mongo doc). */
 export interface SabmailConversationDoc {
   workspaceId: string;
@@ -56,6 +79,8 @@ export interface SabmailConversationRow {
   assigneeId: string | null;
   assigneeName: string | null;
   slaDueAt: string | null;
+  /** True when an open conversation has passed its first-response deadline. */
+  overdue: boolean;
   lastMessageAt: string;
   createdAt: string;
 }
@@ -90,14 +115,23 @@ function toISO(value: unknown): string {
 }
 
 function toConversationRow(doc: WithId<SabmailConversationDoc>): SabmailConversationRow {
+  const status = STATUS_SET.includes(doc.status) ? doc.status : 'open';
+  const slaDue = doc.slaDueAt ? new Date(doc.slaDueAt) : null;
+  const overdue =
+    slaDue !== null &&
+    !Number.isNaN(slaDue.getTime()) &&
+    isSlaTrackedStatus(status) &&
+    slaDue.getTime() < Date.now();
+
   return {
     id: String(doc._id),
     subject: doc.subject || '(no subject)',
     fromEmail: doc.fromEmail || '',
-    status: STATUS_SET.includes(doc.status) ? doc.status : 'open',
+    status,
     assigneeId: doc.assigneeId ?? null,
     assigneeName: doc.assigneeName ?? null,
-    slaDueAt: doc.slaDueAt ? toISO(doc.slaDueAt) : null,
+    slaDueAt: slaDue && !Number.isNaN(slaDue.getTime()) ? slaDue.toISOString() : null,
+    overdue,
     lastMessageAt: toISO(doc.lastMessageAt ?? doc.createdAt),
     createdAt: toISO(doc.createdAt),
   };
@@ -182,6 +216,8 @@ export async function listTeamConversations(
 export async function createTeamConversation(input: {
   subject: string;
   fromEmail: string;
+  /** Optional override for the first-response SLA window (hours). */
+  slaHours?: number;
 }): Promise<Result<{ conversation: SabmailConversationRow }>> {
   const workspaceId = await getSabmailWorkspaceId();
   if (!workspaceId) return { ok: false, error: 'No active SabMail project.' };
@@ -196,11 +232,16 @@ export async function createTeamConversation(input: {
     }
 
     const now = new Date();
+    const slaHours =
+      typeof input.slaHours === 'number' && input.slaHours > 0
+        ? input.slaHours
+        : DEFAULT_SLA_HOURS;
     const doc: SabmailConversationDoc = {
       workspaceId,
       subject,
       fromEmail,
       status: 'open',
+      slaDueAt: computeSlaDueAt(now, slaHours),
       lastMessageAt: now,
       createdAt: now,
     };
@@ -241,6 +282,8 @@ export async function assignConversation(
       set.assigneeName = name;
       if (memberId) set.assigneeId = memberId;
       else unset.assigneeId = '';
+      // Restart the first-response SLA clock when an owner picks it up.
+      set.slaDueAt = computeSlaDueAt(new Date());
     } else {
       unset.assigneeName = '';
       unset.assigneeId = '';

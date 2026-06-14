@@ -2,8 +2,8 @@
 
 import { getSabmailWorkspaceId } from '@/lib/sabmail/workspace';
 import {
-  listSabmailMessages,
-  getSabmailMessage,
+  listSabmailMessagesForWorkspace,
+  getSabmailMessageForWorkspace,
 } from '@/app/sabmail/inbox/actions';
 import { ingestSabmailRag, type SabmailRagChunkInput } from '@/lib/sabmail/rag';
 import { getErrorMessage } from '@/lib/utils';
@@ -53,28 +53,64 @@ function stripHtml(html: string): string {
  * Index the newest ~40 INBOX messages for an account into the SabMail RAG
  * store. Returns the number of chunks ingested, or a clear error when the
  * mailbox can't be read or embeddings are not configured.
+ *
+ * Cookie-bound: resolves the active workspace from the session/cookie. The
+ * RAG-ingest cron has no session, so it calls
+ * `ingestSabmailInboxForWorkspace` directly with an explicit `workspaceId`.
  */
 export async function ingestSabmailInbox(
   accountId: string,
 ): Promise<IngestActionResult> {
   const workspaceId = await getSabmailWorkspaceId();
   if (!workspaceId) return { ok: false, error: 'No active SabMail project.' };
+  return ingestSabmailInboxForWorkspace(workspaceId, accountId);
+}
+
+/**
+ * Workspace-explicit RAG ingest — for contexts WITHOUT a session/cookie (e.g.
+ * the `sabmail-rag` cron sweep). Resolves the mailbox by the passed
+ * `workspaceId`; otherwise identical to `ingestSabmailInbox`.
+ *
+ * `maxMessages` lets a caller cap the per-account work below the default
+ * (the cron uses a tighter bound to keep cross-workspace sweeps cheap).
+ */
+export async function ingestSabmailInboxForWorkspace(
+  workspaceId: string,
+  accountId: string,
+  maxMessages: number = MAX_MESSAGES,
+): Promise<IngestActionResult> {
+  if (!workspaceId) return { ok: false, error: 'No active SabMail project.' };
   if (!accountId) return { ok: false, error: 'Invalid account id.' };
+
+  const cap =
+    Number.isFinite(maxMessages) && maxMessages > 0
+      ? Math.min(Math.floor(maxMessages), MAX_MESSAGES)
+      : MAX_MESSAGES;
 
   try {
     // Newest-first envelopes from INBOX (page 0 = most recent page).
-    const listed = await listSabmailMessages(accountId, 'INBOX', 0, MAX_MESSAGES);
+    const listed = await listSabmailMessagesForWorkspace(
+      workspaceId,
+      accountId,
+      'INBOX',
+      0,
+      cap,
+    );
     if (!listed.ok) return { ok: false, error: listed.error };
 
-    const rows = (listed.messages ?? []).slice(0, MAX_MESSAGES);
+    const rows = (listed.messages ?? []).slice(0, cap);
     if (rows.length === 0) return { ok: true, count: 0 };
 
     const chunks: SabmailRagChunkInput[] = [];
     for (const row of rows) {
       try {
-        const full = await getSabmailMessage(accountId, 'INBOX', row.uid, {
-          markSeen: false,
-        });
+        const full = await getSabmailMessageForWorkspace(
+          workspaceId,
+          accountId,
+          'INBOX',
+          row.uid,
+          { markSeen: false },
+        );
         if (!full.ok) continue; // skip the odd unreadable message
 
         const msg = full.message;

@@ -235,22 +235,352 @@ function firstNext(graph: JourneyGraph, fromId: string): string | null {
   return null;
 }
 
+/** True when an edge's handle/label reads as the "yes/true/match" branch. */
+function edgeIsYes(e: any): boolean {
+  const handle = String(e?.sourceHandle ?? e?.label ?? e?.data?.label ?? '').toLowerCase();
+  return /yes|true|match|default|positive/.test(handle);
+}
+
+/** True when an edge's handle/label reads as the "no/false/else" branch. */
+function edgeIsNo(e: any): boolean {
+  const handle = String(e?.sourceHandle ?? e?.label ?? e?.data?.label ?? '').toLowerCase();
+  return /no|false|else|negative/.test(handle);
+}
+
+/** Resolve an edge's target to a real node id, or null. */
+function edgeTarget(graph: JourneyGraph, e: any): string | null {
+  const t = e?.target;
+  return typeof t === 'string' && t && graph.byId.has(t) ? t : null;
+}
+
 /**
- * Pick the successor of a condition node. Without per-person attribute data in
- * this build we evaluate the structural default: prefer an edge whose
- * handle/label reads "yes"/"true"/"default", else the first edge. This keeps
- * the FSM advancing deterministically (R&D: a split is a point-in-time pick).
+ * Pick the successor of a condition node WITHOUT a predicate (the historic
+ * structural default): prefer an edge whose handle/label reads
+ * "yes"/"true"/"default", else the first edge. Kept verbatim so journeys
+ * authored before predicates existed keep advancing exactly as before.
  */
 function pickConditionNext(graph: JourneyGraph, fromId: string): string | null {
   const out = outgoingEdges(graph, fromId);
   if (!out.length) return null;
-  const preferred = out.find((e) => {
-    const handle = String(e?.sourceHandle ?? e?.label ?? e?.data?.label ?? '').toLowerCase();
-    return /yes|true|default|positive|match/.test(handle);
-  });
+  const preferred = out.find((e) => edgeIsYes(e));
   const chosen = preferred ?? out[0];
-  const t = chosen?.target;
-  return typeof t === 'string' && t && graph.byId.has(t) ? t : firstNext(graph, fromId);
+  return edgeTarget(graph, chosen) ?? firstNext(graph, fromId);
+}
+
+/**
+ * Pick the successor of a condition node given an EVALUATED predicate result.
+ *
+ *  • TRUE  → the "yes/true/match/default" edge (the existing preferred logic),
+ *            else the first outgoing edge.
+ *  • FALSE → the "no/false/else" edge; else the OTHER (non-yes) outgoing edge;
+ *            else the first outgoing edge.
+ *
+ * Always falls back to `firstNext` so a mis-wired branch still advances rather
+ * than silently completing the run.
+ */
+function pickConditionNextByResult(
+  graph: JourneyGraph,
+  fromId: string,
+  result: boolean,
+): string | null {
+  const out = outgoingEdges(graph, fromId);
+  if (!out.length) return null;
+
+  if (result) {
+    const yes = out.find((e) => edgeIsYes(e));
+    const chosen = yes ?? out[0];
+    return edgeTarget(graph, chosen) ?? firstNext(graph, fromId);
+  }
+
+  // result === false
+  const no = out.find((e) => edgeIsNo(e));
+  if (no) return edgeTarget(graph, no) ?? firstNext(graph, fromId);
+
+  // No explicit "no" edge — take the first edge that ISN'T the yes/match edge.
+  const yes = out.find((e) => edgeIsYes(e));
+  const other = out.find((e) => e !== yes);
+  if (other) return edgeTarget(graph, other) ?? firstNext(graph, fromId);
+
+  return firstNext(graph, fromId);
+}
+
+/* ── condition predicate model + evaluation ──────────────────────────────
+ *
+ * A condition node carries a single predicate at `node.data.predicate`
+ * (a flat `node.data.{field,op,value}` is also accepted as a fallback). The
+ * predicate is evaluated against a per-person CONTEXT (the contact doc + the
+ * person's recent deliverability events) so the journey branches per person
+ * instead of always taking the structural default.
+ *
+ * Supported FIELDS (resolved against the context):
+ *   tag                  — matches ANY of contact.tags (string compare)
+ *   email                — contact.email (or the run's personEmail)
+ *   name                 — contact.name
+ *   emailDomain          — the part after '@' in the email
+ *   opened/clicked/      — booleans derived from sabmail_events for this person
+ *     replied/bounced      (use op exists/notExists, or equals 'true'/'false')
+ *   inboundCount         — number of inbound (reply) events
+ *   eventCount           — total recent events seen for this person
+ *   <anything else>      — a custom field read off the contact doc
+ *
+ * Supported OPS: equals | notEquals | contains | exists | notExists | gt | lt
+ * ──────────────────────────────────────────────────────────────────────── */
+
+export type SabmailConditionOp =
+  | 'equals'
+  | 'notEquals'
+  | 'contains'
+  | 'exists'
+  | 'notExists'
+  | 'gt'
+  | 'lt';
+
+export interface SabmailConditionPredicate {
+  field: string;
+  op: SabmailConditionOp;
+  value?: string;
+}
+
+/** The per-person facts a predicate is evaluated against. */
+export interface SabmailConditionContext {
+  contact: Record<string, unknown> | null;
+  events: Array<{ event?: string }>;
+  flags: { opened: boolean; clicked: boolean; replied: boolean; bounced: boolean };
+  counts: { inbound: number; events: number };
+  /** The run's recipient email — used when the contact doc is missing. */
+  personEmail?: string;
+}
+
+const CONDITION_OPS: ReadonlySet<string> = new Set<SabmailConditionOp>([
+  'equals',
+  'notEquals',
+  'contains',
+  'exists',
+  'notExists',
+  'gt',
+  'lt',
+]);
+
+/**
+ * Read a condition node's predicate from `node.data.predicate`, falling back to
+ * a flat `node.data.{field,op,value}`. Returns `null` when no usable field/op is
+ * present (the caller then keeps the historic structural default).
+ */
+function readPredicate(node: any): SabmailConditionPredicate | null {
+  const data = node?.data ?? {};
+  const raw = (data.predicate && typeof data.predicate === 'object' ? data.predicate : data) as any;
+  const field = typeof raw?.field === 'string' ? raw.field.trim() : '';
+  const op = typeof raw?.op === 'string' ? raw.op.trim() : '';
+  if (!field || !CONDITION_OPS.has(op)) return null;
+  const value = raw?.value == null ? undefined : String(raw.value);
+  return { field, op: op as SabmailConditionOp, value };
+}
+
+/**
+ * Build the per-person evaluation context: the contact doc ({workspaceId,email})
+ * plus the person's recent events ({workspaceId, email|from === personEmail},
+ * newest-first, capped). Derives boolean flags (opened/clicked/replied/bounced)
+ * and counts (inbound/events). Defensive: any failure yields an empty context so
+ * a condition still evaluates (to false) rather than crashing the run.
+ */
+export async function buildConditionContext(
+  workspaceId: string,
+  personEmail: string,
+): Promise<SabmailConditionContext> {
+  const email = String(personEmail ?? '').trim().toLowerCase();
+  const empty: SabmailConditionContext = {
+    contact: null,
+    events: [],
+    flags: { opened: false, clicked: false, replied: false, bounced: false },
+    counts: { inbound: 0, events: 0 },
+    personEmail: email || undefined,
+  };
+  if (!workspaceId || !email) return empty;
+
+  try {
+    const { db } = await connectToDatabase();
+
+    const contact = (await db
+      .collection(SABMAIL_COLLECTIONS.contacts)
+      .findOne({ workspaceId, email })) as Record<string, unknown> | null;
+
+    // Outbound deliverability events key off `email` (the recipient); inbound
+    // replies key off `from` (the sender). Pull both so `replied` is derivable.
+    const events = (await db
+      .collection(SABMAIL_COLLECTIONS.events)
+      .find({ workspaceId, $or: [{ email }, { from: email }] })
+      .sort({ ts: -1 })
+      .limit(200)
+      .toArray()) as Array<Record<string, unknown>>;
+
+    let opened = false;
+    let clicked = false;
+    let replied = false;
+    let bounced = false;
+    let inbound = 0;
+    for (const ev of events) {
+      const name = String(ev?.event ?? '').toLowerCase();
+      if (name === 'open') opened = true;
+      else if (name === 'click') clicked = true;
+      else if (name === 'bounce') bounced = true;
+      else if (name === 'inbound') {
+        // An inbound event authored by this person counts as a reply.
+        if (String(ev?.from ?? '').trim().toLowerCase() === email) {
+          replied = true;
+          inbound += 1;
+        }
+      }
+    }
+
+    return {
+      contact,
+      events: events as Array<{ event?: string }>,
+      flags: { opened, clicked, replied, bounced },
+      counts: { inbound, events: events.length },
+      personEmail: email,
+    };
+  } catch {
+    return empty;
+  }
+}
+
+/** Coerce an unknown context value to a comparable string (lowercased, trimmed). */
+function asCmpString(value: unknown): string {
+  if (value == null) return '';
+  if (Array.isArray(value)) return value.map((v) => String(v)).join(',').toLowerCase();
+  return String(value).trim().toLowerCase();
+}
+
+/** Coerce an unknown context value to a number, or NaN. */
+function asCmpNumber(value: unknown): number {
+  if (typeof value === 'number') return value;
+  const n = Number(String(value ?? '').trim());
+  return Number.isFinite(n) ? n : NaN;
+}
+
+/**
+ * Resolve a predicate's `field` against the context. Returns the raw resolved
+ * value plus a small kind hint so the evaluator can pick string vs number vs
+ * boolean comparisons. Unknown fields fall back to a custom contact field.
+ */
+function resolveField(
+  field: string,
+  ctx: SabmailConditionContext,
+): { kind: 'tag' | 'boolean' | 'number' | 'string'; value: unknown; tags?: string[] } {
+  const contact = ctx.contact ?? {};
+  const email =
+    asCmpString(contact.email) || asCmpString(ctx.personEmail) || '';
+
+  switch (field) {
+    case 'tag': {
+      const tags = Array.isArray(contact.tags)
+        ? (contact.tags as unknown[]).map((t) => String(t))
+        : [];
+      return { kind: 'tag', value: tags, tags };
+    }
+    case 'email':
+      return { kind: 'string', value: email };
+    case 'name':
+      return { kind: 'string', value: contact.name };
+    case 'domain': // alias — heals graphs saved with the legacy 'domain' key
+    case 'emailDomain': {
+      const at = email.lastIndexOf('@');
+      return { kind: 'string', value: at >= 0 ? email.slice(at + 1) : '' };
+    }
+    case 'opened':
+      return { kind: 'boolean', value: ctx.flags.opened };
+    case 'clicked':
+      return { kind: 'boolean', value: ctx.flags.clicked };
+    case 'replied':
+      return { kind: 'boolean', value: ctx.flags.replied };
+    case 'bounced':
+      return { kind: 'boolean', value: ctx.flags.bounced };
+    case 'inboundCount':
+      return { kind: 'number', value: ctx.counts.inbound };
+    case 'eventCount':
+      return { kind: 'number', value: ctx.counts.events };
+    default:
+      // Any other string → a custom field on the contact doc.
+      return { kind: 'string', value: (contact as Record<string, unknown>)[field] };
+  }
+}
+
+/** True when a resolved value is "present" (for exists/notExists). */
+function isPresent(resolved: { kind: string; value: unknown; tags?: string[] }): boolean {
+  if (resolved.kind === 'tag') return (resolved.tags?.length ?? 0) > 0;
+  if (resolved.kind === 'boolean') return resolved.value === true;
+  const v = resolved.value;
+  if (v == null) return false;
+  if (Array.isArray(v)) return v.length > 0;
+  return String(v).trim() !== '';
+}
+
+/**
+ * Evaluate a single condition predicate against a per-person context. Defensive:
+ * an unknown op, an unresolvable field, or any thrown error all yield `false`.
+ */
+export function evaluateSabmailCondition(
+  predicate: SabmailConditionPredicate | null | undefined,
+  ctx: SabmailConditionContext,
+): boolean {
+  try {
+    if (!predicate || !predicate.field || !CONDITION_OPS.has(predicate.op)) return false;
+    const resolved = resolveField(predicate.field, ctx);
+    const wanted = predicate.value;
+    const wantedStr = asCmpString(wanted);
+
+    switch (predicate.op) {
+      case 'exists':
+        return isPresent(resolved);
+      case 'notExists':
+        return !isPresent(resolved);
+
+      case 'equals': {
+        if (resolved.kind === 'tag') {
+          return (resolved.tags ?? []).some((t) => t.trim().toLowerCase() === wantedStr);
+        }
+        if (resolved.kind === 'boolean') {
+          // Treat missing value as 'true' so a bare boolean field means "is set".
+          const want = wanted == null ? true : wantedStr === 'true';
+          return resolved.value === want;
+        }
+        return asCmpString(resolved.value) === wantedStr;
+      }
+      case 'notEquals': {
+        if (resolved.kind === 'tag') {
+          return !(resolved.tags ?? []).some((t) => t.trim().toLowerCase() === wantedStr);
+        }
+        if (resolved.kind === 'boolean') {
+          const want = wanted == null ? true : wantedStr === 'true';
+          return resolved.value !== want;
+        }
+        return asCmpString(resolved.value) !== wantedStr;
+      }
+
+      case 'contains': {
+        if (resolved.kind === 'tag') {
+          return (resolved.tags ?? []).some((t) => t.toLowerCase().includes(wantedStr));
+        }
+        return asCmpString(resolved.value).includes(wantedStr);
+      }
+
+      case 'gt': {
+        const a = asCmpNumber(resolved.value);
+        const b = asCmpNumber(wanted);
+        return Number.isFinite(a) && Number.isFinite(b) && a > b;
+      }
+      case 'lt': {
+        const a = asCmpNumber(resolved.value);
+        const b = asCmpNumber(wanted);
+        return Number.isFinite(a) && Number.isFinite(b) && a < b;
+      }
+
+      default:
+        return false;
+    }
+  } catch {
+    return false;
+  }
 }
 
 /* ── collection accessors ────────────────────────────────────────────── */
@@ -580,13 +910,29 @@ async function executeRun(
     }
 
     if (type === 'condition') {
-      const nextId = pickConditionNext(graph, currentId);
+      const predicate = readPredicate(node);
+      let nextId: string | null;
+      let detail: string;
+      if (predicate) {
+        // Real per-person branching: build the context, evaluate, pick the
+        // yes/no edge accordingly.
+        const ctx = await buildConditionContext(run.workspaceId, run.personEmail);
+        const result = evaluateSabmailCondition(predicate, ctx);
+        nextId = pickConditionNextByResult(graph, currentId, result);
+        detail = `${predicate.field} ${predicate.op}${
+          predicate.value != null ? ` ${predicate.value}` : ''
+        } → ${result ? 'yes' : 'no'} → ${nextId ?? 'no-branch'}`;
+      } else {
+        // No predicate — preserve the historic structural default.
+        nextId = pickConditionNext(graph, currentId);
+        detail = nextId ?? 'no-branch';
+      }
       history.push({
         nodeId: currentId,
         type,
         action: 'branched',
         at: now.toISOString(),
-        detail: nextId ?? 'no-branch',
+        detail,
       });
       advancedAny = true;
       currentId = nextId;

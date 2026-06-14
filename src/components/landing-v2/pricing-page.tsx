@@ -126,7 +126,7 @@ const COMPARE_GROUPS = [
             { name: 'Personal WhatsApp (SabWa)', s: false, g: true, sc: true, e: true },
             { name: 'Email (SabMail)', s: '500/mo', g: '50k/mo', sc: '500k/mo', e: 'Custom' },
             { name: 'SMS (SabSMS) — DLT', s: false, g: true, sc: true, e: true },
-            { name: 'Voice + IVR (SabVoice)', s: false, g: false, sc: true, e: true },
+            { name: 'Voice + IVR (SabCall)', s: false, g: false, sc: true, e: true },
             { name: 'Telegram', s: true, g: true, sc: true, e: true },
             { name: 'Instagram + Meta Suite', s: true, g: true, sc: true, e: true },
             { name: 'Omnichannel inbox (SabChat)', s: true, g: true, sc: true, e: true },

@@ -84,7 +84,7 @@ const RELEASES = [
         v: 'v2.15.0',
         tag: 'Feature',
         tone: 'amber',
-        title: 'SabVoice GA — IVR + dialer + AI assist',
+        title: 'SabCall GA — IVR + dialer + AI assist',
         items: [
             'Visual IVR builder with conditional routing',
             'Agent dashboard with whisper / barge / supervisor mode',

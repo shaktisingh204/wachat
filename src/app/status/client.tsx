@@ -14,7 +14,7 @@ const SERVICES = [
     { name: 'HRM · payroll + attendance', status: 'operational', uptime: 99.995 },
     { name: 'SabMail · email delivery', status: 'degraded', uptime: 99.42 },
     { name: 'SabSMS · DLT routes', status: 'operational', uptime: 99.98 },
-    { name: 'SabVoice · IVR + dialer', status: 'operational', uptime: 99.991 },
+    { name: 'SabCall · IVR + dialer', status: 'operational', uptime: 99.991 },
     { name: 'SabFiles · object storage', status: 'operational', uptime: 99.9999 },
     { name: 'Dashboards · BI', status: 'operational', uptime: 99.97 },
     { name: 'Webhooks · outbound', status: 'operational', uptime: 99.989 },

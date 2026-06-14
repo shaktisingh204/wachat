@@ -20,7 +20,7 @@ import {
   PageActions,
 } from '@/components/sabcrm/20ui';
 import { PhoneCall, Users, Layers, Activity, RefreshCw } from 'lucide-react';
-import { listAgentPresence, getVoiceLiveKpis } from '@/app/actions/sabvoice.actions';
+import { listAgentPresence, getVoiceLiveKpis } from '@/app/actions/sabcall.actions';
 
 type Agent = {
   _id?: string;
@@ -77,7 +77,7 @@ export default function VoiceAgentDashboardPage() {
     <main className="mx-auto flex w-full max-w-6xl flex-col gap-[var(--st-space-5)]">
       <PageHeader>
         <PageHeaderHeading>
-          <PageEyebrow>SabVoice</PageEyebrow>
+          <PageEyebrow>SabCall</PageEyebrow>
           <PageTitle>Agent dashboard</PageTitle>
           <PageDescription>
             Real-time agent availability, active calls, and queue depth. Refreshes every 10 seconds.

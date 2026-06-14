@@ -41,7 +41,6 @@ import { SABSPRINTS_SIDEBAR } from "./sabsprints";
 import { SABTABLES_SIDEBAR } from "./sabtables";
 import { SABTHRIVE_SIDEBAR } from "./sabthrive";
 import { SABVAULT_SIDEBAR } from "./sabvault";
-import { SABVOICE_SIDEBAR } from "./sabvoice";
 import { SABWEBINAR_SIDEBAR } from "./sabwebinar";
 import { SABWORKERLY_SIDEBAR } from "./sabworkerly";
 
@@ -77,7 +76,6 @@ export const MODULE_SIDEBARS: SabAppSidebarConfig[] = [
   SABTABLES_SIDEBAR,
   SABTHRIVE_SIDEBAR,
   SABVAULT_SIDEBAR,
-  SABVOICE_SIDEBAR,
   SABWEBINAR_SIDEBAR,
   SABWORKERLY_SIDEBAR,
 ];

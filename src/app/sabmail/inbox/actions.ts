@@ -19,6 +19,7 @@ import {
   type MailProviderContext,
 } from '@/lib/sabmail/providers/types';
 import { getActiveSnoozedUids } from './snooze-actions';
+import { searchSabmailMessagesIndex } from '@/lib/sabmail/search';
 import { getErrorMessage } from '@/lib/utils';
 
 /* ──────────────────────────────────────────────────────────────────────
@@ -429,6 +430,22 @@ export async function listSabmailMessages(
 ): Promise<Result<{ messages: SabmailMessageRow[]; total: number }>> {
   const workspaceId = await getSabmailWorkspaceId();
   if (!workspaceId) return { ok: false, error: 'No active SabMail project.' };
+  return listSabmailMessagesForWorkspace(workspaceId, accountId, path, page, pageSize);
+}
+
+/**
+ * Workspace-explicit message listing — for contexts WITHOUT a session/cookie
+ * (e.g. the RAG-ingest cron sweep). Resolves the account by the passed
+ * `workspaceId`; otherwise identical to `listSabmailMessages`.
+ */
+export async function listSabmailMessagesForWorkspace(
+  workspaceId: string,
+  accountId: string,
+  path = 'INBOX',
+  page = 0,
+  pageSize = 30,
+): Promise<Result<{ messages: SabmailMessageRow[]; total: number }>> {
+  if (!workspaceId) return { ok: false, error: 'No active SabMail project.' };
   const kind = await peekAccountProvider(workspaceId, accountId);
   if (isNonImap(kind)) {
     const resolved = await resolveProviderForWorkspace(workspaceId, accountId);
@@ -452,7 +469,7 @@ export async function listSabmailMessages(
       return { ok: false, error: getErrorMessage(e) };
     }
   }
-  const loaded = await loadAccount(accountId);
+  const loaded = await loadAccountForWorkspace(workspaceId, accountId);
   if (!loaded.ok) return { ok: false, error: loaded.error };
   try {
     const data = await withImap(loaded.data, async (client) => {
@@ -514,6 +531,22 @@ export async function getSabmailMessage(
 ): Promise<Result<{ message: SabmailMessageFull }>> {
   const workspaceId = await getSabmailWorkspaceId();
   if (!workspaceId) return { ok: false, error: 'No active SabMail project.' };
+  return getSabmailMessageForWorkspace(workspaceId, accountId, path, uid, opts);
+}
+
+/**
+ * Workspace-explicit single-message fetch — for contexts WITHOUT a
+ * session/cookie (e.g. the RAG-ingest cron sweep). Resolves the account by the
+ * passed `workspaceId`; otherwise identical to `getSabmailMessage`.
+ */
+export async function getSabmailMessageForWorkspace(
+  workspaceId: string,
+  accountId: string,
+  path: string,
+  uid: number,
+  opts?: { showRemoteImages?: boolean; markSeen?: boolean },
+): Promise<Result<{ message: SabmailMessageFull }>> {
+  if (!workspaceId) return { ok: false, error: 'No active SabMail project.' };
   const kind = await peekAccountProvider(workspaceId, accountId);
   if (isNonImap(kind)) {
     const resolved = await resolveProviderForWorkspace(workspaceId, accountId);
@@ -534,7 +567,7 @@ export async function getSabmailMessage(
       return { ok: false, error: getErrorMessage(e) };
     }
   }
-  const loaded = await loadAccount(accountId);
+  const loaded = await loadAccountForWorkspace(workspaceId, accountId);
   if (!loaded.ok) return { ok: false, error: loaded.error };
   const showRemoteImages = !!opts?.showRemoteImages;
   const markSeen = opts?.markSeen !== false;
@@ -1170,6 +1203,69 @@ export async function aiDraftReply(
   }
 }
 
+/**
+ * Precomputed suggested replies — up to 3 short, distinct reply options for an
+ * open message (powers the "Suggest replies" chips under the reading pane).
+ *
+ * Cheaper than `aiDraftReply` by design: no Sent-folder voice exemplars, a
+ * trimmed body, and a small token budget — one quick LLM call that returns a
+ * JSON array of brief strings. Defensive: returns `{ ok:false }` when AI is not
+ * configured or the model returns nothing usable, so the chips simply don't show.
+ */
+export async function suggestSabmailReplies(
+  accountId: string,
+  path: string,
+  uid: number,
+): Promise<Result<{ suggestions: string[] }>> {
+  const loaded = await loadAccount(accountId);
+  if (!loaded.ok) return { ok: false, error: loaded.error };
+  try {
+    const original = await withImap(loaded.data, async (client) => {
+      const mp = (await import('mailparser')) as unknown as {
+        simpleParser: (src: unknown) => Promise<any>;
+      };
+      const lock = await client.getMailboxLock(path);
+      try {
+        const msg = await client.fetchOne(
+          String(uid),
+          { uid: true, source: true },
+          { uid: true },
+        );
+        if (!msg || !msg.source) throw new Error('Message not found.');
+        const parsed = await mp.simpleParser(msg.source);
+        return {
+          from: parsed.from?.text ?? '',
+          subject: parsed.subject ?? '',
+          body: bodyText(parsed).slice(0, 3500),
+        };
+      } finally {
+        lock.release();
+      }
+    });
+
+    const llm = await sabmailLlm({
+      system:
+        'You generate quick reply suggestions for an email. Return ONLY a JSON array of exactly 3 short, distinct reply options as plain-text strings (each 1–2 sentences, ready to send, no greeting/sign-off/placeholders). Cover a range — e.g. a yes/accept, a clarifying question, and a defer/decline — when sensible. No prose, no code fences.',
+      prompt: `Suggest 3 brief replies to this email:\n\nFrom: ${original.from}\nSubject: ${original.subject}\n\n${original.body}`,
+      maxTokens: 400,
+    });
+    if (!llm.ok) return { ok: false, error: llm.error };
+
+    const arr = parseLlmArray(llm.text);
+    if (!arr) return { ok: false, error: 'AI returned an unexpected format.' };
+    const suggestions = arr
+      .map((s) => (typeof s === 'string' ? s.trim() : ''))
+      .filter((s): s is string => s.length > 0)
+      .slice(0, 3);
+    if (suggestions.length === 0) {
+      return { ok: false, error: 'No suggestions were generated.' };
+    }
+    return { ok: true, suggestions };
+  } catch (e) {
+    return { ok: false, error: getErrorMessage(e) };
+  }
+}
+
 /** Generate an email body from a short instruction (composer "Write with AI"). */
 export async function aiWriteCompose(
   instruction: string,
@@ -1187,7 +1283,7 @@ export async function aiWriteCompose(
   return { ok: true, text: llm.text.trim() };
 }
 
-/* ── search (IMAP SEARCH — no external index needed) ─────────────────── */
+/* ── search (Meilisearch when configured, else IMAP SEARCH) ──────────── */
 
 export async function searchSabmailMessages(
   accountId: string,
@@ -1198,6 +1294,26 @@ export async function searchSabmailMessages(
   if (!loaded.ok) return { ok: false, error: loaded.error };
   const q = query.trim();
   if (!q) return { ok: true, messages: [] };
+
+  // Fast path: try the Meilisearch index first (when MEILISEARCH_URL is set and
+  // the index is warm). The layer returns `null` to signal "fall back" — when
+  // unconfigured, the package is missing, the index is empty, or any error —
+  // so the IMAP search below stays the source of truth otherwise. UX-identical.
+  try {
+    const indexed = await searchSabmailMessagesIndex(
+      loaded.data.workspaceId,
+      accountId,
+      q,
+      { folder: path },
+    );
+    if (indexed) {
+      await annotateScreenerDecisions(loaded.data.workspaceId, indexed);
+      return { ok: true, messages: indexed };
+    }
+  } catch {
+    /* index hiccup — fall through to IMAP search */
+  }
+
   try {
     const messages = await withImap(loaded.data, async (client) => {
       const lock = await client.getMailboxLock(path);
