@@ -28,7 +28,11 @@ import {
   SelectItem,
 } from '@/components/sabcrm/20ui';
 import { Trash2, GripHorizontal } from 'lucide-react';
-import type { EnvelopeField, SabSignFieldType } from '@/lib/rust-client/sabsign-envelopes';
+import type {
+  EnvelopeField,
+  FieldCondition,
+  SabSignFieldType,
+} from '@/lib/rust-client/sabsign-envelopes';
 
 const FIELD_TYPES: Array<{ type: SabSignFieldType; label: string; w: number; h: number }> = [
   { type: 'signature', label: 'Signature', w: 180, h: 50 },
@@ -138,6 +142,22 @@ export function PdfFieldOverlay({
             </Button>
           ))}
         </div>
+
+        {fields.length > 0 ? (
+          <div className="space-y-1.5">
+            <div className="text-xs font-medium text-[var(--st-text-secondary)]">
+              Logic &amp; formulas
+            </div>
+            {fields.map((f) => (
+              <FieldLogicEditor
+                key={f.id}
+                field={f}
+                allFields={fields}
+                onChange={(patch) => updateField(f.id, patch)}
+              />
+            ))}
+          </div>
+        ) : null}
       </div>
 
       {/* Document + overlay */}
@@ -212,5 +232,117 @@ function DraggableField({ field, onChange, onRemove }: DraggableFieldProps) {
         />
       </span>
     </div>
+  );
+}
+
+const LOGIC_SEL =
+  'rounded border border-[var(--st-border)] bg-[var(--st-surface)] px-1.5 py-1 text-xs text-[var(--st-text)] outline-none';
+const COND_OPS: FieldCondition['op'][] = [
+  'equals',
+  'not_equals',
+  'contains',
+  'truthy',
+  'gt',
+  'lt',
+];
+
+/**
+ * Compact per-field logic editor — conditional show/hide/require driven by
+ * another field's value, plus an optional formula. Stored on the field's
+ * `conditions` / `formula` and evaluated by the signer portal.
+ */
+function FieldLogicEditor({
+  field,
+  allFields,
+  onChange,
+}: {
+  field: EnvelopeField;
+  allFields: EnvelopeField[];
+  onChange: (patch: Partial<EnvelopeField>) => void;
+}) {
+  const cond = field.conditions?.[0];
+  const others = allFields.filter((o) => o.id !== field.id);
+
+  const setCond = (patch: Partial<FieldCondition>) => {
+    const base: FieldCondition =
+      cond ?? { whenFieldId: others[0]?.id ?? '', op: 'equals', action: 'show' };
+    onChange({ conditions: [{ ...base, ...patch }] });
+  };
+
+  const supportsFormula = field.fieldType === 'number' || field.fieldType === 'text';
+
+  return (
+    <details className="rounded border border-[var(--st-border)] p-2 text-xs">
+      <summary className="cursor-pointer select-none text-[var(--st-text)]">
+        {field.label || field.fieldType}
+        {cond ? <span className="ml-1 text-[var(--st-accent)]">· logic</span> : null}
+      </summary>
+      <div className="mt-2 space-y-2">
+        <label className="flex items-center justify-between gap-1">
+          <span className="text-[var(--st-text-secondary)]">Visibility</span>
+          <select
+            className={LOGIC_SEL}
+            value={cond?.action ?? 'none'}
+            onChange={(e) =>
+              e.target.value === 'none'
+                ? onChange({ conditions: undefined })
+                : setCond({ action: e.target.value as FieldCondition['action'] })
+            }
+          >
+            <option value="none">Always shown</option>
+            <option value="show">Show when…</option>
+            <option value="hide">Hide when…</option>
+            <option value="require">Require when…</option>
+          </select>
+        </label>
+
+        {cond && others.length > 0 ? (
+          <div className="flex flex-wrap items-center gap-1">
+            <select
+              className={LOGIC_SEL}
+              value={cond.whenFieldId}
+              onChange={(e) => setCond({ whenFieldId: e.target.value })}
+            >
+              {others.map((o) => (
+                <option key={o.id} value={o.id}>
+                  {o.label || o.fieldType}
+                </option>
+              ))}
+            </select>
+            <select
+              className={LOGIC_SEL}
+              value={cond.op}
+              onChange={(e) => setCond({ op: e.target.value as FieldCondition['op'] })}
+            >
+              {COND_OPS.map((op) => (
+                <option key={op} value={op}>
+                  {op.replace('_', ' ')}
+                </option>
+              ))}
+            </select>
+            {cond.op !== 'truthy' ? (
+              <input
+                className={LOGIC_SEL}
+                value={cond.value ?? ''}
+                onChange={(e) => setCond({ value: e.target.value })}
+                placeholder="value"
+              />
+            ) : null}
+          </div>
+        ) : null}
+
+        {supportsFormula ? (
+          <label className="flex items-center justify-between gap-1">
+            <span className="text-[var(--st-text-secondary)]">Formula</span>
+            <input
+              className={LOGIC_SEL}
+              value={field.formula ?? ''}
+              onChange={(e) => onChange({ formula: e.target.value || undefined })}
+              placeholder="sum:a,b"
+            />
+          </label>
+        ) : null}
+      </div>
+    </details>
   );
 }
