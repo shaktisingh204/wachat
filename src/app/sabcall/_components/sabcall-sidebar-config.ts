@@ -1,7 +1,9 @@
 import * as React from "react";
 
 import {
+  Activity,
   AppWindow,
+  Clock,
   FolderKanban,
   Globe,
   Headphones,
@@ -12,6 +14,7 @@ import {
   Megaphone,
   Phone,
   PhoneCall,
+  PhoneForwarded,
   Server,
   ShieldCheck,
   Users,
@@ -84,6 +87,13 @@ export function buildSabcallSidebarGroups(
           active: isActive("/sabcall/contacts"),
         },
         {
+          id: "agent-console",
+          label: "Agent console",
+          icon: React.createElement(Activity),
+          href: "/sabcall/agent-console",
+          active: isActive("/sabcall/agent-console"),
+        },
+        {
           id: "agent-dashboard",
           label: "Agent dashboard",
           icon: React.createElement(Headphones),
@@ -138,6 +148,20 @@ export function buildSabcallSidebarGroups(
           icon: React.createElement(Layers),
           href: "/sabcall/queues",
           active: isActive("/sabcall/queues"),
+        },
+        {
+          id: "ring-groups",
+          label: "Ring groups",
+          icon: React.createElement(PhoneForwarded),
+          href: "/sabcall/ring-groups",
+          active: isActive("/sabcall/ring-groups"),
+        },
+        {
+          id: "business-hours",
+          label: "Business hours",
+          icon: React.createElement(Clock),
+          href: "/sabcall/business-hours",
+          active: isActive("/sabcall/business-hours"),
         },
         {
           id: "applications",
