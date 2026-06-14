@@ -20,6 +20,8 @@ export interface UseSabchatSocketResult {
   sendTyping: (conversationId: string) => void;
   /** Self-report presence to the rest of the tenant's agents. */
   setPresence: (status: 'online' | 'away' | 'busy') => void;
+  /** Announce opening/closing a conversation — drives the collision warning. */
+  sendViewing: (conversationId: string, state: 'open' | 'close') => void;
 }
 
 const HEARTBEAT_MS = 25_000;
@@ -66,6 +68,13 @@ export function useSabchatSocket(opts?: {
 
   const setPresence = React.useCallback(
     (presence: 'online' | 'away' | 'busy') => send({ type: 'presence', status: presence }),
+    [send],
+  );
+
+  const sendViewing = React.useCallback(
+    (conversationId: string, state: 'open' | 'close') => {
+      if (conversationId) send({ type: 'viewing', conversationId, state });
+    },
     [send],
   );
 
@@ -171,5 +180,5 @@ export function useSabchatSocket(opts?: {
     // `send` / `setPresence` are stable (useCallback with stable deps).
   }, [enabled, send, setPresence]);
 
-  return { status, sendTyping, setPresence };
+  return { status, sendTyping, setPresence, sendViewing };
 }

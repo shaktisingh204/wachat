@@ -2,10 +2,16 @@
 
 import * as React from "react";
 import {
+  ArrowDownToLine,
+  ArrowUpFromLine,
+  BookOpen,
+  Building2,
   CheckCheck,
   CheckCircle2,
   Clock,
+  CreditCard,
   Inbox as InboxIcon,
+  Link2,
   Lock,
   MessagesSquare,
   Paperclip,
@@ -15,7 +21,9 @@ import {
   Send,
   Sparkles,
   Tag,
+  Ticket,
   UserPlus,
+  Users,
   Video,
   X,
 } from "lucide-react";
@@ -46,8 +54,20 @@ import {
   aiConversationSentiment,
   aiDraftReply,
   aiResolveBotAnswer,
+  aiSuggestActions,
   aiSummarize,
+  aiWrapUp,
 } from "@/app/actions/sabchat-ai.actions";
+import type { CopilotSuggestedAction } from "@/lib/rust-client/sabchat-ai-copilot";
+import { sendPaymentLink } from "@/app/actions/sabchat-commerce.actions";
+import {
+  conversationToTicket,
+  linkContactToCrm,
+  pullContactFromCrm,
+  pushContactToCrm,
+} from "@/app/actions/sabchat-crm-bridge.actions";
+import { gradeConversation, listQaRubrics } from "@/app/actions/sabchat-ops.actions";
+import { draftKbFromConversation } from "@/app/actions/sabchat-support.actions";
 import type {
   ContentBlock,
   ConversationStatus,
@@ -58,6 +78,7 @@ import type {
 } from "@/lib/rust-client/sabchat";
 import type { SabChatMacro } from "@/lib/rust-client/sabchat-macros";
 import type { SabChatDisposition } from "@/lib/rust-client/sabchat-dispositions";
+import type { ResolveBotSource } from "@/lib/rust-client/sabchat-ai-resolve-bot";
 
 /* ------------------------------------------------------------------------
  * Helpers
@@ -71,6 +92,10 @@ const STATUS_TABS: { id: ConversationStatus; label: string }[] = [
 ];
 
 const TYPING_TTL_MS = 4000;
+// Viewers heartbeat every VIEWER_HEARTBEAT_MS while a conversation is open;
+// a viewer is considered gone once their last beat is older than VIEWER_TTL_MS.
+const VIEWER_HEARTBEAT_MS = 15_000;
+const VIEWER_TTL_MS = 40_000;
 const PINNED_LABEL = "pinned";
 
 function relTime(iso?: string): string {
@@ -271,6 +296,9 @@ export function InboxClient({
     {},
   );
   const [typing, setTyping] = React.useState<Record<string, number>>({});
+  // Per-conversation viewer roster (conversationId → agentId → last-seen ms).
+  // Powers the collision warning; self is never recorded.
+  const [viewers, setViewers] = React.useState<Record<string, Record<string, number>>>({});
   const [refreshing, startRefresh] = React.useTransition();
 
   const selected = React.useMemo(
@@ -414,6 +442,19 @@ export function InboxClient({
         if (p.actorId && p.actorId === currentUserId) return; // ignore self
         const convId = p.conversationId as string;
         if (convId) setTyping((prev) => ({ ...prev, [convId]: Date.now() }));
+      } else if (ev.type === "viewing") {
+        const convId = p.conversationId as string;
+        const agentId = p.agentId as string;
+        if (!convId || !agentId || agentId === currentUserId) return; // ignore self
+        setViewers((prev) => {
+          const conv = { ...(prev[convId] ?? {}) };
+          if (p.state === "close") {
+            delete conv[agentId];
+          } else {
+            conv[agentId] = Date.now();
+          }
+          return { ...prev, [convId]: conv };
+        });
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -425,7 +466,41 @@ export function InboxClient({
     refetchTimer.current = setTimeout(refetchConversations, 600);
   }, [refetchConversations]);
 
-  const { status: socketStatus, sendTyping } = useSabchatSocket({ onEvent });
+  const { status: socketStatus, sendTyping, sendViewing } = useSabchatSocket({ onEvent });
+
+  // Announce which conversation this agent is viewing (open/close + heartbeat),
+  // and expire stale viewers from the roster. Together these drive the
+  // collision banner so two agents don't unknowingly reply to the same person.
+  React.useEffect(() => {
+    if (!selectedId) return;
+    sendViewing(selectedId, "open");
+    const beat = setInterval(() => sendViewing(selectedId, "open"), VIEWER_HEARTBEAT_MS);
+    return () => {
+      clearInterval(beat);
+      sendViewing(selectedId, "close");
+    };
+  }, [selectedId, sendViewing]);
+
+  React.useEffect(() => {
+    const t = setInterval(() => {
+      setViewers((prev) => {
+        const now = Date.now();
+        let changed = false;
+        const next: Record<string, Record<string, number>> = {};
+        for (const [conv, roster] of Object.entries(prev)) {
+          const keep: Record<string, number> = {};
+          for (const [agent, ts] of Object.entries(roster)) {
+            if (now - ts < VIEWER_TTL_MS) keep[agent] = ts;
+            else changed = true;
+          }
+          if (Object.keys(keep).length) next[conv] = keep;
+          else if (Object.keys(roster).length) changed = true;
+        }
+        return changed ? next : prev;
+      });
+    }, 5000);
+    return () => clearInterval(t);
+  }, []);
 
   // Expire stale typing indicators.
   React.useEffect(() => {
@@ -465,6 +540,32 @@ export function InboxClient({
   const [draft, setDraft] = React.useState("");
   const [isPrivate, setIsPrivate] = React.useState(false);
   const [sending, setSending] = React.useState(false);
+
+  // Conversational commerce — send a SabPay payment link inline.
+  const [payOpen, setPayOpen] = React.useState(false);
+  const [payAmount, setPayAmount] = React.useState("");
+  const [payCurrency, setPayCurrency] = React.useState("USD");
+  const [payLabel, setPayLabel] = React.useState("");
+  const [payBusy, setPayBusy] = React.useState(false);
+  const doSendPay = async () => {
+    if (!selectedId) return;
+    setPayBusy(true);
+    const res = await sendPaymentLink(selectedId, {
+      amountMajor: Number(payAmount),
+      currency: payCurrency,
+      label: payLabel,
+    });
+    setPayBusy(false);
+    if (res.ok) {
+      toast({ title: "Payment link sent" });
+      setPayOpen(false);
+      setPayAmount("");
+      setPayLabel("");
+      // the payment message arrives live via the WS hub — no manual refetch
+    } else {
+      toast({ title: "Could not send link", description: res.error, variant: "destructive" });
+    }
+  };
 
   // `/`-triggered canned-response menu.
   const showMacros = draft.startsWith("/") && macros.length > 0;
@@ -631,6 +732,18 @@ export function InboxClient({
   const [copilotBusy, setCopilotBusy] = React.useState<string | null>(null);
   const [summary, setSummary] = React.useState<string | null>(null);
   const [churnRisk, setChurnRisk] = React.useState<number | null>(null);
+  // Answer inspection — provenance of the last KB-suggested reply.
+  const [kbInspect, setKbInspect] = React.useState<{
+    confidence: number;
+    escalate: boolean;
+    sources: ResolveBotSource[];
+  } | null>(null);
+  // CX score — quality grade for this conversation (no survey needed).
+  const [cxScore, setCxScore] = React.useState<{ total: number; max: number } | null>(null);
+  // AI-suggested next actions for the open conversation.
+  const [suggestedActions, setSuggestedActions] = React.useState<CopilotSuggestedAction[] | null>(
+    null,
+  );
 
   const runDraft = async () => {
     if (!selectedId) return;
@@ -679,9 +792,77 @@ export function InboxClient({
     setCopilotBusy(null);
     if (res.ok) {
       setDraft(res.answer);
-      setCopilotOpen(false);
+      // Keep the panel open and surface provenance (answer inspection) so the
+      // agent can see which KB sources produced the reply + the confidence.
+      setKbInspect({
+        confidence: res.confidence,
+        escalate: res.escalate,
+        sources: res.sources ?? [],
+      });
     } else {
       toast({ title: "Copilot failed", description: res.error, variant: "destructive" });
+    }
+  };
+
+  const runSuggestActions = async () => {
+    if (!selectedId) return;
+    setCopilotBusy("actions");
+    const res = await aiSuggestActions(selectedId);
+    setCopilotBusy(null);
+    if (res.ok) setSuggestedActions(res.actions);
+    else toast({ title: "Copilot failed", description: res.error, variant: "destructive" });
+  };
+
+  const runWrapUp = async () => {
+    if (!selectedId) return;
+    setCopilotBusy("wrapup");
+    const res = await aiWrapUp(selectedId);
+    setCopilotBusy(null);
+    if (res.ok) {
+      setDraft(res.note);
+      setIsPrivate(true);
+      setCopilotOpen(false);
+      toast({ title: "Wrap-up note ready", description: "Added as a private note — edit and post." });
+    } else {
+      toast({ title: "Copilot failed", description: res.error, variant: "destructive" });
+    }
+  };
+
+  const runKbDraft = async () => {
+    if (!selectedId) return;
+    setCopilotBusy("kbdraft");
+    const res = await draftKbFromConversation(selectedId);
+    setCopilotBusy(null);
+    if (res.ok) {
+      toast({
+        title: "KB draft created",
+        description: "Review and publish it under Knowledge base.",
+      });
+      setCopilotOpen(false);
+    } else {
+      toast({ title: "Couldn't draft article", description: res.error, variant: "destructive" });
+    }
+  };
+
+  const runGrade = async () => {
+    if (!selectedId) return;
+    setCopilotBusy("grade");
+    const rubrics = await listQaRubrics();
+    const rubric = rubrics.find((r) => r.active) ?? rubrics[0];
+    if (!rubric) {
+      setCopilotBusy(null);
+      toast({
+        title: "No QA rubric defined",
+        description: "Create one under Admin › Quality (QA) first.",
+      });
+      return;
+    }
+    const res = await gradeConversation(selectedId, rubric._id);
+    setCopilotBusy(null);
+    if (res.ok) {
+      setCxScore({ total: res.score.total, max: res.score.max });
+    } else {
+      toast({ title: "Grading failed", description: res.error, variant: "destructive" });
     }
   };
 
@@ -689,6 +870,9 @@ export function InboxClient({
   React.useEffect(() => {
     setSummary(null);
     setChurnRisk(null);
+    setKbInspect(null);
+    setCxScore(null);
+    setSuggestedActions(null);
     setCopilotOpen(false);
   }, [selectedId]);
 
@@ -869,6 +1053,7 @@ export function InboxClient({
                   contact={contactsById[c.contactId]}
                   active={c._id === selectedId}
                   typing={!!typing[c._id]}
+                  hasOtherViewer={Object.keys(viewers[c._id] ?? {}).length > 0}
                   onClick={() => void openConversation(c)}
                   selectMode={selectMode}
                   checked={selectedIds.has(c._id)}
@@ -885,6 +1070,7 @@ export function InboxClient({
                   contact={contactsById[c.contactId]}
                   active={c._id === selectedId}
                   typing={!!typing[c._id]}
+                  hasOtherViewer={Object.keys(viewers[c._id] ?? {}).length > 0}
                   onClick={() => void openConversation(c)}
                   selectMode={selectMode}
                   checked={selectedIds.has(c._id)}
@@ -975,7 +1161,109 @@ export function InboxClient({
                         >
                           Sentiment
                         </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          loading={copilotBusy === "grade"}
+                          onClick={() => void runGrade()}
+                        >
+                          Grade CX
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          loading={copilotBusy === "actions"}
+                          onClick={() => void runSuggestActions()}
+                        >
+                          Next actions
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          loading={copilotBusy === "wrapup"}
+                          onClick={() => void runWrapUp()}
+                        >
+                          Wrap-up note
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="col-span-2"
+                          iconLeft={BookOpen}
+                          loading={copilotBusy === "kbdraft"}
+                          onClick={() => void runKbDraft()}
+                        >
+                          Save as KB draft
+                        </Button>
                       </div>
+                      {suggestedActions ? (
+                        <div className="mt-2 rounded-md bg-[var(--st-bg-muted)] p-2 text-xs text-[var(--st-text)]">
+                          <p className="mb-1 font-semibold">Suggested next actions</p>
+                          {suggestedActions.length ? (
+                            <ul className="space-y-1">
+                              {suggestedActions.map((a, i) => (
+                                <li key={i} className="flex items-start gap-1.5">
+                                  <Sparkles
+                                    className="mt-0.5 h-3 w-3 shrink-0 text-[var(--st-primary,var(--st-accent))]"
+                                    aria-hidden
+                                  />
+                                  <span>{a.title}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          ) : (
+                            <p className="text-[var(--st-text-secondary)]">
+                              Nothing pressing — the conversation looks handled.
+                            </p>
+                          )}
+                        </div>
+                      ) : null}
+                      {kbInspect ? (
+                        <div className="mt-2 rounded-md bg-[var(--st-bg-muted)] p-2 text-xs text-[var(--st-text)]">
+                          <p className="mb-1 flex items-center justify-between font-semibold">
+                            <span>Answer source</span>
+                            <span
+                              className={
+                                kbInspect.confidence >= 0.6
+                                  ? "text-[var(--st-status-ok)]"
+                                  : "text-amber-500"
+                              }
+                            >
+                              {Math.round(kbInspect.confidence * 100)}% conf.
+                            </span>
+                          </p>
+                          {kbInspect.sources.length ? (
+                            <ul className="space-y-0.5">
+                              {kbInspect.sources.map((s) => (
+                                <li key={s.id} className="flex items-center gap-1 truncate">
+                                  <BookOpen className="h-3 w-3 shrink-0 opacity-60" aria-hidden />
+                                  <span className="truncate">{s.title}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          ) : (
+                            <p className="text-[var(--st-text-secondary)]">
+                              No KB source — answer generated without a matching article.
+                            </p>
+                          )}
+                          {kbInspect.escalate ? (
+                            <p className="mt-1 font-medium text-amber-500">
+                              Low confidence — consider escalating to a human.
+                            </p>
+                          ) : null}
+                        </div>
+                      ) : null}
+                      {cxScore ? (
+                        <div className="mt-2 flex items-center justify-between rounded-md bg-[var(--st-bg-muted)] p-2 text-xs">
+                          <span className="font-semibold text-[var(--st-text)]">CX score</span>
+                          <span className="font-semibold text-[var(--st-text)]">
+                            {cxScore.total}/{cxScore.max}
+                            <span className="ml-1 font-normal text-[var(--st-text-secondary)]">
+                              ({cxScore.max ? Math.round((cxScore.total / cxScore.max) * 100) : 0}%)
+                            </span>
+                          </span>
+                        </div>
+                      ) : null}
                       {summary ? (
                         <div className="mt-2 rounded-md bg-[var(--st-bg-muted)] p-2 text-xs text-[var(--st-text)]">
                           <p className="mb-1 font-semibold">Summary</p>
@@ -1074,6 +1362,21 @@ export function InboxClient({
               </div>
             </header>
 
+            {/* collision warning — another agent is on this conversation */}
+            {(() => {
+              const others = Object.keys(viewers[selected._id] ?? {}).length;
+              if (others < 1) return null;
+              const replying = !!typing[selected._id];
+              return (
+                <div className="flex items-center gap-2 border-b border-amber-300/60 bg-amber-50 px-4 py-1.5 text-xs font-medium text-amber-800 dark:bg-amber-950/40 dark:text-amber-300">
+                  <Users className="h-3.5 w-3.5 shrink-0" aria-hidden />
+                  {others === 1 ? "Another agent is" : `${others} other agents are`} viewing this
+                  conversation
+                  {replying ? " — and replying now" : ""}. Heads up to avoid a double reply.
+                </div>
+              );
+            })()}
+
             {/* messages */}
             <div ref={threadRef} className="min-h-0 flex-1 space-y-1.5 overflow-y-auto px-4 py-4">
               {loadingThread ? (
@@ -1164,6 +1467,59 @@ export function InboxClient({
                 >
                   <Lock className="h-4 w-4" aria-hidden />
                 </button>
+                <div className="relative">
+                  <button
+                    onClick={() => setPayOpen((v) => !v)}
+                    title="Send a payment link"
+                    className={`grid h-9 w-9 place-items-center rounded-md transition-colors ${
+                      payOpen
+                        ? "bg-emerald-100 text-emerald-700"
+                        : "text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)]"
+                    }`}
+                  >
+                    <CreditCard className="h-4 w-4" aria-hidden />
+                  </button>
+                  {payOpen ? (
+                    <div className="absolute bottom-11 left-0 z-20 w-64 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)] p-3 shadow-lg">
+                      <p className="mb-2 text-xs font-semibold text-[var(--st-text)]">
+                        Send a payment link
+                      </p>
+                      <div className="flex gap-2">
+                        <Input
+                          type="number"
+                          min={0}
+                          step="0.01"
+                          value={payAmount}
+                          onChange={(e) => setPayAmount(e.target.value)}
+                          placeholder="0.00"
+                          className="flex-1"
+                        />
+                        <Input
+                          value={payCurrency}
+                          onChange={(e) => setPayCurrency(e.target.value.toUpperCase())}
+                          placeholder="USD"
+                          className="w-20"
+                        />
+                      </div>
+                      <Input
+                        value={payLabel}
+                        onChange={(e) => setPayLabel(e.target.value)}
+                        placeholder="What's this for? (optional)"
+                        className="mt-2"
+                      />
+                      <Button
+                        variant="primary"
+                        size="sm"
+                        className="mt-2 w-full"
+                        loading={payBusy}
+                        disabled={payBusy || !payAmount || Number(payAmount) <= 0}
+                        onClick={() => void doSendPay()}
+                      >
+                        Send link
+                      </Button>
+                    </div>
+                  ) : null}
+                </div>
                 <textarea
                   value={draft}
                   onChange={(e) => {
@@ -1352,6 +1708,7 @@ function ConversationRow({
   contact,
   active,
   typing,
+  hasOtherViewer,
   onClick,
   selectMode,
   checked,
@@ -1361,6 +1718,7 @@ function ConversationRow({
   contact?: SabChatContact;
   active: boolean;
   typing: boolean;
+  hasOtherViewer?: boolean;
   onClick: () => void;
   selectMode?: boolean;
   checked?: boolean;
@@ -1387,7 +1745,15 @@ function ConversationRow({
       <Avatar name={name} />
       <div className="min-w-0 flex-1">
         <div className="flex items-center justify-between gap-2">
-          <span className="truncate text-sm font-medium text-[var(--st-text)]">{name}</span>
+          <span className="flex min-w-0 items-center gap-1">
+            <span className="truncate text-sm font-medium text-[var(--st-text)]">{name}</span>
+            {hasOtherViewer ? (
+              <Users
+                className="h-3 w-3 shrink-0 text-amber-500"
+                aria-label="Another agent is viewing"
+              />
+            ) : null}
+          </span>
           <span className="shrink-0 text-[11px] text-[var(--st-text-secondary)]">
             {relTime(conv.lastMessageAt)}
           </span>
@@ -1514,7 +1880,94 @@ function ContextPane({
           </div>
         </Section>
       ) : null}
+
+      <CrmBridgeSection conv={conv} contact={contact} />
     </aside>
+  );
+}
+
+function CrmBridgeSection({
+  conv,
+  contact,
+}: {
+  conv: SabChatConversation;
+  contact?: SabChatContact;
+}) {
+  const { toast } = useToast();
+  const [busy, setBusy] = React.useState<string | null>(null);
+  const contactId = contact?._id;
+
+  const run = async (
+    key: string,
+    fn: () => Promise<{ ok: boolean; error?: string }>,
+    okMsg: string,
+  ) => {
+    setBusy(key);
+    const res = await fn();
+    setBusy(null);
+    if (res.ok) toast({ title: okMsg });
+    else toast({ title: "CRM sync failed", description: res.error, variant: "destructive" });
+  };
+
+  return (
+    <Section title="CRM">
+      <div className="grid grid-cols-2 gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          iconLeft={Link2}
+          loading={busy === "link"}
+          disabled={!contactId || busy !== null}
+          onClick={() =>
+            void run("link", () => linkContactToCrm(contactId!), "Linked to CRM")
+          }
+        >
+          Link
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          iconLeft={Ticket}
+          loading={busy === "ticket"}
+          disabled={busy !== null}
+          onClick={() =>
+            void run("ticket", () => conversationToTicket(conv._id), "Ticket created")
+          }
+        >
+          Ticket
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          iconLeft={ArrowUpFromLine}
+          loading={busy === "push"}
+          disabled={!contactId || busy !== null}
+          onClick={() =>
+            void run("push", () => pushContactToCrm(contactId!), "Pushed to CRM")
+          }
+        >
+          Push
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          iconLeft={ArrowDownToLine}
+          loading={busy === "pull"}
+          disabled={!contactId || busy !== null}
+          onClick={() =>
+            void run("pull", () => pullContactFromCrm(contactId!), "Pulled from CRM")
+          }
+        >
+          Pull
+        </Button>
+      </div>
+      {!contactId ? (
+        <p className="mt-1.5 flex items-center gap-1 text-[11px] text-[var(--st-text-secondary)]">
+          <Building2 className="h-3 w-3" aria-hidden /> Identify the visitor to enable contact
+          sync.
+        </p>
+      ) : null}
+    </Section>
   );
 }
 

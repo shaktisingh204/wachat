@@ -32,13 +32,26 @@ import 'server-only';
  *    documented read fail-open for redaction so a config error can't blank a
  *    list — see `fls.server.ts`).
  *
- * ## Two-store gotcha (IMPORTANT — reviewer checklist in the action header)
+ * ## Two-store gotcha — now closed for the record read path
  *
- * This wires enforcement onto the NATIVE-TS read path ONLY. The RUST read path
- * does NOT consult any of these engines; records served straight from the Rust
- * crate are NEITHER filtered NOR redacted by this module. The flag cannot be
- * trusted as a hard boundary until a parallel change lands crate-side. All four
- * underlying engines document this same gap.
+ * Historically this wired enforcement onto the NATIVE-TS read path ONLY. The
+ * RUST read path is now covered too: {@link resolveAccessFilterParam} serializes
+ * the SAME composed enforcement clause and the Rust `sabcrm-records` crate
+ * `$and`-merges it server-side (`apply_access_filter`), while
+ * {@link redactReadResults} applies FLS to the returned rows. Both are threaded
+ * through the central Tw read seams in `src/app/actions/sabcrm-twenty.actions.ts`
+ * (`listSabcrmRecordsTw`, `countSabcrmRecordsTw`, `groupSabcrmRecordsTw`,
+ * `aggregateSabcrmRecordsTw`, `getSabcrmRecordTw`, `listRelatedSabcrmRecordsTw`,
+ * `searchSabcrmRecordOptionsTw`) — so a record the viewer may not see is
+ * filtered regardless of which store served it. The access POLICY still lives in
+ * exactly one place (this module); Rust only applies the resolved clause.
+ *
+ * Still DEFAULT-OFF: with every flag off, `resolveAccessFilterParam` returns
+ * `undefined`, the Rust `accessFilter` param is omitted, and the query is
+ * byte-for-byte today's query. Remaining uncovered readers (wire the same way
+ * before relying on the flag as a hard boundary): the cross-object global
+ * `search` endpoint and any bespoke call site that hits `sabcrmRecordsApi`
+ * directly instead of these seams.
  */
 
 import {
@@ -166,6 +179,46 @@ export async function applyReadEnforcement(
     // Enforcing but something failed — fail CLOSED so we never leak rows the
     // enforcement was meant to hide.
     return { ...baseFilter, ...DENY_SENTINEL };
+  }
+}
+
+/**
+ * Resolve the read-path enforcement clause as a serialized param for the **Rust**
+ * record read path (`sabcrmRecordsApi.list/count/group/get`), closing the
+ * two-store gotcha: the Rust crate now `$and`-merges this exact clause (see
+ * `apply_access_filter` in `rust/crates/sabcrm-records`), so a record the viewer
+ * may not see is filtered server-side regardless of which store served it.
+ *
+ * DEFAULT-OFF: reuses {@link applyReadEnforcement} with an EMPTY base filter, so
+ * the result is the pure enforcement clause — or `undefined` when every flag is
+ * off (the common case), in which case callers omit the param entirely and the
+ * Rust query is byte-for-byte today's query. There is NO second copy of the
+ * access policy here: the whole resolution (OWD, role hierarchy, sharing,
+ * territory) stays in {@link applyReadEnforcement}; this only serializes it.
+ *
+ * Note: field-level-security REDACTION is applied separately on the returned
+ * records via {@link redactReadResults} (it strips field data, not whole rows).
+ *
+ * @returns a JSON string to pass as the Rust `accessFilter` param, or
+ *          `undefined` when nothing is enforced (omit the param).
+ */
+export async function resolveAccessFilterParam(
+  projectId: string,
+  viewerUserId: string,
+  object: string,
+): Promise<string | undefined> {
+  try {
+    // Empty base → composeReadFilter returns the pure enforcement clause (or the
+    // deny sentinel `{_id:null}`), or the SAME empty object on full passthrough.
+    const clause = await applyReadEnforcement(projectId, viewerUserId, object, {});
+    if (!clause || Object.keys(clause).length === 0) return undefined;
+    return JSON.stringify(clause);
+  } catch {
+    // applyReadEnforcement is itself fail-closed when enforcing and fail-open
+    // when off; a throw here is unexpected, so omit the param (the Rust path is
+    // then unenforced — identical to today, never MORE permissive than intended
+    // because enforcement is opt-in per project).
+    return undefined;
   }
 }
 

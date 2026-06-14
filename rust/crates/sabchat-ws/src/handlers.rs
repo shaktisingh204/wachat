@@ -18,8 +18,8 @@
 //!    drops events whose `tenant_id` doesn't match, and forwards the
 //!    rest as JSON text frames.
 //! 4. Run an "inbound" loop on the original task that handles agent
-//!    frames (`ping`, `presence`, `typing`) and republishes them onto
-//!    the same hub so siblings see them too.
+//!    frames (`ping`, `presence`, `typing`, `viewing`) and republishes
+//!    them onto the same hub so siblings see them too.
 //! 5. Cancel the outbound task when the inbound side closes (client
 //!    disconnect / IO error).
 //!
@@ -234,6 +234,35 @@ fn handle_text_frame(state: &SabChatWsState, tenant_oid: ObjectId, user_id: &str
                     "conversationId": conversation_id,
                     "actor": "agent",
                     "actorId": user_id,
+                }),
+            });
+        }
+
+        // -------------------------------------------------------------
+        // viewing: agent opened (or closed) a conversation. Powers the
+        // collision warning — siblings keep a per-conversation viewer
+        // roster so the inbox can flag "another agent is on this one".
+        // `state` is "open" (now viewing) or "close" (stopped viewing).
+        // -------------------------------------------------------------
+        "viewing" => {
+            let conversation_id = match v.get("conversationId").and_then(Value::as_str) {
+                Some(s) if !s.is_empty() => s.to_owned(),
+                _ => {
+                    warn!("ignoring viewing frame without conversationId");
+                    return;
+                }
+            };
+            let view_state = match v.get("state").and_then(Value::as_str) {
+                Some("close") => "close",
+                _ => "open",
+            };
+            state.hub.publish(Event {
+                tenant_id: tenant_oid,
+                kind: "viewing".to_owned(),
+                payload: json!({
+                    "conversationId": conversation_id,
+                    "agentId": user_id,
+                    "state": view_state,
                 }),
             });
         }

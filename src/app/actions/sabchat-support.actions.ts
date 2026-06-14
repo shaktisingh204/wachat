@@ -98,6 +98,49 @@ export async function saveKbArticle(input: {
   );
 }
 
+/**
+ * Draft a KB article from a resolved conversation: summarize it with the
+ * copilot, then create a `draft`-status article in the default portal seeded
+ * with that summary. The agent reviews + publishes from `/sabchat/knowledge`.
+ */
+export async function draftKbFromConversation(
+  conversationId: string,
+): Promise<{ ok: true; articleId: string } | { ok: false; error: string }> {
+  if (!conversationId) return { ok: false, error: 'No conversation selected.' };
+  try {
+    const article = await scoped(async () => {
+      const { summary } = await rustClient.sabchatAiCopilot.summarize({ conversationId });
+      const body = (summary || '').trim();
+      if (!body) throw new Error('The copilot returned an empty summary.');
+      // First line → title; full summary → body.
+      const firstLine = body.split('\n')[0].replace(/^#+\s*/, '').slice(0, 100);
+      const title = firstLine || 'Untitled article from chat';
+
+      const portalList = await rustClient.sabchatKb.portals.list();
+      const portal =
+        portalList.items[0] ??
+        (await rustClient.sabchatKb.portals.create({
+          name: 'Help Center',
+          slug: 'help',
+          defaultLanguage: 'en',
+        }));
+
+      return rustClient.sabchatKb.articles.create({
+        portalId: portal._id,
+        title,
+        slug: slugify(title),
+        body,
+        language: portal.defaultLanguage ?? 'en',
+        status: 'draft',
+      });
+    });
+    revalidatePath(KB_PATH);
+    return { ok: true, articleId: article._id };
+  } catch (e) {
+    return { ok: false, error: getErrorMessage(e) };
+  }
+}
+
 export const publishKbArticle = async (id: string) =>
   mutate(() => rustClient.sabchatKb.articles.publish(id), KB_PATH);
 

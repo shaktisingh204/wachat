@@ -10164,6 +10164,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "sabchat-community"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum 0.8.9",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "sabchat-types",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "utoipa",
+]
+
+[[package]]
 name = "sabchat-compliance"
 version = "0.1.0"
 dependencies = [
@@ -10334,6 +10355,27 @@ dependencies = [
 
 [[package]]
 name = "sabchat-inboxes"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum 0.8.9",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "sabchat-types",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "utoipa",
+]
+
+[[package]]
+name = "sabchat-journeys"
 version = "0.1.0"
 dependencies = [
  "anyhow",
@@ -13505,6 +13547,7 @@ dependencies = [
  "sabchat-channel-x",
  "sabchat-cobrowse",
  "sabchat-commerce",
+ "sabchat-community",
  "sabchat-compliance",
  "sabchat-contacts",
  "sabchat-conversations",
@@ -13514,6 +13557,7 @@ dependencies = [
  "sabchat-events",
  "sabchat-gamification",
  "sabchat-inboxes",
+ "sabchat-journeys",
  "sabchat-knowledge",
  "sabchat-macros",
  "sabchat-marketplace",
