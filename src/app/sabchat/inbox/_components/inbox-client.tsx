@@ -64,6 +64,7 @@ import {
   pushContactToCrm,
 } from "@/app/actions/sabchat-crm-bridge.actions";
 import { gradeConversation, listQaRubrics } from "@/app/actions/sabchat-ops.actions";
+import { draftKbFromConversation } from "@/app/actions/sabchat-support.actions";
 import type {
   ContentBlock,
   ConversationStatus,
@@ -796,6 +797,22 @@ export function InboxClient({
     }
   };
 
+  const runKbDraft = async () => {
+    if (!selectedId) return;
+    setCopilotBusy("kbdraft");
+    const res = await draftKbFromConversation(selectedId);
+    setCopilotBusy(null);
+    if (res.ok) {
+      toast({
+        title: "KB draft created",
+        description: "Review and publish it under Knowledge base.",
+      });
+      setCopilotOpen(false);
+    } else {
+      toast({ title: "Couldn't draft article", description: res.error, variant: "destructive" });
+    }
+  };
+
   const runGrade = async () => {
     if (!selectedId) return;
     setCopilotBusy("grade");
@@ -1119,6 +1136,16 @@ export function InboxClient({
                           onClick={() => void runGrade()}
                         >
                           Grade CX
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="col-span-2"
+                          iconLeft={BookOpen}
+                          loading={copilotBusy === "kbdraft"}
+                          onClick={() => void runKbDraft()}
+                        >
+                          Save as KB draft
                         </Button>
                       </div>
                       {kbInspect ? (
