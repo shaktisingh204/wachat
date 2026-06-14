@@ -373,6 +373,13 @@ export async function bulkSendFromTemplate(
           { _id: res.envelopeId as any },
           { $set: { bulkBatchId: batchId } },
         );
+        // Actually send each envelope (draft → sent) + e-mail its signer.
+        try {
+          const sent = await sabsignEnvelopesApi.send(res.envelopeId);
+          await sendSignInvites(sent);
+        } catch (e) {
+          console.warn(`[sabsign] bulk send/email row ${i} failed:`, e);
+        }
         await db
           .collection('esign_bulk_batches')
           .updateOne({ _id: batchId as any }, { $inc: { spawnedEnvelopes: 1 } });
