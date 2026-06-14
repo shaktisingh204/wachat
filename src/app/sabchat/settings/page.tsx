@@ -5,6 +5,7 @@ import {
 import {
   listBusinessHours,
   listTeams,
+  listRetention,
 } from "@/app/actions/sabchat-ops.actions";
 
 import { SettingsClient } from "./_client";
@@ -12,11 +13,12 @@ import { SettingsClient } from "./_client";
 export const dynamic = "force-dynamic";
 
 export default async function SabchatSettingsPage() {
-  const [slas, surveys, businessHours, teams] = await Promise.all([
+  const [slas, surveys, businessHours, teams, retention] = await Promise.all([
     listSlas(),
     listSurveys(),
     listBusinessHours(),
     listTeams(),
+    listRetention(),
   ]);
   return (
     <SettingsClient
@@ -24,6 +26,7 @@ export default async function SabchatSettingsPage() {
       initialSurveys={surveys}
       initialBusinessHours={businessHours}
       initialTeams={teams}
+      initialRetention={retention}
     />
   );
 }

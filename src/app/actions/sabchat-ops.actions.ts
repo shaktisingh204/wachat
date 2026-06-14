@@ -22,6 +22,9 @@ import type {
   SabChatBadge,
   SabChatLeaderboardRow,
 } from '@/lib/rust-client/sabchat-gamification';
+import type { SabChatAdReportRow } from '@/lib/rust-client/sabchat-ad-attribution';
+import type { SabChatRetentionRule } from '@/lib/rust-client/sabchat-compliance';
+import type { SabChatShiftRule } from '@/lib/rust-client/sabchat-shifts';
 
 async function scoped<T>(fn: () => Promise<T>): Promise<T> {
   const wsId = await getSabchatWorkspaceId();
@@ -215,3 +218,77 @@ export async function listBadges(): Promise<SabChatBadge[]> {
     return [];
   }
 }
+
+/* ── Ad attribution ────────────────────────────────────────────────────── */
+
+export async function adAttributionReport(
+  groupBy: 'campaign' | 'source' | 'medium' = 'campaign',
+): Promise<SabChatAdReportRow[]> {
+  try {
+    const res = await scoped(() => rustClient.sabchatAdAttribution.report({ groupBy }));
+    return res.items;
+  } catch {
+    return [];
+  }
+}
+
+/* ── Compliance: retention rules ───────────────────────────────────────── */
+
+export async function listRetention(): Promise<SabChatRetentionRule[]> {
+  try {
+    const res = await scoped(() => rustClient.sabchatCompliance.listRetention());
+    return res.items;
+  } catch {
+    return [];
+  }
+}
+
+export async function saveRetention(input: {
+  id?: string;
+  name: string;
+  target: string;
+  olderThanDays: number;
+  active?: boolean;
+}): Promise<Mut> {
+  const name = input.name?.trim();
+  if (!name) return { ok: false, error: 'Name is required.' };
+  if (!input.olderThanDays || input.olderThanDays < 1)
+    return { ok: false, error: 'Days must be ≥ 1.' };
+  return mutate(
+    () =>
+      input.id
+        ? rustClient.sabchatCompliance.updateRetention(input.id, {
+            name,
+            target: input.target,
+            olderThanDays: input.olderThanDays,
+            active: input.active,
+          })
+        : rustClient.sabchatCompliance.createRetention({
+            name,
+            target: input.target,
+            olderThanDays: input.olderThanDays,
+            active: input.active ?? true,
+          }),
+    SETTINGS_PATH,
+  );
+}
+
+export const deleteRetention = (id: string) =>
+  mutate(() => rustClient.sabchatCompliance.deleteRetention(id), SETTINGS_PATH);
+
+export const sweepRetention = () =>
+  mutate(() => rustClient.sabchatCompliance.sweepRetention(), SETTINGS_PATH);
+
+/* ── Shifts ────────────────────────────────────────────────────────────── */
+
+export async function listShiftRules(): Promise<SabChatShiftRule[]> {
+  try {
+    const res = await scoped(() => rustClient.sabchatShifts.listRules());
+    return res.items;
+  } catch {
+    return [];
+  }
+}
+
+export const deleteShiftRule = (id: string) =>
+  mutate(() => rustClient.sabchatShifts.deleteRule(id), ADMIN_PATH);

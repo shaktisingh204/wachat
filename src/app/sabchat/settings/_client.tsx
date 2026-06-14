@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { Clock, Plus, ShieldCheck, Smile, Trash2, Users } from "lucide-react";
+import { Clock, Lock, Plus, ShieldCheck, Smile, Trash2, Users } from "lucide-react";
 
 import {
   Badge,
@@ -29,16 +29,20 @@ import {
 } from "@/app/actions/sabchat-support.actions";
 import {
   deleteBusinessHours,
+  deleteRetention,
   deleteTeam,
   saveBusinessHours,
+  saveRetention,
   saveTeam,
+  sweepRetention,
 } from "@/app/actions/sabchat-ops.actions";
 import type { SabChatSla } from "@/lib/rust-client/sabchat-sla";
 import type { SabChatSurvey, SabChatSurveyKind } from "@/lib/rust-client/sabchat-csat";
 import type { SabChatBusinessHour } from "@/lib/rust-client/sabchat-business-hours";
 import type { SabChatTeam } from "@/lib/rust-client/sabchat-teams";
+import type { SabChatRetentionRule } from "@/lib/rust-client/sabchat-compliance";
 
-type Tab = "sla" | "csat" | "hours" | "teams";
+type Tab = "sla" | "csat" | "hours" | "teams" | "compliance";
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -47,11 +51,13 @@ export function SettingsClient({
   initialSurveys,
   initialBusinessHours,
   initialTeams,
+  initialRetention,
 }: {
   initialSlas: SabChatSla[];
   initialSurveys: SabChatSurvey[];
   initialBusinessHours: SabChatBusinessHour[];
   initialTeams: SabChatTeam[];
+  initialRetention: SabChatRetentionRule[];
 }) {
   const router = useRouter();
   const { toast } = useToast();
@@ -83,6 +89,7 @@ export function SettingsClient({
           { id: "hours" as const, label: "Business hours", icon: Clock },
           { id: "teams" as const, label: "Teams", icon: Users },
           { id: "csat" as const, label: "CSAT surveys", icon: Smile },
+          { id: "compliance" as const, label: "Compliance", icon: Lock },
         ].map((t) => {
           const Icon = t.icon;
           return (
@@ -109,6 +116,8 @@ export function SettingsClient({
           <BusinessHoursSection hours={initialBusinessHours} onAction={handle} />
         ) : tab === "teams" ? (
           <TeamsSection teams={initialTeams} onAction={handle} />
+        ) : tab === "compliance" ? (
+          <ComplianceSection rules={initialRetention} onAction={handle} />
         ) : (
           <CsatSection surveys={initialSurveys} onAction={handle} />
         )}
@@ -319,6 +328,131 @@ function TeamsSection({ teams, onAction }: { teams: SabChatTeam[]; onAction: Run
                 if (ok) {
                   setName("");
                   setDescription("");
+                  setOpen(false);
+                }
+              }}
+            >
+              Create
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
+/* ── Compliance (data retention) ───────────────────────────────────────── */
+
+const RETENTION_TARGETS = [
+  { value: "conversations", label: "Conversations" },
+  { value: "messages", label: "Messages" },
+  { value: "audit_log", label: "Audit log" },
+];
+
+function ComplianceSection({
+  rules,
+  onAction,
+}: {
+  rules: SabChatRetentionRule[];
+  onAction: Runner;
+}) {
+  const [open, setOpen] = React.useState(false);
+  const [name, setName] = React.useState("");
+  const [target, setTarget] = React.useState("conversations");
+  const [days, setDays] = React.useState("365");
+  const [busy, setBusy] = React.useState(false);
+
+  return (
+    <div>
+      <div className="mb-3 flex items-center justify-between">
+        <p className="text-xs text-[var(--st-text-secondary)]">
+          Auto-delete data older than a threshold (GDPR/DPDP/CCPA).
+        </p>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => void onAction(() => sweepRetention(), "Sweep started")}
+          >
+            Run sweep
+          </Button>
+          <Button variant="primary" size="sm" iconLeft={Plus} onClick={() => setOpen(true)}>
+            New rule
+          </Button>
+        </div>
+      </div>
+      <Card className="divide-y divide-[var(--st-border)] p-0">
+        {rules.length === 0 ? (
+          <p className="p-6 text-center text-sm text-[var(--st-text-secondary)]">
+            No retention rules yet.
+          </p>
+        ) : (
+          rules.map((r) => (
+            <div key={r._id} className="flex items-center justify-between gap-3 p-4">
+              <div>
+                <p className="text-sm font-medium text-[var(--st-text)]">{r.name}</p>
+                <p className="text-xs text-[var(--st-text-secondary)]">
+                  {r.target} · older than {r.olderThanDays} days
+                </p>
+              </div>
+              <Badge variant={r.active ? "default" : "outline"}>
+                {r.active ? "Active" : "Paused"}
+              </Badge>
+              <Button
+                variant="ghost"
+                size="sm"
+                iconLeft={Trash2}
+                onClick={() => void onAction(() => deleteRetention(r._id), "Deleted")}
+              />
+            </div>
+          ))
+        )}
+      </Card>
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>New retention rule</DialogTitle>
+          </DialogHeader>
+          <Field label="Name">
+            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Purge old chats" autoFocus />
+          </Field>
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="Target">
+              <select
+                value={target}
+                onChange={(e) => setTarget(e.target.value)}
+                className="w-full rounded-md border border-[var(--st-border)] bg-transparent px-2 py-2 text-sm text-[var(--st-text)]"
+              >
+                {RETENTION_TARGETS.map((t) => (
+                  <option key={t.value} value={t.value}>
+                    {t.label}
+                  </option>
+                ))}
+              </select>
+            </Field>
+            <Field label="Older than (days)">
+              <Input type="number" value={days} onChange={(e) => setDays(e.target.value)} />
+            </Field>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" size="sm" onClick={() => setOpen(false)} disabled={busy}>
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              loading={busy}
+              disabled={busy || !name.trim()}
+              onClick={async () => {
+                setBusy(true);
+                const ok = await onAction(
+                  () => saveRetention({ name, target, olderThanDays: Number(days) || 0 }),
+                  "Created",
+                );
+                setBusy(false);
+                if (ok) {
+                  setName("");
                   setOpen(false);
                 }
               }}

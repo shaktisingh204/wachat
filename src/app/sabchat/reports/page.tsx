@@ -8,7 +8,10 @@ import {
   PageTitle,
 } from "@/components/sabcrm/20ui";
 import { getSabchatReports } from "@/app/actions/sabchat-analytics.actions";
-import { gamificationLeaderboard } from "@/app/actions/sabchat-ops.actions";
+import {
+  gamificationLeaderboard,
+  adAttributionReport,
+} from "@/app/actions/sabchat-ops.actions";
 
 export const dynamic = "force-dynamic";
 
@@ -89,11 +92,15 @@ function Table({
 }
 
 export default async function SabchatReportsPage() {
-  const [reports, leaderboard] = await Promise.all([
+  const [reports, leaderboard, adReport] = await Promise.all([
     getSabchatReports(),
     gamificationLeaderboard(),
+    adAttributionReport("campaign"),
   ]);
   if (!reports) redirect("/sabchat/projects");
+
+  const money = (minor: number, ccy?: string) =>
+    `${ccy ?? "$"}${(minor / 100).toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
 
   const { live, responseTimes, csat, byAgent, byInbox, byChannel } = reports;
   const csatPct =
@@ -206,6 +213,24 @@ export default async function SabchatReportsPage() {
             r.badges,
           ])}
           empty="No leaderboard activity yet."
+        />
+      </Card>
+
+      {/* Ad attribution — chat → revenue */}
+      <h2 className="mt-8 mb-2 text-sm font-semibold text-[var(--st-text)]">
+        Revenue attribution <span className="text-xs font-normal text-[var(--st-text-secondary)]">· by campaign</span>
+      </h2>
+      <Card className="p-0">
+        <Table
+          head={["Campaign", "Source", "Touches", "Conversations", "Revenue"]}
+          rows={adReport.map((r) => [
+            r.campaign,
+            r.source ?? "—",
+            r.touches,
+            r.conversations,
+            money(r.revenueMinor, r.currency),
+          ])}
+          empty="No attributed revenue in this window."
         />
       </Card>
     </div>
