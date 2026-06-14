@@ -159,7 +159,7 @@ export default function VoiceDidsPage() {
           <PageDescription>Provision, route, and release voice numbers (DIDs).</PageDescription>
         </PageHeaderHeading>
         <PageActions>
-          <Button variant="primary" iconLeft={Search} onClick={() => setIsSearchOpen(true)}>
+          <Button variant="primary" iconLeft={Search} onClick={() => setIsSearchOpen(true)} className="sc-press">
             Buy a number
           </Button>
         </PageActions>
@@ -215,7 +215,7 @@ export default function VoiceDidsPage() {
               title="No numbers yet"
               description="Buy your first number to start routing inbound and outbound calls."
               action={
-                <Button variant="primary" iconLeft={Search} onClick={() => setIsSearchOpen(true)}>
+                <Button variant="primary" iconLeft={Search} onClick={() => setIsSearchOpen(true)} className="sc-press">
                   Buy a number
                 </Button>
               }
@@ -223,7 +223,7 @@ export default function VoiceDidsPage() {
           ) : (
             <div className="grid grid-cols-1 gap-[var(--st-space-3)] md:grid-cols-2 lg:grid-cols-3">
               {data.map((d) => (
-                <Card key={d._id} variant="outlined" className="flex flex-col gap-[var(--st-space-2)]">
+                <Card key={d._id} variant="outlined" className="sc-card flex flex-col gap-[var(--st-space-2)]">
                   <div className="flex items-center justify-between">
                     <span className="font-mono text-lg tabular-nums text-[var(--st-text)]">
                       {d.number}
@@ -254,7 +254,7 @@ export default function VoiceDidsPage() {
                       variant="outline"
                       size="sm"
                       iconLeft={Trash2}
-                      className="mt-auto self-start"
+                      className="sc-press mt-auto self-start"
                       loading={releasingId === d._id}
                       onClick={() => handleRelease(d._id, d.number)}
                     >
@@ -299,7 +299,7 @@ export default function VoiceDidsPage() {
             </Field>
           </div>
           <div className="flex justify-end">
-            <Button iconLeft={Search} onClick={handleSearch} loading={searching}>
+            <Button iconLeft={Search} onClick={handleSearch} loading={searching} className="sc-press">
               Search
             </Button>
           </div>
@@ -322,6 +322,7 @@ export default function VoiceDidsPage() {
                     iconLeft={ShoppingCart}
                     onClick={() => handlePurchase(n)}
                     loading={purchasingNum === n.number}
+                    className="sc-press"
                   >
                     Buy
                   </Button>

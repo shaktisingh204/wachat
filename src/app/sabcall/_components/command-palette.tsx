@@ -197,7 +197,7 @@ export function CommandPalette(): React.JSX.Element {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent
-        className="max-w-lg p-0"
+        className="sc-pop max-w-lg p-0"
         hideClose
         aria-label="SabCall command palette"
       >

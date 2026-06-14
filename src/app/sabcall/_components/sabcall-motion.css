@@ -1,0 +1,140 @@
+/* ────────────────────────────────────────────────────────────────────────
+ * SabCall motion system.
+ *
+ * GPU-cheap (transform/opacity only), fast, and tasteful — the production
+ * feel for /sabcall. Imported once in the SabCall shell. Everything degrades
+ * to nothing under `prefers-reduced-motion: reduce` (see the bottom).
+ *
+ * Utility classes (prefix `sc-`):
+ *   .sc-page          page-enter fade-up
+ *   .sc-stagger       container; children fade-up in sequence (set --sc-n)
+ *   .sc-stagger-item  a staggered child (set inline `--sc-i: <index>`)
+ *   .sc-card          hover-lift + press feedback for interactive cards
+ *   .sc-pop           scale-in (dialogs, panels)
+ *   .sc-press         tactile press for buttons/keys
+ *   .sc-pulse         soft pulsing ring (live / calling)
+ *   .sc-live-dot      pulsing status dot
+ *   .sc-shimmer       skeleton shimmer
+ *   .sc-row-in        list row entering (live feeds)
+ * ──────────────────────────────────────────────────────────────────────── */
+
+@keyframes sc-fade-up {
+  from { opacity: 0; transform: translate3d(0, 8px, 0); }
+  to   { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+@keyframes sc-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes sc-scale-in {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes sc-pulse-ring {
+  0%   { box-shadow: 0 0 0 0 var(--sc-pulse-color, rgba(59, 122, 245, 0.45)); }
+  70%  { box-shadow: 0 0 0 10px rgba(59, 122, 245, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(59, 122, 245, 0); }
+}
+@keyframes sc-dot-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.45; transform: scale(0.82); }
+}
+@keyframes sc-shimmer {
+  100% { transform: translateX(100%); }
+}
+
+/* Page enter — content settles in from below. */
+.sc-page {
+  animation: sc-fade-up 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Sequential reveal for lists/grids. Children opt in with .sc-stagger-item. */
+.sc-stagger > .sc-stagger-item {
+  animation: sc-fade-up 0.34s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(var(--sc-i, 0) * 45ms);
+}
+
+/* Interactive card — lift on hover, press on active. */
+.sc-card {
+  transition:
+    transform 0.18s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.18s ease,
+    border-color 0.18s ease;
+  will-change: transform;
+}
+.sc-card:hover {
+  transform: translate3d(0, -2px, 0);
+  box-shadow: 0 6px 20px -8px rgba(0, 0, 0, 0.22);
+}
+.sc-card:active {
+  transform: translate3d(0, 0, 0) scale(0.997);
+}
+
+/* Scale-in for popovers / dialogs / panels. */
+.sc-pop {
+  animation: sc-scale-in 0.2s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Tactile press for buttons + dialpad keys. */
+.sc-press {
+  transition: transform 0.12s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.sc-press:active {
+  transform: scale(0.94);
+}
+
+/* Live / calling pulse — wrap a circular element. */
+.sc-pulse {
+  animation: sc-pulse-ring 1.8s ease-out infinite;
+}
+
+/* Pulsing status dot (online agents, ringing). */
+.sc-live-dot {
+  animation: sc-dot-pulse 1.4s ease-in-out infinite;
+}
+
+/* Skeleton shimmer overlay. */
+.sc-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.sc-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.08),
+    transparent
+  );
+  animation: sc-shimmer 1.4s infinite;
+}
+
+/* A row entering a live feed (agent console / conversations). */
+.sc-row-in {
+  animation: sc-fade-up 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Respect the user's motion preference — disable all of the above. */
+@media (prefers-reduced-motion: reduce) {
+  .sc-page,
+  .sc-stagger > .sc-stagger-item,
+  .sc-pop,
+  .sc-row-in {
+    animation: none !important;
+  }
+  .sc-card,
+  .sc-press {
+    transition: none !important;
+  }
+  .sc-card:hover {
+    transform: none !important;
+  }
+  .sc-pulse,
+  .sc-live-dot,
+  .sc-shimmer::after {
+    animation: none !important;
+  }
+}

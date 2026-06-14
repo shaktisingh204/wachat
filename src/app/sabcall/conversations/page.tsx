@@ -118,10 +118,14 @@ export default function SabcallConversationsPage() {
               />
             </Card>
           ) : (
-            <ul className="flex flex-col gap-2">
-              {items.map((it) => (
-                <li key={`${it.kind}-${it.id}`}>
-                  <Card className="flex flex-col gap-2 p-3">
+            <ul className="sc-stagger flex flex-col gap-2">
+              {items.map((it, i) => (
+                <li
+                  key={`${it.kind}-${it.id}`}
+                  className="sc-stagger-item"
+                  style={{ ["--sc-i" as string]: i } as React.CSSProperties}
+                >
+                  <Card className="sc-card flex flex-col gap-2 p-3">
                     <div className="flex items-center gap-3">
                       <span className="grid h-9 w-9 shrink-0 place-items-center rounded-md bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                         <ItemIcon item={it} />

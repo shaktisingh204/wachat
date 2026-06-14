@@ -145,7 +145,7 @@ export default function SabcallRelationshipsPage() {
           </Field>
         </div>
         <div className="flex justify-end">
-          <Button variant="primary" size="sm" loading={saving} disabled={saving} onClick={() => void save()}>
+          <Button variant="primary" size="sm" loading={saving} disabled={saving} onClick={() => void save()} className="sc-press">
             Save cadence
           </Button>
         </div>
@@ -164,10 +164,14 @@ export default function SabcallRelationshipsPage() {
             />
           </Card>
         ) : (
-          <ul className="flex flex-col gap-2">
-            {due.map((c) => (
-              <li key={c._id}>
-                <Card className="flex items-center gap-3 p-3">
+          <ul className="sc-stagger flex flex-col gap-2">
+            {due.map((c, i) => (
+              <li
+                key={c._id}
+                className="sc-stagger-item"
+                style={{ ["--sc-i" as string]: i } as React.CSSProperties}
+              >
+                <Card className="sc-card flex items-center gap-3 p-3">
                   <div className="min-w-0 flex-1">
                     <div className="truncate text-sm font-medium text-[var(--st-text)]">
                       {c.name || c.phone}
@@ -178,10 +182,10 @@ export default function SabcallRelationshipsPage() {
                     <div className="text-xs text-[var(--st-text-secondary)]">{c.phone}</div>
                   </div>
                   <Badge variant="outline">{sinceLabel(c.lastTouchedAt)}</Badge>
-                  <Button size="sm" variant="outline" iconLeft={Phone} onClick={() => void call(c.phone)}>
+                  <Button size="sm" variant="outline" iconLeft={Phone} onClick={() => void call(c.phone)} className="sc-press">
                     Call
                   </Button>
-                  <Button size="sm" variant="ghost" iconLeft={Check} onClick={() => void touch(c._id)}>
+                  <Button size="sm" variant="ghost" iconLeft={Check} onClick={() => void touch(c._id)} className="sc-press">
                     Touched
                   </Button>
                 </Card>

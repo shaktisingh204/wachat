@@ -3,11 +3,13 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { LazyMotion, domAnimation, m, AnimatePresence } from "motion/react";
 
 import { SabHomeShell } from '@/components/sabcrm/20ui';
 
 import { CommandPalette } from "./command-palette";
 import { buildSabcallSidebarGroups } from "./sabcall-sidebar-config";
+import "./sabcall-motion.css";
 
 export interface SabcallShellProps {
   user?: {
@@ -66,7 +68,7 @@ export function SabcallShell({
 
   const caption = React.useMemo(() => {
     const dot = engineEnabled
-      ? "bg-[var(--st-status-ok)]"
+      ? "bg-[var(--st-status-ok)] sc-live-dot"
       : "bg-[var(--st-text-secondary)]";
     return (
       <span className="flex flex-col gap-1">
@@ -114,8 +116,20 @@ export function SabcallShell({
       sidebarCaption={caption}
       sidebarGroups={groups}
     >
-      {children}
-      <CommandPalette />
+      <LazyMotion features={domAnimation} strict>
+        <AnimatePresence mode="wait" initial={false}>
+          <m.div
+            key={pathname ?? "sabcall"}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+          >
+            {children}
+          </m.div>
+        </AnimatePresence>
+        <CommandPalette />
+      </LazyMotion>
     </SabHomeShell>
   );
 }

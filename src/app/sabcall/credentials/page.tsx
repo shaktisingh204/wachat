@@ -158,7 +158,7 @@ export default function SipCredentialsPage() {
           </PageDescription>
         </PageHeaderHeading>
         <PageActions>
-          <Button variant="primary" iconLeft={Plus} onClick={openCreate}>
+          <Button variant="primary" iconLeft={Plus} onClick={openCreate} className="sc-press">
             New credential
           </Button>
         </PageActions>
@@ -201,7 +201,7 @@ export default function SipCredentialsPage() {
               title="No SIP credentials yet"
               description="Create your first credential so a device can register and place calls."
               action={
-                <Button variant="primary" iconLeft={Plus} onClick={openCreate}>
+                <Button variant="primary" iconLeft={Plus} onClick={openCreate} className="sc-press">
                   New credential
                 </Button>
               }
@@ -251,6 +251,7 @@ export default function SipCredentialsPage() {
                             size="sm"
                             iconLeft={Pencil}
                             onClick={() => openEdit(row)}
+                            className="sc-press"
                           >
                             Edit
                           </Button>
@@ -260,6 +261,7 @@ export default function SipCredentialsPage() {
                             iconLeft={Trash2}
                             loading={deletingId === row._id}
                             onClick={() => handleDelete(row)}
+                            className="sc-press"
                           >
                             Delete
                           </Button>
@@ -284,7 +286,7 @@ export default function SipCredentialsPage() {
             <Button variant="secondary" onClick={() => setIsFormOpen(false)}>
               Cancel
             </Button>
-            <Button variant="primary" onClick={handleSave} loading={saving}>
+            <Button variant="primary" onClick={handleSave} loading={saving} className="sc-press">
               {editingId ? 'Save changes' : 'Create'}
             </Button>
           </>

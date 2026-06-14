@@ -89,6 +89,7 @@ export default function VoiceAgentDashboardPage() {
             iconLeft={RefreshCw}
             loading={refreshing}
             onClick={() => load(true)}
+            className="sc-press"
           >
             Refresh
           </Button>

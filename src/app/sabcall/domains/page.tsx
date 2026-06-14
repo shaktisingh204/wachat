@@ -153,7 +153,7 @@ export default function SipDomainsPage() {
           </PageDescription>
         </PageHeaderHeading>
         <PageActions>
-          <Button variant="primary" iconLeft={Plus} onClick={openCreate}>
+          <Button variant="primary" iconLeft={Plus} onClick={openCreate} className="sc-press">
             New domain
           </Button>
         </PageActions>
@@ -196,7 +196,7 @@ export default function SipDomainsPage() {
               title="No SIP domains yet"
               description="Add your first SIP domain to start routing calls."
               action={
-                <Button variant="primary" iconLeft={Plus} onClick={openCreate}>
+                <Button variant="primary" iconLeft={Plus} onClick={openCreate} className="sc-press">
                   New domain
                 </Button>
               }
@@ -259,6 +259,7 @@ export default function SipDomainsPage() {
                             size="sm"
                             iconLeft={Pencil}
                             onClick={() => openEdit(d)}
+                            className="sc-press"
                           >
                             Edit
                           </Button>
@@ -268,6 +269,7 @@ export default function SipDomainsPage() {
                             iconLeft={Trash2}
                             loading={deletingId === d._id}
                             onClick={() => handleDelete(d)}
+                            className="sc-press"
                           >
                             Delete
                           </Button>
@@ -296,7 +298,7 @@ export default function SipDomainsPage() {
             <Button variant="secondary" onClick={() => setIsFormOpen(false)}>
               Cancel
             </Button>
-            <Button variant="primary" onClick={handleSave} loading={saving}>
+            <Button variant="primary" onClick={handleSave} loading={saving} className="sc-press">
               {editing ? 'Save changes' : 'Create domain'}
             </Button>
           </div>

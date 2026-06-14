@@ -172,7 +172,7 @@ export default function VoiceApplicationsPage() {
           </PageDescription>
         </PageHeaderHeading>
         <PageActions>
-          <Button variant="primary" iconLeft={Plus} onClick={openCreate}>
+          <Button variant="primary" iconLeft={Plus} onClick={openCreate} className="sc-press">
             New application
           </Button>
         </PageActions>
@@ -192,7 +192,7 @@ export default function VoiceApplicationsPage() {
               title="No applications yet"
               description="Create your first voice application to route inbound calls."
               action={
-                <Button variant="primary" iconLeft={Plus} onClick={openCreate}>
+                <Button variant="primary" iconLeft={Plus} onClick={openCreate} className="sc-press">
                   New application
                 </Button>
               }
@@ -231,6 +231,7 @@ export default function VoiceApplicationsPage() {
                             size="sm"
                             iconLeft={Pencil}
                             onClick={() => openEdit(row)}
+                            className="sc-press"
                           >
                             Edit
                           </Button>
@@ -240,6 +241,7 @@ export default function VoiceApplicationsPage() {
                             iconLeft={Trash2}
                             loading={deletingId === row._id}
                             onClick={() => handleDelete(row._id, row.name)}
+                            className="sc-press"
                           >
                             Delete
                           </Button>
@@ -264,7 +266,7 @@ export default function VoiceApplicationsPage() {
             <Button variant="secondary" onClick={() => setIsFormOpen(false)}>
               Cancel
             </Button>
-            <Button variant="primary" onClick={handleSave} loading={saving}>
+            <Button variant="primary" onClick={handleSave} loading={saving} className="sc-press">
               {editingId ? 'Save changes' : 'Create application'}
             </Button>
           </>

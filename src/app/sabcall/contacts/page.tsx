@@ -197,7 +197,7 @@ export default function VoiceContactsPage() {
           <PageDescription>Your callable address book — people and companies you reach.</PageDescription>
         </PageHeaderHeading>
         <PageActions>
-          <Button variant="primary" iconLeft={UserPlus} onClick={openNew}>
+          <Button variant="primary" iconLeft={UserPlus} onClick={openNew} className="sc-press">
             New contact
           </Button>
         </PageActions>
@@ -247,7 +247,7 @@ export default function VoiceContactsPage() {
               title="No contacts yet"
               description="Add your first contact to start calling people and companies."
               action={
-                <Button variant="primary" iconLeft={UserPlus} onClick={openNew}>
+                <Button variant="primary" iconLeft={UserPlus} onClick={openNew} className="sc-press">
                   New contact
                 </Button>
               }
@@ -305,7 +305,7 @@ export default function VoiceContactsPage() {
                     </Td>
                     <Td align="right">
                       <div className="flex justify-end gap-1.5">
-                        <Button variant="ghost" size="sm" iconLeft={Pencil} onClick={() => openEdit(c)}>
+                        <Button variant="ghost" size="sm" iconLeft={Pencil} onClick={() => openEdit(c)} className="sc-press">
                           Edit
                         </Button>
                         {c.status !== 'archived' ? (
@@ -315,6 +315,7 @@ export default function VoiceContactsPage() {
                             iconLeft={Trash2}
                             loading={deletingId === c._id}
                             onClick={() => handleDelete(c)}
+                            className="sc-press"
                           >
                             Archive
                           </Button>
@@ -339,7 +340,7 @@ export default function VoiceContactsPage() {
             <Button variant="secondary" onClick={() => setIsFormOpen(false)}>
               Cancel
             </Button>
-            <Button variant="primary" onClick={handleSave} loading={saving}>
+            <Button variant="primary" onClick={handleSave} loading={saving} className="sc-press">
               {editingId ? 'Save changes' : 'Add contact'}
             </Button>
           </>

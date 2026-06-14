@@ -191,7 +191,7 @@ export default function RingGroupsPage() {
           </PageDescription>
         </PageHeaderHeading>
         <PageActions>
-          <Button variant="primary" iconLeft={Plus} onClick={openCreate}>
+          <Button variant="primary" iconLeft={Plus} onClick={openCreate} className="sc-press">
             New ring group
           </Button>
         </PageActions>
@@ -230,7 +230,7 @@ export default function RingGroupsPage() {
               title="No ring groups yet"
               description="Create a ring group to distribute calls across extensions."
               action={
-                <Button variant="primary" iconLeft={Plus} onClick={openCreate}>
+                <Button variant="primary" iconLeft={Plus} onClick={openCreate} className="sc-press">
                   New ring group
                 </Button>
               }
@@ -274,6 +274,7 @@ export default function RingGroupsPage() {
                             size="sm"
                             iconLeft={Pencil}
                             onClick={() => openEdit(g)}
+                            className="sc-press"
                           >
                             Edit
                           </Button>
@@ -283,6 +284,7 @@ export default function RingGroupsPage() {
                             iconLeft={Trash2}
                             loading={deletingId === g._id}
                             onClick={() => handleDelete(g._id, g.name)}
+                            className="sc-press"
                           >
                             Delete
                           </Button>
@@ -307,7 +309,7 @@ export default function RingGroupsPage() {
             <Button variant="secondary" onClick={() => setIsFormOpen(false)}>
               Cancel
             </Button>
-            <Button variant="primary" onClick={handleSave} loading={saving}>
+            <Button variant="primary" onClick={handleSave} loading={saving} className="sc-press">
               {editingId ? 'Save changes' : 'Create ring group'}
             </Button>
           </>

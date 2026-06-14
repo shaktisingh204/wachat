@@ -53,7 +53,7 @@ export function Softphone({ initialNumber = "" }: { initialNumber?: string }) {
           <Button
             key={k}
             variant="outline"
-            className="h-12 text-base font-medium"
+            className="h-12 text-base font-medium sc-press"
             onClick={() => press(k)}
             type="button"
           >
@@ -64,13 +64,13 @@ export function Softphone({ initialNumber = "" }: { initialNumber?: string }) {
       <div className="flex items-center gap-2">
         <Button
           variant="primary"
-          className="flex-1"
+          className={`flex-1 sc-press${calling ? " sc-pulse" : ""}`}
           iconLeft={Phone}
           loading={calling}
           disabled={calling}
           onClick={() => void call()}
         >
-          Call
+          {calling ? "Calling…" : "Call"}
         </Button>
         <Button
           variant="ghost"

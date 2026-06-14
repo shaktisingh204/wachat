@@ -214,7 +214,7 @@ export default function PowerDialerPage() {
           </PageDescription>
         </PageHeaderHeading>
         <PageActions>
-          <Button variant="primary" iconLeft={Plus} onClick={openCreate}>
+          <Button variant="primary" iconLeft={Plus} onClick={openCreate} className="sc-press">
             New campaign
           </Button>
         </PageActions>
@@ -253,7 +253,7 @@ export default function PowerDialerPage() {
               title="No campaigns yet"
               description="Create a power dialer campaign to start dialing your list."
               action={
-                <Button variant="primary" iconLeft={Plus} onClick={openCreate}>
+                <Button variant="primary" iconLeft={Plus} onClick={openCreate} className="sc-press">
                   New campaign
                 </Button>
               }
@@ -302,6 +302,7 @@ export default function PowerDialerPage() {
                             iconLeft={Rocket}
                             loading={launchingId === c._id}
                             onClick={() => handleLaunch(c._id)}
+                            className="sc-press"
                           >
                             Launch
                           </Button>
@@ -310,6 +311,7 @@ export default function PowerDialerPage() {
                             size="sm"
                             iconLeft={Pencil}
                             onClick={() => openEdit(c)}
+                            className="sc-press"
                           >
                             Edit
                           </Button>
@@ -319,6 +321,7 @@ export default function PowerDialerPage() {
                             iconLeft={Trash2}
                             loading={deletingId === c._id}
                             onClick={() => handleDelete(c._id, c.name)}
+                            className="sc-press"
                           >
                             Delete
                           </Button>
@@ -343,7 +346,7 @@ export default function PowerDialerPage() {
             <Button variant="secondary" onClick={() => setIsFormOpen(false)}>
               Cancel
             </Button>
-            <Button variant="primary" onClick={handleSave} loading={saving}>
+            <Button variant="primary" onClick={handleSave} loading={saving} className="sc-press">
               {editingId ? 'Save changes' : 'Create campaign'}
             </Button>
           </>
