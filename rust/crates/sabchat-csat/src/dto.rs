@@ -74,12 +74,26 @@ pub struct CreateSurveyBody {
     /// Optional open-text follow-up shown below the score selector.
     #[serde(default)]
     pub follow_up_question: Option<String>,
+    /// Optional skip-logic: a different follow-up question per score range.
+    /// When non-empty these supersede `follow_up_question` — the widget shows
+    /// the branch whose `[scoreMin, scoreMax]` contains the selected score.
+    #[serde(default)]
+    pub branches: Option<Vec<SurveyBranch>>,
     /// Trigger — defaults to [`SurveyTrigger::Manual`] when omitted.
     #[serde(default)]
     pub trigger: Option<SurveyTrigger>,
     /// Whether the survey is currently usable. Defaults to `true`.
     #[serde(default)]
     pub active: Option<bool>,
+}
+
+/// A conditional follow-up question shown for a score range (CSAT skip-logic).
+#[derive(Debug, Clone, Deserialize, Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct SurveyBranch {
+    pub score_min: i32,
+    pub score_max: i32,
+    pub follow_up_question: String,
 }
 
 // ---------------------------------------------------------------------------
@@ -138,6 +152,8 @@ pub struct UpdateSurveyBody {
     pub question: Option<String>,
     #[serde(default)]
     pub follow_up_question: Option<String>,
+    #[serde(default)]
+    pub branches: Option<Vec<SurveyBranch>>,
     #[serde(default)]
     pub trigger: Option<SurveyTrigger>,
     #[serde(default)]

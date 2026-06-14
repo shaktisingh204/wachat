@@ -80,7 +80,7 @@ const WIDGET_JS = `(function(){
   var POLL_MS = 4000;
 
   var S = { token:null, conv:null, contact:null, email:null, open:false, tab:'home',
-            msgs:[], es:null, poll:null, ready:false, booted:false, firedProactive:{} };
+            msgs:[], es:null, poll:null, ready:false, booted:false, firedProactive:{}, submittedForms:{} };
 
   /* ---- persistence (first-party to the embedding site) ---- */
   function readToken(){
@@ -267,8 +267,34 @@ const WIDGET_JS = `(function(){
         '<span style="width:34px;height:34px;border-radius:' + CFG.buttonRadius + 'px;background:' + CFG.buttonColor + ';color:#fff;display:flex;align-items:center;justify-content:center;flex:none;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></span></button></div>';
   }
 
+  function formHtml(m){
+    var p = P();
+    var fields = (m.content && m.content.fields) || [];
+    var fid = ('sf-' + (m._id || ('x' + Date.now()))).replace(/[^a-zA-Z0-9_-]/g,'');
+    if (S.submittedForms[m._id]){
+      return '<div style="display:flex;justify-content:flex-start;margin:4px 0;"><div style="max-width:78%;padding:9px 12px;border-radius:14px;background:' + p.inMsg + ';color:' + p.text + ';font-size:13px;">Thanks for your feedback! 🙏</div></div>';
+    }
+    var inner = '';
+    for (var i=0;i<fields.length;i++){
+      var f = fields[i];
+      if (f.kind === 'select'){
+        var opts = '<option value="">—</option>';
+        var arr = f.options || [];
+        for (var j=0;j<arr.length;j++){ opts += '<option value="' + esc(arr[j]) + '">' + esc(arr[j]) + '</option>'; }
+        inner += '<div style="margin-bottom:8px;"><label style="display:block;font-size:13px;margin-bottom:4px;">' + esc(f.label) + '</label><select class="' + fid + '-score" style="width:100%;padding:8px;border-radius:8px;border:1px solid ' + p.inBorder + ';background:' + p.inBg + ';color:' + p.text + ';">' + opts + '</select></div>';
+      } else {
+        var cond = f.showWhen ? (' data-min="' + (f.showWhen.min!=null?f.showWhen.min:'') + '" data-max="' + (f.showWhen.max!=null?f.showWhen.max:'') + '"') : '';
+        var disp = f.showWhen ? 'none' : 'block';
+        inner += '<div class="' + fid + '-fu"' + cond + ' style="display:' + disp + ';margin-bottom:8px;"><label style="display:block;font-size:13px;margin-bottom:4px;">' + esc(f.label) + '</label><textarea rows="2" style="width:100%;padding:8px;border-radius:8px;border:1px solid ' + p.inBorder + ';background:' + p.inBg + ';color:' + p.text + ';"></textarea></div>';
+      }
+    }
+    inner += '<button class="' + fid + '-go" style="border:none;background:' + CFG.buttonColor + ';color:#fff;border-radius:8px;padding:8px 14px;cursor:pointer;font-size:13px;width:100%;">Submit</button>';
+    return '<div style="display:flex;justify-content:flex-start;margin:4px 0;"><div style="max-width:88%;padding:12px;border-radius:14px;background:' + p.inMsg + ';color:' + p.text + ';font-size:14px;" data-form="' + esc(m._id||'') + '" data-fid="' + fid + '">' + inner + '</div></div>';
+  }
+
   function bubbleHtml(m){
     var p = P();
+    if (m.content && m.content.kind === 'form') return formHtml(m);
     var mine = m.senderType === 'visitor';
     var text = (m.content && (m.content.text || (m.content.kind==='image'?'📷 Photo':(m.content.kind==='file'?'📎 File':'')))) || '';
     var bg = mine ? CFG.buttonColor : p.inMsg;
@@ -310,6 +336,49 @@ const WIDGET_JS = `(function(){
     if (sendBtn && input){ sendBtn.onclick = function(){ sendText(input.value); input.value=''; }; input.onkeydown = function(e){ if (e.key==='Enter'){ e.preventDefault(); sendText(input.value); input.value=''; } }; }
     var eIn = document.getElementById('sabchat-email'); var eGo = document.getElementById('sabchat-email-go');
     if (eGo && eIn){ eGo.onclick = function(){ identify(eIn.value); }; }
+    wireForms();
+  }
+
+  /* Survey forms: skip-logic on score change + submit to the public CSAT endpoint. */
+  function wireForms(){
+    var forms = panel.querySelectorAll('[data-form]');
+    for (var i=0;i<forms.length;i++){
+      (function(box){
+        var fid = box.getAttribute('data-fid');
+        var mid = box.getAttribute('data-form');
+        var sel = box.querySelector('.' + fid + '-score');
+        var fus = box.querySelectorAll('.' + fid + '-fu');
+        function applyBranch(){
+          var score = sel ? parseInt(sel.value, 10) : NaN;
+          for (var k=0;k<fus.length;k++){
+            var fu = fus[k];
+            var mn = fu.getAttribute('data-min'); var mx = fu.getAttribute('data-max');
+            if (mn === null && mx === null) { fu.style.display = 'block'; continue; }
+            var ok = !isNaN(score) &&
+              (mn === '' || score >= parseFloat(mn)) &&
+              (mx === '' || score <= parseFloat(mx));
+            fu.style.display = ok ? 'block' : 'none';
+          }
+        }
+        if (sel) sel.onchange = applyBranch;
+        applyBranch();
+        var go = box.querySelector('.' + fid + '-go');
+        if (go) go.onclick = function(){
+          var score = sel ? parseInt(sel.value, 10) : NaN;
+          if (isNaN(score)) return;
+          var fuVal = '';
+          for (var k=0;k<fus.length;k++){ if (fus[k].style.display !== 'none'){ var ta = fus[k].querySelector('textarea'); if (ta) fuVal = ta.value; break; } }
+          submitSurvey(mid, score, fuVal);
+        };
+      })(forms[i]);
+    }
+  }
+
+  function submitSurvey(mid, score, fu){
+    if (!S.token) return;
+    post('/v1/sabchat/csat-public/respond', { visitorToken: S.token, score: score, followUpAnswer: (fu && fu.trim()) ? fu.trim() : undefined })
+      .then(function(){ S.submittedForms[mid] = true; renderThread(); })
+      .catch(function(){});
   }
 
   /* Proactive triggers — fire a one-time message based on visitor behaviour. */

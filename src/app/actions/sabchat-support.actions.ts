@@ -207,15 +207,46 @@ export async function saveSurvey(input: {
   name: string;
   kind: SabChatSurveyKind;
   question: string;
+  scaleMin?: number;
+  scaleMax?: number;
+  followUpQuestion?: string;
+  branches?: { scoreMin: number; scoreMax: number; followUpQuestion: string }[];
 }): Promise<Mut> {
   const name = input.name?.trim();
   const question = input.question?.trim();
   if (!name || !question) return { ok: false, error: 'Name and question are required.' };
+  const scaleMin = input.scaleMin ?? 1;
+  const scaleMax = input.scaleMax ?? 5;
+  if (scaleMax <= scaleMin) return { ok: false, error: 'Scale max must exceed scale min.' };
+  const branches = (input.branches ?? [])
+    .filter((b) => b.followUpQuestion?.trim())
+    .map((b) => ({
+      scoreMin: Number(b.scoreMin),
+      scoreMax: Number(b.scoreMax),
+      followUpQuestion: b.followUpQuestion.trim(),
+    }));
+  const followUpQuestion = input.followUpQuestion?.trim() || undefined;
   return mutate(
     () =>
       input.id
-        ? rustClient.sabchatCsat.updateSurvey(input.id, { name, question, kind: input.kind })
-        : rustClient.sabchatCsat.createSurvey({ name, kind: input.kind, question }),
+        ? rustClient.sabchatCsat.updateSurvey(input.id, {
+            name,
+            question,
+            kind: input.kind,
+            scaleMin,
+            scaleMax,
+            followUpQuestion,
+            branches,
+          })
+        : rustClient.sabchatCsat.createSurvey({
+            name,
+            kind: input.kind,
+            question,
+            scaleMin,
+            scaleMax,
+            followUpQuestion,
+            branches,
+          }),
     SETTINGS_PATH,
   );
 }

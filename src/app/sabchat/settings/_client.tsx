@@ -770,7 +770,17 @@ function CsatSection({ surveys, onAction }: { surveys: SabChatSurvey[]; onAction
   const [name, setName] = React.useState("");
   const [kind, setKind] = React.useState<SabChatSurveyKind>("csat");
   const [question, setQuestion] = React.useState("How would you rate the support you received?");
+  const [scaleMin, setScaleMin] = React.useState(1);
+  const [scaleMax, setScaleMax] = React.useState(5);
+  const [branches, setBranches] = React.useState<
+    { scoreMin: number; scoreMax: number; followUpQuestion: string }[]
+  >([]);
   const [busy, setBusy] = React.useState(false);
+
+  const setBranch = (
+    i: number,
+    patch: Partial<{ scoreMin: number; scoreMax: number; followUpQuestion: string }>,
+  ) => setBranches((b) => b.map((x, j) => (j === i ? { ...x, ...patch } : x)));
 
   return (
     <div>
@@ -827,6 +837,82 @@ function CsatSection({ surveys, onAction }: { surveys: SabChatSurvey[]; onAction
           <Field label="Question">
             <Input value={question} onChange={(e) => setQuestion(e.target.value)} />
           </Field>
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="Scale min">
+              <Input
+                type="number"
+                value={String(scaleMin)}
+                onChange={(e) => setScaleMin(Number(e.target.value) || 0)}
+              />
+            </Field>
+            <Field label="Scale max">
+              <Input
+                type="number"
+                value={String(scaleMax)}
+                onChange={(e) => setScaleMax(Number(e.target.value) || 0)}
+              />
+            </Field>
+          </div>
+
+          {/* Skip-logic: a different follow-up question per score range */}
+          <div>
+            <div className="mb-1 flex items-center justify-between">
+              <span className="text-xs font-medium text-[var(--st-text-secondary)]">
+                Follow-up by score (skip-logic)
+              </span>
+              <Button
+                variant="ghost"
+                size="sm"
+                iconLeft={Plus}
+                onClick={() =>
+                  setBranches((b) => [
+                    ...b,
+                    { scoreMin: scaleMin, scoreMax: scaleMax, followUpQuestion: "" },
+                  ])
+                }
+              >
+                Add
+              </Button>
+            </div>
+            <div className="space-y-2">
+              {branches.length === 0 ? (
+                <p className="text-[11px] text-[var(--st-text-secondary)]">
+                  No branches — a single follow-up is shown for every score.
+                </p>
+              ) : (
+                branches.map((b, i) => (
+                  <div key={i} className="flex items-center gap-1.5">
+                    <Input
+                      type="number"
+                      value={String(b.scoreMin)}
+                      onChange={(e) => setBranch(i, { scoreMin: Number(e.target.value) || 0 })}
+                      className="w-14"
+                    />
+                    <span className="text-xs text-[var(--st-text-secondary)]">–</span>
+                    <Input
+                      type="number"
+                      value={String(b.scoreMax)}
+                      onChange={(e) => setBranch(i, { scoreMax: Number(e.target.value) || 0 })}
+                      className="w-14"
+                    />
+                    <Input
+                      value={b.followUpQuestion}
+                      onChange={(e) => setBranch(i, { followUpQuestion: e.target.value })}
+                      placeholder="Follow-up question…"
+                      className="flex-1"
+                    />
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      iconLeft={Trash2}
+                      onClick={() => setBranches((br) => br.filter((_, j) => j !== i))}
+                    />
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
           <DialogFooter>
             <Button variant="outline" size="sm" onClick={() => setOpen(false)} disabled={busy}>
               Cancel
@@ -838,10 +924,14 @@ function CsatSection({ surveys, onAction }: { surveys: SabChatSurvey[]; onAction
               disabled={busy || !name.trim() || !question.trim()}
               onClick={async () => {
                 setBusy(true);
-                const ok = await onAction(() => saveSurvey({ name, kind, question }), "Created");
+                const ok = await onAction(
+                  () => saveSurvey({ name, kind, question, scaleMin, scaleMax, branches }),
+                  "Created",
+                );
                 setBusy(false);
                 if (ok) {
                   setName("");
+                  setBranches([]);
                   setOpen(false);
                 }
               }}
