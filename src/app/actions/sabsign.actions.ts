@@ -655,3 +655,30 @@ export async function generateKioskLink(envelopeId: string, signerId: string, pi
     };
   });
 }
+
+/**
+ * Mint an absolute embedded-signing URL for one signer (for `<EmbeddedSigning>`
+ * / the `sabsign-embed.js` loader). Authed — only the envelope owner can
+ * resolve a signer's access token.
+ */
+export async function getEmbedSignUrl(
+  envelopeId: string,
+  signerId: string,
+): Promise<{ url: string } | { error: string }> {
+  await requireUser();
+  const env = await withTenant(() => sabsignEnvelopesApi.getById(envelopeId));
+  const signer = env.signers.find((s) => s.id === signerId);
+  if (!signer?.accessToken) {
+    return { error: 'Signer not found or has no access token (send the envelope first).' };
+  }
+  const base = (
+    process.env.NEXT_PUBLIC_APP_URL ||
+    process.env.APP_URL ||
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    ''
+  ).replace(/\/+$/, '');
+  const path = `/sign/${encodeURIComponent(envelopeId)}?signerId=${encodeURIComponent(
+    signerId,
+  )}&t=${encodeURIComponent(signer.accessToken)}&embed=1`;
+  return { url: base ? `${base}${path}` : path };
+}

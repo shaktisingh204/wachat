@@ -177,6 +177,22 @@ export default function PublicSignPage() {
           ? 'Declined. Thank you.'
           : `Submitted. Envelope is now ${res.envelopeStatus.replace('_', ' ')}.`,
       );
+      // Notify an embedding parent window (embedded signing).
+      try {
+        if (typeof window !== 'undefined' && window.parent !== window) {
+          window.parent.postMessage(
+            {
+              type: decline ? 'sabsign:declined' : 'sabsign:completed',
+              envelopeId: params.envelopeId,
+              signerId: payload.signer.id,
+              status: res.envelopeStatus,
+            },
+            '*',
+          );
+        }
+      } catch {
+        /* cross-origin parent — ignore */
+      }
     } catch (err) {
       setError((err as Error).message);
     } finally {
