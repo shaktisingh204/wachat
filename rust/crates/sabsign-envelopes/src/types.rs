@@ -34,6 +34,22 @@ pub struct KbaQuestion {
     pub answer_hash: String,
 }
 
+/// Conditional-logic rule on a field: when the referenced field's value
+/// satisfies `(op, value)`, apply `action` (`show` | `hide` | `require`) to
+/// the field that owns this condition. Stored verbatim and evaluated in the
+/// signer portal.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct FieldCondition {
+    pub when_field_id: String,
+    /// `equals` | `not_equals` | `contains` | `truthy` | `gt` | `lt`.
+    pub op: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub value: Option<String>,
+    /// `show` | `hide` | `require`.
+    pub action: String,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct EnvelopeField {
@@ -55,6 +71,13 @@ pub struct EnvelopeField {
     pub options: Option<Vec<String>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub required: Option<bool>,
+    /// Conditional show/hide/require rules (evaluated client-side).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub conditions: Option<Vec<FieldCondition>>,
+    /// Optional formula expression for `formula`-type fields (e.g.
+    /// `sum:fieldA,fieldB` or `concat:fieldA,fieldB`) — evaluated client-side.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub formula: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub filled_at: Option<String>,
 }

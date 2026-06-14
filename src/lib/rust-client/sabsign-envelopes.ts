@@ -43,6 +43,22 @@ export type SabSignFieldType =
   | 'stamp'
   | 'phone';
 
+export type FieldConditionOp =
+  | 'equals'
+  | 'not_equals'
+  | 'contains'
+  | 'truthy'
+  | 'gt'
+  | 'lt';
+
+export interface FieldCondition {
+  /** The other field whose value drives this rule. */
+  whenFieldId: string;
+  op: FieldConditionOp;
+  value?: string;
+  action: 'show' | 'hide' | 'require';
+}
+
 export interface EnvelopeField {
   id: string;
   recipientRole: string;
@@ -57,6 +73,10 @@ export interface EnvelopeField {
   value?: string;
   options?: string[];
   required?: boolean;
+  /** Conditional show/hide/require rules (evaluated in the signer portal). */
+  conditions?: FieldCondition[];
+  /** Formula for computed fields, e.g. `sum:a,b` or `concat:a,b`. */
+  formula?: string;
   filledAt?: string;
 }
 

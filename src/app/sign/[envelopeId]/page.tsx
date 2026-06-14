@@ -38,21 +38,15 @@ import {
   useToast,
 } from '@/components/sabcrm/20ui';
 import { getSignView, issueSignerOtp, submitSignature } from '@/app/actions/sabsign.actions';
+import type { EnvelopeField } from '@/lib/rust-client/sabsign-envelopes';
+import { fieldVisibility, computeFormula } from '@/lib/sabsign/conditions';
 
 interface SignPagePayload {
   _id: string;
   docUrl?: string;
   docName?: string;
   name: string;
-  fields: Array<{
-    id: string;
-    recipientRole: string;
-    fieldType: string;
-    label?: string;
-    required?: boolean;
-    options?: string[];
-    value?: string;
-  }>;
+  fields: EnvelopeField[];
   signer: {
     id: string;
     role: string;
@@ -142,16 +136,24 @@ export default function PublicSignPage() {
     setBusy(true);
     setError(null);
     try {
+      // Inject computed formula-field values, then drop values for fields that
+      // are hidden by conditional logic.
+      const merged: Record<string, string> = { ...values };
+      for (const f of payload.fields) {
+        const computed = computeFormula(f, merged);
+        if (computed != null) merged[f.id] = computed;
+      }
+      const fieldValues = payload.fields
+        .filter((f) => fieldVisibility(f, merged).visible && merged[f.id] != null)
+        .map((f) => ({ fieldId: f.id, value: merged[f.id] ?? '' }));
+
       const res = await submitSignature(params.envelopeId, {
         signerId: payload.signer.id,
         accessToken,
         pin: pin || undefined,
         otp: otp || undefined,
         kbaAnswers,
-        fieldValues: Object.entries(values).map(([fieldId, value]) => ({
-          fieldId,
-          value,
-        })),
+        fieldValues,
         decline,
         declineReason: decline ? prompt('Reason for declining?') || undefined : undefined,
         userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : undefined,
@@ -207,7 +209,11 @@ export default function PublicSignPage() {
     );
   }
 
-  const fields = payload.fields.filter((f) => f.recipientRole === payload.signer.role);
+  // This signer's fields, with conditional logic applied: drop hidden fields
+  // and surface formula-computed values read-only.
+  const fields = payload.fields
+    .filter((f) => f.recipientRole === payload.signer.role)
+    .filter((f) => fieldVisibility(f, values).visible);
 
   return (
     <div className="20ui min-h-screen bg-[var(--st-bg)] p-4">

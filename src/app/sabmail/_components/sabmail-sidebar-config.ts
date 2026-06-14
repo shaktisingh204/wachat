@@ -9,6 +9,7 @@ import {
   FolderKanban,
   Globe,
   Inbox,
+  Layers,
   LayoutDashboard,
   Lock,
   Mailbox,
@@ -69,6 +70,13 @@ export function buildSabmailSidebarGroups(
           icon: React.createElement(Inbox),
           href: "/sabmail/inbox",
           active: isActive("/sabmail/inbox"),
+        },
+        {
+          id: "unified",
+          label: "Unified inbox",
+          icon: React.createElement(Layers),
+          href: "/sabmail/unified",
+          active: isActive("/sabmail/unified"),
         },
         {
           id: "ask-ai",
