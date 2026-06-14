@@ -91,6 +91,67 @@ mod tests {
             "../users/69db5557427f2815408d54a9/files/photo.jpg"
         ));
     }
+
+    #[test]
+    fn read_watermark_parses_subdoc_and_defaults() {
+        let d = doc! {
+            "shareWatermark": doc! {
+                "enabled": true,
+                "text": "Confidential",
+                "includeViewerEmail": true,
+                "opacity": 0.25_f64,
+            }
+        };
+        let wm = read_watermark(&d).expect("watermark present");
+        assert!(wm.enabled);
+        assert_eq!(wm.text.as_deref(), Some("Confidential"));
+        assert!(wm.include_viewer_email);
+        assert!((wm.opacity - 0.25).abs() < 1e-9);
+
+        // No sub-doc → None.
+        assert!(read_watermark(&doc! {}).is_none());
+
+        // Missing fields fall back to safe defaults.
+        let wm2 = read_watermark(&doc! { "shareWatermark": doc! { "enabled": true } }).unwrap();
+        assert!(wm2.enabled);
+        assert!(!wm2.include_viewer_email);
+        assert!((wm2.opacity - 0.15).abs() < 1e-9);
+    }
+
+    #[test]
+    fn client_ip_prefers_first_forwarded_then_real_ip() {
+        let mut h = HeaderMap::new();
+        h.insert("x-forwarded-for", "1.2.3.4, 5.6.7.8".parse().unwrap());
+        assert_eq!(client_ip(&h).as_deref(), Some("1.2.3.4"));
+
+        let mut h2 = HeaderMap::new();
+        h2.insert("x-real-ip", "9.9.9.9".parse().unwrap());
+        assert_eq!(client_ip(&h2).as_deref(), Some("9.9.9.9"));
+
+        assert!(client_ip(&HeaderMap::new()).is_none());
+    }
+
+    #[test]
+    fn user_agent_reads_header() {
+        let mut h = HeaderMap::new();
+        h.insert("user-agent", "Mozilla/5.0".parse().unwrap());
+        assert_eq!(user_agent(&h).as_deref(), Some("Mozilla/5.0"));
+        assert!(user_agent(&HeaderMap::new()).is_none());
+    }
+
+    #[test]
+    fn enforce_not_before_gates_a_future_window() {
+        // No window → allowed.
+        assert!(enforce_not_before(&doc! {}).is_ok());
+        // Past window → allowed.
+        let past =
+            doc! { "shareNotBefore": bson::DateTime::from_chrono(Utc::now() - chrono::Duration::hours(1)) };
+        assert!(enforce_not_before(&past).is_ok());
+        // Future window → forbidden.
+        let future =
+            doc! { "shareNotBefore": bson::DateTime::from_chrono(Utc::now() + chrono::Duration::hours(1)) };
+        assert!(enforce_not_before(&future).is_err());
+    }
 }
 
 /// Check that `parent_id` either is `None` (root) or refers to a folder
