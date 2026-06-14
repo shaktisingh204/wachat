@@ -15,6 +15,7 @@ import {
   snapshotAllForecasts,
   ensureSnapshotIndex,
 } from '@/lib/sabcrm/forecast-snapshots.server';
+import { ensureSabcrmFeatureIndexes } from '@/lib/sabcrm/feature-indexes.server';
 import { connectToDatabase } from '@/lib/mongodb';
 
 export const dynamic = 'force-dynamic';
@@ -39,8 +40,12 @@ async function handle(request: NextRequest): Promise<NextResponse> {
   try {
     const { db } = await connectToDatabase();
     await ensureSnapshotIndex(db);
+    // Daily best-effort: keep the beyond-CRUD feature collections indexed in
+    // production (notifications / comments / inbox / webhooks / attribution /
+    // per-project config). Idempotent + never throws.
+    const indexes = await ensureSabcrmFeatureIndexes(db);
     const report = await snapshotAllForecasts(Date.now());
-    return NextResponse.json({ ok: true, ...report });
+    return NextResponse.json({ ok: true, indexes, ...report });
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e);
     return NextResponse.json({ ok: false, error: message }, { status: 500 });
