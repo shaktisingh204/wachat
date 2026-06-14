@@ -104,4 +104,7 @@ export const sabchatJourneysApi = {
 
   markOutboxSent: (id: string) =>
     rustFetch<{ message: string }>(`/v1/sabchat/journeys/outbox/${id}/sent`, { method: 'POST' }),
+
+  markOutboxSkipped: (id: string) =>
+    rustFetch<{ message: string }>(`/v1/sabchat/journeys/outbox/${id}/skip`, { method: 'POST' }),
 };

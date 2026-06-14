@@ -12,8 +12,9 @@ import { rustClient } from '@/lib/rust-client';
  * as a `bot` sender (which publishes `message.created` on the WS hub, so it
  * lands live in the agent inbox + the visitor widget), then marks the row sent.
  *
- * Other channels (email / sms / push) are left pending — their delivery is the
- * SabMail / SabSMS bridge seam — and reported as `skipped`.
+ * Other channels (email / sms / push) have no in-app adapter yet — their
+ * delivery is the SabMail / SabSMS bridge seam. They're marked `skipped`
+ * (a terminal state) so they don't starve the deliverable chat queue.
  */
 export async function deliverChatOutbox(): Promise<{
   delivered: number;
@@ -32,7 +33,13 @@ export async function deliverChatOutbox(): Promise<{
     .catch(() => ({ items: [] as { _id: string; channel: string; text: string; contactId?: string }[] }));
 
   for (const it of items) {
-    if (it.channel !== 'chat' || !it.contactId || !inboxId) {
+    // Non-chat channels have no adapter yet — mark terminal so chat isn't starved.
+    if (it.channel !== 'chat') {
+      await rustClient.sabchatJourneys.markOutboxSkipped(it._id).catch(() => {});
+      skipped += 1;
+      continue;
+    }
+    if (!it.contactId || !inboxId) {
       skipped += 1;
       continue;
     }

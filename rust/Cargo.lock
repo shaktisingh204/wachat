@@ -10755,6 +10755,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "sabchat-wfm"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum 0.8.9",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "sabchat-types",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "utoipa",
+]
+
+[[package]]
 name = "sabchat-widget"
 version = "0.1.0"
 dependencies = [
@@ -13492,6 +13513,7 @@ dependencies = [
  "sabchat-types",
  "sabchat-voice",
  "sabchat-webhooks",
+ "sabchat-wfm",
  "sabchat-widget",
  "sabchat-ws",
  "sabcheckout-ab-testing",

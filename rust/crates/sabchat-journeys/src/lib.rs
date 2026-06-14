@@ -71,6 +71,7 @@ where
         .route("/tick", post(handlers::tick))
         .route("/outbox", get(handlers::list_outbox))
         .route("/outbox/{id}/sent", post(handlers::mark_outbox_sent))
+        .route("/outbox/{id}/skip", post(handlers::mark_outbox_skipped))
         .route(
             "/journeys",
             post(handlers::create_journey).get(handlers::list_journeys),

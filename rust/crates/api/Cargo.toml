@@ -325,6 +325,7 @@ sabchat-community = { path = "../sabchat-community" }
 sabchat-journeys = { path = "../sabchat-journeys" }
 sabchat-ai-actions = { path = "../sabchat-ai-actions" }
 sabchat-collab = { path = "../sabchat-collab" }
+sabchat-wfm = { path = "../sabchat-wfm" }
 sabchat-csat = { path = "../sabchat-csat" }
 sabchat-dispositions = { path = "../sabchat-dispositions" }
 sabchat-gamification = { path = "../sabchat-gamification" }
