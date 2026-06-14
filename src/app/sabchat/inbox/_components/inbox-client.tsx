@@ -2,11 +2,15 @@
 
 import * as React from "react";
 import {
+  ArrowDownToLine,
+  ArrowUpFromLine,
+  Building2,
   CheckCheck,
   CheckCircle2,
   Clock,
   CreditCard,
   Inbox as InboxIcon,
+  Link2,
   Lock,
   MessagesSquare,
   Paperclip,
@@ -16,6 +20,7 @@ import {
   Send,
   Sparkles,
   Tag,
+  Ticket,
   UserPlus,
   Video,
   X,
@@ -50,6 +55,12 @@ import {
   aiSummarize,
 } from "@/app/actions/sabchat-ai.actions";
 import { sendPaymentLink } from "@/app/actions/sabchat-commerce.actions";
+import {
+  conversationToTicket,
+  linkContactToCrm,
+  pullContactFromCrm,
+  pushContactToCrm,
+} from "@/app/actions/sabchat-crm-bridge.actions";
 import type {
   ContentBlock,
   ConversationStatus,
@@ -1595,7 +1606,94 @@ function ContextPane({
           </div>
         </Section>
       ) : null}
+
+      <CrmBridgeSection conv={conv} contact={contact} />
     </aside>
+  );
+}
+
+function CrmBridgeSection({
+  conv,
+  contact,
+}: {
+  conv: SabChatConversation;
+  contact?: SabChatContact;
+}) {
+  const { toast } = useToast();
+  const [busy, setBusy] = React.useState<string | null>(null);
+  const contactId = contact?._id;
+
+  const run = async (
+    key: string,
+    fn: () => Promise<{ ok: boolean; error?: string }>,
+    okMsg: string,
+  ) => {
+    setBusy(key);
+    const res = await fn();
+    setBusy(null);
+    if (res.ok) toast({ title: okMsg });
+    else toast({ title: "CRM sync failed", description: res.error, variant: "destructive" });
+  };
+
+  return (
+    <Section title="CRM">
+      <div className="grid grid-cols-2 gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          iconLeft={Link2}
+          loading={busy === "link"}
+          disabled={!contactId || busy !== null}
+          onClick={() =>
+            void run("link", () => linkContactToCrm(contactId!), "Linked to CRM")
+          }
+        >
+          Link
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          iconLeft={Ticket}
+          loading={busy === "ticket"}
+          disabled={busy !== null}
+          onClick={() =>
+            void run("ticket", () => conversationToTicket(conv._id), "Ticket created")
+          }
+        >
+          Ticket
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          iconLeft={ArrowUpFromLine}
+          loading={busy === "push"}
+          disabled={!contactId || busy !== null}
+          onClick={() =>
+            void run("push", () => pushContactToCrm(contactId!), "Pushed to CRM")
+          }
+        >
+          Push
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          iconLeft={ArrowDownToLine}
+          loading={busy === "pull"}
+          disabled={!contactId || busy !== null}
+          onClick={() =>
+            void run("pull", () => pullContactFromCrm(contactId!), "Pulled from CRM")
+          }
+        >
+          Pull
+        </Button>
+      </div>
+      {!contactId ? (
+        <p className="mt-1.5 flex items-center gap-1 text-[11px] text-[var(--st-text-secondary)]">
+          <Building2 className="h-3 w-3" aria-hidden /> Identify the visitor to enable contact
+          sync.
+        </p>
+      ) : null}
+    </Section>
   );
 }
 
