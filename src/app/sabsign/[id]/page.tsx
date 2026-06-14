@@ -13,6 +13,8 @@
 import * as React from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+
+import { RequirePaymentCard } from './_payment-card';
 import {
   ArrowLeft,
   Send,
@@ -325,6 +327,8 @@ export default function EnvelopeDetailPage() {
           </div>
         </CardBody>
       </Card>
+
+      <RequirePaymentCard envelopeId={env._id} />
 
       {kioskInfo && (
         <Card>
