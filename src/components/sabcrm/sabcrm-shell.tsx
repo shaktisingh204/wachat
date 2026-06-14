@@ -3,7 +3,7 @@
 /**
  * SabcrmShell — module chrome for the native SabCRM surface.
  *
- * Mirrors `SabwaShell`: a thin client wrapper over the shared
+ * A thin client wrapper over the shared
  * `SabHomeShell` (app rail + sidebar + header + main). It owns nothing
  * bespoke — it only builds the SabCRM-specific grouped sidebar so every
  * `/dashboard/sabcrm/*` page renders inside the SAME chrome as the rest

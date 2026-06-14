@@ -5,7 +5,7 @@
  *
  * The detail page loads the full message thread, consent log timeline,
  * engagement metrics, drip and campaign memberships, and any linked
- * CRM/SabWa/Wachat handles. It also exposes the 20 page-unique
+ * CRM/Wachat handles. It also exposes the 20 page-unique
  * mutations (add note, custom fields, suppression, GDPR export, etc.).
  */
 
@@ -100,7 +100,6 @@ export interface ContactDetailView {
   notes: ContactDetailNote[];
   crmLeadId?: string;
   crmDealId?: string;
-  sabwaContactId?: string;
   wachatContactId?: string;
   carrier?: {
     operator?: string;
@@ -140,7 +139,6 @@ interface RawContactDoc {
   source?: string;
   crmLeadId?: string;
   crmDealId?: string;
-  sabwaContactId?: string;
   wachatContactId?: string;
   carrier?: ContactDetailView["carrier"];
   createdAt?: Date;
@@ -371,7 +369,6 @@ export async function loadContactDetail(input: {
     notes: contactDoc?.notes ?? [],
     crmLeadId: contactDoc?.crmLeadId,
     crmDealId: contactDoc?.crmDealId,
-    sabwaContactId: contactDoc?.sabwaContactId,
     wachatContactId: contactDoc?.wachatContactId,
     carrier: contactDoc?.carrier,
     metrics: { sent, delivered, replied, clicked: clicks, failed },
@@ -721,7 +718,6 @@ export async function gdprDeleteContact(input: {
         $unset: {
           crmLeadId: "",
           crmDealId: "",
-          sabwaContactId: "",
           wachatContactId: "",
         },
       },

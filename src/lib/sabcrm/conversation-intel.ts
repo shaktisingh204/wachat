@@ -8,7 +8,7 @@
  *
  * Fully in-house: it analyzes transcript TEXT that SabNode already holds — a
  * typed/pasted call recap, or the WhatsApp / SMS / email thread bodies and notes
- * the CRM already captures (SabWa / SabSMS / SabMail). No audio pipeline, no
+ * the CRM already captures (SabSMS / SabMail). No audio pipeline, no
  * speech-to-text, and no third-party provider — only our own LLM (ai-llm.server).
  */
 

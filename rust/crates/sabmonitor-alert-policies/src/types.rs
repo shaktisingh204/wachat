@@ -16,7 +16,7 @@ pub struct AlertConditions {
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct AlertChannel {
-    /// `email` | `sms` | `webhook` | `slack` | `sabwa`
+    /// `email` | `sms` | `webhook` | `slack`
     pub kind: String,
     pub config: JsonValue,
 }

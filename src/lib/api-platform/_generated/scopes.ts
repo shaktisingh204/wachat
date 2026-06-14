@@ -86,8 +86,6 @@ export type OAuthScope =
   | 'sabcrm:write'
   | 'sabfiles:read'
   | 'sabfiles:write'
-  | 'sabwa:read'
-  | 'sabwa:write'
   | 'seo:read'
   | 'seo:write'
   | 'shop:read'
@@ -185,8 +183,6 @@ export const ALL_SCOPES: ReadonlyArray<OAuthScope> = [
   'sabcrm:write',
   'sabfiles:read',
   'sabfiles:write',
-  'sabwa:read',
-  'sabwa:write',
   'seo:read',
   'seo:write',
   'shop:read',

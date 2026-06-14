@@ -1,8 +1,3 @@
-// TODO(sabwa): SabWa plan caps (sessions / daily send / scheduler / bulk / AI)
-// live in `src/lib/sabwa/plan-limits.ts` until the `Plan.appLimits` shape in
-// `src/lib/definitions.ts` is extended with a `sabwa?: { … }` discriminator.
-// See SABWA_PLAN.md §10 for the source-of-truth table.
-
 import type { PlanFeaturePermissions } from '@/lib/definitions';
 import {
     LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, FileText, Phone, Webhook,
@@ -174,13 +169,11 @@ export const planFeatureMap: PlanFeatureEntry[] = PLAN_FEATURE_GROUPS.flatMap((g
 /**
  * SabCRM (embedded Twenty engine) plan feature.
  *
- * Mirrors the way SabWa is gated: SabWa is NOT a typed key on
- * `PlanFeaturePermissions` (its caps live in `src/lib/sabwa/plan-limits.ts`),
- * so SabCRM likewise gets a standalone, additive feature descriptor here
- * instead of being forced into the strictly-typed `planFeatureMap` /
- * `planFeaturesDefaults` collections (which are exactly typed against
- * `PlanFeaturePermissions` in `src/lib/definitions.ts` and would fail a strict
- * typecheck for any non-`keyof` key).
+ * SabCRM gets a standalone, additive feature descriptor here instead of being
+ * forced into the strictly-typed `planFeatureMap` / `planFeaturesDefaults`
+ * collections (which are exactly typed against `PlanFeaturePermissions` in
+ * `src/lib/definitions.ts` and would fail a strict typecheck for any
+ * non-`keyof` key).
  *
  * `permissionKey` is the RBAC view gate registered for `/sabcrm`
  * (see `src/lib/sabcrm/rbac-keys.ts`). `defaultEnabled` keeps SabCRM ON for

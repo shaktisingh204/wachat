@@ -1,7 +1,7 @@
 /**
  * Pino logger + OTEL tracer bootstrap for the SabFlow WS gateway.
  *
- * Mirrors `services/sabwa-node/src/log.ts` (JSON in prod, `pino-pretty` in TTY
+ * Standard SabNode sidecar logging shape (JSON in prod, `pino-pretty` in TTY
  * dev) and the observability contract in
  * `docs/adr/sabflow-executor-observability.md` (mandatory tenant fields, no
  * payload logging, redaction of credential-shaped keys).

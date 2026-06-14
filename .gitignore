@@ -168,7 +168,6 @@ src/config/site.ts
 /services/sabcrm/
 /.sabcrm-*.js
 /.sabcrm-*.txt
-/Users/harshkhandelwal/Downloads/sabnode/services/sabwa-engine/target/graphify-out/
 graphify-out/graph.json
 graphify-out/
 graphify-out/

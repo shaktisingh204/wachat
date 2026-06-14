@@ -112,7 +112,7 @@ export default async function SabsmsContactDetailPage({ params }: PageProps) {
         <>
           Everything SabSMS knows about this phone: full thread, consent log,
           engagement KPIs, drip + campaign memberships, custom fields, linked
-          CRM/SabWa/Wachat handles, and GDPR controls. All mutations write to
+          CRM/Wachat handles, and GDPR controls. All mutations write to
           their respective Mongo collections or the SabSMS engine.
         </>
       }

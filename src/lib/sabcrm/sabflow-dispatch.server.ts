@@ -5,7 +5,7 @@ import 'server-only';
  *
  * Fans a CRM record event out to the SabFlow engine so automations get true
  * branching / parallel / delay / approval — riding the SAME pipeline the
- * Slack / Telegram / SabWa receivers use (`@/lib/sabflow/triggers/receiver`):
+ * Slack / Telegram receivers use (`@/lib/sabflow/triggers/receiver`):
  * find matching rows in `sabflow_triggers` (source `'sabcrm'`) → write a
  * `sabflow_executions` row → enqueue an execute job on `SABFLOW_QUEUE` (the
  * standalone `sabflow-worker` consumes it).

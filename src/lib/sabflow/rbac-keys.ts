@@ -8,7 +8,7 @@
  * Use `SabflowPermissionKey` whenever you need a compile-time-checked SabFlow
  * key (e.g. when calling `requirePermission(key, action, workspaceId)`).
  *
- * Mirrors the SabWa pattern from `src/lib/sabwa/rbac-keys.ts`. The dot-notation
+ * Follows the SabNode RBAC-key registry pattern. The dot-notation
  * (`sabflow.doc.read` rather than `sabflow_doc_read`) is preserved to match
  * the keys already reserved by earlier SabFlow phases:
  *

@@ -1,7 +1,7 @@
 /**
  * Email Suite permission keys (single source of truth for the module).
  *
- * Mirrored pattern from `src/lib/sabwa/rbac-keys.ts`. Keys should also be
+ * Mirrored pattern from the sibling module rbac-key files. Keys should also be
  * enumerated in `src/lib/permission-modules.ts` under `moduleCategories.Email`.
  *
  * See `plan/EMAIL_APP_REBUILD_PLAN.md` §8 for plan-tier mapping.

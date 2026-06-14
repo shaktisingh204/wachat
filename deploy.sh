@@ -16,10 +16,10 @@ BUILD_RUST="${BUILD_RUST:-1}"
 # Set DEPLOY_GIT_RESET=0 to deploy the current working tree instead of
 # hard-resetting to origin/main (useful for hotfix/manual deploys).
 DEPLOY_GIT_RESET="${DEPLOY_GIT_RESET:-1}"
-# TCP ports the services bind to (sabnode-web, sabwa-node, sabsms-engine,
-# sabmail-engine, sabsites-postgrest, sabnode-api). Freed before restart to
-# clear stale/orphaned listeners.
-SERVICE_PORTS="${SERVICE_PORTS:-3002 4001 4002 4003 4006 ${SABNODE_PORT:-8080}}"
+# TCP ports the services bind to (sabnode-web, sabsms-engine, sabmail-engine,
+# sabsites-postgrest, sabnode-api). Freed before restart to clear
+# stale/orphaned listeners.
+SERVICE_PORTS="${SERVICE_PORTS:-3002 4002 4003 4006 ${SABNODE_PORT:-8080}}"
 # Set BUILD_SABSITES=0 to skip the SabSites (vendored Webstudio) build.
 BUILD_SABSITES="${BUILD_SABSITES:-1}"
 # FORCE_RESTART=1 → hard restart (delete PM2 apps + kill the ports + fresh
@@ -127,11 +127,6 @@ else
   echo "⏭️  Skipping Rust builds (BUILD_RUST=0)."
 fi
 
-# 3c. SabWa Node engine (Baileys / personal WhatsApp) → dist/index.js
-if [ -f services/sabwa-node/package.json ]; then
-  echo "📦 Building SabWa Node engine..."
-  ( cd services/sabwa-node && npm install && npm run build )
-fi
 
 # 3c.5 SabSheet engine → wasm (public/sabsheet-engine/<hash>/ + manifest.json).
 # The wasm artifacts are gitignored, so they must be (re)built on every deploy or

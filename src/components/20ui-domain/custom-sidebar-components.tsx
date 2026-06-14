@@ -63,34 +63,6 @@ export const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
     </svg>
 );
 
-/**
- * SabWaIcon — personal-WhatsApp (Linked Device) glyph in SabNode blue.
- * Bubble outline uses `currentColor` so it inherits sidebar text colour for
- * active/hover states; the small link/chain accent is locked to #2563eb to
- * mark the module as the "linked device" cousin of WaChat.
- */
-export const SabWaIcon = (props: React.SVGProps<SVGSVGElement>) => (
-    <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="16"
-        height="16"
-        viewBox="0 0 16 16"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.4"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        {...props}
-    >
-        {/* WhatsApp-style speech bubble with tail */}
-        <path d="M2.2 8a5.8 5.8 0 1 1 2.74 4.93L2 13.8l.87-2.94A5.78 5.78 0 0 1 2.2 8Z" />
-        {/* Tiny chain / link mark — denotes "Linked Device", fixed SabNode blue */}
-        <g stroke="#2563eb" strokeWidth="1.3" fill="none">
-            <path d="M7.05 8.95a1.5 1.5 0 0 0 2.12 0l.9-.9a1.5 1.5 0 1 0-2.12-2.12l-.35.35" />
-            <path d="M8.95 7.05a1.5 1.5 0 0 0-2.12 0l-.9.9a1.5 1.5 0 1 0 2.12 2.12l.35-.35" />
-        </g>
-    </svg>
-);
 
 export const InstagramIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>

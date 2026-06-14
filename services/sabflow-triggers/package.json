@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Standalone Node service hosting long-lived IMAP IDLE workers that translate inbound email into SabFlow trigger events. Mirrors services/sabflow-ws/ + services/sabwa-node/ shape. PM2 app name: sabflow-triggers. Default port: 4003. NOTE: lives outside Vercel Functions because IMAP IDLE connections are long-lived TCP sockets — Fluid Compute is request-shaped.",
+  "description": "Standalone Node service hosting long-lived IMAP IDLE workers that translate inbound email into SabFlow trigger events. Mirrors services/sabflow-ws/ shape. PM2 app name: sabflow-triggers. Default port: 4003. NOTE: lives outside Vercel Functions because IMAP IDLE connections are long-lived TCP sockets — Fluid Compute is request-shaped.",
   "main": "dist/index.js",
   "scripts": {
     "dev": "tsx watch src/email-imap.ts",

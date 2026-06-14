@@ -7,7 +7,6 @@ import { MarketingShell, PageHero, SectionWrap } from '@/components/landing-v2/m
 const SERVICES = [
     { name: 'API · v1', status: 'operational', uptime: 99.997 },
     { name: 'Wachat · WhatsApp Business', status: 'operational', uptime: 99.984 },
-    { name: 'SabWa · personal WhatsApp', status: 'operational', uptime: 99.92 },
     { name: 'SabChat · omnichannel inbox', status: 'operational', uptime: 99.998 },
     { name: 'SabFlow · automation engine', status: 'operational', uptime: 99.991 },
     { name: 'CRM · pipelines + invoices', status: 'operational', uptime: 99.999 },

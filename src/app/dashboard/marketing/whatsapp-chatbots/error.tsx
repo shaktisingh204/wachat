@@ -19,7 +19,7 @@ export default function WhatsappChatbotsError({
   reset: () => void;
 }) {
   React.useEffect(() => {
-    console.error('[sabwa] route error', error);
+    console.error('[whatsapp-chatbots] route error', error);
   }, [error]);
 
   const description =

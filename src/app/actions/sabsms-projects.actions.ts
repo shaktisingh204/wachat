@@ -16,7 +16,7 @@ import type { Project } from '@/lib/definitions';
  * SabSMS projects + mandatory setup.
  *
  * A SabSMS "project" is a `kind:'sms'` row in the shared `projects`
- * collection (same model SabWa/Telegram use — see `addTelegramProject`).
+ * collection (same model Telegram uses — see `addTelegramProject`).
  * Its `_id` string is the `workspaceId` every SabSMS collection scopes by.
  *
  * Flow enforced by `src/app/sabsms/layout.tsx`:

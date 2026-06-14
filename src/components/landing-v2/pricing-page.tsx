@@ -123,7 +123,6 @@ const COMPARE_GROUPS = [
         title: 'Channels',
         rows: [
             { name: 'WhatsApp Business (Wachat)', s: true, g: true, sc: true, e: true },
-            { name: 'Personal WhatsApp (SabWa)', s: false, g: true, sc: true, e: true },
             { name: 'Email (SabMail)', s: '500/mo', g: '50k/mo', sc: '500k/mo', e: 'Custom' },
             { name: 'SMS (SabSMS) — DLT', s: false, g: true, sc: true, e: true },
             { name: 'Voice + IVR (SabCall)', s: false, g: false, sc: true, e: true },

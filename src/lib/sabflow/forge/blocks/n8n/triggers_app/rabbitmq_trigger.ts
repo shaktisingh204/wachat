@@ -5,7 +5,7 @@
  * does not run persistent AMQP consumers, so this shim returns the
  * registration metadata the flow author would use to wire a bridge:
  *
- *   - Connect a small consumer service (e.g. inside services/sabwa-node or a
+ *   - Connect a small consumer service (e.g. a sidecar service or a
  *     dedicated worker) to the queue, and have it POST each message to the
  *     SabFlow webhook receiver URL.
  *   - OR use RabbitMQ's HTTP-shovel plugin to bridge the queue to the URL.

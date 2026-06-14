@@ -73,8 +73,7 @@ import { MetaIcon,
   InstagramIcon,
   SabChatIcon,
   TelegramIcon,
-  CrmIcon,
-  SabWaIcon } from '@/components/20ui-domain/custom-sidebar-components';
+  CrmIcon } from '@/components/20ui-domain/custom-sidebar-components';
 import { Workflow,
   MessageSquareText,
   UsersRound,
@@ -684,7 +683,6 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
 
     const appIcons = [
         { id: 'whatsapp', icon: WhatsAppIcon, label: 'Wachat', href: '/wachat' },
-        { id: 'sabwa', icon: SabWaIcon, label: 'SabWa', href: '/sabwa' },
         { id: 'sabchat', icon: SabChatIcon, label: 'sabChat', href: '/dashboard/sabchat' },
         { id: 'facebook', href: '/dashboard/facebook/all-projects', icon: MetaIcon, label: 'Meta Suite' },
         { id: 'ad-manager', href: '/dashboard/ad-manager/ad-accounts', icon: Target, label: 'Ad Manager' },

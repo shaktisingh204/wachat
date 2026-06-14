@@ -178,7 +178,6 @@ This mode builds the application for production and starts a clustered server us
     *   **List all running applications**: `pm2 list`
     *   **View logs for the web server**: `pm2 logs sabnode-web`
     *   **View logs for the workers**: `pm2 logs sabnode-worker`
-    *   **View logs for the SabWa engine**: `pm2 logs sabwa-node`
     *   **Stop all applications**: `npm run stop:pm2` or `pm2 stop all`
     *   **Restart all applications**: `pm2 restart all`
     *   **Delete all applications from PM2's list**: `pm2 delete all`
@@ -191,7 +190,6 @@ PM2 manages the following long-running processes (see `ecosystem.config.js`):
 | --- | --- | --- | --- |
 | `sabnode-web` | `./` | 3002 | Next.js 16 app (UI + server actions + API routes) |
 | `sabnode-api` | `./rust` | 8080 | Rust HTTP API (wachat, broadcast, etc.) |
-| `sabwa-node` | `./services/sabwa-node` | 4001 | **Node.js + Baileys engine for SabWa personal-WhatsApp.** Replaces the old Rust `services/sabwa-engine/`. Requires `SABWA_JWT_SECRET` + `AUTH_STATE_KEY`. |
 | `sabnode-broadcast-worker` | `./` or `./rust` | — | Wachat broadcast worker (Node or Rust, picked by `BROADCAST_WORKER` env) |
 | `sabflow-worker` | `./` | — | SabFlow execution worker |
 | `sabnode-worker` | `./` | — | Legacy broadcast poller |

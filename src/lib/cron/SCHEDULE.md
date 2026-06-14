@@ -54,7 +54,7 @@ cron.schedule('0 6 * * *',    () => hit('exchange-rate-update'));
 cron.schedule('*/10 * * * *', () => hit('sla-computation'));
 ```
 
-Register in `ecosystem.config.js` alongside `sabwa-node` etc.:
+Register in `ecosystem.config.js` alongside the other PM2 apps:
 
 ```js
 {

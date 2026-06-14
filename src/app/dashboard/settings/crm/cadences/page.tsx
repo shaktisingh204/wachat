@@ -17,7 +17,7 @@
  *
  * These templates are the channel-aware companion to the Rust `sabcrm-sequences`
  * engine: the scheduler hands a step here at run time and `dispatchCadenceStep`
- * routes it to SabMail / SabSMS / SabWa / the activities engine.
+ * routes it to SabMail / SabSMS / the activities engine.
  *
  * Pure 20ui. Auth/RBAC/project are enforced by `../../layout.tsx`; every action
  * independently re-runs the full gate. Degrades to loading / empty / error.

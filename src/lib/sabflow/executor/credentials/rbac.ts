@@ -13,7 +13,7 @@
  * `moduleCategories.SabFlow` entry, and the `GlobalRolePermissions` type in
  * `src/lib/definitions.ts` — is owned exclusively by **Phase B.8 §1**
  * ("Per-doc RBAC keys registered in SabNode RBAC registry"). Following the
- * SabWa precedent (`src/lib/sabwa/rbac-keys.ts`), Phase B.8 §1 will mirror the
+ * SabNode RBAC-key registry precedent, Phase B.8 §1 will mirror the
  * keys exported from this file into those three registries in one atomic PR.
  *
  * Sibling tasks calling into these helpers will Just Work the moment Phase

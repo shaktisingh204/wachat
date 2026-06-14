@@ -6,7 +6,7 @@
  * Renders the full message thread, consent timeline, engagement KPI row,
  * drip + campaign memberships, send-message mini composer, custom-field
  * editor, GDPR actions, audit drawer, and the linked
- * CRM/SabWa/Wachat placeholder cards.
+ * CRM/Wachat placeholder cards.
  */
 
 import * as React from "react";
@@ -801,7 +801,7 @@ export function ContactDetailClient({
             </CardBody>
           </Card>
 
-          {/* Linked CRM / SabWa / Wachat */}
+          {/* Linked CRM / Wachat */}
           <Card>
             <CardHeader>
               <CardTitle>Linked records</CardTitle>
@@ -838,21 +838,6 @@ export function ContactDetailClient({
               ) : (
                 <div className="rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] p-2 text-[var(--st-text-tertiary)]">
                   No linked CRM deal
-                </div>
-              )}
-              {state.sabwaContactId ? (
-                <Link
-                  href={`/sabwa/contacts/${state.sabwaContactId}`}
-                  className="flex items-center justify-between rounded-[var(--st-radius)] border border-[var(--st-border)] p-2 text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]"
-                >
-                  <span>SabWa contact</span>
-                  <span className="font-mono text-xs text-[var(--st-text-secondary)]">
-                    {state.sabwaContactId}
-                  </span>
-                </Link>
-              ) : (
-                <div className="rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] p-2 text-[var(--st-text-tertiary)]">
-                  No linked SabWa contact
                 </div>
               )}
               {state.wachatContactId ? (

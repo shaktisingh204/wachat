@@ -26,7 +26,6 @@ export interface Recipe {
 export const MODULE_RECIPES: Record<ModuleSlug, Recipe> = {
     // ── Conversation ──
     wachat:       { bespoke: 'broadcast',         sections: ['trust', 'bespoke', 'spotlights', 'features', 'ai', 'flow', 'stats', 'integrations', 'security', 'comparison', 'testimonial', 'pricing', 'faq', 'related'] },
-    sabwa:        { bespoke: 'bot-builder',       sections: ['trust', 'problem', 'bespoke', 'features', 'spotlights', 'workflow', 'stats', 'security', 'pricing', 'faq', 'related'] },
     sabchat:      { bespoke: 'conversation',      sections: ['trust', 'bespoke', 'features', 'ai', 'spotlights', 'flow', 'stats', 'integrations', 'use-cases', 'testimonial', 'comparison', 'pricing', 'faq', 'related'] },
     telegram:     { bespoke: 'bot-builder',       sections: ['trust', 'features', 'bespoke', 'spotlights', 'integrations', 'stats', 'pricing', 'faq', 'related'] },
     instagram:    { bespoke: 'conversation',      sections: ['trust', 'bespoke', 'spotlights', 'features', 'ai', 'use-cases', 'integrations', 'pricing', 'faq', 'related'] },

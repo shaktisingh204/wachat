@@ -125,8 +125,8 @@ const AUDIT_PATH = '/api/sabflow/presence/audit-batch';
 
 /**
  * Optional shared-secret header so the Next.js endpoint can authenticate
- * inbound batches without exposing a public route. Mirrors the
- * `SABWA_ENGINE_TOKEN` pattern in `services/sabwa-node/`.
+ * inbound batches without exposing a public route. Standard SabNode
+ * sidecar shared-secret-token pattern.
  */
 const AUDIT_TOKEN = process.env.SABFLOW_WS_AUDIT_TOKEN ?? '';
 

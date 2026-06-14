@@ -13,8 +13,8 @@ import type {
  * SabSMS engine HTTP client.
  *
  * Thin wrapper around `fetch()` for talking to the Rust SabSMS engine
- * (`services/sabsms-engine/`) over HTTP. Mirrors the SabWa engine-client
- * pattern at `src/lib/sabwa/engine-client.ts`.
+ * (`services/sabsms-engine/`) over HTTP. Follows the standard SabNode Rust
+ * engine-client pattern.
  *
  *   - `SABSMS_ENGINE_URL`   base URL (default `http://localhost:4002`)
  *   - `SABSMS_ENGINE_TOKEN` service token, sent in the

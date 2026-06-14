@@ -1,6 +1,6 @@
 // PM2 manifest for the SabFlow WebSocket gateway.
 //
-// Mirrors the shape used by `services/sabwa-node/` in the repo-root
+// Follows the standard sidecar shape in the repo-root
 // ecosystem.config.js: run the built artefact directly with the `node`
 // interpreter, fork mode, single instance, env-passthrough.
 //
@@ -34,7 +34,7 @@ module.exports = {
       kill_timeout: 10000,
       max_memory_restart: '512M',
 
-      // Log file conventions match services/sabwa-node/ (PM2 defaults under
+      // Log file conventions follow the standard PM2 defaults (under
       // ~/.pm2/logs/<app>-out.log + <app>-error.log). Pin them explicitly so
       // ops scripts can grep a stable path.
       out_file: './logs/sabflow-ws-out.log',

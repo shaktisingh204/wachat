@@ -1,6 +1,6 @@
 /**
  * Additional messaging channels beyond WhatsApp / SMS / Telegram —
- * email, push notifications, voice calling, SabWa (personal WhatsApp),
+ * email, push notifications, voice calling,
  * SabChat, in-app integrations / connectors.
  */
 
@@ -132,37 +132,6 @@ export const messagingChannelsEndpoints: ReadonlyArray<EndpointSpec> = [
   }),
   customPost('calling', 'initiate', '/calling/initiate', '/v1/calling/initiate', 'calls:write', 'Initiate an outbound call', { credits: 1, idempotent: true, emits: ['call.initiated'] }),
   customPost('calling', 'hangup', '/calling/hangup', '/v1/calling/hangup', 'calls:write', 'Hang up an in-progress call'),
-
-  /* ── SabWa (personal WhatsApp via Node sidecar) ──────────────────────── */
-  ...crudExtendedResource({
-    module: 'sabwa',
-    resource: 'sessions',
-    basePath: '/sabwa/sessions',
-    rustPath: '/v1/sabwa/sessions',
-    scopeRead: 'sabwa:read',
-    scopeWrite: 'sabwa:write',
-  }),
-  ...crudExtendedResource({
-    module: 'sabwa',
-    resource: 'contacts',
-    basePath: '/sabwa/contacts',
-    rustPath: '/v1/sabwa/contacts',
-    scopeRead: 'sabwa:read',
-    scopeWrite: 'sabwa:write',
-  }),
-  ...crudExtendedResource({
-    module: 'sabwa',
-    resource: 'chats',
-    basePath: '/sabwa/chats',
-    rustPath: '/v1/sabwa/chats',
-    scopeRead: 'sabwa:read',
-    scopeWrite: 'sabwa:write',
-  }),
-  customPost('sabwa', 'send-text', '/sabwa/send-text', '/v1/sabwa/send-text', 'sabwa:write', 'Send a SabWa text message', { credits: 1, idempotent: true, emits: ['sabwa.message.sent'] }),
-  customPost('sabwa', 'send-media', '/sabwa/send-media', '/v1/sabwa/send-media', 'sabwa:write', 'Send a SabWa media message', { credits: 1, idempotent: true, emits: ['sabwa.message.sent'] }),
-  customPost('sabwa', 'send-document', '/sabwa/send-document', '/v1/sabwa/send-document', 'sabwa:write', 'Send a SabWa document', { credits: 1, idempotent: true, emits: ['sabwa.message.sent'] }),
-  customPost('sabwa', 'qr', '/sabwa/qr', '/v1/sabwa/qr', 'sabwa:write', 'Request a QR auth pairing code'),
-  customPost('sabwa', 'logout', '/sabwa/logout', '/v1/sabwa/logout', 'sabwa:write', 'Log out a SabWa session'),
 
   /* ── SabChat (web chat widget) ───────────────────────────────────────── */
   ...crudExtendedResource({

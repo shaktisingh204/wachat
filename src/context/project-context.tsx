@@ -47,9 +47,9 @@ export function ProjectProvider({
     /**
      * Wrap the active-project setter so every caller persists to
      * localStorage. Historically each callsite (picker, sidebar, dashboard,
-     * project card, project switcher) wrote to localStorage by hand — the
-     * SabWa picker forgot to, which is why `/sabwa` → pick → refresh used
-     * to drop the selection.
+     * project card, project switcher) wrote to localStorage by hand — some
+     * pickers forgot to, which is why pick → refresh used to drop the
+     * selection.
      */
     const setActiveProjectId = useCallback<React.Dispatch<React.SetStateAction<string | null>>>(
         (value) => {
@@ -108,7 +108,7 @@ export function ProjectProvider({
         const storedId = localStorage.getItem('activeProjectId');
         const storedName = localStorage.getItem('activeProjectName');
 
-        if (pathname === '/wachat' || pathname === '/sabwa' || pathname === '/dashboard/facebook/all-projects') {
+        if (pathname === '/wachat' || pathname === '/dashboard/facebook/all-projects') {
             localStorage.removeItem('activeProjectId');
             localStorage.removeItem('activeProjectName');
             setActiveProjectId(null);
@@ -201,7 +201,7 @@ export function useProject() {
 
 /**
  * Non-throwing variant for shared chrome (e.g. SabHomeShell) that renders in
- * both project-scoped trees (dashboard, wachat, sabsms, sabwa) and
+ * both project-scoped trees (dashboard, wachat, sabsms) and
  * user-scoped ones with no ProjectProvider (sabpay). Returns `null` when no
  * provider is mounted; callers treat that as "acting on the user's own
  * account" (owner semantics, no team-member gating).

@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Standalone Node WebSocket gateway for SabFlow real-time CRDT collab. Mirrors services/sabwa-node/ shape. PM2 app name: sabflow-ws. Default port: 4002.",
+  "description": "Standalone Node WebSocket gateway for SabFlow real-time CRDT collab. PM2 app name: sabflow-ws. Default port: 4002.",
   "main": "dist/index.js",
   "scripts": {
     "dev": "tsx watch src/index.ts",

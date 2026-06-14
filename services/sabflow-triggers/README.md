@@ -8,7 +8,7 @@ POST {SABFLOW_API_URL}/api/sabflow/internal/trigger/email
 
 The Next.js receiver is responsible for calling `enqueueExecution(triggerId, payload)`.
 
-This service mirrors `services/sabflow-ws/` and `services/sabwa-node/` in shape — Express on a private port, PM2-managed, env-driven config — and **is not** a Vercel Function.
+This service mirrors `services/sabflow-ws/` in shape — Express on a private port, PM2-managed, env-driven config — and **is not** a Vercel Function.
 
 ## Why a standalone service (not a Vercel Function)
 
@@ -16,7 +16,7 @@ Per [CLAUDE.md](../../CLAUDE.md) and the Track B ADRs:
 
 - **IMAP IDLE is a long-lived TCP socket.** Vercel Fluid Compute is request-shaped — function lifetime is bounded by the request, and instance recycling would kill an IDLE socket mid-watch.
 - **Cost & lifecycle.** Long-lived sockets billed as continuous compute on Fluid would be both wasteful and brittle; PM2 fork-mode with autorestart is the right primitive.
-- **Co-location with sabwa-node / sabflow-ws.** Those services already follow this pattern; ops scripts, log conventions, and deploy targets are reused.
+- **Co-location with sabflow-ws.** That service already follows this pattern; ops scripts, log conventions, and deploy targets are reused.
 
 ## Architecture
 
@@ -72,7 +72,7 @@ Copy `.env.example` to `.env` and fill in:
 
 | Var                       | Required | Default                 | Purpose |
 | ------------------------- | -------- | ----------------------- | ------- |
-| `SABFLOW_TRIGGERS_PORT`   | no       | `4003`                  | HTTP port. `sabwa-node` = 4001, `sabflow-ws` = 4002, this = 4003. |
+| `SABFLOW_TRIGGERS_PORT`   | no       | `4003`                  | HTTP port. `sabflow-ws` = 4002, this = 4003. |
 | `SABFLOW_API_URL`         | yes      | `http://localhost:3000` | Base URL of the Next.js side. The worker POSTs trigger payloads here. |
 | `SABFLOW_INTERNAL_TOKEN`  | **yes**  | —                       | Shared secret for `Authorization: Bearer …` on every call to `/api/sabflow/internal/*`. Must match the Next.js side. |
 

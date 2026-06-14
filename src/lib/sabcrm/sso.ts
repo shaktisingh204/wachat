@@ -17,7 +17,7 @@ import { engineGraphql } from './engine-client';
  *      `getAuthTokensFromLoginToken` mutation, called by the SPA).
  *
  * This module only performs step 1 and returns the URL that triggers step 2.
- * It mirrors the server-only, env-driven shape of `src/lib/sabwa/*`, and talks
+ * It follows the server-only, env-driven engine-client shape used across SabNode, and talks
  * to the engine through `./engine-client` (no direct fetch here).
  *
  * The SabNode session/user is PASSED IN by the caller (e.g. a server action or

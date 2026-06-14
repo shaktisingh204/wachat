@@ -17,7 +17,7 @@
  * sms / whatsapp / task / wait), a deterministic A/B subject split, and a "what
  * is the next step + when" helper, so the scheduler's existing advance path can
  * hand a step here and let `dispatchCadenceStep` (the `.server` sibling) route
- * it to SabMail / SabSMS / SabWa / the activities engine.
+ * it to SabMail / SabSMS / the activities engine.
  *
  * ## Step model
  *

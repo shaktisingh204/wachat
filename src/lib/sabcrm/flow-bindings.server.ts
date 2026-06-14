@@ -7,7 +7,7 @@ import 'server-only';
  * (`./sabflow-dispatch.server.ts`) reads via SabFlow's `findMatchingTriggers`.
  * A binding says "when <event> happens on <object> (or any object), run
  * <flow>". It is stored in the SAME `sabflow_triggers` collection the
- * Slack/Telegram/SabWa receivers use, scoped `source: 'sabcrm'`:
+ * Slack/Telegram receivers use, scoped `source: 'sabcrm'`:
  *
  *   { source:'sabcrm', appEvent:'sabcrm.<event>', externalId:<object?>,
  *     flowId, projectId, isActive }

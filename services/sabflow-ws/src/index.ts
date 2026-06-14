@@ -2,11 +2,11 @@
  * sabflow-ws — entry point.
  *
  * Standalone Node WebSocket gateway for SabFlow real-time CRDT collab. This
- * service mirrors `services/sabwa-node/` in shape (Express on :PORT, PM2-managed,
+ * service follows the standard SabNode sidecar shape (Express on :PORT, PM2-managed,
  * env-driven config) but exposes a WebSocket surface instead of a REST one.
  *
  * Per `docs/adr/sabflow-ws-gateway-node.md` (Track A Phase 1 #3), the gateway
- * lives in its own process — not folded into `services/sabwa-node/` (blast
+ * lives in its own process — not folded into the Next.js app (blast
  * radius) and not on Vercel Fluid Compute (WS lifetime / instance recycling /
  * pricing model). The browser dials it via a Vercel Routing Middleware rewrite
  * from `/_sabflow/ws`.
@@ -38,7 +38,7 @@ import { WebSocketServer, type WebSocket } from 'ws';
 /** Hard cap on graceful shutdown — after this we exit(1) so PM2 restarts us. */
 const SHUTDOWN_TIMEOUT_MS = 10_000;
 
-/** Default port mirrors the ADR: sabwa-node = 4001, sabflow-ws = 4002. */
+/** Default port per the ADR: sabflow-ws = 4002. */
 const DEFAULT_PORT = 4002;
 
 interface AppConfig {
@@ -249,8 +249,8 @@ async function main(): Promise<void> {
   app.disable('x-powered-by');
   app.use(express.json({ limit: '64kb' }));
 
-  // Unauthenticated probes — same shape as sabwa-node so PM2 watchdogs and
-  // the admin UI can reuse the same health-check code path.
+  // Unauthenticated probes — standard sidecar health-check shape so PM2
+  // watchdogs and the admin UI can reuse the same health-check code path.
   app.get('/healthz', (_req, res) => {
     res.json({ ok: true, svc: 'sabflow-ws' });
   });
@@ -359,7 +359,7 @@ async function main(): Promise<void> {
   });
 
   // ── Graceful shutdown ──────────────────────────────────────────────────
-  // Mirrors sabwa-node's pattern: stop accepting connections, close active
+  // Standard sidecar pattern: stop accepting connections, close active
   // sockets cleanly, then exit. PM2 takes over on exit code != 0.
   let shuttingDown = false;
   const shutdown = async (signal: string): Promise<void> => {

@@ -34,9 +34,9 @@ import { type SidebarGroup } from '@/components/sabcrm/20ui/shell';
 /**
  * SabSMS sidebar — grouped menu configuration.
  *
- * Mirrors `buildSabwaSidebarGroups`. Drives the per-section nav inside
+ * Drives the per-section nav inside
  * the SabSMS shell so every `/sabsms/*` page renders inside the SAME
- * sidebar + dock as `/dashboard` and `/sabwa/*`.
+ * sidebar + dock as `/dashboard`.
  */
 
 export function buildSabsmsSidebarGroups(

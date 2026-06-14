@@ -84,7 +84,6 @@ export interface ContactRow {
   /** "linked" stubs — present when a doc carries the field. */
   crmLeadId?: string;
   crmDealId?: string;
-  sabwaContactId?: string;
   wachatContactId?: string;
   createdAt?: string;
   updatedAt?: string;
@@ -180,7 +179,6 @@ export async function loadContacts(
     locale?: string;
     crmLeadId?: string;
     crmDealId?: string;
-    sabwaContactId?: string;
     wachatContactId?: string;
     source?: ContactSource;
     createdAt?: Date;
@@ -208,7 +206,6 @@ export async function loadContacts(
     locale?: string;
     crmLeadId?: string;
     crmDealId?: string;
-    sabwaContactId?: string;
     wachatContactId?: string;
     createdAt?: Date;
     updatedAt?: Date;
@@ -232,7 +229,6 @@ export async function loadContacts(
       locale: c.locale,
       crmLeadId: c.crmLeadId,
       crmDealId: c.crmDealId,
-      sabwaContactId: c.sabwaContactId,
       wachatContactId: c.wachatContactId,
       createdAt: c.createdAt,
       updatedAt: c.updatedAt,
@@ -462,7 +458,6 @@ export async function loadContacts(
       locale: agg.locale,
       crmLeadId: agg.crmLeadId,
       crmDealId: agg.crmDealId,
-      sabwaContactId: agg.sabwaContactId,
       wachatContactId: agg.wachatContactId,
       createdAt: isoOrUndef(agg.createdAt),
       updatedAt: isoOrUndef(agg.updatedAt),

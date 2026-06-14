@@ -4,7 +4,7 @@ import 'server-only';
  * SabCRM engine client — talks to the vendored Twenty engine
  * (`services/sabcrm/`, NestJS) over HTTP. All calls are server-side only.
  *
- * Mirrors `src/lib/sabwa/engine-client.ts`.
+ * Follows the standard SabNode Rust engine-client pattern.
  */
 
 import { getSabcrmEngineConfig } from './constants';

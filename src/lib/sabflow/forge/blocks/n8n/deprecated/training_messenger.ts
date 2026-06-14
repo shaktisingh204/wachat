@@ -5,7 +5,7 @@
  *
  * n8n ships this as a demo/training node — it doesn't actually send
  * messages anywhere, it just echoes the payload. Ported here for migration
- * parity only; for real customer messaging use the SabWa / Twilio /
+ * parity only; for real customer messaging use the SabSMS / Twilio /
  * SendGrid blocks.
  *
  * Operations covered:

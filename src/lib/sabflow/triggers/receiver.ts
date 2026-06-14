@@ -1,7 +1,7 @@
 /**
  * SabFlow — chat/message trigger receiver helpers (Phase 6 Track B).
  *
- * Used by the Slack, Telegram, and SabWa internal HTTP receivers under
+ * Used by the Slack and Telegram internal HTTP receivers under
  * `src/app/api/sabflow/webhook/` and `src/app/api/sabflow/internal/`.
  *
  * Responsibilities:
@@ -54,7 +54,7 @@ const DEDUP_TTL_SECONDS = 5 * 60; // 5 min per spec.
 
 /**
  * Compute a stable SHA-256 fingerprint of the normalised payload. Slack /
- * Telegram / SabWa all include their own message/update id which we lean on,
+ * Telegram all include their own message/update id which we lean on,
  * but we hash the full normalised object so retries with identical bodies
  * also dedup.
  */
@@ -82,14 +82,14 @@ export async function claimFingerprint(fingerprint: string): Promise<boolean> {
 
 // ── Trigger lookup + enqueue ───────────────────────────────────────────────
 
-export type TriggerSource = 'slack' | 'telegram' | 'sabwa' | 'sabcrm';
+export type TriggerSource = 'slack' | 'telegram' | 'sabcrm';
 
 export interface TriggerMatchHint {
   /** Provider-side identifier of the workspace/team/account/session. */
   externalId?: string;
   /** Provider-side identifier of the chat/channel/conversation. */
   chatId?: string;
-  /** App-event slug, eg "slack.message", "telegram.message", "sabwa.message". */
+  /** App-event slug, eg "slack.message", "telegram.message". */
   appEvent: string;
 }
 

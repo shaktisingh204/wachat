@@ -69,43 +69,6 @@ module.exports = {
     },
 
     // ---------------------------------------------------------------------
-    // SabWa Node (personal WhatsApp — Node.js HTTP server + Baileys)
-    // ---------------------------------------------------------------------
-    {
-      name: 'sabwa-node',
-      cwd: './services/sabwa-node',
-      // Run the built artefact directly — no shell/pnpm needed on the
-      // server PATH. Build first with `npm run build` in this dir.
-      script: 'dist/index.js',
-      interpreter: 'node',
-      env: {
-        NODE_ENV: 'production',
-        PORT: '4001',
-        // Accept either MONGO_URL or MONGODB_URI — the service reads
-        // both. Fall through to the repo-wide MONGODB_URI used by
-        // sabnode-api / broadcast-worker so a single .env line works.
-        MONGO_URL: process.env.MONGO_URL || process.env.MONGODB_URI,
-        MONGODB_URI: process.env.MONGODB_URI || process.env.MONGO_URL,
-        MONGODB_DB: process.env.MONGODB_DB || 'sabnode',
-        REDIS_URL: process.env.REDIS_URL,
-        REDIS_HOST: process.env.REDIS_HOST,
-        REDIS_PORT: process.env.REDIS_PORT,
-        REDIS_PASSWORD: process.env.REDIS_PASSWORD,
-        SABWA_ENGINE_TOKEN: process.env.SABWA_ENGINE_TOKEN,
-        SABWA_JWT_SECRET: process.env.SABWA_JWT_SECRET,
-        AUTH_STATE_KEY: process.env.AUTH_STATE_KEY,
-      },
-      instances: 1,
-      exec_mode: 'fork',
-      max_memory_restart: '512M',
-      watch: false,
-      autorestart: true,
-      restart_delay: 5000,
-      max_restarts: 20,
-      kill_timeout: 10000,
-    },
-
-    // ---------------------------------------------------------------------
     // SabSites data layer — PostgREST over the sabsites Postgres database.
     // The builder itself runs INSIDE the Next.js app (src/app/sites);
     // PostgREST is its only extra process. Requires the `postgrest` binary
@@ -458,11 +421,6 @@ module.exports = {
           process.env.RUST_API_URL || 'http://127.0.0.1:8080',
 
         RUST_JWT_SECRET: process.env.RUST_JWT_SECRET,
-
-        // SabWa engine
-        SABWA_ENGINE_URL:
-          process.env.SABWA_ENGINE_URL || 'http://127.0.0.1:4001',
-        SABWA_ENGINE_TOKEN: process.env.SABWA_ENGINE_TOKEN,
 
         // SabSMS engine (Rust)
         SABSMS_ENABLED: process.env.SABSMS_ENABLED || 'false',

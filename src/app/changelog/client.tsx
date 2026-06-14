@@ -32,18 +32,6 @@ const RELEASES = [
         ],
     },
     {
-        date: '2026-05-15',
-        v: 'v2.17.0',
-        tag: 'Feature',
-        tone: 'amber',
-        title: 'SabWa shell + 30+ pages on Ui20',
-        items: [
-            'Brand-fresh design system — same brand across all surfaces',
-            'New /sabwa/connect 5-step pairing stepper',
-            'Anti-ban throttling with adaptive backoff per device',
-        ],
-    },
-    {
         date: '2026-05-12',
         v: 'v2.16.2',
         tag: 'Security',

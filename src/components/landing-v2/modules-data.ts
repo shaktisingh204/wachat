@@ -62,7 +62,6 @@ const ShieldlessLock = ShieldCheck;
 
 export type ModuleSlug =
     | 'wachat'
-    | 'sabwa'
     | 'sabflow'
     | 'sabchat'
     | 'crm'
@@ -207,19 +206,6 @@ export const MODULES: ModuleDef[] = [
             { title: 'Smart routing', desc: 'Round-robin, skills, language — right agent in <200ms.', icon: GitBranch },
             { title: 'Quality watchdog', desc: 'Auto-pauses risky campaigns when your number drops a tier.', icon: Target },
         ], ['Connect number', 'Pick template', 'Launch campaign', 'Auto-reply', 'Convert + report'], true),
-
-    build('sabwa', 'SabWa', 'Personal WhatsApp at scale', 'Run unofficial WhatsApp with full safety rails.',
-        'Connect personal numbers, schedule sends, multi-device, anti-ban throttling. The complement to Wachat.',
-        '/products/sabwa', '/sabwa', MessageCircle, 'Conversation', 'lime',
-        [{ value: 'Multi-device', label: 'Baileys' }, { value: 'Anti-ban', label: 'Throttling' }, { value: 'QR', label: 'Connect' }, { value: '∞', label: 'Sessions' }],
-        [
-            { title: 'Device farm', desc: 'Pair multiple numbers, monitor session health, recover dropped links.', icon: Phone },
-            { title: 'Scheduled sends', desc: 'Cron + random spacing keeps quality safe. No flags.', icon: Calendar },
-            { title: 'Group blaster', desc: 'Broadcast to groups, segment by tag, kill-switch on error.', icon: Users },
-            { title: 'Inbox + chats', desc: 'Live conversation view across all paired numbers.', icon: Inbox },
-            { title: 'AI auto-reply', desc: 'GPT-powered replies with brand tone + memory.', icon: Bot },
-            { title: 'Webhooks', desc: 'Forward every incoming message to your stack.', icon: Webhook },
-        ], ['Pair phone', 'Set quotas', 'Send + receive', 'AI handles', 'Audit log']),
 
     build('sabchat', 'SabChat', 'Omnichannel inbox', 'Every message your business gets — in one window.',
         'Live chat, email, WhatsApp, Instagram, Telegram, SMS, Messenger. One queue, one routing brain.',
@@ -686,7 +672,7 @@ export const MODULES: ModuleDef[] = [
 
     build('sabsign', 'SabSign', 'E-signatures + agreements', 'Send, sign, e-stamp — all native.',
         'Tabbed signing, sequential signers, custom fields, audit trail, e-stamping, bulk send.',
-        '/products/sabsign', '/dashboard/sabsign', FileSignature, 'Files & Documents', 'violet',
+        '/products/sabsign', '/sabsign', FileSignature, 'Files & Documents', 'violet',
         [{ value: 'Bulk', label: 'Send' }, { value: 'Stamp', label: 'e-Stamp' }, { value: 'Audit', label: 'Signed' }, { value: 'OTP', label: 'KYC' }],
         [
             { title: 'Sequential signers', desc: 'Drag-order, parallel groups, role-based fields.', icon: Users },

@@ -15,7 +15,7 @@
  *     long-lived IDLE socket would be killed by instance recycling and
  *     billed as continuous compute.
  *   - PM2 manages restart / log capture / memory caps the same way it does
- *     for `services/sabwa-node/` and `services/sabflow-ws/`.
+ *     for `services/sabflow-ws/`.
  *
  * File ownership: this file is the ONLY runtime entrypoint for this service.
  * Sibling modules (credentials resolver, SabFiles uploader, payload signer)

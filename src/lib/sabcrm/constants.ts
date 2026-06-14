@@ -6,7 +6,7 @@
  * built front SPA. The Next.js app talks to it over HTTP for server-side
  * concerns (SSO handoff, health) and embeds its SPA in the browser.
  *
- * Mirrors the SabWa engine pattern (`src/lib/sabwa/constants.ts`).
+ * Follows the standard SabNode engine-client constants pattern.
  */
 
 export interface SabcrmEngineConfig {

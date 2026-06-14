@@ -334,7 +334,7 @@ export async function completeOnboarding(args: {
         } catch { /* non-fatal */ }
 
         // Bust the in-memory session TTL cache so the next request to any
-        // guarded layout (dashboard, wachat, sabwa…) reads the updated
+        // guarded layout (dashboard, wachat, sabsms…) reads the updated
         // onboarding.status from the DB rather than the stale cached value.
         invalidateSessionCache(auth.userId.toString());
 
@@ -379,7 +379,7 @@ export async function skipOnboarding(): Promise<ActionResult> {
             .updateOne({ _id: auth.userId }, { $set: update });
 
         // Bust the in-memory session TTL cache so the guarded layouts
-        // (dashboard, wachat, sabwa…) pick up onboarding.status = 'complete'
+        // (dashboard, wachat, sabsms…) pick up onboarding.status = 'complete'
         // immediately instead of looping back to /onboarding on the stale value.
         invalidateSessionCache(auth.userId.toString());
 

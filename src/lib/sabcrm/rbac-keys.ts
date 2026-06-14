@@ -4,7 +4,7 @@
  * These keys gate access to SabCRM. They are registered in the central
  * RBAC registry and checked via the `useRbac` hook / `RBACGuard`.
  *
- * Mirrors `src/lib/sabwa/rbac-keys.ts`. Fine-grained object/field
+ * Follows the SabNode RBAC-key registry pattern. Fine-grained object/field
  * permissions stay inside the Twenty engine (its own role system); these
  * keys only gate the SabNode-side mount + plan access.
  */

@@ -2,7 +2,7 @@ import 'server-only';
 
 import { rustFetch } from './fetcher';
 
-export type SabmonitorAlertChannelKind = 'email' | 'sms' | 'webhook' | 'slack' | 'sabwa';
+export type SabmonitorAlertChannelKind = 'email' | 'sms' | 'webhook' | 'slack';
 
 export interface SabmonitorAlertChannel {
     kind: SabmonitorAlertChannelKind;

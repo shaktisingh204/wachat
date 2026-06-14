@@ -2,7 +2,7 @@
 
 Standalone Node + Express + `ws` WebSocket gateway that powers SabFlow's real-time CRDT collab editor. Listens on `ws://localhost:4002/ws` and is reached from the Next.js app via a Vercel Routing Middleware rewrite from `/_sabflow/ws`.
 
-This service mirrors `services/sabwa-node/` in shape (Express on a private port, PM2-managed, env-driven config) but exposes a WebSocket surface instead of a REST one. Per [`docs/adr/sabflow-ws-gateway-node.md`](../../docs/adr/sabflow-ws-gateway-node.md), the gateway lives in its own process — **not** folded into `sabwa-node` (blast radius) and **not** on Vercel Fluid Compute (WS lifetimes don't match Fluid's request-shaped billing, instance recycling kills sockets mid-edit, and shared in-memory rooms need single-process affinity Fluid doesn't guarantee).
+This service follows the standard SabNode sidecar shape (Express on a private port, PM2-managed, env-driven config) but exposes a WebSocket surface instead of a REST one. Per [`docs/adr/sabflow-ws-gateway-node.md`](../../docs/adr/sabflow-ws-gateway-node.md), the gateway lives in its own process — **not** folded into the Next.js app (blast radius) and **not** on Vercel Fluid Compute (WS lifetimes don't match Fluid's request-shaped billing, instance recycling kills sockets mid-edit, and shared in-memory rooms need single-process affinity Fluid doesn't guarantee).
 
 ---
 
@@ -48,7 +48,7 @@ Copy `.env.example` (lands with sibling #2) to `.env` and fill in:
 
 | Var                       | Required | Default          | Purpose                                                                 |
 | ------------------------- | -------- | ---------------- | ----------------------------------------------------------------------- |
-| `SABFLOW_WS_PORT`         | no       | `4002`           | HTTP port. `sabwa-node` already owns `4001`; pick a free port if 4002 is busy. |
+| `SABFLOW_WS_PORT`         | no       | `4002`           | HTTP port. Pick a free port if 4002 is busy. |
 | `SABFLOW_WS_JWT_SECRET`   | **yes**  | —                | HS256 secret used to sign / verify short-lived editor JWTs. Must match the Next.js side. ≥ 16 chars. |
 | `REDIS_URL`               | **yes**  | —                | Redis connection URL. Used for seat counter + Phase 7 pub/sub fan-out. |
 | `OTLP_ENDPOINT`           | no       | —                | OpenTelemetry collector endpoint. If unset, metrics export is disabled and `/metrics` returns a stub. |
@@ -217,5 +217,5 @@ pm2 start ecosystem.config.js
 pm2 logs sabflow-ws
 ```
 
-Logs are pinned to `./logs/sabflow-ws-{out,error}.log`, matching the file
-naming convention used by `services/sabwa-node/`.
+Logs are pinned to `./logs/sabflow-ws-{out,error}.log`, matching the
+standard SabNode sidecar log-file naming convention.

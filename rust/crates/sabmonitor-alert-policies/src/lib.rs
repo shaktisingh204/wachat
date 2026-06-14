@@ -1,6 +1,6 @@
 //! # sabmonitor-alert-policies
 //!
-//! Alert routing policy — picks which channels (email/sms/webhook/slack/sabwa)
+//! Alert routing policy — picks which channels (email/sms/webhook/slack)
 //! receive alerts when a check goes down. Mount under
 //! `/v1/sabmonitor/alert-policies`.
 
