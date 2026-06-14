@@ -616,3 +616,36 @@ pub async fn mark_outbox_sent(
         message: "marked sent".to_owned(),
     }))
 }
+
+// ===========================================================================
+// POST /outbox/{id}/skip — mark an outbox row skipped (no channel adapter)
+// ===========================================================================
+
+/// Terminal state for outbox rows the dispatcher can't deliver yet — e.g.
+/// `email` / `sms` / `push` channels before the SabMail / SabSMS bridge is
+/// wired. Keeps them from starving the deliverable (chat) queue.
+#[instrument(skip_all, fields(outbox_id = %outbox_id))]
+pub async fn mark_outbox_skipped(
+    user: AuthUser,
+    State(state): State<SabChatJourneysState>,
+    Path(outbox_id): Path<String>,
+) -> Result<Json<SuccessResponse>> {
+    let tenant_id = tenant_oid(&user)?;
+    let oid = oid_from_str(&outbox_id)
+        .map_err(|_| ApiError::BadRequest("invalid outbox id".to_owned()))?;
+    let res = state
+        .mongo
+        .collection::<Document>(OUTBOX_COLL)
+        .update_one(
+            doc! { "_id": oid, "tenant_id": tenant_id },
+            doc! { "$set": { "status": "skipped", "skipped_at": now_bson() } },
+        )
+        .await
+        .map_err(internal("sabchat_journey_outbox.update_one(skip)"))?;
+    if res.matched_count == 0 {
+        return Err(ApiError::NotFound("outbox item not found".to_owned()));
+    }
+    Ok(Json(SuccessResponse {
+        message: "marked skipped".to_owned(),
+    }))
+}
