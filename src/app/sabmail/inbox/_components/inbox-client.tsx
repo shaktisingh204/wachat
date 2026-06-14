@@ -58,7 +58,7 @@ import {
   Spinner,
 } from "@/components/sabmail/motion";
 import "@/components/sabmail/motion/sabmail-motion.css";
-import "./sabmail-app.css";
+import "../../_components/sabmail-app.css";
 
 import type { SabmailAccountRow } from "@/app/actions/sabmail-projects.actions";
 import {

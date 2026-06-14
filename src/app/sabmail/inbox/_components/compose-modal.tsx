@@ -28,7 +28,7 @@ import { RecipientChips } from "../../_components/recipient-chips";
 import { RichTextEditor, type RichTextEditorHandle } from "../../_components/rich-text-editor";
 import { aiWriteCompose, sendSabmailMessage } from "../actions";
 import { scheduleSabmailSend } from "../../scheduled/actions";
-import "./sabmail-app.css";
+import "../../_components/sabmail-app.css";
 
 export interface ComposePrefill {
   to?: string[];

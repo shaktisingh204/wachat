@@ -8,6 +8,7 @@ import { SabHomeShell } from "@/components/sabcrm/20ui";
 
 import { buildSabmailSidebarGroups } from "./sabmail-sidebar-config";
 import { LiveDot } from "@/components/sabmail/motion";
+import "./sabmail-app.css";
 
 export interface SabmailShellProps {
   user?: {
@@ -107,7 +108,12 @@ export function SabmailShell({
       sidebarCaption={caption}
       sidebarGroups={groups}
     >
-      {children}
+      {/* Apply the SabMail emerald theme app-wide. `display:contents` means the
+          wrapper adds NO box (zero layout impact) while the `--st-accent` family
+          + design-language helper classes inherit to every SabMail page. */}
+      <div className="sabmail-app" style={{ display: "contents" }}>
+        {children}
+      </div>
     </SabHomeShell>
   );
 }

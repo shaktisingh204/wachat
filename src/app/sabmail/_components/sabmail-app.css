@@ -1,11 +1,16 @@
 /* =========================================================================
-   SabMail app — Superhuman/Uxerflow-class inbox skin over 20ui tokens.
+   SabMail app theme — applied app-wide via the SabMail shell.
 
-   The ONLY thing that can't be done inline: re-point the 20ui accent family
-   to SabMail's emerald (the reference's teal/green) — scoped to `.sabmail-app`
-   so the rest of SabNode keeps its blue accent. Both light + dark are defined
-   off the same `--st-*` token contract, so the whole app themes automatically.
-   Everything else is plain Tailwind + `var(--st-*)` in the components.
+   The ONE thing that can't be done inline: re-point the 20ui accent family to
+   SabMail's emerald so the WHOLE email module (inbox, campaigns, templates,
+   automations, analytics, domains, mailboxes, settings, …) shares one accent —
+   scoped to `.sabmail-app` so the rest of SabNode keeps its blue. Both light +
+   dark are defined off the same `--st-*` token contract, so every SabMail page
+   themes automatically. Components use plain Tailwind + `var(--st-*)`.
+
+   The shell wraps content in `<div class="sabmail-app" style="display:contents">`
+   — `display:contents` removes the box (zero layout impact) while custom
+   properties still inherit to every descendant.
    ========================================================================= */
 
 .sabmail-app {
@@ -41,13 +46,27 @@ html.dark .sabmail-app,
   }
 }
 
+/* ── Shared design-language helpers (opt-in classes any SabMail page can use) ── */
+
+/* Calm canvas behind rounded panes (the inbox look). */
+.sabmail-canvas {
+  background: var(--st-bg-secondary);
+}
+
+/* A rounded surface pane. */
+.sabmail-pane {
+  background: var(--st-bg);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg, 10px);
+}
+
 /* The teal "AI Summary" + compose-draft cards. */
 .sabmail-tint-card {
   background: var(--sabmail-tint);
   border: 1px solid var(--sabmail-tint-border);
 }
 
-/* List-row selected card (Superhuman-style: lifted tile, accent left edge). */
+/* List-row tile (Superhuman-style: lifted on select, accent left edge). */
 .sabmail-listrow {
   transition: background var(--u-dur-fast, 120ms) var(--u-ease-out, ease),
     box-shadow var(--u-dur-fast, 120ms) var(--u-ease-out, ease);
@@ -57,17 +76,7 @@ html.dark .sabmail-app,
   box-shadow: inset 3px 0 0 0 var(--st-accent);
 }
 
-/* The whole inbox sits on a calm canvas with rounded panes (reference look). */
-.sabmail-canvas {
-  background: var(--st-bg-secondary);
-}
-.sabmail-pane {
-  background: var(--st-bg);
-  border: 1px solid var(--st-border);
-  border-radius: var(--st-radius-lg, 10px);
-}
-
-/* Primary emerald Compose button — fills, lifts on hover. */
+/* Primary emerald button (Compose / Send / page primaries). */
 .sabmail-compose-btn {
   background: var(--st-accent);
   color: #ffffff;
