@@ -132,7 +132,7 @@ export function AppModulesGrid({ data, derived }: { data: any, derived: any }) {
       name: "SabChat",
       primary: compact(stats.totalSabChatSessions),
       secondary: "AI chatbot sessions",
-      href: "/dashboard/sabchat",
+      href: "/sabchat",
       status: stats.totalSabChatSessions > 0 ? ("ok" as const) : ("off" as const)
     },
     {

@@ -45,8 +45,17 @@ export async function GET(
       return host ? `${proto}://${host}` : '';
     })();
 
+  // Origin serving THIS script (the SabNode/Next app) — the widget calls the
+  // AI-deflect proxy here, which lives on the app, not the Rust engine.
+  const appOrigin = (() => {
+    const host = request.headers.get('host');
+    const proto = request.headers.get('x-forwarded-proto') || 'https';
+    return host ? `${proto}://${host}` : '';
+  })();
+
   const script = WIDGET_JS.replace('__INBOX_ID__', JSON.stringify(inboxId))
     .replace('__API_BASE__', JSON.stringify(apiBase))
+    .replace('__APP_ORIGIN__', JSON.stringify(appOrigin))
     .replace('__DEFAULTS__', JSON.stringify(DEFAULT_WIDGET_CONFIG));
 
   return new NextResponse(script, {
@@ -65,12 +74,13 @@ export async function GET(
 const WIDGET_JS = `(function(){
   var INBOX_ID = __INBOX_ID__;
   var API = __API_BASE__;
+  var APP = __APP_ORIGIN__;
   var CFG = __DEFAULTS__;
   var TOKEN_KEY = 'sabchat_vid';
   var POLL_MS = 4000;
 
   var S = { token:null, conv:null, contact:null, email:null, open:false, tab:'home',
-            msgs:[], es:null, poll:null, ready:false, booted:false };
+            msgs:[], es:null, poll:null, ready:false, booted:false, firedProactive:{} };
 
   /* ---- persistence (first-party to the embedding site) ---- */
   function readToken(){
@@ -151,7 +161,24 @@ const WIDGET_JS = `(function(){
       S.msgs.push({ _id:'tmp-'+Date.now(), senderType:'visitor', content:{ kind:'text', text:text }, createdAt:new Date().toISOString() });
       renderThread();
       post('/v1/sabchat/widget/messages', { visitorToken: S.token, content:{ kind:'text', text:text } }).then(function(){ loadHistory(); });
+      deflect(text);
     });
+  }
+
+  /* AI deflection: try an instant KB answer while the visitor waits for a
+     human. Rendered client-side as a bot bubble; if confidence is low or the
+     bot escalates, we stay silent and let an agent reply. */
+  function deflect(question){
+    if (!S.conv || !APP) return;
+    fetch(APP + '/api/sabchat/widget/ai', { method:'POST', headers:{ 'Content-Type':'application/json' },
+      body: JSON.stringify({ inboxId: INBOX_ID, conversationId: S.conv, question: question }) })
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if (d && d.answer && !d.escalate && (d.confidence == null || d.confidence >= 0.55)) {
+          S.msgs.push({ _id:'bot-'+Date.now(), senderType:'bot', content:{ kind:'text', text:d.answer }, createdAt:new Date().toISOString() });
+          renderThread();
+        }
+      }).catch(function(){});
   }
 
   function identify(email){
@@ -257,6 +284,43 @@ const WIDGET_JS = `(function(){
     if (eGo && eIn){ eGo.onclick = function(){ identify(eIn.value); }; }
   }
 
+  /* Proactive triggers — fire a one-time message based on visitor behaviour. */
+  function openWidget(){ if (!S.open){ S.open = true; if (panel) panel.style.display = 'flex'; } }
+  function fireProactive(rule){
+    if (!rule || S.firedProactive[rule.id]) return;
+    S.firedProactive[rule.id] = true;
+    ensureSession().then(function(){
+      S.msgs.push({ _id:'pro-'+Date.now(), senderType:'bot', content:{ kind:'text', text:rule.message }, createdAt:new Date().toISOString() });
+      openWidget();
+      S.tab = 'messages';
+      render();
+      startRealtime();
+      var th = document.getElementById('sabchat-thread'); if (th) th.scrollTop = th.scrollHeight;
+    });
+  }
+  function setupProactive(){
+    var rules = CFG.proactiveRules || [];
+    for (var i=0;i<rules.length;i++){ (function(rule){
+      if (rule.trigger === 'time'){
+        var secs = parseInt(rule.value, 10) || 10;
+        setTimeout(function(){ fireProactive(rule); }, secs * 1000);
+      } else if (rule.trigger === 'url'){
+        if (rule.value && (location.href.indexOf(rule.value) >= 0 || location.pathname.indexOf(rule.value) >= 0)) {
+          setTimeout(function(){ fireProactive(rule); }, 3000);
+        }
+      } else if (rule.trigger === 'scroll'){
+        var pct = parseInt(rule.value, 10) || 50;
+        window.addEventListener('scroll', function(){
+          var sh = document.documentElement.scrollHeight - window.innerHeight;
+          var depth = sh > 0 ? (window.scrollY / sh) * 100 : 0;
+          if (depth >= pct) fireProactive(rule);
+        });
+      } else if (rule.trigger === 'exitIntent'){
+        document.addEventListener('mouseout', function(e){ if (!e.relatedTarget && e.clientY <= 0) fireProactive(rule); });
+      }
+    })(rules[i]); }
+  }
+
   function boot(){
     if (S.booted) return; S.booted = true;
     S.token = readToken();
@@ -264,6 +328,7 @@ const WIDGET_JS = `(function(){
       if (c && c.enabled === false) return; // inbox disabled — render nothing
       mount();
       render();
+      setupProactive();
       if (S.token){ startRealtime(); }
     });
   }

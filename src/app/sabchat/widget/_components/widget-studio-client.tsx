@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { Check, Copy, MessageSquare, Save, Send } from "lucide-react";
+import { Check, Copy, MessageSquare, Plus, Save, Send, X } from "lucide-react";
 
 import {
   Button,
@@ -23,6 +23,7 @@ import {
 } from "@/app/actions/sabchat-widget-config.actions";
 import {
   NOTIFICATION_SOUNDS,
+  type ProactiveTrigger,
   type WidgetConfig,
 } from "@/lib/sabchat/widget-config";
 
@@ -48,6 +49,25 @@ export function WidgetStudioClient({
       setCfg((prev) => ({ ...prev, [key]: value })),
     [],
   );
+
+  const addRule = () =>
+    setCfg((p) => ({
+      ...p,
+      proactiveRules: [
+        ...p.proactiveRules,
+        { id: `r-${Date.now()}`, trigger: "time", value: "10", message: "" },
+      ],
+    }));
+  const updateRule = (
+    id: string,
+    patch: Partial<{ trigger: ProactiveTrigger; value: string; message: string }>,
+  ) =>
+    setCfg((p) => ({
+      ...p,
+      proactiveRules: p.proactiveRules.map((r) => (r.id === id ? { ...r, ...patch } : r)),
+    }));
+  const removeRule = (id: string) =>
+    setCfg((p) => ({ ...p, proactiveRules: p.proactiveRules.filter((r) => r.id !== id) }));
 
   const switchInbox = async (id: string) => {
     setInboxId(id);
@@ -215,6 +235,65 @@ export function WidgetStudioClient({
                 ))}
               </select>
             </Field>
+          </Group>
+
+          <Group title="Proactive messages">
+            <p className="text-xs text-[var(--st-text-secondary)]">
+              Auto-send a message based on visitor behaviour (e.g. after 20s, or
+              on the pricing page).
+            </p>
+            {cfg.proactiveRules.map((r) => (
+              <div
+                key={r.id}
+                className="space-y-2 rounded-md border border-[var(--st-border)] p-3"
+              >
+                <div className="flex items-center gap-2">
+                  <select
+                    aria-label="Trigger"
+                    value={r.trigger}
+                    onChange={(e) =>
+                      updateRule(r.id, { trigger: e.target.value as ProactiveTrigger })
+                    }
+                    className="rounded-md border border-[var(--st-border)] bg-transparent px-2 py-1.5 text-sm text-[var(--st-text)]"
+                  >
+                    <option value="time">After time (s)</option>
+                    <option value="url">On URL</option>
+                    <option value="scroll">On scroll %</option>
+                    <option value="exitIntent">Exit intent</option>
+                  </select>
+                  {r.trigger !== "exitIntent" ? (
+                    <Input
+                      value={r.value}
+                      onChange={(e) => updateRule(r.id, { value: e.target.value })}
+                      placeholder={
+                        r.trigger === "time"
+                          ? "20"
+                          : r.trigger === "url"
+                            ? "/pricing"
+                            : "60"
+                      }
+                      className="w-28"
+                    />
+                  ) : null}
+                  <button
+                    type="button"
+                    onClick={() => removeRule(r.id)}
+                    aria-label="Remove rule"
+                    className="ml-auto grid h-8 w-8 place-items-center rounded-md text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)]"
+                  >
+                    <X className="h-4 w-4" aria-hidden />
+                  </button>
+                </div>
+                <Input
+                  value={r.message}
+                  onChange={(e) => updateRule(r.id, { message: e.target.value })}
+                  placeholder="Message to show…"
+                />
+              </div>
+            ))}
+            <Button variant="outline" size="sm" iconLeft={Plus} onClick={addRule}>
+              Add rule
+            </Button>
           </Group>
 
           <Group title="Install">

@@ -1,6 +1,14 @@
 import * as React from "react";
 
-import { BarChart3, Code2, FolderKanban, Inbox, Settings2 } from "lucide-react";
+import {
+  BarChart3,
+  BookOpen,
+  Code2,
+  FolderKanban,
+  Inbox,
+  Settings,
+  Settings2,
+} from "lucide-react";
 
 // Import the `SidebarGroup` *interface* directly from the shell module (the
 // 20ui barrel re-exports a value of the same name from `sidebar.tsx`, which
@@ -73,11 +81,25 @@ export function buildSabchatSidebarGroups(
           active: isActive("/sabchat/widget"),
         },
         {
+          id: "knowledge",
+          label: "Knowledge base",
+          icon: React.createElement(BookOpen),
+          href: "/sabchat/knowledge",
+          active: isActive("/sabchat/knowledge"),
+        },
+        {
           id: "admin",
           label: "Admin",
           icon: React.createElement(Settings2),
           href: "/sabchat/admin",
           active: isActive("/sabchat/admin"),
+        },
+        {
+          id: "settings",
+          label: "Settings",
+          icon: React.createElement(Settings),
+          href: "/sabchat/settings",
+          active: isActive("/sabchat/settings"),
         },
       ],
     },

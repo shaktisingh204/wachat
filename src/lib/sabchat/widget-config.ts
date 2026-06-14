@@ -11,6 +11,17 @@
 
 export type WidgetPosition = 'lower-left' | 'lower-right';
 
+export type ProactiveTrigger = 'time' | 'url' | 'scroll' | 'exitIntent';
+
+export interface ProactiveRule {
+  id: string;
+  trigger: ProactiveTrigger;
+  /** time → seconds on page; url → path substring; scroll → percent (0-100). */
+  value: string;
+  /** Message dropped into the widget when the rule fires. */
+  message: string;
+}
+
 export interface WidgetConfig {
   /** Primary theme colour — header gradient + accents (Rust reads this). */
   widgetColor: string;
@@ -44,6 +55,8 @@ export interface WidgetConfig {
   sideMargin: number;
   /** Notification sound key ('none' | 'chime' | 'ping' | 'pop'). */
   notificationSound: string;
+  /** Behaviour-triggered proactive messages. */
+  proactiveRules: ProactiveRule[];
 }
 
 export const NOTIFICATION_SOUNDS = ['none', 'chime', 'ping', 'pop'] as const;
@@ -66,6 +79,7 @@ export const DEFAULT_WIDGET_CONFIG: WidgetConfig = {
   bottomMargin: 24,
   sideMargin: 24,
   notificationSound: 'chime',
+  proactiveRules: [],
 };
 
 function num(v: unknown, fallback: number): number {
@@ -99,5 +113,22 @@ export function coerceWidgetConfig(settings: Record<string, unknown> | undefined
     bottomMargin: num(s.bottomMargin, d.bottomMargin),
     sideMargin: num(s.sideMargin, d.sideMargin),
     notificationSound: str(s.notificationSound, d.notificationSound),
+    proactiveRules: coerceProactiveRules(s.proactiveRules),
   };
+}
+
+function coerceProactiveRules(v: unknown): ProactiveRule[] {
+  if (!Array.isArray(v)) return [];
+  const triggers: ProactiveTrigger[] = ['time', 'url', 'scroll', 'exitIntent'];
+  return v
+    .filter((r): r is Record<string, unknown> => !!r && typeof r === 'object')
+    .map((r, i) => ({
+      id: typeof r.id === 'string' && r.id ? r.id : `rule-${i}`,
+      trigger: triggers.includes(r.trigger as ProactiveTrigger)
+        ? (r.trigger as ProactiveTrigger)
+        : 'time',
+      value: typeof r.value === 'string' ? r.value : String(r.value ?? ''),
+      message: typeof r.message === 'string' ? r.message : '',
+    }))
+    .filter((r) => r.message.length > 0);
 }

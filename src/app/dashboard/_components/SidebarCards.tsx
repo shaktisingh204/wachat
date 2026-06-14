@@ -33,7 +33,7 @@ export function SidebarCards({ data }: { data: any }) {
       key: "sabchat",
       title: "SabChat Sessions",
       meta: `${compact(stats.totalSabChatSessions)} · AI chatbot`,
-      onClick: () => router.push("/dashboard/sabchat"),
+      onClick: () => router.push("/sabchat"),
     },
     {
       key: "sabsms",

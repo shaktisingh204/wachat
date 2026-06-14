@@ -242,10 +242,12 @@ export function InboxClient({
   currentUserId,
   initialInboxes,
   initialConversations,
+  agents,
 }: {
   currentUserId: string;
   initialInboxes: SabChatInbox[];
   initialConversations: SabChatConversation[];
+  agents: { id: string; label: string }[];
 }) {
   const { toast } = useToast();
 
@@ -477,6 +479,74 @@ export function InboxClient({
         .slice(0, 6)
     : [];
 
+  // @mention popover (composer) — agents roster filtered by the trailing @token.
+  const mentionMatch = /(^|\s)@(\w*)$/.exec(draft);
+  const showMentions = !!mentionMatch && agents.length > 0;
+  const mentionQuery = mentionMatch ? mentionMatch[2].toLowerCase() : "";
+  const filteredAgents = showMentions
+    ? agents.filter((a) => a.label.toLowerCase().includes(mentionQuery)).slice(0, 6)
+    : [];
+  const applyMention = (label: string) => {
+    const m = /(^|\s)@(\w*)$/.exec(draft);
+    if (!m) return;
+    const lead = m[1] ?? "";
+    const start = draft.length - m[0].length + lead.length;
+    setDraft(draft.slice(0, start) + "@" + label + " ");
+  };
+
+  /* ── bulk select ───────────────────────────────────────────────────── */
+  const [selectMode, setSelectMode] = React.useState(false);
+  const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set());
+  const [bulkBusy, setBulkBusy] = React.useState(false);
+  const toggleSelected = (id: string) =>
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  const clearSelection = () => {
+    setSelectedIds(new Set());
+    setSelectMode(false);
+  };
+  const runBulk = async (
+    fn: (id: string) => Promise<{ ok: boolean; error?: string }>,
+    label: string,
+  ) => {
+    const ids = Array.from(selectedIds);
+    if (!ids.length) return;
+    setBulkBusy(true);
+    let failed = 0;
+    for (const id of ids) {
+      const res = await fn(id);
+      if (!res.ok) failed++;
+    }
+    setBulkBusy(false);
+    clearSelection();
+    refetchConversations();
+    toast({
+      title: failed ? `${label}: ${ids.length - failed}/${ids.length} done` : `${label} — done`,
+      variant: failed ? "destructive" : undefined,
+    });
+  };
+
+  /* ── command palette (⌘K) ──────────────────────────────────────────── */
+  const [paletteOpen, setPaletteOpen] = React.useState(false);
+  const [paletteQuery, setPaletteQuery] = React.useState("");
+  React.useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && (e.key === "k" || e.key === "K")) {
+        e.preventDefault();
+        setPaletteOpen((o) => !o);
+        setPaletteQuery("");
+      } else if (e.key === "Escape") {
+        setPaletteOpen(false);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
   const appendLocal = React.useCallback((m: SabChatMessage) => {
     setMessages((prev) => (prev.some((x) => x._id === m._id) ? prev : [...prev, m]));
   }, []);
@@ -630,6 +700,18 @@ export function InboxClient({
   const pinned = visible.filter((c) => c.labels?.includes(PINNED_LABEL));
   const rest = visible.filter((c) => !c.labels?.includes(PINNED_LABEL));
 
+  const paletteResults = (
+    paletteQuery.trim()
+      ? conversations.filter((c) => {
+          const q = paletteQuery.toLowerCase();
+          return (
+            contactLabel(contactsById[c.contactId]).toLowerCase().includes(q) ||
+            (c.lastMessagePreview || "").toLowerCase().includes(q)
+          );
+        })
+      : conversations
+  ).slice(0, 12);
+
   /* ────────────────────────────────────────────────────────────────── */
   return (
     <div className="flex h-[calc(100vh-var(--st-shell-header,56px))] min-h-0 w-full">
@@ -637,23 +719,34 @@ export function InboxClient({
       <aside className="flex w-[340px] shrink-0 flex-col border-r border-[var(--st-border)]">
         <header className="flex items-center justify-between gap-2 px-4 pt-4">
           <h1 className="text-lg font-semibold text-[var(--st-text)]">Messages</h1>
-          <span
-            className={`inline-flex items-center gap-1 text-xs ${
-              socketStatus === "open"
-                ? "text-[var(--st-status-ok)]"
-                : "text-[var(--st-text-secondary)]"
-            }`}
-            title={`Realtime: ${socketStatus}`}
-          >
+          <div className="flex items-center gap-2.5">
+            <button
+              onClick={() => {
+                setSelectMode((m) => !m);
+                setSelectedIds(new Set());
+              }}
+              className="text-xs text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
+            >
+              {selectMode ? "Cancel" : "Select"}
+            </button>
             <span
-              className={`h-1.5 w-1.5 rounded-full ${
+              className={`inline-flex items-center gap-1 text-xs ${
                 socketStatus === "open"
-                  ? "bg-[var(--st-status-ok)]"
-                  : "bg-[var(--st-text-secondary)]"
+                  ? "text-[var(--st-status-ok)]"
+                  : "text-[var(--st-text-secondary)]"
               }`}
-            />
-            {socketStatus === "open" ? "Live" : "…"}
-          </span>
+              title={`Realtime: ${socketStatus}`}
+            >
+              <span
+                className={`h-1.5 w-1.5 rounded-full ${
+                  socketStatus === "open"
+                    ? "bg-[var(--st-status-ok)]"
+                    : "bg-[var(--st-text-secondary)]"
+                }`}
+              />
+              {socketStatus === "open" ? "Live" : "…"}
+            </span>
+          </div>
         </header>
 
         <div className="px-4 pt-3">
@@ -718,6 +811,47 @@ export function InboxClient({
           ) : null}
         </div>
 
+        {selectMode && selectedIds.size > 0 ? (
+          <div className="flex flex-wrap items-center gap-1.5 border-y border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2 text-xs">
+            <span className="font-medium text-[var(--st-text)]">{selectedIds.size} selected</span>
+            <Button
+              variant="outline"
+              size="sm"
+              loading={bulkBusy}
+              onClick={() => void runBulk((id) => resolveConversation(id), "Resolved")}
+            >
+              Resolve
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              loading={bulkBusy}
+              onClick={() =>
+                void runBulk((id) => setConversationAssignee(id, currentUserId), "Assigned")
+              }
+            >
+              Assign me
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              loading={bulkBusy}
+              onClick={() => {
+                const l = window.prompt("Label to add to selected conversations");
+                if (l && l.trim()) void runBulk((id) => addConversationLabel(id, l.trim()), "Labelled");
+              }}
+            >
+              Add label
+            </Button>
+            <button
+              onClick={clearSelection}
+              className="ml-auto text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
+            >
+              Clear
+            </button>
+          </div>
+        ) : null}
+
         <div className="min-h-0 flex-1 overflow-y-auto">
           {conversations.length === 0 ? (
             <div className="px-4 py-10 text-center text-sm text-[var(--st-text-secondary)]">
@@ -736,6 +870,9 @@ export function InboxClient({
                   active={c._id === selectedId}
                   typing={!!typing[c._id]}
                   onClick={() => void openConversation(c)}
+                  selectMode={selectMode}
+                  checked={selectedIds.has(c._id)}
+                  onToggle={() => toggleSelected(c._id)}
                 />
               ))}
               {pinned.length > 0 && rest.length > 0 && (
@@ -749,6 +886,9 @@ export function InboxClient({
                   active={c._id === selectedId}
                   typing={!!typing[c._id]}
                   onClick={() => void openConversation(c)}
+                  selectMode={selectMode}
+                  checked={selectedIds.has(c._id)}
+                  onToggle={() => toggleSelected(c._id)}
                 />
               ))}
             </>
@@ -991,6 +1131,19 @@ export function InboxClient({
                   ))}
                 </div>
               ) : null}
+              {showMentions && filteredAgents.length > 0 ? (
+                <div className="mb-2 max-h-40 overflow-y-auto rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] shadow-md">
+                  {filteredAgents.map((a) => (
+                    <button
+                      key={a.id}
+                      onClick={() => applyMention(a.label)}
+                      className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]"
+                    >
+                      <Avatar name={a.label} size={24} />@{a.label}
+                    </button>
+                  ))}
+                </div>
+              ) : null}
               <div className="flex items-end gap-2">
                 <SabFilePickerButton
                   accept="all"
@@ -1082,6 +1235,61 @@ export function InboxClient({
           }
         />
       ) : null}
+
+      {paletteOpen ? (
+        <div
+          className="fixed inset-0 z-50 flex items-start justify-center bg-black/30 pt-24"
+          onClick={() => setPaletteOpen(false)}
+        >
+          <div
+            className="w-full max-w-lg overflow-hidden rounded-xl border border-[var(--st-border)] bg-[var(--st-bg)] shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-2 border-b border-[var(--st-border)] px-3">
+              <Search className="h-4 w-4 text-[var(--st-text-secondary)]" aria-hidden />
+              <input
+                autoFocus
+                value={paletteQuery}
+                onChange={(e) => setPaletteQuery(e.target.value)}
+                placeholder="Jump to a conversation…"
+                className="flex-1 bg-transparent py-3 text-sm text-[var(--st-text)] outline-none"
+              />
+              <kbd className="text-[10px] text-[var(--st-text-secondary)]">esc</kbd>
+            </div>
+            <div className="max-h-80 overflow-y-auto py-1">
+              {paletteResults.map((c) => {
+                const nm = contactLabel(contactsById[c.contactId]);
+                return (
+                  <button
+                    key={c._id}
+                    onClick={() => {
+                      setPaletteOpen(false);
+                      void openConversation(c);
+                    }}
+                    className="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-[var(--st-bg-muted)]"
+                  >
+                    <Avatar name={nm} size={28} />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm text-[var(--st-text)]">{nm}</p>
+                      <p className="truncate text-xs text-[var(--st-text-secondary)]">
+                        {c.lastMessagePreview || "No messages"}
+                      </p>
+                    </div>
+                    <Badge variant="outline" className="capitalize">
+                      {c.status}
+                    </Badge>
+                  </button>
+                );
+              })}
+              {paletteResults.length === 0 ? (
+                <p className="px-3 py-6 text-center text-sm text-[var(--st-text-secondary)]">
+                  No matches.
+                </p>
+              ) : null}
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -1145,22 +1353,37 @@ function ConversationRow({
   active,
   typing,
   onClick,
+  selectMode,
+  checked,
+  onToggle,
 }: {
   conv: SabChatConversation;
   contact?: SabChatContact;
   active: boolean;
   typing: boolean;
   onClick: () => void;
+  selectMode?: boolean;
+  checked?: boolean;
+  onToggle?: () => void;
 }) {
   const name = contactLabel(contact);
   const unread = conv.unreadCount ?? 0;
   return (
     <button
-      onClick={onClick}
+      onClick={selectMode ? onToggle : onClick}
       className={`flex w-full items-start gap-3 px-4 py-3 text-left transition-colors ${
         active ? "bg-[var(--st-bg-muted)]" : "hover:bg-[var(--st-bg-muted)]/60"
       }`}
     >
+      {selectMode ? (
+        <input
+          type="checkbox"
+          checked={!!checked}
+          readOnly
+          aria-label="Select conversation"
+          className="pointer-events-none mt-3 h-4 w-4 shrink-0 accent-[var(--st-primary,var(--st-accent))]"
+        />
+      ) : null}
       <Avatar name={name} />
       <div className="min-w-0 flex-1">
         <div className="flex items-center justify-between gap-2">

@@ -46,7 +46,7 @@ function getBaseUrl(): string {
  * The acting user (`sub`) is always the real session user — only the tenant
  * scope changes — so audit actors stay correct.
  */
-const rustTenantStore = new AsyncLocalStorage<{ tenantId: string }>();
+const rustTenantStore = new AsyncLocalStorage<{ tenantId: string; sub?: string }>();
 
 /**
  * Run `fn` with every nested {@link rustFetch} call scoped to `tenantId`
@@ -62,6 +62,22 @@ export function runWithRustTenant<T>(
     fn: () => Promise<T>,
 ): Promise<T> {
     return rustTenantStore.run({ tenantId: String(tenantId) }, fn);
+}
+
+/**
+ * Like {@link runWithRustTenant} but ALSO overrides the JWT `sub` claim — so
+ * the call does NOT need a SabNode session cookie. Use for endpoints driven
+ * by an anonymous principal that the server resolves itself, e.g. the public
+ * widget AI-deflect proxy (a visitor has no SabNode session, but we mint a
+ * tenant-scoped token to call the resolve bot on their behalf). `sub` should
+ * be a stable id (the tenant/project id is a safe choice).
+ */
+export function runWithRustTenantAs<T>(
+    tenantId: string,
+    sub: string,
+    fn: () => Promise<T>,
+): Promise<T> {
+    return rustTenantStore.run({ tenantId: String(tenantId), sub: String(sub) }, fn);
 }
 
 /**
@@ -92,12 +108,20 @@ export class RustApiError extends Error {
  * `email`/`name`); we never have to hit Mongo just to forward identity.
  */
 async function buildAuthHeader(): Promise<string> {
-    const cookieStore = await cookies();
-    const cookie = cookieStore.get('session')?.value;
-    const decoded = cookie ? await getDecodedSession(cookie) : null;
-    const userId = decoded
-        ? ((decoded as any).userId || (decoded as any).sub || (decoded as any)._id)
-        : null;
+    const override = rustTenantStore.getStore();
+
+    // Resolve the acting principal (`sub`). A `runWithRustTenantAs` caller
+    // supplies it explicitly (no cookie needed — e.g. the public widget AI
+    // proxy); everyone else reads it from the session cookie.
+    let userId: string | null = override?.sub ?? null;
+    if (!userId) {
+        const cookieStore = await cookies();
+        const cookie = cookieStore.get('session')?.value;
+        const decoded = cookie ? await getDecodedSession(cookie) : null;
+        userId = decoded
+            ? ((decoded as any).userId || (decoded as any).sub || (decoded as any)._id)
+            : null;
+    }
 
     if (!userId) {
         throw new RustApiError(
@@ -109,13 +133,11 @@ async function buildAuthHeader(): Promise<string> {
 
     // Tenant scope: default to the user's own id (single-tenant-per-user),
     // unless a project-based caller has bound an explicit tenant via
-    // `runWithRustTenant` (e.g. SabChat scopes `tid` to the active project so
-    // the sabchat-* crates isolate data per workspace). The acting user
-    // (`sub`) is always the real session user regardless.
-    const tenantOverride = rustTenantStore.getStore()?.tenantId;
+    // `runWithRustTenant(As)` (e.g. SabChat scopes `tid` to the active project
+    // so the sabchat-* crates isolate data per workspace).
     const token = await issueRustJwt({
         userId: String(userId),
-        tenantId: tenantOverride || String(userId),
+        tenantId: override?.tenantId || String(userId),
         roles: [],
     });
 

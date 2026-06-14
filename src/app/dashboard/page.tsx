@@ -55,7 +55,7 @@ const QUICK_LAUNCH: Array<{
   { name: "Wachat", href: "/dashboard/wachat", dot: "bg-emerald-500", ring: "ring-emerald-200", hint: "WhatsApp Business" },
   { name: "SabFlow", href: "/dashboard/sabflow", dot: "bg-sky-500", ring: "ring-sky-200", hint: "Automations" },
   { name: "Email", href: "/dashboard/email", dot: "bg-indigo-500", ring: "ring-indigo-200", hint: "Campaigns" },
-  { name: "SabChat", href: "/dashboard/sabchat", dot: "bg-cyan-500", ring: "ring-cyan-200", hint: "Live Chat" },
+  { name: "SabChat", href: "/sabchat", dot: "bg-cyan-500", ring: "ring-cyan-200", hint: "Live Chat" },
 ];
 
 function broadcastBadgeTone(status: string): BadgeTone {

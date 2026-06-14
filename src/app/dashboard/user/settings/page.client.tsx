@@ -151,7 +151,7 @@ export default function UserSettingsOverviewPage() {
                 </PageHeaderHeading>
                 <PageActions>
                     <Button asChild variant="ghost">
-                        <Link href="/dashboard/sabchat/faq">
+                        <Link href="/sabchat/knowledge">
                             <LifeBuoy size={16} aria-hidden="true" />
                             Help &amp; FAQ
                         </Link>

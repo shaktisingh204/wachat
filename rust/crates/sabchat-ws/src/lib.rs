@@ -74,6 +74,7 @@ pub mod handlers;
 pub mod state;
 
 use std::sync::Arc;
+use std::time::{SystemTime, UNIX_EPOCH};
 
 use axum::{
     Router,
@@ -83,13 +84,30 @@ use axum::{
     response::Response,
     routing::get,
 };
+use fred::clients::Client;
+use fred::interfaces::{ClientLike, EventInterface, PubsubInterface};
+use fred::types::config::Config as FredConfig;
 use sabnode_auth::AuthConfig;
 use serde::Serialize;
+use tracing::warn;
 
 pub use state::SabChatWsState;
 
 use sabnode_db::RedisHandle;
 use serde::Deserialize;
+
+/// Redis pub/sub channel the cross-process fan-out runs over.
+const WS_REDIS_CHANNEL: &str = "sabchat:ws";
+
+/// Wire envelope for cross-process events. Wrapping (rather than adding a
+/// field to [`Event`]) keeps every `Event { … }` construction site untouched.
+/// `origin` is the publishing process's id so the subscriber loop can drop its
+/// own loopback and avoid double-delivering local events.
+#[derive(Serialize, Deserialize)]
+struct RedisEnvelope {
+    origin: String,
+    event: Event,
+}
 
 // ---------------------------------------------------------------------------
 // Public broadcast API
@@ -114,8 +132,10 @@ const HUB_CAPACITY: usize = 1024;
 #[derive(Clone)]
 pub struct WsHub {
     tx: tokio::sync::broadcast::Sender<Event>,
-    #[allow(dead_code)]
     redis: RedisHandle,
+    /// This process's unique id — tags outgoing Redis events so we can drop
+    /// our own loopback on the subscriber side.
+    origin: String,
 }
 
 impl WsHub {
@@ -126,18 +146,60 @@ impl WsHub {
     pub fn new(redis: RedisHandle) -> Self {
         let (tx, _rx) = tokio::sync::broadcast::channel(HUB_CAPACITY);
 
-        // TODO(sabchat-ws): cross-process pubsub fan-out via Redis.
-        //
-        // The previous implementation called `client.on_message()` +
-        // `client.subscribe()` to relay Redis pubsub messages into the
-        // local `broadcast` channel, but fred 10 changed the receiver
-        // shape and the calls no longer compile. In-process broadcast
-        // still works fine (single-instance deploys), so we ship that
-        // and leave the cross-process bridge as a follow-up. When this
-        // lands, subscribe to `sabchat:ws`, decode each payload to
-        // `Event`, and `tx.send(ev)`.
+        // Per-process origin id (pid + start nanos) for loopback suppression.
+        let nanos = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .map(|d| d.as_nanos())
+            .unwrap_or(0);
+        let origin = format!("{}-{}", std::process::id(), nanos);
 
-        Self { tx, redis }
+        // Cross-process fan-out: a DEDICATED fred client (a subscribed
+        // connection blocks other commands, so we cannot reuse `redis.client`)
+        // relays `sabchat:ws` messages into the local broadcast channel. We
+        // drop our own loopback by `origin`. If Redis is unavailable this task
+        // just exits — single-instance in-process delivery still works.
+        let sub_origin = origin.clone();
+        let sub_tx = tx.clone();
+        tokio::spawn(async move {
+            let url = std::env::var("REDIS_URL")
+                .unwrap_or_else(|_| "redis://localhost:6379".to_string());
+            let config = match FredConfig::from_url(&url) {
+                Ok(c) => c,
+                Err(err) => {
+                    warn!(%err, "sabchat-ws: invalid REDIS_URL — cross-process fan-out disabled");
+                    return;
+                }
+            };
+            let client = Client::new(config, None, None, None);
+            if let Err(err) = client.init().await {
+                warn!(%err, "sabchat-ws: redis init failed — cross-process fan-out disabled");
+                return;
+            }
+            let mut messages = client.message_rx();
+            if let Err(err) = client.subscribe(WS_REDIS_CHANNEL).await {
+                warn!(%err, "sabchat-ws: redis subscribe failed");
+                return;
+            }
+            loop {
+                match messages.recv().await {
+                    Ok(msg) => {
+                        let Ok(json) = msg.value.convert::<String>() else {
+                            continue;
+                        };
+                        let Ok(envelope) = serde_json::from_str::<RedisEnvelope>(&json) else {
+                            continue;
+                        };
+                        if envelope.origin != sub_origin {
+                            let _ = sub_tx.send(envelope.event);
+                        }
+                    }
+                    Err(tokio::sync::broadcast::error::RecvError::Lagged(_)) => continue,
+                    Err(tokio::sync::broadcast::error::RecvError::Closed) => break,
+                }
+            }
+        });
+
+        Self { tx, redis, origin }
     }
 
     /// Publish an [`Event`] to every connected socket across all processes.
@@ -146,11 +208,23 @@ impl WsHub {
     /// Per-socket filtering by `tenant_id` happens on the receive side
     /// inside [`handlers::ws_upgrade`].
     pub fn publish(&self, ev: Event) {
-        // In-process fan-out only until the cross-process Redis bridge is
-        // wired back up (see TODO in `WsHub::new`). `redis` is held on the
-        // struct so the API stays stable for callers; once the bridge is
-        // back, route the event through `redis.client.publish(...)` here.
-        let _ = self.tx.send(ev);
+        // Immediate in-process delivery — works even when Redis is down.
+        let _ = self.tx.send(ev.clone());
+
+        // Best-effort cross-process fan-out. Publishing uses the SHARED client
+        // (a normal connection — only the subscriber side is in pubsub mode).
+        // Tagged with our origin so our own subscriber drops the loopback.
+        let client = self.redis.client.clone();
+        let envelope = RedisEnvelope {
+            origin: self.origin.clone(),
+            event: ev,
+        };
+        tokio::spawn(async move {
+            if let Ok(json) = serde_json::to_string(&envelope) {
+                let _: std::result::Result<i64, _> =
+                    client.publish(WS_REDIS_CHANNEL, json).await;
+            }
+        });
     }
 
     /// Subscribe a new receiver to the broadcast channel. Used by the WS
