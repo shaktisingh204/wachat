@@ -11,6 +11,8 @@
 
 export type WidgetPosition = 'lower-left' | 'lower-right';
 
+export type WidgetTheme = 'light' | 'dark' | 'auto';
+
 export type ProactiveTrigger = 'time' | 'url' | 'scroll' | 'exitIntent';
 
 export interface ProactiveRule {
@@ -55,6 +57,8 @@ export interface WidgetConfig {
   sideMargin: number;
   /** Notification sound key ('none' | 'chime' | 'ping' | 'pop'). */
   notificationSound: string;
+  /** Colour scheme of the embedded widget. 'auto' follows the visitor's OS. */
+  theme: WidgetTheme;
   /** Behaviour-triggered proactive messages. */
   proactiveRules: ProactiveRule[];
 }
@@ -79,6 +83,7 @@ export const DEFAULT_WIDGET_CONFIG: WidgetConfig = {
   bottomMargin: 24,
   sideMargin: 24,
   notificationSound: 'chime',
+  theme: 'light',
   proactiveRules: [],
 };
 
@@ -113,6 +118,10 @@ export function coerceWidgetConfig(settings: Record<string, unknown> | undefined
     bottomMargin: num(s.bottomMargin, d.bottomMargin),
     sideMargin: num(s.sideMargin, d.sideMargin),
     notificationSound: str(s.notificationSound, d.notificationSound),
+    theme:
+      s.theme === 'dark' || s.theme === 'auto' || s.theme === 'light'
+        ? (s.theme as WidgetTheme)
+        : d.theme,
     proactiveRules: coerceProactiveRules(s.proactiveRules),
   };
 }

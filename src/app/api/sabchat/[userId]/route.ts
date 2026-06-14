@@ -190,6 +190,29 @@ const WIDGET_JS = `(function(){
   var root, bubble, panel;
   function esc(t){ var d = document.createElement('div'); d.textContent = t == null ? '' : String(t); return d.innerHTML; }
 
+  /* ---- theme (light / dark / auto via prefers-color-scheme) ---- */
+  function isDark(){
+    if (CFG.theme === 'dark') return true;
+    if (CFG.theme === 'auto' && typeof window.matchMedia === 'function') {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+    return false;
+  }
+  function P(){
+    return isDark()
+      ? { panel:'#1b1e25', card:'#252a33', body:'#1b1e25', text:'#e8eaed', sub:'#9aa0ab',
+          border:'#2e333d', inBg:'#2a303a', inBorder:'#3a414d', inMsg:'#2a303a', shadow:'0 4px 16px rgba(0,0,0,.4)' }
+      : { panel:'#ffffff', card:'#ffffff', body:'#ffffff', text:'#23272f', sub:'#9aa0ab',
+          border:'#eef0f3', inBg:'#fafbfc', inBorder:'#e2e5ea', inMsg:'#f1f2f4', shadow:'0 4px 16px rgba(0,0,0,.10)' };
+  }
+  function watchTheme(){
+    if (CFG.theme !== 'auto' || typeof window.matchMedia !== 'function') return;
+    var mq = window.matchMedia('(prefers-color-scheme: dark)');
+    var onChange = function(){ if (panel){ panel.style.background = P().panel; if (S.open) render(); } };
+    if (mq.addEventListener) mq.addEventListener('change', onChange);
+    else if (mq.addListener) mq.addListener(onChange);
+  }
+
   function mount(){
     root = document.createElement('div'); root.id = 'sabchat-root';
     var side = CFG.position === 'lower-left' ? 'left:' + CFG.sideMargin + 'px;' : 'right:' + CFG.sideMargin + 'px;';
@@ -202,7 +225,7 @@ const WIDGET_JS = `(function(){
     bubble.onclick = toggle;
 
     panel = document.createElement('div');
-    panel.setAttribute('style','display:none;position:absolute;bottom:70px;' + (CFG.position==='lower-left'?'left:0;':'right:0;') + 'width:360px;max-width:calc(100vw - 32px);height:560px;max-height:calc(100vh - 120px);background:#fff;border-radius:' + (CFG.widgetRadius+6) + 'px;box-shadow:0 16px 48px rgba(0,0,0,.22);overflow:hidden;flex-direction:column;');
+    panel.setAttribute('style','display:none;position:absolute;bottom:70px;' + (CFG.position==='lower-left'?'left:0;':'right:0;') + 'width:360px;max-width:calc(100vw - 32px);height:560px;max-height:calc(100vh - 120px);background:' + P().panel + ';border-radius:' + (CFG.widgetRadius+6) + 'px;box-shadow:0 16px 48px rgba(0,0,0,.22);overflow:hidden;flex-direction:column;');
 
     root.appendChild(panel); root.appendChild(bubble);
     document.body.appendChild(root);
@@ -225,43 +248,48 @@ const WIDGET_JS = `(function(){
   }
 
   function tabbar(){
+    var p = P();
     function tab(id,label,active){
-      return '<button data-tab="' + id + '" style="flex:1;background:none;border:none;cursor:pointer;padding:10px 0;display:flex;flex-direction:column;align-items:center;gap:3px;color:' + (active?CFG.buttonColor:'#9aa0ab') + ';font-size:12px;font-weight:' + (active?'600':'400') + ';">' +
+      return '<button data-tab="' + id + '" style="flex:1;background:none;border:none;cursor:pointer;padding:10px 0;display:flex;flex-direction:column;align-items:center;gap:3px;color:' + (active?CFG.buttonColor:p.sub) + ';font-size:12px;font-weight:' + (active?'600':'400') + ';">' +
         (active?'<span style="height:3px;width:22px;border-radius:9px;background:' + CFG.buttonColor + ';"></span>':'<span style="height:3px;width:22px;"></span>') + label + '</button>';
     }
-    return '<div style="display:flex;border-top:1px solid #eef0f3;">' + tab('home','Home',S.tab==='home') + tab('messages','Messages',S.tab==='messages') + '</div>';
+    return '<div style="display:flex;border-top:1px solid ' + p.border + ';background:' + p.panel + ';">' + tab('home','Home',S.tab==='home') + tab('messages','Messages',S.tab==='messages') + '</div>';
   }
 
   function homeBody(){
-    return '<div style="flex:1;overflow:auto;padding:0 12px 12px;margin-top:-16px;">' +
-      '<div style="background:#fff;border-radius:' + CFG.widgetRadius + 'px;box-shadow:0 4px 16px rgba(0,0,0,.10);padding:14px;margin-bottom:12px;">' +
-        '<div style="font-size:12px;font-weight:600;color:#3a3f4b;margin-bottom:8px;">Recent message</div>' +
-        '<div style="display:flex;align-items:center;gap:8px;color:#6b7280;font-size:13px;">' + esc(CFG.welcomeMessage) + '</div></div>' +
-      '<button data-go="messages" style="width:100%;text-align:left;background:#fff;border:none;cursor:pointer;border-radius:' + CFG.widgetRadius + 'px;box-shadow:0 4px 16px rgba(0,0,0,.10);padding:14px;display:flex;align-items:center;justify-content:between;gap:8px;">' +
-        '<div style="flex:1;"><div style="font-weight:600;color:#23272f;">Send us a message</div><div style="font-size:12px;color:#9aa0ab;">' + esc(CFG.replyTime) + '</div></div>' +
+    var p = P();
+    return '<div style="flex:1;overflow:auto;padding:0 12px 12px;margin-top:-16px;background:' + p.body + ';">' +
+      '<div style="background:' + p.card + ';border-radius:' + CFG.widgetRadius + 'px;box-shadow:' + p.shadow + ';padding:14px;margin-bottom:12px;">' +
+        '<div style="font-size:12px;font-weight:600;color:' + p.text + ';margin-bottom:8px;">Recent message</div>' +
+        '<div style="display:flex;align-items:center;gap:8px;color:' + p.sub + ';font-size:13px;">' + esc(CFG.welcomeMessage) + '</div></div>' +
+      '<button data-go="messages" style="width:100%;text-align:left;background:' + p.card + ';border:none;cursor:pointer;border-radius:' + CFG.widgetRadius + 'px;box-shadow:' + p.shadow + ';padding:14px;display:flex;align-items:center;justify-content:between;gap:8px;">' +
+        '<div style="flex:1;"><div style="font-weight:600;color:' + p.text + ';">Send us a message</div><div style="font-size:12px;color:' + p.sub + ';">' + esc(CFG.replyTime) + '</div></div>' +
         '<span style="width:34px;height:34px;border-radius:' + CFG.buttonRadius + 'px;background:' + CFG.buttonColor + ';color:#fff;display:flex;align-items:center;justify-content:center;flex:none;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></span></button></div>';
   }
 
   function bubbleHtml(m){
+    var p = P();
     var mine = m.senderType === 'visitor';
     var text = (m.content && (m.content.text || (m.content.kind==='image'?'📷 Photo':(m.content.kind==='file'?'📎 File':'')))) || '';
-    var bg = mine ? CFG.buttonColor : '#f1f2f4';
-    var col = mine ? '#fff' : '#23272f';
+    var bg = mine ? CFG.buttonColor : p.inMsg;
+    var col = mine ? '#fff' : p.text;
     return '<div style="display:flex;justify-content:' + (mine?'flex-end':'flex-start') + ';margin:4px 0;">' +
       '<div style="max-width:78%;padding:9px 12px;border-radius:14px;background:' + bg + ';color:' + col + ';font-size:14px;white-space:pre-wrap;word-break:break-word;">' + esc(text) + '</div></div>';
   }
 
   function messagesBody(){
+    var p = P();
+    var inputStyle = 'border:1px solid ' + p.inBorder + ';background:' + p.inBg + ';color:' + p.text + ';';
     var rows = '';
     for (var i=0;i<S.msgs.length;i++){ rows += bubbleHtml(S.msgs[i]); }
-    if (!rows) rows = '<div style="text-align:center;color:#9aa0ab;font-size:13px;padding:24px;">' + esc(CFG.welcomeMessage) + '</div>';
+    if (!rows) rows = '<div style="text-align:center;color:' + p.sub + ';font-size:13px;padding:24px;">' + esc(CFG.welcomeMessage) + '</div>';
     var emailRow = S.email ? '' :
-      '<div style="display:flex;gap:6px;padding:8px 10px;border-top:1px solid #eef0f3;background:#fafbfc;">' +
-        '<input id="sabchat-email" type="email" placeholder="Your email for replies" style="flex:1;border:1px solid #e2e5ea;border-radius:8px;padding:8px 10px;font-size:13px;outline:none;"/>' +
+      '<div style="display:flex;gap:6px;padding:8px 10px;border-top:1px solid ' + p.border + ';background:' + p.inBg + ';">' +
+        '<input id="sabchat-email" type="email" placeholder="Your email for replies" style="flex:1;' + inputStyle + 'border-radius:8px;padding:8px 10px;font-size:13px;outline:none;"/>' +
         '<button id="sabchat-email-go" style="border:none;background:' + CFG.buttonColor + ';color:#fff;border-radius:8px;padding:0 12px;cursor:pointer;font-size:13px;">Save</button></div>';
-    return '<div id="sabchat-thread" style="flex:1;overflow:auto;padding:12px;background:#fff;">' + rows + '</div>' + emailRow +
-      '<div style="display:flex;gap:6px;padding:10px;border-top:1px solid #eef0f3;">' +
-        '<input id="sabchat-input" placeholder="Type a message…" style="flex:1;border:1px solid #e2e5ea;border-radius:10px;padding:10px 12px;font-size:14px;outline:none;"/>' +
+    return '<div id="sabchat-thread" style="flex:1;overflow:auto;padding:12px;background:' + p.body + ';">' + rows + '</div>' + emailRow +
+      '<div style="display:flex;gap:6px;padding:10px;border-top:1px solid ' + p.border + ';background:' + p.panel + ';">' +
+        '<input id="sabchat-input" placeholder="Type a message…" style="flex:1;' + inputStyle + 'border-radius:10px;padding:10px 12px;font-size:14px;outline:none;"/>' +
         '<button id="sabchat-send" style="border:none;background:' + CFG.buttonColor + ';color:#fff;border-radius:' + CFG.buttonRadius + 'px;padding:0 14px;cursor:pointer;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button></div>';
   }
 
@@ -327,6 +355,7 @@ const WIDGET_JS = `(function(){
     bootConfig().then(function(c){
       if (c && c.enabled === false) return; // inbox disabled — render nothing
       mount();
+      watchTheme();
       render();
       setupProactive();
       if (S.token){ startRealtime(); }

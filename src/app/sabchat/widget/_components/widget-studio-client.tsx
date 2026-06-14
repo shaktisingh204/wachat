@@ -161,6 +161,17 @@ export function WidgetStudioClient({
                 pickerTitle="Pick a widget logo"
               />
             </Field>
+            <Field label="Color scheme">
+              <select
+                value={cfg.theme}
+                onChange={(e) => set("theme", e.target.value as WidgetConfig["theme"])}
+                className="w-full rounded-md border border-[var(--st-border)] bg-transparent px-2 py-2 text-sm text-[var(--st-text)]"
+              >
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
+                <option value="auto">Auto (match visitor&apos;s device)</option>
+              </select>
+            </Field>
           </Group>
 
           <Group title="Content">
@@ -336,15 +347,30 @@ export function WidgetStudioClient({
   );
 }
 
-/* ────────────────────────────────────────────────────────────────────────
+/* ------------------------------------------------------------------------
  * Preview (mirrors the embedded widget panel)
- * ──────────────────────────────────────────────────────────────────────── */
+ * ------------------------------------------------------------------------ */
 
 function WidgetPreview({ cfg }: { cfg: WidgetConfig }) {
+  // Preview reflects the widget's OWN theme (not the dashboard theme). 'auto'
+  // resolves against the previewer's device.
+  const dark =
+    cfg.theme === "dark" ||
+    (cfg.theme === "auto" &&
+      typeof window !== "undefined" &&
+      !!window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches);
+  const pp = dark
+    ? { panel: "#1b1e25", card: "#252a33", text: "#e8eaed", sub: "#9aa0ab", border: "#2e333d", avatar: "#3a414d" }
+    : { panel: "#ffffff", card: "#ffffff", text: "#23272f", sub: "#9aa0ab", border: "#eef0f3", avatar: "#e4e7eb" };
+  const cardStyle: React.CSSProperties = {
+    background: pp.card,
+    borderRadius: cfg.widgetRadius,
+  };
   return (
     <div
-      className="mx-auto w-[320px] overflow-hidden border border-[var(--st-border)] bg-white shadow-xl dark:bg-zinc-900"
-      style={{ borderRadius: cfg.widgetRadius + 6 }}
+      className="mx-auto w-[320px] overflow-hidden border border-[var(--st-border)] shadow-xl"
+      style={{ borderRadius: cfg.widgetRadius + 6, background: pp.panel }}
     >
       {/* Header */}
       <div
@@ -371,32 +397,32 @@ function WidgetPreview({ cfg }: { cfg: WidgetConfig }) {
       </div>
 
       {/* Cards */}
-      <div className="-mt-4 space-y-3 px-3 pb-3">
-        <div
-          className="bg-white p-3 shadow-md dark:bg-zinc-800"
-          style={{ borderRadius: cfg.widgetRadius }}
-        >
-          <p className="mb-2 text-xs font-semibold text-zinc-700 dark:text-zinc-200">
+      <div className="-mt-4 space-y-3 px-3 pb-3" style={{ background: pp.panel }}>
+        <div className="p-3 shadow-md" style={cardStyle}>
+          <p className="mb-2 text-xs font-semibold" style={{ color: pp.text }}>
             Recent message
           </p>
           <div className="flex items-center gap-2">
-            <div className="h-8 w-8 shrink-0 rounded-full bg-zinc-200 dark:bg-zinc-700" />
+            <div className="h-8 w-8 shrink-0 rounded-full" style={{ background: pp.avatar }} />
             <div className="min-w-0">
-              <p className="truncate text-sm text-zinc-800 dark:text-zinc-100">Asked for Email</p>
-              <p className="truncate text-xs text-zinc-400">Mithila · 38m ago</p>
+              <p className="truncate text-sm" style={{ color: pp.text }}>
+                Asked for Email
+              </p>
+              <p className="truncate text-xs" style={{ color: pp.sub }}>
+                Mithila · 38m ago
+              </p>
             </div>
           </div>
         </div>
 
-        <button
-          className="flex w-full items-center justify-between bg-white p-3 text-left shadow-md dark:bg-zinc-800"
-          style={{ borderRadius: cfg.widgetRadius }}
-        >
+        <button className="flex w-full items-center justify-between p-3 text-left shadow-md" style={cardStyle}>
           <div>
-            <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">
+            <p className="text-sm font-semibold" style={{ color: pp.text }}>
               Send us a message
             </p>
-            <p className="text-xs text-zinc-400">{cfg.replyTime}</p>
+            <p className="text-xs" style={{ color: pp.sub }}>
+              {cfg.replyTime}
+            </p>
           </div>
           <span
             className="grid h-8 w-8 place-items-center text-white"
@@ -408,17 +434,14 @@ function WidgetPreview({ cfg }: { cfg: WidgetConfig }) {
       </div>
 
       {/* Tab bar */}
-      <div className="flex border-t border-zinc-100 dark:border-zinc-800">
+      <div className="flex border-t" style={{ borderColor: pp.border, background: pp.panel }}>
         <div className="flex flex-1 flex-col items-center gap-0.5 py-2">
-          <span
-            className="h-1 w-6 rounded-full"
-            style={{ background: cfg.buttonColor }}
-          />
+          <span className="h-1 w-6 rounded-full" style={{ background: cfg.buttonColor }} />
           <span className="text-xs font-medium" style={{ color: cfg.buttonColor }}>
             Home
           </span>
         </div>
-        <div className="flex flex-1 flex-col items-center gap-0.5 py-2 text-zinc-400">
+        <div className="flex flex-1 flex-col items-center gap-0.5 py-2" style={{ color: pp.sub }}>
           <MessageSquare className="h-4 w-4" aria-hidden />
           <span className="text-xs">Messages</span>
         </div>
@@ -427,7 +450,7 @@ function WidgetPreview({ cfg }: { cfg: WidgetConfig }) {
   );
 }
 
-/* ── small field helpers ───────────────────────────────────────────────── */
+/* -- small field helpers ------------------------------------------------- */
 
 function Group({ title, children }: { title: string; children: React.ReactNode }) {
   return (
