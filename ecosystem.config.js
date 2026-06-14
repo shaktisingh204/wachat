@@ -635,5 +635,35 @@ module.exports = {
       out_file: './logs/cron-out.log',
       log_date_format: 'YYYY-MM-DD HH:mm:ss',
     },
+
+    // ---------------------------------------------------------------------
+    // SabChat TURN relay (coturn) — voice/video + co-browse NAT traversal.
+    // Only supervised when SABCHAT_TURN_ENABLED=true (else filtered out so a
+    // plain `pm2 start ecosystem.config.js` never fails on a missing binary).
+    // The CLI --static-auth-secret overrides the placeholder in the conf and
+    // must match the web app's SABCHAT_TURN_SECRET. See services/sabchat-turn/.
+    // ---------------------------------------------------------------------
+    process.env.SABCHAT_TURN_ENABLED === 'true'
+      ? {
+          name: 'sabchat-turn',
+          script: process.env.SABCHAT_TURN_BIN || 'turnserver',
+          args: [
+            '-c',
+            './services/sabchat-turn/turnserver.conf',
+            '--static-auth-secret',
+            process.env.SABCHAT_TURN_SECRET || '',
+            ...(process.env.SABCHAT_TURN_EXTERNAL_IP
+              ? ['--external-ip', process.env.SABCHAT_TURN_EXTERNAL_IP]
+              : []),
+          ],
+          cwd: __dirname,
+          instances: 1,
+          exec_mode: 'fork',
+          autorestart: true,
+          watch: false,
+          max_restarts: 20,
+          restart_delay: 5000,
+        }
+      : null,
   ].filter(Boolean),
 };

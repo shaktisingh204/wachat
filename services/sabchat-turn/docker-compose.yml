@@ -1,0 +1,27 @@
+# coturn TURN/STUN relay for SabChat voice/video + co-browse.
+#
+# Usage:
+#   export SABCHAT_TURN_SECRET=$(openssl rand -hex 32)
+#   export SABCHAT_TURN_EXTERNAL_IP=<this host's public IP>
+#   docker compose -f services/sabchat-turn/docker-compose.yml up -d
+#
+# Then set in the web app's env:
+#   SABCHAT_TURN_URL=turn:<public-host>:3478
+#   SABCHAT_TURN_SECRET=<same secret as above>
+#
+# `network_mode: host` is strongly recommended for TURN so the relay sees real
+# client addresses and the ephemeral relay port range works without NAT.
+services:
+  sabchat-turn:
+    image: coturn/coturn:4.6
+    container_name: sabchat-turn
+    restart: unless-stopped
+    network_mode: host
+    command:
+      - -c
+      - /etc/coturn/turnserver.conf
+      - --external-ip=${SABCHAT_TURN_EXTERNAL_IP}
+      - --static-auth-secret=${SABCHAT_TURN_SECRET}
+    volumes:
+      - ./turnserver.conf:/etc/coturn/turnserver.conf:ro
+      # - ./certs:/etc/coturn/certs:ro   # uncomment + set cert/pkey in the conf for TLS
