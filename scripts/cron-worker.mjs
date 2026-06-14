@@ -23,6 +23,7 @@ const JOBS = [
   { name: 'send-scheduled-emails', path: '/api/cron/send-scheduled-emails', schedule: '* * * * *' },
   { name: 'sabmail-scheduled', path: '/api/cron/sabmail-scheduled', schedule: '* * * * *' },
   { name: 'sabmail-journeys', path: '/api/cron/sabmail-journeys', schedule: '* * * * *' },
+  { name: 'sabchat-journeys', path: '/api/cron/sabchat-journeys', schedule: '* * * * *' },
   { name: 'sabmail-snooze', path: '/api/cron/sabmail-snooze', schedule: '* * * * *' },
   { name: 'sabmail-brief', path: '/api/cron/sabmail-brief', schedule: '0 7 * * *' },
   { name: 'sabmail-rag', path: '/api/cron/sabmail-rag', schedule: '0 */6 * * *' },
