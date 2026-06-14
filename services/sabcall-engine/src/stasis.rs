@@ -127,6 +127,23 @@ async fn handle_inbound(state: &AppState, ch: AriChannel) -> anyhow::Result<()> 
                     Some(target) => vec![Verb::Dial { target: target.to_owned() }],
                     None => flow::default_flow(),
                 }
+            } else if app.app_type == "autopilot" {
+                // AI voice agent: greet (LLM→TTS), then fork audio to the
+                // real-time STT↔LLM↔TTS sink that drives the conversation.
+                let greeting = crate::llm::complete(
+                    state,
+                    "You are a friendly phone receptionist. Greet the caller in one short sentence and ask how you can help.",
+                    "",
+                )
+                .await
+                .unwrap_or_else(|| {
+                    "You're connected to an A I assistant. How can I help you today?".to_owned()
+                });
+                let mut f = vec![Verb::Say { text: greeting }];
+                if let Some(stream_url) = state.cfg.autopilot_stream_url.as_deref() {
+                    f.push(Verb::Stream { url: stream_url.to_owned() });
+                }
+                f
             } else {
                 flow::default_flow()
             }

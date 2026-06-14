@@ -13,6 +13,7 @@ pub mod errors;
 pub mod events;
 pub mod flow;
 pub mod http;
+pub mod llm;
 pub mod pjsip;
 pub mod routing;
 pub mod stasis;

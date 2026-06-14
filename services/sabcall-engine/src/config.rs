@@ -39,6 +39,13 @@ pub struct EngineConfig {
     /// ended, transcript ready) — lets the app persist recordings to R2/SabFiles
     /// and CDR enrichment without the engine holding S3 creds.
     pub events_url: Option<String>,
+
+    /// Optional HTTP LLM endpoint — POST `{system, prompt}` → `{text}`. Used by
+    /// the AI voice agent (autopilot) for greeting + turn generation.
+    pub llm_url: Option<String>,
+    /// Websocket host that an `autopilot` call forks its audio to (the real-time
+    /// STT↔LLM↔TTS sink). When unset, autopilot plays a greeting only.
+    pub autopilot_stream_url: Option<String>,
 }
 
 fn env_or(key: &str, default: &str) -> String {
@@ -69,6 +76,10 @@ impl EngineConfig {
             stt_url: std::env::var("SABCALL_STT_URL").ok().filter(|s| !s.is_empty()),
             sounds_dir: env_or("ASTERISK_SOUNDS_DIR", "/var/lib/asterisk/sounds/sabcall"),
             events_url: std::env::var("SABCALL_EVENTS_URL").ok().filter(|s| !s.is_empty()),
+            llm_url: std::env::var("SABCALL_LLM_URL").ok().filter(|s| !s.is_empty()),
+            autopilot_stream_url: std::env::var("SABCALL_AUTOPILOT_STREAM_URL")
+                .ok()
+                .filter(|s| !s.is_empty()),
         }
     }
 }

@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 
 import { SabHomeShell } from '@/components/sabcrm/20ui';
 
+import { CommandPalette } from "./command-palette";
 import { buildSabcallSidebarGroups } from "./sabcall-sidebar-config";
 
 export interface SabcallShellProps {
@@ -114,6 +115,7 @@ export function SabcallShell({
       sidebarGroups={groups}
     >
       {children}
+      <CommandPalette />
     </SabHomeShell>
   );
 }
