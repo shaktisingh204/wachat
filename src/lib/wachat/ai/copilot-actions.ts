@@ -16,6 +16,7 @@
 import { wachatLlm, parseJsonLoose } from './client';
 import { brandSystemPrompt, renderTranscript } from './prompts';
 import type {
+  AnalyticsInsightsResult,
   BrandVoiceInput,
   DraftReplyResult,
   GeneratedTemplate,
@@ -252,5 +253,41 @@ export async function aiSuggestSegment(args: {
     name: p.name,
     description: p.description ?? '',
     criteria: Array.isArray(p.criteria) ? p.criteria : [],
+  };
+}
+
+/* --------------------------------------------- analytics insights --- */
+
+export async function aiAnalyticsInsights(args: {
+  /** Free-form metrics block — pass whatever numbers the page has. */
+  metrics: Record<string, number | string>;
+  /** What surface this is for (e.g. "WhatsApp overview", "delivery report"). */
+  context?: string;
+  brand?: BrandVoiceInput;
+}): Promise<AnalyticsInsightsResult> {
+  const system = brandSystemPrompt(
+    'You are a WhatsApp messaging analyst. Read the metrics and explain what matters — grounded strictly in the numbers given. Be specific (cite the figures), never invent data.',
+    args.brand,
+  );
+  const lines = Object.entries(args.metrics)
+    .map(([k, v]) => `- ${k}: ${v}`)
+    .join('\n');
+  const prompt = [
+    `Metrics for ${args.context ?? 'this WhatsApp account'}:`,
+    lines,
+    '',
+    'Return ONLY JSON:',
+    '{"headline": string, "insights": string[] (2-4, each cites a number), "recommendation": string (one concrete next action)}',
+  ].join('\n');
+  const res = await wachatLlm({ system, prompt, tier: 'fast', prefill: '{', maxTokens: 500 });
+  const empty: AnalyticsInsightsResult = { ok: false, headline: '', insights: [], recommendation: '' };
+  if (!res.ok) return { ...empty, error: res.error };
+  const p = parseJsonLoose<Partial<AnalyticsInsightsResult>>(res.text);
+  if (!p?.headline) return { ...empty, error: 'Could not generate insights.' };
+  return {
+    ok: true,
+    headline: p.headline,
+    insights: Array.isArray(p.insights) ? p.insights : [],
+    recommendation: p.recommendation ?? '',
   };
 }

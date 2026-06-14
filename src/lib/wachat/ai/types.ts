@@ -95,3 +95,14 @@ export interface SuggestSegmentResult {
   /** Human-readable filter criteria the UI can map to its builder. */
   criteria: string[];
 }
+
+export interface AnalyticsInsightsResult {
+  ok: boolean;
+  error?: string;
+  /** One-line takeaway. */
+  headline: string;
+  /** 2–4 observations grounded in the numbers. */
+  insights: string[];
+  /** A single, concrete recommended next action. */
+  recommendation: string;
+}

@@ -47,6 +47,7 @@ import {
   MessageSquare,
   MessageSquarePlus,
   Search,
+  Sparkles,
   Users,
   } from "lucide-react";
 import Link from "next/link";
@@ -71,6 +72,11 @@ import { countryCodes } from "@/lib/country-codes";
 // Black-box children — preserve their server-action wiring untouched.
 import { ChatWindow } from "./chat/ui20-chat-window";
 import { ContactInfoPanel } from "./chat/ui20-contact-info-panel";
+
+// Wave 1 — cinematic + AI copilot foundation.
+import { CopilotDock } from "@/components/wachat/ai/copilot-dock";
+import type { TranscriptTurn } from "@/lib/wachat/ai/types";
+import "@/components/wachat/motion/wachat-motion.css";
 
 /**
  * /wachat/chat — 20ui rebuild of `ChatClient`.
@@ -101,6 +107,30 @@ import * as React from "react";
 /** Local class-join helper (20ui ships no `cn`). */
 function cx(...a: Array<string | false | null | undefined>): string {
   return a.filter(Boolean).join(' ');
+}
+
+/** Best-effort readable text from a WhatsApp message for the AI transcript. */
+function extractMessageText(m: AnyMessage): string {
+  const c = (m.content ?? {}) as Record<string, any>;
+  if (c.text?.body) return String(c.text.body);
+  if (typeof c.text === "string") return c.text;
+  if (c.button?.text) return String(c.button.text);
+  if (c.interactive?.body?.text) return String(c.interactive.body.text);
+  if (c.interactive?.button_reply?.title) return String(c.interactive.button_reply.title);
+  if (c.interactive?.list_reply?.title) return String(c.interactive.list_reply.title);
+  if (c.caption) return String(c.caption);
+  return `[${m.type}]`;
+}
+
+/** Map the processed thread to the copilot transcript shape. */
+function toTranscript(msgs: AnyMessage[]): TranscriptTurn[] {
+  return msgs
+    .filter((m) => m.type !== "reaction")
+    .map((m) => ({
+      direction: m.direction === "out" ? ("out" as const) : ("in" as const),
+      text: extractMessageText(m),
+    }))
+    .filter((t) => t.text.trim().length > 0);
 }
 
 const _CONTACTS_PER_PAGE = 30;
@@ -289,6 +319,7 @@ interface ContactListProps {
   loadMoreRef: React.Ref<HTMLDivElement>;
   selectedPhoneNumberId: string;
   onPhoneNumberChange: (phoneId: string) => void;
+  onOpenCopilot: () => void;
 }
 
 function Ui20ContactListPane({
@@ -303,6 +334,7 @@ function Ui20ContactListPane({
   loadMoreRef,
   selectedPhoneNumberId,
   onPhoneNumberChange,
+  onOpenCopilot,
 }: ContactListProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [chatFilter, setChatFilter] = useState<"all" | "unread">("all");
@@ -364,17 +396,27 @@ function Ui20ContactListPane({
             </div>
           </div>
         )}
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            onNewChat();
-          }}
-          aria-label="New chat"
-          iconLeft={MessageSquarePlus}
-        />
+        <div className="flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onOpenCopilot}
+            aria-label="AI Copilot"
+            title="AI Copilot"
+            iconLeft={Sparkles}
+          />
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onNewChat();
+            }}
+            aria-label="New chat"
+            iconLeft={MessageSquarePlus}
+          />
+        </div>
       </div>
 
       {/* Search + phone-number select */}
@@ -422,7 +464,7 @@ function Ui20ContactListPane({
           </div>
         ) : filteredContacts.length > 0 ? (
           <>
-            {filteredContacts.map((contact) => {
+            {filteredContacts.map((contact, idx) => {
               const id = contact._id.toString();
               const unread = contact.unreadCount || 0;
               const lastMsgTime = contact.lastMessageTimestamp;
@@ -433,8 +475,9 @@ function Ui20ContactListPane({
                   key={id}
                   type="button"
                   onClick={() => onSelectContact(contact)}
+                  style={{ ["--i" as string]: Math.min(idx, 14) } as React.CSSProperties}
                   className={cx(
-                    "mx-2 mb-1 flex w-[calc(100%-16px)] items-start gap-3 rounded-[var(--st-radius)] p-3 text-left transition-colors",
+                    "wachat-stagger-item wachat-row mx-2 mb-1 flex w-[calc(100%-16px)] items-start gap-3 rounded-[var(--st-radius)] p-3 text-left transition-colors hover:bg-[var(--st-bg-muted)]",
                     selected && "bg-[var(--st-bg-muted)] shadow-[var(--st-shadow-sm)]",
                   )}
                 >
@@ -539,6 +582,7 @@ export function Ui20ChatClient() {
   const [selectedPhoneNumberId, setSelectedPhoneNumberId] = useState("");
   const [isNewChatDialogOpen, setIsNewChatDialogOpen] = useState(false);
   const [isInfoPanelOpen, setIsInfoPanelOpen] = useState(false);
+  const [isCopilotOpen, setIsCopilotOpen] = useState(false);
   const { toast } = useToast();
 
   // Pagination state for contacts
@@ -788,6 +832,35 @@ export function Ui20ChatClient() {
     });
   }, [conversation]);
 
+  /* ── AI copilot wiring ── */
+  const copilotTranscript = useMemo(
+    () => toTranscript(processedConversation),
+    [processedConversation],
+  );
+  const copilotBrand = useMemo(
+    () => ({ businessName: activeProject?.name ?? undefined }),
+    [activeProject],
+  );
+  const handleCopilotInsert = useCallback(
+    (text: string) => {
+      if (selectedContact) {
+        window.dispatchEvent(
+          new CustomEvent("wachat:copilot-insert", {
+            detail: { contactId: selectedContact._id.toString(), text },
+          }),
+        );
+      }
+      void navigator.clipboard?.writeText(text).catch(() => {});
+      toast({
+        title: "Draft added to composer",
+        description: "Also copied to your clipboard.",
+        tone: "success",
+      });
+      setIsCopilotOpen(false);
+    },
+    [selectedContact, toast],
+  );
+
   /* ── early returns ── */
   if (isLoading && !activeProject) {
     return <ChatPageSkeleton />;
@@ -838,6 +911,7 @@ export function Ui20ChatClient() {
               loadMoreRef={loadMoreContactsRef}
               selectedPhoneNumberId={selectedPhoneNumberId}
               onPhoneNumberChange={handlePhoneNumberChange}
+              onOpenCopilot={() => setIsCopilotOpen(true)}
             />
           </div>
 
@@ -923,6 +997,19 @@ export function Ui20ChatClient() {
           )}
         </DrawerContent>
       </Drawer>
+
+      {/* AI Copilot — slide-in, grounded in the active conversation */}
+      {activeProjectId ? (
+        <CopilotDock
+          open={isCopilotOpen}
+          onOpenChange={setIsCopilotOpen}
+          projectId={activeProjectId}
+          transcript={copilotTranscript}
+          brand={copilotBrand}
+          onInsert={handleCopilotInsert}
+          context="inbox"
+        />
+      ) : null}
     </>
   );
 }

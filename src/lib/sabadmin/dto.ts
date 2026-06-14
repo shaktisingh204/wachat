@@ -7,7 +7,7 @@ import type { ProvisionStatus, UsernameConvention, DomainMode } from './types';
  * be async functions) and out of `types.ts` (which holds the Mongo doc shapes).
  */
 
-export type ActionResult<T = Record<string, never>> =
+export type ActionResult<T = unknown> =
   | ({ ok: true } & T)
   | { ok: false; error: string };
 
