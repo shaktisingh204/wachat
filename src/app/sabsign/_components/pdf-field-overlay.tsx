@@ -33,10 +33,16 @@ import type { EnvelopeField, SabSignFieldType } from '@/lib/rust-client/sabsign-
 const FIELD_TYPES: Array<{ type: SabSignFieldType; label: string; w: number; h: number }> = [
   { type: 'signature', label: 'Signature', w: 180, h: 50 },
   { type: 'initials', label: 'Initials', w: 80, h: 40 },
+  { type: 'stamp', label: 'Stamp', w: 120, h: 60 },
   { type: 'date', label: 'Date', w: 120, h: 32 },
   { type: 'text', label: 'Text', w: 180, h: 32 },
+  { type: 'number', label: 'Number', w: 120, h: 32 },
+  { type: 'phone', label: 'Phone', w: 160, h: 32 },
   { type: 'checkbox', label: 'Checkbox', w: 32, h: 32 },
+  { type: 'radio', label: 'Radio', w: 180, h: 32 },
   { type: 'dropdown', label: 'Dropdown', w: 180, h: 32 },
+  { type: 'image', label: 'Image', w: 160, h: 80 },
+  { type: 'file', label: 'File', w: 180, h: 32 },
 ];
 
 export interface PdfFieldOverlayProps {

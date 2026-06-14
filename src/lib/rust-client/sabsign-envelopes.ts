@@ -34,8 +34,14 @@ export type SabSignFieldType =
   | 'initials'
   | 'date'
   | 'text'
+  | 'number'
   | 'checkbox'
-  | 'dropdown';
+  | 'radio'
+  | 'dropdown'
+  | 'image'
+  | 'file'
+  | 'stamp'
+  | 'phone';
 
 export interface EnvelopeField {
   id: string;

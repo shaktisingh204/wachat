@@ -300,7 +300,7 @@ export default function PublicSignPage() {
                       />
                     );
                   }
-                  if (f.fieldType === 'dropdown') {
+                  if (f.fieldType === 'dropdown' || f.fieldType === 'radio') {
                     return (
                       <Field key={f.id} label={f.label || f.fieldType}>
                         <Select
