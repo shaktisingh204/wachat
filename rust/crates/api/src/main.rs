@@ -80,6 +80,7 @@ use sabchat_public_api::SabChatPublicApiState;
 use sabchat_reports::SabChatReportsState;
 use sabchat_sabflow_nodes::SabChatSabflowNodesState;
 use sabchat_community::SabChatCommunityState;
+use sabchat_journeys::SabChatJourneysState;
 use sabchat_shifts::SabChatShiftsState;
 use sabchat_sla::SabChatSlaState;
 use sabchat_sso::SabChatSsoState;
@@ -371,6 +372,7 @@ async fn run() -> anyhow::Result<()> {
     let sabchat_cobrowse_state = SabChatCobrowseState::new(mongo.clone());
     let sabchat_shifts_state = SabChatShiftsState::new(mongo.clone());
     let sabchat_community_state = SabChatCommunityState::new(mongo.clone());
+    let sabchat_journeys_state = SabChatJourneysState::new(mongo.clone());
     let sabchat_csat_state = SabChatCsatState::new(mongo.clone());
     let sabchat_dispositions_state = SabChatDispositionsState::new(mongo.clone());
     let sabchat_gamification_state = SabChatGamificationState::new(mongo.clone());
@@ -647,6 +649,7 @@ async fn run() -> anyhow::Result<()> {
         sabchat_cobrowse_state,
         sabchat_shifts_state,
         sabchat_community_state,
+        sabchat_journeys_state,
         sabchat_csat_state,
         sabchat_dispositions_state,
         sabchat_gamification_state,

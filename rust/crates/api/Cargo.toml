@@ -322,6 +322,7 @@ sabchat-voice = { path = "../sabchat-voice" }
 sabchat-cobrowse = { path = "../sabchat-cobrowse" }
 sabchat-shifts = { path = "../sabchat-shifts" }
 sabchat-community = { path = "../sabchat-community" }
+sabchat-journeys = { path = "../sabchat-journeys" }
 sabchat-csat = { path = "../sabchat-csat" }
 sabchat-dispositions = { path = "../sabchat-dispositions" }
 sabchat-gamification = { path = "../sabchat-gamification" }

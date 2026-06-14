@@ -11,6 +11,7 @@ import {
   Settings,
   Settings2,
   ShoppingCart,
+  Workflow,
 } from "lucide-react";
 
 // Import the `SidebarGroup` *interface* directly from the shell module (the
@@ -79,10 +80,17 @@ export function buildSabchatSidebarGroups(
       ],
     },
     {
-      id: "commerce",
-      label: "Commerce",
+      id: "engage",
+      label: "Engage",
       defaultOpen: true,
       items: [
+        {
+          id: "journeys",
+          label: "Journeys",
+          icon: React.createElement(Workflow),
+          href: "/sabchat/journeys",
+          active: isActive("/sabchat/journeys"),
+        },
         {
           id: "cart-recovery",
           label: "Cart recovery",

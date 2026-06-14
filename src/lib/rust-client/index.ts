@@ -121,6 +121,7 @@ import { sabchatAiTranslateApi } from './sabchat-ai-translate';
 import { sabchatCommerceApi } from './sabchat-commerce';
 import { sabchatCrmBridgeApi } from './sabchat-crm-bridge';
 import { sabchatCommunityApi } from './sabchat-community';
+import { sabchatJourneysApi } from './sabchat-journeys';
 
 export const rustClient = {
     admin: adminApi,
@@ -174,6 +175,7 @@ export const rustClient = {
     sabchatCommerce: sabchatCommerceApi,
     sabchatCrmBridge: sabchatCrmBridgeApi,
     sabchatCommunity: sabchatCommunityApi,
+    sabchatJourneys: sabchatJourneysApi,
     sabchatSso: sabchatSsoApi,
     sabchatAiQa: sabchatAiQaApi,
     sabchatAiVoc: sabchatAiVocApi,
