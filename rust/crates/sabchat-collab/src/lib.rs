@@ -62,4 +62,12 @@ where
         )
         .route("/links", post(handlers::create_link).get(handlers::list_links))
         .route("/links/{id}", axum::routing::delete(handlers::delete_link))
+        // ---- scheduled messages (send-later) --------------------------------
+        .route(
+            "/scheduled",
+            post(handlers::schedule_message).get(handlers::list_scheduled),
+        )
+        .route("/scheduled/due", get(handlers::list_due_scheduled))
+        .route("/scheduled/{id}/sent", post(handlers::mark_scheduled_sent))
+        .route("/scheduled/{id}", axum::routing::delete(handlers::cancel_scheduled))
 }

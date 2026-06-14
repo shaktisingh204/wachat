@@ -56,3 +56,33 @@ export async function deliverChatOutbox(): Promise<{
 
   return { delivered, skipped, failed };
 }
+
+/**
+ * Drain due **scheduled messages** (send-later) for the ambient Rust tenant.
+ * For each pending row whose `sendAt` has passed, append the text to its
+ * conversation as a `bot` sender (publishes on the WS hub) and mark it sent.
+ */
+export async function deliverScheduledMessages(): Promise<{ sent: number; failed: number }> {
+  let sent = 0;
+  let failed = 0;
+
+  const { scheduled } = await rustClient.sabchatCollab
+    .listDueScheduled()
+    .catch(() => ({ scheduled: [] as { _id: string; conversationId: string; text: string }[] }));
+
+  for (const m of scheduled) {
+    try {
+      await rustClient.sabchat.messages.append({
+        conversationId: m.conversationId,
+        content: { kind: 'text', text: m.text },
+        senderType: 'bot',
+      });
+      await rustClient.sabchatCollab.markScheduledSent(m._id);
+      sent += 1;
+    } catch {
+      failed += 1;
+    }
+  }
+
+  return { sent, failed };
+}

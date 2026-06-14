@@ -72,16 +72,20 @@ import { gradeConversation, listQaRubrics } from "@/app/actions/sabchat-ops.acti
 import { draftKbFromConversation } from "@/app/actions/sabchat-support.actions";
 import {
   appendSideMessage,
+  cancelScheduledMessage,
   createSideConversation,
   deleteSideConversation,
   linkConversations,
   listConversationLinks,
+  listScheduledMessages,
   listSideConversations,
   listSideMessages,
+  scheduleMessage,
   unlinkConversations,
 } from "@/app/actions/sabchat-collab.actions";
 import type {
   SabChatConversationLink,
+  SabChatScheduledMessage,
   SabChatSideConversation,
   SabChatSideMessage,
 } from "@/lib/rust-client/sabchat-collab";
@@ -2010,18 +2014,23 @@ function CollabSection({
   const [newSubject, setNewSubject] = React.useState("");
   const [reply, setReply] = React.useState("");
   const [linkTarget, setLinkTarget] = React.useState("");
+  const [scheduled, setScheduled] = React.useState<SabChatScheduledMessage[]>([]);
+  const [schedText, setSchedText] = React.useState("");
+  const [schedAt, setSchedAt] = React.useState("");
   const [busy, setBusy] = React.useState(false);
 
   const labelFor = (id: string) =>
     otherConversations.find((c) => c.id === id)?.label ?? id.slice(-6);
 
   const load = React.useCallback(async () => {
-    const [s, l] = await Promise.all([
+    const [s, l, sc] = await Promise.all([
       listSideConversations(conv._id),
       listConversationLinks(conv._id),
+      listScheduledMessages(conv._id),
     ]);
     setSides(s);
     setLinks(l);
+    setScheduled(sc);
   }, [conv._id]);
 
   React.useEffect(() => {
@@ -2089,6 +2098,25 @@ function CollabSection({
 
   const removeLink = async (id: string) => {
     const res = await unlinkConversations(id);
+    if (res.ok) void load();
+  };
+
+  const addScheduled = async () => {
+    if (!schedText.trim() || !schedAt) return;
+    setBusy(true);
+    const res = await scheduleMessage(conv._id, schedText, new Date(schedAt).toISOString());
+    setBusy(false);
+    if (res.ok) {
+      setSchedText("");
+      setSchedAt("");
+      void load();
+    } else {
+      toast({ title: "Couldn't schedule", description: res.error, variant: "destructive" });
+    }
+  };
+
+  const cancelScheduled = async (id: string) => {
+    const res = await cancelScheduledMessage(id);
     if (res.ok) void load();
   };
 
@@ -2226,6 +2254,62 @@ function CollabSection({
           <Button variant="outline" size="sm" iconLeft={Link2} disabled={!linkTarget || busy} onClick={() => void addLink()} />
         </div>
       ) : null}
+
+      {/* Scheduled messages (send-later) */}
+      <p className="mb-1 mt-3 text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
+        Send later
+      </p>
+      <div className="space-y-1">
+        {scheduled.length === 0 ? (
+          <p className="text-xs text-[var(--st-text-secondary)]">Nothing scheduled.</p>
+        ) : (
+          scheduled.map((m) => (
+            <div
+              key={m._id}
+              className="flex items-center justify-between gap-2 rounded-md border border-[var(--st-border)] px-2 py-1"
+            >
+              <span className="min-w-0">
+                <span className="block truncate text-xs text-[var(--st-text)]">{m.text}</span>
+                <span className="flex items-center gap-1 text-[10px] text-[var(--st-text-secondary)]">
+                  <Clock className="h-2.5 w-2.5" aria-hidden /> {new Date(m.sendAt).toLocaleString()}
+                </span>
+              </span>
+              <button
+                onClick={() => void cancelScheduled(m._id)}
+                className="text-[var(--st-text-secondary)] hover:text-red-500"
+                aria-label="Cancel scheduled message"
+              >
+                <X className="h-3 w-3" aria-hidden />
+              </button>
+            </div>
+          ))
+        )}
+      </div>
+      <div className="mt-1.5 space-y-1">
+        <textarea
+          value={schedText}
+          onChange={(e) => setSchedText(e.target.value)}
+          rows={2}
+          placeholder="Message to send later…"
+          className="max-h-20 w-full resize-none rounded-md border border-[var(--st-border)] bg-transparent px-2 py-1 text-xs text-[var(--st-text)] outline-none"
+        />
+        <div className="flex gap-1">
+          <input
+            type="datetime-local"
+            value={schedAt}
+            onChange={(e) => setSchedAt(e.target.value)}
+            className="h-8 flex-1 rounded-md border border-[var(--st-border)] bg-transparent px-2 text-xs text-[var(--st-text)] outline-none"
+          />
+          <Button
+            variant="outline"
+            size="sm"
+            iconLeft={Clock}
+            loading={busy}
+            disabled={!schedText.trim() || !schedAt || busy}
+            onClick={() => void addScheduled()}
+          />
+        </div>
+      </div>
     </Section>
   );
 }

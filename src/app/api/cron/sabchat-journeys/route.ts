@@ -27,7 +27,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import { rustClient } from '@/lib/rust-client';
 import { runWithRustTenantAs } from '@/lib/rust-client/fetcher';
-import { deliverChatOutbox } from '@/lib/sabchat/journey-dispatch';
+import { deliverChatOutbox, deliverScheduledMessages } from '@/lib/sabchat/journey-dispatch';
 import { getErrorMessage } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
@@ -69,23 +69,27 @@ async function handle(req: NextRequest): Promise<NextResponse> {
     let messagesEnqueued = 0;
     let completed = 0;
     let delivered = 0;
+    let scheduledSent = 0;
     let failed = 0;
 
     for (const p of projects) {
       const tid = String(p._id);
       try {
-        // Per-tenant tick + chat delivery via the no-cookie override (cron has
-        // no session). The tick enqueues message steps; the drain delivers the
-        // chat channel in-app and marks those outbox rows sent.
+        // Per-tenant tick + chat delivery + send-later drain via the no-cookie
+        // override (cron has no session). The tick enqueues message steps; the
+        // drain delivers the chat channel in-app and marks rows sent; the
+        // scheduled drain sends due send-later messages.
         const report = await runWithRustTenantAs(tid, tid, async () => {
           const tick = await rustClient.sabchatJourneys.tick({});
           const drain = await deliverChatOutbox();
-          return { tick, drain };
+          const scheduled = await deliverScheduledMessages();
+          return { tick, drain, scheduled };
         });
         advanced += report.tick.advanced;
         messagesEnqueued += report.tick.messagesEnqueued;
         completed += report.tick.completed;
         delivered += report.drain.delivered;
+        scheduledSent += report.scheduled.sent;
       } catch (err) {
         failed += 1;
         console.error(`[sabchat-journeys] tick failed for project ${tid}:`, getErrorMessage(err));
@@ -99,6 +103,7 @@ async function handle(req: NextRequest): Promise<NextResponse> {
       messagesEnqueued,
       completed,
       delivered,
+      scheduledSent,
       failed,
     });
   } catch (err) {
