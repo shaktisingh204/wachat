@@ -76,6 +76,18 @@ export default function PublicSignPage() {
   const [busy, setBusy] = React.useState(false);
   const [done, setDone] = React.useState<string | null>(null);
   const [error, setError] = React.useState<string | null>(null);
+  const [branding, setBranding] = React.useState<SabsignBranding | null>(null);
+
+  // White-label branding for the signing experience (public, by envelope id).
+  React.useEffect(() => {
+    let mounted = true;
+    getPublicSignBranding(params.envelopeId)
+      .then((b) => mounted && setBranding(b))
+      .catch(() => {});
+    return () => {
+      mounted = false;
+    };
+  }, [params.envelopeId]);
 
   // Hydrate the (sanitized) envelope via the public, token-authed sign view.
   // Verifies `(signerId, token)` server-side and marks the signer `viewed`.
@@ -219,6 +231,23 @@ export default function PublicSignPage() {
 
   return (
     <div className="20ui min-h-screen bg-[var(--st-bg)] p-4">
+      {branding && (branding.logoUrl || branding.senderName) ? (
+        <div className="mx-auto mb-3 flex max-w-6xl items-center gap-3">
+          {branding.logoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={branding.logoUrl}
+              alt={branding.senderName || 'logo'}
+              className="max-h-9 object-contain"
+            />
+          ) : null}
+          {branding.senderName ? (
+            <span className="text-sm font-medium text-[var(--st-text)]">
+              {branding.senderName}
+            </span>
+          ) : null}
+        </div>
+      ) : null}
       <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-4">
         <Card padding="none" className="overflow-hidden">
           {payload.docUrl ? (
