@@ -12,6 +12,7 @@ import { runWithRustTenant } from '@/lib/rust-client/fetcher';
 import { getSabchatWorkspaceId } from '@/lib/sabchat/workspace';
 import { getErrorMessage } from '@/lib/utils';
 import type { ResolveBotSource } from '@/lib/rust-client/sabchat-ai-resolve-bot';
+import type { CopilotSuggestedAction } from '@/lib/rust-client/sabchat-ai-copilot';
 
 async function scoped<T>(fn: () => Promise<T>): Promise<T> {
   const wsId = await getSabchatWorkspaceId();
@@ -94,6 +95,30 @@ export async function aiResolveBotAnswer(
       escalate: res.escalate,
       sources: res.sources,
     };
+  } catch (e) {
+    return { ok: false, error: getErrorMessage(e) };
+  }
+}
+
+export async function aiSuggestActions(
+  conversationId: string,
+): Promise<{ ok: true; actions: CopilotSuggestedAction[] } | Err> {
+  try {
+    const res = await scoped(() =>
+      rustClient.sabchatAiCopilot.suggestActions({ conversationId }),
+    );
+    return { ok: true, actions: res.actions };
+  } catch (e) {
+    return { ok: false, error: getErrorMessage(e) };
+  }
+}
+
+export async function aiWrapUp(
+  conversationId: string,
+): Promise<{ ok: true; note: string } | Err> {
+  try {
+    const res = await scoped(() => rustClient.sabchatAiCopilot.wrapUp({ conversationId }));
+    return { ok: true, note: res.note };
   } catch (e) {
     return { ok: false, error: getErrorMessage(e) };
   }

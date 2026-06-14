@@ -54,8 +54,11 @@ import {
   aiConversationSentiment,
   aiDraftReply,
   aiResolveBotAnswer,
+  aiSuggestActions,
   aiSummarize,
+  aiWrapUp,
 } from "@/app/actions/sabchat-ai.actions";
+import type { CopilotSuggestedAction } from "@/lib/rust-client/sabchat-ai-copilot";
 import { sendPaymentLink } from "@/app/actions/sabchat-commerce.actions";
 import {
   conversationToTicket,
@@ -737,6 +740,10 @@ export function InboxClient({
   } | null>(null);
   // CX score — quality grade for this conversation (no survey needed).
   const [cxScore, setCxScore] = React.useState<{ total: number; max: number } | null>(null);
+  // AI-suggested next actions for the open conversation.
+  const [suggestedActions, setSuggestedActions] = React.useState<CopilotSuggestedAction[] | null>(
+    null,
+  );
 
   const runDraft = async () => {
     if (!selectedId) return;
@@ -797,6 +804,30 @@ export function InboxClient({
     }
   };
 
+  const runSuggestActions = async () => {
+    if (!selectedId) return;
+    setCopilotBusy("actions");
+    const res = await aiSuggestActions(selectedId);
+    setCopilotBusy(null);
+    if (res.ok) setSuggestedActions(res.actions);
+    else toast({ title: "Copilot failed", description: res.error, variant: "destructive" });
+  };
+
+  const runWrapUp = async () => {
+    if (!selectedId) return;
+    setCopilotBusy("wrapup");
+    const res = await aiWrapUp(selectedId);
+    setCopilotBusy(null);
+    if (res.ok) {
+      setDraft(res.note);
+      setIsPrivate(true);
+      setCopilotOpen(false);
+      toast({ title: "Wrap-up note ready", description: "Added as a private note — edit and post." });
+    } else {
+      toast({ title: "Copilot failed", description: res.error, variant: "destructive" });
+    }
+  };
+
   const runKbDraft = async () => {
     if (!selectedId) return;
     setCopilotBusy("kbdraft");
@@ -841,6 +872,7 @@ export function InboxClient({
     setChurnRisk(null);
     setKbInspect(null);
     setCxScore(null);
+    setSuggestedActions(null);
     setCopilotOpen(false);
   }, [selectedId]);
 
@@ -1140,6 +1172,22 @@ export function InboxClient({
                         <Button
                           variant="outline"
                           size="sm"
+                          loading={copilotBusy === "actions"}
+                          onClick={() => void runSuggestActions()}
+                        >
+                          Next actions
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          loading={copilotBusy === "wrapup"}
+                          onClick={() => void runWrapUp()}
+                        >
+                          Wrap-up note
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
                           className="col-span-2"
                           iconLeft={BookOpen}
                           loading={copilotBusy === "kbdraft"}
@@ -1148,6 +1196,28 @@ export function InboxClient({
                           Save as KB draft
                         </Button>
                       </div>
+                      {suggestedActions ? (
+                        <div className="mt-2 rounded-md bg-[var(--st-bg-muted)] p-2 text-xs text-[var(--st-text)]">
+                          <p className="mb-1 font-semibold">Suggested next actions</p>
+                          {suggestedActions.length ? (
+                            <ul className="space-y-1">
+                              {suggestedActions.map((a, i) => (
+                                <li key={i} className="flex items-start gap-1.5">
+                                  <Sparkles
+                                    className="mt-0.5 h-3 w-3 shrink-0 text-[var(--st-primary,var(--st-accent))]"
+                                    aria-hidden
+                                  />
+                                  <span>{a.title}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          ) : (
+                            <p className="text-[var(--st-text-secondary)]">
+                              Nothing pressing — the conversation looks handled.
+                            </p>
+                          )}
+                        </div>
+                      ) : null}
                       {kbInspect ? (
                         <div className="mt-2 rounded-md bg-[var(--st-bg-muted)] p-2 text-xs text-[var(--st-text)]">
                           <p className="mb-1 flex items-center justify-between font-semibold">
