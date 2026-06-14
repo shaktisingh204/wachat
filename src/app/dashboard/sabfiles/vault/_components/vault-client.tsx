@@ -34,6 +34,7 @@ import {
     CardBody,
     CardHeader,
     CardTitle,
+    PageActions,
     PageDescription,
     PageEyebrow,
     PageHeader,
@@ -475,11 +476,11 @@ export function VaultClient({
                     </PageTitle>
                     <PageDescription>Your zero-knowledge encrypted space.</PageDescription>
                 </PageHeaderHeading>
-                <div className="sv-header-actions">
+                <PageActions className="sv-header-actions">
                     <Button variant="secondary" iconLeft={Lock} onClick={lock} aria-label="Lock the vault now">
                         Lock
                     </Button>
-                </div>
+                </PageActions>
             </PageHeader>
 
             <p className="sv-banner">

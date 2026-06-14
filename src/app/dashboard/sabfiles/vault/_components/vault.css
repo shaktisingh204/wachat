@@ -1,0 +1,514 @@
+/**
+ * Sab Vault styles.
+ *
+ * Built entirely on 20ui semantic tokens (--st-*, --u-*) so light/dark swap for
+ * free under `.dark` and the one accent stays consistent across every state.
+ * Calm + secure + premium: a centred locked card that reads as intentional, a
+ * quiet zero-knowledge banner, and a restrained encrypted-file list. No raw hex
+ * accents, one radius system, motion under prefers-reduced-motion only.
+ */
+
+/* ── Screen-reader-only live region ─────────────────────────────────────── */
+.sv-sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* ── Locked gate: a deliberate, centred card ────────────────────────────── */
+.sv-gate {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: min(72vh, 640px);
+    padding: var(--st-space-5);
+}
+
+.sv-gate__card {
+    width: 100%;
+    max-width: 460px;
+}
+
+.sv-gate__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--st-space-4);
+}
+
+.sv-gate__seal {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    border-radius: var(--st-radius-lg);
+    color: var(--st-accent);
+    background: var(--st-accent-soft);
+    box-shadow: inset 0 0 0 1px var(--st-accent-ring);
+}
+
+.sv-gate__lede {
+    display: flex;
+    flex-direction: column;
+    gap: var(--st-space-2);
+}
+
+.sv-gate__eyebrow {
+    margin: 0;
+    font-size: var(--st-font-size-xs);
+    font-weight: var(--st-fw-semibold);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--st-text-muted);
+}
+
+.sv-gate__title {
+    margin: 0;
+    font-size: var(--st-font-size-xl);
+    font-weight: var(--st-fw-semibold);
+    color: var(--st-text);
+    line-height: 1.2;
+}
+
+.sv-gate__intro {
+    margin: 0;
+    font-size: var(--st-font-size-sm);
+    line-height: 1.6;
+    color: var(--st-text-secondary);
+    max-width: 60ch;
+}
+
+.sv-gate__form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--st-space-4);
+}
+
+.sv-gate__submit {
+    width: 100%;
+    justify-content: center;
+}
+
+.sv-gate__alert {
+    display: flex;
+    align-items: center;
+    gap: var(--st-space-2);
+    margin: 0;
+    padding: var(--st-space-3);
+    border-radius: var(--st-radius);
+    font-size: var(--st-font-size-sm);
+    color: var(--st-danger-strong, var(--st-danger));
+    background: var(--st-danger-soft);
+}
+
+.sv-gate__alert > svg {
+    flex: none;
+}
+
+/* ── Reveal toggle (show/hide password) ─────────────────────────────────── */
+.sv-reveal {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--st-text-muted);
+    cursor: pointer;
+    border-radius: var(--st-radius-sm);
+    transition: color var(--u-dur-fast) var(--u-ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .sv-reveal:hover {
+        color: var(--st-text);
+    }
+}
+
+.sv-reveal:focus-visible {
+    outline: 2px solid var(--st-accent-ring);
+    outline-offset: 2px;
+}
+
+/* ── Password strength meter ────────────────────────────────────────────── */
+.sv-strength {
+    display: flex;
+    flex-direction: column;
+    gap: var(--st-space-2);
+    margin-top: calc(var(--st-space-2) * -1);
+}
+
+.sv-strength__track {
+    height: 6px;
+    border-radius: var(--st-radius-pill);
+    background: var(--st-bg-muted, var(--st-bg-subtle));
+    overflow: hidden;
+}
+
+.sv-strength__fill {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--st-accent);
+    transition: width var(--u-dur-slow) var(--u-ease-out), background-color var(--u-dur) var(--u-ease-out);
+}
+
+.sv-strength[data-tone='danger'] .sv-strength__fill {
+    background: var(--st-danger);
+}
+
+.sv-strength[data-tone='warning'] .sv-strength__fill {
+    background: var(--st-warn, var(--st-warning, var(--st-accent)));
+}
+
+.sv-strength[data-tone='success'] .sv-strength__fill {
+    background: var(--st-success);
+}
+
+.sv-strength__label {
+    margin: 0;
+    font-size: var(--st-font-size-xs);
+    color: var(--st-text-muted);
+}
+
+.sv-strength__label strong {
+    color: var(--st-text-secondary);
+    font-weight: var(--st-fw-semibold);
+}
+
+/* ── Acknowledgement checkbox ───────────────────────────────────────────── */
+.sv-ack {
+    display: flex;
+    gap: var(--st-space-3);
+    align-items: flex-start;
+    padding: var(--st-space-3);
+    border-radius: var(--st-radius);
+    background: var(--st-bg-subtle);
+    border: 1px solid var(--st-border-light);
+    cursor: pointer;
+}
+
+.sv-ack__box {
+    flex: none;
+    width: 16px;
+    height: 16px;
+    margin-top: 2px;
+    accent-color: var(--st-accent);
+    cursor: pointer;
+}
+
+.sv-ack__box:focus-visible {
+    outline: 2px solid var(--st-accent-ring);
+    outline-offset: 2px;
+}
+
+.sv-ack__text {
+    font-size: var(--st-font-size-xs);
+    line-height: 1.55;
+    color: var(--st-text-secondary);
+}
+
+/* ── Unlocked shell ─────────────────────────────────────────────────────── */
+.sv-shell {
+    display: flex;
+    flex-direction: column;
+    gap: var(--st-space-5);
+}
+
+.sv-title {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--st-space-2);
+    color: var(--st-accent);
+}
+
+.sv-title > svg {
+    flex: none;
+}
+
+.sv-header-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--st-space-2);
+}
+
+.sv-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--st-space-3);
+    margin: 0;
+    padding: var(--st-space-3) var(--st-space-4);
+    border-radius: var(--st-radius);
+    font-size: var(--st-font-size-sm);
+    line-height: 1.55;
+    color: var(--st-text-secondary);
+    background: var(--st-accent-soft);
+    border: 1px solid var(--st-accent-ring);
+}
+
+.sv-banner > svg {
+    flex: none;
+    margin-top: 2px;
+    color: var(--st-accent);
+}
+
+/* ── Card header / body ─────────────────────────────────────────────────── */
+.sv-card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--st-space-3);
+}
+
+.sv-card-title {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--st-space-2);
+}
+
+.sv-card-title > svg {
+    color: var(--st-accent);
+    flex: none;
+}
+
+.sv-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--st-space-4);
+}
+
+.sv-hidden-input {
+    display: none;
+}
+
+/* ── Dropzone ───────────────────────────────────────────────────────────── */
+.sv-drop {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--st-space-2);
+    padding: var(--st-space-5);
+    text-align: center;
+    border: 1px dashed var(--st-border-strong);
+    border-radius: var(--st-radius-lg);
+    background: var(--st-bg-subtle);
+    transition: border-color var(--u-dur) var(--u-ease-out), background-color var(--u-dur) var(--u-ease-out);
+}
+
+.sv-drop.is-dragging {
+    border-color: var(--st-accent);
+    background: var(--st-accent-soft);
+}
+
+.sv-drop__icon {
+    color: var(--st-text-muted);
+}
+
+.sv-drop.is-dragging .sv-drop__icon {
+    color: var(--st-accent);
+}
+
+.sv-drop__lede {
+    margin: 0;
+    font-size: var(--st-font-size-sm);
+    color: var(--st-text-secondary);
+}
+
+/* ── Upload tasks ───────────────────────────────────────────────────────── */
+.sv-tasks {
+    display: flex;
+    flex-direction: column;
+    gap: var(--st-space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.sv-task {
+    display: flex;
+    align-items: center;
+    gap: var(--st-space-3);
+    padding: var(--st-space-3);
+    border-radius: var(--st-radius);
+    background: var(--st-bg-subtle);
+    border: 1px solid var(--st-border-light);
+}
+
+.sv-task__icon {
+    flex: none;
+    display: inline-flex;
+    color: var(--st-accent);
+}
+
+.sv-task[data-status='error'] .sv-task__icon {
+    color: var(--st-danger);
+}
+
+.sv-task__main {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--st-space-2);
+}
+
+.sv-task__label {
+    margin: 0;
+    font-size: var(--st-font-size-sm);
+    color: var(--st-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sv-task__err {
+    margin: 0;
+    font-size: var(--st-font-size-xs);
+    color: var(--st-danger);
+}
+
+.sv-task__pct {
+    flex: none;
+    font-size: var(--st-font-size-xs);
+    font-variant-numeric: tabular-nums;
+    color: var(--st-text-muted);
+    min-width: 4ch;
+    text-align: right;
+}
+
+.sv-spin {
+    animation: sv-spin 0.7s linear infinite;
+}
+
+@keyframes sv-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ── Encrypted file list ────────────────────────────────────────────────── */
+.sv-list {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border: 1px solid var(--st-border-light);
+    border-radius: var(--st-radius-lg);
+    overflow: hidden;
+}
+
+.sv-row {
+    display: flex;
+    align-items: center;
+    gap: var(--st-space-3);
+    padding: var(--st-space-3) var(--st-space-4);
+    background: var(--st-surface);
+    transition: background-color var(--u-dur-fast) var(--u-ease-out);
+}
+
+.sv-row + .sv-row {
+    border-top: 1px solid var(--st-border-light);
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .sv-row:hover {
+        background: var(--st-surface-hover);
+    }
+}
+
+.sv-row__glyph {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: var(--st-radius);
+    color: var(--st-accent);
+    background: var(--st-accent-soft);
+}
+
+.sv-row__main {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.sv-row__name {
+    margin: 0;
+    font-size: var(--st-font-size-sm);
+    font-weight: var(--st-fw-medium);
+    color: var(--st-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sv-row__meta {
+    display: flex;
+    align-items: center;
+    gap: var(--st-space-2);
+    margin: 2px 0 0;
+    font-size: var(--st-font-size-xs);
+    color: var(--st-text-muted);
+    font-variant-numeric: tabular-nums;
+}
+
+.sv-row__dot {
+    width: 3px;
+    height: 3px;
+    border-radius: var(--st-radius-pill);
+    background: var(--st-border-strong);
+}
+
+.sv-row__badge {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.sv-row__actions {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: var(--st-space-2);
+}
+
+/* On narrow viewports collapse the row to a calm two-line stack. */
+@media (max-width: 640px) {
+    .sv-row {
+        flex-wrap: wrap;
+    }
+
+    .sv-row__badge {
+        order: 3;
+    }
+
+    .sv-row__actions {
+        order: 4;
+        margin-left: auto;
+    }
+}
+
+/* ── Reduced motion ─────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+    .sv-spin {
+        animation: none;
+    }
+
+    .sv-strength__fill,
+    .sv-drop,
+    .sv-row,
+    .sv-reveal {
+        transition: none;
+    }
+}
