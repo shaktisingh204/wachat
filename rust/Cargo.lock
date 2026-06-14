@@ -11659,132 +11659,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "sabconnect-comments"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "axum 0.8.9",
- "bson",
- "chrono",
- "crm-common",
- "futures",
- "mongodb",
- "sabnode-auth",
- "sabnode-common",
- "sabnode-db",
- "sabnode-rbac",
- "serde",
- "serde_json",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "sabconnect-custom-apps"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "axum 0.8.9",
- "bson",
- "chrono",
- "crm-common",
- "futures",
- "mongodb",
- "sabnode-auth",
- "sabnode-common",
- "sabnode-db",
- "sabnode-rbac",
- "serde",
- "serde_json",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "sabconnect-feed"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "axum 0.8.9",
- "bson",
- "chrono",
- "crm-common",
- "futures",
- "mongodb",
- "sabnode-auth",
- "sabnode-common",
- "sabnode-db",
- "sabnode-rbac",
- "serde",
- "serde_json",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "sabconnect-groups"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "axum 0.8.9",
- "bson",
- "chrono",
- "crm-common",
- "futures",
- "mongodb",
- "sabnode-auth",
- "sabnode-common",
- "sabnode-db",
- "sabnode-rbac",
- "serde",
- "serde_json",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "sabconnect-manuals"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "axum 0.8.9",
- "bson",
- "chrono",
- "crm-common",
- "futures",
- "mongodb",
- "sabnode-auth",
- "sabnode-common",
- "sabnode-db",
- "sabnode-rbac",
- "serde",
- "serde_json",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "sabconnect-reactions"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "axum 0.8.9",
- "bson",
- "chrono",
- "crm-common",
- "futures",
- "mongodb",
- "sabnode-auth",
- "sabnode-common",
- "sabnode-db",
- "sabnode-rbac",
- "serde",
- "serde_json",
- "tokio",
- "tracing",
-]
-
-[[package]]
 name = "sabcreator-apps"
 version = "0.1.0"
 dependencies = [
@@ -13641,12 +13515,6 @@ dependencies = [
  "sabcheckout-upsells",
  "sabcheckout-webhooks",
  "sabcliq-workspaces",
- "sabconnect-comments",
- "sabconnect-custom-apps",
- "sabconnect-feed",
- "sabconnect-groups",
- "sabconnect-manuals",
- "sabconnect-reactions",
  "sabcreator-apps",
  "sabcreator-forms",
  "sabcreator-pages",
@@ -13755,11 +13623,6 @@ dependencies = [
  "sabrequests-instances",
  "sabrequests-orgcharts",
  "sabrequests-stage-actions",
- "sabrewards-catalog",
- "sabrewards-members",
- "sabrewards-programs",
- "sabrewards-redemptions",
- "sabrewards-referrals",
  "sabsense-ad-units",
  "sabsense-advertiser-billing",
  "sabsense-advertisers",
@@ -13822,10 +13685,6 @@ dependencies = [
  "sabtables-tables",
  "sabtables-views",
  "sabtables-workspaces",
- "sabvault-audit",
- "sabvault-folders",
- "sabvault-secrets",
- "sabvault-shares",
  "sabwebinar-analytics",
  "sabwebinar-polls",
  "sabwebinar-qna",
@@ -14842,111 +14701,6 @@ dependencies = [
  "sabnode-auth",
  "sabnode-common",
  "sabnode-db",
- "serde",
- "serde_json",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "sabrewards-catalog"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "axum 0.8.9",
- "bson",
- "chrono",
- "crm-common",
- "futures",
- "mongodb",
- "sabnode-auth",
- "sabnode-common",
- "sabnode-db",
- "sabnode-rbac",
- "serde",
- "serde_json",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "sabrewards-members"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "axum 0.8.9",
- "bson",
- "chrono",
- "crm-common",
- "futures",
- "mongodb",
- "sabnode-auth",
- "sabnode-common",
- "sabnode-db",
- "sabnode-rbac",
- "serde",
- "serde_json",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "sabrewards-programs"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "axum 0.8.9",
- "bson",
- "chrono",
- "crm-common",
- "futures",
- "mongodb",
- "sabnode-auth",
- "sabnode-common",
- "sabnode-db",
- "sabnode-rbac",
- "serde",
- "serde_json",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "sabrewards-redemptions"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "axum 0.8.9",
- "bson",
- "chrono",
- "crm-common",
- "futures",
- "mongodb",
- "sabnode-auth",
- "sabnode-common",
- "sabnode-db",
- "sabnode-rbac",
- "serde",
- "serde_json",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "sabrewards-referrals"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "axum 0.8.9",
- "bson",
- "chrono",
- "crm-common",
- "futures",
- "mongodb",
- "sabnode-auth",
- "sabnode-common",
- "sabnode-db",
- "sabnode-rbac",
  "serde",
  "serde_json",
  "tokio",
@@ -16458,106 +16212,6 @@ dependencies = [
 
 [[package]]
 name = "sabtables-workspaces"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "axum 0.8.9",
- "bson",
- "chrono",
- "crm-common",
- "futures",
- "mongodb",
- "sabnode-auth",
- "sabnode-common",
- "sabnode-db",
- "serde",
- "serde_json",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "sabvault-audit"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "axum 0.8.9",
- "bson",
- "chrono",
- "crm-common",
- "futures",
- "mongodb",
- "sabnode-auth",
- "sabnode-common",
- "sabnode-db",
- "serde",
- "serde_json",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "sabvault-breach-alerts"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "axum 0.8.9",
- "bson",
- "chrono",
- "crm-common",
- "futures",
- "mongodb",
- "sabnode-auth",
- "sabnode-common",
- "sabnode-db",
- "serde",
- "serde_json",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "sabvault-folders"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "axum 0.8.9",
- "bson",
- "chrono",
- "crm-common",
- "futures",
- "mongodb",
- "sabnode-auth",
- "sabnode-common",
- "sabnode-db",
- "serde",
- "serde_json",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "sabvault-secrets"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "axum 0.8.9",
- "bson",
- "chrono",
- "crm-common",
- "futures",
- "mongodb",
- "sabnode-auth",
- "sabnode-common",
- "sabnode-db",
- "serde",
- "serde_json",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "sabvault-shares"
 version = "0.1.0"
 dependencies = [
  "anyhow",

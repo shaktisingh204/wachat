@@ -370,12 +370,6 @@ sabbugs-comments = { path = "../sabbugs-comments" }
 sabbugs-history = { path = "../sabbugs-history" }
 sabbugs-saved-filters = { path = "../sabbugs-saved-filters" }
 sabbugs-versions = { path = "../sabbugs-versions" }
-sabconnect-comments = { path = "../sabconnect-comments" }
-sabconnect-custom-apps = { path = "../sabconnect-custom-apps" }
-sabconnect-feed = { path = "../sabconnect-feed" }
-sabconnect-groups = { path = "../sabconnect-groups" }
-sabconnect-manuals = { path = "../sabconnect-manuals" }
-sabconnect-reactions = { path = "../sabconnect-reactions" }
 sabmeet-dialins = { path = "../sabmeet-dialins" }
 sabmeet-participants = { path = "../sabmeet-participants" }
 sabmeet-polls = { path = "../sabmeet-polls" }
@@ -390,11 +384,6 @@ sabrequests-blueprints = { path = "../sabrequests-blueprints" }
 sabrequests-instances = { path = "../sabrequests-instances" }
 sabrequests-orgcharts = { path = "../sabrequests-orgcharts" }
 sabrequests-stage-actions = { path = "../sabrequests-stage-actions" }
-sabrewards-catalog = { path = "../sabrewards-catalog" }
-sabrewards-members = { path = "../sabrewards-members" }
-sabrewards-programs = { path = "../sabrewards-programs" }
-sabrewards-redemptions = { path = "../sabrewards-redemptions" }
-sabrewards-referrals = { path = "../sabrewards-referrals" }
 sabsense-form-analytics = { path = "../sabsense-form-analytics" }
 sabsense-funnel-runs = { path = "../sabsense-funnel-runs" }
 sabsense-funnels = { path = "../sabsense-funnels" }
@@ -584,10 +573,6 @@ sabtables-records = { path = "../sabtables-records" }
 sabtables-tables = { path = "../sabtables-tables" }
 sabtables-views = { path = "../sabtables-views" }
 sabtables-workspaces = { path = "../sabtables-workspaces" }
-sabvault-audit = { path = "../sabvault-audit" }
-sabvault-folders = { path = "../sabvault-folders" }
-sabvault-secrets = { path = "../sabvault-secrets" }
-sabvault-shares = { path = "../sabvault-shares" }
 sabwebinar-analytics = { path = "../sabwebinar-analytics" }
 sabwebinar-polls = { path = "../sabwebinar-polls" }
 sabwebinar-qna = { path = "../sabwebinar-qna" }

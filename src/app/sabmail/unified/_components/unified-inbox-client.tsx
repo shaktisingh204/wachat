@@ -63,7 +63,7 @@ export function UnifiedInboxClient({ data }: { data: UnifiedInboxData }) {
       setReading(true);
       try {
         if (c.channel === "email" && c.email) {
-          const res = await getSabmailMessage(c.email.accountId, c.email.uid);
+          const res = await getSabmailMessage(c.email.accountId, c.email.folder, c.email.uid);
           if (res.ok) setEmailFull(res.message);
           else toast({ title: "Could not load email", description: res.error, variant: "destructive" });
         } else if (c.channel === "sms" && c.sms) {

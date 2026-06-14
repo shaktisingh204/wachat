@@ -55,12 +55,6 @@ pub fn build(state: AppState) -> Router {
     let sabbugs_history_r = sabbugs_history::router::<AppState>();
     let sabbugs_saved_filters_r = sabbugs_saved_filters::router::<AppState>();
     let sabbugs_versions_r = sabbugs_versions::router::<AppState>();
-    let sabconnect_comments_r = sabconnect_comments::router::<AppState>();
-    let sabconnect_custom_apps_r = sabconnect_custom_apps::router::<AppState>();
-    let sabconnect_feed_r = sabconnect_feed::router::<AppState>();
-    let sabconnect_groups_r = sabconnect_groups::router::<AppState>();
-    let sabconnect_manuals_r = sabconnect_manuals::router::<AppState>();
-    let sabconnect_reactions_r = sabconnect_reactions::router::<AppState>();
     let sabmeet_dialins_r = sabmeet_dialins::router::<AppState>();
     let sabmeet_participants_r = sabmeet_participants::router::<AppState>();
     let sabmeet_polls_r = sabmeet_polls::router::<AppState>();
@@ -70,11 +64,6 @@ pub fn build(state: AppState) -> Router {
     let sabprep_recipes_r = sabprep_recipes::router::<AppState>();
     let sabrequests_blueprints_r = sabrequests_blueprints::router::<AppState>();
     let sabrequests_instances_r = sabrequests_instances::router::<AppState>();
-    let sabrewards_catalog_r = sabrewards_catalog::router::<AppState>();
-    let sabrewards_members_r = sabrewards_members::router::<AppState>();
-    let sabrewards_programs_r = sabrewards_programs::router::<AppState>();
-    let sabrewards_redemptions_r = sabrewards_redemptions::router::<AppState>();
-    let sabrewards_referrals_r = sabrewards_referrals::router::<AppState>();
     let sabsense_form_analytics_r = sabsense_form_analytics::router::<AppState>();
     let sabsense_funnel_runs_r = sabsense_funnel_runs::router::<AppState>();
     let sabsense_funnels_r = sabsense_funnels::router::<AppState>();
@@ -208,9 +197,6 @@ pub fn build(state: AppState) -> Router {
     let sabcheckout_payouts_r = sabcheckout_payouts::router::<AppState>();
     let sabcheckout_payment_gateways_r = sabcheckout_payment_gateways::router::<AppState>();
     let sabcheckout_disputes_r = sabcheckout_disputes::router::<AppState>();
-    let sabvault_secrets_r = sabvault_secrets::router::<AppState>();
-    let sabvault_shares_r = sabvault_shares::router::<AppState>();
-    //     let sabvault_breach_alerts_r = sabvault_breach_alerts::router::<AppState>();
     let sabcheckout_sessions_r = sabcheckout_sessions::router::<AppState>();
     let sabcheckout_subscriptions_r = sabcheckout_subscriptions::router::<AppState>();
     let sabcliq_workspaces_r = sabcliq_workspaces::router::<AppState>();
@@ -279,11 +265,6 @@ pub fn build(state: AppState) -> Router {
     let sabtables_tables_r = sabtables_tables::router::<AppState>();
     let sabtables_views_r = sabtables_views::router::<AppState>();
     let sabtables_workspaces_r = sabtables_workspaces::router::<AppState>();
-    let sabvault_audit_r = sabvault_audit::router::<AppState>();
-    //     let sabvault_breach_alerts_r = sabvault_breach_alerts::router::<AppState>();
-    let sabvault_folders_r = sabvault_folders::router::<AppState>();
-    let sabvault_secrets_r = sabvault_secrets::router::<AppState>();
-    let sabvault_shares_r = sabvault_shares::router::<AppState>();
     let sabwebinar_analytics_r = sabwebinar_analytics::router::<AppState>();
     //     let sabwebinar_chat_r = sabwebinar_chat::router::<AppState>();
     let sabwebinar_polls_r = sabwebinar_polls::router::<AppState>();
@@ -1100,12 +1081,6 @@ pub fn build(state: AppState) -> Router {
         .nest("/v1/sabbugs/history", sabbugs_history_r)
         .nest("/v1/sabbugs/saved-filters", sabbugs_saved_filters_r)
         .nest("/v1/sabbugs/versions", sabbugs_versions_r)
-        .nest("/v1/sabconnect/comments", sabconnect_comments_r)
-        .nest("/v1/sabconnect/custom-apps", sabconnect_custom_apps_r)
-        .nest("/v1/sabconnect/feed", sabconnect_feed_r)
-        .nest("/v1/sabconnect/groups", sabconnect_groups_r)
-        .nest("/v1/sabconnect/manuals", sabconnect_manuals_r)
-        .nest("/v1/sabconnect/reactions", sabconnect_reactions_r)
         .nest("/v1/sabmeet/dialins", sabmeet_dialins_r)
         .nest("/v1/sabmeet/participants", sabmeet_participants_r)
         .nest("/v1/sabmeet/polls", sabmeet_polls_r)
@@ -1115,11 +1090,6 @@ pub fn build(state: AppState) -> Router {
         .nest("/v1/sabprep/recipes", sabprep_recipes_r)
         .nest("/v1/sabrequests/blueprints", sabrequests_blueprints_r)
         .nest("/v1/sabrequests/instances", sabrequests_instances_r)
-        .nest("/v1/sabrewards/catalog", sabrewards_catalog_r)
-        .nest("/v1/sabrewards/members", sabrewards_members_r)
-        .nest("/v1/sabrewards/programs", sabrewards_programs_r)
-        .nest("/v1/sabrewards/redemptions", sabrewards_redemptions_r)
-        .nest("/v1/sabrewards/referrals", sabrewards_referrals_r)
         .nest("/v1/pagesense/form-analytics", sabsense_form_analytics_r)
         .nest("/v1/pagesense/funnel-runs", sabsense_funnel_runs_r)
         .nest("/v1/pagesense/funnels", sabsense_funnels_r)
@@ -1276,9 +1246,6 @@ pub fn build(state: AppState) -> Router {
             sabcheckout_payment_gateways_r,
         )
         .nest("/v1/sabcheckout/disputes", sabcheckout_disputes_r)
-        .nest("/v1/sabvault/secrets", sabvault_secrets_r)
-        .nest("/v1/sabvault/shares", sabvault_shares_r)
-        //         .nest("/v1/sabvault/breach-alerts", sabvault_breach_alerts_r)
         .nest("/v1/sabcheckout/sessions", sabcheckout_sessions_r)
         .nest("/v1/sabcheckout/subscriptions", sabcheckout_subscriptions_r)
         .nest("/v1/sabcliq/workspaces", sabcliq_workspaces_r)
@@ -1365,9 +1332,6 @@ pub fn build(state: AppState) -> Router {
         .nest("/v1/sabtables/tables", sabtables_tables_r)
         .nest("/v1/sabtables/views", sabtables_views_r)
         .nest("/v1/sabtables/workspaces", sabtables_workspaces_r)
-        .nest("/v1/sabvault/audit", sabvault_audit_r)
-        //         .nest("/v1/sabvault/breach-alerts", sabvault_breach_alerts_r)
-        .nest("/v1/sabvault/folders", sabvault_folders_r)
         .nest("/v1/sabwebinar/analytics", sabwebinar_analytics_r)
         //         .nest("/v1/sabwebinar/chat", sabwebinar_chat_r)
         .nest("/v1/sabwebinar/polls", sabwebinar_polls_r)
