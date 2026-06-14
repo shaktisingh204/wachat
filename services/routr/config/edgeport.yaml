@@ -1,0 +1,47 @@
+kind: EdgePort
+apiVersion: v2beta1
+ref: edgeport-01
+metadata:
+  region: default
+spec:
+  unknownMethodAction: Discard
+  processor:
+    addr: dispatcher:51901  
+  securityContext:
+    client:
+      protocols:
+        - SSLv3
+        - TLSv1.2
+      authType: DisabledAll
+    keyStorePassword: changeme
+    trustStorePassword: changeme
+    keyStore: "/etc/routr/certs/signaling.p12"
+    trustStore: "/etc/routr/certs/signaling.p12"
+    keyStoreType: pkcs12
+  externalAddrs:
+    # LOCAL: 127.0.0.1 for same-host. For a LAN softphone or real carrier set
+    # this to your machine's reachable / public IP.
+    - 127.0.0.1
+  localnets:
+    - 127.0.0.1/8
+    - 10.0.0.0/8
+    - 172.16.0.0/12
+    - 192.168.0.0/16
+  methods:
+    - REGISTER
+    - MESSAGE
+    - INVITE
+    - ACK
+    - BYE
+    - CANCEL
+  transport:
+    - protocol: tcp
+      port: 5060
+    - protocol: udp
+      port: 5060
+    - protocol: tls
+      port: 5061
+    - protocol: ws 
+      port: 5062
+    - protocol: wss
+      port: 5063

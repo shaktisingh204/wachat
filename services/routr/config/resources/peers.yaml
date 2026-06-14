@@ -1,0 +1,15 @@
+# SabCall local Routr seed — Peers (media servers).
+# Asterisk registers to Routr as this peer and backs the AOR that inbound
+# numbers route to; Asterisk then hands the call to Stasis(sabcall) → engine.
+- apiVersion: v2beta1
+  kind: Peer
+  ref: peer-asterisk
+  metadata:
+    name: Asterisk (SabCall media tier)
+  spec:
+    aor: sip:sabcall@sip.local
+    username: asterisk
+    credentialsRef: credentials-asterisk
+    loadBalancing:
+      withSessionAffinity: true
+      algorithm: least-sessions

@@ -1,0 +1,12 @@
+# SabCall local Routr seed — Agents (SIP extensions / softphones).
+# Register a softphone (e.g. Zoiper/Linphone) as 1001@sip.local to test.
+- apiVersion: v2beta1
+  kind: Agent
+  ref: agent-1001
+  metadata:
+    name: Test Softphone
+  spec:
+    username: "1001"
+    domainRef: domain-01
+    credentialsRef: credentials-1001
+    privacy: Private

@@ -1,0 +1,14 @@
+# SabCall local Routr seed — Domains.
+# Replace/augment from the engine's generator: GET /v1/tenants/<projectId>/routr.json
+- apiVersion: v2beta1
+  kind: Domain
+  ref: domain-01
+  metadata:
+    name: SabCall Local
+  spec:
+    accessControlListRef: acl-01
+    context:
+      domainUri: sip.local
+      egressPolicies:
+        - rule: ".*"
+          numberRef: number-01

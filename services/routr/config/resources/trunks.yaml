@@ -1,0 +1,22 @@
+# SabCall local Routr seed — Trunks (carrier SIP).
+# Empty by default (local test needs no carrier). Add your ITSP trunk here, or
+# generate from SabCall: GET /v1/tenants/<projectId>/routr.json. Example:
+#
+# - apiVersion: v2beta1
+#   kind: Trunk
+#   ref: trunk-01
+#   metadata:
+#     name: My Carrier
+#   spec:
+#     inbound:
+#       uri: inbound.mycarrier.example
+#       accessControlListRef: acl-01
+#     outbound:
+#       sendRegister: true
+#       credentialsRef: credentials-carrier
+#       uris:
+#         - uri: { user: myuser, host: sip.mycarrier.example, port: 5060, transport: udp }
+#           priority: 10
+#           weight: 10
+#           enabled: true
+[]

@@ -1,0 +1,16 @@
+# SabCall local Routr seed — Numbers (DIDs).
+# Inbound calls to this number route to the Asterisk peer AOR → Stasis(sabcall).
+# For real PSTN, set trunkRef to a carrier Trunk and use your real DID.
+- apiVersion: v2beta1
+  kind: Number
+  ref: number-01
+  metadata:
+    name: "Local test number"
+    geoInfo:
+      city: Local
+      country: USA
+      countryIsoCode: US
+  spec:
+    location:
+      telUrl: tel:+10000000000
+      aorLink: sip:sabcall@sip.local

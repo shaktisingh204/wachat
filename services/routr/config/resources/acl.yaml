@@ -1,0 +1,15 @@
+# SabCall local Routr seed — Access Control List (allow loopback + Docker nets).
+- apiVersion: v2beta1
+  kind: AccessControlList
+  ref: acl-01
+  metadata:
+    name: SabCall Local ACL
+  spec:
+    accessControlList:
+      allow:
+        - 127.0.0.1/8
+        - 10.0.0.0/8
+        - 172.16.0.0/12
+        - 192.168.0.0/16
+      deny:
+        - 0.0.0.0/1

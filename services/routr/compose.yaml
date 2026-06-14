@@ -1,0 +1,75 @@
+# SabCall local voice stack — Routr (open-source SIP) + Asterisk (media/ARI).
+#
+#   cd services/routr && docker compose up
+#
+# Routr (vendored from github.com/fonoster/routr, v2) is the SIP brain: edgeport
+# (SIP listener) → dispatcher → connect processor, with the simpledata apiserver
+# reading ./config/resources/*.yaml. Asterisk is the media tier: it registers to
+# Routr as the `asterisk` peer, receives routed calls, and hands them to
+# Stasis(sabcall) so the host-run `sabcall-engine` drives the call over ARI.
+#
+# The engine runs natively (cargo/PM2) and reaches Asterisk ARI on localhost:8088.
+services:
+  edgeport01:
+    image: fonoster/routr-edgeport:latest
+    restart: unless-stopped
+    ports:
+      - "5060:5060"
+      - "5060:5060/udp"
+      - "5061:5061"
+      - "5062:5062" # ws (WebRTC softphone)
+      - "5063:5063" # wss
+    volumes:
+      - ./config/edgeport.yaml:/etc/routr/edgeport.yaml
+
+  dispatcher:
+    image: fonoster/routr-dispatcher:latest
+    restart: unless-stopped
+    expose: ["51901"]
+    volumes:
+      - ./config/dispatcher.yaml:/etc/routr/dispatcher.yaml
+
+  location:
+    image: fonoster/routr-location:latest
+    restart: unless-stopped
+    expose: ["51902"]
+    volumes:
+      - ./config/location.yaml:/etc/routr/location.yaml
+
+  connect:
+    image: fonoster/routr-connect:latest
+    restart: unless-stopped
+    environment:
+      LOCATION_ADDR: location:51902
+      API_ADDR: apiserver:51907
+    expose: ["51904"]
+
+  apiserver:
+    image: fonoster/routr-simpledata:latest
+    restart: unless-stopped
+    expose: ["51907"]
+    volumes:
+      - ./config/resources:/etc/routr/resources
+
+  requester:
+    image: fonoster/routr-requester:latest
+    restart: unless-stopped
+    expose: ["51909"]
+
+  registry:
+    image: fonoster/routr-registry:latest
+    restart: unless-stopped
+    expose: ["51910"]
+    volumes:
+      - ./config/registry.yaml:/etc/routr/registry.yaml
+
+  # ── Media tier: Asterisk (RTP + ARI). Driven by the host sabcall-engine. ──
+  asterisk:
+    image: andrius/asterisk:18-current
+    restart: unless-stopped
+    depends_on: [edgeport01]
+    ports:
+      - "8088:8088"            # ARI (http) — sabcall-engine connects here
+      - "10000-10100:10000-10100/udp"  # RTP
+    volumes:
+      - ./asterisk:/etc/asterisk
