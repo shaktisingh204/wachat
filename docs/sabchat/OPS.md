@@ -18,10 +18,18 @@ node-cron worker, and `vercel.json` `crons`). Auth is `CRON_SECRET` (Bearer /
 local dev. While `SABCHAT_JOURNEYS_ENABLED` is falsy the route no-ops.
 
 The tick advances every due journey run one step across all `kind:'chat'`
-projects and delivers the **chat** channel in-app (find-or-create the contact's
-conversation, append a `bot` message → publishes on the WS hub → lands live in
-the agent inbox + visitor widget). Email/SMS/push outbox rows are left pending —
-wiring those to SabMail / SabSMS is the channel-dispatcher follow-up.
+projects and delivers per channel:
+
+- **chat** — find-or-create the contact's conversation, append a `bot` message →
+  publishes on the WS hub → lands live in the agent inbox + visitor widget.
+- **email** — delivered for real via the platform transactional SMTP relay
+  (`SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASS`, the same creds SabFlow
+  uses); resolves the contact's first email. Marked `skipped` if SMTP or the
+  email is missing.
+- **sms / push** — no adapter yet; marked `skipped` (terminal) so they don't
+  starve the queue. Wiring SMS needs a per-project SabSMS sender (cross-module).
+
+The same drain runs the **send-later** queue (`sabchat_scheduled_messages`).
 
 ## Realtime (WebSocket hub)
 
