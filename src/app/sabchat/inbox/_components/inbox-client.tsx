@@ -16,6 +16,8 @@ import {
   MessagesSquare,
   Paperclip,
   Phone,
+  Plus,
+  Trash2,
   RotateCcw,
   Search,
   Send,
@@ -68,6 +70,21 @@ import {
 } from "@/app/actions/sabchat-crm-bridge.actions";
 import { gradeConversation, listQaRubrics } from "@/app/actions/sabchat-ops.actions";
 import { draftKbFromConversation } from "@/app/actions/sabchat-support.actions";
+import {
+  appendSideMessage,
+  createSideConversation,
+  deleteSideConversation,
+  linkConversations,
+  listConversationLinks,
+  listSideConversations,
+  listSideMessages,
+  unlinkConversations,
+} from "@/app/actions/sabchat-collab.actions";
+import type {
+  SabChatConversationLink,
+  SabChatSideConversation,
+  SabChatSideMessage,
+} from "@/lib/rust-client/sabchat-collab";
 import type {
   ContentBlock,
   ConversationStatus,
@@ -1560,6 +1577,9 @@ export function InboxClient({
         <ContextPane
           conv={selected}
           contact={selectedContact}
+          otherConversations={conversations
+            .filter((c) => c._id !== selected._id)
+            .map((c) => ({ id: c._id, label: contactLabel(contactsById[c.contactId]) }))}
           onSnooze={() =>
             void act(
               () =>
@@ -1786,6 +1806,7 @@ function ConversationRow({
 function ContextPane({
   conv,
   contact,
+  otherConversations,
   onSnooze,
   onAutoAssign,
   onAddLabel,
@@ -1793,6 +1814,7 @@ function ContextPane({
 }: {
   conv: SabChatConversation;
   contact?: SabChatContact;
+  otherConversations: { id: string; label: string }[];
   onSnooze: () => void;
   onAutoAssign: () => void;
   onAddLabel: (label: string) => void;
@@ -1882,6 +1904,8 @@ function ContextPane({
       ) : null}
 
       <CrmBridgeSection conv={conv} contact={contact} />
+
+      <CollabSection conv={conv} otherConversations={otherConversations} />
     </aside>
   );
 }
@@ -1966,6 +1990,241 @@ function CrmBridgeSection({
           <Building2 className="h-3 w-3" aria-hidden /> Identify the visitor to enable contact
           sync.
         </p>
+      ) : null}
+    </Section>
+  );
+}
+
+function CollabSection({
+  conv,
+  otherConversations,
+}: {
+  conv: SabChatConversation;
+  otherConversations: { id: string; label: string }[];
+}) {
+  const { toast } = useToast();
+  const [sides, setSides] = React.useState<SabChatSideConversation[]>([]);
+  const [links, setLinks] = React.useState<SabChatConversationLink[]>([]);
+  const [openSideId, setOpenSideId] = React.useState<string | null>(null);
+  const [sideMsgs, setSideMsgs] = React.useState<SabChatSideMessage[]>([]);
+  const [newSubject, setNewSubject] = React.useState("");
+  const [reply, setReply] = React.useState("");
+  const [linkTarget, setLinkTarget] = React.useState("");
+  const [busy, setBusy] = React.useState(false);
+
+  const labelFor = (id: string) =>
+    otherConversations.find((c) => c.id === id)?.label ?? id.slice(-6);
+
+  const load = React.useCallback(async () => {
+    const [s, l] = await Promise.all([
+      listSideConversations(conv._id),
+      listConversationLinks(conv._id),
+    ]);
+    setSides(s);
+    setLinks(l);
+  }, [conv._id]);
+
+  React.useEffect(() => {
+    setOpenSideId(null);
+    setSideMsgs([]);
+    void load();
+  }, [load]);
+
+  const openSide = async (id: string) => {
+    if (openSideId === id) {
+      setOpenSideId(null);
+      return;
+    }
+    setOpenSideId(id);
+    setSideMsgs(await listSideMessages(id));
+  };
+
+  const addSide = async () => {
+    if (!newSubject.trim()) return;
+    setBusy(true);
+    const res = await createSideConversation(conv._id, newSubject);
+    setBusy(false);
+    if (res.ok) {
+      setNewSubject("");
+      void load();
+    } else {
+      toast({ title: "Failed", description: res.error, variant: "destructive" });
+    }
+  };
+
+  const sendReply = async (sideId: string) => {
+    if (!reply.trim()) return;
+    setBusy(true);
+    const res = await appendSideMessage(sideId, reply);
+    setBusy(false);
+    if (res.ok) {
+      setReply("");
+      setSideMsgs(await listSideMessages(sideId));
+      void load();
+    } else {
+      toast({ title: "Failed", description: res.error, variant: "destructive" });
+    }
+  };
+
+  const removeSide = async (id: string) => {
+    const res = await deleteSideConversation(id);
+    if (res.ok) {
+      if (openSideId === id) setOpenSideId(null);
+      void load();
+    }
+  };
+
+  const addLink = async () => {
+    if (!linkTarget) return;
+    setBusy(true);
+    const res = await linkConversations(conv._id, linkTarget);
+    setBusy(false);
+    if (res.ok) {
+      setLinkTarget("");
+      void load();
+    } else {
+      toast({ title: "Failed", description: res.error, variant: "destructive" });
+    }
+  };
+
+  const removeLink = async (id: string) => {
+    const res = await unlinkConversations(id);
+    if (res.ok) void load();
+  };
+
+  return (
+    <Section title="Collaboration">
+      {/* Side conversations */}
+      <p className="mb-1 text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
+        Side conversations
+      </p>
+      <div className="space-y-1">
+        {sides.length === 0 ? (
+          <p className="text-xs text-[var(--st-text-secondary)]">
+            None yet — start a private internal thread.
+          </p>
+        ) : (
+          sides.map((s) => (
+            <div key={s._id} className="rounded-md border border-[var(--st-border)]">
+              <div className="flex items-center justify-between gap-2 px-2 py-1.5">
+                <button className="min-w-0 flex-1 text-left" onClick={() => void openSide(s._id)}>
+                  <span className="block truncate text-xs font-medium text-[var(--st-text)]">
+                    {s.subject}
+                  </span>
+                  <span className="text-[10px] text-[var(--st-text-secondary)]">
+                    {s.messageCount} message{s.messageCount === 1 ? "" : "s"}
+                  </span>
+                </button>
+                <button
+                  onClick={() => void removeSide(s._id)}
+                  className="text-[var(--st-text-secondary)] hover:text-red-500"
+                  aria-label="Delete side conversation"
+                >
+                  <Trash2 className="h-3.5 w-3.5" aria-hidden />
+                </button>
+              </div>
+              {openSideId === s._id ? (
+                <div className="border-t border-[var(--st-border)] p-2">
+                  <div className="mb-1 max-h-40 space-y-1 overflow-y-auto">
+                    {sideMsgs.length === 0 ? (
+                      <p className="text-[11px] text-[var(--st-text-secondary)]">No messages yet.</p>
+                    ) : (
+                      sideMsgs.map((m) => (
+                        <div key={m._id} className="rounded bg-[var(--st-bg-muted)] px-2 py-1">
+                          <p className="text-[11px] text-[var(--st-text)]">{m.body}</p>
+                          <p className="text-[9px] text-[var(--st-text-secondary)]">
+                            {m.authorName || "Agent"}
+                          </p>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                  <div className="flex items-end gap-1">
+                    <textarea
+                      value={reply}
+                      onChange={(e) => setReply(e.target.value)}
+                      rows={1}
+                      placeholder="Reply privately…"
+                      className="max-h-20 min-h-[30px] flex-1 resize-none rounded border border-[var(--st-border)] bg-transparent px-2 py-1 text-[11px] text-[var(--st-text)] outline-none"
+                    />
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      iconLeft={Send}
+                      loading={busy}
+                      disabled={busy || !reply.trim()}
+                      onClick={() => void sendReply(s._id)}
+                    />
+                  </div>
+                </div>
+              ) : null}
+            </div>
+          ))
+        )}
+      </div>
+      <form
+        className="mt-1.5 flex gap-1"
+        onSubmit={(e) => {
+          e.preventDefault();
+          void addSide();
+        }}
+      >
+        <Input
+          value={newSubject}
+          onChange={(e) => setNewSubject(e.target.value)}
+          placeholder="New side-thread subject"
+          className="h-8 text-xs"
+        />
+        <Button type="submit" variant="outline" size="sm" iconLeft={Plus} disabled={!newSubject.trim() || busy} />
+      </form>
+
+      {/* Linked conversations */}
+      <p className="mb-1 mt-3 text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
+        Linked conversations
+      </p>
+      <div className="space-y-1">
+        {links.length === 0 ? (
+          <p className="text-xs text-[var(--st-text-secondary)]">No links.</p>
+        ) : (
+          links.map((l) => {
+            const otherId = l.aId === conv._id ? l.bId : l.aId;
+            return (
+              <div
+                key={l._id}
+                className="flex items-center justify-between gap-2 rounded-md bg-[var(--st-bg-muted)] px-2 py-1"
+              >
+                <span className="flex min-w-0 items-center gap-1 text-xs text-[var(--st-text)]">
+                  <Link2 className="h-3 w-3 shrink-0 opacity-60" aria-hidden />
+                  <span className="truncate">{labelFor(otherId)}</span>
+                </span>
+                <button
+                  onClick={() => void removeLink(l._id)}
+                  className="text-[var(--st-text-secondary)] hover:text-red-500"
+                  aria-label="Remove link"
+                >
+                  <X className="h-3 w-3" aria-hidden />
+                </button>
+              </div>
+            );
+          })
+        )}
+      </div>
+      {otherConversations.length > 0 ? (
+        <div className="mt-1.5 flex gap-1">
+          <select
+            value={linkTarget}
+            onChange={(e) => setLinkTarget(e.target.value)}
+            className="h-8 flex-1 rounded-md border border-[var(--st-border)] bg-transparent px-2 text-xs text-[var(--st-text)] outline-none"
+          >
+            <option value="">Link to…</option>
+            {otherConversations.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.label}
+              </option>
+            ))}
+          </select>
+          <Button variant="outline" size="sm" iconLeft={Link2} disabled={!linkTarget || busy} onClick={() => void addLink()} />
+        </div>
       ) : null}
     </Section>
   );
