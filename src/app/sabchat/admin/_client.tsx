@@ -4,6 +4,7 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import {
   CalendarClock,
+  Gauge,
   Inbox as InboxIcon,
   MessageSquareText,
   Plus,
@@ -43,8 +44,10 @@ import {
 } from "@/app/actions/sabchat-config.actions";
 import {
   SABCHAT_WEBHOOK_EVENTS,
+  deleteQaRubric,
   deleteShiftRule,
   deleteWebhook,
+  saveQaRubric,
   saveShiftRule,
   saveWebhook,
   testWebhook,
@@ -54,8 +57,19 @@ import type { SabChatMacro } from "@/lib/rust-client/sabchat-macros";
 import type { SabChatDisposition } from "@/lib/rust-client/sabchat-dispositions";
 import type { SabChatWebhookEndpoint } from "@/lib/rust-client/sabchat-webhooks";
 import type { SabChatShiftRule } from "@/lib/rust-client/sabchat-shifts";
+import type {
+  SabChatQaRubric,
+  SabChatQaRubricCriterion,
+} from "@/lib/rust-client/sabchat-ai-qa";
 
-type Tab = "inboxes" | "macros" | "dispositions" | "webhooks" | "shifts" | "audit";
+type Tab =
+  | "inboxes"
+  | "macros"
+  | "dispositions"
+  | "webhooks"
+  | "shifts"
+  | "qa"
+  | "audit";
 
 const TABS: { id: Tab; label: string; icon: typeof InboxIcon }[] = [
   { id: "inboxes", label: "Inboxes", icon: InboxIcon },
@@ -63,6 +77,7 @@ const TABS: { id: Tab; label: string; icon: typeof InboxIcon }[] = [
   { id: "dispositions", label: "Dispositions", icon: Tag },
   { id: "webhooks", label: "Webhooks", icon: Webhook },
   { id: "shifts", label: "Shifts", icon: CalendarClock },
+  { id: "qa", label: "Quality (QA)", icon: Gauge },
   { id: "audit", label: "Audit log", icon: ScrollText },
 ];
 
@@ -73,6 +88,7 @@ export function AdminClient({
   initialWebhooks,
   initialAudit,
   initialShifts,
+  initialRubrics,
 }: {
   initialInboxes: SabChatInbox[];
   initialMacros: SabChatMacro[];
@@ -80,6 +96,7 @@ export function AdminClient({
   initialWebhooks: SabChatWebhookEndpoint[];
   initialAudit: unknown[];
   initialShifts: SabChatShiftRule[];
+  initialRubrics: SabChatQaRubric[];
 }) {
   const router = useRouter();
   const { toast } = useToast();
@@ -146,6 +163,7 @@ export function AdminClient({
           <WebhooksSection webhooks={initialWebhooks} onAction={handle} />
         )}
         {tab === "shifts" && <ShiftsSection shifts={initialShifts} onAction={handle} />}
+        {tab === "qa" && <QaRubricsSection rubrics={initialRubrics} onAction={handle} />}
         {tab === "audit" && <AuditSection events={initialAudit} />}
       </div>
     </div>
@@ -378,6 +396,187 @@ function ShiftsSection({
               }}
             >
               Create
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
+/* -- Quality (QA) rubrics ------------------------------------------------ */
+
+const emptyCriterion = (): SabChatQaRubricCriterion => ({ key: "", label: "", weight: 1 });
+
+function slug(s: string): string {
+  return s
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "");
+}
+
+function QaRubricsSection({
+  rubrics,
+  onAction,
+}: {
+  rubrics: SabChatQaRubric[];
+  onAction: ActionRunner;
+}) {
+  const [open, setOpen] = React.useState(false);
+  const [editing, setEditing] = React.useState<SabChatQaRubric | null>(null);
+  const [name, setName] = React.useState("");
+  const [criteria, setCriteria] = React.useState<SabChatQaRubricCriterion[]>([emptyCriterion()]);
+  const [busy, setBusy] = React.useState(false);
+
+  const openNew = () => {
+    setEditing(null);
+    setName("");
+    setCriteria([emptyCriterion()]);
+    setOpen(true);
+  };
+  const openEdit = (r: SabChatQaRubric) => {
+    setEditing(r);
+    setName(r.name);
+    setCriteria(r.criteria.length ? r.criteria.map((c) => ({ ...c })) : [emptyCriterion()]);
+    setOpen(true);
+  };
+
+  const setCrit = (i: number, patch: Partial<SabChatQaRubricCriterion>) =>
+    setCriteria((cs) => cs.map((c, j) => (j === i ? { ...c, ...patch } : c)));
+
+  return (
+    <div>
+      <div className="mb-2 flex items-center justify-between">
+        <p className="text-xs text-[var(--st-text-secondary)]">
+          Scorecards the AI (and agents) grade conversations against — weighted
+          criteria roll up into a quality score.
+        </p>
+        <Button variant="primary" size="sm" iconLeft={Plus} onClick={openNew}>
+          New rubric
+        </Button>
+      </div>
+      <Card className="divide-y divide-[var(--st-border)] p-0">
+        {rubrics.length === 0 ? (
+          <p className="p-6 text-center text-sm text-[var(--st-text-secondary)]">
+            No rubrics yet. Create one to start grading conversation quality.
+          </p>
+        ) : (
+          rubrics.map((r) => (
+            <div key={r._id} className="flex items-center justify-between gap-3 p-4">
+              <button className="min-w-0 flex-1 text-left" onClick={() => openEdit(r)}>
+                <p className="text-sm font-medium text-[var(--st-text)]">{r.name}</p>
+                <p className="truncate text-xs text-[var(--st-text-secondary)]">
+                  {r.criteria.length} criteria · weight{" "}
+                  {r.criteria.reduce((a, c) => a + (Number(c.weight) || 0), 0)}
+                </p>
+              </button>
+              <Badge variant={r.active ? "default" : "outline"}>
+                {r.active ? "Active" : "Inactive"}
+              </Badge>
+              <Button
+                variant="ghost"
+                size="sm"
+                iconLeft={Trash2}
+                onClick={() => void onAction(() => deleteQaRubric(r._id), "Deleted")}
+              />
+            </div>
+          ))
+        )}
+      </Card>
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>{editing ? "Edit rubric" : "New rubric"}</DialogTitle>
+          </DialogHeader>
+          <Field label="Name">
+            <Input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Support quality"
+              autoFocus
+            />
+          </Field>
+          <div className="mt-1">
+            <div className="mb-1 flex items-center justify-between">
+              <span className="text-xs font-medium text-[var(--st-text-secondary)]">
+                Criteria
+              </span>
+              <Button
+                variant="ghost"
+                size="sm"
+                iconLeft={Plus}
+                onClick={() => setCriteria((cs) => [...cs, emptyCriterion()])}
+              >
+                Add
+              </Button>
+            </div>
+            <div className="space-y-2">
+              {criteria.map((c, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <Input
+                    value={c.label}
+                    onChange={(e) =>
+                      setCrit(i, {
+                        label: e.target.value,
+                        key: c.key || slug(e.target.value),
+                      })
+                    }
+                    placeholder="Empathy"
+                    className="flex-1"
+                  />
+                  <Input
+                    type="number"
+                    min={1}
+                    value={String(c.weight)}
+                    onChange={(e) => setCrit(i, { weight: Number(e.target.value) || 1 })}
+                    className="w-20"
+                  />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    iconLeft={Trash2}
+                    disabled={criteria.length <= 1}
+                    onClick={() => setCriteria((cs) => cs.filter((_, j) => j !== i))}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" size="sm" onClick={() => setOpen(false)} disabled={busy}>
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              loading={busy}
+              disabled={busy || !name.trim() || criteria.every((c) => !c.label.trim())}
+              onClick={async () => {
+                setBusy(true);
+                const cleaned = criteria
+                  .filter((c) => c.label.trim())
+                  .map((c) => ({
+                    key: (c.key || slug(c.label)).trim(),
+                    label: c.label.trim(),
+                    weight: Number(c.weight) || 1,
+                  }));
+                const ok = await onAction(
+                  () =>
+                    saveQaRubric({
+                      id: editing?._id,
+                      name,
+                      criteria: cleaned,
+                      active: editing ? editing.active : true,
+                    }),
+                  editing ? "Saved" : "Created",
+                );
+                setBusy(false);
+                if (ok) setOpen(false);
+              }}
+            >
+              {editing ? "Save" : "Create"}
             </Button>
           </DialogFooter>
         </DialogContent>

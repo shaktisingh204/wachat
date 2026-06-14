@@ -7,6 +7,7 @@ import {
   listWebhooks,
   listAuditEvents,
   listShiftRules,
+  listQaRubrics,
 } from "@/app/actions/sabchat-ops.actions";
 
 import { AdminClient } from "./_client";
@@ -14,7 +15,7 @@ import { AdminClient } from "./_client";
 export const dynamic = "force-dynamic";
 
 export default async function SabchatAdminPage() {
-  const [inboxesRes, macros, dispositions, webhooks, audit, shifts] =
+  const [inboxesRes, macros, dispositions, webhooks, audit, shifts, rubrics] =
     await Promise.all([
       listAdminInboxes(),
       listMacros(),
@@ -22,6 +23,7 @@ export default async function SabchatAdminPage() {
       listWebhooks(),
       listAuditEvents(),
       listShiftRules(),
+      listQaRubrics(),
     ]);
 
   return (
@@ -32,6 +34,7 @@ export default async function SabchatAdminPage() {
       initialWebhooks={webhooks}
       initialAudit={audit}
       initialShifts={shifts}
+      initialRubrics={rubrics}
     />
   );
 }
