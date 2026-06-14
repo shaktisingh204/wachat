@@ -133,15 +133,8 @@ export async function deleteTeam(id: string): Promise<Mut> {
 }
 
 /* ── Webhooks ──────────────────────────────────────────────────────────── */
-
-export const SABCHAT_WEBHOOK_EVENTS = [
-  'conversation.created',
-  'conversation.updated',
-  'conversation.resolved',
-  'message.created',
-  'contact.created',
-  'csat.submitted',
-] as const;
+/* SABCHAT_WEBHOOK_EVENTS moved to `@/lib/sabchat/webhook-events` — a
+ * `'use server'` file may only export async functions. */
 
 export async function listWebhooks(): Promise<SabChatWebhookEndpoint[]> {
   try {

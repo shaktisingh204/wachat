@@ -48,7 +48,6 @@ import {
 import { toast } from "sonner";
 
 import {
-  ENGINE_DEFAULTS,
   loadKeywordsPage,
   saveKeywordOverride,
   saveKeywordRule,
@@ -57,6 +56,7 @@ import {
   type KeywordOverrideView,
   type KeywordRuleView,
 } from "./actions";
+import { ENGINE_DEFAULTS } from "./_constants";
 
 type View = "stop-help" | "rules" | "stats";
 

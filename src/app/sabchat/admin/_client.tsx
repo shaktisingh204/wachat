@@ -43,7 +43,6 @@ import {
   setInboxEnabled,
 } from "@/app/actions/sabchat-config.actions";
 import {
-  SABCHAT_WEBHOOK_EVENTS,
   deleteQaRubric,
   deleteShiftRule,
   deleteWebhook,
@@ -52,6 +51,7 @@ import {
   saveWebhook,
   testWebhook,
 } from "@/app/actions/sabchat-ops.actions";
+import { SABCHAT_WEBHOOK_EVENTS } from "@/lib/sabchat/webhook-events";
 import type { SabChatInbox } from "@/lib/rust-client/sabchat";
 import type { SabChatMacro } from "@/lib/rust-client/sabchat-macros";
 import type { SabChatDisposition } from "@/lib/rust-client/sabchat-dispositions";

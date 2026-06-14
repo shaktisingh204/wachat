@@ -26,13 +26,6 @@ import {
 } from '@/lib/rust-client/wachat-flow-events';
 import { getErrorMessage } from '@/lib/utils';
 
-/** Zero / never-triggered baseline — mirrors `FlowMetrics::empty()` on the Rust side. */
-const EMPTY_METRICS: FlowMetrics = {
-    triggersToday: 0,
-    totalTriggers: 0,
-    lastTriggeredAt: null,
-};
-
 export type FlowMetricsResult =
     | { success: true; metrics: FlowMetrics }
     | { success: false; error: string };
@@ -77,5 +70,3 @@ export async function getProjectFlowMetrics(projectId: string): Promise<BatchFlo
         return { success: false, error: getErrorMessage(e) };
     }
 }
-
-export { EMPTY_METRICS };

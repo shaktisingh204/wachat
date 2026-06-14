@@ -36,15 +36,8 @@ const COL_SUPPRESSIONS = SABSMS_COLLECTIONS.suppressions;
 const COL_CONSENT = SABSMS_COLLECTIONS.consentLog;
 const PAGE_PATH = "/sabsms/compliance/keywords";
 
-// Mirror of the engine's compiled-in defaults (keywords.rs). These are
-// ALWAYS active and cannot be edited away — shown as read-only context.
-export const ENGINE_DEFAULTS = {
-  stop: ["STOP", "STOPALL", "UNSUB", "UNSUBSCRIBE", "CANCEL", "END", "QUIT"],
-  start: ["START", "UNSTOP"],
-  help: ["HELP", "INFO"],
-  confirmOptOutText: "You have been unsubscribed. Reply START to resubscribe.",
-  helpText: "Reply STOP to unsubscribe.",
-} as const;
+// ENGINE_DEFAULTS moved to `./_constants` — a `'use server'` file may only
+// export async functions.
 
 type ActionErr = { success: false; error: string };
 const unauthorized: ActionErr = { success: false, error: "Unauthorized" };

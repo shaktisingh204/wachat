@@ -58,9 +58,8 @@ import { getFlowsForProject,
 import {
   getProjectFlowMetrics,
   getFlowEventMetrics,
-  EMPTY_METRICS,
 } from '@/app/actions/wachat-flow-events.actions';
-import type { FlowMetrics } from '@/lib/rust-client/wachat-flow-events';
+import { EMPTY_METRICS, type FlowMetrics } from '@/lib/rust-client/wachat-flow-events';
 import type { Flow } from '@/lib/definitions';
 import { useProject } from '@/context/project-context';
 

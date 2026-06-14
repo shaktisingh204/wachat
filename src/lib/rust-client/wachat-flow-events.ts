@@ -40,6 +40,18 @@ export interface FlowMetrics {
 }
 
 /**
+ * Zero / never-triggered baseline — mirrors `FlowMetrics::empty()` on the Rust
+ * side. Lives here (not in the `'use server'` actions module) because a
+ * `'use server'` file may only export async functions; callers default absent
+ * flows to this value.
+ */
+export const EMPTY_METRICS: FlowMetrics = {
+    triggersToday: 0,
+    totalTriggers: 0,
+    lastTriggeredAt: null,
+};
+
+/**
  * Response for `GET /v1/wachat/flow-events?projectId=…`.
  *
  * The Rust handler serializes its `BatchMetricsResponse` with
