@@ -12,6 +12,7 @@ import {
   Settings2,
   ShoppingCart,
   Workflow,
+  Wrench,
 } from "lucide-react";
 
 // Import the `SidebarGroup` *interface* directly from the shell module (the
@@ -125,6 +126,13 @@ export function buildSabchatSidebarGroups(
           icon: React.createElement(MessagesSquare),
           href: "/sabchat/community",
           active: isActive("/sabchat/community"),
+        },
+        {
+          id: "actions",
+          label: "AI actions",
+          icon: React.createElement(Wrench),
+          href: "/sabchat/actions",
+          active: isActive("/sabchat/actions"),
         },
         {
           id: "admin",

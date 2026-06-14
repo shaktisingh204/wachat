@@ -1,0 +1,50 @@
+# Axum router for the SabChat **action-taking AI** HTTP surface.
+#
+# A tenant defines "connectors" (tool definitions) the resolve-bot / copilot
+# can invoke to *take action* — look up an order, issue a refund, etc. v1
+# ships the `http_webhook` connector kind: a real outbound HTTP call to the
+# tenant-configured endpoint, with every invocation recorded for audit.
+#
+# Per the slice contract this crate is a leaf:
+#   * No `[workspace]` table.
+#   * Does NOT modify `rust/Cargo.toml`; the orchestrator wires it in.
+[package]
+name = "sabchat-ai-actions"
+version = "0.1.0"
+edition = "2024"
+description = "Axum router that mounts the SabChat action-taking-AI HTTP surface (`/v1/sabchat/ai/actions/*`): connector (tool) registry over `sabchat_ai_connectors`, an `http_webhook` executor that calls the tenant-configured endpoint, and an `sabchat_ai_action_runs` audit log."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "sabchat_ai_actions"
+path = "src/lib.rs"
+
+[dependencies]
+axum = { version = "0.8", default-features = false, features = ["json", "http1", "tokio", "macros", "query"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+bson = { version = "2", features = ["chrono-0_4"] }
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+
+mongodb = "3"
+futures = "0.3"
+
+# Outbound HTTP for the http_webhook connector executor.
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+
+tracing = "0.1"
+anyhow = "1"
+
+utoipa = { version = "5", features = ["axum_extras", "chrono"] }
+
+sabnode-common = { path = "../common" }
+sabnode-auth = { path = "../auth" }
+sabnode-db = { path = "../db" }
+sabchat-types = { path = "../sabchat-types" }
+
+[lints]
+workspace = true

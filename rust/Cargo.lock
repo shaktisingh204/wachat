@@ -9708,6 +9708,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "sabchat-ai-actions"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum 0.8.9",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "reqwest",
+ "sabchat-types",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "utoipa",
+]
+
+[[package]]
 name = "sabchat-ai-copilot"
 version = "0.1.0"
 dependencies = [
@@ -13525,6 +13547,7 @@ dependencies = [
  "sabcatalyst-records",
  "sabcatalyst-usage",
  "sabchat-ad-attribution",
+ "sabchat-ai-actions",
  "sabchat-ai-copilot",
  "sabchat-ai-qa",
  "sabchat-ai-resolve-bot",
