@@ -42,6 +42,7 @@ import { getPublicSignBranding } from '@/app/actions/sabsign-settings.actions';
 import type { EnvelopeField } from '@/lib/rust-client/sabsign-envelopes';
 import type { SabsignBranding } from '@/lib/sabsign/branding';
 import { fieldVisibility, computeFormula } from '@/lib/sabsign/conditions';
+import { t, LOCALES, normalizeLocale } from '@/lib/sabsign/i18n';
 
 interface SignPagePayload {
   _id: string;
@@ -77,6 +78,12 @@ export default function PublicSignPage() {
   const [done, setDone] = React.useState<string | null>(null);
   const [error, setError] = React.useState<string | null>(null);
   const [branding, setBranding] = React.useState<SabsignBranding | null>(null);
+  const [locale, setLocale] = React.useState('en');
+
+  // Default the signing language from the signer's browser.
+  React.useEffect(() => {
+    if (typeof navigator !== 'undefined') setLocale(normalizeLocale(navigator.language));
+  }, []);
 
   // White-label branding for the signing experience (public, by envelope id).
   React.useEffect(() => {
@@ -144,7 +151,7 @@ export default function PublicSignPage() {
   const submit = async (decline = false) => {
     if (!payload) return;
     if (!decline && !consent) {
-      setError('Please agree to sign this document electronically before submitting.');
+      setError(t(locale, 'agreeFirst'));
       return;
     }
     setBusy(true);
@@ -174,7 +181,7 @@ export default function PublicSignPage() {
       });
       setDone(
         decline
-          ? 'Declined. Thank you.'
+          ? t(locale, 'declinedThanks')
           : `Submitted. Envelope is now ${res.envelopeStatus.replace('_', ' ')}.`,
       );
       // Notify an embedding parent window (embedded signing).
@@ -247,9 +254,9 @@ export default function PublicSignPage() {
 
   return (
     <div className="20ui min-h-screen bg-[var(--st-bg)] p-4">
-      {branding && (branding.logoUrl || branding.senderName) ? (
-        <div className="mx-auto mb-3 flex max-w-6xl items-center gap-3">
-          {branding.logoUrl ? (
+      <div className="mx-auto mb-3 flex max-w-6xl items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          {branding?.logoUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={branding.logoUrl}
@@ -257,13 +264,27 @@ export default function PublicSignPage() {
               className="max-h-9 object-contain"
             />
           ) : null}
-          {branding.senderName ? (
+          {branding?.senderName ? (
             <span className="text-sm font-medium text-[var(--st-text)]">
               {branding.senderName}
             </span>
           ) : null}
         </div>
-      ) : null}
+        <label className="flex items-center gap-1.5 text-xs text-[var(--st-text-secondary)]">
+          {t(locale, 'language')}
+          <select
+            value={locale}
+            onChange={(e) => setLocale(e.target.value)}
+            className="rounded border border-[var(--st-border)] bg-[var(--st-surface)] px-2 py-1 text-xs text-[var(--st-text)]"
+          >
+            {LOCALES.map((l) => (
+              <option key={l.code} value={l.code}>
+                {l.label}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
       <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-4">
         <Card padding="none" className="overflow-hidden">
           {payload.docUrl ? (
@@ -334,10 +355,12 @@ export default function PublicSignPage() {
 
           <Card>
             <CardBody className="space-y-3">
-              <h3 className="text-sm font-medium text-[var(--st-text)]">Your fields</h3>
+              <h3 className="text-sm font-medium text-[var(--st-text)]">
+                {t(locale, 'yourFields')}
+              </h3>
               {fields.length === 0 ? (
                 <p className="text-xs text-[var(--st-text-secondary)]">
-                  Nothing to fill. Only your signature is required.
+                  {t(locale, 'nothingToFill')}
                 </p>
               ) : (
                 fields.map((f) => {
@@ -393,7 +416,7 @@ export default function PublicSignPage() {
           <Card>
             <CardBody>
               <Checkbox
-                label="I agree to sign this document electronically, and that my electronic signature is the legal equivalent of my handwritten signature."
+                label={t(locale, 'consent')}
                 checked={consent}
                 onChange={(e) => setConsent(e.target.checked)}
               />
@@ -410,10 +433,10 @@ export default function PublicSignPage() {
               disabled={busy || !consent}
               onClick={() => submit(false)}
             >
-              {busy ? 'Submitting…' : 'Finish & sign'}
+              {busy ? t(locale, 'submitting') : t(locale, 'finishSign')}
             </Button>
             <Button variant="outline" disabled={busy} onClick={() => submit(true)}>
-              Decline
+              {t(locale, 'decline')}
             </Button>
           </div>
         </div>
