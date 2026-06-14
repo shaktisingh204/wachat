@@ -11,14 +11,23 @@ import { rustFetch } from './fetcher';
 
 export type SabChatSurveyKind = 'csat' | 'nps' | 'ces';
 
+export interface SabChatSurveyBranch {
+    scoreMin: number;
+    scoreMax: number;
+    followUpQuestion: string;
+}
+
 export interface SabChatSurvey {
     _id: string;
     tenantId: string;
     name: string;
     kind: SabChatSurveyKind;
     question: string;
+    scaleMin?: number;
     scaleMax?: number;
-    followupQuestion?: string;
+    followUpQuestion?: string;
+    /** Skip-logic: a different follow-up question per score range. */
+    branches?: SabChatSurveyBranch[];
     active: boolean;
     createdAt: string;
     updatedAt: string;

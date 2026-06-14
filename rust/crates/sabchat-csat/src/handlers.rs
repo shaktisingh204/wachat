@@ -176,6 +176,13 @@ pub async fn create_survey(
         None => Bson::Null,
     };
 
+    let branches_bson: Bson = match &body.branches {
+        Some(b) if !b.is_empty() => bson::to_bson(b).map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("serialize survey branches"))
+        })?,
+        _ => Bson::Array(Vec::new()),
+    };
+
     let new_doc = doc! {
         "_id": new_oid,
         "tenantId": tenant,
@@ -185,6 +192,7 @@ pub async fn create_survey(
         "scaleMax": body.scale_max,
         "question": body.question.trim(),
         "followUpQuestion": follow_up,
+        "branches": branches_bson,
         "trigger": trigger_to_str(trigger),
         "active": active,
         "createdAt": now_bson,
@@ -318,6 +326,13 @@ pub async fn update_survey(
             set.insert("followUpQuestion", v.trim());
         }
     }
+    if let Some(branches) = &body.branches {
+        // An explicit (possibly empty) array replaces the branch set.
+        let b = bson::to_bson(branches).map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("serialize survey branches"))
+        })?;
+        set.insert("branches", b);
+    }
 
     // Re-validate the scale only if either bound is being updated.
     let new_min = body.scale_min.or_else(|| existing.get_i32("scaleMin").ok());
@@ -433,23 +448,65 @@ pub async fn send_survey(
     let question = survey.get_str("question").unwrap_or_default().to_owned();
     let follow_up_question = survey.get_str("followUpQuestion").ok().map(str::to_owned);
 
+    // Skip-logic branches (each: scoreMin/scoreMax → followUpQuestion).
+    let branches: Vec<(i32, i32, String)> = survey
+        .get_array("branches")
+        .map(|arr| {
+            arr.iter()
+                .filter_map(|b| b.as_document())
+                .filter_map(|d| {
+                    let q = d.get_str("followUpQuestion").ok()?.trim();
+                    if q.is_empty() {
+                        return None;
+                    }
+                    Some((
+                        d.get_i32("scoreMin").unwrap_or(scale_min),
+                        d.get_i32("scoreMax").unwrap_or(scale_max),
+                        q.to_owned(),
+                    ))
+                })
+                .collect()
+        })
+        .unwrap_or_default();
+
     // ---- Build the form block ------------------------------------------
     let options: Vec<String> = (scale_min..=scale_max).map(|n| n.to_string()).collect();
-    let mut fields: Vec<FormField> = Vec::with_capacity(2);
+    let mut fields: Vec<FormField> = Vec::with_capacity(2 + branches.len());
     fields.push(FormField {
         key: "score".to_owned(),
         label: question.clone(),
         kind: "select".to_owned(),
         required: true,
         options,
+        show_when: None,
     });
-    if let Some(label) = follow_up_question.as_deref().filter(|s| !s.is_empty()) {
+    if !branches.is_empty() {
+        // One conditional follow-up per branch; the widget shows the one whose
+        // [min,max] contains the selected score. All share the `follow_up` key,
+        // so whichever is visible supplies the single follow-up answer.
+        for (min, max, label) in &branches {
+            fields.push(FormField {
+                key: "follow_up".to_owned(),
+                label: label.clone(),
+                kind: "textarea".to_owned(),
+                required: false,
+                options: Vec::new(),
+                show_when: Some(sabchat_types::content::ShowWhen {
+                    field: "score".to_owned(),
+                    min: Some(*min as f64),
+                    max: Some(*max as f64),
+                    eq: None,
+                }),
+            });
+        }
+    } else if let Some(label) = follow_up_question.as_deref().filter(|s| !s.is_empty()) {
         fields.push(FormField {
             key: "follow_up".to_owned(),
             label: label.to_owned(),
             kind: "textarea".to_owned(),
             required: false,
             options: Vec::new(),
+            show_when: None,
         });
     }
     let content = ContentBlock::Form { fields };

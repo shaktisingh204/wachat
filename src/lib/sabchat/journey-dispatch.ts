@@ -1,6 +1,43 @@
 import 'server-only';
 
+import nodemailer from 'nodemailer';
+
 import { rustClient } from '@/lib/rust-client';
+
+/**
+ * Deliver a journey `email` step via the platform's transactional SMTP
+ * (`SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASS` — the same creds
+ * SabFlow uses). Resolves the contact's first email and sends the step text.
+ * Returns `true` on a real send, `false` when SMTP or the email is missing
+ * (the caller then marks the row skipped rather than sent).
+ */
+async function sendJourneyEmail(contactId: string | undefined, text: string): Promise<boolean> {
+  const host = process.env.SMTP_HOST;
+  const user = process.env.SMTP_USER;
+  const pass = process.env.SMTP_PASS;
+  if (!host || !user || !contactId) return false;
+  let to = '';
+  try {
+    const contact = await rustClient.sabchat.contacts.get(contactId);
+    to = contact.emails?.[0] ?? '';
+  } catch {
+    return false;
+  }
+  if (!to) return false;
+  try {
+    const port = Number(process.env.SMTP_PORT) || 587;
+    const transporter = nodemailer.createTransport({
+      host,
+      port,
+      secure: port === 465,
+      auth: { user, pass },
+    });
+    await transporter.sendMail({ from: user, to, subject: 'You have a new message', text });
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 /**
  * Drain pending journey outbox items for the **ambient** Rust tenant — the
@@ -12,9 +49,9 @@ import { rustClient } from '@/lib/rust-client';
  * as a `bot` sender (which publishes `message.created` on the WS hub, so it
  * lands live in the agent inbox + the visitor widget), then marks the row sent.
  *
- * Other channels (email / sms / push) have no in-app adapter yet — their
- * delivery is the SabMail / SabSMS bridge seam. They're marked `skipped`
- * (a terminal state) so they don't starve the deliverable chat queue.
+ * `email` is delivered for real via the platform SMTP relay. `sms` / `push`
+ * have no adapter yet (the SabSMS bridge needs a per-project sender) — they're
+ * marked `skipped` (terminal) so they don't starve the deliverable queue.
  */
 export async function deliverChatOutbox(): Promise<{
   delivered: number;
@@ -33,7 +70,19 @@ export async function deliverChatOutbox(): Promise<{
     .catch(() => ({ items: [] as { _id: string; channel: string; text: string; contactId?: string }[] }));
 
   for (const it of items) {
-    // Non-chat channels have no adapter yet — mark terminal so chat isn't starved.
+    // Email — deliver for real via the platform SMTP relay.
+    if (it.channel === 'email') {
+      const sent = await sendJourneyEmail(it.contactId, it.text);
+      if (sent) {
+        await rustClient.sabchatJourneys.markOutboxSent(it._id).catch(() => {});
+        delivered += 1;
+      } else {
+        await rustClient.sabchatJourneys.markOutboxSkipped(it._id).catch(() => {});
+        skipped += 1;
+      }
+      continue;
+    }
+    // sms / push have no adapter yet — mark terminal so chat isn't starved.
     if (it.channel !== 'chat') {
       await rustClient.sabchatJourneys.markOutboxSkipped(it._id).catch(() => {});
       skipped += 1;

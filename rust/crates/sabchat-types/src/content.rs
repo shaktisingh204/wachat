@@ -113,4 +113,24 @@ pub struct FormField {
     pub required: bool,
     #[serde(default)]
     pub options: Vec<String>,
+    /// Optional skip-logic: only display this field when another field's
+    /// current value matches. Powers CSAT branching (show a different
+    /// follow-up question depending on the score). `None` = always shown.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub show_when: Option<ShowWhen>,
+}
+
+/// A simple display condition over another field's current value. Numeric
+/// fields are compared via `min`/`max` (inclusive); `eq` matches a string.
+#[derive(Debug, Clone, Serialize, Deserialize, utoipa::ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct ShowWhen {
+    /// `key` of the field whose value gates this one (e.g. `"score"`).
+    pub field: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub min: Option<f64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub max: Option<f64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub eq: Option<String>,
 }

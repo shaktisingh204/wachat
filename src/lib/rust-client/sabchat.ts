@@ -100,6 +100,13 @@ export interface FormField {
     kind: string;
     required?: boolean;
     options?: string[];
+    /** Skip-logic: only show this field when another field's value matches. */
+    showWhen?: {
+        field: string;
+        min?: number;
+        max?: number;
+        eq?: string;
+    };
 }
 
 export interface BusinessHoursWindow {

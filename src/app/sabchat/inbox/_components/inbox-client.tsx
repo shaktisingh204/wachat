@@ -238,6 +238,26 @@ function MessageContent({ content }: { content: ContentBlock }) {
       );
     case "system":
       return <span className="italic opacity-70">{content.text}</span>;
+    case "form":
+      return (
+        <div className="space-y-1">
+          <p className="text-[11px] font-medium uppercase tracking-wide opacity-60">Survey</p>
+          {content.fields.map((f, i) => (
+            <p key={i} className="text-sm">
+              {f.label}
+              {f.showWhen ? (
+                <span className="ml-1 text-[10px] opacity-60">
+                  (if score{" "}
+                  {f.showWhen.min !== undefined && f.showWhen.max !== undefined
+                    ? `${f.showWhen.min}–${f.showWhen.max}`
+                    : f.showWhen.eq ?? ""}
+                  )
+                </span>
+              ) : null}
+            </p>
+          ))}
+        </div>
+      );
     default:
       return <span className="opacity-70">[unsupported message]</span>;
   }
