@@ -2,6 +2,7 @@ import 'server-only';
 
 import { dispatchTransactionalEmail } from '@/lib/email-dispatcher';
 import { sabsmsEngine } from '@/lib/sabsms/engine-client';
+import { getBrandingByWorkspace, type SabsignBranding } from '@/lib/sabsign/branding';
 import type {
   EnvelopeSigner,
   SabSignEnvelopeDoc,
@@ -53,11 +54,13 @@ export function signUrl(env: SabSignEnvelopeDoc, signer: EnvelopeSigner): string
 export function buildSignerEmail(
   env: SabSignEnvelopeDoc,
   signer: EnvelopeSigner,
-  opts?: { reminder?: boolean },
+  opts?: { reminder?: boolean; branding?: SabsignBranding | null },
 ): { subject: string; html: string; url: string } {
   const docName = env.docName || env.name;
   const url = signUrl(env, signer);
   const reminder = !!opts?.reminder;
+  const accent = opts?.branding?.color || '#7c3aed';
+  const sender = opts?.branding?.senderName;
   const subject = reminder
     ? `Reminder: please sign ${docName}`
     : env.subject || `Signature requested: ${docName}`;
@@ -67,7 +70,14 @@ export function buildSignerEmail(
   const message = env.message
     ? `<p style="margin:0 0 16px;color:#444;">${escapeHtml(env.message)}</p>`
     : '';
+  const logo = opts?.branding?.logoUrl
+    ? `<img src="${opts.branding.logoUrl}" alt="${escapeHtml(sender || 'logo')}" style="max-height:40px;margin:0 0 16px;display:block;" />`
+    : '';
+  const footer = sender
+    ? `<p style="margin:12px 0 0;color:#aaa;font-size:11px;">Sent via ${escapeHtml(sender)}</p>`
+    : '';
   const html = `<div style="font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;max-width:520px;margin:0 auto;padding:8px;">
+  ${logo}
   <h2 style="font-size:18px;color:#111;margin:0 0 12px;">${escapeHtml(heading)}</h2>
   <p style="margin:0 0 8px;color:#444;">Hi ${escapeHtml(signer.name || 'there')},</p>
   <p style="margin:0 0 16px;color:#444;">${
@@ -75,11 +85,18 @@ export function buildSignerEmail(
   } <strong>${escapeHtml(docName)}</strong>.</p>
   ${message}
   <p style="margin:0 0 20px;">
-    <a href="${url}" style="display:inline-block;background:#7c3aed;color:#fff;padding:11px 20px;border-radius:8px;text-decoration:none;font-weight:600;">Review &amp; sign</a>
+    <a href="${url}" style="display:inline-block;background:${accent};color:#fff;padding:11px 20px;border-radius:8px;text-decoration:none;font-weight:600;">Review &amp; sign</a>
   </p>
   <p style="margin:0;color:#999;font-size:12px;">If the button doesn't work, paste this link into your browser:<br><span style="word-break:break-all;">${url}</span></p>
+  ${footer}
 </div>`;
   return { subject, html, url };
+}
+
+/** Resolve project branding for an envelope from its (runtime) tenantId. */
+async function brandingForEnvelope(env: SabSignEnvelopeDoc): Promise<SabsignBranding | null> {
+  const ws = (env as { tenantId?: string }).tenantId;
+  return ws ? getBrandingByWorkspace(ws) : null;
 }
 
 /**
@@ -97,9 +114,10 @@ export async function sendSignInvites(
   const targets = (env.signers ?? []).filter(
     (s) => s.status === 'notified' && !!s.email,
   );
+  const branding = await brandingForEnvelope(env);
   for (const signer of targets) {
     try {
-      const { subject, html } = buildSignerEmail(env, signer);
+      const { subject, html } = buildSignerEmail(env, signer, { branding });
       const res = await dispatchTransactionalEmail({
         tenantUserId: owner,
         to: signer.email,
@@ -135,9 +153,10 @@ export async function sendReminderEmails(
   const targets = (env.signers ?? []).filter(
     (s) => !!s.email && s.status !== 'completed' && s.status !== 'declined',
   );
+  const branding = await brandingForEnvelope(env);
   for (const signer of targets) {
     try {
-      const { subject, html } = buildSignerEmail(env, signer, { reminder: true });
+      const { subject, html } = buildSignerEmail(env, signer, { reminder: true, branding });
       const res = await dispatchTransactionalEmail({
         tenantUserId: owner,
         to: signer.email,

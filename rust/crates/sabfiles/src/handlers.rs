@@ -34,6 +34,8 @@ use crate::r2::{R2Client, build_file_key};
 use crate::state::SabfilesState;
 
 const NODES_COLL: &str = "sabfiles_nodes";
+const AUDIT_COLL: &str = "sabfiles_audit";
+const VAULT_KEYS_COLL: &str = "sabfiles_vault_keys";
 
 // ───────────────────────────────────────────────────────────────────────
 // Shared helpers
@@ -193,6 +195,7 @@ pub async fn list_nodes(
         "userId": user_id,
         "parentId": parent,
         "trashed": { "$ne": true },
+        "vault": { "$ne": true },
     };
     if let Some(query) = q.query.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
         filter.insert("name", doc! { "$regex": query, "$options": "i" });
@@ -306,6 +309,7 @@ pub async fn search_nodes(
         .find(doc! {
             "userId": user_id,
             "trashed": { "$ne": true },
+            "vault": { "$ne": true },
             "name": { "$regex": regex::escape_basic(needle), "$options": "i" },
         })
         .with_options(
@@ -342,6 +346,7 @@ pub async fn library(
         "userId": user_id,
         "type": "file",
         "trashed": { "$ne": true },
+        "vault": { "$ne": true },
     };
 
     // Category → mime regex. Keep these aligned with the SabFilePicker
@@ -419,6 +424,7 @@ pub async fn list_starred(
             "userId": user_id,
             "starred": true,
             "trashed": { "$ne": true },
+            "vault": { "$ne": true },
         })
         .with_options(
             FindOptions::builder()
@@ -449,6 +455,7 @@ pub async fn list_recent(
             "userId": user_id,
             "type": "file",
             "trashed": { "$ne": true },
+            "vault": { "$ne": true },
         })
         .with_options(
             FindOptions::builder()
@@ -506,6 +513,7 @@ pub async fn list_shared(
             "userId": user_id,
             "shareToken": { "$exists": true, "$ne": null },
             "trashed": { "$ne": true },
+            "vault": { "$ne": true },
         })
         .with_options(
             FindOptions::builder()
@@ -656,6 +664,7 @@ pub async fn folder_rollups(
             "parentId": parent,
             "type": "folder",
             "trashed": { "$ne": true },
+            "vault": { "$ne": true },
         }},
         doc! { "$graphLookup": {
             "from": NODES_COLL,
@@ -724,6 +733,7 @@ pub async fn list_shared_with_me(
             "members.userId": user_id,
             "userId": { "$ne": user_id },
             "trashed": { "$ne": true },
+            "vault": { "$ne": true },
         })
         .with_options(FindOptions::builder().sort(doc! { "updatedAt": -1 }).build())
         .await
@@ -1048,6 +1058,11 @@ pub async fn confirm_upload(
             d.insert("parentId", Bson::Null);
         }
     }
+    // Sab Vault file: flag it and stash the opaque encrypted-name envelope.
+    if body.vault == Some(true) {
+        d.insert("vault", true);
+        d.insert("vaultMeta", body.vault_meta.clone().unwrap_or_default());
+    }
 
     let coll = s.mongo.collection::<Document>(NODES_COLL);
     let res = coll
@@ -1320,6 +1335,9 @@ pub async fn create_share(
     let mut set = doc! {
         "shareToken": random_share_token(),
         "shareDownloadEnabled": body.download_enabled.unwrap_or(true),
+        // Counters are reset on every (re)create so a fresh link starts clean.
+        "shareDownloadCount": 0_i64,
+        "shareViewCount": 0_i64,
         "updatedAt": bson::DateTime::from_chrono(Utc::now()),
     };
     if let Some(exp) = &body.expires_at {
@@ -1336,6 +1354,31 @@ pub async fn create_share(
         } else {
             set.insert("sharePassword", Bson::Null);
         }
+    }
+    // Governance knobs folded into the share record.
+    if let Some(md) = body.max_downloads {
+        set.insert("shareMaxDownloads", md);
+    }
+    if let Some(mv) = body.max_views {
+        set.insert("shareMaxViews", mv);
+    }
+    if let Some(nb) = &body.not_before {
+        let dt = parse_iso8601(nb)?;
+        set.insert("shareNotBefore", bson::DateTime::from_chrono(dt));
+    }
+    if let Some(audit) = body.audit_enabled {
+        set.insert("shareAuditEnabled", audit);
+    }
+    if let Some(wm) = &body.watermark {
+        set.insert(
+            "shareWatermark",
+            doc! {
+                "enabled": wm.enabled,
+                "text": wm.text.clone().unwrap_or_default(),
+                "includeViewerEmail": wm.include_viewer_email.unwrap_or(false),
+                "opacity": wm.opacity.unwrap_or(0.15),
+            },
+        );
     }
 
     let res = coll
@@ -1362,6 +1405,14 @@ pub async fn create_share(
     let download = d.get_bool("shareDownloadEnabled").unwrap_or(true);
     let password =
         d.get_str("sharePassword").is_ok() && !d.get_str("sharePassword").unwrap_or("").is_empty();
+    let max_downloads = d.get_i64("shareMaxDownloads").ok();
+    let max_views = d.get_i64("shareMaxViews").ok();
+    let not_before = d
+        .get_datetime("shareNotBefore")
+        .ok()
+        .map(|d| d.to_chrono().to_rfc3339());
+    let audit_enabled = d.get_bool("shareAuditEnabled").unwrap_or(false);
+    let watermark = read_watermark(&d);
 
     Ok(Json(ShareResponse {
         token: token.clone(),
@@ -1369,6 +1420,11 @@ pub async fn create_share(
         expires_at: expires,
         download_enabled: download,
         password_protected: password,
+        max_downloads,
+        max_views,
+        not_before,
+        audit_enabled,
+        watermark,
     }))
 }
 
@@ -1389,6 +1445,13 @@ pub async fn revoke_share(
                     "shareExpiresAt": "",
                     "shareDownloadEnabled": "",
                     "sharePassword": "",
+                    "shareMaxDownloads": "",
+                    "shareMaxViews": "",
+                    "shareNotBefore": "",
+                    "shareAuditEnabled": "",
+                    "shareWatermark": "",
+                    "shareDownloadCount": "",
+                    "shareViewCount": "",
                 },
                 "$set": { "updatedAt": bson::DateTime::from_chrono(Utc::now()) },
             },

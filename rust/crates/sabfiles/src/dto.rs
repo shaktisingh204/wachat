@@ -86,6 +86,12 @@ pub struct ConfirmUploadBody {
     pub mime: Option<String>,
     #[serde(default)]
     pub parent_id: Option<String>,
+    /// When `true`, the file is stored as a Sab Vault (encrypted) node.
+    #[serde(default)]
+    pub vault: Option<bool>,
+    /// Opaque base64 envelope holding the encrypted real name/mime.
+    #[serde(default)]
+    pub vault_meta: Option<String>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -137,6 +143,40 @@ pub struct CreateShareBody {
     /// Optional plaintext password (will be stored as bcrypt hash).
     #[serde(default)]
     pub password: Option<String>,
+    /// Governance: cap on total downloads before access is denied.
+    #[serde(default)]
+    pub max_downloads: Option<i64>,
+    /// Governance: cap on total views/previews before access is denied.
+    #[serde(default)]
+    pub max_views: Option<i64>,
+    /// Governance: ISO-8601 timestamp before which the share is inaccessible.
+    #[serde(default)]
+    pub not_before: Option<String>,
+    /// Governance: record every public access in the audit log.
+    #[serde(default)]
+    pub audit_enabled: Option<bool>,
+    /// Governance: optional dynamic watermark applied by the viewer.
+    #[serde(default)]
+    pub watermark: Option<WatermarkInput>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct WatermarkInput {
+    pub enabled: bool,
+    #[serde(default)]
+    pub text: Option<String>,
+    #[serde(default)]
+    pub include_viewer_email: Option<bool>,
+    #[serde(default)]
+    pub opacity: Option<f64>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct WatermarkDto {
+    pub enabled: bool,
+    pub text: Option<String>,
+    pub include_viewer_email: bool,
+    pub opacity: f64,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -147,6 +187,15 @@ pub struct ShareResponse {
     pub expires_at: Option<String>,
     pub download_enabled: bool,
     pub password_protected: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub max_downloads: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub max_views: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub not_before: Option<String>,
+    pub audit_enabled: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub watermark: Option<WatermarkDto>,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -162,6 +211,8 @@ pub struct PublicShareView {
     pub thumbnail_url: Option<String>,
     pub download_enabled: bool,
     pub password_protected: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub watermark: Option<WatermarkDto>,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -243,4 +294,53 @@ pub struct MemberDto {
 #[derive(Debug, Clone, Serialize)]
 pub struct MembersResponse {
     pub members: Vec<MemberDto>,
+}
+
+// ───────────────────────────────────────────────────────────────────────
+// Sab Vault — master-key bootstrap (one record per user)
+// ───────────────────────────────────────────────────────────────────────
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct VaultKeyBody {
+    pub salt_b64: String,
+    pub canary_b64: String,
+    #[serde(default)]
+    pub iterations: Option<i32>,
+    #[serde(default)]
+    pub algorithm: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct VaultKeyResponse {
+    pub exists: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub salt_b64: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub canary_b64: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub iterations: Option<i32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub algorithm: Option<String>,
+}
+
+// ───────────────────────────────────────────────────────────────────────
+// Audit log (public-share access trail)
+// ───────────────────────────────────────────────────────────────────────
+
+#[derive(Debug, Clone, Serialize)]
+pub struct AuditEntryDto {
+    pub action: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub ip: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub ua: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub at: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub meta: Option<Value>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct AuditResponse {
+    pub entries: Vec<AuditEntryDto>,
 }

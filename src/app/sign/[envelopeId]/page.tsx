@@ -38,7 +38,9 @@ import {
   useToast,
 } from '@/components/sabcrm/20ui';
 import { getSignView, issueSignerOtp, submitSignature } from '@/app/actions/sabsign.actions';
+import { getPublicSignBranding } from '@/app/actions/sabsign-settings.actions';
 import type { EnvelopeField } from '@/lib/rust-client/sabsign-envelopes';
+import type { SabsignBranding } from '@/lib/sabsign/branding';
 import { fieldVisibility, computeFormula } from '@/lib/sabsign/conditions';
 
 interface SignPagePayload {
