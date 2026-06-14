@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { verifyAdminJwtEdge, verifyJwtEdge } from './lib/auth.edge';
+import { verifyAdminJwtEdge, verifyJwtEdge, decodeBrowserSessionEdge } from './lib/auth.edge';
 
 const AUTH_PAGES = ['/login', '/signup', '/forgot-password'];
 const ADMIN_AUTH_PAGE = '/admin-login';
@@ -14,6 +14,10 @@ const PROTECTED_PREFIXES = [DASHBOARD_PREFIX, WACHAT_PREFIX] as const;
 const POST_LOGIN_LANDING = WACHAT_PREFIX;
 const ADMIN_DASHBOARD_PREFIX = '/admin/dashboard';
 const PENDING_APPROVAL_PAGE = '/pending-approval';
+// First-login forced password change (provisioned employees). Requires a valid
+// session, but is exempt from the mustChangePassword redirect (so the page is
+// reachable to actually change the password).
+const SET_PASSWORD_PAGE = '/set-password';
 
 /**
  * Hosts that are considered "canonical" for the app. Any inbound request
@@ -113,6 +117,7 @@ export async function proxy(request: NextRequest) {
   const isProtected = PROTECTED_PREFIXES.some((p) => pathname.startsWith(p));
   const isAdminDashboard = pathname.startsWith(ADMIN_DASHBOARD_PREFIX);
   const isPendingPage = pathname.startsWith(PENDING_APPROVAL_PAGE);
+  const isSetPassword = pathname.startsWith(SET_PASSWORD_PAGE);
 
   // Admin gate
   if (isAdminDashboard && !isAdminSessionValid) {
@@ -128,7 +133,7 @@ export async function proxy(request: NextRequest) {
   }
 
   // User gate
-  if ((isProtected || isPendingPage) && !isUserSessionValid) {
+  if ((isProtected || isPendingPage || isSetPassword) && !isUserSessionValid) {
     const response = sameHostRedirect(request, '/login');
     if (isUserSessionExpired || sessionToken) {
       response.cookies.delete('session');
@@ -138,6 +143,16 @@ export async function proxy(request: NextRequest) {
 
   if (isAuthPage && isUserSessionValid) {
     return sameHostRedirect(request, POST_LOGIN_LANDING);
+  }
+
+  // First-login forced password change: a provisioned employee carries
+  // `mustChangePassword` in their session JWT until they set a new password.
+  // Hold them on /set-password (reachable, but everything else bounces there).
+  if (isUserSessionValid && !isSetPassword && !isAuthPage) {
+    const payload = await decodeBrowserSessionEdge(sessionToken);
+    if (payload?.mustChangePassword === true) {
+      return sameHostRedirect(request, SET_PASSWORD_PAGE);
+    }
   }
 
   // P9: legacy CRM module deleted — permanent redirect into the SabCRM suite.
@@ -265,6 +280,16 @@ export const config = {
     // SabCall uses the same in-layout project + setup gate; the proxy passes
     // through and sets `x-url` for the layout to read.
     '/sabcall/:path*',
+    // SabHRM uses the same in-layout organization + setup gate; the proxy
+    // passes through and sets `x-url` for the layout to read.
+    '/sabhrm/:path*',
+    // SabAdmin (Admin Center) gates in-layout (owner/admin only via
+    // getSabAdminContext); the proxy just passes through. Not in
+    // PROTECTED_PREFIXES — the layout enforces the session + role.
+    '/sabadmin/:path*',
+    // First-login forced password change for provisioned employees.
+    '/set-password',
+    '/set-password/:path*',
     '/admin/dashboard/:path*',
     '/login',
     '/signup',

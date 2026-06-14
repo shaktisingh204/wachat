@@ -2038,6 +2038,30 @@ export type Project = {
             profile?: boolean;
         };
     };
+    /**
+     * SabHRM standalone-project profile. Only populated on `kind: 'hrm'`
+     * projects (SabHRM has its own project list + create flow). A project
+     * cannot be used in SabHRM until `setupComplete` is true — the layout
+     * gate redirects to `/sabhrm/setup` otherwise. The project `_id` string
+     * is the workspace id every SabHRM collection scopes by.
+     */
+    sabhrm?: {
+        setupComplete?: boolean;
+        setupCompletedAt?: Date;
+        /** Statutory/payroll region for the organization. */
+        region?: 'IN' | 'US' | 'OTHER';
+        /** Legal / display name of the organization. */
+        legalName?: string;
+        /** ISO currency code used for compensation + payroll (e.g. INR, USD). */
+        currency?: string;
+        /** Fiscal year start month (1-12). India defaults to 4 (April). */
+        fiscalYearStartMonth?: number;
+        timezone?: string;
+        /** Per-step completion flags driving the wizard + gate. */
+        setupSteps?: {
+            profile?: boolean;
+        };
+    };
 };
 
 export type Template = {
@@ -3660,7 +3684,7 @@ export type Backlink = {
 };
 
 // --- Security Types ---
-export type SessionPayload = { userId: string; email: string; jti: string; exp: number; name?: string; picture?: string; };
+export type SessionPayload = { userId: string; email: string; jti: string; exp: number; name?: string; picture?: string; mustChangePassword?: boolean; };
 export type AdminSessionPayload = { role: 'admin'; loggedInAt: number; jti: string; exp: number };
 
 export type FacebookPaymentRequest = {

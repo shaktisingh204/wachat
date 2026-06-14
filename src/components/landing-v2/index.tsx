@@ -10,7 +10,6 @@ import { SabflowDemo } from './sections/sabflow-demo';
 import { WachatDemo } from './sections/wachat-demo';
 import { CrmDemo } from './sections/crm-demo';
 import { SeoDemo } from './sections/seo-demo';
-import { HrmDemo } from './sections/hrm-demo';
 import { AiFeatures } from './sections/ai-features';
 import { HowItWorks } from './sections/how-it-works';
 import { Integrations } from './sections/integrations';
@@ -50,7 +49,6 @@ export function LandingV2({ initialSession }: LandingV2Props) {
                 <WachatDemo />
                 <CrmDemo />
                 <SeoDemo />
-                <HrmDemo />
                 <AiFeatures />
                 <HowItWorks />
                 <Integrations />

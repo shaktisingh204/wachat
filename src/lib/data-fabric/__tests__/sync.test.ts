@@ -256,19 +256,6 @@ test('backfillFromAdapters mirrors rows from all sources and emits upsert events
     },
   ];
 
-  const hrmRows: AdapterRow[] = [
-    {
-      externalId: 'hr1',
-      tenantId,
-      displayName: 'Dan (HR)',
-      identities: [
-        { type: 'hrm_employee_id', value: 'emp_dan', source: 'hrm' },
-        { type: 'email', value: 'dan@company.com', source: 'hrm' },
-      ],
-      traits: { hrm_status: 'Active' },
-    },
-  ];
-
   // Capture emitted events.
   const events: { type: string; payload: unknown }[] = [];
   const off = subscribe((e) => {
@@ -282,25 +269,23 @@ test('backfillFromAdapters mirrors rows from all sources and emits upsert events
       wachat: makeIter(wachatRows),
       crm: makeIter(crmRows),
       sabchat: makeIter(sabchatRows),
-      hrm: makeIter(hrmRows),
     },
   );
 
   off();
 
-  assert.equal(result.scanned, 4);
-  assert.equal(result.upserted, 4);
+  assert.equal(result.scanned, 3);
+  assert.equal(result.upserted, 3);
   assert.equal(result.failed, 0);
   assert.equal(result.bySource.wachat.upserted, 1);
   assert.equal(result.bySource.crm.upserted, 1);
   assert.equal(result.bySource.sabchat.upserted, 1);
-  assert.equal(result.bySource.hrm.upserted, 1);
 
   // At least four contact rows exist (one per source row); secondary
   // identities like email/phone may seed additional rows that operator
   // tooling collapses via `mergeContactsByIdentity`.
   const contacts = getFakeCollection('df_contacts')._all();
-  assert.ok(contacts.length >= 4);
+  assert.ok(contacts.length >= 3);
 
   // At least one upsert event per source was emitted.
   const upsertEvents = events.filter(
@@ -308,7 +293,7 @@ test('backfillFromAdapters mirrors rows from all sources and emits upsert events
       e.type === 'contact.updated' &&
       (e.payload as { kind?: string } | undefined)?.kind === 'upserted',
   );
-  assert.equal(upsertEvents.length, 4);
+  assert.equal(upsertEvents.length, 3);
 
   // Lookup by module-internal id resolves the canonical contact and
   // mirrors traits onto it.

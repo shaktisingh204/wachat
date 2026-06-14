@@ -296,6 +296,16 @@ const GLYPHS: Record<string, React.ReactNode> = {
     </>
   ),
 
+  /* SabHRM — org chart: manager node over two reports. */
+  sabhrm: (
+    <>
+      <circle cx={24} cy={14} r={4} fill="#fff" />
+      <circle cx={15} cy={33} r={4} fill="#fff" />
+      <circle cx={33} cy={33} r={4} fill="#fff" />
+      <path stroke="#fff" strokeWidth={2.4} strokeLinecap="round" fill="none" d="M24 18v6M15 29v-3h18v3" />
+    </>
+  ),
+
   /* SabWebinar — screen with play. */
   sabwebinar: (
     <>
@@ -533,14 +543,6 @@ const GLYPHS: Record<string, React.ReactNode> = {
       <circle cx={24} cy={17} r={5} fill="#fff" />
       <path fill="#fff" d="M13.5 36c0-6 4.6-10 10.5-10s10.5 4 10.5 10v.4a1.1 1.1 0 0 1-1.1 1.1H14.6a1.1 1.1 0 0 1-1.1-1.1V36Z" />
       <circle cx={34.5} cy={13.5} r={3.4} fill="#fff" opacity={0.7} />
-    </>
-  ),
-  hrm: (
-    <>
-      <rect x={12} y={13} width={24} height={24} rx={3} fill="#fff" />
-      <circle cx={24} cy={21.5} r={3.6} fill="#000" opacity={0.22} />
-      <path fill="#000" opacity={0.22} d="M17.5 32.5c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6h-13Z" />
-      <rect x={20} y={10.5} width={8} height={4.5} rx={1.6} fill="#fff" />
     </>
   ),
 };

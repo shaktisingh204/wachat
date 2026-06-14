@@ -151,20 +151,6 @@ export function CrmIcon(props: IconProps) {
   );
 }
 
-// Org chart: manager up top with two reports below, connected.
-export function HrmIcon(props: IconProps) {
-  return (
-    <svg {...base(props)}>
-      <circle cx="12" cy="5.5" r="2.25" />
-      <circle cx="5.75" cy="16.5" r="2.25" />
-      <circle cx="18.25" cy="16.5" r="2.25" />
-      <path d="M12 7.75V11" />
-      <path d="M5.75 11h12.5V14.25" />
-      <path d="M5.75 11v3.25" />
-    </svg>
-  );
-}
-
 // Two head/shoulder silhouettes — primary + secondary.
 export function TeamIcon(props: IconProps) {
   return (
@@ -315,6 +301,19 @@ export function SabSignIcon(props: IconProps) {
       <path d="M5 3.5h9l5 5v12a1.5 1.5 0 0 1-1.5 1.5h-12.5A1.5 1.5 0 0 1 3.5 20.5V5A1.5 1.5 0 0 1 5 3.5Z" />
       <path d="M14 3.5V9h5" />
       <path d="M7 16c1.5-2.5 3-2.5 4 0s2.5 2.5 4 0" />
+    </svg>
+  );
+}
+
+// SabHRM — org chart: a manager node over two reports.
+export function SabHrmIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <circle cx="12" cy="5" r="2.25" />
+      <circle cx="6" cy="18" r="2.25" />
+      <circle cx="18" cy="18" r="2.25" />
+      <path d="M12 7.25v3.25" />
+      <path d="M6 15.75V13.5h12v2.25" />
     </svg>
   );
 }
