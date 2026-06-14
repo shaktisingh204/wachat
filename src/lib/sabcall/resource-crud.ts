@@ -61,7 +61,8 @@ export interface ResourceCrudOptions {
 
 export function makeSabcallResource(collection: string, opts: ResourceCrudOptions) {
   return {
-    async list(params: ResourceListParams = {}) {
+    async list<P extends object = ResourceListParams>(rawParams?: P) {
+      const params = (rawParams ?? {}) as ResourceListParams;
       const userId = await workspaceId();
       const { db } = await connectToDatabase();
       const filter: Record<string, unknown> = { userId };
@@ -89,7 +90,8 @@ export function makeSabcallResource(collection: string, opts: ResourceCrudOption
       return { items: rows.map((r) => withStringId(r as { _id: unknown })), page, limit, hasMore };
     },
 
-    async create(input: Record<string, unknown>) {
+    async create<I extends object>(rawInput: I) {
+      const input = rawInput as Record<string, unknown>;
       const userId = await workspaceId();
       const { db } = await connectToDatabase();
       const now = new Date();
@@ -105,7 +107,8 @@ export function makeSabcallResource(collection: string, opts: ResourceCrudOption
       return { id: String(res.insertedId), entity: withStringId({ ...doc, _id: res.insertedId }) };
     },
 
-    async update(id: string, patch: Record<string, unknown>) {
+    async update<I extends object>(id: string, rawPatch: I) {
+      const patch = rawPatch as Record<string, unknown>;
       const userId = await workspaceId();
       const _id = toOid(id);
       if (!_id) throw new Error('Invalid id.');

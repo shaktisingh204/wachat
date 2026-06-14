@@ -91,7 +91,7 @@ export default function SipTrunksPage() {
   const load = React.useCallback(async () => {
     setLoading(true);
     try {
-      const res = await listTrunks({ q: search, status: statusFilter });
+      const res = await listTrunks({ q: search, status: statusFilter } as Parameters<typeof listTrunks>[0]);
       setData(res.items as TrunkRow[]);
     } finally {
       setLoading(false);
