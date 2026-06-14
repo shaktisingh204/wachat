@@ -22,6 +22,7 @@ import {
   Tag,
   Ticket,
   UserPlus,
+  Users,
   Video,
   X,
 } from "lucide-react";
@@ -84,6 +85,10 @@ const STATUS_TABS: { id: ConversationStatus; label: string }[] = [
 ];
 
 const TYPING_TTL_MS = 4000;
+// Viewers heartbeat every VIEWER_HEARTBEAT_MS while a conversation is open;
+// a viewer is considered gone once their last beat is older than VIEWER_TTL_MS.
+const VIEWER_HEARTBEAT_MS = 15_000;
+const VIEWER_TTL_MS = 40_000;
 const PINNED_LABEL = "pinned";
 
 function relTime(iso?: string): string {
@@ -284,6 +289,9 @@ export function InboxClient({
     {},
   );
   const [typing, setTyping] = React.useState<Record<string, number>>({});
+  // Per-conversation viewer roster (conversationId → agentId → last-seen ms).
+  // Powers the collision warning; self is never recorded.
+  const [viewers, setViewers] = React.useState<Record<string, Record<string, number>>>({});
   const [refreshing, startRefresh] = React.useTransition();
 
   const selected = React.useMemo(
@@ -427,6 +435,19 @@ export function InboxClient({
         if (p.actorId && p.actorId === currentUserId) return; // ignore self
         const convId = p.conversationId as string;
         if (convId) setTyping((prev) => ({ ...prev, [convId]: Date.now() }));
+      } else if (ev.type === "viewing") {
+        const convId = p.conversationId as string;
+        const agentId = p.agentId as string;
+        if (!convId || !agentId || agentId === currentUserId) return; // ignore self
+        setViewers((prev) => {
+          const conv = { ...(prev[convId] ?? {}) };
+          if (p.state === "close") {
+            delete conv[agentId];
+          } else {
+            conv[agentId] = Date.now();
+          }
+          return { ...prev, [convId]: conv };
+        });
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -438,7 +459,41 @@ export function InboxClient({
     refetchTimer.current = setTimeout(refetchConversations, 600);
   }, [refetchConversations]);
 
-  const { status: socketStatus, sendTyping } = useSabchatSocket({ onEvent });
+  const { status: socketStatus, sendTyping, sendViewing } = useSabchatSocket({ onEvent });
+
+  // Announce which conversation this agent is viewing (open/close + heartbeat),
+  // and expire stale viewers from the roster. Together these drive the
+  // collision banner so two agents don't unknowingly reply to the same person.
+  React.useEffect(() => {
+    if (!selectedId) return;
+    sendViewing(selectedId, "open");
+    const beat = setInterval(() => sendViewing(selectedId, "open"), VIEWER_HEARTBEAT_MS);
+    return () => {
+      clearInterval(beat);
+      sendViewing(selectedId, "close");
+    };
+  }, [selectedId, sendViewing]);
+
+  React.useEffect(() => {
+    const t = setInterval(() => {
+      setViewers((prev) => {
+        const now = Date.now();
+        let changed = false;
+        const next: Record<string, Record<string, number>> = {};
+        for (const [conv, roster] of Object.entries(prev)) {
+          const keep: Record<string, number> = {};
+          for (const [agent, ts] of Object.entries(roster)) {
+            if (now - ts < VIEWER_TTL_MS) keep[agent] = ts;
+            else changed = true;
+          }
+          if (Object.keys(keep).length) next[conv] = keep;
+          else if (Object.keys(roster).length) changed = true;
+        }
+        return changed ? next : prev;
+      });
+    }, 5000);
+    return () => clearInterval(t);
+  }, []);
 
   // Expire stale typing indicators.
   React.useEffect(() => {
@@ -908,6 +963,7 @@ export function InboxClient({
                   contact={contactsById[c.contactId]}
                   active={c._id === selectedId}
                   typing={!!typing[c._id]}
+                  hasOtherViewer={Object.keys(viewers[c._id] ?? {}).length > 0}
                   onClick={() => void openConversation(c)}
                   selectMode={selectMode}
                   checked={selectedIds.has(c._id)}
@@ -924,6 +980,7 @@ export function InboxClient({
                   contact={contactsById[c.contactId]}
                   active={c._id === selectedId}
                   typing={!!typing[c._id]}
+                  hasOtherViewer={Object.keys(viewers[c._id] ?? {}).length > 0}
                   onClick={() => void openConversation(c)}
                   selectMode={selectMode}
                   checked={selectedIds.has(c._id)}
@@ -1112,6 +1169,21 @@ export function InboxClient({
                 )}
               </div>
             </header>
+
+            {/* collision warning — another agent is on this conversation */}
+            {(() => {
+              const others = Object.keys(viewers[selected._id] ?? {}).length;
+              if (others < 1) return null;
+              const replying = !!typing[selected._id];
+              return (
+                <div className="flex items-center gap-2 border-b border-amber-300/60 bg-amber-50 px-4 py-1.5 text-xs font-medium text-amber-800 dark:bg-amber-950/40 dark:text-amber-300">
+                  <Users className="h-3.5 w-3.5 shrink-0" aria-hidden />
+                  {others === 1 ? "Another agent is" : `${others} other agents are`} viewing this
+                  conversation
+                  {replying ? " — and replying now" : ""}. Heads up to avoid a double reply.
+                </div>
+              );
+            })()}
 
             {/* messages */}
             <div ref={threadRef} className="min-h-0 flex-1 space-y-1.5 overflow-y-auto px-4 py-4">
@@ -1444,6 +1516,7 @@ function ConversationRow({
   contact,
   active,
   typing,
+  hasOtherViewer,
   onClick,
   selectMode,
   checked,
@@ -1453,6 +1526,7 @@ function ConversationRow({
   contact?: SabChatContact;
   active: boolean;
   typing: boolean;
+  hasOtherViewer?: boolean;
   onClick: () => void;
   selectMode?: boolean;
   checked?: boolean;
@@ -1479,7 +1553,15 @@ function ConversationRow({
       <Avatar name={name} />
       <div className="min-w-0 flex-1">
         <div className="flex items-center justify-between gap-2">
-          <span className="truncate text-sm font-medium text-[var(--st-text)]">{name}</span>
+          <span className="flex min-w-0 items-center gap-1">
+            <span className="truncate text-sm font-medium text-[var(--st-text)]">{name}</span>
+            {hasOtherViewer ? (
+              <Users
+                className="h-3 w-3 shrink-0 text-amber-500"
+                aria-label="Another agent is viewing"
+              />
+            ) : null}
+          </span>
           <span className="shrink-0 text-[11px] text-[var(--st-text-secondary)]">
             {relTime(conv.lastMessageAt)}
           </span>
