@@ -70,6 +70,8 @@ import {
 } from "@/app/actions/sabchat-crm-bridge.actions";
 import { gradeConversation, listQaRubrics } from "@/app/actions/sabchat-ops.actions";
 import { draftKbFromConversation } from "@/app/actions/sabchat-support.actions";
+import { startCall, endCall } from "@/app/actions/sabchat-voice.actions";
+import type { SabChatCall, SabChatCallKind } from "@/lib/rust-client/sabchat-voice";
 import {
   appendSideMessage,
   cancelScheduledMessage,
@@ -897,6 +899,34 @@ export function InboxClient({
     setCopilotOpen(false);
   }, [selectedId]);
 
+  /* -- voice / video call lifecycle ----------------------------------- */
+  const [activeCall, setActiveCall] = React.useState<SabChatCall | null>(null);
+  const [callBusy, setCallBusy] = React.useState(false);
+  const doStartCall = async (kind: SabChatCallKind) => {
+    if (!selectedId || activeCall) return;
+    setCallBusy(true);
+    const res = await startCall(selectedId, kind);
+    setCallBusy(false);
+    if (res.ok) {
+      setActiveCall(res.call);
+      toast({ title: `${kind === "video" ? "Video" : "Voice"} call started` });
+    } else {
+      toast({ title: "Couldn't start call", description: res.error, variant: "destructive" });
+    }
+  };
+  const doEndCall = async () => {
+    if (!activeCall) return;
+    setCallBusy(true);
+    const res = await endCall(activeCall._id);
+    setCallBusy(false);
+    setActiveCall(null);
+    if (!res.ok) toast({ title: "Couldn't end call", description: res.error, variant: "destructive" });
+  };
+  // Drop any active call when switching conversations.
+  React.useEffect(() => {
+    setActiveCall(null);
+  }, [selectedId]);
+
   /* -- derived: pinned / all (apply client-side "unassigned" filter) --- */
   const visible =
     assignFilter === "unassigned"
@@ -1132,10 +1162,18 @@ export function InboxClient({
                 </div>
               </div>
               <div className="flex items-center gap-1">
-                <IconBtn title="Voice call (soon)" disabled>
+                <IconBtn
+                  title="Voice call"
+                  disabled={callBusy || !!activeCall}
+                  onClick={() => void doStartCall("audio")}
+                >
                   <Phone className="h-4 w-4" aria-hidden />
                 </IconBtn>
-                <IconBtn title="Video call (soon)" disabled>
+                <IconBtn
+                  title="Video call"
+                  disabled={callBusy || !!activeCall}
+                  onClick={() => void doStartCall("video")}
+                >
                   <Video className="h-4 w-4" aria-hidden />
                 </IconBtn>
                 <div className="relative">
@@ -1382,6 +1420,29 @@ export function InboxClient({
                 )}
               </div>
             </header>
+
+            {/* active call bar */}
+            {activeCall ? (
+              <div className="flex items-center justify-between gap-2 border-b border-[var(--st-border)] bg-emerald-50 px-4 py-1.5 text-xs font-medium text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300">
+                <span className="flex items-center gap-2">
+                  {activeCall.kind === "video" ? (
+                    <Video className="h-3.5 w-3.5" aria-hidden />
+                  ) : (
+                    <Phone className="h-3.5 w-3.5" aria-hidden />
+                  )}
+                  {activeCall.kind === "video" ? "Video" : "Voice"} call ·{" "}
+                  <span className="capitalize">{activeCall.status}</span>
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  loading={callBusy}
+                  onClick={() => void doEndCall()}
+                >
+                  End call
+                </Button>
+              </div>
+            ) : null}
 
             {/* collision warning — another agent is on this conversation */}
             {(() => {
@@ -1690,15 +1751,18 @@ function IconBtn({
   children,
   title,
   disabled,
+  onClick,
 }: {
   children: React.ReactNode;
   title: string;
   disabled?: boolean;
+  onClick?: () => void;
 }) {
   return (
     <button
       title={title}
       disabled={disabled}
+      onClick={onClick}
       className="grid h-8 w-8 place-items-center rounded-md text-[var(--st-text-secondary)] transition-colors hover:bg-[var(--st-bg-muted)] disabled:opacity-40"
     >
       {children}
