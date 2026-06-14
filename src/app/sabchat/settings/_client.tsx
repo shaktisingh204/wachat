@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { Plus, ShieldCheck, Smile, Trash2 } from "lucide-react";
+import { Clock, Plus, ShieldCheck, Smile, Trash2, Users } from "lucide-react";
 
 import {
   Badge,
@@ -27,17 +27,31 @@ import {
   saveSla,
   saveSurvey,
 } from "@/app/actions/sabchat-support.actions";
+import {
+  deleteBusinessHours,
+  deleteTeam,
+  saveBusinessHours,
+  saveTeam,
+} from "@/app/actions/sabchat-ops.actions";
 import type { SabChatSla } from "@/lib/rust-client/sabchat-sla";
 import type { SabChatSurvey, SabChatSurveyKind } from "@/lib/rust-client/sabchat-csat";
+import type { SabChatBusinessHour } from "@/lib/rust-client/sabchat-business-hours";
+import type { SabChatTeam } from "@/lib/rust-client/sabchat-teams";
 
-type Tab = "sla" | "csat";
+type Tab = "sla" | "csat" | "hours" | "teams";
+
+const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 export function SettingsClient({
   initialSlas,
   initialSurveys,
+  initialBusinessHours,
+  initialTeams,
 }: {
   initialSlas: SabChatSla[];
   initialSurveys: SabChatSurvey[];
+  initialBusinessHours: SabChatBusinessHour[];
+  initialTeams: SabChatTeam[];
 }) {
   const router = useRouter();
   const { toast } = useToast();
@@ -66,6 +80,8 @@ export function SettingsClient({
       <div className="mt-5 flex gap-1 border-b border-[var(--st-border)]">
         {[
           { id: "sla" as const, label: "SLA policies", icon: ShieldCheck },
+          { id: "hours" as const, label: "Business hours", icon: Clock },
+          { id: "teams" as const, label: "Teams", icon: Users },
           { id: "csat" as const, label: "CSAT surveys", icon: Smile },
         ].map((t) => {
           const Icon = t.icon;
@@ -89,6 +105,10 @@ export function SettingsClient({
       <div className="mt-5">
         {tab === "sla" ? (
           <SlaSection slas={initialSlas} onAction={handle} />
+        ) : tab === "hours" ? (
+          <BusinessHoursSection hours={initialBusinessHours} onAction={handle} />
+        ) : tab === "teams" ? (
+          <TeamsSection teams={initialTeams} onAction={handle} />
         ) : (
           <CsatSection surveys={initialSurveys} onAction={handle} />
         )}
@@ -98,6 +118,219 @@ export function SettingsClient({
 }
 
 type Runner = (fn: () => Promise<{ ok: boolean; error?: string }>, msg?: string) => Promise<boolean>;
+
+/* ── Business hours ────────────────────────────────────────────────────── */
+
+function BusinessHoursSection({
+  hours,
+  onAction,
+}: {
+  hours: SabChatBusinessHour[];
+  onAction: Runner;
+}) {
+  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+  const [open, setOpen] = React.useState(false);
+  const [name, setName] = React.useState("");
+  const [timezone, setTimezone] = React.useState(tz);
+  const [rows, setRows] = React.useState(
+    DAYS.map((_, i) => ({ on: i >= 1 && i <= 5, open: "09:00", close: "17:00" })),
+  );
+  const [busy, setBusy] = React.useState(false);
+
+  return (
+    <div>
+      <div className="mb-3 flex items-center justify-between">
+        <p className="text-xs text-[var(--st-text-secondary)]">
+          Office hours pause SLA clocks and drive the widget&apos;s away message.
+        </p>
+        <Button variant="primary" size="sm" iconLeft={Plus} onClick={() => setOpen(true)}>
+          New schedule
+        </Button>
+      </div>
+      <Card className="divide-y divide-[var(--st-border)] p-0">
+        {hours.length === 0 ? (
+          <p className="p-6 text-center text-sm text-[var(--st-text-secondary)]">
+            No business-hours schedules yet.
+          </p>
+        ) : (
+          hours.map((h) => (
+            <div key={h._id} className="flex items-center justify-between gap-3 p-4">
+              <div>
+                <p className="text-sm font-medium text-[var(--st-text)]">{h.name}</p>
+                <p className="text-xs text-[var(--st-text-secondary)]">
+                  {h.timezone} · {h.windows?.length ?? 0} open windows
+                </p>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                iconLeft={Trash2}
+                onClick={() => void onAction(() => deleteBusinessHours(h._id), "Deleted")}
+              />
+            </div>
+          ))
+        )}
+      </Card>
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>New business-hours schedule</DialogTitle>
+          </DialogHeader>
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="Name">
+              <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Support hours" autoFocus />
+            </Field>
+            <Field label="Timezone">
+              <Input value={timezone} onChange={(e) => setTimezone(e.target.value)} />
+            </Field>
+          </div>
+          <div className="mt-1 space-y-1.5">
+            {rows.map((r, i) => (
+              <div key={i} className="flex items-center gap-2 text-sm">
+                <label className="flex w-16 items-center gap-1.5">
+                  <input
+                    type="checkbox"
+                    checked={r.on}
+                    onChange={(e) =>
+                      setRows((p) => p.map((x, j) => (j === i ? { ...x, on: e.target.checked } : x)))
+                    }
+                  />
+                  {DAYS[i]}
+                </label>
+                <input
+                  type="time"
+                  value={r.open}
+                  disabled={!r.on}
+                  onChange={(e) => setRows((p) => p.map((x, j) => (j === i ? { ...x, open: e.target.value } : x)))}
+                  className="rounded-md border border-[var(--st-border)] bg-transparent px-2 py-1 text-[var(--st-text)] disabled:opacity-40"
+                />
+                <span className="text-[var(--st-text-secondary)]">to</span>
+                <input
+                  type="time"
+                  value={r.close}
+                  disabled={!r.on}
+                  onChange={(e) => setRows((p) => p.map((x, j) => (j === i ? { ...x, close: e.target.value } : x)))}
+                  className="rounded-md border border-[var(--st-border)] bg-transparent px-2 py-1 text-[var(--st-text)] disabled:opacity-40"
+                />
+              </div>
+            ))}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" size="sm" onClick={() => setOpen(false)} disabled={busy}>
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              loading={busy}
+              disabled={busy || !name.trim()}
+              onClick={async () => {
+                setBusy(true);
+                const windows = rows
+                  .map((r, day) => ({ day, open: r.open, close: r.close, on: r.on }))
+                  .filter((r) => r.on)
+                  .map(({ day, open: o, close: c }) => ({ day, open: o, close: c }));
+                const ok = await onAction(
+                  () => saveBusinessHours({ name, timezone, windows }),
+                  "Saved",
+                );
+                setBusy(false);
+                if (ok) {
+                  setName("");
+                  setOpen(false);
+                }
+              }}
+            >
+              Create
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
+/* ── Teams ─────────────────────────────────────────────────────────────── */
+
+function TeamsSection({ teams, onAction }: { teams: SabChatTeam[]; onAction: Runner }) {
+  const [open, setOpen] = React.useState(false);
+  const [name, setName] = React.useState("");
+  const [description, setDescription] = React.useState("");
+  const [busy, setBusy] = React.useState(false);
+
+  return (
+    <div>
+      <div className="mb-3 flex items-center justify-between">
+        <p className="text-xs text-[var(--st-text-secondary)]">
+          Group agents into teams to route conversations and report by team.
+        </p>
+        <Button variant="primary" size="sm" iconLeft={Plus} onClick={() => setOpen(true)}>
+          New team
+        </Button>
+      </div>
+      <Card className="divide-y divide-[var(--st-border)] p-0">
+        {teams.length === 0 ? (
+          <p className="p-6 text-center text-sm text-[var(--st-text-secondary)]">No teams yet.</p>
+        ) : (
+          teams.map((t) => (
+            <div key={t._id} className="flex items-center justify-between gap-3 p-4">
+              <div className="min-w-0">
+                <p className="truncate text-sm font-medium text-[var(--st-text)]">{t.name}</p>
+                {t.description ? (
+                  <p className="truncate text-xs text-[var(--st-text-secondary)]">{t.description}</p>
+                ) : null}
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                iconLeft={Trash2}
+                onClick={() => void onAction(() => deleteTeam(t._id), "Deleted")}
+              />
+            </div>
+          ))
+        )}
+      </Card>
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>New team</DialogTitle>
+          </DialogHeader>
+          <Field label="Name">
+            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Tier 2" autoFocus />
+          </Field>
+          <Field label="Description (optional)">
+            <Input value={description} onChange={(e) => setDescription(e.target.value)} />
+          </Field>
+          <DialogFooter>
+            <Button variant="outline" size="sm" onClick={() => setOpen(false)} disabled={busy}>
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              loading={busy}
+              disabled={busy || !name.trim()}
+              onClick={async () => {
+                setBusy(true);
+                const ok = await onAction(() => saveTeam({ name, description }), "Created");
+                setBusy(false);
+                if (ok) {
+                  setName("");
+                  setDescription("");
+                  setOpen(false);
+                }
+              }}
+            >
+              Create
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
 
 function SlaSection({ slas, onAction }: { slas: SabChatSla[]; onAction: Runner }) {
   const [open, setOpen] = React.useState(false);
