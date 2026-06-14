@@ -118,25 +118,27 @@ function PasswordReveal({ password, onCopy }: { password: string; onCopy: () => 
 
 function HostedNotConfigured() {
   return (
-    <div className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
-      <PageHeader>
-        <PageHeaderHeading>
-          <PageTitle>Hosted mailboxes</PageTitle>
-          <PageDescription>
+    <div className="sabmail-canvas min-h-full p-4 sm:p-6">
+      <div className="mx-auto w-full max-w-4xl">
+        <div className="min-w-0">
+          <h1 className="text-xl font-semibold text-[var(--st-text)]">
+            Hosted mailboxes
+          </h1>
+          <p className="mt-1 max-w-2xl text-sm text-[var(--st-text-secondary)]">
             Create real mailboxes on your own verified domains, hosted on the
             SabMail mail server.
-          </PageDescription>
-        </PageHeaderHeading>
-      </PageHeader>
+          </p>
+        </div>
 
-      <Card className="mt-6 p-10">
-        <EmptyState
-          icon={<ServerOff aria-hidden />}
-          tone="warning"
-          title="Hosted mail isn't set up yet"
-          description="An admin must connect the mail server before you can create hosted mailboxes. Once the Stalwart mail server is configured, this page lets you provision mailboxes on your verified domains."
-        />
-      </Card>
+        <Card className="mt-6 p-10">
+          <EmptyState
+            icon={<ServerOff aria-hidden />}
+            tone="warning"
+            title="Hosted mail isn't set up yet"
+            description="An admin must connect the mail server before you can create hosted mailboxes. Once the Stalwart mail server is configured, this page lets you provision mailboxes on your verified domains."
+          />
+        </Card>
+      </div>
     </div>
   );
 }
@@ -358,7 +360,7 @@ export function SabmailMailboxesClient({
   const noVerifiedDomains = verifiedDomains.length === 0;
 
   return (
-    <div className="relative mx-auto w-full max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+    <div className="sabmail-canvas relative min-h-full p-4 sm:p-6">
       <CreatingOverlay
         show={creating}
         variant="connect"
@@ -377,78 +379,82 @@ export function SabmailMailboxesClient({
         </div>
       ) : null}
 
-      <PageHeader>
-        <PageHeaderHeading>
-          <PageTitle>Hosted mailboxes</PageTitle>
-          <PageDescription>
-            Create real mailboxes on your verified domains, hosted on the SabMail
-            mail server. Each mailbox works over IMAP and SMTP.
-          </PageDescription>
-        </PageHeaderHeading>
-        <Button
-          variant="primary"
-          size="sm"
-          iconLeft={Plus}
-          disabled={noVerifiedDomains}
-          title={
-            noVerifiedDomains
-              ? "Verify a sending domain first (Domains & deliverability)"
-              : undefined
-          }
-          onClick={() => {
-            resetForm();
-            setOpen(true);
-          }}
-        >
-          Create mailbox
-        </Button>
-      </PageHeader>
+      <div className="mx-auto w-full max-w-5xl">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0">
+            <h1 className="text-xl font-semibold text-[var(--st-text)]">
+              Hosted mailboxes
+            </h1>
+            <p className="mt-1 max-w-2xl text-sm text-[var(--st-text-secondary)]">
+              Create real mailboxes on your verified domains, hosted on the
+              SabMail mail server. Each mailbox works over IMAP and SMTP.
+            </p>
+          </div>
+          <Button
+            variant="primary"
+            size="sm"
+            iconLeft={Plus}
+            className="shrink-0"
+            disabled={noVerifiedDomains}
+            title={
+              noVerifiedDomains
+                ? "Verify a sending domain first (Domains & deliverability)"
+                : undefined
+            }
+            onClick={() => {
+              resetForm();
+              setOpen(true);
+            }}
+          >
+            Create mailbox
+          </Button>
+        </div>
 
-      {loadError ? (
-        <Alert variant="destructive" title="Couldn't load mailboxes" className="mt-6">
-          {loadError}
-        </Alert>
-      ) : null}
+        {loadError ? (
+          <Alert variant="destructive" title="Couldn't load mailboxes" className="mt-6">
+            {loadError}
+          </Alert>
+        ) : null}
 
-      {noVerifiedDomains ? (
-        <Callout tone="info" title="No verified domains yet" className="mt-6">
-          Verify at least one sending domain on{" "}
-          <a className="underline" href="/sabmail/domains">
-            Domains &amp; deliverability
-          </a>{" "}
-          before creating hosted mailboxes.
-        </Callout>
-      ) : null}
+        {noVerifiedDomains ? (
+          <Callout tone="info" title="No verified domains yet" className="mt-6">
+            Verify at least one sending domain on{" "}
+            <a className="underline" href="/sabmail/domains">
+              Domains &amp; deliverability
+            </a>{" "}
+            before creating hosted mailboxes.
+          </Callout>
+        ) : null}
 
-      {/* One-time password reveal (after create or reset). */}
-      {revealed ? (
-        <Card className="mt-6">
-          <CardHeader className="flex flex-row items-start justify-between gap-3">
-            <div>
-              <CardTitle>One-time password for {revealed.email}</CardTitle>
-              <CardDescription>Shown once — store it somewhere safe.</CardDescription>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              iconLeft={X}
-              aria-label="Dismiss password"
-              onClick={() => setRevealed(null)}
-            >
-              Dismiss
-            </Button>
-          </CardHeader>
-          <CardBody>
-            <PasswordReveal
-              password={revealed.password}
-              onCopy={() => void copyToClipboard(revealed.password)}
-            />
-          </CardBody>
-        </Card>
-      ) : null}
+        {/* One-time password reveal (after create or reset). */}
+        {revealed ? (
+          <Card className="mt-6">
+            <CardHeader className="flex flex-row items-start justify-between gap-3">
+              <div>
+                <CardTitle>One-time password for {revealed.email}</CardTitle>
+                <CardDescription>Shown once — store it somewhere safe.</CardDescription>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                iconLeft={X}
+                aria-label="Dismiss password"
+                onClick={() => setRevealed(null)}
+              >
+                Dismiss
+              </Button>
+            </CardHeader>
+            <CardBody>
+              <PasswordReveal
+                password={revealed.password}
+                onCopy={() => void copyToClipboard(revealed.password)}
+              />
+            </CardBody>
+          </Card>
+        ) : null}
 
-      <div className="mt-6">
-        {mailboxes.length === 0 ? (
+        <div className="mt-6">
+          {mailboxes.length === 0 ? (
           <Card className="p-10">
             <EmptyState
               icon={<AtSign aria-hidden />}
@@ -573,6 +579,7 @@ export function SabmailMailboxesClient({
             </CardBody>
           </Card>
         )}
+        </div>
       </div>
 
       {/* ── Create dialog ── */}

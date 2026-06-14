@@ -254,7 +254,7 @@ export function SabmailContactsClient({
   const previewCount = parsePastedEmails(pasted).length + (pickedRows?.length ?? 0);
 
   return (
-    <div className="relative mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
+    <div className="sabmail-canvas relative min-h-full p-4 sm:p-6">
       <CreatingOverlay
         show={importing}
         variant="process"
@@ -262,6 +262,7 @@ export function SabmailContactsClient({
         subtitle="Adding them to this workspace"
       />
 
+      <div className="mx-auto w-full max-w-4xl">
       <PageHeader>
         <PageHeaderHeading>
           <PageTitle>Contacts</PageTitle>
@@ -378,6 +379,7 @@ export function SabmailContactsClient({
             )}
           </CardBody>
         </Card>
+      </div>
       </div>
 
       {/* Add contact */}

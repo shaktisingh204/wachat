@@ -346,7 +346,7 @@ export function SabmailCampaignsClient({
   const hasAccounts = accounts.length > 0;
 
   return (
-    <div className="relative mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
+    <div className="sabmail-canvas relative min-h-full p-4 sm:p-6">
       <CreatingOverlay
         show={sendingId !== null}
         variant="process"
@@ -354,9 +354,10 @@ export function SabmailCampaignsClient({
         subtitle="Delivering to every recipient — this can take a moment."
       />
 
-      <PageHeaderBlock onNew={openNew} disabled={!hasAccounts} />
+      <div className="mx-auto w-full max-w-4xl">
+        <PageHeaderBlock onNew={openNew} disabled={!hasAccounts} />
 
-      <div className="mt-6 grid gap-6">
+        <div className="mt-6 grid gap-6">
         <Card>
           <CardHeader>
             <CardTitle>Broadcasts</CardTitle>
@@ -388,7 +389,7 @@ export function SabmailCampaignsClient({
                   return (
                     <li
                       key={c.id}
-                      className="sabmail-stagger-item flex items-center justify-between gap-3 rounded-md border border-[var(--st-border)] px-3 py-2.5 hover:bg-[var(--st-bg-muted)]"
+                      className="sabmail-stagger-item sabmail-listrow flex items-center justify-between gap-3 rounded-lg border border-[var(--st-border)] px-3 py-2.5 hover:bg-[var(--st-bg-muted)]"
                       style={{ ["--i" as string]: idx } as React.CSSProperties}
                     >
                       <div className="flex min-w-0 items-center gap-3">
@@ -456,6 +457,7 @@ export function SabmailCampaignsClient({
             )}
           </CardBody>
         </Card>
+        </div>
       </div>
 
       <Dialog open={open} onOpenChange={(o) => (o ? setOpen(true) : (setOpen(false), resetForm()))}>

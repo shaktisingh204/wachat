@@ -170,58 +170,61 @@ export function SabmailTeamClient({
   }, []);
 
   return (
-    <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <PageHeader>
-        <PageHeaderHeading>
-          <PageTitle>Team inbox</PageTitle>
-          <PageDescription>
-            Triage conversations together — assign an owner, set a status, and
-            leave internal notes your customers never see.
-          </PageDescription>
-        </PageHeaderHeading>
-        <Button
-          variant="primary"
-          size="sm"
-          iconLeft={Plus}
-          onClick={() => setCreating(true)}
-        >
-          New conversation
-        </Button>
-      </PageHeader>
+    <div className="sabmail-canvas min-h-full p-4 sm:p-6">
+      <div className="mx-auto w-full max-w-7xl">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="min-w-0">
+            <h1 className="text-xl font-semibold text-[var(--st-text)]">Team inbox</h1>
+            <p className="mt-1 text-sm text-[var(--st-text-secondary)]">
+              Triage conversations together — assign an owner, set a status, and
+              leave internal notes your customers never see.
+            </p>
+          </div>
+          <Button
+            variant="primary"
+            size="sm"
+            iconLeft={Plus}
+            className="shrink-0"
+            onClick={() => setCreating(true)}
+          >
+            New conversation
+          </Button>
+        </div>
 
-      <p className="mt-2 flex items-center gap-1.5 text-xs text-[var(--st-text-secondary)]">
-        <Mail className="h-3.5 w-3.5" aria-hidden />
-        Collaboration layer over your workspace — conversations link to live
-        mail in a later phase.
-      </p>
+        <p className="mt-2 flex items-center gap-1.5 text-xs text-[var(--st-text-secondary)]">
+          <Mail className="h-3.5 w-3.5" aria-hidden />
+          Collaboration layer over your workspace — conversations link to live
+          mail in a later phase.
+        </p>
 
-      <div className="mt-6 grid gap-4 lg:grid-cols-[minmax(280px,380px)_1fr]">
-        <ConversationList
-          conversations={visible}
-          filter={filter}
-          onFilter={setFilter}
-          selectedId={selectedId}
-          onSelect={setSelectedId}
-          onNew={() => setCreating(true)}
-        />
+        <div className="mt-6 grid gap-4 lg:grid-cols-[minmax(280px,380px)_1fr]">
+          <ConversationList
+            conversations={visible}
+            filter={filter}
+            onFilter={setFilter}
+            selectedId={selectedId}
+            onSelect={setSelectedId}
+            onNew={() => setCreating(true)}
+          />
 
-        <DetailPanel
-          key={selected?.id ?? "empty"}
-          conversation={selected}
-          members={members}
-          onUpdated={upsertConversation}
+          <DetailPanel
+            key={selected?.id ?? "empty"}
+            conversation={selected}
+            members={members}
+            onUpdated={upsertConversation}
+          />
+        </div>
+
+        <NewConversationDialog
+          open={creating}
+          onOpenChange={setCreating}
+          onCreated={(c) => {
+            upsertConversation(c);
+            setSelectedId(c.id);
+            setFilter("all");
+          }}
         />
       </div>
-
-      <NewConversationDialog
-        open={creating}
-        onOpenChange={setCreating}
-        onCreated={(c) => {
-          upsertConversation(c);
-          setSelectedId(c.id);
-          setFilter("all");
-        }}
-      />
     </div>
   );
 }

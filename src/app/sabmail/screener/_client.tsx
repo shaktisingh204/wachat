@@ -201,21 +201,22 @@ export function SabmailScreenerClient({
   const empty = EMPTY[tab];
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
-      <PageHeader>
-        <PageHeaderHeading>
-          <PageTitle>Screener</PageTitle>
-          <PageDescription>
-            A one-time yes or no for first-time senders, HEY-style. Approve the
-            people you want; deny the rest — once. Approved/denied decisions
-            gate inbound once the sync engine binds live mail.
-          </PageDescription>
-        </PageHeaderHeading>
-        <div className="flex shrink-0 items-center gap-2">
+    <div className="sabmail-canvas min-h-full p-4 sm:p-6">
+      <div className="mx-auto w-full max-w-4xl">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="min-w-0">
+            <h1 className="text-xl font-semibold text-[var(--st-text)]">Screener</h1>
+            <p className="mt-1 max-w-2xl text-sm text-[var(--st-text-secondary)]">
+              A one-time yes or no for first-time senders, HEY-style. Approve the
+              people you want; deny the rest — once. Approved/denied decisions
+              gate inbound once the sync engine binds live mail.
+            </p>
+          </div>
           <Button
             variant="primary"
             size="sm"
             iconLeft={Plus}
+            className="shrink-0"
             onClick={() => {
               resetAdd();
               setAddOpen(true);
@@ -224,14 +225,13 @@ export function SabmailScreenerClient({
             Add sender
           </Button>
         </div>
-      </PageHeader>
 
-      {/* Filter tabs */}
-      <div
-        className="mt-6 inline-flex items-center gap-1 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-1"
-        role="tablist"
-        aria-label="Filter senders by decision"
-      >
+        {/* Filter tabs */}
+        <div
+          className="mt-6 inline-flex items-center gap-1 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-1"
+          role="tablist"
+          aria-label="Filter senders by decision"
+        >
         {TABS.map((t) => {
           const active = t.id === tab;
           return (
@@ -309,7 +309,8 @@ export function SabmailScreenerClient({
                   return (
                     <div
                       key={s.id}
-                      className="sabmail-stagger-item flex items-center justify-between gap-3 rounded-md border border-[var(--st-border)] px-3 py-2.5"
+                      data-selected={busy}
+                      className="sabmail-stagger-item sabmail-listrow flex items-center justify-between gap-3 rounded-lg border border-[var(--st-border)] px-3 py-2.5 hover:bg-[var(--st-bg-muted)]"
                       style={{ ["--i" as string]: idx } as React.CSSProperties}
                     >
                       <div className="flex min-w-0 items-center gap-3">
@@ -424,6 +425,7 @@ export function SabmailScreenerClient({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      </div>
     </div>
   );
 }

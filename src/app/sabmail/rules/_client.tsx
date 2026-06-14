@@ -232,30 +232,32 @@ export function SabmailRulesClient({
   }, [previewRule, previewAccountId]);
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
-      <PageHeader>
-        <PageHeaderHeading>
-          <PageTitle>Rules</PageTitle>
-          <PageDescription>
-            Describe what to do with incoming mail in plain language — SabMail
-            compiles it into a structured rule. Rules run on the inbox you open
-            and via automation; live auto-apply lands with the sync engine.
-          </PageDescription>
-        </PageHeaderHeading>
-        <Button
-          variant="primary"
-          size="sm"
-          iconLeft={Plus}
-          onClick={() => {
-            resetNew();
-            setNewOpen(true);
-          }}
-        >
-          New rule
-        </Button>
-      </PageHeader>
+    <div className="sabmail-canvas min-h-full p-4 sm:p-6">
+      <div className="mx-auto w-full max-w-4xl">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="min-w-0">
+            <h1 className="text-xl font-semibold text-[var(--st-text)]">Rules</h1>
+            <p className="mt-1 max-w-2xl text-sm text-[var(--st-text-secondary)]">
+              Describe what to do with incoming mail in plain language — SabMail
+              compiles it into a structured rule. Rules run on the inbox you open
+              and via automation; live auto-apply lands with the sync engine.
+            </p>
+          </div>
+          <Button
+            variant="primary"
+            size="sm"
+            iconLeft={Plus}
+            className="shrink-0"
+            onClick={() => {
+              resetNew();
+              setNewOpen(true);
+            }}
+          >
+            New rule
+          </Button>
+        </div>
 
-      <div className="mt-6">
+        <div className="mt-6">
         <Card>
           <CardHeader>
             <CardTitle>Your rules</CardTitle>
@@ -294,7 +296,8 @@ export function SabmailRulesClient({
                   return (
                     <li
                       key={rule.id}
-                      className="sabmail-stagger-item sabmail-row flex items-start justify-between gap-3 rounded-md border border-[var(--st-border)] px-3 py-3 hover:bg-[var(--st-bg-muted)]"
+                      data-selected={false}
+                      className="sabmail-stagger-item sabmail-listrow flex items-start justify-between gap-3 rounded-lg border border-[var(--st-border)] px-3 py-3 hover:bg-[var(--st-bg-muted)]"
                       style={{ ["--i" as string]: idx } as React.CSSProperties}
                     >
                       <div className="flex min-w-0 items-start gap-3">
@@ -358,6 +361,7 @@ export function SabmailRulesClient({
             )}
           </CardBody>
         </Card>
+        </div>
       </div>
 
       {/* New rule */}

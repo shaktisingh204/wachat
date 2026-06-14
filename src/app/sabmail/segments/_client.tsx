@@ -284,21 +284,22 @@ export function SabmailSegmentsClient({
   );
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
-      <PageHeader>
-        <PageHeaderHeading>
-          <PageTitle>Segments</PageTitle>
-          <PageDescription>
-            Saved audiences built from your contacts. Filter by tag, email domain,
-            or substring — then target them from a campaign.
-          </PageDescription>
-        </PageHeaderHeading>
-        <Button variant="primary" size="sm" iconLeft={Plus} onClick={() => setCreating(true)}>
-          New segment
-        </Button>
-      </PageHeader>
+    <div className="sabmail-canvas min-h-full p-4 sm:p-6">
+      <div className="mx-auto w-full max-w-4xl">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="min-w-0">
+            <h1 className="text-xl font-semibold text-[var(--st-text)]">Segments</h1>
+            <p className="mt-1 max-w-2xl text-sm text-[var(--st-text-secondary)]">
+              Saved audiences built from your contacts. Filter by tag, email domain,
+              or substring — then target them from a campaign.
+            </p>
+          </div>
+          <Button variant="primary" size="sm" iconLeft={Plus} className="shrink-0" onClick={() => setCreating(true)}>
+            New segment
+          </Button>
+        </div>
 
-      <div className="mt-6">
+        <div className="mt-6">
         <Card>
           <CardHeader>
             <CardTitle>Audiences</CardTitle>
@@ -321,11 +322,12 @@ export function SabmailSegmentsClient({
                 {segments.map((s, idx) => (
                   <li
                     key={s.id}
-                    className="sabmail-stagger-item sabmail-row flex items-center justify-between gap-3 rounded-md border border-[var(--st-border)] px-3 py-2.5 hover:bg-[var(--st-bg-muted)]"
+                    data-selected={false}
+                    className="sabmail-stagger-item sabmail-listrow flex items-center justify-between gap-3 rounded-lg border border-[var(--st-border)] px-3 py-2.5 hover:bg-[var(--st-bg-muted)]"
                     style={{ ["--i" as string]: idx } as React.CSSProperties}
                   >
                     <div className="flex min-w-0 items-center gap-3">
-                      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-md bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
+                      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                         <Users className="h-4 w-4" aria-hidden />
                       </span>
                       <div className="min-w-0">
@@ -375,11 +377,12 @@ export function SabmailSegmentsClient({
         </Card>
       </div>
 
-      <CreateSegmentDialog
-        open={creating}
-        onOpenChange={setCreating}
-        onCreated={(segment) => setSegments((prev) => [segment, ...prev])}
-      />
+        <CreateSegmentDialog
+          open={creating}
+          onOpenChange={setCreating}
+          onCreated={(segment) => setSegments((prev) => [segment, ...prev])}
+        />
+      </div>
     </div>
   );
 }

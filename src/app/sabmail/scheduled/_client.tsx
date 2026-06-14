@@ -79,18 +79,17 @@ export function SabmailScheduledClient({
   );
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
-      <PageHeader>
-        <PageHeaderHeading>
-          <PageTitle>Send later</PageTitle>
-          <PageDescription>
+    <div className="sabmail-canvas min-h-full p-4 sm:p-6">
+      <div className="mx-auto w-full max-w-4xl">
+        <div className="min-w-0">
+          <h1 className="text-xl font-semibold text-[var(--st-text)]">Send later</h1>
+          <p className="mt-1 max-w-2xl text-sm text-[var(--st-text-secondary)]">
             Messages queued to go out at a future time. They send automatically
             — cancel any pending send before it leaves.
-          </PageDescription>
-        </PageHeaderHeading>
-      </PageHeader>
+          </p>
+        </div>
 
-      <div className="mt-6">
+        <div className="mt-6">
         <Card>
           <CardHeader>
             <CardTitle>Scheduled sends</CardTitle>
@@ -121,7 +120,8 @@ export function SabmailScheduledClient({
                       return (
                         <Tr
                           key={r.id}
-                          className="sabmail-stagger-item"
+                          data-selected={false}
+                          className="sabmail-stagger-item sabmail-listrow"
                           style={{ ["--i" as string]: idx } as React.CSSProperties}
                         >
                           <Td>
@@ -175,6 +175,7 @@ export function SabmailScheduledClient({
             )}
           </CardBody>
         </Card>
+        </div>
       </div>
     </div>
   );

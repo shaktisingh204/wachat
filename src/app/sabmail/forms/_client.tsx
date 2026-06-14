@@ -348,7 +348,7 @@ export function SabmailFormsClient({
   );
 
   return (
-    <div className="relative mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
+    <div className="sabmail-canvas relative min-h-full p-4 sm:p-6">
       <CreatingOverlay
         show={creating}
         variant="process"
@@ -356,20 +356,21 @@ export function SabmailFormsClient({
         subtitle="Publishing its public submit endpoint"
       />
 
-      <PageHeader>
-        <PageHeaderHeading>
-          <PageTitle>Forms</PageTitle>
-          <PageDescription>
-            Signup &amp; lead-capture forms. Each one publishes a public submit
-            URL — drop the embed on any site and every submission becomes a
-            contact in this workspace.
-          </PageDescription>
-        </PageHeaderHeading>
-        <div className="flex shrink-0 items-center gap-2">
+      <div className="mx-auto w-full max-w-4xl">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0">
+            <h1 className="text-xl font-semibold text-[var(--st-text)]">Forms</h1>
+            <p className="mt-1 max-w-2xl text-sm text-[var(--st-text-secondary)]">
+              Signup &amp; lead-capture forms. Each one publishes a public submit
+              URL — drop the embed on any site and every submission becomes a
+              contact in this workspace.
+            </p>
+          </div>
           <Button
             variant="primary"
             size="sm"
             iconLeft={Plus}
+            className="shrink-0"
             onClick={() => {
               reset();
               setOpen(true);
@@ -378,39 +379,39 @@ export function SabmailFormsClient({
             New form
           </Button>
         </div>
-      </PageHeader>
 
-      <div className="mt-6">
-        {forms.length === 0 ? (
-          <Card>
-            <CardBody>
-              <EmptyState
-                icon={<FileText aria-hidden />}
-                title="No forms yet"
-                description="Create a signup form to capture leads from your site and grow your audience."
-                action={
-                  <Button
-                    variant="primary"
-                    size="sm"
-                    iconLeft={Plus}
-                    onClick={() => {
-                      reset();
-                      setOpen(true);
-                    }}
-                  >
-                    New form
-                  </Button>
-                }
-              />
-            </CardBody>
-          </Card>
-        ) : (
-          <div className="sabmail-motion flex flex-col gap-4">
-            {forms.map((form, idx) => (
-              <FormCard key={form.id} form={form} index={idx} onDelete={(id) => void handleDelete(id)} />
-            ))}
-          </div>
-        )}
+        <div className="mt-6">
+          {forms.length === 0 ? (
+            <Card>
+              <CardBody>
+                <EmptyState
+                  icon={<FileText aria-hidden />}
+                  title="No forms yet"
+                  description="Create a signup form to capture leads from your site and grow your audience."
+                  action={
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      iconLeft={Plus}
+                      onClick={() => {
+                        reset();
+                        setOpen(true);
+                      }}
+                    >
+                      New form
+                    </Button>
+                  }
+                />
+              </CardBody>
+            </Card>
+          ) : (
+            <div className="sabmail-motion flex flex-col gap-4">
+              {forms.map((form, idx) => (
+                <FormCard key={form.id} form={form} index={idx} onDelete={(id) => void handleDelete(id)} />
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Create form dialog */}

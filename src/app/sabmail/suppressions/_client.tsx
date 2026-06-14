@@ -134,7 +134,8 @@ export function SabmailSuppressionsClient({
   );
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
+    <div className="sabmail-canvas min-h-full p-4 sm:p-6">
+      <div className="mx-auto w-full max-w-4xl">
       <PageHeader>
         <PageHeaderHeading>
           <PageTitle>Suppressions</PageTitle>
@@ -291,6 +292,7 @@ export function SabmailSuppressionsClient({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      </div>
     </div>
   );
 }

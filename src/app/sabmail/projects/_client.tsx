@@ -124,38 +124,43 @@ export function SabmailProjectsClient({
   }, [name, goToProject, toast]);
 
   return (
-    <div className="relative mx-auto w-full max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+    <div className="sabmail-canvas relative min-h-full p-4 sm:p-6">
       <CreatingOverlay
         show={creating}
         variant="connect"
         title="Creating project…"
         subtitle="Setting up your isolated SabMail workspace"
       />
-      <PageHeader>
-        <PageHeaderHeading>
-          <PageTitle>SabMail projects</PageTitle>
-          <PageDescription>
-            Each project is an isolated email workspace — its own connected
-            mailboxes, threads, contacts, campaigns, and deliverability. Pick
-            one to continue, or create a new one. New projects finish a short
-            setup before the inbox unlocks.
-          </PageDescription>
-        </PageHeaderHeading>
-        <Button
-          variant="primary"
-          size="sm"
-          iconLeft={Plus}
-          onClick={() => {
-            setName("");
-            setCreateErr(null);
-            setOpen(true);
-          }}
-        >
-          New project
-        </Button>
-      </PageHeader>
 
-      <div className="mt-6">
+      <div className="mx-auto w-full max-w-5xl">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0">
+            <h1 className="text-xl font-semibold text-[var(--st-text)]">
+              SabMail projects
+            </h1>
+            <p className="mt-1 max-w-2xl text-sm text-[var(--st-text-secondary)]">
+              Each project is an isolated email workspace — its own connected
+              mailboxes, threads, contacts, campaigns, and deliverability. Pick
+              one to continue, or create a new one. New projects finish a short
+              setup before the inbox unlocks.
+            </p>
+          </div>
+          <Button
+            variant="primary"
+            size="sm"
+            iconLeft={Plus}
+            className="shrink-0"
+            onClick={() => {
+              setName("");
+              setCreateErr(null);
+              setOpen(true);
+            }}
+          >
+            New project
+          </Button>
+        </div>
+
+        <div className="mt-6">
         {projects.length === 0 ? (
           <Card className="p-10">
             <EmptyState
@@ -190,7 +195,8 @@ export function SabmailProjectsClient({
                   style={{ ["--i" as string]: idx } as React.CSSProperties}
                 >
                   <Card
-                    className={`flex h-full flex-col gap-3 p-5 transition-colors ${
+                    data-selected={isActive}
+                    className={`sabmail-listrow flex h-full flex-col gap-3 p-5 transition-colors ${
                       isActive
                         ? "ring-2 ring-[var(--st-primary,var(--st-accent))]"
                         : ""
@@ -241,6 +247,7 @@ export function SabmailProjectsClient({
             })}
           </ul>
         )}
+        </div>
       </div>
 
       <Dialog open={open} onOpenChange={setOpen}>

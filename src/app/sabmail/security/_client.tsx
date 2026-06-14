@@ -34,10 +34,6 @@ import {
   EmptyState,
   Field,
   Input,
-  PageDescription,
-  PageHeader,
-  PageHeaderHeading,
-  PageTitle,
   Textarea,
   useToast,
 } from "@/components/sabcrm/20ui";
@@ -579,7 +575,7 @@ export function SabmailSecurityClient({ initialStatus }: { initialStatus: Sabmai
   );
 
   return (
-    <div className="relative mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
+    <div className="sabmail-canvas relative min-h-full p-4 sm:p-6">
       <CreatingOverlay
         show={deleting}
         variant="process"
@@ -587,18 +583,22 @@ export function SabmailSecurityClient({ initialStatus }: { initialStatus: Sabmai
         subtitle="Removing the workspace keypair"
       />
 
-      <PageHeader>
-        <PageHeaderHeading>
-          <PageTitle>Security &amp; Encryption</PageTitle>
-          <PageDescription>
-            OpenPGP end-to-end encryption for this workspace. The private key stays on the server — only the public key
-            and fingerprint are ever shared.
-          </PageDescription>
-        </PageHeaderHeading>
-        {available ? headerActions : null}
-      </PageHeader>
+      <div className="mx-auto w-full max-w-3xl">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0">
+            <h1 className="text-xl font-semibold text-[var(--st-text)]">
+              Security &amp; encryption
+            </h1>
+            <p className="mt-1 max-w-2xl text-sm text-[var(--st-text-secondary)]">
+              OpenPGP end-to-end encryption for this workspace. The private key
+              stays on the server — only the public key and fingerprint are ever
+              shared.
+            </p>
+          </div>
+          {available ? headerActions : null}
+        </div>
 
-      <div className="mt-6 grid gap-6">
+        <div className="mt-6 grid gap-6">
         <AvailabilityBanner available={available} />
 
         {!available ? (
@@ -637,6 +637,7 @@ export function SabmailSecurityClient({ initialStatus }: { initialStatus: Sabmai
             </div>
           </div>
         )}
+        </div>
       </div>
 
       <GenerateDialog open={genOpen} onOpenChange={setGenOpen} onGenerated={setStatus} />

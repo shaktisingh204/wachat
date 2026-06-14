@@ -164,22 +164,29 @@ export function SabmailTemplatesClient({
   const dialogOpen = editor !== null;
 
   return (
-    <div className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
-      <PageHeader>
-        <PageHeaderHeading>
-          <PageTitle>Templates</PageTitle>
-          <PageDescription>
-            Reusable subject lines and rich-HTML bodies for this workspace.
-            Save the emails you send again and again, then drop them into the
-            composer in one click.
-          </PageDescription>
-        </PageHeaderHeading>
-        <Button variant="primary" size="sm" iconLeft={Plus} onClick={openCreate}>
-          New template
-        </Button>
-      </PageHeader>
+    <div className="sabmail-canvas min-h-full p-4 sm:p-6">
+      <div className="mx-auto w-full max-w-5xl">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0">
+            <h1 className="text-xl font-semibold text-[var(--st-text)]">Templates</h1>
+            <p className="mt-1 max-w-2xl text-sm text-[var(--st-text-secondary)]">
+              Reusable subject lines and rich-HTML bodies for this workspace.
+              Save the emails you send again and again, then drop them into the
+              composer in one click.
+            </p>
+          </div>
+          <Button
+            variant="primary"
+            size="sm"
+            iconLeft={Plus}
+            className="shrink-0"
+            onClick={openCreate}
+          >
+            New template
+          </Button>
+        </div>
 
-      <div className="mt-6">
+        <div className="mt-6">
         {templates.length === 0 ? (
           <Card className="p-10">
             <EmptyState
@@ -250,6 +257,7 @@ export function SabmailTemplatesClient({
             })}
           </ul>
         )}
+        </div>
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={(o) => (o ? null : closeEditor())}>

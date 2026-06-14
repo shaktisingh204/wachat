@@ -257,18 +257,17 @@ export function SabmailAnalyticsClient({
   ];
 
   return (
-    <div className="sabmail-motion mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
-      <PageHeader>
-        <PageHeaderHeading>
-          <PageTitle>Analytics</PageTitle>
-          <PageDescription>
+    <div className="sabmail-canvas min-h-full p-4 sm:p-6">
+      <div className="sabmail-motion mx-auto w-full max-w-6xl">
+        <div className="min-w-0">
+          <h1 className="text-xl font-semibold text-[var(--st-text)]">Analytics</h1>
+          <p className="mt-1 max-w-2xl text-sm text-[var(--st-text-secondary)]">
             A read-only snapshot of this workspace — campaign volume, delivery
             outcomes, contacts, and connected mailboxes.
-          </PageDescription>
-        </PageHeaderHeading>
-      </PageHeader>
+          </p>
+        </div>
 
-      {loadError ? (
+        {loadError ? (
         <div
           className="mt-6 flex items-start gap-2 rounded-md border px-3 py-2.5 text-sm"
           style={{
@@ -604,6 +603,7 @@ export function SabmailAnalyticsClient({
             </div>
           </>
         )}
+        </div>
       </div>
     </div>
   );
