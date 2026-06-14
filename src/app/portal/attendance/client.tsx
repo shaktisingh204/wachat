@@ -6,7 +6,7 @@ import { Button } from '@/components/sabcrm/20ui';
 import { Badge } from '@/components/sabcrm/20ui';
 import { useToast } from '@/components/sabcrm/20ui';
 import { punchInAction, punchOutAction } from '@/app/actions/crm/attendance.actions';
-import { CrmAttendanceDoc } from '@/lib/rust-client/crm-attendance';
+import type { CrmAttendanceDoc } from '@/lib/rust-client/crm-attendance';
 
 export default function AttendanceClient({
   employeeId,

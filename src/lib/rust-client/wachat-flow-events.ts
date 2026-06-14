@@ -41,15 +41,10 @@ export interface FlowMetrics {
 
 /**
  * Zero / never-triggered baseline — mirrors `FlowMetrics::empty()` on the Rust
- * side. Lives here (not in the `'use server'` actions module) because a
- * `'use server'` file may only export async functions; callers default absent
- * flows to this value.
+ * side. NOTE: this module is `server-only` (it imports the JWT fetcher), so the
+ * value baseline lives in the client-safe `./wachat-flow-events.constants`
+ * module instead — client components must import it from there, not here.
  */
-export const EMPTY_METRICS: FlowMetrics = {
-    triggersToday: 0,
-    totalTriggers: 0,
-    lastTriggeredAt: null,
-};
 
 /**
  * Response for `GET /v1/wachat/flow-events?projectId=…`.
