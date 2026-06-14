@@ -23,10 +23,6 @@ import {
   CardTitle,
   EmptyState,
   Field,
-  PageDescription,
-  PageHeader,
-  PageHeaderHeading,
-  PageTitle,
   Select,
   SelectContent,
   SelectItem,
@@ -149,27 +145,32 @@ export function SabmailAutopilotClient({
 
   if (accounts.length === 0) {
     return (
-      <div className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
-        <PageHeader>
-          <PageHeaderHeading>
-            <PageTitle>Autopilot</PageTitle>
-            <PageDescription>
-              Let AI propose inbox clean-up actions — you approve every one.
-            </PageDescription>
-          </PageHeaderHeading>
-        </PageHeader>
-        <Card className="mt-6 p-10">
-          <EmptyState
-            icon={<Mail aria-hidden />}
-            title="No mailbox connected"
-            description="Connect a mailbox first — then Autopilot can suggest what to archive, label, or keep."
-            action={
-              <Button variant="primary" size="sm" asChild>
-                <a href="/sabmail/accounts">Connect a mailbox</a>
-              </Button>
-            }
-          />
-        </Card>
+      <div className="sabmail-canvas min-h-full p-4 sm:p-6">
+        <div className="mx-auto w-full max-w-3xl">
+          <header className="flex flex-wrap items-start justify-between gap-3">
+            <div className="min-w-0">
+              <h1 className="flex items-center gap-2 text-xl font-semibold text-[var(--st-text)]">
+                <Bot className="h-5 w-5 text-[var(--st-accent)]" aria-hidden />
+                AI Autopilot
+              </h1>
+              <p className="mt-1 text-sm text-[var(--st-text-secondary)]">
+                Let AI propose inbox clean-up actions — you approve every one.
+              </p>
+            </div>
+          </header>
+          <Card className="mt-6 p-10">
+            <EmptyState
+              icon={<Mail aria-hidden />}
+              title="No mailbox connected"
+              description="Connect a mailbox first — then Autopilot can suggest what to archive, label, or keep."
+              action={
+                <Button variant="primary" size="sm" asChild>
+                  <a href="/sabmail/accounts">Connect a mailbox</a>
+                </Button>
+              }
+            />
+          </Card>
+        </div>
       </div>
     );
   }

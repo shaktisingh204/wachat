@@ -338,7 +338,7 @@ export function SabmailDomainsClient({
   );
 
   return (
-    <div className="relative mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
+    <div className="sabmail-canvas relative min-h-full p-4 sm:p-6">
       <CreatingOverlay
         show={verifyingId !== null}
         variant="process"
@@ -346,30 +346,34 @@ export function SabmailDomainsClient({
         subtitle="Resolving SPF and DMARC records"
       />
 
-      <PageHeader>
-        <PageHeaderHeading>
-          <PageTitle>Domains &amp; Deliverability</PageTitle>
-          <PageDescription>
-            Authenticate the domains you send from. Add SPF, DMARC and DKIM
-            records at your DNS provider, then verify — verified domains land in
-            the inbox, not spam.
-          </PageDescription>
-        </PageHeaderHeading>
-        <Button
-          variant="primary"
-          size="sm"
-          iconLeft={Plus}
-          onClick={() => {
-            setNewDomain("");
-            setAddErr(null);
-            setOpen(true);
-          }}
-        >
-          Add domain
-        </Button>
-      </PageHeader>
+      <div className="mx-auto w-full max-w-4xl">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0">
+            <h1 className="text-xl font-semibold text-[var(--st-text)]">
+              Domains &amp; deliverability
+            </h1>
+            <p className="mt-1 max-w-2xl text-sm text-[var(--st-text-secondary)]">
+              Authenticate the domains you send from. Add SPF, DMARC and DKIM
+              records at your DNS provider, then verify — verified domains land in
+              the inbox, not spam.
+            </p>
+          </div>
+          <Button
+            variant="primary"
+            size="sm"
+            iconLeft={Plus}
+            className="shrink-0"
+            onClick={() => {
+              setNewDomain("");
+              setAddErr(null);
+              setOpen(true);
+            }}
+          >
+            Add domain
+          </Button>
+        </div>
 
-      <div className="mt-6">
+        <div className="mt-6">
         {domains.length === 0 ? (
           <Card className="p-10">
             <EmptyState
@@ -413,6 +417,7 @@ export function SabmailDomainsClient({
             ))}
           </ul>
         )}
+        </div>
       </div>
 
       <Dialog open={open} onOpenChange={setOpen}>

@@ -106,27 +106,30 @@ export function SabmailAiClient({
 
   if (accounts.length === 0) {
     return (
-      <div className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
-        <PageHeader>
-          <PageHeaderHeading>
-            <PageTitle>Ask AI</PageTitle>
-            <PageDescription>
+      <div className="sabmail-canvas min-h-full p-4 sm:p-6">
+        <div className="mx-auto w-full max-w-3xl">
+          <div className="flex flex-col gap-1">
+            <h1 className="flex items-center gap-2 text-xl font-semibold text-[var(--st-text)]">
+              <Sparkles className="h-5 w-5 text-[var(--st-accent)]" aria-hidden />
+              Ask AI
+            </h1>
+            <p className="text-sm text-[var(--st-text-secondary)]">
               Ask questions about your inbox in plain language.
-            </PageDescription>
-          </PageHeaderHeading>
-        </PageHeader>
-        <Card className="mt-6 p-10">
-          <EmptyState
-            icon={<Mail aria-hidden />}
-            title="No mailbox connected"
-            description="Connect a mailbox first — then you can ask AI about anything in your inbox."
-            action={
-              <Button variant="primary" size="sm" asChild>
-                <a href="/sabmail/accounts">Connect a mailbox</a>
-              </Button>
-            }
-          />
-        </Card>
+            </p>
+          </div>
+          <div className="sabmail-pane mt-6 p-10">
+            <EmptyState
+              icon={<Mail aria-hidden />}
+              title="No mailbox connected"
+              description="Connect a mailbox first — then you can ask AI about anything in your inbox."
+              action={
+                <Button variant="primary" size="sm" asChild>
+                  <a href="/sabmail/accounts">Connect a mailbox</a>
+                </Button>
+              }
+            />
+          </div>
+        </div>
       </div>
     );
   }

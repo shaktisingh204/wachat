@@ -51,23 +51,24 @@ export function SabmailAccountsClient({
   );
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
-      <PageHeader>
-        <PageHeaderHeading>
-          <PageTitle>Accounts</PageTitle>
-          <PageDescription>
-            Connected mailboxes for this workspace. Add Gmail, Outlook or any
-            IMAP account — they sync into one unified inbox.
-          </PageDescription>
-        </PageHeaderHeading>
-        {!adding ? (
-          <Button variant="primary" size="sm" iconLeft={Plus} onClick={() => setAdding(true)}>
-            Connect mailbox
-          </Button>
-        ) : null}
-      </PageHeader>
+    <div className="sabmail-canvas min-h-full p-4 sm:p-6">
+      <div className="mx-auto w-full max-w-4xl">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="min-w-0">
+            <h1 className="text-xl font-semibold text-[var(--st-text)]">Accounts</h1>
+            <p className="mt-1 text-sm text-[var(--st-text-secondary)]">
+              Connected mailboxes for this workspace. Add Gmail, Outlook or any
+              IMAP account — they sync into one unified inbox.
+            </p>
+          </div>
+          {!adding ? (
+            <Button variant="primary" size="sm" iconLeft={Plus} onClick={() => setAdding(true)}>
+              Connect mailbox
+            </Button>
+          ) : null}
+        </div>
 
-      <div className="mt-6 grid gap-6">
+        <div className="mt-6 grid gap-6">
         <Card>
           <CardHeader>
             <CardTitle>Connected mailboxes</CardTitle>
@@ -85,11 +86,12 @@ export function SabmailAccountsClient({
                 {accounts.map((a, idx) => (
                   <li
                     key={a.id}
-                    className="sabmail-stagger-item sabmail-row flex items-center justify-between gap-3 rounded-md border border-[var(--st-border)] px-3 py-2.5 hover:bg-[var(--st-bg-muted)]"
+                    data-selected={false}
+                    className="sabmail-stagger-item sabmail-listrow flex items-center justify-between gap-3 rounded-lg border border-[var(--st-border)] px-3 py-2.5 hover:bg-[var(--st-bg-muted)]"
                     style={{ ["--i" as string]: idx } as React.CSSProperties}
                   >
                     <div className="flex min-w-0 items-center gap-3">
-                      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-md bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
+                      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                         <AtSign className="h-4 w-4" aria-hidden />
                       </span>
                       <div className="min-w-0">
@@ -142,6 +144,7 @@ export function SabmailAccountsClient({
             </CardBody>
           </Card>
         ) : null}
+        </div>
       </div>
     </div>
   );

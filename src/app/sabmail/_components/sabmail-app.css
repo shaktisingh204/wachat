@@ -1,66 +1,38 @@
 /* =========================================================================
-   SabMail app theme — applied app-wide via the SabMail shell.
+   SabMail app theme — layout helpers on top of the app-wide 20ui system.
 
-   The ONE thing that can't be done inline: re-point the 20ui accent family to
-   SabMail's emerald so the WHOLE email module (inbox, campaigns, templates,
-   automations, analytics, domains, mailboxes, settings, …) shares one accent —
-   scoped to `.sabmail-app` so the rest of SabNode keeps its blue. Both light +
-   dark are defined off the same `--st-*` token contract, so every SabMail page
-   themes automatically. Components use plain Tailwind + `var(--st-*)`.
+   20ui IS SabNode's design system, so SabMail uses the NATIVE 20ui accent +
+   tokens (no bespoke accent) — the inbox + every SabMail page feel native to
+   SabNode, in both light + dark. This file only adds a few opt-in LAYOUT helper
+   classes (pane / canvas / tint card / list row / primary button) that read
+   entirely off the standard `--st-*` tokens, so they theme automatically.
 
    The shell wraps content in `<div class="sabmail-app" style="display:contents">`
-   — `display:contents` removes the box (zero layout impact) while custom
-   properties still inherit to every descendant.
+   purely so the tint vars below are in scope; it does NOT change the accent.
    ========================================================================= */
 
 .sabmail-app {
-  /* Emerald accent (light) */
-  --st-accent: #0e9f6e;
-  --st-accent-hover: #0b805a;
-  --st-accent-soft: #e7f6f0;
-  --st-accent-ring: rgba(14, 159, 110, 0.2);
-  /* A soft tint used by the AI-summary + compose draft cards. */
-  --sabmail-tint: rgba(14, 159, 110, 0.08);
-  --sabmail-tint-border: rgba(14, 159, 110, 0.22);
-}
-
-/* Dark — the app stamps `html.dark`; also cover the explicit/auto cases. */
-html.dark .sabmail-app,
-.sabmail-app.dark,
-.sabmail-app[data-theme="dark"] {
-  --st-accent: #10b981;
-  --st-accent-hover: #34d399;
-  --st-accent-soft: rgba(16, 185, 129, 0.16);
-  --st-accent-ring: rgba(16, 185, 129, 0.3);
-  --sabmail-tint: rgba(16, 185, 129, 0.1);
-  --sabmail-tint-border: rgba(16, 185, 129, 0.28);
-}
-@media (prefers-color-scheme: dark) {
-  .sabmail-app:not(.light):not([data-theme="light"]) {
-    --st-accent: #10b981;
-    --st-accent-hover: #34d399;
-    --st-accent-soft: rgba(16, 185, 129, 0.16);
-    --st-accent-ring: rgba(16, 185, 129, 0.3);
-    --sabmail-tint: rgba(16, 185, 129, 0.1);
-    --sabmail-tint-border: rgba(16, 185, 129, 0.28);
-  }
+  /* The "AI summary" + compose-draft tint derives from the 20ui accent, so it
+     matches whatever accent 20ui uses and stays correct in light + dark. */
+  --sabmail-tint: var(--st-accent-soft);
+  --sabmail-tint-border: var(--st-accent-ring);
 }
 
 /* ── Shared design-language helpers (opt-in classes any SabMail page can use) ── */
 
-/* Calm canvas behind rounded panes (the inbox look). */
+/* Calm canvas behind rounded panes (the inbox look) — 20ui surface token. */
 .sabmail-canvas {
   background: var(--st-bg-secondary);
 }
 
-/* A rounded surface pane. */
+/* A rounded 20ui surface pane. */
 .sabmail-pane {
   background: var(--st-bg);
   border: 1px solid var(--st-border);
   border-radius: var(--st-radius-lg, 10px);
 }
 
-/* The teal "AI Summary" + compose-draft cards. */
+/* The accent-tinted "AI Summary" + compose-draft cards. */
 .sabmail-tint-card {
   background: var(--sabmail-tint);
   border: 1px solid var(--sabmail-tint-border);
@@ -76,10 +48,11 @@ html.dark .sabmail-app,
   box-shadow: inset 3px 0 0 0 var(--st-accent);
 }
 
-/* Primary emerald button (Compose / Send / page primaries). */
+/* Primary button (Compose / Send) — uses the 20ui accent so it matches the
+   rest of SabNode's primary actions. */
 .sabmail-compose-btn {
   background: var(--st-accent);
-  color: #ffffff;
+  color: var(--st-text-inverted, #ffffff);
   transition: background var(--u-dur-fast, 120ms) var(--u-ease-out, ease),
     transform var(--u-dur-fast, 120ms) var(--u-ease-out, ease);
 }
