@@ -12,5 +12,6 @@ export { SabFileTable } from './sab-file-table';
 export { SabFileGridCard } from './sab-file-grid-card';
 export { SabUploadDropzone } from './sab-upload-dropzone';
 export { SabFileDetailsPanel } from './sab-file-details-panel';
+export { SabFileSecurityPanel } from './sab-file-security-panel';
 export { SabFilePeopleShareDialog } from './sab-share-dialog';
 export { useNodeMembers } from './use-node-members';

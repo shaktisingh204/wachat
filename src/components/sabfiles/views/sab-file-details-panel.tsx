@@ -23,6 +23,7 @@ import {
 } from '@/components/sabcrm/20ui';
 
 import { fileTypeBadge, formatBytes, formatDate, isImageNode, tint } from './lib';
+import { SabFileSecurityPanel } from './sab-file-security-panel';
 import type { SabfilesNode, SabFileMember } from './types';
 
 export interface SabFileDetailsPanelProps {
@@ -147,6 +148,9 @@ function DetailsBody({
                         ) : null}
                     </div>
                 </div>
+
+                {/* Security & document governance */}
+                <SabFileSecurityPanel node={node} />
 
                 {/* Members */}
                 {members && members.length > 0 ? (

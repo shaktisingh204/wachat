@@ -1332,14 +1332,32 @@ pub async fn create_share(
     let oid = node_oid(&id)?;
     let coll = s.mongo.collection::<Document>(NODES_COLL);
 
+    // Preserve an existing share token so editing governance never breaks a
+    // link that has already been handed out. Only a brand-new share mints a
+    // token and starts its access counters clean.
+    let existing = coll
+        .find_one(doc! { "_id": oid, "userId": user_id })
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?
+        .ok_or_else(|| ApiError::NotFound("node".to_owned()))?;
+    let existing_token = existing
+        .get_str("shareToken")
+        .ok()
+        .filter(|t| !t.is_empty())
+        .map(|t| t.to_owned());
+    let is_new_share = existing_token.is_none();
+    let token = existing_token.unwrap_or_else(random_share_token);
+
     let mut set = doc! {
-        "shareToken": random_share_token(),
+        "shareToken": token.clone(),
         "shareDownloadEnabled": body.download_enabled.unwrap_or(true),
-        // Counters are reset on every (re)create so a fresh link starts clean.
-        "shareDownloadCount": 0_i64,
-        "shareViewCount": 0_i64,
         "updatedAt": bson::DateTime::from_chrono(Utc::now()),
     };
+    if is_new_share {
+        // A fresh link starts its access counters clean.
+        set.insert("shareDownloadCount", 0_i64);
+        set.insert("shareViewCount", 0_i64);
+    }
     if let Some(exp) = &body.expires_at {
         let dt = parse_iso8601(exp)?;
         set.insert("shareExpiresAt", bson::DateTime::from_chrono(dt));

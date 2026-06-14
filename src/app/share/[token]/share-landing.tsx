@@ -263,7 +263,23 @@ export function ShareLanding({
                             </div>
                         </div>
 
-                        <div className="flex min-h-[56vh] items-center justify-center bg-[var(--st-bg-secondary)] p-4 sm:p-6">
+                        <div className="relative flex min-h-[56vh] items-center justify-center bg-[var(--st-bg-secondary)] p-4 sm:p-6">
+                            {view.watermark?.enabled ? (
+                                <div
+                                    aria-hidden="true"
+                                    className="pointer-events-none absolute inset-0 z-10 flex flex-wrap content-center items-center justify-center gap-x-12 gap-y-10 overflow-hidden text-[var(--st-text)] select-none"
+                                    style={{ opacity: view.watermark.opacity ?? 0.15 }}
+                                >
+                                    {Array.from({ length: 60 }).map((_, i) => (
+                                        <span
+                                            key={i}
+                                            className="whitespace-nowrap text-sm font-semibold uppercase tracking-[0.25em] text-current [transform:rotate(-30deg)] sm:text-base"
+                                        >
+                                            {view.watermark?.text || 'Confidential'}
+                                        </span>
+                                    ))}
+                                </div>
+                            ) : null}
                             {previewKind === 'image' && previewUrl ? (
                                 <img
                                     src={previewUrl}
