@@ -2,9 +2,11 @@ export const dynamic = 'force-dynamic';
 
 import React from 'react';
 import { redirect } from 'next/navigation';
+import { headers } from 'next/headers';
 
 import { getCachedSession } from '@/lib/server-cache';
 import { ToastProvider, Toaster } from '@/components/sabcrm/20ui';
+import { getMyKyc } from '@/app/actions/sabpay-kyc.actions';
 
 import { SabpayShell } from './_components/sabpay-shell';
 
@@ -21,6 +23,20 @@ export default async function SabpayLayout({
   const session = await getCachedSession();
   if (!session?.user) {
     redirect('/login');
+  }
+
+  /* ── SabPay onboarding gate ──────────────────────────────────────────
+   * Every merchant must complete KYC onboarding (business details + bank +
+   * documents) before using SabPay — like a real payment gateway. The
+   * onboarding wizard at /sabpay/onboarding is always allowed through. */
+  const pathname = (await headers()).get('x-url') ?? '';
+  const onOnboarding =
+    pathname === '/sabpay/onboarding' || pathname.startsWith('/sabpay/onboarding/');
+  if (pathname && !onOnboarding) {
+    const kyc = await getMyKyc();
+    if (kyc?.status !== 'verified') {
+      redirect('/sabpay/onboarding');
+    }
   }
 
   const user = session.user as {
@@ -41,6 +57,17 @@ export default async function SabpayLayout({
             0,
           )
         : 0;
+
+  // Onboarding renders standalone (no dashboard shell — the merchant isn't
+  // active yet).
+  if (onOnboarding) {
+    return (
+      <ToastProvider>
+        {children}
+        <Toaster />
+      </ToastProvider>
+    );
+  }
 
   return (
     <ToastProvider>
