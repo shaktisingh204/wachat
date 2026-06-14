@@ -263,17 +263,6 @@ const GLYPHS: Record<string, React.ReactNode> = {
     </>
   ),
 
-  /* SabCampaigns — flag. */
-  sabcampaigns: (
-    <>
-      <rect x={13.5} y={10.5} width={2.8} height={27} rx={1.4} fill="#fff" />
-      <path
-        fill="#fff"
-        d="M18.5 13.2c3.7 1.7 7.4-1.6 11.1.1 2 1 4 1 5.9.2a1 1 0 0 1 1.4.92v11.1a1 1 0 0 1-.6.9c-2.3 1-4.7 1-7.1-.2-3.7-1.7-7.4 1.6-10.7-.1V13.2Z"
-      />
-    </>
-  ),
-
   /* SabThrive — heart with pulse. */
   sabthrive: (
     <>

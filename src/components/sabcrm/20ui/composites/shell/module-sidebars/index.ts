@@ -17,7 +17,6 @@ import { API_SIDEBAR } from "./api";
 import { SABBI_SIDEBAR } from "./sabbi";
 import { SABBIGIN_SIDEBAR } from "./sabbigin";
 import { SABBUGS_SIDEBAR } from "./sabbugs";
-import { SABCAMPAIGNS_SIDEBAR } from "./sabcampaigns";
 import { SABCATALYST_SIDEBAR } from "./sabcatalyst";
 import { SABCHECKOUT_SIDEBAR } from "./sabcheckout";
 import { SABCONNECT_SIDEBAR } from "./sabconnect";
@@ -52,7 +51,6 @@ export const MODULE_SIDEBARS: SabAppSidebarConfig[] = [
   SABBI_SIDEBAR,
   SABBIGIN_SIDEBAR,
   SABBUGS_SIDEBAR,
-  SABCAMPAIGNS_SIDEBAR,
   SABCATALYST_SIDEBAR,
   SABCHECKOUT_SIDEBAR,
   SABCONNECT_SIDEBAR,

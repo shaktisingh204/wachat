@@ -603,16 +603,6 @@ export function SabDeskIcon(props: IconProps) {
   );
 }
 
-// Megaphone.
-export function SabCampaignsIcon(props: IconProps) {
-  return (
-    <svg {...base(props)}>
-      <path d="M3.5 10v4l13 5V5Z" />
-      <path d="M16.5 9a3 3 0 0 1 0 6" />
-    </svg>
-  );
-}
-
 // Sparkle / thrive.
 export function SabThriveIcon(props: IconProps) {
   return (

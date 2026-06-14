@@ -12,7 +12,6 @@ import {
   SabBiIcon,
   SabBiginIcon,
   SabBugsIcon,
-  SabCampaignsIcon,
   SabCatalystIcon,
   SabChatIcon,
   SabConnectIcon,
@@ -272,14 +271,6 @@ const SAB_APPS_ALL: SabAppDescriptor[] = [
     isActive: (p) => !!p?.startsWith("/dashboard/sabcheckout"),
   },
   {
-    id: "sabcampaigns",
-    name: "SabCampaigns",
-    href: "/dashboard/sabcampaigns",
-    Icon: SabCampaignsIcon,
-    migration: "done",
-    isActive: (p) => !!p?.startsWith("/dashboard/sabcampaigns"),
-  },
-  {
     id: "sabthrive",
     name: "SabThrive",
     href: "/dashboard/sabthrive",
@@ -330,7 +321,7 @@ const SAB_APPS_ALL: SabAppDescriptor[] = [
     href: "/sabsign",
     Icon: SabSignIcon,
     migration: "done",
-    isActive: (p) => !!p?.startsWith("/sabsign"),
+    isActive: (p) => p === "/sabsign" || !!p?.startsWith("/sabsign/"),
   },
   {
     id: "sabwebinar",
