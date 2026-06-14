@@ -39,6 +39,10 @@ import {
 } from '@/components/sabcrm/20ui';
 import { getSignView, issueSignerOtp, submitSignature } from '@/app/actions/sabsign.actions';
 import { getPublicSignBranding } from '@/app/actions/sabsign-settings.actions';
+import {
+  getEnvelopePaymentPublic,
+  type EnvelopePaymentView,
+} from '@/app/actions/sabsign-payments.actions';
 import type { EnvelopeField } from '@/lib/rust-client/sabsign-envelopes';
 import type { SabsignBranding } from '@/lib/sabsign/branding';
 import { fieldVisibility, computeFormula } from '@/lib/sabsign/conditions';
@@ -78,7 +82,19 @@ export default function PublicSignPage() {
   const [done, setDone] = React.useState<string | null>(null);
   const [error, setError] = React.useState<string | null>(null);
   const [branding, setBranding] = React.useState<SabsignBranding | null>(null);
+  const [payment, setPayment] = React.useState<EnvelopePaymentView | null>(null);
   const [locale, setLocale] = React.useState('en');
+
+  const recheckPayment = React.useCallback(() => {
+    getEnvelopePaymentPublic(params.envelopeId)
+      .then(setPayment)
+      .catch(() => {});
+  }, [params.envelopeId]);
+
+  // Payment requirement (collected via SabPay) for this envelope.
+  React.useEffect(() => {
+    recheckPayment();
+  }, [recheckPayment]);
 
   // Default the signing language from the signer's browser.
   React.useEffect(() => {
@@ -152,6 +168,10 @@ export default function PublicSignPage() {
     if (!payload) return;
     if (!decline && !consent) {
       setError(t(locale, 'agreeFirst'));
+      return;
+    }
+    if (!decline && payment?.required && !payment.paid) {
+      setError('Please complete the payment before signing.');
       return;
     }
     setBusy(true);
@@ -413,6 +433,47 @@ export default function PublicSignPage() {
             </CardBody>
           </Card>
 
+          {payment?.required ? (
+            <Card>
+              <CardBody className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-[var(--st-text)]">
+                    Payment required
+                  </span>
+                  {payment.paid ? (
+                    <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs text-emerald-700">
+                      Paid
+                    </span>
+                  ) : (
+                    <span className="rounded-full bg-amber-50 px-2 py-0.5 text-xs text-amber-700">
+                      Unpaid
+                    </span>
+                  )}
+                </div>
+                <p className="text-sm text-[var(--st-text-secondary)]">
+                  {payment.currency} {payment.amount} is due to complete signing.
+                </p>
+                {!payment.paid ? (
+                  <div className="flex gap-2">
+                    {payment.checkoutUrl ? (
+                      <a
+                        href={payment.checkoutUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex-1"
+                      >
+                        <Button className="w-full">Pay now</Button>
+                      </a>
+                    ) : null}
+                    <Button variant="outline" onClick={recheckPayment}>
+                      I&apos;ve paid
+                    </Button>
+                  </div>
+                ) : null}
+              </CardBody>
+            </Card>
+          ) : null}
+
           <Card>
             <CardBody>
               <Checkbox
@@ -430,7 +491,7 @@ export default function PublicSignPage() {
           <div className="flex gap-2">
             <Button
               className="flex-1"
-              disabled={busy || !consent}
+              disabled={busy || !consent || (!!payment?.required && !payment.paid)}
               onClick={() => submit(false)}
             >
               {busy ? t(locale, 'submitting') : t(locale, 'finishSign')}
