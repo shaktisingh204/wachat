@@ -4,6 +4,9 @@ import * as React from "react";
 import {
   Archive,
   AtSign,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   Clock,
   FileText,
   Folder,
@@ -11,13 +14,16 @@ import {
   Inbox as InboxIcon,
   Mail,
   MailOpen,
+  MoreHorizontal,
   Paperclip,
+  Pin,
   RefreshCw,
   Reply,
   ReplyAll,
   Search,
   Send,
   ShieldAlert,
+  SlidersHorizontal,
   Sparkles,
   SquarePen,
   Star,
@@ -43,11 +49,6 @@ import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
   useToast,
 } from "@/components/sabcrm/20ui";
 import {
@@ -57,6 +58,7 @@ import {
   Spinner,
 } from "@/components/sabmail/motion";
 import "@/components/sabmail/motion/sabmail-motion.css";
+import "./sabmail-app.css";
 
 import type { SabmailAccountRow } from "@/app/actions/sabmail-projects.actions";
 import {
@@ -75,7 +77,8 @@ import {
 import { snoozeSabmailMessage } from "../snooze-actions";
 import { useSabmailStream } from "./use-sabmail-stream";
 import { ComposeModal, buildReplyPrefill, textToHtml, type ComposePrefill } from "./compose-modal";
-import { groupThreads } from "./threading";
+import { groupThreads, type SabmailThread } from "./threading";
+import { MailAvatar } from "./mail-avatar";
 import { cacheMessages, getCachedMessages } from "@/lib/sabmail/offline-cache";
 import { applySabmailMutation, flushSabmailMutations } from "@/lib/sabmail/optimistic";
 
@@ -90,14 +93,19 @@ function folderIcon(specialUse: string | null, path: string) {
   if (key.includes("junk") || p.includes("spam") || p.includes("junk")) return ShieldAlert;
   if (key.includes("trash") || p.includes("trash") || p.includes("deleted")) return Trash2;
   if (key.includes("archive") || p.includes("archive")) return Archive;
+  if (key.includes("flag") || key.includes("star")) return Star;
   return Folder;
 }
 
-function initials(name: string, email: string): string {
-  const base = (name || email || "?").trim();
-  const parts = base.split(/\s+/).filter(Boolean);
-  if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
-  return base.slice(0, 2).toUpperCase();
+function senderShort(addr: string): string {
+  const name = addr.match(/^\s*"?([^"<]+?)"?\s*</)?.[1]?.trim();
+  if (name) return name;
+  const email = addr.match(/<([^>]+)>/)?.[1] ?? addr;
+  return email.trim();
+}
+
+function senderEmail(addr: string): string {
+  return (addr.match(/<([^>]+)>/)?.[1] ?? addr).trim();
 }
 
 function formatDate(iso: string | null): string {
@@ -107,7 +115,7 @@ function formatDate(iso: string | null): string {
   const now = new Date();
   const sameDay = d.toDateString() === now.toDateString();
   if (sameDay) {
-    return d.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+    return d.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
   }
   const sameYear = d.getFullYear() === now.getFullYear();
   return d.toLocaleDateString(undefined, {
@@ -151,11 +159,9 @@ const SNOOZE_PRESETS: SnoozePreset[] = [
   {
     label: "This weekend",
     at: () => {
-      // Next Saturday at 9am (if today is already Sat/Sun, jump to the
-      // upcoming Saturday so the message doesn't resurface immediately).
       const d = new Date();
-      const day = d.getDay(); // 0 = Sun … 6 = Sat
-      let add = (6 - day + 7) % 7; // days until the next Saturday
+      const day = d.getDay();
+      let add = (6 - day + 7) % 7;
       if (add === 0) add = 7;
       d.setDate(d.getDate() + add);
       d.setHours(9, 0, 0, 0);
@@ -165,10 +171,9 @@ const SNOOZE_PRESETS: SnoozePreset[] = [
   {
     label: "Next week",
     at: () => {
-      // Next Monday at 9am.
       const d = new Date();
       const day = d.getDay();
-      let add = (1 - day + 7) % 7; // days until the next Monday
+      let add = (1 - day + 7) % 7;
       if (add === 0) add = 7;
       d.setDate(d.getDate() + add);
       d.setHours(9, 0, 0, 0);
@@ -234,7 +239,6 @@ export function SabmailInboxClient({ accounts }: { accounts: SabmailAccountRow[]
   const [summarizing, setSummarizing] = React.useState(false);
   const [aiReplyBusy, setAiReplyBusy] = React.useState(false);
 
-  const [searchOpen, setSearchOpen] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState("");
   const [searching, setSearching] = React.useState(false);
   const [searchActive, setSearchActive] = React.useState(false);
@@ -262,8 +266,6 @@ export function SabmailInboxClient({ accounts }: { accounts: SabmailAccountRow[]
       const token = ++listReq.current;
       setLoadingMessages(true);
       setListError(null);
-      // Instant paint from the offline cache (Dexie when installed, else
-      // localStorage) while the live IMAP fetch runs.
       try {
         const cached = await getCachedMessages(acct, path);
         if (token === listReq.current && cached && cached.length) {
@@ -287,13 +289,12 @@ export function SabmailInboxClient({ accounts }: { accounts: SabmailAccountRow[]
     [],
   );
 
-  // Load folders when the account changes.
-  // On mount, drain any writes left queued from a prior session (offline /
-  // crash / reload) so optimistic mutations eventually reach the server.
+  // On mount, drain any writes left queued from a prior session.
   React.useEffect(() => {
     void flushSabmailMutations();
   }, []);
 
+  // Load folders when the account changes.
   React.useEffect(() => {
     if (!accountId) return;
     let cancelled = false;
@@ -312,7 +313,6 @@ export function SabmailInboxClient({ accounts }: { accounts: SabmailAccountRow[]
         toast({ title: "Could not load folders", description: res.error, variant: "destructive" });
         return;
       }
-      // Sort: INBOX first, then special folders, then the rest alphabetically.
       const sorted = [...res.folders].sort((a, b) => {
         const ai = a.path.toLowerCase() === "inbox" ? 0 : 1;
         const bi = b.path.toLowerCase() === "inbox" ? 0 : 1;
@@ -336,6 +336,8 @@ export function SabmailInboxClient({ accounts }: { accounts: SabmailAccountRow[]
       setFull(null);
       setCategories({});
       setCategoryFilter(null);
+      setSearchActive(false);
+      setSearchQuery("");
       void loadMessages(accountId, path);
     },
     [accountId, loadMessages],
@@ -360,13 +362,8 @@ export function SabmailInboxClient({ accounts }: { accounts: SabmailAccountRow[]
       }
       setFull(res.message);
       setLoadingBody(false);
-      // Optimistically mark the row read in the list.
       const wasUnread = messages.find((m) => m.uid === uid)?.seen === false;
       setMessages((prev) => prev.map((m) => (m.uid === uid ? { ...m, seen: true } : m)));
-      // Only route a durable mark-read through the optimistic queue when the
-      // row was actually unread, to avoid redundant writes on re-open. The
-      // server's inline \Seen side-effect in getSabmailMessage stays as a
-      // belt-and-suspenders fallback.
       if (wasUnread) {
         const { ok } = await applySabmailMutation({
           type: "markSeen",
@@ -386,10 +383,6 @@ export function SabmailInboxClient({ accounts }: { accounts: SabmailAccountRow[]
     void loadMessages(accountId, folderPath);
   }, [accountId, folderPath, loadMessages]);
 
-  // ── Real-time: refresh the open folder when the worker reports new mail ──
-  // The SSE `new_mail` payload carries the affected `accountId`; refresh only
-  // when it matches the active account (or when absent — polling-fallback ticks
-  // send `{}`). A live search is left untouched so results don't get clobbered.
   const { connected: liveConnected } = useSabmailStream({
     enabled: !!accountId,
     onNewMail: React.useCallback(
@@ -407,7 +400,7 @@ export function SabmailInboxClient({ accounts }: { accounts: SabmailAccountRow[]
     setCompose({ title, prefill });
   }, []);
 
-  const openCompose = React.useCallback(() => startCompose("New message"), [startCompose]);
+  const openCompose = React.useCallback(() => startCompose("New Message"), [startCompose]);
 
   const doReply = React.useCallback(
     (mode: "reply" | "replyAll" | "forward") => {
@@ -461,7 +454,6 @@ export function SabmailInboxClient({ accounts }: { accounts: SabmailAccountRow[]
   }, [searchQuery, accountId, folderPath, toast]);
 
   const clearSearch = React.useCallback(() => {
-    setSearchOpen(false);
     setSearchQuery("");
     if (searchActive) {
       setSearchActive(false);
@@ -487,17 +479,7 @@ export function SabmailInboxClient({ accounts }: { accounts: SabmailAccountRow[]
     });
   }, [messages, toast]);
 
-  const removeFromList = React.useCallback(
-    (uid: number) => {
-      setMessages((prev) => prev.filter((m) => m.uid !== uid));
-      setSelectedUid((cur) => (cur === uid ? null : cur));
-      setFull((cur) => (cur?.uid === uid ? null : cur));
-    },
-    [],
-  );
-
-  // Optimistically remove a row but remember its slot so we can restore it
-  // if the durable write terminally fails.
+  // Optimistically remove a row but remember its slot for restore-on-failure.
   const removeWithRestore = React.useCallback(
     (uid: number): (() => void) => {
       let snapshot: SabmailMessageRow | undefined;
@@ -524,13 +506,8 @@ export function SabmailInboxClient({ accounts }: { accounts: SabmailAccountRow[]
 
   const doArchive = React.useCallback(
     async (uid: number) => {
-      const restore = removeWithRestore(uid); // optimistic
-      const { ok } = await applySabmailMutation({
-        type: "archive",
-        accountId,
-        folder: folderPath,
-        uid,
-      });
+      const restore = removeWithRestore(uid);
+      const { ok } = await applySabmailMutation({ type: "archive", accountId, folder: folderPath, uid });
       if (!ok) {
         restore();
         toast({ title: "Couldn't archive", variant: "destructive" });
@@ -543,13 +520,8 @@ export function SabmailInboxClient({ accounts }: { accounts: SabmailAccountRow[]
 
   const doTrash = React.useCallback(
     async (uid: number) => {
-      const restore = removeWithRestore(uid); // optimistic
-      const { ok } = await applySabmailMutation({
-        type: "delete",
-        accountId,
-        folder: folderPath,
-        uid,
-      });
+      const restore = removeWithRestore(uid);
+      const { ok } = await applySabmailMutation({ type: "delete", accountId, folder: folderPath, uid });
       if (!ok) {
         restore();
         toast({ title: "Couldn't move to Trash", variant: "destructive" });
@@ -585,7 +557,7 @@ export function SabmailInboxClient({ accounts }: { accounts: SabmailAccountRow[]
         messages.find((m) => m.uid === uid)?.subject ??
         (full?.uid === uid ? full.subject : undefined);
       const untilISO = preset.at();
-      const restore = removeWithRestore(uid); // optimistic — hide until it resurfaces
+      const restore = removeWithRestore(uid);
       const res = await snoozeSabmailMessage({
         accountId,
         folder: folderPath,
@@ -598,10 +570,7 @@ export function SabmailInboxClient({ accounts }: { accounts: SabmailAccountRow[]
         toast({ title: "Couldn't snooze", description: res.error, variant: "destructive" });
         return;
       }
-      toast({
-        title: "Snoozed",
-        description: `Back ${preset.label.toLowerCase()}.`,
-      });
+      toast({ title: "Snoozed", description: `Back ${preset.label.toLowerCase()}.` });
     },
     [accountId, folderPath, messages, full, removeWithRestore, toast],
   );
@@ -622,6 +591,12 @@ export function SabmailInboxClient({ accounts }: { accounts: SabmailAccountRow[]
     [visibleThreads, selectedUid, openMessage],
   );
 
+  const closeReading = React.useCallback(() => {
+    setSelectedUid(null);
+    setFull(null);
+    setSummary(null);
+  }, []);
+
   // Global keyboard shortcuts (Superhuman-style), suspended while typing.
   React.useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -638,8 +613,7 @@ export function SabmailInboxClient({ accounts }: { accounts: SabmailAccountRow[]
       switch (e.key) {
         case "/":
           e.preventDefault();
-          setSearchOpen(true);
-          requestAnimationFrame(() => searchInputRef.current?.focus());
+          searchInputRef.current?.focus();
           break;
         case "c":
           e.preventDefault();
@@ -665,190 +639,314 @@ export function SabmailInboxClient({ accounts }: { accounts: SabmailAccountRow[]
             void doArchive(selectedUid);
           }
           break;
+        case "Escape":
+          if (full) {
+            e.preventDefault();
+            closeReading();
+          }
+          break;
         default:
           break;
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [compose, paletteOpen, full, selectedUid, openCompose, moveSelection, doReply, doArchive]);
+  }, [compose, paletteOpen, full, selectedUid, openCompose, moveSelection, doReply, doArchive, closeReading]);
 
   const selectedRow = messages.find((m) => m.uid === selectedUid) ?? null;
+  const activeFolderName = folders?.find((f) => f.path === folderPath)?.name ?? folderPath;
 
-  const activeFolderName =
-    folders?.find((f) => f.path === folderPath)?.name ?? folderPath;
+  const pinnedThreads = React.useMemo(
+    () => visibleThreads.filter((t) => t.flagged),
+    [visibleThreads],
+  );
+  const primaryThreads = React.useMemo(
+    () => visibleThreads.filter((t) => !t.flagged),
+    [visibleThreads],
+  );
+  const selIndex = activeThread ? visibleThreads.findIndex((t) => t === activeThread) : -1;
 
-  return (
-    <div className="h-[calc(100vh-7rem)] p-3">
-      <ResizablePanelGroup orientation="horizontal" className="h-full gap-0">
-        {/* ── Rail: account + folders ───────────────────────────────── */}
-        <ResizablePanel defaultSize="20%" minSize="15%" maxSize="30%">
-          <div className="flex h-full flex-col overflow-hidden rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)]">
-            {accounts.length > 1 ? (
-              <div className="border-b border-[var(--st-border)] p-2">
-                <Select value={accountId} onValueChange={setAccountId}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {accounts.map((a) => (
-                      <SelectItem key={a.id} value={a.id}>
-                        {a.email}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2 border-b border-[var(--st-border)] px-3 py-2.5">
-                <AtSign className="h-4 w-4 shrink-0 text-[var(--st-text-secondary)]" aria-hidden />
-                <span className="truncate text-sm font-medium text-[var(--st-text)]">
-                  {activeAccount?.email}
+  /* ── a single message-list row (shared by Pinned + Primary) ──────────── */
+  const renderThreadRow = (th: SabmailThread, i: number) => {
+    const m = th.latest;
+    const active = selectedUid != null && th.uids.includes(selectedUid);
+    const unread = th.unread;
+    const cat = threadCategory(th.uids, categories);
+    return (
+      <div
+        key={th.key}
+        className="sabmail-stagger-item group relative"
+        style={{ ["--i" as string]: Math.min(i, 20) } as React.CSSProperties}
+      >
+        <button
+          type="button"
+          onClick={() => void openMessage(m.uid)}
+          data-selected={active}
+          className="sabmail-listrow flex w-full items-start gap-3 rounded-lg px-2.5 py-2.5 text-left hover:bg-[var(--st-bg-muted)]"
+        >
+          <MailAvatar
+            name={m.fromName}
+            email={m.fromEmail}
+            size={40}
+            status={unread ? "online" : null}
+          />
+          <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+            <span className="flex items-center justify-between gap-2">
+              <span className="flex min-w-0 items-center gap-1.5">
+                <span
+                  className={`truncate text-[13px] ${
+                    unread ? "font-semibold text-[var(--st-text)]" : "font-medium text-[var(--st-text)]"
+                  }`}
+                >
+                  {m.fromName || m.fromEmail || "(unknown sender)"}
                 </span>
-              </div>
-            )}
-
-            <div className="sabmail-motion flex-1 overflow-y-auto p-2">
-              {loadingFolders ? (
-                <div className="flex flex-col gap-1.5 p-1">
-                  {Array.from({ length: 6 }).map((_, i) => (
-                    <div
-                      key={i}
-                      className="sabmail-shimmer h-8 rounded-md"
-                      style={{ ["--i" as string]: i } as React.CSSProperties}
-                    />
-                  ))}
-                </div>
-              ) : (folders ?? []).length === 0 ? (
-                <p className="px-2 py-4 text-xs text-[var(--st-text-secondary)]">No folders.</p>
-              ) : (
-                (folders ?? []).map((f, i) => {
-                  const Icon = folderIcon(f.specialUse, f.path);
-                  const active = f.path === folderPath;
-                  return (
-                    <button
-                      key={f.path}
-                      type="button"
-                      onClick={() => openFolder(f.path)}
-                      className={`sabmail-stagger-item sabmail-row flex w-full items-center gap-2 rounded-md px-2.5 py-1.5 text-left text-sm ${
-                        active
-                          ? "bg-[var(--st-bg-muted)] font-medium text-[var(--st-text)]"
-                          : "text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]"
-                      }`}
-                      style={{ ["--i" as string]: i } as React.CSSProperties}
-                    >
-                      <Icon className="h-4 w-4 shrink-0" aria-hidden />
-                      <span className="truncate">{f.name}</span>
-                    </button>
-                  );
-                })
-              )}
+                {th.count > 1 ? (
+                  <span className="inline-flex h-[18px] min-w-[18px] shrink-0 items-center justify-center rounded-md bg-[var(--st-bg-muted)] px-1 text-[10px] font-semibold text-[var(--st-text-secondary)]">
+                    {th.count}
+                  </span>
+                ) : null}
+              </span>
+              <span className="shrink-0 text-[11px] text-[var(--st-text-secondary)]">
+                {formatDate(m.date)}
+              </span>
+            </span>
+            <span
+              className={`truncate text-[13px] ${
+                unread ? "text-[var(--st-text)]" : "text-[var(--st-text-secondary)]"
+              }`}
+            >
+              {m.subject || "(no subject)"}
+            </span>
+            <span className="flex items-center gap-1.5 text-[12px] text-[var(--st-text-tertiary)]">
+              {cat ? (
+                <span
+                  className={`h-2 w-2 shrink-0 rounded-full ${CATEGORY_META[cat].dot}`}
+                  title={CATEGORY_META[cat].label}
+                  aria-hidden
+                />
+              ) : null}
+              {th.flagged ? (
+                <Star className="h-3 w-3 shrink-0 fill-current text-amber-500" aria-hidden />
+              ) : null}
+              <span className="truncate">{senderEmail(m.fromEmail)}</span>
+              {th.hasAttachments ? (
+                <Paperclip className="ml-auto h-3 w-3 shrink-0" aria-hidden />
+              ) : null}
+            </span>
+          </span>
+        </button>
+        {/* Hover action: snooze the latest message in this thread. */}
+        <Popover>
+          <PopoverTrigger asChild>
+            <button
+              type="button"
+              aria-label="Snooze"
+              title="Snooze"
+              onClick={(e) => e.stopPropagation()}
+              className="absolute right-2 top-2 hidden rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] p-1 text-[var(--st-text-secondary)] shadow-sm hover:text-[var(--st-text)] group-hover:block data-[state=open]:block"
+            >
+              <Clock className="h-3.5 w-3.5" aria-hidden />
+            </button>
+          </PopoverTrigger>
+          <PopoverContent align="end" className="w-52 p-1.5">
+            <div className="mb-1 px-1.5 pt-0.5 text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
+              Snooze until
             </div>
-          </div>
-        </ResizablePanel>
-
-        <ResizableHandle withHandle />
-
-        {/* ── Message list ──────────────────────────────────────────── */}
-        <ResizablePanel defaultSize="32%" minSize="24%">
-          <div className="relative flex h-full flex-col overflow-hidden rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)]">
-            <div className="flex items-center justify-between gap-2 border-b border-[var(--st-border)] px-3 py-2.5">
-              {searchOpen ? (
-                <div className="flex min-w-0 flex-1 items-center gap-2">
-                  <Search className="h-4 w-4 shrink-0 text-[var(--st-text-secondary)]" aria-hidden />
-                  <input
-                    ref={searchInputRef}
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        void runSearch();
-                      } else if (e.key === "Escape") {
-                        e.preventDefault();
-                        clearSearch();
-                      }
-                    }}
-                    placeholder={`Search ${activeFolderName}…`}
-                    className="min-w-0 flex-1 bg-transparent text-sm text-[var(--st-text)] outline-none placeholder:text-[var(--st-text-secondary)]"
-                  />
+            <div className="flex flex-col">
+              {SNOOZE_PRESETS.map((p) => (
+                <PopoverClose key={p.label} asChild>
                   <button
                     type="button"
-                    aria-label="Close search"
-                    onClick={clearSearch}
-                    className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
+                    onClick={() => void doSnooze(m.uid, p)}
+                    className="flex items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]"
                   >
-                    <X className="h-4 w-4" aria-hidden />
+                    <Clock className="h-3.5 w-3.5 shrink-0 text-[var(--st-text-secondary)]" aria-hidden />
+                    {p.label}
                   </button>
-                </div>
-              ) : (
-                <div className="flex min-w-0 items-center gap-2">
-                  <span className="truncate text-sm font-semibold text-[var(--st-text)]">
-                    {searchActive ? `Results · ${searchQuery}` : activeFolderName}
-                  </span>
-                  {messages.length > 0 ? (
-                    <Badge variant="outline" className="shrink-0">
-                      {messages.length}
-                    </Badge>
-                  ) : null}
+                </PopoverClose>
+              ))}
+            </div>
+          </PopoverContent>
+        </Popover>
+      </div>
+    );
+  };
+
+  const sectionHeader = (icon: React.ReactNode, label: string) => (
+    <div className="flex items-center gap-1.5 px-2.5 pb-1 pt-3 text-[11px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
+      {icon}
+      {label}
+    </div>
+  );
+
+  return (
+    <div className="sabmail-app sabmail-canvas h-[calc(100vh-7rem)] p-3">
+      <ResizablePanelGroup orientation="horizontal" className="h-full gap-3">
+        {/* ── Message list ──────────────────────────────────────────── */}
+        <ResizablePanel defaultSize="38%" minSize="28%" maxSize="50%">
+          <div className="sabmail-pane relative flex h-full flex-col overflow-hidden">
+            {/* Compose */}
+            <div className="px-3 pt-3">
+              <button
+                type="button"
+                onClick={openCompose}
+                className="sabmail-compose-btn flex w-full items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-sm font-semibold shadow-sm"
+              >
+                <SquarePen className="h-4 w-4" aria-hidden />
+                Compose
+              </button>
+            </div>
+
+            {/* Header: folder dropdown + count + actions */}
+            <div className="flex items-start justify-between gap-2 px-3 pt-3">
+              <div className="min-w-0">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button
+                      type="button"
+                      className="flex items-center gap-1.5 text-[15px] font-semibold text-[var(--st-text)] hover:text-[var(--st-accent)]"
+                    >
+                      <span className="truncate">
+                        {searchActive ? "Search" : activeFolderName}
+                      </span>
+                      <ChevronDown className="h-4 w-4 shrink-0 text-[var(--st-text-secondary)]" aria-hidden />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent align="start" className="w-60 p-1.5">
+                    {accounts.length > 1 ? (
+                      <>
+                        <div className="px-1.5 pb-1 pt-0.5 text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
+                          Account
+                        </div>
+                        {accounts.map((a) => (
+                          <PopoverClose key={a.id} asChild>
+                            <button
+                              type="button"
+                              onClick={() => setAccountId(a.id)}
+                              className={`flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm hover:bg-[var(--st-bg-muted)] ${
+                                a.id === accountId ? "text-[var(--st-text)]" : "text-[var(--st-text-secondary)]"
+                              }`}
+                            >
+                              <AtSign className="h-3.5 w-3.5 shrink-0" aria-hidden />
+                              <span className="truncate">{a.email}</span>
+                            </button>
+                          </PopoverClose>
+                        ))}
+                        <div className="my-1 h-px bg-[var(--st-border)]" />
+                      </>
+                    ) : null}
+                    <div className="px-1.5 pb-1 pt-0.5 text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
+                      Folders
+                    </div>
+                    <div className="max-h-72 overflow-y-auto">
+                      {(folders ?? []).map((f) => {
+                        const Icon = folderIcon(f.specialUse, f.path);
+                        const active = f.path === folderPath;
+                        return (
+                          <PopoverClose key={f.path} asChild>
+                            <button
+                              type="button"
+                              onClick={() => openFolder(f.path)}
+                              className={`flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm hover:bg-[var(--st-bg-muted)] ${
+                                active ? "bg-[var(--st-bg-muted)] font-medium text-[var(--st-text)]" : "text-[var(--st-text-secondary)]"
+                              }`}
+                            >
+                              <Icon className="h-4 w-4 shrink-0" aria-hidden />
+                              <span className="truncate">{f.name}</span>
+                            </button>
+                          </PopoverClose>
+                        );
+                      })}
+                    </div>
+                  </PopoverContent>
+                </Popover>
+                <div className="mt-0.5 flex items-center gap-2 text-xs text-[var(--st-text-secondary)]">
+                  <span>{messages.length} Messages</span>
                   {liveConnected ? (
                     <span
-                      className="inline-flex h-2 w-2 shrink-0 rounded-full bg-emerald-500"
+                      className="inline-flex h-1.5 w-1.5 rounded-full bg-[var(--st-accent)]"
                       title="Live — new mail appears automatically"
                       aria-label="Live updates connected"
                     />
                   ) : null}
                 </div>
-              )}
-              {!searchOpen ? (
-                <div className="flex items-center gap-1">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      setSearchOpen(true);
-                      requestAnimationFrame(() => searchInputRef.current?.focus());
-                    }}
-                    aria-label="Search"
+              </div>
+              <div className="flex shrink-0 items-center gap-0.5">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => void doTriage()}
+                  disabled={triaging || messages.length === 0}
+                  aria-label="Triage with AI"
+                  title="Triage with AI"
+                >
+                  {triaging ? (
+                    <Spinner size={14} className="text-[var(--st-accent)]" />
+                  ) : (
+                    <SlidersHorizontal className="h-4 w-4" aria-hidden />
+                  )}
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={refreshList}
+                  disabled={loadingMessages}
+                  aria-label="Refresh"
+                  title="Refresh"
+                >
+                  <RefreshCw className={`h-4 w-4 ${loadingMessages ? "animate-spin" : ""}`} aria-hidden />
+                </Button>
+              </div>
+            </div>
+
+            {/* Search */}
+            <div className="px-3 pb-2 pt-3">
+              <div className="flex items-center gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2">
+                <Search className="h-4 w-4 shrink-0 text-[var(--st-text-secondary)]" aria-hidden />
+                <input
+                  ref={searchInputRef}
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    if (!e.target.value.trim() && searchActive) clearSearch();
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      void runSearch();
+                    } else if (e.key === "Escape") {
+                      e.preventDefault();
+                      clearSearch();
+                    }
+                  }}
+                  placeholder="Search"
+                  className="min-w-0 flex-1 bg-transparent text-sm text-[var(--st-text)] outline-none placeholder:text-[var(--st-text-secondary)]"
+                />
+                {searchQuery ? (
+                  <button
+                    type="button"
+                    aria-label="Clear search"
+                    onClick={clearSearch}
+                    className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
                   >
-                    <Search className="h-4 w-4" aria-hidden />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => void doTriage()}
-                    disabled={triaging || messages.length === 0}
-                    aria-label="Triage with AI"
-                  >
-                    {triaging ? (
-                      <Spinner size={14} className="text-[var(--st-accent)]" />
-                    ) : (
-                      <Sparkles className="h-4 w-4" aria-hidden />
-                    )}
-                  </Button>
-                  <Button variant="ghost" size="sm" onClick={openCompose} aria-label="Compose">
-                    <SquarePen className="h-4 w-4" aria-hidden />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={refreshList}
-                    disabled={loadingMessages}
-                    aria-label="Refresh"
-                  >
-                    <RefreshCw className={`h-4 w-4 ${loadingMessages ? "animate-spin" : ""}`} aria-hidden />
-                  </Button>
-                </div>
-              ) : null}
+                    <X className="h-3.5 w-3.5" aria-hidden />
+                  </button>
+                ) : (
+                  <kbd className="hidden shrink-0 rounded border border-[var(--st-border)] px-1.5 py-0.5 font-mono text-[10px] text-[var(--st-text-secondary)] sm:inline">
+                    ⌘K
+                  </kbd>
+                )}
+              </div>
             </div>
 
             {/* refreshing-with-content indicator */}
             {(loadingMessages || searching) && messages.length > 0 ? (
-              <IndeterminateBar className="absolute left-0 right-0 top-[44px] z-10" />
+              <IndeterminateBar className="absolute left-0 right-0 top-0 z-10" />
             ) : null}
 
+            {/* category filter chips */}
             {Object.keys(categories).length > 0 ? (
-              <div className="flex flex-wrap items-center gap-1 border-b border-[var(--st-border)] px-2 py-1.5">
+              <div className="flex flex-wrap items-center gap-1 px-3 pb-1.5">
                 <button
                   type="button"
                   onClick={() => setCategoryFilter(null)}
@@ -878,7 +976,8 @@ export function SabmailInboxClient({ accounts }: { accounts: SabmailAccountRow[]
               </div>
             ) : null}
 
-            <div className="sabmail-motion flex-1 overflow-y-auto">
+            {/* list body */}
+            <div className="sabmail-motion flex-1 overflow-y-auto px-1.5 pb-2">
               {loadingMessages && messages.length === 0 ? (
                 <CreatingOverlay show variant="process" title="Loading messages…" />
               ) : listError ? (
@@ -894,111 +993,24 @@ export function SabmailInboxClient({ accounts }: { accounts: SabmailAccountRow[]
                     }
                   />
                 </div>
-              ) : messages.length === 0 ? (
+              ) : visibleThreads.length === 0 ? (
                 <div className="p-6">
                   <EmptyState icon={<MailOpen aria-hidden />} title="Nothing here" description="This folder is empty." />
                 </div>
               ) : (
-                visibleThreads.map((th, i) => {
-                  const m = th.latest;
-                  const active = selectedUid != null && th.uids.includes(selectedUid);
-                  const unread = th.unread;
-                  const cat = threadCategory(th.uids, categories);
-                  return (
-                    <div
-                      key={th.key}
-                      className="sabmail-stagger-item group relative"
-                      style={{ ["--i" as string]: Math.min(i, 20) } as React.CSSProperties}
-                    >
-                    <button
-                      type="button"
-                      onClick={() => void openMessage(m.uid)}
-                      className={`sabmail-row flex w-full flex-col gap-1 border-b border-l-2 border-[var(--st-border)] px-3 py-2.5 text-left ${
-                        active
-                          ? "border-l-[var(--st-accent)] bg-[var(--st-bg-muted)]"
-                          : unread
-                            ? "border-l-[var(--st-accent)] hover:bg-[var(--st-bg-muted)]"
-                            : "border-l-transparent hover:bg-[var(--st-bg-muted)]"
-                      }`}
-                    >
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="flex min-w-0 items-center gap-1.5">
-                          <span
-                            className={`truncate text-sm ${
-                              unread ? "font-semibold text-[var(--st-text)]" : "text-[var(--st-text)]"
-                            }`}
-                          >
-                            {m.fromName || m.fromEmail || "(unknown sender)"}
-                          </span>
-                          {th.count > 1 ? (
-                            <Badge variant="outline" className="h-4 shrink-0 px-1 text-[10px]">
-                              {th.count}
-                            </Badge>
-                          ) : null}
-                        </span>
-                        <span className="shrink-0 font-mono text-[11px] text-[var(--st-text-secondary)]">
-                          {formatDate(m.date)}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        {cat ? (
-                          <span
-                            className={`h-2 w-2 shrink-0 rounded-full ${CATEGORY_META[cat].dot}`}
-                            title={CATEGORY_META[cat].label}
-                            aria-hidden
-                          />
-                        ) : null}
-                        {th.flagged ? (
-                          <Star className="h-3 w-3 shrink-0 fill-current text-amber-500" aria-hidden />
-                        ) : null}
-                        <span
-                          className={`truncate text-[13px] ${
-                            unread ? "text-[var(--st-text)]" : "text-[var(--st-text-secondary)]"
-                          }`}
-                        >
-                          {m.subject}
-                        </span>
-                        {th.hasAttachments ? (
-                          <Paperclip className="ml-auto h-3 w-3 shrink-0 text-[var(--st-text-secondary)]" aria-hidden />
-                        ) : null}
-                      </div>
-                    </button>
-                    {/* Hover action: snooze the latest message in this thread. */}
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <button
-                          type="button"
-                          aria-label="Snooze"
-                          title="Snooze"
-                          onClick={(e) => e.stopPropagation()}
-                          className="absolute right-2 top-2 hidden rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] p-1 text-[var(--st-text-secondary)] shadow-sm hover:text-[var(--st-text)] group-hover:block data-[state=open]:block"
-                        >
-                          <Clock className="h-3.5 w-3.5" aria-hidden />
-                        </button>
-                      </PopoverTrigger>
-                      <PopoverContent align="end" className="w-52 p-1.5">
-                        <div className="mb-1 px-1.5 pt-0.5 text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
-                          Snooze until
-                        </div>
-                        <div className="flex flex-col">
-                          {SNOOZE_PRESETS.map((p) => (
-                            <PopoverClose key={p.label} asChild>
-                              <button
-                                type="button"
-                                onClick={() => void doSnooze(m.uid, p)}
-                                className="flex items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]"
-                              >
-                                <Clock className="h-3.5 w-3.5 shrink-0 text-[var(--st-text-secondary)]" aria-hidden />
-                                {p.label}
-                              </button>
-                            </PopoverClose>
-                          ))}
-                        </div>
-                      </PopoverContent>
-                    </Popover>
-                    </div>
-                  );
-                })
+                <>
+                  {pinnedThreads.length > 0 ? (
+                    <>
+                      {sectionHeader(<Pin className="h-3 w-3" aria-hidden />, "Pinned")}
+                      {pinnedThreads.map((th, i) => renderThreadRow(th, i))}
+                    </>
+                  ) : null}
+                  {sectionHeader(
+                    <Mail className="h-3 w-3" aria-hidden />,
+                    searchActive ? "Results" : "Primary",
+                  )}
+                  {primaryThreads.map((th, i) => renderThreadRow(th, i + pinnedThreads.length))}
+                </>
               )}
             </div>
           </div>
@@ -1007,8 +1019,8 @@ export function SabmailInboxClient({ accounts }: { accounts: SabmailAccountRow[]
         <ResizableHandle withHandle />
 
         {/* ── Reading pane ──────────────────────────────────────────── */}
-        <ResizablePanel defaultSize="48%" minSize="30%">
-          <div className="relative flex h-full flex-col overflow-hidden rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)]">
+        <ResizablePanel defaultSize="62%" minSize="35%">
+          <div className="sabmail-pane relative flex h-full flex-col overflow-hidden">
             {selectedUid == null ? (
               <div className="grid h-full place-items-center p-6">
                 <EmptyState
@@ -1024,83 +1036,68 @@ export function SabmailInboxClient({ accounts }: { accounts: SabmailAccountRow[]
               </div>
             ) : full ? (
               <div key={full.uid} className="sabmail-fade-up flex h-full flex-col">
-                {/* header */}
-                <div className="border-b border-[var(--st-border)] p-4">
-                  <h1 className="text-lg font-semibold text-[var(--st-text)]">{full.subject}</h1>
-                  <div className="mt-2 flex items-center gap-3">
-                    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[var(--st-bg-muted)] text-xs font-semibold text-[var(--st-text-secondary)]">
-                      {initials(full.from.name, full.from.email)}
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <div className="truncate text-sm font-medium text-[var(--st-text)]">
-                        {full.from.name || full.from.email}
-                        {full.from.name ? (
-                          <span className="ml-1 font-normal text-[var(--st-text-secondary)]">
-                            &lt;{full.from.email}&gt;
-                          </span>
-                        ) : null}
-                      </div>
-                      {full.to.length > 0 ? (
-                        <div className="truncate text-xs text-[var(--st-text-secondary)]">
-                          To: {full.to.join(", ")}
-                        </div>
-                      ) : null}
-                    </div>
-                    <span className="shrink-0 text-xs text-[var(--st-text-secondary)]">
-                      {full.date
-                        ? new Date(full.date).toLocaleString(undefined, {
-                            dateStyle: "medium",
-                            timeStyle: "short",
-                          })
-                        : ""}
-                    </span>
-                  </div>
-
-                  {full.hadRemoteImages && !showRemoteImages ? (
-                    <div className="mt-3 flex items-center justify-between gap-2 rounded-md bg-[var(--st-bg-muted)] px-3 py-2">
-                      <span className="text-xs text-[var(--st-text-secondary)]">
-                        Remote images are blocked to protect your privacy.
-                      </span>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          setShowRemoteImages(true);
-                          void openMessage(full.uid, true);
-                        }}
-                      >
-                        Show images
-                      </Button>
-                    </div>
-                  ) : null}
-
-                  {/* actions toolbar */}
-                  <div className="mt-3 flex flex-wrap items-center gap-1.5">
-                    <Button variant="outline" size="sm" iconLeft={Reply} onClick={() => doReply("reply")}>
-                      Reply
+                {/* top toolbar */}
+                <div className="flex items-center justify-between gap-2 border-b border-[var(--st-border)] px-3 py-2">
+                  <div className="flex items-center gap-0.5">
+                    <Button variant="ghost" size="sm" onClick={() => doReply("reply")} aria-label="Reply" title="Reply">
+                      <Reply className="h-4 w-4" aria-hidden />
                     </Button>
-                    <Button variant="ghost" size="sm" iconLeft={ReplyAll} onClick={() => doReply("replyAll")}>
-                      Reply all
+                    <Button variant="ghost" size="sm" onClick={() => doReply("replyAll")} aria-label="Reply all" title="Reply all">
+                      <ReplyAll className="h-4 w-4" aria-hidden />
                     </Button>
-                    <Button variant="ghost" size="sm" iconLeft={Forward} onClick={() => doReply("forward")}>
-                      Forward
+                    <Button variant="ghost" size="sm" onClick={() => doReply("forward")} aria-label="Forward" title="Forward">
+                      <Forward className="h-4 w-4" aria-hidden />
                     </Button>
+                    {/* AI menu */}
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="ghost" size="sm" aria-label="AI actions" title="AI actions">
+                          {summarizing || aiReplyBusy ? (
+                            <Spinner size={14} className="text-[var(--st-accent)]" />
+                          ) : (
+                            <Sparkles className="h-4 w-4 text-[var(--st-accent)]" aria-hidden />
+                          )}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent align="start" className="w-48 p-1.5">
+                        <PopoverClose asChild>
+                          <button
+                            type="button"
+                            onClick={() => void doSummarize()}
+                            className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]"
+                          >
+                            <Sparkles className="h-3.5 w-3.5 shrink-0 text-[var(--st-accent)]" aria-hidden />
+                            Summarize thread
+                          </button>
+                        </PopoverClose>
+                        <PopoverClose asChild>
+                          <button
+                            type="button"
+                            onClick={() => void doAiReply()}
+                            className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]"
+                          >
+                            <Reply className="h-3.5 w-3.5 shrink-0 text-[var(--st-accent)]" aria-hidden />
+                            Draft AI reply
+                          </button>
+                        </PopoverClose>
+                      </PopoverContent>
+                    </Popover>
                     <span className="mx-1 h-5 w-px bg-[var(--st-border)]" aria-hidden />
-                    <Button variant="ghost" size="sm" onClick={() => void doArchive(full.uid)} aria-label="Archive">
-                      <Archive className="h-4 w-4" aria-hidden />
-                    </Button>
-                    <Button variant="ghost" size="sm" onClick={() => void doTrash(full.uid)} aria-label="Delete">
-                      <Trash2 className="h-4 w-4" aria-hidden />
-                    </Button>
-                    <Button variant="ghost" size="sm" onClick={() => void doToggleFlag(full.uid)} aria-label="Flag">
+                    <Button variant="ghost" size="sm" onClick={() => void doToggleFlag(full.uid)} aria-label="Star" title="Star">
                       <Star
                         className={`h-4 w-4 ${selectedRow?.flagged ? "fill-current text-amber-500" : ""}`}
                         aria-hidden
                       />
                     </Button>
+                    <Button variant="ghost" size="sm" onClick={() => void doArchive(full.uid)} aria-label="Archive" title="Archive">
+                      <Archive className="h-4 w-4" aria-hidden />
+                    </Button>
+                    <Button variant="ghost" size="sm" onClick={() => void doTrash(full.uid)} aria-label="Delete" title="Delete">
+                      <Trash2 className="h-4 w-4" aria-hidden />
+                    </Button>
                     <Popover>
                       <PopoverTrigger asChild>
-                        <Button variant="ghost" size="sm" aria-label="Snooze">
+                        <Button variant="ghost" size="sm" aria-label="Snooze" title="Snooze">
                           <Clock className="h-4 w-4" aria-hidden />
                         </Button>
                       </PopoverTrigger>
@@ -1124,34 +1121,151 @@ export function SabmailInboxClient({ accounts }: { accounts: SabmailAccountRow[]
                         </div>
                       </PopoverContent>
                     </Popover>
-                    <span className="mx-1 h-5 w-px bg-[var(--st-border)]" aria-hidden />
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      iconLeft={Sparkles}
-                      onClick={() => void doSummarize()}
-                      disabled={summarizing}
-                    >
-                      {summarizing ? "Summarizing…" : "Summarize"}
+                  </div>
+                  <div className="flex shrink-0 items-center gap-1 text-xs text-[var(--st-text-secondary)]">
+                    {selIndex >= 0 ? (
+                      <span className="tabular-nums">
+                        {selIndex + 1} of {visibleThreads.length}
+                      </span>
+                    ) : null}
+                    <Button variant="ghost" size="sm" onClick={() => moveSelection(-1)} aria-label="Previous" title="Previous">
+                      <ChevronLeft className="h-4 w-4" aria-hidden />
                     </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      iconLeft={aiReplyBusy ? undefined : Sparkles}
-                      onClick={() => void doAiReply()}
-                      disabled={aiReplyBusy}
-                    >
-                      {aiReplyBusy ? "Drafting…" : "AI reply"}
+                    <Button variant="ghost" size="sm" onClick={() => moveSelection(1)} aria-label="Next" title="Next">
+                      <ChevronRight className="h-4 w-4" aria-hidden />
+                    </Button>
+                    <span className="mx-0.5 h-5 w-px bg-[var(--st-border)]" aria-hidden />
+                    <Button variant="ghost" size="sm" onClick={closeReading} aria-label="Close" title="Close">
+                      <X className="h-4 w-4" aria-hidden />
                     </Button>
                   </div>
                 </div>
 
-                {activeThread && activeThread.count > 1 ? (
-                  <div className="border-b border-[var(--st-border)] px-4 py-2">
-                    <div className="mb-1 text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
-                      Conversation · {activeThread.count} messages
+                {/* date + subject */}
+                <div className="px-5 pt-4">
+                  <div className="text-xs text-[var(--st-text-secondary)]">
+                    {full.date
+                      ? new Date(full.date).toLocaleString(undefined, {
+                          dateStyle: "medium",
+                          timeStyle: "short",
+                        })
+                      : ""}
+                  </div>
+                  <div className="mt-1 flex items-center gap-2">
+                    <h1 className="min-w-0 truncate text-xl font-semibold text-[var(--st-text)]">
+                      {full.subject || "(no subject)"}
+                    </h1>
+                    {activeThread && activeThread.count > 1 ? (
+                      <span className="inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded-md bg-[var(--st-bg-muted)] px-1.5 text-[11px] font-semibold text-[var(--st-text-secondary)]">
+                        {activeThread.count}
+                      </span>
+                    ) : null}
+                  </div>
+                </div>
+
+                {/* AI summary card */}
+                {summarizing || summary ? (
+                  <div className="px-5 pt-3">
+                    <div className="sabmail-tint-card sabmail-fade-up rounded-xl px-4 py-3">
+                      <div className="mb-1 flex items-center gap-1.5 text-[13px] font-semibold text-[var(--st-accent)]">
+                        <Sparkles className="h-4 w-4" aria-hidden /> Summary
+                      </div>
+                      {summarizing ? (
+                        <ProcessingDots className="text-[var(--st-accent)]" />
+                      ) : (
+                        <p className="whitespace-pre-wrap text-sm leading-relaxed text-[var(--st-text)]">
+                          {summary}
+                        </p>
+                      )}
                     </div>
-                    <div className="flex flex-col gap-1">
+                  </div>
+                ) : (
+                  <div className="px-5 pt-3">
+                    <button
+                      type="button"
+                      onClick={() => void doSummarize()}
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-[var(--sabmail-tint-border)] px-3 py-1.5 text-xs font-medium text-[var(--st-accent)] hover:bg-[var(--sabmail-tint)]"
+                    >
+                      <Sparkles className="h-3.5 w-3.5" aria-hidden /> Summarize this thread
+                    </button>
+                  </div>
+                )}
+
+                {/* sender + recipients */}
+                <div className="px-5 pt-4">
+                  <div className="flex items-start gap-3">
+                    <MailAvatar name={full.from.name} email={full.from.email} size={40} ring />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-baseline gap-x-2">
+                        <span className="text-sm font-semibold text-[var(--st-text)]">
+                          {full.from.name || full.from.email}
+                        </span>
+                        {full.from.name ? (
+                          <span className="text-xs text-[var(--st-text-secondary)]">
+                            {full.from.email}
+                          </span>
+                        ) : null}
+                      </div>
+                      {full.to.length > 0 ? (
+                        <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-[var(--st-text-secondary)]">
+                          <span>To</span>
+                          {full.to.slice(0, 6).map((addr, i) => (
+                            <span
+                              key={`to-${i}`}
+                              className="inline-flex items-center gap-1 rounded-full bg-[var(--st-bg-muted)] py-0.5 pl-0.5 pr-2"
+                            >
+                              <MailAvatar name={senderShort(addr)} email={senderEmail(addr)} size={16} />
+                              <span className="max-w-[140px] truncate text-[var(--st-text)]">
+                                {senderShort(addr)}
+                              </span>
+                            </span>
+                          ))}
+                          {full.to.length > 6 ? <span>+{full.to.length - 6}</span> : null}
+                        </div>
+                      ) : null}
+                      {full.cc.length > 0 ? (
+                        <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-[var(--st-text-secondary)]">
+                          <span>Cc</span>
+                          {full.cc.slice(0, 6).map((addr, i) => (
+                            <span
+                              key={`cc-${i}`}
+                              className="inline-flex items-center gap-1 rounded-full bg-[var(--st-bg-muted)] py-0.5 pl-0.5 pr-2"
+                            >
+                              <MailAvatar name={senderShort(addr)} email={senderEmail(addr)} size={16} />
+                              <span className="max-w-[140px] truncate text-[var(--st-text)]">
+                                {senderShort(addr)}
+                              </span>
+                            </span>
+                          ))}
+                          {full.cc.length > 6 ? <span>+{full.cc.length - 6}</span> : null}
+                        </div>
+                      ) : null}
+                    </div>
+                  </div>
+                </div>
+
+                {full.hadRemoteImages && !showRemoteImages ? (
+                  <div className="mx-5 mt-3 flex items-center justify-between gap-2 rounded-lg bg-[var(--st-bg-muted)] px-3 py-2">
+                    <span className="text-xs text-[var(--st-text-secondary)]">
+                      Remote images are blocked to protect your privacy.
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setShowRemoteImages(true);
+                        void openMessage(full.uid, true);
+                      }}
+                    >
+                      Show images
+                    </Button>
+                  </div>
+                ) : null}
+
+                {/* conversation strip */}
+                {activeThread && activeThread.count > 1 ? (
+                  <div className="mx-5 mt-3 rounded-lg border border-[var(--st-border)] p-1">
+                    <div className="flex flex-col">
                       {activeThread.rows.map((r) => (
                         <button
                           key={r.uid}
@@ -1164,28 +1278,15 @@ export function SabmailInboxClient({ accounts }: { accounts: SabmailAccountRow[]
                           }`}
                         >
                           <span className="truncate">{r.fromName || r.fromEmail}</span>
-                          <span className="shrink-0 font-mono">{formatDate(r.date)}</span>
+                          <span className="shrink-0">{formatDate(r.date)}</span>
                         </button>
                       ))}
                     </div>
                   </div>
                 ) : null}
 
-                {summarizing || summary ? (
-                  <div className="sabmail-fade-up border-b border-[var(--st-border)] px-4 py-3">
-                    <div className="mb-1 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-[var(--st-accent)]">
-                      <Sparkles className="h-3.5 w-3.5" aria-hidden /> AI summary
-                    </div>
-                    {summarizing ? (
-                      <ProcessingDots className="text-[var(--st-accent)]" />
-                    ) : (
-                      <p className="whitespace-pre-wrap text-sm text-[var(--st-text)]">{summary}</p>
-                    )}
-                  </div>
-                ) : null}
-
                 {/* body */}
-                <div className="min-h-0 flex-1 overflow-hidden bg-white">
+                <div className="mt-3 min-h-0 flex-1 overflow-hidden">
                   {full.html ? (
                     <iframe
                       key={`${full.uid}-${showRemoteImages ? "img" : "noimg"}`}
@@ -1195,7 +1296,7 @@ export function SabmailInboxClient({ accounts }: { accounts: SabmailAccountRow[]
                       className="h-full w-full border-0"
                     />
                   ) : (
-                    <div className="h-full overflow-y-auto whitespace-pre-wrap break-words p-4 text-sm text-[var(--st-text)]">
+                    <div className="h-full overflow-y-auto whitespace-pre-wrap break-words px-5 py-3 text-sm text-[var(--st-text)]">
                       {full.text || "(empty message)"}
                     </div>
                   )}
@@ -1207,10 +1308,12 @@ export function SabmailInboxClient({ accounts }: { accounts: SabmailAccountRow[]
                     {full.attachments.map((att, i) => (
                       <span
                         key={`${att.filename}-${i}`}
-                        className="inline-flex items-center gap-1.5 rounded-md border border-[var(--st-border)] px-2.5 py-1 text-xs text-[var(--st-text-secondary)]"
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-2.5 py-1.5 text-xs text-[var(--st-text-secondary)]"
                       >
-                        <Paperclip className="h-3 w-3" aria-hidden />
-                        <span className="max-w-[180px] truncate">{att.filename}</span>
+                        <span className="grid h-6 w-6 place-items-center rounded-md bg-[var(--st-bg)] text-[var(--st-accent)]">
+                          <FileText className="h-3.5 w-3.5" aria-hidden />
+                        </span>
+                        <span className="max-w-[180px] truncate text-[var(--st-text)]">{att.filename}</span>
                       </span>
                     ))}
                   </div>
@@ -1259,6 +1362,14 @@ export function SabmailInboxClient({ accounts }: { accounts: SabmailAccountRow[]
               }}
             >
               <RefreshCw className="mr-2 h-4 w-4" aria-hidden /> Refresh folder
+            </CommandItem>
+            <CommandItem
+              onSelect={() => {
+                setPaletteOpen(false);
+                void doTriage();
+              }}
+            >
+              <Sparkles className="mr-2 h-4 w-4" aria-hidden /> Triage with AI
             </CommandItem>
           </CommandGroup>
           {accounts.length > 1 ? (

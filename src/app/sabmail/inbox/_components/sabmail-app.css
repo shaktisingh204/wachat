@@ -1,0 +1,82 @@
+/* =========================================================================
+   SabMail app — Superhuman/Uxerflow-class inbox skin over 20ui tokens.
+
+   The ONLY thing that can't be done inline: re-point the 20ui accent family
+   to SabMail's emerald (the reference's teal/green) — scoped to `.sabmail-app`
+   so the rest of SabNode keeps its blue accent. Both light + dark are defined
+   off the same `--st-*` token contract, so the whole app themes automatically.
+   Everything else is plain Tailwind + `var(--st-*)` in the components.
+   ========================================================================= */
+
+.sabmail-app {
+  /* Emerald accent (light) */
+  --st-accent: #0e9f6e;
+  --st-accent-hover: #0b805a;
+  --st-accent-soft: #e7f6f0;
+  --st-accent-ring: rgba(14, 159, 110, 0.2);
+  /* A soft tint used by the AI-summary + compose draft cards. */
+  --sabmail-tint: rgba(14, 159, 110, 0.08);
+  --sabmail-tint-border: rgba(14, 159, 110, 0.22);
+}
+
+/* Dark — the app stamps `html.dark`; also cover the explicit/auto cases. */
+html.dark .sabmail-app,
+.sabmail-app.dark,
+.sabmail-app[data-theme="dark"] {
+  --st-accent: #10b981;
+  --st-accent-hover: #34d399;
+  --st-accent-soft: rgba(16, 185, 129, 0.16);
+  --st-accent-ring: rgba(16, 185, 129, 0.3);
+  --sabmail-tint: rgba(16, 185, 129, 0.1);
+  --sabmail-tint-border: rgba(16, 185, 129, 0.28);
+}
+@media (prefers-color-scheme: dark) {
+  .sabmail-app:not(.light):not([data-theme="light"]) {
+    --st-accent: #10b981;
+    --st-accent-hover: #34d399;
+    --st-accent-soft: rgba(16, 185, 129, 0.16);
+    --st-accent-ring: rgba(16, 185, 129, 0.3);
+    --sabmail-tint: rgba(16, 185, 129, 0.1);
+    --sabmail-tint-border: rgba(16, 185, 129, 0.28);
+  }
+}
+
+/* The teal "AI Summary" + compose-draft cards. */
+.sabmail-tint-card {
+  background: var(--sabmail-tint);
+  border: 1px solid var(--sabmail-tint-border);
+}
+
+/* List-row selected card (Superhuman-style: lifted tile, accent left edge). */
+.sabmail-listrow {
+  transition: background var(--u-dur-fast, 120ms) var(--u-ease-out, ease),
+    box-shadow var(--u-dur-fast, 120ms) var(--u-ease-out, ease);
+}
+.sabmail-listrow[data-selected="true"] {
+  background: var(--st-bg-muted);
+  box-shadow: inset 3px 0 0 0 var(--st-accent);
+}
+
+/* The whole inbox sits on a calm canvas with rounded panes (reference look). */
+.sabmail-canvas {
+  background: var(--st-bg-secondary);
+}
+.sabmail-pane {
+  background: var(--st-bg);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg, 10px);
+}
+
+/* Primary emerald Compose button — fills, lifts on hover. */
+.sabmail-compose-btn {
+  background: var(--st-accent);
+  color: #ffffff;
+  transition: background var(--u-dur-fast, 120ms) var(--u-ease-out, ease),
+    transform var(--u-dur-fast, 120ms) var(--u-ease-out, ease);
+}
+.sabmail-compose-btn:hover {
+  background: var(--st-accent-hover);
+}
+.sabmail-compose-btn:active {
+  transform: translateY(1px);
+}

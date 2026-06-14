@@ -2,16 +2,33 @@
 
 import * as React from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { Clock, Paperclip, Send, Sparkles, X } from "lucide-react";
+import {
+  ChevronDown,
+  Clock,
+  Paperclip,
+  RotateCcw,
+  Send,
+  Sparkles,
+  X,
+} from "lucide-react";
 
-import { Button, Input, useToast } from "@/components/sabcrm/20ui";
+import {
+  Button,
+  Input,
+  Popover,
+  PopoverClose,
+  PopoverContent,
+  PopoverTrigger,
+  useToast,
+} from "@/components/sabcrm/20ui";
 import { SabFilePickerButton, type SabFilePick } from "@/components/sabfiles";
-import { CreatingOverlay, Spinner, SuccessCheck } from "@/components/sabmail/motion";
+import { Spinner, SuccessCheck } from "@/components/sabmail/motion";
 
 import { RecipientChips } from "../../_components/recipient-chips";
 import { RichTextEditor, type RichTextEditorHandle } from "../../_components/rich-text-editor";
 import { aiWriteCompose, sendSabmailMessage } from "../actions";
 import { scheduleSabmailSend } from "../../scheduled/actions";
+import "./sabmail-app.css";
 
 export interface ComposePrefill {
   to?: string[];
@@ -25,11 +42,32 @@ export interface ComposePrefill {
 
 const EASE_OUT = [0.23, 1, 0.32, 1] as const;
 
+const AI_TONES: ReadonlyArray<{ label: string; instruction: string }> = [
+  { label: "More formal", instruction: "Rewrite this email to be more formal and professional" },
+  { label: "Friendlier", instruction: "Rewrite this email to be warmer and friendlier" },
+  { label: "More concise", instruction: "Rewrite this email to be shorter and more concise" },
+  { label: "Expand", instruction: "Expand this email with more detail and context" },
+  { label: "Fix grammar", instruction: "Fix the grammar and spelling of this email, keeping the tone" },
+];
+
+function htmlToPlainish(html: string): string {
+  return html
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/(p|div|li|h[1-6])>/gi, "\n")
+    .replace(/<[^>]+>/g, "")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
 export function ComposeModal({
   open,
   accountId,
   accountEmail,
-  title = "New message",
+  title = "New Message",
   prefill,
   onClose,
   onSent,
@@ -49,6 +87,7 @@ export function ComposeModal({
   const [cc, setCc] = React.useState<string[]>(prefill?.cc ?? []);
   const [bcc, setBcc] = React.useState<string[]>(prefill?.bcc ?? []);
   const [showCc, setShowCc] = React.useState(!!(prefill?.cc?.length || prefill?.bcc?.length));
+  const [showSubject, setShowSubject] = React.useState(!!prefill?.subject);
   const [subject, setSubject] = React.useState(prefill?.subject ?? "");
   const bodyRef = React.useRef(prefill?.bodyHtml ?? "");
   const [sending, setSending] = React.useState(false);
@@ -57,20 +96,34 @@ export function ComposeModal({
   const [attachments, setAttachments] = React.useState<{ filename: string; url: string }[]>([]);
   const editorRef = React.useRef<RichTextEditorHandle>(null);
 
-  const writeWithAi = React.useCallback(async () => {
+  /* ── AI: write / formalize / rewrite (all via aiWriteCompose) ─────────── */
+  const runAi = React.useCallback(
+    async (instruction: string, useBody: boolean) => {
+      const current = useBody ? htmlToPlainish(bodyRef.current) : "";
+      if (useBody && !current) {
+        toast({ title: "Nothing to rewrite yet", variant: "destructive" });
+        return;
+      }
+      setAiBusy(true);
+      const prompt = useBody ? `${instruction}:\n\n${current}` : instruction;
+      const res = await aiWriteCompose(prompt);
+      setAiBusy(false);
+      if (!res.ok) {
+        toast({ title: "AI unavailable", description: res.error, variant: "destructive" });
+        return;
+      }
+      const html = textToHtml(res.text);
+      bodyRef.current = html;
+      editorRef.current?.setHtml(html);
+    },
+    [toast],
+  );
+
+  const writeWithAi = React.useCallback(() => {
     const instruction = window.prompt("What should this email say?");
     if (!instruction?.trim()) return;
-    setAiBusy(true);
-    const res = await aiWriteCompose(instruction.trim());
-    setAiBusy(false);
-    if (!res.ok) {
-      toast({ title: "AI unavailable", description: res.error, variant: "destructive" });
-      return;
-    }
-    const html = textToHtml(res.text);
-    bodyRef.current = html;
-    editorRef.current?.setHtml(html);
-  }, [toast]);
+    void runAi(instruction.trim(), false);
+  }, [runAi]);
 
   const performSend = React.useCallback(async () => {
     if (to.length === 0) {
@@ -100,7 +153,7 @@ export function ComposeModal({
       onSent?.();
       onClose();
     }, 900);
-  }, [to, cc, bcc, subject, accountId, prefill, toast, onSent, onClose]);
+  }, [to, cc, bcc, subject, accountId, prefill, attachments, toast, onSent, onClose]);
 
   // Undo-send: hold the send for 5s with an Undo affordance, then deliver.
   const [undoing, setUndoing] = React.useState(false);
@@ -177,31 +230,22 @@ export function ComposeModal({
     <AnimatePresence>
       {open ? (
         <motion.div
-          className="fixed inset-0 z-50 grid place-items-center bg-[color-mix(in_srgb,var(--st-bg)_70%,transparent)] p-4 backdrop-blur-sm"
+          className="sabmail-app pointer-events-none fixed inset-0 z-50 flex items-end justify-end p-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          onMouseDown={onClose}
         >
           <motion.div
-            className="relative flex max-h-[88vh] w-full max-w-2xl flex-col overflow-hidden rounded-xl border border-[var(--st-border)] bg-[var(--st-bg)] shadow-2xl"
-            initial={reduce ? { opacity: 0 } : { opacity: 0, scale: 0.97, y: 8 }}
+            className="pointer-events-auto relative flex max-h-[85vh] w-full max-w-xl flex-col overflow-hidden rounded-2xl border border-[var(--st-border)] bg-[var(--st-bg)] shadow-[0_24px_70px_rgba(0,0,0,0.45)]"
+            initial={reduce ? { opacity: 0 } : { opacity: 0, scale: 0.97, y: 16 }}
             animate={reduce ? { opacity: 1 } : { opacity: 1, scale: 1, y: 0 }}
-            exit={reduce ? { opacity: 0 } : { opacity: 0, scale: 0.97, y: 8 }}
+            exit={reduce ? { opacity: 0 } : { opacity: 0, scale: 0.97, y: 16 }}
             transition={{ duration: 0.2, ease: EASE_OUT }}
-            onMouseDown={(e) => e.stopPropagation()}
           >
-            <CreatingOverlay
-              show={sending}
-              variant="connect"
-              title="Sending…"
-              subtitle={accountEmail}
-              icon={<Send className="h-1/2 w-1/2" />}
-            />
             <AnimatePresence>
               {done ? (
                 <motion.div
-                  className="absolute inset-0 z-10 grid place-items-center bg-[var(--st-bg)]"
+                  className="absolute inset-0 z-20 grid place-items-center bg-[var(--st-bg)]"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
@@ -214,32 +258,9 @@ export function ComposeModal({
               ) : null}
             </AnimatePresence>
 
-            <AnimatePresence>
-              {undoing ? (
-                <motion.div
-                  className="absolute inset-x-0 bottom-0 z-20 flex items-center justify-between gap-3 border-t border-[var(--st-border)] bg-[var(--st-bg)] px-4 py-3"
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 8 }}
-                >
-                  <span className="inline-flex items-center gap-2 text-sm text-[var(--st-text)]">
-                    <Spinner size={14} /> Sending…
-                  </span>
-                  <span className="flex items-center gap-2">
-                    <Button variant="ghost" size="sm" onClick={cancelUndo}>
-                      Undo
-                    </Button>
-                    <Button variant="primary" size="sm" onClick={sendNow}>
-                      Send now
-                    </Button>
-                  </span>
-                </motion.div>
-              ) : null}
-            </AnimatePresence>
-
             {/* header */}
-            <div className="flex items-center justify-between border-b border-[var(--st-border)] px-4 py-3">
-              <h2 className="text-sm font-semibold text-[var(--st-text)]">{title}</h2>
+            <div className="flex items-center justify-between px-5 py-3.5">
+              <h2 className="text-base font-semibold text-[var(--st-text)]">{title}</h2>
               <button
                 type="button"
                 aria-label="Close"
@@ -250,19 +271,30 @@ export function ComposeModal({
               </button>
             </div>
 
-            {/* fields */}
-            <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-4">
+            {/* recipients */}
+            <div className="px-5">
               <div className="relative">
                 <RecipientChips label="To" value={to} onChange={setTo} placeholder="recipient@example.com" autoFocus />
-                {!showCc ? (
-                  <button
-                    type="button"
-                    onClick={() => setShowCc(true)}
-                    className="absolute right-1 top-2.5 text-xs text-[var(--st-text-secondary)] underline-offset-2 hover:underline"
-                  >
-                    Cc/Bcc
-                  </button>
-                ) : null}
+                <div className="absolute right-0 top-2 flex items-center gap-1">
+                  {!showSubject ? (
+                    <button
+                      type="button"
+                      onClick={() => setShowSubject(true)}
+                      className="rounded-full bg-[var(--st-bg-muted)] px-2.5 py-1 text-xs font-medium text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
+                    >
+                      + Subject
+                    </button>
+                  ) : null}
+                  {!showCc ? (
+                    <button
+                      type="button"
+                      onClick={() => setShowCc(true)}
+                      className="rounded-full bg-[var(--st-bg-muted)] px-2.5 py-1 text-xs font-medium text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
+                    >
+                      + Cc/Bcc
+                    </button>
+                  ) : null}
+                </div>
               </div>
               {showCc ? (
                 <>
@@ -270,26 +302,38 @@ export function ComposeModal({
                   <RecipientChips label="Bcc" value={bcc} onChange={setBcc} />
                 </>
               ) : null}
-              <div className="flex items-center gap-2 border-b border-[var(--st-border)] px-1 py-2">
-                <span className="w-10 shrink-0 text-xs font-medium text-[var(--st-text-secondary)]">Subj</span>
-                <Input
-                  value={subject}
-                  onChange={(e) => setSubject(e.target.value)}
-                  placeholder="Subject"
-                  className="border-0 bg-transparent px-0 shadow-none focus-visible:ring-0"
+              {showSubject ? (
+                <div className="flex items-center gap-2 border-b border-[var(--st-border)] px-1 py-2">
+                  <span className="w-10 shrink-0 text-xs font-medium text-[var(--st-text-secondary)]">Subj</span>
+                  <Input
+                    value={subject}
+                    onChange={(e) => setSubject(e.target.value)}
+                    placeholder="Subject"
+                    className="border-0 bg-transparent px-0 shadow-none focus-visible:ring-0"
+                  />
+                </div>
+              ) : null}
+            </div>
+
+            {/* body — tinted draft card, like the reference */}
+            <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-2 pt-2">
+              <div className="sabmail-tint-card relative rounded-xl px-4 py-3">
+                <RichTextEditor
+                  ref={editorRef}
+                  initialHtml={prefill?.bodyHtml}
+                  onChange={(html) => {
+                    bodyRef.current = html;
+                  }}
                 />
+                {aiBusy ? (
+                  <span className="absolute right-3 top-3 inline-flex items-center gap-1.5 text-xs text-[var(--st-accent)]">
+                    <Spinner size={13} /> Writing…
+                  </span>
+                ) : null}
               </div>
-              <RichTextEditor
-                ref={editorRef}
-                className="py-3"
-                initialHtml={prefill?.bodyHtml}
-                onChange={(html) => {
-                  bodyRef.current = html;
-                }}
-              />
 
               {attachments.length > 0 ? (
-                <div className="flex flex-wrap gap-2 pb-3">
+                <div className="flex flex-wrap gap-2 pt-2">
                   {attachments.map((a, i) => (
                     <span
                       key={`${a.url}-${i}`}
@@ -312,7 +356,7 @@ export function ComposeModal({
             </div>
 
             {showSchedule ? (
-              <div className="flex items-center gap-2 border-t border-[var(--st-border)] px-4 py-2">
+              <div className="flex items-center gap-2 border-t border-[var(--st-border)] px-5 py-2">
                 <Clock className="h-4 w-4 shrink-0 text-[var(--st-text-secondary)]" aria-hidden />
                 <input
                   type="datetime-local"
@@ -332,27 +376,60 @@ export function ComposeModal({
               </div>
             ) : null}
 
-            {/* footer */}
+            {/* footer — AI toolbar (Formalize ▾ / Rewrite) + actions */}
             <div className="flex items-center justify-between gap-2 border-t border-[var(--st-border)] px-4 py-3">
-              <div className="flex items-center gap-2">
-                <Button variant="primary" size="sm" iconLeft={Send} onClick={() => void send()} disabled={sending || undoing}>
-                  Send
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  iconLeft={aiBusy ? undefined : Sparkles}
-                  onClick={() => void writeWithAi()}
+              <div className="flex items-center gap-1">
+                {/* Formalize ▾ */}
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button
+                      type="button"
+                      disabled={aiBusy || sending}
+                      className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium text-[var(--st-text)] hover:bg-[var(--st-bg-muted)] disabled:opacity-50"
+                    >
+                      <Sparkles className="h-4 w-4 text-[var(--st-accent)]" aria-hidden />
+                      Formalize
+                      <ChevronDown className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" aria-hidden />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent align="start" className="w-48 p-1.5">
+                    {AI_TONES.map((t) => (
+                      <PopoverClose key={t.label} asChild>
+                        <button
+                          type="button"
+                          onClick={() => void runAi(t.instruction, true)}
+                          className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]"
+                        >
+                          <Sparkles className="h-3.5 w-3.5 shrink-0 text-[var(--st-accent)]" aria-hidden />
+                          {t.label}
+                        </button>
+                      </PopoverClose>
+                    ))}
+                    <div className="my-1 h-px bg-[var(--st-border)]" />
+                    <PopoverClose asChild>
+                      <button
+                        type="button"
+                        onClick={writeWithAi}
+                        className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]"
+                      >
+                        <Sparkles className="h-3.5 w-3.5 shrink-0 text-[var(--st-accent)]" aria-hidden />
+                        Write with AI…
+                      </button>
+                    </PopoverClose>
+                  </PopoverContent>
+                </Popover>
+
+                {/* Rewrite */}
+                <button
+                  type="button"
                   disabled={aiBusy || sending}
+                  onClick={() => void runAi("Rewrite and improve this email", true)}
+                  className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium text-[var(--st-text)] hover:bg-[var(--st-bg-muted)] disabled:opacity-50"
                 >
-                  {aiBusy ? (
-                    <span className="inline-flex items-center gap-1.5">
-                      <Spinner size={14} /> Writing…
-                    </span>
-                  ) : (
-                    "Write with AI"
-                  )}
-                </Button>
+                  <RotateCcw className="h-4 w-4 text-[var(--st-text-secondary)]" aria-hidden />
+                  Rewrite
+                </button>
+
                 <SabFilePickerButton
                   variant="ghost"
                   onPick={(pick: SabFilePick) =>
@@ -363,6 +440,7 @@ export function ComposeModal({
                     <Paperclip className="h-4 w-4" aria-hidden /> Attach
                   </span>
                 </SabFilePickerButton>
+
                 <Button
                   variant="ghost"
                   size="sm"
@@ -373,9 +451,37 @@ export function ComposeModal({
                   Send later
                 </Button>
               </div>
-              <Button variant="ghost" size="sm" onClick={onClose} disabled={sending}>
-                Discard
-              </Button>
+
+              <div className="flex items-center gap-2">
+                {undoing ? (
+                  <>
+                    <span className="inline-flex items-center gap-1.5 text-sm text-[var(--st-text-secondary)]">
+                      <Spinner size={14} /> Sending…
+                    </span>
+                    <Button variant="ghost" size="sm" onClick={cancelUndo}>
+                      Undo
+                    </Button>
+                    <Button variant="primary" size="sm" onClick={sendNow}>
+                      Send now
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button variant="ghost" size="sm" onClick={onClose} disabled={sending}>
+                      Discard
+                    </Button>
+                    <button
+                      type="button"
+                      onClick={() => void send()}
+                      disabled={sending}
+                      className="sabmail-compose-btn inline-flex items-center gap-1.5 rounded-lg px-4 py-1.5 text-sm font-semibold shadow-sm disabled:opacity-60"
+                    >
+                      <Send className="h-4 w-4" aria-hidden />
+                      Send
+                    </button>
+                  </>
+                )}
+              </div>
             </div>
           </motion.div>
         </motion.div>
