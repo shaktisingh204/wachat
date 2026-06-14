@@ -10164,6 +10164,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "sabchat-collab"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum 0.8.9",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "sabchat-types",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "utoipa",
+]
+
+[[package]]
 name = "sabchat-commerce"
 version = "0.1.0"
 dependencies = [
@@ -13443,6 +13464,7 @@ dependencies = [
  "sabchat-channel-whatsapp",
  "sabchat-channel-x",
  "sabchat-cobrowse",
+ "sabchat-collab",
  "sabchat-commerce",
  "sabchat-community",
  "sabchat-compliance",
