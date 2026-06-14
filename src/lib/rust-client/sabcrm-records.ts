@@ -184,6 +184,15 @@ export interface SabcrmRecordListParams {
    * See {@link SabcrmRecordRelationFilters}.
    */
   relationFilters?: SabcrmRecordRelationFilters;
+  /**
+   * Read-path access-enforcement clause — a serialized JSON Mongo clause from
+   * `resolveAccessFilterParam` (`src/lib/sabcrm/access-readpath.server.ts`),
+   * `$and`-merged server-side so the Rust read path enforces the SAME row scope
+   * as the native-TS path (closes the two-store gotcha). DEFAULT-OFF: omit it
+   * (the common case) and the query is byte-for-byte unchanged. Never built on
+   * the client — always resolved server-side from the per-project flags.
+   */
+  accessFilter?: string;
 }
 
 export interface SabcrmRecordListResponse {
@@ -208,6 +217,8 @@ export interface SabcrmRecordCountParams {
   q?: string;
   /** Structured field filters; see {@link SabcrmRecordListParams.filters}. */
   filters?: SabcrmRecordFilters;
+  /** Read-path access clause; see {@link SabcrmRecordListParams.accessFilter}. */
+  accessFilter?: string;
 }
 
 export interface SabcrmRecordCountResponse {
@@ -261,6 +272,8 @@ export interface SabcrmRecordGroupOpts {
   enrich?: boolean;
   /** Structured field filters ANDed into the scope before grouping. */
   filters?: SabcrmRecordFilters;
+  /** Read-path access clause; see {@link SabcrmRecordListParams.accessFilter}. */
+  accessFilter?: string;
 }
 
 /**
@@ -328,6 +341,8 @@ export interface SabcrmRecordAggregateParams {
   metrics?: SabcrmAggregateMetricSpec[];
   /** Structured field filters; see {@link SabcrmRecordListParams.filters}. */
   filters?: SabcrmRecordFilters;
+  /** Read-path access clause; see {@link SabcrmRecordListParams.accessFilter}. */
+  accessFilter?: string;
 }
 
 /** One bucket from the aggregate endpoint. */
@@ -494,6 +509,7 @@ export const sabcrmRecordsApi = {
         filters: hasFilters ? JSON.stringify(params.filters) : undefined,
         relationFilters: hasRelationFilters ? JSON.stringify(rf) : undefined,
         enrich: params.enrich ? 'relations' : undefined,
+        accessFilter: params.accessFilter || undefined,
       })}`,
     );
   },
@@ -515,6 +531,7 @@ export const sabcrmRecordsApi = {
         projectId: params.projectId,
         q: params.q,
         filters: hasFilters ? JSON.stringify(params.filters) : undefined,
+        accessFilter: params.accessFilter || undefined,
       })}`,
     );
   },
@@ -531,11 +548,13 @@ export const sabcrmRecordsApi = {
     id: string,
     projectId: string,
     enrich?: boolean,
+    accessFilter?: string,
   ): Promise<SabcrmRustRecord> {
     return rustFetch<RecordEnvelope>(
       `${base(object)}/${encodeURIComponent(id)}${qs({
         projectId,
         enrich: enrich ? 'relations' : undefined,
+        accessFilter: accessFilter || undefined,
       })}`,
     ).then((res) => res.record);
   },
@@ -727,6 +746,7 @@ export const sabcrmRecordsApi = {
           metricField: params.metricField,
           metrics: params.metrics,
           filters: hasFilters ? params.filters : undefined,
+          accessFilter: params.accessFilter || undefined,
         }),
       },
     );
@@ -789,6 +809,7 @@ export const sabcrmRecordsApi = {
         countOnly: opts?.countOnly,
         enrich: opts?.enrich ? 'relations' : undefined,
         filters: hasFilters ? opts!.filters : undefined,
+        accessFilter: opts?.accessFilter || undefined,
       }),
     });
   },

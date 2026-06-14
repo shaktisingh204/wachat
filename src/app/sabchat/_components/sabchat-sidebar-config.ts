@@ -5,9 +5,13 @@ import {
   BookOpen,
   Code2,
   FolderKanban,
+  Gauge,
   Inbox,
+  MessagesSquare,
   Settings,
   Settings2,
+  ShoppingCart,
+  Workflow,
 } from "lucide-react";
 
 // Import the `SidebarGroup` *interface* directly from the shell module (the
@@ -66,6 +70,34 @@ export function buildSabchatSidebarGroups(
           href: "/sabchat/reports",
           active: isActive("/sabchat/reports"),
         },
+        {
+          id: "quality",
+          label: "Quality review",
+          icon: React.createElement(Gauge),
+          href: "/sabchat/quality",
+          active: isActive("/sabchat/quality"),
+        },
+      ],
+    },
+    {
+      id: "engage",
+      label: "Engage",
+      defaultOpen: true,
+      items: [
+        {
+          id: "journeys",
+          label: "Journeys",
+          icon: React.createElement(Workflow),
+          href: "/sabchat/journeys",
+          active: isActive("/sabchat/journeys"),
+        },
+        {
+          id: "cart-recovery",
+          label: "Cart recovery",
+          icon: React.createElement(ShoppingCart),
+          href: "/sabchat/cart-recovery",
+          active: isActive("/sabchat/cart-recovery"),
+        },
       ],
     },
     {
@@ -86,6 +118,13 @@ export function buildSabchatSidebarGroups(
           icon: React.createElement(BookOpen),
           href: "/sabchat/knowledge",
           active: isActive("/sabchat/knowledge"),
+        },
+        {
+          id: "community",
+          label: "Community",
+          icon: React.createElement(MessagesSquare),
+          href: "/sabchat/community",
+          active: isActive("/sabchat/community"),
         },
         {
           id: "admin",

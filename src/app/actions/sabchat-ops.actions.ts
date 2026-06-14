@@ -30,6 +30,15 @@ import type {
   SabChatScimToken,
   SabChatSsoProvider,
 } from '@/lib/rust-client/sabchat-sso';
+import type {
+  SabChatVocRun,
+  SabChatVocTopic,
+} from '@/lib/rust-client/sabchat-ai-voc';
+import type {
+  SabChatQaRubric,
+  SabChatQaRubricCriterion,
+  SabChatQaScore,
+} from '@/lib/rust-client/sabchat-ai-qa';
 
 async function scoped<T>(fn: () => Promise<T>): Promise<T> {
   const wsId = await getSabchatWorkspaceId();
@@ -88,8 +97,9 @@ export async function saveBusinessHours(input: {
   );
 }
 
-export const deleteBusinessHours = (id: string) =>
-  mutate(() => rustClient.sabchatBusinessHours.delete(id), SETTINGS_PATH);
+export async function deleteBusinessHours(id: string): Promise<Mut> {
+  return mutate(() => rustClient.sabchatBusinessHours.delete(id), SETTINGS_PATH);
+}
 
 /* ── Teams ─────────────────────────────────────────────────────────────── */
 
@@ -118,8 +128,9 @@ export async function saveTeam(input: {
   );
 }
 
-export const deleteTeam = (id: string) =>
-  mutate(() => rustClient.sabchatTeams.delete(id), SETTINGS_PATH);
+export async function deleteTeam(id: string): Promise<Mut> {
+  return mutate(() => rustClient.sabchatTeams.delete(id), SETTINGS_PATH);
+}
 
 /* ── Webhooks ──────────────────────────────────────────────────────────── */
 
@@ -183,11 +194,13 @@ export async function saveWebhook(input: {
   );
 }
 
-export const deleteWebhook = (id: string) =>
-  mutate(() => rustClient.sabchatWebhooks.deleteEndpoint(id), ADMIN_PATH);
+export async function deleteWebhook(id: string): Promise<Mut> {
+  return mutate(() => rustClient.sabchatWebhooks.deleteEndpoint(id), ADMIN_PATH);
+}
 
-export const testWebhook = (id: string) =>
-  mutate(() => rustClient.sabchatWebhooks.testEndpoint(id, {}), ADMIN_PATH);
+export async function testWebhook(id: string): Promise<Mut> {
+  return mutate(() => rustClient.sabchatWebhooks.testEndpoint(id, {}), ADMIN_PATH);
+}
 
 /* ── Audit log ─────────────────────────────────────────────────────────── */
 
@@ -291,11 +304,13 @@ export async function saveRetention(input: {
   );
 }
 
-export const deleteRetention = (id: string) =>
-  mutate(() => rustClient.sabchatCompliance.deleteRetention(id), SETTINGS_PATH);
+export async function deleteRetention(id: string): Promise<Mut> {
+  return mutate(() => rustClient.sabchatCompliance.deleteRetention(id), SETTINGS_PATH);
+}
 
-export const sweepRetention = () =>
-  mutate(() => rustClient.sabchatCompliance.sweepRetention(), SETTINGS_PATH);
+export async function sweepRetention(): Promise<Mut> {
+  return mutate(() => rustClient.sabchatCompliance.sweepRetention(), SETTINGS_PATH);
+}
 
 /* ── Shifts ────────────────────────────────────────────────────────────── */
 
@@ -308,8 +323,9 @@ export async function listShiftRules(): Promise<SabChatShiftRule[]> {
   }
 }
 
-export const deleteShiftRule = (id: string) =>
-  mutate(() => rustClient.sabchatShifts.deleteRule(id), ADMIN_PATH);
+export async function deleteShiftRule(id: string): Promise<Mut> {
+  return mutate(() => rustClient.sabchatShifts.deleteRule(id), ADMIN_PATH);
+}
 
 export async function saveShiftRule(input: {
   id?: string;
@@ -374,8 +390,9 @@ export async function saveSso(input: {
   );
 }
 
-export const deleteSso = (id: string) =>
-  mutate(() => rustClient.sabchatSso.deleteConfig(id), SETTINGS_PATH);
+export async function deleteSso(id: string): Promise<Mut> {
+  return mutate(() => rustClient.sabchatSso.deleteConfig(id), SETTINGS_PATH);
+}
 
 export async function listScimTokens(): Promise<SabChatScimToken[]> {
   try {
@@ -400,5 +417,138 @@ export async function createScimToken(
   }
 }
 
-export const revokeScimToken = (id: string) =>
-  mutate(() => rustClient.sabchatSso.revokeScimToken(id), SETTINGS_PATH);
+export async function revokeScimToken(id: string): Promise<Mut> {
+  return mutate(() => rustClient.sabchatSso.revokeScimToken(id), SETTINGS_PATH);
+}
+
+/* ── AI Voice-of-Customer (topic clustering) ───────────────────────────── */
+
+const REPORTS_PATH = '/sabchat/reports';
+
+export async function listVocRuns(): Promise<SabChatVocRun[]> {
+  try {
+    const res = await scoped(() => rustClient.sabchatAiVoc.listRuns({ limit: 20 }));
+    return res.items;
+  } catch {
+    return [];
+  }
+}
+
+export async function runVoc(input: { from?: string; to?: string; inboxId?: string } = {}): Promise<
+  { ok: true; run: SabChatVocRun } | { ok: false; error: string }
+> {
+  try {
+    const run = await scoped(() => rustClient.sabchatAiVoc.run(input));
+    revalidatePath(REPORTS_PATH);
+    return { ok: true, run };
+  } catch (e) {
+    return { ok: false, error: getErrorMessage(e) };
+  }
+}
+
+export async function listVocTopics(runId?: string): Promise<SabChatVocTopic[]> {
+  try {
+    const res = await scoped(() =>
+      rustClient.sabchatAiVoc.listTopics(runId ? { runId, limit: 50 } : { limit: 50 }),
+    );
+    return res.items;
+  } catch {
+    return [];
+  }
+}
+
+/* ── AI Quality Assurance: rubrics + grading ───────────────────────────── */
+
+export async function listQaRubrics(): Promise<SabChatQaRubric[]> {
+  try {
+    const res = await scoped(() => rustClient.sabchatAiQa.listRubrics());
+    return res.items;
+  } catch {
+    return [];
+  }
+}
+
+export async function saveQaRubric(input: {
+  id?: string;
+  name: string;
+  criteria: SabChatQaRubricCriterion[];
+  active?: boolean;
+}): Promise<Mut> {
+  const name = input.name?.trim();
+  if (!name) return { ok: false, error: 'Name is required.' };
+  if (!input.criteria.length) return { ok: false, error: 'Add at least one criterion.' };
+  const criteria = input.criteria.map((c) => ({
+    key: c.key.trim(),
+    label: c.label.trim(),
+    weight: Number(c.weight) || 1,
+  }));
+  if (criteria.some((c) => !c.key || !c.label))
+    return { ok: false, error: 'Each criterion needs a key and a label.' };
+  return mutate(
+    () =>
+      input.id
+        ? rustClient.sabchatAiQa.updateRubric(input.id, {
+            name,
+            criteria,
+            active: input.active,
+          })
+        : rustClient.sabchatAiQa.createRubric({ name, criteria, active: input.active ?? true }),
+    ADMIN_PATH,
+  );
+}
+
+export async function deleteQaRubric(id: string): Promise<Mut> {
+  return mutate(() => rustClient.sabchatAiQa.deleteRubric(id), ADMIN_PATH);
+}
+
+export async function gradeConversation(
+  conversationId: string,
+  rubricId: string,
+): Promise<{ ok: true; score: SabChatQaScore } | { ok: false; error: string }> {
+  if (!conversationId || !rubricId) return { ok: false, error: 'Conversation and rubric are required.' };
+  try {
+    const score = await scoped(() =>
+      rustClient.sabchatAiQa.grade(conversationId, { rubricId }),
+    );
+    return { ok: true, score };
+  } catch (e) {
+    return { ok: false, error: getErrorMessage(e) };
+  }
+}
+
+export async function manualGradeConversation(
+  conversationId: string,
+  rubricId: string,
+  scores: { key: string; score: number; notes?: string }[],
+  coaching?: string,
+): Promise<{ ok: true; score: SabChatQaScore } | { ok: false; error: string }> {
+  if (!conversationId || !rubricId) return { ok: false, error: 'Conversation and rubric are required.' };
+  if (!scores.length) return { ok: false, error: 'Score at least one criterion.' };
+  try {
+    const score = await scoped(() =>
+      rustClient.sabchatAiQa.manualGrade(conversationId, {
+        rubricId,
+        scores: scores.map((s) => ({
+          key: s.key,
+          score: Number(s.score) || 0,
+          notes: s.notes?.trim() || undefined,
+        })),
+        coaching: coaching?.trim() || undefined,
+      }),
+    );
+    return { ok: true, score };
+  } catch (e) {
+    return { ok: false, error: getErrorMessage(e) };
+  }
+}
+
+export async function listQaScores(
+  q: { rubricId?: string; agentId?: string; gradedBy?: 'ai' | 'agent' } = {},
+): Promise<SabChatQaScore[]> {
+  try {
+    const res = await scoped(() => rustClient.sabchatAiQa.listScores({ ...q, limit: 100 }));
+    return res.items;
+  } catch {
+    return [];
+  }
+}

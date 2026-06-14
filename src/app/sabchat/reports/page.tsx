@@ -13,6 +13,7 @@ import {
   adAttributionReport,
   aiQaLeaderboard,
 } from "@/app/actions/sabchat-ops.actions";
+import { VocPanel } from "./_components/voc-panel";
 
 export const dynamic = "force-dynamic";
 
@@ -235,6 +236,11 @@ export default async function SabchatReportsPage() {
           empty="No attributed revenue in this window."
         />
       </Card>
+
+      {/* Voice of Customer — AI topic clustering */}
+      <div className="mt-8">
+        <VocPanel />
+      </div>
 
       {/* AI Quality Assurance */}
       <h2 className="mt-8 mb-2 text-sm font-semibold text-[var(--st-text)]">

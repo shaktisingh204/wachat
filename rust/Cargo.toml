@@ -357,6 +357,8 @@ members = [
     "crates/sabchat-voice",
     "crates/sabchat-cobrowse",
     "crates/sabchat-shifts",
+    "crates/sabchat-community",
+    "crates/sabchat-journeys",
     "crates/sabchat-csat",
     "crates/sabchat-dispositions",
     "crates/sabchat-gamification",

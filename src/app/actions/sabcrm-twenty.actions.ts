@@ -45,6 +45,10 @@ import {
   runRecordChangeWorkflows,
   patchTouchesChangeFields,
 } from '@/lib/sabcrm/runtime';
+import {
+  resolveAccessFilterParam,
+  redactReadResults,
+} from '@/lib/sabcrm/access-readpath.server';
 import { recomputeScoresForRecord } from '@/lib/sabcrm/scoring.server';
 import { recomputeFormulasForRecord } from '@/lib/sabcrm/formula.server';
 import {
@@ -82,6 +86,7 @@ import type {
   AggregateSabcrmRecordsTwParams,
   SabcrmRecordsTwPage,
   SabcrmRecordOption,
+  SabcrmRecordTwGroup,
   SabcrmRecordTwGroups,
   SabcrmRecordTwAggregate,
   SabcrmRecordDuplicateGroup,
@@ -230,6 +235,13 @@ export async function listSabcrmRecordsTw(
   if (!g.ok) return { ok: false, error: g.error };
 
   try {
+    // Read-path access enforcement (default-OFF): resolves to undefined for
+    // every project that has not opted in, so the Rust query is unchanged.
+    const accessFilter = await resolveAccessFilterParam(
+      g.ctx.projectId,
+      g.ctx.userId,
+      object,
+    );
     const res = await sabcrmRecordsApi.list(object, {
       projectId: g.ctx.projectId,
       q: params.q,
@@ -239,8 +251,17 @@ export async function listSabcrmRecordsTw(
       limit: params.limit,
       filters: params.filters,
       enrich,
+      accessFilter,
     });
-    return { ok: true, data: { records: res.records, total: res.total } };
+    // Field-level-security redaction (default-OFF): returns the array unchanged
+    // unless the per-project FLS flag is on for this viewer's role.
+    const records = await redactReadResults(
+      g.ctx.projectId,
+      g.ctx.userId,
+      object,
+      res.records,
+    );
+    return { ok: true, data: { records, total: res.total } };
   } catch (e) {
     return fail(e, 'Failed to list records.');
   }
@@ -273,12 +294,18 @@ export async function searchSabcrmRecordOptionsTw(
     const objectMeta = await getObject(g.ctx.projectId, object);
     if (!objectMeta) return { ok: false, error: `Unknown object: ${object}` };
 
+    const accessFilter = await resolveAccessFilterParam(
+      g.ctx.projectId,
+      g.ctx.userId,
+      object,
+    );
     const res = await sabcrmRecordsApi.list(object, {
       projectId: g.ctx.projectId,
       q: q?.trim() || undefined,
       limit: Math.min(50, Math.max(1, limit)),
       sortBy: 'updatedAt',
       sortDir: 'desc',
+      accessFilter,
     });
 
     return {
@@ -309,10 +336,16 @@ export async function countSabcrmRecordsTw(
   if (!g.ok) return { ok: false, error: g.error };
 
   try {
+    const accessFilter = await resolveAccessFilterParam(
+      g.ctx.projectId,
+      g.ctx.userId,
+      object,
+    );
     const res = await sabcrmRecordsApi.count(object, {
       projectId: g.ctx.projectId,
       q: params.q,
       filters: params.filters,
+      accessFilter,
     });
     return { ok: true, data: { count: res.count } };
   } catch (e) {
@@ -339,11 +372,23 @@ export async function listRelatedSabcrmRecordsTw(
   if (!g.ok) return { ok: false, error: g.error };
 
   try {
+    const accessFilter = await resolveAccessFilterParam(
+      g.ctx.projectId,
+      g.ctx.userId,
+      object,
+    );
     const res = await sabcrmRecordsApi.list(object, {
       projectId: g.ctx.projectId,
       filters: { [fieldKey]: value },
+      accessFilter,
     });
-    return { ok: true, data: { records: res.records, total: res.total } };
+    const records = await redactReadResults(
+      g.ctx.projectId,
+      g.ctx.userId,
+      object,
+      res.records,
+    );
+    return { ok: true, data: { records, total: res.total } };
   } catch (e) {
     return fail(e, 'Failed to list related records.');
   }
@@ -368,8 +413,28 @@ export async function getSabcrmRecordTw(
   if (!g.ok) return { ok: false, error: g.error };
 
   try {
-    const data = await sabcrmRecordsApi.get(object, id, g.ctx.projectId, enrich);
-    return { ok: true, data };
+    // Access enforcement (default-OFF): a denied record resolves to 404 in the
+    // Rust get (filtered out of the find_one) — never leaking that it exists.
+    const accessFilter = await resolveAccessFilterParam(
+      g.ctx.projectId,
+      g.ctx.userId,
+      object,
+    );
+    const data = await sabcrmRecordsApi.get(
+      object,
+      id,
+      g.ctx.projectId,
+      enrich,
+      accessFilter,
+    );
+    // FLS redaction (default-OFF) — strip fields hidden from this viewer's role.
+    const [redacted] = await redactReadResults(
+      g.ctx.projectId,
+      g.ctx.userId,
+      object,
+      [data],
+    );
+    return { ok: true, data: redacted ?? data };
   } catch (e) {
     return fail(e, 'Failed to load record.');
   }
@@ -979,12 +1044,35 @@ export async function groupSabcrmRecordsTw(
   if (!g.ok) return { ok: false, error: g.error };
 
   try {
-    const res = await sabcrmRecordsApi.group(
-      object,
+    const accessFilter = await resolveAccessFilterParam(
       g.ctx.projectId,
-      groupByField,
+      g.ctx.userId,
+      object,
     );
-    return { ok: true, data: { groups: res.groups } };
+    const res = await sabcrmRecordsApi.group(object, g.ctx.projectId, groupByField, {
+      accessFilter,
+    });
+    // FLS redaction per bucket (default-OFF) — strip hidden fields from the
+    // records each kanban column carries. Mapped to the SabcrmRecordTwGroup
+    // shape ({ value, records }); the engine's `value` is widened to `unknown`
+    // (numeric/boolean group keys), coerced back to the wire `string | null`.
+    const groups: SabcrmRecordTwGroup[] = await Promise.all(
+      res.groups.map(async (grp) => ({
+        value:
+          typeof grp.value === 'string'
+            ? grp.value
+            : grp.value == null
+              ? null
+              : String(grp.value),
+        records: await redactReadResults(
+          g.ctx.projectId,
+          g.ctx.userId,
+          object,
+          grp.records,
+        ),
+      })),
+    );
+    return { ok: true, data: { groups } };
   } catch (e) {
     return fail(e, 'Failed to group records.');
   }
@@ -1015,12 +1103,18 @@ export async function aggregateSabcrmRecordsTw(
   if (!g.ok) return { ok: false, error: g.error };
 
   try {
+    const accessFilter = await resolveAccessFilterParam(
+      g.ctx.projectId,
+      g.ctx.userId,
+      object,
+    );
     const res = await sabcrmRecordsApi.aggregate(object, {
       projectId: g.ctx.projectId,
       groupByField: params.groupByField,
       metric: params.metric,
       metricField: params.metricField,
       filters: params.filters,
+      accessFilter,
     });
     return { ok: true, data: { groups: res.groups, total: res.total } };
   } catch (e) {
