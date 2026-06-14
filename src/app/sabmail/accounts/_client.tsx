@@ -50,32 +50,36 @@ export function SabmailAccountsClient({
     [toast],
   );
 
-  // Surface the OAuth callback result (?connected=… / ?error=…), then clean the URL.
+  // Surface the OAuth callback result (?connected=1 / ?error=<code>), then strip
+  // only the OAuth params. Error copy is mapped from a fixed allow-list — never
+  // echo the raw slug (no reflected values, no opaque codes).
   React.useEffect(() => {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
     const connected = params.get("connected");
     const error = params.get("error");
     if (!connected && !error) return;
+
     if (connected) {
-      toast({ title: "Mailbox connected", description: connected });
-    } else if (error === "oauth-not-configured") {
-      toast({
-        title: "OAuth isn't configured yet",
-        description: "Add the provider's client id/secret in env to enable this.",
-        variant: "destructive",
-      });
-    } else if (error === "oauth-no-refresh-token") {
-      toast({
-        title: "Couldn't get offline access",
-        description: "Remove the app's access in your provider account, then reconnect.",
-        variant: "destructive",
-      });
+      toast({ title: "Mailbox connected" });
     } else if (error) {
-      toast({ title: "Couldn't connect mailbox", description: error, variant: "destructive" });
+      const MESSAGES: Record<string, string> = {
+        "oauth-not-configured": "Add the provider's client id/secret in env to enable this.",
+        "oauth-creds-key-missing": "Set SABMAIL_CREDS_KEY in env, then reconnect.",
+        "oauth-state-unavailable": "Connection isn't fully configured on the server yet.",
+        "oauth-no-refresh-token": "Remove the app's access in your provider account, then reconnect.",
+        "oauth-workspace-mismatch": "Your active mail project changed — reopen this page and retry.",
+        "oauth-denied": "You declined the permission request.",
+      };
+      toast({
+        title: "Couldn't connect mailbox",
+        description: MESSAGES[error] ?? "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
     }
+
     const clean = new URL(window.location.href);
-    clean.search = "";
+    for (const k of ["connected", "error", "provider"]) clean.searchParams.delete(k);
     window.history.replaceState({}, "", clean.toString());
   }, [toast]);
 

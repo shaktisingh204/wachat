@@ -92,25 +92,22 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     const accounts = db.collection(SABMAIL_COLLECTIONS.accounts);
 
     for (const n of notifications) {
-      // TODO(auth): validate `n.clientState` against the per-subscription secret
-      // stored when the subscription was created (e.g. on the sabmail_accounts /
-      // subscription doc). Drop on mismatch — a non-matching clientState means a
-      // possible rogue sender:
-      //   if (n.clientState !== storedSecretForSub(n.subscriptionId)) continue;
-
       const messageId = n.resourceData?.id ?? null;
       const subscriptionId = n.subscriptionId ?? null;
 
-      // Resolve the owning workspace from the stored subscription (no session here).
+      // Resolve the owning workspace from the stored subscription (no session here)
+      // AND validate clientState against the per-subscription secret — a mismatch
+      // means a spoofed sender, so drop the notification.
       let workspaceId: string | null = null;
       if (subscriptionId) {
         const account = await accounts.findOne(
           { provider: 'outlook', graphSubscriptionId: subscriptionId },
-          { projection: { workspaceId: 1 } },
+          { projection: { workspaceId: 1, graphSubscriptionSecret: 1 } },
         );
-        workspaceId = account
-          ? String((account as { workspaceId?: unknown }).workspaceId ?? '')
-          : null;
+        if (!account) continue;
+        const secret = (account as { graphSubscriptionSecret?: string }).graphSubscriptionSecret;
+        if (secret && n.clientState !== secret) continue; // rogue sender → drop
+        workspaceId = String((account as { workspaceId?: unknown }).workspaceId ?? '');
       }
 
       console.log(

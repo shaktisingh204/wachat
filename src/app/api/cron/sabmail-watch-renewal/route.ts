@@ -24,14 +24,26 @@ export const maxDuration = 300;
 
 /** Renew Graph subs this close to (or past) expiry. */
 const GRAPH_RENEW_WINDOW_MS = 24 * 60 * 60 * 1000;
+/** Re-arm Gmail watch roughly daily (Google's recommended cadence; lasts ~7d). */
+const GMAIL_RENEW_WINDOW_MS = 23 * 60 * 60 * 1000;
 
 function authorize(req: NextRequest): boolean {
   const expected = process.env.CRON_SECRET;
-  if (!expected) return true; // open in dev
+  // Fail CLOSED in production — this endpoint touches every account's refresh
+  // token; never leave it open just because the secret wasn't set.
+  if (!expected) return process.env.NODE_ENV !== 'production';
   const auth = req.headers.get('authorization') ?? '';
   if (auth === `Bearer ${expected}`) return true;
   if ((req.headers.get('x-cron-secret') ?? '') === expected) return true;
   return (new URL(req.url).searchParams.get('secret') ?? '') === expected;
+}
+
+/** Mask an address in diagnostics (cron sees all workspaces under one secret). */
+function maskEmail(email: string): string {
+  const [local, domain] = email.split('@');
+  if (!domain) return '***';
+  const head = local.slice(0, 2);
+  return `${head}***@${domain}`;
 }
 
 async function handle(req: NextRequest): Promise<NextResponse> {
@@ -72,6 +84,12 @@ async function handle(req: NextRequest): Promise<NextResponse> {
 
       try {
         if (acct.provider === 'gmail') {
+          // Re-arm ~daily, not every run (watch lasts ~7d; each call resets the
+          // historyId baseline).
+          if (acct.pushRenewedAt && now - acct.pushRenewedAt.getTime() < GMAIL_RENEW_WINDOW_MS) {
+            skipped += 1;
+            continue;
+          }
           const r = await registerGmailWatch(refreshToken);
           if (r.ok) {
             gmail += 1;
@@ -86,7 +104,7 @@ async function handle(req: NextRequest): Promise<NextResponse> {
               },
             );
           } else if (!r.skipped && r.error) {
-            errors.push(`gmail ${acct.email}: ${r.error}`);
+            errors.push(`gmail ${maskEmail(acct.email)}: ${r.error}`);
           } else {
             skipped += 1;
           }
@@ -97,7 +115,7 @@ async function handle(req: NextRequest): Promise<NextResponse> {
             skipped += 1;
             continue;
           }
-          const r = await renewGraphSubscription(refreshToken, acct.graphSubscriptionId ?? '');
+          const r = await renewGraphSubscription(refreshToken, acct.graphSubscriptionId ?? '', acct.tenantId);
           if (r.ok && r.subscriptionId && r.expiry) {
             outlook += 1;
             await col.updateOne(
@@ -106,19 +124,21 @@ async function handle(req: NextRequest): Promise<NextResponse> {
                 $set: {
                   graphSubscriptionId: r.subscriptionId,
                   graphSubscriptionExpiry: r.expiry,
+                  // A recreate (404→register) mints a fresh clientState secret.
+                  ...(r.clientState ? { graphSubscriptionSecret: r.clientState } : {}),
                   pushRenewedAt: new Date(),
                   updatedAt: new Date(),
                 },
               },
             );
           } else if (!r.skipped && r.error) {
-            errors.push(`outlook ${acct.email}: ${r.error}`);
+            errors.push(`outlook ${maskEmail(acct.email)}: ${r.error}`);
           } else {
             skipped += 1;
           }
         }
       } catch (err) {
-        errors.push(`${acct.provider} ${acct.email}: ${err instanceof Error ? err.message : String(err)}`);
+        errors.push(`${acct.provider} ${maskEmail(acct.email)}: ${err instanceof Error ? err.message : String(err)}`);
       }
     }
 

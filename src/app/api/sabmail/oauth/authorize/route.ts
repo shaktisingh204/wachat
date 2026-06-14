@@ -20,6 +20,7 @@ import {
   getSabmailOAuthProvider,
   getSabmailProviderSpec,
   mintSabmailOAuthState,
+  safeReturnPath,
 } from '@/lib/sabmail/oauth';
 
 export const dynamic = 'force-dynamic';
@@ -30,54 +31,56 @@ function appBase(): string {
 }
 
 function back(path: string, params: Record<string, string>): NextResponse {
-  const url = new URL(path, appBase());
+  const safe = path.startsWith('/') && !path.startsWith('//') ? path : '/sabmail/accounts';
+  const url = new URL(safe, appBase());
   for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
   return NextResponse.redirect(url);
 }
 
-/** Only allow same-origin relative paths as returnTo (no open redirects). */
-function safePath(raw: string | null): string {
-  if (!raw || !raw.startsWith('/') || raw.startsWith('//')) return '/sabmail/accounts';
-  return raw;
-}
-
 export async function GET(req: NextRequest) {
   const provider = req.nextUrl.searchParams.get('provider');
-  const returnTo = safePath(req.nextUrl.searchParams.get('returnTo'));
+  const returnTo = safeReturnPath(req.nextUrl.searchParams.get('returnTo'));
 
   if (!isSabmailOAuthProvider(provider)) {
     return back('/sabmail/accounts', { error: 'bad-provider' });
   }
 
-  const session = await getSession();
-  if (!session?.user?._id) {
-    return back('/login', { next: '/sabmail/accounts' });
+  try {
+    const session = await getSession();
+    if (!session?.user?._id) {
+      // Bounce back into the connect flow after login (preserve provider + returnTo).
+      const next = `/api/sabmail/oauth/authorize?provider=${provider}&returnTo=${encodeURIComponent(returnTo)}`;
+      return back('/login', { next });
+    }
+
+    const workspaceId = await getSabmailWorkspaceId();
+    if (!workspaceId) return back('/sabmail/projects', {});
+
+    const config = resolveSabmailOAuthConfig(provider);
+    if (!config) return back(returnTo, { error: 'oauth-not-configured', provider });
+
+    const oauthProvider = getSabmailOAuthProvider(provider);
+    if (!oauthProvider) return back(returnTo, { error: 'oauth-provider-missing', provider });
+
+    const state = await mintSabmailOAuthState({
+      userId: String(session.user._id),
+      workspaceId,
+      provider,
+      returnTo,
+    });
+    if (!state) return back(returnTo, { error: 'oauth-state-unavailable' });
+
+    const built = oauthProvider.buildAuthorizeUrl({
+      config,
+      state,
+      scopes: getSabmailProviderSpec(provider).scopes,
+      // Force account choice on Outlook so a re-connect can pick a different
+      // mailbox / recover a refresh token (Google already sets prompt=consent).
+      extraParams: provider === 'outlook' ? { prompt: 'select_account' } : undefined,
+    });
+    const url = typeof built === 'string' ? built : built.url;
+    return NextResponse.redirect(url);
+  } catch {
+    return back(returnTo, { error: 'oauth-start-failed', provider });
   }
-
-  const workspaceId = await getSabmailWorkspaceId();
-  if (!workspaceId) return back('/sabmail/projects', {});
-
-  const config = resolveSabmailOAuthConfig(provider);
-  if (!config) {
-    return back(returnTo, { error: 'oauth-not-configured', provider });
-  }
-
-  const oauthProvider = getSabmailOAuthProvider(provider);
-  if (!oauthProvider) return back(returnTo, { error: 'oauth-provider-missing', provider });
-
-  const state = await mintSabmailOAuthState({
-    userId: String(session.user._id),
-    workspaceId,
-    provider,
-    returnTo,
-  });
-  if (!state) return back(returnTo, { error: 'oauth-state-unavailable' });
-
-  const built = oauthProvider.buildAuthorizeUrl({
-    config,
-    state,
-    scopes: getSabmailProviderSpec(provider).scopes,
-  });
-  const url = typeof built === 'string' ? built : built.url;
-  return NextResponse.redirect(url);
 }
