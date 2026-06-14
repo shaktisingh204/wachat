@@ -5,6 +5,7 @@ import {
   CheckCheck,
   CheckCircle2,
   Clock,
+  CreditCard,
   Inbox as InboxIcon,
   Lock,
   MessagesSquare,
@@ -48,6 +49,7 @@ import {
   aiResolveBotAnswer,
   aiSummarize,
 } from "@/app/actions/sabchat-ai.actions";
+import { sendPaymentLink } from "@/app/actions/sabchat-commerce.actions";
 import type {
   ContentBlock,
   ConversationStatus,
@@ -465,6 +467,32 @@ export function InboxClient({
   const [draft, setDraft] = React.useState("");
   const [isPrivate, setIsPrivate] = React.useState(false);
   const [sending, setSending] = React.useState(false);
+
+  // Conversational commerce — send a SabPay payment link inline.
+  const [payOpen, setPayOpen] = React.useState(false);
+  const [payAmount, setPayAmount] = React.useState("");
+  const [payCurrency, setPayCurrency] = React.useState("USD");
+  const [payLabel, setPayLabel] = React.useState("");
+  const [payBusy, setPayBusy] = React.useState(false);
+  const doSendPay = async () => {
+    if (!selectedId) return;
+    setPayBusy(true);
+    const res = await sendPaymentLink(selectedId, {
+      amountMajor: Number(payAmount),
+      currency: payCurrency,
+      label: payLabel,
+    });
+    setPayBusy(false);
+    if (res.ok) {
+      toast({ title: "Payment link sent" });
+      setPayOpen(false);
+      setPayAmount("");
+      setPayLabel("");
+      // the payment message arrives live via the WS hub — no manual refetch
+    } else {
+      toast({ title: "Could not send link", description: res.error, variant: "destructive" });
+    }
+  };
 
   // `/`-triggered canned-response menu.
   const showMacros = draft.startsWith("/") && macros.length > 0;
@@ -1164,6 +1192,59 @@ export function InboxClient({
                 >
                   <Lock className="h-4 w-4" aria-hidden />
                 </button>
+                <div className="relative">
+                  <button
+                    onClick={() => setPayOpen((v) => !v)}
+                    title="Send a payment link"
+                    className={`grid h-9 w-9 place-items-center rounded-md transition-colors ${
+                      payOpen
+                        ? "bg-emerald-100 text-emerald-700"
+                        : "text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)]"
+                    }`}
+                  >
+                    <CreditCard className="h-4 w-4" aria-hidden />
+                  </button>
+                  {payOpen ? (
+                    <div className="absolute bottom-11 left-0 z-20 w-64 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)] p-3 shadow-lg">
+                      <p className="mb-2 text-xs font-semibold text-[var(--st-text)]">
+                        Send a payment link
+                      </p>
+                      <div className="flex gap-2">
+                        <Input
+                          type="number"
+                          min={0}
+                          step="0.01"
+                          value={payAmount}
+                          onChange={(e) => setPayAmount(e.target.value)}
+                          placeholder="0.00"
+                          className="flex-1"
+                        />
+                        <Input
+                          value={payCurrency}
+                          onChange={(e) => setPayCurrency(e.target.value.toUpperCase())}
+                          placeholder="USD"
+                          className="w-20"
+                        />
+                      </div>
+                      <Input
+                        value={payLabel}
+                        onChange={(e) => setPayLabel(e.target.value)}
+                        placeholder="What's this for? (optional)"
+                        className="mt-2"
+                      />
+                      <Button
+                        variant="primary"
+                        size="sm"
+                        className="mt-2 w-full"
+                        loading={payBusy}
+                        disabled={payBusy || !payAmount || Number(payAmount) <= 0}
+                        onClick={() => void doSendPay()}
+                      >
+                        Send link
+                      </Button>
+                    </div>
+                  ) : null}
+                </div>
                 <textarea
                   value={draft}
                   onChange={(e) => {
