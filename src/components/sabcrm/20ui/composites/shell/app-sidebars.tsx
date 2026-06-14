@@ -1146,6 +1146,13 @@ export const SAB_APP_SIDEBARS: SabAppSidebarConfig[] = [
         ],
       },
       {
+        id: "sabfiles-vault",
+        label: "Sab Vault",
+        items: [
+          leaf("vault", "Vault", "/dashboard/sabfiles/vault", ShieldCheck, p),
+        ],
+      },
+      {
         id: "sabfiles-ops",
         label: "Operations",
         items: [
