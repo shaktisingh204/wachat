@@ -427,6 +427,12 @@ module.exports = {
         SABSMS_ENGINE_URL:
           process.env.SABSMS_ENGINE_URL || 'http://127.0.0.1:4002',
         SABSMS_ENGINE_TOKEN: process.env.SABSMS_ENGINE_TOKEN,
+
+        // SabCall engine (Rust over Asterisk/ARI) — dark unless enabled.
+        SABCALL_ENABLED: process.env.SABCALL_ENABLED || 'false',
+        SABCALL_ENGINE_URL:
+          process.env.SABCALL_ENGINE_URL || 'http://127.0.0.1:4005',
+        SABCALL_ENGINE_TOKEN: process.env.SABCALL_ENGINE_TOKEN,
       },
     },
 
@@ -635,6 +641,66 @@ module.exports = {
       out_file: './logs/cron-out.log',
       log_date_format: 'YYYY-MM-DD HH:mm:ss',
     },
+
+    // ---------------------------------------------------------------------
+    // SabCall Engine (Rust — services/sabcall-engine). Native control plane
+    // over Asterisk via ARI for the self-hosted /sabcall calling app. Boots an
+    // HTTP server for health/control on PORT (default 4005) and connects to
+    // Asterisk + runs the Stasis loop. Reached from Next via
+    // src/lib/sabcall/engine-client.ts. Only supervised when SABCALL_ENABLED=
+    // true (filtered out otherwise) so a plain `pm2 start ecosystem.config.js`
+    // never crash-loops on a host without a reachable Asterisk/Routr voice
+    // stack (services/routr/README.md). Decrypts nothing; talks Mongo + ARI.
+    // ---------------------------------------------------------------------
+    process.env.SABCALL_ENABLED === 'true'
+      ? {
+          name: 'sabcall-engine',
+          cwd: './services/sabcall-engine',
+          script: './target/release/sabcall-engine',
+          instances: 1,
+          exec_mode: 'fork',
+          max_memory_restart: '512M',
+          watch: false,
+          autorestart: true,
+          restart_delay: 5000,
+          max_restarts: 20,
+          kill_timeout: 10000,
+          env: {
+            SABCALL_ENABLED: 'true',
+            // The engine reads PORT for its bind; expose it as SABCALL_PORT.
+            PORT: process.env.SABCALL_PORT || '4005',
+            SABCALL_ENGINE_TOKEN: process.env.SABCALL_ENGINE_TOKEN,
+
+            MONGODB_URI: process.env.MONGODB_URI || process.env.MONGO_URL,
+            MONGODB_DB: process.env.MONGODB_DB || 'sabnode',
+
+            // Asterisk ARI control plane (the Routr/Asterisk voice stack).
+            ASTERISK_ARI_URL:
+              process.env.ASTERISK_ARI_URL || 'http://127.0.0.1:8088',
+            ASTERISK_ARI_WS_URL:
+              process.env.ASTERISK_ARI_WS_URL || 'ws://127.0.0.1:8088',
+            ASTERISK_ARI_USER: process.env.ASTERISK_ARI_USER || 'sabcall',
+            ASTERISK_ARI_PASS: process.env.ASTERISK_ARI_PASS || 'sabcall',
+            ASTERISK_ARI_APP: process.env.ASTERISK_ARI_APP || 'sabcall',
+            ASTERISK_SOUNDS_DIR:
+              process.env.ASTERISK_SOUNDS_DIR ||
+              '/var/lib/asterisk/sounds/sabcall',
+            SABCALL_DEFAULT_GREETING:
+              process.env.SABCALL_DEFAULT_GREETING || 'sound:hello-world',
+
+            // Optional AI-voice (autopilot) + media hooks. All degrade-safe —
+            // unset = greeting-only, no TTS/STT/LLM, no event callbacks.
+            SABCALL_TTS_URL: process.env.SABCALL_TTS_URL,
+            SABCALL_STT_URL: process.env.SABCALL_STT_URL,
+            SABCALL_LLM_URL: process.env.SABCALL_LLM_URL,
+            SABCALL_AUTOPILOT_STREAM_URL:
+              process.env.SABCALL_AUTOPILOT_STREAM_URL,
+            SABCALL_EVENTS_URL: process.env.SABCALL_EVENTS_URL,
+
+            RUST_LOG: process.env.RUST_LOG || 'info,sabcall_engine=debug',
+          },
+        }
+      : null,
 
     // ---------------------------------------------------------------------
     // SabChat TURN relay (coturn) — voice/video + co-browse NAT traversal.

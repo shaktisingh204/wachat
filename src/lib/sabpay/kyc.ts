@@ -3,6 +3,7 @@ import 'server-only';
 import { ObjectId } from 'mongodb';
 
 import { connectToDatabase } from '@/lib/mongodb';
+import type { SabpayKyc } from './kyc-shared';
 
 /**
  * SabPay merchant onboarding / KYC.
@@ -12,57 +13,15 @@ import { connectToDatabase } from '@/lib/mongodb';
  * in `sabpay_kyc` (one doc per userId), separate from the Rust-owned
  * `sabpay_merchants` doc so the gate is pure Next.js (no Rust change). Document
  * uploads go through SabFiles (node id + url), never a URL paste.
+ *
+ * Client-safe types + the BUSINESS_TYPES constant live in ./kyc-shared (no
+ * `server-only`/mongodb) and are re-exported here so server-side importers can
+ * keep importing from `@/lib/sabpay/kyc` unchanged. Client components must
+ * import those from `@/lib/sabpay/kyc-shared` directly.
  */
 
-export type SabpayKycStatus = 'pending' | 'under_review' | 'verified' | 'rejected';
-
-export interface SabpayKycFileRef {
-  id: string;
-  url: string;
-  name?: string;
-}
-
-export interface SabpayKyc {
-  status: SabpayKycStatus;
-  // Business
-  legalName?: string;
-  businessType?: string;
-  registrationNumber?: string;
-  taxId?: string;
-  contactEmail?: string;
-  contactPhone?: string;
-  website?: string;
-  address1?: string;
-  city?: string;
-  state?: string;
-  postalCode?: string;
-  country?: string;
-  // Settlement bank account
-  bankAccountHolder?: string;
-  bankAccountNumber?: string;
-  bankIfsc?: string;
-  // KYC documents (SabFiles)
-  docIdentity?: SabpayKycFileRef;
-  docBusinessProof?: SabpayKycFileRef;
-  docAddressProof?: SabpayKycFileRef;
-  docBankProof?: SabpayKycFileRef;
-  // Meta
-  rejectionReason?: string;
-  submittedAt?: string;
-  reviewedAt?: string;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
-export const BUSINESS_TYPES = [
-  'individual',
-  'proprietorship',
-  'partnership',
-  'private_limited',
-  'llp',
-  'trust_society',
-  'other',
-] as const;
+export { BUSINESS_TYPES } from './kyc-shared';
+export type { SabpayKycStatus, SabpayKycFileRef, SabpayKyc } from './kyc-shared';
 
 /** Read the KYC doc for a user (raw, minus `_id`/`userId`). */
 export async function getKycByUser(userId: string): Promise<SabpayKyc | null> {

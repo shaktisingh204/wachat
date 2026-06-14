@@ -16,10 +16,10 @@ BUILD_RUST="${BUILD_RUST:-1}"
 # Set DEPLOY_GIT_RESET=0 to deploy the current working tree instead of
 # hard-resetting to origin/main (useful for hotfix/manual deploys).
 DEPLOY_GIT_RESET="${DEPLOY_GIT_RESET:-1}"
-# TCP ports the services bind to (sabnode-web, sabsms-engine, sabmail-engine,
-# sabsites-postgrest, sabnode-api). Freed before restart to clear
-# stale/orphaned listeners.
-SERVICE_PORTS="${SERVICE_PORTS:-3002 4002 4003 4006 ${SABNODE_PORT:-8080}}"
+# TCP ports the services bind to (sabnode-web 3002, sabsms-engine 4002,
+# sabmail-engine 4003, sabcall-engine 4005, sabsites-postgrest 4006,
+# sabnode-api 8080). Freed before restart to clear stale/orphaned listeners.
+SERVICE_PORTS="${SERVICE_PORTS:-3002 4002 4003 4005 4006 ${SABNODE_PORT:-8080}}"
 # Set BUILD_SABSITES=0 to skip the SabSites (vendored Webstudio) build.
 BUILD_SABSITES="${BUILD_SABSITES:-1}"
 # FORCE_RESTART=1 → hard restart (delete PM2 apps + kill the ports + fresh
@@ -115,6 +115,18 @@ if [ "$BUILD_RUST" = "1" ]; then
   if [ -f services/sabmail-engine/Cargo.toml ]; then
     echo "🦀 Building SabMail engine..."
     ( cd services/sabmail-engine && cargo build --release )
+  fi
+
+  # 3b.2b SabCall engine — standalone Rust crate (services/sabcall-engine): the
+  # native control plane over Asterisk/ARI for the /sabcall calling app. Built
+  # best-effort so a voice-stack compile hiccup can never block the rest of the
+  # deploy. The binary is only RUN by PM2 when SABCALL_ENABLED=true (which needs
+  # a reachable Asterisk/Routr box — services/routr/README.md); building it here
+  # unconditionally means it's ready the moment the flag is flipped.
+  if [ -f services/sabcall-engine/Cargo.toml ]; then
+    echo "🦀 Building SabCall engine (best-effort)..."
+    ( cd services/sabcall-engine && cargo build --release ) \
+      || echo "⚠️  SabCall engine build failed — /sabcall voice stays down until it builds (cd services/sabcall-engine && cargo build --release)."
   fi
 
   # 3b.3 SabMail hosted MTA (Stalwart) — NO build step here on purpose.

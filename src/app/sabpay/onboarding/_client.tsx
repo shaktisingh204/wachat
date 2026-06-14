@@ -22,7 +22,7 @@ import {
   saveKycDocument,
   submitKyc,
 } from '@/app/actions/sabpay-kyc.actions';
-import { BUSINESS_TYPES, type SabpayKyc, type SabpayKycFileRef } from '@/lib/sabpay/kyc';
+import { BUSINESS_TYPES, type SabpayKyc, type SabpayKycFileRef } from '@/lib/sabpay/kyc-shared';
 
 const BUSINESS_TYPE_LABELS: Record<string, string> = {
   individual: 'Individual / freelancer',
