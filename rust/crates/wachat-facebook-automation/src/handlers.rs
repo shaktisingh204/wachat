@@ -53,7 +53,7 @@ const FACEBOOK_LIVE_STREAMS_COLL: &str = "facebook_live_streams";
 /// Meta Graph API version we pin to. Matches `apiVersion = 'v23.0'` in
 /// the TS live-stream upload path and the `https://graph.facebook.com/v23.0`
 /// the TS broadcast path used inline.
-const META_API_VERSION: &str = "v23.0";
+const META_API_VERSION: &str = "v25.0";
 
 /// Batch size for the per-recipient send loop. Matches `BATCH_SIZE = 10`
 /// in `handleSendFacebookBroadcast`.

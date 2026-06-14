@@ -104,7 +104,7 @@ pub const CONTACTS_COLL: &str = "contacts";
 /// ```text
 /// const API_VERSION = 'v23.0';
 /// ```
-pub const META_API_VERSION: &str = "v23.0";
+pub const META_API_VERSION: &str = "v25.0";
 
 /// Meta `value` / `offset` convention. For 2-decimal currencies (INR, USD,
 /// EUR, GBP, …) the TS hard-codes 100. See module-level docs for the wider

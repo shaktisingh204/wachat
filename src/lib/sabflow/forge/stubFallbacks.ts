@@ -2822,7 +2822,7 @@ export const STUB_FALLBACKS: Record<string, StubFallback> = {
   metaAdsExt: {
     forgeType: 'webhook',
     label: 'HTTP Request → Meta Marketing API',
-    rationale: 'Drive https://graph.facebook.com/v18.0 via HTTP Request with bearer.',
+    rationale: 'Drive https://graph.facebook.com/v25.0 via HTTP Request with bearer.',
   },
   linkedinAds: {
     forgeType: 'webhook',

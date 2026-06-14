@@ -14,6 +14,8 @@ import { Pencil } from "lucide-react";
 import * as React from "react";
 import Link from "next/link";
 
+import { RouteTransition } from "@/components/motion/route-transition";
+
 export default function FacebookLayout({
   children,
 }: {
@@ -21,7 +23,8 @@ export default function FacebookLayout({
 }) {
   return (
     <div className="relative h-full">
-      {children}
+      {/* Every Meta Suite page animates in/out on navigation (motion pass). */}
+      <RouteTransition>{children}</RouteTransition>
       <div className="fixed bottom-24 right-6 z-40">
         <Button asChild size="lg" className="h-14 w-14 rounded-full shadow-[var(--st-shadow-lg)]">
           <Link href="/dashboard/facebook/create-post" aria-label="Create Post">

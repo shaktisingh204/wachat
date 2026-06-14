@@ -49,6 +49,7 @@ import { telegramFullEndpoints } from './modules/telegram-full';
 import { facebookFullEndpoints } from './modules/facebook-full';
 import { metaEndpoints } from './modules/meta';
 import { wachatExtrasEndpoints } from './modules/wachat-extras';
+import { wachatMeta2026Endpoints } from './modules/wachat-meta-2026';
 import { instagramFullEndpoints } from './modules/instagram';
 import { reportsEndpoints } from './modules/reports';
 import { seoEndpoints } from './modules/seo';
@@ -92,6 +93,7 @@ export const manifest: Manifest = {
     ...facebookFullEndpoints,
     ...metaEndpoints,
     ...wachatExtrasEndpoints,
+    ...wachatMeta2026Endpoints,
     ...instagramFullEndpoints,
     ...reportsEndpoints,
     ...seoEndpoints,

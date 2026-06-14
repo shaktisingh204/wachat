@@ -21,7 +21,7 @@ import {
   Field,
   Input,
   Modal,
-  Select,
+  SelectField as Select,
   StatCard,
   Switch,
   Table,
@@ -50,6 +50,7 @@ import {
 
 import { WachatPage } from '@/app/wachat/_components/wachat-page';
 import { useProject } from '@/context/project-context';
+import { AiIntentTester } from '@/components/wachat/automation/ai-intent-tester';
 import {
   deleteChatbotResponse,
   getChatbotResponses,
@@ -223,6 +224,7 @@ export default function ChatbotPage() {
         </>
       }
     >
+      <AiIntentTester className="mb-4" />
       {/* Stats */}
       <div className="grid max-w-md grid-cols-2 gap-3">
         <StatCard label="Total responses" value={totalRules} />

@@ -20,7 +20,7 @@ import {
   PopoverTrigger,
   ScrollArea,
   SegmentedControl,
-  Select,
+  SelectField as Select,
   Drawer,
   DrawerContent,
   DrawerHeader,

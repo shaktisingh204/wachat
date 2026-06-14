@@ -62,7 +62,7 @@ impl Default for ControlConfig {
             batch_size: 200,
             checkpoint_every: 10,
             cancel_check_every: 50,
-            api_version: "v23.0".to_owned(),
+            api_version: "v25.0".to_owned(),
         }
     }
 }

@@ -6,7 +6,7 @@ import {
   Modal,
   Field,
   Input,
-  Select,
+  SelectField as Select,
   RadioCardGroup,
   RadioCard,
   useToast,

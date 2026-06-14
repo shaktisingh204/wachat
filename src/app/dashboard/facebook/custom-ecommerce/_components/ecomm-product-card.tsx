@@ -101,7 +101,7 @@ export function EcommProductCard({
                 currency,
               }).format(product.price)}
             </p>
-            <Badge variant={inStock ? "default" : "danger"}>
+            <Badge variant={inStock ? "default" : "destructive"}>
               {inStock ? `${stock} in stock` : "Out of stock"}
             </Badge>
           </div>

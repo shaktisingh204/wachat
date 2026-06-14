@@ -7,7 +7,7 @@ import {
   CardTitle,
   CardBody,
   Input,
-  Select,
+  SelectField as Select,
   Button,
   Alert,
   Badge,

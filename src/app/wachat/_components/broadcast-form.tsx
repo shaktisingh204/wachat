@@ -23,7 +23,7 @@ import {
   PopoverTrigger,
   RadioGroup,
   Radio,
-  Select,
+  SelectField as Select,
   Spinner,
   useToast,
 } from '@/components/sabcrm/20ui';
@@ -73,6 +73,7 @@ import * as React from 'react';
 import { SabFileToFileButton } from '@/components/sabfiles';
 
 import { TemplateInputRenderer } from './template-input-renderer';
+import { BroadcastLaunchOverlay } from '@/components/wachat/broadcasts/launch-overlay';
 
 function cx(...a: Array<string | false | null | undefined>) {
   return a.filter(Boolean).join(' ');
@@ -248,10 +249,12 @@ export function BroadcastForm({
 
   const [variableOptions, setVariableOptions] = useState<string[]>([]);
   const [tagPopoverOpen, setTagPopoverOpen] = useState(false);
+  const [launched, setLaunched] = useState(false);
 
   useEffect(() => {
     if (state?.message) {
       toast({ title: 'Queued', description: state.message });
+      setLaunched(true);
       formRef.current?.reset();
       setSelectedFile(null);
       setFileInputKey(Date.now());
@@ -375,6 +378,7 @@ export function BroadcastForm({
 
   return (
     <form ref={formRef} action={formAction} className="flex flex-col gap-7">
+      <BroadcastLaunchOverlay show={launched} onDone={() => setLaunched(false)} />
       <input
         type="hidden"
         name="projectId"

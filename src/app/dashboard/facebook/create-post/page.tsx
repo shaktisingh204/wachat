@@ -102,6 +102,16 @@ export default function CreateFacebookPostPage() {
         if (result.page) setPageDetails(result.page);
       });
     }
+    // Prefill from the AI Content Studio ("Use in Create Post"), one-time.
+    try {
+      const draft = sessionStorage.getItem("meta-studio-caption");
+      if (draft) {
+        setMessage(draft);
+        sessionStorage.removeItem("meta-studio-caption");
+      }
+    } catch {
+      /* sessionStorage unavailable — ignore */
+    }
   }, []);
 
   useEffect(() => {
@@ -283,7 +293,15 @@ export default function CreateFacebookPostPage() {
             {/* Message */}
             <Card>
               <CardHeader>
-                <CardTitle>Message</CardTitle>
+                <div className="flex items-center justify-between gap-2">
+                  <CardTitle>Message</CardTitle>
+                  <a
+                    href="/dashboard/facebook/studio"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-[var(--st-border)] px-2.5 py-1 text-[11.5px] text-[var(--st-accent)] transition-colors hover:border-[var(--st-accent)] hover:bg-[var(--st-accent-subtle,rgba(43,110,242,0.08))]"
+                  >
+                    ✨ Write with AI
+                  </a>
+                </div>
               </CardHeader>
               <CardBody>
                 <div className="flex flex-col gap-2">
@@ -323,7 +341,7 @@ export default function CreateFacebookPostPage() {
                           <Button
                             type="button"
                             variant="outline"
-                            size="icon-sm"
+                            size="sm"
                             className="absolute right-2 top-2 z-10"
                             onClick={() => clearCarouselMedia(i)}
                           >
@@ -357,7 +375,7 @@ export default function CreateFacebookPostPage() {
                     <Button
                       type="button"
                       variant="outline"
-                      size="icon-sm"
+                      size="sm"
                       className="absolute right-2 top-2"
                       aria-label="Remove media"
                       onClick={clearMedia}
@@ -483,7 +501,7 @@ export default function CreateFacebookPostPage() {
             <Card variant="elevated">
               <CardHeader className="flex-row items-center justify-between">
                 <CardTitle>Preview</CardTitle>
-                <Badge variant="ghost">
+                <Badge variant="secondary">
                   {postType === "video"
                     ? "Video"
                     : postType === "image"

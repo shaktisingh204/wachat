@@ -11,7 +11,7 @@ import {
   Avatar,
   Separator,
   Field,
-  Select,
+  SelectField as Select,
   Input,
   Badge,
   Modal,

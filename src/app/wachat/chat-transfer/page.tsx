@@ -11,7 +11,7 @@ import {
   Field,
   Input,
   Textarea,
-  Select,
+  SelectField as Select,
   Modal,
   EmptyState,
   Spinner,

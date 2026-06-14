@@ -17,8 +17,13 @@ import { wachatLlm, parseJsonLoose } from './client';
 import { brandSystemPrompt, renderTranscript } from './prompts';
 import type {
   AnalyticsInsightsResult,
+  AutoRepliesResult,
   BrandVoiceInput,
+  CallScriptResult,
   DraftReplyResult,
+  DuplicatesResult,
+  PostVariantsResult,
+  WebhookExplainResult,
   GeneratedTemplate,
   IntentResult,
   OptimizeBroadcastResult,
@@ -290,4 +295,159 @@ export async function aiAnalyticsInsights(args: {
     insights: Array.isArray(p.insights) ? p.insights : [],
     recommendation: p.recommendation ?? '',
   };
+}
+
+/* ------------------------------------------- generate auto-replies --- */
+
+export async function aiGenerateAutoReplies(args: {
+  description: string;
+  brand?: BrandVoiceInput;
+  count?: number;
+}): Promise<AutoRepliesResult> {
+  if (!args.description.trim()) return { ok: false, error: 'Describe your business first.', rules: [] };
+  const count = Math.min(Math.max(args.count ?? 6, 1), 12);
+  const system = brandSystemPrompt(
+    'You design WhatsApp keyword auto-reply rules for a business. Each rule maps trigger keywords to a short, friendly reply. Cover the most common customer questions (hours, pricing, location, support, returns, booking, etc.).',
+    args.brand,
+  );
+  const prompt = [
+    `Business / use-case: ${args.description}`,
+    '',
+    `Generate up to ${count} keyword auto-reply rules.`,
+    'matchType must be "contains" or "exact". keywords is a short comma-separated list.',
+    'Return ONLY JSON: {"rules": [{"keywords": string, "reply": string, "matchType": "contains"|"exact"}]}',
+  ].join('\n');
+  const res = await wachatLlm({ system, prompt, tier: 'smart', prefill: '{', maxTokens: 1200 });
+  if (!res.ok) return { ok: false, error: res.error, rules: [] };
+  const p = parseJsonLoose<{ rules?: AutoRepliesResult['rules'] }>(res.text);
+  const rules = (p?.rules ?? [])
+    .filter((r) => r && typeof r.keywords === 'string' && typeof r.reply === 'string')
+    .map((r) => ({
+      keywords: r.keywords,
+      reply: r.reply,
+      matchType: r.matchType === 'exact' ? 'exact' : 'contains',
+    }));
+  if (!rules.length) return { ok: false, error: 'No rules generated.', rules: [] };
+  return { ok: true, rules: rules.slice(0, count) };
+}
+
+/* --------------------------------------- find duplicate contacts --- */
+
+export async function aiFindDuplicateContacts(args: {
+  contacts: Array<{ id: string; name?: string; phone?: string }>;
+}): Promise<DuplicatesResult> {
+  const MAX = 80;
+  const truncated = args.contacts.length > MAX;
+  const list = args.contacts.slice(0, MAX);
+  if (list.length < 2) return { ok: false, error: 'Need at least two contacts.', pairs: [] };
+  const system =
+    'You find likely DUPLICATE contacts in a WhatsApp address book — same person entered twice (name typos/variants, identical or near-identical phone numbers, nickname vs full name). Be conservative: only pair records you are fairly confident are the same person.';
+  const rows = list
+    .map((c) => `${c.id} | name="${c.name ?? ''}" | phone="${c.phone ?? ''}"`)
+    .join('\n');
+  const prompt = [
+    'Contacts (id | name | phone):',
+    rows,
+    '',
+    'Return ONLY JSON: {"pairs": [{"aId": string, "bId": string, "reason": string, "confidence": number 0..1}]}',
+    'Use the exact ids above. Omit pairs below 0.5 confidence.',
+  ].join('\n');
+  const res = await wachatLlm({ system, prompt, tier: 'smart', prefill: '{', maxTokens: 900 });
+  if (!res.ok) return { ok: false, error: res.error, pairs: [], truncated };
+  const p = parseJsonLoose<{ pairs?: DuplicatesResult['pairs'] }>(res.text);
+  const valid = new Set(list.map((c) => c.id));
+  const pairs = (p?.pairs ?? [])
+    .filter(
+      (pr) =>
+        pr &&
+        valid.has(pr.aId) &&
+        valid.has(pr.bId) &&
+        pr.aId !== pr.bId &&
+        (typeof pr.confidence !== 'number' || pr.confidence >= 0.5),
+    )
+    .map((pr) => ({
+      aId: pr.aId,
+      bId: pr.bId,
+      reason: pr.reason ?? 'Likely the same contact.',
+      confidence: typeof pr.confidence === 'number' ? Math.max(0, Math.min(1, pr.confidence)) : 0.7,
+    }));
+  return { ok: true, pairs, truncated };
+}
+
+/* ----------------------------------------------- generate post copy --- */
+
+export async function aiGeneratePost(args: {
+  topic: string;
+  channel?: string; // "WhatsApp status", "promo broadcast", "social caption"
+  brand?: BrandVoiceInput;
+  count?: number;
+}): Promise<PostVariantsResult> {
+  if (!args.topic.trim()) return { ok: false, error: 'Give the AI a topic.', variants: [] };
+  const count = Math.min(Math.max(args.count ?? 3, 1), 5);
+  const system = brandSystemPrompt(
+    `You write short, punchy ${args.channel ?? 'WhatsApp'} marketing copy that drives action without sounding spammy. Use tasteful emoji.`,
+    args.brand,
+  );
+  const prompt = [
+    `Topic: ${args.topic}`,
+    `Write ${count} distinct variants (vary the hook/angle). Keep each under 600 characters.`,
+    'Return ONLY JSON: {"variants": string[]}',
+  ].join('\n');
+  const res = await wachatLlm({ system, prompt, tier: 'smart', prefill: '{', maxTokens: 900 });
+  if (!res.ok) return { ok: false, error: res.error, variants: [] };
+  const p = parseJsonLoose<{ variants?: string[] }>(res.text);
+  const variants = (p?.variants ?? []).filter((v) => typeof v === 'string' && v.trim());
+  if (!variants.length) return { ok: false, error: 'No copy generated.', variants: [] };
+  return { ok: true, variants: variants.slice(0, count) };
+}
+
+/* ---------------------------------------------- generate call script --- */
+
+export async function aiGenerateCallScript(args: {
+  kind: 'greeting' | 'voicemail' | 'ivr';
+  businessName?: string;
+  notes?: string;
+  brand?: BrandVoiceInput;
+}): Promise<CallScriptResult> {
+  const labels: Record<typeof args.kind, string> = {
+    greeting: 'a warm call-answer greeting',
+    voicemail: 'a voicemail / after-hours message',
+    ivr: 'an IVR menu script with numbered options the caller presses on the keypad',
+  };
+  const system = brandSystemPrompt(
+    `You write concise, natural-sounding scripts for WhatsApp Business voice calls. Write ${labels[args.kind]}. Keep it spoken-word friendly.`,
+    args.brand,
+  );
+  const prompt = [
+    args.businessName ? `Business: ${args.businessName}` : '',
+    args.notes ? `Notes: ${args.notes}` : '',
+    `Write ${labels[args.kind]}. Output only the script text (for IVR, list the numbered options).`,
+  ]
+    .filter(Boolean)
+    .join('\n');
+  const res = await wachatLlm({ system, prompt, tier: 'fast', maxTokens: 500 });
+  if (!res.ok) return { ok: false, error: res.error, script: '' };
+  return { ok: true, script: res.text.trim() };
+}
+
+/* ------------------------------------------------- explain webhook --- */
+
+export async function aiExplainWebhook(args: {
+  payload: string;
+}): Promise<WebhookExplainResult> {
+  if (!args.payload.trim()) return { ok: false, error: 'Paste a webhook payload.', explanation: '', severity: 'info' };
+  const system =
+    'You explain Meta WhatsApp Cloud API webhook payloads to a support engineer: what happened, which field changed, and whether it needs action. Be concise and concrete.';
+  const prompt = [
+    'Webhook payload:',
+    args.payload.slice(0, 6000),
+    '',
+    'Return ONLY JSON: {"explanation": string (2-4 sentences), "severity": "info"|"warning"|"error"}',
+  ].join('\n');
+  const res = await wachatLlm({ system, prompt, tier: 'fast', prefill: '{', maxTokens: 400 });
+  if (!res.ok) return { ok: false, error: res.error, explanation: '', severity: 'info' };
+  const p = parseJsonLoose<Partial<WebhookExplainResult>>(res.text);
+  if (!p?.explanation) return { ok: false, error: 'Could not explain this payload.', explanation: '', severity: 'info' };
+  const severity = p.severity === 'warning' || p.severity === 'error' ? p.severity : 'info';
+  return { ok: true, explanation: p.explanation, severity };
 }

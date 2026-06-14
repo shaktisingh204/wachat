@@ -287,7 +287,7 @@ export async function handleSyncWabas(prevState: any, formData: FormData): Promi
         const wabaEdges = ['owned_whatsapp_business_accounts', 'client_whatsapp_business_accounts'] as const;
         const edgeResponses = await Promise.allSettled(
             wabaEdges.map((edge) =>
-                axios.get(`https://graph.facebook.com/v23.0/${businessId}/${edge}`, {
+                axios.get(`https://graph.facebook.com/v25.0/${businessId}/${edge}`, {
                     params: {
                         fields: 'id,name',
                         access_token: accessToken,

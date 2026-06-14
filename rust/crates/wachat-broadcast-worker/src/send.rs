@@ -81,7 +81,7 @@ impl Default for SendConfig {
             max_retries: 3,
             retry_delay_ms: 5_000,
             default_mps: 80,
-            api_version: "v23.0".to_owned(),
+            api_version: "v25.0".to_owned(),
         }
     }
 }

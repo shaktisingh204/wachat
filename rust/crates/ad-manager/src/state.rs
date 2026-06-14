@@ -28,7 +28,7 @@ impl AdManagerState {
         Self {
             mongo,
             http,
-            graph_version: "v23.0".to_owned(),
+            graph_version: "v25.0".to_owned(),
         }
     }
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { Alert, AlertDescription, AlertTitle, Avatar, AvatarFallback, AvatarImage, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Checkbox, DataTable, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, EmptyState, Input, Label, PageActions, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, Skeleton, StatCard, useToast } from '@/components/sabcrm/20ui';
+import { Alert, AlertDescription, AlertTitle, Avatar, AvatarFallback, AvatarImage, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, DataTable, type DataTableColumn, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, EmptyState, Input, Label, PageActions, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, Skeleton, StatCard, useToast } from '@/components/sabcrm/20ui';
 import {
   useCallback,
   useEffect,
@@ -8,7 +8,6 @@ import {
   useState,
   useTransition } from 'react';
 import type { WithId } from 'mongodb';
-import type { ColumnDef } from '@tanstack/react-table';
 import {
   AlertCircle,
   Copy,
@@ -61,8 +60,10 @@ export default function SubscribersPage() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, startTransition] = useTransition();
   const [projectId, setProjectId] = useState<string | null>(null);
-  const [selectedRows, setSelectedRows] = useState<SubscriberRow[]>([]);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [addOpen, setAddOpen] = useState(false);
+
+  const rowId = useCallback((r: SubscriberRow) => r._id?.toString() ?? r.psid, []);
 
   useEffect(() => {
     setProjectId(localStorage.getItem('activeProjectId'));
@@ -86,120 +87,100 @@ export default function SubscribersPage() {
     fetchData();
   }, [projectId, fetchData]);
 
-  const columns = useMemo<ColumnDef<SubscriberRow>[]>(
+  const selectedRows = useMemo(
+    () => subscribers.filter((s) => selectedIds.includes(rowId(s))),
+    [subscribers, selectedIds, rowId],
+  );
+
+  const columns = useMemo<DataTableColumn<SubscriberRow>[]>(
     () => [
       {
-        id: 'select',
-        header: ({ table }) => (
-          <Checkbox
-            checked={
-              table.getIsAllPageRowsSelected() ||
-              (table.getIsSomePageRowsSelected() && 'indeterminate')
-            }
-            onCheckedChange={(v) => table.toggleAllPageRowsSelected(!!v)}
-            aria-label="Select all"
-          />
-        ),
-        cell: ({ row }) => (
-          <Checkbox
-            checked={row.getIsSelected()}
-            onCheckedChange={(v) => row.toggleSelected(!!v)}
-            aria-label="Select row"
-          />
-        ),
-        enableSorting: false,
-        enableHiding: false,
-      },
-      {
-        accessorKey: 'name',
+        key: 'name',
         header: 'User',
-        cell: ({ row }) => {
-          const sub = row.original;
-          return (
-            <div className="flex items-center gap-3">
-              <Avatar className="h-8 w-8">
-                <AvatarImage
-                  src={`https://graph.facebook.com/${sub.psid}/picture`}
-                  alt={sub.name}
-                />
-                <AvatarFallback>
-                  {sub.name?.charAt(0)?.toUpperCase() || '?'}
-                </AvatarFallback>
-              </Avatar>
-              <span className="text-[13px] text-[var(--st-text)]">{sub.name}</span>
-            </div>
-          );
-        },
+        sortable: true,
+        sortValue: (sub) => sub.name ?? '',
+        render: (sub) => (
+          <div className="flex items-center gap-3">
+            <Avatar className="h-8 w-8">
+              <AvatarImage
+                src={`https://graph.facebook.com/${sub.psid}/picture`}
+                alt={sub.name}
+              />
+              <AvatarFallback>
+                {sub.name?.charAt(0)?.toUpperCase() || '?'}
+              </AvatarFallback>
+            </Avatar>
+            <span className="text-[13px] text-[var(--st-text)]">{sub.name}</span>
+          </div>
+        ),
       },
       {
-        accessorKey: 'psid',
+        key: 'psid',
         header: 'Page-Scoped ID',
-        cell: ({ row }) => (
+        render: (sub) => (
           <span className="font-mono text-[11.5px] text-[var(--st-text-secondary)]">
-            {row.original.psid}
+            {sub.psid}
           </span>
         ),
       },
       {
-        accessorKey: 'status',
+        key: 'status',
         header: 'Status',
-        cell: ({ row }) =>
-          row.original.status ? (
-            <Badge variant="outline">{row.original.status}</Badge>
+        render: (sub) =>
+          sub.status ? (
+            <Badge variant="outline">{sub.status}</Badge>
           ) : (
-            <span className="text-[11.5px] text-[var(--st-text-tertiary)]">—</span>
+            <span className="text-[11.5px] text-[var(--st-text-tertiary)]">-</span>
           ),
       },
       {
-        accessorKey: 'createdAt',
+        key: 'createdAt',
         header: 'Subscribed',
-        cell: ({ row }) =>
-          row.original.createdAt ? (
+        sortable: true,
+        sortValue: (sub) => (sub.createdAt ? new Date(sub.createdAt).getTime() : 0),
+        render: (sub) =>
+          sub.createdAt ? (
             <span className="text-[11.5px] text-[var(--st-text-secondary)]">
-              {new Date(row.original.createdAt).toLocaleDateString()}
+              {new Date(sub.createdAt).toLocaleDateString()}
             </span>
           ) : (
-            <span className="text-[11.5px] text-[var(--st-text-tertiary)]">—</span>
+            <span className="text-[11.5px] text-[var(--st-text-tertiary)]">-</span>
           ),
       },
       {
-        id: 'actions',
+        key: 'actions',
         header: '',
-        cell: ({ row }) => {
-          const sub = row.original;
-          return (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon-sm" aria-label="Row actions">
-                  <MoreHorizontal />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-40">
-                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                <DropdownMenuItem
-                  onSelect={() => {
-                    navigator.clipboard.writeText(sub.psid);
-                    toast({ title: 'PSID copied' });
-                  }}
-                >
-                  <Copy /> Copy PSID
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onSelect={() =>
-                    window.open(
-                      `/dashboard/facebook/messages?psid=${sub.psid}`,
-                      '_self',
-                    )
-                  }
-                >
-                  <MessageSquare /> Open thread
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          );
-        },
-        enableSorting: false,
-        enableHiding: false,
+        align: 'right',
+        render: (sub) => (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" aria-label="Row actions">
+                <MoreHorizontal />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-40">
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuItem
+                onSelect={() => {
+                  navigator.clipboard.writeText(sub.psid);
+                  toast({ title: 'PSID copied' });
+                }}
+              >
+                <Copy /> Copy PSID
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onSelect={() =>
+                  window.open(
+                    `/dashboard/facebook/messages?psid=${sub.psid}`,
+                    '_self',
+                  )
+                }
+              >
+                <MessageSquare /> Open thread
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ),
       },
     ],
     [toast],
@@ -300,13 +281,11 @@ export default function SubscribersPage() {
             <StatCard
               label="Total subscribers"
               value={subscribers.length.toLocaleString()}
-              period="All Messenger threads"
               icon={<Users />}
             />
             <StatCard
               label="Selected"
               value={selectedRows.length.toLocaleString()}
-              period="Ready for bulk action"
               icon={<Users />}
             />
             <StatCard
@@ -314,67 +293,68 @@ export default function SubscribersPage() {
               value={subscribers
                 .filter((s) => !!s.status)
                 .length.toLocaleString()}
-              period="Tagged or assigned"
               icon={<Users />}
             />
           </div>
 
-          <div className="mt-6">
+          <div className="mt-6 flex items-center justify-end">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <MoreHorizontal /> Bulk actions
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-52">
+                <DropdownMenuLabel>
+                  {selectedRows.length > 0
+                    ? `${selectedRows.length} selected`
+                    : 'All subscribers'}
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onSelect={handleBulkExport}>
+                  <Download /> Export CSV
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onSelect={() =>
+                    (window.location.href = '/dashboard/facebook/broadcasts')
+                  }
+                >
+                  <MessageSquare /> Broadcast to selected
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  disabled
+                  onSelect={() =>
+                    toast({
+                      title: 'Not available',
+                      description:
+                        'Removing PSIDs requires a Page-level admin tool.',
+                      variant: 'destructive',
+                    })
+                  }
+                >
+                  <Trash2 /> Remove
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
+          <div className="mt-3">
             <DataTable
               columns={columns}
-              data={subscribers}
-              filterColumn="name"
-              filterPlaceholder="Search by name…"
-              onRowSelectionChange={setSelectedRows}
+              rows={subscribers}
+              getRowId={rowId}
+              selectable
+              selectedIds={selectedIds}
+              onSelectionChange={setSelectedIds}
+              selectItemLabel="subscriber"
               empty={
                 <EmptyState
-                  compact
+                  size="sm"
                   icon={<Users />}
                   title="No subscribers yet"
                   description="Once a user messages your Page they will appear here."
                 />
-              }
-              toolbar={
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm">
-                      <MoreHorizontal /> Bulk actions
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-52">
-                    <DropdownMenuLabel>
-                      {selectedRows.length > 0
-                        ? `${selectedRows.length} selected`
-                        : 'All subscribers'}
-                    </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onSelect={handleBulkExport}>
-                      <Download /> Export CSV
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onSelect={() =>
-                        (window.location.href =
-                          '/dashboard/facebook/broadcasts')
-                      }
-                    >
-                      <MessageSquare /> Broadcast to selected
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      disabled
-                      onSelect={() =>
-                        toast({
-                          title: 'Not available',
-                          description:
-                            'Removing PSIDs requires a Page-level admin tool.',
-                          variant: 'destructive',
-                        })
-                      }
-                    >
-                      <Trash2 /> Remove
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
               }
             />
           </div>

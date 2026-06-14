@@ -44,4 +44,4 @@ pub use registrar::PhoneRegistrar;
 /// Mirrors the legacy TS `API_VERSION = 'v23.0'` constant used by every
 /// `axios.post('https://graph.facebook.com/${API_VERSION}/...')` call in
 /// `whatsapp.actions.ts`.
-pub const META_API_VERSION: &str = "v23.0";
+pub const META_API_VERSION: &str = "v25.0";

@@ -32,6 +32,8 @@ export interface OnboardEmployeeInput {
   dateOfJoining?: string;
   phone?: string;
   quotaMb?: number;
+  /** Optional alternate address to email the welcome + credentials to. */
+  notifyEmail?: string;
 }
 
 /** Returned once on a successful onboard — the M365 "credentials card". */
@@ -66,6 +68,10 @@ export interface SettingsView {
   orgSlug: string | null;
   usernameConvention: UsernameConvention;
   defaultPackageId: string | null;
+  /** Project provisioned employees are stamped into for SabCRM People visibility. */
+  sabcrmProjectId: string | null;
+  /** The owner's projects (id + name) — choices for the SabCRM-project picker. */
+  projects: Array<{ id: string; name: string }>;
   /** Verified domains available for provisioning (resolved from the mail workspace). */
   verifiedDomains: string[];
   /** Best-guess default domain per the "custom-else-shared" policy. */
@@ -90,4 +96,23 @@ export interface PackageRow {
 export interface GrantableAppOption {
   appId: string;
   label: string;
+}
+
+/** One row of a bulk onboard (CSV). */
+export interface BulkOnboardRow {
+  firstName: string;
+  lastName: string;
+  localPart?: string;
+  domain: string;
+  appIds?: string[];
+  packageIds?: string[];
+}
+
+/** Per-row outcome of a bulk onboard. */
+export interface BulkOnboardResult {
+  ok: boolean;
+  displayName: string;
+  upn?: string;
+  oneTimePassword?: string;
+  error?: string;
 }

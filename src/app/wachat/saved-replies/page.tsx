@@ -12,7 +12,7 @@ import {
   Input,
   Kbd,
   Modal,
-  Select,
+  SelectField as Select,
   Skeleton,
   Textarea,
   useToast,

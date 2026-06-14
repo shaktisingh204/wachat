@@ -12,7 +12,7 @@ import {
   Th,
   Tr,
   Td,
-  Select,
+  SelectField as Select,
   StatCard,
   Spinner,
 } from '@/components/sabcrm/20ui';

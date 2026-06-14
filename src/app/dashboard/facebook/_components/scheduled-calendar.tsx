@@ -50,9 +50,9 @@ export function ScheduledCalendar({ posts, projectId, onActionComplete }: Schedu
     });
   }, [posts]);
 
-  const onEventDrop: withDragAndDropProps['onEventDrop'] = useCallback(
+  const onEventDrop = useCallback<NonNullable<withDragAndDropProps['onEventDrop']>>(
     async ({ event, start }) => {
-      const postId = (event as any).id;
+      const postId = (event as { id: string }).id;
       const newScheduledTime = Math.floor(new Date(start as Date).getTime() / 1000);
 
       try {

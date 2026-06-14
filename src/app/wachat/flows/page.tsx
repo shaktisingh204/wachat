@@ -16,7 +16,7 @@ import {
   Input,
   Skeleton,
   StatCard,
-  Select,
+  SelectField as Select,
   Table,
   THead,
   TBody,

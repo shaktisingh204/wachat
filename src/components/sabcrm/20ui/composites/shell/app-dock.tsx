@@ -51,6 +51,9 @@ import {
   X,
 } from "lucide-react";
 
+import { useOptionalProject } from "@/context/project-context";
+import { isElevatedRole } from "@/lib/rbac";
+
 import { cn } from "../lib/cn";
 import { SAB_APPS, isWindowableApp, type SabAppDescriptor } from "./apps";
 import { SabAppLogo } from "./app-logos";
@@ -78,6 +81,14 @@ export function SabAppDock({ className }: { className?: string }) {
   // The desktop window store drives "what's open" + "what's focused". Null only
   // if the dock is ever rendered outside the desktop host (then it stays inert).
   const wm = useDesktopWindows();
+
+  // Owner/admin gate for `adminOnly` apps — same signal home-shell uses for
+  // adminOnly sidebar items. No project context → treat as admin (standalone).
+  const project = useOptionalProject();
+  const isAdmin =
+    project === null ||
+    Boolean(project.effectivePermissions?.isOwner) ||
+    isElevatedRole(project.effectivePermissions?.role);
 
   const [finePointer, setFinePointer] = React.useState(false);
   const [visible, setVisible] = React.useState(true);
@@ -149,16 +160,18 @@ export function SabAppDock({ className }: { className?: string }) {
     () =>
       dock.pinnedIds
         .map((id) => byId.get(id))
-        .filter((a): a is SabAppDescriptor => Boolean(a)),
-    [dock.pinnedIds, byId],
+        .filter((a): a is SabAppDescriptor => Boolean(a))
+        .filter((a) => !a.adminOnly || isAdmin),
+    [dock.pinnedIds, byId, isAdmin],
   );
   const openUnpinned = React.useMemo(
     () =>
       (wm?.windows ?? [])
         .map((w) => byId.get(w.id))
         .filter((a): a is SabAppDescriptor => Boolean(a))
-        .filter((a) => !dock.pinnedIds.includes(a.id)),
-    [wm?.windows, byId, dock.pinnedIds],
+        .filter((a) => !dock.pinnedIds.includes(a.id))
+        .filter((a) => !a.adminOnly || isAdmin),
+    [wm?.windows, byId, dock.pinnedIds, isAdmin],
   );
 
   /* Open (or focus) an app as a desktop window — or hard-navigate the apps that

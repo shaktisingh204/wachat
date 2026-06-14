@@ -299,6 +299,11 @@ pub fn build(state: AppState) -> Router {
     let wachat_config = wachat_config::router::<AppState>();
     let wachat_pay = wachat_pay::router::<AppState>();
     let wachat_calling = wachat_calling::router::<AppState>();
+    let wachat_marketing = wachat_marketing::router::<AppState>();
+    let wachat_carousel = wachat_carousel::router::<AppState>();
+    let wachat_identity = wachat_identity::router::<AppState>();
+    let wachat_interactive = wachat_interactive::router::<AppState>();
+    let wachat_webhook_calls = wachat_webhook_calls::router::<AppState>();
     let wachat_broadcast = wachat_broadcast::router::<AppState>();
     let wachat_features = wachat_features::router::<AppState>();
     let wachat_analytics = wachat_analytics::router::<AppState>();
@@ -671,6 +676,11 @@ pub fn build(state: AppState) -> Router {
         .nest("/v1/wachat/config", wachat_config)
         .nest("/v1/wachat/pay", wachat_pay)
         .nest("/v1/wachat/calling", wachat_calling)
+        .nest("/v1/wachat/marketing", wachat_marketing)
+        .nest("/v1/wachat/carousel", wachat_carousel)
+        .nest("/v1/wachat/identity", wachat_identity)
+        .nest("/v1/wachat/interactive", wachat_interactive)
+        .nest("/v1/wachat/webhook-calls", wachat_webhook_calls)
         .nest("/v1/wachat/broadcast", wachat_broadcast)
         .nest("/v1/wachat/features", wachat_features)
         .nest("/v1/wachat/analytics", wachat_analytics)

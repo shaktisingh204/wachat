@@ -6,7 +6,7 @@ import {
   IconButton,
   Field,
   Input,
-  Select,
+  SelectField as Select,
 } from '@/components/sabcrm/20ui';
 import {
   Plus,

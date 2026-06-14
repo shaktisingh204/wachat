@@ -1,6 +1,6 @@
 "use client";
 
-import { Alert, AlertDescription, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertTitle, Badge, Button, DataTable, EmptyState, Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, Skeleton, useToast } from '@/components/sabcrm/20ui';
+import { Alert, AlertDescription, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertTitle, Badge, Button, DataTable, EmptyState, Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, Skeleton, useToast, type DataTableColumn } from '@/components/sabcrm/20ui';
 import {
   useEffect,
   useMemo,
@@ -15,7 +15,6 @@ import {
   Undo2,
   } from "lucide-react";
 import { format } from "date-fns";
-import type { ColumnDef } from "@tanstack/react-table";
 
 import { getFacebookOrders } from "@/app/actions/facebook.actions";
 import type { FacebookOrder } from "@/lib/definitions";
@@ -38,12 +37,12 @@ import {
   CommercePage,
 } from "../../_components/commerce-shell";
 
-function statusVariant(s?: string): "default" | "secondary" | "outline" | "danger" {
+function statusVariant(s?: string): "default" | "secondary" | "outline" | "destructive" {
   if (!s) return "outline";
   const v = s.toLowerCase();
   if (v === "completed" || v === "fulfilled") return "default";
   if (v.includes("pending") || v === "created") return "secondary";
-  if (v === "cancelled") return "danger";
+  if (v === "cancelled") return "destructive";
   return "outline";
 }
 
@@ -109,33 +108,33 @@ export default function OrdersPage() {
     [toast],
   );
 
-  const columns = useMemo<ColumnDef<FacebookOrder>[]>(
+  const columns = useMemo<DataTableColumn<FacebookOrder>[]>(
     () => [
       {
-        accessorKey: "id",
+        key: "id",
         header: "Order ID",
-        cell: ({ row }) => (
-          <span className="font-mono text-xs text-[var(--st-text)]">{row.original.id}</span>
+        render: (row) => (
+          <span className="font-mono text-xs text-[var(--st-text)]">{row.id}</span>
         ),
       },
       {
-        accessorKey: "created",
+        key: "created",
         header: "Date",
-        cell: ({ row }) =>
-          row.original.created
-            ? format(new Date(row.original.created), "PP · p")
+        render: (row) =>
+          row.created
+            ? format(new Date(row.created), "PP · p")
             : "—",
       },
       {
-        accessorKey: "buyer_details",
+        key: "buyer_details",
         header: "Customer",
-        cell: ({ row }) => row.original.buyer_details?.name || "—",
+        render: (row) => row.buyer_details?.name || "—",
       },
       {
-        accessorKey: "order_status",
+        key: "order_status",
         header: "Status",
-        cell: ({ row }) => {
-          const s = row.original.order_status?.state;
+        render: (row) => {
+          const s = row.order_status?.state;
           return (
             <Badge variant={statusVariant(s)} className="capitalize">
               {s ? s.replace(/_/g, " ").toLowerCase() : "—"}
@@ -144,30 +143,30 @@ export default function OrdersPage() {
         },
       },
       {
-        accessorKey: "estimated_payment_details",
+        key: "estimated_payment_details",
         header: "Total",
-        cell: ({ row }) =>
-          row.original.estimated_payment_details?.total_amount?.formatted_amount ||
+        render: (row) =>
+          row.estimated_payment_details?.total_amount?.formatted_amount ||
           "—",
       },
       {
-        id: "actions",
-        header: () => <span className="sr-only">Actions</span>,
-        cell: ({ row }) => (
+        key: "actions",
+        header: <span className="sr-only">Actions</span>,
+        render: (row) => (
           <div className="flex justify-end gap-1">
             <Button
               variant="ghost"
-              size="icon-sm"
+              size="sm"
               aria-label="View order"
-              onClick={() => setActiveOrder(row.original)}
+              onClick={() => setActiveOrder(row)}
             >
               <Eye />
             </Button>
             <Button
               variant="ghost"
-              size="icon-sm"
+              size="sm"
               aria-label="Refund order"
-              onClick={() => setRefundOrder(row.original)}
+              onClick={() => setRefundOrder(row)}
             >
               <Undo2 />
             </Button>
@@ -220,10 +219,8 @@ export default function OrdersPage() {
         <div className="mt-8">
           <DataTable
             columns={columns}
-            data={orders}
-            filterColumn="id"
-            filterPlaceholder="Search orders…"
-            pageSize={10}
+            rows={orders}
+            getRowId={(_, i) => String(i)}
           />
         </div>
       )}

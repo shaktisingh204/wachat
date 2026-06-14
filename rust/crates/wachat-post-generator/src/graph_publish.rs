@@ -21,7 +21,7 @@ use serde_json::Value;
 
 /// Pinned Meta Graph API version. Mirrors the `v23.0` strings used across
 /// the sibling `wachat-facebook-*` crates.
-pub const META_API_VERSION: &str = "v23.0";
+pub const META_API_VERSION: &str = "v25.0";
 
 const GRAPH_BASE: &str = "https://graph.facebook.com";
 

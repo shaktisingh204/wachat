@@ -1,5 +1,6 @@
 'use client';
 import { fmtDate } from "@/lib/utils";
+import "@/components/wachat/motion/wachat-motion.css";
 
 import {
   useToast,
@@ -175,7 +176,11 @@ export default function ContactTimelinePage() {
                   const isIn = ev.direction === 'in';
                   const Icon = isNote ? StickyNote : MessageSquare;
                   return (
-                    <div key={i} className="relative flex gap-4">
+                    <div
+                      key={i}
+                      className="wachat-stagger-item relative flex gap-4"
+                      style={{ ['--i' as string]: Math.min(i, 14) } as React.CSSProperties}
+                    >
                       <div
                         className="absolute -left-4.5 z-10 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--st-bg-secondary)] text-[var(--st-text)]"
                       >

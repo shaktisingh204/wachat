@@ -35,6 +35,7 @@ import type { PhoneNumber } from '@/lib/definitions';
 import { WachatPage } from '@/app/wachat/_components/wachat-page';
 import { CallingSettingsForm } from '@/app/wachat/_components/calling-settings-form';
 import { useProject } from '@/context/project-context';
+import { AiCallScript } from '@/components/wachat/calls/ai-call-script';
 
 /**
  * Wachat Calls — Setup tab (20ui).
@@ -143,6 +144,7 @@ export default function CallingSettingsPage() {
       description="Configure WhatsApp calling for your phone numbers."
       width="wide"
     >
+      <AiCallScript businessName={activeProject?.name} className="mb-6" />
       <div className="grid items-start gap-6 lg:grid-cols-3">
         {/* Left column: picker + status banner + form */}
         <div className="flex flex-col gap-6 lg:col-span-2">

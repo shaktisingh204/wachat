@@ -12,7 +12,7 @@ use tracing::debug;
 
 use crate::types::mask;
 
-pub const GRAPH_API_VERSION: &str = "v23.0";
+pub const GRAPH_API_VERSION: &str = "v25.0";
 
 #[derive(Debug, Deserialize)]
 struct OauthTokenResp {

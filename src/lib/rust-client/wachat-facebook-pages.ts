@@ -39,6 +39,11 @@ export interface OAuthCallbackBody {
     /** Raw value of the `onboarding_state` cookie. */
     stateCookie: string;
     includeCatalog?: boolean;
+    /**
+     * Facebook Login for Business (JS-SDK `FB.login`) flow — exchange the code
+     * WITHOUT a `redirect_uri`. Leave unset/false for the classic redirect flow.
+     */
+    embedded?: boolean;
 }
 
 export interface ManualSetupBody {

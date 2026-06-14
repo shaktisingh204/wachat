@@ -62,7 +62,7 @@ export default async function SabAdminOverviewPage() {
       </PageHeader>
 
       {notReady ? (
-        <Callout variant="warning" className="mt-6">
+        <Callout tone="warning" className="mt-6">
           <div className="font-medium">Finish setup to start onboarding</div>
           <ul className="mt-1 list-disc pl-5 text-sm">
             {!settings?.hostedAuthConfigured && <li>Login provisioning (Firebase Admin) isn’t configured on the server.</li>}

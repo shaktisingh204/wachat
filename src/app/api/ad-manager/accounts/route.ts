@@ -20,8 +20,7 @@ import { ObjectId } from 'mongodb';
 
 import { getDecodedSession } from '@/lib/auth';
 import { connectToDatabase } from '@/lib/mongodb';
-
-const GRAPH_API_VERSION = 'v21.0';
+import { GRAPH_API_VERSION } from '@/lib/meta/graph-version';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';

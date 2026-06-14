@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { type WithId } from 'mongodb';
 
 import { rustClient, RustApiError } from '@/lib/rust-client';
+import { META_GRAPH_BASE } from '@/lib/meta/graph-version';
 import { getProjectById } from '@/app/actions/project.actions';
 import { getErrorMessage } from '@/lib/utils';
 import { _createProjectFromWaba } from './whatsapp.actions';
@@ -125,13 +126,11 @@ export async function handleFacebookOAuthCallback(
     }
 }
 
-const META_GRAPH_BASE = 'https://graph.facebook.com/v24.0';
-
 async function metaGraphGet<T>(path: string, params: Record<string, string>): Promise<T> {
     const url = new URL(`${META_GRAPH_BASE}/${path}`);
     for (const [key, value] of Object.entries(params)) url.searchParams.set(key, value);
     const res = await fetch(url, { cache: 'no-store' });
-    const json = await res.json().catch(() => null);
+    const json = (await res.json().catch(() => null)) as { error?: { message?: string } } | null;
     if (!res.ok) {
         throw new Error(json?.error?.message || `Meta API request failed (${res.status})`);
     }
@@ -264,6 +263,57 @@ export async function completeWhatsAppEmbeddedSignup(input: {
         });
     } catch (e) {
         console.error(`[WhatsApp ES] Unhandled error: ${getErrorMessage(e)}`);
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+/**
+ * Facebook **Login for Business** completion via the Facebook JavaScript SDK.
+ *
+ * Mirrors `completeWhatsAppEmbeddedSignup`, but for Facebook Pages. The JS-SDK
+ * `FB.login({ config_id, response_type:'code', override_default_response_type })`
+ * popup returns a one-time `code`. We forward it to the Rust BFF with
+ * `embedded:true` so the code is exchanged WITHOUT a `redirect_uri` (the SDK
+ * never did a server redirect); the existing Rust callback then discovers
+ * `me/accounts` and upserts a Meta-Suite project per Page with its long-lived
+ * page token. No `onboarding_state` cookie exists for the popup flow, so we
+ * synthesize the state cookie the Rust handler validates against.
+ */
+export async function completeFacebookPagesSignup(input: {
+    code: string;
+}): Promise<{ success: boolean; error?: string; redirectPath?: string }> {
+    const { getSession } = await import('./user.actions');
+    const session = await getSession();
+    if (!session?.user?._id) return { success: false, error: 'Access denied. Please sign in again.' };
+    const userId = session.user._id.toString();
+
+    if (!input.code) {
+        return {
+            success: false,
+            error: 'Facebook did not return an authorization code. Please connect again and finish every step of the popup.',
+        };
+    }
+
+    const state = 'facebook';
+    const stateCookie = JSON.stringify({ state, userId });
+
+    try {
+        const res = await rustClient.wachatFacebookPages.handleFacebookOAuthCallback({
+            code: input.code,
+            state,
+            userId,
+            stateCookie,
+            embedded: true,
+        });
+        if (res.error) return { success: false, error: res.error };
+        revalidatePath('/dashboard/facebook');
+        revalidatePath('/dashboard/facebook/all-projects');
+        revalidatePath('/dashboard/facebook/setup');
+        revalidatePath('/dashboard/instagram/connections');
+        return { success: true, redirectPath: '/dashboard/facebook/all-projects' };
+    } catch (e) {
+        if (e instanceof RustApiError) return { success: false, error: e.message };
+        console.error(`[Facebook LFB] Unhandled error: ${getErrorMessage(e)}`);
         return { success: false, error: getErrorMessage(e) };
     }
 }

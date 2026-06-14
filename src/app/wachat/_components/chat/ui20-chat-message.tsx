@@ -1,5 +1,6 @@
 'use client';
 import { fmtDate } from "@/lib/utils";
+import "@/components/wachat/motion/wachat-motion.css";
 
 import {
   SimpleTooltip,
@@ -97,7 +98,15 @@ function StatusTicks({ message }: { message: OutgoingMessage }) {
 
     return (
         <SimpleTooltip label={tooltipLabel} placement="top">
-            <span className="text-white/70 hover:text-white cursor-pointer" tabIndex={0} role="img" aria-label={`Message status: ${status}`}>{getIcon()}</span>
+            <span
+                key={status}
+                className="wachat-tick-pop text-white/70 hover:text-white cursor-pointer"
+                tabIndex={0}
+                role="img"
+                aria-label={`Message status: ${status}`}
+            >
+                {getIcon()}
+            </span>
         </SimpleTooltip>
     );
 }
@@ -471,8 +480,8 @@ export const ChatMessage = React.memo(function ChatMessage({ message, conversati
                 className={cx(
                     "max-w-[75%] md:max-w-[60%] rounded-2xl p-3 text-sm flex flex-col relative",
                     isOutgoing
-                        ? "glass-bubble-out rounded-br-none"
-                        : "glass-bubble-in rounded-bl-none"
+                        ? "glass-bubble-out rounded-br-none wachat-bubble--out"
+                        : "glass-bubble-in rounded-bl-none wachat-bubble--in"
                 )}
             >
                 {quotedMessage && <QuotedMessage message={quotedMessage} />}

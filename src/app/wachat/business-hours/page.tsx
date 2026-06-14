@@ -11,7 +11,7 @@ import {
   EmptyState,
   Field,
   Input,
-  Select,
+  SelectField as Select,
   Switch,
   Textarea,
   useToast,

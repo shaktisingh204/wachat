@@ -68,7 +68,7 @@ use wiremock::{Mock, MockServer, ResponseTemplate};
 // constants — collection + Meta version parity with the TS
 // ---------------------------------------------------------------------
 
-const META_VERSION: &str = "v23.0";
+const META_VERSION: &str = "v25.0";
 const TEMPLATES_COLL: &str = "templates";
 const PROJECTS_COLL: &str = "projects";
 const OUTGOING_COLL: &str = "outgoing_messages";

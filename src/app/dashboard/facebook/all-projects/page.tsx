@@ -25,7 +25,10 @@ import {
   Zap,
   } from "lucide-react";
 
+import { m } from "motion/react";
+
 import { getProjects } from "@/app/actions";
+import { staggerContainer, staggerItem } from "@/lib/motion";
 import type { Project,
   WithId } from "@/lib/definitions";
 
@@ -242,10 +245,10 @@ function ConnectEmptyState({
           {appId ? (
             <Button
               variant="primary"
-              iconLeft={FacebookGlyph}
               iconRight={ArrowRight}
               onClick={() => router.push(META_SUITE_LOGIN)}
             >
+              <FacebookGlyph className="mr-2 h-4 w-4" aria-hidden="true" />
               Connect Facebook Page
             </Button>
           ) : (
@@ -356,9 +359,9 @@ export default function AllFacebookPagesPage() {
             <Button
               variant="primary"
               size="sm"
-              iconLeft={FacebookGlyph}
               onClick={() => router.push(META_SUITE_LOGIN)}
             >
+              <FacebookGlyph className="mr-2 h-4 w-4" aria-hidden="true" />
               Connect page
             </Button>
           ) : null}
@@ -395,12 +398,16 @@ export default function AllFacebookPagesPage() {
             </span>
           </div>
 
-          <div className="mt-3 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <m.div
+            className="mt-3 grid gap-4 md:grid-cols-2 xl:grid-cols-3"
+            variants={staggerContainer}
+            initial="hidden"
+            animate="visible"
+          >
             {projects.map((project) => (
-              <ConnectedPageCard
-                key={project._id.toString()}
-                project={project}
-              />
+              <m.div key={project._id.toString()} variants={staggerItem}>
+                <ConnectedPageCard project={project} />
+              </m.div>
             ))}
 
             {appId ? (
@@ -424,7 +431,7 @@ export default function AllFacebookPagesPage() {
                 <ArrowUpRight className="h-3.5 w-3.5 text-[var(--st-text-tertiary)] transition-colors group-hover:text-[var(--st-text)]" aria-hidden="true" />
               </Link>
             ) : null}
-          </div>
+          </m.div>
 
           <div className="mt-8">
             <p className="mb-3 text-[11px] uppercase tracking-[0.2em] text-[var(--st-text-tertiary)]">

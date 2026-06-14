@@ -26,7 +26,7 @@ import {
   Field,
   Input,
   Switch,
-  Select,
+  SelectField as Select,
   Spinner,
   type BadgeTone,
 } from '@/components/sabcrm/20ui';

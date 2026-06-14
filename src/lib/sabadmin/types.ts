@@ -36,6 +36,12 @@ export interface SabAdminSettings {
   usernameConvention: UsernameConvention;
   /** Default Access Package applied in the onboarding wizard. */
   defaultPackageId?: string;
+  /**
+   * The project provisioned employees are stamped into for SabCRM People
+   * visibility (`crm_employees.projectId`). Defaults to the owner's primary
+   * project when unset. HRM reads userId-scoped, so this only affects SabCRM.
+   */
+  sabcrmProjectId?: string;
   createdAt: Date;
   updatedAt: Date;
 }

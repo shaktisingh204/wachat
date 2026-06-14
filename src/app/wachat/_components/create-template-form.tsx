@@ -13,7 +13,7 @@ import {
   Input,
   RadioGroup,
   Radio,
-  Select,
+  SelectField as Select,
   Textarea,
   useToast,
 } from '@/components/sabcrm/20ui';

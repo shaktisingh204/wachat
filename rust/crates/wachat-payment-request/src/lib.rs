@@ -66,7 +66,7 @@ pub const PAYMENT_REQUESTS_COLL: &str = "payment_requests";
 ///
 /// Re-exported so callers building a [`MetaClient`] for this slice can do
 /// so without re-encoding the version string.
-pub const META_API_VERSION: &str = "v23.0";
+pub const META_API_VERSION: &str = "v25.0";
 
 // Re-export `MetaClient` for the rare ergonomic case where the caller
 // constructs the sender inline (e.g. in tests). Most call sites get one

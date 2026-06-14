@@ -10,7 +10,7 @@ use wachat_meta_client::MetaClient;
 
 /// Pinned Meta Graph API version. Mirrors the hard-coded `v23.0` strings
 /// in `src/app/actions/facebook.actions.ts`.
-pub const META_API_VERSION: &str = "v23.0";
+pub const META_API_VERSION: &str = "v25.0";
 
 #[derive(Clone)]
 pub struct WachatFacebookContentState {

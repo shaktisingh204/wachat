@@ -26,6 +26,7 @@ import {
   getSabAdminContext,
   getOrInitSabAdminSettings,
   resolveMailWorkspaceId,
+  deriveLocalPart,
   type SabAdminContext,
 } from '@/lib/sabadmin/tenant';
 import { getSabAdminCollections, ensureSabAdminIndexes } from '@/lib/sabadmin/db/collections';
@@ -36,11 +37,14 @@ import {
   appsFromPermissionMap,
 } from '@/lib/sabadmin/access-catalog';
 import { writeSabAdminAudit } from '@/lib/sabadmin/audit';
+import { sendOnboardingEmail } from '@/lib/sabadmin/notify';
 import type { EffectivePermissionMap } from '@/lib/rbac';
 import type {
   ActionResult,
   OnboardEmployeeInput,
   OnboardCredentials,
+  BulkOnboardRow,
+  BulkOnboardResult,
 } from '@/lib/sabadmin/dto';
 
 const LOCAL_PART_RE =
@@ -224,9 +228,22 @@ export async function onboardEmployee(
     });
 
     // 4) HR record in crm_employees (the link rbac-server keys on).
+    // SabCRM People reads this collection project-scoped + non-archived (Rust
+    // stores `projectId` as an ObjectId), so stamp the owner's primary project
+    // and `archived:false` to surface there too. The HRM portal + the rbac
+    // employee auto-grant read userId-scoped, so they're unaffected either way.
+    // Configured SabCRM project wins; else the owner's primary (oldest) project.
+    const primaryProject = await db
+      .collection('projects')
+      .findOne({ userId: new ObjectId(ctx.ownerUserId) }, { projection: { _id: 1 }, sort: { createdAt: 1 } });
+    const sabcrmProjectId =
+      settings.sabcrmProjectId && ObjectId.isValid(settings.sabcrmProjectId)
+        ? new ObjectId(settings.sabcrmProjectId)
+        : primaryProject?._id;
     const employeeCode = `EMP-${empUserId.slice(-6).toUpperCase()}`;
     const empInsert = await db.collection('crm_employees').insertOne({
       userId: new ObjectId(ctx.ownerUserId),
+      projectId: sabcrmProjectId,
       employeeUserId: new ObjectId(empUserId),
       employeeId: employeeCode,
       firstName,
@@ -234,6 +251,7 @@ export async function onboardEmployee(
       email: upn,
       phone: input.phone || undefined,
       status: 'Active',
+      archived: false,
       dateOfJoining: input.dateOfJoining ? new Date(input.dateOfJoining) : now,
       departmentId: input.departmentId && ObjectId.isValid(input.departmentId) ? new ObjectId(input.departmentId) : undefined,
       designationId: input.designationId && ObjectId.isValid(input.designationId) ? new ObjectId(input.designationId) : undefined,
@@ -288,6 +306,12 @@ export async function onboardEmployee(
     });
 
     await writeSabAdminAudit(ctx, 'onboard', `Onboarded ${displayName} (${upn})`, { userId: empUserId, upn }, { grantedApps: grant.apps });
+
+    // Best-effort welcome email to an alternate address (never the new mailbox).
+    const notifyEmail = input.notifyEmail?.trim();
+    if (notifyEmail) {
+      await sendOnboardingEmail(ctx.ownerUserId, notifyEmail, { upn, displayName, password });
+    }
 
     revalidatePath('/sabadmin/people');
     revalidatePath('/sabadmin');
@@ -487,4 +511,53 @@ export async function offboardEmployee(userId: string): Promise<ActionResult> {
   revalidatePath('/sabadmin/people');
   revalidatePath('/sabadmin');
   return { ok: true };
+}
+
+/* ── Bulk onboard (CSV) ────────────────────────────────────────────────── */
+
+/**
+ * Onboard many employees in one call (M365-style bulk CSV). Each row runs the
+ * full atomic {@link onboardEmployee} flow independently, so one bad row never
+ * blocks the rest. Returns a per-row outcome (incl. the one-time password) for
+ * the admin to hand out. Capped at 200 rows per call.
+ */
+export async function bulkOnboardEmployees(
+  rows: BulkOnboardRow[],
+): Promise<ActionResult<{ results: BulkOnboardResult[] }>> {
+  const ctxRes = await getSabAdminContext();
+  if (!ctxRes.ok) return { ok: false, error: ctxRes.error };
+
+  const results: BulkOnboardResult[] = [];
+  for (const row of (rows ?? []).slice(0, 200)) {
+    const displayName =
+      [row.firstName, row.lastName].filter(Boolean).join(' ').trim() ||
+      row.localPart ||
+      '(unnamed)';
+    try {
+      const res = await onboardEmployee({
+        firstName: row.firstName,
+        lastName: row.lastName,
+        localPart: row.localPart?.trim() || deriveLocalPart(row.firstName, row.lastName, 'first.last'),
+        domain: row.domain,
+        appIds: row.appIds,
+        packageIds: row.packageIds,
+      });
+      if (res.ok) {
+        results.push({
+          ok: true,
+          displayName: res.credentials.displayName,
+          upn: res.credentials.upn,
+          oneTimePassword: res.credentials.oneTimePassword,
+        });
+      } else {
+        results.push({ ok: false, displayName, error: res.error });
+      }
+    } catch (err) {
+      results.push({ ok: false, displayName, error: err instanceof Error ? err.message : 'Failed.' });
+    }
+  }
+
+  revalidatePath('/sabadmin/people');
+  revalidatePath('/sabadmin');
+  return { ok: true, results };
 }

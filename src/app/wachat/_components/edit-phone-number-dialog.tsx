@@ -5,7 +5,7 @@ import {
   Modal,
   Field,
   Input,
-  Select,
+  SelectField as Select,
   Separator,
   Textarea,
   useToast,

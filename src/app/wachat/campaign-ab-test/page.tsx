@@ -20,7 +20,7 @@ import {
   CardBody,
   StatCard,
   Field,
-  Select,
+  SelectField as Select,
   Slider,
   Spinner,
   EmptyState,

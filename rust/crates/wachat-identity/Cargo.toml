@@ -1,0 +1,27 @@
+[package]
+name = "wachat-identity"
+version = "0.1.0"
+edition = "2024"
+description = "BSUID identity resolution: resolve/create a contact by Business-Scoped User ID (phone-number-optional, for mid-2026 username privacy)."
+license = "UNLICENSED"
+publish = false
+
+[dependencies]
+axum = "0.8"
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "sync"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+bson = { version = "2", features = ["chrono-0_4"] }
+mongodb = "3"
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+tracing = "0.1"
+anyhow = "1"
+futures = "0.3"
+
+sabnode-common = { path = "../common" }
+sabnode-auth = { path = "../auth" }
+sabnode-db = { path = "../db" }
+wachat-types = { path = "../wachat-types" }
+
+[lints]
+workspace = true

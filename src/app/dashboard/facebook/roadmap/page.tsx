@@ -67,11 +67,11 @@ const STATUS_LABELS: Record<RoadmapStatus, string> = {
 
 const STATUS_BADGE: Record<
   RoadmapStatus,
-  'neutral' | 'success' | 'info' | 'ghost'
+  'secondary' | 'success' | 'info'
 > = {
-  shipped: 'neutral',
+  shipped: 'secondary',
   in_progress: 'info',
-  planned: 'ghost',
+  planned: 'secondary',
 };
 
 const STATUS_ICON: Record<

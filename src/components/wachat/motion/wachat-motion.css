@@ -123,6 +123,22 @@
   animation: wachat-read-flash 700ms ease-out;
 }
 
+/* ---- tick pop (status transition: sent→delivered→read) --------- */
+.wachat-tick-pop {
+  display: inline-flex;
+  animation: wachat-tick-pop 280ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes wachat-tick-pop {
+  from {
+    transform: scale(0.55);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
 /* ---- typing indicator (incoming) -------------------------------- */
 .wachat-typing {
   display: inline-flex;
@@ -498,6 +514,9 @@
   .wachat-ticks__path {
     animation: none;
     stroke-dashoffset: 0;
+  }
+  .wachat-tick-pop {
+    animation: none;
   }
   .wachat-ticks[data-flash="1"] {
     animation: none;

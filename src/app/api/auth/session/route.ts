@@ -257,6 +257,9 @@ export async function POST(request: NextRequest) {
             email: user.email,
             name: user.name,
             isApproved: (user as any).isApproved || false,
+            // Provisioned employees sign in with a temporary password; carry the
+            // flag in the JWT so the proxy can force a change on first login.
+            mustChangePassword: (user as any).mustChangePassword === true,
         } as any);
         const customSessionToken = await createSessionToken(sessionPayload as any);
         console.log('[API_SESSION] Custom session token created.');

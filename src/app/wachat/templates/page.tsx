@@ -20,7 +20,7 @@ import {
   Menu,
   MenuItem,
   MenuSeparator,
-  Select,
+  SelectField as Select,
   Skeleton,
   StatCard,
   useToast,

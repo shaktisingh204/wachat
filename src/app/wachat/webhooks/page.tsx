@@ -39,6 +39,7 @@ import { WebhookInfo } from '@/app/wachat/_components/webhook-info';
 import { WebhookLogs } from '@/app/wachat/_components/webhook-logs';
 import { useProject } from '@/context/project-context';
 import { pingWebhookUrl } from './actions';
+import { AiWebhookExplainer } from '@/components/wachat/webhooks/ai-webhook-explainer';
 
 function cx(...a: Array<string | false | null | undefined>): string {
   return a.filter(Boolean).join(' ');
@@ -189,6 +190,7 @@ export default function WebhooksPage() {
     >
       <div className="flex flex-col gap-6">
         <WebhookInfo webhookPath={webhookPath} verifyToken={verifyToken} />
+        <AiWebhookExplainer />
 
         {/* Setup guide */}
         <Card padding="lg">

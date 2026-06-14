@@ -13784,6 +13784,7 @@ dependencies = [
  "wachat-broadcast",
  "wachat-calling",
  "wachat-canned-messages",
+ "wachat-carousel",
  "wachat-chat-mark",
  "wachat-chat-read",
  "wachat-config",
@@ -13806,10 +13807,13 @@ dependencies = [
  "wachat-features",
  "wachat-flow-events",
  "wachat-flows",
+ "wachat-identity",
  "wachat-instagram",
  "wachat-integrations-hub",
+ "wachat-interactive",
  "wachat-interactive-builder",
  "wachat-link-generator",
+ "wachat-marketing",
  "wachat-media",
  "wachat-meta-client",
  "wachat-number-routing",
@@ -13841,6 +13845,7 @@ dependencies = [
  "wachat-webhook",
  "wachat-webhook-account",
  "wachat-webhook-actions",
+ "wachat-webhook-calls",
  "wachat-webhook-config",
  "wachat-webhook-contacts",
  "wachat-webhook-conversations",
@@ -19173,6 +19178,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "wachat-carousel"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum 0.8.9",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "wachat-meta-client",
+ "wachat-types",
+]
+
+[[package]]
 name = "wachat-chat-mark"
 version = "0.1.0"
 dependencies = [
@@ -19630,6 +19656,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "wachat-identity"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum 0.8.9",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "wachat-types",
+]
+
+[[package]]
 name = "wachat-instagram"
 version = "0.1.0"
 dependencies = [
@@ -19666,6 +19712,27 @@ dependencies = [
  "tokio",
  "tracing",
  "utoipa",
+]
+
+[[package]]
+name = "wachat-interactive"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum 0.8.9",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "wachat-meta-client",
+ "wachat-types",
 ]
 
 [[package]]
@@ -19706,6 +19773,27 @@ dependencies = [
  "tokio",
  "tracing",
  "utoipa",
+]
+
+[[package]]
+name = "wachat-marketing"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum 0.8.9",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "wachat-meta-client",
+ "wachat-types",
 ]
 
 [[package]]
@@ -20456,6 +20544,26 @@ dependencies = [
  "serde_json",
  "tokio",
  "wachat-webhook-config",
+]
+
+[[package]]
+name = "wachat-webhook-calls"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum 0.8.9",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "wachat-types",
 ]
 
 [[package]]

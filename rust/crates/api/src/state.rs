@@ -59,6 +59,11 @@ use wachat_analytics::WachatAnalyticsState;
 use wachat_api_keys_admin::WachatApiKeysAdminState;
 use wachat_broadcast::WachatBroadcastState;
 use wachat_calling::WachatCallingState;
+use wachat_marketing::WachatMarketingState;
+use wachat_carousel::WachatCarouselState;
+use wachat_identity::WachatIdentityState;
+use wachat_interactive::WachatInteractiveState;
+use wachat_webhook_calls::WachatWebhookCallsState;
 use wachat_config::WachatConfigState;
 use wachat_contacts::WachatContactsState;
 use wachat_facebook_agents::WachatFacebookAgentsState;
@@ -157,6 +162,11 @@ pub struct AppState {
     pub pay: WachatPayState,
     pub broadcast: WachatBroadcastState,
     pub calling: WachatCallingState,
+    pub marketing: WachatMarketingState,
+    pub carousel: WachatCarouselState,
+    pub identity: WachatIdentityState,
+    pub interactive: WachatInteractiveState,
+    pub webhook_calls: WachatWebhookCallsState,
     pub features: WachatFeaturesState,
     pub analytics: WachatAnalyticsState,
     pub webhook_actions: WachatWebhookActionsState,
@@ -296,6 +306,11 @@ impl AppState {
         pay: WachatPayState,
         broadcast: WachatBroadcastState,
         calling: WachatCallingState,
+        marketing: WachatMarketingState,
+        carousel: WachatCarouselState,
+        identity: WachatIdentityState,
+        interactive: WachatInteractiveState,
+        webhook_calls: WachatWebhookCallsState,
         features: WachatFeaturesState,
         analytics: WachatAnalyticsState,
         webhook_actions: WachatWebhookActionsState,
@@ -429,6 +444,11 @@ impl AppState {
             pay,
             broadcast,
             calling,
+            marketing,
+            carousel,
+            identity,
+            interactive,
+            webhook_calls,
             features,
             analytics,
             webhook_actions,
@@ -664,6 +684,36 @@ impl FromRef<AppState> for WachatBroadcastState {
 impl FromRef<AppState> for WachatCallingState {
     fn from_ref(s: &AppState) -> Self {
         s.calling.clone()
+    }
+}
+
+impl FromRef<AppState> for WachatMarketingState {
+    fn from_ref(s: &AppState) -> Self {
+        s.marketing.clone()
+    }
+}
+
+impl FromRef<AppState> for WachatCarouselState {
+    fn from_ref(s: &AppState) -> Self {
+        s.carousel.clone()
+    }
+}
+
+impl FromRef<AppState> for WachatIdentityState {
+    fn from_ref(s: &AppState) -> Self {
+        s.identity.clone()
+    }
+}
+
+impl FromRef<AppState> for WachatInteractiveState {
+    fn from_ref(s: &AppState) -> Self {
+        s.interactive.clone()
+    }
+}
+
+impl FromRef<AppState> for WachatWebhookCallsState {
+    fn from_ref(s: &AppState) -> Self {
+        s.webhook_calls.clone()
     }
 }
 

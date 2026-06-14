@@ -399,7 +399,7 @@ function MessengerWelcomeForm({
                   <Button
                     type="button"
                     variant="ghost"
-                    size="icon-sm"
+                    size="sm"
                     onClick={() => handleRemoveReply(index)}
                     aria-label="Remove quick reply"
                   >

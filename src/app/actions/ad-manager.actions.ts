@@ -7,7 +7,7 @@
  *
  *  Every Graph call now lands on the Rust BFF
  *  (`/v1/ad-manager/graph`) which holds the user's
- *  `adManagerAccessToken` and proxies to graph.facebook.com/v23.0/*.
+ *  `adManagerAccessToken` and proxies to graph.facebook.com/v25.0/*.
  *  The functions in this file are thin shims that translate the
  *  legacy `(path, opts)` shape into a JSON body the Rust handler
  *  understands and then re-shape the response into the `{ data?,

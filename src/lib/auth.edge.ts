@@ -8,6 +8,25 @@ function getJwtSecretKey(): Uint8Array {
     return new TextEncoder().encode(secret);
 }
 
+/**
+ * Verify + return the browser session payload on the Edge, or null when the
+ * token is missing/invalid/expired. Unlike {@link verifyJwtEdge} (boolean only),
+ * this exposes the claims — used by the proxy to read `mustChangePassword` and
+ * force a first-login password change.
+ */
+export async function decodeBrowserSessionEdge(
+    token: string | undefined,
+): Promise<JWTPayload | null> {
+    if (!token) return null;
+    try {
+        const { payload } = await jwtVerify(token, getJwtSecretKey());
+        if (!isBrowserSessionPayload(payload)) return null;
+        return payload;
+    } catch {
+        return null;
+    }
+}
+
 // This function now correctly verifies the token's signature and expiration on the Edge.
 export async function verifyJwtEdge(token: string): Promise<boolean> {
     try {

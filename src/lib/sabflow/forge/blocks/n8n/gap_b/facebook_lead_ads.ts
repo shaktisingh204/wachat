@@ -3,7 +3,7 @@
  *
  * Source: n8n-master/packages/nodes-base/nodes/FacebookLeadAds
  *
- * Base URL: https://graph.facebook.com/v18.0
+ * Base URL: https://graph.facebook.com/v25.0
  * Auth: Bearer access token (page access token with leads_retrieval scope).
  *
  * Operations covered:
@@ -23,7 +23,7 @@ import type {
 } from '../../../types';
 import { apiRequest, asString } from '../_shared/http';
 
-const API = 'https://graph.facebook.com/v18.0';
+const API = 'https://graph.facebook.com/v25.0';
 
 function authHeaders(ctx: ForgeActionContext): Record<string, string> {
   const token = asString(ctx.options.accessToken);

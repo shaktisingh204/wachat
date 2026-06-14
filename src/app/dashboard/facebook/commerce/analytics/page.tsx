@@ -1,6 +1,6 @@
 "use client";
 
-import { Alert, AlertDescription, AlertTitle, Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Recharts, ChartContainer, ChartTooltip, CHART_PALETTE, DataTable, EmptyState, Skeleton, StatCard } from '@/components/sabcrm/20ui';
+import { Alert, AlertDescription, AlertTitle, Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Recharts, ChartContainer, ChartTooltip, CHART_PALETTE, DataTable, EmptyState, Skeleton, StatCard, type DataTableColumn } from '@/components/sabcrm/20ui';
 import {
   useCallback,
   useEffect,
@@ -9,7 +9,6 @@ import {
   useTransition } from "react";
 import { format,
   subDays } from "date-fns";
-import type { ColumnDef } from "@tanstack/react-table";
 import {
   AlertCircle,
   BarChart3,
@@ -180,55 +179,55 @@ export default function CommerceAnalyticsPage() {
       .slice(0, 10);
   }, [orders]);
 
-  const buyerColumns = useMemo<ColumnDef<BuyerRow>[]>(
+  const buyerColumns = useMemo<DataTableColumn<BuyerRow>[]>(
     () => [
       {
-        accessorKey: "name",
+        key: "name",
         header: "Customer",
-        cell: ({ row }) => (
-          <span className="font-medium text-[var(--st-text)]">{row.original.name}</span>
+        render: (row) => (
+          <span className="font-medium text-[var(--st-text)]">{row.name}</span>
         ),
       },
       {
-        accessorKey: "orders",
+        key: "orders",
         header: "Orders",
-        cell: ({ row }) => row.original.orders.toLocaleString(),
+        render: (row) => row.orders.toLocaleString(),
       },
       {
-        accessorKey: "revenue",
+        key: "revenue",
         header: "Revenue",
-        cell: ({ row }) =>
+        render: (row) =>
           new Intl.NumberFormat("en-US", {
             style: "currency",
             currency,
-          }).format(row.original.revenue),
+          }).format(row.revenue),
       },
     ],
     [currency],
   );
 
-  const statusColumns = useMemo<ColumnDef<StatusRow>[]>(
+  const statusColumns = useMemo<DataTableColumn<StatusRow>[]>(
     () => [
       {
-        accessorKey: "status",
+        key: "status",
         header: "Status",
-        cell: ({ row }) => (
+        render: (row) => (
           <Badge variant="outline" className="capitalize">
-            {row.original.status.replace(/_/g, " ")}
+            {row.status.replace(/_/g, " ")}
           </Badge>
         ),
       },
       {
-        accessorKey: "count",
+        key: "count",
         header: "Orders",
-        cell: ({ row }) => row.original.count.toLocaleString(),
+        render: (row) => row.count.toLocaleString(),
       },
       {
-        id: "share",
+        key: "share",
         header: "Share",
-        cell: ({ row }) => {
+        render: (row) => {
           const total = orders.length || 1;
-          return `${Math.round((row.original.count / total) * 100)}%`;
+          return `${Math.round((row.count / total) * 100)}%`;
         },
       },
     ],
@@ -273,7 +272,6 @@ export default function CommerceAnalyticsPage() {
           label="Orders (all time)"
           value={stats.total.toLocaleString()}
           icon={<Package />}
-          period={`${stats.fulfilled.toLocaleString()} fulfilled`}
         />
         <StatCard
           label="Revenue"
@@ -286,7 +284,6 @@ export default function CommerceAnalyticsPage() {
               : "—"
           }
           icon={<Coins />}
-          period="based on visible orders"
         />
         <StatCard
           label="Avg. order value"
@@ -299,13 +296,11 @@ export default function CommerceAnalyticsPage() {
               : "—"
           }
           icon={<ShoppingBag />}
-          period={stats.total ? `across ${stats.total} orders` : "no orders"}
         />
         <StatCard
           label="Unique buyers"
           value={stats.uniqueBuyers.toLocaleString()}
           icon={<Users />}
-          period="distinct customer names"
         />
       </section>
 
@@ -323,13 +318,13 @@ export default function CommerceAnalyticsPage() {
         <CardBody>
           {orders.length === 0 ? (
             <EmptyState
-              compact
+              size="sm"
               icon={<BarChart3 />}
               title="No orders yet"
               description="Once shoppers place orders through your Facebook Shop, the trend will populate here."
             />
           ) : (
-            <ChartContainer height={320}>
+            <ChartContainer config={{}} className="h-[320px]">
               <Recharts.LineChart data={trend}>
                 <Recharts.CartesianGrid
                   strokeDasharray="3 3"
@@ -396,7 +391,7 @@ export default function CommerceAnalyticsPage() {
           <CardBody>
             {statusMix.length === 0 ? (
               <EmptyState
-                compact
+                size="sm"
                 icon={<Package />}
                 title="No status data"
                 description="Order statuses will appear here once orders are recorded."
@@ -404,9 +399,8 @@ export default function CommerceAnalyticsPage() {
             ) : (
               <DataTable
                 columns={statusColumns}
-                data={statusMix}
-                pageSize={6}
-                showColumnMenu={false}
+                rows={statusMix}
+                getRowId={(_, i) => String(i)}
               />
             )}
           </CardBody>
@@ -422,7 +416,7 @@ export default function CommerceAnalyticsPage() {
           <CardBody>
             {topBuyers.length === 0 ? (
               <EmptyState
-                compact
+                size="sm"
                 icon={<Users />}
                 title="No customer data"
                 description="Customer breakdown will appear here once orders are recorded."
@@ -430,9 +424,8 @@ export default function CommerceAnalyticsPage() {
             ) : (
               <DataTable
                 columns={buyerColumns}
-                data={topBuyers}
-                pageSize={6}
-                showColumnMenu={false}
+                rows={topBuyers}
+                getRowId={(_, i) => String(i)}
               />
             )}
           </CardBody>

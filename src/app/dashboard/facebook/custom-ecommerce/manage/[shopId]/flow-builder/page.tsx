@@ -1925,9 +1925,9 @@ export default function EcommFlowBuilderPage() {
         </Sheet>
 
         <div className="md:col-span-6 lg:col-span-7">
-          <Card
+          <div
             ref={viewportRef}
-            className="relative h-full w-full cursor-grab overflow-hidden active:cursor-grabbing"
+            className="u-card u-card--outlined u-card--pad-md relative h-full w-full cursor-grab overflow-hidden active:cursor-grabbing"
             onMouseDown={handleCanvasMouseDown}
             onMouseMove={handleCanvasMouseMove}
             onMouseUp={handleCanvasMouseUp}
@@ -2038,7 +2038,7 @@ export default function EcommFlowBuilderPage() {
                 onClick={handleToggleFullScreen}
               />
             </div>
-          </Card>
+          </div>
         </div>
 
         <div className="hidden md:col-span-3 md:block">

@@ -14,7 +14,7 @@ import {
   MenuLabel,
   MenuSeparator,
   EmptyState,
-  Select,
+  SelectField as Select,
   Skeleton,
   StatCard,
   Alert,

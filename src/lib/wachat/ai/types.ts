@@ -106,3 +106,52 @@ export interface AnalyticsInsightsResult {
   /** A single, concrete recommended next action. */
   recommendation: string;
 }
+
+export interface PostVariantsResult {
+  ok: boolean;
+  error?: string;
+  variants: string[];
+}
+
+export interface CallScriptResult {
+  ok: boolean;
+  error?: string;
+  script: string;
+}
+
+export interface WebhookExplainResult {
+  ok: boolean;
+  error?: string;
+  explanation: string;
+  severity: 'info' | 'warning' | 'error';
+}
+
+export interface DuplicatePair {
+  aId: string;
+  bId: string;
+  /** Why the model thinks these are the same person. */
+  reason: string;
+  /** 0..1 confidence. */
+  confidence: number;
+}
+export interface DuplicatesResult {
+  ok: boolean;
+  error?: string;
+  pairs: DuplicatePair[];
+  /** True when the contact list was truncated before analysis. */
+  truncated?: boolean;
+}
+
+export interface GeneratedAutoReply {
+  /** Comma-separated trigger keywords. */
+  keywords: string;
+  /** The auto-reply text. */
+  reply: string;
+  /** Match strategy understood by the form ("contains" | "exact"). */
+  matchType: string;
+}
+export interface AutoRepliesResult {
+  ok: boolean;
+  error?: string;
+  rules: GeneratedAutoReply[];
+}

@@ -35,7 +35,7 @@ export function FacebookEmbeddedSignup({ appId, state, reauthorize = false }: Fa
     // Request a more comprehensive set of permissions for full Meta Suite functionality
     const scopes = 'pages_show_list,pages_manage_ads,pages_read_engagement,ads_management,business_management,pages_manage_posts,read_insights,pages_messaging';
     
-    const facebookLoginUrl = new URL(`https://www.facebook.com/v23.0/dialog/oauth`);
+    const facebookLoginUrl = new URL(`https://www.facebook.com/v25.0/dialog/oauth`);
     facebookLoginUrl.searchParams.set('client_id', appId);
     facebookLoginUrl.searchParams.set('redirect_uri', redirectUri);
     facebookLoginUrl.searchParams.set('scope', scopes);

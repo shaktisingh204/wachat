@@ -19,7 +19,7 @@ import {
   IconButton,
   Input,
   Modal,
-  Select,
+  SelectField as Select,
   type SelectOption,
   Skeleton,
   useToast,

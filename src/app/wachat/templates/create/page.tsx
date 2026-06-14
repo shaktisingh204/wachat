@@ -9,7 +9,7 @@ import {
   Modal,
   EmptyState,
   Input,
-  Select,
+  SelectField as Select,
   Skeleton,
   Callout,
   Badge,
@@ -49,6 +49,8 @@ import {
 } from '@/app/actions/template.actions';
 import { useTemplateStore } from '../template-store';
 import { WachatPage } from '@/app/wachat/_components/wachat-page';
+import { AiTemplateGenerator } from '@/components/wachat/templates/ai-template-generator';
+import type { GeneratedTemplate } from '@/lib/wachat/ai/types';
 
 /**
  * Template Creator -- full-featured WhatsApp Cloud API template builder,
@@ -280,6 +282,32 @@ function CreateTemplateContent() {
   // SabNode features
   const [cloneLanguages, setCloneLanguages] = useState<string[]>([]);
   const [showPreview, setShowPreview] = useState(true);
+
+  // Apply an AI-generated template to the builder's controlled fields.
+  const applyGenerated = (t: GeneratedTemplate) => {
+    setName(
+      t.name
+        .toLowerCase()
+        .replace(/[^a-z0-9_]/g, '_')
+        .replace(/_+/g, '_')
+        .replace(/^_|_$/g, ''),
+    );
+    setCategory(t.category);
+    if (t.header) {
+      setHeaderFormat('TEXT');
+      setHeaderText(t.header);
+    }
+    setBody(t.body);
+    setFooter(t.footer ?? '');
+    setButtons(
+      (t.buttons ?? []).map((b) => ({
+        type: b.type,
+        text: b.text,
+        url: b.url,
+        phone_number: b.phone,
+      })),
+    );
+  };
 
   // Multi-language clone results (shown after the primary template is created).
   const [cloneModalOpen, setCloneModalOpen] = useState(false);
@@ -561,6 +589,11 @@ function CreateTemplateContent() {
         >
           {/* -- Editor Column -- */}
           <div className="space-y-5">
+            {/* AI generator — describe → compliant draft → apply */}
+            <AiTemplateGenerator
+              onApply={applyGenerated}
+              brand={{ businessName: activeProject?.name ?? undefined }}
+            />
             {/* Details */}
             <Card>
               <CardHeader>

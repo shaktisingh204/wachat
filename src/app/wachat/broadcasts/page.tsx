@@ -21,7 +21,7 @@ import {
   EmptyState,
   Input,
   Progress,
-  Select,
+  SelectField as Select,
   SegmentedControl,
   StatCard,
   Skeleton,

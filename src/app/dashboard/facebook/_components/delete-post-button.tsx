@@ -58,7 +58,7 @@ export function DeletePostButton({
             <Trash2 /> {label}
           </Button>
         ) : (
-          <Button variant="ghost" size="icon-sm" aria-label="Delete post">
+          <Button variant="ghost" size="sm" aria-label="Delete post">
             <Trash2 />
           </Button>
         )}

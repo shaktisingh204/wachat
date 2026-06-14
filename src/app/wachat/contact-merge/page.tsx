@@ -42,6 +42,7 @@ import {
 import { WachatPage } from '@/app/wachat/_components/wachat-page';
 import { useProject } from '@/context/project-context';
 import { getContactsPageData } from '@/app/actions/contact.actions';
+import { AiDuplicateFinder } from '@/components/wachat/contacts/ai-duplicate-finder';
 import {
   mergeContacts,
   type MergeContactsResult,
@@ -203,6 +204,17 @@ export default function ContactMergePage() {
             </Button>
           </div>
         </Card>
+
+        {contacts.length > 1 ? (
+          <AiDuplicateFinder
+            contacts={contacts.map((c: any) => ({
+              id: c._id?.toString?.() ?? String(c._id),
+              name: c.name,
+              phone: c.waId,
+            }))}
+            onSelectPair={(aId, bId) => setSelected([aId, bId])}
+          />
+        ) : null}
 
         {isLoadingInitial ? (
           <div className="flex flex-col gap-2">

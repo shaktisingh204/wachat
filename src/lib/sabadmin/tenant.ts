@@ -133,6 +133,7 @@ export async function updateSabAdminSettings(
       | 'orgSlug'
       | 'usernameConvention'
       | 'defaultPackageId'
+      | 'sabcrmProjectId'
     >
   >,
 ): Promise<SabAdminSettings> {
@@ -163,6 +164,24 @@ export async function resolveMailWorkspaceId(
     .collection('projects')
     .findOne({ userId: new ObjectId(ownerUserId), kind: 'mail' }, { projection: { _id: 1 } });
   return proj ? String(proj._id) : null;
+}
+
+/** The owner's projects (id + name), oldest first — for the SabCRM-project picker. */
+export async function listOwnerProjects(
+  ownerUserId: string,
+): Promise<Array<{ id: string; name: string }>> {
+  if (!ObjectId.isValid(ownerUserId)) return [];
+  const { db } = await connectToDatabase();
+  const docs = await db
+    .collection('projects')
+    .find({ userId: new ObjectId(ownerUserId) }, { projection: { name: 1 } })
+    .sort({ createdAt: 1 })
+    .limit(200)
+    .toArray();
+  return docs.map((d) => ({
+    id: String(d._id),
+    name: String((d as { name?: unknown }).name ?? 'Untitled project'),
+  }));
 }
 
 /** Verified domains available for provisioning in a mail workspace. */

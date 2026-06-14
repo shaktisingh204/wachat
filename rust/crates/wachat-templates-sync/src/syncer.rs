@@ -45,7 +45,7 @@ use wachat_meta_dto::{ListTemplatesResp, TemplateRecord};
 use wachat_types::Project;
 
 /// Meta Graph API version used by the TS source of truth (`API_VERSION = 'v22.0'`).
-const META_API_VERSION: &str = "v22.0";
+const META_API_VERSION: &str = "v25.0";
 
 /// Page size — matches the TS code (`limit=100` on the initial URL, line 50).
 const PAGE_SIZE: u32 = 100;

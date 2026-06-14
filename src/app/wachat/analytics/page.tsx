@@ -8,7 +8,7 @@ import {
   CardTitle,
   EmptyState,
   Field,
-  Select,
+  SelectField as Select,
   SegmentedControl,
   StatCard,
   Table,
@@ -51,6 +51,7 @@ import {
   getBroadcastAnalytics,
   } from '@/app/actions/whatsapp-analytics.actions';
 import { WachatPage } from '@/app/wachat/_components/wachat-page';
+import { AiInsightsCard } from '@/components/wachat/analytics';
 
 /**
  * Wachat Analytics — WhatsApp messaging analytics dashboard.
@@ -241,6 +242,19 @@ export default function AnalyticsPage() {
       }
     >
       <div className="flex flex-col gap-6">
+        {analytics ? (
+          <AiInsightsCard
+            projectId={activeProject?._id?.toString() ?? ''}
+            context="WhatsApp message analytics"
+            brand={{ businessName: activeProject?.name ?? undefined }}
+            metrics={{
+              'Messages sent': analytics.totalSent,
+              Delivered: analytics.totalDelivered,
+              Read: analytics.totalRead,
+              Failed: analytics.totalFailed,
+            }}
+          />
+        ) : null}
         {/* Advanced Filters */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Field label="Agent">

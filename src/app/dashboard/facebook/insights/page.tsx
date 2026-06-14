@@ -1,49 +1,61 @@
 'use client';
 
-import { Alert, AlertDescription, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardHeader, CardTitle, ChartContainer, ChartTooltip, EmptyState, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, StatCard } from '@/components/sabcrm/20ui';
 import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-  useTransition } from 'react';
+  Alert,
+  AlertDescription,
+  AlertTitle,
+  Badge,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  CardTitle,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  EmptyState,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Skeleton,
+  StatCard,
+} from '@/components/sabcrm/20ui';
+import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
 import {
   Activity,
   AlertCircle,
   BarChart3,
+  Download,
   Eye,
   Heart,
   RefreshCw,
   Users,
-  } from 'lucide-react';
-import { format,
-  subDays } from 'date-fns';
-import {
-  Area,
-  AreaChart,
-  CartesianGrid,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-  } from 'recharts';
+} from 'lucide-react';
+import { format, subDays } from 'date-fns';
+import { Area, AreaChart, Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts';
+import { m } from 'motion/react';
 
 import { useProject } from '@/context/project-context';
-import {
-  getDetailedPageInsights,
-  getPageInsights,
-  } from '@/app/actions/facebook.actions';
+import { getDetailedPageInsights, getPageInsights } from '@/app/actions/facebook.actions';
+import { PAGE_METRICS } from '@/lib/meta/insights-metrics';
+import { CountUp } from '@/components/wachat/motion';
 
 /**
- * /dashboard/facebook/insights — Page-level performance metrics.
+ * /dashboard/facebook/insights — v25 Analytics Suite.
  *
- * KPI strip (reach, engagement, impressions, page views) sits above a
- * detailed time-series chart driven by `getDetailedPageInsights`. A
- * date-preset selector switches the `since` window (7/30/90 days).
- *
- * Data shape: Graph Insights returns `[{ name, period, values:
- * [{value, end_time}] }]`. We pivot the first time-series metric into a
- * recharts dataset.
+ * Built on the v25 metric vocabulary (`@/lib/meta/insights-metrics`): Meta
+ * removed the reach/impressions family, so we report **Views** (`page_media_view`)
+ * and **Viewers** (`page_total_media_view_unique`) plus engagement & followers.
+ * Animated KPI tiles, a Views area chart, an engagement bar chart, an optional
+ * previous-period comparison, and CSV export.
  */
 
 import * as React from 'react';
@@ -59,44 +71,58 @@ interface MetricSeries {
   name: string;
   period?: string;
   title?: string;
-  values?: { value: any; end_time?: string }[];
+  values?: { value: unknown; end_time?: string }[];
 }
+
+const SAFE_METRICS = [PAGE_METRICS.views, PAGE_METRICS.engagement, PAGE_METRICS.follows].join(',');
 
 function presetSince(preset: Preset): { since: string; until: string; days: number } {
   const until = new Date();
   const days = preset === '7d' ? 7 : preset === '30d' ? 30 : 90;
   const since = subDays(until, days);
-  return {
-    since: format(since, 'yyyy-MM-dd'),
-    until: format(until, 'yyyy-MM-dd'),
-    days,
-  };
+  return { since: format(since, 'yyyy-MM-dd'), until: format(until, 'yyyy-MM-dd'), days };
+}
+
+function prevWindow(preset: Preset): { since: string; until: string } {
+  const days = preset === '7d' ? 7 : preset === '30d' ? 30 : 90;
+  const until = subDays(new Date(), days);
+  const since = subDays(until, days);
+  return { since: format(since, 'yyyy-MM-dd'), until: format(until, 'yyyy-MM-dd') };
 }
 
 function pickMetric(series: MetricSeries[], names: string[]): MetricSeries | undefined {
   for (const n of names) {
-    const m = series.find((s) => s.name === n);
-    if (m) return m;
+    const m2 = series.find((s) => s.name === n);
+    if (m2) return m2;
   }
   return undefined;
 }
 
-function metricTotal(s?: MetricSeries): number {
-  if (!s?.values) return 0;
-  let total = 0;
-  for (const v of s.values) {
-    const n = typeof v.value === 'number' ? v.value : Number(v.value);
-    if (!Number.isNaN(n)) total += n;
-  }
-  return total;
-}
-
-/** Last daily value — for running-total metrics like page_follows where summing days is wrong. */
-function metricLatest(s?: MetricSeries): number {
-  const last = s?.values?.[s.values.length - 1]?.value;
-  const n = typeof last === 'number' ? last : Number(last);
+function num(v: unknown): number {
+  const n = typeof v === 'number' ? v : Number(v);
   return Number.isNaN(n) ? 0 : n;
 }
+
+function metricTotal(s?: MetricSeries): number {
+  if (!s?.values) return 0;
+  return s.values.reduce((acc, v) => acc + num(v.value), 0);
+}
+
+/** Last daily value — for running-total metrics like page_follows. */
+function metricLatest(s?: MetricSeries): number {
+  return num(s?.values?.[s.values.length - 1]?.value);
+}
+
+function deltaPct(current: number, previous: number): { value: string; tone: 'up' | 'down' | 'neutral' } | undefined {
+  if (!previous) return undefined;
+  const pct = Math.round(((current - previous) / previous) * 100);
+  return { value: `${pct >= 0 ? '+' : ''}${pct}%`, tone: pct > 0 ? 'up' : pct < 0 ? 'down' : 'neutral' };
+}
+
+const chartConfig = {
+  views: { label: 'Views', color: 'var(--st-accent)' },
+  actions: { label: 'Engagement', color: 'var(--st-text)' },
+};
 
 export default function FacebookInsightsPage(): React.JSX.Element {
   const { activeProject } = useProject();
@@ -104,81 +130,109 @@ export default function FacebookInsightsPage(): React.JSX.Element {
 
   const [summary, setSummary] = useState<PageInsightsSummary | null>(null);
   const [series, setSeries] = useState<MetricSeries[]>([]);
+  const [prevSeries, setPrevSeries] = useState<MetricSeries[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, startLoading] = useTransition();
   const [preset, setPreset] = useState<Preset>('30d');
+  const [compare, setCompare] = useState(false);
 
   const refresh = useCallback(() => {
     if (!projectId) return;
     const { since, until } = presetSince(preset);
     startLoading(async () => {
-      const [sumRes, detailRes] = await Promise.all([
+      // Core call uses the proven-valid v25 trio; viewers (unique) is requested
+      // separately so an unsupported metric never fails the whole dashboard.
+      const [sumRes, detailRes, viewersRes, prevRes] = await Promise.all([
         getPageInsights(projectId),
-        getDetailedPageInsights(projectId, {
-          // Meta removed page_impressions / page_fans / page_posts_impressions
-          // for ALL API versions on 2025-11-15. One removed metric fails the
-          // whole call with "(#100) ... valid insights metric".
-          // page_media_view — replacement for the impressions family
-          // page_total_actions — replacement for deprecated page_post_engagements
-          // page_follows — follower count (page_fans has no direct successor)
-          metrics: 'page_media_view,page_total_actions,page_follows',
-          period: 'day',
-          since,
-          until,
-        }),
+        getDetailedPageInsights(projectId, { metrics: SAFE_METRICS, period: 'day', since, until }),
+        getDetailedPageInsights(projectId, { metrics: PAGE_METRICS.viewers, period: 'day', since, until }),
+        compare
+          ? getDetailedPageInsights(projectId, {
+              metrics: SAFE_METRICS,
+              period: 'day',
+              ...prevWindow(preset),
+            })
+          : Promise.resolve({ insights: [] as MetricSeries[] }),
       ]);
+
       if (sumRes.error && detailRes.error) {
-        setError(sumRes.error);
+        setError(detailRes.error || sumRes.error || 'Could not load insights.');
       } else {
         setError(null);
       }
       setSummary((sumRes.insights as PageInsightsSummary | undefined) ?? null);
-      setSeries((detailRes.insights as MetricSeries[]) ?? []);
+      const merged = [
+        ...((detailRes.insights as MetricSeries[]) ?? []),
+        ...(!viewersRes.error ? ((viewersRes.insights as MetricSeries[]) ?? []) : []),
+      ];
+      setSeries(merged);
+      setPrevSeries((prevRes.insights as MetricSeries[]) ?? []);
     });
-  }, [projectId, preset]);
+  }, [projectId, preset, compare]);
 
   useEffect(() => {
     refresh();
   }, [refresh]);
 
-  const views = useMemo(
-    // page_media_view replaces the removed page_impressions family
-    () => pickMetric(series, ['page_media_view']),
-    [series],
-  );
-  const engagementSeries = useMemo(
-    // page_total_actions replaces deprecated page_post_engagements
-    () => pickMetric(series, ['page_total_actions']),
-    [series],
-  );
-  const followers = useMemo(
-    // page_fans was removed 2025-11-15; page_follows is the follower count
-    () => pickMetric(series, ['page_follows']),
-    [series],
+  const views = useMemo(() => pickMetric(series, [PAGE_METRICS.views]), [series]);
+  const viewers = useMemo(() => pickMetric(series, [PAGE_METRICS.viewers]), [series]);
+  const engagementSeries = useMemo(() => pickMetric(series, [PAGE_METRICS.engagement]), [series]);
+  const followers = useMemo(() => pickMetric(series, [PAGE_METRICS.follows]), [series]);
+
+  const prevViews = useMemo(() => pickMetric(prevSeries, [PAGE_METRICS.views]), [prevSeries]);
+  const prevEngagement = useMemo(() => pickMetric(prevSeries, [PAGE_METRICS.engagement]), [prevSeries]);
+
+  const totals = useMemo(
+    () => ({
+      views: metricTotal(views),
+      viewers: metricTotal(viewers),
+      actions: metricTotal(engagementSeries),
+      followers: metricLatest(followers),
+    }),
+    [views, viewers, engagementSeries, followers],
   );
 
   const chartData = useMemo(() => {
-    const primary = views ?? engagementSeries;
-    if (!primary?.values?.length) return [];
-    return primary.values.map((v) => ({
-      date: v.end_time ? format(new Date(v.end_time), 'MMM d') : '',
-      value: typeof v.value === 'number' ? v.value : Number(v.value) || 0,
-    }));
+    const byDate = new Map<string, { date: string; views: number; actions: number }>();
+    const add = (s: MetricSeries | undefined, key: 'views' | 'actions') => {
+      for (const v of s?.values ?? []) {
+        const date = v.end_time ? format(new Date(v.end_time), 'MMM d') : '';
+        const row = byDate.get(date) ?? { date, views: 0, actions: 0 };
+        row[key] = num(v.value);
+        byDate.set(date, row);
+      }
+    };
+    add(views, 'views');
+    add(engagementSeries, 'actions');
+    return Array.from(byDate.values());
   }, [views, engagementSeries]);
 
-  const primaryLabel = views ? 'Views' : 'Total actions';
+  const exportCsv = useCallback(() => {
+    if (chartData.length === 0) return;
+    const header = 'date,views,engagement\n';
+    const rows = chartData.map((r) => `${r.date},${r.views},${r.actions}`).join('\n');
+    const blob = new Blob([header + rows], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `facebook-insights-${preset}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [chartData, preset]);
 
   if (!projectId) {
     return (
       <div className="p-6">
         <EmptyState
-          icon={<BarChart3 />}
+          icon={BarChart3}
           title="No project selected"
           description="Pick a Facebook page / project to see insights."
         />
       </div>
     );
   }
+
+  const days = presetSince(preset).days;
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-4 px-6 pt-6 pb-10">
@@ -202,11 +256,18 @@ export default function FacebookInsightsPage(): React.JSX.Element {
         <div>
           <h1 className="text-2xl text-[var(--st-text)]">Insights</h1>
           <p className="mt-1 text-sm text-[var(--st-text-secondary)]">
-            Reach, engagement, and audience growth from the Facebook Graph
+            v25 Views &amp; Viewers, engagement and audience growth from the Graph
             Insights API.
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            variant={compare ? 'primary' : 'outline'}
+            size="sm"
+            onClick={() => setCompare((v) => !v)}
+          >
+            Compare period
+          </Button>
           <Select value={preset} onValueChange={(v) => setPreset(v as Preset)}>
             <SelectTrigger className="w-[160px]">
               <SelectValue placeholder="Range" />
@@ -217,7 +278,10 @@ export default function FacebookInsightsPage(): React.JSX.Element {
               <SelectItem value="90d">Last 90 days</SelectItem>
             </SelectContent>
           </Select>
-          <Button variant="ghost" onClick={refresh} disabled={loading}>
+          <Button variant="outline" size="sm" onClick={exportCsv} disabled={chartData.length === 0} iconLeft={Download}>
+            CSV
+          </Button>
+          <Button variant="ghost" size="sm" onClick={refresh} disabled={loading}>
             <RefreshCw className={loading ? 'mr-2 h-4 w-4 animate-spin' : 'mr-2 h-4 w-4'} />
             Refresh
           </Button>
@@ -232,7 +296,12 @@ export default function FacebookInsightsPage(): React.JSX.Element {
         </Alert>
       )}
 
-      <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <m.section
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+        className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4"
+      >
         {loading && series.length === 0 && !summary ? (
           <>
             <Skeleton className="h-28 w-full" />
@@ -243,135 +312,120 @@ export default function FacebookInsightsPage(): React.JSX.Element {
         ) : (
           <>
             <StatCard
-              icon={<Eye />}
-              label="Views"
-              value={(metricTotal(views) || 0).toLocaleString()}
-              period={`last ${presetSince(preset).days} days`}
+              icon={Eye}
+              label={`Views · last ${days}d`}
+              value={<CountUp value={totals.views} />}
+              accent="var(--st-accent)"
+              delta={compare ? deltaPct(totals.views, metricTotal(prevViews)) : undefined}
             />
             <StatCard
-              icon={<Users />}
-              label="Views (28d)"
-              value={(summary?.pageReach ?? 0).toLocaleString()}
-              period="Graph 28-day window"
+              icon={Users}
+              label={`Viewers · last ${days}d`}
+              value={<CountUp value={totals.viewers || summary?.pageReach || 0} />}
             />
             <StatCard
-              icon={<Heart />}
-              label="Total actions"
-              value={(
-                metricTotal(engagementSeries) || summary?.postEngagement || 0
-              ).toLocaleString()}
-              period={`last ${presetSince(preset).days} days`}
+              icon={Heart}
+              label={`Engagement · last ${days}d`}
+              value={<CountUp value={totals.actions || summary?.postEngagement || 0} />}
+              delta={compare ? deltaPct(totals.actions, metricTotal(prevEngagement)) : undefined}
             />
-            <StatCard
-              icon={<Activity />}
-              label="Followers"
-              value={(metricLatest(followers) || 0).toLocaleString()}
-              period="current total"
-            />
+            <StatCard icon={Activity} label="Followers" value={<CountUp value={totals.followers} />} />
           </>
         )}
-      </section>
+      </m.section>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>{primaryLabel} over time</CardTitle>
-        </CardHeader>
-        <CardBody>
-          {loading && chartData.length === 0 ? (
-            <Skeleton className="h-[280px] w-full" />
-          ) : chartData.length === 0 ? (
-            <EmptyState
-              icon={<BarChart3 />}
-              title="No time-series data"
-              description="The Graph Insights API returned no daily values for this range."
-            />
-          ) : (
-            <ChartContainer height={280}>
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart
-                  data={chartData}
-                  margin={{ top: 8, right: 12, bottom: 0, left: -12 }}
-                >
+      <m.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.25, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <Card>
+          <CardHeader>
+            <CardTitle>Views over time</CardTitle>
+          </CardHeader>
+          <CardBody>
+            {loading && chartData.length === 0 ? (
+              <Skeleton className="h-[280px] w-full" />
+            ) : chartData.length === 0 ? (
+              <EmptyState
+                icon={BarChart3}
+                title="No time-series data"
+                description="The Graph Insights API returned no daily values for this range."
+              />
+            ) : (
+              <ChartContainer config={chartConfig} className="h-[280px] w-full">
+                <AreaChart data={chartData} margin={{ top: 8, right: 12, bottom: 0, left: -12 }}>
                   <defs>
-                    <linearGradient id="fbInsightsArea" x1="0" y1="0" x2="0" y2="1">
-                      <stop
-                        offset="5%"
-                        stopColor="var(--st-text)"
-                        stopOpacity={0.32}
-                      />
-                      <stop
-                        offset="95%"
-                        stopColor="var(--st-text)"
-                        stopOpacity={0}
-                      />
+                    <linearGradient id="fbViewsArea" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="var(--color-views)" stopOpacity={0.32} />
+                      <stop offset="95%" stopColor="var(--color-views)" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    stroke="var(--st-border)"
-                    vertical={false}
-                  />
-                  <XAxis
-                    dataKey="date"
-                    tick={{ fontSize: 11, fill: 'var(--st-text-secondary)' }}
-                    tickLine={false}
-                    axisLine={false}
-                  />
-                  <YAxis
-                    tick={{ fontSize: 11, fill: 'var(--st-text-secondary)' }}
-                    tickLine={false}
-                    axisLine={false}
-                    width={48}
-                  />
-                  <Tooltip content={<ChartTooltip />} />
-                  <Area
-                    type="monotone"
-                    dataKey="value"
-                    name={primaryLabel}
-                    stroke="var(--st-text)"
-                    fill="url(#fbInsightsArea)"
-                    strokeWidth={2}
-                  />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--st-border)" vertical={false} />
+                  <XAxis dataKey="date" tick={{ fontSize: 11, fill: 'var(--st-text-secondary)' }} tickLine={false} axisLine={false} />
+                  <YAxis tick={{ fontSize: 11, fill: 'var(--st-text-secondary)' }} tickLine={false} axisLine={false} width={48} />
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <Area type="monotone" dataKey="views" name="views" stroke="var(--color-views)" fill="url(#fbViewsArea)" strokeWidth={2} />
                 </AreaChart>
-              </ResponsiveContainer>
-            </ChartContainer>
-          )}
-        </CardBody>
-      </Card>
+              </ChartContainer>
+            )}
+          </CardBody>
+        </Card>
+      </m.div>
+
+      <m.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.25, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <Card>
+          <CardHeader>
+            <CardTitle>Engagement over time</CardTitle>
+          </CardHeader>
+          <CardBody>
+            {chartData.length === 0 ? (
+              <p className="text-xs text-[var(--st-text-secondary)]">No engagement data for this range.</p>
+            ) : (
+              <ChartContainer config={chartConfig} className="h-[220px] w-full">
+                <BarChart data={chartData} margin={{ top: 8, right: 12, bottom: 0, left: -12 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--st-border)" vertical={false} />
+                  <XAxis dataKey="date" tick={{ fontSize: 11, fill: 'var(--st-text-secondary)' }} tickLine={false} axisLine={false} />
+                  <YAxis tick={{ fontSize: 11, fill: 'var(--st-text-secondary)' }} tickLine={false} axisLine={false} width={48} />
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <Bar dataKey="actions" name="actions" fill="var(--color-actions)" radius={[3, 3, 0, 0]} />
+                </BarChart>
+              </ChartContainer>
+            )}
+          </CardBody>
+        </Card>
+      </m.div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Other metrics</CardTitle>
+          <CardTitle>All metrics</CardTitle>
         </CardHeader>
         <CardBody>
           {series.length === 0 ? (
             <p className="text-xs text-[var(--st-text-secondary)]">No additional metrics.</p>
           ) : (
             <ul className="grid grid-cols-1 gap-2 md:grid-cols-2">
-              {series.map((m) => (
+              {series.map((mItem) => (
                 <li
-                  key={m.name}
+                  key={mItem.name}
                   className="flex items-center justify-between rounded-md border border-[var(--st-border)] px-3 py-2 text-sm"
                 >
-                  <span className="text-[var(--st-text)]">{m.title ?? m.name}</span>
+                  <span className="text-[var(--st-text)]">{mItem.title ?? mItem.name}</span>
                   <div className="flex items-center gap-2">
-                    {m.period ? (
-                      <Badge variant="outline">{m.period}</Badge>
-                    ) : null}
+                    {mItem.period ? <Badge variant="outline">{mItem.period}</Badge> : null}
                     <span className="font-medium text-[var(--st-text)]">
-                      {metricTotal(m).toLocaleString()}
+                      {(mItem.name === PAGE_METRICS.follows
+                        ? metricLatest(mItem)
+                        : metricTotal(mItem)
+                      ).toLocaleString()}
                     </span>
                   </div>
                 </li>
               ))}
-              {followers ? (
-                <li className="flex items-center justify-between rounded-md border border-[var(--st-border)] px-3 py-2 text-sm">
-                  <span className="text-[var(--st-text)]">Followers</span>
-                  <span className="font-medium text-[var(--st-text)]">
-                    {metricLatest(followers).toLocaleString()}
-                  </span>
-                </li>
-              ) : null}
             </ul>
           )}
         </CardBody>

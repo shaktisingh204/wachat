@@ -1,6 +1,6 @@
 "use client";
 
-import { Alert, AlertDescription, AlertTitle, Badge, Button, DataTable, EmptyState, Separator, Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, Skeleton } from '@/components/sabcrm/20ui';
+import { Alert, AlertDescription, AlertTitle, Badge, Button, DataTable, EmptyState, Separator, Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, Skeleton, type DataTableColumn } from '@/components/sabcrm/20ui';
 import {
   useCallback,
   useEffect,
@@ -14,7 +14,6 @@ import { AlertCircle,
   LoaderCircle,
   Package,
   RefreshCw } from "lucide-react";
-import type { ColumnDef } from "@tanstack/react-table";
 
 import {
   getEcommOrders,
@@ -33,12 +32,12 @@ import type { WithId } from "mongodb";
 
 import * as React from "react";
 
-function statusVariant(s?: string): "default" | "secondary" | "outline" | "danger" {
+function statusVariant(s?: string): "default" | "secondary" | "outline" | "destructive" {
   if (!s) return "outline";
   const v = s.toLowerCase();
   if (v === "paid" || v === "shipped" || v === "delivered") return "default";
   if (v === "pending") return "secondary";
-  if (v === "cancelled") return "danger";
+  if (v === "cancelled") return "destructive";
   return "outline";
 }
 
@@ -90,57 +89,57 @@ export default function OrdersPage() {
     [currency],
   );
 
-  const columns = useMemo<ColumnDef<WithId<EcommOrder>>[]>(
+  const columns = useMemo<DataTableColumn<WithId<EcommOrder>>[]>(
     () => [
       {
-        accessorKey: "_id",
+        key: "_id",
         header: "Order ID",
-        cell: ({ row }) => (
+        render: (row) => (
           <span className="font-mono text-xs text-[var(--st-text)]">
-            {row.original._id.toString().slice(-8)}
+            {row._id.toString().slice(-8)}
           </span>
         ),
       },
       {
-        accessorKey: "createdAt",
+        key: "createdAt",
         header: "Date",
-        cell: ({ row }) =>
-          row.original.createdAt
-            ? format(new Date(row.original.createdAt), "PP · p")
+        render: (row) =>
+          row.createdAt
+            ? format(new Date(row.createdAt), "PP · p")
             : "—",
       },
       {
-        accessorKey: "customerInfo",
+        key: "customerInfo",
         header: "Customer",
-        cell: ({ row }) => row.original.customerInfo?.name || "—",
+        render: (row) => row.customerInfo?.name || "—",
       },
       {
-        accessorKey: "status",
+        key: "status",
         header: "Status",
-        cell: ({ row }) => (
+        render: (row) => (
           <Badge
-            variant={statusVariant(row.original.status)}
+            variant={statusVariant(row.status)}
             className="capitalize"
           >
-            {row.original.status}
+            {row.status}
           </Badge>
         ),
       },
       {
-        accessorKey: "total",
+        key: "total",
         header: "Total",
-        cell: ({ row }) => formatMoney.format(row.original.total),
+        render: (row) => formatMoney.format(row.total),
       },
       {
-        id: "actions",
-        header: () => <span className="sr-only">Actions</span>,
-        cell: ({ row }) => (
+        key: "actions",
+        header: <span className="sr-only">Actions</span>,
+        render: (row) => (
           <div className="flex justify-end">
             <Button
               variant="ghost"
-              size="icon-sm"
+              size="sm"
               aria-label="View order"
-              onClick={() => setActiveOrder(row.original)}
+              onClick={() => setActiveOrder(row)}
             >
               <Eye />
             </Button>
@@ -200,9 +199,8 @@ export default function OrdersPage() {
       ) : (
         <DataTable
           columns={columns}
-          data={orders}
-          filterPlaceholder="Search orders…"
-          pageSize={10}
+          rows={orders}
+          getRowId={(row) => row._id.toString()}
         />
       )}
 

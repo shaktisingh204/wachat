@@ -66,6 +66,12 @@ pub struct OAuthCallbackBody {
     /// doesn't currently honor it (no WhatsApp branch yet).
     #[serde(default, rename = "includeCatalog")]
     pub include_catalog: bool,
+    /// Facebook Login for Business (JS-SDK `FB.login`) flow. When `true` the
+    /// one-time `code` is exchanged WITHOUT a `redirect_uri` — the SDK never
+    /// performed a server redirect, so sending one yields a `redirect_uri`
+    /// mismatch. Plain redirect OAuth leaves this `false`.
+    #[serde(default)]
+    pub embedded: bool,
 }
 
 // ---------------------------------------------------------------------------

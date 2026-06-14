@@ -8,6 +8,7 @@ import {
   updateSabAdminSettings,
   resolveMailWorkspaceId,
   listVerifiedDomains,
+  listOwnerProjects,
   pickDefaultDomain,
 } from '@/lib/sabadmin/tenant';
 import { isStalwartEnabled } from '@/lib/sabmail/hosted-provider';
@@ -26,6 +27,7 @@ export async function getSabAdminSettingsView(): Promise<SettingsView | null> {
   const mailWorkspaceId = await resolveMailWorkspaceId(ctx.ownerUserId, settings);
   const verifiedDomains = mailWorkspaceId ? await listVerifiedDomains(mailWorkspaceId) : [];
   const defaultDomain = pickDefaultDomain(verifiedDomains, settings);
+  const projects = await listOwnerProjects(ctx.ownerUserId);
 
   return {
     ownerUserId: ctx.ownerUserId,
@@ -35,6 +37,8 @@ export async function getSabAdminSettingsView(): Promise<SettingsView | null> {
     orgSlug: settings.orgSlug ?? null,
     usernameConvention: settings.usernameConvention,
     defaultPackageId: settings.defaultPackageId ?? null,
+    sabcrmProjectId: settings.sabcrmProjectId ?? null,
+    projects,
     verifiedDomains,
     defaultDomain,
     hostedMailConfigured: isStalwartEnabled(),
@@ -50,6 +54,7 @@ export async function updateSabAdminSettingsAction(patch: {
   orgSlug?: string;
   usernameConvention?: UsernameConvention;
   defaultPackageId?: string;
+  sabcrmProjectId?: string;
 }): Promise<ActionResult> {
   const ctxRes = await getSabAdminContext();
   if (!ctxRes.ok) return { ok: false, error: ctxRes.error };

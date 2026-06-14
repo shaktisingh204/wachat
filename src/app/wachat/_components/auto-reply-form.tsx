@@ -11,7 +11,7 @@ import {
   Field,
   IconButton,
   Input,
-  Select,
+  SelectField as Select,
   Switch,
   Textarea,
   useToast,
@@ -29,6 +29,7 @@ import { Loader2,
 import { v4 as uuidv4 } from 'uuid';
 
 import { updateAutoReplySettings } from '@/app/actions/wachat-auto-reply-settings.actions';
+import { AiAutoReplyGenerator } from '@/components/wachat/automation/ai-autoreply-generator';
 import type { GeneralReplyRule,
   Project,
   WithId } from '@/lib/definitions';
@@ -288,6 +289,22 @@ export function AutoReplyForm({ type, project }: AutoReplyFormProps) {
       case 'general': {
         return (
           <div className="flex flex-col gap-4">
+            <AiAutoReplyGenerator
+              brand={{ businessName: project.name }}
+              onApply={(rules) =>
+                setReplies((prev) => [
+                  ...prev,
+                  ...rules.map(
+                    (r): GeneralReplyRule => ({
+                      id: uuidv4(),
+                      keywords: r.keywords,
+                      reply: r.reply,
+                      matchType: r.matchType === 'exact' ? 'exact' : 'contains',
+                    }),
+                  ),
+                ])
+              }
+            />
             {replies.length === 0 && (
               <p className="text-[13px] italic text-[var(--st-text-muted)]">
                 No keyword rules yet. Add one below.

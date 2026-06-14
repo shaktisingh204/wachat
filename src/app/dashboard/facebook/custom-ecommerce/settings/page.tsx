@@ -102,7 +102,7 @@ export default function CustomEcommerceSettingsPage(): React.JSX.Element {
                       <p className="font-mono text-[11px] text-[var(--st-text-secondary)]">/{slug}</p>
                     ) : null}
                   </div>
-                  <Badge variant="ghost">
+                  <Badge variant="secondary">
                     {(s as unknown as { isPublished?: boolean }).isPublished
                       ? 'live'
                       : 'draft'}

@@ -81,7 +81,7 @@ function ReprocessButton({
   return (
     <Button
       variant="ghost"
-      size="icon-sm"
+      size="sm"
       onClick={onReprocess}
       disabled={isProcessing}
       aria-label="Re-process webhook"
@@ -380,7 +380,7 @@ export function FacebookWebhookLogs({
                           />
                           <Button
                             variant="ghost"
-                            size="icon-sm"
+                            size="sm"
                             onClick={() => handleViewLog(log)}
                             aria-label="View payload"
                           >
@@ -555,7 +555,7 @@ export function FacebookWebhookLogs({
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              destructive
+              intent="danger"
               onClick={(e) => {
                 e.preventDefault();
                 handleClearLogs();

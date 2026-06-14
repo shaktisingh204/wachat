@@ -11,7 +11,7 @@ import {
   Skeleton,
   Switch,
   Textarea,
-  Select,
+  SelectField as Select,
   Input,
   useToast,
 } from '@/components/sabcrm/20ui';

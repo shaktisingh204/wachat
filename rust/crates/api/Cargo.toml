@@ -52,6 +52,11 @@ wachat-payment-request = { path = "../wachat-payment-request" }
 wachat-pay = { path = "../wachat-pay" }
 wachat-broadcast = { path = "../wachat-broadcast" }
 wachat-calling = { path = "../wachat-calling" }
+wachat-marketing = { path = "../wachat-marketing" }
+wachat-carousel = { path = "../wachat-carousel" }
+wachat-identity = { path = "../wachat-identity" }
+wachat-interactive = { path = "../wachat-interactive" }
+wachat-webhook-calls = { path = "../wachat-webhook-calls" }
 wachat-features = { path = "../wachat-features" }
 wachat-send-router = { path = "../wachat-send-router" }
 wachat-public-api = { path = "../wachat-public-api" }

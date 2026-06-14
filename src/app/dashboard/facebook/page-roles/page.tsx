@@ -1,13 +1,12 @@
 "use client";
 
-import { Alert, AlertDescription, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, DataTable, EmptyState, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton } from '@/components/sabcrm/20ui';
+import { Alert, AlertDescription, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, DataTable, EmptyState, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton, type DataTableColumn } from '@/components/sabcrm/20ui';
 import {
   useCallback,
   useEffect,
   useMemo,
   useState,
   useTransition } from "react";
-import type { ColumnDef } from "@tanstack/react-table";
 import { AlertCircle,
   Ban,
   RefreshCw,
@@ -140,57 +139,57 @@ export default function PageRolesPage() {
     fetchData();
   }, [projectId, fetchData]);
 
-  const roleColumns = useMemo<ColumnDef<RoleRow>[]>(
+  const roleColumns = useMemo<DataTableColumn<RoleRow>[]>(
     () => [
       {
-        accessorKey: "name",
+        key: "name",
         header: "Name",
-        cell: ({ row }) => (
+        render: (row) => (
           <span className="text-[13px] text-[var(--st-text)]">
-            {row.original.name}
+            {row.name}
           </span>
         ),
       },
       {
-        accessorKey: "role",
+        key: "role",
         header: "Role",
-        cell: ({ row }) => (
-          <Badge variant="secondary">{row.original.role}</Badge>
+        render: (row) => (
+          <Badge variant="secondary">{row.role}</Badge>
         ),
       },
     ],
     [],
   );
 
-  const blockedColumns = useMemo<ColumnDef<BlockedRow>[]>(
+  const blockedColumns = useMemo<DataTableColumn<BlockedRow>[]>(
     () => [
       {
-        accessorKey: "name",
+        key: "name",
         header: "Name",
-        cell: ({ row }) => (
+        render: (row) => (
           <span className="text-[13px] text-[var(--st-text)]">
-            {row.original.name || row.original.id}
+            {row.name || row.id}
           </span>
         ),
       },
       {
-        accessorKey: "id",
+        key: "id",
         header: "Profile ID",
-        cell: ({ row }) => (
+        render: (row) => (
           <span className="font-mono text-[11.5px] text-[var(--st-text-secondary)]">
-            {row.original.id}
+            {row.id}
           </span>
         ),
       },
       {
-        id: "actions",
-        header: () => <span className="sr-only">Actions</span>,
-        cell: ({ row }) => (
+        key: "actions",
+        header: <span className="sr-only">Actions</span>,
+        render: (row) => (
           <div className="flex justify-end">
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setUnblockTarget(row.original)}
+              onClick={() => setUnblockTarget(row)}
             >
               Unblock
             </Button>
@@ -316,7 +315,7 @@ export default function PageRolesPage() {
               <div className="mt-4">
                 {roles.length === 0 ? (
                   <EmptyState
-                    compact
+                    size="sm"
                     icon={<ShieldCheck />}
                     title="No roles found"
                     description="Add admins or editors from your Facebook Page settings."
@@ -324,9 +323,8 @@ export default function PageRolesPage() {
                 ) : (
                   <DataTable
                     columns={roleColumns}
-                    data={roles}
-                    showColumnMenu={false}
-                    pageSize={10}
+                    rows={roles}
+                    getRowId={(row, index) => row.id ?? `${row.name}-${index}`}
                   />
                 )}
               </div>
@@ -349,7 +347,7 @@ export default function PageRolesPage() {
               <div className="mt-4">
                 {blocked.length === 0 ? (
                   <EmptyState
-                    compact
+                    size="sm"
                     icon={<Ban />}
                     title="No blocked profiles"
                     description="Use “Block profile” above to restrict a Facebook profile."
@@ -357,9 +355,8 @@ export default function PageRolesPage() {
                 ) : (
                   <DataTable
                     columns={blockedColumns}
-                    data={blocked}
-                    showColumnMenu={false}
-                    pageSize={10}
+                    rows={blocked}
+                    getRowId={(row) => row.id}
                   />
                 )}
               </div>
