@@ -27,7 +27,25 @@ pub fn router(state: AppState) -> Router {
         .route("/v1/channels/{channelId}/snoop", post(snoop))
         .route("/v1/channels/{channelId}/record", post(record_channel))
         .route("/v1/tenants/{tenant}/pjsip.conf", get(pjsip_conf))
+        .route("/v1/tenants/{tenant}/routr.json", get(routr_config))
         .with_state(state)
+}
+
+/// Routr (open-source SIP) resource set for a tenant, rendered from the SIP
+/// resource model — feed to Routr via its SDK/CLI or files connector.
+async fn routr_config(
+    State(state): State<AppState>,
+    headers: HeaderMap,
+    Path(tenant): Path<String>,
+) -> EngineResult<Json<Value>> {
+    require_token(&state, &headers)?;
+    if tenant.trim().is_empty() {
+        return Err(EngineError::BadRequest("tenant is required".to_owned()));
+    }
+    crate::routr::render_for_tenant(&state.db, &tenant)
+        .await
+        .map(Json)
+        .map_err(EngineError::Other)
 }
 
 async fn list_channels(

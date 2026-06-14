@@ -16,6 +16,7 @@ pub mod http;
 pub mod llm;
 pub mod pjsip;
 pub mod routing;
+pub mod routr;
 pub mod stasis;
 pub mod state;
 pub mod stt;
