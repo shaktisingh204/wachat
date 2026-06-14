@@ -59,6 +59,10 @@ function colorForUser(userId: string): string {
 let ttlEnsured = false;
 async function ensureTtlIndex(db: Awaited<ReturnType<typeof connectToDatabase>>['db']) {
   if (ttlEnsured) return;
+  // Attempt at most once per process regardless of outcome — a conflicting or
+  // failing createIndex must NOT re-run on every 12s heartbeat. Queries filter
+  // on expiresAt > now, so presence stays correct even without the TTL sweep.
+  ttlEnsured = true;
   try {
     await db
       .collection(PRESENCE_COLLECTION)
@@ -66,10 +70,8 @@ async function ensureTtlIndex(db: Awaited<ReturnType<typeof connectToDatabase>>[
     await db
       .collection(PRESENCE_COLLECTION)
       .createIndex({ workspaceId: 1, draftId: 1 });
-    ttlEnsured = true;
   } catch {
-    /* index creation is best-effort; presence still works without the TTL
-       sweep because queries filter on expiresAt > now anyway. */
+    /* best-effort */
   }
 }
 

@@ -28,6 +28,9 @@ interface BindingApi {
   getSubject: () => string;
 }
 
+const isHighSurrogate = (c: number) => c >= 0xd800 && c <= 0xdbff;
+const isLowSurrogate = (c: number) => c >= 0xdc00 && c <= 0xdfff;
+
 function replaceText(
   doc: Y.Doc,
   ytext: Y.Text,
@@ -39,11 +42,19 @@ function replaceText(
   let start = 0;
   const min = Math.min(prev.length, next.length);
   while (start < min && prev[start] === next[start]) start += 1;
+  // Never cut between the halves of a surrogate pair (emoji etc.) — back the
+  // prefix boundary off a trailing high surrogate so the pair stays whole.
+  if (start > 0 && isHighSurrogate(prev.charCodeAt(start - 1))) start -= 1;
   let endPrev = prev.length;
   let endNext = next.length;
   while (endPrev > start && endNext > start && prev[endPrev - 1] === next[endNext - 1]) {
     endPrev -= 1;
     endNext -= 1;
+  }
+  // ...and don't let the common suffix begin on a lone low surrogate.
+  if (endPrev < prev.length && isLowSurrogate(prev.charCodeAt(endPrev))) {
+    endPrev += 1;
+    endNext += 1;
   }
   doc.transact(() => {
     if (endPrev > start) ytext.delete(start, endPrev - start);
@@ -69,12 +80,14 @@ export function useSabmailCollabBinding(
     let flushTimer: ReturnType<typeof setTimeout> | null = null;
     let pendingBody: string | null = null;
 
-    // Seed: first editor in the room publishes their draft; later joiners adopt
-    // whatever the shared doc already holds.
-    if (ytext.length === 0) {
-      const initial = apiRef.current.getBody();
-      if (initial) replaceText(doc, ytext, initial, LOCAL_ORIGIN);
-    } else {
+    // Seed without ever discarding the local user's in-progress text: if they
+    // already typed something (the gateway can go live AFTER they start),
+    // publish THAT into the shared doc; only an empty composer adopts the
+    // existing shared draft.
+    const localBody = apiRef.current.getBody();
+    if (localBody) {
+      replaceText(doc, ytext, localBody, LOCAL_ORIGIN);
+    } else if (ytext.length > 0) {
       apiRef.current.applyBody(ytext.toString());
     }
     const seedSubject = ymeta.get('subject');

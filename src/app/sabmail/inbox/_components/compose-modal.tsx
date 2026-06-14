@@ -113,15 +113,21 @@ export function ComposeModal({
   const applyingRemoteRef = React.useRef(false);
 
   const [activeDraftId, setActiveDraftId] = React.useState<string | null>(null);
+  // Random room suffix is minted once per compose session and held stable, so
+  // re-runs of this effect (deps changing while open) don't tear down/rebuild
+  // the room — and two people on the same fresh compose can actually share it.
+  const sessionSuffixRef = React.useRef<string | null>(null);
   React.useEffect(() => {
     if (open) {
+      if (!sessionSuffixRef.current) sessionSuffixRef.current = Math.random().toString(36).slice(2);
       setActiveDraftId(
         draftId ??
           (prefill?.inReplyTo
             ? `reply:${prefill.inReplyTo}`
-            : `compose:${accountId}:${Math.random().toString(36).slice(2)}`),
+            : `compose:${accountId}:${sessionSuffixRef.current}`),
       );
     } else {
+      sessionSuffixRef.current = null;
       setActiveDraftId(null);
     }
   }, [open, draftId, prefill?.inReplyTo, accountId]);
@@ -131,9 +137,12 @@ export function ComposeModal({
   const { onLocalBody, onLocalSubject } = useSabmailCollabBinding(doc, live, {
     applyBody: (html) => {
       applyingRemoteRef.current = true;
-      bodyRef.current = html;
-      editorRef.current?.setHtml(html);
-      applyingRemoteRef.current = false;
+      try {
+        bodyRef.current = html;
+        editorRef.current?.setHtml(html);
+      } finally {
+        applyingRemoteRef.current = false;
+      }
     },
     getBody: () => bodyRef.current,
     applySubject: (s) => {

@@ -36,9 +36,13 @@
 //! GET    /storage                     { used: bytes, count: number, quota?: bytes }
 //! POST   /nodes/{id}/share            create / update share token
 //! DELETE /nodes/{id}/share            revoke share
+//! GET    /nodes/{id}/audit            access-trail for a share (owner only)
 //! GET    /share/{token}               PUBLIC — share landing payload (no auth)
 //! GET    /share/{token}/preview       PUBLIC — presigned inline preview URL
 //! GET    /share/{token}/download      PUBLIC — presigned download URL
+//! GET    /vault/key                   Sab Vault master-key record (or {exists:false})
+//! POST   /vault/key                   bootstrap the Sab Vault master-key (one-shot)
+//! GET    /vault/nodes                 list the caller's encrypted Sab Vault files
 //! ```
 //!
 //! ## Auth
@@ -89,6 +93,11 @@ where
         .route("/nodes/{id}/download", get(handlers::node_download))
         .route("/nodes/{id}/preview", get(handlers::node_preview))
         .route("/nodes/{id}/members", get(handlers::list_members))
+        .route("/nodes/{id}/audit", get(handlers::node_audit))
+        // Sab Vault.
+        .route("/vault/key", get(handlers::vault_key_get))
+        .route("/vault/key", post(handlers::vault_key_create))
+        .route("/vault/nodes", get(handlers::vault_list))
         // Mutations.
         .route("/folders", post(handlers::create_folder))
         .route("/upload/presign", post(handlers::presign_upload))

@@ -130,9 +130,10 @@ class SabmailWsProvider {
       return;
     }
     const sep = base.includes('?') ? '&' : '?';
-    const url = `${base}${sep}workspaceId=${encodeURIComponent(
-      tok.workspaceId,
-    )}&docId=${encodeURIComponent(this.docId)}`;
+    // Gateway reads the room id from the `doc` query param (connection.ts);
+    // `docId` is sent too for forward-compat with other readers.
+    const enc = encodeURIComponent(this.docId);
+    const url = `${base}${sep}workspaceId=${encodeURIComponent(tok.workspaceId)}&doc=${enc}&docId=${enc}`;
 
     let ws: WebSocket;
     try {

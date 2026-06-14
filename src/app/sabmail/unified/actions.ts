@@ -24,6 +24,7 @@ import { getSabmailWorkspaceId } from '@/lib/sabmail/workspace';
 import { listSabmailAccounts } from '@/app/actions/sabmail-projects.actions';
 import { listSabmailMessages } from '@/app/sabmail/inbox/actions';
 import { loadConversations } from '@/app/sabsms/inbox/actions';
+import { SABSMS_COLLECTIONS } from '@/lib/sabsms/db/collections';
 import { getErrorMessage } from '@/lib/utils';
 
 export type UnifiedChannel = 'email' | 'sms';
@@ -143,8 +144,35 @@ export async function loadUnifiedInbox(): Promise<UnifiedResult> {
       try {
         const convs = await loadConversations(ws.id, { scope: 'all', sort: 'newest' });
         smsReachable = true;
+        if (convs.length === 0) continue;
+
+        // Conversations don't store the contact phone; derive it from messages
+        // (contact number = inbound.from = outbound.to). Best-effort.
+        const phoneByConv = new Map<string, string>();
+        try {
+          const { db } = await connectToDatabase();
+          const ids = convs.map((c) => c.id);
+          const msgs = await db
+            .collection(SABSMS_COLLECTIONS.messages)
+            .find(
+              { workspaceId: ws.id, conversationId: { $in: ids } },
+              { projection: { conversationId: 1, from: 1, to: 1, direction: 1 } },
+            )
+            .limit(4000)
+            .toArray();
+          for (const m of msgs) {
+            const cid = String(m.conversationId);
+            if (phoneByConv.has(cid)) continue;
+            const phone = m.direction === 'inbound' ? m.from : m.to;
+            if (phone) phoneByConv.set(cid, String(phone));
+          }
+        } catch {
+          /* fall back to a friendly label below */
+        }
+
         for (const c of convs) {
-          const who = c.contactPhone?.trim() || c.contactId || 'Unknown number';
+          const phone = c.contactPhone?.trim() || phoneByConv.get(c.id) || '';
+          const who = phone || 'SMS conversation';
           conversations.push({
             key: `sms:${ws.id}:${c.id}`,
             channel: 'sms',
@@ -154,7 +182,7 @@ export async function loadUnifiedInbox(): Promise<UnifiedResult> {
             lastAt: c.lastMessageAt ?? c.createdAt ?? null,
             unread: (c.unreadCount ?? 0) > 0,
             unreadCount: c.unreadCount ?? 0,
-            sms: { workspaceId: ws.id, conversationId: c.id, contactPhone: c.contactPhone },
+            sms: { workspaceId: ws.id, conversationId: c.id, contactPhone: phone || undefined },
           });
         }
       } catch (err) {

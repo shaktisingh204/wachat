@@ -1467,8 +1467,11 @@ pub async fn revoke_share(
 pub async fn share_view(
     State(s): State<SabfilesState>,
     Path(token): Path<String>,
+    Query(_q): Query<SharePasswordQuery>,
+    headers: HeaderMap,
 ) -> Result<Json<PublicShareView>> {
     let d = load_share(&s.mongo, &token).await?;
+    enforce_not_before(&d)?;
     let kind = d.get_str("type").unwrap_or("file").to_owned();
     let size = d.get_i64("size").ok().map(|n| n as u64);
     let mime = d.get_str("mime").ok().map(|s| s.to_owned());
@@ -1478,6 +1481,12 @@ pub async fn share_view(
         .get_str("sharePassword")
         .map(|s| !s.is_empty())
         .unwrap_or(false);
+    let watermark = read_watermark(&d);
+
+    // Best-effort: count the view and record the access.
+    bump_share_counter(&s.mongo, &token, "shareViewCount").await;
+    write_audit(&s.mongo, &d, "view", &headers, None).await;
+
     Ok(Json(PublicShareView {
         name: d.get_str("name").unwrap_or("Shared").to_owned(),
         kind,
@@ -1486,6 +1495,7 @@ pub async fn share_view(
         thumbnail_url: thumb,
         download_enabled: download,
         password_protected: pwd,
+        watermark,
     }))
 }
 
@@ -1493,6 +1503,7 @@ pub async fn share_download(
     State(s): State<SabfilesState>,
     Path(token): Path<String>,
     Query(q): Query<SharePasswordQuery>,
+    headers: HeaderMap,
 ) -> Result<Json<DownloadUrlResponse>> {
     let d = load_share(&s.mongo, &token).await?;
     if !d.get_bool("shareDownloadEnabled").unwrap_or(true) {
@@ -1508,10 +1519,21 @@ pub async fn share_download(
             }
         }
     }
+    enforce_not_before(&d)?;
+    if let Ok(max) = d.get_i64("shareMaxDownloads") {
+        let used = d.get_i64("shareDownloadCount").unwrap_or(0);
+        if used >= max {
+            return Err(ApiError::Forbidden("download limit reached".to_owned()));
+        }
+    }
     let key = d
         .get_str("r2Key")
         .map_err(|_| ApiError::BadRequest("only files can be downloaded".to_owned()))?;
     let name = d.get_str("name").unwrap_or("download");
+
+    bump_share_counter(&s.mongo, &token, "shareDownloadCount").await;
+    write_audit(&s.mongo, &d, "download", &headers, None).await;
+
     let url =
         s.r2.presign_get(key, Some(Duration::from_secs(900)), Some(name))
             .await
@@ -1523,6 +1545,7 @@ pub async fn share_preview(
     State(s): State<SabfilesState>,
     Path(token): Path<String>,
     Query(q): Query<SharePasswordQuery>,
+    headers: HeaderMap,
 ) -> Result<Json<DownloadUrlResponse>> {
     let d = load_share(&s.mongo, &token).await?;
     if let Ok(stored_pwd) = d.get_str("sharePassword") {
@@ -1533,9 +1556,20 @@ pub async fn share_preview(
             }
         }
     }
+    enforce_not_before(&d)?;
+    if let Ok(max) = d.get_i64("shareMaxViews") {
+        let used = d.get_i64("shareViewCount").unwrap_or(0);
+        if used >= max {
+            return Err(ApiError::Forbidden("view limit reached".to_owned()));
+        }
+    }
     let key = d
         .get_str("r2Key")
         .map_err(|_| ApiError::BadRequest("only files can be previewed".to_owned()))?;
+
+    bump_share_counter(&s.mongo, &token, "shareViewCount").await;
+    write_audit(&s.mongo, &d, "preview", &headers, None).await;
+
     let url =
         s.r2.presign_get(key, Some(Duration::from_secs(900)), None)
             .await
@@ -1565,6 +1599,279 @@ async fn load_share(mongo: &MongoHandle, token: &str) -> Result<Document> {
         }
     }
     Ok(d)
+}
+
+/// Reject access before the configured `shareNotBefore` window opens.
+fn enforce_not_before(d: &Document) -> Result<()> {
+    if let Ok(nb) = d.get_datetime("shareNotBefore") {
+        if Utc::now() < nb.to_chrono() {
+            return Err(ApiError::Forbidden("access not yet available".to_owned()));
+        }
+    }
+    Ok(())
+}
+
+/// Read the `shareWatermark` sub-doc into the wire DTO, if present.
+fn read_watermark(d: &Document) -> Option<WatermarkDto> {
+    let wm = d.get_document("shareWatermark").ok()?;
+    Some(WatermarkDto {
+        enabled: wm.get_bool("enabled").unwrap_or(false),
+        text: wm.get_str("text").ok().map(|s| s.to_owned()),
+        include_viewer_email: wm.get_bool("includeViewerEmail").unwrap_or(false),
+        opacity: wm.get_f64("opacity").unwrap_or(0.15),
+    })
+}
+
+/// Best-effort `$inc` of a share counter. Failures are swallowed.
+async fn bump_share_counter(mongo: &MongoHandle, token: &str, field: &str) {
+    let coll = mongo.collection::<Document>(NODES_COLL);
+    if let Err(err) = coll
+        .update_one(
+            doc! { "shareToken": token },
+            doc! { "$inc": { field: 1_i64 } },
+        )
+        .await
+    {
+        eprintln!("sabfiles: failed to bump {field}: {err}");
+    }
+}
+
+/// First `x-forwarded-for` hop, else `x-real-ip`.
+fn client_ip(headers: &HeaderMap) -> Option<String> {
+    if let Some(xff) = headers.get("x-forwarded-for").and_then(|v| v.to_str().ok()) {
+        if let Some(first) = xff.split(',').next() {
+            let trimmed = first.trim();
+            if !trimmed.is_empty() {
+                return Some(trimmed.to_owned());
+            }
+        }
+    }
+    headers
+        .get("x-real-ip")
+        .and_then(|v| v.to_str().ok())
+        .map(|s| s.trim().to_owned())
+        .filter(|s| !s.is_empty())
+}
+
+fn user_agent(headers: &HeaderMap) -> Option<String> {
+    headers
+        .get("user-agent")
+        .and_then(|v| v.to_str().ok())
+        .map(|s| s.to_owned())
+}
+
+/// Append an access-trail row when the share has auditing enabled.
+/// Best-effort: errors are logged but never propagate to the caller.
+async fn write_audit(
+    mongo: &MongoHandle,
+    node: &Document,
+    action: &str,
+    headers: &HeaderMap,
+    meta: Option<Document>,
+) {
+    if node.get_bool("shareAuditEnabled") != Ok(true) {
+        return;
+    }
+    let Ok(node_id) = node.get_object_id("_id") else {
+        return;
+    };
+    let Ok(owner_id) = node.get_object_id("userId") else {
+        return;
+    };
+    let mut entry = doc! {
+        "nodeId": node_id,
+        "ownerId": owner_id,
+        "action": action,
+        "at": bson::DateTime::from_chrono(Utc::now()),
+    };
+    match client_ip(headers) {
+        Some(ip) => {
+            entry.insert("ip", ip);
+        }
+        None => {
+            entry.insert("ip", Bson::Null);
+        }
+    }
+    match user_agent(headers) {
+        Some(ua) => {
+            entry.insert("ua", ua);
+        }
+        None => {
+            entry.insert("ua", Bson::Null);
+        }
+    }
+    if let Some(m) = meta {
+        entry.insert("meta", m);
+    }
+    let coll = mongo.collection::<Document>(AUDIT_COLL);
+    if let Err(err) = coll.insert_one(entry).await {
+        eprintln!("sabfiles: failed to write audit entry: {err}");
+    }
+}
+
+// ───────────────────────────────────────────────────────────────────────
+// Sab Vault — master-key bootstrap
+// ───────────────────────────────────────────────────────────────────────
+
+pub async fn vault_key_get(
+    user: AuthUser,
+    State(s): State<SabfilesState>,
+) -> Result<Json<VaultKeyResponse>> {
+    let user_id = user_oid(&user)?;
+    let coll = s.mongo.collection::<Document>(VAULT_KEYS_COLL);
+    let existing = coll
+        .find_one(doc! { "userId": user_id })
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
+    let Some(d) = existing else {
+        return Ok(Json(VaultKeyResponse {
+            exists: false,
+            salt_b64: None,
+            canary_b64: None,
+            iterations: None,
+            algorithm: None,
+        }));
+    };
+    Ok(Json(VaultKeyResponse {
+        exists: true,
+        salt_b64: d.get_str("saltB64").ok().map(|s| s.to_owned()),
+        canary_b64: d.get_str("canaryB64").ok().map(|s| s.to_owned()),
+        iterations: d.get_i32("iterations").ok(),
+        algorithm: d.get_str("algorithm").ok().map(|s| s.to_owned()),
+    }))
+}
+
+pub async fn vault_key_create(
+    user: AuthUser,
+    State(s): State<SabfilesState>,
+    Json(body): Json<VaultKeyBody>,
+) -> Result<Json<VaultKeyResponse>> {
+    let user_id = user_oid(&user)?;
+    let coll = s.mongo.collection::<Document>(VAULT_KEYS_COLL);
+
+    // NEVER overwrite — doing so would orphan all already-encrypted data.
+    let already = coll
+        .find_one(doc! { "userId": user_id })
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
+    if already.is_some() {
+        return Err(ApiError::Conflict("vault already initialized".to_owned()));
+    }
+
+    let iterations = body.iterations.unwrap_or(310_000);
+    let algorithm = body
+        .algorithm
+        .clone()
+        .unwrap_or_else(|| "AES-GCM-256".to_owned());
+    let now = Utc::now();
+    let d = doc! {
+        "userId": user_id,
+        "saltB64": &body.salt_b64,
+        "canaryB64": &body.canary_b64,
+        "iterations": iterations,
+        "algorithm": &algorithm,
+        "createdAt": bson::DateTime::from_chrono(now),
+        "updatedAt": bson::DateTime::from_chrono(now),
+    };
+    coll.insert_one(&d)
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
+
+    Ok(Json(VaultKeyResponse {
+        exists: true,
+        salt_b64: Some(body.salt_b64),
+        canary_b64: Some(body.canary_b64),
+        iterations: Some(iterations),
+        algorithm: Some(algorithm),
+    }))
+}
+
+/// List the caller's Sab Vault (encrypted) files. Mirrors `list_recent`
+/// but scopes to `vault == true` instead of hiding them.
+pub async fn vault_list(
+    user: AuthUser,
+    State(s): State<SabfilesState>,
+) -> Result<Json<NodesResponse>> {
+    let user_id = user_oid(&user)?;
+    let coll = s.mongo.collection::<Document>(NODES_COLL);
+    let mut cursor = coll
+        .find(doc! {
+            "userId": user_id,
+            "vault": true,
+            "trashed": { "$ne": true },
+        })
+        .with_options(
+            FindOptions::builder()
+                .sort(doc! { "updatedAt": -1 })
+                .build(),
+        )
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
+    let mut out = Vec::new();
+    while let Some(d) = cursor
+        .try_next()
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?
+    {
+        out.push(decorate_node(&s.r2, d));
+    }
+    Ok(Json(NodesResponse { nodes: out }))
+}
+
+// ───────────────────────────────────────────────────────────────────────
+// Audit read
+// ───────────────────────────────────────────────────────────────────────
+
+/// The access trail for a node the caller owns. Newest 200 entries.
+pub async fn node_audit(
+    user: AuthUser,
+    State(s): State<SabfilesState>,
+    Path(id): Path<String>,
+) -> Result<Json<AuditResponse>> {
+    let user_id = user_oid(&user)?;
+    let oid = node_oid(&id)?;
+
+    // Ownership gate.
+    s.mongo
+        .collection::<Document>(NODES_COLL)
+        .find_one(doc! { "_id": oid, "userId": user_id })
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?
+        .ok_or_else(|| ApiError::NotFound("node".to_owned()))?;
+
+    let coll = s.mongo.collection::<Document>(AUDIT_COLL);
+    let mut cursor = coll
+        .find(doc! { "nodeId": oid })
+        .with_options(
+            FindOptions::builder()
+                .sort(doc! { "at": -1 })
+                .limit(200)
+                .build(),
+        )
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
+
+    let mut entries = Vec::new();
+    while let Some(d) = cursor
+        .try_next()
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?
+    {
+        entries.push(AuditEntryDto {
+            action: d.get_str("action").unwrap_or("").to_owned(),
+            ip: d.get_str("ip").ok().map(|s| s.to_owned()),
+            ua: d.get_str("ua").ok().map(|s| s.to_owned()),
+            at: d
+                .get_datetime("at")
+                .ok()
+                .map(|dt| dt.to_chrono().to_rfc3339()),
+            meta: d
+                .get_document("meta")
+                .ok()
+                .map(|m| document_to_clean_json(m.clone())),
+        });
+    }
+    Ok(Json(AuditResponse { entries }))
 }
 
 // ───────────────────────────────────────────────────────────────────────

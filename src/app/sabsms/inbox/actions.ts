@@ -56,6 +56,32 @@ async function resolveWorkspace(): Promise<
   return { ok: true, workspaceId: (await getSabsmsWorkspaceId()) ?? "" };
 }
 
+/**
+ * Tenancy guard for the workspace-explicit read actions below. These actions
+ * are directly-invocable RPC endpoints ('use server'); they must NOT trust the
+ * caller-supplied `workspaceId` — confirm the signed-in user actually belongs
+ * to that `kind:'sms'` project (owner or agent) before reading anything.
+ * Prevents a cross-tenant IDOR (e.g. the unified inbox / any crafted call
+ * passing an arbitrary victim workspaceId).
+ */
+async function userOwnsSmsWorkspace(workspaceId: string): Promise<boolean> {
+  if (!workspaceId || !ObjectId.isValid(workspaceId)) return false;
+  const session = await getCachedSession();
+  const uid = (session?.user as { _id?: unknown } | undefined)?._id;
+  if (!uid) return false;
+  const userId = new ObjectId(String(uid));
+  const { db } = await connectToDatabase();
+  const project = await db.collection("projects").findOne(
+    {
+      _id: new ObjectId(workspaceId),
+      kind: "sms",
+      $or: [{ userId }, { "agents.userId": userId }],
+    },
+    { projection: { _id: 1 } },
+  );
+  return Boolean(project);
+}
+
 function toIso(d?: Date | string): string | undefined {
   if (!d) return undefined;
   return typeof d === "string" ? d : d.toISOString();
@@ -155,6 +181,7 @@ export async function loadConversations(
   workspaceId: string,
   filters: InboxFilters,
 ): Promise<InboxConversationView[]> {
+  if (!(await userOwnsSmsWorkspace(workspaceId))) return [];
   const { db } = await connectToDatabase();
   const col = db.collection<SabsmsConversation>(
     SABSMS_COLLECTIONS.conversations,
@@ -224,6 +251,7 @@ export async function loadThread(
   conversationId: string,
 ): Promise<InboxThreadView | null> {
   if (!ObjectId.isValid(conversationId)) return null;
+  if (!(await userOwnsSmsWorkspace(workspaceId))) return null;
   const { db } = await connectToDatabase();
   const conv = await db
     .collection<SabsmsConversation>(SABSMS_COLLECTIONS.conversations)

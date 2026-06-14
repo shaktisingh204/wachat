@@ -49,6 +49,9 @@ export function UnifiedInboxClient({ data }: { data: UnifiedInboxData }) {
   const [smsThread, setSmsThread] = React.useState<InboxThreadView | null>(null);
   const [reading, setReading] = React.useState(false);
   const [compose, setCompose] = React.useState<ComposePrefill | null>(null);
+  // Bumped on each reply so the composer remounts and re-seeds from the new
+  // prefill (its to/cc/subject/body state only initializes at mount time).
+  const [composeKey, setComposeKey] = React.useState(0);
 
   const conversations = React.useMemo(
     () => (filter === "all" ? data.conversations : data.conversations.filter((c) => c.channel === filter)),
@@ -81,13 +84,18 @@ export function UnifiedInboxClient({ data }: { data: UnifiedInboxData }) {
   const replyEmail = React.useCallback(() => {
     if (!emailFull || !data.primaryAccount) return;
     setCompose(buildReplyPrefill(emailFull, "reply", data.primaryAccount.email));
+    setComposeKey((k) => k + 1);
   }, [emailFull, data.primaryAccount]);
 
   const replySms = React.useCallback(async () => {
     if (!selected?.sms) return;
-    await openSabsmsConversation(selected.sms.workspaceId);
+    const res = await openSabsmsConversation(selected.sms.workspaceId);
+    if (!res.ok) {
+      toast({ title: "Couldn't open SabSMS", description: "You may not have access to that workspace.", variant: "destructive" });
+      return;
+    }
     window.location.href = "/sabsms/inbox";
-  }, [selected]);
+  }, [selected, toast]);
 
   const counts = React.useMemo(() => {
     let email = 0;
@@ -278,14 +286,15 @@ export function UnifiedInboxClient({ data }: { data: UnifiedInboxData }) {
         </div>
       </div>
 
-      {/* inline email reply */}
-      {data.primaryAccount ? (
+      {/* inline email reply — remounts per reply (key) so prefill re-seeds */}
+      {data.primaryAccount && compose ? (
         <ComposeModal
-          open={compose != null}
+          key={composeKey}
+          open
           accountId={data.primaryAccount.id}
           accountEmail={data.primaryAccount.email}
           title="Reply"
-          prefill={compose ?? undefined}
+          prefill={compose}
           onClose={() => setCompose(null)}
           onSent={() => setCompose(null)}
         />
@@ -324,7 +333,9 @@ function EmailBody({ full }: { full: SabmailMessageFull }) {
       ) : null}
       <iframe
         title="Email content"
-        sandbox=""
+        // Scripts + same-origin stay disabled (no XSS); allow-popups only so
+        // target=_blank links in the (server-sanitized) body can open.
+        sandbox="allow-popups allow-popups-to-escape-sandbox"
         srcDoc={srcDoc}
         className="h-[55vh] w-full rounded-lg border border-[var(--st-border)] bg-white"
       />
