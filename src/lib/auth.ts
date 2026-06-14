@@ -301,6 +301,117 @@ export async function createAdminSessionToken(): Promise<string> {
         .sign(getJwtSecretKey());
 }
 
+/* ──────────────────────────────────────────────────────────────────────
+ * Firebase Auth user lifecycle — admin-driven employee provisioning.
+ *
+ * The dashboard login is Firebase-backed: a user signs in with email+password
+ * (or OAuth) on the client, and /api/auth/session exchanges the Firebase ID
+ * token for our session cookie (which then resolves the Mongo `users` doc by
+ * email). So provisioning an employee who logs in with their COMPANY EMAIL +
+ * password (the UPN model) means creating a Firebase Auth account for them.
+ * These thin wrappers expose exactly the operations the SabNode Admin Center
+ * needs (create / lookup / disable / set-password / delete) over the named
+ * admin app. Each throws {@link FirebaseConfigError} when the server isn't
+ * configured — callers gate on {@link isHostedAuthConfigured} first.
+ * ──────────────────────────────────────────────────────────────────── */
+
+export interface FirebaseAuthUserRef {
+    uid: string;
+    email: string | null;
+    disabled: boolean;
+}
+
+function adminAuth() {
+    return initializeFirebaseAdmin().auth();
+}
+
+/** True when Firebase Admin credentials are configured (provisioning is possible). */
+export function isHostedAuthConfigured(): boolean {
+    try {
+        initializeFirebaseAdmin();
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+/** Look up an existing Firebase Auth user by email, or null if none. */
+export async function getFirebaseAuthUserByEmail(
+    email: string,
+): Promise<FirebaseAuthUserRef | null> {
+    try {
+        const rec = await adminAuth().getUserByEmail(email);
+        return { uid: rec.uid, email: rec.email ?? null, disabled: rec.disabled };
+    } catch (err: any) {
+        if (err?.code === 'auth/user-not-found') return null;
+        throw err;
+    }
+}
+
+/** Create a Firebase Auth account for a provisioned employee. */
+export async function createFirebaseAuthUser(input: {
+    email: string;
+    password: string;
+    displayName?: string;
+}): Promise<FirebaseAuthUserRef> {
+    const rec = await adminAuth().createUser({
+        email: input.email,
+        password: input.password,
+        displayName: input.displayName,
+        // Admin-provisioned on the org's own mailbox — the address is trusted.
+        emailVerified: true,
+    });
+    return { uid: rec.uid, email: rec.email ?? null, disabled: rec.disabled };
+}
+
+/** Block / unblock sign-in for a Firebase Auth user (also revokes refresh tokens on disable). */
+export async function setFirebaseAuthUserDisabled(
+    uid: string,
+    disabled: boolean,
+): Promise<void> {
+    await adminAuth().updateUser(uid, { disabled });
+    if (disabled) {
+        try {
+            await adminAuth().revokeRefreshTokens(uid);
+        } catch {
+            /* best-effort — disabling already prevents sign-in */
+        }
+    }
+}
+
+/** Set a new password for a Firebase Auth user (admin reset). */
+export async function setFirebaseAuthUserPassword(
+    uid: string,
+    password: string,
+): Promise<void> {
+    await adminAuth().updateUser(uid, { password });
+}
+
+/** Permanently delete a Firebase Auth user (idempotent on not-found). */
+export async function deleteFirebaseAuthUser(uid: string): Promise<void> {
+    try {
+        await adminAuth().deleteUser(uid);
+    } catch (err: any) {
+        if (err?.code !== 'auth/user-not-found') throw err;
+    }
+}
+
+/**
+ * Revoke EVERY active SabNode session for a user — the offboarding "block
+ * sign-in". Bumps the user-wide sentinel in `revoked_tokens` so `verifyJwt`
+ * rejects any token issued before now (same mechanism as "sign out
+ * everywhere"). `userId` is the user's `_id` string — the JWT payload key.
+ */
+export async function revokeAllSessionsForUser(userId: string): Promise<void> {
+    const now = new Date();
+    const { db } = await connectToDatabase();
+    await db.collection('revoked_tokens').updateOne(
+        { userId, kind: 'user-wide' },
+        { $set: { userId, kind: 'user-wide', revokedBefore: now, updatedAt: now } },
+        { upsert: true },
+    );
+}
+
 // This function is for server components/actions ONLY
 export async function getDecodedSession(sessionCookie: string) {
     console.log('[AUTH_LIB] getDecodedSession called.');

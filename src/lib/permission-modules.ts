@@ -147,6 +147,10 @@ export const globalModules = [
     // SEO
     'seo_dashboard', 'seo_brand_radar', 'seo_site_explorer',
 
+    // SabAdmin (Admin Center — employee provisioning / identity / licenses)
+    'sabadmin_overview', 'sabadmin_people', 'sabadmin_access',
+    'sabadmin_domains', 'sabadmin_audit', 'sabadmin_settings',
+
     // Dev
     'api_keys', 'api_docs'
 ];
@@ -178,5 +182,6 @@ export const moduleCategories = {
     'SabFlow': ['sabflow.doc.read', 'sabflow.doc.write', 'sabflow.doc.delete', 'sabflow.doc.share', 'sabflow.doc.admin', 'sabflow.credential.read', 'sabflow.credential.use', 'sabflow.credential.write', 'sabflow.credential.delete', 'sabflow.credential.share', 'sabflow.credential.admin', 'sabflow.workflow.read', 'sabflow.workflow.write', 'sabflow.workflow.execute', 'sabflow.trigger.admin'],
     'Utilities': ['website_builder', 'url_shortener', 'qr_code_maker'],
     'SEO': ['seo_dashboard', 'seo_brand_radar', 'seo_site_explorer'],
+    'SabAdmin': ['sabadmin_overview', 'sabadmin_people', 'sabadmin_access', 'sabadmin_domains', 'sabadmin_audit', 'sabadmin_settings'],
     'Dev': ['api_keys', 'api_docs']
 };
