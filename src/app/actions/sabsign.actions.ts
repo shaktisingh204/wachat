@@ -187,6 +187,32 @@ export async function submitSignature(envelopeId: string, input: SignSubmissionI
       .collection('esign_signer_otps')
       .deleteOne({ envelopeId, signerId: input.signerId });
   }
+  // KBA: verify the signer's answers against the sender-set answer hashes
+  // (sha256 of the raw answer — matches the builder's crypto.subtle digest).
+  if (input.kbaAnswers && input.kbaAnswers.length) {
+    const { db } = await connectToDatabase();
+    const envDoc = await db
+      .collection('esign_envelopes')
+      .findOne({ _id: envelopeId as never }, { projection: { signers: 1 } });
+    const signer = (
+      envDoc as {
+        signers?: Array<{
+          id: string;
+          authMethod?: string;
+          kbaQuestions?: Array<{ answerHash?: string }>;
+        }>;
+      } | null
+    )?.signers?.find((s) => s.id === input.signerId);
+    if (signer?.authMethod === 'kba' && signer.kbaQuestions?.length) {
+      const ok = signer.kbaQuestions.every(
+        (q, i) => !!q.answerHash && sha256(input.kbaAnswers?.[i] ?? '') === q.answerHash,
+      );
+      if (!ok) {
+        throw new Error('Identity verification failed — your answers did not match.');
+      }
+    }
+  }
+
   // Capture the signer's IP server-side for the audit trail (the client can't
   // be trusted to report its own IP). userAgent is supplied by the client.
   let ip = input.ip;
@@ -627,6 +653,25 @@ export async function finalizeEnvelope(envelopeId: string) {
 
   revalidatePath('/sabsign');
   return { ok: true as const, signedDocId, auditTrailPdfId };
+}
+
+/**
+ * Verify the signed document's embedded digital signature (PAdES). Returns
+ * whether a signature is present and the signer certificate CNs. (When PAdES
+ * isn't configured the signed PDF is an image-stamped SES document with no
+ * embedded crypto signature — `signed:false` is expected then.)
+ */
+export async function verifyEnvelopeSignature(
+  envelopeId: string,
+): Promise<{ signed: boolean; signers: string[]; reason?: string }> {
+  await requireUser();
+  const env = await withTenant(() => sabsignEnvelopesApi.getById(envelopeId));
+  if (!env.signedDocId) {
+    return { signed: false, signers: [], reason: 'No signed document yet.' };
+  }
+  const bytes = await downloadSabfileBytes(env.signedDocId);
+  const { verifyPdfSignature } = await import('@/lib/sabsign/pdf/pades');
+  return verifyPdfSignature(bytes);
 }
 
 // ── In-person / kiosk ────────────────────────────────────────────────

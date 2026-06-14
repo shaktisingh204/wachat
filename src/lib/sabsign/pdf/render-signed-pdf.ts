@@ -3,6 +3,7 @@ import 'server-only';
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
 
 import type { SabSignEnvelopeDoc } from '@/lib/rust-client/sabsign-envelopes';
+import { signPdfPades } from '@/lib/sabsign/pdf/pades';
 
 /**
  * Flatten an envelope's filled field values into its source PDF, producing the
@@ -74,5 +75,12 @@ export async function renderSignedPdf(
     }
   }
 
-  return pdf.save();
+  const flattened = await pdf.save();
+  // PAdES cryptographic signature when a P12 cert is configured; otherwise this
+  // returns the flattened (image-stamped, legally-valid SES) document as-is.
+  return signPdfPades(flattened, {
+    reason: `Signed: ${env.name}`,
+    name: 'SabSign',
+    contactInfo: env.signers?.[0]?.email,
+  });
 }
