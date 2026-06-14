@@ -14,6 +14,7 @@ import {
   Link2,
   Lock,
   MessagesSquare,
+  MonitorUp,
   Paperclip,
   Phone,
   Plus,
@@ -72,6 +73,8 @@ import { gradeConversation, listQaRubrics } from "@/app/actions/sabchat-ops.acti
 import { draftKbFromConversation } from "@/app/actions/sabchat-support.actions";
 import { startCall, endCall } from "@/app/actions/sabchat-voice.actions";
 import type { SabChatCall, SabChatCallKind } from "@/lib/rust-client/sabchat-voice";
+import { requestCobrowse, endCobrowse } from "@/app/actions/sabchat-cobrowse.actions";
+import type { SabChatCobrowseSession } from "@/lib/rust-client/sabchat-cobrowse";
 import {
   appendSideMessage,
   cancelScheduledMessage,
@@ -927,6 +930,32 @@ export function InboxClient({
     setActiveCall(null);
   }, [selectedId]);
 
+  /* -- co-browse session lifecycle ------------------------------------ */
+  const [cobrowse, setCobrowse] = React.useState<SabChatCobrowseSession | null>(null);
+  const [cobrowseBusy, setCobrowseBusy] = React.useState(false);
+  const doRequestCobrowse = async () => {
+    if (!selectedId || cobrowse) return;
+    setCobrowseBusy(true);
+    const res = await requestCobrowse(selectedId);
+    setCobrowseBusy(false);
+    if (res.ok) {
+      setCobrowse(res.session);
+      toast({ title: "Co-browse requested", description: "Waiting for the visitor to accept." });
+    } else {
+      toast({ title: "Couldn't start co-browse", description: res.error, variant: "destructive" });
+    }
+  };
+  const doEndCobrowse = async () => {
+    if (!cobrowse) return;
+    setCobrowseBusy(true);
+    await endCobrowse(cobrowse._id);
+    setCobrowseBusy(false);
+    setCobrowse(null);
+  };
+  React.useEffect(() => {
+    setCobrowse(null);
+  }, [selectedId]);
+
   /* -- derived: pinned / all (apply client-side "unassigned" filter) --- */
   const visible =
     assignFilter === "unassigned"
@@ -1175,6 +1204,13 @@ export function InboxClient({
                   onClick={() => void doStartCall("video")}
                 >
                   <Video className="h-4 w-4" aria-hidden />
+                </IconBtn>
+                <IconBtn
+                  title="Start co-browse"
+                  disabled={cobrowseBusy || !!cobrowse}
+                  onClick={() => void doRequestCobrowse()}
+                >
+                  <MonitorUp className="h-4 w-4" aria-hidden />
                 </IconBtn>
                 <div className="relative">
                   <Button
@@ -1440,6 +1476,25 @@ export function InboxClient({
                   onClick={() => void doEndCall()}
                 >
                   End call
+                </Button>
+              </div>
+            ) : null}
+
+            {/* active co-browse bar */}
+            {cobrowse ? (
+              <div className="flex items-center justify-between gap-2 border-b border-[var(--st-border)] bg-sky-50 px-4 py-1.5 text-xs font-medium text-sky-800 dark:bg-sky-950/40 dark:text-sky-300">
+                <span className="flex items-center gap-2">
+                  <MonitorUp className="h-3.5 w-3.5" aria-hidden />
+                  Co-browse · <span className="capitalize">{cobrowse.status}</span>
+                  {!cobrowse.consentGranted ? " (awaiting consent)" : ""}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  loading={cobrowseBusy}
+                  onClick={() => void doEndCobrowse()}
+                >
+                  End
                 </Button>
               </div>
             ) : null}
