@@ -17,7 +17,6 @@ import {
   SabChatIcon,
   SabConnectIcon,
   SabCreatorIcon,
-  SabDeskIcon,
   SabFilesIcon,
   SabFlowIcon,
   SabLensIcon,
@@ -149,10 +148,10 @@ const SAB_APPS_ALL: SabAppDescriptor[] = [
   {
     id: "sabchat",
     name: "SabChat",
-    href: "/dashboard/sabchat",
+    href: "/sabchat",
     Icon: SabChatIcon,
     migration: "done",
-    isActive: (p) => !!p?.startsWith("/dashboard/sabchat"),
+    isActive: (p) => !!p?.startsWith("/sabchat"),
   },
   {
     id: "telegram",
@@ -280,14 +279,6 @@ const SAB_APPS_ALL: SabAppDescriptor[] = [
     Icon: SabShopIcon,
     migration: "done",
     isActive: (p) => !!p?.startsWith("/dashboard/sabcheckout"),
-  },
-  {
-    id: "sabdesk",
-    name: "SabDesk",
-    href: "/dashboard/sabdesk",
-    Icon: SabDeskIcon,
-    migration: "done",
-    isActive: (p) => !!p?.startsWith("/dashboard/sabdesk"),
   },
   {
     id: "sabcampaigns",

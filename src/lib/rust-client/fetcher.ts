@@ -16,6 +16,7 @@
  */
 import 'server-only';
 
+import { AsyncLocalStorage } from 'node:async_hooks';
 import { cookies } from 'next/headers';
 
 import { issueRustJwt } from '@/lib/jwt-for-rust';
@@ -26,6 +27,41 @@ const DEFAULT_BASE_URL = 'http://localhost:8080';
 
 function getBaseUrl(): string {
     return process.env.RUST_API_URL || DEFAULT_BASE_URL;
+}
+
+/**
+ * Per-call tenant override.
+ *
+ * `rustFetch` normally scopes the Rust JWT's `tid` claim to the acting
+ * user's id (single-tenant-per-user, the historical default). Project-based
+ * modules — SabChat, etc. — need to scope `tid` to the selected *project*
+ * instead, so the Rust crates (which filter every collection by
+ * `tenantId == ObjectId(auth.tenant_id)`) isolate data per workspace.
+ *
+ * Rather than thread a fetcher argument through the ~25 hand-written
+ * `rustClient.sabchat.*` wrappers, we stash the override in an
+ * `AsyncLocalStorage` and have {@link buildAuthHeader} read it. Any Rust call
+ * issued inside {@link runWithRustTenant}'s callback inherits the tenant.
+ *
+ * The acting user (`sub`) is always the real session user — only the tenant
+ * scope changes — so audit actors stay correct.
+ */
+const rustTenantStore = new AsyncLocalStorage<{ tenantId: string }>();
+
+/**
+ * Run `fn` with every nested {@link rustFetch} call scoped to `tenantId`
+ * (becomes the JWT `tid` claim). Used by project-based modules to bind Rust
+ * calls to the active project's workspace id. Returns whatever `fn` returns.
+ *
+ * @example
+ *   const inboxes = await runWithRustTenant(workspaceId, () =>
+ *     rustClient.sabchat.inboxes.list());
+ */
+export function runWithRustTenant<T>(
+    tenantId: string,
+    fn: () => Promise<T>,
+): Promise<T> {
+    return rustTenantStore.run({ tenantId: String(tenantId) }, fn);
 }
 
 /**
@@ -71,14 +107,15 @@ async function buildAuthHeader(): Promise<string> {
         );
     }
 
-    // Tenant/role plumbing is per-feature. Until the orchestrator wires real
-    // tenant + role propagation through, we send the user's own id as the
-    // tenant scope and an empty role list. The Rust side currently only reads
-    // `sub`, so this is safe — but tighten this BEFORE shipping any handler
-    // that gates on `tid` / `roles`.
+    // Tenant scope: default to the user's own id (single-tenant-per-user),
+    // unless a project-based caller has bound an explicit tenant via
+    // `runWithRustTenant` (e.g. SabChat scopes `tid` to the active project so
+    // the sabchat-* crates isolate data per workspace). The acting user
+    // (`sub`) is always the real session user regardless.
+    const tenantOverride = rustTenantStore.getStore()?.tenantId;
     const token = await issueRustJwt({
         userId: String(userId),
-        tenantId: String(userId),
+        tenantId: tenantOverride || String(userId),
         roles: [],
     });
 

@@ -55,6 +55,7 @@ use axum::{
     extract::FromRef,
     routing::{get, post},
 };
+use sabchat_ws::WsHub;
 
 pub use state::SabChatWidgetState;
 
@@ -73,11 +74,14 @@ pub fn router<S>() -> Router<S>
 where
     S: Clone + Send + Sync + 'static,
     SabChatWidgetState: FromRef<S>,
+    WsHub: FromRef<S>,
 {
     Router::new()
         .route("/config", get(handlers::public_config))
         .route("/session", post(handlers::start_session))
+        .route("/identify", post(handlers::identify))
         .route("/messages", post(handlers::post_message))
         .route("/history", get(handlers::fetch_history))
+        .route("/stream", get(handlers::widget_stream))
         .route("/end", post(handlers::end_session))
 }

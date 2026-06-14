@@ -22,7 +22,6 @@ import { SABCATALYST_SIDEBAR } from "./sabcatalyst";
 import { SABCHECKOUT_SIDEBAR } from "./sabcheckout";
 import { SABCONNECT_SIDEBAR } from "./sabconnect";
 import { SABCREATOR_SIDEBAR } from "./sabcreator";
-import { SABDESK_SIDEBAR } from "./sabdesk";
 import { SABLENS_SIDEBAR } from "./sablens";
 import { SABMAIL_SIDEBAR } from "./sabmail";
 import { SABMEET_SIDEBAR } from "./sabmeet";
@@ -59,7 +58,6 @@ export const MODULE_SIDEBARS: SabAppSidebarConfig[] = [
   SABCHECKOUT_SIDEBAR,
   SABCONNECT_SIDEBAR,
   SABCREATOR_SIDEBAR,
-  SABDESK_SIDEBAR,
   SABLENS_SIDEBAR,
   SABMAIL_SIDEBAR,
   SABMEET_SIDEBAR,

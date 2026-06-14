@@ -10260,6 +10260,7 @@ dependencies = [
  "futures",
  "mongodb",
  "sabchat-types",
+ "sabchat-ws",
  "sabnode-auth",
  "sabnode-common",
  "sabnode-db",
@@ -10515,12 +10516,14 @@ dependencies = [
  "mongodb",
  "rand 0.8.6",
  "sabchat-types",
+ "sabchat-ws",
  "sabnode-common",
  "sabnode-db",
  "serde",
  "serde_json",
  "sha2 0.10.9",
  "tokio",
+ "tokio-stream",
  "tracing",
  "utoipa",
 ]
@@ -18554,6 +18557,7 @@ dependencies = [
  "futures-core",
  "pin-project-lite",
  "tokio",
+ "tokio-util",
 ]
 
 [[package]]

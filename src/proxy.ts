@@ -208,6 +208,36 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(url, 308);
   }
 
+  // Legacy SabChat + SabDesk surfaces merged into the unified top-level
+  // SabChat module (/sabchat). SabDesk is fully absorbed (conversations,
+  // SLA, dispositions, CSAT, KB all live in SabChat now).
+  const LEGACY_CHAT_PREFIXES = ['/dashboard/sabchat', '/dashboard/sabdesk'];
+  if (
+    LEGACY_CHAT_PREFIXES.some(
+      (p) => pathname === p || pathname.startsWith(`${p}/`),
+    )
+  ) {
+    // Longest-prefix-first (first startsWith match wins).
+    const LEGACY_CHAT_MAP: Array<[string, string]> = [
+      ['/dashboard/sabchat/inbox-v2', '/sabchat/inbox'],
+      ['/dashboard/sabchat/inbox', '/sabchat/inbox'],
+      ['/dashboard/sabchat/widget', '/sabchat/widget'],
+      ['/dashboard/sabchat/analytics', '/sabchat/reports'],
+      ['/dashboard/sabchat/reports', '/sabchat/reports'],
+      ['/dashboard/sabchat/admin', '/sabchat/admin'],
+      ['/dashboard/sabchat/knowledge', '/sabchat/admin'],
+      ['/dashboard/sabchat', '/sabchat'],
+      ['/dashboard/sabdesk/knowledge-base', '/sabchat/admin'],
+      ['/dashboard/sabdesk/analytics', '/sabchat/reports'],
+      ['/dashboard/sabdesk', '/sabchat/inbox'],
+    ];
+    const hit = LEGACY_CHAT_MAP.find(([from]) => pathname.startsWith(from));
+    const url = request.nextUrl.clone();
+    url.pathname = hit ? hit[1] : '/sabchat';
+    url.search = '';
+    return NextResponse.redirect(url, 308);
+  }
+
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set('x-url', pathname);
 
@@ -229,6 +259,9 @@ export const config = {
     // SabMail uses the same in-layout project + setup gate; the proxy just
     // passes through and sets `x-url` for the layout to read.
     '/sabmail/:path*',
+    // SabChat uses the same in-layout project + setup gate; the proxy passes
+    // through and sets `x-url` for the layout to read.
+    '/sabchat/:path*',
     '/admin/dashboard/:path*',
     '/login',
     '/signup',

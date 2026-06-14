@@ -49,6 +49,7 @@ use axum::{
     routing::{get, post},
 };
 use sabnode_auth::AuthConfig;
+use sabchat_ws::WsHub;
 
 pub use state::SabChatMessagesState;
 
@@ -73,6 +74,7 @@ where
     S: Clone + Send + Sync + 'static,
     SabChatMessagesState: FromRef<S>,
     Arc<AuthConfig>: FromRef<S>,
+    WsHub: FromRef<S>,
 {
     Router::new()
         // ---- collection root ------------------------------------------

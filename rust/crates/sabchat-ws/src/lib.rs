@@ -75,7 +75,14 @@ pub mod state;
 
 use std::sync::Arc;
 
-use axum::{Router, extract::FromRef, routing::get};
+use axum::{
+    Router,
+    extract::{FromRef, Request},
+    http::{HeaderValue, header::AUTHORIZATION},
+    middleware::{Next, from_fn},
+    response::Response,
+    routing::get,
+};
 use sabnode_auth::AuthConfig;
 use serde::Serialize;
 
@@ -146,10 +153,10 @@ impl WsHub {
         let _ = self.tx.send(ev);
     }
 
-    /// Internal helper used by the upgrade handler to subscribe a new
-    /// socket. Kept `pub(crate)` so we don't expose a second
-    /// pseudo-public API.
-    pub(crate) fn subscribe(&self) -> tokio::sync::broadcast::Receiver<Event> {
+    /// Subscribe a new receiver to the broadcast channel. Used by the WS
+    /// upgrade handler and by sibling crates that fan events out over other
+    /// transports (e.g. the widget SSE stream).
+    pub fn subscribe(&self) -> tokio::sync::broadcast::Receiver<Event> {
         self.tx.subscribe()
     }
 }
@@ -196,5 +203,38 @@ where
     SabChatWsState: FromRef<S>,
     Arc<AuthConfig>: FromRef<S>,
 {
-    Router::new().route("/", get(handlers::ws_upgrade))
+    Router::new()
+        .route("/", get(handlers::ws_upgrade))
+        // Browsers can't set request headers on a `new WebSocket()`
+        // handshake, so the agent client passes its short-lived JWT as a
+        // `?token=` query param. This layer copies it into the
+        // `Authorization` header BEFORE the `AuthUser` extractor runs, so
+        // `ws_upgrade` stays a normal authenticated route.
+        .layer(from_fn(query_token_to_auth_header))
+}
+
+/// Promote a `?token=` query parameter into an `Authorization: Bearer …`
+/// header when none is already present. Server-to-server callers that send
+/// the header directly are left untouched.
+async fn query_token_to_auth_header(mut req: Request, next: Next) -> Response {
+    if !req.headers().contains_key(AUTHORIZATION) {
+        if let Some(token) = req.uri().query().and_then(token_from_query) {
+            if let Ok(val) = HeaderValue::from_str(&format!("Bearer {token}")) {
+                req.headers_mut().insert(AUTHORIZATION, val);
+            }
+        }
+    }
+    next.run(req).await
+}
+
+/// Extract the `token` value from a raw query string. JWTs use only the
+/// URL-safe alphabet `[A-Za-z0-9-_.]`, so no percent-decoding is required.
+fn token_from_query(query: &str) -> Option<String> {
+    query.split('&').find_map(|pair| {
+        let mut it = pair.splitn(2, '=');
+        match (it.next(), it.next()) {
+            (Some("token"), Some(v)) if !v.is_empty() => Some(v.to_owned()),
+            _ => None,
+        }
+    })
 }

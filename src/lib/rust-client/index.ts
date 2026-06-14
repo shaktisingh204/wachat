@@ -114,6 +114,10 @@ import { sabchatMacrosApi } from './sabchat-macros';
 import { sabchatSlaApi } from './sabchat-sla';
 import { sabchatBusinessHoursApi } from './sabchat-business-hours';
 import { sabchatMarketplaceApi } from './sabchat-marketplace';
+import { sabchatAiCopilotApi } from './sabchat-ai-copilot';
+import { sabchatAiResolveBotApi } from './sabchat-ai-resolve-bot';
+import { sabchatAiSentimentApi } from './sabchat-ai-sentiment';
+import { sabchatAiTranslateApi } from './sabchat-ai-translate';
 
 export const rustClient = {
     admin: adminApi,
@@ -160,6 +164,10 @@ export const rustClient = {
     sabchatSla: sabchatSlaApi,
     sabchatBusinessHours: sabchatBusinessHoursApi,
     sabchatMarketplace: sabchatMarketplaceApi,
+    sabchatAiCopilot: sabchatAiCopilotApi,
+    sabchatAiResolveBot: sabchatAiResolveBotApi,
+    sabchatAiSentiment: sabchatAiSentimentApi,
+    sabchatAiTranslate: sabchatAiTranslateApi,
     sabchatSso: sabchatSsoApi,
     sabchatAiQa: sabchatAiQaApi,
     sabchatAiVoc: sabchatAiVocApi,

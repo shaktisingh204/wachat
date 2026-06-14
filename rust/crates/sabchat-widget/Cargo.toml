@@ -41,6 +41,8 @@ chrono = { version = "0.4", default-features = false, features = ["clock", "serd
 # Mongo driver wrappers + futures combinators (for `cursor.try_collect`).
 mongodb = "3"
 futures = "0.3"
+# Adapt the WsHub broadcast receiver into a `Stream` for the SSE feed.
+tokio-stream = { version = "0.1", features = ["sync"] }
 
 # Tracing for handler-level spans.
 tracing = "0.1"
@@ -64,6 +66,9 @@ rand = "0.8"
 sabnode-common = { path = "../common" }
 sabnode-db = { path = "../db" }
 sabchat-types = { path = "../sabchat-types" }
+# Realtime fan-out — publish `message.created` / `conversation.updated`
+# events to the per-tenant websocket hub when a visitor sends a message.
+sabchat-ws = { path = "../sabchat-ws" }
 
 [lints]
 workspace = true

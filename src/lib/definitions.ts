@@ -2009,6 +2009,38 @@ export type Project = {
             connection?: boolean;
         };
     };
+    /**
+     * SabChat workspace profile + setup state. Only populated on
+     * `kind: 'chat'` projects (SabChat has its own project list + create
+     * flow). A project cannot be used in SabChat until `setupComplete` is
+     * true — the layout gate redirects to `/sabchat/setup` otherwise. The
+     * project `_id` is the workspace id every SabChat collection / the Rust
+     * `sabchat-*` engine scopes by (sent as the JWT `tid` claim).
+     */
+    sabchat?: {
+        setupComplete?: boolean;
+        setupCompletedAt?: Date;
+        /** Square brand logo (sourced from SabFiles) — seeds the widget. */
+        logoUrl?: string;
+        businessName?: string;
+        businessProfile?: {
+            website?: string;
+            industry?: string;
+            useCase?: string;
+        };
+        /** Brand colour chosen during setup — seeds the widget theme. */
+        brandColor?: string;
+        /**
+         * First Website inbox created during setup; the widget's default
+         * inbox + where new website conversations land.
+         */
+        defaultInboxId?: string;
+        /** Per-step completion flags driving the wizard + gate. */
+        setupSteps?: {
+            profile?: boolean;
+            inbox?: boolean;
+        };
+    };
 };
 
 export type Template = {

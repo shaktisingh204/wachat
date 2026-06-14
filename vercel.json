@@ -62,22 +62,6 @@
       "schedule": "*/5 * * * *"
     },
     {
-      "path": "/api/cron/sabcrm-autocapture",
-      "schedule": "*/15 * * * *"
-    },
-    {
-      "path": "/api/cron/sabcrm-sla",
-      "schedule": "*/15 * * * *"
-    },
-    {
-      "path": "/api/cron/sabcrm-cadences",
-      "schedule": "* * * * *"
-    },
-    {
-      "path": "/api/cron/sabcrm-webhook-retries",
-      "schedule": "* * * * *"
-    },
-    {
       "path": "/api/cron/sabpay-settlements",
       "schedule": "30 1 * * *"
     },

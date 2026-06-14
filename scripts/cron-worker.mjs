@@ -56,6 +56,14 @@ const JOBS = [
   { name: 'exchange-rate-update', path: '/api/cron/exchange-rate-update', schedule: '0 6 * * *' },
   { name: 'imap-tickets', path: '/api/cron/imap-tickets', schedule: '*/5 * * * *' },
   { name: 'database-backup-retention', path: '/api/cron/database-backup-retention', schedule: '0 3 * * *' },
+
+  // ─── SabCRM ───
+  { name: 'sabcrm-workflows', path: '/api/cron/sabcrm-workflows', schedule: '*/5 * * * *' },
+  { name: 'sabcrm-cadences', path: '/api/cron/sabcrm-cadences', schedule: '* * * * *' },
+  { name: 'sabcrm-webhook-retries', path: '/api/cron/sabcrm-webhook-retries', schedule: '* * * * *' },
+  { name: 'sabcrm-sla', path: '/api/cron/sabcrm-sla', schedule: '*/15 * * * *' },
+  { name: 'sabcrm-autocapture', path: '/api/cron/sabcrm-autocapture', schedule: '*/15 * * * *' },
+  { name: 'sabcrm-forecast-snapshots', path: '/api/cron/sabcrm-forecast-snapshots', schedule: '0 1 * * *' },
 ];
 
 /**

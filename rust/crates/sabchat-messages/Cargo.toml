@@ -55,6 +55,9 @@ sabnode-common = { path = "../common" }
 sabnode-auth = { path = "../auth" }
 sabnode-db = { path = "../db" }
 sabchat-types = { path = "../sabchat-types" }
+# Realtime fan-out — publish `message.created` / `conversation.updated`
+# events to the per-tenant websocket hub after a successful write.
+sabchat-ws = { path = "../sabchat-ws" }
 
 [lints]
 workspace = true

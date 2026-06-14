@@ -23,24 +23,29 @@
 //! | `sabchat_widget_sessions`      |  ✓   |   ✓   |
 //! | `sabchat_audit_log`            |      |   ✓   |
 
+use std::convert::Infallible;
+
 use axum::{
     Json,
     extract::{Query, State},
+    response::sse::{Event as SseEvent, KeepAlive, Sse},
 };
 use bson::{Bson, Document, doc, oid::ObjectId};
 use chrono::{Duration, Utc};
-use futures::TryStreamExt;
+use futures::{StreamExt, TryStreamExt};
 use mongodb::options::FindOptions;
 use sabchat_types::{Attachment, ContentBlock};
 use sabnode_common::{ApiError, Result};
 use sabnode_db::{bson_helpers::oid_from_str, document_to_clean_json, mongo::MongoHandle};
-use serde_json::Value;
+use sabchat_ws::{Event, WsHub};
+use serde_json::{Value, json};
+use tokio_stream::wrappers::BroadcastStream;
 use tracing::instrument;
 
 use crate::dto::{
-    EndSessionBody, FetchHistoryQuery, FetchHistoryResponse, HISTORY_MAX_LIMIT, PostMessageBody,
-    PostMessageResponse, PublicConfigQuery, PublicConfigResponse, SESSION_TTL_DAYS,
-    StartSessionBody, StartSessionResponse, SuccessResponse,
+    EndSessionBody, FetchHistoryQuery, FetchHistoryResponse, HISTORY_MAX_LIMIT, IdentifyBody,
+    PostMessageBody, PostMessageResponse, PublicConfigQuery, PublicConfigResponse,
+    SESSION_TTL_DAYS, StartSessionBody, StartSessionResponse, StreamQuery, SuccessResponse,
 };
 use crate::preview::preview_for;
 use crate::session::{SESSIONS_COLL, new_token, resolve_session, touch_session, verify_hmac};
@@ -116,6 +121,11 @@ pub async fn public_config(
         welcome_message: str_field("welcomeMessage"),
         away_message: str_field("awayMessage"),
         business_hours,
+        // Pass the full settings blob so the widget can read the rich
+        // Widget-Studio fields (title, colours, radii, position, …).
+        settings: settings
+            .map(|d| document_to_clean_json(d.clone()))
+            .unwrap_or(Value::Null),
     }))
 }
 
@@ -386,6 +396,7 @@ pub async fn start_session(
 #[instrument(skip_all)]
 pub async fn post_message(
     State(state): State<SabChatWidgetState>,
+    State(hub): State<WsHub>,
     Json(body): Json<PostMessageBody>,
 ) -> Result<Json<PostMessageResponse>> {
     let mongo = &state.mongo;
@@ -424,7 +435,7 @@ pub async fn post_message(
     };
     mongo
         .collection::<Document>(MESSAGES_COLL)
-        .insert_one(message_doc)
+        .insert_one(message_doc.clone())
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("sabchat_messages.insert_one"))
@@ -462,6 +473,29 @@ pub async fn post_message(
         Some(message_oid),
     )
     .await?;
+
+    // ---- Realtime fan-out ----------------------------------------------
+    //
+    // Best-effort (see `WsHub::publish`): push the visitor's message + the
+    // conversation-row update onto the per-tenant hub so any agent watching
+    // `/v1/sabchat/ws` sees the incoming message live, with no polling.
+    let message_json = document_to_clean_json(message_doc);
+    hub.publish(Event {
+        tenant_id: session.tenant_id,
+        kind: "message.created".to_owned(),
+        payload: message_json,
+    });
+    hub.publish(Event {
+        tenant_id: session.tenant_id,
+        kind: "conversation.updated".to_owned(),
+        payload: json!({
+            "conversationId": session.conversation_id.to_hex(),
+            "lastMessageAt": now.to_rfc3339(),
+            "lastMessagePreview": preview,
+            "inbound": true,
+            "status": "open",
+        }),
+    });
 
     Ok(Json(PostMessageResponse {
         message_id: message_oid.to_hex(),
@@ -574,6 +608,110 @@ pub async fn end_session(
     }
 
     Ok(Json(SuccessResponse::ok()))
+}
+
+// ===========================================================================
+// POST /identify — attach email/name to the current contact
+// ===========================================================================
+
+/// `POST /identify` — attach an email / display name to the CURRENT
+/// session's contact without forking a new conversation. Calling `/session`
+/// again would open a brand-new thread, so the "Asked for Email" inline flow
+/// must come through here instead.
+#[instrument(skip_all)]
+pub async fn identify(
+    State(state): State<SabChatWidgetState>,
+    Json(body): Json<IdentifyBody>,
+) -> Result<Json<SuccessResponse>> {
+    let mongo = &state.mongo;
+    let session = resolve_session(mongo, &body.visitor_token).await?;
+
+    let email = body
+        .email
+        .as_deref()
+        .map(|s| s.trim().to_ascii_lowercase())
+        .filter(|s| !s.is_empty());
+    let name = body.name.as_deref().map(str::trim).filter(|s| !s.is_empty());
+
+    // Nothing to attach — succeed quietly so the widget doesn't error.
+    if email.is_none() && name.is_none() {
+        return Ok(Json(SuccessResponse::ok()));
+    }
+
+    let now_bson = bson::DateTime::from_chrono(Utc::now());
+    let mut set_doc = doc! { "updatedAt": now_bson };
+    if let Some(n) = name {
+        set_doc.insert("name", n);
+    }
+    let mut update = doc! { "$set": set_doc };
+    if let Some(e) = email.as_deref() {
+        update.insert("$addToSet", doc! { "emails": e });
+    }
+
+    mongo
+        .collection::<Document>(CONTACTS_COLL)
+        .update_one(
+            doc! { "_id": session.contact_id, "tenantId": session.tenant_id },
+            update,
+        )
+        .await
+        .map_err(|e| {
+            ApiError::Internal(
+                anyhow::Error::new(e).context("sabchat_contacts.update_one(identify)"),
+            )
+        })?;
+
+    audit(
+        mongo,
+        session.tenant_id,
+        Some(session.conversation_id),
+        Some(session.contact_id),
+        Some(session.inbox_id),
+        "contact_identified",
+        None,
+    )
+    .await?;
+
+    Ok(Json(SuccessResponse::ok()))
+}
+
+// ===========================================================================
+// GET /stream — live SSE feed for the visitor's conversation
+// ===========================================================================
+
+/// `GET /stream?visitorToken=` — Server-Sent Events feed scoped to the
+/// visitor's conversation. Subscribes to the per-tenant [`WsHub`] and
+/// forwards only events whose payload `conversationId` matches this
+/// session's conversation, so the visitor sees agent replies live (no
+/// polling). Each SSE `data:` line is `{ "type", "payload" }`.
+#[instrument(skip_all)]
+pub async fn widget_stream(
+    State(state): State<SabChatWidgetState>,
+    State(hub): State<WsHub>,
+    Query(query): Query<StreamQuery>,
+) -> Result<Sse<impl futures::Stream<Item = std::result::Result<SseEvent, Infallible>>>> {
+    let session = resolve_session(&state.mongo, &query.visitor_token).await?;
+    let tenant = session.tenant_id;
+    let convo_hex = session.conversation_id.to_hex();
+
+    let rx = hub.subscribe();
+    let stream = BroadcastStream::new(rx).filter_map(move |res| {
+        let convo_hex = convo_hex.clone();
+        async move {
+            let ev: Event = res.ok()?;
+            if ev.tenant_id != tenant {
+                return None;
+            }
+            let cid = ev.payload.get("conversationId").and_then(Value::as_str);
+            if cid != Some(convo_hex.as_str()) {
+                return None;
+            }
+            let body = json!({ "type": ev.kind, "payload": ev.payload });
+            Some(Ok(SseEvent::default().data(body.to_string())))
+        }
+    });
+
+    Ok(Sse::new(stream).keep_alive(KeepAlive::default()))
 }
 
 // ===========================================================================

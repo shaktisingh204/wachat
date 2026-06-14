@@ -36,6 +36,8 @@ use sabchat_types::{ContentBlock, SenderType};
 use sabnode_auth::AuthUser;
 use sabnode_common::{ApiError, Result};
 use sabnode_db::{bson_helpers::oid_from_str, document_to_clean_json, mongo::MongoHandle};
+use sabchat_ws::{Event, WsHub};
+use serde_json::{Value, json};
 use tracing::instrument;
 
 use crate::dto::{
@@ -157,6 +159,7 @@ async fn write_audit(
 pub async fn append(
     auth: AuthUser,
     State(state): State<SabChatMessagesState>,
+    State(hub): State<WsHub>,
     Json(body): Json<AppendMessageBody>,
 ) -> Result<Json<AppendMessageResponse>> {
     let tenant = tenant_oid(&auth)?;
@@ -294,8 +297,35 @@ pub async fn append(
     )
     .await;
 
+    // ---- Realtime fan-out ----------------------------------------------
+    //
+    // Best-effort: a closed / lagged hub silently drops the event (see
+    // `WsHub::publish`) and never fails the already-persisted write. Agents
+    // subscribed to `/v1/sabchat/ws` for this tenant get the new message +
+    // the conversation-row update live, with no polling.
+    let message_json = document_to_clean_json(new_doc);
+    hub.publish(Event {
+        tenant_id: tenant,
+        kind: "message.created".to_owned(),
+        payload: message_json.clone(),
+    });
+    let mut convo_payload = json!({
+        "conversationId": conversation_oid.to_hex(),
+        "lastMessageAt": now.to_rfc3339(),
+        "inbound": !is_outbound,
+        "private": body.private,
+    });
+    if !body.private {
+        convo_payload["lastMessagePreview"] = Value::String(preview_for(&body.content));
+    }
+    hub.publish(Event {
+        tenant_id: tenant,
+        kind: "conversation.updated".to_owned(),
+        payload: convo_payload,
+    });
+
     Ok(Json(AppendMessageResponse {
-        message: document_to_clean_json(new_doc),
+        message: message_json,
     }))
 }
 

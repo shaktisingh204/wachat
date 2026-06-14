@@ -66,6 +66,12 @@ pub struct PublicConfigResponse {
     /// widget renderer interprets it.
     #[serde(default, skip_serializing_if = "Value::is_null")]
     pub business_hours: Value,
+    /// Full `channel_config.settings` blob (camelCase JSON) so the widget
+    /// can read the rich Widget-Studio fields (title, colours, radii,
+    /// position, replyTime, proactiveRules, …) without enumerating each
+    /// one here.
+    #[serde(default, skip_serializing_if = "Value::is_null")]
+    pub settings: Value,
 }
 
 impl PublicConfigResponse {
@@ -80,6 +86,7 @@ impl PublicConfigResponse {
             welcome_message: None,
             away_message: None,
             business_hours: Value::Null,
+            settings: Value::Null,
         }
     }
 }
@@ -132,6 +139,34 @@ pub struct StartSessionResponse {
     pub team_name: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub widget_color: Option<String>,
+}
+
+// ---------------------------------------------------------------------------
+// POST /identify — attach email/name to the current contact
+// ---------------------------------------------------------------------------
+
+/// Body for `POST /identify`. Attaches an email / display name to the
+/// CURRENT session's contact (resolved by `visitorToken`) without forking
+/// a new conversation — calling `/session` again would create a new thread.
+#[derive(Debug, Clone, Deserialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct IdentifyBody {
+    pub visitor_token: String,
+    #[serde(default)]
+    pub email: Option<String>,
+    #[serde(default)]
+    pub name: Option<String>,
+}
+
+// ---------------------------------------------------------------------------
+// GET /stream — live SSE feed for the visitor's conversation
+// ---------------------------------------------------------------------------
+
+/// Query string for `GET /stream` (Server-Sent Events).
+#[derive(Debug, Clone, Deserialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct StreamQuery {
+    pub visitor_token: String,
 }
 
 // ---------------------------------------------------------------------------
