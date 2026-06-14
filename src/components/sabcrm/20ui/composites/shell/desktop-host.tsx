@@ -16,8 +16,7 @@
  *     client-only overlay backed by localStorage; nothing to SSR).
  *   - `!embedded` — inside an app-window iframe this returns null, so the dock
  *     and desktop never recurse (no infinite dock-in-dock).
- *   - app route — public / marketing / auth routes (and /sabcrm, which has its
- *     own shell) get no desktop.
+ *   - app route — public / marketing / auth routes get no desktop.
  *
  * Imports stay relative per the barrel self-cycle rule.
  */
@@ -28,11 +27,20 @@ import dynamic from "next/dynamic";
 import { useIsEmbedded } from "./use-chromeless";
 
 /**
- * Route prefixes that get the desktop — exactly the surfaces that mount
- * SabHomeShell today (so the dock keeps appearing where it used to). `/sabcrm`
- * is intentionally excluded: it uses its own outer shell (app rail, no dock).
+ * Route prefixes that get the desktop — the surfaces that mount a SabNode shell
+ * (so the dock appears wherever app-switching lives). `/sabcrm` is included: it
+ * now shares the SabNode chrome (dock + sidebar + header), its old app rail
+ * having been retired in favour of the dock.
  */
-const APP_PREFIXES = ["/dashboard", "/wachat", "/sabsms", "/sabmail", "/sabpay", "/sabwa"];
+const APP_PREFIXES = [
+  "/dashboard",
+  "/wachat",
+  "/sabsms",
+  "/sabmail",
+  "/sabpay",
+  "/sabwa",
+  "/sabcrm",
+];
 
 function isDesktopRoute(pathname: string | null): boolean {
   if (!pathname) return false;

@@ -179,8 +179,11 @@ const SAB_APPS_ALL: SabAppDescriptor[] = [
     Icon: CrmIcon,
     migration: "done",
     isActive: (p) => p === "/sabcrm" || !!p?.startsWith("/sabcrm/"),
-    // SabCRM has its own outer shell (app rail, no dock) — open it as a full
-    // navigation, not a chromeless desktop window.
+    // SabCRM now shares the SabNode chrome (dock + sidebar + header), but it is a
+    // heavy native server route (metadata-driven suite, not a chromeless React
+    // page), so it opens as a full navigation rather than a desktop iframe
+    // window. The dock still renders on /sabcrm (it is a desktop route now), so
+    // app-switching works exactly as it does on /dashboard.
     renderMode: "hard-nav",
   },
   {
