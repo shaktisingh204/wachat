@@ -6,6 +6,7 @@ import {
   Code2,
   FolderKanban,
   Inbox,
+  MessagesSquare,
   Settings,
   Settings2,
   ShoppingCart,
@@ -101,6 +102,13 @@ export function buildSabchatSidebarGroups(
           icon: React.createElement(BookOpen),
           href: "/sabchat/knowledge",
           active: isActive("/sabchat/knowledge"),
+        },
+        {
+          id: "community",
+          label: "Community",
+          icon: React.createElement(MessagesSquare),
+          href: "/sabchat/community",
+          active: isActive("/sabchat/community"),
         },
         {
           id: "admin",

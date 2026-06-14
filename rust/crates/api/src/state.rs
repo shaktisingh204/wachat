@@ -128,6 +128,7 @@ use sabchat_knowledge::SabChatKnowledgeState;
 use sabchat_macros::SabChatMacrosState;
 use sabchat_marketplace::SabChatMarketplaceState;
 use sabchat_public_api::SabChatPublicApiState;
+use sabchat_community::SabChatCommunityState;
 use sabchat_reports::SabChatReportsState;
 use sabchat_sabflow_nodes::SabChatSabflowNodesState;
 use sabchat_shifts::SabChatShiftsState;
@@ -251,6 +252,7 @@ pub struct AppState {
     pub sabchat_voice: SabChatVoiceState,
     pub sabchat_cobrowse: SabChatCobrowseState,
     pub sabchat_shifts: SabChatShiftsState,
+    pub sabchat_community: SabChatCommunityState,
     pub sabchat_csat: SabChatCsatState,
     pub sabchat_dispositions: SabChatDispositionsState,
     pub sabchat_gamification: SabChatGamificationState,
@@ -379,6 +381,7 @@ impl AppState {
         sabchat_voice: SabChatVoiceState,
         sabchat_cobrowse: SabChatCobrowseState,
         sabchat_shifts: SabChatShiftsState,
+        sabchat_community: SabChatCommunityState,
         sabchat_csat: SabChatCsatState,
         sabchat_dispositions: SabChatDispositionsState,
         sabchat_gamification: SabChatGamificationState,
@@ -510,6 +513,7 @@ impl AppState {
             sabchat_voice,
             sabchat_cobrowse,
             sabchat_shifts,
+            sabchat_community,
             sabchat_csat,
             sabchat_dispositions,
             sabchat_gamification,
@@ -825,6 +829,11 @@ impl FromRef<AppState> for SabChatCobrowseState {
 impl FromRef<AppState> for SabChatShiftsState {
     fn from_ref(s: &AppState) -> Self {
         s.sabchat_shifts.clone()
+    }
+}
+impl FromRef<AppState> for SabChatCommunityState {
+    fn from_ref(s: &AppState) -> Self {
+        s.sabchat_community.clone()
     }
 }
 impl FromRef<AppState> for SabChatCsatState {
