@@ -3,10 +3,12 @@ import * as React from "react";
 import {
   Activity,
   AppWindow,
+  BarChart3,
   Clock,
   FolderKanban,
   Globe,
   Headphones,
+  HeartHandshake,
   Inbox,
   KeyRound,
   Layers,
@@ -86,6 +88,13 @@ export function buildSabcallSidebarGroups(
           icon: React.createElement(Users),
           href: "/sabcall/contacts",
           active: isActive("/sabcall/contacts"),
+        },
+        {
+          id: "relationships",
+          label: "Relationships",
+          icon: React.createElement(HeartHandshake),
+          href: "/sabcall/relationships",
+          active: isActive("/sabcall/relationships"),
         },
         {
           id: "agent-console",
@@ -211,6 +220,26 @@ export function buildSabcallSidebarGroups(
           icon: React.createElement(ShieldCheck),
           href: "/sabcall/acls",
           active: isActive("/sabcall/acls"),
+        },
+        {
+          id: "compliance",
+          label: "Compliance & trust",
+          icon: React.createElement(ShieldCheck),
+          href: "/sabcall/compliance",
+          active: isActive("/sabcall/compliance"),
+        },
+      ],
+    },
+    {
+      id: "insights",
+      label: "Insights",
+      items: [
+        {
+          id: "analytics",
+          label: "Analytics",
+          icon: React.createElement(BarChart3),
+          href: "/sabcall/analytics",
+          active: isActive("/sabcall/analytics"),
         },
       ],
     },
