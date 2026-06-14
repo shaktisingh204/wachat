@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { Clock, Lock, Plus, ShieldCheck, Smile, Trash2, Users } from "lucide-react";
+import { Clock, KeyRound, Lock, Plus, ShieldCheck, Smile, Trash2, Users } from "lucide-react";
 
 import {
   Badge,
@@ -28,11 +28,15 @@ import {
   saveSurvey,
 } from "@/app/actions/sabchat-support.actions";
 import {
+  createScimToken,
   deleteBusinessHours,
   deleteRetention,
+  deleteSso,
   deleteTeam,
+  revokeScimToken,
   saveBusinessHours,
   saveRetention,
+  saveSso,
   saveTeam,
   sweepRetention,
 } from "@/app/actions/sabchat-ops.actions";
@@ -41,8 +45,13 @@ import type { SabChatSurvey, SabChatSurveyKind } from "@/lib/rust-client/sabchat
 import type { SabChatBusinessHour } from "@/lib/rust-client/sabchat-business-hours";
 import type { SabChatTeam } from "@/lib/rust-client/sabchat-teams";
 import type { SabChatRetentionRule } from "@/lib/rust-client/sabchat-compliance";
+import type {
+  SabChatSsoConfig,
+  SabChatScimToken,
+  SabChatSsoProvider,
+} from "@/lib/rust-client/sabchat-sso";
 
-type Tab = "sla" | "csat" | "hours" | "teams" | "compliance";
+type Tab = "sla" | "csat" | "hours" | "teams" | "compliance" | "security";
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -52,12 +61,16 @@ export function SettingsClient({
   initialBusinessHours,
   initialTeams,
   initialRetention,
+  initialSso,
+  initialScim,
 }: {
   initialSlas: SabChatSla[];
   initialSurveys: SabChatSurvey[];
   initialBusinessHours: SabChatBusinessHour[];
   initialTeams: SabChatTeam[];
   initialRetention: SabChatRetentionRule[];
+  initialSso: SabChatSsoConfig[];
+  initialScim: SabChatScimToken[];
 }) {
   const router = useRouter();
   const { toast } = useToast();
@@ -90,6 +103,7 @@ export function SettingsClient({
           { id: "teams" as const, label: "Teams", icon: Users },
           { id: "csat" as const, label: "CSAT surveys", icon: Smile },
           { id: "compliance" as const, label: "Compliance", icon: Lock },
+          { id: "security" as const, label: "Security (SSO)", icon: KeyRound },
         ].map((t) => {
           const Icon = t.icon;
           return (
@@ -118,6 +132,8 @@ export function SettingsClient({
           <TeamsSection teams={initialTeams} onAction={handle} />
         ) : tab === "compliance" ? (
           <ComplianceSection rules={initialRetention} onAction={handle} />
+        ) : tab === "security" ? (
+          <SecuritySection sso={initialSso} scim={initialScim} onAction={handle} />
         ) : (
           <CsatSection surveys={initialSurveys} onAction={handle} />
         )}
@@ -458,6 +474,197 @@ function ComplianceSection({
               }}
             >
               Create
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
+/* ── Security (SSO + SCIM) ──────────────────────────────────────────────── */
+
+function SecuritySection({
+  sso,
+  scim,
+  onAction,
+}: {
+  sso: SabChatSsoConfig[];
+  scim: SabChatScimToken[];
+  onAction: Runner;
+}) {
+  const router = useRouter();
+  const { toast } = useToast();
+  const [open, setOpen] = React.useState(false);
+  const [provider, setProvider] = React.useState<SabChatSsoProvider>("saml");
+  const [domain, setDomain] = React.useState("");
+  const [metadataUrl, setMetadataUrl] = React.useState("");
+  const [issuer, setIssuer] = React.useState("");
+  const [clientId, setClientId] = React.useState("");
+  const [busy, setBusy] = React.useState(false);
+
+  const [scimLabel, setScimLabel] = React.useState("");
+  const [newToken, setNewToken] = React.useState<string | null>(null);
+
+  const createScim = async () => {
+    if (!scimLabel.trim()) return;
+    const res = await createScimToken(scimLabel);
+    if (res.ok) {
+      setNewToken(res.token ?? null);
+      setScimLabel("");
+      toast({ title: "SCIM token created" });
+      router.refresh();
+    } else {
+      toast({ title: "Failed", description: res.error, variant: "destructive" });
+    }
+  };
+
+  return (
+    <div className="space-y-8">
+      {/* SSO */}
+      <div>
+        <div className="mb-2 flex items-center justify-between">
+          <p className="text-xs text-[var(--st-text-secondary)]">
+            Single sign-on (SAML / OIDC) for your team. Domain-matched.
+          </p>
+          <Button variant="primary" size="sm" iconLeft={Plus} onClick={() => setOpen(true)}>
+            New SSO connection
+          </Button>
+        </div>
+        <Card className="divide-y divide-[var(--st-border)] p-0">
+          {sso.length === 0 ? (
+            <p className="p-6 text-center text-sm text-[var(--st-text-secondary)]">
+              No SSO connections yet.
+            </p>
+          ) : (
+            sso.map((s) => (
+              <div key={s._id} className="flex items-center justify-between gap-3 p-4">
+                <div>
+                  <p className="text-sm font-medium uppercase text-[var(--st-text)]">{s.provider}</p>
+                  <p className="text-xs text-[var(--st-text-secondary)]">{s.domain ?? "any domain"}</p>
+                </div>
+                <Badge variant={s.enabled ? "default" : "outline"}>
+                  {s.enabled ? "Enabled" : "Disabled"}
+                </Badge>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  iconLeft={Trash2}
+                  onClick={() => void onAction(() => deleteSso(s._id), "Deleted")}
+                />
+              </div>
+            ))
+          )}
+        </Card>
+      </div>
+
+      {/* SCIM */}
+      <div>
+        <h3 className="mb-1 text-sm font-semibold text-[var(--st-text)]">SCIM provisioning</h3>
+        <p className="mb-2 text-xs text-[var(--st-text-secondary)]">
+          Issue a bearer token for your IdP to auto-provision/deprovision agents.
+        </p>
+        {newToken ? (
+          <div className="mb-2 rounded-md border border-amber-300/60 bg-amber-50 p-3 text-xs text-amber-900">
+            Copy this token now — it won&apos;t be shown again:
+            <code className="mt-1 block break-all font-mono">{newToken}</code>
+          </div>
+        ) : null}
+        <div className="mb-3 flex gap-2">
+          <Input
+            value={scimLabel}
+            onChange={(e) => setScimLabel(e.target.value)}
+            placeholder="Token label (e.g. Okta)"
+            className="max-w-xs"
+          />
+          <Button variant="outline" size="sm" disabled={!scimLabel.trim()} onClick={() => void createScim()}>
+            Generate token
+          </Button>
+        </div>
+        <Card className="divide-y divide-[var(--st-border)] p-0">
+          {scim.length === 0 ? (
+            <p className="p-6 text-center text-sm text-[var(--st-text-secondary)]">No SCIM tokens.</p>
+          ) : (
+            scim.map((t) => (
+              <div key={t._id} className="flex items-center justify-between gap-3 p-4">
+                <div>
+                  <p className="text-sm font-medium text-[var(--st-text)]">{t.label}</p>
+                  <p className="text-xs text-[var(--st-text-secondary)]">
+                    {t.tokenLast4 ? `••••${t.tokenLast4}` : "active"}
+                  </p>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  iconLeft={Trash2}
+                  onClick={() => void onAction(() => revokeScimToken(t._id), "Revoked")}
+                />
+              </div>
+            ))
+          )}
+        </Card>
+      </div>
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>New SSO connection</DialogTitle>
+          </DialogHeader>
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="Protocol">
+              <select
+                value={provider}
+                onChange={(e) => setProvider(e.target.value as SabChatSsoProvider)}
+                className="w-full rounded-md border border-[var(--st-border)] bg-transparent px-2 py-2 text-sm uppercase text-[var(--st-text)]"
+              >
+                <option value="saml">SAML</option>
+                <option value="oidc">OIDC</option>
+              </select>
+            </Field>
+            <Field label="Email domain">
+              <Input value={domain} onChange={(e) => setDomain(e.target.value)} placeholder="acme.com" />
+            </Field>
+          </div>
+          {provider === "saml" ? (
+            <Field label="Metadata URL">
+              <Input value={metadataUrl} onChange={(e) => setMetadataUrl(e.target.value)} placeholder="https://idp/metadata" />
+            </Field>
+          ) : (
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Issuer">
+                <Input value={issuer} onChange={(e) => setIssuer(e.target.value)} />
+              </Field>
+              <Field label="Client ID">
+                <Input value={clientId} onChange={(e) => setClientId(e.target.value)} />
+              </Field>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" size="sm" onClick={() => setOpen(false)} disabled={busy}>
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              loading={busy}
+              onClick={async () => {
+                setBusy(true);
+                const ok = await onAction(
+                  () =>
+                    saveSso({
+                      provider,
+                      domain,
+                      metadataUrl: provider === "saml" ? metadataUrl : undefined,
+                      issuer: provider === "oidc" ? issuer : undefined,
+                      clientId: provider === "oidc" ? clientId : undefined,
+                    }),
+                  "Saved",
+                );
+                setBusy(false);
+                if (ok) setOpen(false);
+              }}
+            >
+              Save
             </Button>
           </DialogFooter>
         </DialogContent>
