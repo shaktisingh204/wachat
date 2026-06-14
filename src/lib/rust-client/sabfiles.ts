@@ -26,10 +26,46 @@ export type SabfilesNode = {
     shareExpiresAt?: string;
     shareDownloadEnabled?: boolean;
     sharePassword?: string;
+    /** Document-governance (share-link enforcement). Camel-cased on the node doc. */
+    shareMaxDownloads?: number;
+    shareMaxViews?: number;
+    shareNotBefore?: string;
+    shareAuditEnabled?: boolean;
+    shareDownloadCount?: number;
+    shareViewCount?: number;
+    shareWatermark?: SabfilesWatermark;
+    /** Sab Vault: zero-knowledge encrypted file. Bytes in R2 are ciphertext. */
+    vault?: boolean;
+    /** Client-encrypted envelope holding the real { name, mime, size }. */
+    vaultMeta?: string;
     /** Collaborators (people the node is shared with). userId is a hex string. */
     members?: { userId: string; role: string; addedAt?: string }[];
     createdAt: string;
     updatedAt: string;
+};
+
+/** Watermark config as stored on the node doc (camelCase sub-document). */
+export type SabfilesWatermark = {
+    enabled: boolean;
+    text?: string | null;
+    includeViewerEmail?: boolean;
+    opacity?: number;
+};
+
+/** Watermark wire shape on DTO responses (snake_case, serde defaults). */
+export type SabfilesWatermarkDto = {
+    enabled: boolean;
+    text?: string | null;
+    include_viewer_email: boolean;
+    opacity: number;
+};
+
+/** Watermark input on `createShare` (snake_case). */
+export type SabfilesWatermarkInput = {
+    enabled: boolean;
+    text?: string | null;
+    include_viewer_email?: boolean;
+    opacity?: number;
 };
 
 export type SabfilesNodesResponse = { nodes: SabfilesNode[] };
@@ -76,6 +112,10 @@ export type ConfirmUploadBody = {
     size: number;
     mime?: string;
     parent_id?: string | null;
+    /** Mark this node as a Sab Vault (encrypted) file. */
+    vault?: boolean;
+    /** Client-encrypted name/mime envelope for vault files. */
+    vault_meta?: string;
 };
 
 export type CreateFolderBody = {
@@ -87,6 +127,16 @@ export type CreateShareBody = {
     expires_at?: string | null;
     download_enabled?: boolean;
     password?: string | null;
+    /** Governance — auto-revoke after N downloads. */
+    max_downloads?: number | null;
+    /** Governance — auto-revoke after N views/previews. */
+    max_views?: number | null;
+    /** Governance — access window start (ISO-8601). */
+    not_before?: string | null;
+    /** Governance — log view/download access to the audit trail. */
+    audit_enabled?: boolean;
+    /** Governance — dynamic watermark overlay on preview/share view. */
+    watermark?: SabfilesWatermarkInput | null;
 };
 
 export type ShareResponse = {
@@ -95,6 +145,11 @@ export type ShareResponse = {
     expires_at?: string;
     download_enabled: boolean;
     password_protected: boolean;
+    max_downloads?: number | null;
+    max_views?: number | null;
+    not_before?: string | null;
+    audit_enabled: boolean;
+    watermark?: SabfilesWatermarkDto | null;
 };
 
 export type PublicShareView = {
@@ -105,7 +160,35 @@ export type PublicShareView = {
     thumbnail_url?: string;
     download_enabled: boolean;
     password_protected: boolean;
+    watermark?: SabfilesWatermarkDto | null;
 };
+
+// ─── Sab Vault ──────────────────────────────────────────────────────────
+
+export type VaultKeyBody = {
+    salt_b64: string;
+    canary_b64: string;
+    iterations?: number;
+    algorithm?: string;
+};
+
+export type VaultKeyResponse = {
+    exists: boolean;
+    salt_b64?: string | null;
+    canary_b64?: string | null;
+    iterations?: number | null;
+    algorithm?: string | null;
+};
+
+export type SabfilesAuditEntry = {
+    action: string;
+    ip?: string | null;
+    ua?: string | null;
+    at?: string | null;
+    meta?: unknown;
+};
+
+export type SabfilesAuditResponse = { entries: SabfilesAuditEntry[] };
 
 export type ListNodesQuery = {
     parent?: string | null;
@@ -261,6 +344,17 @@ export const sabfilesApi = {
         rustPublicFetch<{ url: string }>(
             `/v1/sabfiles/share/${token}/preview${qs({ password })}`,
         ),
+
+    // ─── Sab Vault ───────────────────────────────────────────────────────
+    vaultKeyGet: () => rustFetch<VaultKeyResponse>(`/v1/sabfiles/vault/key`),
+    vaultKeyCreate: (body: VaultKeyBody) =>
+        rustFetch<VaultKeyResponse>(`/v1/sabfiles/vault/key`, {
+            method: 'POST',
+            body: JSON.stringify(body),
+        }),
+    vaultList: () => rustFetch<SabfilesNodesResponse>(`/v1/sabfiles/vault/nodes`),
+    nodeAudit: (id: string) =>
+        rustFetch<SabfilesAuditResponse>(`/v1/sabfiles/nodes/${id}/audit`),
 };
 
 export type SabfilesApi = typeof sabfilesApi;

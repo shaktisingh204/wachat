@@ -150,6 +150,63 @@ export async function decryptPayload<T = unknown>(
     return JSON.parse(new TextDecoder().decode(plaintext)) as T;
 }
 
+/* ─── Raw-bytes encrypt / decrypt (file contents) ───────────────────── */
+
+/**
+ * Encrypt raw file bytes into the same envelope format as
+ * {@link encryptPayload} (`version || iv || ciphertext`), returned as raw
+ * bytes ready to upload to R2 as ciphertext-at-rest. The Vault uses this so
+ * the server only ever stores ciphertext — the master key never leaves the
+ * browser.
+ *
+ * Note: AES-GCM via WebCrypto buffers the whole payload in memory, so callers
+ * must cap vault-eligible file size (~150 MB) until chunked encryption lands.
+ */
+export async function encryptBytes(
+    data: ArrayBuffer | Uint8Array,
+    key: CryptoKey,
+): Promise<Uint8Array> {
+    const iv = randomBytes(IV_LEN);
+    const plaintext = data instanceof Uint8Array ? data : new Uint8Array(data);
+    const ciphertext = new Uint8Array(
+        await crypto.subtle.encrypt(
+            { name: 'AES-GCM', iv: iv as unknown as BufferSource },
+            key,
+            plaintext as unknown as BufferSource,
+        ),
+    );
+    const envelope = new Uint8Array(1 + iv.byteLength + ciphertext.byteLength);
+    envelope[0] = ENVELOPE_VERSION;
+    envelope.set(iv, 1);
+    envelope.set(ciphertext, 1 + iv.byteLength);
+    return envelope;
+}
+
+/**
+ * Decrypt an envelope produced by {@link encryptBytes} back to raw bytes.
+ * Throws on version mismatch or GCM tag verification failure.
+ */
+export async function decryptBytes(
+    envelope: ArrayBuffer | Uint8Array,
+    key: CryptoKey,
+): Promise<Uint8Array> {
+    const env = envelope instanceof Uint8Array ? envelope : new Uint8Array(envelope);
+    if (env.byteLength < 1 + IV_LEN + 16) {
+        throw new Error('sabvault: envelope too short');
+    }
+    if (env[0] !== ENVELOPE_VERSION) {
+        throw new Error(`sabvault: unsupported envelope version ${env[0]}`);
+    }
+    const iv = env.slice(1, 1 + IV_LEN);
+    const ciphertext = env.slice(1 + IV_LEN);
+    const plaintext = await crypto.subtle.decrypt(
+        { name: 'AES-GCM', iv: iv as unknown as BufferSource },
+        key,
+        ciphertext as unknown as BufferSource,
+    );
+    return new Uint8Array(plaintext);
+}
+
 /* ─── Verification helpers ──────────────────────────────────────────── */
 
 /**
