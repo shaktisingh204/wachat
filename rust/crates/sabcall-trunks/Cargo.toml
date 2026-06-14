@@ -1,0 +1,32 @@
+[package]
+name = "sabcall-trunks"
+version = "0.1.0"
+edition = "2024"
+description = "Voice SIP trunk records — carrier SIP host, transport, auth, codecs, channel limits and inbound/outbound enablement."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "sabcall_trunks"
+path = "src/lib.rs"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+bson = { version = "2", features = ["chrono-0_4"] }
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+mongodb = "3.2"
+futures = "0.3"
+tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
+axum = { version = "0.8", default-features = false, features = ["json", "http1", "query"] }
+tracing = "0.1"
+anyhow = "1.0"
+
+crm-common = { path = "../crm-common" }
+sabnode-auth = { path = "../auth" }
+sabnode-common = { path = "../common" }
+sabnode-db = { path = "../db" }
+sabnode-rbac = { path = "../rbac" }
+
+[lints]
+workspace = true

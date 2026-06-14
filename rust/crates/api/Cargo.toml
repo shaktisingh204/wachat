@@ -441,6 +441,12 @@ sabcall-dids = { path = "../sabcall-dids" }
 sabcall-ivrs = { path = "../sabcall-ivrs" }
 sabcall-queues = { path = "../sabcall-queues" }
 sabcall-voicemail = { path = "../sabcall-voicemail" }
+sabcall-trunks = { path = "../sabcall-trunks" }
+sabcall-domains = { path = "../sabcall-domains" }
+sabcall-credentials = { path = "../sabcall-credentials" }
+sabcall-acls = { path = "../sabcall-acls" }
+sabcall-applications = { path = "../sabcall-applications" }
+sabcall-contacts = { path = "../sabcall-contacts" }
 
 # SabOps — endpoint / MDM / AD / patch management
 sabops-endpoints = { path = "../sabops-endpoints" }

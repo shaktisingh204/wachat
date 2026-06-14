@@ -1,12 +1,20 @@
 import * as React from "react";
 
 import {
+  AppWindow,
   FolderKanban,
+  Globe,
   Headphones,
+  Inbox,
+  KeyRound,
   Layers,
   LayoutDashboard,
+  Megaphone,
   Phone,
   PhoneCall,
+  Server,
+  ShieldCheck,
+  Users,
   Voicemail,
   Workflow,
 } from "lucide-react";
@@ -62,6 +70,20 @@ export function buildSabcallSidebarGroups(
       defaultOpen: true,
       items: [
         {
+          id: "conversations",
+          label: "Conversations",
+          icon: React.createElement(Inbox),
+          href: "/sabcall/conversations",
+          active: isActive("/sabcall/conversations"),
+        },
+        {
+          id: "contacts",
+          label: "Contacts",
+          icon: React.createElement(Users),
+          href: "/sabcall/contacts",
+          active: isActive("/sabcall/contacts"),
+        },
+        {
           id: "agent-dashboard",
           label: "Agent dashboard",
           icon: React.createElement(Headphones),
@@ -81,6 +103,13 @@ export function buildSabcallSidebarGroups(
           icon: React.createElement(Voicemail),
           href: "/sabcall/voicemail",
           active: isActive("/sabcall/voicemail"),
+        },
+        {
+          id: "broadcast",
+          label: "Voice broadcast",
+          icon: React.createElement(Megaphone),
+          href: "/sabcall/broadcast",
+          active: isActive("/sabcall/broadcast"),
         },
       ],
     },
@@ -109,6 +138,47 @@ export function buildSabcallSidebarGroups(
           icon: React.createElement(Layers),
           href: "/sabcall/queues",
           active: isActive("/sabcall/queues"),
+        },
+        {
+          id: "applications",
+          label: "Applications",
+          icon: React.createElement(AppWindow),
+          href: "/sabcall/applications",
+          active: isActive("/sabcall/applications"),
+        },
+      ],
+    },
+    {
+      id: "infrastructure",
+      label: "Infrastructure",
+      items: [
+        {
+          id: "trunks",
+          label: "SIP trunks",
+          icon: React.createElement(Server),
+          href: "/sabcall/trunks",
+          active: isActive("/sabcall/trunks"),
+        },
+        {
+          id: "domains",
+          label: "SIP domains",
+          icon: React.createElement(Globe),
+          href: "/sabcall/domains",
+          active: isActive("/sabcall/domains"),
+        },
+        {
+          id: "credentials",
+          label: "SIP credentials",
+          icon: React.createElement(KeyRound),
+          href: "/sabcall/credentials",
+          active: isActive("/sabcall/credentials"),
+        },
+        {
+          id: "acls",
+          label: "Access control",
+          icon: React.createElement(ShieldCheck),
+          href: "/sabcall/acls",
+          active: isActive("/sabcall/acls"),
         },
       ],
     },

@@ -187,7 +187,7 @@ function NodeEditor({
         )}
       </div>
 
-      {(node.children ?? []).map((c, i) => (
+      {(node.children ?? []).map((c: VoiceIvrNode, i: number) => (
         <NodeEditor
           key={i}
           node={c}

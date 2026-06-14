@@ -1,0 +1,52 @@
+[package]
+name = "sabcall-engine"
+version = "0.1.0"
+edition = "2021"
+description = "SabCall — Rust voice engine (Asterisk ARI control plane, Stasis call loop, pjsip config generation, originate API, CDR write-back) over Mongo"
+publish = false
+
+[lib]
+name = "sabcall_engine"
+path = "src/lib.rs"
+
+[[bin]]
+name = "sabcall-engine"
+path = "src/main.rs"
+
+[dependencies]
+# HTTP server
+axum = { version = "0.7", features = ["macros"] }
+tokio = { version = "1.40", features = ["full"] }
+tower = "0.5"
+tower-http = { version = "0.6", features = ["trace", "cors", "limit"] }
+
+# HTTP client (Asterisk ARI REST + Next callbacks)
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+
+# Asterisk ARI events (WebSocket)
+tokio-tungstenite = { version = "0.24", default-features = false, features = ["connect", "rustls-tls-webpki-roots"] }
+futures-util = "0.3"
+
+# Storage
+mongodb = { version = "3.2", default-features = false, features = ["rustls-tls", "bson-2", "compat-3-3-0"] }
+
+# Serde + time
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1", features = ["v4"] }
+urlencoding = "2"
+
+# Observability
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+
+# Errors + config
+anyhow = "1"
+thiserror = "2"
+dotenvy = "0.15"
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 16

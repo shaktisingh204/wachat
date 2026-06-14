@@ -201,7 +201,7 @@ export async function releaseVoiceDid(id: string) {
 
 /* ─── IVRs ──────────────────────────────────────────────────────────── */
 
-type VoiceIvrNodeType =
+export type VoiceIvrNodeType =
   | 'menu'
   | 'playback'
   | 'forward'
@@ -209,7 +209,7 @@ type VoiceIvrNodeType =
   | 'hangup'
   | 'conditional';
 
-interface VoiceIvrNode {
+export interface VoiceIvrNode {
   type: VoiceIvrNodeType;
   id?: string;
   prompt?: string;

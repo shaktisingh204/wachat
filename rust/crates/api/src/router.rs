@@ -130,6 +130,12 @@ pub fn build(state: AppState) -> Router {
     let sabcall_ivrs_r = sabcall_ivrs::router::<AppState>();
     let sabcall_queues_r = sabcall_queues::router::<AppState>();
     let sabcall_voicemail_r = sabcall_voicemail::router::<AppState>();
+    let sabcall_trunks_r = sabcall_trunks::router::<AppState>();
+    let sabcall_domains_r = sabcall_domains::router::<AppState>();
+    let sabcall_credentials_r = sabcall_credentials::router::<AppState>();
+    let sabcall_acls_r = sabcall_acls::router::<AppState>();
+    let sabcall_applications_r = sabcall_applications::router::<AppState>();
+    let sabcall_contacts_r = sabcall_contacts::router::<AppState>();
 
     let sabbi_embeds_r = sabbi_embeds::router::<AppState>();
     let sabprep_profiles_r = sabprep_profiles::router::<AppState>();
@@ -1163,6 +1169,12 @@ pub fn build(state: AppState) -> Router {
         .nest("/v1/sabcall/ivrs", sabcall_ivrs_r)
         .nest("/v1/sabcall/queues", sabcall_queues_r)
         .nest("/v1/sabcall/voicemail", sabcall_voicemail_r)
+        .nest("/v1/sabcall/trunks", sabcall_trunks_r)
+        .nest("/v1/sabcall/domains", sabcall_domains_r)
+        .nest("/v1/sabcall/credentials", sabcall_credentials_r)
+        .nest("/v1/sabcall/acls", sabcall_acls_r)
+        .nest("/v1/sabcall/applications", sabcall_applications_r)
+        .nest("/v1/sabcall/contacts", sabcall_contacts_r)
         .nest("/v1/sabbi/embeds", sabbi_embeds_r)
         .nest("/v1/sabprep/profiles", sabprep_profiles_r)
         .nest("/v1/sabprep/runs", sabprep_runs_r)
