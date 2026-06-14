@@ -13,6 +13,7 @@ import { getSession } from '@/app/actions/user.actions';
 import { getErrorMessage } from '@/lib/utils';
 import type {
   SabChatConversationLink,
+  SabChatScheduledMessage,
   SabChatSideConversation,
   SabChatSideMessage,
 } from '@/lib/rust-client/sabchat-collab';
@@ -130,6 +131,51 @@ export async function linkConversations(
 export async function unlinkConversations(linkId: string): Promise<Mut> {
   try {
     await scoped(() => rustClient.sabchatCollab.deleteLink(linkId));
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: getErrorMessage(e) };
+  }
+}
+
+/* ── scheduled messages (send-later) ────────────────────────────────── */
+
+export async function listScheduledMessages(
+  conversationId: string,
+): Promise<SabChatScheduledMessage[]> {
+  try {
+    const res = await scoped(() => rustClient.sabchatCollab.listScheduled(conversationId));
+    return res.scheduled;
+  } catch {
+    return [];
+  }
+}
+
+export async function scheduleMessage(
+  conversationId: string,
+  text: string,
+  sendAtIso: string,
+): Promise<{ ok: true; id: string } | { ok: false; error: string }> {
+  if (!text?.trim()) return { ok: false, error: 'Message text is required.' };
+  const when = new Date(sendAtIso);
+  if (Number.isNaN(when.getTime())) return { ok: false, error: 'Pick a valid date/time.' };
+  if (when.getTime() <= Date.now()) return { ok: false, error: 'Pick a time in the future.' };
+  try {
+    const res = await scoped(() =>
+      rustClient.sabchatCollab.scheduleMessage({
+        conversationId,
+        text: text.trim(),
+        sendAt: when.toISOString(),
+      }),
+    );
+    return { ok: true, id: res.id };
+  } catch (e) {
+    return { ok: false, error: getErrorMessage(e) };
+  }
+}
+
+export async function cancelScheduledMessage(id: string): Promise<Mut> {
+  try {
+    await scoped(() => rustClient.sabchatCollab.cancelScheduled(id));
     return { ok: true };
   } catch (e) {
     return { ok: false, error: getErrorMessage(e) };

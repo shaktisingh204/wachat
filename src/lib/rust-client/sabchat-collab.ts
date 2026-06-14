@@ -47,6 +47,17 @@ export interface SabChatConversationLink {
   createdAt: string;
 }
 
+export interface SabChatScheduledMessage {
+  _id: string;
+  tenantId: string;
+  conversationId: string;
+  text: string;
+  sendAt: string;
+  status: 'pending' | 'sent';
+  createdBy: string;
+  createdAt: string;
+}
+
 export const sabchatCollabApi = {
   // ---- side conversations ----
   createSide: (body: { parentConversationId: string; subject: string }) =>
@@ -86,4 +97,25 @@ export const sabchatCollabApi = {
 
   deleteLink: (id: string) =>
     rustFetch<{ message: string }>(`/v1/sabchat/collab/links/${id}`, { method: 'DELETE' }),
+
+  // ---- scheduled messages (send-later) ----
+  scheduleMessage: (body: { conversationId: string; text: string; sendAt: string }) =>
+    rustFetch<{ id: string }>('/v1/sabchat/collab/scheduled', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    }),
+
+  listScheduled: (conversationId: string) =>
+    rustFetch<{ scheduled: SabChatScheduledMessage[] }>(
+      `/v1/sabchat/collab/scheduled${qs({ conversationId })}`,
+    ),
+
+  listDueScheduled: () =>
+    rustFetch<{ scheduled: SabChatScheduledMessage[] }>('/v1/sabchat/collab/scheduled/due'),
+
+  markScheduledSent: (id: string) =>
+    rustFetch<{ message: string }>(`/v1/sabchat/collab/scheduled/${id}/sent`, { method: 'POST' }),
+
+  cancelScheduled: (id: string) =>
+    rustFetch<{ message: string }>(`/v1/sabchat/collab/scheduled/${id}`, { method: 'DELETE' }),
 };

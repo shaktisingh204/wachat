@@ -2,9 +2,36 @@
 //!
 //! Every body uses `#[serde(rename_all = "camelCase")]` for TS round-tripping.
 
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use utoipa::ToSchema;
+
+// ---------------------------------------------------------------------------
+// Scheduled messages (send-later)
+// ---------------------------------------------------------------------------
+
+#[derive(Debug, Clone, Deserialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct ScheduleMessageBody {
+    pub conversation_id: String,
+    pub text: String,
+    /// When to send. Stored as a UTC instant; the cron drains due rows.
+    pub send_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, Default, Deserialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct ScheduledListQuery {
+    pub conversation_id: String,
+}
+
+#[derive(Debug, Clone, Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct ListScheduledResponse {
+    #[schema(value_type = Vec<Object>)]
+    pub scheduled: Vec<Value>,
+}
 
 // ---------------------------------------------------------------------------
 // Side conversations

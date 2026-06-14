@@ -23,13 +23,15 @@ use tracing::instrument;
 
 use crate::dto::{
     CreateLinkBody, CreateSideBody, CreateSideMessageBody, IdResponse, LinksQuery,
-    ListLinksResponse, ListSideMessagesResponse, ListSideResponse, SideListQuery, SuccessResponse,
+    ListLinksResponse, ListScheduledResponse, ListSideMessagesResponse, ListSideResponse,
+    ScheduleMessageBody, ScheduledListQuery, SideListQuery, SuccessResponse,
 };
 use crate::state::SabChatCollabState;
 
 const SIDE_COLL: &str = "sabchat_side_conversations";
 const SIDE_MSG_COLL: &str = "sabchat_side_messages";
 const LINKS_COLL: &str = "sabchat_conversation_links";
+const SCHEDULED_COLL: &str = "sabchat_scheduled_messages";
 
 // ===========================================================================
 // Helpers
@@ -337,5 +339,148 @@ pub async fn delete_link(
     }
     Ok(Json(SuccessResponse {
         message: "link removed".to_owned(),
+    }))
+}
+
+// ===========================================================================
+// Scheduled messages (send-later)
+// ===========================================================================
+
+#[instrument(skip_all)]
+pub async fn schedule_message(
+    user: AuthUser,
+    State(state): State<SabChatCollabState>,
+    Json(body): Json<ScheduleMessageBody>,
+) -> Result<Json<IdResponse>> {
+    let text = body.text.trim();
+    if text.is_empty() {
+        return Err(ApiError::Validation("text is required".to_owned()));
+    }
+    let conv = oid_from_str(&body.conversation_id)
+        .map_err(|_| ApiError::BadRequest("invalid conversationId".to_owned()))?;
+    let tenant_id = tenant_oid(&user)?;
+    let now = now_bson();
+    let new_oid = ObjectId::new();
+    state
+        .mongo
+        .collection::<Document>(SCHEDULED_COLL)
+        .insert_one(doc! {
+            "_id": new_oid,
+            "tenant_id": tenant_id,
+            "conversation_id": conv,
+            "text": text,
+            "send_at": bson::DateTime::from_chrono(body.send_at),
+            "status": "pending",
+            "created_by": author_oid(&user)?,
+            "created_at": now,
+        })
+        .await
+        .map_err(internal("sabchat_scheduled_messages.insert_one"))?;
+    Ok(Json(IdResponse {
+        id: new_oid.to_hex(),
+    }))
+}
+
+#[instrument(skip_all)]
+pub async fn list_scheduled(
+    user: AuthUser,
+    State(state): State<SabChatCollabState>,
+    Query(q): Query<ScheduledListQuery>,
+) -> Result<Json<ListScheduledResponse>> {
+    let tenant_id = tenant_oid(&user)?;
+    let conv = oid_from_str(&q.conversation_id)
+        .map_err(|_| ApiError::BadRequest("invalid conversationId".to_owned()))?;
+    let opts = FindOptions::builder().sort(doc! { "send_at": 1 }).build();
+    let cursor = state
+        .mongo
+        .collection::<Document>(SCHEDULED_COLL)
+        .find(doc! { "tenant_id": tenant_id, "conversation_id": conv, "status": "pending" })
+        .with_options(opts)
+        .await
+        .map_err(internal("sabchat_scheduled_messages.find"))?;
+    let docs: Vec<Document> = cursor
+        .try_collect()
+        .await
+        .map_err(internal("sabchat_scheduled_messages.collect"))?;
+    Ok(Json(ListScheduledResponse {
+        scheduled: docs.into_iter().map(document_to_clean_json).collect(),
+    }))
+}
+
+/// `GET /scheduled/due` — pending rows whose `send_at` is in the past. The
+/// cron drains these: append each to its conversation, then mark sent.
+#[instrument(skip_all)]
+pub async fn list_due_scheduled(
+    user: AuthUser,
+    State(state): State<SabChatCollabState>,
+) -> Result<Json<ListScheduledResponse>> {
+    let tenant_id = tenant_oid(&user)?;
+    let now = now_bson();
+    let opts = FindOptions::builder()
+        .sort(doc! { "send_at": 1 })
+        .limit(200)
+        .build();
+    let cursor = state
+        .mongo
+        .collection::<Document>(SCHEDULED_COLL)
+        .find(doc! { "tenant_id": tenant_id, "status": "pending", "send_at": doc! { "$lte": now } })
+        .with_options(opts)
+        .await
+        .map_err(internal("sabchat_scheduled_messages.find_due"))?;
+    let docs: Vec<Document> = cursor
+        .try_collect()
+        .await
+        .map_err(internal("sabchat_scheduled_messages.collect_due"))?;
+    Ok(Json(ListScheduledResponse {
+        scheduled: docs.into_iter().map(document_to_clean_json).collect(),
+    }))
+}
+
+#[instrument(skip_all, fields(scheduled_id = %scheduled_id))]
+pub async fn mark_scheduled_sent(
+    user: AuthUser,
+    State(state): State<SabChatCollabState>,
+    Path(scheduled_id): Path<String>,
+) -> Result<Json<SuccessResponse>> {
+    let tenant_id = tenant_oid(&user)?;
+    let sid = oid_from_str(&scheduled_id)
+        .map_err(|_| ApiError::BadRequest("invalid scheduled id".to_owned()))?;
+    let res = state
+        .mongo
+        .collection::<Document>(SCHEDULED_COLL)
+        .update_one(
+            doc! { "_id": sid, "tenant_id": tenant_id },
+            doc! { "$set": { "status": "sent", "sent_at": now_bson() } },
+        )
+        .await
+        .map_err(internal("sabchat_scheduled_messages.update_one"))?;
+    if res.matched_count == 0 {
+        return Err(ApiError::NotFound("scheduled message not found".to_owned()));
+    }
+    Ok(Json(SuccessResponse {
+        message: "marked sent".to_owned(),
+    }))
+}
+
+#[instrument(skip_all, fields(scheduled_id = %scheduled_id))]
+pub async fn cancel_scheduled(
+    user: AuthUser,
+    State(state): State<SabChatCollabState>,
+    Path(scheduled_id): Path<String>,
+) -> Result<Json<SuccessResponse>> {
+    let tenant_id = tenant_oid(&user)?;
+    let sid = oid_from_str(&scheduled_id)
+        .map_err(|_| ApiError::BadRequest("invalid scheduled id".to_owned()))?;
+    let res = state
+        .mongo
+        .collection::<Document>(SCHEDULED_COLL)
+        .delete_one(doc! { "_id": sid, "tenant_id": tenant_id, "status": "pending" })
+        .await
+        .map_err(internal("sabchat_scheduled_messages.delete_one"))?;
+    if res.deleted_count == 0 {
+        return Err(ApiError::NotFound("scheduled message not found".to_owned()));
+    }
+    Ok(Json(SuccessResponse {
+        message: "scheduled message cancelled".to_owned(),
     }))
 }
