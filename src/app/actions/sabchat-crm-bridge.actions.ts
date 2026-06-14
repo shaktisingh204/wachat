@@ -92,3 +92,24 @@ export async function conversationToDeal(
     return { ok: false, error: getErrorMessage(e) };
   }
 }
+
+export async function conversationToBooking(
+  conversationId: string,
+  input: { serviceId: string; startAt: string },
+): Promise<{ ok: true; bookingId: string } | { ok: false; error: string }> {
+  if (!conversationId) return { ok: false, error: 'No conversation selected.' };
+  if (!input.serviceId?.trim()) return { ok: false, error: 'A service is required.' };
+  const when = new Date(input.startAt);
+  if (Number.isNaN(when.getTime())) return { ok: false, error: 'Pick a valid start time.' };
+  try {
+    const res = await scoped(() =>
+      rustClient.sabchatCrmBridge.conversationToBooking(conversationId, {
+        serviceId: input.serviceId.trim(),
+        startAt: when.toISOString(),
+      }),
+    );
+    return { ok: true, bookingId: res.bookingId };
+  } catch (e) {
+    return { ok: false, error: getErrorMessage(e) };
+  }
+}

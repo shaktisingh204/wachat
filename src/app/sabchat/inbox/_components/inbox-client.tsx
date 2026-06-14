@@ -64,6 +64,7 @@ import {
 import type { CopilotSuggestedAction } from "@/lib/rust-client/sabchat-ai-copilot";
 import { sendPaymentLink } from "@/app/actions/sabchat-commerce.actions";
 import {
+  conversationToBooking,
   conversationToTicket,
   linkContactToCrm,
   pullContactFromCrm,
@@ -2044,6 +2045,28 @@ function CrmBridgeSection({
   const [busy, setBusy] = React.useState<string | null>(null);
   const contactId = contact?._id;
 
+  // In-chat booking — create a crm_bookings row from the conversation.
+  const [bookOpen, setBookOpen] = React.useState(false);
+  const [bookService, setBookService] = React.useState("");
+  const [bookAt, setBookAt] = React.useState("");
+  const [bookBusy, setBookBusy] = React.useState(false);
+  const doBook = async () => {
+    setBookBusy(true);
+    const res = await conversationToBooking(conv._id, {
+      serviceId: bookService,
+      startAt: new Date(bookAt).toISOString(),
+    });
+    setBookBusy(false);
+    if (res.ok) {
+      toast({ title: "Booking created" });
+      setBookOpen(false);
+      setBookService("");
+      setBookAt("");
+    } else {
+      toast({ title: "Couldn't book", description: res.error, variant: "destructive" });
+    }
+  };
+
   const run = async (
     key: string,
     fn: () => Promise<{ ok: boolean; error?: string }>,
@@ -2113,6 +2136,40 @@ function CrmBridgeSection({
           <Building2 className="h-3 w-3" aria-hidden /> Identify the visitor to enable contact
           sync.
         </p>
+      ) : null}
+
+      {/* In-chat booking */}
+      <button
+        onClick={() => setBookOpen((v) => !v)}
+        className="mt-2 flex w-full items-center gap-1 text-[11px] font-medium text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
+      >
+        <Clock className="h-3 w-3" aria-hidden /> Book a meeting
+      </button>
+      {bookOpen ? (
+        <div className="mt-1 space-y-1">
+          <Input
+            value={bookService}
+            onChange={(e) => setBookService(e.target.value)}
+            placeholder="Service ID"
+            className="h-8 text-xs"
+          />
+          <input
+            type="datetime-local"
+            value={bookAt}
+            onChange={(e) => setBookAt(e.target.value)}
+            className="h-8 w-full rounded-md border border-[var(--st-border)] bg-transparent px-2 text-xs text-[var(--st-text)] outline-none"
+          />
+          <Button
+            variant="outline"
+            size="sm"
+            className="w-full"
+            loading={bookBusy}
+            disabled={bookBusy || !bookService.trim() || !bookAt}
+            onClick={() => void doBook()}
+          >
+            Create booking
+          </Button>
+        </div>
       ) : null}
     </Section>
   );
