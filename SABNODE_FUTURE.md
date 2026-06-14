@@ -42,7 +42,7 @@ Generated 2026-05-27 from `src/app/dashboard/**`.
 | Zoho Sheet | ❌ | — | Collaborative spreadsheet. Not present. |
 | Zoho Show | ❌ | — | Collaborative presentation. Not present. |
 | Zoho Notebook | ❌ | `crm/workspace/sticky-notes` | Sticky notes are board-level; no personal note-taking app with notebooks/sections/multimedia notes. |
-| Zoho Connect | 🟡 | `sabconnect`, `crm/workspace/announcements`, `recognition` | Internal-social pieces exist; missing unified intranet feed, employee groups, manuals, custom apps inside the social layer. |
+| Zoho Connect | 🟡 | `hrm/hr/announcements`, `hrm/hr/events`, `hrm/hr/recognition` | Internal-social pieces exist (now folded into HRM); missing unified intranet feed, employee groups, manuals, custom apps inside the social layer. |
 | Zoho Vault | ❌ | `settings/api-keys` | No team password manager (encrypted vault, password-sharing rules, browser extension, secret rotation, breach alerts). |
 
 ## HR & Recruitment

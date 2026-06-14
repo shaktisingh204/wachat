@@ -27,6 +27,7 @@ const JOBS = [
   { name: 'sabmail-snooze', path: '/api/cron/sabmail-snooze', schedule: '* * * * *' },
   { name: 'sabmail-brief', path: '/api/cron/sabmail-brief', schedule: '0 7 * * *' },
   { name: 'sabmail-rag', path: '/api/cron/sabmail-rag', schedule: '0 */6 * * *' },
+  { name: 'sabmail-watch-renewal', path: '/api/cron/sabmail-watch-renewal', schedule: '0 * * * *' },
   { name: 'process-webhooks', path: '/api/cron/process-webhooks', schedule: '*/5 * * * *' },
   { name: 'sla-breach-check', path: '/api/cron/sla-breach-check', schedule: '*/5 * * * *' },
   { name: 'qr-scan-notify', path: '/api/cron/qr-scan-notify', schedule: '*/5 * * * *' },

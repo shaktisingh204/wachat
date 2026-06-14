@@ -12,7 +12,7 @@ Legend: ⬜ todo · 🔄 in progress · ✅ done (premium redesign + on main)
 
 ## Redesigned & on main ✅
 user · team · platform · api · sabfiles · analytics-workspace · email · instagram ·
-sabsign · sabshop · sabconnect · sabvoice · sabbigin · finance · sabmonitor ·
+sabsign · sabshop · sabvoice · sabbigin · finance · sabmonitor ·
 sabworkerly · sabsprints · sabmeet · sabcreator · sabvault · sabtables · sabpractice ·
 sablens · sabsheet · sabops
 

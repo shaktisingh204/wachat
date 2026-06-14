@@ -57,6 +57,8 @@ export interface SabmailAccount {
   graphSubscriptionId?: string;
   /** ISO expiry of the Graph subscription — the renewal cron PATCHes before this. */
   graphSubscriptionExpiry?: string;
+  /** Per-subscription clientState secret — the push webhook validates it to reject spoofed senders. */
+  graphSubscriptionSecret?: string;
   /** Last time the Gmail watch / Graph subscription was (re-)armed. */
   pushRenewedAt?: Date;
   createdAt: Date;

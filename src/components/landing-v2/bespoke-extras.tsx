@@ -744,7 +744,7 @@ export function LoyaltyRings({ mod }: SectionProps) {
     );
 }
 
-// ──────── Community feed (SabConnect) ────────
+// ──────── Community feed ────────
 export function CommunityFeed({ mod }: SectionProps) {
     const posts = [
         { who: 'Asha · Design', what: 'Shipped: new brand colors', tag: '🎉 Win', t: '2m' },

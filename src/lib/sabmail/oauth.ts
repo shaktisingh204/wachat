@@ -64,6 +64,37 @@ export function isSabmailOAuthProvider(v: unknown): v is SabmailOAuthProvider {
   return v === 'gmail' || v === 'outlook';
 }
 
+/**
+ * Same-origin relative path or bust. PARSE — never trust a string-prefix check:
+ * the URL parser treats `\` as `/` and strips leading control/whitespace, so
+ * `/\evil.com` and `/%09//evil.com` would sail past a `startsWith('/')` guard
+ * yet resolve to an external host. Returns a clean relative path only.
+ */
+export function safeReturnPath(raw: string | null | undefined): string {
+  const fallback = '/sabmail/accounts';
+  if (!raw || !/^\/[^/\\]/.test(raw)) return fallback;
+  try {
+    const u = new URL(raw, 'http://sabmail.invalid');
+    if (u.origin !== 'http://sabmail.invalid') return fallback;
+    return `${u.pathname}${u.search}${u.hash}`;
+  } catch {
+    return fallback;
+  }
+}
+
+/** Best-effort tenant id (`tid`) from a Microsoft id_token, for per-account Graph auth. */
+export function parseMsTenantFromIdToken(idToken: string | undefined): string | undefined {
+  if (!idToken) return undefined;
+  const part = idToken.split('.')[1];
+  if (!part) return undefined;
+  try {
+    const json = JSON.parse(Buffer.from(part.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8'));
+    return typeof json?.tid === 'string' ? json.tid : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 export function getSabmailProviderSpec(provider: SabmailOAuthProvider): ProviderSpec {
   return PROVIDERS[provider];
 }
@@ -121,12 +152,12 @@ export async function verifySabmailOAuthState(token: string): Promise<SabmailOAu
     if (payload.k !== 'sabmail-oauth') return null;
     if (!isSabmailOAuthProvider(payload.provider)) return null;
     if (typeof payload.userId !== 'string' || typeof payload.workspaceId !== 'string') return null;
-    const returnTo = typeof payload.returnTo === 'string' ? payload.returnTo : '/sabmail/accounts';
     return {
       userId: payload.userId,
       workspaceId: payload.workspaceId,
       provider: payload.provider,
-      returnTo,
+      // Re-normalize even though it was sanitized at mint time (defense in depth).
+      returnTo: safeReturnPath(typeof payload.returnTo === 'string' ? payload.returnTo : null),
     };
   } catch {
     return null;

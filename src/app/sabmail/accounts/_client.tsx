@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { AtSign, Plus, Trash2, X } from "lucide-react";
+import { AtSign, Mail, Plus, Trash2, X } from "lucide-react";
 
 import {
   Badge,
@@ -49,6 +49,39 @@ export function SabmailAccountsClient({
     },
     [toast],
   );
+
+  // Surface the OAuth callback result (?connected=… / ?error=…), then clean the URL.
+  React.useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const connected = params.get("connected");
+    const error = params.get("error");
+    if (!connected && !error) return;
+    if (connected) {
+      toast({ title: "Mailbox connected", description: connected });
+    } else if (error === "oauth-not-configured") {
+      toast({
+        title: "OAuth isn't configured yet",
+        description: "Add the provider's client id/secret in env to enable this.",
+        variant: "destructive",
+      });
+    } else if (error === "oauth-no-refresh-token") {
+      toast({
+        title: "Couldn't get offline access",
+        description: "Remove the app's access in your provider account, then reconnect.",
+        variant: "destructive",
+      });
+    } else if (error) {
+      toast({ title: "Couldn't connect mailbox", description: error, variant: "destructive" });
+    }
+    const clean = new URL(window.location.href);
+    clean.search = "";
+    window.history.replaceState({}, "", clean.toString());
+  }, [toast]);
+
+  const startOAuth = React.useCallback((provider: "gmail" | "outlook") => {
+    window.location.href = `/api/sabmail/oauth/authorize?provider=${provider}&returnTo=/sabmail/accounts`;
+  }, []);
 
   return (
     <div className="sabmail-canvas min-h-full p-4 sm:p-6">
@@ -134,6 +167,20 @@ export function SabmailAccountsClient({
               ) : null}
             </CardHeader>
             <CardBody>
+              {/* One-click OAuth — no passwords; refresh token stored encrypted. */}
+              <div className="grid gap-2 sm:grid-cols-2">
+                <Button variant="secondary" iconLeft={Mail} onClick={() => startOAuth("gmail")}>
+                  Connect Gmail
+                </Button>
+                <Button variant="secondary" iconLeft={Mail} onClick={() => startOAuth("outlook")}>
+                  Connect Outlook
+                </Button>
+              </div>
+              <div className="my-4 flex items-center gap-3 text-xs text-[var(--st-text-tertiary)]">
+                <span className="h-px flex-1 bg-[var(--st-border)]" />
+                or connect any mailbox via IMAP
+                <span className="h-px flex-1 bg-[var(--st-border)]" />
+              </div>
               <MailboxConnectForm
                 projectId={projectId}
                 onConnected={(acct) => {
